@@ -57,6 +57,13 @@ I will treat the repo itself as the deliverable and stop planning around it.
 2. **The `LICENSE` file says "Copyright (c) 2026 Logan Chu".** I inferred that from the
    git remote. Correct it if it should read something else.
 
+### Optional, very low priority
+
+GitHub Actions may be switched off for this repo. The CI workflow is committed and
+GitHub lists it as active, but the push produced no workflow runs at all. If you want
+CI actually running, it can be enabled under **Settings → Actions → General**. The test
+suite passes locally either way, so this changes nothing about the code.
+
 ### Nothing else is needed from you
 
 No domains, no hosting, no accounts, no spending. If you do nothing at all, tomorrow's

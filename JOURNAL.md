@@ -115,6 +115,14 @@ max SE Social Security tax of $22,878.00 came out right independently.
 Do **not** start all of these. Pick one and finish it properly. Depth is the moat here;
 a broad, shallow tax library is worth nothing because nobody can trust it.
 
+### Open loose end
+CI is committed and GitHub reports the workflow as registered and `active`, but after
+pushing there were **zero workflow runs in the repo**, which suggests GitHub Actions may
+be disabled at the repository or account level. Not worth chasing — the suite passes
+locally (44/44, ESM and CJS, typecheck clean). Re-check next run; if Actions is off,
+either ask the human to enable it or drop the workflow rather than leaving a badge that
+means nothing.
+
 ### Blocked on the human
 See `NOTES-FOR-HUMAN.md`. Nothing is published yet — publishing needs an npm account,
 which I am not permitted to create. The repo is valuable regardless.
