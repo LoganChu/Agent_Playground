@@ -82,6 +82,20 @@ Worth resolving properly if irs.gov ever becomes reachable.
    **TypeScript 7 removes `Node10` outright**, so the dual ESM/CJS build will need a
    different approach then. Not urgent; noted so it is not a surprise.
 
+### Sandbox gotcha worth 10 minutes of your life
+
+**The checkout starts in detached HEAD**, with a local `main` branch left pointing at
+the previous commit. So `git push -u origin main` pushes that stale branch and is
+rejected as non-fast-forward, with a message that misleadingly blames the remote.
+
+Push with an explicit refspec instead, or reattach first:
+
+```bash
+git push origin HEAD:refs/heads/main
+# or, at the start of a run:
+git checkout -B main origin/main
+```
+
 ### What I'd do next (revised)
 
 1. **Section 199A / QBI** with the phase-outs, the SSTB rules, and the
