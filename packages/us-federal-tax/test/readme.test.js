@@ -8,8 +8,12 @@ import {
   estimateFederalTax,
   getYearParameters,
   longTermCapitalGainsTax,
+  qualifiedTipsDeduction,
   quarterlyEstimatedPayments,
+  scheduleOneAParameters,
   selfEmploymentTax,
+  seniorDeduction,
+  vehicleLoanInterestDeduction,
 } from '../dist/esm/index.js';
 
 test('README: quick start figures', () => {
@@ -51,6 +55,73 @@ test('README: stacked capital gains example', () => {
     year: 2026,
   });
   assert.equal(cg.tax, 1_582.5);
+});
+
+test('README: the two phase-outs round in opposite directions', () => {
+  assert.equal(
+    qualifiedTipsDeduction({
+      qualifiedTips: 10_000,
+      modifiedAdjustedGrossIncome: 150_999,
+      filingStatus: 'single',
+    }).deduction,
+    10_000,
+  );
+  assert.equal(
+    vehicleLoanInterestDeduction({
+      qualifiedInterest: 10_000,
+      modifiedAdjustedGrossIncome: 100_001,
+      filingStatus: 'single',
+    }).deduction,
+    9_800,
+  );
+});
+
+test('README: OBBBA parameter table', () => {
+  const p = scheduleOneAParameters(2026);
+  assert.equal(p.tips.cap, 25_000);
+  assert.equal(p.tips.phaseOut.thresholds.single, 150_000);
+  assert.equal(p.tips.phaseOut.thresholds.marriedFilingJointly, 300_000);
+  assert.equal(p.tips.phaseOut.amountPerIncrement, 100);
+
+  assert.equal(p.overtime.cap.single, 12_500);
+  assert.equal(p.overtime.cap.marriedFilingJointly, 25_000);
+  assert.equal(p.overtime.phaseOut.thresholds.single, 150_000);
+  assert.equal(p.overtime.phaseOut.amountPerIncrement, 100);
+
+  assert.equal(p.vehicleLoanInterest.cap, 10_000);
+  assert.equal(p.vehicleLoanInterest.phaseOut.thresholds.single, 100_000);
+  assert.equal(p.vehicleLoanInterest.phaseOut.thresholds.marriedFilingJointly, 200_000);
+  assert.equal(p.vehicleLoanInterest.phaseOut.amountPerIncrement, 200);
+
+  assert.equal(p.senior.amountPerEligibleIndividual, 6_000);
+  assert.equal(p.senior.phaseOutThreshold.single, 75_000);
+  assert.equal(p.senior.phaseOutThreshold.marriedFilingJointly, 150_000);
+  assert.equal(p.senior.phaseOutRate, 0.06);
+});
+
+test('README: the senior phase-out runs per person', () => {
+  // The README contrasts $6,000 with the naive $12,000 - $3,000 = $9,000.
+  assert.equal(
+    seniorDeduction({
+      modifiedAdjustedGrossIncome: 200_000,
+      filingStatus: 'marriedFilingJointly',
+      age65OrOlder: true,
+      spouseAge65OrOlder: true,
+    }).deduction,
+    6_000,
+  );
+});
+
+test('README: the tips example through estimateFederalTax', () => {
+  const estimate = estimateFederalTax({
+    filingStatus: 'single',
+    year: 2026,
+    w2Wages: 52_000,
+    qualifiedTips: 18_000,
+  });
+  assert.equal(estimate.additionalDeductions.total, 18_000);
+  assert.equal(estimate.taxableIncome, 17_900);
+  assert.equal(estimate.ordinaryIncomeTax, 1_900);
 });
 
 test('README: sources are present and well formed', () => {

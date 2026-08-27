@@ -3,8 +3,9 @@
 A dependency-free US federal tax engine for JavaScript and TypeScript.
 
 Income tax brackets, self-employment tax, FICA, Additional Medicare Tax, long-term
-capital gains, net investment income tax, and quarterly estimated payments — with
-every published figure traceable to the IRS release it came from.
+capital gains, net investment income tax, the four OBBBA deductions on Schedule 1-A,
+and quarterly estimated payments — with every published figure traceable to the IRS
+release it came from.
 
 ```bash
 npm install us-federal-tax
@@ -81,6 +82,72 @@ threshold but a $250,000 NIIT threshold. All modeled.
 **Unknown years throw.** Asking for a year that has not been published raises
 `UnsupportedYearError` rather than silently computing with the wrong brackets.
 
+## The OBBBA deductions (Schedule 1-A)
+
+The One Big Beautiful Bill Act created four temporary deductions for 2025–2028:
+qualified tips (§ 224), qualified overtime compensation (§ 225), an enhanced
+deduction for seniors, and qualified passenger vehicle loan interest (§ 163(h)(4)).
+All four are available whether or not you itemize.
+
+They are also easy to get wrong, because **their phase-outs do not agree with each
+other**:
+
+| Deduction | Cap | Phase-out starts | Reduction | Partial `$1,000` |
+| --- | --- | --- | --- | --- |
+| Tips | `$25,000` per return | `$150,000` / `$300,000` | `$100` per `$1,000` | dropped |
+| Overtime | `$12,500` / `$25,000` joint | `$150,000` / `$300,000` | `$100` per `$1,000` | dropped |
+| Vehicle loan interest | `$10,000` | `$100,000` / `$200,000` | `$200` per `$1,000` | **rounded up** |
+| Senior | `$6,000` per eligible person | `$75,000` / `$150,000` | 6% of the excess | n/a |
+
+So a filer $999 over the tips threshold loses nothing, while a filer **one dollar**
+over the vehicle-interest threshold loses a full `$200`:
+
+```js
+qualifiedTipsDeduction({
+  qualifiedTips: 10_000,
+  modifiedAdjustedGrossIncome: 150_999,
+  filingStatus: 'single',
+}).deduction; // 10000 — $999 of excess is not a full increment
+
+vehicleLoanInterestDeduction({
+  qualifiedInterest: 10_000,
+  modifiedAdjustedGrossIncome: 100_001,
+  filingStatus: 'single',
+}).deduction; // 9800 — "$200 for each $1,000 or portion thereof"
+```
+
+Three more details worth knowing:
+
+- The **tips cap is not doubled** on a joint return; the overtime cap is.
+- The **senior phase-out runs per person**, so a joint return with two 65-year-olds
+  and `$200,000` of MAGI gets `$6,000`, not `$12,000 − $3,000 = $9,000`.
+- **Married filing separately gets none of the four.** § 224(f) and § 225(e) require
+  a joint return from a married filer, and the other two carry the same restriction.
+
+`estimateFederalTax` computes all of this for you and returns the breakdown:
+
+```js
+const estimate = estimateFederalTax({
+  filingStatus: 'single',
+  year: 2026,
+  w2Wages: 52_000,
+  qualifiedTips: 18_000, // already included in w2Wages; the deduction subtracts it back out
+});
+
+estimate.additionalDeductions.total; // 18000
+estimate.taxableIncome; // 17900
+estimate.ordinaryIncomeTax; // 1900
+```
+
+Note the inputs are the *qualified* amounts, which this library cannot verify for
+you: qualified overtime is the **FLSA premium portion only** (the extra half of
+"time and a half", not the whole overtime paycheck), and qualified tips exclude
+service charges, mandatory gratuities, and any specified service trade or business.
+
+Because these deductions sit below AGI on Form 1040 line 13b, they reduce taxable
+income without changing AGI — so they never move the NIIT threshold or feed back
+into their own phase-outs. That is modeled correctly.
+
 ## API
 
 | Function | Purpose |
@@ -94,6 +161,11 @@ threshold but a $250,000 NIIT threshold. All modeled.
 | `longTermCapitalGainsTax({ ordinaryTaxableIncome, longTermGains, ... })` | Correctly stacked |
 | `netInvestmentIncomeTax({ modifiedAdjustedGrossIncome, netInvestmentIncome, ... })` | Form 8960, 3.8% |
 | `standardDeduction({ filingStatus, age65OrOlder, blind, ... })` | Including age and blindness additions |
+| `additionalDeductions(input)` | All of Schedule 1-A, with a breakdown per part |
+| `qualifiedTipsDeduction({ qualifiedTips, modifiedAdjustedGrossIncome, ... })` | § 224 |
+| `qualifiedOvertimeDeduction({ qualifiedOvertimeCompensation, ... })` | § 225, FLSA premium only |
+| `seniorDeduction({ modifiedAdjustedGrossIncome, age65OrOlder, ... })` | Per eligible individual |
+| `vehicleLoanInterestDeduction({ qualifiedInterest, ... })` | § 163(h)(4) |
 | `getYearParameters(year)` | Raw parameters and their citations |
 
 Filing statuses are `'single'`, `'marriedFilingJointly'`, `'marriedFilingSeparately'`,
@@ -107,7 +179,12 @@ Stated plainly, because a tax library that hides its gaps is worse than useless:
 - **No Section 199A computation.** You can pass `qualifiedBusinessIncomeDeduction`,
   but the phase-outs and specified-service-trade rules are not implemented.
 - **No AMT**, no state or local tax, no payroll withholding tables (Publication 15-T).
-- **No OBBBA temporary deductions** (tips, overtime, senior, car loan interest) yet.
+- **No eligibility checking for the OBBBA deductions.** The arithmetic is complete,
+  but you must supply amounts that already qualify — this library cannot tell whether
+  an occupation is on the Treasury tip list, whether overtime is FLSA-required, or
+  whether a vehicle's final assembly was in the United States.
+- **No SALT cap** and no itemized-deduction limitation, so `itemizedDeductions` is
+  taken at face value.
 - **2026 only.** Earlier years are not yet included.
 
 ## Accuracy and provenance

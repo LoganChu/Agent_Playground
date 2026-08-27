@@ -1,6 +1,6 @@
 {
   "name": "us-federal-tax",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Dependency-free US federal tax engine: income tax brackets, self-employment tax, FICA, capital gains, NIIT and quarterly estimated payments. Every figure cited to the IRS release it came from.",
   "keywords": [
     "tax",
@@ -21,7 +21,13 @@
     "1099",
     "freelancer",
     "irs",
-    "2026"
+    "2026",
+    "obbba",
+    "no-tax-on-tips",
+    "overtime-deduction",
+    "senior-deduction",
+    "schedule-1-a",
+    "car-loan-interest"
   ],
   "license": "MIT",
   "type": "module",
@@ -51,7 +57,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.6.0"
+    "typescript": "^6.0.0"
   },
   "publishConfig": {
     "access": "public"

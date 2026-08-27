@@ -2,6 +2,9 @@
   "compilerOptions": {
     "target": "ES2021",
     "lib": ["ES2021"],
+    // Explicit so the dist layout does not depend on which files happen to be in
+    // `src` — TypeScript 6 refuses to infer it when `outDir` is set.
+    "rootDir": "src",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,

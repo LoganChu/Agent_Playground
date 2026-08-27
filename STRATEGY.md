@@ -3,7 +3,10 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-08-26 (Day 1).
+Last reviewed: 2026-08-27 (Day 2). No change of direction — the bet held up, and
+Day 2 produced the first evidence that "win on depth" is actually achievable: the
+OBBBA phase-out rounding rules are computed correctly here and incorrectly in
+PolicyEngine-US, the most serious open US tax model in any language.
 
 ## The actual constraints
 
@@ -91,7 +94,9 @@ than excellent first.
 Abandon or pivot this bet if any of these become true:
 
 - A well-funded, well-tested open-source US tax engine appears on npm and is actively
-  maintained. (Check npm search each week. Do not confuse a v0.0.x with a competitor.)
+  maintained. (Check npm search each week. Do not confuse a v0.0.x with a competitor.
+  Last checked: Day 1. PolicyEngine-US is a *Python* model, not an npm competitor,
+  and it is also not infallible — see Day 2.)
 - Six months of work produces a package that still cannot compute a realistic return
   end-to-end — meaning the domain is deeper than one agent-day per day can cover.
 - The human explicitly wants a different direction. Their call beats this document.

@@ -9,6 +9,39 @@ Newest first.
 
 ---
 
+## 2026-08-27 (Day 2)
+
+### Nothing new is needed from you
+
+The only open question is still the one below — whether to publish to npm, and under
+what name. Today's work made the answer more attractive, not more urgent.
+
+### What changed
+
+`packages/us-federal-tax` is now **v0.2.0**, with the four One Big Beautiful Bill Act
+deductions — tips, overtime, the senior deduction, and car loan interest — fully
+implemented and tested. 77 tests, all passing. CI is green.
+
+Why that matters commercially: those four deductions are new for 2025–2028, they
+change real tax bills materially, and their phase-out rules quietly contradict each
+other in ways most implementations get wrong. I found that even PolicyEngine-US — the
+most serious open-source US tax model in any language — computes the tips and
+overtime phase-outs as a flat percentage when the IRS worksheet says to drop partial
+$1,000 increments. This package now gets that right, which is a concrete, checkable
+reason for someone to depend on it.
+
+I also corrected a Day 1 mistake: **GitHub Actions is not disabled.** It works, both
+runs passed, and you can ignore what yesterday's note said about it.
+
+### One thing you might want to know about
+
+`packages/us-federal-tax` now builds against TypeScript 6. TypeScript 7 will remove
+the module-resolution mode the CommonJS half of the build relies on, so that build
+step will need reworking eventually. It is written down in the journal; nothing is
+broken today.
+
+---
+
 ## 2026-08-26 (Day 1)
 
 ### What exists now
@@ -35,7 +68,7 @@ If you want it published, the steps are:
 npm login
 
 cd packages/us-federal-tax
-npm test          # 44 tests; confirm green before publishing
+npm test          # 77 tests as of Day 2; confirm green before publishing
 npm publish       # already set to public access
 ```
 
@@ -56,13 +89,6 @@ I will treat the repo itself as the deliverable and stop planning around it.
 
 2. **The `LICENSE` file says "Copyright (c) 2026 Logan Chu".** I inferred that from the
    git remote. Correct it if it should read something else.
-
-### Optional, very low priority
-
-GitHub Actions may be switched off for this repo. The CI workflow is committed and
-GitHub lists it as active, but the push produced no workflow runs at all. If you want
-CI actually running, it can be enabled under **Settings → Actions → General**. The test
-suite passes locally either way, so this changes nothing about the code.
 
 ### Nothing else is needed from you
 

@@ -1,4 +1,5 @@
 import { getYearParameters, nonNegative, roundCents, standardDeduction } from './core.js';
+import { additionalDeductions } from './obbba.js';
 import {
   additionalMedicareTax,
   federalIncomeTax,
@@ -6,7 +7,11 @@ import {
   netInvestmentIncomeTax,
   selfEmploymentTax,
 } from './taxes.js';
-import type { FilingStatus, SelfEmploymentTaxResult } from './types.js';
+import type {
+  AdditionalDeductionsResult,
+  FilingStatus,
+  SelfEmploymentTaxResult,
+} from './types.js';
 
 export interface EstimateInput {
   filingStatus: FilingStatus;
@@ -30,6 +35,25 @@ export interface EstimateInput {
    * facts this function does not take. Supply it if you have it.
    */
   qualifiedBusinessIncomeDeduction?: number;
+  /**
+   * Qualified tips under § 224, already filtered to tips that actually qualify
+   * (cash tips, listed occupation, not a specified service trade or business).
+   * These are also part of `w2Wages` or `selfEmploymentNetProfit` — the
+   * deduction subtracts them back out, it does not exclude them from income.
+   */
+  qualifiedTips?: number;
+  /** Net income from the trade or business in which self-employed tips were earned. */
+  qualifiedTipsBusinessIncomeLimit?: number;
+  /**
+   * The FLSA **premium portion** of overtime pay under § 225 — the excess over
+   * the regular rate, not total overtime wages. Like tips, this is money that is
+   * also counted in `w2Wages`.
+   */
+  qualifiedOvertimeCompensation?: number;
+  /** Interest on a qualifying post-2024 loan for a new US-assembled vehicle. */
+  qualifiedVehicleLoanInterest?: number;
+  /** Income excluded under § 911, § 931, or § 933, added back for MAGI. */
+  foreignEarnedIncomeExclusion?: number;
   age65OrOlder?: boolean;
   blind?: boolean;
   spouseAge65OrOlder?: boolean;
@@ -50,6 +74,8 @@ export interface EstimateResult {
   deduction: number;
   deductionKind: 'standard' | 'itemized';
   qualifiedBusinessIncomeDeduction: number;
+  /** Schedule 1-A: the four OBBBA deductions, with a breakdown per part. */
+  additionalDeductions: AdditionalDeductionsResult;
   taxableIncome: number;
   /** Taxable income taxed at ordinary rates (deductions reduce ordinary income first). */
   ordinaryTaxableIncome: number;
@@ -77,6 +103,11 @@ export interface EstimateResult {
  * This is deliberately a pure function over explicit inputs. It models the common
  * case well; it does not attempt credits (child tax credit, EITC), AMT, state tax,
  * or the Section 199A phase-outs. Those are documented gaps, not silent ones.
+ *
+ * The four OBBBA deductions on Schedule 1-A *are* computed, from the inputs
+ * `qualifiedTips`, `qualifiedOvertimeCompensation`, `qualifiedVehicleLoanInterest`
+ * and the age flags. Note that the senior deduction applies automatically to a
+ * filer who is 65 or older, since it depends on nothing beyond age and MAGI.
  */
 export function estimateFederalTax(input: EstimateInput): EstimateResult {
   const params = getYearParameters(input.year);
@@ -109,7 +140,22 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
   const useItemized = itemized > standard;
   const deduction = useItemized ? itemized : standard;
 
-  const taxableIncome = Math.max(0, adjustedGrossIncome - deduction - qbi);
+  // Schedule 1-A sits below AGI, so it is computed from the AGI above and does
+  // not feed back into its own phase-outs or into the NIIT threshold.
+  const schedule1A = additionalDeductions({
+    filingStatus,
+    year,
+    adjustedGrossIncome,
+    foreignEarnedIncomeExclusion: input.foreignEarnedIncomeExclusion,
+    qualifiedTips: input.qualifiedTips,
+    qualifiedTipsBusinessIncomeLimit: input.qualifiedTipsBusinessIncomeLimit,
+    qualifiedOvertimeCompensation: input.qualifiedOvertimeCompensation,
+    qualifiedVehicleLoanInterest: input.qualifiedVehicleLoanInterest,
+    age65OrOlder: input.age65OrOlder,
+    spouseAge65OrOlder: input.spouseAge65OrOlder,
+  });
+
+  const taxableIncome = Math.max(0, adjustedGrossIncome - deduction - qbi - schedule1A.total);
 
   // Deductions are applied against ordinary income first, so any surviving taxable
   // income is capital gain only after ordinary income has been exhausted.
@@ -153,6 +199,7 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     deduction,
     deductionKind: useItemized ? 'itemized' : 'standard',
     qualifiedBusinessIncomeDeduction: qbi,
+    additionalDeductions: schedule1A,
     taxableIncome: roundCents(taxableIncome),
     ordinaryTaxableIncome: roundCents(ordinaryTaxableIncome),
     capitalGainsTaxableIncome: roundCents(capitalGainsTaxableIncome),

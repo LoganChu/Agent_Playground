@@ -29,6 +29,16 @@ export {
   selfEmploymentTax,
 } from './taxes.js';
 
+export {
+  additionalDeductions,
+  qualifiedOvertimeDeduction,
+  qualifiedTipsDeduction,
+  scheduleOneAParameters,
+  seniorDeduction,
+  vehicleLoanInterestDeduction,
+} from './obbba.js';
+export type { AdditionalDeductionsInput } from './obbba.js';
+
 export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
 export type { EstimateInput, EstimateResult, QuarterlyPlan } from './estimate.js';
 
@@ -36,6 +46,8 @@ export { YEAR_2026 } from './data/2026.js';
 
 export { FILING_STATUSES } from './types.js';
 export type {
+  AdditionalDeductionPart,
+  AdditionalDeductionsResult,
   Bracket,
   BracketDetail,
   CapitalGainsResult,
@@ -44,6 +56,8 @@ export type {
   FicaSide,
   FilingStatus,
   IncomeTaxResult,
+  ScheduleOneAParameters,
   SelfEmploymentTaxResult,
+  SteppedPhaseOut,
   YearParameters,
 } from './types.js';

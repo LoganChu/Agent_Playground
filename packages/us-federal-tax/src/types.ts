@@ -99,6 +99,78 @@ export interface Citation {
   readonly url: string;
 }
 
+/**
+ * A phase-out expressed in whole increments of income above a threshold.
+ *
+ * The OBBBA deductions all phase out this way, but they do *not* round the same
+ * direction, and the direction is worth real money at the margin:
+ *
+ * - §224 (tips) and §225 (overtime) reduce by `$100` for each **full** `$1,000`
+ *   of excess, so partial increments are dropped (`rounding: 'down'`).
+ * - §163(h)(4) (vehicle loan interest) reduces by `$200` for each `$1,000`
+ *   **"or portion thereof"**, so a single excess dollar costs a full `$200`
+ *   (`rounding: 'up'`).
+ */
+export interface SteppedPhaseOut {
+  /** Reduction applied per counted increment. */
+  readonly amountPerIncrement: number;
+  /** Size of one increment of excess income. */
+  readonly increment: number;
+  /** How a partial increment is counted. */
+  readonly rounding: 'down' | 'up';
+  /** MAGI above which the phase-out begins, by filing status. */
+  readonly thresholds: Readonly<Record<FilingStatus, number>>;
+}
+
+/**
+ * The four temporary deductions created by the One Big Beautiful Bill Act
+ * (Pub. L. 119-21) and reported on Schedule 1-A (Form 1040).
+ *
+ * All four are available whether or not the filer itemizes, but none of them is
+ * an *adjustment to income* — they are claimed below AGI, on Form 1040 line 13b.
+ * That distinction matters: they do not reduce the AGI or the MAGI that drives
+ * their own phase-outs, the NIIT threshold, or anything else keyed to AGI.
+ *
+ * Every one of them is scheduled to expire after tax year 2028.
+ */
+export interface ScheduleOneAParameters {
+  /** Last tax year in which these deductions are available. */
+  readonly finalYear: number;
+  readonly tips: {
+    /** Cap per *return* — it is not doubled on a joint return. */
+    readonly cap: number;
+    readonly phaseOut: SteppedPhaseOut;
+  };
+  readonly overtime: {
+    /** Cap per return, doubled only for married filing jointly. */
+    readonly cap: Readonly<Record<FilingStatus, number>>;
+    readonly phaseOut: SteppedPhaseOut;
+  };
+  readonly senior: {
+    /** Amount per eligible individual — the filer, plus the spouse on a joint return. */
+    readonly amountPerEligibleIndividual: number;
+    readonly ageThreshold: number;
+    /**
+     * Fraction of the MAGI excess by which each individual's amount is reduced.
+     * Unlike the other three, this is a continuous rate with no rounding.
+     */
+    readonly phaseOutRate: number;
+    readonly phaseOutThreshold: Readonly<Record<FilingStatus, number>>;
+  };
+  readonly vehicleLoanInterest: {
+    readonly cap: number;
+    readonly phaseOut: SteppedPhaseOut;
+  };
+  /**
+   * Filing statuses barred from every one of these deductions.
+   *
+   * §224(f) and §225(e) each say the section applies to a married individual only
+   * if a joint return is filed; the senior deduction and the vehicle loan interest
+   * deduction carry the same restriction per IRS guidance.
+   */
+  readonly ineligibleFilingStatuses: readonly FilingStatus[];
+}
+
 export interface YearParameters {
   readonly year: number;
   readonly ordinaryBrackets: Readonly<Record<FilingStatus, readonly Bracket[]>>;
@@ -125,5 +197,33 @@ export interface YearParameters {
     readonly rate: number;
     readonly thresholds: Readonly<Record<FilingStatus, number>>;
   };
+  /** OBBBA temporary deductions, or `null` in a year where none are in effect. */
+  readonly scheduleOneA: ScheduleOneAParameters | null;
   readonly sources: readonly Citation[];
+}
+
+/** One part of Schedule 1-A, with enough detail to explain the number. */
+export interface AdditionalDeductionPart {
+  /** Deduction actually allowed, after the cap and the phase-out. */
+  readonly deduction: number;
+  /** The claimed amount after any statutory cap but before the phase-out. */
+  readonly cappedAmount: number;
+  /** Amount by which the phase-out reduced `cappedAmount`. */
+  readonly phaseOutReduction: number;
+  /** MAGI in excess of this part's phase-out threshold. */
+  readonly excessIncome: number;
+  /** True when the filer is barred outright (filing status, age, or year). */
+  readonly ineligible: boolean;
+}
+
+/** Schedule 1-A (Form 1040) in full. */
+export interface AdditionalDeductionsResult {
+  readonly year: number;
+  readonly modifiedAdjustedGrossIncome: number;
+  readonly tips: AdditionalDeductionPart;
+  readonly overtime: AdditionalDeductionPart;
+  readonly senior: AdditionalDeductionPart;
+  readonly vehicleLoanInterest: AdditionalDeductionPart;
+  /** Form 1040 line 13b. */
+  readonly total: number;
 }

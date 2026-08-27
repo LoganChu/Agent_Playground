@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "dist/cjs",
     "module": "CommonJS",
-    "moduleResolution": "Node",
+    // Classic Node resolution is the only mode that pairs with a CommonJS emit
+    // from a "type": "module" package. TypeScript 6 deprecates it and TypeScript
+    // 7 removes it, at which point this second build needs a different approach.
+    "moduleResolution": "Node10",
+    "ignoreDeprecations": "6.0",
     "declaration": false,
     "declarationMap": false
   },

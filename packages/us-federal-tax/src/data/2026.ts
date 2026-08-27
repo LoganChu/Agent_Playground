@@ -148,6 +148,98 @@ export const YEAR_2026: YearParameters = {
     },
   },
 
+  // OBBBA (Pub. L. 119-21) temporary deductions, reported on Schedule 1-A.
+  //
+  // None of these amounts is inflation-adjusted: the statutes carry no indexing
+  // provision and Rev. Proc. 2025-32 makes no adjustment to them, so the 2026
+  // figures are identical to the 2025 ones.
+  scheduleOneA: {
+    finalYear: 2028,
+
+    // §224. Cap is per return and is *not* doubled on a joint return.
+    tips: {
+      cap: 25_000,
+      phaseOut: {
+        amountPerIncrement: 100,
+        increment: 1_000,
+        // "$100 for each $1,000" — Schedule 1-A directs the filer to decrease a
+        // fractional result to the next lower whole number.
+        rounding: 'down',
+        thresholds: {
+          single: 150_000,
+          marriedFilingJointly: 300_000,
+          marriedFilingSeparately: 150_000,
+          headOfHousehold: 150_000,
+          qualifyingSurvivingSpouse: 150_000,
+        },
+      },
+    },
+
+    // §225. Here the cap *is* doubled on a joint return, unlike tips.
+    overtime: {
+      cap: {
+        single: 12_500,
+        marriedFilingJointly: 25_000,
+        marriedFilingSeparately: 12_500,
+        headOfHousehold: 12_500,
+        qualifyingSurvivingSpouse: 12_500,
+      },
+      phaseOut: {
+        amountPerIncrement: 100,
+        increment: 1_000,
+        rounding: 'down',
+        thresholds: {
+          single: 150_000,
+          marriedFilingJointly: 300_000,
+          marriedFilingSeparately: 150_000,
+          headOfHousehold: 150_000,
+          qualifyingSurvivingSpouse: 150_000,
+        },
+      },
+    },
+
+    // OBBBA § 70103, amending 26 U.S.C. § 151. This is *on top of* the existing
+    // additional standard deduction for age, which is unchanged.
+    senior: {
+      amountPerEligibleIndividual: 6_000,
+      ageThreshold: 65,
+      // A flat 6% of the MAGI excess, with no rounding — so it is fully gone at
+      // $175,000 (single) or $250,000 (joint).
+      phaseOutRate: 0.06,
+      phaseOutThreshold: {
+        single: 75_000,
+        marriedFilingJointly: 150_000,
+        marriedFilingSeparately: 75_000,
+        headOfHousehold: 75_000,
+        qualifyingSurvivingSpouse: 75_000,
+      },
+    },
+
+    // §163(h)(4). Note the phase-out rounds the *other* way from tips/overtime.
+    vehicleLoanInterest: {
+      cap: 10_000,
+      phaseOut: {
+        amountPerIncrement: 200,
+        increment: 1_000,
+        // "$200 for each $1,000 (or portion thereof)" — one dollar of excess
+        // costs a full $200.
+        rounding: 'up',
+        thresholds: {
+          single: 100_000,
+          marriedFilingJointly: 200_000,
+          marriedFilingSeparately: 100_000,
+          headOfHousehold: 100_000,
+          qualifyingSurvivingSpouse: 100_000,
+        },
+      },
+    },
+
+    // The thresholds above are still listed for marriedFilingSeparately because
+    // they are what the statute says; this is the rule that actually zeroes the
+    // deduction out for that status.
+    ineligibleFilingStatuses: ['marriedFilingSeparately'],
+  },
+
   sources: [
     {
       title: 'IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026',
@@ -168,6 +260,26 @@ export const YEAR_2026: YearParameters = {
     {
       title: '26 U.S.C. § 1411 — net investment income tax',
       url: 'https://www.law.cornell.edu/uscode/text/26/1411',
+    },
+    {
+      title: '26 U.S.C. § 224 — qualified tips deduction',
+      url: 'https://www.law.cornell.edu/uscode/text/26/224',
+    },
+    {
+      title: '26 U.S.C. § 225 — qualified overtime compensation deduction',
+      url: 'https://www.law.cornell.edu/uscode/text/26/225',
+    },
+    {
+      title: '26 U.S.C. § 163(h)(4) — qualified passenger vehicle loan interest',
+      url: 'https://www.law.cornell.edu/uscode/text/26/163',
+    },
+    {
+      title: 'IRS Schedule 1-A (Form 1040) — Additional Deductions',
+      url: 'https://www.irs.gov/pub/irs-pdf/f1040s1a.pdf',
+    },
+    {
+      title: 'IRS — Schedule 1-A, Additional Deductions: what to know about the new form',
+      url: 'https://www.irs.gov/newsroom/schedule-1-a-additional-deductions-what-to-know-about-the-new-form',
     },
   ],
 };
