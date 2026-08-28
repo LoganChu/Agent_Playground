@@ -1,7 +1,7 @@
 {
   "name": "us-federal-tax",
-  "version": "0.3.0",
-  "description": "Dependency-free US federal tax engine: income tax brackets, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction and quarterly estimated payments. Every figure cited to the IRS release it came from.",
+  "version": "0.4.0",
+  "description": "Dependency-free US federal tax engine: income tax brackets, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap and quarterly estimated payments. Every figure cited to the IRS release it came from.",
   "keywords": [
     "tax",
     "taxes",
@@ -34,7 +34,11 @@
     "pass-through",
     "sstb",
     "form-8995",
-    "small-business"
+    "small-business",
+    "salt",
+    "salt-cap",
+    "itemized-deductions",
+    "state-and-local-tax"
   ],
   "license": "MIT",
   "type": "module",

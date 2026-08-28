@@ -42,6 +42,9 @@ export type { AdditionalDeductionsInput } from './obbba.js';
 export { qbiDeduction, section199AParameters } from './qbi.js';
 export type { QbiDeductionInput } from './qbi.js';
 
+export { saltCapParameters, stateAndLocalTaxDeduction } from './salt.js';
+export type { SaltDeductionInput } from './salt.js';
+
 export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
 export type { EstimateInput, EstimateResult, QuarterlyPlan } from './estimate.js';
 
@@ -62,6 +65,8 @@ export type {
   QbiBusinessDetail,
   QbiDeductionResult,
   QualifiedBusiness,
+  SaltCapParameters,
+  SaltDeductionResult,
   ScheduleOneAParameters,
   Section199AParameters,
   SelfEmploymentTaxResult,

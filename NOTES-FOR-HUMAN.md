@@ -17,33 +17,55 @@ Still the one open question below: whether to publish to npm, and under what nam
 
 ### What changed
 
-`packages/us-federal-tax` is now **v0.3.0**, with **Section 199A** — the qualified
-business income deduction — implemented in full: the specified-service-business
-phase-out, the W-2 wage and property cap, loss netting across businesses, the
-taxable income limit, and the new $400 minimum deduction. 117 tests, all passing.
+`packages/us-federal-tax` is now **v0.4.0**, with **138 tests**, all passing, and
+two new subsystems:
 
-Why it matters commercially: 199A is the number self-employed filers and every
-pass-through owner actually want, and 2026 is the first year under two OBBBA
-changes that older code gets silently wrong — the phase-in range widened by 50%,
-and a new minimum deduction did not exist before. A library that is right about
-this year's rules is worth depending on in a way that a library repeating last
-year's is not.
+**Section 199A**, the qualified business income deduction, in full: the
+specified-service-business phase-out, the W-2 wage and property cap, loss netting
+across businesses, the taxable income limit, and the new $400 minimum deduction.
 
-I also found a small correctness edge over PolicyEngine-US again (loss
-carryforwards, and how the new $400 floor interacts with service businesses),
-which is written up in the journal.
+**The SALT cap** ($40,400 for 2026) and its phase-down above $505,000 of income.
+
+Why they matter commercially: 199A is the number every pass-through owner actually
+wants, and both provisions changed for 2026 in ways that code written last year
+gets silently wrong — the 199A phase-in range widened by 50%, a $400 minimum
+deduction did not exist before, and the SALT phase-down is brand new. A library
+that is right about *this* year is worth depending on in a way that one repeating
+last year's rules is not.
+
+I also found small correctness edges over PolicyEngine-US again, written up in the
+journal.
+
+### One thing worth knowing, because it is a real limitation
+
+There is a new overall limitation on itemized deductions for 2026 (OBBBA § 70111)
+that I did **not** implement. Its formula depends on taxable income, which depends
+on the 199A deduction, which depends on itemized deductions — a genuine circle
+that the statute does not resolve, and the IRS worksheet that does resolve it is
+on irs.gov, which this sandbox cannot reach.
+
+I chose to document the gap loudly rather than guess at an ordering, because a
+silent wrong answer is the one thing a tax library must never produce. The effect
+is bounded and stated in the README: for someone with income above $640,600
+($768,700 filing jointly) who itemizes, the deduction is overstated by at most
+5.4%. Everyone below that is unaffected.
+
+**If you can get me a copy of the 2026 Form 8995-A or Schedule A instructions**
+(a PDF committed anywhere in this repo would do), I can close this. It is the
+highest-value thing currently blocked on the outside world.
 
 ### My publishing recommendation has changed
 
 On Day 1 I suggested waiting until the OBBBA deductions and 199A were both done
-before a first release. **They are both done now.** The package covers ordinary
-income tax, self-employment tax, FICA, capital gains, NIIT, Schedule 1-A and
-Section 199A, with 117 hand-computed tests and cited sources for every figure.
+before a first release. **They are both done now**, and so is the SALT cap. The
+package covers ordinary income tax, self-employment tax, FICA, capital gains,
+NIIT, the SALT cap, Schedule 1-A and Section 199A, with 138 hand-computed tests
+and cited sources for every figure.
 
 If you want to publish, this is a reasonable first release. If you would rather
-wait, nothing breaks — I will keep deepening it either way, and my next target
-is the SALT cap, which is currently the one place the library can be quietly
-wrong for a high earner who itemizes.
+wait, nothing breaks — I will keep deepening it either way. Next up is prior tax
+years (2025 and 2024), which makes everything already built more useful without
+adding new risk.
 
 ---
 

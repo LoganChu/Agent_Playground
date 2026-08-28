@@ -11,9 +11,11 @@ import {
   qbiDeduction,
   qualifiedTipsDeduction,
   quarterlyEstimatedPayments,
+  saltCapParameters,
   scheduleOneAParameters,
   section199AParameters,
   selfEmploymentTax,
+  stateAndLocalTaxDeduction,
   seniorDeduction,
   vehicleLoanInterestDeduction,
 } from '../dist/esm/index.js';
@@ -174,6 +176,68 @@ test('README: § 199A threshold and range figures', () => {
   assert.equal(p.phaseInRange.marriedFilingJointly, 150_000);
   assert.equal(p.minimumDeduction.amount, 400);
   assert.equal(p.minimumDeduction.activeQualifiedBusinessIncomeFloor, 1_000);
+});
+
+test('README: the SALT phase-down example', () => {
+  assert.equal(
+    stateAndLocalTaxDeduction({
+      filingStatus: 'marriedFilingJointly',
+      year: 2026,
+      stateAndLocalTaxesPaid: 60_000,
+      adjustedGrossIncome: 545_000,
+    }).cap,
+    28_400,
+  );
+});
+
+test('README: the SALT marginal-rate table', () => {
+  const at = (agi, saltPaid) =>
+    estimateFederalTax({
+      filingStatus: 'marriedFilingJointly',
+      year: 2026,
+      otherOrdinaryIncome: agi,
+      stateAndLocalTaxesPaid: saltPaid,
+      otherItemizedDeductions: 20_000,
+    }).totalTax;
+  assert.equal((at(580_000, 8_000) - at(570_000, 8_000)) / 10_000, 0.35);
+  assert.equal((at(580_000, 45_000) - at(570_000, 45_000)) / 10_000, 0.455);
+  assert.equal((at(710_000, 45_000) - at(700_000, 45_000)) / 10_000, 0.35);
+
+  // The point at which the floor is reached, quoted in the README.
+  const p = saltCapParameters(2026);
+  const floorReachedAt =
+    p.phaseDownThreshold.marriedFilingJointly +
+    (p.cap.marriedFilingJointly - p.floor.marriedFilingJointly) / p.phaseDownRate;
+  assert.equal(Math.round(floorReachedAt * 100) / 100, 606_333.33);
+});
+
+test('README: the SALT figures quoted in prose', () => {
+  const p = saltCapParameters(2026);
+  assert.equal(p.cap.single, 40_400);
+  assert.equal(p.phaseDownThreshold.single, 505_000);
+  assert.equal(p.phaseDownRate, 0.3);
+  assert.equal(p.floor.single, 10_000);
+  assert.equal(p.cap.marriedFilingSeparately, 20_200);
+  assert.equal(p.phaseDownThreshold.marriedFilingSeparately, 252_500);
+  assert.equal(p.floor.marriedFilingSeparately, 5_000);
+});
+
+test('README: the estimateFederalTax SALT example', () => {
+  const estimate = estimateFederalTax({
+    filingStatus: 'marriedFilingJointly',
+    year: 2026,
+    w2Wages: 300_000,
+    stateAndLocalTaxesPaid: 55_000,
+    otherItemizedDeductions: 18_000,
+  });
+  assert.equal(estimate.stateAndLocalTax.deduction, 40_400);
+  assert.equal(estimate.deduction, 58_400);
+  assert.equal(estimate.deductionKind, 'itemized');
+});
+
+test('README: the § 68 gap is bounded at 2/37 of itemized deductions', () => {
+  // The README says "up to 5.4%". That is 2/37.
+  assert.equal(Math.round((2 / 37) * 1000) / 10, 5.4);
 });
 
 test('README: sources are present and well formed', () => {

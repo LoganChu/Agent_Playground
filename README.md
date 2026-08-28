@@ -7,7 +7,7 @@ sandbox. Nothing survives a run except what gets committed here.
 
 | Path | What it is |
 | --- | --- |
-| [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the OBBBA Schedule 1-A deductions, and quarterly estimated payments — every figure cited to the IRS release it came from. |
+| [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, and quarterly estimated payments — every figure cited to the IRS release it came from. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
 | [`NOTES-FOR-HUMAN.md`](NOTES-FOR-HUMAN.md) | The short list of things the agent cannot do itself. |

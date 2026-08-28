@@ -4,8 +4,9 @@ A dependency-free US federal tax engine for JavaScript and TypeScript.
 
 Income tax brackets, self-employment tax, FICA, Additional Medicare Tax, long-term
 capital gains, net investment income tax, the Section 199A qualified business income
-deduction, the four OBBBA deductions on Schedule 1-A, and quarterly estimated
-payments — with every published figure traceable to the IRS release it came from.
+deduction, the SALT cap and its phase-down, the four OBBBA deductions on Schedule
+1-A, and quarterly estimated payments — with every published figure traceable to the
+IRS release it came from.
 
 ```bash
 npm install us-federal-tax
@@ -148,6 +149,60 @@ Because these deductions sit below AGI on Form 1040 line 13b, they reduce taxabl
 income without changing AGI — so they never move the NIIT threshold or feed back
 into their own phase-outs. That is modeled correctly.
 
+## The SALT cap and its phase-down
+
+OBBBA § 70120 raised the § 164(b)(6) cap on state and local taxes from `$10,000`
+to `$40,400` for 2026 — and attached a phase-down the old cap never had. Above
+`$505,000` of modified AGI the cap falls by **30 cents per dollar**, stopping at a
+`$10,000` floor.
+
+```js
+import { stateAndLocalTaxDeduction } from 'us-federal-tax';
+
+stateAndLocalTaxDeduction({
+  filingStatus: 'marriedFilingJointly',
+  year: 2026,
+  stateAndLocalTaxesPaid: 60_000,
+  adjustedGrossIncome: 545_000,
+}).cap; // 28400 — 40,400 less 30% of the 40,000 excess
+```
+
+**That phase-down makes the marginal rate non-monotonic**, which is the reason to
+compute it rather than assume a flat cap. Inside the band, a dollar of income is
+taxed *and* destroys 30 cents of deduction:
+
+| Where | Ordinary bracket | Actual marginal rate |
+| --- | --- | --- |
+| Below `$505,000` | 35% | 35% |
+| Inside the band | 35% | **45.5%** |
+| Above `$606,333` | 35% | 35% |
+
+The rate goes up and then back down. `test/salt.test.js` pins all three figures.
+
+A separate return halves everything together — cap `$20,200`, threshold
+`$252,500`, floor `$5,000` — and the phase-down runs on **modified** AGI, meaning
+AGI increased by income excluded under § 911, § 931 or § 933.
+
+`estimateFederalTax` applies the cap when you give it the components rather than a
+finished total, and reports the working either way:
+
+```js
+const estimate = estimateFederalTax({
+  filingStatus: 'marriedFilingJointly',
+  year: 2026,
+  w2Wages: 300_000,
+  stateAndLocalTaxesPaid: 55_000,
+  otherItemizedDeductions: 18_000,
+});
+
+estimate.stateAndLocalTax.deduction; // 40400 — capped, not 55,000
+estimate.deduction; // 58400
+estimate.deductionKind; // 'itemized'
+```
+
+`stateAndLocalTax` is reported even when the standard deduction wins, so you can
+see how near the decision was.
+
 ## Section 199A (the QBI deduction)
 
 Twenty percent of qualified business income — and then three limitations that
@@ -241,6 +296,8 @@ you have made that election).
 | `standardDeduction({ filingStatus, age65OrOlder, blind, ... })` | Including age and blindness additions |
 | `qbiDeduction(input)` | § 199A in full: SSTB phase-out, wage/UBIA cap, taxable income limit, § 199A(i) floor |
 | `section199AParameters(year)` | Thresholds, phase-in ranges and rates for a year |
+| `stateAndLocalTaxDeduction({ stateAndLocalTaxesPaid, adjustedGrossIncome, ... })` | § 164(b)(6) cap with its phase-down |
+| `saltCapParameters(year)` | Cap, threshold, rate and floor for a year |
 | `additionalDeductions(input)` | All of Schedule 1-A, with a breakdown per part |
 | `qualifiedTipsDeduction({ qualifiedTips, modifiedAdjustedGrossIncome, ... })` | § 224 |
 | `qualifiedOvertimeDeduction({ qualifiedOvertimeCompensation, ... })` | § 225, FLSA premium only |
@@ -265,8 +322,20 @@ Stated plainly, because a tax library that hides its gaps is worse than useless:
   but you must supply amounts that already qualify — this library cannot tell whether
   an occupation is on the Treasury tip list, whether overtime is FLSA-required, or
   whether a vehicle's final assembly was in the United States.
-- **No SALT cap** and no itemized-deduction limitation, so `itemizedDeductions` is
-  taken at face value.
+- **No § 68 overall limitation on itemized deductions.** OBBBA § 70111 replaced the
+  old Pease limitation with a new one effective in 2026: itemized deductions are
+  cut by 2/37 of the lesser of total itemized deductions or the taxable income
+  above the 37% bracket threshold. It is not implemented because its second prong
+  is defined in terms of taxable income, which depends on the § 199A deduction,
+  which in turn depends on itemized deductions — a circularity the statute does
+  not resolve on its own, and the IRS worksheet that does resolve it is not
+  something this library's author could reach. **If your income is above `$640,600`
+  (`$768,700` filing jointly) and you itemize, this library overstates your
+  deduction by up to 5.4% of it.** Everyone below those figures is unaffected.
+- **No 0.5%-of-AGI charitable floor**, also new for 2026 under OBBBA § 70425.
+  Pass `otherItemizedDeductions` already net of it.
+- **No medical-expense floor.** `otherItemizedDeductions` is taken as given, so
+  subtract the 7.5%-of-AGI floor yourself.
 - **2026 only.** Earlier years are not yet included.
 
 ## Accuracy and provenance

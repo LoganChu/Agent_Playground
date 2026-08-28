@@ -172,6 +172,53 @@ export interface ScheduleOneAParameters {
 }
 
 /**
+ * The § 164(b)(6) cap on state and local tax deductions.
+ *
+ * OBBBA § 70120 raised the cap from $10,000 to $40,000 for 2025 and 1% more each
+ * year through 2029, then added something the $10,000 cap never had: a **phase-down**.
+ * Above the threshold the cap is reduced by 30 cents per dollar of MAGI, but never
+ * below the floor.
+ *
+ * The effect is a band of income in which the marginal rate is far higher than the
+ * bracket suggests — losing 30 cents of deduction per dollar earned at a 35% rate
+ * is an extra 10.5 points — and then a return to normal once the floor is reached.
+ * That non-monotonic marginal rate is the whole point of modelling this.
+ */
+export interface SaltCapParameters {
+  /** Last tax year of the raised cap. It reverts to $10,000 / $5,000 after this. */
+  readonly finalYear: number;
+  /** The cap before any phase-down, by filing status. */
+  readonly cap: Readonly<Record<FilingStatus, number>>;
+  /** Cents of cap lost per dollar of MAGI above the threshold. */
+  readonly phaseDownRate: number;
+  readonly phaseDownThreshold: Readonly<Record<FilingStatus, number>>;
+  /** The cap can never be phased down below this. */
+  readonly floor: Readonly<Record<FilingStatus, number>>;
+}
+
+/** § 164(b)(6), with enough detail to explain the number. */
+export interface SaltDeductionResult {
+  readonly year: number;
+  readonly filingStatus: FilingStatus;
+  readonly stateAndLocalTaxesPaid: number;
+  /**
+   * AGI increased by income excluded under § 911, § 931 or § 933 — the same
+   * definition Schedule 1-A uses.
+   */
+  readonly modifiedAdjustedGrossIncome: number;
+  /** The statutory cap before the phase-down. */
+  readonly statutoryCap: number;
+  readonly phaseDownThreshold: number;
+  readonly excessIncome: number;
+  readonly phaseDownReduction: number;
+  readonly floor: number;
+  /** The cap actually applied: `statutoryCap - phaseDownReduction`, floored. */
+  readonly cap: number;
+  readonly deduction: number;
+  readonly limitedByCap: boolean;
+}
+
+/**
  * Section 199A — the qualified business income deduction.
  *
  * The three limitations all key off **taxable income computed without regard to
@@ -256,6 +303,8 @@ export interface YearParameters {
   readonly scheduleOneA: ScheduleOneAParameters | null;
   /** Section 199A qualified business income deduction. */
   readonly section199A: Section199AParameters;
+  /** The § 164(b)(6) state and local tax cap. */
+  readonly saltCap: SaltCapParameters;
   readonly sources: readonly Citation[];
 }
 

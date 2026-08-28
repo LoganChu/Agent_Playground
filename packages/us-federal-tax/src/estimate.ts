@@ -1,6 +1,7 @@
 import { getYearParameters, nonNegative, roundCents, standardDeduction } from './core.js';
 import { additionalDeductions } from './obbba.js';
 import { qbiDeduction } from './qbi.js';
+import { stateAndLocalTaxDeduction } from './salt.js';
 import {
   additionalMedicareTax,
   federalIncomeTax,
@@ -13,6 +14,7 @@ import type {
   FilingStatus,
   QbiDeductionResult,
   QualifiedBusiness,
+  SaltDeductionResult,
   SelfEmploymentTaxResult,
 } from './types.js';
 
@@ -29,8 +31,25 @@ export interface EstimateInput {
   longTermCapitalGains?: number;
   /** Investment income subject to NIIT. Defaults to `longTermCapitalGains`. */
   netInvestmentIncome?: number;
-  /** Total itemized deductions. The larger of this and the standard deduction is used. */
+  /**
+   * Total itemized deductions, already capped, supplied directly.
+   *
+   * Prefer `stateAndLocalTaxesPaid` plus `otherItemizedDeductions`, which apply
+   * the § 164(b)(6) cap and its phase-down for you. When those are given, this
+   * input is ignored.
+   */
   itemizedDeductions?: number;
+  /**
+   * State and local income (or sales) tax, real property tax and personal
+   * property tax actually paid, **before** the § 164(b)(6) cap.
+   */
+  stateAndLocalTaxesPaid?: number;
+  /**
+   * Every other itemized deduction: mortgage interest, charitable contributions,
+   * medical expenses over the 7.5%-of-AGI floor, investment interest. Not capped
+   * by this library — see the README for what is and is not limited.
+   */
+  otherItemizedDeductions?: number;
   /**
    * Section 199A qualified business income deduction, supplied directly.
    *
@@ -95,6 +114,14 @@ export interface EstimateResult {
   adjustedGrossIncome: number;
   deduction: number;
   deductionKind: 'standard' | 'itemized';
+  /**
+   * The § 164(b)(6) computation, or `null` when itemized deductions were
+   * supplied as a finished total rather than as components.
+   *
+   * Present even when the standard deduction wins, so a caller can see how close
+   * the decision was and what the cap cost.
+   */
+  stateAndLocalTax: SaltDeductionResult | null;
   qualifiedBusinessIncomeDeduction: number;
   /**
    * Form 8995 / 8995-A in full, or `null` when no businesses were supplied and
@@ -166,9 +193,27 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     spouseAge65OrOlder: input.spouseAge65OrOlder,
     spouseBlind: input.spouseBlind,
   });
-  const itemized = nonNegative(input.itemizedDeductions, 'itemizedDeductions');
+  // Either the caller supplies a finished itemized total, or supplies the
+  // components and lets the SALT cap be applied here.
+  const hasItemizedComponents =
+    input.stateAndLocalTaxesPaid !== undefined || input.otherItemizedDeductions !== undefined;
+
+  const salt = hasItemizedComponents
+    ? stateAndLocalTaxDeduction({
+        filingStatus,
+        year,
+        stateAndLocalTaxesPaid: input.stateAndLocalTaxesPaid ?? 0,
+        adjustedGrossIncome,
+        foreignEarnedIncomeExclusion: input.foreignEarnedIncomeExclusion,
+      })
+    : null;
+
+  const itemized =
+    salt !== null
+      ? salt.deduction + nonNegative(input.otherItemizedDeductions, 'otherItemizedDeductions')
+      : nonNegative(input.itemizedDeductions, 'itemizedDeductions');
   const useItemized = itemized > standard;
-  const deduction = useItemized ? itemized : standard;
+  const deduction = roundCents(useItemized ? itemized : standard);
 
   // Schedule 1-A sits below AGI, so it is computed from the AGI above and does
   // not feed back into its own phase-outs or into the NIIT threshold.
@@ -262,6 +307,7 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     adjustedGrossIncome: roundCents(adjustedGrossIncome),
     deduction,
     deductionKind: useItemized ? 'itemized' : 'standard',
+    stateAndLocalTax: salt,
     qualifiedBusinessIncomeDeduction: roundCents(qbi),
     section199A,
     additionalDeductions: schedule1A,

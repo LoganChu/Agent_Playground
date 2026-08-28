@@ -292,6 +292,45 @@ export const YEAR_2026: YearParameters = {
     },
   },
 
+  // § 164(b)(6), as amended by OBBBA § 70120. The cap rises 1% a year through
+  // 2029 ($40,804 / $41,212 / $41,624) and then falls back to $10,000 in 2030.
+  //
+  // The phase-down is the part that is new and the part that bites: 30 cents of
+  // cap per dollar of MAGI above $505,000, stopping at $10,000. For a joint
+  // filer that band runs from $505,000 to $606,333.33, and inside it the
+  // marginal rate on ordinary income is roughly 10.5 points above the bracket
+  // rate — then drops back down again once the floor is reached.
+  saltCap: {
+    finalYear: 2029,
+
+    cap: {
+      single: 40_400,
+      marriedFilingJointly: 40_400,
+      // Halved for a separate return, as are the threshold and the floor.
+      marriedFilingSeparately: 20_200,
+      headOfHousehold: 40_400,
+      qualifyingSurvivingSpouse: 40_400,
+    },
+
+    phaseDownRate: 0.3,
+
+    phaseDownThreshold: {
+      single: 505_000,
+      marriedFilingJointly: 505_000,
+      marriedFilingSeparately: 252_500,
+      headOfHousehold: 505_000,
+      qualifyingSurvivingSpouse: 505_000,
+    },
+
+    floor: {
+      single: 10_000,
+      marriedFilingJointly: 10_000,
+      marriedFilingSeparately: 5_000,
+      headOfHousehold: 10_000,
+      qualifyingSurvivingSpouse: 10_000,
+    },
+  },
+
   sources: [
     {
       title: 'IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026',
@@ -361,6 +400,15 @@ export const YEAR_2026: YearParameters = {
     {
       title: '26 C.F.R. § 1.199A-1(d)(2)(iii) — netting negative QBI and the loss carryforward',
       url: 'https://www.law.cornell.edu/cfr/text/26/1.199A-1',
+    },
+    {
+      title:
+        '26 U.S.C. § 164(b)(6) — state and local tax cap, its phase-down, and the modified AGI definition',
+      url: 'https://www.law.cornell.edu/uscode/text/26/164',
+    },
+    {
+      title: 'Pub. L. 119-21 § 70120 — the raised SALT cap for 2025-2029 and its phase-down',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
     },
   ],
 };
