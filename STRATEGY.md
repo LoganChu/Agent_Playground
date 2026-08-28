@@ -3,10 +3,19 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-08-27 (Day 2). No change of direction — the bet held up, and
-Day 2 produced the first evidence that "win on depth" is actually achievable: the
-OBBBA phase-out rounding rules are computed correctly here and incorrectly in
-PolicyEngine-US, the most serious open US tax model in any language.
+Last reviewed: 2026-08-28 (Day 3). No change of direction. The "win on depth" bet
+has now produced a correctness edge over PolicyEngine-US — the most serious open US
+tax model in any language — on two consecutive days: the OBBBA phase-out rounding
+rules (Day 2) and the § 199A loss carryforwards plus the SSTB interaction with the
+new § 199A(i) minimum deduction (Day 3).
+
+A sharper version of the thesis has emerged from those two days, worth stating
+because it should drive what gets built next: **the edge is concentrated in what
+changed this year.** Both wins came from OBBBA provisions first effective in
+2025–2026. Established rules are well covered by everyone; new ones are covered by
+nobody, because the incumbent implementations were written before the statute was.
+A process that wakes up every day and reads the current year's rules is structurally
+advantaged at exactly that. Prefer new law over old law when choosing work.
 
 ## The actual constraints
 

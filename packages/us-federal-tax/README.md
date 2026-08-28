@@ -3,9 +3,9 @@
 A dependency-free US federal tax engine for JavaScript and TypeScript.
 
 Income tax brackets, self-employment tax, FICA, Additional Medicare Tax, long-term
-capital gains, net investment income tax, the four OBBBA deductions on Schedule 1-A,
-and quarterly estimated payments — with every published figure traceable to the IRS
-release it came from.
+capital gains, net investment income tax, the Section 199A qualified business income
+deduction, the four OBBBA deductions on Schedule 1-A, and quarterly estimated
+payments — with every published figure traceable to the IRS release it came from.
 
 ```bash
 npm install us-federal-tax
@@ -148,6 +148,84 @@ Because these deductions sit below AGI on Form 1040 line 13b, they reduce taxabl
 income without changing AGI — so they never move the NIIT threshold or feed back
 into their own phase-outs. That is modeled correctly.
 
+## Section 199A (the QBI deduction)
+
+Twenty percent of qualified business income — and then three limitations that
+interact, all of them keyed to **taxable income figured without this deduction**
+rather than to AGI.
+
+```js
+import { qbiDeduction } from 'us-federal-tax';
+
+qbiDeduction({
+  filingStatus: 'single',
+  year: 2026,
+  taxableIncomeBeforeQbiDeduction: 239_250, // exactly halfway through the range
+  businesses: [{ qualifiedBusinessIncome: 150_000, w2Wages: 20_000 }],
+}).deduction; // 20000 — 30,000 tentative, less half the 20,000 excess over the wage cap
+```
+
+Below the threshold (`$201,750` single, `$403,500` joint for 2026) none of the
+limitations applies. Across the phase-in range above it, the W-2 wage and property
+cap phases **in** while a specified service trade or business phases **out**. Above
+the range the cap binds in full and an SSTB is worth nothing.
+
+**Two things changed for 2026, and code written for 2025 gets both wrong.**
+
+OBBBA § 70105 widened the phase-in range from `$50,000`/`$100,000` to
+`$75,000`/`$150,000`. Carrying the old range forward phases the limitations in
+twice as fast:
+
+```js
+qbiDeduction({
+  filingStatus: 'marriedFilingJointly',
+  year: 2026,
+  taxableIncomeBeforeQbiDeduction: 478_500,
+  businesses: [{ qualifiedBusinessIncome: 200_000 }],
+}).deduction; // 20000 under the 2026 range; 10000 under the old one
+```
+
+And § 199A(i) is new: at least `$1,000` of QBI from a business you materially
+participate in guarantees a `$400` deduction, even when 20% of taxable income is
+less than that.
+
+```js
+qbiDeduction({
+  filingStatus: 'single',
+  year: 2026,
+  taxableIncomeBeforeQbiDeduction: 800,
+  businesses: [{ qualifiedBusinessIncome: 1_200 }],
+}).deduction; // 400, not 160
+```
+
+Four more details that are easy to get backwards:
+
+- **The threshold for a separate return is `$201,775`, `$25` *above* single.** That
+  looks like a typo and is not: § 1(f)(7) rounds the inflation adjustment down to a
+  multiple of `$50` in general but to a multiple of `$25` on a separate return, and
+  the 2026 figure lands between the two. The same split shows up in 2021
+  (`$164,900` / `$164,925`). A separate return also gets the `$75,000` phase-in
+  range, not half the joint range.
+- **The SSTB applicable percentage reduces wages and property too**, not just
+  income — Schedule A (Form 8995-A). Halving an SSTB's QBI but leaving its wage cap
+  intact overstates the deduction.
+- **Losses are netted across businesses in proportion to income** (Reg.
+  § 1.199A-1(d)(2)(iii)), and a business whose QBI is wiped out contributes no wages
+  or property to the cap. Which business absorbs a loss changes the answer whenever
+  the wage cap binds. A prior-year `qualifiedBusinessNetLossCarryforward` nets in the
+  same way, but carries no wages or property with it.
+- **Schedule 1-A comes out first.** Taxable income before the QBI deduction is AGI
+  less the standard or itemized deduction **and less the Schedule 1-A total on
+  Form 1040 line 13b** — the IRS reissued the 2025 Form 8995-A instructions in
+  January 2026 to say so. Skipping that subtraction pushes a filer with tips or
+  overtime income into a phase-out they are not in. `estimateFederalTax` does it in
+  the right order and returns the whole Form 8995 in `estimate.section199A`.
+
+Not modelled: the § 199A(g) deduction for agricultural and horticultural
+cooperatives, the § 199A(b)(7) patron reduction, and the elective aggregation of
+multiple businesses under Reg. § 1.199A-4 (pass an aggregated group as one entry if
+you have made that election).
+
 ## API
 
 | Function | Purpose |
@@ -161,6 +239,8 @@ into their own phase-outs. That is modeled correctly.
 | `longTermCapitalGainsTax({ ordinaryTaxableIncome, longTermGains, ... })` | Correctly stacked |
 | `netInvestmentIncomeTax({ modifiedAdjustedGrossIncome, netInvestmentIncome, ... })` | Form 8960, 3.8% |
 | `standardDeduction({ filingStatus, age65OrOlder, blind, ... })` | Including age and blindness additions |
+| `qbiDeduction(input)` | § 199A in full: SSTB phase-out, wage/UBIA cap, taxable income limit, § 199A(i) floor |
+| `section199AParameters(year)` | Thresholds, phase-in ranges and rates for a year |
 | `additionalDeductions(input)` | All of Schedule 1-A, with a breakdown per part |
 | `qualifiedTipsDeduction({ qualifiedTips, modifiedAdjustedGrossIncome, ... })` | § 224 |
 | `qualifiedOvertimeDeduction({ qualifiedOvertimeCompensation, ... })` | § 225, FLSA premium only |
@@ -176,9 +256,11 @@ Filing statuses are `'single'`, `'marriedFilingJointly'`, `'marriedFilingSeparat
 Stated plainly, because a tax library that hides its gaps is worse than useless:
 
 - **No credits.** Child tax credit, EITC, education and energy credits are not modeled.
-- **No Section 199A computation.** You can pass `qualifiedBusinessIncomeDeduction`,
-  but the phase-outs and specified-service-trade rules are not implemented.
 - **No AMT**, no state or local tax, no payroll withholding tables (Publication 15-T).
+- **Section 199A stops short of three corners:** the § 199A(g) cooperative deduction,
+  the § 199A(b)(7) patron reduction, and elective aggregation under Reg. § 1.199A-4.
+  You must also decide yourself whether a business is a specified service trade or
+  business and what its QBI, W-2 wages and UBIA are.
 - **No eligibility checking for the OBBBA deductions.** The arithmetic is complete,
   but you must supply amounts that already qualify — this library cannot tell whether
   an occupation is on the Treasury tip list, whether overtime is FLSA-required, or

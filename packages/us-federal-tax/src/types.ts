@@ -171,6 +171,61 @@ export interface ScheduleOneAParameters {
   readonly ineligibleFilingStatuses: readonly FilingStatus[];
 }
 
+/**
+ * Section 199A — the qualified business income deduction.
+ *
+ * The three limitations all key off **taxable income computed without regard to
+ * this deduction**, not AGI. Below {@link Section199AParameters.thresholdAmount}
+ * none of them applies and the deduction is a flat 20% of QBI. Across the
+ * {@link Section199AParameters.phaseInRange} above it, two things happen at once:
+ * the W-2 wage / qualified property cap phases *in*, and a specified service
+ * trade or business phases *out*. Above the top of the range the cap binds in
+ * full and an SSTB is worth nothing at all.
+ */
+export interface Section199AParameters {
+  /** 20% — § 199A(a)(2), and the same rate for REIT/PTP income under § 199A(b)(1)(B). */
+  readonly deductionRate: number;
+  /**
+   * Taxable income (before this deduction) at which the limitations begin.
+   *
+   * Married filing separately is $25 *above* single, which looks like a typo and
+   * is not: § 1(f)(7) rounds the inflation adjustment down to a multiple of $50
+   * for most filers but to a multiple of $25 for a separate return, and in 2026
+   * the unrounded figure falls between the two.
+   */
+  readonly thresholdAmount: Readonly<Record<FilingStatus, number>>;
+  /**
+   * Width of the phase-in range above the threshold.
+   *
+   * OBBBA § 70105(b) widened this from $50,000/$100,000 to $75,000/$150,000
+   * effective for tax years beginning after 2025, so 2026 is the first year the
+   * wider range applies.
+   */
+  readonly phaseInRange: Readonly<Record<FilingStatus, number>>;
+  /** 50% of W-2 wages — § 199A(b)(2)(B)(i). */
+  readonly w2WageRate: number;
+  /** 25% of W-2 wages, used in the alternative cap — § 199A(b)(2)(B)(ii). */
+  readonly w2WageAlternativeRate: number;
+  /** 2.5% of UBIA of qualified property, used in the alternative cap. */
+  readonly qualifiedPropertyRate: number;
+  /**
+   * § 199A(i), added by OBBBA § 70105(c) and first effective in 2026: a floor
+   * under the deduction for filers with real, actively conducted business income.
+   *
+   * `null` in a year where no floor applies.
+   */
+  readonly minimumDeduction: {
+    /** The floor itself. Inflation-adjusted in $5 increments after 2026. */
+    readonly amount: number;
+    /**
+     * Aggregate QBI from *active* qualified trades or businesses — ones in which
+     * the taxpayer materially participates within the meaning of § 469(h) —
+     * required before the floor applies.
+     */
+    readonly activeQualifiedBusinessIncomeFloor: number;
+  } | null;
+}
+
 export interface YearParameters {
   readonly year: number;
   readonly ordinaryBrackets: Readonly<Record<FilingStatus, readonly Bracket[]>>;
@@ -199,7 +254,120 @@ export interface YearParameters {
   };
   /** OBBBA temporary deductions, or `null` in a year where none are in effect. */
   readonly scheduleOneA: ScheduleOneAParameters | null;
+  /** Section 199A qualified business income deduction. */
+  readonly section199A: Section199AParameters;
   readonly sources: readonly Citation[];
+}
+
+/** One trade or business, as § 199A sees it. */
+export interface QualifiedBusiness {
+  /** Label carried through to the result, purely for reporting. */
+  readonly name?: string;
+  /**
+   * Qualified business income for the year, which may be negative.
+   *
+   * This is net of the deductions attributable to the business, including the
+   * deductible half of self-employment tax, self-employed health insurance and
+   * self-employed retirement contributions. It excludes wages paid to the owner
+   * by an S corporation, guaranteed payments, capital gain, and investment income.
+   */
+  readonly qualifiedBusinessIncome: number;
+  /** W-2 wages paid by the business and allocable to its QBI — § 199A(b)(4). */
+  readonly w2Wages?: number;
+  /**
+   * Unadjusted basis immediately after acquisition of qualified property still
+   * within its depreciable period — the "UBIA" in § 199A(b)(2)(B)(ii).
+   */
+  readonly unadjustedBasisOfQualifiedProperty?: number;
+  /**
+   * A specified service trade or business under § 199A(d)(2): health, law,
+   * accounting, actuarial science, performing arts, consulting, athletics,
+   * financial services, brokerage, investing, trading, dealing in securities,
+   * and any business whose principal asset is the reputation or skill of its
+   * employees or owners. Engineering and architecture are deliberately excluded.
+   *
+   * Below the threshold this flag changes nothing.
+   */
+  readonly isSpecifiedServiceTradeOrBusiness?: boolean;
+  /**
+   * Whether the taxpayer materially participates within the meaning of § 469(h).
+   *
+   * Used only by the § 199A(i) minimum deduction, which counts QBI from
+   * *active* trades or businesses. Defaults to `true`, which is the ordinary
+   * case for a sole proprietorship or an owner-operated pass-through.
+   */
+  readonly materiallyParticipates?: boolean;
+}
+
+/** How one trade or business contributed to the deduction. */
+export interface QbiBusinessDetail {
+  readonly name: string;
+  /** QBI exactly as supplied. */
+  readonly qualifiedBusinessIncome: number;
+  readonly isSpecifiedServiceTradeOrBusiness: boolean;
+  /**
+   * The fraction of this business that counts. Always 1 for a non-SSTB and for
+   * every business below the threshold; between 0 and 1 for an SSTB inside the
+   * phase-in range; 0 for an SSTB above it.
+   */
+  readonly applicablePercentage: number;
+  /** QBI after the SSTB applicable percentage — Schedule A (Form 8995-A) line 11. */
+  readonly includedQualifiedBusinessIncome: number;
+  /** W-2 wages after the SSTB applicable percentage. */
+  readonly includedW2Wages: number;
+  /** UBIA after the SSTB applicable percentage. */
+  readonly includedQualifiedProperty: number;
+  /** QBI after losses from other businesses have been netted against it. */
+  readonly netQualifiedBusinessIncome: number;
+  /** 20% of {@link netQualifiedBusinessIncome} — the deduction before any cap. */
+  readonly tentativeDeduction: number;
+  /** `max(50% of W-2 wages, 25% of W-2 wages + 2.5% of UBIA)`. */
+  readonly wageAndPropertyLimit: number;
+  /** How much the phasing-in wage cap took away. */
+  readonly phaseInReduction: number;
+  /** This business's share of the QBI component. */
+  readonly component: number;
+}
+
+/** Form 8995 / Form 8995-A in full. */
+export interface QbiDeductionResult {
+  readonly year: number;
+  readonly filingStatus: FilingStatus;
+  /**
+   * Taxable income figured without this deduction — Form 1040 AGI less the
+   * standard or itemized deduction *and* less the Schedule 1-A total on line 13b.
+   */
+  readonly taxableIncomeBeforeDeduction: number;
+  readonly thresholdAmount: number;
+  readonly phaseInRange: number;
+  readonly excessOverThreshold: number;
+  /** 0 below the threshold, 1 at or above the top of the range. */
+  readonly reductionRatio: number;
+  /** `1 - reductionRatio`. The share of an SSTB that still counts. */
+  readonly applicablePercentage: number;
+  readonly businesses: readonly QbiBusinessDetail[];
+  /** Form 8995-A line 16. */
+  readonly qbiComponent: number;
+  /** 20% of qualified REIT dividends and PTP income, with no wage or UBIA cap. */
+  readonly reitPtpComponent: number;
+  /** `qbiComponent + reitPtpComponent` — § 199A(b)(1). */
+  readonly combinedQualifiedBusinessIncomeAmount: number;
+  /** 20% of (taxable income before this deduction, less net capital gain). */
+  readonly taxableIncomeLimit: number;
+  readonly limitedByTaxableIncome: boolean;
+  /** The § 199A(i) floor, or 0 when it does not apply. */
+  readonly minimumDeduction: number;
+  readonly appliedMinimumDeduction: boolean;
+  readonly deduction: number;
+  /**
+   * Negative QBI carried into next year, as a non-positive number.
+   *
+   * A business loss does not produce a refundable benefit; it suppresses the
+   * deduction this year and reduces QBI next year.
+   */
+  readonly qualifiedBusinessNetLossCarryforward: number;
+  /** Negative REIT/PTP income carried into next year, as a non-positive number. */
+  readonly reitPtpLossCarryforward: number;
 }
 
 /** One part of Schedule 1-A, with enough detail to explain the number. */

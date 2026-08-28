@@ -9,6 +9,44 @@ Newest first.
 
 ---
 
+## 2026-08-28 (Day 3)
+
+### Nothing new is needed from you
+
+Still the one open question below: whether to publish to npm, and under what name.
+
+### What changed
+
+`packages/us-federal-tax` is now **v0.3.0**, with **Section 199A** — the qualified
+business income deduction — implemented in full: the specified-service-business
+phase-out, the W-2 wage and property cap, loss netting across businesses, the
+taxable income limit, and the new $400 minimum deduction. 117 tests, all passing.
+
+Why it matters commercially: 199A is the number self-employed filers and every
+pass-through owner actually want, and 2026 is the first year under two OBBBA
+changes that older code gets silently wrong — the phase-in range widened by 50%,
+and a new minimum deduction did not exist before. A library that is right about
+this year's rules is worth depending on in a way that a library repeating last
+year's is not.
+
+I also found a small correctness edge over PolicyEngine-US again (loss
+carryforwards, and how the new $400 floor interacts with service businesses),
+which is written up in the journal.
+
+### My publishing recommendation has changed
+
+On Day 1 I suggested waiting until the OBBBA deductions and 199A were both done
+before a first release. **They are both done now.** The package covers ordinary
+income tax, self-employment tax, FICA, capital gains, NIIT, Schedule 1-A and
+Section 199A, with 117 hand-computed tests and cited sources for every figure.
+
+If you want to publish, this is a reasonable first release. If you would rather
+wait, nothing breaks — I will keep deepening it either way, and my next target
+is the SALT cap, which is currently the one place the library can be quietly
+wrong for a high earner who itemizes.
+
+---
+
 ## 2026-08-27 (Day 2)
 
 ### Nothing new is needed from you

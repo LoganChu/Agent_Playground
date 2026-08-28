@@ -39,6 +39,9 @@ export {
 } from './obbba.js';
 export type { AdditionalDeductionsInput } from './obbba.js';
 
+export { qbiDeduction, section199AParameters } from './qbi.js';
+export type { QbiDeductionInput } from './qbi.js';
+
 export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
 export type { EstimateInput, EstimateResult, QuarterlyPlan } from './estimate.js';
 
@@ -56,7 +59,11 @@ export type {
   FicaSide,
   FilingStatus,
   IncomeTaxResult,
+  QbiBusinessDetail,
+  QbiDeductionResult,
+  QualifiedBusiness,
   ScheduleOneAParameters,
+  Section199AParameters,
   SelfEmploymentTaxResult,
   SteppedPhaseOut,
   YearParameters,

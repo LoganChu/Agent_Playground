@@ -1,5 +1,6 @@
 import { getYearParameters, nonNegative, roundCents, standardDeduction } from './core.js';
 import { additionalDeductions } from './obbba.js';
+import { qbiDeduction } from './qbi.js';
 import {
   additionalMedicareTax,
   federalIncomeTax,
@@ -10,6 +11,8 @@ import {
 import type {
   AdditionalDeductionsResult,
   FilingStatus,
+  QbiDeductionResult,
+  QualifiedBusiness,
   SelfEmploymentTaxResult,
 } from './types.js';
 
@@ -29,12 +32,31 @@ export interface EstimateInput {
   /** Total itemized deductions. The larger of this and the standard deduction is used. */
   itemizedDeductions?: number;
   /**
-   * Section 199A qualified business income deduction.
+   * Section 199A qualified business income deduction, supplied directly.
    *
-   * Not computed for you: the phase-outs and specified-service-trade rules need
-   * facts this function does not take. Supply it if you have it.
+   * Use this only if you have computed the number elsewhere. Prefer
+   * `qualifiedBusinesses`, which computes it — including the SSTB phase-out, the
+   * W-2 wage and property cap, and the taxable income limit. When both are
+   * given, the computed figure wins and this input is ignored.
    */
   qualifiedBusinessIncomeDeduction?: number;
+  /**
+   * Each § 199A trade or business separately, so the deduction can be computed
+   * rather than assumed. A single Schedule C is just one entry.
+   *
+   * These describe income that is *already* reported through
+   * `selfEmploymentNetProfit` or `otherOrdinaryIncome` — they are not added to
+   * gross income, so listing a business here does not increase the tax.
+   */
+  qualifiedBusinesses?: readonly QualifiedBusiness[];
+  /** Qualified REIT dividends, deductible at 20% with no wage or property cap. */
+  qualifiedReitDividends?: number;
+  /** Qualified publicly traded partnership income, which may be negative. */
+  qualifiedPtpIncome?: number;
+  /** Prior-year § 199A qualified business net loss carryforward. */
+  qualifiedBusinessNetLossCarryforward?: number;
+  /** Prior-year § 199A REIT/PTP loss carryforward. */
+  reitPtpLossCarryforward?: number;
   /**
    * Qualified tips under § 224, already filtered to tips that actually qualify
    * (cash tips, listed occupation, not a specified service trade or business).
@@ -74,6 +96,11 @@ export interface EstimateResult {
   deduction: number;
   deductionKind: 'standard' | 'itemized';
   qualifiedBusinessIncomeDeduction: number;
+  /**
+   * Form 8995 / 8995-A in full, or `null` when no businesses were supplied and
+   * the deduction was taken from `qualifiedBusinessIncomeDeduction` instead.
+   */
+  section199A: QbiDeductionResult | null;
   /** Schedule 1-A: the four OBBBA deductions, with a breakdown per part. */
   additionalDeductions: AdditionalDeductionsResult;
   taxableIncome: number;
@@ -101,8 +128,15 @@ export interface EstimateResult {
  * Compute a full federal tax picture for a household.
  *
  * This is deliberately a pure function over explicit inputs. It models the common
- * case well; it does not attempt credits (child tax credit, EITC), AMT, state tax,
- * or the Section 199A phase-outs. Those are documented gaps, not silent ones.
+ * case well; it does not attempt credits (child tax credit, EITC), AMT, or state
+ * tax. Those are documented gaps, not silent ones.
+ *
+ * Pass `qualifiedBusinesses` and the Section 199A deduction is computed in full,
+ * phase-outs included; pass `qualifiedBusinessIncomeDeduction` instead to supply
+ * a figure you already have. Note that QBI should be net of the deductions
+ * attributable to the business, including the deductible half of self-employment
+ * tax — this function does not subtract that for you, because it cannot tell
+ * which business `selfEmploymentNetProfit` belongs to.
  *
  * The four OBBBA deductions on Schedule 1-A *are* computed, from the inputs
  * `qualifiedTips`, `qualifiedOvertimeCompensation`, `qualifiedVehicleLoanInterest`
@@ -118,10 +152,6 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
   const netProfit = nonNegative(input.selfEmploymentNetProfit, 'selfEmploymentNetProfit');
   const otherIncome = nonNegative(input.otherOrdinaryIncome, 'otherOrdinaryIncome');
   const ltcg = nonNegative(input.longTermCapitalGains, 'longTermCapitalGains');
-  const qbi = nonNegative(
-    input.qualifiedBusinessIncomeDeduction,
-    'qualifiedBusinessIncomeDeduction',
-  );
 
   const se = selfEmploymentTax({ netProfit, year, w2SocialSecurityWages: wages });
 
@@ -155,7 +185,41 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     spouseAge65OrOlder: input.spouseAge65OrOlder,
   });
 
-  const taxableIncome = Math.max(0, adjustedGrossIncome - deduction - qbi - schedule1A.total);
+  // Form 8995 line 11. The Schedule 1-A total is subtracted here even though it
+  // sits *below* the § 199A deduction on Form 1040, because the § 199A
+  // limitations run on taxable income figured without § 199A only — every other
+  // deduction, Schedule 1-A included, has already come out. The IRS reissued the
+  // 2025 Form 8995-A instructions in January 2026 to say exactly this.
+  const taxableIncomeBeforeQbiDeduction = adjustedGrossIncome - deduction - schedule1A.total;
+
+  const hasBusinesses =
+    (input.qualifiedBusinesses !== undefined && input.qualifiedBusinesses.length > 0) ||
+    input.qualifiedReitDividends !== undefined ||
+    input.qualifiedPtpIncome !== undefined;
+
+  const section199A = hasBusinesses
+    ? qbiDeduction({
+        filingStatus,
+        year,
+        taxableIncomeBeforeQbiDeduction,
+        businesses: input.qualifiedBusinesses,
+        netCapitalGain: ltcg,
+        qualifiedReitDividends: input.qualifiedReitDividends,
+        qualifiedPtpIncome: input.qualifiedPtpIncome,
+        qualifiedBusinessNetLossCarryforward: input.qualifiedBusinessNetLossCarryforward,
+        reitPtpLossCarryforward: input.reitPtpLossCarryforward,
+      })
+    : null;
+
+  const qbi =
+    section199A !== null
+      ? section199A.deduction
+      : nonNegative(
+          input.qualifiedBusinessIncomeDeduction,
+          'qualifiedBusinessIncomeDeduction',
+        );
+
+  const taxableIncome = Math.max(0, taxableIncomeBeforeQbiDeduction - qbi);
 
   // Deductions are applied against ordinary income first, so any surviving taxable
   // income is capital gain only after ordinary income has been exhausted.
@@ -198,7 +262,8 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     adjustedGrossIncome: roundCents(adjustedGrossIncome),
     deduction,
     deductionKind: useItemized ? 'itemized' : 'standard',
-    qualifiedBusinessIncomeDeduction: qbi,
+    qualifiedBusinessIncomeDeduction: roundCents(qbi),
+    section199A,
     additionalDeductions: schedule1A,
     taxableIncome: roundCents(taxableIncome),
     ordinaryTaxableIncome: roundCents(ordinaryTaxableIncome),

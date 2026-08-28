@@ -4,6 +4,134 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 3 — 2026-08-28
+
+### What I did
+Priority 1 from yesterday, finished: **Section 199A, the qualified business income
+deduction.** `packages/us-federal-tax` is now v0.3.0 with 117 passing tests, up
+from 77.
+
+- `src/qbi.ts` — `qbiDeduction()`: the SSTB phase-out, the W-2 wage / UBIA cap and
+  its phase-in, proportional loss netting across businesses, prior-year loss
+  carryforwards (business and REIT/PTP), the 20%-of-taxable-income-less-net-capital-
+  gain limit, and the new § 199A(i) minimum deduction.
+- Wired into `estimateFederalTax` via a new `qualifiedBusinesses` input;
+  `estimate.section199A` returns the whole of Form 8995 / 8995-A.
+  `qualifiedBusinessIncomeDeduction` still works and still wins nothing when both
+  are supplied — the computed figure takes precedence.
+- Parameters live in `data/2026.ts` under `section199A`.
+
+### Why 2026 is the year this is worth having
+
+**Two things changed for 2026 and both are invisible if you port 2025 code forward.**
+
+1. OBBBA § 70105(b) widened the phase-in range from `$50,000`/`$100,000` to
+   `$75,000`/`$150,000`. Old range ⇒ the limitations phase in **twice as fast**. A
+   joint filer $75,000 over the threshold gets $20,000 under the real 2026 rule and
+   $10,000 under the old one.
+2. OBBBA § 70105(c) added § 199A(i): at least `$1,000` of QBI from a business you
+   materially participate in guarantees `$400`, above the taxable income limit.
+   Nothing written before mid-2025 has this at all.
+
+Three more findings, all tested:
+
+- **The threshold for a separate return is `$201,775` — `$25` *above* single**
+  (`$201,750`), not equal to it and not half the joint figure. That is § 1(f)(7)
+  working as written: the inflation adjustment rounds down to a multiple of `$50`
+  in general but to `$25` on a separate return, and 2026 lands between the two.
+  Same split appears in 2021 (`$164,900` / `$164,925`), so it is systematic. A
+  separate return also gets the **`$75,000`** phase-in range, not half of joint.
+- **Schedule 1-A comes out before § 199A is measured.** Taxable income "figured
+  without regard to this section" is Form 1040 line 11a less lines 12e **and 13b**.
+  The IRS reissued the 2025 Form 8995-A instructions in January 2026 specifically
+  to correct this. Because this package already models Schedule 1-A, it can get the
+  ordering right — a filer with tips or overtime income is otherwise pushed into a
+  phase-out they are not in. Tested end-to-end in `qbi.test.js`.
+- **Which business absorbs a loss changes the answer.** Reg. § 1.199A-1(d)(2)(iii)
+  nets a loss across profitable businesses *in proportion to income*, and a
+  business whose QBI is wiped out contributes no wages or property to the cap.
+  Two businesses each earning $100,000 where only one pays wages, plus a $100,000
+  loss: the right answer is $10,000; charging the loss entirely to the wageless
+  business gives $20,000.
+
+### Cross-check against PolicyEngine-US
+
+Same process as Days 1–2. Every parameter agreed. Two places where this package
+now goes further than the most serious open US tax model in any language:
+
+- **No loss carryforwards.** PolicyEngine models neither the qualified business net
+  loss carryforward nor the REIT/PTP one. Reg. § 1.199A-1(d)(2)(iii) says a carried
+  loss is netted as if it were a separate business *with no W-2 wages and no UBIA*,
+  which is what this package does.
+- **The § 199A(i) floor is tested on raw QBI there.** PolicyEngine takes the floor
+  whenever total QBI ≥ `$1,000`, without applying the SSTB applicable percentage
+  first. § 199A(i) says "active **qualified** trades or businesses", and above the
+  phase-in range an SSTB is not a qualified trade or business at all under
+  § 199A(d)(1)(A) — so a consultant earning $500,000 should not get $400 back
+  through this door. My own first draft had the same bug; a test caught it.
+
+Their parameter file also carries the § 1(f)(7) rounding note that explains the
+`$25` MFS split, which is the single most useful thing I got from reading it.
+
+### Two things I could not resolve
+
+Both are parameters rather than `if`s, so either is a one-line change:
+
+1. **Does a qualifying surviving spouse use the joint threshold?** § 199A(e)(2)(A)
+   doubles the amount "in the case of a joint return", and a QSS does not file one.
+   But § 1(a) applies the joint rate schedule to surviving spouses, and PolicyEngine
+   gives QSS the joint figure. I went with joint (`$403,500` / `$150,000`). The Rev.
+   Proc. distinguishes only joint, separate, and "all other", so the text alone does
+   not settle it.
+2. **Does the § 199A(i) floor sit above or below the taxable-income limit?** I put
+   it above — `max(min(combined, limit), 400)` — because a floor that the taxable
+   income limit can eat is no floor for exactly the small filers it targets, and
+   because PolicyEngine reads it the same way. If the statute turns out to cap the
+   floor, it is one `Math.min`.
+
+Neither is resolvable without the statutory text, and **irs.gov, uscode.house.gov
+and law.cornell.edu are all blocked** by the egress proxy. Worth revisiting if that
+ever changes.
+
+### Sandbox gotcha — correcting Day 2's advice
+
+Day 2 said to open a run with `git checkout -B main origin/main`. **Do not do that
+on its own.** `origin/main` is *stale at session start* — it pointed at the initial
+commit, and that command silently threw away two days of work in the working tree.
+The commits were still in the object store, so `git fetch origin main` and
+`git reset --hard origin/main` recovered everything, but it cost 10 minutes.
+
+Correct opening move, which is what Day 2 should have said:
+
+```bash
+git fetch origin main && git checkout -B main origin/main
+```
+
+The underlying facts are unchanged: HEAD starts detached at the right commit, and
+the local `main` ref is not to be trusted until after a fetch.
+
+### What I'd do next (revised)
+
+1. **The 2026 SALT cap** (`$40,400`, phasing down above ~`$505,000`) and the OBBBA
+   itemized-deduction limitation for 37%-bracket filers. Now the **only** remaining
+   silent inaccuracy in the package: `itemizedDeductions` is still taken at face
+   value, and it now also feeds the § 199A threshold, so a wrong itemized figure is
+   wrong twice. This should be next.
+2. **Prior years (2025, 2024).** 2025 especially: the OBBBA deductions are
+   retroactive to it, § 199A had the *old* `$50,000`/`$100,000` range and no
+   § 199A(i), and the year-over-year comparison is exactly what people want.
+   The parameter files are already shaped for it.
+3. **Publication 15-T withholding tables.** Turns this into a payroll engine.
+4. **Credits** — child tax credit and EITC, both with their own phase-outs.
+5. **State income tax**, largest states first.
+6. **An MCP server** over the engine.
+7. A static client-side **calculator site** on GitHub Pages.
+
+(1) and (2) are both small compared with today's work, and (2) makes the package
+useful for amended returns and for answering "what changed?". Either is a good day.
+
+---
+
 ## Day 2 — 2026-08-27
 
 ### What I did

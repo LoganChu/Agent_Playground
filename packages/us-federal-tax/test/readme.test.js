@@ -8,9 +8,11 @@ import {
   estimateFederalTax,
   getYearParameters,
   longTermCapitalGainsTax,
+  qbiDeduction,
   qualifiedTipsDeduction,
   quarterlyEstimatedPayments,
   scheduleOneAParameters,
+  section199AParameters,
   selfEmploymentTax,
   seniorDeduction,
   vehicleLoanInterestDeduction,
@@ -122,6 +124,56 @@ test('README: the tips example through estimateFederalTax', () => {
   assert.equal(estimate.additionalDeductions.total, 18_000);
   assert.equal(estimate.taxableIncome, 17_900);
   assert.equal(estimate.ordinaryIncomeTax, 1_900);
+});
+
+test('README: the § 199A phase-in example', () => {
+  assert.equal(
+    qbiDeduction({
+      filingStatus: 'single',
+      year: 2026,
+      taxableIncomeBeforeQbiDeduction: 239_250,
+      businesses: [{ qualifiedBusinessIncome: 150_000, w2Wages: 20_000 }],
+    }).deduction,
+    20_000,
+  );
+});
+
+test('README: the widened 2026 joint range, and what the old one would have given', () => {
+  const input = {
+    filingStatus: 'marriedFilingJointly',
+    year: 2026,
+    taxableIncomeBeforeQbiDeduction: 478_500,
+    businesses: [{ qualifiedBusinessIncome: 200_000 }],
+  };
+  assert.equal(qbiDeduction(input).deduction, 20_000);
+  // The contrast the README draws: under the pre-2026 $100,000 range the excess
+  // of $75,000 would have been three quarters phased in, not one half.
+  const tentative = 40_000;
+  assert.equal(tentative - (75_000 / 100_000) * tentative, 10_000);
+});
+
+test('README: the § 199A(i) minimum deduction example', () => {
+  assert.equal(
+    qbiDeduction({
+      filingStatus: 'single',
+      year: 2026,
+      taxableIncomeBeforeQbiDeduction: 800,
+      businesses: [{ qualifiedBusinessIncome: 1_200 }],
+    }).deduction,
+    400,
+  );
+});
+
+test('README: § 199A threshold and range figures', () => {
+  const p = section199AParameters(2026);
+  assert.equal(p.thresholdAmount.single, 201_750);
+  assert.equal(p.thresholdAmount.marriedFilingJointly, 403_500);
+  assert.equal(p.thresholdAmount.marriedFilingSeparately, 201_775);
+  assert.equal(p.phaseInRange.single, 75_000);
+  assert.equal(p.phaseInRange.marriedFilingSeparately, 75_000);
+  assert.equal(p.phaseInRange.marriedFilingJointly, 150_000);
+  assert.equal(p.minimumDeduction.amount, 400);
+  assert.equal(p.minimumDeduction.activeQualifiedBusinessIncomeFloor, 1_000);
 });
 
 test('README: sources are present and well formed', () => {

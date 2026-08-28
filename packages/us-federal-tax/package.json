@@ -1,7 +1,7 @@
 {
   "name": "us-federal-tax",
-  "version": "0.2.0",
-  "description": "Dependency-free US federal tax engine: income tax brackets, self-employment tax, FICA, capital gains, NIIT and quarterly estimated payments. Every figure cited to the IRS release it came from.",
+  "version": "0.3.0",
+  "description": "Dependency-free US federal tax engine: income tax brackets, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction and quarterly estimated payments. Every figure cited to the IRS release it came from.",
   "keywords": [
     "tax",
     "taxes",
@@ -27,7 +27,14 @@
     "overtime-deduction",
     "senior-deduction",
     "schedule-1-a",
-    "car-loan-interest"
+    "car-loan-interest",
+    "199a",
+    "qbi",
+    "qualified-business-income",
+    "pass-through",
+    "sstb",
+    "form-8995",
+    "small-business"
   ],
   "license": "MIT",
   "type": "module",

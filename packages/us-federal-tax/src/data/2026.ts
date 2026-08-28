@@ -240,6 +240,58 @@ export const YEAR_2026: YearParameters = {
     ineligibleFilingStatuses: ['marriedFilingSeparately'],
   },
 
+  // Section 199A. Two things changed for 2026 and both are easy to miss.
+  //
+  // 1. OBBBA § 70105(b) widened the phase-in range from $50,000/$100,000 to
+  //    $75,000/$150,000, effective for tax years beginning after 2025. A 2025
+  //    implementation carried forward to 2026 will phase the limitations in
+  //    50% too fast.
+  // 2. OBBBA § 70105(c) added § 199A(i), a $400 floor for filers with at least
+  //    $1,000 of QBI from a business they materially participate in. New; nothing
+  //    written before mid-2025 has it.
+  //
+  // Also note the threshold for married filing separately is $25 *higher* than
+  // single, not equal to it. § 1(f)(7) rounds the inflation adjustment down to a
+  // multiple of $50 in general but to a multiple of $25 for a separate return,
+  // and the 2026 unrounded figure lands between $201,750 and $201,800. The same
+  // $25 split appears in Rev. Proc. 2020-45 for 2021 ($164,900 / $164,925), so
+  // this is the rule working as written rather than a one-off.
+  section199A: {
+    deductionRate: 0.2,
+
+    thresholdAmount: {
+      single: 201_750,
+      marriedFilingJointly: 403_500,
+      marriedFilingSeparately: 201_775,
+      headOfHousehold: 201_750,
+      // Not stated separately in the Revenue Procedure, which distinguishes only
+      // joint returns, separate returns, and "all other" filers. § 199A(e)(2)(A)
+      // doubles the amount "in the case of a joint return", and a surviving
+      // spouse does not file one — but § 1(a) applies the joint rate schedule to
+      // surviving spouses, and that is how this is treated in practice. Kept as
+      // data so the other reading is a one-line change.
+      qualifyingSurvivingSpouse: 403_500,
+    },
+
+    phaseInRange: {
+      single: 75_000,
+      marriedFilingJointly: 150_000,
+      // $75,000, matching single — it is *not* half the joint range.
+      marriedFilingSeparately: 75_000,
+      headOfHousehold: 75_000,
+      qualifyingSurvivingSpouse: 150_000,
+    },
+
+    w2WageRate: 0.5,
+    w2WageAlternativeRate: 0.25,
+    qualifiedPropertyRate: 0.025,
+
+    minimumDeduction: {
+      amount: 400,
+      activeQualifiedBusinessIncomeFloor: 1_000,
+    },
+  },
+
   sources: [
     {
       title: 'IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026',
@@ -280,6 +332,35 @@ export const YEAR_2026: YearParameters = {
     {
       title: 'IRS — Schedule 1-A, Additional Deductions: what to know about the new form',
       url: 'https://www.irs.gov/newsroom/schedule-1-a-additional-deductions-what-to-know-about-the-new-form',
+    },
+    {
+      title: '26 U.S.C. § 199A — qualified business income',
+      url: 'https://www.law.cornell.edu/uscode/text/26/199A',
+    },
+    {
+      title: '26 U.S.C. § 1(f)(7) — rounding of inflation adjustments ($50, or $25 on a separate return)',
+      url: 'https://www.law.cornell.edu/uscode/text/26/1',
+    },
+    {
+      title: 'Pub. L. 119-21 § 70105 — § 199A made permanent, wider phase-in range, § 199A(i) minimum deduction',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
+    },
+    {
+      title: 'IRS Form 8995 — qualified business income deduction, simplified computation',
+      url: 'https://www.irs.gov/pub/irs-pdf/f8995.pdf',
+    },
+    {
+      title: 'IRS Form 8995-A and Schedule A — QBI deduction with the wage/UBIA cap and the SSTB phase-out',
+      url: 'https://www.irs.gov/pub/irs-pdf/f8995a.pdf',
+    },
+    {
+      title:
+        'IRS — corrections to the 2025 Form 8995-A instructions: taxable income before the QBI deduction is Form 1040 line 11a less lines 12e and 13b',
+      url: 'https://www.irs.gov/forms-pubs/corrections-to-the-instructions-on-how-to-calculate-the-taxable-income-before-qbi-deduction-for-form-8995-a',
+    },
+    {
+      title: '26 C.F.R. § 1.199A-1(d)(2)(iii) — netting negative QBI and the loss carryforward',
+      url: 'https://www.law.cornell.edu/cfr/text/26/1.199A-1',
     },
   ],
 };
