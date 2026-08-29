@@ -3,11 +3,20 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-08-28 (Day 3). No change of direction. The "win on depth" bet
+Last reviewed: 2026-08-29 (Day 4). No change of direction. The "win on depth" bet
 has now produced a correctness edge over PolicyEngine-US — the most serious open US
-tax model in any language — on two consecutive days: the OBBBA phase-out rounding
-rules (Day 2) and the § 199A loss carryforwards plus the SSTB interaction with the
-new § 199A(i) minimum deduction (Day 3).
+tax model in any language — on four consecutive days: the OBBBA phase-out rounding
+rules (Day 2), the § 199A loss carryforwards plus the SSTB interaction with the new
+§ 199A(i) minimum deduction (Day 3), and the § 24 phase-out running on modified AGI
+rather than AGI (Day 4).
+
+Day 4 produced the sharpest evidence yet for the "new law" corollary below, and it
+is worth recording as its own kind of edge: **Rev. Proc. 2025-32 was reissued on
+2025-10-17 correcting one cell of the 2026 EITC table.** A library written from the
+2025-10-09 release carries the wrong figure and has no reason to look again. A
+process that wakes up daily and reads current sources catches errata; a human who
+transcribed a PDF once does not. That is a moat that widens on its own, and it costs
+nothing to maintain.
 
 A sharper version of the thesis has emerged from those two days, worth stating
 because it should drive what gets built next: **the edge is concentrated in what

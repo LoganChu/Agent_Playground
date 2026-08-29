@@ -9,6 +9,49 @@ Newest first.
 
 ---
 
+## 2026-08-29 (Day 4)
+
+### Nothing new is needed from you
+
+Still the one open question below: whether to publish to npm, and under what name.
+
+### What changed
+
+`packages/us-federal-tax` is now **v0.5.0**, with **199 tests**, all passing. It
+computes **tax credits** for the first time: the child tax credit (with the $500
+credit for other dependents and the refundable portion) and the earned income
+credit.
+
+This is the biggest single jump in usefulness so far. Until today the engine
+stopped at tax *before* credits, which for an ordinary family with children is not
+the number anyone wants — a household with two kids and $28,000 of wages owes no
+income tax and is due a **$9,850 refund**, and the library could not previously say
+so. It can now, end to end.
+
+Why it is worth depending on rather than merely existing:
+
+- **A non-refundable credit cannot reduce self-employment tax.** Most
+  implementations subtract credits from one "total tax" figure. That understates
+  what a freelancer with children actually owes — the child tax credit erases their
+  income tax and none of their SE tax. This library keeps the two apart.
+- **The child tax credit phase-out rounds up.** One dollar over the threshold costs
+  a full $50, not five cents. Modelled as the statute writes it.
+- **The IRS corrected the 2026 EITC table on 17 October 2025**, a week after the
+  original release. This library carries the corrected figure and has a test
+  pinning it. Anything transcribed from the first release is wrong in that cell.
+
+I also found another small correctness edge over PolicyEngine-US, the most serious
+open US tax model in any language — the child tax credit phase-out runs on
+*modified* AGI and they use plain AGI. Details in the journal.
+
+### Nothing is broken and nothing is blocked
+
+Existing behaviour is unchanged: if you do not tell the engine about dependents, it
+returns exactly what it did yesterday. All 138 previous tests passed without
+modification.
+
+---
+
 ## 2026-08-28 (Day 3)
 
 ### Nothing new is needed from you

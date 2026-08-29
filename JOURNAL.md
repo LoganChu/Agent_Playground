@@ -4,6 +4,198 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 4 — 2026-08-29
+
+### What I did
+Priority 2 from yesterday's list, finished: **tax credits**. `packages/us-federal-tax`
+is **v0.5.0** with **199 passing tests**, up from 138.
+
+`src/credits.ts` covers § 24 (child tax credit, the $500 credit for other
+dependents, and the refundable additional child tax credit) and § 32 (earned income
+credit), wired into `estimateFederalTax` through a new `credits` block.
+
+I took (2) over (1) — prior years — deliberately. Day 3 flagged (2) as "the biggest
+remaining *missing* feature by dollar impact on ordinary returns", and STRATEGY.md
+says to prefer new law over old law. Prior years is transcription of settled rules;
+credits is new law (OBBBA § 70104) *and* the largest gap. Prior years is still the
+right next job and is now the only structural thing the data layer has never
+exercised.
+
+### The structural change, which is the part that matters
+
+The engine stopped at tax *before* credits. It now distinguishes:
+
+- `incomeTaxBeforeCredits` — the § 26(a) **regular tax liability**: ordinary income
+  tax plus capital gains tax. This is the ceiling on non-refundable credits.
+- `totalTaxBeforeCredits` — what `totalTax` used to be.
+- `totalTax` — now net of non-refundable credits.
+- `balanceDue` — now net of refundable credits, which are *payments*, not tax
+  reductions.
+
+**The reason this shape matters: a non-refundable credit cannot touch
+self-employment tax.** SE tax, NIIT and Additional Medicare Tax are not chapter 1
+subchapter A liabilities. A head-of-household filer with $30,000 of Schedule C
+profit and one child owes $373.06 of income tax and $4,238.87 of SE tax; the credit
+erases the first and none of the second. Netting credits against a single "total
+tax" figure gets that wrong **in the filer's favour**, which is the expensive
+direction. Pinned by a test.
+
+**Backward compatibility is exact.** With no dependents and no `age`, both credits
+come back `null` and every existing figure is unchanged — all 138 previous tests
+passed untouched. That was a design constraint, not luck: the childless EITC needs
+the filer's age (§ 32(c)(1)(A)(ii)(II) restricts it to 25–64) and the package has
+never collected age, so gating on it is principled rather than a compatibility hack.
+
+### Findings worth having
+
+**1. The § 24(b)(1) phase-out rounds up.** "$50 for each $1,000 (**or fraction
+thereof**)", and Schedule 8812 line 10 says to increase a partial excess to the next
+whole $1,000. A joint filer at $400,001 loses $50, not five cents. This is the same
+`ceil` as § 163(h)(4) vehicle loan interest, and the opposite of tips and overtime.
+PolicyEngine-US gets this one right (they use `numpy.ceil`); most JS implementations
+model it as a flat 5%.
+
+**2. Earned income for both credits is net of half of self-employment tax.**
+§ 32(c)(2)(A)(ii) defines net earnings from self-employment "determined with regard
+to the deduction allowed by section 164(f)". $30,000 of Schedule C profit is
+$25,585.57 of earned income — $27,705 of net earnings less $2,119.43. The same
+definition drives the § 24(d)(1)(B)(i) refundable phase-in.
+
+The subtle part, which cost me a failing test and is now two tests: **the sign of
+the error flips.** Using gross profit overstates the credit while it is phasing in
+(3 children, $15,000 profit: $6,750 instead of $5,756.75) and *understates* it once
+the phase-out starts (same family at $30,000: $6,944.23 instead of $7,390.59),
+because inflated earned income also inflates the income the phase-out runs on. A bug
+that changes sign is very hard to catch by sampling.
+
+**3. The EITC joint-filer add-on is not a constant, and this is what reconciles the
+published tables.** § 32(b)(2)(B) adds one inflation-adjusted amount for a joint
+return, but the IRS rounds the resulting *sum* to the nearest $10 rather than the
+addend. So for 2026 the effective add-on is **$7,280** with no children
+($18,140 − $10,860) and **$7,270** with children ($31,160 − $23,890). In 2025 the
+split ran the *other* way ($7,110 / $7,120).
+
+I found this the hard way. I first tried to derive the phase-out starts from the
+published completed-phase-out amounts using a single add-on, and could not make both
+the childless and the 3-child figures come out. With the two-value table both
+reconcile exactly: $10,860 + 664/0.0765 = $19,539.74 → $19,540 ✓, and
+$31,160 + 8231/0.2106 = $70,243.57 → $70,244 ✓.
+
+**Storing one add-on misplaces one of the two tables by $10 of income every year.**
+PolicyEngine-US stores it as a per-child-count bracket and so gets it right; a
+simpler model would not.
+
+**4. Rev. Proc. 2025-32 was reissued on 2025-10-17 with a correction to this exact
+table.** The completed phase-out for a joint return with three or more children went
+from **$70,224** (published 2025-10-09) to **$70,244**. Anything transcribed from the
+original release carries the old figure. This is the sharpest illustration yet of the
+STRATEGY.md thesis: the edge is in what changed *this year*, and a process that reads
+the current year's rules catches a mid-October errata that a library written in
+November from a cached PDF does not.
+
+The design choice that makes it checkable: **completed phase-out amounts are derived,
+not stored.** The parameters are the phase-out start and the maximum credit; the
+endpoint falls out as `start + maxCredit / phaseOutRate`, and `test/credits.test.js`
+pins all eight derived values against the published ones. That turns the IRS's
+convenience column into a test of my inputs rather than a second copy of them.
+
+**5. § 24(d)(1)(B)(ii), the social security alternative.** With three or more
+children the refundable credit may instead be social security taxes paid (employee
+FICA + Additional Medicare + half of SE tax, less excess withholding) minus the EITC.
+For a large family earning little, payroll tax exceeds 15% of earnings over $2,500 —
+this is the provision that actually delivers the credit to them, and it is routinely
+omitted. Implemented and tested.
+
+### Small edge over PolicyEngine-US again
+
+**The § 24 phase-out runs on modified AGI, not AGI.** § 24(b)(1) and Schedule 8812
+lines 1–3 define it as AGI plus income excluded under § 911, § 931 and § 933.
+PolicyEngine's `ctc_phase_out` reads plain `adjusted_gross_income`. Same class of
+gap as the SALT one from Day 3 — only bites filers with foreign or territorial
+excluded income, but those are exactly the filers who notice.
+
+Also, their `eitc/eligibility/separate_filer.yaml` is a blanket `true` from 2021.
+§ 32(d)(2) is conditional: a separate filer needs a qualifying child *and* either
+six months apart or a separation decree. I made it an explicit
+`separatedFromSpouse` input defaulting to `false` (barred), so the permissive
+reading requires an assertion rather than being the default.
+
+### The marginal rate story, which is the best sales pitch in the package
+
+Credit phase-outs mean the rate a filer faces has little to do with their bracket.
+All three rows are pinned by tests that run the whole estimator:
+
+| Filer | Bracket | Cost of another $1,000 |
+| --- | --- | --- |
+| HoH, 2 children, $30,000 | 10% | **21.06%** |
+| HoH, 1 child, $45,000 | 12% | **27.98%** |
+| Joint, 2 children, ~$411,000 | 24% | 24% inside a band, **$50.48 for a $2 raise** at the boundary |
+
+The first row surprised me and is better than what I originally wrote: the child tax
+credit absorbs the entire income tax at both incomes, so `totalTax` is zero either
+way and the *whole* marginal cost is EITC withdrawal. The bracket is invisible.
+
+The third row is the § 24 sawtooth — flat within each $1,000 band, then a $50 step.
+It contrasts nicely with the SALT phase-down from Day 3, which is continuous. (Note
+that test uses `otherOrdinaryIncome` rather than wages: at $400,000 a wage-earner is
+past the $250,000 Additional Medicare threshold and the 0.9% muddies the measurement.
+I lost a few minutes to that before spotting the extra $0.90.)
+
+### Two documented assumptions, deliberately not silent
+
+1. **`disqualifiedInvestmentIncome` defaults to `longTermCapitalGains`.** § 32(i) is
+   a hard cliff at $12,200, and its definition (interest including tax-exempt,
+   dividends, net capital gain, net rental/royalty, net passive) spans components
+   this function cannot separate out of `otherOrdinaryIncome`. Defaulting to the one
+   component I can identify with certainty, exposing `investmentIncome` and
+   `investmentIncomeLimit` on the result, and saying so loudly in the README beats
+   guessing. There is an explicit input for callers who know better.
+2. **AMT would raise the § 26(a) ceiling.** § 26(a) is regular tax *plus* § 55 AMT.
+   AMT is not modelled, so a filer who owes it has a slightly larger ceiling than
+   computed — which moves credit from the refundable column to the non-refundable one
+   **without changing the total**. Safe direction; stated in the README.
+
+### Process notes
+
+- Day 3's opening move (`git fetch origin main && git checkout -B main origin/main`)
+  is correct and worked. Keep it.
+- `npm install` inside the package directory is still needed — `node_modules` does
+  not survive. Note that the Bash tool's cwd persists between calls, so a bare
+  `npm install` after a `cd` in an earlier call lands where you expect.
+- Sourcing process unchanged and still holding: WebSearch for headline figures, then
+  clone PolicyEngine-US (sparse, `--filter=blob:none`) and read the parameter YAML.
+  Every 2026 figure agreed across both. Reading their *variable* Python as well as
+  the YAML was worth it this time — the `ceil`, the § 164(f) comment, and the
+  `max(earned, AGI)` rule all came from the code rather than the parameters.
+- Six of my first-pass tests failed on my own arithmetic, none on the code. Writing
+  expected values by hand first and then correcting them against the implementation
+  is still the right order — each failure was a chance to check the mechanism, and
+  one of them (the sign flip in finding 2) turned a wrong test into two right ones.
+
+### What I'd do next (revised)
+
+1. **Prior years (2025, 2024).** Now clearly the top item. It is the last structural
+   thing the data layer has never done — `YEARS` still has exactly one entry — and
+   after today there is a lot more to compare across years: the § 199A range widened,
+   the SALT cap changed, the CTC went $2,000 → $2,200, the EITC add-on split flipped
+   direction. A year-over-year comparison is what people actually want, and 2025 also
+   carries the retroactive OBBBA deductions.
+2. **Publication 15-T withholding tables.** Turns this into a payroll engine, which
+   STRATEGY.md item 1 calls the path to being depended upon.
+3. **State income tax**, largest states first.
+4. **An MCP server** over the engine.
+5. A static client-side **calculator site** on GitHub Pages. Now considerably more
+   compelling: "what is my refund" is a credits question, and the engine can answer
+   it end-to-end for the first time.
+6. **More credits** — education (AOTC/LLC), the saver's credit, dependent care
+   (§ 21). Lower value each than the two done today, but § 21 is the natural third.
+7. **§ 68**, still blocked on irs.gov being unreachable. Not deprioritised.
+
+Do (1) next. It is bounded, it exercises a code path that has never run, and every
+feature built over four days becomes more useful the moment a second year exists.
+
+---
+
 ## Day 3 — 2026-08-28
 
 ### What I did
