@@ -1,4 +1,5 @@
 import { getYearParameters, nonNegative, roundCents, standardDeduction } from './core.js';
+import { childTaxCredit, earnedIncomeCredit, earnedIncomeForCredits } from './credits.js';
 import { additionalDeductions } from './obbba.js';
 import { qbiDeduction } from './qbi.js';
 import { stateAndLocalTaxDeduction } from './salt.js';
@@ -11,6 +12,7 @@ import {
 } from './taxes.js';
 import type {
   AdditionalDeductionsResult,
+  CreditsResult,
   FilingStatus,
   QbiDeductionResult,
   QualifiedBusiness,
@@ -99,6 +101,69 @@ export interface EstimateInput {
   blind?: boolean;
   spouseAge65OrOlder?: boolean;
   spouseBlind?: boolean;
+  /**
+   * Children under 17 at the end of the year who have a social security number
+   * valid for employment — § 24(c) and § 24(h)(7). Supplying this (or
+   * `otherDependents`) is what turns on the child tax credit.
+   */
+  qualifyingChildren?: number;
+  /**
+   * Dependents worth the $500 credit for other dependents rather than the child
+   * tax credit: a child who turned 17, a dependent parent, a qualifying relative.
+   */
+  otherDependents?: number;
+  /**
+   * Children meeting the § 32(c)(3) tests for the earned income credit.
+   *
+   * Usually the same as `qualifyingChildren`, but the two definitions genuinely
+   * differ — § 32 has no age-17 cut-off for a permanently disabled child and no
+   * requirement that the taxpayer claim the dependency exemption. Defaults to
+   * `qualifyingChildren`.
+   */
+  eitcQualifyingChildren?: number;
+  /**
+   * Age of the filer at the end of the year.
+   *
+   * Required to compute the earned income credit for a household with no
+   * qualifying children, because § 32(c)(1)(A)(ii)(II) allows it only between 25
+   * and 64. **With no qualifying children and no `age`, the EITC is not
+   * computed at all** — the credit is left `null` rather than guessed, since
+   * eligibility cannot be inferred from any other input.
+   */
+  age?: number;
+  /**
+   * Disqualified investment income for § 32(i): taxable and tax-exempt interest,
+   * dividends, net capital gain, net rental and royalty income, and net passive
+   * income. Above the limit ($12,200 in 2026) the earned income credit is
+   * disallowed entirely.
+   *
+   * Defaults to `longTermCapitalGains`, which is the only component this function
+   * can identify with certainty. **A filer with substantial interest or ordinary
+   * dividends inside `otherOrdinaryIncome` must supply this explicitly**,
+   * otherwise the limit is tested against too small a figure.
+   */
+  disqualifiedInvestmentIncome?: number;
+  /**
+   * Whether a married filer filing separately meets § 32(d)(2). Defaults to
+   * `false`, which bars the earned income credit.
+   */
+  separatedFromSpouse?: boolean;
+  /**
+   * Whether the taxpayer (or a spouse, on a joint return) has a social security
+   * number valid for employment, as OBBBA § 70104(c) requires from 2025 for the
+   * child portion of the § 24 credit. Defaults to `true`.
+   */
+  taxpayerHasWorkAuthorizedSocialSecurityNumber?: boolean;
+  /**
+   * Employee-share social security and Medicare tax withheld by an employer,
+   * used only by the § 24(d)(1)(B)(ii) alternative for families with three or
+   * more qualifying children.
+   *
+   * Defaults to the employee FICA implied by `w2Wages`. Supply it directly when
+   * the filer had more than one employer or any excess OASDI withheld. The half
+   * of self-employment tax that § 24(d)(2)(A)(ii) also counts is added for you.
+   */
+  employeeSocialSecurityAndMedicareTax?: number;
   /** Federal income tax already withheld, used to compute the balance due. */
   federalWithholding?: number;
   /** Total tax from the prior year's return, used for safe-harbor estimates. */
@@ -140,14 +205,40 @@ export interface EstimateResult {
   selfEmployment: SelfEmploymentTaxResult;
   additionalMedicareTax: number;
   netInvestmentIncomeTax: number;
-  /** Total Form 1040 liability. Excludes employee FICA already withheld by an employer. */
+  /**
+   * The § 26(a) regular tax liability: `ordinaryIncomeTax + capitalGainsTax`.
+   *
+   * This is the ceiling on every non-refundable credit, and it is deliberately
+   * *not* the total tax — self-employment tax, NIIT and Additional Medicare Tax
+   * sit outside it and no non-refundable credit can reduce them.
+   */
+  incomeTaxBeforeCredits: number;
+  /** The § 24 and § 32 credits, or nulls when they were not computed. */
+  credits: CreditsResult;
+  /**
+   * Total Form 1040 liability **after** non-refundable credits, floored at zero
+   * for the income tax component.
+   *
+   * Refundable credits are *not* netted here — they are payments, and they
+   * appear in {@link EstimateResult.balanceDue}. Excludes employee FICA already
+   * withheld by an employer.
+   */
   totalTax: number;
+  /** Total tax before any credit, for comparison against {@link totalTax}. */
+  totalTaxBeforeCredits: number;
   /** Marginal rate on the next dollar of ordinary income. */
   marginalRate: number;
   /** `totalTax / grossIncome`. */
   effectiveRate: number;
   withholding: number;
-  /** Positive means a payment is owed; negative means a refund. */
+  /**
+   * Positive means a payment is owed; negative means a refund.
+   *
+   * `totalTax - withholding - refundable credits`. Refundable credits are
+   * subtracted here rather than from the tax because they are paid out in full
+   * even when they exceed the liability — which is exactly how a household with
+   * no income tax still receives the EITC.
+   */
   balanceDue: number;
 }
 
@@ -155,8 +246,20 @@ export interface EstimateResult {
  * Compute a full federal tax picture for a household.
  *
  * This is deliberately a pure function over explicit inputs. It models the common
- * case well; it does not attempt credits (child tax credit, EITC), AMT, or state
- * tax. Those are documented gaps, not silent ones.
+ * case well; it does not attempt AMT or state tax. Those are documented gaps,
+ * not silent ones.
+ *
+ * The § 24 child tax credit is computed when `qualifyingChildren` or
+ * `otherDependents` is supplied. The § 32 earned income credit is computed when
+ * there are qualifying children, or when `age` is supplied — with neither, the
+ * childless credit's 25-to-64 age test cannot be evaluated and the credit is
+ * reported as `null` rather than guessed at. Supplying no dependents and no age
+ * therefore leaves every figure identical to what this function returned before
+ * credits existed.
+ *
+ * Note that `totalTax` is now net of *non-refundable* credits, while refundable
+ * credits appear in `balanceDue`. `totalTaxBeforeCredits` preserves the old
+ * figure.
  *
  * Pass `qualifiedBusinesses` and the Section 199A deduction is computed in full,
  * phase-outs included; pass `qualifiedBusinessIncomeDeduction` instead to supply
@@ -297,7 +400,83 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     year,
   });
 
-  const totalTax = roundCents(ordinary.tax + gains.tax + se.total + extraMedicare + niit);
+  // The § 26(a) ceiling on non-refundable credits. Note what is *not* in it.
+  const incomeTaxBeforeCredits = roundCents(ordinary.tax + gains.tax);
+  const otherTaxes = se.total + extraMedicare + niit;
+  const totalTaxBeforeCredits = roundCents(incomeTaxBeforeCredits + otherTaxes);
+
+  // § 32(c)(2)(A)(ii): net earnings from self-employment come in already reduced
+  // by the § 164(f) deduction, so this is not simply wages plus profit.
+  const earnedIncome = earnedIncomeForCredits({
+    wages,
+    selfEmploymentNetEarnings: se.belowThreshold ? netProfit : se.netEarnings,
+    deductibleHalfOfSelfEmploymentTax: se.deductibleHalf,
+  });
+
+  const eitcChildren = input.eitcQualifyingChildren ?? input.qualifyingChildren ?? 0;
+  // With no qualifying children the credit turns on the filer's age, which
+  // nothing else in the input implies. Rather than assume eligibility either
+  // way, leave the credit uncomputed and say so in the result.
+  const computeEitc = eitcChildren > 0 || input.age !== undefined;
+  const eitc = computeEitc
+    ? earnedIncomeCredit({
+        filingStatus,
+        year,
+        earnedIncome,
+        adjustedGrossIncome,
+        qualifyingChildren: eitcChildren,
+        investmentIncome: input.disqualifiedInvestmentIncome ?? ltcg,
+        age: input.age,
+        separatedFromSpouse: input.separatedFromSpouse,
+      })
+    : null;
+
+  const hasDependents =
+    (input.qualifyingChildren ?? 0) > 0 || (input.otherDependents ?? 0) > 0;
+
+  // § 24(d)(2): the employee half of FICA plus Additional Medicare Tax plus one
+  // half of self-employment tax. Only consulted with three or more children.
+  const employeeFica =
+    input.employeeSocialSecurityAndMedicareTax ??
+    Math.min(wages, params.socialSecurityWageBase) * params.rates.socialSecurityEmployee +
+      wages * params.rates.medicareEmployee;
+  const socialSecurityTaxes =
+    nonNegative(employeeFica, 'employeeSocialSecurityAndMedicareTax') +
+    extraMedicare +
+    se.deductibleHalf;
+
+  const ctc = hasDependents
+    ? childTaxCredit({
+        filingStatus,
+        year,
+        qualifyingChildren: input.qualifyingChildren,
+        otherDependents: input.otherDependents,
+        adjustedGrossIncome,
+        foreignEarnedIncomeExclusion: input.foreignEarnedIncomeExclusion,
+        incomeTaxBeforeCredits,
+        earnedIncome,
+        socialSecurityTaxes,
+        earnedIncomeCredit: eitc?.credit ?? 0,
+        taxpayerHasWorkAuthorizedSocialSecurityNumber:
+          input.taxpayerHasWorkAuthorizedSocialSecurityNumber,
+      })
+    : null;
+
+  const totalNonRefundable = roundCents(ctc?.nonRefundableCredit ?? 0);
+  const totalRefundable = roundCents((ctc?.refundableCredit ?? 0) + (eitc?.credit ?? 0));
+  const credits: CreditsResult = {
+    childTaxCredit: ctc,
+    earnedIncomeCredit: eitc,
+    totalNonRefundable,
+    totalRefundable,
+  };
+
+  // Non-refundable credits reduce the income tax only, and only to zero. The
+  // `max` is belt and braces — `nonRefundableCredit` is already capped at the
+  // same figure — but it keeps the invariant local and obvious.
+  const totalTax = roundCents(
+    Math.max(0, incomeTaxBeforeCredits - totalNonRefundable) + otherTaxes,
+  );
   const withholding = nonNegative(input.federalWithholding, 'federalWithholding');
 
   return {
@@ -319,11 +498,14 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     selfEmployment: se,
     additionalMedicareTax: extraMedicare,
     netInvestmentIncomeTax: niit,
+    incomeTaxBeforeCredits,
+    credits,
     totalTax,
+    totalTaxBeforeCredits,
     marginalRate: ordinary.marginalRate,
     effectiveRate: grossIncome > 0 ? totalTax / grossIncome : 0,
     withholding,
-    balanceDue: roundCents(totalTax - withholding),
+    balanceDue: roundCents(totalTax - withholding - totalRefundable),
   };
 }
 

@@ -4,9 +4,8 @@
  * Every published figure is traceable to the IRS Revenue Procedure it came from
  * via `getYearParameters(year).sources`.
  *
- * This library computes tax. It is not tax advice, and it does not model credits,
- * AMT, or state tax — see the README for the full list of what is and is not
- * covered.
+ * This library computes tax. It is not tax advice, and it does not model AMT or
+ * state tax — see the README for the full list of what is and is not covered.
  */
 
 export {
@@ -39,6 +38,16 @@ export {
 } from './obbba.js';
 export type { AdditionalDeductionsInput } from './obbba.js';
 
+export {
+  childTaxCredit,
+  childTaxCreditParameters,
+  earnedIncomeCredit,
+  earnedIncomeCreditParameters,
+  earnedIncomeCreditRow,
+  earnedIncomeForCredits,
+} from './credits.js';
+export type { ChildTaxCreditInput, EarnedIncomeCreditInput } from './credits.js';
+
 export { qbiDeduction, section199AParameters } from './qbi.js';
 export type { QbiDeductionInput } from './qbi.js';
 
@@ -57,7 +66,13 @@ export type {
   Bracket,
   BracketDetail,
   CapitalGainsResult,
+  ChildTaxCreditParameters,
+  ChildTaxCreditResult,
   Citation,
+  CreditsResult,
+  EarnedIncomeCreditParameters,
+  EarnedIncomeCreditResult,
+  EarnedIncomeCreditRow,
   FicaResult,
   FicaSide,
   FilingStatus,

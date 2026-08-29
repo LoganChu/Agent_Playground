@@ -5,6 +5,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  childTaxCredit,
+  earnedIncomeCreditParameters,
+  earnedIncomeForCredits,
   estimateFederalTax,
   getYearParameters,
   longTermCapitalGainsTax,
@@ -233,6 +236,110 @@ test('README: the estimateFederalTax SALT example', () => {
   assert.equal(estimate.stateAndLocalTax.deduction, 40_400);
   assert.equal(estimate.deduction, 58_400);
   assert.equal(estimate.deductionKind, 'itemized');
+});
+
+test('README: the credits example', () => {
+  const estimate = estimateFederalTax({
+    filingStatus: 'headOfHousehold',
+    year: 2026,
+    w2Wages: 28_000,
+    qualifyingChildren: 2,
+  });
+  assert.equal(estimate.credits.earnedIncomeCredit.credit, 6_450.43);
+  assert.equal(estimate.credits.childTaxCredit.nonRefundableCredit, 385);
+  assert.equal(estimate.credits.childTaxCredit.refundableCredit, 3_400);
+  assert.equal(estimate.totalTax, 0);
+  assert.equal(estimate.balanceDue, -9_850.43);
+});
+
+test('README: a non-refundable credit cannot reach self-employment tax', () => {
+  const freelancer = estimateFederalTax({
+    filingStatus: 'headOfHousehold',
+    year: 2026,
+    selfEmploymentNetProfit: 30_000,
+    qualifyingChildren: 1,
+  });
+  assert.equal(freelancer.incomeTaxBeforeCredits, 373.06);
+  assert.equal(freelancer.selfEmployment.total, 4_238.87);
+  assert.equal(freelancer.totalTax, 4_238.87);
+});
+
+test('README: the § 24 phase-out rounds a partial $1,000 up', () => {
+  const r = childTaxCredit({
+    filingStatus: 'marriedFilingJointly',
+    year: 2026,
+    qualifyingChildren: 2,
+    adjustedGrossIncome: 400_001,
+    incomeTaxBeforeCredits: 50_000,
+  });
+  assert.equal(r.creditAfterPhaseOut, 4_350);
+  // The figure the README contrasts it against: a flat 5% of the excess.
+  assert.equal(4_400 - 0.05 * 1, 4_399.95);
+});
+
+test('README: $30,000 of Schedule C profit is $25,585.57 of earned income', () => {
+  const se = selfEmploymentTax({ netProfit: 30_000, year: 2026 });
+  assert.equal(
+    earnedIncomeForCredits({
+      selfEmploymentNetEarnings: se.netEarnings,
+      deductibleHalfOfSelfEmploymentTax: se.deductibleHalf,
+    }),
+    25_585.57,
+  );
+});
+
+test('README: the EITC joint add-on and the corrected 2025-10-17 figure', () => {
+  const table = earnedIncomeCreditParameters(2026).table;
+  const addOn = (row) => row.phaseOutStart.marriedFilingJointly - row.phaseOutStart.single;
+  assert.equal(addOn(table[0]), 7_280);
+  assert.equal(addOn(table[3]), 7_270);
+
+  const row = table[3];
+  const completed = row.phaseOutStart.marriedFilingJointly + row.maximumCredit / row.phaseOutRate;
+  assert.equal(Math.round(completed), 70_244);
+});
+
+test('README: the § 32(i) investment income limit is $12,200', () => {
+  assert.equal(earnedIncomeCreditParameters(2026).maximumInvestmentIncome, 12_200);
+});
+
+test('README: the marginal rate table', () => {
+  const hoh = (wages, children) =>
+    estimateFederalTax({
+      filingStatus: 'headOfHousehold',
+      year: 2026,
+      w2Wages: wages,
+      qualifyingChildren: children,
+    });
+
+  // Head of household, 2 children, $30,000: a 10% bracket and a 21.06% cost.
+  assert.equal(hoh(30_000, 2).marginalRate, 0.1);
+  assert.equal(
+    Math.round((hoh(31_000, 2).balanceDue - hoh(30_000, 2).balanceDue) * 100) / 100,
+    210.6,
+  );
+
+  // Head of household, 1 child, $45,000: a 12% bracket and a 27.98% cost.
+  assert.equal(hoh(45_000, 1).marginalRate, 0.12);
+  assert.equal(
+    Math.round((hoh(46_000, 1).balanceDue - hoh(45_000, 1).balanceDue) * 100) / 100,
+    279.8,
+  );
+
+  // Joint, 2 children, around $411,000: 24% inside a band, $50.48 across one.
+  const joint = (agi) =>
+    estimateFederalTax({
+      filingStatus: 'marriedFilingJointly',
+      year: 2026,
+      otherOrdinaryIncome: agi,
+      qualifyingChildren: 2,
+    });
+  assert.equal(joint(410_500).marginalRate, 0.24);
+  assert.equal(Math.round((joint(410_500).totalTax - joint(410_400).totalTax) * 100) / 100, 24);
+  assert.equal(
+    Math.round((joint(411_001).totalTax - joint(410_999).totalTax) * 100) / 100,
+    50.48,
+  );
 });
 
 test('README: the § 68 gap is bounded at 2/37 of itemized deductions', () => {

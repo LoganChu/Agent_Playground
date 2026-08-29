@@ -273,6 +273,94 @@ export interface Section199AParameters {
   } | null;
 }
 
+/**
+ * The § 24 child tax credit, the § 24(h)(4) credit for other dependents, and the
+ * § 24(d) refundable portion (the "additional child tax credit").
+ *
+ * OBBBA § 70104 made the credit permanent at $2,200 and indexed it for inflation
+ * after 2025. The phase-out thresholds are **not** indexed — $200,000, or
+ * $400,000 on a joint return, is the statutory figure and stays there.
+ *
+ * The phase-out rounds the excess *up* to a whole $1,000 before applying the
+ * $50, which Schedule 8812 states as "if more than zero and not a multiple of
+ * $1,000, increase to the next multiple of $1,000". That is the same "or
+ * fraction thereof" rule as the § 163(h)(4) vehicle loan interest deduction, and
+ * it means a filer one dollar over the threshold loses a full $50.
+ */
+export interface ChildTaxCreditParameters {
+  /** Credit per qualifying child — $2,200 for 2026 under § 24(h)(2). */
+  readonly amountPerChild: number;
+  /** § 24(h)(4): $500 per dependent who is not a qualifying child. Not indexed. */
+  readonly amountPerOtherDependent: number;
+  /** A qualifying child must be *under* this age at the close of the year — § 24(c)(1). */
+  readonly maximumChildAge: number;
+  /**
+   * The phase-out, expressed the way § 24(b)(1) does: $50 for each $1,000 "or
+   * fraction thereof", so `rounding` is always `'up'` here.
+   */
+  readonly phaseOut: SteppedPhaseOut;
+  readonly refundable: {
+    /** § 24(d)(1)(A): the refundable portion cannot exceed this per qualifying child. */
+    readonly maximumPerChild: number;
+    /** § 24(d)(1)(B)(i): 15% of earned income above the threshold. */
+    readonly phaseInRate: number;
+    /** Earned income below this produces no refundable credit at all. */
+    readonly phaseInThreshold: number;
+    /**
+     * § 24(d)(1)(B)(ii): with at least this many qualifying children the filer
+     * may instead use social security taxes paid less the EITC, which is often
+     * larger for a family whose earnings are mostly below the 15% phase-in.
+     */
+    readonly minimumChildrenForSocialSecurityAlternative: number;
+  };
+  /**
+   * OBBBA § 70104(c), first effective 2025: the *taxpayer* must have a social
+   * security number valid for employment, not merely the child. On a joint
+   * return one spouse having one is enough.
+   */
+  readonly requiresTaxpayerSocialSecurityNumber: boolean;
+}
+
+/**
+ * One row of the § 32 earned income credit table, keyed by number of qualifying
+ * children (0, 1, 2, or 3+).
+ *
+ * `phaseOutStart` is given per filing status rather than as an unmarried figure
+ * plus a single joint add-on, because the two are **not** offset by a constant.
+ * § 32(b)(2)(B) adds an inflation-adjusted amount for a joint return and the IRS
+ * rounds the resulting sum to the nearest $10, so the effective add-on differs
+ * between the childless table and the with-children tables — $7,280 versus
+ * $7,270 in 2026, and $7,110 versus $7,120 in 2025, which is the *opposite*
+ * direction. Storing one add-on gets one of the two tables wrong by $10 of
+ * income, and $10 of income at a 21.06% phase-out rate is $2.11 of credit.
+ */
+export interface EarnedIncomeCreditRow {
+  /** § 32(b)(1) credit percentage: 7.65% / 34% / 40% / 45%. */
+  readonly creditRate: number;
+  /** § 32(b)(1) phase-out percentage: 7.65% / 15.98% / 21.06% / 21.06%. */
+  readonly phaseOutRate: number;
+  /** The maximum credit — the credit percentage applied to the earned income amount. */
+  readonly maximumCredit: number;
+  /** Where the phase-out begins, by filing status. */
+  readonly phaseOutStart: Readonly<Record<FilingStatus, number>>;
+}
+
+/** § 32, the earned income credit. */
+export interface EarnedIncomeCreditParameters {
+  /**
+   * Indexed by number of qualifying children, capped at 3. Four rows: 0, 1, 2,
+   * and 3-or-more.
+   */
+  readonly table: readonly EarnedIncomeCreditRow[];
+  /** § 32(i): disqualified investment income above this bars the credit outright. */
+  readonly maximumInvestmentIncome: number;
+  /** § 32(c)(1)(A)(ii)(II): age limits that apply only when there are no qualifying children. */
+  readonly childlessAgeRange: {
+    readonly minimum: number;
+    readonly maximum: number;
+  };
+}
+
 export interface YearParameters {
   readonly year: number;
   readonly ordinaryBrackets: Readonly<Record<FilingStatus, readonly Bracket[]>>;
@@ -305,6 +393,10 @@ export interface YearParameters {
   readonly section199A: Section199AParameters;
   /** The § 164(b)(6) state and local tax cap. */
   readonly saltCap: SaltCapParameters;
+  /** § 24 child tax credit, credit for other dependents, and the refundable portion. */
+  readonly childTaxCredit: ChildTaxCreditParameters;
+  /** § 32 earned income credit. */
+  readonly earnedIncomeCredit: EarnedIncomeCreditParameters;
   readonly sources: readonly Citation[];
 }
 
@@ -417,6 +509,121 @@ export interface QbiDeductionResult {
   readonly qualifiedBusinessNetLossCarryforward: number;
   /** Negative REIT/PTP income carried into next year, as a non-positive number. */
   readonly reitPtpLossCarryforward: number;
+}
+
+/** Schedule 8812 (Form 1040) in full. */
+export interface ChildTaxCreditResult {
+  readonly year: number;
+  readonly filingStatus: FilingStatus;
+  readonly qualifyingChildren: number;
+  readonly otherDependents: number;
+  /** AGI increased by income excluded under § 911, § 931 or § 933 — Schedule 8812 line 3. */
+  readonly modifiedAdjustedGrossIncome: number;
+  /** `amountPerChild x qualifyingChildren`, before the phase-out. */
+  readonly childCredit: number;
+  /** `amountPerOtherDependent x otherDependents`, before the phase-out. */
+  readonly otherDependentCredit: number;
+  /** `childCredit + otherDependentCredit` — Schedule 8812 line 8. */
+  readonly maximumCredit: number;
+  readonly phaseOutThreshold: number;
+  /** MAGI over the threshold, *before* it is rounded up to a whole $1,000. */
+  readonly excessIncome: number;
+  /**
+   * The phase-out reduction. The excess is rounded up to a whole $1,000 first,
+   * so this is always a multiple of $50 and a filer $1 over the threshold loses
+   * the full $50.
+   */
+  readonly phaseOutReduction: number;
+  /** `maximumCredit - phaseOutReduction`, floored at zero — Schedule 8812 line 12. */
+  readonly creditAfterPhaseOut: number;
+  /**
+   * Income tax against which the non-refundable credit is limited.
+   *
+   * This is the § 26(a) *regular tax liability* — ordinary income tax plus the
+   * tax on long-term capital gains. It deliberately excludes self-employment
+   * tax, Net Investment Income Tax and Additional Medicare Tax: those are not
+   * chapter 1 subchapter A liabilities and a non-refundable credit cannot reach
+   * them.
+   */
+  readonly limitingTaxLiability: number;
+  /** `min(creditAfterPhaseOut, limitingTaxLiability)` — the part that offsets tax. */
+  readonly nonRefundableCredit: number;
+  /** Earned income for § 32 purposes, which drives the 15% phase-in. */
+  readonly earnedIncome: number;
+  /** 15% of earned income above $2,500 — Schedule 8812 line 20. */
+  readonly refundablePhaseIn: number;
+  /**
+   * § 24(d)(1)(B)(ii): social security taxes paid less the EITC, available only
+   * with three or more qualifying children. `null` when it does not apply.
+   */
+  readonly socialSecurityAlternative: number | null;
+  /** `maximumPerChild x qualifyingChildren` — the ceiling on the refundable part. */
+  readonly refundableCap: number;
+  /** The additional child tax credit — Schedule 8812 line 27. */
+  readonly refundableCredit: number;
+  /**
+   * Credit that is simply lost: neither used against tax nor refunded.
+   *
+   * Non-zero for a filer whose tax liability is too small to absorb the
+   * non-refundable part and whose earned income is too low to phase in the
+   * refundable part. The credit for other dependents is never refundable, so it
+   * lands here whenever tax liability runs out.
+   */
+  readonly unusedCredit: number;
+}
+
+/** § 32 in full, including why the credit is zero when it is. */
+export interface EarnedIncomeCreditResult {
+  readonly year: number;
+  readonly filingStatus: FilingStatus;
+  readonly qualifyingChildren: number;
+  /**
+   * Earned income under § 32(c)(2): wages plus net earnings from
+   * self-employment, the latter **reduced by** the § 164(f) deduction for one
+   * half of self-employment tax.
+   */
+  readonly earnedIncome: number;
+  readonly adjustedGrossIncome: number;
+  readonly creditRate: number;
+  readonly phaseOutRate: number;
+  readonly maximumCredit: number;
+  /** `min(maximumCredit, creditRate x earnedIncome)` — § 32(a)(1). */
+  readonly phasedInCredit: number;
+  readonly phaseOutStart: number;
+  /**
+   * The income the phase-out actually runs on: `max(earnedIncome, AGI)`.
+   *
+   * § 32(a)(2)(B) measures the excess over the phase-out amount using AGI "if
+   * greater" than earned income, so a filer with investment losses or
+   * above-the-line deductions cannot phase the credit back in by lowering AGI.
+   */
+  readonly phaseOutIncome: number;
+  readonly phaseOutReduction: number;
+  /** The income at or above which no credit is allowed, given this filing status. */
+  readonly completedPhaseOut: number;
+  /** Disqualified income tested against the § 32(i) limit. */
+  readonly investmentIncome: number;
+  readonly investmentIncomeLimit: number;
+  /** Why the credit is zero, or `null` when the filer is eligible. */
+  readonly ineligibleReason:
+    | 'investmentIncomeTooHigh'
+    | 'filingSeparately'
+    | 'ageOutsideChildlessRange'
+    | 'noEarnedIncome'
+    | null;
+  readonly credit: number;
+}
+
+/** Every credit this package models, and the two totals that matter. */
+export interface CreditsResult {
+  /** Schedule 8812, or `null` when no dependents were supplied. */
+  readonly childTaxCredit: ChildTaxCreditResult | null;
+  /** § 32, or `null` when the credit was not computed — see {@link EstimateInput.age}. */
+  readonly earnedIncomeCredit: EarnedIncomeCreditResult | null;
+  /** Credits that can only reduce income tax, never below zero. */
+  readonly totalNonRefundable: number;
+  /** Credits that are paid out even when they exceed the tax due. */
+  readonly totalRefundable: number;
 }
 
 /** One part of Schedule 1-A, with enough detail to explain the number. */

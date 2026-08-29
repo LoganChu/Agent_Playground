@@ -3,10 +3,10 @@
 A dependency-free US federal tax engine for JavaScript and TypeScript.
 
 Income tax brackets, self-employment tax, FICA, Additional Medicare Tax, long-term
-capital gains, net investment income tax, the Section 199A qualified business income
-deduction, the SALT cap and its phase-down, the four OBBBA deductions on Schedule
-1-A, and quarterly estimated payments — with every published figure traceable to the
-IRS release it came from.
+capital gains, net investment income tax, the child tax credit, the earned income
+credit, the Section 199A qualified business income deduction, the SALT cap and its
+phase-down, the four OBBBA deductions on Schedule 1-A, and quarterly estimated
+payments — with every published figure traceable to the IRS release it came from.
 
 ```bash
 npm install us-federal-tax
@@ -203,6 +203,131 @@ estimate.deductionKind; // 'itemized'
 `stateAndLocalTax` is reported even when the standard deduction wins, so you can
 see how near the decision was.
 
+## Credits: the child tax credit and the EITC
+
+These are the two credits that decide most ordinary returns, and the distinction
+between the two *kinds* of credit matters more than the amounts:
+
+- A **non-refundable** credit reduces income tax, and only to zero.
+- A **refundable** credit is paid out whether or not any tax is due.
+
+```js
+const estimate = estimateFederalTax({
+  filingStatus: 'headOfHousehold',
+  year: 2026,
+  w2Wages: 28_000,
+  qualifyingChildren: 2,
+});
+
+estimate.credits.earnedIncomeCredit.credit; // 6450.43
+estimate.credits.childTaxCredit.nonRefundableCredit; // 385 — all the income tax there was
+estimate.credits.childTaxCredit.refundableCredit; // 3400
+estimate.totalTax; // 0
+estimate.balanceDue; // -9850.43 — a refund
+```
+
+**A non-refundable credit cannot touch self-employment tax.** The § 26(a) ceiling
+is the *regular tax liability* — ordinary income tax plus tax on capital gains.
+Self-employment tax, NIIT and Additional Medicare Tax sit outside it. Subtracting
+credits from a single "total tax" figure gets this wrong in the filer's favour:
+
+```js
+const freelancer = estimateFederalTax({
+  filingStatus: 'headOfHousehold',
+  year: 2026,
+  selfEmploymentNetProfit: 30_000,
+  qualifyingChildren: 1,
+});
+
+freelancer.incomeTaxBeforeCredits; // 373.06 — the whole ceiling
+freelancer.selfEmployment.total; // 4238.87
+freelancer.totalTax; // 4238.87 — the credit erased the income tax and nothing else
+```
+
+`estimate.incomeTaxBeforeCredits` is that ceiling, and
+`estimate.totalTaxBeforeCredits` is what `totalTax` used to be.
+
+### Three things that are easy to get wrong
+
+**The § 24 phase-out rounds up.** "$50 for each $1,000 (**or fraction thereof**)",
+and Schedule 8812 line 10 says to increase a partial excess to the next whole
+$1,000. A joint filer one dollar over $400,000 loses a full $50, not five cents.
+Modelling it as a flat 5% of the excess is wrong for everyone inside the range.
+
+```js
+childTaxCredit({
+  filingStatus: 'marriedFilingJointly',
+  qualifyingChildren: 2,
+  adjustedGrossIncome: 400_001,
+  incomeTaxBeforeCredits: 50_000,
+}).creditAfterPhaseOut; // 4350, not 4399.95
+```
+
+**Earned income is net of half of self-employment tax.** § 32(c)(2)(A)(ii) defines
+net earnings from self-employment "determined with regard to the deduction allowed
+by section 164(f)". $30,000 of Schedule C profit is $25,585.57 of earned income,
+not $30,000 — and the same definition drives the § 24(d) refundable phase-in. Using
+gross profit overstates the credit while it is phasing in and *understates* it
+after the phase-out begins, so the error is hard to catch by sampling.
+
+**The § 32 phase-out runs on the greater of earned income and AGI.**
+§ 32(a)(2)(B) says "adjusted gross income (or, if greater, the earned income)", so
+a filer cannot phase the credit back in with above-the-line deductions.
+
+### Details this library models that most do not
+
+- **§ 24(d)(1)(B)(ii), the social security alternative.** With three or more
+  children the refundable credit may instead be social security taxes paid less
+  the EITC. For a large family earning little, payroll tax exceeds 15% of earnings
+  over $2,500 — this is the provision that actually reaches them.
+- **The child credit and the $500 credit for other dependents phase out
+  together**, on the combined figure, not separately.
+- **The § 32(i) investment income limit is a cliff.** One dollar over $12,200 and
+  the entire credit is gone. `ineligibleReason` says so rather than silently
+  returning zero.
+- **The EITC joint-filer add-on is not a constant.** § 32(b)(2)(B) adds an indexed
+  amount and the IRS rounds the *sum* to the nearest $10, so in 2026 the effective
+  add-on is $7,280 with no children but $7,270 with children — and in 2025 the
+  split ran the other way. Storing one add-on misplaces one of the two tables.
+- **Rev. Proc. 2025-32 was corrected on 2025-10-17.** The completed phase-out for a
+  joint return with three or more children became $70,244, up from the $70,224 in
+  the 2025-10-09 release. This library derives that figure from its parameters and
+  `test/credits.test.js` pins it against the corrected published value.
+- **OBBBA § 70104(c)'s taxpayer SSN requirement**, new for 2025: without a
+  work-authorized SSN the child credit is lost but the $500 credit survives.
+- **The § 24 phase-out runs on modified AGI** — AGI plus income excluded under
+  § 911, § 931 or § 933, which is Schedule 8812 line 3 — not on plain AGI.
+
+### Credit phase-outs raise the real marginal rate
+
+Both credits are withdrawn on income, which means the rate a filer actually faces
+has little to do with their bracket:
+
+| Filer | Bracket | What another $1,000 costs |
+| --- | --- | --- |
+| Head of household, 2 children, $30,000 | 10% | **21.06%** — the CTC shelters the bracket entirely, so the cost is pure EITC withdrawal |
+| Head of household, 1 child, $45,000 | 12% | **27.98%** — 12% bracket plus 15.98% EITC withdrawal |
+| Joint, 2 children, $411,000 | 24% | 24% inside each $1,000 band, then **$50 at the boundary** — a $2 raise costs $50.48 |
+
+`test/credits.test.js` pins every figure in that table by running the whole
+estimator.
+
+### Turning the credits on
+
+The child tax credit is computed when you pass `qualifyingChildren` or
+`otherDependents`. The EITC is computed when there are qualifying children, or
+when you pass `age` — with neither, the childless credit's 25-to-64 age test
+cannot be evaluated, so the credit is reported as `null` rather than guessed at.
+Passing no dependents and no age leaves every figure exactly as it was before
+credits existed.
+
+Two inputs need care. `disqualifiedInvestmentIncome` defaults to
+`longTermCapitalGains`, which is the only component this library can identify with
+certainty — **if you have substantial interest or dividends inside
+`otherOrdinaryIncome`, supply it explicitly**. And `separatedFromSpouse` defaults
+to `false`, barring a married-filing-separately filer from the EITC unless you
+assert the § 32(d)(2) conditions.
+
 ## Section 199A (the QBI deduction)
 
 Twenty percent of qualified business income — and then three limitations that
@@ -294,6 +419,10 @@ you have made that election).
 | `longTermCapitalGainsTax({ ordinaryTaxableIncome, longTermGains, ... })` | Correctly stacked |
 | `netInvestmentIncomeTax({ modifiedAdjustedGrossIncome, netInvestmentIncome, ... })` | Form 8960, 3.8% |
 | `standardDeduction({ filingStatus, age65OrOlder, blind, ... })` | Including age and blindness additions |
+| `childTaxCredit(input)` | Schedule 8812: CTC, the $500 other-dependent credit, phase-out, and the refundable ACTC |
+| `earnedIncomeCredit(input)` | § 32 in full, with `ineligibleReason` when the credit is zero |
+| `earnedIncomeForCredits({ wages, selfEmploymentNetEarnings, ... })` | § 32(c)(2) earned income, net of the § 164(f) deduction |
+| `childTaxCreditParameters(year)` / `earnedIncomeCreditParameters(year)` | Credit amounts, thresholds and rates for a year |
 | `qbiDeduction(input)` | § 199A in full: SSTB phase-out, wage/UBIA cap, taxable income limit, § 199A(i) floor |
 | `section199AParameters(year)` | Thresholds, phase-in ranges and rates for a year |
 | `stateAndLocalTaxDeduction({ stateAndLocalTaxesPaid, adjustedGrossIncome, ... })` | § 164(b)(6) cap with its phase-down |
@@ -312,8 +441,17 @@ Filing statuses are `'single'`, `'marriedFilingJointly'`, `'marriedFilingSeparat
 
 Stated plainly, because a tax library that hides its gaps is worse than useless:
 
-- **No credits.** Child tax credit, EITC, education and energy credits are not modeled.
+- **Only two credits.** The child tax credit (with the credit for other dependents
+  and the refundable ACTC) and the earned income credit are modeled in full.
+  Education, energy, retirement-saver, premium tax, foreign tax and dependent-care
+  credits are not. Nor is eligibility itself: you must decide who is a qualifying
+  child, and the § 32(c)(3) test for the EITC genuinely differs from the § 24(c)
+  test for the child credit — pass `eitcQualifyingChildren` when they diverge.
 - **No AMT**, no state or local tax, no payroll withholding tables (Publication 15-T).
+  Because § 26(a) adds AMT to the ceiling on non-refundable credits, a filer who
+  owes AMT has a slightly larger ceiling than this library computes. That shifts
+  credit from the refundable column to the non-refundable one without changing the
+  total.
 - **Section 199A stops short of three corners:** the § 199A(g) cooperative deduction,
   the § 199A(b)(7) patron reduction, and elective aggregation under Reg. § 1.199A-4.
   You must also decide yourself whether a business is a specified service trade or
@@ -341,7 +479,8 @@ Stated plainly, because a tax library that hides its gaps is worse than useless:
 ## Accuracy and provenance
 
 2026 figures come from the IRS inflation-adjustment release for tax year 2026
-(Rev. Proc. 2025-32, published 2025-10-09) and the SSA wage base announcement. Every
+(Rev. Proc. 2025-32, published 2025-10-09 and **reissued 2025-10-17** with a
+correction to the earned income credit table) and the SSA wage base announcement. Every
 figure was cross-checked against a second independent source before being committed,
 and the test suite pins hand-computed expected values rather than snapshots of the
 code's own output.

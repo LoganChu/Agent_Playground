@@ -331,6 +331,140 @@ export const YEAR_2026: YearParameters = {
     },
   },
 
+  // § 24, as amended by OBBBA § 70104. The credit is now permanent at $2,200 and
+  // indexed after 2025, but the indexing rounds *down* to a multiple of $100, so
+  // the 2026 figure is unchanged from 2025 and will stay at $2,200 until the
+  // unrounded amount clears $2,300. Same story for the $1,700 refundable cap.
+  //
+  // The two thresholds are not indexed at all: § 24(b)(2) fixes them at $200,000
+  // and $400,000 in the statute, with no adjustment provision.
+  childTaxCredit: {
+    amountPerChild: 2_200,
+    // § 24(h)(4). Never indexed, and never refundable.
+    amountPerOtherDependent: 500,
+    // "Under 17" — § 24(c)(1) requires the child not to have attained age 17.
+    maximumChildAge: 17,
+
+    phaseOut: {
+      amountPerIncrement: 50,
+      increment: 1_000,
+      // § 24(b)(1): "$50 for each $1,000 (or fraction thereof)". Schedule 8812
+      // line 10 says to increase a partial excess to the next whole $1,000, so
+      // one dollar over the threshold costs the full $50. Modelling this as a
+      // flat 5% of the excess is wrong by up to $50 for every filer in the range.
+      rounding: 'up',
+      thresholds: {
+        single: 200_000,
+        marriedFilingJointly: 400_000,
+        // Not halved. § 24(b)(2)(B) gives $200,000 to everyone who is not filing
+        // jointly, which is one of the few places the code does not halve a joint
+        // figure for a separate return.
+        marriedFilingSeparately: 200_000,
+        headOfHousehold: 200_000,
+        qualifyingSurvivingSpouse: 400_000,
+      },
+    },
+
+    refundable: {
+      maximumPerChild: 1_700,
+      phaseInRate: 0.15,
+      phaseInThreshold: 2_500,
+      minimumChildrenForSocialSecurityAlternative: 3,
+    },
+
+    // OBBBA § 70104(c), first effective 2025. Before that only the *child* needed
+    // a work-authorized SSN; now the taxpayer does too.
+    requiresTaxpayerSocialSecurityNumber: true,
+  },
+
+  // § 32. The credit and phase-out percentages are statutory and have not moved
+  // since 1996; the dollar amounts are indexed annually.
+  //
+  // Two things about this table are easy to get wrong.
+  //
+  // 1. The joint-return add-on under § 32(b)(2)(B) is applied and *then* the sum
+  //    is rounded to the nearest $10, so the effective add-on is not constant
+  //    across the table. In 2026 it is $7,280 with no children ($18,140 −
+  //    $10,860) but $7,270 with children ($31,160 − $23,890). In 2025 the split
+  //    ran the other way: $7,110 and $7,120. Storing a single add-on therefore
+  //    misplaces one of the two tables by $10 of income every year.
+  // 2. Rev. Proc. 2025-32 was reissued on 2025-10-17 with a correction to this
+  //    table: the completed phase-out amount for a joint return with three or
+  //    more children became $70,244, up from the $70,224 published on 2025-10-09.
+  //    Anything transcribed from the original release carries the old figure.
+  //
+  // The completed phase-out amounts are *derived* here rather than stored —
+  // `phaseOutStart + maximumCredit / phaseOutRate` — and `test/credits.test.js`
+  // pins the derived values against the published ones.
+  earnedIncomeCredit: {
+    table: [
+      // No qualifying children. Max credit $664 at $8,680 of earned income.
+      {
+        creditRate: 0.0765,
+        phaseOutRate: 0.0765,
+        maximumCredit: 664,
+        phaseOutStart: {
+          single: 10_860,
+          marriedFilingJointly: 18_140,
+          marriedFilingSeparately: 10_860,
+          headOfHousehold: 10_860,
+          qualifyingSurvivingSpouse: 18_140,
+        },
+      },
+      // One qualifying child. Max credit $4,427 at $13,020 of earned income.
+      {
+        creditRate: 0.34,
+        phaseOutRate: 0.1598,
+        maximumCredit: 4_427,
+        phaseOutStart: {
+          single: 23_890,
+          marriedFilingJointly: 31_160,
+          marriedFilingSeparately: 23_890,
+          headOfHousehold: 23_890,
+          qualifyingSurvivingSpouse: 31_160,
+        },
+      },
+      // Two qualifying children. Max credit $7,316 at $18,290 of earned income.
+      {
+        creditRate: 0.4,
+        phaseOutRate: 0.2106,
+        maximumCredit: 7_316,
+        phaseOutStart: {
+          single: 23_890,
+          marriedFilingJointly: 31_160,
+          marriedFilingSeparately: 23_890,
+          headOfHousehold: 23_890,
+          qualifyingSurvivingSpouse: 31_160,
+        },
+      },
+      // Three or more. Same $18,290 earned income amount as two children, but a
+      // 45% credit rate, so the maximum is $8,231.
+      {
+        creditRate: 0.45,
+        phaseOutRate: 0.2106,
+        maximumCredit: 8_231,
+        phaseOutStart: {
+          single: 23_890,
+          marriedFilingJointly: 31_160,
+          marriedFilingSeparately: 23_890,
+          headOfHousehold: 23_890,
+          qualifyingSurvivingSpouse: 31_160,
+        },
+      },
+    ],
+
+    // § 32(i). A hard cliff, not a phase-out: one dollar of disqualified income
+    // over this and the entire credit is gone.
+    maximumInvestmentIncome: 12_200,
+
+    // § 32(c)(1)(A)(ii)(II). Applies only when there are no qualifying children.
+    // ARPA suspended both ends for 2021 only; they are back.
+    childlessAgeRange: {
+      minimum: 25,
+      maximum: 64,
+    },
+  },
+
   sources: [
     {
       title: 'IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026',
@@ -409,6 +543,28 @@ export const YEAR_2026: YearParameters = {
     {
       title: 'Pub. L. 119-21 § 70120 — the raised SALT cap for 2025-2029 and its phase-down',
       url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
+    },
+    {
+      title: '26 U.S.C. § 24 — child tax credit, the $50-per-$1,000 phase-out, and § 24(d) refundability',
+      url: 'https://www.law.cornell.edu/uscode/text/26/24',
+    },
+    {
+      title:
+        'Pub. L. 119-21 § 70104 — § 24 made permanent at $2,200, indexed, with the new taxpayer SSN requirement',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
+    },
+    {
+      title: 'IRS Schedule 8812 (Form 1040) — credits for qualifying children and other dependents',
+      url: 'https://www.irs.gov/pub/irs-pdf/f1040s8.pdf',
+    },
+    {
+      title: '26 U.S.C. § 32 — earned income credit, including § 32(c)(2) earned income and the § 32(i) investment income limit',
+      url: 'https://www.law.cornell.edu/uscode/text/26/32',
+    },
+    {
+      title:
+        'IRS Rev. Proc. 2025-32 as reissued 2025-10-17 — corrects the EITC completed phase-out for a joint return with three or more children to $70,244',
+      url: 'https://www.irs.gov/irb/2025-45_IRB',
     },
   ],
 };
