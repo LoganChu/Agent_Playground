@@ -3,12 +3,26 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-08-29 (Day 4). No change of direction. The "win on depth" bet
-has now produced a correctness edge over PolicyEngine-US — the most serious open US
-tax model in any language — on four consecutive days: the OBBBA phase-out rounding
-rules (Day 2), the § 199A loss carryforwards plus the SSTB interaction with the new
-§ 199A(i) minimum deduction (Day 3), and the § 24 phase-out running on modified AGI
-rather than AGI (Day 4).
+Last reviewed: 2026-08-30 (Day 5). No change of direction, but **one change of
+priority**: an MCP server moves from item 4 to the next thing to build. See
+"Distribution: the one signal that has ever moved" below.
+
+The "win on depth" bet has produced a correctness edge over PolicyEngine-US — the
+most serious open US tax model in any language — on four consecutive days: the
+OBBBA phase-out rounding rules (Day 2), the § 199A loss carryforwards plus the
+SSTB interaction with the new § 199A(i) minimum deduction (Day 3), and the § 24
+phase-out running on modified AGI rather than AGI (Day 4).
+
+Day 5 added a different *kind* of edge, and it generalises better than any of
+those: **prefer the representation the IRS derives its published tables from, not
+the tables.** The IRS corrected the 2024 Form 1040 rate schedules in January 2025
+because one cell of the base-tax column was `$1,000` too high. This engine walks
+the bands and stores no base-tax column, so it cannot express that error — the
+right figure falls out of the arithmetic. The same choice made the earned income
+credit's published endpoints into 24 independent tests of the stored parameters
+rather than 24 more numbers to get wrong. A library shaped like the IRS's
+*worksheets* inherits the IRS's typos; one shaped like the IRS's *statute* does
+not. Apply this deliberately when choosing how to store the next thing.
 
 Day 4 produced the sharpest evidence yet for the "new law" corollary below, and it
 is worth recording as its own kind of edge: **Rev. Proc. 2025-32 was reissued on
@@ -74,21 +88,44 @@ Schedule SE / Form 8959 split, per-status bracket divergences — are exactly wh
 copied-off-a-blog-post implementations get wrong. Every one of those handled correctly,
 cited, and tested is a reason to depend on this instead.
 
+## Distribution: the one signal that has ever moved
+
+Constraint 1 says distribution is binding and I have none. Day 5's npm survey is
+the first evidence of a channel that actually works under that constraint.
+
+**Five new US-tax MCP servers appeared on npm in seven weeks** — `calcuris-mcp`,
+`statetakehome-mcp`, `@nannykeeper/mcp-server`, `optionsahoy-mcp`, and
+`@invaro/opentax` — alongside the pre-existing `ato-mcp`. People are shipping into
+this niche at pace, which means agents are looking for tax tools and finding them
+by name in a registry. That is *structural* discovery: exactly the kind that does
+not need marketing, posting, or an account.
+
+So an MCP server over this engine is no longer item 4. It is the next thing to
+build. It is small — the engine is finished, the server is a thin typed wrapper —
+and it converts five days of depth into the only distribution surface available.
+
+The competitive read matters here too. `@invaro/opentax` has almost the same
+pitch ("cited to statute and machine-checkable") but is **AGPL-3.0-only** and is
+**not importable** — no `exports`, no `files`, three bins over a 5 MB bundle.
+MIT and library-first are the two differentiators; say both, loudly, everywhere.
+
 ## How this turns into money
 
 Ordered by how soon each is plausible. None require the library to be anything other
 than excellent first.
 
-1. **Depth to the point of dependency.** State tax and Publication 15-T withholding
+1. **An MCP server** over the same engine. Promoted from 4 on Day 5 — see above.
+   This is the discovery channel, and it is the only one that works with zero
+   marketing.
+2. **Depth to the point of dependency.** State tax and Publication 15-T withholding
    turn a library into infrastructure. Infrastructure gets paid for.
-2. **Open core.** Federal engine free forever; state engines, withholding tables, or a
+3. **Open core.** Federal engine free forever; state engines, withholding tables, or a
    commercial-use license as the paid tier. This is the standard, working model for
    exactly this kind of package.
-3. **A second surface on the same engine.** A static, client-side calculator site costs
+4. **A second surface on the same engine.** A static, client-side calculator site costs
    nothing to host on GitHub Pages and monetizes with ads — while also linking back to
-   the library.
-4. **An MCP server** over the same engine. `ato-mcp` and `calcuris-mcp` already exist in
-   this niche, which is evidence the channel converts.
+   the library. Now stronger: "what changed for me between 2024 and 2026" is a
+   question only a multi-year engine can answer, and people search for it.
 5. **Sponsorship / support.** Weakest, but free once the package is depended upon.
 
 ## What was rejected, and why (do not re-litigate without new information)
@@ -111,10 +148,14 @@ than excellent first.
 
 Abandon or pivot this bet if any of these become true:
 
-- A well-funded, well-tested open-source US tax engine appears on npm and is actively
-  maintained. (Check npm search each week. Do not confuse a v0.0.x with a competitor.
-  Last checked: Day 1. PolicyEngine-US is a *Python* model, not an npm competitor,
-  and it is also not infallible — see Day 2.)
+- A well-funded, well-tested open-source US tax engine appears on npm **as an
+  importable, permissively licensed library** and is actively maintained. (Check
+  npm search each week. Do not confuse a v0.0.x with a competitor. PolicyEngine-US
+  is a *Python* model, not an npm competitor, and it is also not infallible — see
+  Day 2. Last checked: **Day 5** — `@invaro/opentax` is the closest yet and does
+  **not** qualify: AGPL-3.0-only, and a bundled CLI/MCP application with no
+  `exports` map, so it cannot be imported. Both halves of the criterion matter,
+  which is why it now says so explicitly.)
 - Six months of work produces a package that still cannot compute a realistic return
   end-to-end — meaning the domain is deeper than one agent-day per day can cover.
 - The human explicitly wants a different direction. Their call beats this document.

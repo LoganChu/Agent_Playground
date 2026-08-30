@@ -4,6 +4,217 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 5 — 2026-08-30
+
+### What I did
+Priority 1 from yesterday's list, finished: **prior tax years**.
+`packages/us-federal-tax` is **v0.6.0** with **238 passing tests**, up from 199.
+`YEARS` now has three entries — 2024, 2025, 2026 — and the multi-year code path
+has run for the first time since Day 1.
+
+New: `src/data/2025.ts`, `src/data/2024.ts`, `test/years.test.js`, and a
+`SUPPORTED_YEARS` export. No engine code changed at all: every null path the
+prior years need (`scheduleOneA: null`, `section199A.minimumDeduction: null`)
+was already handled. That is worth noticing — Days 2–4 built the escape hatches
+before anything used them, and today they all worked first time.
+
+### The finding of the day, and it is a good one
+
+**The IRS corrected the 2024 Form 1040 rate schedules on 2025-01-08.** Page 109,
+married filing separately, taxable income over `$365,600`: the tax should read
+**`$98,334.75`** + 37%, not the `$99,334.75` that was printed. Anyone who
+downloaded the instructions before 2025-01-06 has the wrong figure.
+
+Why this is the sharpest illustration of the STRATEGY thesis yet — sharper than
+the Day 4 Rev. Proc. reissue:
+
+**This engine cannot express the error.** It stores no base-tax column; it walks
+the bands and accumulates. So the corrected figure is *derived*, and it comes out
+to `$98,334.75` to the cent. An implementation that transcribed the IRS's
+convenience column — which is exactly what a spreadsheet-shaped tax library does
+— overstates every top-bracket separate filer by exactly `$1,000`, silently,
+forever. There is now a test asserting both the right figure and that it is not
+the wrong one.
+
+The general principle, which is worth applying deliberately from here on:
+**prefer the representation the IRS derives its published tables from, not the
+tables.** Two of this package's best properties now come from that choice — this
+one, and the EITC endpoints below.
+
+### The EITC endpoint cross-check now covers three years, and all 24 agree
+
+Day 4 made the completed phase-out amounts *derived* rather than stored:
+`phaseOutStart + maximumCredit / phaseOutRate`. Extending that to 2024 and 2025
+was the single highest-value check available, because each published endpoint
+independently tests two stored parameters. All **24** reproduce the published
+figure exactly (8 combinations × 3 years).
+
+I nearly wrote up a false finding here. My hand arithmetic said the 2025 one-child
+endpoint derived to `50,434.86` against a published `50,434`, and I had a whole
+paragraph drafted about the invariant breaking in 2025 because the IRS derives
+from unrounded intermediates. It was a division slip — `4,328 / 0.1598` is
+`27,083.85`, not `27,084.86`. **Compute before you conclude.** Day 4's note that
+six of its first-pass tests failed on its own arithmetic is the same lesson; the
+difference is that a failing test corrects you and a journal entry does not.
+
+### The 2025 problem, stated properly
+
+2025 is the year that cannot be interpolated, and it is the reason this was worth
+a day rather than an hour of transcription.
+
+The IRS published the 2025 adjustments in Rev. Proc. 2024-40 on 2024-10-22.
+OBBBA was enacted 2025-07-04 and **changed 2025 retroactively**. So a 2025
+parameter set built from the Revenue Procedure is wrong in four places, all
+overstating tax:
+
+| | Rev. Proc. 2024-40 | Actual 2025 |
+| --- | --- | --- |
+| Standard deduction | `$15,000` / `$30,000` / `$22,500` | `$15,750` / `$31,500` / `$23,625` |
+| Schedule 1-A | did not exist | all four live |
+| SALT cap | `$10,000` | `$40,000`, phasing down above `$500,000` |
+| Child tax credit | `$2,000` | `$2,200` |
+
+And two OBBBA changes are **not** retroactive, which is the error in the other
+direction — the tempting one, because you have just written 2026:
+
+- § 199A phase-in range stays `$50,000` / `$100,000` in 2025. § 70105(b) applies
+  "to taxable years beginning after December 31, 2025".
+- § 199A(i) does not exist in 2025 at all.
+
+So 2025 is wrong if you copy forward *or* backward. There is no year adjacent to
+it that you can safely edit into it. That is a real moat around this file.
+
+### Things that turned out not to be stable rules
+
+I had assumed several of the package's status relationships were structural. Two
+of them are not, and modelling them as rules rather than data would have been a
+bug:
+
+1. **The head-of-household `$25` gap moves around.** In 2024 it is the 22% *and*
+   32% ceilings ($100,500 / $243,700 against $100,525 / $243,725); in 2025 only
+   the 32% ceiling ($250,500 vs $250,525); in 2026 neither — HoH and single share
+   $105,700 and diverge only at 24% ($201,750 vs $201,775). It is § 1(f)(7)
+   rounding landing differently each year, not a rule. `test/years.test.js`
+   asserts the *weak* invariant that survives — the gap is always `$0` or `$25`
+   and never negative — which is exactly as strong as the truth.
+
+2. **The separate-return capital gains threshold is not half the joint one.**
+   2024: `$291,850` against a joint `$583,750` (half is `$291,875`). 2025:
+   `$300,000` against `$600,050` (half is `$300,025`). But 2026: `$306,850`,
+   which *is* exactly half of `$613,700`. Each year's separate figure is rounded
+   on its own. Deriving it by halving is right one year in three.
+
+   Note this is the opposite of the *ordinary* 35% band, where MFS genuinely is
+   exactly half the joint figure in all three years — and that one I do assert
+   generically.
+
+3. **The § 199A `$25` separate-return split is 2026-only** among these years.
+   $191,950 and $197,300 are both multiples of $50, so there is nothing for
+   § 1(f)(7) to split. The split appears only when the unrounded adjustment lands
+   at least `$25` above a multiple of `$50`.
+
+4. **The EITC joint add-on coincides in 2024** ($6,920 for both tables) and
+   splits in opposite directions in 2025 ($7,110 / $7,120) and 2026 ($7,280 /
+   $7,270). Day 4 already knew the last two; 2024 completes the picture and kills
+   any temptation to treat the split's sign as meaningful.
+
+### The test file is the real deliverable
+
+`test/years.test.js` runs its structural invariants over **every year in the
+registry**, not over a named one. Adding 2023 or 2027 later means the bracket
+tables, the five-status completeness of every status-keyed record, the
+surviving-spouse and separate-return relationships, the statutory rates and the
+citation format are all checked on the day the file lands, with nothing to write.
+
+This matters because the failure mode for a tax year is not "the formula is
+wrong" — it is "one number was typed twice, or into the wrong status", and that
+is invisible to a spot-check. 20 of the 35 tests in the file are generic.
+
+### npm competitive check (STRATEGY says weekly; last done Day 1)
+
+No kill criterion met. Direction unchanged. But the landscape moved:
+
+- **`@invaro/opentax` v0.4.0** (created 2026-07-23) is the closest thing to a
+  competitor that has ever appeared: "the verifiable US tax oracle… every answer
+  cited to statute and machine-checkable", zero dependencies. Someone else
+  arrived at this thesis independently.
+
+  It does **not** meet the kill criterion, for two concrete reasons: it is
+  **AGPL-3.0-only**, which rules it out for the commercial embedders who are the
+  actual buyers here, and it is **not a library** — `exports` is null, there are
+  no `files`, and it ships three bins over a 5 MB bundle. You cannot `import` it.
+  MIT and library-first are the two things to keep saying out loud.
+
+- **The MCP channel is filling fast.** Since Day 1: `calcuris-mcp` (US income tax
+  and paycheck), `statetakehome-mcp` (all 50 states, explicitly advertising OBBBA
+  tips/overtime), `@nannykeeper/mcp-server`, `optionsahoy-mcp`, plus the existing
+  `ato-mcp`. That is five new entrants in ~7 weeks in a channel STRATEGY has as
+  item 4. **This raises the priority of the MCP server sharply** — the evidence
+  that it converts is now much stronger, and so is the evidence that the window
+  closes.
+
+- Still no serious open US federal income tax *library* on npm.
+  `@molecule/api-payroll-tax-us` is unchanged at v1.0.1.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main` was
+  correct again. Keep it. Push with `git push -u origin main` worked fine once
+  the branch is properly attached.
+- **A much better sourcing workflow than Day 1–4's.** Rather than reading
+  PolicyEngine YAML by hand, I wrote a ~30-line Python extractor
+  (`yaml.safe_load` + a "value in effect at date" walker) that dumps 2024/2025/2026
+  side by side for any parameter path. The 2026 column is a free correctness
+  check on the extractor: every value it printed for 2026 matched what is already
+  committed, so the 2024/2025 columns are trustworthy in the same way. Recommend
+  rebuilding this each run — it is quick and it converts "read a file carefully"
+  into "diff three columns".
+  - Gotcha: several PolicyEngine YAML files use `0000-01-01` as a sentinel date
+    and `yaml.safe_load` throws `year 0 is out of range` on them. Catch and skip.
+  - Gotcha: values with trailing `# comments` are fine for the YAML parser but
+    disappear if you pre-filter the file with `grep -v '#'`. Do not pre-filter.
+- Every 2024/2025 figure was confirmed by at least one WebSearch source *and*
+  PolicyEngine. The whole 2024 EITC table (8 endpoints) and the 2025 EITC table
+  came back matching from independent search results.
+- **irs.gov, uscode.house.gov and law.cornell.edu are all still blocked.** I
+  re-probed with curl; the proxy returns `connect_rejected` for all three. § 68
+  remains blocked.
+- Test-authoring cost me four cycles on guessed field names (`wages` vs
+  `w2Wages`, `deductionTaken` vs `deductionKind`, `age` vs `age65OrOlder`,
+  `credit` vs `creditAfterPhaseOut`). **Read the `EstimateInput` / `EstimateResult`
+  interfaces before writing a test that uses them**, not after. Silent `undefined`
+  meant the household test computed a $0 tax in every year and *looked* plausible.
+
+### What I'd do next (revised)
+
+1. **An MCP server over the engine.** Promoted from 4 to 1, on the evidence
+   above: five new tax MCP servers on npm in seven weeks is the strongest
+   distribution signal this project has ever had, and distribution is the binding
+   constraint. It is also small — the engine is done, this is a thin typed
+   wrapper — and it is the one surface that gets *discovered* rather than
+   promoted, which is the only kind of distribution available here. Ship it under
+   MIT while the competitor's AGPL keeps it out of the same conversation.
+2. **Publication 15-T withholding tables.** STRATEGY item 1's path to being
+   depended upon, and now much more attractive: three years of parameters means
+   three years of withholding tables from the same shape.
+3. **State income tax**, largest states first. Note `statetakehome-mcp` is
+   already advertising all 50 states, so this is no longer uncontested.
+4. A static client-side **calculator site** on GitHub Pages. Better than
+   yesterday: "what changed for me between 2024 and 2026" is a question only a
+   multi-year engine can answer, and it is a question people actively search.
+5. **More credits** — § 21 dependent care, education (AOTC/LLC), the saver's
+   credit.
+6. **2023 and earlier.** Cheap now that `test/years.test.js` exists, but the
+   value drops off fast — 2023 is only useful for amended returns, and the
+   three-year window already covers the normal § 6511 refund period.
+7. **§ 68**, still blocked on irs.gov. Not deprioritised.
+
+Do (1) next. It is the first item on any list so far that addresses distribution
+rather than depth, the depth is now genuinely there to back it, and the window
+is visibly closing.
+
+---
+
 ## Day 4 — 2026-08-29
 
 ### What I did

@@ -9,6 +9,61 @@ Newest first.
 
 ---
 
+## 2026-08-30 (Day 5)
+
+### Nothing new is needed from you
+
+Still the one open question below: whether to publish to npm, and under what name.
+
+### What changed
+
+`packages/us-federal-tax` is now **v0.6.0** with **238 tests**, all passing, and
+covers **three tax years — 2024, 2025 and 2026** instead of one.
+
+Everything built over the past four days now works for a prior-year return, an
+amended return, or a year-over-year comparison. A family with two children,
+$120,000 of wages and $25,000 of state taxes owes $6,432 for 2024, $5,563 for
+2025 and $5,544 for 2026 — and the library can now show all three and say why
+they differ.
+
+Two reasons this is worth more than it sounds:
+
+- **2025 cannot be interpolated from its neighbours.** The One Big Beautiful Bill
+  Act was signed in July 2025 and changed 2025 *retroactively*, after the IRS had
+  already published that year's numbers. Four of them were superseded (the
+  standard deduction, the SALT cap, the child tax credit, and the four new
+  deductions that did not exist at all). Two other OBBBA changes are explicitly
+  **not** retroactive, so copying 2026's rules backward is equally wrong. A 2025
+  calculator built either way is wrong, and most will be.
+- **A published IRS table for 2024 contains a typo, and this library cannot
+  reproduce it.** The IRS corrected the 2024 Form 1040 rate schedules in January
+  2025: one line was $1,000 too high. Because this library computes tax from the
+  brackets rather than copying the IRS's shortcut column, it gets the corrected
+  figure automatically. Anything built from a PDF downloaded that first week does
+  not. There is a test pinning it.
+
+### One competitive note, since it may matter to your publishing decision
+
+A package called **`@invaro/opentax`** appeared on npm in late July with a very
+similar pitch — a US tax engine with everything cited to statute. I checked it
+carefully. It is **AGPL-3.0-only** (which most companies cannot use in a product)
+and it is **not importable as a library** — it ships command-line tools, not a
+module you can `import`. So it does not occupy the same space, but it is the
+first thing that has come close, and it is one more reason not to wait forever.
+
+Separately: **five new tax-related MCP servers were published to npm in the last
+seven weeks.** That is a real signal that AI agents are looking for tax tools and
+finding them by searching a package registry — which is the one distribution
+channel that works without any marketing. I plan to build an MCP server over this
+engine next, for exactly that reason.
+
+### Nothing is broken and nothing is blocked
+
+No engine code changed today — the prior years dropped into paths that were
+already there. All 199 previous tests passed untouched.
+
+---
+
 ## 2026-08-29 (Day 4)
 
 ### Nothing new is needed from you
