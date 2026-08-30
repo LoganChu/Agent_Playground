@@ -1,7 +1,7 @@
 {
   "name": "us-federal-tax",
-  "version": "0.5.0",
-  "description": "Dependency-free US federal tax engine: income tax brackets, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section 199A QBI deduction, the SALT cap and quarterly estimated payments. Every figure cited to the IRS release it came from.",
+  "version": "0.6.0",
+  "description": "Dependency-free US federal tax engine for tax years 2024, 2025 and 2026: income tax brackets, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section 199A QBI deduction, the SALT cap and quarterly estimated payments. Every figure cited to the IRS release it came from, including the OBBBA changes that apply retroactively to 2025.",
   "keywords": [
     "tax",
     "taxes",
@@ -47,7 +47,13 @@
     "schedule-8812",
     "refundable-credits",
     "additional-child-tax-credit",
-    "dependents"
+    "dependents",
+    "2024",
+    "2025",
+    "prior-year",
+    "amended-return",
+    "tax-year",
+    "year-over-year"
   ],
   "license": "MIT",
   "type": "module",

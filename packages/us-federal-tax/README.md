@@ -8,6 +8,8 @@ credit, the Section 199A qualified business income deduction, the SALT cap and i
 phase-down, the four OBBBA deductions on Schedule 1-A, and quarterly estimated
 payments — with every published figure traceable to the IRS release it came from.
 
+**Tax years 2024, 2025 and 2026.**
+
 ```bash
 npm install us-federal-tax
 ```
@@ -43,6 +45,68 @@ plan.basis; // 'priorYearSafeHarbor'
 plan.requiredAnnualPayment; // 20000
 plan.installments; // four dated installments
 ```
+
+## Tax years
+
+```js
+import { SUPPORTED_YEARS, estimateFederalTax } from 'us-federal-tax';
+
+SUPPORTED_YEARS; // [2024, 2025, 2026]
+
+const household = {
+  filingStatus: 'marriedFilingJointly',
+  w2Wages: 120_000,
+  qualifyingChildren: 2,
+  stateAndLocalTaxesPaid: 25_000,
+  otherItemizedDeductions: 8_000,
+};
+
+SUPPORTED_YEARS.map((year) => estimateFederalTax({ ...household, year }).totalTax);
+// [6432, 5563, 5544]
+```
+
+An unsupported year **throws** `UnsupportedYearError` rather than falling back to
+the nearest one. Quietly computing 2027 tax on 2026 brackets is the kind of bug
+that stays invisible until it is expensive.
+
+### 2025 is not the year you can interpolate
+
+The One Big Beautiful Bill Act was enacted on 4 July 2025 and **changed 2025
+retroactively**, after the IRS had already published that year's inflation
+adjustments in Rev. Proc. 2024-40. A 2025 parameter set built from the Revenue
+Procedure alone is wrong in four places, all in the direction of overstating tax:
+
+| | Rev. Proc. 2024-40 | Actual 2025 |
+| --- | --- | --- |
+| Standard deduction (single / joint / HoH) | `$15,000` / `$30,000` / `$22,500` | **`$15,750` / `$31,500` / `$23,625`** |
+| Schedule 1-A deductions | did not exist | **all four are live** |
+| SALT cap | `$10,000` | **`$40,000`**, phasing down above `$500,000` |
+| Child tax credit | `$2,000` | **`$2,200`** |
+
+And two OBBBA changes are **not** retroactive, which is the mistake in the other
+direction — carrying 2026 rules back into 2025:
+
+- The § 199A phase-in range is still `$50,000` / `$100,000` in 2025. It widens to
+  `$75,000` / `$150,000` only for years beginning after 2025, so using the wider
+  range phases the wage/UBIA cap in half as fast as the statute allows.
+- The § 199A(i) `$400` minimum deduction does not exist in 2025 at all.
+
+### 2024 is the clean pre-OBBBA baseline
+
+`scheduleOneA` is `null`, `section199A.minimumDeduction` is `null`, the SALT cap
+is the flat `$10,000` with no phase-down, the child tax credit is `$2,000`, and
+only the *child* needs a work-authorized SSN. The same call sites work across all
+three years — `additionalDeductions()` returns a zeroed result for 2024 rather
+than throwing, so a caller can compute either side of the sunset without a branch.
+
+One thing worth knowing about 2024: the IRS corrected page 109 of the 2024
+Instructions for Form 1040 on 8 January 2025. For married filing separately with
+taxable income over `$365,600`, the tax is `$98,334.75` + 37%, **not** the
+`$99,334.75` originally printed. Any implementation that transcribed the base-tax
+column from a copy downloaded before 6 January 2025 overstates every top-bracket
+separate filer by exactly `$1,000`. This library stores no base-tax column — it
+walks the bands — so the error is not expressible here, and the derivation agrees
+with the correction to the cent. There is a test for it.
 
 ## Why another tax library
 
@@ -433,6 +497,7 @@ you have made that election).
 | `seniorDeduction({ modifiedAdjustedGrossIncome, age65OrOlder, ... })` | Per eligible individual |
 | `vehicleLoanInterestDeduction({ qualifiedInterest, ... })` | § 163(h)(4) |
 | `getYearParameters(year)` | Raw parameters and their citations |
+| `SUPPORTED_YEARS` | `[2024, 2025, 2026]`, ascending |
 
 Filing statuses are `'single'`, `'marriedFilingJointly'`, `'marriedFilingSeparately'`,
 `'headOfHousehold'`, and `'qualifyingSurvivingSpouse'`.
@@ -474,16 +539,36 @@ Stated plainly, because a tax library that hides its gaps is worse than useless:
   Pass `otherItemizedDeductions` already net of it.
 - **No medical-expense floor.** `otherItemizedDeductions` is taken as given, so
   subtract the 7.5%-of-AGI floor yourself.
-- **2026 only.** Earlier years are not yet included.
+- **2024 through 2026 only.** 2023 and earlier are not included. Note also that
+  the § 68 gap above is a 2026-only provision — 2024 and 2025 are unaffected by
+  it, since the old Pease limitation was suspended through 2025.
 
 ## Accuracy and provenance
 
-2026 figures come from the IRS inflation-adjustment release for tax year 2026
-(Rev. Proc. 2025-32, published 2025-10-09 and **reissued 2025-10-17** with a
-correction to the earned income credit table) and the SSA wage base announcement. Every
-figure was cross-checked against a second independent source before being committed,
-and the test suite pins hand-computed expected values rather than snapshots of the
-code's own output.
+Figures come from the IRS inflation-adjustment release for each year — Rev. Proc.
+2023-34 (2024), Rev. Proc. 2024-40 (2025, **as amended retroactively by OBBBA**),
+and Rev. Proc. 2025-32 (2026, published 2025-10-09 and **reissued 2025-10-17**
+with a correction to the earned income credit table) — plus the SSA wage base
+announcements. Every figure was cross-checked against a second independent source
+before being committed, and the test suite pins hand-computed expected values
+rather than snapshots of the code's own output.
+
+Two structural checks run over every year, which is what makes adding a year safe:
+
+- **The published EITC endpoints are derived, not stored.** The IRS publishes a
+  "completed phase-out amount" for each of eight combinations of filing status
+  and child count. This library stores the phase-out start and the maximum credit
+  and computes the endpoint as `start + maximumCredit / phaseOutRate`. All
+  twenty-four across the three years reproduce the published figure exactly, so
+  each one is an independent test of two stored parameters rather than a second
+  copy of them.
+- **Status relationships are asserted generically.** A qualifying surviving
+  spouse uses the joint rate schedule but a `$200,000` Form 8959 threshold and a
+  `$250,000` NIIT threshold; married filing separately caps the 35% band at
+  exactly half the joint figure; head of household is never above single and
+  never differs by anything other than `$0` or `$25`. These run against every
+  year in the registry, so a mistyped figure in a future year fails on the day
+  it is added.
 
 ```js
 getYearParameters(2026).sources;

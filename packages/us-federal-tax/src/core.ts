@@ -1,10 +1,19 @@
 import type { Bracket, BracketDetail, FilingStatus, YearParameters } from './types.js';
+import { YEAR_2024 } from './data/2024.js';
+import { YEAR_2025 } from './data/2025.js';
 import { YEAR_2026 } from './data/2026.js';
 
 /** Every tax year this package knows about, newest last. */
 export const YEARS: Readonly<Record<number, YearParameters>> = {
+  2024: YEAR_2024,
+  2025: YEAR_2025,
   2026: YEAR_2026,
 };
+
+/** Every supported tax year, ascending. */
+export const SUPPORTED_YEARS: readonly number[] = Object.keys(YEARS)
+  .map(Number)
+  .sort((a, b) => a - b);
 
 /** The most recent tax year with published parameters. */
 export const LATEST_YEAR = 2026;

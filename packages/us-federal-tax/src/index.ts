@@ -10,6 +10,7 @@
 
 export {
   LATEST_YEAR,
+  SUPPORTED_YEARS,
   UnsupportedYearError,
   YEARS,
   applyBrackets,
@@ -57,6 +58,8 @@ export type { SaltDeductionInput } from './salt.js';
 export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
 export type { EstimateInput, EstimateResult, QuarterlyPlan } from './estimate.js';
 
+export { YEAR_2024 } from './data/2024.js';
+export { YEAR_2025 } from './data/2025.js';
 export { YEAR_2026 } from './data/2026.js';
 
 export { FILING_STATUSES } from './types.js';

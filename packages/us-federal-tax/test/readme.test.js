@@ -5,10 +5,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  SUPPORTED_YEARS,
   childTaxCredit,
   earnedIncomeCreditParameters,
   earnedIncomeForCredits,
   estimateFederalTax,
+  federalIncomeTax,
   getYearParameters,
   longTermCapitalGainsTax,
   qbiDeduction,
@@ -353,5 +355,73 @@ test('README: sources are present and well formed', () => {
   for (const s of sources) {
     assert.ok(s.title && s.title.length > 0);
     assert.match(s.url, /^https:\/\//);
+  }
+});
+
+test('README: the tax-years example', () => {
+  assert.deepEqual(SUPPORTED_YEARS, [2024, 2025, 2026]);
+
+  const household = {
+    filingStatus: 'marriedFilingJointly',
+    w2Wages: 120_000,
+    qualifyingChildren: 2,
+    stateAndLocalTaxesPaid: 25_000,
+    otherItemizedDeductions: 8_000,
+  };
+  assert.deepEqual(
+    SUPPORTED_YEARS.map((year) => estimateFederalTax({ ...household, year }).totalTax),
+    [6_432, 5_563, 5_544],
+  );
+});
+
+test('README: the 2025 table of what OBBBA changed retroactively', () => {
+  const p2025 = getYearParameters(2025);
+
+  assert.equal(p2025.standardDeduction.single, 15_750);
+  assert.equal(p2025.standardDeduction.marriedFilingJointly, 31_500);
+  assert.equal(p2025.standardDeduction.headOfHousehold, 23_625);
+
+  assert.notEqual(scheduleOneAParameters(2025), null);
+
+  assert.equal(saltCapParameters(2025).cap.single, 40_000);
+  assert.equal(saltCapParameters(2025).phaseDownThreshold.single, 500_000);
+
+  assert.equal(p2025.childTaxCredit.amountPerChild, 2_200);
+
+  // And the two that are *not* retroactive.
+  assert.equal(section199AParameters(2025).phaseInRange.single, 50_000);
+  assert.equal(section199AParameters(2025).phaseInRange.marriedFilingJointly, 100_000);
+  assert.equal(section199AParameters(2025).minimumDeduction, null);
+});
+
+test('README: 2024 is the clean pre-OBBBA baseline', () => {
+  const p2024 = getYearParameters(2024);
+
+  assert.equal(scheduleOneAParameters(2024), null);
+  assert.equal(section199AParameters(2024).minimumDeduction, null);
+  assert.equal(saltCapParameters(2024).cap.single, 10_000);
+  assert.equal(saltCapParameters(2024).phaseDownRate, 0);
+  assert.equal(p2024.childTaxCredit.amountPerChild, 2_000);
+  assert.equal(p2024.childTaxCredit.requiresTaxpayerSocialSecurityNumber, false);
+
+  // The corrected 2024 rate schedule figure the README quotes.
+  assert.equal(
+    federalIncomeTax({
+      taxableIncome: 365_600,
+      filingStatus: 'marriedFilingSeparately',
+      year: 2024,
+    }).tax,
+    98_334.75,
+  );
+});
+
+test('README: every year cites its sources', () => {
+  for (const year of SUPPORTED_YEARS) {
+    const sources = getYearParameters(year).sources;
+    assert.ok(sources.length >= 3, `${year} parameters must cite their origin`);
+    for (const s of sources) {
+      assert.ok(s.title && s.title.length > 0);
+      assert.match(s.url, /^https:\/\//);
+    }
   }
 });
