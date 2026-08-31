@@ -406,9 +406,7 @@ test('list_supported_years names the gaps, because a model cannot see them other
 });
 
 test('Schedule 1-A is reported as in effect only for the years it exists', () => {
-  const { structured } = ok('list_supported_years', {});
-  void structured;
-  const text = ok('list_supported_years', {}).text;
+  const { text } = ok('list_supported_years', {});
   const section2024 = text.slice(text.indexOf('2024:'), text.indexOf('2025:'));
   const section2026 = text.slice(text.indexOf('2026:'), text.indexOf('Not modelled'));
   assert.match(section2024, /Schedule 1-A \(OBBBA deductions\): not in effect/);

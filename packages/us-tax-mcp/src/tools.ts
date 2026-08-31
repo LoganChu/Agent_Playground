@@ -633,7 +633,6 @@ const parametersTool: ToolDefinition = {
   },
   annotations: { ...READ_ONLY, title: 'Published tax parameters for a year' },
   run(args) {
-    const options = toolOptions(args);
     const source = (args ?? {}) as Record<string, unknown>;
     const known = ['year', 'filingStatus', 'includeFullParameters'];
     const unknownOptions = Object.keys(source).filter((key) => !known.includes(key));
@@ -644,7 +643,6 @@ const parametersTool: ToolDefinition = {
     const year = readNumber(source, 'year', { integer: true }) ?? LATEST_YEAR;
     const params = getYearParameters(year);
     const includeFull = readBoolean(source, 'includeFullParameters') ?? true;
-    void options;
 
     let status: FilingStatus | null = null;
     if (source['filingStatus'] !== undefined && source['filingStatus'] !== null) {
