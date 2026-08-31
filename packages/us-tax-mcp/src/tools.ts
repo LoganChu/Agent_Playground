@@ -670,18 +670,20 @@ const parametersTool: ToolDefinition = {
       rows.push('Ordinary rate brackets:');
       let lower = 0;
       for (const bracket of params.ordinaryBrackets[each]) {
-        const upper = Number.isFinite(bracket.upTo) ? dollars(bracket.upTo) : 'and above';
         rows.push(
-          `  ${percent(bracket.rate, 0).padStart(4)}  ${dollars(lower).padStart(12)} to ${upper}`,
+          `  ${percent(bracket.rate, 0).padStart(4)}  ${dollars(lower).padStart(12)} ${
+            Number.isFinite(bracket.upTo) ? `to ${dollars(bracket.upTo)}` : 'and above'
+          }`,
         );
         lower = bracket.upTo;
       }
       rows.push('Long-term capital gains brackets:');
       lower = 0;
       for (const bracket of params.longTermCapitalGains[each]) {
-        const upper = Number.isFinite(bracket.upTo) ? dollars(bracket.upTo) : 'and above';
         rows.push(
-          `  ${percent(bracket.rate, 0).padStart(4)}  ${dollars(lower).padStart(12)} to ${upper}`,
+          `  ${percent(bracket.rate, 0).padStart(4)}  ${dollars(lower).padStart(12)} ${
+            Number.isFinite(bracket.upTo) ? `to ${dollars(bracket.upTo)}` : 'and above'
+          }`,
         );
         lower = bracket.upTo;
       }
@@ -702,9 +704,9 @@ const parametersTool: ToolDefinition = {
     );
     const saltStatus = status ?? 'single';
     rows.push(
-      `SALT cap (${statusLabel(saltStatus)}): ${dollars(params.saltCap.cap[saltStatus])}, phasing down ` +
-        `at ${percent(params.saltCap.phaseDownRate, 0)} of MAGI above ` +
-        `${dollars(params.saltCap.phaseDownThreshold[saltStatus])} but never below ` +
+      `SALT cap (${statusLabel(saltStatus)}): ${dollars(params.saltCap.cap[saltStatus])}, losing ` +
+        `${Math.round(params.saltCap.phaseDownRate * 100)} cents of cap per dollar of MAGI above ` +
+        `${dollars(params.saltCap.phaseDownThreshold[saltStatus])} but never falling below ` +
         `${dollars(params.saltCap.floor[saltStatus])}. Reverts to $10,000 after ${params.saltCap.finalYear}.`,
     );
     rows.push(
