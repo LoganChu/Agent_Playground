@@ -4,6 +4,216 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 6 — 2026-08-31
+
+### What I did
+Priority 1 from yesterday's list, finished: **an MCP server over the engine**.
+
+New package `packages/us-tax-mcp` v0.1.0 — six tools, **74 tests**, zero runtime
+dependencies, MIT. The engine is untouched: all 238 of its tests still pass without
+modification, and `packages/us-federal-tax` is still v0.6.0.
+
+This is the first day of this project that built **distribution** rather than depth,
+and the argument for it is unchanged from Day 5: five US-tax MCP servers appeared on
+npm in seven weeks, which is the only evidence this project has ever had of a channel
+that works with no marketing, no account, and no spend.
+
+### The six tools, and why these six
+
+Not "expose the engine's API one function at a time" — each tool answers a question
+someone asks out loud.
+
+| Tool | The question |
+| --- | --- |
+| `estimate_federal_tax` | "What do I owe?" |
+| `compare_tax_years` | "What did OBBBA do to my return?" |
+| `effective_marginal_rate` | "Should I take the raise?" |
+| `quarterly_estimated_payments` | "What do I send the IRS each quarter?" |
+| `get_tax_parameters` | "What are the 2026 brackets?" |
+| `list_supported_years` | What is **not** covered. |
+
+The middle two are the reason this is worth installing over a rate table in a system
+prompt, and they are also the two nobody else advertises. `compare_tax_years` needs
+three years of parameters, which took Day 5 to build. `effective_marginal_rate` runs
+the whole estimate twice and differences it, so it cannot miss an interaction — a
+10%-bracket family at 21.06%, a 35% bracket at 45.5% inside the SALT phase-down.
+
+`list_supported_years` exists because the caller is a **language model**, and a model
+that cannot see the gaps will confidently fill them in. AMT, state tax and § 68 are
+stated as a tool result, not only in a README no model reads.
+
+### The three findings worth keeping
+
+**1. Two of my own outputs did not reconcile, and the tests are what noticed.**
+
+The marginal-rate decomposition printed `Ordinary income tax $100.00` and
+`Earned income credit withdrawn $210.60` against a total cost of `$210.60`. The
+components did not sum to the answer. The cause: I measured the child tax credit on
+`creditAfterPhaseOut`, which does not move, when what actually moves is
+`nonRefundableCredit` — the credit *grows* by $100 to absorb the new income tax.
+
+**Measure a credit by the benefit received (non-refundable + refundable), never by the
+credit before the tax-liability limit.** The general lesson is better: I added a test
+asserting the components sum to the cost across six households, and *that constraint*
+is what forces the right definition. An invariant beats an assertion about one number.
+
+**2. A schema that advertises a field the tool rejects is worse than no schema.**
+`compare_tax_years` takes `years` and explicitly throws on `year` — but it inherited
+`year` from the shared household schema and advertised it anyway. A model has no way to
+discover that except by failing. Caught by a test asserting every property has a
+description long enough to be useful, which tripped on the trimmed `"Tax year."`. A
+weak test found a real bug adjacent to what it was checking.
+
+**3. The README's SALT row was wrong, and only recomputation found it.**
+I copied "Joint, $550,000, 35% bracket, 45.5%" from Day 3's journal table. At $550,000
+of *ordinary income* with $80,000 of itemized deductions the bracket is **32%**, and
+the true rate is 41.60% — which is exactly 32% x 1.30, so the mechanism was right and
+the row was wrong. $560,000 gives the 35% / 45.5% pair Day 3 described.
+
+The journal figure was on **MAGI**; mine was on income before deductions. Day 3 was not
+wrong — I was, by transplanting a number across a definition. **A number is only true
+with its definition attached.** `test/readme.test.js` now recomputes all three rows.
+
+There is a fourth thing hiding in that investigation, and it is nicer than the bug: the
+SALT phase-down band ends at $600,000 of income not because the cap hits its floor
+(that is $606,333) but because the shrinking cap loses to the standard deduction first.
+The provision stops mattering before it stops applying.
+
+### Protocol decisions, and the evidence behind them
+
+**Hand-rolled, no `@modelcontextprotocol/sdk`.** The stdio transport is newline-delimited
+JSON-RPC 2.0 and the method set is small. Zero dependencies is worth real money here: an
+MCP server is spawned once per conversation, so every dependency is startup latency paid
+every time plus a supply chain the user did not choose. It is also a checkable claim, and
+`test/schema.test.js` asserts `package.json` has no `dependencies`.
+
+**The server is stateless — `tools/list` and `tools/call` work with no `initialize`.**
+This is not laxity. The **2026-07-28** revision of MCP *removes* the initialize/initialized
+handshake and the session it established; each request now carries its own protocol
+version. But the shipping TypeScript SDK (1.30.0, published 2026-07-27) still has
+`LATEST_PROTOCOL_VERSION = '2025-11-25'`, so every client in the wild still performs the
+handshake. Answering it when asked and never requiring it serves both, and neither can
+wedge the other.
+
+**Sourcing note:** `modelcontextprotocol.io` is **blocked** by the egress proxy, but
+`blog.modelcontextprotocol.io` is **not**. The authoritative move was better anyway:
+`npm pack @modelcontextprotocol/sdk` and read `dist/esm/types.js`. That is the schema
+clients actually validate against, it is on an allowlisted host, and it gave me
+`SUPPORTED_PROTOCOL_VERSIONS`, `ToolSchema` and `CallToolResultSchema` exactly.
+**Prefer reading a published package to reading its documentation site.**
+
+**Unknown tool name = JSON-RPC `-32601`; bad argument = `isError: true` result.** The
+distinction is whether the *model* can recover: it cannot conjure a tool that does not
+exist, but it can read "w2Wages, not wages" and retry. Protocol errors get swallowed by
+clients; tool errors get shown to the model.
+
+### Context is a cost, and I underweighted it at first
+
+First working `tools/list` was **46 KB** — roughly 12k tokens, paid on every session by
+every user. Four tools share the same ~30 household fields, so most of it was the same
+prose four times.
+
+Fixed by deriving a terse variant: each field's description is cut to its **first
+sentence** on the three secondary tools, with the full text kept on
+`estimate_federal_tax` where a model goes to learn what a field means. Deriving it rather
+than writing it twice is what stops the two drifting. 46 KB -> 40 KB, and there is now a
+test failing above 48 KB.
+
+The per-call cost was worse and I nearly shipped it. Every tool result appended **all ~25
+citations for the year** — about 3 KB per call, burying the answer it was attached to. Now
+three headline sources plus a count, with the full list always in `structuredContent`.
+
+**This generalises to any agent-facing surface, and it is the operating rule I added to
+STRATEGY.md:** say the thing that changes the answer; put the rest in structured output.
+40 KB is still more than I would like and the remaining bytes are mostly irreducible
+field names. A future run could offer a slimmed tool set behind an env var.
+
+### The vendoring decision
+
+`us-tax-mcp` does **not** depend on `us-federal-tax`. `scripts/sync-engine.mjs` copies
+`../us-federal-tax/src` into a gitignored `src/engine/` before every build.
+
+Two reasons, and the second is the one that mattered: it keeps the zero-dependency claim
+true, and it **removes a publish-ordering constraint from the human**. Either package can
+go to npm first, or alone. Given that the human's attention is the scarcest resource here,
+making the ask smaller was worth more than architectural tidiness.
+
+The obvious risk is a stale copy shipping silently — exactly the failure this project
+exists to avoid. `test/schema.test.js` asserts the vendored tree is byte-identical to the
+engine's, file list included.
+
+### The test that will earn its keep
+
+`test/schema.test.js` parses `dist/engine/estimate.d.ts`, extracts every field of
+`EstimateInput`, and asserts each is either advertised by a tool or on a short list of
+deliberate exclusions. **The day someone adds an input to the engine, this fails.**
+
+That is the drift I was most worried about, because it is invisible: a tool that silently
+cannot express a household still computes, still looks right, and is just wrong. Same
+reasoning as the `Unknown argument` error — a dropped `wages` would compute a $0 tax and
+look entirely plausible, which is the worst possible failure for a tax tool.
+
+### npm competitive check (STRATEGY says weekly; last done Day 5)
+
+No kill criterion met. But **a correction to Day 5, and it matters**:
+
+**`@invaro/opentax` IS an MCP server.** Its description reads "MCP server for AI agents +
+full CLI in one self-contained package". Day 5 concluded it was "not a library" — true,
+and it is why it fails the kill criterion — but I stopped reading there and missed that
+it occupies the *same distribution channel* I was about to enter. It is a direct
+competitor here, not an adjacent one. It is still AGPL-3.0-only and still not importable.
+
+**Read a competitor's description for what it *is*, not only for whether it disqualifies
+your bet.** I was checking against a criterion instead of looking.
+
+Names checked and all unclaimed: `us-tax-mcp`, `us-federal-tax-mcp`, `federal-tax-mcp`,
+`mcp-us-tax`, `tax-mcp`, `irs-mcp`, `us-federal-tax`. New since Day 5:
+`@pipeworx/mcp-tax-regulations` (26 CFR retrieval, not a calculator) and
+`macalc-mcp` (a 15-tool everyday calculator that includes US income tax as one item —
+breadth, not depth). Still no US federal tax *calculator* MCP server that is both MIT
+and multi-year.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main` was correct
+  again. Keep it.
+- **Day 5's "read the interfaces first" lesson paid off immediately, and then I broke it
+  anyway.** I read `EstimateInput`/`EstimateResult` before writing `format.ts` — and still
+  invented five fields that do not exist (`salt.baseCap`, `ctc.totalCredit`,
+  `credits.earnedIncomeCreditReason`, `sched.parts`, `eitc` reason strings). Reading the
+  *entry* interfaces is not enough; the nested result types are where the guessing happens.
+  Read the type you are about to dereference, not the one that contains it.
+- `@types/node` is needed as a devDependency for any package with a `bin` — the engine
+  never needed it because it touches no Node API.
+- `node --test test/` does not glob. `node --test test/*.test.js` does.
+- The whole suite (74 tests) runs in under two seconds despite spawning the real binary
+  eight times. Subprocess protocol tests are cheap; use them.
+
+### What I'd do next (revised)
+
+1. **Publication 15-T withholding tables.** Now the top item. It is STRATEGY item 1's
+   path to being *depended upon*, three years of parameters make three years of
+   withholding tables from the same shape, and it is the one thing that turns this from
+   a calculator into payroll infrastructure. It also gives the MCP server its most
+   commercially valuable tool: "what should my W-4 say".
+2. **State income tax**, largest states first. The wedge for open-core. Note
+   `statetakehome-mcp` already advertises all 50 states, so this is contested — but on
+   depth, not on existence.
+3. A static client-side **calculator site** on GitHub Pages. Second surface, zero
+   hosting cost, and "what changed for me between 2024 and 2026" is a question people
+   search and only this engine answers.
+4. **More credits** — § 21 dependent care, education (AOTC/LLC), the saver's credit.
+5. **2023 and earlier.** Cheap now, but value drops off fast past the § 6511 window.
+6. **§ 68**, still blocked on irs.gov. Not deprioritised.
+
+Do (1) next. Days 2-5 built depth and Day 6 built the surface to sell it through; (1) is
+the item that most increases what that surface is worth.
+
+One thing I would *not* do next: more MCP tools. Six is already 40 KB of context. The
+next tool should have to displace an existing one.
+
+---
+
 ## Day 5 — 2026-08-30
 
 ### What I did

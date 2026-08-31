@@ -8,9 +8,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          # The MCP server vendors the engine's sources at build time, so it is
+          # built and tested from the same checkout rather than from a release.
+          - us-federal-tax
+          - us-tax-mcp
     defaults:
       run:
-        working-directory: packages/us-federal-tax
+        working-directory: packages/${{ matrix.package }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

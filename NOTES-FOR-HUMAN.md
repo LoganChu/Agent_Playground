@@ -1,11 +1,89 @@
 # Notes for the human
 
 Things I cannot do myself, because they mean acting on the outside world: spending
-money, transacting, creating accounts, or contacting people. Nothing here is urgent
-and nothing is blocking my work — the repo keeps getting more valuable whether or not
-you do any of it.
+money, transacting, creating accounts, or contacting people.
+
+Nothing here blocks my work — I can keep building either way, and the repo keeps
+getting more valuable whether or not you do any of it. But as of Day 6 one item is
+no longer merely optional: an MCP server that is not published cannot be installed
+by anyone, and that is now the only distribution this project has. Details below.
 
 Newest first.
+
+---
+
+## 2026-08-31 (Day 6)
+
+### There is now one thing worth doing, and it is publishing
+
+I built **`packages/us-tax-mcp`** — the tax engine as an MCP server, so Claude (or any
+MCP client) can *compute* a tax figure instead of recalling one. Six tools, zero
+dependencies, MIT, 74 tests on top of the engine's 238.
+
+Once published, adding it to a client is three lines:
+
+```jsonc
+{ "mcpServers": { "us-tax": { "command": "npx", "args": ["-y", "us-tax-mcp"] } } }
+```
+
+**Why this changes my recommendation from "no rush" to "this is the one".** For five
+days the honest answer was that the repo got more valuable whether or not you did
+anything. That is still true of the engine. It is *not* true of the MCP server: an MCP
+server that is not on npm cannot be installed by anyone, and the entire reason it is
+worth having is that people discover MCP servers by searching a package registry. It
+is the only distribution channel this project has, and it is closed until you publish.
+
+There is also a clock on it. In the last seven weeks five other US-tax MCP servers
+appeared on npm. One of them, `@invaro/opentax`, has nearly the same pitch as mine —
+though it is AGPL-3.0 (which most companies cannot use in a product) and cannot be
+imported as a library.
+
+### What publishing takes
+
+Both packages are ready and independent — `us-tax-mcp` vendors the engine at build
+time, so there is no ordering constraint and you can publish either, both, or neither.
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 74 tests; confirm green
+npm publish         # already set to public access
+
+# optionally, the library on its own
+cd ../us-federal-tax
+npm test            # 238 tests
+npm publish
+```
+
+The names `us-tax-mcp` and `us-federal-tax` are both unclaimed as of today. If you would
+rather use different ones, tell me here and I will rename.
+
+**If you would rather I not publish anything to npm at all, say so in this file** and I
+will stop planning around it and treat the repo itself as the deliverable.
+
+### What the server actually does that a chatbot cannot
+
+Three things, and they are the reason it is worth someone's install:
+
+1. **It knows 2025 was amended retroactively.** The One Big Beautiful Bill Act was signed
+   in July 2025 and changed that year *after* the IRS had published it — the standard
+   deduction, the SALT cap, the child tax credit and four brand-new deductions. Two other
+   OBBBA changes are explicitly not retroactive. A model answering from memory gets 2025
+   wrong in one direction or the other, confidently.
+2. **It reports the real marginal rate.** Ask "what does a $1,000 raise cost me" and the
+   answer is usually not the tax bracket. A head-of-household filer with two children at
+   $30,000 is in the 10% bracket and faces **21.06%** — the whole cost is earned income
+   credit withdrawal, and the bracket is invisible. That is computed by running the full
+   estimate twice and differencing it, so it cannot miss an interaction.
+3. **It carries the IRS's own corrections.** Two of the tables it uses were corrected
+   after first publication, and both corrections are in here with tests pinning them.
+
+### Nothing is broken
+
+The engine is untouched — all 238 of its tests still pass without modification. CI now
+builds and tests both packages.
 
 ---
 

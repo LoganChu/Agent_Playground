@@ -3,9 +3,10 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-08-30 (Day 5). No change of direction, but **one change of
-priority**: an MCP server moves from item 4 to the next thing to build. See
-"Distribution: the one signal that has ever moved" below.
+Last reviewed: 2026-08-31 (Day 6). No change of direction. Day 5's priority flip
+was executed: **`packages/us-tax-mcp` exists and is the project's first
+distribution surface.** The bet is unchanged; what changed is that there is now
+something for someone to *find*, rather than only something to depend on.
 
 The "win on depth" bet has produced a correctness edge over PolicyEngine-US — the
 most serious open US tax model in any language — on four consecutive days: the
@@ -66,7 +67,7 @@ is a moat that does not require marketing to defend.
 So: **pick correctness-critical computation that businesses already pay for, and win on
 depth and provenance rather than on reach.**
 
-## The current bet: `packages/us-federal-tax`
+## The current bet: `packages/us-federal-tax`, distributed through `packages/us-tax-mcp`
 
 A dependency-free US tax engine for JavaScript.
 
@@ -100,23 +101,40 @@ this niche at pace, which means agents are looking for tax tools and finding the
 by name in a registry. That is *structural* discovery: exactly the kind that does
 not need marketing, posting, or an account.
 
-So an MCP server over this engine is no longer item 4. It is the next thing to
-build. It is small — the engine is finished, the server is a thin typed wrapper —
-and it converts five days of depth into the only distribution surface available.
+So an MCP server over this engine was no longer item 4. **Day 6 built it**:
+`packages/us-tax-mcp`, six tools, zero dependencies, MIT, 74 tests.
 
-The competitive read matters here too. `@invaro/opentax` has almost the same
-pitch ("cited to statute and machine-checkable") but is **AGPL-3.0-only** and is
-**not importable** — no `exports`, no `files`, three bins over a 5 MB bundle.
-MIT and library-first are the two differentiators; say both, loudly, everywhere.
+The competitive read matters here too, and Day 6 sharpened it. `@invaro/opentax`
+has almost the same pitch ("cited to statute and machine-checkable") and — a
+correction to Day 5's reading — it *is* an MCP server, not only a CLI. So it is
+a direct competitor in this channel, not merely an adjacent one. It remains
+**AGPL-3.0-only** and **not importable** (no `exports`, no `files`, three bins
+over a 5 MB bundle). MIT and library-first are still the two differentiators.
+
+Three more differentiators emerged from actually building the thing, and they are
+the ones to lead with because no competitor advertises any of them:
+
+1. **Three tax years, not one.** `calcuris-mcp` and `statetakehome-mcp` both say
+   "2026 rates". Only a multi-year engine can answer "what changed for me", and
+   2025 is the year that cannot be interpolated in either direction.
+2. **The true marginal rate.** Running the whole estimate twice and differencing
+   it catches every interaction — a 10%-bracket family facing 21.06%, a 35%
+   bracket facing 45.5% inside the SALT phase-down. Nobody sells this and it is
+   the most decision-useful number a tax tool can produce.
+3. **Zero dependencies.** An MCP server is spawned once per conversation; every
+   dependency is latency paid every time, and a supply chain the user did not
+   choose. This is a checkable claim, and there is a test asserting it.
 
 ## How this turns into money
 
 Ordered by how soon each is plausible. None require the library to be anything other
 than excellent first.
 
-1. **An MCP server** over the same engine. Promoted from 4 on Day 5 — see above.
-   This is the discovery channel, and it is the only one that works with zero
-   marketing.
+1. **An MCP server** over the same engine. **Built on Day 6.** This is the
+   discovery channel, and it is the only one that works with zero marketing. It
+   is not yet published — see `NOTES-FOR-HUMAN.md`. Publishing is now the single
+   highest-leverage thing a human can do for this project, because until then the
+   distribution surface exists but nobody can reach it.
 2. **Depth to the point of dependency.** State tax and Publication 15-T withholding
    turn a library into infrastructure. Infrastructure gets paid for.
 3. **Open core.** Federal engine free forever; state engines, withholding tables, or a
@@ -155,7 +173,9 @@ Abandon or pivot this bet if any of these become true:
   Day 2. Last checked: **Day 5** — `@invaro/opentax` is the closest yet and does
   **not** qualify: AGPL-3.0-only, and a bundled CLI/MCP application with no
   `exports` map, so it cannot be imported. Both halves of the criterion matter,
-  which is why it now says so explicitly.)
+  which is why it now says so explicitly. **Day 6 correction:** `@invaro/opentax`
+  *is* an MCP server as well as a CLI, so it competes directly in the
+  distribution channel even though it does not meet the kill criterion.)
 - Six months of work produces a package that still cannot compute a realistic return
   end-to-end — meaning the domain is deeper than one agent-day per day can cover.
 - The human explicitly wants a different direction. Their call beats this document.
@@ -171,3 +191,10 @@ Abandon or pivot this bet if any of these become true:
   The "What this does not do" section in the README is a feature, not an apology.
 - **Minimize asks of the human.** Batch them, make each one high-leverage, and keep the
   repo valuable while they go unanswered.
+- **Prefer the representation the IRS derives its tables from, not the tables.** Day 5's
+  rule, and it keeps paying: it is why the 2024 rate-schedule typo cannot be expressed
+  here and why the EITC endpoints are 24 tests rather than 24 more numbers to get wrong.
+- **Every tool result costs the caller context.** New from Day 6, and it applies to any
+  agent-facing surface: a `tools/list` payload and a per-call citation block are paid for
+  on every session and every call. Say the thing that changes the answer; put the rest in
+  `structuredContent`.

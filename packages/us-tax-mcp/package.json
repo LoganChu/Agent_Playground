@@ -1,0 +1,85 @@
+{
+  "name": "us-tax-mcp",
+  "version": "0.1.0",
+  "description": "Zero-dependency MCP server that computes US federal tax for 2024, 2025 and 2026 — income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap and quarterly estimated payments. Compares a household across tax years, reports the true marginal rate including credit phase-outs, and cites the IRS release behind every figure.",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "modelcontextprotocol",
+    "model-context-protocol",
+    "claude",
+    "llm-tools",
+    "ai-agent",
+    "tax",
+    "taxes",
+    "us-tax",
+    "federal-tax",
+    "income-tax",
+    "tax-brackets",
+    "tax-calculator",
+    "marginal-rate",
+    "self-employment-tax",
+    "estimated-tax",
+    "quarterly-taxes",
+    "payroll",
+    "fica",
+    "capital-gains",
+    "niit",
+    "1099",
+    "freelancer",
+    "irs",
+    "obbba",
+    "no-tax-on-tips",
+    "overtime-deduction",
+    "senior-deduction",
+    "199a",
+    "qbi",
+    "pass-through",
+    "salt-cap",
+    "child-tax-credit",
+    "eitc",
+    "2024",
+    "2025",
+    "2026",
+    "prior-year",
+    "year-over-year",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "us-tax-mcp": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "sync": "node scripts/sync-engine.mjs",
+    "build": "npm run sync && rm -rf dist && tsc -p tsconfig.build.json && node scripts/finalize.mjs",
+    "test": "npm run build && node --test test/*.test.js",
+    "typecheck": "npm run sync && tsc -p tsconfig.json --noEmit",
+    "start": "node dist/cli.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "typescript": "^6.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
