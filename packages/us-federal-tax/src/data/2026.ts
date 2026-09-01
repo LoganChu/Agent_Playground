@@ -465,7 +465,46 @@ export const YEAR_2026: YearParameters = {
     },
   },
 
+  // Publication 15-T percentage method. The tables themselves are not stored:
+  // `src/withholding.ts` derives all eight rate schedules from `ordinaryBrackets`
+  // and the figures below. See that file for the identity and why it is preferred
+  // to transcribing the printed tables.
+  withholding: {
+    // Back in step with `standardDeduction`: Rev. Proc. 2025-32 indexes the
+    // post-OBBBA amounts, so 2026's tables and 2026's return agree again.
+    standardDeduction: {
+      singleOrMarriedFilingSeparately: 16_100,
+      marriedFilingJointly: 32_200,
+      headOfHousehold: 24_150,
+    },
+    step1gAmount: {
+      singleOrMarriedFilingSeparately: 8_600,
+      marriedFilingJointly: 12_900,
+      headOfHousehold: 8_600,
+    },
+    allowanceAmount: 4_300,
+    builtInAllowances: {
+      singleOrMarriedFilingSeparately: 2,
+      marriedFilingJointly: 3,
+      headOfHousehold: 2,
+    },
+    additionalMedicareWithholdingThreshold: 200_000,
+    notes: [
+      'The 2026 schedules here are derived from the published 2026 rate schedules and ' +
+        'standard deduction by the same identity that reproduces every 2024 and 2025 ' +
+        'published threshold exactly. Publication 15-T for 2026 was not available to ' +
+        'check them against directly.',
+      'Withholding takes no account of the Schedule 1-A deductions for tips, overtime, ' +
+        'seniors or car loan interest. An employee who expects them should claim them ' +
+        'on Form W-4 Step 4(b) rather than wait for the refund.',
+    ],
+  },
+
   sources: [
+    {
+      title: 'IRS Publication 15-T — Federal Income Tax Withholding Methods',
+      url: 'https://www.irs.gov/forms-pubs/about-publication-15-t',
+    },
     {
       title: 'IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026',
       url: 'https://www.irs.gov/pub/irs-drop/rp-25-32.pdf',

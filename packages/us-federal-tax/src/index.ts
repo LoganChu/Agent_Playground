@@ -58,11 +58,27 @@ export type { SaltDeductionInput } from './salt.js';
 export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
 export type { EstimateInput, EstimateResult, QuarterlyPlan } from './estimate.js';
 
+export {
+  PAY_PERIODS,
+  PAY_PERIODS_PER_YEAR,
+  computePaycheck,
+  computeWithholding,
+  withholdingColumn,
+  withholdingMarginalRateAt,
+  withholdingPlan,
+  withholdingRateSchedule,
+} from './withholding.js';
+export type {
+  PaycheckInput,
+  WithholdingInput,
+  WithholdingPlanInput,
+} from './withholding.js';
+
 export { YEAR_2024 } from './data/2024.js';
 export { YEAR_2025 } from './data/2025.js';
 export { YEAR_2026 } from './data/2026.js';
 
-export { FILING_STATUSES } from './types.js';
+export { FILING_STATUSES, WITHHOLDING_COLUMNS } from './types.js';
 export type {
   AdditionalDeductionPart,
   AdditionalDeductionsResult,
@@ -80,6 +96,10 @@ export type {
   FicaSide,
   FilingStatus,
   IncomeTaxResult,
+  LegacyW4,
+  ModernW4,
+  PayPeriod,
+  PaycheckResult,
   QbiBusinessDetail,
   QbiDeductionResult,
   QualifiedBusiness,
@@ -89,5 +109,10 @@ export type {
   Section199AParameters,
   SelfEmploymentTaxResult,
   SteppedPhaseOut,
+  W4,
+  WithholdingColumn,
+  WithholdingParameters,
+  WithholdingPlan,
+  WithholdingResult,
   YearParameters,
 } from './types.js';

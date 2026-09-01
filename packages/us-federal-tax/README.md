@@ -5,8 +5,9 @@ A dependency-free US federal tax engine for JavaScript and TypeScript.
 Income tax brackets, self-employment tax, FICA, Additional Medicare Tax, long-term
 capital gains, net investment income tax, the child tax credit, the earned income
 credit, the Section 199A qualified business income deduction, the SALT cap and its
-phase-down, the four OBBBA deductions on Schedule 1-A, and quarterly estimated
-payments — with every published figure traceable to the IRS release it came from.
+phase-down, the four OBBBA deductions on Schedule 1-A, quarterly estimated payments,
+and Publication 15-T payroll withholding — with every published figure traceable to
+the IRS release it came from.
 
 **Tax years 2024, 2025 and 2026.**
 
@@ -470,6 +471,193 @@ cooperatives, the § 199A(b)(7) patron reduction, and the elective aggregation o
 multiple businesses under Reg. § 1.199A-4 (pass an aggregated group as one entry if
 you have made that election).
 
+## Payroll withholding (Publication 15-T)
+
+What comes out of a paycheck, by the percentage method — including both live
+versions of Form W-4, the Step 2 checkbox, and the whole employee-side FICA
+stack.
+
+```js
+import { computePaycheck } from 'us-federal-tax';
+
+const check = computePaycheck({
+  wagesThisPeriod: 3_000,
+  filingStatus: 'single',
+  payPeriod: 'biweekly',
+  year: 2026,
+});
+
+check.federalIncomeTax.withholding; // 320.38
+check.socialSecurity; // 186
+check.medicare; // 43.5
+check.totalWithheld; // 549.88
+check.takeHomeAfterFederal; // 2450.12
+```
+
+Pay periods are `weekly`, `biweekly`, `semimonthly`, `monthly`, `quarterly`,
+`semiannual`, `annual`, and `daily` (260 days, as the publication counts them).
+There is no default — a guessed pay frequency silently scales the answer.
+
+### The tables are derived, not transcribed
+
+Publication 15-T prints six percentage-method rate schedules a year. This library
+stores none of them, because every one is an arithmetic consequence of the year's
+ordinary rate schedule and standard deduction:
+
+```text
+standard schedule band  =  taxable income band + standardDeduction - step1gAmount
+checkbox schedule band  = (taxable income band + standardDeduction) / 2
+```
+
+`step1gAmount` is `$12,900` in the joint column and `$8,600` in the other two —
+three and two withholding allowances at the frozen `$4,300` rate, because the
+tables were built for the *pre-2020* Form W-4 and its default allowances.
+Worksheet 1A line 1g adds them back for a modern W-4; Worksheet 1B subtracts the
+employee's actual allowances instead.
+
+That identity reproduces every threshold the IRS published for 2024 and 2025 —
+three columns, seven bands each — and the test suite pins all forty-two. It is
+the same reason this library cannot reproduce the IRS's own 2024 rate-schedule
+erratum: a table copied out of a PDF can be copied wrong; an identity cannot.
+
+### 2025 withholds on a standard deduction the 2025 return does not use
+
+The One Big Beautiful Bill Act raised the 2025 standard deduction to `$15,750` /
+`$31,500` in July 2025 — seven months after Publication 15-T for 2025 was
+published, and the IRS did not reissue the withholding tables. So 2025 withholds
+on `$15,000` / `$30,000` / `$22,500` while the 2025 return is computed on the
+higher figures.
+
+```js
+computeWithholding({
+  wagesThisPeriod: 130_000,
+  filingStatus: 'marriedFilingJointly',
+  payPeriod: 'annual',
+  year: 2025,
+}).withholding; // 11828
+
+// The same household's actual 2025 income tax:
+federalIncomeTax({
+  taxableIncome: 130_000 - 31_500,
+  filingStatus: 'marriedFilingJointly',
+  year: 2025,
+}).tax; // 11498
+```
+
+`$330` of over-withholding, by design, and it comes back as refund. Anything that
+derives 2025 withholding from the 2025 *return's* standard deduction gets this
+backwards. `getYearParameters(2025).withholding.notes` says so at runtime.
+
+### Two jobs, and why the checkbox is not optional
+
+The tables assume the job in front of them is the only income there has ever
+been. Two blank W-4s in one household therefore under-withhold badly — each job
+claims the whole standard deduction and starts again at the bottom bracket:
+
+```js
+// A married couple, $90,000 and $60,000, both W-4s blank, 2026.
+// 6440 + 2840 = 9280 withheld, against 15340 actually owed.
+```
+
+`$6,060` short. Checking Step 2 on both W-4s switches each job to the halved
+schedule and closes it — exactly, when the two jobs pay the same:
+
+```js
+computeWithholding({
+  wagesThisPeriod: 75_000,
+  filingStatus: 'marriedFilingJointly',
+  payPeriod: 'annual',
+  year: 2026,
+  w4: { multipleJobsCheckbox: true },
+}).withholding; // 7670, and 2 x 7670 = 15340 exactly
+```
+
+At `$90,000` / `$60,000` the same pair of checkboxes withholds `$15,990` — `$650`
+*over*, because the halved schedule assumes the jobs pay equally. Both errors are
+real, and they run in opposite directions.
+
+### What to put on Step 4(c)
+
+The commercially useful question is not "what will be withheld" but "will it be
+enough", and the answer needs income the employer cannot see.
+
+```js
+import { estimateFederalTax, withholdingPlan } from 'us-federal-tax';
+
+const estimate = estimateFederalTax({
+  filingStatus: 'single',
+  year: 2026,
+  w2Wages: 104_000,
+  selfEmploymentNetProfit: 20_000,
+});
+
+const plan = withholdingPlan({
+  wagesThisPeriod: 4_000,
+  filingStatus: 'single',
+  payPeriod: 'biweekly',
+  year: 2026,
+  targetAnnualTax: estimate.totalTax, // 20980.8
+});
+
+plan.projectedAnnualWithholding; // 14049.88
+plan.shortfall; // 6930.92
+plan.extraWithholdingPerPeriod; // 266.57
+```
+
+Withholding is treated as paid evenly across the year no matter when it happened
+(§ 6654(g)), so closing a shortfall through Step 4(c) in November still cures an
+underpayment from March. A late estimated tax payment does not — which is why
+this is worth knowing in November.
+
+### Additional Medicare Tax is withheld on the wrong threshold, deliberately
+
+An employer withholds 0.9% on wages above `$200,000` that *it* paid this calendar
+year, with no regard for filing status. The liability on Form 8959 uses the
+filing-status threshold. The two disagree in both directions and neither is a bug:
+
+| Household | Withheld | Owed |
+| --- | --- | --- |
+| Two spouses at `$150,000` each | `$0` | `$450` |
+| One spouse at `$230,000`, joint return | `$270` | `$0` |
+
+`computePaycheck` also takes `yearToDateSocialSecurityWages`, so the wage base is
+applied per employer — which is what makes a mid-year job change over-withhold
+OASDI, recovered as a credit on the return.
+
+### A Form W-4 from 2019 or earlier still works
+
+Worksheet 1B, with allowances at `$4,300` each:
+
+```js
+computeWithholding({
+  wagesThisPeriod: 100_000,
+  filingStatus: 'single',
+  payPeriod: 'annual',
+  year: 2026,
+  w4: { revision: '2019OrEarlier', allowances: 2 },
+}); // identical to a blank modern W-4, which is where the $8,600 comes from
+```
+
+The old form has no head-of-household box, so a legacy W-4 can only reach the
+single or the joint column; the result says so in `notes`.
+
+### What withholding does not cover
+
+- **The wage bracket method tables.** They are a rounded presentation of the same
+  percentage method, and an employer may use either. This is the exact one.
+- **Nonresident alien employees**, who take an extra amount added to wages before
+  Step 1.
+- **Supplemental wages** (the 22% flat rate and the aggregate method), backup
+  withholding, and pension or annuity withholding on Forms W-4P and W-4R.
+- **State and local withholding**, and unemployment insurance.
+- **The Schedule 1-A deductions.** No year's withholding tables account for the
+  tips, overtime, senior or car loan interest deductions. An employee who expects
+  them should claim them on Form W-4 Step 4(b) rather than wait for the refund.
+- **2026's tables were derived, not checked against the publication.** The
+  identity above reproduces 2024 and 2025 exactly, and Rev. Proc. 2025-32 supplies
+  the 2026 inputs, but Publication 15-T for 2026 was not available to compare
+  against. `getYearParameters(2026).withholding.notes` repeats this at runtime.
+
 ## API
 
 | Function | Purpose |
@@ -496,6 +684,12 @@ you have made that election).
 | `qualifiedOvertimeDeduction({ qualifiedOvertimeCompensation, ... })` | § 225, FLSA premium only |
 | `seniorDeduction({ modifiedAdjustedGrossIncome, age65OrOlder, ... })` | Per eligible individual |
 | `vehicleLoanInterestDeduction({ qualifiedInterest, ... })` | § 163(h)(4) |
+| `computePaycheck(input)` | A whole paycheck: federal withholding, employee FICA, employer match, take-home |
+| `computeWithholding(input)` | Publication 15-T Worksheet 1A or 1B, with the worksheet lines exposed |
+| `withholdingPlan(input)` | Whether the current W-4 covers a target liability, and what to put on Step 4(c) |
+| `withholdingRateSchedule({ column, year, multipleJobsCheckbox })` | One derived percentage-method schedule |
+| `withholdingColumn(filingStatus)` | Which of the three W-4 columns a filing status uses |
+| `PAY_PERIODS_PER_YEAR` | The eight pay periods and their divisors |
 | `getYearParameters(year)` | Raw parameters and their citations |
 | `SUPPORTED_YEARS` | `[2024, 2025, 2026]`, ascending |
 
@@ -512,7 +706,8 @@ Stated plainly, because a tax library that hides its gaps is worse than useless:
   credits are not. Nor is eligibility itself: you must decide who is a qualifying
   child, and the § 32(c)(3) test for the EITC genuinely differs from the § 24(c)
   test for the child credit — pass `eitcQualifyingChildren` when they diverge.
-- **No AMT**, no state or local tax, no payroll withholding tables (Publication 15-T).
+- **No AMT**, and no state or local tax. (Federal payroll withholding *is* covered —
+  see [Payroll withholding](#payroll-withholding-publication-15-t).)
   Because § 26(a) adds AMT to the ceiling on non-refundable credits, a filer who
   owes AMT has a slightly larger ceiling than this library computes. That shifts
   credit from the refundable column to the non-refundable one without changing the

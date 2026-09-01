@@ -341,7 +341,37 @@ export const YEAR_2024: YearParameters = {
     },
   },
 
+  // Publication 15-T percentage method. The tables themselves are not stored:
+  // `src/withholding.ts` derives all eight rate schedules from `ordinaryBrackets`
+  // and the figures below. See that file for the identity and why it is preferred
+  // to transcribing the printed tables.
+  withholding: {
+    // Identical to `standardDeduction` this year — 2025 is the year they diverge.
+    standardDeduction: {
+      singleOrMarriedFilingSeparately: 14_600,
+      marriedFilingJointly: 29_200,
+      headOfHousehold: 21_900,
+    },
+    step1gAmount: {
+      singleOrMarriedFilingSeparately: 8_600,
+      marriedFilingJointly: 12_900,
+      headOfHousehold: 8_600,
+    },
+    allowanceAmount: 4_300,
+    builtInAllowances: {
+      singleOrMarriedFilingSeparately: 2,
+      marriedFilingJointly: 3,
+      headOfHousehold: 2,
+    },
+    additionalMedicareWithholdingThreshold: 200_000,
+    notes: [],
+  },
+
   sources: [
+    {
+      title: 'IRS Publication 15-T (2024) — Federal Income Tax Withholding Methods',
+      url: 'https://www.irs.gov/pub/irs-prior/p15t--2024.pdf',
+    },
     {
       title: 'IRS Rev. Proc. 2023-34 — inflation adjustments for tax year 2024',
       url: 'https://www.irs.gov/pub/irs-drop/rp-23-34.pdf',

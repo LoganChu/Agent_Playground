@@ -436,7 +436,53 @@ export const YEAR_2025: YearParameters = {
     },
   },
 
+  // Publication 15-T percentage method. The tables themselves are not stored:
+  // `src/withholding.ts` derives all eight rate schedules from `ordinaryBrackets`
+  // and the figures below. See that file for the identity and why it is preferred
+  // to transcribing the printed tables.
+  withholding: {
+    // NOT `standardDeduction`, which is the post-OBBBA figure the *return* uses.
+    // Publication 15-T for 2025 was published in December 2024 and was never
+    // reissued after OBBBA raised the standard deduction in July 2025, so 2025
+    // withholding still runs on $15,000 / $30,000 / $22,500. Every published
+    // threshold in the 2025 tables confirms it: the single column's zero-rate
+    // band ends at $6,400, which is $15,000 - $8,600 and not $15,750 - $8,600.
+    standardDeduction: {
+      singleOrMarriedFilingSeparately: 15_000,
+      marriedFilingJointly: 30_000,
+      headOfHousehold: 22_500,
+    },
+    step1gAmount: {
+      singleOrMarriedFilingSeparately: 8_600,
+      marriedFilingJointly: 12_900,
+      headOfHousehold: 8_600,
+    },
+    allowanceAmount: 4_300,
+    builtInAllowances: {
+      singleOrMarriedFilingSeparately: 2,
+      marriedFilingJointly: 3,
+      headOfHousehold: 2,
+    },
+    additionalMedicareWithholdingThreshold: 200_000,
+    notes: [
+      'The 2025 withholding tables predate the One Big Beautiful Bill Act and were ' +
+        'never reissued. They still build in the pre-OBBBA standard deduction of ' +
+        '$15,000 / $30,000 / $22,500, and they take no account of the new deductions ' +
+        'for tips, overtime, seniors or car loan interest. A 2025 employee who ' +
+        'qualifies for those is over-withheld and gets the difference back on the return.',
+    ],
+  },
+
   sources: [
+    {
+      title: 'IRS Publication 15-T (2025) — Federal Income Tax Withholding Methods',
+      url: 'https://www.irs.gov/pub/irs-prior/p15t--2025.pdf',
+    },
+    {
+      title:
+        'IRS — no change to 2025 withholding tables or Form W-4 for the OBBBA deductions',
+      url: 'https://www.irs.gov/newsroom/one-big-beautiful-bill-act-provisions',
+    },
     {
       title: 'IRS Rev. Proc. 2024-40 — inflation adjustments for tax year 2025',
       url: 'https://www.irs.gov/pub/irs-drop/rp-24-40.pdf',

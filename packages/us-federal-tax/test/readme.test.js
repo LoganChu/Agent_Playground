@@ -6,10 +6,16 @@ import assert from 'node:assert/strict';
 
 import {
   SUPPORTED_YEARS,
+  computePaycheck,
+  computeWithholding,
+  standardDeduction,
+  withholdingPlan,
+  withholdingRateSchedule,
   childTaxCredit,
   earnedIncomeCreditParameters,
   earnedIncomeForCredits,
   estimateFederalTax,
+  additionalMedicareTax,
   federalIncomeTax,
   getYearParameters,
   longTermCapitalGainsTax,
@@ -424,4 +430,189 @@ test('README: every year cites its sources', () => {
       assert.match(s.url, /^https:\/\//);
     }
   }
+});
+
+// --------------------------------------------------------------------------
+// Payroll withholding
+// --------------------------------------------------------------------------
+
+test('README: the paycheck example', () => {
+  const check = computePaycheck({
+    wagesThisPeriod: 3_000,
+    filingStatus: 'single',
+    payPeriod: 'biweekly',
+    year: 2026,
+  });
+  assert.equal(check.federalIncomeTax.withholding, 320.38);
+  assert.equal(check.socialSecurity, 186);
+  assert.equal(check.medicare, 43.5);
+  assert.equal(check.totalWithheld, 549.88);
+  assert.equal(check.takeHomeAfterFederal, 2_450.12);
+});
+
+test('README: the derivation identity, spelled out the way the README spells it', () => {
+  for (const year of SUPPORTED_YEARS) {
+    const p = getYearParameters(year);
+    assert.equal(p.withholding.step1gAmount.marriedFilingJointly, 12_900);
+    assert.equal(p.withholding.step1gAmount.singleOrMarriedFilingSeparately, 8_600);
+    assert.equal(p.withholding.step1gAmount.headOfHousehold, 8_600);
+    assert.equal(p.withholding.allowanceAmount, 4_300);
+
+    for (const column of ['singleOrMarriedFilingSeparately', 'marriedFilingJointly', 'headOfHousehold']) {
+      const status =
+        column === 'marriedFilingJointly'
+          ? 'marriedFilingJointly'
+          : column === 'headOfHousehold'
+            ? 'headOfHousehold'
+            : 'single';
+      const sd = p.withholding.standardDeduction[column];
+      const bands = p.ordinaryBrackets[status];
+      const derived = withholdingRateSchedule({ column, year });
+      assert.equal(derived[0].upTo, sd - p.withholding.step1gAmount[column]);
+      bands.forEach((b, i) => {
+        assert.equal(
+          derived[i + 1].upTo,
+          b.upTo + sd - p.withholding.step1gAmount[column],
+          `${year} ${column} band ${i}`,
+        );
+      });
+      const checkbox = withholdingRateSchedule({ column, year, multipleJobsCheckbox: true });
+      assert.equal(checkbox[0].upTo, sd / 2);
+      bands.forEach((b, i) => {
+        assert.equal(checkbox[i + 1].upTo, (b.upTo + sd) / 2, `${year} ${column} checkbox ${i}`);
+      });
+    }
+  }
+  // "three columns, seven bands each" and "forty-two" pinned thresholds.
+  assert.equal(withholdingRateSchedule({ column: 'marriedFilingJointly', year: 2024 }).length, 8);
+});
+
+test('README: 2025 withholds $330 more than the 2025 return owes', () => {
+  assert.equal(
+    computeWithholding({
+      wagesThisPeriod: 130_000,
+      filingStatus: 'marriedFilingJointly',
+      payPeriod: 'annual',
+      year: 2025,
+    }).withholding,
+    11_828,
+  );
+  assert.equal(
+    federalIncomeTax({
+      taxableIncome: 130_000 - 31_500,
+      filingStatus: 'marriedFilingJointly',
+      year: 2025,
+    }).tax,
+    11_498,
+  );
+  assert.equal(standardDeduction({ filingStatus: 'marriedFilingJointly', year: 2025 }), 31_500);
+  const w = getYearParameters(2025).withholding.standardDeduction;
+  assert.equal(w.singleOrMarriedFilingSeparately, 15_000);
+  assert.equal(w.marriedFilingJointly, 30_000);
+  assert.equal(w.headOfHousehold, 22_500);
+});
+
+test('README: two blank W-4s are $6,060 short, and two checkboxes are $650 long', () => {
+  const blank = (wages) =>
+    computeWithholding({
+      wagesThisPeriod: wages,
+      filingStatus: 'marriedFilingJointly',
+      payPeriod: 'annual',
+      year: 2026,
+    }).withholding;
+  const checked = (wages) =>
+    computeWithholding({
+      wagesThisPeriod: wages,
+      filingStatus: 'marriedFilingJointly',
+      payPeriod: 'annual',
+      year: 2026,
+      w4: { multipleJobsCheckbox: true },
+    }).withholding;
+
+  const owed = federalIncomeTax({
+    taxableIncome: 150_000 - 32_200,
+    filingStatus: 'marriedFilingJointly',
+    year: 2026,
+  }).tax;
+  assert.equal(owed, 15_340);
+
+  assert.equal(blank(90_000), 6_440);
+  assert.equal(blank(60_000), 2_840);
+  assert.equal(owed - (blank(90_000) + blank(60_000)), 6_060);
+
+  assert.equal(checked(75_000), 7_670);
+  assert.equal(2 * checked(75_000), owed);
+  assert.equal(checked(90_000) + checked(60_000) - owed, 650);
+});
+
+test('README: the Step 4(c) plan', () => {
+  const estimate = estimateFederalTax({
+    filingStatus: 'single',
+    year: 2026,
+    w2Wages: 104_000,
+    selfEmploymentNetProfit: 20_000,
+  });
+  assert.equal(estimate.totalTax, 20_980.8);
+
+  const plan = withholdingPlan({
+    wagesThisPeriod: 4_000,
+    filingStatus: 'single',
+    payPeriod: 'biweekly',
+    year: 2026,
+    targetAnnualTax: estimate.totalTax,
+  });
+  assert.equal(plan.projectedAnnualWithholding, 14_049.88);
+  assert.equal(plan.shortfall, 6_930.92);
+  assert.equal(plan.extraWithholdingPerPeriod, 266.57);
+});
+
+test('README: the two Additional Medicare rows', () => {
+  const each = computePaycheck({
+    wagesThisPeriod: 150_000,
+    filingStatus: 'marriedFilingJointly',
+    payPeriod: 'annual',
+    year: 2026,
+  });
+  assert.equal(each.additionalMedicare, 0);
+  assert.equal(
+    additionalMedicareTax({
+      filingStatus: 'marriedFilingJointly',
+      wages: 300_000,
+      year: 2026,
+    }),
+    450,
+  );
+
+  const one = computePaycheck({
+    wagesThisPeriod: 230_000,
+    filingStatus: 'marriedFilingJointly',
+    payPeriod: 'annual',
+    year: 2026,
+  });
+  assert.equal(one.additionalMedicare, 270);
+  assert.equal(
+    additionalMedicareTax({
+      filingStatus: 'marriedFilingJointly',
+      wages: 230_000,
+      year: 2026,
+    }),
+    0,
+  );
+});
+
+test('README: a legacy W-4 with two allowances equals a blank modern one', () => {
+  const legacy = computeWithholding({
+    wagesThisPeriod: 100_000,
+    filingStatus: 'single',
+    payPeriod: 'annual',
+    year: 2026,
+    w4: { revision: '2019OrEarlier', allowances: 2 },
+  }).withholding;
+  const modern = computeWithholding({
+    wagesThisPeriod: 100_000,
+    filingStatus: 'single',
+    payPeriod: 'annual',
+    year: 2026,
+  }).withholding;
+  assert.equal(legacy, modern);
 });

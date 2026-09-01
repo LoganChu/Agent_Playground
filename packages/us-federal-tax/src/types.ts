@@ -361,6 +361,88 @@ export interface EarnedIncomeCreditParameters {
   };
 }
 
+/**
+ * The three columns of the Publication 15-T percentage method tables.
+ *
+ * Form W-4 Step 1(c) offers exactly these three choices, and the tables have
+ * exactly these three sections. Note that married-filing-separately shares a
+ * column with single — see {@link withholdingColumn} for what that costs.
+ */
+export type WithholdingColumn =
+  | 'singleOrMarriedFilingSeparately'
+  | 'marriedFilingJointly'
+  | 'headOfHousehold';
+
+export const WITHHOLDING_COLUMNS: readonly WithholdingColumn[] = [
+  'singleOrMarriedFilingSeparately',
+  'marriedFilingJointly',
+  'headOfHousehold',
+];
+
+/** A payroll period, with the number of periods Publication 15-T assigns it. */
+export type PayPeriod =
+  | 'weekly'
+  | 'biweekly'
+  | 'semimonthly'
+  | 'monthly'
+  | 'quarterly'
+  | 'semiannual'
+  | 'annual'
+  | 'daily';
+
+/**
+ * Everything needed to reconstruct a year's Publication 15-T percentage method
+ * tables from the year's rate schedules.
+ *
+ * The tables are not stored. They are *derived*, because the IRS derives them
+ * the same way, and a derivation cannot carry a transcription error:
+ *
+ * ```text
+ * standard schedule band i  =  taxable-income band i  +  standardDeduction - step1gAmount
+ * checkbox schedule band i  = (taxable-income band i  +  standardDeduction) / 2
+ * ```
+ *
+ * `step1gAmount` is Worksheet 1A line 1g, the amount added back to wages for an
+ * employee whose Form W-4 does not check the Step 2 box. It exists because the
+ * tables were built for the *pre-2020* Form W-4, which handed out two default
+ * withholding allowances to a single filer and three to a married one — so the
+ * tables build in the standard deduction less those allowances, and the
+ * worksheet adds them back for anyone on a modern W-4.
+ */
+export interface WithholdingParameters {
+  /**
+   * The standard deduction the year's withholding tables were built on.
+   *
+   * Usually identical to {@link YearParameters.standardDeduction}. **2025 is
+   * not**: OBBBA raised the standard deduction retroactively in July 2025, after
+   * Publication 15-T for 2025 had been published, and the IRS did not reissue the
+   * withholding tables. Deriving 2025 withholding from the 2025 *return's*
+   * standard deduction over-deducts by $750 (single) or $1,500 (joint).
+   */
+  readonly standardDeduction: Readonly<Record<WithholdingColumn, number>>;
+  /** Worksheet 1A line 1g, by column. */
+  readonly step1gAmount: Readonly<Record<WithholdingColumn, number>>;
+  /**
+   * Value of one withholding allowance on a Form W-4 from 2019 or earlier —
+   * Worksheet 1B. Frozen at $4,300 since the 2020 redesign; it is no longer
+   * inflation-adjusted because no new W-4 can claim allowances.
+   */
+  readonly allowanceAmount: number;
+  /** How many allowances each column's `step1gAmount` represents. */
+  readonly builtInAllowances: Readonly<Record<WithholdingColumn, number>>;
+  /**
+   * Wages above which an employer must withhold Additional Medicare Tax.
+   *
+   * $200,000 from *this employer* in the calendar year, and — unlike the
+   * liability computed on Form 8959 — it does **not** vary with filing status.
+   * A married couple each earning $150,000 has no withholding here and a
+   * $2,700 liability at filing.
+   */
+  readonly additionalMedicareWithholdingThreshold: number;
+  /** Anything a caller should be told about this year's tables. */
+  readonly notes: readonly string[];
+}
+
 export interface YearParameters {
   readonly year: number;
   readonly ordinaryBrackets: Readonly<Record<FilingStatus, readonly Bracket[]>>;
@@ -397,6 +479,8 @@ export interface YearParameters {
   readonly childTaxCredit: ChildTaxCreditParameters;
   /** § 32 earned income credit. */
   readonly earnedIncomeCredit: EarnedIncomeCreditParameters;
+  /** Publication 15-T payroll withholding. */
+  readonly withholding: WithholdingParameters;
   readonly sources: readonly Citation[];
 }
 
@@ -650,4 +734,145 @@ export interface AdditionalDeductionsResult {
   readonly vehicleLoanInterest: AdditionalDeductionPart;
   /** Form 1040 line 13b. */
   readonly total: number;
+}
+
+/**
+ * Form W-4 as the withholding calculation sees it.
+ *
+ * The two variants are the two worksheets in Publication 15-T. Both are still
+ * live: an employee who has not filed a new W-4 since 2019 is still withheld on
+ * allowances, and payroll systems have to handle both indefinitely.
+ */
+export type W4 = ModernW4 | LegacyW4;
+
+/** A Form W-4 from 2020 or later — Publication 15-T Worksheet 1A. */
+export interface ModernW4 {
+  readonly revision?: '2020OrLater';
+  /**
+   * Step 2, checkbox (c): the employee holds two jobs, or files jointly with a
+   * working spouse, and both jobs check the box.
+   *
+   * Switches to the halved rate schedule, which is what makes two jobs withhold
+   * the right total instead of each pretending to be the only one.
+   */
+  readonly multipleJobsCheckbox?: boolean;
+  /** Step 3, the annual credit for dependents and other credits. */
+  readonly dependentsCredit?: number;
+  /** Step 4(a), annual other income not subject to withholding. */
+  readonly otherIncome?: number;
+  /** Step 4(b), annual deductions beyond the standard deduction. */
+  readonly deductions?: number;
+  /** Step 4(c), extra withholding **per pay period**. */
+  readonly extraWithholding?: number;
+}
+
+/** A Form W-4 from 2019 or earlier — Publication 15-T Worksheet 1B. */
+export interface LegacyW4 {
+  readonly revision: '2019OrEarlier';
+  /** Withholding allowances claimed on line 5. */
+  readonly allowances: number;
+  /**
+   * Line 3, "Married, but withhold at higher Single rate".
+   *
+   * The old form had no head-of-household box, so a legacy W-4 can only reach
+   * the single or the joint column.
+   */
+  readonly withholdAtHigherSingleRate?: boolean;
+  /** Line 6, extra withholding **per pay period**. */
+  readonly extraWithholding?: number;
+}
+
+/** Federal income tax withholding for one pay period. */
+export interface WithholdingResult {
+  readonly year: number;
+  readonly payPeriod: PayPeriod;
+  readonly payPeriodsPerYear: number;
+  /** Which section of the Publication 15-T tables was used. */
+  readonly column: WithholdingColumn;
+  /** Which of that section's two schedules was used. */
+  readonly schedule: 'standard' | 'multipleJobsCheckbox';
+  /** Worksheet 1A line 1i / Worksheet 1B line 1j. */
+  readonly adjustedAnnualWage: number;
+  /** Worksheet line 2h, before the Step 3 credits. */
+  readonly tentativeAnnualWithholding: number;
+  /** Step 3 credits actually used, which cannot push withholding below zero. */
+  readonly annualCreditsApplied: number;
+  /** Withholding for this period before Step 4(c). */
+  readonly withholdingBeforeExtra: number;
+  /** Step 4(c) / line 6 extra withholding. */
+  readonly extraWithholding: number;
+  /** What comes out of this paycheck. */
+  readonly withholding: number;
+  /** This period's withholding times the number of periods in the year. */
+  readonly annualizedWithholding: number;
+  /**
+   * What the *next* dollar of wages in this period would be withheld at.
+   *
+   * Zero inside the zero-rate band, and zero once Step 3 credits still exceed
+   * the tentative withholding — a real effect that the rate schedule alone does
+   * not show.
+   */
+  readonly marginalRate: number;
+  /** The derived rate schedule used, in annual wage terms. */
+  readonly rateSchedule: readonly Bracket[];
+  /** How the adjusted annual wage was distributed across that schedule. */
+  readonly brackets: readonly BracketDetail[];
+  /** Caveats that apply to this particular computation. */
+  readonly notes: readonly string[];
+}
+
+/** Employee-side payroll taxes withheld from one paycheck. */
+export interface PaycheckResult {
+  readonly year: number;
+  readonly payPeriod: PayPeriod;
+  readonly grossPay: number;
+  /** Federal income tax withholding, in full. */
+  readonly federalIncomeTax: WithholdingResult;
+  readonly socialSecurity: number;
+  readonly medicare: number;
+  /** 0.9% on this employer's wages above $200,000 year to date. */
+  readonly additionalMedicare: number;
+  /** Employee FICA for the period: Social Security + Medicare + Additional Medicare. */
+  readonly ficaTotal: number;
+  /** Federal income tax withholding + employee FICA. */
+  readonly totalWithheld: number;
+  /**
+   * Gross pay less federal income tax withholding and employee FICA.
+   *
+   * Federal only — state and local withholding, benefit deductions and
+   * garnishments are not modelled, so this is an upper bound on take-home pay.
+   */
+  readonly takeHomeAfterFederal: number;
+  /** Employer's matching share, which never includes Additional Medicare Tax. */
+  readonly employerFica: {
+    readonly socialSecurity: number;
+    readonly medicare: number;
+    readonly total: number;
+  };
+  /** Social Security wages counted this period, after the wage base. */
+  readonly socialSecurityWagesThisPeriod: number;
+  readonly notes: readonly string[];
+}
+
+/** Whether this year's withholding will cover a target tax liability. */
+export interface WithholdingPlan {
+  readonly year: number;
+  readonly payPeriod: PayPeriod;
+  readonly payPeriodsRemaining: number;
+  /** Already withheld this year, as reported by the caller. */
+  readonly withheldToDate: number;
+  /** Withheld to date plus the remaining periods at the current W-4. */
+  readonly projectedAnnualWithholding: number;
+  /** The liability the plan is aiming at. */
+  readonly targetAnnualTax: number;
+  /** Positive when withholding falls short, negative when it overshoots. */
+  readonly shortfall: number;
+  /**
+   * What to put on Form W-4 Step 4(c) — extra withholding per remaining pay
+   * period — to close the shortfall. Zero when there is no shortfall.
+   */
+  readonly extraWithholdingPerPeriod: number;
+  /** Refund (negative) or balance due (positive) if nothing changes. */
+  readonly projectedBalance: number;
+  readonly notes: readonly string[];
 }
