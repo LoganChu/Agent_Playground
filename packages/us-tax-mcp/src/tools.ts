@@ -11,19 +11,30 @@ import {
   FILING_STATUSES,
   LATEST_YEAR,
   SUPPORTED_YEARS,
+  computePaycheck,
   estimateFederalTax,
   getYearParameters,
   quarterlyEstimatedPayments,
   standardDeduction,
+  withholdingPlan,
 } from './engine/index.js';
-import type { EstimateInput, EstimateResult, FilingStatus, YearParameters } from './engine/index.js';
+import type {
+  EstimateInput,
+  EstimateResult,
+  FilingStatus,
+  PayPeriod,
+  W4,
+  YearParameters,
+} from './engine/index.js';
 import {
   FILING_STATUS_PROPERTY,
   ToolInputError,
   YEAR_PROPERTY,
+  asRecord,
   householdArgs,
   householdSchema,
   readBoolean,
+  readFilingStatus,
   readHousehold,
   readNumber,
   toolOptions,
@@ -34,6 +45,7 @@ import {
   money,
   percent,
   renderEstimate,
+  renderPaycheck,
   renderQuarterly,
   statusLabel,
 } from './format.js';
@@ -797,11 +809,230 @@ const yearsTool: ToolDefinition = {
   },
 };
 
+
+// ---------------------------------------------------------------------------
+// paycheck_withholding
+// ---------------------------------------------------------------------------
+
+const PAY_PERIOD_VALUES = [
+  'weekly',
+  'biweekly',
+  'semimonthly',
+  'monthly',
+  'quarterly',
+  'semiannual',
+  'annual',
+  'daily',
+] as const;
+
+/**
+ * Deliberately not built on `householdSchema`.
+ *
+ * A paycheck is a different object from a return: it has a pay period, a Form
+ * W-4 and a year-to-date, and it has none of the thirty household fields the
+ * other four tools share. Reusing the household schema here would have added
+ * about 8 KB to every session's `tools/list` to advertise fields this tool
+ * cannot use. `targetAnnualTax` is the one bridge, and the description points
+ * at `estimate_federal_tax` to fill it.
+ */
+const paycheckTool: ToolDefinition = {
+  name: 'paycheck_withholding',
+  title: 'Paycheck withholding and Form W-4',
+  description:
+    'Compute what an employer withholds from one paycheck — federal income tax by the IRS ' +
+    'Publication 15-T percentage method, plus Social Security, Medicare and Additional Medicare — ' +
+    'and, given targetAnnualTax, whether it will be enough and what to put on Form W-4 Step 4(c). ' +
+    'Answers "what will my take-home pay be", "how much is withheld from my paycheck", "how should ' +
+    'I fill out my W-4", "why do I owe money every April", "should I check the multiple jobs box". ' +
+    'This is NOT the same as the tax on a return: a second job, a working spouse or 1099 income is ' +
+    'invisible to the tables, and 2025 withholds on the pre-OBBBA standard deduction because the ' +
+    'IRS never reissued that year\'s tables. Use estimate_federal_tax for the return itself, and ' +
+    'pass its totalTax here as targetAnnualTax.',
+  inputSchema: {
+    type: 'object',
+    required: ['wagesThisPeriod', 'filingStatus', 'payPeriod'],
+    additionalProperties: false,
+    properties: {
+      wagesThisPeriod: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Taxable wages for ONE pay period, not for the year. Gross pay less pre-tax deductions such as a 401(k) deferral or a section 125 premium.',
+      },
+      filingStatus: FILING_STATUS_PROPERTY,
+      payPeriod: {
+        type: 'string',
+        enum: [...PAY_PERIOD_VALUES],
+        description:
+          'How often the employee is paid. Required — there is no default, because guessing this scales the answer by a factor of two or more. "daily" is Publication 15-T\'s daily or miscellaneous period and counts 260 days.',
+      },
+      year: YEAR_PROPERTY,
+      multipleJobsCheckbox: {
+        type: 'boolean',
+        description:
+          'Form W-4 Step 2, checkbox (c): this employee holds two jobs, or files jointly with a working spouse, and the box is checked on both W-4s. Switches to the halved schedule. Leaving it unchecked when it applies is the single most common cause of owing money in April.',
+      },
+      dependentsCredit: {
+        type: 'number',
+        minimum: 0,
+        description: 'Form W-4 Step 3, the ANNUAL credit amount (e.g. 4400 for two children in 2026).',
+      },
+      otherIncome: {
+        type: 'number',
+        minimum: 0,
+        description: 'Form W-4 Step 4(a), annual income with no withholding of its own — interest, dividends, retirement income.',
+      },
+      deductions: {
+        type: 'number',
+        minimum: 0,
+        description: 'Form W-4 Step 4(b), annual deductions beyond the standard deduction. The only place to claim the OBBBA tips, overtime, senior or car loan interest deductions, which no withholding table accounts for.',
+      },
+      extraWithholding: {
+        type: 'number',
+        minimum: 0,
+        description: 'Form W-4 Step 4(c), extra withholding PER PAY PERIOD.',
+      },
+      allowances2019OrEarlier: {
+        type: 'integer',
+        minimum: 0,
+        description: 'Allowances on a Form W-4 from 2019 or earlier, if the employee has never filed a new one. Switches to Worksheet 1B, where each allowance is worth $4,300 of wages. Mutually exclusive with the Step 2/3/4 fields.',
+      },
+      ficaWagesThisPeriod: {
+        type: 'number',
+        minimum: 0,
+        description: 'Wages subject to Social Security and Medicare, when they differ from wagesThisPeriod. A 401(k) deferral reduces income tax withholding and not FICA; a section 125 premium reduces both.',
+      },
+      yearToDateSocialSecurityWages: {
+        type: 'number',
+        minimum: 0,
+        description: 'Social Security wages THIS employer has already paid this calendar year, so the wage base applies. The base is per employer, so two jobs over-withhold and the excess is a credit on the return.',
+      },
+      yearToDateMedicareWages: {
+        type: 'number',
+        minimum: 0,
+        description: 'Medicare wages paid year to date by this employer. Additional Medicare Tax is withheld above $200,000 from one employer regardless of filing status, which is not the threshold the return uses.',
+      },
+      targetAnnualTax: {
+        type: 'number',
+        minimum: 0,
+        description: 'The tax expected for the whole year — normally estimate_federal_tax totalTax. Supplying it turns this into a Form W-4 plan: projected withholding, the shortfall, and the Step 4(c) amount that closes it.',
+      },
+      payPeriodsRemaining: {
+        type: 'integer',
+        minimum: 0,
+        description: 'Pay periods left in the year. Defaults to a full year. Only used with targetAnnualTax.',
+      },
+      withheldToDate: {
+        type: 'number',
+        minimum: 0,
+        description: 'Federal income tax already withheld this year, from all employers. Only used with targetAnnualTax.',
+      },
+    },
+  },
+  annotations: { ...READ_ONLY, title: 'Paycheck withholding and Form W-4' },
+  run(args) {
+    const source = asRecord(args, 'arguments');
+    const allowed = Object.keys(
+      (paycheckTool.inputSchema as { properties: Record<string, unknown> }).properties,
+    );
+    const unknown = Object.keys(source).filter((key) => !allowed.includes(key));
+    if (unknown.length > 0) {
+      throw new ToolInputError(
+        `Unknown argument${unknown.length > 1 ? 's' : ''}: ${unknown.join(', ')}. Accepted: ${allowed.join(', ')}.`,
+      );
+    }
+
+    const filingStatus = readFilingStatus(source);
+    const payPeriod = source['payPeriod'];
+    if (typeof payPeriod !== 'string' || !(PAY_PERIOD_VALUES as readonly string[]).includes(payPeriod)) {
+      throw new ToolInputError(
+        `payPeriod must be one of ${PAY_PERIOD_VALUES.join(', ')}, received ${JSON.stringify(payPeriod)}.`,
+      );
+    }
+    const wages = readNumber(source, 'wagesThisPeriod');
+    if (wages === undefined) throw new ToolInputError('wagesThisPeriod is required.');
+
+    const allowances = readNumber(source, 'allowances2019OrEarlier', { integer: true });
+    const modernKeys = ['multipleJobsCheckbox', 'dependentsCredit', 'otherIncome', 'deductions'];
+    if (allowances !== undefined) {
+      const conflicting = modernKeys.filter((key) => source[key] !== undefined);
+      if (conflicting.length > 0) {
+        throw new ToolInputError(
+          `allowances2019OrEarlier describes a Form W-4 from 2019 or earlier, which has no ${conflicting.join(', ')}. ` +
+            'Use one form or the other, not both.',
+        );
+      }
+    }
+
+    const extra = readNumber(source, 'extraWithholding');
+    const w4 =
+      allowances !== undefined
+        ? { revision: '2019OrEarlier' as const, allowances, ...(extra !== undefined ? { extraWithholding: extra } : {}) }
+        : {
+            ...(readBoolean(source, 'multipleJobsCheckbox') !== undefined
+              ? { multipleJobsCheckbox: readBoolean(source, 'multipleJobsCheckbox') }
+              : {}),
+            ...(readNumber(source, 'dependentsCredit') !== undefined
+              ? { dependentsCredit: readNumber(source, 'dependentsCredit') }
+              : {}),
+            ...(readNumber(source, 'otherIncome') !== undefined
+              ? { otherIncome: readNumber(source, 'otherIncome') }
+              : {}),
+            ...(readNumber(source, 'deductions') !== undefined
+              ? { deductions: readNumber(source, 'deductions') }
+              : {}),
+            ...(extra !== undefined ? { extraWithholding: extra } : {}),
+          };
+
+    const year = readNumber(source, 'year', { integer: true });
+    const base = {
+      wagesThisPeriod: wages,
+      filingStatus,
+      payPeriod: payPeriod as PayPeriod,
+      ...(year !== undefined ? { year } : {}),
+      w4: w4 as W4,
+    };
+
+    const fica = readNumber(source, 'ficaWagesThisPeriod');
+    const ytdSs = readNumber(source, 'yearToDateSocialSecurityWages');
+    const ytdMedicare = readNumber(source, 'yearToDateMedicareWages');
+    const check = computePaycheck({
+      ...base,
+      ...(fica !== undefined ? { ficaWagesThisPeriod: fica } : {}),
+      ...(ytdSs !== undefined ? { yearToDateSocialSecurityWages: ytdSs } : {}),
+      ...(ytdMedicare !== undefined ? { yearToDateMedicareWages: ytdMedicare } : {}),
+    });
+
+    const target = readNumber(source, 'targetAnnualTax');
+    const remaining = readNumber(source, 'payPeriodsRemaining', { integer: true });
+    const withheld = readNumber(source, 'withheldToDate');
+    const plan =
+      target === undefined
+        ? undefined
+        : withholdingPlan({
+            ...base,
+            targetAnnualTax: target,
+            ...(remaining !== undefined ? { payPeriodsRemaining: remaining } : {}),
+            ...(withheld !== undefined ? { withheldToDate: withheld } : {}),
+          });
+
+    return {
+      text: renderPaycheck(check, filingStatus, plan) + citationText([check.year]),
+      structured: {
+        paycheck: check as unknown as Record<string, unknown>,
+        ...(plan ? { plan: plan as unknown as Record<string, unknown> } : {}),
+        sources: citations(getYearParameters(check.year)),
+      },
+    };
+  },
+};
+
 export const TOOLS: readonly ToolDefinition[] = [
   estimateTool,
   compareTool,
   marginalTool,
   quarterlyTool,
+  paycheckTool,
   parametersTool,
   yearsTool,
 ];

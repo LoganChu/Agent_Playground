@@ -15,6 +15,7 @@ import test from 'node:test';
 
 import {
   PREFERRED_PROTOCOL_VERSION,
+  TOOLS,
   SERVER_INFO,
   SUPPORTED_PROTOCOL_VERSIONS,
   createLineHandler,
@@ -274,7 +275,7 @@ test('a message split across chunk boundaries is reassembled', async () => {
   });
   assert.equal(responses.length, 2);
   assert.equal(responses[0].result.protocolVersion, PREFERRED_PROTOCOL_VERSION);
-  assert.equal(responses[1].result.tools.length, 6);
+  assert.equal(responses[1].result.tools.length, TOOLS.length);
 });
 
 test('a final message with no trailing newline is still answered', async () => {

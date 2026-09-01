@@ -9,7 +9,13 @@
  * to get backwards — that a credit phase-out beats the bracket, that a
  * non-refundable credit cannot touch self-employment tax.
  */
-import type { AdditionalDeductionsResult, EstimateResult, QuarterlyPlan } from './engine/index.js';
+import type {
+  AdditionalDeductionsResult,
+  EstimateResult,
+  PaycheckResult,
+  QuarterlyPlan,
+  WithholdingPlan,
+} from './engine/index.js';
 
 /**
  * Schedule 1-A's four parts, in Form 1040 order.
@@ -303,5 +309,88 @@ export function renderQuarterly(plan: QuarterlyPlan, estimate: EstimateResult): 
         'Supplying priorYearTotalTax often produces a materially smaller required payment.',
     );
   }
+  return rows.join('\n');
+}
+
+/**
+ * A paycheck, in the order a person reads a pay stub.
+ *
+ * The withholding figure alone is not the useful part — what a caller wants to
+ * know is whether it will be enough, and the tables cannot see the income that
+ * decides. So the plan, when there is one, comes first.
+ */
+export function renderPaycheck(
+  check: PaycheckResult,
+  status: string,
+  plan?: WithholdingPlan,
+): string {
+  const w = check.federalIncomeTax;
+  const rows: string[] = [];
+
+  rows.push(
+    `${statusLabel(status)}, ${w.payPeriod} (${w.payPeriodsPerYear} periods), tax year ${check.year}`,
+  );
+  rows.push(`Gross pay this period: ${money(check.grossPay)}`);
+  rows.push('');
+  rows.push(`Federal income tax withheld  ${money(w.withholding)}`);
+  rows.push(`Social Security (6.2%)       ${money(check.socialSecurity)}`);
+  rows.push(`Medicare (1.45%)             ${money(check.medicare)}`);
+  if (check.additionalMedicare > 0) {
+    rows.push(`Additional Medicare (0.9%)   ${money(check.additionalMedicare)}`);
+  }
+  rows.push(`Total withheld               ${money(check.totalWithheld)}`);
+  rows.push(
+    `Take-home after federal      ${money(check.takeHomeAfterFederal)}  (before state, local and benefits)`,
+  );
+  rows.push('');
+  rows.push(
+    `Annualised, that is ${money(w.annualizedWithholding)} of federal income tax withholding.`,
+  );
+  rows.push(
+    `The next dollar of pay this period is withheld at ${percent(w.marginalRate)}.`,
+  );
+
+  rows.push('');
+  rows.push('How Publication 15-T got there:');
+  rows.push(
+    `  ${w.column === 'marriedFilingJointly' ? 'Married filing jointly' : w.column === 'headOfHousehold' ? 'Head of household' : 'Single or married filing separately'} column, ${
+      w.schedule === 'multipleJobsCheckbox'
+        ? 'Step 2 checkbox schedule (the halved, two-job one)'
+        : 'standard schedule'
+    }`,
+  );
+  rows.push(`  Adjusted annual wage         ${dollars(w.adjustedAnnualWage)}`);
+  rows.push(`  Tentative annual withholding ${money(w.tentativeAnnualWithholding)}`);
+  if (w.annualCreditsApplied > 0) {
+    rows.push(`  Less Step 3 credits          ${money(w.annualCreditsApplied)}`);
+  }
+  if (w.extraWithholding > 0) {
+    rows.push(`  Plus Step 4(c) each period   ${money(w.extraWithholding)}`);
+  }
+
+  if (plan) {
+    rows.push('');
+    rows.push('Will it be enough?');
+    rows.push(`  Tax expected for the year    ${money(plan.targetAnnualTax)}`);
+    rows.push(`  Projected withholding        ${money(plan.projectedAnnualWithholding)}`);
+    if (plan.shortfall > 0) {
+      rows.push(`  Short by                     ${money(plan.shortfall)}`);
+      if (plan.extraWithholdingPerPeriod > 0) {
+        rows.push(
+          `  Put ${money(plan.extraWithholdingPerPeriod)} on Form W-4 Step 4(c) for each of the ${plan.payPeriodsRemaining} remaining periods.`,
+        );
+      }
+    } else {
+      rows.push(`  Over-withheld by             ${money(-plan.shortfall)} — a refund, not a problem.`);
+    }
+    for (const note of plan.notes) rows.push(`  Note: ${note}`);
+  }
+
+  const notes = [...check.notes, ...check.federalIncomeTax.notes];
+  if (notes.length > 0) {
+    rows.push('');
+    for (const note of notes) rows.push(`Note: ${note}`);
+  }
+
   return rows.join('\n');
 }

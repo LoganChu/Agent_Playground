@@ -230,3 +230,112 @@ test('the client configuration in the README is the one that actually works', ()
   quotes('"command": "npx"');
   quotes('"args": ["-y", "us-tax-mcp"]');
 });
+
+test('README: the two-job trap, recomputed', () => {
+  const withheld = (wages, w4) =>
+    handleMessage({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'tools/call',
+      params: {
+        name: 'paycheck_withholding',
+        arguments: {
+          filingStatus: 'marriedFilingJointly',
+          payPeriod: 'annual',
+          wagesThisPeriod: wages,
+          year: 2026,
+          ...w4,
+        },
+      },
+    }).result.structuredContent.paycheck.federalIncomeTax.withholding;
+
+  const blank = withheld(90_000) + withheld(60_000);
+  assert.equal(blank, 9_280);
+  quotes('$9,280');
+
+  const owed = estimateFederalTax({
+    filingStatus: 'marriedFilingJointly',
+    year: 2026,
+    w2Wages: 150_000,
+  }).totalTax;
+  assert.equal(owed, 15_340);
+  quotes('$15,340');
+
+  assert.equal(2 * withheld(75_000, { multipleJobsCheckbox: true }), owed);
+});
+
+test('README: the 2025 withholding gap, recomputed', () => {
+  const withheld = handleMessage({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'tools/call',
+    params: {
+      name: 'paycheck_withholding',
+      arguments: {
+        filingStatus: 'marriedFilingJointly',
+        payPeriod: 'annual',
+        wagesThisPeriod: 130_000,
+        year: 2025,
+      },
+    },
+  }).result.structuredContent.paycheck.federalIncomeTax.withholding;
+  assert.equal(withheld, 11_828);
+  quotes('$11,828');
+
+  const owed = estimateFederalTax({
+    filingStatus: 'marriedFilingJointly',
+    year: 2025,
+    w2Wages: 130_000,
+  }).totalTax;
+  assert.equal(owed, 11_498);
+  quotes('$11,498');
+  assert.equal(withheld - owed, 330);
+  quotes('over-withheld by $330');
+
+  assert.equal(standardDeduction({ filingStatus: 'marriedFilingJointly', year: 2025 }), 31_500);
+  assert.equal(getYearParameters(2025).withholding.standardDeduction.marriedFilingJointly, 30_000);
+});
+
+test('README: the Additional Medicare rows, recomputed', () => {
+  const check = (wages, ytd) =>
+    handleMessage({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'tools/call',
+      params: {
+        name: 'paycheck_withholding',
+        arguments: {
+          filingStatus: 'marriedFilingJointly',
+          payPeriod: 'annual',
+          wagesThisPeriod: wages,
+          year: 2026,
+          ...(ytd === undefined ? {} : { yearToDateMedicareWages: ytd }),
+        },
+      },
+    }).result.structuredContent.paycheck.additionalMedicare;
+
+  assert.equal(check(150_000), 0);
+  assert.equal(check(230_000), 270);
+  // What the couple in the first row actually owes on Form 8959.
+  assert.equal(
+    Math.round((2 * 150_000 - 250_000) * 0.009 * 100) / 100,
+    450,
+  );
+  quotes('$450');
+  quotes('$270 withheld and owes nothing');
+  quotes('$0 withheld and owe');
+});
+
+test('README: the derivation constants are the ones the engine uses', () => {
+  for (const year of [2024, 2025, 2026]) {
+    const w = getYearParameters(year).withholding;
+    assert.equal(w.step1gAmount.marriedFilingJointly, 12_900);
+    assert.equal(w.step1gAmount.singleOrMarriedFilingSeparately, 8_600);
+    assert.equal(w.allowanceAmount, 4_300);
+  }
+  quotes('$12,900 in the joint column and $8,600');
+  quotes('$4,300');
+  // "three columns and seven bands each" — forty-two pinned thresholds.
+  assert.equal(3 * 7 * 2, 42);
+  quotes('forty-two');
+});

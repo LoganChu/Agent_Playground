@@ -21,9 +21,18 @@ import { TOOLS, ToolInputError, readHousehold } from '../dist/index.js';
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
 
-const householdTools = TOOLS.filter((tool) =>
+const filingStatusTools = TOOLS.filter((tool) =>
   Object.hasOwn(tool.inputSchema.properties, 'filingStatus'),
 ).filter((tool) => tool.name !== 'get_tax_parameters');
+
+// The tools built on the shared household schema. `paycheck_withholding` takes a
+// filing status but deliberately is not one of them: a paycheck has a pay period,
+// a Form W-4 and a year-to-date, and none of the thirty household fields. Sharing
+// the household schema there would have put 8 KB of unusable fields into every
+// session's tools/list.
+const householdTools = filingStatusTools.filter(
+  (tool) => tool.name !== 'paycheck_withholding',
+);
 
 /** A plausible value for a property, from its declared JSON Schema type. */
 function sampleFor(name, schema) {
@@ -72,10 +81,15 @@ test('nothing is read that is not advertised', () => {
   }
 });
 
-test('an unadvertised argument is rejected by every household tool', () => {
-  for (const tool of householdTools) {
+test('an unadvertised argument is rejected by every tool that takes one', () => {
+  // The base has to be otherwise valid for each tool, or the rejection could be
+  // coming from a missing required field instead of from the unknown one.
+  const base = {
+    paycheck_withholding: { filingStatus: 'single', payPeriod: 'weekly', wagesThisPeriod: 1_000 },
+  };
+  for (const tool of filingStatusTools) {
     assert.throws(
-      () => tool.run({ filingStatus: 'single', notAField: 1 }),
+      () => tool.run({ ...(base[tool.name] ?? { filingStatus: 'single' }), notAField: 1 }),
       /Unknown argument/,
       `${tool.name} accepted an unadvertised argument`,
     );
@@ -179,7 +193,7 @@ test('tools/list stays within a sane context budget', () => {
   );
   assert.ok(
     payload.length < 48_000,
-    `tools/list is ${payload.length} bytes, which is more context than these six tools are worth`,
+    `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
 });
 

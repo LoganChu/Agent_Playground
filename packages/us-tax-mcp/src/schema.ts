@@ -240,7 +240,7 @@ export function householdSchema(
 /** Every property name a household tool accepts, `year` included. */
 export const HOUSEHOLD_KEYS: readonly string[] = [...Object.keys(HOUSEHOLD_PROPERTIES), 'year'];
 
-function asRecord(value: unknown, label: string): Record<string, unknown> {
+export function asRecord(value: unknown, label: string): Record<string, unknown> {
   if (value === undefined || value === null) return {};
   if (typeof value !== 'object' || Array.isArray(value)) {
     throw new ToolInputError(`${label} must be an object.`);
@@ -280,7 +280,7 @@ function readBoolean(source: Record<string, unknown>, key: string): boolean | un
   throw new ToolInputError(`${key} must be true or false, received ${JSON.stringify(raw)}.`);
 }
 
-function readFilingStatus(source: Record<string, unknown>): FilingStatus {
+export function readFilingStatus(source: Record<string, unknown>): FilingStatus {
   const raw = source['filingStatus'];
   if (typeof raw !== 'string') {
     throw new ToolInputError(

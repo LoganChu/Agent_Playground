@@ -1,7 +1,7 @@
 {
   "name": "us-tax-mcp",
-  "version": "0.1.0",
-  "description": "Zero-dependency MCP server that computes US federal tax for 2024, 2025 and 2026 — income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap and quarterly estimated payments. Compares a household across tax years, reports the true marginal rate including credit phase-outs, and cites the IRS release behind every figure.",
+  "version": "0.2.0",
+  "description": "Zero-dependency MCP server that computes US federal tax for 2024, 2025 and 2026 \u2014 income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding. Compares a household across tax years, reports the true marginal rate including credit phase-outs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release behind every figure.",
   "keywords": [
     "mcp",
     "mcp-server",
@@ -43,7 +43,14 @@
     "2026",
     "prior-year",
     "year-over-year",
-    "zero-dependency"
+    "zero-dependency",
+    "withholding",
+    "paycheck",
+    "publication-15-t",
+    "form-w-4",
+    "w4",
+    "take-home-pay",
+    "paycheck-calculator"
   ],
   "license": "MIT",
   "type": "module",

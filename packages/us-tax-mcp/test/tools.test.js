@@ -472,6 +472,7 @@ test('every tool answers its own name with a text block and structured content',
     compare_tax_years: { filingStatus: 'single', w2Wages: 80000 },
     effective_marginal_rate: { filingStatus: 'single', w2Wages: 80000 },
     quarterly_estimated_payments: { filingStatus: 'single', selfEmploymentNetProfit: 80000 },
+    paycheck_withholding: { filingStatus: 'single', payPeriod: 'biweekly', wagesThisPeriod: 3000 },
     get_tax_parameters: { year: 2026 },
     list_supported_years: {},
   };
@@ -480,4 +481,143 @@ test('every tool answers its own name with a text block and structured content',
     assert.ok(text.length > 40, `${tool.name} produced almost no text`);
     assert.ok(structured && typeof structured === 'object', `${tool.name} produced no structuredContent`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// paycheck_withholding
+// ---------------------------------------------------------------------------
+
+test('paycheck_withholding: the text and structuredContent report the same figures', () => {
+  const { text, structured } = ok('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'biweekly',
+    wagesThisPeriod: 3_000,
+    year: 2026,
+  });
+  assert.equal(structured.paycheck.federalIncomeTax.withholding, 320.38);
+  assert.equal(structured.paycheck.socialSecurity, 186);
+  assert.equal(structured.paycheck.medicare, 43.5);
+  assert.equal(structured.paycheck.takeHomeAfterFederal, 2_450.12);
+  assert.match(text, /\$320\.38/);
+  assert.match(text, /\$2,450\.12/);
+  assert.match(text, /Single or married filing separately column, standard schedule/);
+  assert.equal(structured.plan, undefined);
+});
+
+test('paycheck_withholding: targetAnnualTax turns it into a Form W-4 plan', () => {
+  const { text, structured } = ok('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'biweekly',
+    wagesThisPeriod: 4_000,
+    year: 2026,
+    targetAnnualTax: 20_980.8,
+  });
+  assert.equal(structured.plan.shortfall, 6_930.92);
+  assert.equal(structured.plan.extraWithholdingPerPeriod, 266.57);
+  assert.match(text, /Step 4\(c\)/);
+  assert.match(text, /\$266\.57/);
+});
+
+test('paycheck_withholding: over-withholding is reported as a refund, not a shortfall', () => {
+  const { text, structured } = ok('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'monthly',
+    wagesThisPeriod: 5_000,
+    year: 2026,
+    targetAnnualTax: 1_000,
+  });
+  assert.ok(structured.plan.shortfall < 0);
+  assert.equal(structured.plan.extraWithholdingPerPeriod, 0);
+  assert.match(text, /Over-withheld by/);
+});
+
+test('paycheck_withholding: the Step 2 checkbox halves the schedule', () => {
+  const args = {
+    filingStatus: 'marriedFilingJointly',
+    payPeriod: 'annual',
+    wagesThisPeriod: 75_000,
+    year: 2026,
+  };
+  const blank = ok('paycheck_withholding', args);
+  const checked = ok('paycheck_withholding', { ...args, multipleJobsCheckbox: true });
+  assert.equal(blank.structured.paycheck.federalIncomeTax.schedule, 'standard');
+  assert.equal(checked.structured.paycheck.federalIncomeTax.schedule, 'multipleJobsCheckbox');
+  // Two such jobs owe 15340 between them, and only the checked pair withholds it.
+  assert.equal(2 * checked.structured.paycheck.federalIncomeTax.withholding, 15_340);
+  assert.ok(2 * blank.structured.paycheck.federalIncomeTax.withholding < 15_340);
+  assert.match(checked.text, /Step 2 checkbox schedule/);
+});
+
+test('paycheck_withholding: 2025 says out loud that its tables predate OBBBA', () => {
+  const { text } = ok('paycheck_withholding', {
+    filingStatus: 'marriedFilingJointly',
+    payPeriod: 'annual',
+    wagesThisPeriod: 130_000,
+    year: 2025,
+  });
+  assert.match(text, /never reissued/);
+  assert.match(text, /\$11,828\.00/);
+});
+
+test('paycheck_withholding: a legacy W-4 is accepted, and cannot be mixed with a modern one', () => {
+  const legacy = ok('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'annual',
+    wagesThisPeriod: 100_000,
+    year: 2026,
+    allowances2019OrEarlier: 2,
+  });
+  const modern = ok('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'annual',
+    wagesThisPeriod: 100_000,
+    year: 2026,
+  });
+  assert.equal(
+    legacy.structured.paycheck.federalIncomeTax.withholding,
+    modern.structured.paycheck.federalIncomeTax.withholding,
+  );
+
+  const mixed = err('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'annual',
+    wagesThisPeriod: 100_000,
+    allowances2019OrEarlier: 2,
+    multipleJobsCheckbox: true,
+  });
+  assert.match(mixed, /one form or the other/);
+});
+
+test('paycheck_withholding: a missing or wrong pay period is a recoverable tool error', () => {
+  assert.match(
+    err('paycheck_withholding', { filingStatus: 'single', wagesThisPeriod: 1_000 }),
+    /payPeriod must be one of/,
+  );
+  assert.match(
+    err('paycheck_withholding', {
+      filingStatus: 'single',
+      wagesThisPeriod: 1_000,
+      payPeriod: 'fortnightly',
+    }),
+    /payPeriod must be one of/,
+  );
+  assert.match(
+    err('paycheck_withholding', { filingStatus: 'single', payPeriod: 'weekly' }),
+    /wagesThisPeriod is required/,
+  );
+});
+
+test('paycheck_withholding: the year-to-date fields drive the wage base and the 0.9%', () => {
+  const { structured, text } = ok('paycheck_withholding', {
+    filingStatus: 'single',
+    payPeriod: 'semimonthly',
+    wagesThisPeriod: 20_000,
+    year: 2026,
+    yearToDateSocialSecurityWages: 175_000,
+    yearToDateMedicareWages: 195_000,
+  });
+  assert.equal(structured.paycheck.socialSecurityWagesThisPeriod, 9_500);
+  assert.equal(structured.paycheck.socialSecurity, 589);
+  assert.equal(structured.paycheck.additionalMedicare, 135);
+  assert.match(text, /Additional Medicare/);
 });

@@ -1,9 +1,10 @@
 # us-tax-mcp
 
-**US federal tax as an MCP server.** Six tools that compute income tax, self-employment
+**US federal tax as an MCP server.** Seven tools that compute income tax, self-employment
 tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section 199A deduction,
-the SALT cap and quarterly estimated payments — for **tax years 2024, 2025 and 2026** —
-entirely offline, with every figure cited to the IRS release it came from.
+the SALT cap, quarterly estimated payments and **paycheck withholding** — for **tax years
+2024, 2025 and 2026** — entirely offline, with every figure cited to the IRS release it
+came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
   per conversation; every dependency is latency the user pays each time.
@@ -78,6 +79,56 @@ carried here:
 
 ---
 
+## Withholding is not the tax on the return, and that gap is the point
+
+`paycheck_withholding` runs IRS Publication 15-T, and the useful thing about it is that it
+disagrees with `estimate_federal_tax` in ways a user cannot see coming.
+
+**Two jobs, two blank W-4s.** The tables assume the job in front of them is the only income
+there has ever been. A married couple earning $90,000 and $60,000 in 2026, both W-4s blank,
+has **$9,280** withheld against **$15,340** owed. Checking Step 2 on both switches each job
+to the halved schedule and closes the gap — exactly, when the two jobs pay the same.
+
+**2025 withholds on a standard deduction the 2025 return does not use.** OBBBA raised it to
+$15,750 / $31,500 in July 2025, seven months after Publication 15-T for 2025 was published,
+and the IRS never reissued the tables. A joint filer at $130,000 has **$11,828** withheld
+against **$11,498** owed — over-withheld by $330, on purpose. Anything that derives 2025
+withholding from the 2025 return's standard deduction gets this backwards.
+
+**Additional Medicare Tax is withheld on the wrong threshold, deliberately.** An employer
+withholds 0.9% above $200,000 that *it* paid, with no regard for filing status; Form 8959
+uses the filing-status threshold. Two spouses at $150,000 each have $0 withheld and owe
+$450. One spouse at $230,000 filing jointly has $270 withheld and owes nothing.
+
+Pass `targetAnnualTax` — normally `estimate_federal_tax`'s `totalTax` — and the tool answers
+the question the tables cannot: whether the current W-4 will cover a liability that includes
+income the employer never sees, and what to put on Step 4(c) to close it. Withholding counts
+as paid evenly across the year no matter when it happened (§ 6654(g)), so fixing a shortfall
+in November still cures an underpayment from March. A late estimated payment does not.
+
+Both revisions of Form W-4 are handled: the 2020-or-later form with its Steps 2, 3 and 4,
+and the 2019-or-earlier form with allowances at $4,300 each.
+
+### The tables are derived, not transcribed
+
+Publication 15-T prints six percentage-method rate schedules a year. None of them is stored
+here, because every one is an arithmetic consequence of the year's ordinary rate schedule
+and standard deduction:
+
+```text
+standard schedule band  =  taxable income band + standardDeduction - step1gAmount
+checkbox schedule band  = (taxable income band + standardDeduction) / 2
+```
+
+`step1gAmount` is $12,900 in the joint column and $8,600 in the other two — three and two
+withholding allowances at the frozen $4,300 rate, because the tables were built for the
+pre-2020 Form W-4 and its default allowances. That identity reproduces every threshold the
+IRS published for 2024 and 2025, three columns and seven bands each, and all forty-two are
+pinned by tests. Publication 15-T for 2026 was not reachable to check against, which the
+tool says in its own output rather than only here.
+
+---
+
 ## The tools
 
 | Tool | What it answers |
@@ -87,6 +138,7 @@ carried here:
 | `effective_marginal_rate` | "Should I take the raise?" "What will this bonus cost me?" The true cost of the next dollar, decomposed. |
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
+| `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -184,6 +236,10 @@ confidently fill them in.
 - **Education credits, the § 21 dependent care credit, the saver's credit, the premium tax
   credit, energy credits, the foreign tax credit, and business credits.**
 - Trust, estate and corporate returns; part-year and non-resident returns.
+- **Withholding**: the wage bracket method tables (a rounded presentation of the same
+  percentage method), nonresident alien employees, supplemental wages, backup withholding,
+  Forms W-4P and W-4R, and state or local withholding. No year's withholding tables account
+  for the Schedule 1-A deductions either — claim those on Form W-4 Step 4(b).
 
 **This computes tax. It is not tax advice**, and it is not a substitute for a return
 preparer. See the licence for the full disclaimer of warranty.

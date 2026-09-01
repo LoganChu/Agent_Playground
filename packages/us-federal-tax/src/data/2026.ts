@@ -490,13 +490,11 @@ export const YEAR_2026: YearParameters = {
     },
     additionalMedicareWithholdingThreshold: 200_000,
     notes: [
-      'The 2026 schedules here are derived from the published 2026 rate schedules and ' +
-        'standard deduction by the same identity that reproduces every 2024 and 2025 ' +
-        'published threshold exactly. Publication 15-T for 2026 was not available to ' +
-        'check them against directly.',
-      'Withholding takes no account of the Schedule 1-A deductions for tips, overtime, ' +
-        'seniors or car loan interest. An employee who expects them should claim them ' +
-        'on Form W-4 Step 4(b) rather than wait for the refund.',
+      'The 2026 schedules are derived from the published rate schedules and standard ' +
+        'deduction by the identity that reproduces 2024 and 2025 exactly; Publication ' +
+        '15-T for 2026 was not available to check them against directly.',
+      'No withholding table accounts for the Schedule 1-A deductions (tips, overtime, ' +
+        'senior, car loan interest). Claim them on Form W-4 Step 4(b), not in April.',
     ],
   },
 
