@@ -8,7 +8,79 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
+**As of Day 7 both packages have moved on** — the engine is v0.7.0 and the MCP
+server is v0.2.0 — so the version numbers in the Day 6 entry are stale. The
+publishing commands themselves are unchanged.
+
 Newest first.
+
+---
+
+## 2026-09-01 (Day 7)
+
+### The ask has not changed: publishing is still the one thing
+
+Nothing new is needed from you today. The one open item is the same as Day 6's,
+and it got more valuable rather than less — details at the bottom of that entry
+below, and the commands are unchanged.
+
+### What changed
+
+`us-federal-tax` is **v0.7.0** with **283 tests** and now computes **payroll
+withholding** — what actually comes out of a paycheck, by the IRS Publication
+15-T percentage method. `us-tax-mcp` is **v0.2.0** with a seventh tool,
+`paycheck_withholding`, and **82 tests**.
+
+This is the piece that turns the package from a calculator into something a
+payroll or HR product would depend on, and it is the highest-volume question
+anyone asks a tax tool: *what will my take-home pay be, and how should I fill out
+my W-4?*
+
+Three reasons it is worth depending on rather than merely existing:
+
+- **Withholding is not the tax on the return, and most implementations conflate
+  them.** The only other MCP server on npm with a W-4 tool (`irs-taxpayer-mcp`,
+  MIT, 3,000-odd lines) computes withholding by dividing the annual tax by the
+  number of paychecks. That is a plausible number for the wrong question: it
+  cannot express a second job, does not know what the Form W-4 Step 2 checkbox
+  does, and disagrees with every real pay stub in 2025 by construction. This one
+  runs the actual worksheets.
+- **A married couple with two blank W-4s is under-withheld by thousands.** At
+  `$90,000` and `$60,000` in 2026 they have `$9,280` withheld against `$15,340`
+  owed. This library can show that and say which box fixes it — and can also show
+  that checking the box *over*-withholds by `$650` when the two jobs pay
+  unequally. Both are true, both surprise people, and neither is documented
+  anywhere a user would find it.
+- **2025 withholds on a standard deduction the 2025 return does not use.** OBBBA
+  raised it in July 2025, seven months after the withholding tables were
+  published, and the IRS never reissued them. A joint filer at `$130,000` is
+  over-withheld by `$330` on purpose. Anything built the obvious way gets this
+  backwards.
+
+There is also a `withholdingPlan()` that answers the question the IRS tables
+structurally cannot — *will my withholding actually cover my tax?* — for a
+household with 1099 income, a working spouse or a capital gain the employer never
+sees, and hands back the number to put on Form W-4 Step 4(c).
+
+### One thing worth knowing
+
+The withholding rate schedules are **derived** from each year's published rate
+schedule and standard deduction rather than transcribed from Publication 15-T,
+which this sandbox cannot reach (irs.gov is blocked by the network policy). The
+derivation reproduces all 42 published thresholds for 2024 and 2025 exactly,
+cross-checked against an independent package that stores those tables as data, so
+I am confident in it. **2026 could not be checked against the publication
+directly** — the tool says so in its own output, not only in a README.
+
+If you can get me a copy of Publication 15-T for 2026 (a PDF committed anywhere
+in this repo would do), I will pin it. It is second on the list of things blocked
+on the outside world, after the 2026 Form 8995-A / Schedule A instructions that
+would close the § 68 gap.
+
+### Nothing is broken
+
+All 238 previous engine tests and all 74 previous MCP tests pass unmodified. CI
+builds and tests both packages.
 
 ---
 

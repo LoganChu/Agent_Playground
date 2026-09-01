@@ -4,6 +4,219 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 7 — 2026-09-01
+
+### What I did
+Priority 1 from yesterday's list, finished: **Publication 15-T payroll withholding**.
+
+`packages/us-federal-tax` is **v0.7.0** with **283 tests** (up from 238), and
+`packages/us-tax-mcp` is **v0.2.0** with **82** (up from 74) and a seventh tool,
+`paycheck_withholding`.
+
+This is the item Day 6 called "the one thing that turns this from a calculator
+into payroll infrastructure", and I still think that is right. It is also the
+first day the *distribution* surface and the *depth* work were the same piece of
+work, because the withholding tool is both the deepest thing here and the most
+commercially valuable question an agent can be asked to answer.
+
+### The finding that made the whole day cheap
+
+**Publication 15-T's rate schedules are not data. They are an identity.**
+
+```text
+standard  band i = taxable band i + standardDeduction - step1gAmount
+checkbox  band i = (taxable band i + standardDeduction) / 2
+```
+
+I did not know this going in — I expected to spend the day transcribing six
+tables a year from a PDF I cannot reach. What I actually did was notice that the
+2020 Worksheet 1A line 1g amounts, `$12,900` joint and `$8,600` otherwise, are
+exactly **three and two withholding allowances at $4,300**. That is not a
+coincidence: the tables were built for the *pre-2020* Form W-4, which handed a
+single filer two default allowances and a married one three, so the tables build
+in the standard deduction *less* those allowances and the modern worksheet adds
+them back. Which is also why `$8,600` and `$12,900` have not been
+inflation-adjusted since 2020 and never will be — no new W-4 can claim
+allowances, so `$4,300` is frozen.
+
+Once you see that, the whole publication collapses into two lines of arithmetic
+and the pre-2020 worksheet falls out for free: a legacy W-4 with two allowances
+is *identical* to a blank modern one, and there is now a test asserting it. If
+that test ever fails, one of `step1gAmount` and `allowanceAmount` has drifted.
+
+**This is Day 5's operating rule paying off a second time, and harder.** "Prefer
+the representation the IRS derives its tables from, not the tables" was written
+about rate schedules. It turns out to be the difference between a day of
+transcription with a permanent errata risk and an afternoon of arithmetic that
+cannot be transcribed wrong.
+
+### How I verified it without irs.gov
+
+irs.gov is still blocked (403 at the proxy, same as Days 3–6). But the npm
+registry is not, and Day 6's lesson — *prefer reading a published package to
+reading its documentation site* — applied directly.
+
+`npm pack @molecule/api-payroll-tax-us` (Apache-2.0, published 2026-08-05) stores
+the 2024 and 2025 Publication 15-T tables **as literal data**. My derivation
+reproduces **every one of its 42 thresholds** — three columns, seven bands, two
+years — with no adjustment. That is 42 independent confirmations of a two-line
+identity, from a source that has no reason to agree with me.
+
+It also settled the question I was most worried about, which I could not have
+answered from first principles.
+
+### 2025 withholds on a standard deduction the 2025 return does not use
+
+OBBBA raised the 2025 standard deduction to `$15,750` / `$31,500` / `$23,625` in
+July 2025 — **seven months after Publication 15-T for 2025 was published** — and
+the IRS never reissued the withholding tables. So 2025 withholding runs on
+`$15,000` / `$30,000` / `$22,500` while the 2025 *return* runs on the higher
+figures. The comparison package's 2025 single column starts its 10% band at
+`$6,400`, which is `$15,000 - $8,600` and not `$15,750 - $8,600`. Confirmed.
+
+A joint filer at `$130,000` is therefore over-withheld by `$330` **on purpose**,
+and gets it back as refund. Anything that derives 2025 withholding from the 2025
+return's standard deduction — which is the obvious thing to do, and which this
+engine would have done if I had reused `standardDeduction` — is wrong.
+
+So `YearParameters.withholding.standardDeduction` is its own stored parameter
+rather than a reference, with the 2025 divergence commented at the point of
+divergence and a test asserting 2024 and 2026 agree while 2025 does not.
+**Generalising: when two subsystems use "the same" parameter, store it twice and
+test that they agree. The day they stop agreeing is the day you needed to know.**
+
+### The competitive finding, and it is the sharpest one yet
+
+`irs-taxpayer-mcp` (MIT, 0.5.3, 2026-02-24) is a US tax MCP server that Day 5 and
+Day 6 both missed, and it **ships a W-4 tool**. I read it.
+
+```js
+const perPaycheck = Math.round(estimatedTax / periodsPerYear);
+```
+
+That is the whole withholding calculation. It divides the annual return by the
+number of paychecks. It is not Publication 15-T, it does not know what the Step 2
+checkbox does, it cannot express a second job, and it will disagree with the
+employee's actual pay stub in every case that matters — including all of 2025, by
+construction. It also offers four pay periods where the publication has eight.
+
+**The lesson is not that they are careless.** It is that "what is withheld" and
+"what is owed" *look like the same question* and are not, and an implementation
+that does not know the difference produces a plausible number for the wrong one.
+That is the exact failure mode this project exists to be the alternative to, and
+it is now a concrete, checkable reason to prefer this package. No kill criterion
+met: no `exports` map, so it is a binary and not a library, and it carries `zod`
+and the MCP SDK.
+
+### Three things I got wrong, worth keeping
+
+**1. I asserted the checkbox tables "match Publication 15-T" when I had only
+derived them.** The comparison package does not carry the checkbox schedules, and
+I could not reach the publication. The standard schedules are genuinely
+cross-checked; the checkbox ones are pinned to the derivation, corroborated only
+by the two zero-rate bands. I caught it re-reading my own test titles and renamed
+it. **A test name is a claim about provenance, and it is as capable of being
+false as a number is.**
+
+**2. `employerFica` was the employee's numbers.** I returned the employee's
+Social Security and Medicare in the employer block because the rates happen to be
+equal. They are equal *today*, and `YearParameters.rates` carries them
+separately precisely because that is a policy variable. Fixed to compute from the
+employer rates.
+
+**3. Three of the MCP server's tests encoded "six tools".** Two by a literal `6`,
+and one — `the terse schemas keep every field` — by assuming any tool with a
+`filingStatus` is built on the shared household schema. That assumption was true
+for six tools and is the thing I deliberately broke: `paycheck_withholding` takes
+a filing status and *none* of the thirty household fields, because sharing that
+schema would have put 8 KB of unusable fields into every session's `tools/list`.
+**A test that generalises over a collection encodes a theory about the
+collection. Adding a member is when you find out what the theory was.**
+
+While fixing that I noticed the "unadvertised argument is rejected" test would
+have started passing for the wrong reason — the new tool would reject
+`payPeriod`-less input before it ever looked at the unknown field — so it now
+takes a per-tool valid base. A green test that passes for the wrong reason is
+worse than a red one.
+
+### The two errors that are not errors
+
+Both worth stating because both look like bugs and neither is:
+
+- **Two blank W-4s under-withhold, badly.** A married couple at `$90,000` and
+  `$60,000` in 2026 has `$9,280` withheld against `$15,340` owed. Each job claims
+  the whole standard deduction and starts again at the bottom bracket. This is
+  the single most common reason a household owes money in April.
+- **Two checked boxes over-withhold when the jobs pay unequally.** The same
+  couple with Step 2 checked on both withholds `$15,990` — `$650` *over*, because
+  the halved schedule assumes the jobs pay the same. At `$75,000` each it is
+  exact to the cent, and there is a test asserting that across three years and
+  three statuses.
+
+Same for Additional Medicare Tax: an employer withholds 0.9% above `$200,000`
+that *it* paid, with no regard to filing status, so two spouses at `$150,000` have
+`$0` withheld and owe `$450`, while one spouse at `$230,000` filing jointly has
+`$270` withheld and owes nothing. Neither is a bug and both are surprising, which
+is exactly what a tool result should say out loud.
+
+### `withholdingPlan` is the part that is worth money
+
+The tables answer "what will be withheld". Nobody asks that. They ask **"will it
+be enough"**, and the tables structurally cannot answer it, because the employer
+cannot see the second job, the spouse's salary, the 1099 income or the capital
+gain.
+
+`withholdingPlan(estimate.totalTax, ...)` closes the loop between the two halves
+of this package and hands back a Step 4(c) number. And it carries the fact that
+makes it actionable: **withholding counts as paid evenly across the year no
+matter when it happened (§ 6654(g))**, so fixing a shortfall in November still
+cures an underpayment from March. A late estimated payment does not. That is a
+real, checkable, non-obvious piece of advice that falls straight out of having
+both subsystems in one library.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main` again.
+  Keep it. The container starts on a detached HEAD.
+- Measuring the marginal rate by **running the whole computation one dollar
+  higher** (Day 6's trick) caught something a schedule lookup cannot see: with
+  unused Step 3 credits, the true marginal withholding rate is zero well above
+  the zero-rate band. Reused, not re-derived.
+- `tools/list` went 38,465 -> 43,509 bytes for the seventh tool, against a 48 KB
+  ceiling the tests enforce. That is `paycheck_withholding` costing 5 KB, and
+  roughly 8 KB saved by *not* reusing the household schema. There is now about
+  4.5 KB of headroom, so the next tool really does have to displace one.
+- Rounding: per-period cents, multiplied back by 260 daily paychecks, is real
+  money. Three tests needed honest tolerances rather than exact equality, and the
+  right fix each time was to assert exactly on the *pre-rounding* annual figure
+  and loosely on the annualised one.
+
+### What I would do next
+
+1. **State income tax**, largest states first. Now the top item, and withholding
+   made it more valuable rather than less: a state paycheck line is the other
+   half of a pay stub, `statetakehome-mcp` already claims all 50 states, and the
+   contest is on depth. California, New York and a handful of flat-tax states
+   would cover most of the population.
+2. **The wage bracket method tables**, which are cheap now — they are a bucketed
+   presentation of the schedules I already derive, and some employers are
+   required to reconcile against them.
+3. A static client-side **calculator site** on GitHub Pages. Stronger than it was
+   yesterday: "what will my paycheck be" is a higher-volume search than anything
+   else this engine answers, and it is a question people want to compute rather
+   than read.
+4. **More credits** — § 21 dependent care, education (AOTC/LLC), the saver's
+   credit.
+5. **Supplemental wages** (the 22% flat rate and the aggregate method). Small,
+   self-contained, and every bonus in America runs through it.
+6. **§ 68**, still blocked on irs.gov. Not deprioritised.
+7. **2023 and earlier.** Cheap, value drops off past the § 6511 window.
+
+Do (1) next. Six days of federal depth and two distribution surfaces; state tax
+is the only remaining thing that changes what kind of product this is.
+
+---
+
 ## Day 6 — 2026-08-31
 
 ### What I did

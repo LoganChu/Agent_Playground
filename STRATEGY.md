@@ -3,10 +3,19 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-08-31 (Day 6). No change of direction. Day 5's priority flip
-was executed: **`packages/us-tax-mcp` exists and is the project's first
-distribution surface.** The bet is unchanged; what changed is that there is now
-something for someone to *find*, rather than only something to depend on.
+Last reviewed: 2026-09-01 (Day 7). No change of direction. Day 6's priority was
+executed: **Publication 15-T withholding shipped**, which is item 2 below
+("depth to the point of dependency") reaching the specific depth that makes a
+payroll product depend on this rather than evaluate it.
+
+Day 7 also produced the strongest single competitive datum this project has: the
+only other MCP server on npm with a Form W-4 tool computes withholding as
+`annualTax / payPeriods`. **"What is withheld" and "what is owed" look like the
+same question and are not**, and an implementation that does not know the
+difference returns a plausible number for the wrong one. Prefer work where the
+naive implementation is *confidently* wrong rather than merely absent — those are
+the places where being correct is worth paying for, and they are much easier to
+find than gaps.
 
 The "win on depth" bet has produced a correctness edge over PolicyEngine-US — the
 most serious open US tax model in any language — on four consecutive days: the
@@ -14,8 +23,18 @@ OBBBA phase-out rounding rules (Day 2), the § 199A loss carryforwards plus the
 SSTB interaction with the new § 199A(i) minimum deduction (Day 3), and the § 24
 phase-out running on modified AGI rather than AGI (Day 4).
 
-Day 5 added a different *kind* of edge, and it generalises better than any of
-those: **prefer the representation the IRS derives its published tables from, not
+Day 5's rule paid off a second time on Day 7 and much harder, so it is worth
+restating first: **Publication 15-T's rate schedules are not data, they are an
+identity.** Every one of the six schedules a year is `taxable band +
+standardDeduction - step1gAmount`, where `step1gAmount` is three or two
+withholding allowances at the frozen `$4,300` — because the tables were built for
+the pre-2020 Form W-4 and its default allowances. Seeing that turned a day of
+transcription with a permanent errata risk into an afternoon of arithmetic, and
+it made the pre-2020 worksheet fall out for free. **Before transcribing a table,
+spend an hour asking what generated it.**
+
+Day 5 added a different *kind* of edge, and it generalises better than most:
+**prefer the representation the IRS derives its published tables from, not
 the tables.** The IRS corrected the 2024 Form 1040 rate schedules in January 2025
 because one cell of the base-tax column was `$1,000` too high. This engine walks
 the bands and stores no base-tax column, so it cannot express that error — the
@@ -130,13 +149,16 @@ the ones to lead with because no competitor advertises any of them:
 Ordered by how soon each is plausible. None require the library to be anything other
 than excellent first.
 
-1. **An MCP server** over the same engine. **Built on Day 6.** This is the
-   discovery channel, and it is the only one that works with zero marketing. It
-   is not yet published — see `NOTES-FOR-HUMAN.md`. Publishing is now the single
-   highest-leverage thing a human can do for this project, because until then the
-   distribution surface exists but nobody can reach it.
-2. **Depth to the point of dependency.** State tax and Publication 15-T withholding
-   turn a library into infrastructure. Infrastructure gets paid for.
+1. **An MCP server** over the same engine. **Built on Day 6, seven tools as of
+   Day 7.** This is the discovery channel, and it is the only one that works with
+   zero marketing. It is not yet published — see `NOTES-FOR-HUMAN.md`. Publishing
+   is still the single highest-leverage thing a human can do for this project,
+   because until then the distribution surface exists but nobody can reach it.
+2. **Depth to the point of dependency.** **Publication 15-T withholding landed on
+   Day 7**, which is the half of this item that turns a tax calculator into
+   payroll infrastructure — a paycheck is a recurring computation a product
+   performs, not a once-a-year one a user performs. State tax is the remaining
+   half and is now the top priority. Infrastructure gets paid for.
 3. **Open core.** Federal engine free forever; state engines, withholding tables, or a
    commercial-use license as the paid tier. This is the standard, working model for
    exactly this kind of package.
@@ -175,7 +197,13 @@ Abandon or pivot this bet if any of these become true:
   `exports` map, so it cannot be imported. Both halves of the criterion matter,
   which is why it now says so explicitly. **Day 6 correction:** `@invaro/opentax`
   *is* an MCP server as well as a CLI, so it competes directly in the
-  distribution channel even though it does not meet the kill criterion.)
+  distribution channel even though it does not meet the kill criterion.
+  **Day 7:** two more found, neither qualifying — `irs-taxpayer-mcp` (MIT but a
+  bin with no `exports`, and its W-4 tool divides the annual tax by the pay
+  period count) and `@molecule/api-payroll-tax-us` (Apache-2.0, importable, zero
+  dependencies, and genuinely good at what it does — but 2024–2025 only, standard
+  schedule only, no Step 2 checkbox, no Form W-4 at all. The closest thing to a
+  real competitor on withholding specifically, and worth re-checking.)
 - Six months of work produces a package that still cannot compute a realistic return
   end-to-end — meaning the domain is deeper than one agent-day per day can cover.
 - The human explicitly wants a different direction. Their call beats this document.
@@ -198,3 +226,12 @@ Abandon or pivot this bet if any of these become true:
   agent-facing surface: a `tools/list` payload and a per-call citation block are paid for
   on every session and every call. Say the thing that changes the answer; put the rest in
   `structuredContent`.
+- **Store a shared parameter twice and test that the copies agree.** New from Day 7. The
+  withholding tables and the return use "the same" standard deduction — except in 2025,
+  where OBBBA moved one and not the other. A reference would have been silently wrong; two
+  stored values plus a test that they match in 2024 and 2026 makes the divergence visible
+  and dated. The day two subsystems stop agreeing is the day you needed to know.
+- **A test name is a claim about provenance.** Also Day 7. "Matches Publication 15-T" and
+  "pinned to the derivation" are different assertions about how much a number has been
+  checked, and only one of them was true for the checkbox schedules. Test titles can be
+  false in exactly the way README numbers can.
