@@ -1,0 +1,80 @@
+{
+  "name": "us-state-tax",
+  "version": "0.1.0",
+  "description": "Dependency-free US state individual income tax engine for tax years 2025 and 2026, covering 22 states. Models what rate tables leave out: which federal figure each state starts from, which federal deductions it adds back, and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. Every figure cited to the statute or state release it came from, and every carried-forward figure flagged as provisional.",
+  "keywords": [
+    "tax",
+    "taxes",
+    "us-tax",
+    "state-tax",
+    "state-income-tax",
+    "income-tax",
+    "tax-brackets",
+    "state-tax-brackets",
+    "payroll",
+    "paycheck",
+    "take-home-pay",
+    "net-pay",
+    "conformity",
+    "federal-conformity",
+    "california",
+    "california-tax",
+    "ftb",
+    "pennsylvania",
+    "utah",
+    "colorado",
+    "illinois",
+    "north-carolina",
+    "georgia",
+    "michigan",
+    "arizona",
+    "indiana",
+    "kentucky",
+    "idaho",
+    "mississippi",
+    "no-income-tax",
+    "texas",
+    "florida",
+    "washington",
+    "marginal-rate",
+    "effective-tax-rate",
+    "flat-tax",
+    "obbba",
+    "2025",
+    "2026",
+    "tax-year"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && tsc -p tsconfig.cjs.json && node scripts/finalize.mjs",
+    "test": "npm run build && node --test test/*.test.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
