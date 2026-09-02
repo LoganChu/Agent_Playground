@@ -3,10 +3,37 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-01 (Day 7). No change of direction. Day 6's priority was
-executed: **Publication 15-T withholding shipped**, which is item 2 below
-("depth to the point of dependency") reaching the specific depth that makes a
-payroll product depend on this rather than evaluate it.
+Last reviewed: 2026-09-02 (Day 8). No change of direction. Day 7's priority was
+executed: **state income tax shipped** — `packages/us-state-tax`, 22 states,
+about 72% of the US population — and it is now the eighth MCP tool. This is the
+item that changes what kind of product this is: a federal-only engine is a
+calculator, and a federal engine plus a state engine plus withholding is the
+computation a payroll or fintech product actually performs.
+
+Day 8's finding is the state-tax analogue of Day 7's, and it is the reason the
+package is shaped the way it is: **the rate is the easy part, and the starting
+point decides the answer.** Every state begins from a different federal figure,
+and that choice determines which federal changes it inherits. The One Big
+Beautiful Bill Act cut 2025 tax in Arizona, Colorado, Idaho and Utah with no
+state legislation and no state announcement, by four different routes, while
+Illinois and Michigan on federal AGI got nothing. And "starts from federal
+taxable income" is not "passes it through": Colorado adds the § 199A deduction
+back and, from 2026, the OBBBA overtime deduction — but not the tips deduction
+beside it on the same federal form. Idaho, on the identical base, allows all of
+them. A table of state rates cannot express any of that, and a table of state
+rates is what every competitor ships.
+
+Two rules generalised out of it, both transferable:
+
+- **A conformity base is a claim about a moment, not a relationship.** Store
+  which federal figure a state starts from *and* the list of things it then
+  undoes. The second list is where the annual churn is.
+- **When a state doubles a schedule for joint filers, check every threshold
+  individually.** The exceptions are where the money is, and there is always at
+  least one. California doubles all nine bracket thresholds and not the
+  $1,000,000 Mental Health Services Tax threshold — a $2,000 marriage penalty
+  invisible in the brackets. Mississippi doubles the deduction and the exemption
+  and not the $10,000 zero bracket.
 
 Day 7 also produced the strongest single competitive datum this project has: the
 only other MCP server on npm with a Form W-4 tool computes withholding as
@@ -86,7 +113,30 @@ is a moat that does not require marketing to defend.
 So: **pick correctness-critical computation that businesses already pay for, and win on
 depth and provenance rather than on reach.**
 
-## The current bet: `packages/us-federal-tax`, distributed through `packages/us-tax-mcp`
+## Saying what is not known, as a product feature
+
+New from Day 8, and worth its own heading because it is the cheapest
+differentiator found so far.
+
+Most state tax parameters are indexed for inflation and published late in the tax
+year, which means any package built mid-year is necessarily working with figures
+that do not exist yet. Every competitor carries the previous year forward
+silently. This one marks each state-year `published` or `provisional`, and every
+provisional result leads with which figure is carried forward, why, and **which
+direction the answer errs in**. Seven of the thirteen taxing states are
+provisional for 2026; nothing in 2025 is.
+
+The related trap, learned the hard way: **a value a reference dataset holds
+constant into the next year is not next year's value, it is the absence of one.**
+California's whole 2026 schedule reads identical to 2025 in PolicyEngine's data
+because nobody has entered the FTB's indexing factor, not because California froze
+it. Anything that reads such a dataset and does not distinguish "unchanged" from
+"unknown" will publish a confident wrong number every autumn.
+
+This is "state limitations loudly" pushed out of the README and into the result
+object, where a language model will actually encounter it.
+
+## The current bet: `packages/us-federal-tax` and `packages/us-state-tax`, distributed through `packages/us-tax-mcp`
 
 A dependency-free US tax engine for JavaScript.
 
@@ -149,16 +199,16 @@ the ones to lead with because no competitor advertises any of them:
 Ordered by how soon each is plausible. None require the library to be anything other
 than excellent first.
 
-1. **An MCP server** over the same engine. **Built on Day 6, seven tools as of
-   Day 7.** This is the discovery channel, and it is the only one that works with
+1. **An MCP server** over the same engines. **Built on Day 6; eight tools as of
+   Day 8, including `state_income_tax`.** This is the discovery channel, and it is the only one that works with
    zero marketing. It is not yet published — see `NOTES-FOR-HUMAN.md`. Publishing
    is still the single highest-leverage thing a human can do for this project,
    because until then the distribution surface exists but nobody can reach it.
 2. **Depth to the point of dependency.** **Publication 15-T withholding landed on
-   Day 7**, which is the half of this item that turns a tax calculator into
-   payroll infrastructure — a paycheck is a recurring computation a product
-   performs, not a once-a-year one a user performs. State tax is the remaining
-   half and is now the top priority. Infrastructure gets paid for.
+   Day 7** and **state income tax on Day 8**, which together are the whole of this
+   item: a paycheck is a recurring computation a product performs, and a state
+   line is the other half of a pay stub. Infrastructure gets paid for. What
+   remains is breadth within state tax — New York first — and state withholding.
 3. **Open core.** Federal engine free forever; state engines, withholding tables, or a
    commercial-use license as the paid tier. This is the standard, working model for
    exactly this kind of package.
@@ -204,6 +254,16 @@ Abandon or pivot this bet if any of these become true:
   dependencies, and genuinely good at what it does — but 2024–2025 only, standard
   schedule only, no Step 2 checkbox, no Form W-4 at all. The closest thing to a
   real competitor on withholding specifically, and worth re-checking.)
+  **Day 8, on the state side:** nothing on npm qualifies. `statetakehome-mcp`
+  claims all 50 states and computes every one of them as
+  `gross - 401k - health - a state standard deduction`, with no conformity model
+  at all — so it cannot express that Colorado starts from federal taxable income,
+  that Arizona's deduction is the federal one, that California's exemption is a
+  credit, or that Pennsylvania taxes 401(k) deferrals. `taxee-tax-statistics`
+  stopped at 2020. `@mesoofito214/us-tax-brackets-2025` is a v1.0.0 data blob.
+  **The 50-state claim is the tell**: nobody gets fifty states right, and the
+  packages that claim them are the ones that model none of the hard parts. Prefer
+  saying which states are missing.
 - Six months of work produces a package that still cannot compute a realistic return
   end-to-end — meaning the domain is deeper than one agent-day per day can cover.
 - The human explicitly wants a different direction. Their call beats this document.
@@ -226,6 +286,19 @@ Abandon or pivot this bet if any of these become true:
   agent-facing surface: a `tools/list` payload and a per-call citation block are paid for
   on every session and every call. Say the thing that changes the answer; put the rest in
   `structuredContent`.
+- **A number in a code comment is a claim, and needs the same test a README number
+  needs.** New from Day 8, and it cost me: I wrote "roughly 30%" for the
+  Pennsylvania forgiveness marginal rate in a doc comment, having reasoned the
+  mechanism out correctly and guessed the magnitude. It is 11% for a childless
+  single filer and 34% for a single parent of two. The rule about docs was written
+  about README.md; it applies to doc comments, test titles and commit messages
+  alike. Anywhere a number is asserted, something has to check it.
+- **When a test's classification is an exclusion list, the list is the bug.** Also
+  Day 8. The MCP server's "which tools share the household schema" tests broke on
+  the seventh tool and were fixed by adding a name to an exclusion list; they broke
+  again on the eighth. Membership is now a positive test for a field only that
+  schema owns, so the theory maintains itself. Every exception added to a list is a
+  prediction that there will be no more of them.
 - **Store a shared parameter twice and test that the copies agree.** New from Day 7. The
   withholding tables and the return use "the same" standard deduction — except in 2025,
   where OBBBA moved one and not the other. A reference would have been silently wrong; two

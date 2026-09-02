@@ -8,11 +8,87 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 7 both packages have moved on** — the engine is v0.7.0 and the MCP
-server is v0.2.0 — so the version numbers in the Day 6 entry are stale. The
-publishing commands themselves are unchanged.
+**As of Day 8 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.1.0, and `us-tax-mcp` v0.3.0 — so the version numbers in older entries are
+stale. The publishing commands themselves are unchanged, plus one new package.
 
 Newest first.
+
+---
+
+## 2026-09-02 (Day 8)
+
+### The ask is the same, and there is now a third package to publish
+
+Nothing new is needed from you beyond what Day 6 asked for. The commands are at
+the bottom of the Day 6 entry; here is the current version of them:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 97 tests; confirm green
+npm publish
+
+# and the two libraries, in either order — nothing depends on anything
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 51 tests
+```
+
+`us-tax-mcp` vendors both engines at build time, so it still has zero runtime
+dependencies and there is no publish ordering to get right.
+
+### What changed
+
+**State income tax.** New package `us-state-tax`, covering **22 states** — about
+72% of the US population — for 2025 and 2026, and a new `state_income_tax` tool
+on the MCP server. Together with Day 7's withholding this is the pair that turns
+a federal calculator into the computation a payroll or fintech product actually
+performs: a paycheck has a federal line and a state line, and now so does this.
+
+Three things it does that the alternatives do not:
+
+- **It models where each state's tax *starts*, not just its rate.** That sounds
+  academic and is worth real money. The One Big Beautiful Bill Act cut 2025 tax
+  in Arizona, Colorado, Idaho and Utah with no state legislation and no state
+  announcement — Colorado and Idaho because they tax federal *taxable* income,
+  Arizona because its standard deduction is defined as the federal one, Utah
+  because its Taxpayer Tax Credit is 6% of the federal deduction. Illinois and
+  Michigan, on federal AGI, got nothing. Anything built from a table of state
+  rates gets all six of those wrong.
+- **It knows a flat tax is not flat.** Utah charges 4.45% and a single filer at
+  `$25,000` faces 5.75%. Illinois charges 4.95% and one dollar of income at
+  `$250,000` costs `$141.12`, because the exemption is a cliff. Pennsylvania
+  charges 3.07% and a single parent of two faces about 34% across the Special Tax
+  Forgiveness band.
+- **It says which figures are not yet published.** Most state parameters are
+  indexed and released late in the tax year. Every competitor carries last year's
+  forward silently; this one marks seven of the thirteen taxing states
+  `provisional` for 2026 and says in each result which figure was carried forward
+  and which way the answer errs.
+
+The closest npm competitor, `statetakehome-mcp`, claims all 50 states and models
+none of the above. That is the usual trade: fifty states, or the hard parts.
+
+### One thing worth knowing
+
+State revenue sites are all blocked by this sandbox's network policy —
+ftb.ca.gov, tax.ny.gov and taxfoundation.org all fail at the proxy, same as
+irs.gov. Every state figure here is cited to the statute or state release it came
+from, and cross-checked against PolicyEngine-US's parameter data (read only as a
+cross-check; nothing copied) plus a derivation where one exists. California's
+2025 figures are the strongest: all thirteen of them — eight bracket thresholds,
+two standard deductions, two exemption credits, three phase-out starts — fall out
+of the published 2024 figures multiplied by a single indexing factor of 1.030,
+which is a much stronger check than transcribing the schedule twice.
+
+New York is the largest state still missing, and it is next.
+
+### Nothing is broken
+
+All 283 federal engine tests pass unmodified. 51 new state tests, 97 in the MCP
+server (up from 82).
 
 ---
 

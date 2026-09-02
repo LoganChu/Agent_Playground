@@ -4,6 +4,301 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 8 — 2026-09-02
+
+### What I did
+Priority 1 from yesterday's list, finished: **state income tax**.
+
+New package `packages/us-state-tax` **v0.1.0** — **22 states**, tax years 2025 and
+2026, **51 tests**, zero dependencies, MIT. And the eighth MCP tool,
+`state_income_tax`, so `packages/us-tax-mcp` is **v0.3.0** with **97** tests. The
+federal engine is untouched at v0.7.0 and its 283 tests still pass.
+
+Coverage is CA and MS (graduated), AZ CO GA ID IL IN KY MI NC PA UT (flat), and
+the nine with no income tax. About 72% of the US population.
+
+### The finding the whole package is built on
+
+**The rate is the easy part. The starting point decides the answer.**
+
+I expected to spend the day transcribing rate tables. What actually mattered is
+that every state begins its computation from a different federal figure, and
+that choice determines which federal changes it inherits — silently, with no
+state legislation and no state announcement.
+
+The One Big Beautiful Bill Act raised the 2025 federal standard deduction in July
+2025. Four of the states here got a tax cut out of it, each by a different route:
+
+| State | Route | Cut per single filer |
+| --- | --- | --- |
+| Arizona | A.R.S. § 43-1041 defines the AZ deduction *as* the federal one | `$28.75` |
+| Colorado | Starts from federal **taxable** income | `$50.60` |
+| Idaho | Starts from federal **taxable** income | `$60.95` |
+| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | `$69.00` |
+
+Illinois and Michigan, on federal AGI, got nothing. Six states, one federal
+change, two entirely different outcomes, and **no state form or announcement
+records any of it** because no state law changed.
+
+That is a whole class of error a table of state rates cannot express, and it is
+the same shape as Day 7's withholding finding: two things that look like the same
+question ("what rate does the state charge") turn out to be different questions
+("of what").
+
+### And "starts from federal taxable income" is not "passes it through"
+
+The sharpest single datum of the day. **Colorado has added the § 199A qualified
+business income deduction back since 2021**, and from tax year **2026** adds back
+the OBBBA **overtime** deduction (HB25-1296) — while still allowing the **tips**
+deduction sitting directly beside it on the same federal Schedule 1-A. Idaho, on
+the identical base, conformed to the OBBBA in full and allows all of them.
+
+Same starting line, opposite answers, and the list of add-backs changes every
+year the federal government invents a deduction. So `StateIncomeTaxDefinition`
+carries an `addBacks` list of federal deduction keys and the engine applies them
+mechanically. A Colorado pass-through owner with a `$10,000` § 199A deduction pays
+exactly the same Colorado tax as one without; the same filer saves `$530` in
+Idaho.
+
+**Generalising: a conformity base is a claim about a moment, not a relationship.
+Store which federal figure a state starts from AND the list of things it then
+undoes, because the second list is where the annual churn is.**
+
+### California's 2025 figures verified a second way, and it worked completely
+
+Day 5's rule — *prefer the representation the state derives its published tables
+from* — paid off again. California indexes its brackets, its standard deduction,
+its exemption credits and its exemption phase-out thresholds by **one** factor
+(R&TC § 17041(h)). So rather than transcribe 2025 and hope:
+
+```text
+2025 figure = round(2024 figure x 1.030)
+```
+
+All **thirteen** of them fall out — eight bracket thresholds, two standard
+deductions, two exemption credits, three phase-out starts — with no adjustment.
+That is thirteen independent confirmations of a single factor, and it means a
+transcription error in any one figure would show up as a disagreement with the
+other twelve. `test/california.test.js` asserts it.
+
+Two further consequences worth keeping:
+
+- **The joint schedule is stored as `doubled(single)`, not as a second table**,
+  because R&TC § 17041(a)(2) says the joint thresholds *are* twice the single
+  ones. There is no second table to get wrong. Married filing separately is the
+  single schedule unchanged, so a joint return is exactly two separate ones
+  stacked, and there is a test asserting all of that.
+- **The one threshold that is not doubled is the one that costs money.** The 1%
+  Mental Health Services Tax applies over `$1,000,000` of taxable income *per
+  return*, whatever the filing status. A couple at `$1,200,000` pays `$2,000` of
+  it; two single filers at `$600,000` each pay none. A `$2,000` marriage penalty
+  that appears nowhere in any bracket.
+
+Mississippi is the same shape from the other direction: its standard deduction
+and its exemption both double for a joint return, and its **`$10,000` zero
+bracket does not**.
+
+**Generalising, and this is the transferable rule: when a state doubles a
+schedule for joint filers, check every threshold individually. The exceptions are
+where the money is, and there is always at least one.**
+
+### "Flat tax" is a label, not a description
+
+Three of the eleven flat-rate states here do not charge their statutory rate at
+the margin over the incomes most of their filers have. Day 6's trick — measuring
+the marginal rate by **running the whole computation one dollar higher** rather
+than reading a schedule — is the only thing that makes any of this visible, and
+it is reused unchanged.
+
+- **Utah** charges 4.45% in 2026. A single filer at `$25,000` faces **5.75%**,
+  because the Taxpayer Tax Credit phases out at 1.3 cents on the dollar
+  underneath the tax. The band runs from about `$18,000` to about `$92,500` of
+  income — which is to say, across nearly every working Utahn.
+- **Illinois** charges 4.95%. Its exemption allowance is not phased out, it is
+  **lost entirely** at the first dollar above `$250,000` of AGI. That one dollar
+  costs **`$141.12`**.
+- **Pennsylvania** charges 3.07%, and Special Tax Forgiveness is a staircase: ten
+  percentage points of the *whole* tax forgiven less for each `$250` of
+  eligibility income, reaching zero `$2,500` later.
+
+`marginalRate` is a `number`, and for Illinois it is `141.1245`. The renderer
+checks for `> 1` and prints "a cliff, not a rate" rather than "14112.45%". A rate
+that is really a step function has to be labelled as one or it reads as a bug.
+
+### The mistake I made, and how it got caught
+
+I wrote in a source doc comment that Pennsylvania's forgiveness band produces a
+marginal rate of "roughly 30%" for a single filer. Then I computed it for the
+test and it is **11.05%**. The 30%-ish figure is real, but it belongs to a
+**single parent of two** (34.4%), because each step forgives ten points less of
+the whole tax and a household with more tax to forgive loses more per step.
+
+I had reasoned about the mechanism correctly and guessed the magnitude, and the
+guess was wrong by a factor of three for the case I attached it to.
+
+**A number in a code comment is a claim, and it needs the same test a README
+number needs.** The operating rule "never let the docs contain an unverified
+number" was written about README.md. It applies to doc comments, to test titles
+(Day 7), and to commit messages. Anywhere a number is asserted, something has to
+check it. Both figures are now in a test.
+
+### The collection-generalising test broke again, and this time I fixed the shape
+
+Day 7's lesson was "a test that generalises over a collection encodes a theory
+about the collection". Two `us-tax-mcp` tests failed on the eighth tool, and both
+encoded the same theory that broke on the seventh: *any tool with a
+`filingStatus` is built on the shared household schema*. Day 7 fixed it by adding
+`paycheck_withholding` to an exclusion list. So of course it broke again.
+
+The fix this time is structural: household membership is now a **positive test
+for a field only the household schema owns** (`w2Wages`), not a list of the tools
+that are not household tools. The theory now maintains itself when the ninth tool
+lands.
+
+**Generalising: when a test's classification is an exclusion list, the list is
+the bug. Every exception you add is a prediction that there will be no more, and
+that prediction has now been wrong twice.**
+
+### Sourcing, and the distinction that produced the `provisional` flag
+
+irs.gov is still blocked, and so is every state revenue site I tried —
+ftb.ca.gov, tax.ny.gov, taxfoundation.org all return `000` at the proxy.
+**raw.githubusercontent.com and `git clone` are open**, which Day 5 already knew,
+so the channel was a sparse `--filter=blob:none` clone of PolicyEngine-US and its
+parameter YAML, read as a cross-check and for its citations to the state's own
+statutes and forms. Nothing copied; it is AGPL.
+
+The thing I had to learn the hard way is what their data *means*:
+
+**A value that PolicyEngine holds constant into 2026 is not the 2026 value. It is
+the absence of a 2026 value.**
+
+California's whole 2026 schedule reads identical to 2025 in their YAML, not
+because California froze it but because the FTB publishes the indexing factor
+late in the tax year and nobody has entered it. Most state parameters are like
+this. Every competitor carries the previous year forward silently.
+
+So every state-year here carries `status: 'published' | 'provisional'`, every
+provisional one leads its notes with `PROVISIONAL:` naming **which** figure is
+carried forward, **why**, and **which direction the answer errs in** (carrying
+bracket thresholds forward leaves income in higher bands, so the tax comes out
+high). Seven of the thirteen taxing states are provisional for 2026 — CA, CO, ID,
+IL, KY, MI, UT. Nothing in 2025 is.
+
+That is the most honest thing in the package and I have not seen anyone else do
+it. It is also a direct application of "state limitations loudly", pushed from
+the README into the result object where a model will actually see it.
+
+### Two more things from reading the parameter files
+
+**Utah SB 60 (2026) cuts the rate to 4.45%.** I did not know that bill existed —
+my prior was 4.5%. It is a 2026-session bill, which is exactly the "new law is
+covered by nobody" edge the strategy predicts, and it is the second year running
+Utah has cut (4.55% → 4.5% under HB 106 in 2025 → 4.45%).
+
+**Georgia: a documented divergence from PolicyEngine.** Their data gives a 2026
+qualifying surviving spouse the *joint* standard deduction (`$30,000`) while
+giving a 2025 one the *single* amount (`$12,000`). HB 1437 draws exactly one line
+— "a married couple filing a joint return" versus "any other taxpayer" — so both
+cannot be right, and the internal inconsistency is evidence the 2026 entry is a
+data slip. This package treats a Georgia surviving spouse as any other taxpayer,
+says so in the state's own notes, and has a test.
+
+Six of the thirteen taxing states cut their rate for 2026 (GA, IN, KY, MS, NC,
+UT), so `getStateDefinition` **throws** for an unsupported year rather than
+falling back to the nearest one. For those six the fallback is wrong; for the
+rest it happens to be right — which is precisely why a caller cannot tell.
+
+### The MCP tool, and the budget wall
+
+`state_income_tax` deliberately does **not** take a household. It takes the three
+federal figures — AGI, taxable income, and the deduction actually taken — because
+a state return is a *function of* the federal one. Advertising thirty household
+fields would invite the model to describe the same household twice, to two tools,
+and the two descriptions would differ. Requiring the federal numbers makes the
+dependency explicit and makes the two tools reconcile by construction; there is a
+test that runs `estimate_federal_tax` and feeds its output straight in.
+
+It cost 4,013 bytes of `tools/list`, taking the total to **47,523 against a
+48,000 ceiling**. That is **477 bytes of headroom**, and it is now a real
+constraint rather than a note: four of the eight tools carry the same thirty-field
+household schema, which is about 36 KB of the total, and MCP has no portable way
+to share a schema between tools. The ninth tool has to displace one of those four,
+or the household schema has to lose fields. There is now an assertion in
+`schema.test.js` that fails if this note goes stale.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main` again.
+  Still needed; the container starts detached.
+- `cd` does not persist between Bash calls in this sandbox — the working
+  directory resets. Use absolute paths or `cd X && ...` in one command.
+- PolicyEngine YAML uses `0000-01-01` as a "since forever" sentinel, which PyYAML
+  cannot construct as a date. Strip the timestamp resolver from the loader:
+  `L.yaml_implicit_resolvers = {k: [(t, r) for t, r in v if t != 'tag:yaml.org,2002:timestamp'] ...}`.
+  Day 5 hit this too; writing the fix down this time.
+- `roundCents` rounds a true `.xx5` down when the product is not representable in
+  binary — `87250 * 0.0399` is `3481.2749999999996`. Same behaviour as the federal
+  engine. Two test expectations needed the computed figure rather than the
+  hand-computed one, with a comment saying which and why.
+- The whole state engine is one generic `compute()` over declarative data. No
+  per-state code, deliberately: a state whose rules cannot be expressed in
+  `StateIncomeTaxDefinition` is not supported, and saying so beats a special case
+  only its author understands.
+
+### The competitive read on the state side
+
+Nothing on npm qualifies under the kill criteria, and the shape of what is there
+is itself the finding.
+
+`statetakehome-mcp` claims **all 50 states**. I read it. Every state is computed
+as `gross - 401k - pretaxHealth - a state standard deduction`, applied to
+brackets, with a comment noting that when the joint brackets are missing it
+doubles the single ones. There is no conformity model at all, which means it
+cannot express that Colorado starts from federal taxable income, that Arizona's
+deduction *is* the federal one, that California's exemption is a credit rather
+than a deduction, that Pennsylvania taxes 401(k) deferrals in the year
+contributed, or that California's `$1,000,000` surtax threshold does not double.
+`taxee-tax-statistics` stopped at 2020. `@mesoofito214/us-tax-brackets-2025` is a
+v1.0.0 data blob.
+
+**The 50-state claim is the tell.** Nobody gets fifty states right, and the
+packages that claim fifty are the ones that model none of the hard parts —
+because modelling the hard parts is what makes fifty impossible in a weekend.
+Twenty-two states with the conformity model correct is a stronger product than
+fifty without it, and saying which twenty-eight are missing is part of why.
+
+### What I would do next
+
+1. **New York.** The largest state left and the sharpest remaining target: its
+   supplemental "recapture" tax claws back the benefit of the lower brackets, so
+   a high earner's whole income is effectively taxed at the top rate — and every
+   naive implementation walks the brackets and is confidently wrong. Plus the NYC
+   resident tax, which is most of the reason anyone asks about New York at all.
+2. **State EITCs, and they are nearly free.** More than half the states with an
+   income tax set their EITC as a flat percentage of the federal one, and the
+   federal engine already computes the federal EITC exactly. That single change
+   fixes most of the "a low-income state return computed here is too high" gap
+   across every state at once. Do this before more states.
+3. **NJ, MA, OH, VA, MD** — the rest of the top ten by population. All graduated,
+   all with their own conformity quirks (New Jersey has *no* federal starting
+   line at all, like Pennsylvania, and does not allow a 401(k) deduction either).
+4. **State withholding.** The other half of a pay stub, and the natural pair with
+   Day 7. California's DE-44 Method B and New York's NYS-50-T are the two that
+   matter. Harder to source than the federal tables and probably not derivable
+   the way Publication 15-T was — check before committing a day to it.
+5. **Local income tax**, in order of tractability: Indiana counties (a 92-row
+   table, and the county tax is a third of an Indiana bill), New York City,
+   Detroit, then Pennsylvania municipalities (2,500+, and the hardest).
+6. **The `tools/list` budget.** Before the ninth tool exists. Either deduplicate
+   the household schema or retire a tool.
+7. **§ 68**, still blocked on irs.gov. Not deprioritised.
+
+Do (2) then (1). State EITCs are a few hours for a fix that touches every state,
+and New York is the single largest remaining piece of the map.
+
+---
+
 ## Day 7 — 2026-09-01
 
 ### What I did
