@@ -16,6 +16,7 @@ import type {
   QuarterlyPlan,
   WithholdingPlan,
 } from './engine/index.js';
+import type { StateIncomeTaxResult } from './state-engine/index.js';
 
 /**
  * Schedule 1-A's four parts, in Form 1040 order.
@@ -392,5 +393,62 @@ export function renderPaycheck(
     for (const note of notes) rows.push(`Note: ${note}`);
   }
 
+  return rows.join('\n');
+}
+
+const CONFORMITY_LABEL: Readonly<Record<string, string>> = {
+  federalAdjustedGrossIncome: 'federal adjusted gross income (Form 1040 line 11)',
+  federalTaxableIncome: 'federal taxable income (Form 1040 line 15)',
+  stateDefined: 'its own tax base, with no federal starting line',
+};
+
+/**
+ * A state result, led by the thing a rate table cannot tell you.
+ *
+ * The conformity line comes first deliberately. "California, 9.3%" is a number a
+ * model can already produce badly from memory; "starts from federal AGI, and the
+ * exemption is a credit rather than a deduction" is the part that changes the
+ * answer, and it has to survive being paraphrased.
+ */
+export function renderStateTax(r: StateIncomeTaxResult): string {
+  const rows: string[] = [];
+  const header = `${r.stateName} (${r.state}), ${statusLabel(r.filingStatus)}, tax year ${r.year}`;
+
+  if (!r.hasIncomeTax) {
+    rows.push(`${header}: no individual income tax. State income tax is ${money(0)}.`);
+    rows.push('');
+    for (const note of r.notes) rows.push(`Note: ${note}`);
+    return rows.join('\n');
+  }
+
+  rows.push(header);
+  rows.push(`Starts from ${CONFORMITY_LABEL[r.conformity.base] ?? r.conformity.base}: ${dollars(r.conformity.amount)}`);
+  for (const back of r.addBacks) rows.push(`  Plus ${back.name}  ${money(back.amount)}`);
+  const otherAdditions = r.additions - r.addBacks.reduce((sum, a) => sum + a.amount, 0);
+  if (otherAdditions > 0) rows.push(`  Plus other state additions   ${money(otherAdditions)}`);
+  if (r.subtractions > 0) rows.push(`  Less state subtractions      ${money(r.subtractions)}`);
+  if (r.deduction > 0) rows.push(`  Less state deduction         ${money(r.deduction)}`);
+  if (r.exemptions > 0) rows.push(`  Less state exemptions        ${money(r.exemptions)}`);
+  rows.push(`State taxable income         ${dollars(r.taxableIncome)}`);
+  rows.push('');
+  rows.push(`Tax before credits           ${money(r.taxBeforeCredits)}`);
+  for (const surtax of r.surtaxes) rows.push(`  Plus ${surtax.name}  ${money(surtax.amount)}`);
+  for (const credit of r.credits) rows.push(`  Less ${credit.name}  ${money(credit.amount)}`);
+  rows.push(`${r.stateName} income tax        ${money(r.tax)}`);
+  rows.push('');
+  rows.push(
+    `Effective rate ${percent(r.effectiveRate)} of the starting figure. The next dollar of income is taxed at ${
+      r.marginalRate > 1 ? `${money(r.marginalRate)} — a cliff, not a rate` : percent(r.marginalRate)
+    }.`,
+  );
+
+  if (r.provisional) {
+    rows.push('');
+    rows.push('PROVISIONAL: at least one figure below is carried forward from the prior year.');
+  }
+  if (r.notes.length > 0) {
+    rows.push('');
+    for (const note of r.notes) rows.push(`Note: ${note}`);
+  }
   return rows.join('\n');
 }

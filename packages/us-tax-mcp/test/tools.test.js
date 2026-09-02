@@ -11,7 +11,13 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
 
-import { TOOLS, estimateFederalTax, findTool, handleMessage } from '../dist/index.js';
+import {
+  TOOLS,
+  estimateFederalTax,
+  findTool,
+  handleMessage,
+  stateIncomeTax,
+} from '../dist/index.js';
 
 /** Call a tool the way a client would, and return the parsed result. */
 function call(name, args) {
@@ -473,6 +479,13 @@ test('every tool answers its own name with a text block and structured content',
     effective_marginal_rate: { filingStatus: 'single', w2Wages: 80000 },
     quarterly_estimated_payments: { filingStatus: 'single', selfEmploymentNetProfit: 80000 },
     paycheck_withholding: { filingStatus: 'single', payPeriod: 'biweekly', wagesThisPeriod: 3000 },
+    state_income_tax: {
+      filingStatus: 'single',
+      state: 'CA',
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+      federalDeduction: 15_750,
+    },
     get_tax_parameters: { year: 2026 },
     list_supported_years: {},
   };
@@ -620,4 +633,199 @@ test('paycheck_withholding: the year-to-date fields drive the wage base and the 
   assert.equal(structured.paycheck.socialSecurity, 589);
   assert.equal(structured.paycheck.additionalMedicare, 135);
   assert.match(text, /Additional Medicare/);
+});
+
+// ---------------------------------------------------------------------------
+// state_income_tax
+// ---------------------------------------------------------------------------
+
+test('state_income_tax returns exactly what the state engine returns', () => {
+  const args = {
+    state: 'CA',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    federalDeduction: 15_750,
+  };
+  const { structured } = ok('state_income_tax', args);
+  const direct = stateIncomeTax({
+    state: 'CA',
+    filingStatus: 'single',
+    year: 2025,
+    federal: {
+      adjustedGrossIncome: 100_000,
+      taxableIncome: 84_250,
+      deduction: 15_750,
+      deductionKind: 'standard',
+    },
+  });
+  assert.deepEqual(structured.state, JSON.parse(JSON.stringify(direct)));
+});
+
+test('the two tools reconcile: estimate_federal_tax feeds state_income_tax exactly', () => {
+  // This is the whole reason state_income_tax asks for federal figures instead
+  // of a household. Describing the household twice, to two tools, is how the two
+  // answers come to disagree.
+  const household = { filingStatus: 'single', w2Wages: 100_000, year: 2025 };
+  const federal = ok('estimate_federal_tax', household).structured.estimate;
+  const { structured, text } = ok('state_income_tax', {
+    state: 'CA',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: federal.adjustedGrossIncome,
+    federalTaxableIncome: federal.taxableIncome,
+    federalDeduction: federal.deduction,
+  });
+  assert.equal(federal.deduction, 15_750);
+  assert.equal(structured.state.conformity.amount, federal.adjustedGrossIncome);
+  assert.equal(structured.state.tax, 5054.98);
+  assert.match(text, /5,054\.98/);
+  assert.match(text, /Starts from federal adjusted gross income/);
+});
+
+test('state_income_tax reports the marginal rate a rate schedule cannot show', () => {
+  const utah = ok('state_income_tax', {
+    state: 'UT',
+    filingStatus: 'single',
+    year: 2026,
+    federalAdjustedGrossIncome: 25_000,
+    federalTaxableIncome: 8_900,
+    federalDeduction: 16_100,
+  });
+  assert.equal(utah.structured.state.marginalRate, 0.0575);
+  assert.match(utah.text, /5\.75%/);
+
+  // Illinois' cliff is a dollar figure, not a rate, and the text says so rather
+  // than rendering "14112.45%".
+  const illinois = ok('state_income_tax', {
+    state: 'IL',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 250_000,
+    federalTaxableIncome: 234_250,
+    federalDeduction: 15_750,
+  });
+  assert.match(illinois.text, /a cliff, not a rate/);
+  assert.match(illinois.text, /\$141\.12/);
+});
+
+test('state_income_tax passes the Colorado add-backs through', () => {
+  const withQbi = ok('state_income_tax', {
+    state: 'CO',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 74_250,
+    federalDeduction: 15_750,
+    federalQualifiedBusinessIncomeDeduction: 10_000,
+  });
+  assert.equal(withQbi.structured.state.addBacks.length, 1);
+  assert.equal(withQbi.structured.state.tax, 3707.0);
+  assert.match(withQbi.text, /199A/);
+
+  // 2026 adds overtime back as well; 2025 does not.
+  const overtime2026 = ok('state_income_tax', {
+    state: 'CO',
+    filingStatus: 'single',
+    year: 2026,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 79_250,
+    federalDeduction: 15_750,
+    federalOvertimeDeduction: 5_000,
+  });
+  assert.equal(overtime2026.structured.state.additions, 5_000);
+  const overtime2025 = ok('state_income_tax', {
+    state: 'CO',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 79_250,
+    federalDeduction: 15_750,
+    federalOvertimeDeduction: 5_000,
+  });
+  assert.equal(overtime2025.structured.state.additions, 0);
+});
+
+test('a state with no income tax answers zero and says what is still taxed', () => {
+  const { text, structured } = ok('state_income_tax', {
+    state: 'WA',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 2_000_000,
+    federalTaxableIncome: 1_983_900,
+  });
+  assert.equal(structured.state.tax, 0);
+  assert.equal(structured.state.hasIncomeTax, false);
+  assert.match(text, /no individual income tax/);
+  // A Washington filer with a large long-term gain owes Washington tax. Saying
+  // "no income tax" and stopping is the failure this note exists to prevent.
+  assert.match(text, /capital gains/);
+});
+
+test('an unsupported state is an error that names the supported ones', () => {
+  const message = err('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+  });
+  assert.match(message, /state must be one of/);
+  assert.match(message, /no zero to fall back to/);
+});
+
+test('state_income_tax refuses inputs that cannot both be true', () => {
+  assert.match(
+    err('state_income_tax', {
+      state: 'CA',
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: 50_000,
+      federalTaxableIncome: 60_000,
+    }),
+    /cannot exceed/,
+  );
+  // Pennsylvania has no federal starting line, so it demands its own figure...
+  assert.match(
+    err('state_income_tax', {
+      state: 'PA',
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+    }),
+    /pennsylvaniaTaxableIncome/,
+  );
+  // ...and no other state will accept one.
+  assert.match(
+    err('state_income_tax', {
+      state: 'CA',
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+      pennsylvaniaTaxableIncome: 100_000,
+    }),
+    /only applies to PA/,
+  );
+});
+
+test('a provisional state-year says so in the text, not only in a flag', () => {
+  const { text, structured } = ok('state_income_tax', {
+    state: 'CA',
+    filingStatus: 'single',
+    year: 2026,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 83_900,
+    federalDeduction: 16_100,
+  });
+  assert.equal(structured.state.provisional, true);
+  assert.match(text, /PROVISIONAL/);
+
+  const published = ok('state_income_tax', {
+    state: 'NC',
+    filingStatus: 'single',
+    year: 2026,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 83_900,
+    federalDeduction: 16_100,
+  });
+  assert.equal(published.structured.state.provisional, false);
+  assert.doesNotMatch(published.text, /PROVISIONAL/);
 });

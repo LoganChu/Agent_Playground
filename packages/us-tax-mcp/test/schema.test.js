@@ -25,13 +25,23 @@ const filingStatusTools = TOOLS.filter((tool) =>
   Object.hasOwn(tool.inputSchema.properties, 'filingStatus'),
 ).filter((tool) => tool.name !== 'get_tax_parameters');
 
-// The tools built on the shared household schema. `paycheck_withholding` takes a
-// filing status but deliberately is not one of them: a paycheck has a pay period,
-// a Form W-4 and a year-to-date, and none of the thirty household fields. Sharing
-// the household schema there would have put 8 KB of unusable fields into every
-// session's tools/list.
-const householdTools = filingStatusTools.filter(
-  (tool) => tool.name !== 'paycheck_withholding',
+// The tools built on the shared household schema, identified by a field only that
+// schema has rather than by a list of the tools that are not.
+//
+// Two tools take a filing status and deliberately are NOT household tools.
+// `paycheck_withholding` describes a paycheck: a pay period, a Form W-4 and a
+// year-to-date, and none of the thirty household fields. `state_income_tax`
+// describes a *federal result*, because a state return is a function of one — and
+// advertising the household here would invite the model to describe the same
+// household twice, to two tools, and get two different answers. Sharing the
+// household schema in either would have added about 8 KB to every session's
+// tools/list to advertise fields the tool cannot use.
+//
+// The exclusion used to be by name, which meant every new tool of this kind broke
+// this test before it broke anything real. Membership is now a positive test on a
+// field the household schema owns, so the theory maintains itself.
+const householdTools = TOOLS.filter((tool) =>
+  Object.hasOwn(tool.inputSchema.properties ?? {}, 'w2Wages'),
 );
 
 /** A plausible value for a property, from its declared JSON Schema type. */
@@ -86,6 +96,12 @@ test('an unadvertised argument is rejected by every tool that takes one', () => 
   // coming from a missing required field instead of from the unknown one.
   const base = {
     paycheck_withholding: { filingStatus: 'single', payPeriod: 'weekly', wagesThisPeriod: 1_000 },
+    state_income_tax: {
+      filingStatus: 'single',
+      state: 'CA',
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+    },
   };
   for (const tool of filingStatusTools) {
     assert.throws(
@@ -194,6 +210,16 @@ test('tools/list stays within a sane context budget', () => {
   assert.ok(
     payload.length < 48_000,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
+  );
+  // Recorded rather than merely asserted, because the headroom is the number that
+  // decides what the next tool can be. Four of the eight carry the same thirty-field
+  // household schema, which is about 36 KB of the total; MCP has no portable way to
+  // share a schema between tools, so the ninth tool has to displace one of those or
+  // the household schema has to lose fields.
+  assert.ok(
+    48_000 - payload.length < 1_000,
+    `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +
+      'this note about the budget is stale and should be rewritten with the real figure',
   );
 });
 

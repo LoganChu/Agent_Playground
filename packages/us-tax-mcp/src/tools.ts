@@ -47,8 +47,18 @@ import {
   renderEstimate,
   renderPaycheck,
   renderQuarterly,
+  renderStateTax,
   statusLabel,
 } from './format.js';
+import {
+  SUPPORTED_STATES as STATE_CODES,
+  SUPPORTED_YEARS as STATE_YEARS,
+  stateIncomeTax,
+} from './state-engine/index.js';
+import type {
+  FilingStatus as StateFilingStatus,
+  StateCode,
+} from './state-engine/index.js';
 
 export interface ToolResult {
   /** What the model reads. */
@@ -1027,12 +1037,195 @@ const paycheckTool: ToolDefinition = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// state_income_tax
+// ---------------------------------------------------------------------------
+
+/**
+ * Also deliberately not built on `householdSchema`, and for a sharper reason
+ * than `paycheck_withholding`.
+ *
+ * A state return is a *function of the federal one*. Advertising thirty
+ * household fields here would invite the model to describe the household twice,
+ * once to this tool and once to `estimate_federal_tax`, and the two descriptions
+ * would differ — which is precisely the failure this tool exists to avoid, since
+ * every supported state's answer is keyed to a federal figure. Requiring the
+ * three federal numbers instead makes the dependency explicit and makes the two
+ * tools reconcile by construction.
+ */
+const stateTool: ToolDefinition = {
+  name: 'state_income_tax',
+  title: 'State income tax',
+  description:
+    'Compute a US STATE individual income tax return for 2025 or 2026, for 22 states. ' +
+    'Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome and deduction here — ' +
+    'a state return is a function of the federal one, and which federal figure a state starts from is what ' +
+    'decides the answer. Colorado and Idaho tax federal TAXABLE income, so the OBBBA standard deduction ' +
+    'increase cut their 2025 tax with no state legislation; Arizona defines its deduction as the federal one; ' +
+    'Illinois and Michigan tax federal AGI and got nothing. Colorado then adds the Section 199A deduction ' +
+    'back, and from 2026 the overtime deduction but not the tips deduction. ' +
+    'Reports the true marginal rate, which is not the statutory rate in Utah (4.45% headline, 5.75% real), ' +
+    'Pennsylvania (3.07% headline, ~11-34% across the forgiveness staircase) or Illinois (a cliff at $250,000). ' +
+    'Does NOT cover New York, New Jersey, Massachusetts, Ohio, Virginia, Maryland or any other state not ' +
+    'listed in the state enum, and does NOT cover local income tax, state EITC or child credits, or state ' +
+    'withholding. Asking for an unlisted state is an error, not a zero.',
+  inputSchema: {
+    type: 'object',
+    required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
+    additionalProperties: false,
+    properties: {
+      state: {
+        type: 'string',
+        enum: [...STATE_CODES],
+        description:
+          'Two-letter state code. Only these 22 are supported; any other state is an error rather than a zero.',
+      },
+      filingStatus: FILING_STATUS_PROPERTY,
+      year: {
+        type: 'integer',
+        enum: [...STATE_YEARS],
+        description:
+          'State tax year. Six states cut their rate for 2026, so an unsupported year is an error rather than a fallback.',
+      },
+      federalAdjustedGrossIncome: {
+        type: 'number',
+        minimum: 0,
+        description: 'Form 1040 line 11 — estimate_federal_tax adjustedGrossIncome.',
+      },
+      federalTaxableIncome: {
+        type: 'number',
+        minimum: 0,
+        description: 'Form 1040 line 15 — estimate_federal_tax taxableIncome. Colorado and Idaho start here.',
+      },
+      federalDeduction: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'The standard or itemized deduction actually taken federally — estimate_federal_tax deduction. Arizona uses it directly and Utah bases its credit on it. Defaults to AGI minus taxable income.',
+      },
+      dependents: { type: 'integer', minimum: 0, description: 'Dependents claimed on the state return.' },
+      federalQualifiedBusinessIncomeDeduction: {
+        type: 'number',
+        minimum: 0,
+        description: 'The Section 199A deduction taken federally. Colorado adds it back; Idaho allows it.',
+      },
+      federalOvertimeDeduction: {
+        type: 'number',
+        minimum: 0,
+        description: 'The OBBBA qualified overtime deduction taken federally. Colorado adds it back from 2026.',
+      },
+      stateAdditions: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'State-specific additions — most often another state\'s municipal bond interest. Not enumerated here; a partial list would be worse than none.',
+      },
+      stateSubtractions: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'State-specific subtractions — US government interest, Social Security and retirement income where the state exempts them, 529 contributions, military pay.',
+      },
+      pennsylvaniaTaxableIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed, allows no standard deduction or exemption, and forbids offsetting a loss in one income class against a gain in another.',
+      },
+    },
+  },
+  annotations: { ...READ_ONLY, title: 'State income tax' },
+  run(args) {
+    const source = asRecord(args, 'arguments');
+    const allowed = Object.keys(
+      (stateTool.inputSchema as { properties: Record<string, unknown> }).properties,
+    );
+    const unknown = Object.keys(source).filter((key) => !allowed.includes(key));
+    if (unknown.length > 0) {
+      throw new ToolInputError(
+        `Unknown argument${unknown.length > 1 ? 's' : ''}: ${unknown.join(', ')}. Accepted: ${allowed.join(', ')}.`,
+      );
+    }
+
+    const state = source['state'];
+    if (typeof state !== 'string' || !(STATE_CODES as readonly string[]).includes(state)) {
+      throw new ToolInputError(
+        `state must be one of ${STATE_CODES.join(', ')}, received ${JSON.stringify(state)}. ` +
+          'Every other state is unsupported; there is no zero to fall back to.',
+      );
+    }
+    const filingStatus = readFilingStatus(source) as unknown as StateFilingStatus;
+    const year = readNumber(source, 'year', { integer: true }) ?? STATE_YEARS[STATE_YEARS.length - 1]!;
+
+    const agi = readNumber(source, 'federalAdjustedGrossIncome');
+    const taxable = readNumber(source, 'federalTaxableIncome');
+    if (agi === undefined) throw new ToolInputError('federalAdjustedGrossIncome is required.');
+    if (taxable === undefined) throw new ToolInputError('federalTaxableIncome is required.');
+    if (taxable > agi) {
+      throw new ToolInputError(
+        `federalTaxableIncome (${taxable}) cannot exceed federalAdjustedGrossIncome (${agi}). ` +
+          'Taxable income is AGI less the deduction, not a figure above it.',
+      );
+    }
+    // The default is exact for a filer whose only below-AGI items are the
+    // deduction itself, and understates it for one with a § 199A or Schedule 1-A
+    // deduction — which is why the schema asks for the real figure.
+    const deduction = readNumber(source, 'federalDeduction') ?? agi - taxable;
+
+    const qbi = readNumber(source, 'federalQualifiedBusinessIncomeDeduction');
+    const overtime = readNumber(source, 'federalOvertimeDeduction');
+    const additions = readNumber(source, 'stateAdditions');
+    const subtractions = readNumber(source, 'stateSubtractions');
+    const dependents = readNumber(source, 'dependents', { integer: true });
+    const paIncome = readNumber(source, 'pennsylvaniaTaxableIncome');
+    if (paIncome !== undefined && state !== 'PA') {
+      throw new ToolInputError(
+        `pennsylvaniaTaxableIncome only applies to PA, and ${state} was requested.`,
+      );
+    }
+
+    const result = stateIncomeTax({
+      state: state as StateCode,
+      year,
+      filingStatus,
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: taxable,
+        deduction,
+        deductionKind: 'standard',
+      },
+      ...(dependents !== undefined ? { dependents } : {}),
+      ...(additions !== undefined ? { additions } : {}),
+      ...(subtractions !== undefined ? { subtractions } : {}),
+      ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),
+      ...(qbi !== undefined || overtime !== undefined
+        ? {
+            federalDeductions: {
+              ...(qbi !== undefined ? { qualifiedBusinessIncome: qbi } : {}),
+              ...(overtime !== undefined ? { overtime } : {}),
+            },
+          }
+        : {}),
+    });
+
+    const sourceLines = result.citations.map((c) => `- ${c.title} — ${c.url}`);
+    return {
+      text: `${renderStateTax(result)}\n\nSources:\n${sourceLines.join('\n')}`,
+      structured: {
+        state: result as unknown as Record<string, unknown>,
+        sources: result.citations.map((c) => ({ title: c.title, url: c.url })),
+      },
+    };
+  },
+};
+
 export const TOOLS: readonly ToolDefinition[] = [
   estimateTool,
   compareTool,
   marginalTool,
   quarterlyTool,
   paycheckTool,
+  stateTool,
   parametersTool,
   yearsTool,
 ];

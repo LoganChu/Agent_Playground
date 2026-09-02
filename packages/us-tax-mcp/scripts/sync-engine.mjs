@@ -19,29 +19,38 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const source = resolve(here, '..', '..', 'us-federal-tax', 'src');
-const target = resolve(here, '..', 'src', 'engine');
 
-if (!existsSync(source)) {
-  console.error(`sync-engine: cannot find the engine sources at ${source}`);
-  process.exit(1);
+/** Both engines, vendored the same way for the same reasons. */
+const ENGINES = [
+  { package: 'us-federal-tax', directory: 'engine' },
+  { package: 'us-state-tax', directory: 'state-engine' },
+];
+
+for (const engine of ENGINES) {
+  const source = resolve(here, '..', '..', engine.package, 'src');
+  const target = resolve(here, '..', 'src', engine.directory);
+
+  if (!existsSync(source)) {
+    console.error(`sync-engine: cannot find the engine sources at ${source}`);
+    process.exit(1);
+  }
+
+  rmSync(target, { recursive: true, force: true });
+  mkdirSync(target, { recursive: true });
+  cpSync(source, target, { recursive: true });
+
+  writeFileSync(
+    resolve(target, 'README.md'),
+    [
+      '# Generated — do not edit',
+      '',
+      `Everything in this directory is copied verbatim from \`packages/${engine.package}/src\``,
+      'by `scripts/sync-engine.mjs`, which runs before every build.',
+      '',
+      'Edit the engine there. Changes made here are destroyed on the next build.',
+      '',
+    ].join('\n'),
+  );
+
+  console.log(`sync-engine: copied ${source} -> ${target}`);
 }
-
-rmSync(target, { recursive: true, force: true });
-mkdirSync(target, { recursive: true });
-cpSync(source, target, { recursive: true });
-
-writeFileSync(
-  resolve(target, 'README.md'),
-  [
-    '# Generated — do not edit',
-    '',
-    'Everything in this directory is copied verbatim from `packages/us-federal-tax/src`',
-    'by `scripts/sync-engine.mjs`, which runs before every build.',
-    '',
-    'Edit the engine there. Changes made here are destroyed on the next build.',
-    '',
-  ].join('\n'),
-);
-
-console.log(`sync-engine: copied ${source} -> ${target}`);

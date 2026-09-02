@@ -1,10 +1,10 @@
 # us-tax-mcp
 
-**US federal tax as an MCP server.** Seven tools that compute income tax, self-employment
-tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section 199A deduction,
-the SALT cap, quarterly estimated payments and **paycheck withholding** — for **tax years
-2024, 2025 and 2026** — entirely offline, with every figure cited to the IRS release it
-came from.
+**US federal and state tax as an MCP server.** Eight tools that compute income tax,
+self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
+199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding** and
+**state income tax for 22 states** — for **tax years 2024, 2025 and 2026** — entirely
+offline, with every figure cited to the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
   per conversation; every dependency is latency the user pays each time.
@@ -129,6 +129,48 @@ tool says in its own output rather than only here.
 
 ---
 
+## State tax: the rate is the easy part
+
+Every list of state income tax rates gives you a percentage. A percentage of *what* is the
+question that decides the answer, and it is different in every state — which is why
+`state_income_tax` takes the federal figures from `estimate_federal_tax` rather than
+describing the household a second time.
+
+**The One Big Beautiful Bill Act cut 2025 tax in four states that never voted on it**, each
+by a different route, because each reaches under federal AGI somewhere:
+
+| State | Route | Cut for one single filer |
+| --- | --- | --- |
+| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $28.75 |
+| Colorado | Starts from federal **taxable** income | $50.60 |
+| Idaho | Starts from federal **taxable** income | $60.95 |
+| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $69.00 |
+
+Illinois and Michigan, on federal AGI, got nothing. No state form changed in any of the six.
+
+**And "starts from federal taxable income" is not "passes it through."** Colorado has added
+the § 199A deduction back since 2021, and from tax year 2026 adds back the OBBBA **overtime**
+deduction — while still allowing the **tips** deduction sitting beside it on the same
+federal schedule. Idaho, on the same base, allows all of them. Same starting line, different
+answer, and it changes every year.
+
+**A flat rate is not a marginal rate.** `state_income_tax` measures the marginal rate by
+running the whole computation one dollar higher, which is the only way any of this is
+visible:
+
+| State | Headline rate | What the next dollar actually costs |
+| --- | --- | --- |
+| Utah, single, $25,000 | 4.45% | **5.75%** — the Taxpayer Tax Credit phases out underneath it |
+| Pennsylvania, single parent of two | 3.07% | **~34%** across the Special Tax Forgiveness staircase |
+| Illinois, single at $250,000 | 4.95% | **$141.12 on one dollar** — the exemption is a cliff, not a phase-out |
+| California, at a credit phase-out step | 9.3% | 9.3 cents **plus $6** of lost exemption credit |
+
+Six of the thirteen taxing states cut their rate for 2026, so an unsupported year is an
+error rather than a fallback to the nearest one — and seven of the 2026 state-years carry at
+least one indexed figure forward from 2025, which every result says out loud.
+
+---
+
 ## The tools
 
 | Tool | What it answers |
@@ -139,6 +181,7 @@ tool says in its own output rather than only here.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
+| `state_income_tax` | "What do I owe California?" A state return for 22 states, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -188,9 +231,10 @@ EITC withdrawal at the § 32 phase-out rate.
 
 ## Correctness
 
-The engine underneath is `packages/us-federal-tax` in the same repository: **238 tests**
+The engines underneath live in the same repository. `packages/us-federal-tax`: **283 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. This package adds **62 more** covering the protocol and the tool layer.
+sources. `packages/us-state-tax`: **51 tests**, every state figure cited to its statute.
+This package adds **97 more** covering the protocol and the tool layer.
 
 Some things it gets right that comparable implementations do not:
 
@@ -224,7 +268,13 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **State and local income tax** — only the federal deduction for it.
+- **28 states, the District of Columbia, and every local income tax.** `state_income_tax`
+  covers 22 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC, NH, NV, PA, SD, TN,
+  TX, UT, WA, WY — for 2025 and 2026, and nothing else. New York, New Jersey, Massachusetts, Ohio, Virginia and Maryland are
+  absent, and asking for one is an error rather than a zero. Neither are Indiana county
+  taxes, Pennsylvania municipal earned income taxes, Detroit, or New York City. No state
+  EITC, child credit or retirement exclusion is modelled either, so a low-income, family or
+  retiree state return comes out **too high**.
 - **The new § 68 overall limitation on itemized deductions** (OBBBA § 70111, first effective
   2026). Its formula needs the § 199A deduction, and § 199A needs taxable income, which
   needs itemized deductions after § 68 — a genuine fixed point the statute does not resolve.

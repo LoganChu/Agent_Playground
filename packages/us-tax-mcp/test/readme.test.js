@@ -14,7 +14,15 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
-import { estimateFederalTax, getYearParameters, handleMessage, standardDeduction } from '../dist/index.js';
+import {
+  SUPPORTED_STATES,
+  estimateFederalTax,
+  getStateDefinition,
+  getYearParameters,
+  handleMessage,
+  standardDeduction,
+  stateIncomeTax,
+} from '../dist/index.js';
 
 const README = readFileSync(
   resolve(dirname(fileURLToPath(import.meta.url)), '..', 'README.md'),
@@ -24,6 +32,18 @@ const README = readFileSync(
 /** Assert the README literally contains this text. */
 function quotes(text) {
   assert.ok(README.includes(text), `README does not contain ${JSON.stringify(text)}`);
+}
+
+/**
+ * The same, ignoring where prose happens to wrap.
+ *
+ * Only for claims that are a long enumeration — a list of state codes wraps
+ * across lines and should not have to be kept on one to be checkable.
+ */
+const FLAT_README = README.replace(/\s+/g, ' ');
+function quotesAcrossLines(text) {
+  const flat = text.replace(/\s+/g, ' ');
+  assert.ok(FLAT_README.includes(flat), `README does not contain ${JSON.stringify(text)}`);
 }
 
 function marginalRate(household, delta = 1000) {
@@ -220,10 +240,11 @@ test('the § 68 bound quoted in the coverage section matches the 37% thresholds'
 test('the test counts the README advertises are the real ones', () => {
   // Deliberately brittle: if the suites grow, this fails and the README gets
   // updated, rather than quietly overstating or understating the coverage.
-  const claimed = /\*\*(\d+) tests\*\*[\s\S]*?\*\*(\d+) more\*\*/.exec(README);
-  assert.ok(claimed, 'README no longer states both test counts in the expected shape');
-  assert.equal(claimed[1], '238', 'engine test count in the README is stale');
-  assert.equal(claimed[2], '62', 'this package\'s test count in the README is stale');
+  const claimed = /\*\*(\d+) tests\*\*[\s\S]*?\*\*(\d+) tests\*\*[\s\S]*?\*\*(\d+) more\*\*/.exec(README);
+  assert.ok(claimed, 'README no longer states all three test counts in the expected shape');
+  assert.equal(claimed[1], '283', 'federal engine test count in the README is stale');
+  assert.equal(claimed[2], '51', 'state engine test count in the README is stale');
+  assert.equal(claimed[3], '97', 'this package\'s test count in the README is stale');
 });
 
 test('the client configuration in the README is the one that actually works', () => {
@@ -338,4 +359,115 @@ test('README: the derivation constants are the ones the engine uses', () => {
   // "three columns and seven bands each" — forty-two pinned thresholds.
   assert.equal(3 * 7 * 2, 42);
   quotes('forty-two');
+});
+
+// ---------------------------------------------------------------------------
+// The state section
+// ---------------------------------------------------------------------------
+
+const stateFed = (agi, taxable, deduction) => ({
+  adjustedGrossIncome: agi,
+  taxableIncome: taxable,
+  deduction,
+  deductionKind: 'standard',
+});
+
+test('README: the OBBBA pass-through table, recomputed for all four states', () => {
+  const after = stateFed(100_000, 84_250, 15_750);
+  const before = stateFed(100_000, 85_400, 14_600);
+  const cut = (state, federalAfter = after, federalBefore = before) =>
+    stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: federalBefore }).tax -
+    stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: federalAfter }).tax;
+
+  assert.equal(cut('AZ').toFixed(2), '28.75');
+  quotes('| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $28.75 |');
+  assert.equal(cut('CO').toFixed(2), '50.60');
+  quotes('| Colorado | Starts from federal **taxable** income | $50.60 |');
+  assert.equal(cut('ID').toFixed(2), '60.95');
+  quotes('| Idaho | Starts from federal **taxable** income | $60.95 |');
+
+  // Utah's credit is exhausted at $100,000 of income, so the effect is measured
+  // where the credit is still live.
+  const utah = (deduction) =>
+    stateIncomeTax({
+      state: 'UT',
+      year: 2025,
+      filingStatus: 'single',
+      federal: stateFed(60_000, 60_000 - deduction, deduction),
+    }).tax;
+  assert.equal((utah(14_600) - utah(15_750)).toFixed(2), '69.00');
+  quotes('| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $69.00 |');
+
+  for (const state of ['IL', 'MI']) assert.equal(cut(state), 0);
+  quotes('Illinois and Michigan, on federal AGI, got nothing.');
+});
+
+test('README: the state marginal-rate table, recomputed', () => {
+  const utah = stateIncomeTax({
+    state: 'UT',
+    year: 2026,
+    filingStatus: 'single',
+    federal: stateFed(25_000, 8_900, 16_100),
+  });
+  assert.equal(utah.marginalRate, 0.0575);
+  quotes('| Utah, single, $25,000 | 4.45% | **5.75%**');
+
+  const pa = (income) =>
+    stateIncomeTax({
+      state: 'PA',
+      year: 2026,
+      filingStatus: 'single',
+      dependents: 2,
+      federal: stateFed(0, 0, 0),
+      pennsylvaniaTaxableIncome: income,
+    }).tax;
+  const acrossTheBand = (pa(28_000) - pa(25_500)) / 2_500;
+  assert.ok(Math.abs(acrossTheBand - 0.34) < 0.005, `expected ~34%, got ${acrossTheBand}`);
+  quotes('| Pennsylvania, single parent of two | 3.07% | **~34%**');
+
+  const illinois = stateIncomeTax({
+    state: 'IL',
+    year: 2025,
+    filingStatus: 'single',
+    federal: stateFed(250_000, 234_250, 15_750),
+  });
+  assert.ok(Math.abs(illinois.marginalRate - 141.12) < 0.01);
+  quotes('| Illinois, single at $250,000 | 4.95% | **$141.12 on one dollar**');
+
+  const california = stateIncomeTax({
+    state: 'CA',
+    year: 2025,
+    filingStatus: 'single',
+    federal: stateFed(252_203, 236_453, 15_750),
+  });
+  assert.equal(california.marginalRate, 6.093);
+  quotes('9.3 cents **plus $6** of lost exemption credit');
+});
+
+test('README: the state coverage claims are the ones the engine actually holds', () => {
+  quotes('22 states');
+  assert.equal(SUPPORTED_STATES.length, 22);
+  // The full list, as the "what is not modelled" section enumerates it.
+  quotesAcrossLines(SUPPORTED_STATES.join(', '));
+
+  const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
+  assert.equal(taxing.length, 13);
+  quotes('Six of the thirteen taxing states cut their rate for 2026');
+
+  const provisional = SUPPORTED_STATES.filter(
+    (s) => getStateDefinition(s, 2026).status === 'provisional',
+  );
+  assert.equal(provisional.length, 7);
+  quotes('seven of the 2026 state-years carry at');
+
+  // Colorado's 2026 overtime add-back, which the section names.
+  const co = stateIncomeTax({
+    state: 'CO',
+    year: 2026,
+    filingStatus: 'single',
+    federal: stateFed(100_000, 79_250, 15_750),
+    federalDeductions: { overtime: 5_000, tips: 5_000 },
+  });
+  assert.equal(co.addBacks.length, 1);
+  assert.match(co.addBacks[0].name, /overtime/i);
 });
