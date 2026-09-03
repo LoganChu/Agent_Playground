@@ -154,6 +154,6 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   });
   // Georgia, Indiana, Kentucky, Mississippi, North Carolina and Utah changed rate;
   // Arizona, Colorado and Idaho move because the federal deduction inside their
-  // base moved.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IN', 'KY', 'MS', 'NC', 'UT']);
+  // base moved; New York cut its bottom five rates in the FY2026 budget.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IN', 'KY', 'MS', 'NC', 'NY', 'UT']);
 });

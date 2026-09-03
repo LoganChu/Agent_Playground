@@ -1,7 +1,7 @@
 # us-state-tax
 
-US **state** individual income tax for tax years **2025 and 2026**, across **22 states**.
-Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+US **state** individual income tax for tax years **2025 and 2026**, across **23 states**
+including **New York**. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -27,6 +27,7 @@ const federal = {
 };
 
 stateIncomeTax({ state: 'CA', year: 2025, filingStatus: 'single', federal }).tax; // 5054.98
+stateIncomeTax({ state: 'NY', year: 2025, filingStatus: 'single', federal }).tax; // 4951.75
 stateIncomeTax({ state: 'CO', year: 2025, filingStatus: 'single', federal }).tax; // 3707.00
 stateIncomeTax({ state: 'AZ', year: 2025, filingStatus: 'single', federal }).tax; // 2106.25
 stateIncomeTax({ state: 'TX', year: 2025, filingStatus: 'single', federal }).tax; // 0
@@ -80,6 +81,62 @@ stateIncomeTax({
 
 Idaho, on the same base, allows it: `$530` cheaper on the same facts.
 
+### New York claws back the brackets, so walking them is the wrong computation
+
+Above `$107,650` of New York AGI, N.Y. Tax Law § 601(d) adds a **supplemental tax** that
+recaptures the benefit of every bracket below the filer's top one — until a high earner
+pays their top rate on their *whole* income rather than on the last band of it.
+
+```js
+const ny = (agi) => stateIncomeTax({
+  state: 'NY', year: 2025, filingStatus: 'single',
+  federal: { adjustedGrossIncome: agi, taxableIncome: agi - 8_000,
+             deduction: 8_000, deductionKind: 'standard' },
+});
+
+ny(300_000).taxBeforeCredits; // 17602.85  <- what a bracket table gives you
+ny(300_000).tax;              // 20002.00  <- what New York charges
+
+// Past the phase-in, the graduated rates have been undone completely:
+ny(6_008_000).tax === 0.103 * 6_000_000; // true
+```
+
+The statute prints the recapture as forty dollar amounts a year. **This package stores
+none of them**, because they are an identity over the rate schedule three subsections
+earlier:
+
+```text
+recapture at bracket threshold T = (rate above T) x T - (tax on T)
+```
+
+Deriving it reproduces all thirteen distinct published 2025 figures — twenty-two across
+the five filing statuses — to the dollar, and supplies the over-`$25,000,000` tier that the
+reference datasets checked here omit.
+
+It also makes 2026 legible. The FY2026 budget cut New York's bottom five rates and left the
+top four alone, so **the recapture rises by exactly what the cut is worth**: a single filer
+at `$300,000` saves `$215.40` of bracket tax and pays `$215.40` more supplemental tax, for a
+net change of **zero**.
+
+### Six states match the federal earned income credit, and three of them do not
+
+Pass `federal.earnedIncomeCredit` and Colorado, Illinois, Indiana, Michigan, New York and
+Utah compute their own credit from it. The three exceptions are the point:
+
+| State | Match | The catch |
+| --- | --- | --- |
+| Colorado | 50% (2025) → **25% (2026)** | Legislated year by year, not indexed. Worth `$1,788` to a family with two children. |
+| Illinois | 20% | Refundable. |
+| Indiana | 10% | Of a federal credit **the filer never claimed** — computed under a frozen IRC with Indiana's own `$3,800` investment-income limit. |
+| Michigan | 30% | Refundable. Was 6% through 2022. |
+| New York | 30% | **Less the New York household credit** (§ 606(d)(1)); the two are not additive. |
+| Utah | 20% | **Non-refundable.** A Utah filer whose Taxpayer Tax Credit already covers their tax gets nothing. |
+
+**California is deliberately absent.** CalEITC is not a percentage of the federal credit —
+R&TC § 17052 defines its own phase-in, phase-out and adjustment factor, completing near
+`$32,000` of earned income. Applying any percentage to the federal credit gives a wrong
+California answer, so this package gives none and says so.
+
 ### A flat rate is not a marginal rate
 
 `marginalRate` is measured by running the whole computation one dollar higher, so it
@@ -94,6 +151,11 @@ catches every credit phase-out, cliff and staircase underneath the rate.
   ten discrete jumps of ten percentage points each.
 - **California** at a credit phase-out step: 9.3 cents of bracket plus **`$6`** of lost
   exemption credit, on one dollar.
+- **New York** charges 6% at `$130,000`. The filer faces **7.14%**, because the
+  supplemental tax phases `$568.25` in over `$50,000` of AGI underneath the rate.
+- **Colorado** charges 4.40%. A single parent inside the federal earned income credit's
+  phase-out faces **12.39%**, because Colorado matches 50% of a credit that is itself
+  falling at 15.98 cents on the dollar. Supply `federalOneDollarHigher` to see it.
 
 ### California, in the three places it is usually got wrong
 
@@ -125,19 +187,23 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, IL, KY, MI, UT**. Published: **AZ, GA, IN, MS, NC, PA**
-and the nine states with no income tax. Nothing is provisional for 2025.
+Provisional for 2026: **CA, CO, ID, IL, KY, MI, UT**. Published: **AZ, GA, IN, MS, NC, NY,
+PA** and the nine states with no income tax. Nothing is provisional for 2025.
+
+New York is published for both years because it indexes nothing: its brackets, standard
+deduction and dependent exemption are all fixed in statute.
 
 ## No fallback to a neighbouring year
 
-Six of the thirteen taxing states cut their rate between 2025 and 2026 — Georgia
+Seven of the fourteen taxing states cut their rate between 2025 and 2026 — New York's
+bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
 North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%. Asking for an unsupported year throws
 rather than answering with the nearest one.
 
 ## Coverage
 
-**Graduated:** California, Mississippi.
+**Graduated:** California, Mississippi, New York.
 **Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky, Michigan,
 North Carolina, Pennsylvania, Utah.
 **No income tax:** Alaska, Florida, Nevada, New Hampshire, South Dakota, Tennessee, Texas,
@@ -152,16 +218,20 @@ tax on large long-term capital gains, which this package does not compute and sa
 State tax is deep and this is version 0.1.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 22 states.** No New York, New Jersey, Massachusetts, Ohio, Virginia, Maryland,
-  Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut, or the
-  District of Columbia. Asking for one throws rather than returning zero.
+- **Only 23 states.** No New Jersey, Massachusetts, Ohio, Virginia, Maryland, Minnesota,
+  Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of
+  Columbia. Asking for one throws rather than returning zero.
 - **No local income tax.** Every Indiana county, most Pennsylvania municipalities and
-  school districts, Detroit and 23 other Michigan cities, and New York City all levy their
-  own. For an Indiana or Pennsylvania filer the local tax is a large fraction of the bill.
-- **No state credits beyond the ones named above.** No state EITC or child credit, no
-  Arizona dependent credit, no North Carolina child deduction, no Georgia or Kentucky
-  retirement exclusions, no Utah retirement or Social Security credits. A low-income
-  return, a family return or a retiree return computed here will be **too high**.
+  school districts, Detroit and 23 other Michigan cities, **New York City** and Yonkers all
+  levy their own. A New York City resident pays roughly 3.08% to 3.88% more than this
+  package reports; for an Indiana or Pennsylvania filer the local tax is a large fraction
+  of the bill.
+- **No state child credits, and New York's is large.** The Empire State child credit is
+  `$1,000` per child under 4 for 2025 and 2026, and `$330` (2025) or `$500` (2026) per
+  child aged 4 to 16. Also absent: CalEITC and the Young Child Tax Credit, the Arizona
+  dependent credit, the North Carolina child deduction, the Georgia and Kentucky retirement
+  exclusions, and the Utah retirement and Social Security credits. A family return or a
+  retiree return computed here will be **too high**.
 - **No state alternative minimum tax** (California and Colorado both have one).
 - **No additions or subtractions are enumerated.** They are a long, state-specific list —
   municipal bond interest, US government interest, 529 contributions, military pay — and a

@@ -51,6 +51,7 @@ const CO_NOTES: readonly string[] = [
   'Colorado does NOT allow the federal Section 199A qualified business income deduction: it is added back to Colorado taxable income under C.R.S. § 39-22-104(3)(o). This package adds it back automatically when you pass `federalDeductions.qualifiedBusinessIncome`.',
   'From tax year 2026 Colorado also adds back the federal qualified overtime deduction (HB25-1296), but not the qualified tips deduction sitting beside it on Schedule 1-A. Pass `federalDeductions.overtime`.',
   'Not modelled: the Colorado add-back of state income tax deducted federally on Schedule A, and the add-back of federal deductions above $12,000 ($16,000 joint) for filers with AGI of $300,000 or more (C.R.S. § 39-22-104(3)(p.5)). A high-income Colorado itemizer computed here will be too low. Supply both through `additions`.',
+  'The Colorado earned income tax credit is refundable and its match rate is legislated year by year, not indexed: 10% through 2021, 20% in 2022, 25% in 2023, 50% for 2024 and 2025 (HB24-1134), and 25% in 2026 on the statutory baseline. That halving is worth $886 to a Colorado family with two children and appears in no rate table. Colorado has raised the match by legislation in each of the last four years, so treat the 2026 figure as a floor rather than a forecast.',
   "Colorado's 4.40% rate can be reduced for a single tax year by the TABOR surplus mechanism in C.R.S. § 39-22-627 — it was 4.25% for tax year 2024 on that basis, and returned to 4.40% for 2025. The reduction is determined after the year ends, so any Colorado rate is provisional until the state closes its books.",
 ];
 
@@ -69,9 +70,18 @@ function colorado(year: number): StateIncomeTaxDefinition | undefined {
     // starting point.
     deduction: { kind: 'none' },
     addBacks: year === 2026 ? ['qualifiedBusinessIncome', 'overtime'] : ['qualifiedBusinessIncome'],
+    earnedIncomeCredit: {
+      name: 'Colorado earned income tax credit',
+      // Legislated, not indexed, and it moves in whole steps: 25% in 2023, 50%
+      // for 2024 and 2025 under HB24-1134, and back to the statutory 25% in 2026
+      // unless the legislature acts again or a TABOR surplus raises it.
+      matchRate: year === 2025 ? 0.5 : 0.25,
+      refundable: true,
+    },
     notes:
       year === 2026
         ? [
+            'PROVISIONAL: the 2026 earned income tax credit match of 25% is the statutory baseline after the temporary 50% match for 2024 and 2025 expires (HB24-1134). Colorado has legislated a higher match in each of the last four years and the TABOR surplus mechanism can raise it further, so 25% is a floor.',
             'PROVISIONAL: the 4.40% rate is the statutory figure. Colorado can reduce it for a single year under the TABOR surplus mechanism (C.R.S. § 39-22-627), which is determined after the tax year ends — it produced 4.25% for tax year 2024. Treat 2026 as an upper bound until Colorado closes its books.',
             ...CO_NOTES,
           ]

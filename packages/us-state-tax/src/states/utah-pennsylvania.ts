@@ -53,6 +53,7 @@ const UT_NOTES: readonly string[] = [
   'The credit depends on the FEDERAL deduction, so Utah is a federal-AGI state whose credit is nonetheless sensitive to changes below AGI. The OBBBA standard deduction increase raised the Utah credit by 6% of the increase — about $69 for a single filer in 2025 — cutting Utah tax with no Utah legislation.',
   'Utah cut its rate twice in two years: 4.55% for 2024, 4.5% for 2025 (HB 106), and 4.45% for 2026 (SB 60).',
   'Not modelled: the Utah credits for Social Security benefits, retirement income, at-home parents, and 529 contributions, and the Utah child tax credit. A retiree or a family return computed here will be too high.',
+  "Utah's earned income credit is 20% of the federal credit and is NON-REFUNDABLE — Utah Code § 59-10-1044 sits in Part 10, the Nonrefundable Tax Credit Act. It is the only state credit in this package that is a share of the federal credit and cannot be paid out, and the difference is the whole point of the credit for the filers it is aimed at: a Utah single parent whose Taxpayer Tax Credit already wipes out their tax receives nothing from it.",
 ];
 
 function utah(year: number): StateIncomeTaxDefinition | undefined {
@@ -68,6 +69,11 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
     // credit instead, which is why it is worth 6 cents on the dollar rather than
     // the full marginal rate.
     deduction: { kind: 'none' },
+    earnedIncomeCredit: {
+      name: 'Utah earned income tax credit',
+      matchRate: 0.2,
+      refundable: false,
+    },
     taxpayerCredit: {
       name: 'Taxpayer Tax Credit',
       rate: 0.06,

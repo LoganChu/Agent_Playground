@@ -47,6 +47,7 @@ export type StateCode =
   | 'NC'
   | 'NH'
   | 'NV'
+  | 'NY'
   | 'PA'
   | 'SD'
   | 'TN'
@@ -142,6 +143,22 @@ export interface FederalBasis {
   /** The standard-or-itemized deduction actually taken federally — line 12. */
   readonly deduction: number;
   readonly deductionKind: 'standard' | 'itemized';
+  /**
+   * The federal § 32 earned income credit, Form 1040 line 27.
+   *
+   * Six of the fourteen taxing states in this package set their own earned
+   * income credit as a flat percentage of this figure, so without it their
+   * returns come out too high for exactly the filers who can least afford it.
+   * From `us-federal-tax` this is `credits.earnedIncomeCredit.credit` — it is
+   * nested there, so spreading an `EstimateResult` into this object does **not**
+   * populate it and it has to be passed explicitly.
+   *
+   * Omitting it is treated as "no federal credit", which is the right default
+   * for the great majority of filers but is silently wrong for a filer who has
+   * one. {@link StateIncomeTaxResult.notes} says so in every state that has a
+   * credit.
+   */
+  readonly earnedIncomeCredit?: number;
 }
 
 /**
@@ -220,6 +237,21 @@ export interface StateIncomeTaxInput {
    * {@link FederalDeductionsTaken}.
    */
   readonly federalDeductions?: FederalDeductionsTaken;
+  /**
+   * The same federal figures recomputed with one more dollar of income.
+   *
+   * Supply this to get an exact {@link StateIncomeTaxResult.marginalRate}. The
+   * marginal rate is measured by running the whole state computation a dollar
+   * higher, and a state figure that is a function of a *federal* figure can only
+   * move if the federal figure does.
+   *
+   * When it is absent the engine adds one dollar to federal AGI and federal
+   * taxable income and holds everything else constant — which is right for the
+   * deduction but wrong inside the federal earned income credit's phase-out,
+   * where a state matching 30% of a credit falling at 21.06 cents on the dollar
+   * is itself charging 6.3 points that the reported marginal rate will not show.
+   */
+  readonly federalOneDollarHigher?: FederalBasis;
 }
 
 export interface CreditDetail {

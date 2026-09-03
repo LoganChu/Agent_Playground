@@ -115,6 +115,7 @@ const IL_CITATIONS: readonly Citation[] = [
 const IL_NOTES: readonly string[] = [
   "Illinois' exemption allowance is not phased out — it is lost entirely at the first dollar of federal AGI above $250,000 ($500,000 on a joint return). One extra dollar of income at the threshold costs a single filer the whole $2,850 exemption, and $141.12 of tax on that single dollar. 35 ILCS 5/204(g).",
   'Illinois has no standard deduction and no itemized deductions. The exemption allowance is the only subtraction from base income that most filers get.',
+  'The Illinois earned income credit is 20% of the federal credit and is refundable — raised from 18% for tax year 2023 by Public Act 102-0700. Illinois also extends it to filers aged 18 to 24 and 65 and over who are barred from the federal childless credit by age, and to filers with an ITIN rather than a Social Security number; this package cannot see either, so an Illinois filer in one of those groups is understated.',
   'Illinois does not tax retirement income — distributions from qualified plans, IRAs, and Social Security are all subtracted from base income. Supply them through `subtractions`; this package does not detect them.',
 ];
 
@@ -130,6 +131,11 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'flat', rate: 0.0495 },
     deduction: { kind: 'none' },
+    earnedIncomeCredit: {
+      name: 'Illinois earned income credit',
+      matchRate: 0.2,
+      refundable: true,
+    },
     exemption: {
       perFiler: perPerson(exemption),
       perDependent: exemption,
@@ -173,10 +179,16 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
     rate: { kind: 'flat', rate: year === 2025 ? 0.03 : 0.0295 },
     deduction: { kind: 'none' },
     exemption: { perFiler: perPerson(1000), perDependent: 1000 },
+    earnedIncomeCredit: {
+      name: 'Indiana earned income credit',
+      matchRate: 0.1,
+      refundable: true,
+    },
     notes: [
       'Every Indiana county levies its own income tax, from about 0.5% to over 3%, on the same base. This package computes the state tax only. For most Indiana filers the county tax is a third to a half again on top, so an Indiana result here is materially incomplete without it.',
       'Not modelled: the additional $1,500 exemption for each qualifying dependent child under 19 (or under 24 and a full-time student), and the additional $3,000 first-year exemption for an adopted child. An Indiana family return computed here is too high by about $44 per qualifying child in 2025.',
       "Indiana's statutory rate steps down each year: 3.05% in 2024, 3.00% in 2025, 2.95% in 2026, and 2.90% from 2027.",
+      'The Indiana earned income credit is 10% of a federal credit the filer never claimed. IC 6-3.1-21-6 computes it under the Internal Revenue Code as of a FROZEN date — 1 January 2023 for tax years 2023 to 2025, and 1 January 2026 from tax year 2026 (SEA 243 of 2025) — and substitutes Indiana\'s own investment income limit of $3,800, which has not moved since 2022 and is now about a third of the federal one. A filer with $5,000 of interest income gets the federal credit and no Indiana credit at all. This package applies the 10% match to whatever federal credit you pass, so an Indiana filer near either limit is overstated.',
     ],
     citations: IN_CITATIONS,
   };
@@ -240,6 +252,7 @@ const MI_NOTES: readonly string[] = [
   "Michigan's rate briefly fell to 4.05% for tax year 2023 under the MCL 206.51(1)(c) revenue trigger and returned to 4.25% for 2024. The trigger is a one-year reduction, not a permanent one, and the Michigan Supreme Court declined to make it permanent — a 2023 figure carried forward is 4.7% too low.",
   'Michigan cities levy their own income taxes — Detroit at 2.4% for residents, and 23 other cities. This package computes the state tax only.',
   'Michigan is phasing back in a deduction for retirement and pension income through 2026 (the "retirement tax" repeal). Not modelled; supply it through `subtractions`.',
+  'The Michigan earned income tax credit for working families is 30% of the federal credit and is refundable. It was 6% through tax year 2022 and was raised fivefold retroactively by Public Act 4 of 2023 — a Michigan return computed on the old 6% understates a family with two children by about $1,700.',
 ];
 
 function michigan(year: number): StateIncomeTaxDefinition | undefined {
@@ -255,6 +268,11 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
     rate: { kind: 'flat', rate: 0.0425 },
     deduction: { kind: 'none' },
     exemption: { perFiler: perPerson(exemption), perDependent: exemption },
+    earnedIncomeCredit: {
+      name: 'Michigan earned income tax credit for working families',
+      matchRate: 0.3,
+      refundable: true,
+    },
     notes:
       year === 2026
         ? [

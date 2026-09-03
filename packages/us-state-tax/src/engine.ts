@@ -177,6 +177,82 @@ function forgivenessCredit(
   return tax * share;
 }
 
+/** The amount of a step-function credit at a given income. */
+function stepAmount(steps: readonly { upTo: number; amount: number }[], income: number): number {
+  for (const step of steps) {
+    if (income <= step.upTo) return step.amount;
+  }
+  return 0;
+}
+
+/**
+ * New York's household credit — a staircase on state AGI, N.Y. Tax Law § 606(b).
+ *
+ * Household size counts the filer, the spouse on a joint return, and the
+ * dependents claimed. Single filers get a flat table with no per-person addition,
+ * which is why `perAdditionalPerson` is only ever reached by the other statuses.
+ */
+function householdCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput, agi: number): number {
+  const rule = def.householdCredit;
+  if (!rule) return 0;
+  const status = input.filingStatus;
+  const people = filerCount(status) + (input.dependents ?? 0);
+  const base = stepAmount(rule.base[status], agi);
+  const additional =
+    status === 'single' ? 0 : stepAmount(rule.perAdditionalPerson, agi) * (people - 1);
+  const credit = base + additional;
+  return rule.halvedForSeparate && status === 'marriedFilingSeparately' ? credit / 2 : credit;
+}
+
+/**
+ * New York's tax table benefit recapture, derived from the state's own rate
+ * schedule rather than transcribed from the statutory table — see
+ * {@link RecaptureRule}.
+ *
+ * The ladder has one rung per rate bracket at or above the one containing
+ * `minAgi`. Each rung phases in linearly over `phaseInLength` of AGI starting at
+ * that bracket's threshold — except the first, which starts at `minAgi`.
+ */
+export function recaptureLadder(
+  brackets: readonly Bracket[],
+  minAgi: number,
+): { start: number; level: number }[] {
+  const rungs: { start: number; level: number }[] = [];
+  for (let i = 0; i < brackets.length - 1; i += 1) {
+    const band = brackets[i];
+    const next = brackets[i + 1];
+    if (band === undefined || next === undefined) break;
+    const threshold = band.upTo;
+    if (!Number.isFinite(threshold)) break;
+    // Brackets that end below the one containing minAgi have their benefit
+    // recaptured by the first rung, not by a rung of their own.
+    if (threshold < minAgi && Number.isFinite(next.upTo) && next.upTo <= minAgi) continue;
+    rungs.push({
+      start: Math.max(threshold, minAgi),
+      level: next.rate * threshold - applyBrackets(threshold, brackets).tax,
+    });
+  }
+  return rungs;
+}
+
+function recapture(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput, agi: number): number {
+  const rule = def.recapture;
+  if (!rule || def.rate.kind !== 'brackets') return 0;
+  if (agi <= rule.minAgi) return 0;
+  const rungs = recaptureLadder(def.rate.byStatus[input.filingStatus], rule.minAgi);
+
+  let recaptured = 0;
+  let climbed = 0;
+  for (const rung of rungs) {
+    if (agi <= rung.start) break;
+    const fraction = Math.min(1, (agi - rung.start) / rule.phaseInLength);
+    recaptured = climbed + (rung.level - climbed) * fraction;
+    if (fraction < 1) break;
+    climbed = rung.level;
+  }
+  return Math.max(0, recaptured);
+}
+
 interface Computed {
   conformityAmount: number;
   addBacks: { name: string; amount: number }[];
@@ -222,6 +298,12 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
     const amount = applyBrackets(taxableIncome, def.surtax.brackets).tax;
     if (amount > 0) surtaxes.push({ name: def.surtax.name, amount });
   }
+  if (def.recapture) {
+    // Measured on state AGI, not on taxable income: New York's recapture asks how
+    // rich you are, then claws back the graduated rates you were charged.
+    const amount = recapture(def, input, stateAgi);
+    if (amount > 0) surtaxes.push({ name: def.recapture.name, amount });
+  }
 
   const credits: CreditDetail[] = [];
   if (def.exemptionCredit) {
@@ -236,6 +318,25 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
       name: def.taxpayerCredit.name,
       amount: taxpayerCredit(def, input, taxableIncome),
       refundable: false,
+    });
+  }
+  const household = householdCredit(def, input, stateAgi);
+  if (def.householdCredit) {
+    credits.push({ name: def.householdCredit.name, amount: household, refundable: false });
+  }
+  if (def.earnedIncomeCredit) {
+    const rule = def.earnedIncomeCredit;
+    const federalCredit = nonNegative(
+      input.federal.earnedIncomeCredit,
+      'federal.earnedIncomeCredit',
+    );
+    const matched = rule.matchRate * federalCredit;
+    credits.push({
+      name: rule.name,
+      // New York pays the match less the household credit, so the two are not
+      // additive — Tax Law § 606(d)(1).
+      amount: rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched,
+      refundable: rule.refundable,
     });
   }
 
@@ -283,6 +384,11 @@ function oneDollarMore(
       pennsylvaniaEligibilityIncome:
         (input.pennsylvaniaEligibilityIncome ?? input.pennsylvaniaTaxableIncome ?? 0) + 1,
     };
+  }
+  // A caller who can run the federal engine twice knows exactly what every
+  // federal figure does on the next dollar, including the earned income credit.
+  if (input.federalOneDollarHigher) {
+    return { ...input, federal: input.federalOneDollarHigher };
   }
   // A real extra dollar of wages raises AGI and taxable income together. Raising
   // only the one this state happens to read would miss every rule keyed to the
@@ -340,6 +446,27 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   const here = compute(def, input);
   const higher = compute(def, oneDollarMore(def, input));
 
+  // Notes that depend on what the caller supplied rather than on the state, so a
+  // model reading the result learns that a figure it left out was load-bearing.
+  const dynamic: string[] = [];
+  if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit === undefined) {
+    dynamic.push(
+      `${def.name} has an earned income credit worth ${(def.earnedIncomeCredit.matchRate * 100).toFixed(0)}% ` +
+        `of the federal one, and no federal earned income credit was supplied, so it was computed ` +
+        `as zero. Supply the federal credit (Form 1040 line 27) if this filer claims it — otherwise ` +
+        `this return is too high for exactly the low-income filers the credit exists for.`,
+    );
+  }
+  if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit && !input.federalOneDollarHigher) {
+    dynamic.push(
+      'marginalRate holds the federal earned income credit constant. Inside that credit’s ' +
+        'phase-out the true state marginal rate is higher than the figure reported here by ' +
+        `${(def.earnedIncomeCredit.matchRate * 100).toFixed(0)}% of the federal phase-out rate — up to ` +
+        `${(def.earnedIncomeCredit.matchRate * 21.06).toFixed(2)} points for a filer with two or more ` +
+        'children. Supply federalOneDollarHigher for the exact figure.',
+    );
+  }
+
   return {
     state: input.state,
     stateName: name,
@@ -365,7 +492,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     marginalRate: roundCents((higher.tax - here.tax) * 100) / 100,
     effectiveRate: here.conformityAmount > 0 ? here.tax / here.conformityAmount : 0,
     provisional: def.status === 'provisional',
-    notes: def.notes,
+    notes: dynamic.length > 0 ? [...dynamic, ...def.notes] : def.notes,
     citations: def.citations,
   };
 }

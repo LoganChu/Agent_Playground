@@ -29,28 +29,80 @@ test('README: the four quick-start figures', () => {
   const at = (state) =>
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: FEDERAL_2025 }).tax;
   assert.equal(at('CA'), 5054.98);
+  assert.equal(at('NY'), 4951.75);
   assert.equal(at('CO'), 3707.0);
   assert.equal(at('AZ'), 2106.25);
   assert.equal(at('TX'), 0);
 });
 
-test('README: 22 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 22);
+test('README: 23 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 23);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Two graduated, eleven flat, nine with none.
+  // Three graduated, eleven flat, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
   const flat = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind === 'flat');
-  assert.deepEqual(graduated, ['CA', 'ID', 'MS']);
+  assert.deepEqual(graduated, ['CA', 'ID', 'MS', 'NY']);
   assert.equal(flat.length, 10);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
-  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 22);
-  // Thirteen taxing states — the count the README quotes when it says six of them
-  // cut their rate for 2026.
-  assert.equal(graduated.length + flat.length, 13);
+  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 23);
+  // Fourteen taxing states — the count the README quotes when it says seven of
+  // them cut their rate for 2026.
+  assert.equal(graduated.length + flat.length, 14);
+});
+
+test('README: New York recaptures the brackets, and the identity that says so', () => {
+  const ny = (agi) =>
+    stateIncomeTax({
+      state: 'NY',
+      year: 2025,
+      filingStatus: 'single',
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: agi - 8_000,
+        deduction: 8_000,
+        deductionKind: 'standard',
+      },
+    });
+  money(ny(300_000).taxBeforeCredits, 17_602.85, 'what a bracket table gives you');
+  money(ny(300_000).tax, 20_002, 'what New York charges');
+  assert.equal(ny(6_008_000).tax, 0.103 * 6_000_000);
+  money(ny(130_000).marginalRate, 0.0714, '6% plus the phase-in of the supplemental tax');
+
+  // The 2026 rate cut and the recapture rise cancel to the cent at $300,000.
+  const ny2026 = stateIncomeTax({
+    state: 'NY',
+    year: 2026,
+    filingStatus: 'single',
+    federal: {
+      adjustedGrossIncome: 300_000,
+      taxableIncome: 292_000,
+      deduction: 8_000,
+      deductionKind: 'standard',
+    },
+  });
+  money(ny(300_000).taxBeforeCredits - ny2026.taxBeforeCredits, 215.4, 'bracket tax saved');
+  money(ny2026.tax - ny(300_000).tax, 0, 'net change of zero');
+});
+
+test('README: the six earned income credit states and their match rates', () => {
+  const match = (state, year) => getStateDefinition(state, year).earnedIncomeCredit;
+  assert.equal(match('CO', 2025).matchRate, 0.5);
+  assert.equal(match('CO', 2026).matchRate, 0.25);
+  assert.equal(match('IL', 2025).matchRate, 0.2);
+  assert.equal(match('IN', 2025).matchRate, 0.1);
+  assert.equal(match('MI', 2025).matchRate, 0.3);
+  assert.equal(match('NY', 2025).matchRate, 0.3);
+  assert.equal(match('UT', 2025).matchRate, 0.2);
+  assert.equal(match('UT', 2025).refundable, false, 'Utah alone cannot pay it out');
+  assert.equal(match('NY', 2025).reducedByHouseholdCredit, true);
+  assert.equal(match('CA', 2025), undefined, 'CalEITC is deliberately not modelled');
+  // The $1,788 the README quotes: half of the 2025 maximum federal credit for two
+  // children, lost when the Colorado match halves.
+  money(0.5 * 7_152 - 0.25 * 7_152, 1_788, 'Colorado family with two children');
 });
 
 test('README: the OBBBA pass-through table', () => {
@@ -190,7 +242,7 @@ test('README: the three California facts', () => {
   money(step(2), 18);
 });
 
-test('README: the six 2026 rate cuts, quoted exactly', () => {
+test('README: the seven 2026 rate cuts, quoted exactly', () => {
   const rateOf = (state, year) => {
     const rate = getStateDefinition(state, year).rate;
     if (rate.kind === 'flat') return rate.rate;
@@ -215,6 +267,14 @@ test('README: the six 2026 rate cuts, quoted exactly', () => {
       [0.045, 0.0445],
     ],
   );
+  // New York is the seventh, and it is the only one that cut the BOTTOM of its
+  // schedule rather than the top: the four highest rates are unchanged, which is
+  // why its high earners see no cut at all.
+  const nyRates = (year) =>
+    getStateDefinition('NY', year).rate.byStatus.single.map((b) => b.rate);
+  assert.deepEqual(nyRates(2025).slice(0, 5), [0.04, 0.045, 0.0525, 0.055, 0.06]);
+  assert.deepEqual(nyRates(2026).slice(0, 5), [0.039, 0.044, 0.0515, 0.054, 0.059]);
+  assert.deepEqual(nyRates(2025).slice(5), nyRates(2026).slice(5));
 });
 
 test('README: the provisional and published lists for 2026', () => {
@@ -222,7 +282,7 @@ test('README: the provisional and published lists for 2026', () => {
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
   assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MI', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MS', 'NC', 'PA']);
+  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MS', 'NC', 'NY', 'PA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -238,7 +298,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['NY', 'NJ', 'MA', 'OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
+  for (const state of ['NJ', 'MA', 'OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,

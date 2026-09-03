@@ -101,7 +101,8 @@ const SHARED_NOTES: readonly string[] = [
   'California exemptions are credits, not deductions: the personal exemption credit is worth the same dollar amount at every rate. Modelling it as a deduction from income understates the tax.',
   'The 1% Mental Health Services Tax threshold of $1,000,000 is per return and is NOT doubled for a joint return, even though every bracket threshold is. A married couple at $1,200,000 of taxable income owes it; two single filers at $600,000 each do not.',
   'California does not conform to the federal QBI deduction, to bonus depreciation, or to the four OBBBA Schedule 1-A deductions, and it taxes health savings account contributions. Those are additions and subtractions on Schedule CA (540); this package does not enumerate them — supply them via `additions` and `subtractions`.',
-  'Not modelled: the California AMT, the California EITC and Young Child Tax Credit, the renter credit, and the itemized deduction limitation for high incomes. A low-income California return computed here will be too high.',
+  'NOT MODELLED — CalEITC, and it is deliberate. Six other states in this package set their earned income credit as a flat percentage of the federal one, so passing `federal.earnedIncomeCredit` is enough. California does not: R&TC § 17052 defines its own credit with its own phase-in rate, its own phase-out, an adjustment factor, and a completed phase-out near $32,000 of California earned income — nowhere near the federal one. Applying any percentage to the federal credit gives a wrong California answer, so this package gives none. The Young Child Tax Credit, the Foster Youth Tax Credit and the renter credit are also absent.',
+  'Not modelled: the California AMT and the itemized deduction limitation for high incomes. A low-income California return computed here will be too high.',
 ];
 
 export function california(year: number): StateIncomeTaxDefinition | undefined {

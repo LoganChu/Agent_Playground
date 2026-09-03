@@ -22,7 +22,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 22);
+  assert.equal(SUPPORTED_STATES.length, 23);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -45,11 +45,14 @@ test('an unsupported year is an error, not a silent fallback', () => {
 });
 
 test('an unsupported state names what is missing rather than returning zero', () => {
-  assert.throws(() => getStateDefinition('NY', 2026), /not supported/);
+  assert.throws(() => getStateDefinition('MA', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('NY', 2026), /New York/);
+  assert.throws(() => getStateDefinition('MA', 2026), /Massachusetts/);
   assert.throws(() => getStateDefinition('NJ', 2026), /New Jersey/);
+  // New York was one of these until it was not. When a state moves from the gap
+  // list into the registry, this is where the two have to be kept in step.
+  assert.equal(isSupported('NY', 2026), true);
 });
 
 test('every state computes for every filing status without throwing', () => {

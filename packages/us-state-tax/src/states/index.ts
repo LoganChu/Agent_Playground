@@ -1,14 +1,15 @@
 /**
  * The registry of supported state-years.
  *
- * Support is per state *and* per year, not per state. Six of the thirteen taxing states
- * here changed their rate between 2025 and 2026, so a request for an unsupported
- * year is an error rather than a silent fallback to the nearest one.
+ * Support is per state *and* per year, not per state. Seven of the fourteen taxing
+ * states here changed their rate between 2025 and 2026, so a request for an
+ * unsupported year is an error rather than a silent fallback to the nearest one.
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
 import { california } from './california.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
 import { flatStates } from './flat-states.js';
+import { newYork } from './new-york.js';
 import {
   NO_INCOME_TAX_NAMES,
   NO_INCOME_TAX_STATES,
@@ -22,12 +23,14 @@ export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
 
 function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const ca = california(year);
+  const ny = newYork(year);
   return [
     ...noIncomeTaxDefinitions(year),
     ...flatStates(year),
     ...federalTaxableBaseStates(year),
     ...utahAndPennsylvania(year),
     ...(ca ? [ca] : []),
+    ...(ny ? [ny] : []),
   ];
 }
 
@@ -72,7 +75,7 @@ export function getStateDefinition(state: StateCode, year: number): StateIncomeT
     throw new RangeError(
       `${state} is not supported. This package covers ${SUPPORTED_STATES.join(', ')}. ` +
         `The states it does NOT cover include every graduated-rate state other than ` +
-        `California and Mississippi — New York, New Jersey, Massachusetts, Ohio, Virginia, ` +
+        `California, New York and Mississippi — New Jersey, Massachusetts, Ohio, Virginia, ` +
         `Maryland, Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, ` +
         `Connecticut and the rest — and the District of Columbia. Returning zero for ` +
         `those would be a wrong answer rather than a missing one.`,

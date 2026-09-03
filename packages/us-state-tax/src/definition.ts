@@ -130,6 +130,100 @@ export interface ForgivenessRule {
   readonly reductionPerIncrement: number;
 }
 
+/**
+ * A state earned income credit expressed as a share of the federal § 32 credit.
+ *
+ * Six of the fourteen taxing states in this package have one, and "a percentage
+ * of the federal credit" is the single most misleading sentence in state tax.
+ * Three of the six are not that:
+ *
+ * - **Utah's is non-refundable.** A filer with no Utah tax gets nothing, which is
+ *   most of the population the federal credit is aimed at. Utah Code § 59-10-1044
+ *   sits in Part 10, the Nonrefundable Tax Credit Act.
+ * - **New York's is reduced by the state household credit** before it is paid —
+ *   Tax Law § 606(d)(1). The two credits are not additive.
+ * - **Indiana's is a percentage of a federal credit the filer never claimed.**
+ *   Indiana computes its own § 32 figure under the Internal Revenue Code as of a
+ *   frozen date, with its own investment-income limit — see `flat-states.ts`.
+ *
+ * And the match rate is legislated, not indexed, so it moves in whole steps:
+ * Colorado's was 25% in 2023, 50% in 2024 and 2025, and reverts to 25% in 2026.
+ */
+export interface EarnedIncomeCreditRule {
+  readonly name: string;
+  /** Share of the federal credit. */
+  readonly matchRate: number;
+  /** False means a filer with no state tax gets nothing. Utah. */
+  readonly refundable: boolean;
+  /**
+   * New York: the state credit is the match **less** the household credit, so a
+   * filer who gets both keeps only the larger. N.Y. Tax Law § 606(d)(1).
+   */
+  readonly reducedByHouseholdCredit?: boolean;
+}
+
+/** One step of a step-function credit: the amount for income at or below `upTo`. */
+export interface CreditStep {
+  readonly upTo: number;
+  readonly amount: number;
+}
+
+/**
+ * A credit that is a step function of state AGI — New York's household credit,
+ * N.Y. Tax Law § 606(b).
+ *
+ * It is a staircase and not a phase-out, which makes it another instance of the
+ * Illinois pattern: crossing $28,000 of AGI as a single New Yorker costs $20 of
+ * credit on one dollar of income.
+ *
+ * The amounts have not moved since 1986.
+ */
+export interface HouseholdCreditRule {
+  readonly name: string;
+  /** Steps for a one-person household, by filing status. */
+  readonly base: ByStatus<readonly CreditStep[]>;
+  /** Added for each household member after the first. */
+  readonly perAdditionalPerson: readonly CreditStep[];
+  /**
+   * Statuses whose credit is computed on the couple's combined income and then
+   * split. New York requires this of married filing separately, and this package
+   * has only the one filer's figures — see the state's notes.
+   */
+  readonly halvedForSeparate: boolean;
+}
+
+/**
+ * New York's supplemental tax — the "tax table benefit recapture" of
+ * N.Y. Tax Law § 601(d).
+ *
+ * Above an AGI threshold New York claws back the benefit of every bracket below
+ * the filer's top one, so a high earner pays their top rate on their *whole*
+ * income rather than on the last band of it. An engine that walks the brackets
+ * and stops is confidently wrong for every New Yorker over $107,650, and the
+ * error grows to $215,071 for a single filer over $25,050,000.
+ *
+ * The statute prints the recapture as a table of dollar amounts. This package
+ * stores none of them, because they are an identity over the rate schedule that
+ * appears three subsections earlier:
+ *
+ * ```text
+ * recapture(threshold T of bracket k) = rate(k) x T - bracketTax(T)
+ * ```
+ *
+ * which is precisely "what the top rate would have collected on the income below
+ * the top rate, less what the graduated rates actually collected". Deriving it
+ * reproduces all thirteen distinct published 2025 figures — twenty-two across the
+ * five filing statuses — exactly, and supplies the over-$25,000,000 tier that the tables in every
+ * reference dataset checked here omit.
+ */
+export interface RecaptureRule {
+  readonly name: string;
+  /** AGI above which the recapture applies at all. */
+  readonly minAgi: number;
+  /** Each step of the recapture phases in over this much AGI. */
+  readonly phaseInLength: number;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -143,6 +237,9 @@ export interface StateIncomeTaxDefinition {
   readonly exemptionCredit?: ExemptionCreditRule;
   readonly taxpayerCredit?: TaxpayerCreditRule;
   readonly forgiveness?: ForgivenessRule;
+  readonly earnedIncomeCredit?: EarnedIncomeCreditRule;
+  readonly householdCredit?: HouseholdCreditRule;
+  readonly recapture?: RecaptureRule;
   /**
    * Federal below-AGI deductions this state adds back to its base. Only ever
    * populated for a state whose {@link ConformityBase} is `federalTaxableIncome`,
