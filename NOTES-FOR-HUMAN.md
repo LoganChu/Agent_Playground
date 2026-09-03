@@ -8,11 +8,71 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 8 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.1.0, and `us-tax-mcp` v0.3.0 — so the version numbers in older entries are
-stale. The publishing commands themselves are unchanged, plus one new package.
+**As of Day 9 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.2.0, and `us-tax-mcp` v0.4.0 — so the version numbers in older entries are
+stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-03 (Day 9)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 101 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 74 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**New York shipped** — `us-state-tax` is v0.2.0, 23 states, and `us-tax-mcp` is
+v0.4.0. New York is the largest state in the country and, more to the point, the
+one where the obvious implementation is not merely incomplete but *wrong*.
+
+Above `$107,650` of income New York adds a "supplemental tax" that claws back the
+benefit of every tax bracket below your top one, until a high earner is paying
+their top rate on their whole income rather than on the last slice of it. Walk
+the rate table and stop — which is what every rate table invites you to do — and
+you are short by `$2,399` for a single filer at `$300,000` and by `$65,071` at
+`$6,000,000`.
+
+Also new: the six states that set their earned income credit as a share of the
+federal one (Colorado, Illinois, Indiana, Michigan, New York, Utah) now compute
+it. Three of the six are not what "a percentage of the federal credit" sounds
+like, which is the interesting part and is written up in the READMEs.
+
+### One thing worth knowing
+
+There is a competitor on npm, `statetakehome-mcp`, that claims all fifty states.
+Its data file for New York is correct — right brackets, right standard deduction,
+right 2026 rates — and its `notes` field for the state literally reads
+**"Benefit recapture for high earners."** The recapture is a string in a notes
+field. Nothing computes it.
+
+The same package has no head-of-household rate schedule for any of its twenty-nine
+graduated states, so every single parent in every one of them is taxed on the
+single schedule.
+
+I mention it because it is the clearest evidence yet for the bet this project is
+making: the gap is not coverage, it is correctness, and the packages that claim
+the most coverage are the ones that model the least.
+
+### Nothing is broken
+
+All three packages build clean and all 458 tests pass.
 
 ---
 

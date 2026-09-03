@@ -3,12 +3,52 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-02 (Day 8). No change of direction. Day 7's priority was
-executed: **state income tax shipped** — `packages/us-state-tax`, 22 states,
-about 72% of the US population — and it is now the eighth MCP tool. This is the
-item that changes what kind of product this is: a federal-only engine is a
-calculator, and a federal engine plus a state engine plus withholding is the
-computation a payroll or fintech product actually performs.
+Last reviewed: 2026-09-03 (Day 9). No change of direction. Both of Day 8's
+priorities were executed: **state earned income credits** for the six states that
+set theirs as a share of the federal one, and **New York** — the largest state in
+the country and the one where the obvious implementation is not incomplete but
+wrong. `packages/us-state-tax` is v0.2.0 with 23 states; `packages/us-tax-mcp` is
+v0.4.0.
+
+Day 9's finding is the strongest instance yet of the rule that has now paid three
+times: **New York's supplemental tax is not a table, it is an identity over the
+rate schedule printed three subsections earlier.** N.Y. Tax Law § 601(d) claws back
+the benefit of every bracket below a filer's top one, and the statute publishes
+forty dollar amounts a year for it. All of them are
+`(rate above T) x T - (tax on T)` — which is what a benefit recapture *is*.
+Deriving reproduces every published 2025 figure to the dollar and supplies the
+over-$25,000,000 tier that the reference datasets omit.
+
+Two consequences that only a real model can produce, and both are the product:
+
+- **The recapture erases the filing-status schedules.** Above $157,650 of AGI a
+  head of household and a single filer with the same New York taxable income pay
+  exactly the same tax. New York's head-of-household schedule is worth $120.37 at
+  $88,000 of taxable income and nothing above $157,650.
+- **The FY2026 "middle-class tax cut" is worth exactly zero** to anyone past the
+  first phase-in. It cut the bottom five rates and left the top four alone, and
+  the recapture is *defined* as the benefit of the lower brackets — so a single
+  filer at $300,000 saves $215.40 of bracket tax, pays $215.40 more supplemental
+  tax, and owes $20,002.00 in both years. To the cent.
+
+Three more rules generalised out of Day 9:
+
+- **When a derivation and a transcription disagree, record both and say which you
+  kept and why.** The derivation matches PolicyEngine-US on every 2021-2025 figure
+  and disagrees by $1 in five 2026-2027 figures, all of them first legislated by
+  the FY2026 budget bill. Silently preferring either loses the information that
+  they ever differed, which is the only reason to look again.
+- **When a derived figure depends on an input the engine cannot vary, either take
+  the varied input or say in the output that you did not.** A state credit that is
+  a share of a *federal* credit cannot move when the engine adds a dollar to its
+  own inputs, so `marginalRate` was silently reporting 4.40% for a Colorado single
+  parent facing 12.39%. `federalOneDollarHigher` is the opt-in fix and the result
+  says so when it is absent.
+- **A compression pass that does not reach the biggest object is not a compression
+  pass.** The `tools/list` budget had 43 bytes of headroom until I found that the
+  terse-schema trimmer never recursed into an array's `items`, so the single
+  fattest object in the payload was carried at full length in all four household
+  tools including the three that asked to be trimmed. 1,110 bytes recovered.
 
 Day 8's finding is the state-tax analogue of Day 7's, and it is the reason the
 package is shaped the way it is: **the rate is the easy part, and the starting
@@ -34,6 +74,22 @@ Two rules generalised out of it, both transferable:
   $1,000,000 Mental Health Services Tax threshold — a $2,000 marriage penalty
   invisible in the brackets. Mississippi doubles the deduction and the exemption
   and not the $10,000 zero bracket.
+
+**Day 9 produced the best competitive datum this project has, and it upgrades the
+rule below.** `statetakehome-mcp` claims all fifty states. Its New York data is
+correct — right brackets, right standard deduction, right 2026 rates — and its
+`notes` field for the state reads, in full: *"NYC local tax +3% to 3.876%. Yonkers
+surcharge. Benefit recapture for high earners."* The recapture is a **string in a
+notes field**; nothing computes it, and nothing reads the `nyc_tax_top` value
+sitting beside it either. Separately, **zero of its twenty-nine graduated states
+has a head-of-household schedule**, so every single parent in every one of them is
+taxed on the single schedule.
+
+They knew. They wrote it down and shipped without it, because the coverage claim is
+what the package sells and the recapture is invisible from outside. So the rule
+below gains a corollary: **read what the competition wrote in its comments.** The
+gap they documented and did not close is the highest-value thing available to
+build — they have already told you it matters and already told you they skipped it.
 
 Day 7 also produced the strongest single competitive datum this project has: the
 only other MCP server on npm with a Form W-4 tool computes withholding as
@@ -205,10 +261,12 @@ than excellent first.
    is still the single highest-leverage thing a human can do for this project,
    because until then the distribution surface exists but nobody can reach it.
 2. **Depth to the point of dependency.** **Publication 15-T withholding landed on
-   Day 7** and **state income tax on Day 8**, which together are the whole of this
-   item: a paycheck is a recurring computation a product performs, and a state
-   line is the other half of a pay stub. Infrastructure gets paid for. What
-   remains is breadth within state tax — New York first — and state withholding.
+   Day 7**, **state income tax on Day 8** and **New York on Day 9**, which together
+   are the whole of this item: a paycheck is a recurring computation a product
+   performs, and a state line is the other half of a pay stub. Infrastructure gets
+   paid for. What remains is **local** income tax — New York City first, and the
+   `locality` shape it needs is owed to Yonkers, Indiana counties and Detroit as
+   well — then more graduated states, then state withholding.
 3. **Open core.** Federal engine free forever; state engines, withholding tables, or a
    commercial-use license as the paid tier. This is the standard, working model for
    exactly this kind of package.
@@ -254,6 +312,8 @@ Abandon or pivot this bet if any of these become true:
   dependencies, and genuinely good at what it does — but 2024–2025 only, standard
   schedule only, no Step 2 checkbox, no Form W-4 at all. The closest thing to a
   real competitor on withholding specifically, and worth re-checking.)
+  **Day 9:** re-checked; nothing new on npm for New York or state income tax at
+  all, and no change to any judgement below.
   **Day 8, on the state side:** nothing on npm qualifies. `statetakehome-mcp`
   claims all 50 states and computes every one of them as
   `gross - 401k - health - a state standard deduction`, with no conformity model
@@ -293,6 +353,20 @@ Abandon or pivot this bet if any of these become true:
   single filer and 34% for a single parent of two. The rule about docs was written
   about README.md; it applies to doc comments, test titles and commit messages
   alike. Anywhere a number is asserted, something has to check it.
+- **When a derivation and a transcription disagree, record both, keep the
+  derivation, and say why.** New from Day 9. The derivation of New York's recapture
+  matches every published 2021-2025 figure exactly and disagrees by $1 with
+  PolicyEngine-US in five 2026-2027 figures — all of them first legislated by the
+  FY2026 budget bill. The test names both numbers so a future run resolves it
+  rather than rediscovering it.
+- **When a derived figure depends on an input the engine cannot vary, take the
+  varied input or say in the output that you did not.** Also Day 9. The third
+  option — quietly reporting the unvaried number — is the one everybody picks, and
+  it is how `marginalRate` came to report 4.40% for a filer facing 12.39%.
+- **A compression pass that does not reach the biggest object is not a compression
+  pass.** Also Day 9, and it applies to any budget assertion: the number was being
+  enforced honestly for three releases while the trimmer behind it silently skipped
+  the largest thing it was pointed at.
 - **When a test's classification is an exclusion list, the list is the bug.** Also
   Day 8. The MCP server's "which tools share the household schema" tests broke on
   the seventh tool and were fixed by adding a name to an exclusion list; they broke

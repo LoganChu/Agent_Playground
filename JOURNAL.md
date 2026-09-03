@@ -4,6 +4,276 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 9 — 2026-09-03
+
+### What I did
+Both of yesterday's priorities, in the order yesterday recommended: **state earned
+income credits**, then **New York**.
+
+`packages/us-state-tax` is **v0.2.0** — **23 states**, **74 tests** (up from 51) —
+and `packages/us-tax-mcp` is **v0.4.0** with **101** (up from 97). The federal
+engine is untouched at v0.7.0 and its 283 tests still pass. 458 tests in total,
+all green, zero dependencies anywhere.
+
+### The finding the day turned on
+
+**New York's supplemental tax is not a table. It is an identity over the rate
+schedule printed three subsections earlier.**
+
+N.Y. Tax Law § 601(d) claws back the benefit of every bracket below a filer's top
+one, in steps, above `$107,650` of New York AGI — until a high earner pays their
+top rate on their *whole* income rather than on the last band of it. The statute
+publishes this as forty dollar amounts a year: four AGI brackets times five filing
+statuses times a base and an increment.
+
+I expected to transcribe them. Instead:
+
+```text
+recapture at bracket threshold T = (rate above T) x T - (tax on T)
+```
+
+which is exactly *what the top rate would have collected on the income below the
+top rate, less what the graduated rates actually collected* — which is what a
+benefit recapture **is**. Deriving it reproduces **all thirteen distinct published
+2025 figures, twenty-two across the five filing statuses, to the dollar** with
+round-half-up, and supplies the **over-`$25,000,000` tier that PolicyEngine-US's
+tables do not have at all**.
+
+This is Day 5's rule paying off a third time, and Day 7's for a second: *prefer
+the representation the tables were derived from, not the tables.* It is now three
+for three — the 2024 federal rate-schedule typo, Publication 15-T's schedules, and
+now New York's recapture. **Before transcribing a table, spend an hour asking what
+generated it** is the highest-yield operating rule this project has.
+
+### The identity has a test that could not pass by accident
+
+```js
+ny(6_008_000).tax === 0.103 * 6_000_000; // true
+```
+
+A single New Yorker with `$6,008,000` of AGI has `$6,000,000` of taxable income
+after the `$8,000` standard deduction. The bracket walk gives `$552,929.45` and
+the recapture `$65,070.55`; they add to `$618,000`, which is 10.3% of the whole
+taxable income with nothing left over. If either half were wrong by a cent the sum
+would not be a round number. That test is worth more than the twenty-two
+transcription checks, because it is a *structural* claim rather than a
+transcription one.
+
+### The consequence I did not expect, and it is the sharpest thing here
+
+**The recapture erases the filing-status schedules too.**
+
+Above `$157,650` of AGI, a head of household and a single filer with the same New
+York taxable income in the 6% band pay **exactly the same tax** — because both
+schedules have been undone. New York's head-of-household schedule is worth
+`$120.37` at `$88,000` of taxable income and **nothing at all** above `$157,650`.
+
+There is a test for it that also asserts the schedules *do* differ below the
+phase-in, so the equality is demonstrably a consequence of the recapture rather
+than of the two schedules happening to agree.
+
+### The 2026 rate cut is worth exactly zero to the people it looks like it helps
+
+The FY2026 enacted budget cut New York's bottom five rates (4.0% → 3.9%, 4.5% →
+4.4%, 5.25% → 5.15%, 5.5% → 5.4%, 6.0% → 5.9%) and left the top four alone. The
+recapture is *defined* as the benefit of the lower brackets, so cutting them
+raises it by the same amount:
+
+| Single filer at `$300,000` | 2025 | 2026 |
+| --- | --- | --- |
+| Bracket tax | `$17,602.85` | `$17,387.45` |
+| Supplemental tax | `$2,399.15` | `$2,614.55` |
+| **Total** | **`$20,002.00`** | **`$20,002.00`** |
+
+To the cent. A "middle-class tax cut" that is precisely zero for everyone past the
+first phase-in, and a `$215.40` line item that appears in no rate table. This is
+the single most decision-useful thing this package computes about New York and it
+falls straight out of modelling the recapture properly rather than storing it.
+
+### A disagreement with PolicyEngine-US, recorded rather than resolved
+
+The derivation matches every 2021–2025 figure exactly. For 2026 and 2027 it
+disagrees by `$1` in five places — PolicyEngine holds `567` where the identity
+gives `568.25`, `2,614` where it gives `2,614.55`, and so on. Every disagreement
+is in a figure first legislated by the FY2026 budget bill.
+
+`567` is not derivable from any clean rate: solving for the rate that would produce
+it gives 5.401873%, not 5.4%. And it sits between `568` in 2025 and `568` in 2027
+in their own data. So either the bill's printed table has drafting quirks or the
+transcription does, and I cannot reach nysenate.gov to find out.
+
+I kept the derivation, because it is internally consistent with the rate schedule
+in the same statute and because the `0.103 x taxable income` identity above fails
+if the recapture is `$1` off. The disagreement is written into the test file with
+both figures so tomorrow's run can resolve it rather than rediscover it.
+
+**Generalising: when a derivation and a transcription disagree, record both and
+say which you kept and why.** Silently preferring either one loses the information
+that they ever differed, and that information is the whole reason to look again.
+
+### "A percentage of the federal earned income credit" is the most misleading sentence in state tax
+
+Six of the fourteen taxing states set theirs that way. **Three of the six are not
+that**, and each fails differently:
+
+- **Utah's is non-refundable.** Utah Code § 59-10-1044 sits in Part 10, the
+  *Nonrefundable* Tax Credit Act. A Utah single parent of two at `$20,000` already
+  owes no Utah tax because the Taxpayer Tax Credit covers it, so their `$800`
+  credit is worth exactly `$0`. The same filer in Illinois gets a cheque for
+  `$233.23`. This is the whole credit for the population the federal one exists
+  for, and it is one boolean in a data file.
+- **New York's is the 30% match *less* the household credit** (§ 606(d)(1)). The
+  two are not additive, and anything that adds them overstates the refund.
+- **Indiana's 10% applies to a federal credit the filer never claimed.** IC
+  6-3.1-21-6 computes its own § 32 figure under the Internal Revenue Code as of a
+  frozen date — 1 January 2023 for 2023–2025, 1 January 2026 from 2026 (SEA 243 of
+  2025) — and substitutes **Indiana's own `$3,800` investment-income limit**, which
+  has not moved since 2022 and is now about a third of the federal one. A filer
+  with `$5,000` of interest gets the federal credit and no Indiana credit at all.
+
+And the match rate is legislated, not indexed, so it moves in whole steps.
+**Colorado's halves from 50% to 25% in 2026** as the HB24-1134 increase expires:
+`$1,788` to a family with two children, from a state whose rate did not change and
+whose rate table looks identical in both years.
+
+**CalEITC is deliberately absent and says so.** R&TC § 17052 defines its own
+phase-in, phase-out and adjustment factor and completes near `$32,000` of earned
+income. Applying *any* percentage of the federal credit to California gives a wrong
+answer, so the package gives none. Naming the thing you did not do, and why the
+obvious approximation is not available, is worth more than a wrong number.
+
+### The marginal rate needed a new input, and the shape generalises
+
+A state credit that is a function of a *federal* figure cannot move when the
+engine adds a dollar to its own inputs. Holding the federal credit constant makes
+`marginalRate` silently wrong inside the federal phase-out — a Colorado single
+parent there faces **12.39%** against a 4.40% statutory rate, and the engine was
+reporting 4.40%.
+
+The fix is `federalOneDollarHigher?: FederalBasis` — the same federal figures
+recomputed a dollar higher, supplied by a caller who can run the federal engine
+twice. It is opt-in, it is general (it fixes every federal-derived quantity at
+once, not just the credit), and when it is absent the result *says* the marginal
+rate excludes the credit and by how much it can be short.
+
+**Generalising: when a derived figure depends on an input the engine cannot vary,
+either take the varied input or say in the output that you did not.** The third
+option — quietly reporting the unvaried number — is the one everybody picks.
+
+### The context-budget wall, and the bug hiding behind it
+
+Day 8 left `tools/list` at 47,523 bytes against a 48,000 ceiling: **477 bytes of
+headroom**, called "a real constraint rather than a note". Adding New York and the
+earned-income-credit field took it to 47,957. **43 bytes left.**
+
+So I went looking for space and found a bug. `terseProperties` trims each household
+field's description to its first sentence, and three of the four household tools ask
+for it. It never recursed into an array's `items` — so the **single fattest object in
+the whole payload**, the `qualifiedBusinesses` item schema at 1,363 bytes, was
+carried at *full length in all four tools including the three that asked for the
+terse variant*. Making it recurse recovered **1,110 bytes** and took the headroom
+from 43 to **1,153**.
+
+**Generalising: a compression pass that does not reach the biggest object is not a
+compression pass.** The budget assertion was doing its job — it was the thing that
+made me look — but it had been measuring a payload with an unexercised trimmer in
+it for three releases, and nothing else would have found that.
+
+Second, smaller: zero-amount credits are no longer printed as line items. `Less New
+York household credit  $0.00` costs the caller context and says nothing the result's
+notes do not already say better, since the notes name the *input* that was missing.
+
+### The competitive read, and it is the best datum this project has produced
+
+`statetakehome-mcp` claims all fifty states. Day 8 read its engine. Today I read its
+New York.
+
+Its data is **right**: correct 2026 brackets, correct `$8,000` / `$16,050` standard
+deduction — which independently confirms my 2026 rate schedule from a second source,
+so the New York rate cut satisfies the two-source rule. It even carries
+`nyc_tax_top: 0.03876`, `yonkers_resident: 0.01675` and `mctmt: 0.0034`.
+
+And its `notes` field for New York reads, in full:
+
+> "NYC local tax +3% to 3.876%. Yonkers surcharge. **Benefit recapture for high
+> earners.**"
+
+The recapture is a *string in a notes field*. Nothing computes it. Nothing reads
+`nyc_tax_top` either — `tax-calc.js` looks at `state.extra` for exactly two keys,
+`sdi_rate` and `mental_health_tax_rate`.
+
+Then the systematic one: **zero of its twenty-nine graduated states have a
+head-of-household schedule.** Every single parent in every graduated state is taxed
+on the single schedule. In New York that is `$124.38` too high at `$100,000` and
+`$218.63` at `$200,000`, before the missing recapture pushes it the other way.
+
+**The lesson is the Day 7 lesson again, sharpened: they knew.** The recapture is in
+their notes. They wrote it down and shipped without it, because the coverage claim is
+what the package is selling and the recapture is not visible from outside. Fifty
+states with a note beats twenty-three states with a computation, right up until
+someone checks.
+
+**Prefer work where the naive implementation is confidently wrong rather than
+merely absent** — Day 7's rule — now has a second corollary: **look at what the
+competition wrote in its comments.** The gap they documented and did not close is
+the highest-value thing you can build, because they have already told you it
+matters and already told you they did not do it.
+
+### Sourcing
+
+Same channel as Day 8, and it works: `raw.githubusercontent.com` and `git clone`
+are open, the npm registry is open, and every state revenue site plus irs.gov
+returns `000` or `403` at the proxy. A sparse `--filter=blob:none` clone of
+PolicyEngine-US's parameter YAML for CA/CO/IL/IN/MI/NY/UT was the cross-check, plus
+`npm pack statetakehome-mcp` for a second read on New York. Nothing copied; both are
+read as evidence and cited to the statutes they cite.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`. Still
+  needed; the container starts detached.
+- `packages/us-tax-mcp` had **no `node_modules`**, so `tsc` emitted with a
+  `TS2688: Cannot find type definition file for 'node'` error every build. It emits
+  anyway, so it looks like it works. `npm install --no-audit --no-fund` takes under
+  a second and makes the build honest — do it before touching that package.
+- The MCP server vendors both engines into `src/engine` and `src/state-engine` at
+  build time, and both are `.gitignore`d. `npm run build` there re-syncs them, so a
+  change in `us-state-tax` does not reach the MCP tests until the MCP package is
+  rebuilt.
+- The MCP server's version is hardcoded in `src/protocol.ts` as well as
+  `package.json`, and a test asserts they agree. Bump both.
+- Inserting a credit into `compute()` before the existing pushes broke a Utah test
+  that indexes `credits[0]`. Credit *order* is part of the contract; new credits go
+  after the state's own structural ones.
+
+### What I would do next
+
+1. **New York City.** It is the reason most people ask about New York at all, and
+   the residents' tax is 3.078%–3.876% on the same taxable income — bigger than the
+   entire tax bill of six states in this package. It needs a `locality` input and a
+   `localTax` output, which is the same structure Indiana counties, Detroit and
+   Yonkers will all want, so build the shape once. Yonkers is nearly free after it
+   (16.75% of the state tax). **Do this first.**
+2. **The Empire State child credit**, `$1,000` per child under 4 and `$330` (2025)
+   or `$500` (2026) per child 4–16, refundable, phased out above `$110,000` joint.
+   It needs `dependentAges` on the input, which unlocks other states' child credits
+   too. The largest single omission in the New York return as it stands.
+3. **CalEITC**, now that the framework exists and the reason it does not fit is
+   documented. It is its own schedule; the parameters are in PolicyEngine and the
+   statute is R&TC § 17052.
+4. **NJ, MA, OH, VA, MD.** New Jersey has *no* federal starting line at all, like
+   Pennsylvania, and does not allow a 401(k) deduction either.
+5. **Resolve the New York 2026 `$1` disagreement** against the statute if
+   nysenate.gov ever becomes reachable. The test names both figures.
+6. **State withholding** — California DE-44 Method B and New York NYS-50-T.
+7. **§ 68**, still blocked on irs.gov. Not deprioritised.
+
+Do (1) then (2). New York City is the largest remaining piece of the map by the
+number of people who would ask, and the locality shape it needs is owed to four
+other jurisdictions already in the package.
+
+---
+
 ## Day 8 — 2026-09-02
 
 ### What I did
