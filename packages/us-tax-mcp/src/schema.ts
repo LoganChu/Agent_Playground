@@ -190,13 +190,37 @@ function firstSentence(text: string): string {
   return (match ? match[0] : text).trim();
 }
 
-/** Every household property with each description cut to its first sentence. */
+/**
+ * Every household property with each description cut to its first sentence,
+ * **including the descriptions nested inside an array's `items`**.
+ *
+ * The recursion is the whole point and it was missing for three releases. Four of
+ * the eight tools carry this schema and only one carries it in full, so anything
+ * the trimming does not reach is paid for four times in every session. The single
+ * fattest object in the payload is `qualifiedBusinesses`, whose weight is entirely
+ * in its item schema — which is exactly what a surface-only trim never touched.
+ */
 export function terseProperties(properties: Record<string, JsonSchema>): Record<string, JsonSchema> {
   return Object.fromEntries(
     Object.entries(properties).map(([key, schema]) => {
-      const description = schema['description'];
-      if (typeof description !== 'string') return [key, schema];
-      return [key, { ...schema, description: firstSentence(description) }];
+      let trimmed: JsonSchema = schema;
+      const items = schema['items'];
+      if (items && typeof items === 'object' && !Array.isArray(items)) {
+        const itemSchema = items as JsonSchema;
+        const itemProperties = itemSchema['properties'];
+        if (itemProperties && typeof itemProperties === 'object') {
+          trimmed = {
+            ...trimmed,
+            items: {
+              ...itemSchema,
+              properties: terseProperties(itemProperties as Record<string, JsonSchema>),
+            },
+          };
+        }
+      }
+      const description = trimmed['description'];
+      if (typeof description !== 'string') return [key, trimmed];
+      return [key, { ...trimmed, description: firstSentence(description) }];
     }),
   );
 }

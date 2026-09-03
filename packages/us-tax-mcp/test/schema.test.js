@@ -213,14 +213,43 @@ test('tools/list stays within a sane context budget', () => {
   );
   // Recorded rather than merely asserted, because the headroom is the number that
   // decides what the next tool can be. Four of the eight carry the same thirty-field
-  // household schema, which is about 36 KB of the total; MCP has no portable way to
+  // household schema, which is about 35 KB of the total; MCP has no portable way to
   // share a schema between tools, so the ninth tool has to displace one of those or
   // the household schema has to lose fields.
+  //
+  // The headroom went from 43 bytes to 1,153 when `terseProperties` learned to
+  // recurse into an array's `items`. It had been trimming only the surface, so the
+  // single fattest object in the payload — the `qualifiedBusinesses` item schema —
+  // was carried at full length in all four household tools including the three that
+  // asked for the terse variant. A compression pass that does not reach the biggest
+  // object is not a compression pass.
   assert.ok(
-    48_000 - payload.length < 1_000,
+    48_000 - payload.length < 1_500,
     `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +
       'this note about the budget is stale and should be rewritten with the real figure',
   );
+});
+
+test('the terse household schema trims nested item descriptions, not just the surface', () => {
+  const full = TOOLS.find((t) => t.name === 'estimate_federal_tax').inputSchema.properties;
+  const terse = TOOLS.find((t) => t.name === 'compare_tax_years').inputSchema.properties;
+  // Same fields, so a caller loses nothing but prose.
+  assert.deepEqual(
+    Object.keys(terse.qualifiedBusinesses.items.properties),
+    Object.keys(full.qualifiedBusinesses.items.properties),
+  );
+  const sizeOf = (props) => JSON.stringify(props.qualifiedBusinesses).length;
+  assert.ok(
+    sizeOf(terse) < sizeOf(full) - 500,
+    `the terse qualifiedBusinesses schema is ${sizeOf(terse)} bytes against ${sizeOf(full)}; ` +
+      'the nested item descriptions are not being trimmed',
+  );
+  // Every trimmed description is still a complete sentence ending in a full stop.
+  for (const schema of Object.values(terse.qualifiedBusinesses.items.properties)) {
+    if (typeof schema.description === 'string') {
+      assert.match(schema.description, /[.!?]$/, schema.description);
+    }
+  }
 });
 
 test('a ToolInputError is what callers get for bad input, so it can be caught', () => {

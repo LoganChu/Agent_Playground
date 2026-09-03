@@ -3,7 +3,7 @@
 **US federal and state tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding** and
-**state income tax for 22 states** — for **tax years 2024, 2025 and 2026** — entirely
+**state income tax for 23 states including New York** — for **tax years 2024, 2025 and 2026** — entirely
 offline, with every figure cited to the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -154,6 +154,28 @@ deduction — while still allowing the **tips** deduction sitting beside it on t
 federal schedule. Idaho, on the same base, allows all of them. Same starting line, different
 answer, and it changes every year.
 
+**New York claws the brackets back, so walking them is the wrong computation.** Above
+$107,650 of New York AGI, Tax Law § 601(d) adds a supplemental tax that recaptures the
+benefit of every bracket below the filer's top one, until a high earner pays their top rate
+on their *whole* income. A single filer at $300,000 owes **$2,399** more than the rate
+schedule says; at $6,000,000 it is **$65,071**. The statute prints forty dollar amounts a
+year for this; `state_income_tax` stores none of them and derives every one from the rate
+schedule, which reproduces all thirteen distinct published 2025 figures to the dollar and
+supplies the over-$25,000,000 tier that reference datasets omit.
+
+The FY2026 budget cut New York's bottom five rates and left the top four alone, so the
+recapture rose by exactly what the cut was worth: a single filer at $300,000 saves $215.40
+of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same**.
+
+**Six states match the federal earned income credit, and three of them are not what that
+sounds like.** Pass `federalEarnedIncomeCredit` from `estimate_federal_tax` and Colorado
+(50% in 2025, **25% in 2026**), Illinois (20%), Indiana (10%), Michigan (30%), New York
+(30%) and Utah (20%) compute their own. Utah's is **non-refundable**, so a filer whose
+Taxpayer Tax Credit already covers their tax gets nothing. New York's is netted against the
+New York household credit. Indiana's applies to a federal credit the filer never claimed —
+computed under a frozen Internal Revenue Code with Indiana's own $3,800 investment-income
+limit. CalEITC is deliberately absent: it is not a percentage of the federal credit at all.
+
 **A flat rate is not a marginal rate.** `state_income_tax` measures the marginal rate by
 running the whole computation one dollar higher, which is the only way any of this is
 visible:
@@ -164,8 +186,9 @@ visible:
 | Pennsylvania, single parent of two | 3.07% | **~34%** across the Special Tax Forgiveness staircase |
 | Illinois, single at $250,000 | 4.95% | **$141.12 on one dollar** — the exemption is a cliff, not a phase-out |
 | California, at a credit phase-out step | 9.3% | 9.3 cents **plus $6** of lost exemption credit |
+| New York, single at $130,000 | 6% | **7.14%** — the supplemental tax phases in underneath the rate |
 
-Six of the thirteen taxing states cut their rate for 2026, so an unsupported year is an
+Seven of the fourteen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and seven of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
 
@@ -181,7 +204,7 @@ least one indexed figure forward from 2025, which every result says out loud.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" A state return for 22 states, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" A state return for 23 states, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -268,13 +291,16 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **28 states, the District of Columbia, and every local income tax.** `state_income_tax`
-  covers 22 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC, NH, NV, PA, SD, TN,
-  TX, UT, WA, WY — for 2025 and 2026, and nothing else. New York, New Jersey, Massachusetts, Ohio, Virginia and Maryland are
-  absent, and asking for one is an error rather than a zero. Neither are Indiana county
-  taxes, Pennsylvania municipal earned income taxes, Detroit, or New York City. No state
-  EITC, child credit or retirement exclusion is modelled either, so a low-income, family or
-  retiree state return comes out **too high**.
+- **27 states, the District of Columbia, and every local income tax.** `state_income_tax`
+  covers 23 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC, NH, NV, NY, PA, SD,
+  TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else. New Jersey, Massachusetts, Ohio,
+  Virginia and Maryland are absent, and asking for one is an error rather than a zero.
+  Neither are Indiana county taxes, Pennsylvania municipal earned income taxes, Detroit,
+  **New York City or Yonkers** — a New York City resident owes roughly 3.08% to 3.88% more
+  than this reports. State earned income credits are modelled for the six states that set
+  them as a share of the federal credit; no state child credit or retirement exclusion is,
+  so a family or retiree state return comes out **too high** — New York's Empire State child
+  credit alone is up to $1,000 per child under 4.
 - **The new § 68 overall limitation on itemized deductions** (OBBBA § 70111, first effective
   2026). Its formula needs the § 199A deduction, and § 199A needs taxable income, which
   needs itemized deductions after § 68 — a genuine fixed point the statute does not resolve.

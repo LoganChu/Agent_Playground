@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state** income tax engine for 22 states, 2025 and 2026. Built around the part a table of state rates cannot hold: which federal figure each state starts from, which federal deductions it adds back, and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state** income tax engine for 23 states including New York, 2025 and 2026. Built around the part a table of state rates cannot hold: New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; which federal figure each state starts from; which federal deductions it adds back; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -74,6 +74,7 @@ const federal = {
 };
 
 stateIncomeTax({ state: 'CA', year: 2025, filingStatus: 'single', federal }).tax; // 5054.98
+stateIncomeTax({ state: 'NY', year: 2025, filingStatus: 'single', federal }).tax; // 4951.75
 stateIncomeTax({ state: 'CO', year: 2025, filingStatus: 'single', federal }).tax; // 3707.00
 stateIncomeTax({ state: 'AZ', year: 2025, filingStatus: 'single', federal }).tax; // 2106.25
 ```
@@ -82,6 +83,13 @@ Colorado taxes federal *taxable* income and Arizona defines its standard deducti
 federal one, so the One Big Beautiful Bill Act cut both states' 2025 tax with no state
 legislation. Illinois, on federal AGI, got nothing. That difference is invisible in a table
 of state rates, and it is what this package exists to model.
+
+New York is the sharpest case of the same idea. Above $107,650 of AGI it adds a
+supplemental tax that recaptures the benefit of every bracket below the filer's top one, so
+walking the rate schedule is not merely incomplete — it is the wrong computation, short by
+$2,399 for a single filer at $300,000 and $65,071 at $6,000,000. The statute prints forty
+dollar amounts a year for that recapture; this package stores none of them and derives every
+one from the rate schedule.
 
 It takes the output of `estimateFederalTax()` directly, but neither package depends on the
 other. See the [package README](packages/us-state-tax/README.md) for the full list of what

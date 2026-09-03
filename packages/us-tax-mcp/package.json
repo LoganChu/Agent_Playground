@@ -1,7 +1,7 @@
 {
   "name": "us-tax-mcp",
-  "version": "0.3.0",
-  "description": "Zero-dependency MCP server that computes US federal and state tax \u2014 federal income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding for 2024-2026, plus state income tax for 22 states. Compares a household across tax years, reports the true marginal rate including credit phase-outs and state cliffs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release or state statute behind every figure.",
+  "version": "0.4.0",
+  "description": "Zero-dependency MCP server that computes US federal and state tax \u2014 federal income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding for 2024-2026, plus state income tax for 23 states including New York, whose supplemental tax recaptures the lower brackets so a high earner pays their top rate on their whole income. Compares a household across tax years, reports the true marginal rate including credit phase-outs and state cliffs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release or state statute behind every figure.",
   "keywords": [
     "mcp",
     "mcp-server",
@@ -64,7 +64,12 @@
     "conformity",
     "no-income-tax",
     "texas",
-    "florida"
+    "florida",
+    "new-york",
+    "new-york-tax",
+    "nyc",
+    "state-eitc",
+    "earned-income-credit"
   ],
   "license": "MIT",
   "type": "module",

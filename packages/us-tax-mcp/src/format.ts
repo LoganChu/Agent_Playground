@@ -433,7 +433,14 @@ export function renderStateTax(r: StateIncomeTaxResult): string {
   rows.push('');
   rows.push(`Tax before credits           ${money(r.taxBeforeCredits)}`);
   for (const surtax of r.surtaxes) rows.push(`  Plus ${surtax.name}  ${money(surtax.amount)}`);
-  for (const credit of r.credits) rows.push(`  Less ${credit.name}  ${money(credit.amount)}`);
+  // A zero credit is a line the caller pays context for and learns nothing from.
+  // The result's notes already say when a credit was zero because a figure was
+  // missing, which is the only case where the absence is worth a sentence.
+  for (const credit of r.credits) {
+    if (credit.amount === 0) continue;
+    const suffix = credit.refundable ? ' (refundable)' : '';
+    rows.push(`  Less ${credit.name}${suffix}  ${money(credit.amount)}`);
+  }
   rows.push(`${r.stateName} income tax        ${money(r.tax)}`);
   rows.push('');
   rows.push(

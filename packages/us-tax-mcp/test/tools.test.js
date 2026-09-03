@@ -764,13 +764,80 @@ test('a state with no income tax answers zero and says what is still taxed', () 
 
 test('an unsupported state is an error that names the supported ones', () => {
   const message = err('state_income_tax', {
-    state: 'NY',
+    state: 'MA',
     filingStatus: 'single',
     federalAdjustedGrossIncome: 100_000,
     federalTaxableIncome: 84_250,
   });
   assert.match(message, /state must be one of/);
   assert.match(message, /no zero to fall back to/);
+});
+
+test('state_income_tax computes New York with its supplemental tax', () => {
+  const { text, structured } = ok('state_income_tax', {
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 300_000,
+    federalTaxableIncome: 284_250,
+    federalDeduction: 15_750,
+  });
+  // The whole point: the bracket walk is not the answer.
+  assert.equal(structured.state.taxBeforeCredits, 17_602.85);
+  assert.equal(structured.state.tax, 20_002);
+  assert.equal(
+    structured.state.surtaxes[0].name,
+    'New York supplemental tax (tax table benefit recapture)',
+  );
+  assert.equal(structured.state.surtaxes[0].amount, 2_399.15);
+  assert.match(text, /supplemental tax/);
+  // And a model that asks for New York City is told it is not in this number.
+  assert.match(text, /New York City/);
+});
+
+test('state_income_tax takes the federal earned income credit and six states use it', () => {
+  const withCredit = (state, extra = {}) =>
+    ok('state_income_tax', {
+      state,
+      year: 2025,
+      filingStatus: 'headOfHousehold',
+      dependents: 2,
+      federalAdjustedGrossIncome: 30_000,
+      federalTaxableIncome: 7_500,
+      federalDeduction: 22_500,
+      federalEarnedIncomeCredit: 6_000,
+      ...extra,
+    }).structured.state;
+
+  const colorado = withCredit('CO');
+  const credit = colorado.credits.find((c) => c.name.includes('earned income'));
+  assert.equal(credit.amount, 3_000, 'Colorado matches 50% in 2025');
+  assert.equal(credit.refundable, true);
+  assert.ok(colorado.tax < 0, 'and pays it out');
+
+  // Utah computes the same kind of credit and cannot pay any of it.
+  const utah = withCredit('UT');
+  assert.equal(utah.credits.find((c) => c.name.includes('earned income')).refundable, false);
+  assert.equal(utah.tax, 0);
+
+  // A state with no credit of its own is unmoved, so passing the figure is safe.
+  assert.equal(withCredit('AZ').tax, withCredit('AZ', { federalEarnedIncomeCredit: 0 }).tax);
+});
+
+test('a state with an earned income credit says so when the federal figure is missing', () => {
+  const { text } = ok('state_income_tax', {
+    state: 'MI',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    dependents: 2,
+    federalAdjustedGrossIncome: 30_000,
+    federalTaxableIncome: 7_500,
+    federalDeduction: 22_500,
+  });
+  assert.match(text, /Form 1040 line 27/);
+  // A zero credit is not printed as a line item: it costs the caller context and
+  // the note above already explains the absence.
+  assert.ok(!/Less Michigan earned income/.test(text), text);
 });
 
 test('state_income_tax refuses inputs that cannot both be true', () => {

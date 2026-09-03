@@ -1057,18 +1057,20 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE individual income tax return for 2025 or 2026, for 22 states. ' +
-    'Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome and deduction here — ' +
-    'a state return is a function of the federal one, and which federal figure a state starts from is what ' +
-    'decides the answer. Colorado and Idaho tax federal TAXABLE income, so the OBBBA standard deduction ' +
+    'Compute a US STATE individual income tax return for 2025 or 2026, for 23 states including NEW YORK. ' +
+    'Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome, deduction and earned ' +
+    'income credit here — a state return is a function of the federal one, and which federal figure a state ' +
+    'starts from decides the answer. Colorado and Idaho tax federal TAXABLE income, so the OBBBA deduction ' +
     'increase cut their 2025 tax with no state legislation; Arizona defines its deduction as the federal one; ' +
-    'Illinois and Michigan tax federal AGI and got nothing. Colorado then adds the Section 199A deduction ' +
-    'back, and from 2026 the overtime deduction but not the tips deduction. ' +
+    'Illinois and Michigan tax federal AGI and got nothing. Colorado then adds Section 199A back, and from ' +
+    '2026 overtime but not tips. New York adds a supplemental tax above $107,650 of AGI that recaptures the ' +
+    'lower brackets, so a high earner pays their top rate on their WHOLE income: walking the bracket table is ' +
+    'short by $2,399 at $300,000 and $65,071 at $6,000,000. ' +
     'Reports the true marginal rate, which is not the statutory rate in Utah (4.45% headline, 5.75% real), ' +
-    'Pennsylvania (3.07% headline, ~11-34% across the forgiveness staircase) or Illinois (a cliff at $250,000). ' +
-    'Does NOT cover New York, New Jersey, Massachusetts, Ohio, Virginia, Maryland or any other state not ' +
-    'listed in the state enum, and does NOT cover local income tax, state EITC or child credits, or state ' +
-    'withholding. Asking for an unlisted state is an error, not a zero.',
+    'Pennsylvania (~11-34% across the forgiveness staircase), Illinois (a cliff at $250,000) or New York. ' +
+    'Does NOT cover any state outside the state enum, local income tax (New York City, Yonkers, Indiana ' +
+    'counties, Michigan cities), state child credits, CalEITC, or state withholding. An unlisted state is an ' +
+    'error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1078,14 +1080,14 @@ const stateTool: ToolDefinition = {
         type: 'string',
         enum: [...STATE_CODES],
         description:
-          'Two-letter state code. Only these 22 are supported; any other state is an error rather than a zero.',
+          'Two-letter state code. Only these 23 are supported; any other state is an error rather than a zero.',
       },
       filingStatus: FILING_STATUS_PROPERTY,
       year: {
         type: 'integer',
         enum: [...STATE_YEARS],
         description:
-          'State tax year. Six states cut their rate for 2026, so an unsupported year is an error rather than a fallback.',
+          'State tax year. Seven states cut their rate for 2026, so an unsupported year is an error rather than a fallback.',
       },
       federalAdjustedGrossIncome: {
         type: 'number',
@@ -1113,6 +1115,12 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description: 'The OBBBA qualified overtime deduction taken federally. Colorado adds it back from 2026.',
+      },
+      federalEarnedIncomeCredit: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Form 1040 line 27 — estimate_federal_tax credits.earnedIncomeCredit.credit. CO, IL, IN, MI, NY and UT set their own credit as 10-50% of it; omitting it makes a low-income return too high.',
       },
       stateAdditions: {
         type: 'number',
@@ -1174,6 +1182,7 @@ const stateTool: ToolDefinition = {
 
     const qbi = readNumber(source, 'federalQualifiedBusinessIncomeDeduction');
     const overtime = readNumber(source, 'federalOvertimeDeduction');
+    const federalEitc = readNumber(source, 'federalEarnedIncomeCredit');
     const additions = readNumber(source, 'stateAdditions');
     const subtractions = readNumber(source, 'stateSubtractions');
     const dependents = readNumber(source, 'dependents', { integer: true });
@@ -1193,6 +1202,7 @@ const stateTool: ToolDefinition = {
         taxableIncome: taxable,
         deduction,
         deductionKind: 'standard',
+        ...(federalEitc !== undefined ? { earnedIncomeCredit: federalEitc } : {}),
       },
       ...(dependents !== undefined ? { dependents } : {}),
       ...(additions !== undefined ? { additions } : {}),
