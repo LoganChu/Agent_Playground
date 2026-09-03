@@ -135,6 +135,48 @@ test('the recapture phases in over $50,000 of AGI, and is invisible in the rate 
   money(r.marginalRate, 0.0714, 'marginal rate inside the phase-in');
 });
 
+// The recapture claws back the benefit of the filing-status schedules too, which
+// is the least advertised consequence of it and the easiest to check.
+test('the head-of-household schedule is worth nothing to a New Yorker past the phase-in', () => {
+  // Same taxable income, two filing statuses, both past the first phase-in and
+  // both inside the 6% band. The graduated-rate benefit of each schedule has been
+  // fully recaptured, so both pay 6% on the whole of it.
+  for (const taxableIncome of [160_000, 188_800, 200_000]) {
+    const at = (filingStatus, deduction) =>
+      stateIncomeTax({
+        state: 'NY',
+        year: 2025,
+        filingStatus,
+        federal: {
+          adjustedGrossIncome: taxableIncome + deduction,
+          taxableIncome,
+          deduction,
+          deductionKind: 'standard',
+        },
+      }).tax;
+    const single = at('single', 8_000);
+    const hoh = at('headOfHousehold', 11_200);
+    money(single, hoh, `taxable income ${taxableIncome}`);
+    money(single, 0.06 * taxableIncome, '6% on the whole taxable income');
+  }
+
+  // Below the phase-in the schedules do differ, which is what makes the above a
+  // consequence of the recapture rather than of the schedules being identical.
+  const belowSingle = stateIncomeTax({
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'single',
+    federal: { adjustedGrossIncome: 96_000, taxableIncome: 88_000, deduction: 8_000, deductionKind: 'standard' },
+  }).tax;
+  const belowHoh = stateIncomeTax({
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    federal: { adjustedGrossIncome: 99_200, taxableIncome: 88_000, deduction: 11_200, deductionKind: 'standard' },
+  }).tax;
+  money(belowSingle - belowHoh, 120.37, 'the schedule is worth $120.37 at $88,000 of taxable income');
+});
+
 // ---------------------------------------------------------------------------
 // 2026
 // ---------------------------------------------------------------------------
