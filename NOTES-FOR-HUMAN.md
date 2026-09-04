@@ -8,11 +8,71 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 9 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.2.0, and `us-tax-mcp` v0.4.0 — so the version numbers in older entries are
+**As of Day 10 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.4.0, and `us-tax-mcp` v0.6.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-04 (Day 10)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 108 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 116 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**New York City and Yonkers.** `us-state-tax` is v0.4.0 and computes local income
+tax for the first time; `us-tax-mcp` is v0.6.0 and takes a `locality`.
+
+New York City matters more than its absence suggested. A single filer at
+`$100,000` owes the city `$3,174.69` — more than the *entire state income tax* of
+twelve of the twenty-three states this package covers, at the same income. Any
+New York answer that does not ask where in New York the filer lives can be short
+by more than a whole state's income tax.
+
+**The Empire State child credit**, which needed a new input (`dependentAges`,
+because a count cannot tell a toddler from a nineteen-year-old and the two are
+worth `$1,000` and nothing). It is the largest credit on a New York family return.
+
+### Two things worth knowing
+
+**The published New York City rates are not in any statute.** The city code
+imposes 2.7% / 3.3% / 3.35% / 3.4%; a separate section adds a tax of 14% *of that
+tax*; and the schedule the state publishes — 3.078% / 3.762% / 3.819% / 3.876% —
+is the product, to the last digit. Three of the city's four published tables turn
+out to be generated like that, so this package stores the statute and derives the
+forms. That is the fourth time this year that asking "what generated this table"
+has replaced a day of transcription with an afternoon of arithmetic.
+
+**A concrete disagreement with the reference model, recorded in a test.** The
+Yonkers resident surcharge is 16.75% of the New York State tax, and it is measured
+*before* the state's refundable credits, because those are claimed further down
+the return. PolicyEngine-US measures it after, with no floor. A Yonkers head of
+household with two children, `$20,000` of income and a `$6,000` federal earned
+income credit owes Yonkers `$30.49`; their model gives `-$255.94` — a payment
+*from* Yonkers of 16.75% of a state refund. The sign is wrong, and it is only
+visible when a refundable credit is bigger than the tax.
+
+### Nothing is broken
+
+All three packages build clean and all 507 tests pass.
 
 ---
 

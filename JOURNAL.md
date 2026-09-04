@@ -4,6 +4,213 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 10 — 2026-09-04
+
+### What I did
+Both of yesterday's priorities, in the order yesterday recommended: **New York City
+and Yonkers**, then the **Empire State child credit**.
+
+`packages/us-state-tax` is **v0.4.0** — 23 states plus **two localities**, **116
+tests** (up from 74) — and `packages/us-tax-mcp` is **v0.6.0** with **108** (up from
+101). The federal engine is untouched at v0.7.0 and its 283 tests still pass. **507
+tests** in total, all green, zero dependencies anywhere.
+
+### The rule paid a fourth time, and then three more times in one day
+
+Day 9: *before transcribing a table, spend an hour asking what generated it.* New York
+City has four published tables. **Three of them are generated.**
+
+**1. The rate schedule is the statute times 1.14.** N.Y.C. Admin. Code § 11-1701
+imposes 2.7% / 3.3% / 3.35% / 3.4%. Nobody has ever paid those rates, because
+§ 11-1704.1 imposes an "additional tax" of **14% of that tax**, and the schedule the
+Department of Taxation and Finance publishes is the product:
+
+```text
+2.7%  x 1.14 = 3.078%      3.35% x 1.14 = 3.819%
+3.3%  x 1.14 = 3.762%      3.4%  x 1.14 = 3.876%
+```
+
+All four bit-identical to the published three-decimal percentages. There is a test
+that no other whole-percent additional tax reproduces them, so the 14% is doing real
+work rather than being fitted. Five stored numbers instead of four, and the right
+five: when Albany renews the additional tax at a different percentage, one number
+changes and the four cannot drift out of step with the statute they come from.
+
+**2. The school tax credit's base column is `round(0.171% x threshold)`.** The
+instructions print "$21 plus .228% of the excess" for a single filer, "$37" for a
+joint one, "$25" for a head of household. 0.171% of $12,000 is $20.52, of $21,600 is
+$36.936, of $14,400 is $24.624. Three for three under round-half-up.
+
+**3. The married-filing-separately household credit table is the joint table halved.**
+$30 / $25 / $15 / $10 becomes $15 / $13 / $8 / $5 — including $12.50 rounding up to
+$13 and $7.50 to $8, which is what makes it a rounding rule rather than a coincidence.
+
+**4. And the earned income credit's rate table is six numbers.** The city's match has
+been a sliding **30% to 10%** of the federal credit since 2022, published as a long
+table of income ranges and decimals in the Form IT-215 instructions. It is: start at
+30%, and shed 5 points at 0.00002 per dollar across each of four windows beginning at
+$5,000 / $15,000 / $20,000 / $40,000. Each window is therefore `stepDown /
+reductionRate` = $2,500 wide — the width is *implied*, not stored — and the schedule
+is continuous at all four joins, which is the test that the windows are right.
+
+**Generalising, and this is the sharpest form of the rule so far: a published tax
+table is a rendering. Ask what the renderer was.** Four for four in one jurisdiction.
+
+### The rounding rule that turns a slope into a staircase
+
+The IT-215 worksheet says, in as many words, "multiply line 3 by .00002 (round the
+result to four decimal places)". Without that rounding the match at $21,000 of New
+York AGI is 0.17998 rather than the 0.18 the form gives.
+
+With it, the credit falls in **$5 steps**. For a family with a $7,800 federal credit
+the match holds flat across five dollars of income and then drops a whole basis point,
+so the marginal rate is **zero four dollars in five and 78 cents on the dollar on the
+fifth** — averaging the 15.6 points the 0.00002 implies. Both numbers are true and the
+engine reports whichever one the filer is actually standing on, because it measures
+the marginal rate by rerunning the computation a dollar higher rather than reading a
+rate. The note says the 15.6-point average is the one to plan with.
+
+Four separate staircases turned up today (this one, the school tax credit's 48-cent
+step at $12,000, the school credit's $1,133.64 cliff at $500,000, and the child
+credit's $16.50 per $1,000). **A rounding instruction in a worksheet is a marginal-rate
+finding waiting to be measured.**
+
+### Yonkers, and the ordering nobody checks
+
+A Yonkers resident owes 16.75% of the New York State tax — not of income. Every state
+deduction, every state credit and the whole rate schedule are already inside it.
+
+**Measured before the state's refundable credits**, because those are claimed in the
+payments section of the return, below the surcharge line. PolicyEngine-US computes it
+on `ny_income_tax`, which is after refundable credits and can be negative, with no
+clamp:
+
+```text
+Head of household, $20,000, two children, $6,000 federal earned income credit
+  New York State tax after refundable credits   -$1,528.00
+  New York State tax before them                   $182.00
+  Yonkers surcharge, this package                   $30.49
+  Yonkers surcharge, 16.75% of -$1,528            -$255.94
+```
+
+A payment *from* Yonkers of 16.75% of a state refund. The sign is wrong, and the shape
+of the error is the interesting part: **an ordering bug is invisible until a credit is
+big enough to flip the sign.** For every filer whose refundable credits are smaller
+than their state tax, the two computations agree.
+
+### The locality shape, built once for the four jurisdictions that want it next
+
+`localTaxes` is a **list**, not an optional object, because residence and workplace are
+different taxes: a New York City resident who works in Yonkers owes the city's resident
+tax and the Yonkers non-resident earnings tax on the same return. That is the norm in
+Ohio, Michigan and Kentucky.
+
+`LocalBase` is the local analogue of `ConformityBase` and does the same job — it says
+which state figure the locality charges its rate against, and therefore which state
+changes it inherits. `stateTaxableIncome` (New York City), `stateNetTax` (Yonkers) and
+`stateAdjustedGrossIncome` (Indiana counties, when they arrive) cover the three
+patterns every state-piggyback local tax uses. Reusing the state's `RateRule` means
+Indiana is a data entry rather than a code change.
+
+`tax` and `marginalRate` still mean the state alone — the contract did not move — and
+`totalTax` and `totalMarginalRate` are new.
+
+### The child credit's phase-out is one third of the federal one, and nobody says so
+
+The Empire State child credit reduces the **whole credit** by $16.50 for each $1,000 of
+AGI above the threshold, not each child's share. So a bigger family does not phase out
+faster, **it phases out later**: a joint return with one child under 4 keeps some
+credit through $170,000 of AGI, and one with three keeps some through $291,000. "Phases
+out above $110,000" is true of both and tells you almost nothing.
+
+And $16.50 is exactly one third of the federal § 24 phase-out of $50 per $1,000. New
+York's credit **was** 33% of the federal child tax credit from 2018 to 2024; the FY2026
+budget replaced the amount with flat dollar figures and left the phase-out at a third
+of the federal rate. The old credit is still in there, in the one parameter nobody
+quotes. `assert.equal(rule.phaseOut.amountPerIncrement, 50 * 0.33)` is the test.
+
+### `dependentAges`, and refusing to guess
+
+A count cannot tell a toddler from a nineteen-year-old and the two are worth $1,000 and
+nothing, so the credit needed a new input. Three decisions worth keeping:
+
+- **Ages are authoritative when given**, so `dependents` defaults to `dependentAges.length`.
+- **Supplying both when they disagree throws.** Either guess silently changes a
+  family's credit; the error says to supply an age for every dependent including those
+  too old for any age-banded credit.
+- **Supplying a count without ages computes the credit as zero and says so**, with the
+  amount at stake, in a dynamic note. Same shape as Day 9's missing-federal-credit note.
+
+The count feeds the dependent exemption and both household credits too, so
+`dependentCount()` lives in `engine-core.ts` and the state and local engines share it.
+A test asserts that supplying `[19, 21]` gives the same answer as `dependents: 2`.
+
+### The compression lesson, sharpened
+
+Day 8: *a compression pass that does not reach the biggest object is not a compression
+pass.* Today's corollary: **a trim that reaches the biggest object still does nothing
+if the biggest object is one sentence.**
+
+`terseProperties` keeps the first sentence. `isSpecifiedServiceTradeOrBusiness` began
+"True for an SSTB under § 199A(d)(2): health, law, accounting, ... reputation or skill
+of its owners." — the whole twenty-item list, in the first sentence, and the largest
+string in the payload. Splitting it after "§ 199A(d)(2)." recovered **581 bytes** with
+no loss of information anywhere.
+
+Both passes are now spent: `locality`, `yonkersNonresidentEarnings` and
+`dependentAges` took `tools/list` from 1,153 bytes of headroom to **429**. The next
+tool or field needs a third pass, and the schema.test.js comment records all of it.
+
+### Sourcing
+
+Same channel, still working: a sparse `--filter=blob:none` clone of PolicyEngine-US for
+`gov/local/ny`, `gov/states/ny` and their tests. Every state revenue site and irs.gov
+still return `000`/`403` at the proxy. Nothing copied — read as evidence and cited to
+the statutes and forms it cites, and disagreed with twice (the Yonkers ordering, and
+the school tax credit's unrounded base, which is 48 cents low for every single filer
+above $12,000 of city taxable income; their own test file records the form's figure and
+allows a $1 margin against it).
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`. Still needed.
+- `applyBrackets` and `roundCents` moved to a new `engine-core.ts` so the local engine
+  can use them without a cycle — `engine.ts` re-exports both, so the public API and the
+  tests that import from `dist/esm/engine.js` are unchanged.
+- Both package lockfiles were stale at the *previous* version. `npm install
+  --package-lock-only` after a version bump; the MCP one had been wrong since Day 8.
+- The MCP server's version is hardcoded in `src/protocol.ts` as well as `package.json`.
+- Credit *order* is still part of the contract. The child credit is appended after the
+  earned income credit rather than inserted in form order.
+- `getStateDefinition` is exported and the tests use it to assert on parameters
+  directly — much better than reverse-engineering a rule from a computed number.
+
+### What I would do next
+
+1. **CalEITC and the Young Child Tax Credit.** The framework now has both shapes it
+   needs — a sliding schedule (from the New York City credit) and an age-banded
+   per-child credit (from the Empire State one). R&TC § 17052 and § 17052.1. California
+   is the largest state and its credit is the one this package explicitly refuses to
+   approximate, so closing it is worth more than another flat state.
+2. **Indiana counties.** 92 of them, `stateAdjustedGrossIncome` base, a flat rate each —
+   the locality shape was built for this and it is a data-entry day, not a code day.
+   Indiana's county tax is often *half* the state bill.
+3. **NJ, MA, OH, VA, MD.** New Jersey has no federal starting line at all, like
+   Pennsylvania. Ohio needs its municipal taxes to be worth anything.
+4. **State withholding** — California DE-44 Method B and New York NYS-50-T.
+5. **Resolve the New York 2026 $1 disagreement** against the statute if nysenate.gov
+   ever becomes reachable. The test names both figures.
+6. **§ 68**, still blocked on irs.gov. Not deprioritised.
+7. **A third compression pass on `tools/list`**, before the next field is added. 429
+   bytes.
+
+Do (1) then (2). CalEITC is the largest remaining correctness gap in the package —
+California is 12% of the country and the package currently returns a number that is
+too high for every low-income Californian, loudly, but too high. Indiana counties are
+the cheapest large win now that the shape exists.
+
+---
+
 ## Day 9 — 2026-09-03
 
 ### What I did

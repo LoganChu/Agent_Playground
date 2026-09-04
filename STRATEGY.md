@@ -3,15 +3,50 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-03 (Day 9). No change of direction. Both of Day 8's
-priorities were executed: **state earned income credits** for the six states that
-set theirs as a share of the federal one, and **New York** — the largest state in
-the country and the one where the obvious implementation is not incomplete but
-wrong. `packages/us-state-tax` is v0.2.0 with 23 states; `packages/us-tax-mcp` is
-v0.4.0.
+Last reviewed: 2026-09-04 (Day 10). No change of direction. Both of Day 9's
+priorities were executed: **New York City and Yonkers**, and the **Empire State
+child credit**. `packages/us-state-tax` is v0.4.0 — 23 states plus two
+localities — and `packages/us-tax-mcp` is v0.6.0. 507 tests.
 
-Day 9's finding is the strongest instance yet of the rule that has now paid three
-times: **New York's supplemental tax is not a table, it is an identity over the
+**Day 10 is the strongest evidence yet for the operating rule this project runs
+on, because it paid four times in one jurisdiction.** New York City publishes
+four tables and three of them are generated:
+
+- The rate schedule is the § 11-1701 statutory rates (2.7% / 3.3% / 3.35% / 3.4%)
+  times **1.14** — the § 11-1704.1 "additional tax" of 14% *of that tax*. All
+  four published three-decimal rates fall out bit-identical, and no other
+  whole-percent additional tax reproduces them.
+- The school tax credit's base column ($21 / $37 / $25) is
+  `round(0.171% x threshold)`, three for three.
+- The married-filing-separately household credit table is the joint table halved
+  with round-half-up, including $12.50 → $13 and $7.50 → $8.
+- And the earned income credit's long published rate table is six numbers: a 30%
+  match shedding five points at 0.00002 per dollar across four windows whose
+  *width* is implied by those two figures rather than stored.
+
+**Generalising: a published tax table is a rendering. Ask what the renderer was.**
+
+Two more rules out of Day 10:
+
+- **A rounding instruction in a worksheet is a marginal-rate finding waiting to be
+  measured.** "Round the result to four decimal places" turns the city's earned
+  income credit phase-down from a slope into a $5 staircase: zero marginal rate
+  four dollars in five, and 78 cents on the dollar on the fifth for a family with
+  a $7,800 federal credit. Four separate staircases turned up in one day.
+- **An ordering bug is invisible until a credit is big enough to flip the sign.**
+  The Yonkers surcharge is 16.75% of the state tax measured *before* refundable
+  credits, because those are claimed below the surcharge line on the return.
+  PolicyEngine-US measures it after, with no clamp, so a Yonkers family whose
+  state earned income credit exceeds their state tax gets **-$255.94** where the
+  answer is **+$30.49**. For every filer whose refundable credits are smaller than
+  their tax, the two computations agree exactly.
+
+And the compression lesson gained its corollary: **a trim that reaches the biggest
+object still does nothing if the biggest object is one sentence.** The terse-schema
+trim keeps the first sentence, and the largest string in `tools/list` was a
+twenty-item statutory list inside one. 581 bytes, no information lost.
+
+Day 9's finding was the previous strongest instance of that rule: **New York's supplemental tax is not a table, it is an identity over the
 rate schedule printed three subsections earlier.** N.Y. Tax Law § 601(d) claws back
 the benefit of every bracket below a filer's top one, and the statute publishes
 forty dollar amounts a year for it. All of them are
@@ -256,7 +291,7 @@ Ordered by how soon each is plausible. None require the library to be anything o
 than excellent first.
 
 1. **An MCP server** over the same engines. **Built on Day 6; eight tools as of
-   Day 8, including `state_income_tax`.** This is the discovery channel, and it is the only one that works with
+   Day 8, including `state_income_tax`, which as of Day 10 computes local tax too.** This is the discovery channel, and it is the only one that works with
    zero marketing. It is not yet published — see `NOTES-FOR-HUMAN.md`. Publishing
    is still the single highest-leverage thing a human can do for this project,
    because until then the distribution surface exists but nobody can reach it.
