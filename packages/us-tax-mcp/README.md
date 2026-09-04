@@ -185,6 +185,15 @@ whose state earned income credit exceeds their state tax owes **$30.49**; nettin
 refundable credit first gives **-$255.94**, a payment from Yonkers of 16.75% of a state
 refund.
 
+**"Phases out above $110,000" ends nowhere near $110,000.** Pass `dependentAges` and New
+York's Empire State child credit is computed: **$1,000** for each child under 4 and **$330**
+(2025) or **$500** (2026) for each child aged 4 to 16, refundable. Its phase-out reduces the
+*whole* credit by **$16.50 per $1,000** of AGI above the threshold — not each child's share
+— so a bigger family phases out **later**, not faster: one child under 4 keeps some credit
+to **$170,000**, three keep some to **$291,000**. And $16.50 is exactly one third of the
+federal § 24 phase-out of $50 per $1,000, because New York's credit *was* 33% of the federal
+one until the FY2026 budget replaced the amount and left the rate alone.
+
 **Six states match the federal earned income credit, and three of them are not what that
 sounds like.** Pass `federalEarnedIncomeCredit` from `estimate_federal_tax` and Colorado
 (50% in 2025, **25% in 2026**), Illinois (20%), Indiana (10%), Michigan (30%), New York
@@ -316,9 +325,10 @@ confidently fill them in.
   rather than a zero. Local tax is New York City and Yonkers only: Indiana county taxes,
   Pennsylvania municipal earned income taxes, Ohio municipalities, Detroit and Maryland
   counties are not modelled, nor is part-year city residency. State earned income credits
-  are modelled for the six states that set them as a share of the federal credit; no state
-  child credit or retirement exclusion is, so a family or retiree state return comes out
-  **too high** — New York's Empire State child credit alone is up to $1,000 per child under 4.
+  are modelled for the six states that set them as a share of the federal credit, and New
+  York's Empire State child credit from `dependentAges`; no other state child credit or
+  retirement exclusion is, so a family or retiree state return outside New York comes out
+  **too high**.
 - **The new § 68 overall limitation on itemized deductions** (OBBBA § 70111, first effective
   2026). Its formula needs the § 199A deduction, and § 199A needs taxable income, which
   needs itemized deductions after § 68 — a genuine fixed point the statute does not resolve.

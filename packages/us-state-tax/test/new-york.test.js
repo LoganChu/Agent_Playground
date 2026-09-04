@@ -33,7 +33,9 @@ const ny = (agi, opts = {}) => {
     state: 'NY',
     year: opts.year ?? 2025,
     filingStatus: status,
-    dependents: opts.dependents ?? 0,
+    ...(opts.dependentAges
+      ? { dependentAges: opts.dependentAges }
+      : { dependents: opts.dependents ?? 0 }),
     federal: {
       adjustedGrossIncome: agi,
       taxableIncome: Math.max(0, agi - deduction),
@@ -290,4 +292,146 @@ test('omitting the federal earned income credit says so in the result', () => {
     'the result names the figure that was left out',
   );
   money(creditNamed(without, 'New York earned income'), 0);
+});
+
+// ---------------------------------------------------------------------------
+// The Empire State child credit
+// ---------------------------------------------------------------------------
+
+const nyKids = (agi, ages, opts = {}) =>
+  ny(agi, { ...opts, filingStatus: opts.filingStatus ?? 'marriedFilingJointly' , dependentAges: ages });
+
+const escc = (result) => creditNamed(result, 'Empire State child credit');
+
+test('the Empire State child credit is banded on each child’s age', () => {
+  money(escc(nyKids(50_000, [2])), 1_000, 'under 4, 2025');
+  money(escc(nyKids(50_000, [2], { year: 2026 })), 1_000, 'under 4, 2026');
+  money(escc(nyKids(50_000, [10])), 330, '4 to 16, 2025');
+  money(escc(nyKids(50_000, [10], { year: 2026 })), 500, '4 to 16, 2026 — the FY2026 increase');
+  money(escc(nyKids(50_000, [17])), 0, '17 gets nothing');
+  // The band edges: 3 is a young child, 4 is not, 16 is a child and 17 is not.
+  money(escc(nyKids(50_000, [3])), 1_000);
+  money(escc(nyKids(50_000, [4])), 330);
+  money(escc(nyKids(50_000, [16])), 330);
+  // Mixed families add up.
+  money(escc(nyKids(50_000, [1, 7, 19])), 1_330, 'a toddler, a child and an adult dependent');
+});
+
+// $16.50 per $1,000 is exactly a third of the federal § 24 phase-out of $50 per
+// $1,000. New York's credit WAS 33% of the federal credit from 2018 to 2024; the
+// FY2026 budget replaced the amount with flat figures and left the phase-out at
+// a third of the federal rate. The old credit is still in there.
+test('the phase-out rate is one third of the federal one, exactly', () => {
+  const rule = getStateDefinition('NY', 2025).childCredit;
+  assert.equal(rule.phaseOut.amountPerIncrement, 50 * 0.33);
+  assert.equal(rule.phaseOut.increment, 1_000);
+  assert.equal(rule.refundable, true);
+});
+
+// The finding: the reduction is on the WHOLE credit, not on each child's share,
+// so a bigger family phases out LATER rather than faster. "Phases out above
+// $110,000" is true and tells you almost nothing about where it ends.
+test('a bigger family phases out later, not faster', () => {
+  const one = (agi) => escc(nyKids(agi, [2]));
+  const three = (agi) => escc(nyKids(agi, [1, 2, 3]));
+
+  money(one(110_000), 1_000, 'nothing lost at the threshold itself');
+  money(three(110_000), 3_000);
+
+  // One child under 4: the credit survives another $60,000 of income.
+  money(one(170_000), 10, 'still $10 at $170,000');
+  money(one(170_001), 0, 'gone one dollar later');
+
+  // Three children under 4: another $181,000 of income.
+  money(three(291_000), 13.5, 'still $13.50 at $291,000');
+  money(three(291_001), 0);
+
+  // The rate is the same $16.50 per $1,000 for both, which is the whole reason.
+  money(one(111_000) - one(112_000), 16.5);
+  money(three(111_000) - three(112_000), 16.5);
+});
+
+// "Or fraction thereof" makes it a staircase, and the engine sees it because it
+// measures the marginal rate by running the computation a dollar higher.
+test('the phase-out is a staircase: $16.50 on the dollar that crosses each $1,000', () => {
+  // A head of household at $75,000, so the credit's phase-out is the only thing
+  // moving — a joint filer's $110,000 threshold sits above the supplemental
+  // tax's $107,650 phase-in, which would be measured on the same dollar.
+  const hoh = (agi) => nyKids(agi, [2], { filingStatus: 'headOfHousehold' }).marginalRate;
+  money(hoh(75_000), 16.5 + 0.055, 'the crossing dollar');
+  money(hoh(75_001), 0.055, 'every other dollar in the band');
+  money(hoh(76_000), 16.5 + 0.055, 'the next crossing, exactly $1,000 later');
+  money(hoh(76_500), 0.055, 'and nothing in between');
+});
+
+// The joint threshold sits inside the supplemental tax's phase-in, so a joint
+// family crossing $110,000 pays the credit staircase and the recapture at once.
+test('a joint family at $110,000 crosses the credit staircase and the recapture together', () => {
+  const withKid = nyKids(110_000, [2]).marginalRate;
+  const withoutKid = ny(110_000, { filingStatus: 'marriedFilingJointly' }).marginalRate;
+  money(withKid - withoutKid, 16.5, 'the credit staircase');
+  assert.ok(withoutKid > 0.055, 'and the recapture is already phasing in underneath it');
+});
+
+test('the phase-out threshold differs by filing status, and separate is lowest', () => {
+  const threshold = getStateDefinition('NY', 2025).childCredit.phaseOut.threshold;
+  assert.equal(threshold.marriedFilingJointly, 110_000);
+  assert.equal(threshold.qualifyingSurvivingSpouse, 110_000);
+  assert.equal(threshold.single, 75_000);
+  assert.equal(threshold.headOfHousehold, 75_000);
+  assert.equal(threshold.marriedFilingSeparately, 55_000);
+  // A single parent at $80,000 has already lost $82.50 of a $1,000 credit that a
+  // joint return with the same income keeps in full.
+  money(escc(nyKids(80_000, [2], { filingStatus: 'headOfHousehold' })), 1_000 - 5 * 16.5);
+  money(escc(nyKids(80_000, [2])), 1_000);
+});
+
+// It is refundable, so it pays out past zero tax — which is most of the families
+// with young children that it is aimed at.
+test('the credit is refundable and pays a family with no New York tax', () => {
+  const family = nyKids(30_000, [1, 2], { filingStatus: 'headOfHousehold' });
+  assert.ok(family.tax < 0, 'New York owes this family money');
+  money(escc(family), 2_000);
+  const credit = family.credits.find((c) => c.name === 'Empire State child credit');
+  assert.equal(credit.refundable, true);
+});
+
+// A count cannot tell a toddler from a nineteen-year-old, and the two are worth
+// $1,000 and nothing. The result says so rather than returning a quiet zero.
+test('dependents without ages computes the credit as zero and says so', () => {
+  const result = ny(100_000, { filingStatus: 'marriedFilingJointly', dependents: 2 });
+  money(escc(result), 0);
+  const note = result.notes.find((n) => n.includes('dependentAges was not supplied'));
+  assert.ok(note, 'expected a note naming the missing input');
+  assert.ok(note.includes('$1,000'), `expected the amount at stake, got: ${note}`);
+});
+
+test('dependents and dependentAges disagreeing is an error, not a guess', () => {
+  assert.throws(
+    () =>
+      stateIncomeTax({
+        state: 'NY',
+        year: 2025,
+        filingStatus: 'marriedFilingJointly',
+        dependents: 3,
+        dependentAges: [2, 5],
+        federal: {
+          adjustedGrossIncome: 100_000,
+          taxableIncome: 83_950,
+          deduction: 16_050,
+          deductionKind: 'standard',
+        },
+      }),
+    /dependents \(3\) and dependentAges \(2 ages\) disagree/,
+  );
+});
+
+// Ages feed the dependent exemption and the household credit too, so supplying
+// them instead of a count changes nothing else about the return.
+test('supplying ages is equivalent to supplying the count everywhere else', () => {
+  const byCount = ny(200_000, { filingStatus: 'marriedFilingJointly', dependents: 2 });
+  const byAges = nyKids(200_000, [19, 21]);
+  assert.equal(byAges.exemptions, byCount.exemptions);
+  assert.equal(byAges.taxableIncome, byCount.taxableIncome);
+  assert.equal(byAges.tax, byCount.tax, 'two adult dependents get no child credit');
 });

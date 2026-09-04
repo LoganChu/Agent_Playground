@@ -7,7 +7,7 @@
  * return produced, so it takes the state's intermediate results rather than the
  * caller's.
  */
-import { applyBrackets, roundCents } from '../engine-core.js';
+import { applyBrackets, dependentCount, roundCents } from '../engine-core.js';
 import { filerCount } from '../definition.js';
 import type { LocalBase, LocalIncomeTaxDefinition } from './definition.js';
 import type {
@@ -76,7 +76,7 @@ export function localHouseholdCredit(
   if (!rule) return 0;
   const status = input.filingStatus;
   if (status === 'single') return stepAmount(rule.single, federalAgi);
-  const people = filerCount(status) + (input.dependents ?? 0);
+  const people = filerCount(status) + dependentCount(input);
   const perPerson = stepAmount(rule.perPerson, federalAgi);
   const amount =
     rule.halvedForSeparate && status === 'marriedFilingSeparately'

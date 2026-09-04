@@ -1,6 +1,6 @@
 {
   "name": "us-state-tax",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Dependency-free US state individual income tax engine for tax years 2025 and 2026, covering 23 states plus New York City and Yonkers. Models what rate tables leave out: New York City's 3.078%-3.876% resident tax and its 30%-to-10% sliding earned income credit; the Yonkers surcharge of 16.75% of the state tax, measured before refundable credits so it can never go negative; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; which federal figure each state starts from; which federal deductions it adds back; the six state earned income credits and the three that are not what they look like; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. Every figure cited to the statute or state release it came from, and every carried-forward figure flagged as provisional.",
   "keywords": [
     "tax",
@@ -58,7 +58,10 @@
     "obbba",
     "2025",
     "2026",
-    "tax-year"
+    "tax-year",
+    "child-tax-credit",
+    "empire-state-child-credit",
+    "state-child-credit"
   ],
   "license": "MIT",
   "type": "module",

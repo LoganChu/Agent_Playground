@@ -61,6 +61,15 @@ const CITATIONS: readonly Citation[] = [
     url: 'https://www.nysenate.gov/legislation/laws/TAX/606',
   },
   {
+    title:
+      'N.Y. Tax Law § 606(c-1) — the Empire State child credit, as amended by S.3009-C, Part C, § 2',
+    url: 'https://www.nysenate.gov/legislation/laws/TAX/606',
+  },
+  {
+    title: 'Form IT-213, Claim for Empire State Child Credit, and its instructions',
+    url: 'https://www.tax.ny.gov/pdf/current_forms/it/it213i.pdf',
+  },
+  {
     title: 'N.Y. Tax Law § 614 — standard deduction; § 616 — New York exemptions',
     url: 'https://www.nysenate.gov/legislation/laws/TAX/614',
   },
@@ -172,7 +181,12 @@ const NOTES: readonly string[] = [
   'The recapture also claws back the benefit of the filing-status schedules. Past the first phase-in — above $157,650 of New York AGI — a head of household and a single filer with the same New York taxable income in the 6% band pay exactly the same tax, because both schedules have been undone. The head-of-household schedule is worth $120.37 at $88,000 of taxable income and nothing at all above $157,650 of AGI.',
   'New York does not index its brackets, standard deduction or dependent exemption. All three are fixed in statute, which is why the 2026 figures here are published rather than carried forward.',
   'New York City and Yonkers are modelled, but only when asked for: pass locality: "NYC" or "YONKERS" and the city tax appears in localTaxes, with totalTax and totalMarginalRate covering both levels. Neither is a state tax and neither is in the state figures above.',
-  'NOT MODELLED — the Empire State child credit. For 2025 and 2026 it is $1,000 per child under 4 and $330 (2025) or $500 (2026) per child aged 4 to 16, phased out above $110,000 of AGI on a joint return and $75,000 otherwise. It is refundable and it is large: a New York family return computed here is too high by up to $1,000 per young child.',
+  'The Empire State child credit is computed from dependentAges: $1,000 for each child under 4 and $330 (2025) or $500 (2026) for each child aged 4 to 16, refundable. Supply an age for every dependent — a count cannot tell a toddler from a nineteen-year-old, and the two are worth $1,000 and nothing.',
+  'Its phase-out reduces the WHOLE credit by $16.50 for each $1,000 of AGI above the threshold, or fraction thereof — not each child\u2019s share of it. So a bigger family does not phase out faster, it phases out later: a joint return with one child under 4 keeps some credit through $170,000 of AGI and one with three keeps some through $291,000, from a credit described everywhere as phasing out above $110,000.',
+  'That $16.50 is exactly one third of the federal § 24 phase-out of $50 per $1,000. New York\u2019s credit was 33% of the federal child tax credit from 2018 to 2024; the FY2026 budget replaced the amount with flat dollar figures and left the phase-out at a third of the federal rate, so the old credit is still visible in the one parameter nobody quotes.',
+  'The phase-out counts each $1,000 increment "or fraction thereof", so it is a staircase: the dollar that crosses each $1,000 boundary of AGI costs $16.50 at once, and every other dollar in the band costs nothing.',
+  'NOT MODELLED — the ADDITIONAL Empire State child credit, a supplemental payment of 25% to 100% of the credit that New York legislated as a one-off in 2021 and again in 2023. Nothing has been enacted for 2025 or 2026. Also not modelled: the 2025 inflation refund (Tax Law § 606(qqq)), a one-time $150-$400 cheque computed from the filer\u2019s 2023 return rather than this one, so it cannot be derived from the figures here.',
+  'NOT MODELLED — the Empire State child credit reverts after 2027 to its pre-2025 form, the greater of 33% of the federal child tax credit computed under pre-TCJA rules or $100 per child. This package covers 2025 and 2026, where the flat amounts apply.',
   'NOT MODELLED — the New York itemized deduction limitation, which reduces itemized deductions above $100,000 of AGI and, above $10,000,000, allows only 25% of charitable contributions. A high-income New York itemizer computed here is too low.',
   "NOT MODELLED — the college tuition credit, the real property tax credit, the child and dependent care credit, and the noncustodial parent earned income credit. New York's credit list is long; only the household credit and the earned income credit are computed here.",
   'The New York earned income credit is 30% of the federal credit LESS the New York household credit (§ 606(d)(1)) — the two are not additive. It is refundable.',
@@ -217,6 +231,27 @@ export function newYork(year: number): StateIncomeTaxDefinition | undefined {
       }),
       perAdditionalPerson: HOUSEHOLD_ADDITIONAL,
       halvedForSeparate: true,
+    },
+    // S.3009-C, Part C, § 2, adding Tax Law § 606(c-1)(1-A). The bands are
+    // matched in order, so a child of exactly 4 gets the older-child amount and a
+    // 17-year-old gets nothing.
+    childCredit: {
+      name: 'Empire State child credit',
+      amountByAge: [
+        { maxAge: 3, amount: 1_000 },
+        { maxAge: 16, amount: year >= 2026 ? 500 : 330 },
+      ],
+      phaseOut: {
+        threshold: byStatusOf<number>({
+          single: 75_000,
+          separate: 55_000,
+          headOfHousehold: 75_000,
+          joint: 110_000,
+        }),
+        amountPerIncrement: 16.5,
+        increment: 1_000,
+      },
+      refundable: true,
     },
     earnedIncomeCredit: {
       name: 'New York earned income credit',

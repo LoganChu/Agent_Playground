@@ -191,6 +191,45 @@ Yonkers but lives elsewhere pays 0.5% of Yonkers-source wages instead
 (`yonkersNonresidentEarnings`). Because a filer can live in one taxing locality and work in
 another, `localTaxes` is a list.
 
+### "Phases out above $110,000" ends nowhere near $110,000
+
+New York's Empire State child credit is the largest credit on a New York family
+return — `$1,000` for each child under 4, and `$330` (2025) or `$500` (2026) for each
+child aged 4 to 16, refundable. Pass `dependentAges` and it is computed; pass only a
+count and the result says it was computed as zero and what that cost, because a count
+cannot tell a toddler from a nineteen-year-old and the two are worth `$1,000` and
+nothing.
+
+The phase-out is where the answers diverge. It reduces the **whole credit** by `$16.50`
+for each `$1,000` of AGI above the threshold — not each child's share of it — so a
+bigger family does not phase out faster, it phases out **later**:
+
+| Joint return | Threshold | Last dollar of credit |
+| --- | --- | --- |
+| One child under 4 | `$110,000` | `$170,000` |
+| Three children under 4 | `$110,000` | `$291,000` |
+
+And `$16.50` is exactly one third of the federal § 24 phase-out of `$50` per `$1,000`.
+New York's credit *was* 33% of the federal child tax credit from 2018 to 2024; the
+FY2026 budget replaced the amount with flat dollar figures and left the phase-out at a
+third of the federal rate, so the old credit is still visible in the one parameter
+nobody quotes.
+
+The increment counts "or fraction thereof", which makes it a staircase rather than a
+slope: the dollar that crosses each `$1,000` boundary costs `$16.50` at once and every
+other dollar in the band costs nothing.
+
+```js
+const kids = (agi) => stateIncomeTax({
+  state: 'NY', year: 2025, filingStatus: 'headOfHousehold', dependentAges: [2],
+  federal: { adjustedGrossIncome: agi, taxableIncome: agi - 11_200,
+             deduction: 11_200, deductionKind: 'standard' },
+});
+
+kids(75_000).marginalRate; // 16.555  <- $16.50 of credit on one dollar, plus 5.5 cents of tax
+kids(75_001).marginalRate; //  0.055  <- and nothing again for another $999
+```
+
 ### Six states match the federal earned income credit, and three of them do not
 
 Pass `federal.earnedIncomeCredit` and Colorado, Illinois, Indiana, Michigan, New York and
@@ -288,7 +327,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.3.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.4.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 23 states.** No New Jersey, Massachusetts, Ohio, Virginia, Maryland, Minnesota,
@@ -300,12 +339,11 @@ hides its gaps is worse than useless:
   taxes and Maryland's counties are not, and for an Indiana or Pennsylvania filer the local
   tax is a large fraction of the bill. Nor is part-year city residency, or the New York
   City child and dependent care credit.
-- **No state child credits, and New York's is large.** The Empire State child credit is
-  `$1,000` per child under 4 for 2025 and 2026, and `$330` (2025) or `$500` (2026) per
-  child aged 4 to 16. Also absent: CalEITC and the Young Child Tax Credit, the Arizona
-  dependent credit, the North Carolina child deduction, the Georgia and Kentucky retirement
+- **One state child credit.** New York's Empire State child credit is computed from
+  `dependentAges`. Absent: CalEITC and the Young Child Tax Credit, the Arizona dependent
+  credit, the North Carolina child deduction, the Georgia and Kentucky retirement
   exclusions, and the Utah retirement and Social Security credits. A family return or a
-  retiree return computed here will be **too high**.
+  retiree return outside New York will be **too high**.
 - **No state alternative minimum tax** (California and Colorado both have one).
 - **No additions or subtractions are enumerated.** They are a long, state-specific list —
   municipal bond interest, US government interest, 529 contributions, military pay — and a

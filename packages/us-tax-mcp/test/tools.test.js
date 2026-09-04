@@ -979,3 +979,51 @@ test('a New York return without a locality says what the city would have cost', 
   const note = structured.state.notes.find((n) => n.startsWith('No locality was supplied'));
   assert.ok(note && note.includes('$3,174.69'), 'expected the quantified cost in a note');
 });
+
+test('dependentAges computes the Empire State child credit, and a count does not', () => {
+  const withAges = ok('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'marriedFilingJointly',
+    year: 2025,
+    dependentAges: [2, 10],
+    federalAdjustedGrossIncome: 120_000,
+    federalTaxableIncome: 103_950,
+    federalDeduction: 16_050,
+  });
+  const credit = withAges.structured.state.credits.find(
+    (c) => c.name === 'Empire State child credit',
+  );
+  // $1,000 + $330, less $16.50 for each of the ten $1,000 increments over $110,000.
+  assert.equal(credit.amount, 1165);
+  assert.equal(credit.refundable, true);
+  assert.equal(withAges.structured.state.exemptions, 2000, 'ages also supply the count');
+
+  const withCount = ok('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'marriedFilingJointly',
+    year: 2025,
+    dependents: 2,
+    federalAdjustedGrossIncome: 120_000,
+    federalTaxableIncome: 103_950,
+    federalDeduction: 16_050,
+  });
+  assert.equal(
+    withCount.structured.state.credits.find((c) => c.name === 'Empire State child credit').amount,
+    0,
+  );
+  assert.ok(
+    withCount.structured.state.notes.some((n) => n.includes('dependentAges was not supplied')),
+    'expected the result to name the missing input',
+  );
+
+  assert.match(
+    err('state_income_tax', {
+      state: 'NY',
+      filingStatus: 'single',
+      dependentAges: [2, 'four'],
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 92_000,
+    }),
+    /dependentAges\[1\] must be a non-negative whole number/,
+  );
+});

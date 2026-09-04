@@ -7,7 +7,7 @@
  */
 import { filerCount } from './definition.js';
 import type { StateIncomeTaxDefinition } from './definition.js';
-import { applyBrackets, nonNegative, roundCents } from './engine-core.js';
+import { applyBrackets, dependentCount, nonNegative, roundCents } from './engine-core.js';
 import {
   computeLocalResidentTax,
   localNonresidentEarningsResult,
@@ -75,15 +75,16 @@ function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
   if (!rule) return 0;
   const cliff = rule.cliff?.[input.filingStatus];
   if (cliff !== undefined && input.federal.adjustedGrossIncome > cliff) return 0;
-  return rule.perFiler[input.filingStatus] + rule.perDependent * (input.dependents ?? 0);
+  return rule.perFiler[input.filingStatus] + rule.perDependent * dependentCount(input);
 }
 
 function exemptionCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
   const rule = def.exemptionCredit;
   if (!rule) return 0;
   const status = input.filingStatus;
-  const exemptions = filerCount(status) + (input.dependents ?? 0);
-  const full = rule.perFiler[status] + rule.perDependent * (input.dependents ?? 0);
+  const dependents = dependentCount(input);
+  const exemptions = filerCount(status) + dependents;
+  const full = rule.perFiler[status] + rule.perDependent * dependents;
   const excess = input.federal.adjustedGrossIncome - rule.phaseOut.start[status];
   if (excess <= 0) return full;
   // "$6 for each $2,500, or fraction thereof" — a partial increment counts in
@@ -101,7 +102,7 @@ function taxpayerCredit(
 ): number {
   const rule = def.taxpayerCredit;
   if (!rule) return 0;
-  const exemptionBase = rule.personalExemption * (input.dependents ?? 0);
+  const exemptionBase = rule.personalExemption * dependentCount(input);
   const full = rule.rate * (input.federal.deduction + exemptionBase);
   const excess = stateTaxableIncome - rule.phaseOutThreshold[input.filingStatus];
   if (excess <= 0) return full;
@@ -148,7 +149,7 @@ function forgivenessCredit(
     input.pennsylvaniaEligibilityIncome ?? input.pennsylvaniaTaxableIncome,
     'pennsylvaniaEligibilityIncome',
   );
-  const allowance = rule.base * filerCount(input.filingStatus) + rule.perDependent * (input.dependents ?? 0);
+  const allowance = rule.base * filerCount(input.filingStatus) + rule.perDependent * dependentCount(input);
   const excess = eligibility - allowance;
   const steps = excess <= 0 ? 0 : Math.ceil(excess / rule.increment);
   const share = Math.max(0, 1 - steps * rule.reductionPerIncrement);
@@ -174,12 +175,51 @@ function householdCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
   const rule = def.householdCredit;
   if (!rule) return 0;
   const status = input.filingStatus;
-  const people = filerCount(status) + (input.dependents ?? 0);
+  const people = filerCount(status) + dependentCount(input);
   const base = stepAmount(rule.base[status], agi);
   const additional =
     status === 'single' ? 0 : stepAmount(rule.perAdditionalPerson, agi) * (people - 1);
   const credit = base + additional;
   return rule.halvedForSeparate && status === 'marriedFilingSeparately' ? credit / 2 : credit;
+}
+
+/**
+ * A credit worth a fixed amount per dependent by age, phased out against income
+ * on the whole return — New York's Empire State child credit.
+ *
+ * The phase-out is the part that is got wrong. It reduces the *total* credit by
+ * a fixed amount per increment of income, so a bigger family does not phase out
+ * faster, it phases out later: a joint return with one child under 4 keeps some
+ * credit through $170,000 of AGI and one with three keeps some through $291,000,
+ * from a credit both of them are told phases out above $110,000.
+ *
+ * And the increment counts "or fraction thereof", which makes it a staircase:
+ * the dollar that crosses each boundary costs the whole increment at once.
+ */
+function childCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  const rule = def.childCredit;
+  if (!rule) return 0;
+  const ages = input.dependentAges;
+  if (ages === undefined || ages.length === 0) return 0;
+
+  let credit = 0;
+  for (const age of ages) {
+    if (!Number.isFinite(age) || age < 0) {
+      throw new RangeError(`dependentAges must be non-negative finite numbers, received ${age}`);
+    }
+    for (const band of rule.amountByAge) {
+      if (age <= band.maxAge) {
+        credit += band.amount;
+        break;
+      }
+    }
+  }
+  if (credit <= 0) return 0;
+
+  const excess = input.federal.adjustedGrossIncome - rule.phaseOut.threshold[input.filingStatus];
+  if (excess <= 0) return credit;
+  const increments = Math.ceil(excess / rule.phaseOut.increment);
+  return Math.max(0, credit - increments * rule.phaseOut.amountPerIncrement);
 }
 
 /**
@@ -325,6 +365,17 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
       // additive — Tax Law § 606(d)(1).
       amount: rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched,
       refundable: rule.refundable,
+    });
+  }
+
+  if (def.childCredit) {
+    // Appended after the state's structural credits rather than inserted in form
+    // order, because credit position is part of this package's contract and a
+    // caller indexing credits[0] should not break when a credit is added.
+    credits.push({
+      name: def.childCredit.name,
+      amount: childCredit(def, input),
+      refundable: def.childCredit.refundable,
     });
   }
 
@@ -517,6 +568,15 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `${(def.earnedIncomeCredit.matchRate * 100).toFixed(0)}% of the federal phase-out rate — up to ` +
         `${(def.earnedIncomeCredit.matchRate * 21.06).toFixed(2)} points for a filer with two or more ` +
         'children. Supply federalOneDollarHigher for the exact figure.',
+    );
+  }
+  if (def.childCredit && (input.dependents ?? 0) > 0 && input.dependentAges === undefined) {
+    const young = def.childCredit.amountByAge[0];
+    dynamic.push(
+      `${def.name} has a ${def.childCredit.name.toLowerCase()} banded on each dependent's age, ` +
+        `and dependentAges was not supplied, so it was computed as zero. It is worth up to ` +
+        `$${young?.amount.toLocaleString('en-US') ?? '0'} per dependent and it is refundable — ` +
+        `this family return is too high by that much per child until the ages are given.`,
     );
   }
   if (input.state === 'NY' && input.locality === undefined) {

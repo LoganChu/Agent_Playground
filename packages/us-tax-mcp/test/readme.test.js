@@ -514,3 +514,19 @@ test('README: the New York City and Yonkers figures', () => {
   assert.equal((yonkers.tax * 0.1675).toFixed(2), '-255.94');
   quotesAcrossLines('gives **-$255.94**');
 });
+
+test('README: the Empire State child credit phase-out endpoints', () => {
+  const joint = (agi, ages) =>
+    stateIncomeTax({
+      state: 'NY',
+      year: 2025,
+      filingStatus: 'marriedFilingJointly',
+      dependentAges: ages,
+      federal: stateFed(agi, Math.max(0, agi - 16_050), 16_050),
+    }).credits.find((c) => c.name === 'Empire State child credit').amount;
+
+  assert.ok(joint(170_000, [2]) > 0 && joint(170_001, [2]) === 0);
+  quotesAcrossLines('one child under 4 keeps some credit to **$170,000**, three keep some to **$291,000**');
+  assert.ok(joint(291_000, [1, 2, 3]) > 0 && joint(291_001, [1, 2, 3]) === 0);
+  assert.equal(getStateDefinition('NY', 2025).childCredit.phaseOut.amountPerIncrement, 50 * 0.33);
+});

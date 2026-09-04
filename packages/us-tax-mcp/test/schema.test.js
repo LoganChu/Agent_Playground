@@ -217,12 +217,22 @@ test('tools/list stays within a sane context budget', () => {
   // share a schema between tools, so the ninth tool has to displace one of those or
   // the household schema has to lose fields.
   //
-  // The headroom went from 43 bytes to 1,153 when `terseProperties` learned to
-  // recurse into an array's `items`. It had been trimming only the surface, so the
-  // single fattest object in the payload — the `qualifiedBusinesses` item schema —
-  // was carried at full length in all four household tools including the three that
-  // asked for the terse variant. A compression pass that does not reach the biggest
-  // object is not a compression pass.
+  // Two compression passes so far, and the second is the lesson. Making
+  // `terseProperties` recurse into an array's `items` recovered 1,110 bytes: it had
+  // been trimming only the surface, so the fattest object in the payload was carried
+  // at full length in all four household tools including the three that asked for the
+  // terse variant. A compression pass that does not reach the biggest object is not a
+  // compression pass.
+  //
+  // Then 581 more, from moving the twenty-item § 199A(d)(2) list out of the FIRST
+  // SENTENCE of `isSpecifiedServiceTradeOrBusiness`. The trim keeps the first
+  // sentence, so a description whose first sentence is the whole description
+  // survives it untouched — and that one was the largest string in the payload. A
+  // trim that reaches the biggest object still does nothing if the biggest object is
+  // one sentence.
+  //
+  // Both were spent: locality, yonkersNonresidentEarnings and dependentAges on
+  // state_income_tax took the headroom back to a few hundred bytes.
   assert.ok(
     48_000 - payload.length < 1_500,
     `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +

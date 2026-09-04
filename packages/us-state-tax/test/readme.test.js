@@ -375,3 +375,42 @@ test('README: the city rate identity and the Yonkers ordering', () => {
   assert.equal(y.localTaxes[0].tax, 30.49);
   money(y.tax * 0.1675, -255.94, 'what netting refundable credits first would give');
 });
+
+test('README: the Empire State child credit phase-out table', () => {
+  const joint = (agi, ages) =>
+    stateIncomeTax({
+      state: 'NY',
+      year: 2025,
+      filingStatus: 'marriedFilingJointly',
+      dependentAges: ages,
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: Math.max(0, agi - 16_050),
+        deduction: 16_050,
+        deductionKind: 'standard',
+      },
+    }).credits.find((c) => c.name === 'Empire State child credit').amount;
+
+  assert.ok(joint(170_000, [2]) > 0 && joint(170_001, [2]) === 0, 'one child ends at $170,000');
+  assert.ok(
+    joint(291_000, [1, 2, 3]) > 0 && joint(291_001, [1, 2, 3]) === 0,
+    'three children end at $291,000',
+  );
+  assert.equal(getStateDefinition('NY', 2025).childCredit.phaseOut.amountPerIncrement, 50 * 0.33);
+
+  const hoh = (agi) =>
+    stateIncomeTax({
+      state: 'NY',
+      year: 2025,
+      filingStatus: 'headOfHousehold',
+      dependentAges: [2],
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: agi - 11_200,
+        deduction: 11_200,
+        deductionKind: 'standard',
+      },
+    }).marginalRate;
+  assert.equal(hoh(75_000), 16.555);
+  assert.equal(hoh(75_001), 0.055);
+});

@@ -193,6 +193,49 @@ export interface HouseholdCreditRule {
 }
 
 /**
+ * A credit worth a fixed amount per dependent, banded by the dependent's age and
+ * phased out against income on the whole return rather than per child.
+ *
+ * New York's Empire State child credit, N.Y. Tax Law § 606(c-1)(1-A) as enacted
+ * by the FY2026 budget (S.3009-C, Part C). It is the largest credit on a New
+ * York family return: `$1,000` for each child under 4 in 2025 and 2026, and
+ * `$330` (2025) or `$500` (2026) for each child aged 4 to 16.
+ *
+ * Two things about it are routinely got wrong, and both follow from the
+ * phase-out being on the **return** rather than on each child:
+ *
+ * - **`$16.50` per `$1,000` is one third of the federal `$50`.** New York's
+ *   Empire State child credit was 33% of the federal § 24 credit from 2018 to
+ *   2024. The FY2026 budget replaced the amount with flat dollar figures and
+ *   kept the phase-out at exactly a third of the federal rate, so the credit's
+ *   old shape is still visible in the one parameter nobody quotes.
+ * - **"Phases out above `$110,000`" ends nowhere near `$110,000`.** At `$16.50`
+ *   per `$1,000` a `$1,000` credit survives another `$60,000` of income, and a
+ *   joint return with three children under 4 keeps some of it to `$291,000`. A
+ *   model that treats the threshold as a cliff, or that phases the credit out per
+ *   child, is wrong across a `$180,000` band.
+ *
+ * The reduction is per increment "or fraction thereof", so it is a staircase:
+ * the dollar that crosses each `$1,000` boundary costs `$16.50` at once.
+ */
+export interface ChildCreditRule {
+  readonly name: string;
+  /**
+   * Amount per dependent, by the oldest age that gets it. Bands are matched in
+   * order, so `[{ maxAge: 3, amount: 1000 }, { maxAge: 16, amount: 500 }]` pays
+   * `$1,000` up to and including age 3 and `$500` from 4 to 16.
+   */
+  readonly amountByAge: readonly { readonly maxAge: number; readonly amount: number }[];
+  readonly phaseOut: {
+    readonly threshold: ByStatus;
+    /** Subtracted from the whole credit per increment, or fraction of one. */
+    readonly amountPerIncrement: number;
+    readonly increment: number;
+  };
+  readonly refundable: boolean;
+}
+
+/**
  * New York's supplemental tax — the "tax table benefit recapture" of
  * N.Y. Tax Law § 601(d).
  *
@@ -239,6 +282,7 @@ export interface StateIncomeTaxDefinition {
   readonly forgiveness?: ForgivenessRule;
   readonly earnedIncomeCredit?: EarnedIncomeCreditRule;
   readonly householdCredit?: HouseholdCreditRule;
+  readonly childCredit?: ChildCreditRule;
   readonly recapture?: RecaptureRule;
   /**
    * Federal below-AGI deductions this state adds back to its base. Only ever

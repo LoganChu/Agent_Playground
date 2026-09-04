@@ -211,8 +211,26 @@ export interface StateIncomeTaxInput {
   readonly year: number;
   readonly filingStatus: FilingStatus;
   readonly federal: FederalBasis;
-  /** Dependents claimed on the state return. Defaults to 0. */
+  /**
+   * Dependents claimed on the state return. Defaults to
+   * {@link dependentAges}`.length` when that is supplied, and 0 otherwise.
+   */
   readonly dependents?: number;
+  /**
+   * The age of each dependent at the end of the tax year.
+   *
+   * Required by any credit banded on a dependent's age, of which New York's
+   * Empire State child credit is the largest: `$1,000` for a child under 4 and
+   * `$330` (2025) or `$500` (2026) for one aged 4 to 16, refundable. Supplying
+   * `dependents` without ages computes that credit as zero, and the result says
+   * so, because a count cannot tell a toddler from a nineteen-year-old and the
+   * two are worth `$1,000` and nothing.
+   *
+   * Supply every dependent's age, not only the children's: a dependent parent is
+   * a dependent for the exemption and worth nothing here, and leaving them out
+   * of the list would understate {@link dependents}.
+   */
+  readonly dependentAges?: readonly number[];
   /**
    * State-specific additions to the base — most commonly interest on another
    * state's municipal bonds, and in most states the state income tax itself when

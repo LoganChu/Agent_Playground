@@ -1109,7 +1109,13 @@ const stateTool: ToolDefinition = {
         description:
           'The standard or itemized deduction actually taken federally — estimate_federal_tax deduction. Arizona uses it directly and Utah bases its credit on it. Defaults to AGI minus taxable income.',
       },
-      dependents: { type: 'integer', minimum: 0, description: 'Dependents claimed on the state return.' },
+      dependents: { type: 'integer', minimum: 0, description: 'Dependents claimed on the state return. Defaults to the length of dependentAges.' },
+      dependentAges: {
+        type: 'array',
+        items: { type: 'integer', minimum: 0 },
+        description:
+          'Age of EVERY dependent at year end, not only the children. Required for New York: the Empire State child credit is $1,000 per child under 4 and $330 (2025) or $500 (2026) per child aged 4-16, refundable, and a count cannot tell a toddler from a 19-year-old. Its phase-out cuts the WHOLE credit by $16.50 per $1,000 of AGI over $110,000 joint / $75,000 single, so a family with three young children keeps some of it to $291,000.',
+      },
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
         minimum: 0,
@@ -1202,6 +1208,18 @@ const stateTool: ToolDefinition = {
     const additions = readNumber(source, 'stateAdditions');
     const subtractions = readNumber(source, 'stateSubtractions');
     const dependents = readNumber(source, 'dependents', { integer: true });
+    const rawAges = source['dependentAges'];
+    if (rawAges !== undefined && !Array.isArray(rawAges)) {
+      throw new ToolInputError('dependentAges must be an array of ages, one per dependent.');
+    }
+    const dependentAges = rawAges?.map((age, index) => {
+      if (typeof age !== 'number' || !Number.isFinite(age) || age < 0 || !Number.isInteger(age)) {
+        throw new ToolInputError(
+          `dependentAges[${index}] must be a non-negative whole number, received ${JSON.stringify(age)}.`,
+        );
+      }
+      return age;
+    });
     const paIncome = readNumber(source, 'pennsylvaniaTaxableIncome');
     if (paIncome !== undefined && state !== 'PA') {
       throw new ToolInputError(
@@ -1241,7 +1259,10 @@ const stateTool: ToolDefinition = {
         deductionKind: 'standard',
         ...(federalEitc !== undefined ? { earnedIncomeCredit: federalEitc } : {}),
       },
-      ...(dependents !== undefined ? { dependents } : {}),
+      // Ages are authoritative when both are given; the engine refuses a pair that
+      // disagrees rather than silently changing a family's credit.
+      ...(dependentAges !== undefined ? { dependentAges } : {}),
+      ...(dependents !== undefined && dependentAges === undefined ? { dependents } : {}),
       ...(additions !== undefined ? { additions } : {}),
       ...(subtractions !== undefined ? { subtractions } : {}),
       ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),

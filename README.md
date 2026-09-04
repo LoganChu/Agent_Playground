@@ -91,6 +91,14 @@ $2,399 for a single filer at $300,000 and $65,071 at $6,000,000. The statute pri
 dollar amounts a year for that recapture; this package stores none of them and derives every
 one from the rate schedule.
 
+New York's Empire State child credit is the largest credit on a family return there —
+`$1,000` per child under 4, `$330` (2025) or `$500` (2026) per child aged 4 to 16,
+refundable — and its phase-out reduces the *whole* credit by `$16.50` per `$1,000` of AGI
+rather than each child's share, so a bigger family phases out later rather than faster: one
+young child keeps some credit to `$170,000`, three keep some to `$291,000`. That `$16.50` is
+exactly a third of the federal § 24 rate, which is what is left of the credit's old life as
+33% of the federal one.
+
 New York City is the same idea one level down. Pass `locality: 'NYC'` and the city tax comes
 back beside the state one: `$3,174.69` for that single filer at `$100,000`, which is more
 than the entire state income tax of twelve of the twenty-three states here. Its published
