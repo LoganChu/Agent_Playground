@@ -1,10 +1,11 @@
 # us-tax-mcp
 
-**US federal and state tax as an MCP server.** Eight tools that compute income tax,
+**US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
-199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding** and
-**state income tax for 23 states including New York** — for **tax years 2024, 2025 and 2026** — entirely
-offline, with every figure cited to the IRS release or state statute it came from.
+199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
+**state income tax for 23 states including New York** and **New York City and Yonkers local
+tax** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
   per conversation; every dependency is latency the user pays each time.
@@ -167,6 +168,23 @@ The FY2026 budget cut New York's bottom five rates and left the top four alone, 
 recapture rose by exactly what the cut was worth: a single filer at $300,000 saves $215.40
 of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same**.
 
+**New York City is bigger than most states, and it is not a state.** Pass `locality: "NYC"`
+and the city tax comes back beside the state one. A single filer at $100,000 owes the city
+**$3,174.69** — more than the entire state income tax of **twelve of these twenty-three
+states** at the same income. The published city rates are derived rather than stored:
+N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% / 3.35% / 3.4%, § 11-1704.1 adds a tax of
+**14% of that tax**, and 2.7% x 1.14 = 3.078% to the last digit. The city earned income
+credit has been a sliding **30% to 10%** of the federal one since 2022, not the flat 5% it
+was before — and because the worksheet rounds the match to four places, it falls in $5
+steps, so the true marginal rate is zero four dollars in five and **78 cents on the dollar**
+on the fifth for a family with a $7,800 federal credit.
+
+**Yonkers taxes the tax**, at 16.75% of the New York State tax — measured *before* the
+state's refundable credits, which are claimed further down the return. A Yonkers family
+whose state earned income credit exceeds their state tax owes **$30.49**; netting the
+refundable credit first gives **-$255.94**, a payment from Yonkers of 16.75% of a state
+refund.
+
 **Six states match the federal earned income credit, and three of them are not what that
 sounds like.** Pass `federalEarnedIncomeCredit` from `estimate_federal_tax` and Colorado
 (50% in 2025, **25% in 2026**), Illinois (20%), Indiana (10%), Michigan (30%), New York
@@ -204,7 +222,7 @@ least one indexed figure forward from 2025, which every result says out loud.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" A state return for 23 states, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City?" A state return for 23 states plus New York City and Yonkers, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -291,16 +309,16 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **27 states, the District of Columbia, and every local income tax.** `state_income_tax`
-  covers 23 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC, NH, NV, NY, PA, SD,
-  TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else. New Jersey, Massachusetts, Ohio,
-  Virginia and Maryland are absent, and asking for one is an error rather than a zero.
-  Neither are Indiana county taxes, Pennsylvania municipal earned income taxes, Detroit,
-  **New York City or Yonkers** — a New York City resident owes roughly 3.08% to 3.88% more
-  than this reports. State earned income credits are modelled for the six states that set
-  them as a share of the federal credit; no state child credit or retirement exclusion is,
-  so a family or retiree state return comes out **too high** — New York's Empire State child
-  credit alone is up to $1,000 per child under 4.
+- **27 states, the District of Columbia, and every local income tax outside New York.**
+  `state_income_tax` covers 23 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC,
+  NH, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else. New Jersey,
+  Massachusetts, Ohio, Virginia and Maryland are absent, and asking for one is an error
+  rather than a zero. Local tax is New York City and Yonkers only: Indiana county taxes,
+  Pennsylvania municipal earned income taxes, Ohio municipalities, Detroit and Maryland
+  counties are not modelled, nor is part-year city residency. State earned income credits
+  are modelled for the six states that set them as a share of the federal credit; no state
+  child credit or retirement exclusion is, so a family or retiree state return comes out
+  **too high** — New York's Empire State child credit alone is up to $1,000 per child under 4.
 - **The new § 68 overall limitation on itemized deductions** (OBBBA § 70111, first effective
   2026). Its formula needs the § 199A deduction, and § 199A needs taxable income, which
   needs itemized deductions after § 68 — a genuine fixed point the statute does not resolve.

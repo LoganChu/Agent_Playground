@@ -20,6 +20,12 @@ export {
   stateName,
   supportedYears,
 } from './states/index.js';
+export {
+  SUPPORTED_LOCALITIES,
+  getLocalityDefinition,
+  localityState,
+} from './localities/index.js';
+export { NYC_ADDITIONAL_TAX_RATE, NYC_PERMANENT_RATES, nycRate } from './localities/new-york.js';
 export { doubled } from './states/california.js';
 export { FILING_STATUSES } from './types.js';
 export type {
@@ -33,6 +39,8 @@ export type {
   FederalDeductionKey,
   FederalDeductionsTaken,
   FilingStatus,
+  LocalIncomeTaxResult,
+  LocalityCode,
   ParameterStatus,
   StateCode,
   StateIncomeTaxInput,
@@ -40,12 +48,23 @@ export type {
   SurtaxDetail,
 } from './types.js';
 export type {
+  CreditStep,
   DeductionRule,
+  EarnedIncomeCreditRule,
   ExemptionCreditRule,
   ExemptionRule,
   ForgivenessRule,
+  HouseholdCreditRule,
   RateRule,
+  RecaptureRule,
   StateIncomeTaxDefinition,
   SurtaxRule,
   TaxpayerCreditRule,
 } from './definition.js';
+export type {
+  LocalBase,
+  LocalIncomeTaxDefinition,
+  LocalPerPersonCreditRule,
+  SchoolTaxCreditRule,
+  SlidingEarnedIncomeCreditRule,
+} from './localities/definition.js';

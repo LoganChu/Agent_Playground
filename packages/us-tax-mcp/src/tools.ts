@@ -51,12 +51,14 @@ import {
   statusLabel,
 } from './format.js';
 import {
+  SUPPORTED_LOCALITIES as LOCALITY_CODES,
   SUPPORTED_STATES as STATE_CODES,
   SUPPORTED_YEARS as STATE_YEARS,
   stateIncomeTax,
 } from './state-engine/index.js';
 import type {
   FilingStatus as StateFilingStatus,
+  LocalityCode,
   StateCode,
 } from './state-engine/index.js';
 
@@ -1057,20 +1059,22 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE individual income tax return for 2025 or 2026, for 23 states including NEW YORK. ' +
-    'Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome, deduction and earned ' +
-    'income credit here — a state return is a function of the federal one, and which federal figure a state ' +
-    'starts from decides the answer. Colorado and Idaho tax federal TAXABLE income, so the OBBBA deduction ' +
-    'increase cut their 2025 tax with no state legislation; Arizona defines its deduction as the federal one; ' +
-    'Illinois and Michigan tax federal AGI and got nothing. Colorado then adds Section 199A back, and from ' +
-    '2026 overtime but not tips. New York adds a supplemental tax above $107,650 of AGI that recaptures the ' +
-    'lower brackets, so a high earner pays their top rate on their WHOLE income: walking the bracket table is ' +
-    'short by $2,399 at $300,000 and $65,071 at $6,000,000. ' +
+    'Compute a US STATE individual income tax return for 2025 or 2026, for 23 states including NEW YORK, ' +
+    'plus NEW YORK CITY and YONKERS local tax. Call estimate_federal_tax FIRST and pass its ' +
+    'adjustedGrossIncome, taxableIncome, deduction and earned income credit here — a state return is a ' +
+    'function of the federal one, and which federal figure a state starts from decides the answer. Colorado ' +
+    'and Idaho tax federal TAXABLE income, so the OBBBA deduction increase cut their 2025 tax with no state ' +
+    'legislation; Arizona defines its deduction as the federal one; Illinois and Michigan tax federal AGI and ' +
+    'got nothing. Colorado then adds Section 199A back, and from 2026 overtime but not tips. New York adds a ' +
+    'supplemental tax above $107,650 of AGI that recaptures the lower brackets, so a high earner pays their ' +
+    'top rate on their WHOLE income: walking the bracket table is short by $2,399 at $300,000. ALWAYS pass ' +
+    'locality for a New York filer — a New York City resident owes 3.078-3.876% more, $3,174.69 at $100,000, ' +
+    'which is more than the whole state tax of 12 of these 23 states. ' +
     'Reports the true marginal rate, which is not the statutory rate in Utah (4.45% headline, 5.75% real), ' +
     'Pennsylvania (~11-34% across the forgiveness staircase), Illinois (a cliff at $250,000) or New York. ' +
-    'Does NOT cover any state outside the state enum, local income tax (New York City, Yonkers, Indiana ' +
-    'counties, Michigan cities), state child credits, CalEITC, or state withholding. An unlisted state is an ' +
-    'error, not a zero.',
+    'Does NOT cover any state outside the state enum, local tax outside New York (Indiana counties, Michigan ' +
+    'and Ohio cities), state child credits, CalEITC, or state withholding. An unlisted state is an error, ' +
+    'not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1140,6 +1144,18 @@ const stateTool: ToolDefinition = {
         description:
           'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed, allows no standard deduction or exemption, and forbids offsetting a loss in one income class against a gain in another.',
       },
+      locality: {
+        type: 'string',
+        enum: [...LOCALITY_CODES],
+        description:
+          'The locality the filer LIVES in. NY only. NYC charges 3.078-3.876% of state taxable income; YONKERS charges 16.75% of the state tax. Omitting it for a New York City resident understates the bill by more than the entire state tax of 12 of these 23 states.',
+      },
+      yonkersNonresidentEarnings: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Wages earned in Yonkers by someone who lives elsewhere, taxed at 0.5%. Ignored when locality is YONKERS: a resident pays the surcharge instead, never both.',
+      },
     },
   },
   annotations: { ...READ_ONLY, title: 'State income tax' },
@@ -1193,6 +1209,27 @@ const stateTool: ToolDefinition = {
       );
     }
 
+    const locality = source['locality'];
+    if (
+      locality !== undefined &&
+      (typeof locality !== 'string' || !(LOCALITY_CODES as readonly string[]).includes(locality))
+    ) {
+      throw new ToolInputError(
+        `locality must be one of ${LOCALITY_CODES.join(', ')}, received ${JSON.stringify(locality)}.`,
+      );
+    }
+    const yonkersEarnings = readNumber(source, 'yonkersNonresidentEarnings');
+    // Caught here rather than in the engine so the message can name the tool's
+    // own field, and so a model that guessed a locality for a non-New-York filer
+    // is told which of the two fields to drop.
+    if ((locality !== undefined || yonkersEarnings !== undefined) && state !== 'NY') {
+      throw new ToolInputError(
+        `locality and yonkersNonresidentEarnings apply to NY only, and ${state} was requested. ` +
+          'Local income tax outside New York is not modelled here; returning zero for it would be ' +
+          'a wrong answer rather than a missing one.',
+      );
+    }
+
     const result = stateIncomeTax({
       state: state as StateCode,
       year,
@@ -1208,6 +1245,8 @@ const stateTool: ToolDefinition = {
       ...(additions !== undefined ? { additions } : {}),
       ...(subtractions !== undefined ? { subtractions } : {}),
       ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),
+      ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
+      ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),
       ...(qbi !== undefined || overtime !== undefined
         ? {
             federalDeductions: {
@@ -1218,12 +1257,18 @@ const stateTool: ToolDefinition = {
         : {}),
     });
 
-    const sourceLines = result.citations.map((c) => `- ${c.title} — ${c.url}`);
+    // A locality's citations are the statutes behind a tax that can exceed the
+    // state's, so they belong in Sources alongside it — de-duplicated, because
+    // the Form IT-201 instructions are cited by both.
+    const citations = [...result.citations, ...result.localTaxes.flatMap((l) => l.citations)].filter(
+      (c, i, all) => all.findIndex((other) => other.url === c.url) === i,
+    );
+    const sourceLines = citations.map((c) => `- ${c.title} — ${c.url}`);
     return {
       text: `${renderStateTax(result)}\n\nSources:\n${sourceLines.join('\n')}`,
       structured: {
         state: result as unknown as Record<string, unknown>,
-        sources: result.citations.map((c) => ({ title: c.title, url: c.url })),
+        sources: citations.map((c) => ({ title: c.title, url: c.url })),
       },
     };
   },

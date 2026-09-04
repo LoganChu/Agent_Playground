@@ -56,6 +56,17 @@ export type StateCode =
   | 'WA'
   | 'WY';
 
+/**
+ * A locality that levies its own income tax on a state return this package knows.
+ *
+ * A local income tax is not a rounding error. New York City's costs a resident
+ * more than the entire state income tax of twelve of the twenty-three states here
+ * — every one of the nine with no income tax, plus Arizona, Indiana and
+ * Pennsylvania — and it appears in no table of state tax rates because it is not
+ * one.
+ */
+export type LocalityCode = 'NYC' | 'YONKERS';
+
 /** A value that differs by filing status. */
 export type ByStatus<T = number> = Readonly<Record<FilingStatus, T>>;
 
@@ -252,6 +263,29 @@ export interface StateIncomeTaxInput {
    * is itself charging 6.3 points that the reported marginal rate will not show.
    */
   readonly federalOneDollarHigher?: FederalBasis;
+  /**
+   * The locality the filer **lives in**, if it levies an income tax.
+   *
+   * Omitting it for a New York City resident is not a small error: the city tax
+   * runs to 3.876% of taxable income — $3,174.69 for a single filer at $100,000,
+   * which is more than the entire state income tax of twelve of the twenty-three
+   * states in this package at the same income. When the state is New York and this is absent,
+   * {@link StateIncomeTaxResult.notes} says so and says what it would cost.
+   *
+   * The locality must sit in {@link StateIncomeTaxInput.state}; passing one that
+   * does not is an error rather than a silently ignored field.
+   */
+  readonly locality?: LocalityCode;
+  /**
+   * Wages earned inside Yonkers by a filer who does **not** live there, Form
+   * Y-203. Yonkers charges non-residents 0.5% of Yonkers-source earnings.
+   *
+   * Ignored when `locality` is `YONKERS`: a resident pays the surcharge instead,
+   * never both. Living in New York City and working in Yonkers means owing both
+   * the city resident tax and this one, which is why the result carries a list of
+   * local taxes rather than one.
+   */
+  readonly yonkersNonresidentEarnings?: number;
 }
 
 export interface CreditDetail {
@@ -264,6 +298,39 @@ export interface CreditDetail {
 export interface SurtaxDetail {
   readonly name: string;
   readonly amount: number;
+}
+
+/**
+ * One locality's income tax, computed as part of the state return it sits on.
+ *
+ * There is a list of these rather than one because residence and workplace are
+ * different taxes: a filer who lives in New York City and works in Yonkers owes
+ * the city's resident tax and the Yonkers nonresident earnings tax in the same
+ * year, and the same pattern is the norm in Ohio, Michigan and Kentucky.
+ */
+export interface LocalIncomeTaxResult {
+  readonly locality: LocalityCode;
+  readonly localityName: string;
+  /** Whether this is the tax on living there or the tax on earning there. */
+  readonly basis: 'resident' | 'nonresidentEarnings';
+  /** Which figure from the state return the locality applied its rate to. */
+  readonly base: 'stateTaxableIncome' | 'stateAdjustedGrossIncome' | 'stateNetTax' | 'wages';
+  readonly baseAmount: number;
+  readonly taxBeforeCredits: number;
+  readonly credits: readonly CreditDetail[];
+  /** After credits. Negative when a refundable local credit exceeds the tax. */
+  readonly tax: number;
+  readonly brackets: readonly BracketDetail[];
+  /**
+   * The locality's own share of the rate on the next dollar of income, measured
+   * the same way the state's is — by running the whole computation a dollar
+   * higher. Zero for a nonresident earnings tax, whose base is a wage figure this
+   * engine does not vary.
+   */
+  readonly marginalRate: number;
+  readonly provisional: boolean;
+  readonly notes: readonly string[];
+  readonly citations: readonly Citation[];
 }
 
 export interface StateIncomeTaxResult {
@@ -309,6 +376,19 @@ export interface StateIncomeTaxResult {
    */
   readonly marginalRate: number;
   readonly effectiveRate: number;
+  /**
+   * The local income taxes owed alongside this state return. Empty for most
+   * filers, and never populated unless {@link StateIncomeTaxInput.locality} or
+   * {@link StateIncomeTaxInput.yonkersNonresidentEarnings} was supplied.
+   */
+  readonly localTaxes: readonly LocalIncomeTaxResult[];
+  /** {@link tax} plus every local tax. Equal to {@link tax} when there are none. */
+  readonly totalTax: number;
+  /**
+   * {@link marginalRate} plus every local marginal rate — what the next dollar
+   * of income actually costs this filer at state and local level together.
+   */
+  readonly totalMarginalRate: number;
   /** True when any figure used was carried forward rather than published. */
   readonly provisional: boolean;
   /** Things a caller — or a language model reading this — would otherwise get wrong. */

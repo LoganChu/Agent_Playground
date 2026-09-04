@@ -1,0 +1,281 @@
+/**
+ * The generic local income tax computation.
+ *
+ * Like the state engine, one function serves every locality; the differences live
+ * in {@link LocalIncomeTaxDefinition} data. The one thing this cannot share with
+ * the state engine is its input: a local tax is computed from figures the state
+ * return produced, so it takes the state's intermediate results rather than the
+ * caller's.
+ */
+import { applyBrackets, roundCents } from '../engine-core.js';
+import { filerCount } from '../definition.js';
+import type { LocalBase, LocalIncomeTaxDefinition } from './definition.js';
+import type {
+  BracketDetail,
+  CreditDetail,
+  LocalIncomeTaxResult,
+  StateIncomeTaxInput,
+} from '../types.js';
+
+/** Round half away from zero, which is what a tax form means by "round". */
+export function roundHalfUp(value: number): number {
+  return Math.sign(value) * Math.round(Math.abs(value) + Number.EPSILON);
+}
+
+/**
+ * The figures a local tax can start from. Supplied by the state engine after it
+ * has finished, because every one of them is a line on the state return.
+ */
+export interface StateFigures {
+  readonly stateTaxableIncome: number;
+  readonly stateAdjustedGrossIncome: number;
+  /**
+   * State tax after non-refundable credits and before refundable ones — the
+   * figure a "percentage of the state tax" locality actually charges against.
+   * Floored at zero, which is why a Yonkers surcharge can never be negative.
+   */
+  readonly stateNetTax: number;
+}
+
+function baseAmount(base: LocalBase, figures: StateFigures): number {
+  switch (base) {
+    case 'stateTaxableIncome':
+      return figures.stateTaxableIncome;
+    case 'stateAdjustedGrossIncome':
+      return figures.stateAdjustedGrossIncome;
+    case 'stateNetTax':
+      return figures.stateNetTax;
+  }
+}
+
+/** The amount of a step-function credit at a given income. */
+function stepAmount(steps: readonly { upTo: number; amount: number }[], income: number): number {
+  for (const step of steps) {
+    if (income <= step.upTo) return step.amount;
+  }
+  return 0;
+}
+
+/**
+ * New York City's household credit.
+ *
+ * A single filer gets a flat amount. Everyone else gets a per-person amount times
+ * the people counted on the return — the filer, the spouse on a joint return, and
+ * each dependent — so a childless couple gets twice what the table's headline
+ * figure suggests. Married filing separately takes half the per-person amount
+ * **rounded to the nearest dollar**, which is how the instructions' separate
+ * table of $15 / $13 / $8 / $5 is generated from the joint table's
+ * $30 / $25 / $15 / $10.
+ */
+export function localHouseholdCredit(
+  def: LocalIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  federalAgi: number,
+): number {
+  const rule = def.householdCredit;
+  if (!rule) return 0;
+  const status = input.filingStatus;
+  if (status === 'single') return stepAmount(rule.single, federalAgi);
+  const people = filerCount(status) + (input.dependents ?? 0);
+  const perPerson = stepAmount(rule.perPerson, federalAgi);
+  const amount =
+    rule.halvedForSeparate && status === 'marriedFilingSeparately'
+      ? roundHalfUp(perPerson / 2)
+      : perPerson;
+  return amount * people;
+}
+
+/**
+ * The rate reduction amount of New York City's school tax credit.
+ *
+ * The instructions print a base column — $21 single, $37 joint, $25 head of
+ * household — and all three are `round(lowerRate x threshold)`: 0.171% of
+ * $12,000 is $20.52, of $21,600 is $36.94, of $14,400 is $24.62. This package
+ * derives the base rather than transcribing it, and rounds it the way the form
+ * does, so the answer matches the worksheet a filer fills in.
+ *
+ * The rounding is not cosmetic. It makes the credit jump 48 cents at the
+ * threshold — $20.52 at exactly $12,000 of city taxable income and $21.00 one
+ * dollar later — and a model that uses the unrounded base is 48 cents low for
+ * every single filer above it.
+ */
+export function schoolTaxCreditRateReduction(
+  def: LocalIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  localTaxableIncome: number,
+): number {
+  const rule = def.schoolTaxCredit;
+  if (!rule) return 0;
+  const { lowerRate, upperRate, threshold, incomeLimit } = rule.rateReduction;
+  if (localTaxableIncome <= 0 || localTaxableIncome > incomeLimit) return 0;
+  const top = threshold[input.filingStatus];
+  if (localTaxableIncome <= top) return lowerRate * localTaxableIncome;
+  return roundHalfUp(lowerRate * top) + upperRate * (localTaxableIncome - top);
+}
+
+/** The fixed amount of the school tax credit — a flat figure under a cliff. */
+export function schoolTaxCreditFixed(
+  def: LocalIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  federalAgi: number,
+): number {
+  const rule = def.schoolTaxCredit;
+  if (!rule) return 0;
+  if (federalAgi > rule.fixed.incomeLimit) return 0;
+  return rule.fixed.amounts[input.filingStatus];
+}
+
+/**
+ * The sliding match of New York City's earned income credit.
+ *
+ * The published rate table is generated by this: start at `topMatch`, and shed
+ * `stepDown` percentage points at `reductionRate` per dollar across each window,
+ * so each window is `stepDown / reductionRate` wide and the schedule is
+ * continuous at every join. The worksheet's own instruction to round the
+ * reduction to four decimal places is applied here, because without it the match
+ * at $21,000 of New York AGI is 0.17998 rather than the 0.18 the form gives.
+ */
+export function slidingEarnedIncomeMatch(def: LocalIncomeTaxDefinition, stateAgi: number): number {
+  const rule = def.earnedIncomeCredit;
+  if (!rule) return 0;
+  const width = rule.stepDown / rule.reductionRate;
+  const scale = 10 ** rule.matchDecimals;
+  let match = rule.topMatch;
+  for (const start of rule.windowStarts) {
+    if (stateAgi >= start + width) {
+      match -= rule.stepDown;
+      continue;
+    }
+    if (stateAgi >= start) {
+      // The worksheet subtracts the dollar below the window's start, then
+      // rounds; both details are load-bearing against the published table.
+      const reduction = rule.reductionRate * (stateAgi - (start - 1));
+      match -= Math.round(reduction * scale) / scale;
+    }
+    break;
+  }
+  // The worksheet carries four decimal places throughout, so the match it
+  // produces is a four-place decimal and not the binary residue of subtracting
+  // several of them.
+  return Math.max(0, Math.round(match * scale) / scale);
+}
+
+/**
+ * Compute one locality's resident income tax from the finished state figures.
+ *
+ * Credit order is part of the contract, and it follows the return: the
+ * non-refundable household credit first, then the refundable school tax credit in
+ * its two published parts, then the refundable earned income credit.
+ */
+export function computeLocalResidentTax(
+  def: LocalIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  figures: StateFigures,
+): { baseAmount: number; taxBeforeCredits: number; brackets: BracketDetail[]; credits: CreditDetail[]; tax: number } {
+  const base = baseAmount(def.base, figures);
+
+  let taxBeforeCredits = 0;
+  let brackets: BracketDetail[] = [];
+  if (def.rate.kind === 'flat') {
+    taxBeforeCredits = base * def.rate.rate;
+    if (base > 0) brackets = [{ rate: def.rate.rate, incomeInBracket: base, tax: taxBeforeCredits }];
+  } else if (def.rate.kind === 'brackets') {
+    const walked = applyBrackets(base, def.rate.byStatus[input.filingStatus]);
+    taxBeforeCredits = walked.tax;
+    brackets = walked.detail;
+  }
+
+  const federalAgi = input.federal.adjustedGrossIncome;
+  const credits: CreditDetail[] = [];
+  if (def.householdCredit) {
+    credits.push({
+      name: def.householdCredit.name,
+      amount: localHouseholdCredit(def, input, federalAgi),
+      refundable: false,
+    });
+  }
+  if (def.schoolTaxCredit) {
+    credits.push({
+      name: `${def.schoolTaxCredit.name} (fixed amount)`,
+      amount: schoolTaxCreditFixed(def, input, federalAgi),
+      refundable: true,
+    });
+    credits.push({
+      name: `${def.schoolTaxCredit.name} (rate reduction amount)`,
+      amount: schoolTaxCreditRateReduction(def, input, figures.stateTaxableIncome),
+      refundable: true,
+    });
+  }
+  if (def.earnedIncomeCredit) {
+    const federalCredit = input.federal.earnedIncomeCredit ?? 0;
+    credits.push({
+      name: def.earnedIncomeCredit.name,
+      amount: slidingEarnedIncomeMatch(def, figures.stateAdjustedGrossIncome) * federalCredit,
+      refundable: true,
+    });
+  }
+
+  const nonRefundable = credits.filter((c) => !c.refundable).reduce((s, c) => s + c.amount, 0);
+  const refundable = credits.filter((c) => c.refundable).reduce((s, c) => s + c.amount, 0);
+  const tax = Math.max(0, taxBeforeCredits - nonRefundable) - refundable;
+
+  return { baseAmount: base, taxBeforeCredits, brackets, credits, tax };
+}
+
+/** Present one locality's resident tax, with the marginal rate already measured. */
+export function localResidentResult(
+  def: LocalIncomeTaxDefinition,
+  computed: ReturnType<typeof computeLocalResidentTax>,
+  marginalRate: number,
+): LocalIncomeTaxResult {
+  return {
+    locality: def.code,
+    localityName: def.name,
+    basis: 'resident',
+    base: def.base,
+    baseAmount: roundCents(computed.baseAmount),
+    taxBeforeCredits: roundCents(computed.taxBeforeCredits),
+    credits: computed.credits.map((c) => ({ ...c, amount: roundCents(c.amount) })),
+    tax: roundCents(computed.tax),
+    brackets: computed.brackets.map((b) => ({
+      rate: b.rate,
+      incomeInBracket: roundCents(b.incomeInBracket),
+      tax: roundCents(b.tax),
+    })),
+    marginalRate: roundCents(marginalRate * 100) / 100,
+    provisional: def.status === 'provisional',
+    notes: def.notes,
+    citations: def.citations,
+  };
+}
+
+/**
+ * The tax a locality charges someone who works there but lives somewhere else.
+ *
+ * Its marginal rate is zero by construction: the base is a wage figure supplied
+ * by the caller, and the engine's one-dollar experiment adds its dollar to the
+ * state's income measure, not to this. A dollar more of Yonkers-source wages does
+ * cost 0.5 cents — that is the rate, and it is in the result.
+ */
+export function localNonresidentEarningsResult(
+  def: LocalIncomeTaxDefinition,
+  earnings: number,
+): LocalIncomeTaxResult {
+  const rate = def.nonresidentEarningsRate ?? 0;
+  const tax = earnings * rate;
+  return {
+    locality: def.code,
+    localityName: def.name,
+    basis: 'nonresidentEarnings',
+    base: 'wages',
+    baseAmount: roundCents(earnings),
+    taxBeforeCredits: roundCents(tax),
+    credits: [],
+    tax: roundCents(tax),
+    brackets: earnings > 0 ? [{ rate, incomeInBracket: roundCents(earnings), tax: roundCents(tax) }] : [],
+    marginalRate: 0,
+    provisional: def.status === 'provisional',
+    notes: def.notes,
+    citations: def.citations,
+  };
+}

@@ -9,6 +9,7 @@ import {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
+  nycRate,
   stateIncomeTax,
 } from '../dist/esm/index.js';
 
@@ -305,4 +306,72 @@ test('README: asking for an unsupported state throws rather than returning zero'
       `${state} should throw`,
     );
   }
+});
+
+test('README: the New York City quick-start figures', () => {
+  const nyc = stateIncomeTax({
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'single',
+    locality: 'NYC',
+    federal: {
+      adjustedGrossIncome: 100_000,
+      taxableIncome: 92_000,
+      deduction: 8_000,
+      deductionKind: 'standard',
+    },
+  });
+  assert.equal(nyc.tax, 4951.75);
+  assert.equal(nyc.localTaxes[0].tax, 3174.69);
+  assert.equal(nyc.totalTax, 8126.44);
+  assert.equal(nyc.totalMarginalRate, 0.0965);
+
+  // "More than the entire state income tax of twelve of the twenty-three states
+  // at the same income" — checked against every one of them rather than asserted.
+  const federal = {
+    adjustedGrossIncome: 100_000,
+    taxableIncome: 85_000,
+    deduction: 15_000,
+    deductionKind: 'standard',
+  };
+  const cheaper = SUPPORTED_STATES.filter((state) => {
+    const result = stateIncomeTax({
+      state,
+      year: 2025,
+      filingStatus: 'single',
+      federal,
+      ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 100_000 } : {}),
+    });
+    return result.tax < 3174.69;
+  });
+  assert.equal(cheaper.length, 12);
+  assert.deepEqual(
+    cheaper.filter((s) => !NO_INCOME_TAX_STATES.includes(s)),
+    ['AZ', 'IN', 'PA'],
+  );
+});
+
+test('README: the city rate identity and the Yonkers ordering', () => {
+  assert.equal(nycRate(0.027), 0.03078);
+  assert.equal(nycRate(0.033), 0.03762);
+  assert.equal(nycRate(0.0335), 0.03819);
+  assert.equal(nycRate(0.034), 0.03876);
+
+  const y = stateIncomeTax({
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    dependents: 2,
+    locality: 'YONKERS',
+    federal: {
+      adjustedGrossIncome: 20_000,
+      taxableIncome: 8_800,
+      deduction: 11_200,
+      deductionKind: 'standard',
+      earnedIncomeCredit: 6_000,
+    },
+  });
+  assert.equal(y.tax, -1528);
+  assert.equal(y.localTaxes[0].tax, 30.49);
+  money(y.tax * 0.1675, -255.94, 'what netting refundable credits first would give');
 });

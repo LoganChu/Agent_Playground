@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state** income tax engine for 23 states including New York, 2025 and 2026. Built around the part a table of state rates cannot hold: New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; which federal figure each state starts from; which federal deductions it adds back; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 23 states plus **New York City and Yonkers**, 2025 and 2026. Built around the part a table of state rates cannot hold: New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; which federal figure each state starts from; which federal deductions it adds back; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -91,6 +91,14 @@ $2,399 for a single filer at $300,000 and $65,071 at $6,000,000. The statute pri
 dollar amounts a year for that recapture; this package stores none of them and derives every
 one from the rate schedule.
 
+New York City is the same idea one level down. Pass `locality: 'NYC'` and the city tax comes
+back beside the state one: `$3,174.69` for that single filer at `$100,000`, which is more
+than the entire state income tax of twelve of the twenty-three states here. Its published
+rates are derived rather than stored — N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% /
+3.35% / 3.4% and § 11-1704.1 adds a tax of **14% of that tax**, and 2.7% x 1.14 = 3.078% to
+the last digit. Yonkers taxes the *tax*, at 16.75% of the state's, measured before the
+state's refundable credits so it can never come out negative.
+
 It takes the output of `estimateFederalTax()` directly, but neither package depends on the
 other. See the [package README](packages/us-state-tax/README.md) for the full list of what
 is and is not covered.
@@ -110,11 +118,13 @@ tax figure instead of recalling one. Add it to any MCP client:
 
 Eight tools: `estimate_federal_tax`, `compare_tax_years`, `effective_marginal_rate`,
 `quarterly_estimated_payments`, `paycheck_withholding`, `state_income_tax`,
-`get_tax_parameters` and `list_supported_years`. Four of them answer questions a bracket
+`get_tax_parameters` and `list_supported_years`. Most of them answer questions a bracket
 table cannot — 2025 was amended *retroactively* after the IRS had published it, the
 marginal rate on the next dollar is routinely double the bracket once credit phase-outs
 are counted, what an employer withholds is a different number from what the return owes,
-and a state's answer depends on which federal figure it starts from.
+a state's answer depends on which federal figure it starts from, and a New York answer that
+does not ask where in New York the filer lives can be short by more than a whole state's
+income tax.
 
 ```bash
 cd packages/us-tax-mcp

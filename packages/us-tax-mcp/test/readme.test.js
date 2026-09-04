@@ -471,3 +471,46 @@ test('README: the state coverage claims are the ones the engine actually holds',
   assert.equal(co.addBacks.length, 1);
   assert.match(co.addBacks[0].name, /overtime/i);
 });
+
+test('README: the New York City and Yonkers figures', () => {
+  const nyc = stateIncomeTax({
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'single',
+    locality: 'NYC',
+    federal: stateFed(100_000, 92_000, 8_000),
+  });
+  assert.equal(nyc.localTaxes[0].tax, 3174.69);
+  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **twelve of these twenty-three states**');
+
+  // "twelve of these twenty-three states", checked against every one of them.
+  const federal = stateFed(100_000, 85_000, 15_000);
+  const cheaper = SUPPORTED_STATES.filter(
+    (state) =>
+      stateIncomeTax({
+        state,
+        year: 2025,
+        filingStatus: 'single',
+        federal,
+        ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 100_000 } : {}),
+      }).tax < 3174.69,
+  );
+  assert.equal(cheaper.length, 12);
+
+  // 2.7% x 1.14 = 3.078%, to the last digit.
+  quotesAcrossLines('2.7% x 1.14 = 3.078% to the last digit');
+  assert.equal(nyc.localTaxes[0].brackets[0].rate, 0.03078);
+
+  const yonkers = stateIncomeTax({
+    state: 'NY',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    dependents: 2,
+    locality: 'YONKERS',
+    federal: { ...stateFed(20_000, 8_800, 11_200), earnedIncomeCredit: 6_000 },
+  });
+  assert.equal(yonkers.localTaxes[0].tax, 30.49);
+  quotesAcrossLines('owes **$30.49**');
+  assert.equal((yonkers.tax * 0.1675).toFixed(2), '-255.94');
+  quotesAcrossLines('gives **-$255.94**');
+});

@@ -896,3 +896,86 @@ test('a provisional state-year says so in the text, not only in a flag', () => {
   assert.equal(published.structured.state.provisional, false);
   assert.doesNotMatch(published.text, /PROVISIONAL/);
 });
+
+// ---------------------------------------------------------------------------
+// state_income_tax: local tax
+// ---------------------------------------------------------------------------
+
+test('state_income_tax computes New York City alongside the state', () => {
+  const { text, structured } = ok('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'single',
+    year: 2025,
+    locality: 'NYC',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 92_000,
+    federalDeduction: 8_000,
+  });
+  assert.equal(structured.state.tax, 4951.75);
+  assert.equal(structured.state.localTaxes.length, 1);
+  assert.equal(structured.state.localTaxes[0].locality, 'NYC');
+  assert.equal(structured.state.localTaxes[0].tax, 3174.69);
+  assert.equal(structured.state.totalTax, 8126.44);
+  assert.equal(structured.state.totalMarginalRate, 0.0965);
+
+  // The city is a separate block with its own total, not folded into the state's.
+  assert.match(text, /New York City — resident tax on state taxable income/);
+  assert.match(text, /State and local total\s+\$8,126\.44/);
+  assert.match(text, /9\.65% counting local tax/);
+  // And its own statutes are in Sources.
+  assert.match(text, /11-1704\.1/);
+});
+
+test('the Yonkers surcharge is on the state tax before refundable credits', () => {
+  const { text, structured } = ok('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'headOfHousehold',
+    year: 2025,
+    dependents: 2,
+    locality: 'YONKERS',
+    federalAdjustedGrossIncome: 20_000,
+    federalTaxableIncome: 8_800,
+    federalDeduction: 11_200,
+    federalEarnedIncomeCredit: 6_000,
+  });
+  assert.equal(structured.state.tax, -1528);
+  assert.equal(structured.state.localTaxes[0].baseAmount, 182);
+  assert.equal(structured.state.localTaxes[0].tax, 30.49);
+  assert.match(text, /the state tax itself, before refundable credits/);
+});
+
+test('locality is refused outside New York, and named as the field to drop', () => {
+  const message = err('state_income_tax', {
+    state: 'CA',
+    filingStatus: 'single',
+    locality: 'NYC',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+  });
+  assert.match(message, /apply to NY only/);
+  assert.match(message, /wrong answer rather than a missing one/);
+
+  const bad = err('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'single',
+    locality: 'BROOKLYN',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 92_000,
+  });
+  assert.match(bad, /locality must be one of NYC, YONKERS/);
+});
+
+test('a New York return without a locality says what the city would have cost', () => {
+  const { structured } = ok('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 92_000,
+    federalDeduction: 8_000,
+  });
+  assert.deepEqual(structured.state.localTaxes, []);
+  assert.equal(structured.state.totalTax, structured.state.tax);
+  const note = structured.state.notes.find((n) => n.startsWith('No locality was supplied'));
+  assert.ok(note && note.includes('$3,174.69'), 'expected the quantified cost in a note');
+});

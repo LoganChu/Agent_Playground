@@ -61,8 +61,14 @@ const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {
     unadjustedBasisOfQualifiedProperty: money(
       'UBIA: unadjusted basis of qualified property still inside its depreciable period (§ 199A(b)(2)(B)(ii)).',
     ),
+    // The first sentence is deliberately short, because it is the whole
+    // description in the three tools that ask for the terse schema. Putting the
+    // twenty-item § 199A(d)(2) list in it made the single largest string in the
+    // payload survive the trim and be carried four times instead of once: a trim
+    // that reaches the biggest object still does nothing if the biggest object is
+    // one sentence.
     isSpecifiedServiceTradeOrBusiness: flag(
-      'True for an SSTB under § 199A(d)(2): health, law, accounting, actuarial science, performing arts, consulting, athletics, financial services, brokerage, investing, trading, dealing in securities, or any business whose principal asset is the reputation or skill of its owners. Engineering and architecture are excluded. Below the threshold this flag changes nothing.',
+      'True for a specified service trade or business under § 199A(d)(2). That covers health, law, accounting, actuarial science, performing arts, consulting, athletics, financial services, brokerage, investing, trading, dealing in securities, and any business whose principal asset is the reputation or skill of its owners. Engineering and architecture are excluded. Below the threshold this flag changes nothing.',
     ),
     materiallyParticipates: flag(
       'Whether the taxpayer materially participates (§ 469(h)). Used only by the § 199A(i) $400 minimum deduction. Defaults to true.',

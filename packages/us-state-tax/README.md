@@ -1,7 +1,8 @@
 # us-state-tax
 
 US **state** individual income tax for tax years **2025 and 2026**, across **23 states**
-including **New York**. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+including **New York** — and, new in 0.3.0, **New York City and Yonkers**. Dependency-free,
+MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -118,6 +119,78 @@ top four alone, so **the recapture rises by exactly what the cut is worth**: a s
 at `$300,000` saves `$215.40` of bracket tax and pays `$215.40` more supplemental tax, for a
 net change of **zero**.
 
+### New York City is bigger than most states, and it is not a state
+
+Pass a `locality` and the local income tax comes back alongside the state one. It is the
+largest local income tax in the country and it appears in no table of state rates, because
+it is not a state tax.
+
+```js
+const nyc = stateIncomeTax({
+  state: 'NY', year: 2025, filingStatus: 'single', locality: 'NYC',
+  federal: { adjustedGrossIncome: 100_000, taxableIncome: 92_000,
+             deduction: 8_000, deductionKind: 'standard' },
+});
+
+nyc.tax;                    // 4951.75   New York State
+nyc.localTaxes[0].tax;      // 3174.69   New York City
+nyc.totalTax;               // 8126.44
+nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
+```
+
+That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-three
+states in this package** at the same income — every one of the nine with no income tax,
+plus Arizona, Indiana and Pennsylvania. Omit the locality on a New York return and the
+result says so, and says what it would have cost this filer.
+
+**The published city rates are derived, not stored.** N.Y.C. Admin. Code § 11-1701 imposes
+2.7% / 3.3% / 3.35% / 3.4%; nobody has ever paid those, because § 11-1704.1 adds a tax of
+**14% of that tax**. The schedule the state publishes is the product, to the last digit:
+
+```text
+2.7%  x 1.14 = 3.078%      3.35% x 1.14 = 3.819%
+3.3%  x 1.14 = 3.762%      3.4%  x 1.14 = 3.876%
+```
+
+Two more of the city's published tables turn out to be generated as well — the school tax
+credit's base column is `round(0.171% x threshold)`, and the married-filing-separately
+household credit table is the joint table halved and rounded — so this package stores the
+statute and derives the forms.
+
+**The city earned income credit has not been 5% since 2021.** Since 2022 it slides from
+**30% to 10%** of the federal credit, shedding five points across each of four `$2,500`
+windows of New York AGI. The Department of Taxation and Finance publishes that as a long
+table of income ranges and decimals; six stored numbers reproduce every row of it. Inside
+a window the city takes back `0.00002` of the federal credit per dollar of income — an
+average of **15.6 points of marginal rate** for a family with a `$7,800` federal credit,
+from a city whose top statutory rate is 3.876%.
+
+And because the worksheet rounds the match to four decimal places, that phase-down is a
+**staircase**: the credit holds flat across five dollars of income and then drops a whole
+basis point, so the true marginal rate is zero four dollars in five and **78 cents on the
+dollar** on the fifth. Both figures are in the result; the note says which one to plan with.
+
+**Yonkers taxes the tax.** A resident owes 16.75% of the New York State tax — not of income
+— so every state credit and the whole state rate schedule are already inside it, and the
+FY2026 state rate cut cut the Yonkers surcharge with no action by Yonkers. It is measured
+**before** the state's refundable credits, which are claimed further down the return:
+
+```js
+// Head of household, $20,000, two children, $6,000 federal earned income credit.
+const y = stateIncomeTax({ /* ... */ state: 'NY', locality: 'YONKERS' });
+y.tax;                  // -1528.00  New York owes this family a refund
+y.localTaxes[0].tax;    //    30.49  16.75% of the $182 of state tax before it
+```
+
+Netting the refundable credit first gives `-$255.94` — a payment *from* Yonkers of 16.75%
+of a state refund. A reference model that computes the surcharge on the state tax after
+refundable credits does exactly that.
+
+A resident pays the surcharge and never the non-resident earnings tax; someone who works in
+Yonkers but lives elsewhere pays 0.5% of Yonkers-source wages instead
+(`yonkersNonresidentEarnings`). Because a filer can live in one taxing locality and work in
+another, `localTaxes` is a list.
+
 ### Six states match the federal earned income credit, and three of them do not
 
 Pass `federal.earnedIncomeCredit` and Colorado, Illinois, Indiana, Michigan, New York and
@@ -215,17 +288,18 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.1.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.3.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 23 states.** No New Jersey, Massachusetts, Ohio, Virginia, Maryland, Minnesota,
   Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of
   Columbia. Asking for one throws rather than returning zero.
-- **No local income tax.** Every Indiana county, most Pennsylvania municipalities and
-  school districts, Detroit and 23 other Michigan cities, **New York City** and Yonkers all
-  levy their own. A New York City resident pays roughly 3.08% to 3.88% more than this
-  package reports; for an Indiana or Pennsylvania filer the local tax is a large fraction
-  of the bill.
+- **Local income tax in New York only.** New York City and Yonkers are computed; pass
+  `locality`. Every Indiana county, most Pennsylvania municipalities and school districts,
+  Detroit and 23 other Michigan cities, Ohio's municipalities, Kentucky's occupational
+  taxes and Maryland's counties are not, and for an Indiana or Pennsylvania filer the local
+  tax is a large fraction of the bill. Nor is part-year city residency, or the New York
+  City child and dependent care credit.
 - **No state child credits, and New York's is large.** The Empire State child credit is
   `$1,000` per child under 4 for 2025 and 2026, and `$330` (2025) or `$500` (2026) per
   child aged 4 to 16. Also absent: CalEITC and the Young Child Tax Credit, the Arizona
@@ -255,9 +329,16 @@ substitute: Pennsylvania taxes 401(k) elective deferrals in the year contributed
 no standard deduction and no personal exemption, and does not let a loss in one income
 class offset a gain in another. Federal AGI is not a Pennsylvania number.
 
-Also exported: `SUPPORTED_STATES`, `SUPPORTED_YEARS`, `NO_INCOME_TAX_STATES`,
-`supportedYears(state)`, `isSupported(state, year)`, `getStateDefinition(state, year)`,
-and `stateName(state)`.
+`input.locality` adds a local income tax. The locality must sit in `input.state` —
+passing one that does not is an error rather than a silently ignored field. Local taxes
+come back in `result.localTaxes`, a list, because a filer can owe a resident tax to one
+locality and an earnings tax to another; `result.totalTax` and `result.totalMarginalRate`
+cover both levels, and `result.tax` and `result.marginalRate` remain the state alone.
+
+Also exported: `SUPPORTED_STATES`, `SUPPORTED_YEARS`, `SUPPORTED_LOCALITIES`,
+`NO_INCOME_TAX_STATES`, `supportedYears(state)`, `isSupported(state, year)`,
+`getStateDefinition(state, year)`, `getLocalityDefinition(locality, year)`,
+`localityState(locality)`, `stateName(state)`, and `nycRate(statutoryRate)`.
 
 ## Provenance
 

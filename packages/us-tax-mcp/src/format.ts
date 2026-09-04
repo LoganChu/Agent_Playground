@@ -403,6 +403,19 @@ const CONFORMITY_LABEL: Readonly<Record<string, string>> = {
 };
 
 /**
+ * Which state figure a locality charged its rate against.
+ *
+ * Worth saying out loud in the output, because "16.75% of the state tax" and
+ * "3.876% of state taxable income" are not the same kind of number and a reader
+ * who assumes the first is a rate on income is out by an order of magnitude.
+ */
+const LOCAL_BASE_LABEL: Readonly<Record<string, string>> = {
+  stateTaxableIncome: 'state taxable income',
+  stateAdjustedGrossIncome: 'state adjusted gross income',
+  stateNetTax: 'the state tax itself, before refundable credits,',
+};
+
+/**
  * A state result, led by the thing a rate table cannot tell you.
  *
  * The conformity line comes first deliberately. "California, 9.3%" is a number a
@@ -442,11 +455,37 @@ export function renderStateTax(r: StateIncomeTaxResult): string {
     rows.push(`  Less ${credit.name}${suffix}  ${money(credit.amount)}`);
   }
   rows.push(`${r.stateName} income tax        ${money(r.tax)}`);
+
+  // A local income tax is a separate return line, not a component of the state
+  // tax, so it is rendered as its own block rather than folded in. The totals
+  // below are the figure a filer actually writes a cheque for.
+  for (const local of r.localTaxes) {
+    rows.push('');
+    const on =
+      local.basis === 'nonresidentEarnings'
+        ? `nonresident earnings tax on ${dollars(local.baseAmount)} of ${local.localityName}-source wages`
+        : `resident tax on ${LOCAL_BASE_LABEL[local.base] ?? local.base} ${dollars(local.baseAmount)}`;
+    rows.push(`${local.localityName} — ${on}`);
+    rows.push(`  Tax before credits         ${money(local.taxBeforeCredits)}`);
+    for (const credit of local.credits) {
+      if (credit.amount === 0) continue;
+      const suffix = credit.refundable ? ' (refundable)' : '';
+      rows.push(`  Less ${credit.name}${suffix}  ${money(credit.amount)}`);
+    }
+    rows.push(`  ${local.localityName} income tax    ${money(local.tax)}`);
+  }
+  if (r.localTaxes.length > 0) {
+    rows.push('');
+    rows.push(`State and local total        ${money(r.totalTax)}`);
+  }
+
   rows.push('');
+  const rateOf = (value: number) => (value > 1 ? money(value) : percent(value));
+  const local = r.localTaxes.length > 0 ? `, and at ${rateOf(r.totalMarginalRate)} counting local tax` : '';
+  const cliff = Math.max(r.marginalRate, r.totalMarginalRate) > 1 ? ' — a cliff, not a rate' : '';
   rows.push(
-    `Effective rate ${percent(r.effectiveRate)} of the starting figure. The next dollar of income is taxed at ${
-      r.marginalRate > 1 ? `${money(r.marginalRate)} — a cliff, not a rate` : percent(r.marginalRate)
-    }.`,
+    `Effective rate ${percent(r.effectiveRate)} of the starting figure. The next dollar of income ` +
+      `is taxed at ${rateOf(r.marginalRate)} by ${r.stateName}${local}${cliff}.`,
   );
 
   if (r.provisional) {
@@ -456,6 +495,14 @@ export function renderStateTax(r: StateIncomeTaxResult): string {
   if (r.notes.length > 0) {
     rows.push('');
     for (const note of r.notes) rows.push(`Note: ${note}`);
+  }
+  // The locality's own notes carry the derivations and the not-modelled list for
+  // a tax that can exceed the state's, so they are worth their context — and a
+  // caller who did not ask for a locality never pays for them.
+  for (const local of r.localTaxes) {
+    if (local.notes.length === 0) continue;
+    rows.push('');
+    for (const note of local.notes) rows.push(`Note (${local.localityName}): ${note}`);
   }
   return rows.join('\n');
 }

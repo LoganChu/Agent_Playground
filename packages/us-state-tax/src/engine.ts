@@ -7,50 +7,28 @@
  */
 import { filerCount } from './definition.js';
 import type { StateIncomeTaxDefinition } from './definition.js';
+import { applyBrackets, nonNegative, roundCents } from './engine-core.js';
+import {
+  computeLocalResidentTax,
+  localNonresidentEarningsResult,
+  localResidentResult,
+} from './localities/engine.js';
+import type { StateFigures } from './localities/engine.js';
+import { getLocalityDefinition, localityState } from './localities/index.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
 import type {
   Bracket,
   BracketDetail,
   CreditDetail,
   FilingStatus,
+  LocalIncomeTaxResult,
   StateCode,
   StateIncomeTaxInput,
   StateIncomeTaxResult,
   SurtaxDetail,
 } from './types.js';
 
-export function roundCents(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-function nonNegative(value: number | undefined, label: string): number {
-  const v = value ?? 0;
-  if (!Number.isFinite(v)) throw new TypeError(`${label} must be a finite number`);
-  if (v < 0) throw new RangeError(`${label} must not be negative`);
-  return v;
-}
-
-/** Walk a bracket table, returning the tax and the per-band detail. */
-export function applyBrackets(
-  taxableIncome: number,
-  brackets: readonly Bracket[],
-): { tax: number; detail: BracketDetail[] } {
-  let remaining = Math.max(0, taxableIncome);
-  let floor = 0;
-  let tax = 0;
-  const detail: BracketDetail[] = [];
-  for (const band of brackets) {
-    if (remaining <= 0) break;
-    const width = band.upTo - floor;
-    const inBand = Math.min(remaining, width);
-    const bandTax = inBand * band.rate;
-    if (inBand > 0) detail.push({ rate: band.rate, incomeInBracket: inBand, tax: bandTax });
-    tax += bandTax;
-    remaining -= inBand;
-    floor = band.upTo;
-  }
-  return { tax, detail };
-}
+export { applyBrackets, roundCents };
 
 /**
  * The base amount a state's computation starts from, before its own additions and
@@ -258,6 +236,8 @@ interface Computed {
   addBacks: { name: string; amount: number }[];
   additions: number;
   subtractions: number;
+  /** State AGI — the base after additions and subtractions, before deductions. */
+  stateAgi: number;
   deduction: number;
   exemptions: number;
   taxableIncome: number;
@@ -265,6 +245,14 @@ interface Computed {
   brackets: BracketDetail[];
   surtaxes: SurtaxDetail[];
   credits: CreditDetail[];
+  /**
+   * Tax after the state's non-refundable credits and before its refundable ones.
+   *
+   * This is the figure a locality that charges "a percentage of the state tax"
+   * uses, and it is not {@link tax}: refundable state credits are claimed in the
+   * payments section of the return, below the Yonkers surcharge line.
+   */
+  taxBeforeRefundableCredits: number;
   tax: number;
 }
 
@@ -350,13 +338,15 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
   }
   const nonRefundable = credits.filter((c) => !c.refundable).reduce((s, c) => s + c.amount, 0);
   const refundable = credits.filter((c) => c.refundable).reduce((s, c) => s + c.amount, 0);
-  const tax = Math.max(0, grossTax - Math.min(grossTax, nonRefundable)) - refundable;
+  const taxBeforeRefundableCredits = Math.max(0, grossTax - Math.min(grossTax, nonRefundable));
+  const tax = taxBeforeRefundableCredits - refundable;
 
   return {
     conformityAmount: base,
     addBacks: back,
     additions,
     subtractions,
+    stateAgi,
     deduction,
     exemptions,
     taxableIncome,
@@ -364,7 +354,17 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
     brackets,
     surtaxes,
     credits,
+    taxBeforeRefundableCredits,
     tax,
+  };
+}
+
+/** The state figures a locality computes from. */
+function stateFigures(computed: Computed): StateFigures {
+  return {
+    stateTaxableIncome: computed.taxableIncome,
+    stateAdjustedGrossIncome: computed.stateAgi,
+    stateNetTax: computed.taxBeforeRefundableCredits,
   };
 }
 
@@ -405,6 +405,54 @@ function oneDollarMore(
 }
 
 /**
+ * Every local income tax this filer owes, resident tax first.
+ *
+ * The locality is computed twice, on the state figures from each of the two runs
+ * the marginal rate needs, so a local credit's cliff or phase-out shows up in the
+ * local marginal rate the same way a state one does.
+ */
+function localTaxesFor(
+  input: StateIncomeTaxInput,
+  higherInput: StateIncomeTaxInput,
+  here: Computed,
+  higher: Computed,
+): LocalIncomeTaxResult[] {
+  const out: LocalIncomeTaxResult[] = [];
+
+  if (input.locality !== undefined) {
+    const owner = localityState(input.locality);
+    if (owner !== input.state) {
+      throw new RangeError(
+        `${input.locality} is in ${owner}, not ${input.state}. A locality is only ever ` +
+          `computed as part of its own state's return, because every figure it starts ` +
+          `from is a line on that return.`,
+      );
+    }
+    const def = getLocalityDefinition(input.locality, input.year);
+    const computed = computeLocalResidentTax(def, input, stateFigures(here));
+    const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher));
+    out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
+  }
+
+  const earnings = nonNegative(input.yonkersNonresidentEarnings, 'yonkersNonresidentEarnings');
+  // A Yonkers resident pays the surcharge instead, never both — so the earnings
+  // figure is ignored rather than added, which is what Form Y-203 says and what a
+  // caller who supplies both almost certainly means.
+  if (earnings > 0 && input.locality !== 'YONKERS') {
+    if (input.state !== 'NY') {
+      throw new RangeError(
+        `yonkersNonresidentEarnings applies to a New York return; state is ${input.state}. ` +
+          `Yonkers taxes the Yonkers-source wages of non-residents, but the tax is reported ` +
+          `on a New York return.`,
+      );
+    }
+    out.push(localNonresidentEarningsResult(getLocalityDefinition('YONKERS', input.year), earnings));
+  }
+
+  return out;
+}
+
+/**
  * Compute a state's individual income tax.
  *
  * @throws {RangeError} when the state or the state-year is not supported. There is
@@ -437,6 +485,9 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       brackets: [],
       marginalRate: 0,
       effectiveRate: 0,
+      localTaxes: [],
+      totalTax: 0,
+      totalMarginalRate: 0,
       provisional: def.status === 'provisional',
       notes: def.notes,
       citations: def.citations,
@@ -444,7 +495,9 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   }
 
   const here = compute(def, input);
-  const higher = compute(def, oneDollarMore(def, input));
+  const higherInput = oneDollarMore(def, input);
+  const higher = compute(def, higherInput);
+  const localTaxes = localTaxesFor(input, higherInput, here, higher);
 
   // Notes that depend on what the caller supplied rather than on the state, so a
   // model reading the result learns that a figure it left out was load-bearing.
@@ -466,6 +519,31 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         'children. Supply federalOneDollarHigher for the exact figure.',
     );
   }
+  if (input.state === 'NY' && input.locality === undefined) {
+    // Quantified rather than hedged: the city tax this exact filer would owe, run
+    // through the same engine, so a caller who left `locality` out learns what it
+    // is worth for them rather than being told that it exists.
+    const nyc = getLocalityDefinition('NYC', input.year);
+    const cost = roundCents(computeLocalResidentTax(nyc, input, stateFigures(here)).tax);
+    const shown = cost.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    dynamic.push(
+      `No locality was supplied, so this is the New York State tax alone. A New York City ` +
+        `resident with these figures owes a further $${shown} of city income tax — ` +
+        `pass locality: 'NYC'. A Yonkers resident owes a surcharge of 16.75% of the state tax ` +
+        `above; pass locality: 'YONKERS'. Roughly 43% of New York State filers live in one of ` +
+        `the two.`,
+    );
+  }
+
+  const localTax = localTaxes.reduce((s, l) => s + l.tax, 0);
+  const localMarginal = localTaxes.reduce((s, l) => s + l.marginalRate, 0);
+  // Rates are reported to four places, which is what rounding the cent of tax on
+  // one dollar of income amounts to.
+  const rate = (value: number) => roundCents(value * 100) / 100;
+  const stateMarginal = rate(higher.tax - here.tax);
 
   return {
     state: input.state,
@@ -489,8 +567,11 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       incomeInBracket: roundCents(b.incomeInBracket),
       tax: roundCents(b.tax),
     })),
-    marginalRate: roundCents((higher.tax - here.tax) * 100) / 100,
+    marginalRate: stateMarginal,
     effectiveRate: here.conformityAmount > 0 ? here.tax / here.conformityAmount : 0,
+    localTaxes,
+    totalTax: roundCents(here.tax + localTax),
+    totalMarginalRate: rate(stateMarginal + localMarginal),
     provisional: def.status === 'provisional',
     notes: dynamic.length > 0 ? [...dynamic, ...def.notes] : def.notes,
     citations: def.citations,
