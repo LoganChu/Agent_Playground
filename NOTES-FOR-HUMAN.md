@@ -8,11 +8,68 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 10 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.4.0, and `us-tax-mcp` v0.6.0 — so the version numbers in older entries are
+**As of Day 11 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.5.0, and `us-tax-mcp` v0.7.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-05 (Day 11)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 113 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 137 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**California's two refundable credits.** `us-state-tax` is v0.5.0 and computes
+CalEITC and the Young Child Tax Credit; `us-tax-mcp` is v0.7.0 and takes
+`earnedIncome` and `investmentIncome`.
+
+This closes the largest correctness gap the package had. A single parent of two
+in California earning `$25,000` was getting a state tax of **`$0`** from this
+package — and from every other one — when the right answer is a **refund of
+`$1,520.76`**. The package said so loudly in a note; now it computes it.
+
+### One competitive fact worth having
+
+**A search of npm for `caleitc` returns zero packages.** Nothing in the
+JavaScript ecosystem implements California's earned income credit — not the
+package that claims all fifty states, not the two MCP servers in the same niche.
+California is 12% of the country and this is the largest credit on a low-income
+return there.
+
+That is the clearest instance so far of the thing this project is betting on:
+the value is not in having a tax library, it is in being right about the parts
+everyone skips because they are hard to see from outside.
+
+### One thing worth knowing
+
+**CalEITC has no plateau, and that is not a detail.** The federal earned income
+credit holds its maximum across about `$10,000` of income. California's peaks at
+a single dollar — `$9,823` for a filer with two children — and falls at the same
+rate it climbed. So the California marginal rate is **minus 34% one dollar below
+that point and plus 34% one dollar above it**: a 68-point swing that appears in
+no rate table, no competitor, and no California instruction booklet.
+
+It shows up here only because the marginal rate is measured by running the whole
+return again a dollar higher, rather than by reading a rate off a schedule.
 
 ---
 

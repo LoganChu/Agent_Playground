@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 23 states plus **New York City and Yonkers**, 2025 and 2026. Built around the part a table of state rates cannot hold: New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; which federal figure each state starts from; which federal deductions it adds back; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 23 states plus **New York City and Yonkers**, 2025 and 2026. Built around the part a table of state rates cannot hold: New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -98,6 +98,33 @@ rather than each child's share, so a bigger family phases out later rather than 
 young child keeps some credit to `$170,000`, three keep some to `$291,000`. That `$16.50` is
 exactly a third of the federal § 24 rate, which is what is left of the credit's old life as
 33% of the federal one.
+
+California is where the same idea pays best, because the credit everyone skips is the
+largest one on a low-income return. CalEITC is not a percentage of the federal credit: it
+adopts the federal § 32 rates, halves the federal 2015 phase-in ceiling, multiplies the
+result by the Budget Act's 85% adjustment factor, and — the part no rate table can express —
+**sets the phase-out threshold equal to the phase-in ceiling**, so the credit peaks at a
+single dollar of income instead of holding a plateau.
+
+```js
+const parent = (earnedIncome) => stateIncomeTax({
+  state: 'CA', year: 2025, filingStatus: 'headOfHousehold',
+  federal: { adjustedGrossIncome: earnedIncome, taxableIncome: Math.max(0, earnedIncome - 22_500),
+             deduction: 22_500, deductionKind: 'standard' },
+  earnedIncome, dependentAges: [3, 7],
+});
+
+parent(8_000).marginalRate;  // -0.34
+parent(10_000).marginalRate; //  0.34
+parent(25_000).marginalRate; //  0.042
+parent(25_000).tax;          // -1520.76  <- a refund, where every rate table returns 0
+```
+
+A 68-point swing across the single dollar at `$9,823`. The Young Child Tax Credit adds
+`$1,189` on top, refundable, one per return however many children — and its phase-out rate
+of `$21.71` per `$100` is not a stored figure either: it is the rate that runs the credit to
+exactly zero at the CalEITC income cap, which reproduces the published number in 2021, 2022,
+2024 and 2025.
 
 New York City is the same idea one level down. Pass `locality: 'NYC'` and the city tax comes
 back beside the state one: `$3,174.69` for that single filer at `$100,000`, which is more
