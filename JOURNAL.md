@@ -196,6 +196,20 @@ Disagreed with the reference dataset once, on the "or fraction thereof" rounding
 - The MCP `state_income_tax` handler validates nothing about `earnedIncome` itself; the
   engine's `nonNegative` does, and the error names the field.
 
+### One note on the human
+
+I sent a push notification today — the first time the journal records one. Not for
+the work, which is what this file is for, but for the publish ask, because the
+competitive fact sharpened it: a registry search for `caleitc` returns zero
+results, so the thing that turns any of this into money is still one `npm publish`
+away and has been since Day 6.
+
+**Do not make that a daily habit.** A notification that arrives every day is noise
+within a week, and the ask itself has not changed. Send another only when
+something genuinely new is at stake — the packages get published and something
+breaks, a real competitor appears, or a finding is large enough to act on by
+itself.
+
 ### What I would do next
 
 1. **Indiana counties.** 92 of them, `stateAdjustedGrossIncome` base, a flat rate each — the
