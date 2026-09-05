@@ -78,6 +78,33 @@ function schedules(
   });
 }
 
+/**
+ * The CalEITC phase-in ceilings as R&TC § 17052(b)(1) prints them, before
+ * indexing — and they are exactly **half** the federal 2015 earned income
+ * amounts of `$6,580`, `$9,880` and `$13,870`.
+ *
+ * California adopted the federal § 32 structure as it stood in 2015, halved the
+ * ceiling, and has indexed by the California CPI ever since. The federal credit
+ * kept indexing too, so the two have drifted apart by a quarter century of
+ * inflation in ten years: the federal phase-in for a childless filer ends at
+ * `$8,490` in 2025 and California's at `$4,661`.
+ *
+ * Storing the 2015 base as well as the indexed amounts makes the relationship
+ * checkable — `test/california.test.js` asserts that one factor reproduces all
+ * three of a year's amounts from it, which is the same test the brackets, the
+ * standard deduction and the dependent exemption credit already get.
+ */
+export const CALEITC_2015_STATUTORY_AMOUNTS: readonly number[] = [3290, 4940, 6935];
+
+/**
+ * The federal § 32 credit percentages, which § 17052 adopts by reference and
+ * never restates. California uses them for the phase-in *and* the phase-out.
+ */
+export const CALEITC_RATES: readonly number[] = [0.0765, 0.34, 0.4, 0.45];
+
+/** R&TC § 17052(a)(2)(B), set by the Budget Act; 85% every year since 2015. */
+export const CALEITC_ADJUSTMENT_FACTOR = 0.85;
+
 const CITATIONS: readonly Citation[] = [
   {
     title: 'Cal. Rev. & Tax. Code § 17041 — rates and the joint-schedule doubling rule',
@@ -95,14 +122,73 @@ const CITATIONS: readonly Citation[] = [
     title: 'FTB 2025 California Tax Rate Schedules and indexing',
     url: 'https://www.ftb.ca.gov/forms/2025/2025-california-tax-rate-schedules.html',
   },
+  {
+    title: 'Cal. Rev. & Tax. Code § 17052 — California Earned Income Tax Credit',
+    url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=17052',
+  },
+  {
+    title: 'Cal. Rev. & Tax. Code § 17052.1 — Young Child Tax Credit',
+    url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=17052.1',
+  },
+  {
+    title: 'FTB Form 3514 — California Earned Income Tax Credit, and its instructions',
+    url: 'https://www.ftb.ca.gov/forms/2025/2025-3514-booklet.html',
+  },
 ];
+
+/**
+ * CalEITC for 2025.
+ *
+ * The three indexed ceilings are `CALEITC_2015_STATUTORY_AMOUNTS` carried
+ * forward by the California CPI; `finalPhaseOutStartCredit` is the one figure no
+ * California release states, read off the kink in the published lookup table and
+ * checked against twelve of that table's values in `test/california.test.js`.
+ */
+const CALEITC_2025 = {
+  name: 'California Earned Income Tax Credit (CalEITC)',
+  adjustmentFactor: CALEITC_ADJUSTMENT_FACTOR,
+  byChildCount: [
+    { children: 0, phaseInRate: 0.0765, earnedIncomeAmount: 4661, finalPhaseOutStartCredit: 251 },
+    { children: 1, phaseInRate: 0.34, earnedIncomeAmount: 6998, finalPhaseOutStartCredit: 635 },
+    { children: 2, phaseInRate: 0.4, earnedIncomeAmount: 9823, finalPhaseOutStartCredit: 635 },
+    { children: 3, phaseInRate: 0.45, earnedIncomeAmount: 9823, finalPhaseOutStartCredit: 635 },
+  ],
+  finalPhaseOutEnd: 32901,
+  investmentIncomeLimit: 4814,
+  minimumAgeWithoutChildren: 18,
+  qualifyingChildMaxAge: 18,
+} as const;
+
+/**
+ * The Young Child Tax Credit for 2025.
+ *
+ * `amountPerIncrement` is not transcribed — it is
+ * `amount / ((finalPhaseOutEnd - start) / increment)` truncated to the cent,
+ * which is the rule the Franchise Tax Board applies from 2024 and which happens
+ * to reproduce the legislated figure in 2021 and 2022 as well.
+ */
+const YCTC_2025 = {
+  name: 'Young Child Tax Credit',
+  amount: 1189,
+  ineligibleAge: 6,
+  phaseOut: {
+    start: 27425,
+    increment: 100,
+    amountPerIncrement:
+      Math.floor((1189 / ((32901 - 27425) / 100)) * 100) / 100,
+  },
+} as const;
 
 const SHARED_NOTES: readonly string[] = [
   'California exemptions are credits, not deductions: the personal exemption credit is worth the same dollar amount at every rate. Modelling it as a deduction from income understates the tax.',
   'The 1% Mental Health Services Tax threshold of $1,000,000 is per return and is NOT doubled for a joint return, even though every bracket threshold is. A married couple at $1,200,000 of taxable income owes it; two single filers at $600,000 each do not.',
   'California does not conform to the federal QBI deduction, to bonus depreciation, or to the four OBBBA Schedule 1-A deductions, and it taxes health savings account contributions. Those are additions and subtractions on Schedule CA (540); this package does not enumerate them — supply them via `additions` and `subtractions`.',
-  'NOT MODELLED — CalEITC, and it is deliberate. Six other states in this package set their earned income credit as a flat percentage of the federal one, so passing `federal.earnedIncomeCredit` is enough. California does not: R&TC § 17052 defines its own credit with its own phase-in rate, its own phase-out, an adjustment factor, and a completed phase-out near $32,000 of California earned income — nowhere near the federal one. Applying any percentage to the federal credit gives a wrong California answer, so this package gives none. The Young Child Tax Credit, the Foster Youth Tax Credit and the renter credit are also absent.',
-  'Not modelled: the California AMT and the itemized deduction limitation for high incomes. A low-income California return computed here will be too high.',
+  'CalEITC is not a percentage of the federal credit and cannot be approximated as one. It has no plateau: the credit peaks at a single dollar of earned income — $4,661 with no children, $9,823 with two — and falls at the same rate it climbed. Below the peak the California marginal rate is NEGATIVE (minus 34% for a two-child filer, on top of the federal minus 40%); one dollar past it the rate is plus 34%. A 68-point swing across one dollar of income, and no rate table anywhere shows it.',
+  'CalEITC then stops falling and crawls. Once it reaches $251 (no children) or $635, the rest is spread in a straight line to zero at $32,901 of earned income — 4.2 cents on the dollar for a two-child filer across $15,000 of income, and 0.9 cents for a childless one across $27,000. The $32,901 is a cliff for federal AGI as well: a filer whose AGI is over it gets nothing however small their earnings.',
+  'The Young Child Tax Credit is one credit per return, not one per child: a family with one child under 6 and a family with three both get $1,189. It is gated on receiving CalEITC, so the CalEITC investment-income limit of $4,814 costs a young family $1,189 more than it appears to.',
+  'The $4,814 investment-income limit is a cliff, not a phase-out. One dollar of interest over it costs a single parent of two young children the whole CalEITC and the whole Young Child Tax Credit — $4,528.82 at the worst point, a single parent of two young children with $9,823 of earnings, which is exactly where CalEITC peaks.',
+  'NOT MODELLED — the Foster Youth Tax Credit (R&TC § 17052.2), which is worth exactly the same $1,189 as the Young Child Tax Credit and phases out on the same schedule, for a CalEITC-eligible filer aged 18 to 25 who was in California foster care at 13 or older. It needs a foster-care history this package has no input for. A former foster youth computed here is too high by up to $1,189, and the credit is among the least claimed in California.',
+  'NOT MODELLED — the renter credit, the California AMT, and the itemized deduction limitation for high incomes.',
 ];
 
 export function california(year: number): StateIncomeTaxDefinition | undefined {
@@ -154,6 +240,8 @@ export function california(year: number): StateIncomeTaxDefinition | undefined {
           }),
         },
       },
+      ownEarnedIncomeCredit: CALEITC_2025,
+      youngChildCredit: YCTC_2025,
       notes: SHARED_NOTES,
       citations: CITATIONS,
     };
@@ -165,7 +253,7 @@ export function california(year: number): StateIncomeTaxDefinition | undefined {
       year,
       status: 'provisional',
       notes: [
-        'PROVISIONAL: the 2026 bracket thresholds, standard deduction and exemption credits below are the published 2025 figures carried forward. California indexes all of them by the California CPI factor, which the Franchise Tax Board publishes late in the tax year; this package could not reach ftb.ca.gov to confirm the 2026 factor. The rates themselves are statutory and are correct. Expect the computed tax to be slightly HIGH — carrying thresholds forward leaves income in higher bands than the indexed schedule would.',
+        'PROVISIONAL: the 2026 bracket thresholds, standard deduction, exemption credits, CalEITC amounts and Young Child Tax Credit below are the published 2025 figures carried forward. California indexes all of them by the California CPI factor, which the Franchise Tax Board publishes late in the tax year; this package could not reach ftb.ca.gov to confirm the 2026 factor. The rates themselves are statutory and are correct. Expect the computed tax to be slightly HIGH — carrying thresholds forward leaves income in higher bands than the indexed schedule would, and carrying the CalEITC ceilings forward understates the credit for a filer on the phase-in.',
         ...SHARED_NOTES,
       ],
       citations: CITATIONS,

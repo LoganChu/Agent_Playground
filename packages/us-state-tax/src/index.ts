@@ -26,7 +26,13 @@ export {
   localityState,
 } from './localities/index.js';
 export { NYC_ADDITIONAL_TAX_RATE, NYC_PERMANENT_RATES, nycRate } from './localities/new-york.js';
-export { doubled } from './states/california.js';
+export { ownEarnedIncomeCreditAt, childCountBand } from './engine.js';
+export {
+  doubled,
+  CALEITC_2015_STATUTORY_AMOUNTS,
+  CALEITC_ADJUSTMENT_FACTOR,
+  CALEITC_RATES,
+} from './states/california.js';
 export { FILING_STATUSES } from './types.js';
 export type {
   Bracket,
@@ -48,6 +54,8 @@ export type {
   SurtaxDetail,
 } from './types.js';
 export type {
+  ByChildCount,
+  ChildCreditRule,
   CreditStep,
   DeductionRule,
   EarnedIncomeCreditRule,
@@ -55,11 +63,13 @@ export type {
   ExemptionRule,
   ForgivenessRule,
   HouseholdCreditRule,
+  OwnEarnedIncomeCreditRule,
   RateRule,
   RecaptureRule,
   StateIncomeTaxDefinition,
   SurtaxRule,
   TaxpayerCreditRule,
+  YoungChildCreditRule,
 } from './definition.js';
 export type {
   LocalBase,

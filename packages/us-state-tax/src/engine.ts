@@ -6,7 +6,11 @@
  * makes the conformity choice visible rather than buried.
  */
 import { filerCount } from './definition.js';
-import type { StateIncomeTaxDefinition } from './definition.js';
+import type {
+  ByChildCount,
+  OwnEarnedIncomeCreditRule,
+  StateIncomeTaxDefinition,
+} from './definition.js';
 import { applyBrackets, dependentCount, nonNegative, roundCents } from './engine-core.js';
 import {
   computeLocalResidentTax,
@@ -223,6 +227,126 @@ function childCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput):
 }
 
 /**
+ * The CalEITC schedule at one income, for one qualifying-child count.
+ *
+ * Exported because it is the whole of R&TC § 17052 as arithmetic, and the
+ * twelve values the Franchise Tax Board published in the 2021 Form 3514 lookup
+ * table are the only external check on it that this package can reach. The test
+ * drives this function with the 2021 parameters and asserts against all twelve —
+ * a year the package does not otherwise ship, which is the point: it validates
+ * the *mechanism* rather than the transcription.
+ *
+ * Three segments, in order:
+ *
+ * 1. Up to `earnedIncomeAmount`, the credit is `rate x income`.
+ * 2. From there it falls at the same rate, which is why the peak is a point and
+ *    not a plateau, until it reaches `finalPhaseOutStartCredit`.
+ * 3. From that kink it runs in a straight line to zero at `finalPhaseOutEnd`.
+ */
+export function ownEarnedIncomeCreditAt(
+  rule: OwnEarnedIncomeCreditRule,
+  band: ByChildCount,
+  income: number,
+): number {
+  const rate = band.phaseInRate * rule.adjustmentFactor;
+  const maximum = band.earnedIncomeAmount * rate;
+  const phasedIn = Math.min(Math.max(0, income), band.earnedIncomeAmount) * rate;
+  // How far the steep phase-out runs before the credit reaches the kink. It is a
+  // width in dollars of income, implied by the rate rather than stored — the
+  // same relationship the New York City earned income credit's windows have.
+  const steepWidth = (maximum - band.finalPhaseOutStartCredit) / rate;
+  const kinkIncome = band.earnedIncomeAmount + steepWidth;
+  const descended =
+    phasedIn - Math.min(Math.max(0, income - band.earnedIncomeAmount), steepWidth) * rate;
+  if (income <= kinkIncome) return Math.max(0, descended);
+  const along = Math.min(1, (income - kinkIncome) / (rule.finalPhaseOutEnd - kinkIncome));
+  return Math.max(0, descended * (1 - along));
+}
+
+/** The rule's band for a given number of qualifying children. */
+export function childCountBand(
+  rule: OwnEarnedIncomeCreditRule,
+  children: number,
+): ByChildCount {
+  let band = rule.byChildCount[0]!;
+  for (const candidate of rule.byChildCount) {
+    if (children >= candidate.children) band = candidate;
+  }
+  return band;
+}
+
+/**
+ * CalEITC — a state earned income credit on its own schedule rather than a share
+ * of the federal one.
+ *
+ * Returns `undefined` rather than zero when the credit could not be computed
+ * because the caller did not supply an input it needs, so the result can say so
+ * instead of reporting a confident zero.
+ */
+function ownEarnedIncomeCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number | undefined {
+  const rule = def.ownEarnedIncomeCredit;
+  if (!rule) return 0;
+  if (input.earnedIncome === undefined) return undefined;
+  // A count cannot say whether a dependent is a qualifying child, and the
+  // childless schedule is worth $303 where the two-child one is worth $3,340.
+  // Computing the childless credit for a family would be quietly wrong, which is
+  // worse than the zero this reports alongside the note that says why.
+  if (dependentCount(input) > 0 && input.dependentAges === undefined) return undefined;
+
+  const earned = nonNegative(input.earnedIncome, 'earnedIncome');
+  const investment = nonNegative(input.investmentIncome, 'investmentIncome');
+  if (investment > rule.investmentIncomeLimit) return 0;
+  // Form 3514 steps 7-8: federal AGI must be under the same cap the credit
+  // phases out at, so investment income disqualifies twice over.
+  if (input.federal.adjustedGrossIncome >= rule.finalPhaseOutEnd) return 0;
+
+  const children = (input.dependentAges ?? []).filter(
+    (age) => age <= rule.qualifyingChildMaxAge,
+  ).length;
+  const band = childCountBand(rule, children);
+  // Worksheet line 6 takes the smaller of the credit on earned income and the
+  // credit on AGI, and IRC 32(a)(2)(B) as adopted by section 17052(a) runs the
+  // AGI branch on "adjusted gross income (or, if greater, the earned income)" —
+  // so a filer whose AGI is below their earnings is not pushed down the
+  // schedule by it.
+  const higher = Math.max(earned, input.federal.adjustedGrossIncome);
+  return Math.min(
+    ownEarnedIncomeCreditAt(rule, band, earned),
+    ownEarnedIncomeCreditAt(rule, band, higher),
+  );
+}
+
+/**
+ * California's Young Child Tax Credit — one credit per return, not one per
+ * child, and gated on actually receiving CalEITC.
+ *
+ * The phase-out is per `$100` "or fraction thereof", so it is a staircase: the
+ * dollar that crosses each boundary costs `$21.71` and the ninety-nine after it
+ * cost nothing.
+ */
+function youngChildCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  calEitc: number | undefined,
+): number | undefined {
+  const rule = def.youngChildCredit;
+  if (!rule) return 0;
+  if (calEitc === undefined) return undefined;
+  if (calEitc <= 0) return 0;
+  const ages = input.dependentAges;
+  if (ages === undefined || !ages.some((age) => age < rule.ineligibleAge)) return 0;
+
+  const earned = nonNegative(input.earnedIncome, 'earnedIncome');
+  const excess = earned - rule.phaseOut.start;
+  if (excess <= 0) return rule.amount;
+  const increments = Math.ceil(excess / rule.phaseOut.increment);
+  return Math.max(0, rule.amount - increments * rule.phaseOut.amountPerIncrement);
+}
+
+/**
  * New York's tax table benefit recapture, derived from the state's own rate
  * schedule rather than transcribed from the statutory table — see
  * {@link RecaptureRule}.
@@ -379,6 +503,17 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
     });
   }
 
+  // CalEITC and the Young Child Tax Credit, in that order: the second is gated
+  // on the first, so it cannot be computed without it.
+  const own = ownEarnedIncomeCredit(def, input);
+  if (def.ownEarnedIncomeCredit) {
+    credits.push({ name: def.ownEarnedIncomeCredit.name, amount: own ?? 0, refundable: true });
+  }
+  const young = youngChildCredit(def, input, own);
+  if (def.youngChildCredit) {
+    credits.push({ name: def.youngChildCredit.name, amount: young ?? 0, refundable: true });
+  }
+
   const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
   if (def.forgiveness) {
     credits.push({
@@ -453,6 +588,23 @@ function oneDollarMore(
       taxableIncome: input.federal.taxableIncome + 1,
     },
   };
+}
+
+/**
+ * The extra dollar again, for the credits computed on earnings rather than on a
+ * federal figure.
+ *
+ * A dollar of wages is a dollar of earned income, and holding earned income
+ * constant would report a marginal rate of zero across the whole of CalEITC —
+ * where the true figure runs from **minus 34%** on the phase-in to **plus 34%**
+ * one dollar later. This is applied on top of {@link oneDollarMore} rather than
+ * inside it because the two are different claims: `federalOneDollarHigher` is
+ * the caller telling this package what the federal engine did, and earned income
+ * is a state input this package owns.
+ */
+function withOneMoreEarnedDollar(input: StateIncomeTaxInput): StateIncomeTaxInput {
+  if (input.earnedIncome === undefined) return input;
+  return { ...input, earnedIncome: input.earnedIncome + 1 };
 }
 
 /**
@@ -546,7 +698,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   }
 
   const here = compute(def, input);
-  const higherInput = oneDollarMore(def, input);
+  const higherInput = withOneMoreEarnedDollar(oneDollarMore(def, input));
   const higher = compute(def, higherInput);
   const localTaxes = localTaxesFor(input, higherInput, here, higher);
 
@@ -569,6 +721,41 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `${(def.earnedIncomeCredit.matchRate * 21.06).toFixed(2)} points for a filer with two or more ` +
         'children. Supply federalOneDollarHigher for the exact figure.',
     );
+  }
+  if (def.ownEarnedIncomeCredit) {
+    const rule = def.ownEarnedIncomeCredit;
+    const biggest = rule.byChildCount[rule.byChildCount.length - 1]!;
+    const most = roundCents(
+      biggest.earnedIncomeAmount * biggest.phaseInRate * rule.adjustmentFactor,
+    );
+    if (input.earnedIncome === undefined) {
+      // Quantified rather than hedged, the same way the missing-locality note is:
+      // the caller learns what the field they left out is worth, not that it
+      // exists. This is the largest single omission a California return can have.
+      dynamic.push(
+        `${def.name}'s ${rule.name} is computed on earned income, and earnedIncome was not ` +
+          `supplied, so it was computed as zero — along with the ${def.youngChildCredit?.name ?? 'young child credit'} ` +
+          `that is gated on it. Both are refundable and together they are worth up to ` +
+          `$${most.toLocaleString('en-US')} plus $${(def.youngChildCredit?.amount ?? 0).toLocaleString('en-US')}, ` +
+          `which for a low-income family is more than the whole ${def.name} tax above. Supply ` +
+          `earnedIncome (wages plus net self-employment earnings) and dependentAges.`,
+      );
+    } else if (dependentCount(input) > 0 && input.dependentAges === undefined) {
+      dynamic.push(
+        `${def.name}'s ${rule.name} depends on how many dependents are qualifying children, ` +
+          `and dependentAges was not supplied, so it was computed as zero rather than on the ` +
+          `childless schedule — which for this return would have been wrong by up to ` +
+          `$${most.toLocaleString('en-US')}. Supply an age for every dependent.`,
+      );
+    } else {
+      dynamic.push(
+        `${rule.name} here counts dependents aged ${rule.qualifyingChildMaxAge} or under as ` +
+          `qualifying children. A full-time student under 24, and a dependent permanently and ` +
+          `totally disabled at any age, also qualify and this package cannot see either — such ` +
+          `a return is too high. ${def.name} also requires a filer with no qualifying children ` +
+          `to be at least ${rule.minimumAgeWithoutChildren}, which is not checked here.`,
+      );
+    }
   }
   if (def.childCredit && (input.dependents ?? 0) > 0 && input.dependentAges === undefined) {
     const young = def.childCredit.amountByAge[0];

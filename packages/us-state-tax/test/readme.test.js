@@ -100,10 +100,76 @@ test('README: the six earned income credit states and their match rates', () => 
   assert.equal(match('UT', 2025).matchRate, 0.2);
   assert.equal(match('UT', 2025).refundable, false, 'Utah alone cannot pay it out');
   assert.equal(match('NY', 2025).reducedByHouseholdCredit, true);
-  assert.equal(match('CA', 2025), undefined, 'CalEITC is deliberately not modelled');
+  assert.equal(match('CA', 2025), undefined, 'California computes its own instead');
   // The $1,788 the README quotes: half of the 2025 maximum federal credit for two
   // children, lost when the Colorado match halves.
   money(0.5 * 7_152 - 0.25 * 7_152, 1_788, 'Colorado family with two children');
+});
+
+test('README: the CalEITC section', () => {
+  const def = getStateDefinition('CA', 2025);
+  const rule = def.ownEarnedIncomeCredit;
+  const yctc = def.youngChildCredit;
+
+  // "the credit percentages are the federal 7.65% / 34% / 40% / 45%"
+  assert.deepEqual(rule.byChildCount.map((b) => b.phaseInRate), [0.0765, 0.34, 0.4, 0.45]);
+  // "In 2025 that is $4,661 / $6,998 / $9,823", and each is half the federal 2015
+  // ceiling indexed by one factor.
+  assert.deepEqual(
+    rule.byChildCount.map((b) => b.earnedIncomeAmount),
+    [4_661, 6_998, 9_823, 9_823],
+  );
+  // "subsidised at 28.9%, not 34%"
+  money(0.34 * rule.adjustmentFactor, 0.289, 'one-child effective phase-in rate');
+  // "the $32,901 cap" and "the $4,814 investment-income limit"
+  assert.equal(rule.finalPhaseOutEnd, 32_901);
+  assert.equal(rule.investmentIncomeLimit, 4_814);
+  // "$1,189, refundable" and "$21.71 per $100"
+  assert.equal(yctc.amount, 1_189);
+  assert.equal(yctc.phaseOut.amountPerIncrement, 21.71);
+
+  const parent = (earnedIncome) =>
+    stateIncomeTax({
+      state: 'CA',
+      year: 2025,
+      filingStatus: 'headOfHousehold',
+      federal: {
+        adjustedGrossIncome: earnedIncome,
+        taxableIncome: Math.max(0, earnedIncome - 22_500),
+        deduction: 22_500,
+        deductionKind: 'standard',
+      },
+      earnedIncome,
+      dependentAges: [3, 7],
+    });
+  assert.equal(parent(8_000).marginalRate, -0.34);
+  assert.equal(parent(10_000).marginalRate, 0.34);
+  assert.equal(parent(25_000).marginalRate, 0.042);
+  // "a 68-point swing across the single dollar at $9,823"
+  money(parent(10_000).marginalRate - parent(8_000).marginalRate, 0.68, 'the swing');
+  // "$1,824 later": the distance from $8,000 to the $9,823 peak, plus the dollar
+  // that flips the sign.
+  assert.equal(9_823 + 1 - 8_000, 1_824);
+  // "add 74 cents to every dollar": the federal 40% two-child phase-in plus
+  // California's 34%.
+  money(0.4 + 0.34, 0.74, 'the two credits together');
+  // "worth $4,528.82 ... at $9,823 of earnings"
+  const peak = parent(9_823).tax;
+  const disqualified = stateIncomeTax({
+    state: 'CA',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    federal: {
+      adjustedGrossIncome: 9_823,
+      taxableIncome: 0,
+      deduction: 22_500,
+      deductionKind: 'standard',
+    },
+    earnedIncome: 9_823,
+    dependentAges: [3, 7],
+    investmentIncome: 4_815,
+  }).tax;
+  money(disqualified - peak, 4_528.82, 'the investment-income cliff');
 });
 
 test('README: the OBBBA pass-through table', () => {

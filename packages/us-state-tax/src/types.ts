@@ -232,6 +232,42 @@ export interface StateIncomeTaxInput {
    */
   readonly dependentAges?: readonly number[];
   /**
+   * Earned income for the tax year — wages, salary, tips and net self-employment
+   * earnings — as the state measures it.
+   *
+   * Needed by any credit computed on earnings rather than on a federal figure,
+   * and California's are the ones that matter: CalEITC and the Young Child Tax
+   * Credit are both functions of California earned income and of nothing else on
+   * the return. Neither can be recovered from {@link FederalBasis}, because AGI
+   * contains investment and retirement income the credits ignore and is net of
+   * above-the-line deductions they do not allow.
+   *
+   * Omitting it in California computes both credits as zero and says so, with
+   * the amount at stake — a single parent of two young children at `$25,000` is
+   * owed `$331.76` of CalEITC and `$1,189` of Young Child Tax Credit against a
+   * California tax of `$135.88`, so the whole return turns from zero into a
+   * refund of `$1,520.76`.
+   *
+   * For the great majority of filers this is simply gross wages. It is *not*
+   * reduced by a 401(k) deferral for the federal credit's purposes and is not
+   * here either.
+   */
+  readonly earnedIncome?: number;
+  /**
+   * Investment income — taxable and tax-exempt interest, dividends, capital gain
+   * net income and net rent and royalty income.
+   *
+   * Consulted only by an earned income credit with an investment-income limit.
+   * California's is `$4,814` for 2025 and it is a **cliff**: one dollar over it
+   * costs the whole CalEITC and, with it, the whole Young Child Tax Credit —
+   * `$4,528.82` at the worst point — a single parent of two young children with
+   * `$9,823` of earnings, which is exactly where CalEITC peaks.
+   * Treated as zero when absent, which is right for most filers and is the only
+   * safe default, since the alternative is denying a credit nobody said was
+   * disqualified.
+   */
+  readonly investmentIncome?: number;
+  /**
    * State-specific additions to the base — most commonly interest on another
    * state's municipal bonds, and in most states the state income tax itself when
    * it was deducted federally as an itemized deduction.

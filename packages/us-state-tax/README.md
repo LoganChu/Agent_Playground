@@ -244,10 +244,62 @@ Utah compute their own credit from it. The three exceptions are the point:
 | New York | 30% | **Less the New York household credit** (§ 606(d)(1)); the two are not additive. |
 | Utah | 20% | **Non-refundable.** A Utah filer whose Taxpayer Tax Credit already covers their tax gets nothing. |
 
-**California is deliberately absent.** CalEITC is not a percentage of the federal credit —
-R&TC § 17052 defines its own phase-in, phase-out and adjustment factor, completing near
-`$32,000` of earned income. Applying any percentage to the federal credit gives a wrong
-California answer, so this package gives none and says so.
+### California computes its own, and it is a triangle
+
+CalEITC is not a percentage of the federal credit, so it needs `earnedIncome` rather than
+`federal.earnedIncomeCredit`. R&TC § 17052 adopts the federal § 32 *structure* as it stood
+in 2015 — the credit percentages are the federal 7.65% / 34% / 40% / 45% — and then changes
+three things, each of which moves real money:
+
+1. **The ceiling is half the federal one, frozen at 2015 and indexed since.** The statutory
+   table of `$3,290` / `$4,940` / `$6,935` is exactly half the federal 2015 earned income
+   amounts. In 2025 that is `$4,661` / `$6,998` / `$9,823`.
+2. **The whole credit is multiplied by 85%**, the adjustment factor the Budget Act has set
+   every year since 2015 (§ 17052(a)(2)(B)). So a one-child filer's first `$6,998` is
+   subsidised at **28.9%**, not 34%.
+3. **There is no plateau.** The phase-out threshold *is* the phase-in ceiling, and the
+   phase-out rate is the phase-in rate. The federal credit is a trapezoid; this one is a
+   triangle with a long flat tail bolted on to reach the `$32,901` cap.
+
+The consequence is a marginal rate no rate table can show:
+
+```js
+const parent = (earnedIncome) => stateIncomeTax({
+  state: 'CA', year: 2025, filingStatus: 'headOfHousehold',
+  federal: { adjustedGrossIncome: earnedIncome, taxableIncome: Math.max(0, earnedIncome - 22_500),
+             deduction: 22_500, deductionKind: 'standard' },
+  earnedIncome, dependentAges: [3, 7],
+});
+
+parent(8_000).marginalRate;  // -0.34  <- California pays 34 cents on the next dollar
+parent(10_000).marginalRate; //  0.34  <- and takes 34 cents, $1,824 later
+parent(25_000).marginalRate; //  0.042 <- the tail: 4.2 cents on the dollar for $15,000
+```
+
+A **68-point swing across the single dollar** at `$9,823`, where the credit peaks. Stacked
+on the federal credit's own 40% phase-in for two children, the two earned income credits
+together **add 74 cents to every dollar** a California single parent earns up to `$9,823`,
+before payroll tax.
+
+**The Young Child Tax Credit** (§ 17052.1) is `$1,189`, refundable, and three things about
+it are usually wrong elsewhere:
+
+- **It is one credit per return, not one per child.** One child under 6 and three under 6
+  are both worth `$1,189`.
+- **It is gated on CalEITC**, so the `$4,814` investment-income limit is a cliff worth
+  `$4,528.82` to a single parent of two young children at `$9,823` of earnings — one
+  dollar of interest, and both credits go.
+- **Its phase-out rate is not a parameter.** `$21.71` per `$100` is
+  `amount ÷ ((cap − threshold) ÷ $100)` truncated to the cent — the rate that runs the
+  credit to zero exactly at the CalEITC cap. That identity reproduces the published figure
+  for 2021, 2022, 2024 and 2025.
+
+And it is per `$100` *or fraction thereof*, so it is a staircase: 99 dollars in 100 cost
+nothing and the hundredth costs `$21.71`.
+
+Still absent in California: the Foster Youth Tax Credit (identical `$1,189` on an identical
+phase-out, but it needs a foster-care history this package has no input for), the renter
+credit, and the California AMT.
 
 ### A flat rate is not a marginal rate
 
@@ -339,11 +391,16 @@ hides its gaps is worse than useless:
   taxes and Maryland's counties are not, and for an Indiana or Pennsylvania filer the local
   tax is a large fraction of the bill. Nor is part-year city residency, or the New York
   City child and dependent care credit.
-- **One state child credit.** New York's Empire State child credit is computed from
-  `dependentAges`. Absent: CalEITC and the Young Child Tax Credit, the Arizona dependent
-  credit, the North Carolina child deduction, the Georgia and Kentucky retirement
-  exclusions, and the Utah retirement and Social Security credits. A family return or a
-  retiree return outside New York will be **too high**.
+- **Two states' child credits.** New York's Empire State child credit and California's
+  Young Child Tax Credit are computed from `dependentAges`. Absent: the California Foster
+  Youth Tax Credit, the Arizona dependent credit, the North Carolina child deduction, the
+  Georgia and Kentucky retirement exclusions, and the Utah retirement and Social Security
+  credits. A family return or a retiree return outside New York and California will be
+  **too high**.
+- **CalEITC qualifying children are counted from `dependentAges` alone.** A dependent aged
+  18 or under counts; a full-time student under 24 and a permanently disabled dependent of
+  any age also qualify under § 17052 and this package cannot see either. Nor does it check
+  the filer's own age, which California requires to be at least 18.
 - **No state alternative minimum tax** (California and Colorado both have one).
 - **No additions or subtractions are enumerated.** They are a long, state-specific list —
   municipal bond interest, US government interest, 529 contributions, military pay — and a
