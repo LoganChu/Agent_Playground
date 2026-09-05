@@ -201,7 +201,27 @@ sounds like.** Pass `federalEarnedIncomeCredit` from `estimate_federal_tax` and 
 Taxpayer Tax Credit already covers their tax gets nothing. New York's is netted against the
 New York household credit. Indiana's applies to a federal credit the filer never claimed —
 computed under a frozen Internal Revenue Code with Indiana's own $3,800 investment-income
-limit. CalEITC is deliberately absent: it is not a percentage of the federal credit at all.
+limit.
+
+**California computes its own instead, and it is a triangle.** Pass `earnedIncome` and
+`dependentAges` for a California filer. CalEITC adopts the *federal* credit percentages —
+7.65% / 34% / 40% / 45% — halves the federal 2015 phase-in ceiling, multiplies the whole
+credit by the Budget Act's 85% adjustment factor, and then does the thing no rate table can
+show: **it has no plateau.** The phase-out threshold *is* the phase-in ceiling, so the
+credit peaks at a single dollar of income and falls at the rate it climbed.
+
+```text
+Head of household, two children, 2025          state marginal rate
+  $8,000 of wages                                    -34.00%
+  $10,000 of wages                                   +34.00%
+  $25,000 of wages                                    +4.20%
+```
+
+A 68-point swing across the dollar at `$9,823`, then a long flat tail to the `$32,901` cap.
+The **Young Child Tax Credit** adds `$1,189`, refundable, for any child under 6 — one credit
+per return however many children, and gated on CalEITC, so the `$4,814` investment-income
+limit is a cliff worth `$4,528.82`. A single parent of two at `$25,000` goes from a
+California tax of `$0` to a refund of `$1,520.76`.
 
 **A flat rate is not a marginal rate.** `state_income_tax` measures the marginal rate by
 running the whole computation one dollar higher, which is the only way any of this is
@@ -326,9 +346,13 @@ confidently fill them in.
   Pennsylvania municipal earned income taxes, Ohio municipalities, Detroit and Maryland
   counties are not modelled, nor is part-year city residency. State earned income credits
   are modelled for the six states that set them as a share of the federal credit, and New
-  York's Empire State child credit from `dependentAges`; no other state child credit or
-  retirement exclusion is, so a family or retiree state return outside New York comes out
-  **too high**.
+  York's Empire State child credit and California's Young Child Tax Credit from
+  `dependentAges`; no other state child credit or retirement exclusion is, so a family or
+  retiree state return outside New York and California comes out **too high**. California's
+  Foster Youth Tax Credit — the same `$1,189` on the same phase-out — needs a foster-care
+  history there is no field for, and CalEITC qualifying children are counted from
+  `dependentAges` alone, so a full-time student under 24 and a permanently disabled
+  dependent are both missed.
 - **The new § 68 overall limitation on itemized deductions** (OBBBA § 70111, first effective
   2026). Its formula needs the § 199A deduction, and § 199A needs taxable income, which
   needs itemized deductions after § 68 — a genuine fixed point the statute does not resolve.

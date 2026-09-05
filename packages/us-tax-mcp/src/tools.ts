@@ -1059,22 +1059,20 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE individual income tax return for 2025 or 2026, for 23 states including NEW YORK, ' +
-    'plus NEW YORK CITY and YONKERS local tax. Call estimate_federal_tax FIRST and pass its ' +
-    'adjustedGrossIncome, taxableIncome, deduction and earned income credit here — a state return is a ' +
-    'function of the federal one, and which federal figure a state starts from decides the answer. Colorado ' +
-    'and Idaho tax federal TAXABLE income, so the OBBBA deduction increase cut their 2025 tax with no state ' +
-    'legislation; Arizona defines its deduction as the federal one; Illinois and Michigan tax federal AGI and ' +
-    'got nothing. Colorado then adds Section 199A back, and from 2026 overtime but not tips. New York adds a ' +
-    'supplemental tax above $107,650 of AGI that recaptures the lower brackets, so a high earner pays their ' +
-    'top rate on their WHOLE income: walking the bracket table is short by $2,399 at $300,000. ALWAYS pass ' +
-    'locality for a New York filer — a New York City resident owes 3.078-3.876% more, $3,174.69 at $100,000, ' +
-    'which is more than the whole state tax of 12 of these 23 states. ' +
-    'Reports the true marginal rate, which is not the statutory rate in Utah (4.45% headline, 5.75% real), ' +
-    'Pennsylvania (~11-34% across the forgiveness staircase), Illinois (a cliff at $250,000) or New York. ' +
-    'Does NOT cover any state outside the state enum, local tax outside New York (Indiana counties, Michigan ' +
-    'and Ohio cities), state child credits, CalEITC, or state withholding. An unlisted state is an error, ' +
-    'not a zero.',
+    'Compute a US STATE individual income tax return for 2025 or 2026, for 23 states plus NEW YORK CITY and ' +
+    'YONKERS local tax. Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome, ' +
+    'deduction and earned income credit — a state return is a function of the federal one, and which federal ' +
+    'figure a state starts from decides the answer. ALWAYS pass locality for a New York filer: a New York ' +
+    'City resident owes 3.078-3.876% more, $3,174.69 at $100,000, and New York recaptures the lower brackets ' +
+    'above $107,650 of AGI, so walking the bracket table is short by $2,399 at $300,000. ALWAYS pass ' +
+    'earnedIncome and dependentAges for a California filer: CalEITC and the Young Child Tax Credit are ' +
+    'refundable, worth up to $4,946 together, and without earnings a low-income California return comes back ' +
+    'too high. Reports the true marginal rate by rerunning the whole return a dollar higher, which is not the ' +
+    'statutory rate wherever a credit phases out — Utah 4.45% headline against 5.75% real, and California ' +
+    'MINUS 34% on the CalEITC phase-in. Every result carries that state\'s own notes and the statutes behind ' +
+    'them, so the conformity detail arrives with the answer rather than here. Does NOT cover any state ' +
+    'outside the state enum, local tax outside New York, or state withholding. An unlisted state is an ' +
+    'error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1114,7 +1112,19 @@ const stateTool: ToolDefinition = {
         type: 'array',
         items: { type: 'integer', minimum: 0 },
         description:
-          'Age of EVERY dependent at year end, not only the children. Required for New York: the Empire State child credit is $1,000 per child under 4 and $330 (2025) or $500 (2026) per child aged 4-16, refundable, and a count cannot tell a toddler from a 19-year-old. Its phase-out cuts the WHOLE credit by $16.50 per $1,000 of AGI over $110,000 joint / $75,000 single, so a family with three young children keeps some of it to $291,000.',
+          'Age of EVERY dependent at year end, not only the children, because a count cannot tell a toddler from a 19-year-old. Required for New York: the Empire State child credit is $1,000 per child under 4 and $330 (2025) or $500 (2026) per child aged 4-16, refundable, and its phase-out cuts the WHOLE credit by $16.50 per $1,000 of AGI over $110,000 joint / $75,000 single, so a family with three young children keeps some of it to $291,000. Required for California too: CalEITC is worth $303 with no qualifying child and $3,340 with two, and the Young Child Tax Credit adds $1,189 for any child under 6. Supplying dependents without ages computes both California credits as ZERO rather than guessing.',
+      },
+      earnedIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Wages plus net self-employment earnings. Required for California, where CalEITC and the Young Child Tax Credit are functions of earnings and of nothing else on the return; neither can be recovered from AGI. CalEITC peaks at ONE dollar of income — $9,823 with two children — and has no plateau, so the state marginal rate is minus 34% below that dollar and plus 34% above it.',
+      },
+      investmentIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Interest (taxable and tax-exempt), dividends, net capital gain and net rent and royalty income. California only: over $4,814 it is a CLIFF that costs the whole CalEITC and, because that credit gates it, the whole Young Child Tax Credit — $4,528.82 at the worst point. Treated as zero when omitted.',
       },
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
@@ -1220,6 +1230,8 @@ const stateTool: ToolDefinition = {
       }
       return age;
     });
+    const earnedIncome = readNumber(source, 'earnedIncome');
+    const investmentIncome = readNumber(source, 'investmentIncome');
     const paIncome = readNumber(source, 'pennsylvaniaTaxableIncome');
     if (paIncome !== undefined && state !== 'PA') {
       throw new ToolInputError(
@@ -1263,6 +1275,8 @@ const stateTool: ToolDefinition = {
       // disagrees rather than silently changing a family's credit.
       ...(dependentAges !== undefined ? { dependentAges } : {}),
       ...(dependents !== undefined && dependentAges === undefined ? { dependents } : {}),
+      ...(earnedIncome !== undefined ? { earnedIncome } : {}),
+      ...(investmentIncome !== undefined ? { investmentIncome } : {}),
       ...(additions !== undefined ? { additions } : {}),
       ...(subtractions !== undefined ? { subtractions } : {}),
       ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),

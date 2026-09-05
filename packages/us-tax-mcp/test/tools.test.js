@@ -710,6 +710,76 @@ test('state_income_tax reports the marginal rate a rate schedule cannot show', (
   assert.match(illinois.text, /\$141\.12/);
 });
 
+test('state_income_tax computes CalEITC and the Young Child Tax Credit', () => {
+  const parent = (extra) =>
+    ok('state_income_tax', {
+      state: 'CA',
+      filingStatus: 'headOfHousehold',
+      year: 2025,
+      federalAdjustedGrossIncome: 25_000,
+      federalTaxableIncome: 2_500,
+      federalDeduction: 22_500,
+      dependentAges: [3, 7],
+      ...extra,
+    });
+
+  const withEarnings = parent({ earnedIncome: 25_000 });
+  const credits = withEarnings.structured.state.credits;
+  const named = (part) => credits.find((c) => c.name.includes(part));
+  assert.equal(named('CalEITC').amount, 331.76);
+  assert.equal(named('CalEITC').refundable, true);
+  assert.equal(named('Young Child').amount, 1_189);
+  assert.equal(withEarnings.structured.state.tax, -1520.76);
+  assert.match(withEarnings.text, /-\$1,520\.76/);
+
+  // Without earnings the two credits cannot be computed, and the result says so
+  // rather than reporting a confident zero.
+  const without = parent({});
+  assert.equal(without.structured.state.tax, 0);
+  assert.ok(
+    without.structured.state.notes.some((n) => n.includes('earnedIncome was not supplied')),
+    'a California return without earnings should say what the omission cost',
+  );
+
+  // The investment-income limit is a cliff and it takes both credits with it.
+  const disqualified = parent({ earnedIncome: 25_000, investmentIncome: 4_815 });
+  assert.equal(disqualified.structured.state.tax, 0);
+  assert.equal(named('CalEITC').amount > 0, true);
+});
+
+test('state_income_tax reports a NEGATIVE marginal rate on the CalEITC phase-in', () => {
+  // The credit peaks at $9,823 for a two-child filer and has no plateau, so the
+  // dollar before the peak is worth 34 cents and the dollar after costs 34.
+  const at = (earnedIncome) =>
+    ok('state_income_tax', {
+      state: 'CA',
+      filingStatus: 'headOfHousehold',
+      year: 2025,
+      federalAdjustedGrossIncome: earnedIncome,
+      federalTaxableIncome: 0,
+      federalDeduction: 22_500,
+      earnedIncome,
+      dependentAges: [3, 7],
+    }).structured.state.marginalRate;
+  assert.equal(at(8_000), -0.34);
+  assert.equal(at(10_000), 0.34);
+});
+
+test('state_income_tax refuses earnedIncome it cannot validate, and unknown fields still throw', () => {
+  const bad = findTool('state_income_tax');
+  assert.throws(
+    () =>
+      bad.run({
+        state: 'CA',
+        filingStatus: 'single',
+        federalAdjustedGrossIncome: 10_000,
+        federalTaxableIncome: 0,
+        earnedIncome: -1,
+      }),
+    /earnedIncome/,
+  );
+});
+
 test('state_income_tax passes the Colorado add-backs through', () => {
   const withQbi = ok('state_income_tax', {
     state: 'CO',

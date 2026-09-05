@@ -186,13 +186,43 @@ test('the terse schemas keep every field, and only shorten the prose', () => {
         continue;
       }
       assert.ok(terse, `${tool.name} is missing the household field ${name}`);
-      assert.ok(
-        full[name].description.startsWith(terse.description),
-        `${tool.name}.${name} terse description is not a prefix of the full one`,
-      );
+      const long = full[name].description;
+      if (!long.startsWith(terse.description)) {
+        // Not a prefix, so it is an AUTHORED short form. Those exist because the
+        // derived trim keeps the first sentence and cannot tell an example from a
+        // definition — see `withShortForm` in src/schema.ts. An authored form is
+        // allowed to rewrite, but not to invent: it must be shorter, and every
+        // statute it cites and every dollar figure it quotes must appear in the
+        // long description too, so the two cannot drift into disagreeing.
+        assert.ok(
+          terse.description.length < long.length,
+          `${tool.name}.${name} authored short form is not shorter than the full one`,
+        );
+        const claims = terse.description.match(/§ \d+[\w().]*|\$[\d,]+/g) ?? [];
+        for (const claim of claims) {
+          assert.ok(
+            long.includes(claim),
+            `${tool.name}.${name} short form cites ${claim}, which the full description does not`,
+          );
+        }
+      }
       assert.equal(terse.type, full[name].type, `${tool.name}.${name} changed type`);
     }
   }
+});
+
+test('the authoring key never reaches a client', () => {
+  // `x-terse` is how this codebase records a hand-written short form. It is a
+  // property of the source, not of the JSON Schema a client receives, and a
+  // client that saw it would be paying context for a field it cannot use.
+  const payload = JSON.stringify(TOOLS.map((tool) => tool.inputSchema));
+  assert.ok(!payload.includes('x-terse'), 'the authoring key leaked into tools/list');
+  // And the full schema keeps the long description, not the short one.
+  const full = TOOLS.find((t) => t.name === 'estimate_federal_tax').inputSchema.properties;
+  assert.ok(
+    full.qualifiedOvertimeCompensation.description.includes('not total overtime wages'),
+    'the full schema lost the clause the short form exists to protect',
+  );
 });
 
 test('tools/list stays within a sane context budget', () => {
@@ -233,8 +263,24 @@ test('tools/list stays within a sane context budget', () => {
   //
   // Both were spent: locality, yonkersNonresidentEarnings and dependentAges on
   // state_income_tax took the headroom back to a few hundred bytes.
+  //
+  // The third pass is the one that generalises, and it came from noticing why the
+  // first two kept needing hand-edits: `firstSentence` is a SYNTACTIC trim, and
+  // most of this payload is one-sentence descriptions, on which it is a no-op.
+  // Widening it to cut at the first dash or colon recovers 2,275 bytes and drops
+  // an operative definition in three cases out of eight — "not total overtime
+  // wages" among them, which is the single most expensive clause in the file. So
+  // the short form is AUTHORED where a mechanical cut would lose something, via
+  // `x-terse`, and derived everywhere else. Ten authored forms recovered 2,193
+  // bytes with nothing lost, and the test above stops an authored form inventing
+  // a statute or a figure the long one does not have.
+  //
+  // That, plus rewriting state_income_tax's description on the rule that a tool
+  // description says WHAT TO PASS while facts the result already carries are
+  // delivered on every call anyway, paid for earnedIncome and investmentIncome
+  // with room left over.
   assert.ok(
-    48_000 - payload.length < 1_500,
+    48_000 - payload.length < 2_200,
     `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +
       'this note about the budget is stale and should be rewritten with the real figure',
   );

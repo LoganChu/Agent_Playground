@@ -24,6 +24,24 @@ export type JsonSchema = Record<string, unknown>;
 
 const money = (description: string): JsonSchema => ({ type: 'number', minimum: 0, description });
 
+/**
+ * Attach an authored short form to a property.
+ *
+ * The derived trim keeps the first sentence, which cannot tell an *example* from
+ * a *definition* — and in a tax schema the clause after the colon is very often
+ * the definition. "The FLSA premium portion of overtime pay under § 225 — the
+ * excess over the regular rate, not total overtime wages" loses the whole point
+ * of the field to any cut at the dash, and a filer's overtime deduction comes
+ * back three times too big. The author can tell them apart; a regular expression
+ * cannot. So where a mechanical trim would drop something operative, the short
+ * form is written rather than derived, and `test/schema.test.js` asserts that
+ * every authored form still names what the derived one would have kept.
+ */
+const withShortForm = (schema: JsonSchema, short: string): JsonSchema => ({
+  ...schema,
+  'x-terse': short,
+});
+
 const flag = (description: string): JsonSchema => ({ type: 'boolean', description });
 
 const count = (description: string): JsonSchema => ({
@@ -92,8 +110,11 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   selfEmploymentNetProfit: money(
     'Net profit from self-employment (Schedule C line 31), before the deductible half of self-employment tax. 1099 / freelance / sole-proprietor income goes here, not in w2Wages.',
   ),
-  otherOrdinaryIncome: money(
-    'Income taxed at ordinary rates that is neither wages nor self-employment: interest, non-qualified dividends, retirement distributions, short-term capital gains, taxable social security.',
+  otherOrdinaryIncome: withShortForm(
+    money(
+      'Income taxed at ordinary rates that is neither wages nor self-employment: interest, non-qualified dividends, retirement distributions, short-term capital gains, taxable social security.',
+    ),
+    'Income taxed at ordinary rates that is neither wages nor self-employment.',
   ),
   longTermCapitalGains: money(
     'Long-term capital gains and qualified dividends, taxed at preferential rates. These stack on top of ordinary income rather than being taxed in isolation.',
@@ -108,16 +129,22 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   stateAndLocalTaxesPaid: money(
     'State and local income (or sales), real property and personal property tax actually paid, BEFORE the § 164(b)(6) cap. The cap and its 2026 phase-down are applied for you.',
   ),
-  otherItemizedDeductions: money(
-    'Every itemized deduction other than SALT: mortgage interest, charitable contributions, medical expense over the 7.5%-of-AGI floor, investment interest. Not further limited by this server — see the coverage notes from list_supported_years.',
+  otherItemizedDeductions: withShortForm(
+    money(
+      'Every itemized deduction other than SALT: mortgage interest, charitable contributions, medical expense over the 7.5%-of-AGI floor, investment interest. Not further limited by this server — see the coverage notes from list_supported_years.',
+    ),
+    'Every itemized deduction other than SALT, not further limited here.',
   ),
 
-  qualifiedBusinesses: {
-    type: 'array',
-    items: QUALIFIED_BUSINESS_SCHEMA,
-    description:
-      'Each § 199A trade or business separately, so the deduction is computed rather than assumed — SSTB phase-out, W-2 wage and property cap, loss netting and the taxable income limit included. A single Schedule C is one entry. These describe income already reported through selfEmploymentNetProfit or otherOrdinaryIncome; listing a business here does not add income.',
-  },
+  qualifiedBusinesses: withShortForm(
+    {
+      type: 'array',
+      items: QUALIFIED_BUSINESS_SCHEMA,
+      description:
+        'Each § 199A trade or business separately, so the deduction is computed rather than assumed — SSTB phase-out, W-2 wage and property cap, loss netting and the taxable income limit included. A single Schedule C is one entry. These describe income already reported through selfEmploymentNetProfit or otherOrdinaryIncome; listing a business here does not add income.',
+    },
+    'Each § 199A trade or business separately; one entry per Schedule C. Adds no income.',
+  ),
   qualifiedBusinessIncomeDeduction: money(
     'A § 199A deduction you have already computed elsewhere. Ignored when qualifiedBusinesses is supplied.',
   ),
@@ -135,14 +162,20 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   qualifiedTipsBusinessIncomeLimit: money(
     'Net income of the trade or business in which self-employed tips were earned, which caps the § 224 deduction for a self-employed filer.',
   ),
-  qualifiedOvertimeCompensation: money(
-    'The FLSA PREMIUM PORTION of overtime pay under § 225 — the excess over the regular rate ("the half" in time-and-a-half), not total overtime wages. Also counted in w2Wages. 2025-2028 only.',
+  qualifiedOvertimeCompensation: withShortForm(
+    money(
+      'The FLSA PREMIUM PORTION of overtime pay under § 225 — the excess over the regular rate ("the half" in time-and-a-half), not total overtime wages. Also counted in w2Wages. 2025-2028 only.',
+    ),
+    'The FLSA PREMIUM PORTION of overtime under § 225 — the excess over the regular rate, NOT total overtime wages. 2025-2028.',
   ),
   qualifiedVehicleLoanInterest: money(
     'Interest on a qualifying post-2024 loan for a new US-assembled personal-use vehicle (§ 163(h)(4)). 2025-2028 only.',
   ),
-  foreignEarnedIncomeExclusion: money(
-    'Income excluded under § 911, § 931 or § 933, added back when computing modified AGI for the SALT phase-down, the Schedule 1-A phase-outs and the child tax credit.',
+  foreignEarnedIncomeExclusion: withShortForm(
+    money(
+      'Income excluded under § 911, § 931 or § 933, added back when computing modified AGI for the SALT phase-down, the Schedule 1-A phase-outs and the child tax credit.',
+    ),
+    'Income excluded under § 911, § 931 or § 933, added back into modified AGI.',
   ),
 
   age: {
@@ -159,23 +192,38 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   qualifyingChildren: count(
     'Children under 17 at year end with a social security number valid for employment (§ 24(c), § 24(h)(7)). Supplying this turns on the child tax credit.',
   ),
-  otherDependents: count(
-    'Dependents worth the $500 credit for other dependents rather than the child tax credit: a child who turned 17, a dependent parent, a qualifying relative.',
+  otherDependents: withShortForm(
+    count(
+      'Dependents worth the $500 credit for other dependents rather than the child tax credit: a child who turned 17, a dependent parent, a qualifying relative.',
+    ),
+    'Dependents worth the $500 credit rather than the child tax credit.',
   ),
-  eitcQualifyingChildren: count(
-    'Children meeting the § 32(c)(3) tests, which genuinely differ from § 24 — no age-17 cut-off for a permanently disabled child, and no requirement to claim the dependency exemption. Defaults to qualifyingChildren.',
+  eitcQualifyingChildren: withShortForm(
+    count(
+      'Children meeting the § 32(c)(3) tests, which genuinely differ from § 24 — no age-17 cut-off for a permanently disabled child, and no requirement to claim the dependency exemption. Defaults to qualifyingChildren.',
+    ),
+    'Children meeting the § 32(c)(3) tests: no age-17 cut-off if permanently disabled. Defaults to qualifyingChildren.',
   ),
-  disqualifiedInvestmentIncome: money(
-    'Disqualified investment income for the § 32(i) cliff: taxable AND tax-exempt interest, dividends, net capital gain, net rental and royalty income, net passive income. Defaults to longTermCapitalGains, which is the only component that can be identified with certainty. A filer with substantial interest or ordinary dividends inside otherOrdinaryIncome should supply this explicitly.',
+  disqualifiedInvestmentIncome: withShortForm(
+    money(
+      'Disqualified investment income for the § 32(i) cliff: taxable AND tax-exempt interest, dividends, net capital gain, net rental and royalty income, net passive income. Defaults to longTermCapitalGains, which is the only component that can be identified with certainty. A filer with substantial interest or ordinary dividends inside otherOrdinaryIncome should supply this explicitly.',
+    ),
+    'Investment income for the § 32(i) cliff: interest (taxable AND tax-exempt), dividends, capital gain, rent, royalties, passive income.',
   ),
   separatedFromSpouse: flag(
     'Whether a married-filing-separately filer meets § 32(d)(2) (living apart for the last six months, or a separation decree). Defaults to false, which bars the earned income credit.',
   ),
-  taxpayerHasWorkAuthorizedSocialSecurityNumber: flag(
-    'Whether the taxpayer, or a spouse on a joint return, has a social security number valid for employment, as OBBBA § 70104(c) requires from 2025 for the child portion of the § 24 credit. Defaults to true.',
+  taxpayerHasWorkAuthorizedSocialSecurityNumber: withShortForm(
+    flag(
+      'Whether the taxpayer, or a spouse on a joint return, has a social security number valid for employment, as OBBBA § 70104(c) requires from 2025 for the child portion of the § 24 credit. Defaults to true.',
+    ),
+    'Filer or spouse has a work-authorized SSN, required from 2025 for the § 24 child credit. Defaults to true.',
   ),
-  employeeSocialSecurityAndMedicareTax: money(
-    'Employee-share social security and Medicare tax withheld, used only by the § 24(d)(1)(B)(ii) alternative for families with three or more children. Defaults to the FICA implied by w2Wages.',
+  employeeSocialSecurityAndMedicareTax: withShortForm(
+    money(
+      'Employee-share social security and Medicare tax withheld, used only by the § 24(d)(1)(B)(ii) alternative for families with three or more children. Defaults to the FICA implied by w2Wages.',
+    ),
+    'Employee-share FICA withheld; § 24(d)(1)(B)(ii) only. Defaults to the FICA implied by w2Wages.',
   ),
 
   federalWithholding: money('Federal income tax already withheld, used to compute the balance due or refund.'),
@@ -209,7 +257,7 @@ function firstSentence(text: string): string {
 export function terseProperties(properties: Record<string, JsonSchema>): Record<string, JsonSchema> {
   return Object.fromEntries(
     Object.entries(properties).map(([key, schema]) => {
-      let trimmed: JsonSchema = schema;
+      let trimmed: JsonSchema = withoutTerse(schema);
       const items = schema['items'];
       if (items && typeof items === 'object' && !Array.isArray(items)) {
         const itemSchema = items as JsonSchema;
@@ -224,9 +272,50 @@ export function terseProperties(properties: Record<string, JsonSchema>): Record<
           };
         }
       }
+      const authored = schema[TERSE_KEY];
+      if (typeof authored === 'string') return [key, { ...trimmed, description: authored }];
       const description = trimmed['description'];
       if (typeof description !== 'string') return [key, trimmed];
       return [key, { ...trimmed, description: firstSentence(description) }];
+    }),
+  );
+}
+
+/**
+ * The key an authored short form is written under. Never emitted: it is a
+ * property of this codebase, not of the JSON Schema a client receives.
+ */
+export const TERSE_KEY = 'x-terse';
+
+/** A property schema with the authoring key removed, ready to serialize. */
+export function withoutTerse(schema: JsonSchema): JsonSchema {
+  if (!(TERSE_KEY in schema)) return schema;
+  const { [TERSE_KEY]: _dropped, ...rest } = schema;
+  return rest;
+}
+
+/** Strip the authoring key from a whole property table. */
+export function emitProperties(
+  properties: Record<string, JsonSchema>,
+): Record<string, JsonSchema> {
+  return Object.fromEntries(
+    Object.entries(properties).map(([key, schema]) => {
+      let out = withoutTerse(schema);
+      const items = schema['items'];
+      if (items && typeof items === 'object' && !Array.isArray(items)) {
+        const itemSchema = items as JsonSchema;
+        const itemProperties = itemSchema['properties'];
+        if (itemProperties && typeof itemProperties === 'object') {
+          out = {
+            ...out,
+            items: {
+              ...itemSchema,
+              properties: emitProperties(itemProperties as Record<string, JsonSchema>),
+            },
+          };
+        }
+      }
+      return [key, out];
     }),
   );
 }
@@ -257,7 +346,7 @@ export function householdSchema(
 ): JsonSchema {
   const { verbosity = 'full', includeYear = true } = options;
   const terse = verbosity === 'terse';
-  const base = terse ? terseProperties(HOUSEHOLD_PROPERTIES) : HOUSEHOLD_PROPERTIES;
+  const base = terse ? terseProperties(HOUSEHOLD_PROPERTIES) : emitProperties(HOUSEHOLD_PROPERTIES);
   const year = terse ? terseProperties({ year: YEAR_PROPERTY })['year']! : YEAR_PROPERTY;
   return {
     type: 'object',

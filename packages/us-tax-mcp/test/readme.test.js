@@ -530,3 +530,60 @@ test('README: the Empire State child credit phase-out endpoints', () => {
   assert.ok(joint(291_000, [1, 2, 3]) > 0 && joint(291_001, [1, 2, 3]) === 0);
   assert.equal(getStateDefinition('NY', 2025).childCredit.phaseOut.amountPerIncrement, 50 * 0.33);
 });
+
+test('README: the CalEITC marginal-rate block, recomputed', () => {
+  const parent = (earnedIncome) =>
+    stateIncomeTax({
+      state: 'CA',
+      year: 2025,
+      filingStatus: 'headOfHousehold',
+      federal: stateFed(earnedIncome, Math.max(0, earnedIncome - 22_500), 22_500),
+      earnedIncome,
+      dependentAges: [3, 7],
+    });
+
+  // The three rows of the fenced block, read out of the README so that editing
+  // the prose without editing the arithmetic fails here.
+  quotesAcrossLines('$8,000 of wages                                    -34.00%');
+  quotesAcrossLines('$10,000 of wages                                   +34.00%');
+  quotesAcrossLines('$25,000 of wages                                    +4.20%');
+  assert.equal(parent(8_000).marginalRate, -0.34);
+  assert.equal(parent(10_000).marginalRate, 0.34);
+  assert.equal(parent(25_000).marginalRate, 0.042);
+
+  // "A 68-point swing across the dollar at $9,823, then a long flat tail to the
+  // $32,901 cap."
+  const rule = getStateDefinition('CA', 2025).ownEarnedIncomeCredit;
+  assert.equal(rule.byChildCount.find((b) => b.children === 2).earnedIncomeAmount, 9_823);
+  assert.equal(rule.finalPhaseOutEnd, 32_901);
+  assert.equal(rule.investmentIncomeLimit, 4_814);
+  assert.deepEqual(rule.byChildCount.map((b) => b.phaseInRate), [0.0765, 0.34, 0.4, 0.45]);
+  assert.equal(rule.adjustmentFactor, 0.85);
+
+  // "$1,189, refundable" and "a refund of $1,520.76"
+  const yctc = parent(25_000).credits.find((c) => c.name === 'Young Child Tax Credit');
+  assert.equal(yctc.amount, 1_189);
+  assert.equal(yctc.refundable, true);
+  assert.equal(parent(25_000).tax, -1520.76);
+
+  // "the $4,814 investment-income limit is a cliff worth $4,528.82"
+  const peak = 9_823;
+  const kept = stateIncomeTax({
+    state: 'CA',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    federal: stateFed(peak, 0, 22_500),
+    earnedIncome: peak,
+    dependentAges: [3, 7],
+  }).tax;
+  const lost = stateIncomeTax({
+    state: 'CA',
+    year: 2025,
+    filingStatus: 'headOfHousehold',
+    federal: stateFed(peak, 0, 22_500),
+    earnedIncome: peak,
+    investmentIncome: 4_815,
+    dependentAges: [3, 7],
+  }).tax;
+  assert.equal(Math.round((lost - kept) * 100) / 100, 4528.82);
+});
