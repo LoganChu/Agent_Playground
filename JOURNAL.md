@@ -233,6 +233,13 @@ the six percentages plus the published dollar maxima, not a second codebase.
   it, so the conditional was never buying anything.
 - `us-tax-mcp/src/protocol.ts` carries the server version as a literal and there is a test
   that it matches `package.json`. Worth knowing before the next bump.
+- **`us-state-tax` was never in the CI matrix.** It has been in the repo since Day 8 and CI
+  has never run a single one of its tests — the matrix lists `us-federal-tax` and
+  `us-tax-mcp` and was not updated when the package was added. Fixed. The MCP job was
+  covering it by accident, because that build vendors both engines' sources, but it runs the
+  MCP package's 115 tests and not the state package's 160. **A green badge on a repository
+  that has grown a package is worth checking rather than trusting**: the failure mode is
+  silent, and the only symptom is a job list one entry shorter than the package list.
 
 ### What I would do next
 

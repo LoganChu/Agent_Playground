@@ -12,9 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          # The MCP server vendors the engine's sources at build time, so it is
+          # The MCP server vendors both engines' sources at build time, so it is
           # built and tested from the same checkout rather than from a release.
           - us-federal-tax
+          - us-state-tax
           - us-tax-mcp
     defaults:
       run:
