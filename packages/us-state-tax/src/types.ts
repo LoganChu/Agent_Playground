@@ -46,6 +46,7 @@ export type StateCode =
   | 'MS'
   | 'NC'
   | 'NH'
+  | 'NJ'
   | 'NV'
   | 'NY'
   | 'PA'
@@ -297,6 +298,81 @@ export interface StateIncomeTaxInput {
    */
   readonly pennsylvaniaEligibilityIncome?: number;
   /**
+   * New Jersey only, and required there: total income as New Jersey measures it
+   * — line 27 of the NJ-1040, **before** the pension and retirement income
+   * exclusion and before every deduction.
+   *
+   * New Jersey has no federal starting line. Its gross income tax enumerates its
+   * own categories in N.J.S.A. 54A:5-1 and the differences run both ways:
+   *
+   * - **Not taxed by New Jersey but in federal AGI**: Social Security benefits,
+   *   unemployment compensation, New Jersey municipal bond interest, most
+   *   gambling winnings from the New Jersey Lottery up to `$10,000`, and
+   *   temporary disability benefits paid by the state plan.
+   * - **Taxed by New Jersey but not in federal AGI**: elective deferrals to a
+   *   403(b) plan (a 401(k) deferral *is* excluded, a 403(b) one is not — the
+   *   single most common New Jersey error), contributions to a traditional IRA,
+   *   and interest on another state's municipal bonds.
+   * - **Netted differently**: a loss in one New Jersey income category cannot
+   *   offset income in another, and there is no capital loss carryforward.
+   *
+   * So federal AGI is not an approximation of this figure, it is a different
+   * one, and this package asks rather than guesses.
+   */
+  readonly newJerseyGrossIncome?: number;
+  /**
+   * Age of the filer at the end of the tax year.
+   *
+   * Consulted by any rule banded on the filer's own age rather than a
+   * dependent's. New Jersey has two: the `$1,000` senior exemption at 65, and
+   * the retirement income exclusion at 62 — which is worth up to `$100,000` of
+   * excluded income and is therefore the single largest thing in this package
+   * that cannot be computed without it.
+   */
+  readonly filerAge?: number;
+  /** Age of the spouse at the end of the tax year, on a joint return. */
+  readonly spouseAge?: number;
+  /**
+   * Filer and spouse who are blind or permanently disabled — 0, 1 or 2.
+   *
+   * Worth `$1,000` each in New Jersey, N.J.S.A. 54A:3-1(b)(5)-(6). Dependents do
+   * not count: New Jersey gives no additional exemption for a blind dependent.
+   */
+  readonly blindOrDisabled?: number;
+  /**
+   * Dependents under 22 attending an accredited post-secondary institution full
+   * time, who are also counted in {@link dependents}. New Jersey gives them a
+   * second `$1,000` exemption on top of the `$1,500` dependent one.
+   */
+  readonly dependentsAttendingCollege?: number;
+  /**
+   * Taxable pension, annuity and IRA withdrawals, as the state measures them.
+   *
+   * Consulted by {@link StateIncomeTaxInput.state}s with a retirement income
+   * exclusion. In New Jersey the exclusion is up to `$100,000` on a joint return
+   * and it vanishes entirely one dollar above `$150,000` of total income, so
+   * omitting this understates a retiree's exclusion to zero and supplying it
+   * near the limit is the difference between the two largest answers this
+   * package can give for the same filer.
+   */
+  readonly retirementIncome?: number;
+  /**
+   * Property tax paid in the year on a principal residence in the state.
+   *
+   * New Jersey allows a deduction of up to `$15,000` of it, **or** a flat `$50`
+   * refundable credit, whichever leaves the filer better off — and which one
+   * that is depends on the rest of the return, so the engine computes both.
+   */
+  readonly propertyTaxPaid?: number;
+  /**
+   * Rent paid in the year on a principal residence in the state. New Jersey
+   * treats 18% of it as property tax, so a tenant is eligible for the same
+   * deduction or credit as an owner. Ignored when {@link propertyTaxPaid} is
+   * supplied; a filer who both owned and rented in the same year should add the
+   * two into {@link propertyTaxPaid} themselves.
+   */
+  readonly rentPaid?: number;
+  /**
    * Federal below-AGI deductions the filer took. Only consulted by states that
    * start from federal taxable income and add specific ones back — see
    * {@link FederalDeductionsTaken}.
@@ -408,7 +484,17 @@ export interface StateIncomeTaxResult {
    */
   readonly addBacks: readonly { readonly name: string; readonly amount: number }[];
   readonly subtractions: number;
-  /** The state's own standard or itemized deduction. */
+  /**
+   * The part of {@link subtractions} this package computed itself, rather than
+   * taking from {@link StateIncomeTaxInput.subtractions}. New Jersey's pension
+   * and retirement income exclusion is the only one so far, and it is the
+   * largest subtraction in the package.
+   */
+  readonly computedSubtractions: readonly { readonly name: string; readonly amount: number }[];
+  /**
+   * The state's own standard or itemized deduction, plus any property tax
+   * deduction the engine decided was worth more than the credit it replaces.
+   */
   readonly deduction: number;
   /** Exemptions taken as a *deduction* from income, not as a credit. */
   readonly exemptions: number;

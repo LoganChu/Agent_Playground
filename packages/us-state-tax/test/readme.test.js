@@ -36,23 +36,23 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 23 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 23);
+test('README: 24 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 24);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Three graduated, eleven flat, nine with none.
+  // Five graduated, ten flat, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
   const flat = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind === 'flat');
-  assert.deepEqual(graduated, ['CA', 'ID', 'MS', 'NY']);
+  assert.deepEqual(graduated, ['CA', 'ID', 'MS', 'NJ', 'NY']);
   assert.equal(flat.length, 10);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
-  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 23);
-  // Fourteen taxing states — the count the README quotes when it says seven of
+  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 24);
+  // Fifteen taxing states — the count the README quotes when it says seven of
   // them cut their rate for 2026.
-  assert.equal(graduated.length + flat.length, 14);
+  assert.equal(graduated.length + flat.length, 15);
 });
 
 test('README: New York recaptures the brackets, and the identity that says so', () => {
@@ -247,6 +247,7 @@ test('README: the marginal rates that a rate schedule cannot show', () => {
       dependents,
       federal: { adjustedGrossIncome: 0, taxableIncome: 0, deduction: 0, deductionKind: 'standard' },
       pennsylvaniaTaxableIncome: income,
+      newJerseyGrossIncome: income,
     }).tax;
   assert.ok(Math.abs((pa(9_000) - pa(6_500)) / 2_500 - 0.1105) < 0.0005, 'about 11%');
   assert.ok(
@@ -349,7 +350,7 @@ test('README: the provisional and published lists for 2026', () => {
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
   assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MI', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MS', 'NC', 'NY', 'PA']);
+  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MS', 'NC', 'NJ', 'NY', 'PA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -365,7 +366,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['NJ', 'MA', 'OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
+  for (const state of ['MA', 'OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -406,7 +407,8 @@ test('README: the New York City quick-start figures', () => {
       year: 2025,
       filingStatus: 'single',
       federal,
-      ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 100_000 } : {}),
+      pennsylvaniaTaxableIncome: 100_000,
+      newJerseyGrossIncome: 100_000,
     });
     return result.tax < 3174.69;
   });
@@ -479,4 +481,74 @@ test('README: the Empire State child credit phase-out table', () => {
     }).marginalRate;
   assert.equal(hoh(75_000), 16.555);
   assert.equal(hoh(75_001), 0.055);
+});
+
+test('README: the New Jersey section', () => {
+  const federal = FEDERAL_2025;
+  const single = (grossIncome) =>
+    stateIncomeTax({
+      state: 'NJ',
+      year: 2025,
+      filingStatus: 'single',
+      federal,
+      newJerseyGrossIncome: grossIncome,
+    });
+  money(single(10_000).tax, 0);
+  money(single(10_001).tax, 126.01);
+
+  const joint = stateIncomeTax({
+    state: 'NJ',
+    year: 2025,
+    filingStatus: 'marriedFilingJointly',
+    federal,
+    newJerseyGrossIncome: 20_001,
+  });
+  money(joint.tax, 252.01);
+
+  const retiree = (totalIncome) =>
+    stateIncomeTax({
+      state: 'NJ',
+      year: 2025,
+      filingStatus: 'marriedFilingJointly',
+      federal,
+      newJerseyGrossIncome: totalIncome,
+      retirementIncome: 100_000,
+      filerAge: 70,
+    });
+  money(retiree(150_000).tax, 3_965.5);
+  money(retiree(150_001).tax, 5_346.81);
+  money(retiree(150_000).marginalRate, 1_381.3052);
+
+  // "the largest one-dollar cliff in this package", against the two the README
+  // names elsewhere: California's investment-income cliff at $4,528.82 is
+  // larger, but it is a cliff in a *credit*, not in the tax. Among the cliffs
+  // measured as a marginal rate on a dollar of income, this is the biggest.
+  assert.ok(retiree(150_000).marginalRate > 1_000);
+
+  // "multiply by .05525 and subtract $1,492.50" — the single filer's fourth band.
+  const inThatBand = single(51_000);
+  money(inThatBand.taxableIncome, 50_000);
+  money(inThatBand.tax, 0.05525 * 50_000 - 1_492.5);
+
+  // The 25% raise, and the $600 / $750 cliffs it turns into.
+  const family = (taxableIncome, year) =>
+    stateIncomeTax({
+      state: 'NJ',
+      year,
+      filingStatus: 'marriedFilingJointly',
+      federal,
+      newJerseyGrossIncome: taxableIncome + 2_000 + 3 * 1_500,
+      dependentAges: [1, 3, 5],
+    }).credits.find((c) => c.name.includes('child tax credit')).amount;
+  money(family(30_000, 2025) - family(30_001, 2025), 600);
+  money(family(30_000, 2026) - family(30_001, 2026), 750);
+  money(family(30_000, 2026), family(30_000, 2025) * 1.25);
+
+  // The derived exclusion percentages.
+  const rule = getStateDefinition('NJ', 2025).retirementExclusion;
+  money(0.5 * (rule.maximum.single / rule.maximum.marriedFilingJointly), 0.375);
+  money(
+    0.25 * (rule.maximum.marriedFilingSeparately / rule.maximum.marriedFilingJointly),
+    0.125,
+  );
 });

@@ -50,15 +50,22 @@ function conformityAmount(def: StateIncomeTaxDefinition, input: StateIncomeTaxIn
     case 'federalTaxableIncome':
       return input.federal.taxableIncome;
     case 'stateDefined': {
-      if (input.pennsylvaniaTaxableIncome === undefined) {
-        throw new RangeError(
-          `${def.code} defines its own tax base and does not start from any federal figure. ` +
-            `Supply pennsylvaniaTaxableIncome — Pennsylvania taxes eight classes of income ` +
-            `with no standard deduction, no personal exemption, and no deduction for 401(k) ` +
-            `elective deferrals, so federal AGI is not a usable substitute.`,
+      const field = def.stateDefinedBase?.field;
+      /* c8 ignore next 5 -- unreachable: every stateDefined state carries the field. */
+      if (field === undefined) {
+        throw new Error(
+          `${def.code} has base 'stateDefined' but no stateDefinedBase. This is a bug in ` +
+            `this package's state definition, not in the caller's input.`,
         );
       }
-      return nonNegative(input.pennsylvaniaTaxableIncome, 'pennsylvaniaTaxableIncome');
+      const value = input[field];
+      if (value === undefined) {
+        throw new RangeError(
+          `${def.code} defines its own tax base and does not start from any federal figure. ` +
+            `Supply ${field} — ${def.stateDefinedBase?.why ?? ''}`,
+        );
+      }
+      return nonNegative(value, field);
     }
   }
 }
@@ -79,7 +86,129 @@ function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
   if (!rule) return 0;
   const cliff = rule.cliff?.[input.filingStatus];
   if (cliff !== undefined && input.federal.adjustedGrossIncome > cliff) return 0;
-  return rule.perFiler[input.filingStatus] + rule.perDependent * dependentCount(input);
+  let total = rule.perFiler[input.filingStatus] + rule.perDependent * dependentCount(input);
+
+  // New Jersey's per-person additions. Each is claimed by a *filer*, never by a
+  // dependent: New Jersey gives nothing extra for a blind or elderly dependent.
+  const seniorAge = rule.seniorAge;
+  if (rule.perSeniorFiler !== undefined && seniorAge !== undefined) {
+    total += rule.perSeniorFiler * seniorFilers(input, seniorAge);
+  }
+  if (rule.perBlindOrDisabledFiler !== undefined) {
+    const claimed = nonNegative(input.blindOrDisabled, 'blindOrDisabled');
+    total += rule.perBlindOrDisabledFiler * Math.min(claimed, filerCount(input.filingStatus));
+  }
+  if (rule.perCollegeDependent !== undefined) {
+    const college = nonNegative(input.dependentsAttendingCollege, 'dependentsAttendingCollege');
+    total += rule.perCollegeDependent * Math.min(college, dependentCount(input));
+  }
+  return total;
+}
+
+/** How many of the filer and spouse are at or above an age. */
+function seniorFilers(input: StateIncomeTaxInput, age: number): number {
+  const filers = filerCount(input.filingStatus);
+  let count = 0;
+  if (input.filerAge !== undefined && input.filerAge >= age) count += 1;
+  if (filers === 2 && input.spouseAge !== undefined && input.spouseAge >= age) count += 1;
+  return count;
+}
+
+/**
+ * New Jersey's pension and retirement income exclusion, N.J.S.A. 54A:6-10.
+ *
+ * `totalIncome` is line 27 — before this exclusion — because that is the figure
+ * the statute's tiers are measured on. The result is subtracted to reach line 29,
+ * which is the figure the filing threshold is measured on. Two income measures,
+ * two different tests, one line apart.
+ */
+function retirementExclusion(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  totalIncome: number,
+): number {
+  const rule = def.retirementExclusion;
+  if (!rule) return 0;
+  const retirement = nonNegative(input.retirementIncome, 'retirementIncome');
+  const eligibleByAge = seniorFilers(input, rule.minimumAge) > 0;
+  if (!eligibleByAge) return 0;
+
+  const status = input.filingStatus;
+  const maximum = rule.maximum[status];
+  const tier = rule.tiers.find((t) => totalIncome <= t.upTo);
+  /* c8 ignore next -- the last tier is unbounded, so find() always succeeds. */
+  if (!tier) return 0;
+  const fraction = exclusionFraction(rule, status, tier.jointPercentage);
+
+  // Part I of Worksheet D. The percentage applies to the pension, and the
+  // maximum caps the result — two limits, not one, and which of them binds
+  // depends on the filer.
+  const pensionPart = Math.min(retirement * fraction, maximum);
+
+  // Part II: what Part I did not use may be applied to *other* income, but only
+  // for a filer with almost no earnings. $3,001 of wages costs the whole unused
+  // allowance, which makes it another cliff and a much less visible one.
+  const earned = nonNegative(input.earnedIncome, 'earnedIncome');
+  if (input.earnedIncome === undefined || earned > rule.otherIncomeEarnedIncomeLimit) {
+    return pensionPart;
+  }
+  const allowance = Math.min(totalIncome * fraction, maximum);
+  const otherIncome = Math.max(0, totalIncome - retirement - earned);
+  return pensionPart + Math.min(Math.max(0, allowance - pensionPart), otherIncome);
+}
+
+/**
+ * The share of pension income a filing status may exclude in one income tier.
+ *
+ * The statute publishes ten percentages across five statuses and three tiers.
+ * Six of them are generated: **in each partial tier the percentage is the joint
+ * percentage scaled by that status's share of the joint maximum**, which is what
+ * keeps the 100/75/50 ratio between the statuses intact all the way down —
+ * `0.5 x (75/100) = 0.375` and `0.25 x (50/100) = 0.125`, four for four against
+ * the published figures. In the *full* tier every status excludes 100% and the
+ * ratio is enforced by the maximum instead, which is why the scaling is applied
+ * only where the percentage is less than one.
+ */
+function exclusionFraction(
+  rule: NonNullable<StateIncomeTaxDefinition['retirementExclusion']>,
+  status: FilingStatus,
+  jointPercentage: number,
+): number {
+  if (jointPercentage >= 1) return jointPercentage;
+  return jointPercentage * (rule.maximum[status] / rule.maximum.marriedFilingJointly);
+}
+
+/** A per-child credit whose amount is a step function of state taxable income. */
+function steppedChildCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  taxableIncome: number,
+): number {
+  const rule = def.steppedChildCredit;
+  if (!rule) return 0;
+  if (rule.ineligibleFilingStatuses.includes(input.filingStatus)) return 0;
+  const ages = input.dependentAges;
+  if (ages === undefined) return 0;
+  const children = ages.filter((a) => a <= rule.maxAge).length;
+  if (children === 0) return 0;
+  const step = rule.steps.find((s) => taxableIncome <= s.upTo);
+  /* c8 ignore next -- the last step is unbounded. */
+  if (!step) return 0;
+  return step.amount * children;
+}
+
+/** Property tax paid, counting a tenant's rent at the statutory fraction. */
+function qualifyingPropertyTax(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  const rule = def.propertyTaxRelief;
+  if (!rule) return 0;
+  if (input.propertyTaxPaid !== undefined) {
+    return Math.min(nonNegative(input.propertyTaxPaid, 'propertyTaxPaid'), rule.limit);
+  }
+  if (input.rentPaid !== undefined) {
+    const treated = nonNegative(input.rentPaid, 'rentPaid') * rule.rentFraction;
+    return Math.min(treated, rule.limit);
+  }
+  return 0;
 }
 
 function exemptionCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
@@ -400,6 +529,7 @@ interface Computed {
   addBacks: { name: string; amount: number }[];
   additions: number;
   subtractions: number;
+  computedSubtractions: { name: string; amount: number }[];
   /** State AGI — the base after additions and subtractions, before deductions. */
   stateAgi: number;
   deduction: number;
@@ -420,21 +550,52 @@ interface Computed {
   tax: number;
 }
 
-function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Computed {
+/**
+ * The whole state computation, on one of the two routes a property tax relief
+ * state offers. `compute` runs both and keeps the cheaper.
+ */
+function computeOnce(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  propertyTaxRoute: 'deduction' | 'credit',
+): Computed {
   const base = conformityAmount(def, input);
   const back = addBacks(def, input);
   const additions =
     nonNegative(input.additions, 'additions') + back.reduce((s, a) => s + a.amount, 0);
-  const subtractions = nonNegative(input.subtractions, 'subtractions');
+  const given = nonNegative(input.subtractions, 'subtractions');
+
+  // New Jersey's retirement exclusion is measured on total income — the base
+  // before the exclusion itself — and produces the gross income figure the
+  // filing threshold is then measured on. Line 27, then line 28, then line 29.
+  const totalIncome = Math.max(0, base + additions - given);
+  const computedSubtractions: { name: string; amount: number }[] = [];
+  const exclusion = retirementExclusion(def, input, totalIncome);
+  if (def.retirementExclusion) {
+    computedSubtractions.push({ name: def.retirementExclusion.name, amount: exclusion });
+  }
+  const subtractions = given + exclusion;
   const stateAgi = Math.max(0, base + additions - subtractions);
 
-  const deduction = stateDeduction(def, input);
+  const propertyTax = qualifyingPropertyTax(def, input);
+  const propertyTaxDeduction = propertyTaxRoute === 'deduction' ? propertyTax : 0;
+  const deduction = stateDeduction(def, input) + propertyTaxDeduction;
   const exemptions = stateExemptions(def, input);
   const taxableIncome = Math.max(0, stateAgi - deduction - exemptions);
 
+  // Below the filing threshold the state charges nothing at all — not a zero
+  // bracket, a statement about the whole return. Refundable credits survive it:
+  // New Jersey tells filers under the threshold to file anyway and claim the
+  // earned income and child credits, which is the whole reason the threshold is
+  // applied here rather than by returning early.
+  const belowThreshold =
+    def.zeroTaxThreshold !== undefined && stateAgi <= def.zeroTaxThreshold.threshold[input.filingStatus];
+
   let taxBeforeCredits = 0;
   let brackets: BracketDetail[] = [];
-  if (def.rate.kind === 'flat') {
+  if (belowThreshold) {
+    // no tax
+  } else if (def.rate.kind === 'flat') {
     taxBeforeCredits = taxableIncome * def.rate.rate;
     if (taxableIncome > 0) {
       brackets = [{ rate: def.rate.rate, incomeInBracket: taxableIncome, tax: taxBeforeCredits }];
@@ -446,11 +607,11 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
   }
 
   const surtaxes: SurtaxDetail[] = [];
-  if (def.surtax) {
+  if (def.surtax && !belowThreshold) {
     const amount = applyBrackets(taxableIncome, def.surtax.brackets).tax;
     if (amount > 0) surtaxes.push({ name: def.surtax.name, amount });
   }
-  if (def.recapture) {
+  if (def.recapture && !belowThreshold) {
     // Measured on state AGI, not on taxable income: New York's recapture asks how
     // rich you are, then claws back the graduated rates you were charged.
     const amount = recapture(def, input, stateAgi);
@@ -513,6 +674,21 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
   if (def.youngChildCredit) {
     credits.push({ name: def.youngChildCredit.name, amount: young ?? 0, refundable: true });
   }
+  if (def.steppedChildCredit) {
+    credits.push({
+      name: def.steppedChildCredit.name,
+      amount: steppedChildCredit(def, input, taxableIncome),
+      refundable: def.steppedChildCredit.refundable,
+    });
+  }
+  if (def.propertyTaxRelief && propertyTaxRoute === 'credit' && propertyTax > 0) {
+    credits.push({
+      name: def.propertyTaxRelief.creditName,
+      amount: def.propertyTaxRelief.credit[input.filingStatus],
+      // Refundable: New Jersey pays it out to a filer with no tax liability.
+      refundable: true,
+    });
+  }
 
   const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
   if (def.forgiveness) {
@@ -532,6 +708,7 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
     addBacks: back,
     additions,
     subtractions,
+    computedSubtractions,
     stateAgi,
     deduction,
     exemptions,
@@ -543,6 +720,25 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
     taxBeforeRefundableCredits,
     tax,
   };
+}
+
+/**
+ * The state computation, having chosen between a property tax deduction and the
+ * flat credit that replaces it.
+ *
+ * The NJ-1040 instructs the filer to compute the tax both ways and use the lower
+ * result, which is not a shortcut for "deduct when the deduction is bigger": the
+ * deduction is worth the filer's marginal rate times the property tax, and that
+ * rate is itself a function of the deduction. Running the whole return twice is
+ * both what the form says and the only way to get the boundary right.
+ *
+ * Ties go to the deduction, which is the order the form presents them in.
+ */
+function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Computed {
+  const deducted = computeOnce(def, input, 'deduction');
+  if (!def.propertyTaxRelief || qualifyingPropertyTax(def, input) === 0) return deducted;
+  const credited = computeOnce(def, input, 'credit');
+  return credited.tax < deducted.tax ? credited : deducted;
 }
 
 /** The state figures a locality computes from. */
@@ -559,6 +755,13 @@ function oneDollarMore(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
 ): StateIncomeTaxInput {
+  if (def.base === 'stateDefined' && def.stateDefinedBase?.field === 'newJerseyGrossIncome') {
+    // The extra dollar has to reach the retirement exclusion's income test as
+    // well as the rate schedule: at $150,000 of total income it is worth
+    // thousands, and holding the test figure constant would report the 5.525%
+    // bracket rate for a filer who is actually standing on a cliff.
+    return { ...input, newJerseyGrossIncome: (input.newJerseyGrossIncome ?? 0) + 1 };
+  }
   if (def.base === 'stateDefined') {
     return {
       ...input,
@@ -678,6 +881,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       additions: 0,
       addBacks: [],
       subtractions: 0,
+      computedSubtractions: [],
       deduction: 0,
       exemptions: 0,
       taxableIncome: 0,
@@ -802,6 +1006,10 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     additions: roundCents(here.additions),
     addBacks: here.addBacks.map((a) => ({ name: a.name, amount: roundCents(a.amount) })),
     subtractions: roundCents(here.subtractions),
+    computedSubtractions: here.computedSubtractions.map((x) => ({
+      name: x.name,
+      amount: roundCents(x.amount),
+    })),
     deduction: roundCents(here.deduction),
     exemptions: roundCents(here.exemptions),
     taxableIncome: roundCents(here.taxableIncome),

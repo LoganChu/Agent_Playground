@@ -122,6 +122,13 @@ function pennsylvania(year: number): StateIncomeTaxDefinition | undefined {
     // 3.07% since 2004 and the forgiveness table since 2003.
     status: 'published',
     base: 'stateDefined',
+    stateDefinedBase: {
+      field: 'pennsylvaniaTaxableIncome',
+      why:
+        'Pennsylvania taxes eight classes of income with no standard deduction, no personal ' +
+        'exemption, and no deduction for 401(k) elective deferrals, so federal AGI is not a ' +
+        'usable substitute.',
+    },
     rate: { kind: 'flat', rate: 0.0307 },
     deduction: { kind: 'none' },
     forgiveness: {

@@ -38,6 +38,23 @@ export interface ExemptionRule {
   readonly perFiler: ByStatus;
   readonly perDependent: number;
   /**
+   * An additional exemption for each filer at or above {@link seniorAge}.
+   *
+   * New Jersey's, N.J.S.A. 54A:3-1(b)(3). It is claimed **per person**, so a
+   * joint return where both spouses are 65 gets two, and it needs the filer's
+   * age — which no federal figure carries.
+   */
+  readonly perSeniorFiler?: number;
+  readonly seniorAge?: number;
+  /** An additional exemption for each blind or disabled filer or spouse. */
+  readonly perBlindOrDisabledFiler?: number;
+  /**
+   * An additional exemption for each dependent under 22 attending an accredited
+   * post-secondary institution full time — New Jersey's, N.J.S.A. 54A:3-1.1.
+   * It stacks with {@link perDependent} rather than replacing it.
+   */
+  readonly perCollegeDependent?: number;
+  /**
    * Income at or above which the exemption is lost **entirely**, not phased out.
    *
    * Illinois is the only supported state that does this, and it is a genuine
@@ -413,6 +430,135 @@ export interface RecaptureRule {
   readonly phaseInLength: number;
 }
 
+/**
+ * Income at or below which the state charges **no tax at all** — New Jersey's
+ * filing threshold, N.J.S.A. 54A:8-3.1.
+ *
+ * This is not a zero bracket and not an exemption. It is a statement about the
+ * whole return: "if your New Jersey gross income was $10,000 or less ($20,000
+ * for a joint return), you pay no New Jersey tax". Below it the tax is zero
+ * however many exemptions the filer has; one dollar above it the tax is computed
+ * from the first dollar of taxable income, so the whole first bracket arrives at
+ * once.
+ *
+ * That makes it the sharpest kind of cliff there is: **the threshold is measured
+ * on gross income and the tax it triggers is measured on taxable income**, so
+ * the size of the cliff depends on the exemptions of the filer standing on it,
+ * and a filer with fewer exemptions falls further.
+ *
+ * It is measured on gross income **after** any {@link RetirementExclusionRule},
+ * because New Jersey's is line 29 of the NJ-1040 and the exclusion is line 28.
+ */
+export interface ZeroTaxThresholdRule {
+  readonly name: string;
+  readonly threshold: ByStatus;
+}
+
+/**
+ * An exclusion of retirement income, tiered by total income and gated on age —
+ * New Jersey's pension and retirement income exclusion, N.J.S.A. 54A:6-10.
+ *
+ * The largest single deduction in this package and the largest cliff in it. A
+ * joint return with a `$100,000` pension excludes `$25,000` of it at a total
+ * income of `$150,000` and **zero** at `$150,001` — about `$1,381` of tax on one
+ * dollar of income. There is no taper: the statute's three tiers exclude 100%,
+ * 50% and 25% of the pension, capped at the maximum, and then stop dead.
+ *
+ * Two things about the shape are worth storing rather than transcribing:
+ *
+ * - **The tier percentages for the other filing statuses are derived.** The
+ *   published table gives 37.5% and 18.75% for a single filer and 25% and 12.5%
+ *   for a separate one. Each is the joint percentage scaled by that status's
+ *   share of the joint maximum — `0.5 x (75,000/100,000) = 0.375`,
+ *   `0.25 x (50,000/100,000) = 0.125` — four for four, so this rule stores two
+ *   percentages and four maxima instead of ten numbers that can drift apart. In
+ *   the full tier every status excludes 100% and the maximum enforces the same
+ *   ratio, which is why the scaling applies only below 100%.
+ * - **A qualifying surviving spouse takes the *single* maximum**, `$75,000`,
+ *   while filing on the *joint* rate schedule. New Jersey is the only state in
+ *   this package that splits the status between the two tables, and a model that
+ *   maps the status once, at the top, gets one of the two wrong.
+ *
+ * The tier test is on **total income** — line 27, before the exclusion itself —
+ * while the {@link ZeroTaxThresholdRule} that follows it is on line 29, after.
+ * Applying either to the other figure is a wrong answer at the margin.
+ */
+export interface RetirementExclusionRule {
+  readonly name: string;
+  /** The most that can be excluded, by filing status. */
+  readonly maximum: ByStatus;
+  /**
+   * Tiers by total income, in order. `percentageOfJointMaximum` is scaled to the
+   * filer's own maximum by `maximum[status] / maximum.marriedFilingJointly`.
+   */
+  readonly tiers: readonly { readonly upTo: number; readonly jointPercentage: number }[];
+  /** Minimum age of the filer (or, on a joint return, of either spouse). */
+  readonly minimumAge: number;
+  /**
+   * Part II of the worksheet: when earned income is at or below this, the part
+   * of the maximum the pension did not use may be applied to *other* income.
+   *
+   * Another cliff, and a much less visible one: `$3,001` of wages costs a
+   * retiree with a small pension the whole unused exclusion.
+   */
+  readonly otherIncomeEarnedIncomeLimit: number;
+}
+
+/**
+ * A per-child credit whose amount is a **step function of state taxable income**
+ * — New Jersey's child tax credit, N.J.S.A. 54A:4-17.
+ *
+ * Not a phase-out. The credit is `$1,000` per child under 6 at `$30,000` of New
+ * Jersey taxable income and `$800` at `$30,001`, so a family with three young
+ * children loses `$600` on one dollar of income, and again at `$40,000`,
+ * `$50,000`, `$60,000` and `$80,000`. Five cliffs in one credit, each of them
+ * larger the larger the family — the opposite of how a phase-out behaves.
+ *
+ * Modelling it as a phase-out, or as a single income limit, is wrong across the
+ * whole `$30,000`–`$80,000` band, which is most of the families it is aimed at.
+ */
+export interface SteppedChildCreditRule {
+  readonly name: string;
+  /** The credit is claimed for each dependent whose age is at or below this. */
+  readonly maxAge: number;
+  /** Per-child amount for state taxable income at or below each `upTo`. */
+  readonly steps: readonly CreditStep[];
+  readonly refundable: boolean;
+  /**
+   * Statuses barred from the credit entirely. New Jersey excludes married
+   * filing separately — N.J.S.A. 54A:4-17(c) — which is easy to miss because
+   * the income steps are *not* halved for it, so a naive model quietly pays a
+   * separate filer the full joint-schedule credit.
+   */
+  readonly ineligibleFilingStatuses: readonly string[];
+}
+
+/**
+ * A deduction for property tax paid, with a flat refundable credit as the
+ * alternative — New Jersey's, N.J.S.A. 54A:3A-16 through 54A:3A-20.
+ *
+ * The part that makes it worth a rule of its own: **the filer takes whichever is
+ * worth more, and which one that is depends on the whole rest of the return.**
+ * The NJ-1040 says so in as many words — compute the tax both ways and use the
+ * lower. At the 1.4% bottom rate a `$15,000` deduction is worth `$210` and beats
+ * the credit; at `$3,000` of property tax and the same rate it is worth `$42`
+ * and loses to it. A model that always deducts is wrong for exactly the filers
+ * the credit exists for.
+ *
+ * A tenant's rent counts at {@link rentFraction} — 18% of rent paid is treated
+ * as property tax — which is why a renter is in this computation at all.
+ */
+export interface PropertyTaxReliefRule {
+  readonly deductionName: string;
+  readonly creditName: string;
+  /** The most property tax that may be deducted. */
+  readonly limit: number;
+  /** The share of rent paid that counts as property tax. */
+  readonly rentFraction: number;
+  /** The flat credit taken instead of the deduction, by filing status. */
+  readonly credit: ByStatus;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -438,7 +584,19 @@ export interface StateIncomeTaxDefinition {
   readonly childCredit?: ChildCreditRule;
   /** Gated on {@link ownEarnedIncomeCredit}; never present without it. */
   readonly youngChildCredit?: YoungChildCreditRule;
+  readonly steppedChildCredit?: SteppedChildCreditRule;
   readonly recapture?: RecaptureRule;
+  readonly zeroTaxThreshold?: ZeroTaxThresholdRule;
+  readonly retirementExclusion?: RetirementExclusionRule;
+  readonly propertyTaxRelief?: PropertyTaxReliefRule;
+  /**
+   * Required when {@link base} is `stateDefined`: which input field carries the
+   * state's own measure of income, and why no federal figure can stand in.
+   */
+  readonly stateDefinedBase?: {
+    readonly field: 'pennsylvaniaTaxableIncome' | 'newJerseyGrossIncome';
+    readonly why: string;
+  };
   /**
    * Federal below-AGI deductions this state adds back to its base. Only ever
    * populated for a state whose {@link ConformityBase} is `federalTaxableIncome`,

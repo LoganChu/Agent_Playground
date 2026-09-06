@@ -18,6 +18,8 @@ const single100k = (state, year, dependents = 0) =>
     year,
     filingStatus: 'single',
     dependents,
+    pennsylvaniaTaxableIncome: 100_000,
+    newJerseyGrossIncome: 100_000,
     federal: {
       adjustedGrossIncome: 100_000,
       taxableIncome: year === 2025 ? 84_250 : 83_900,

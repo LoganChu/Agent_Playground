@@ -1,7 +1,8 @@
 # us-state-tax
 
-US **state** individual income tax for tax years **2025 and 2026**, across **23 states**
-including **New York** — and, new in 0.3.0, **New York City and Yonkers**. Dependency-free,
+US **state** individual income tax for tax years **2025 and 2026**, across **24 states**
+including **New York** and — new in 0.6.0 — **New Jersey**, plus **New York City and
+Yonkers** local tax. Dependency-free,
 MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
@@ -138,7 +139,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-three
+That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-four
 states in this package** at the same income — every one of the nine with no income tax,
 plus Arizona, Indiana and Pennsylvania. Omit the locality on a New York return and the
 result says so, and says what it would have cost this filer.
@@ -333,6 +334,66 @@ catches every credit phase-out, cliff and staircase underneath the rate.
 3. **The credit phases out in whole `$2,500` steps, per exemption.** One dollar past a
    step costs `$6` — or `$18` for a filer with two dependents.
 
+### New Jersey: a base of its own, and three cliffs
+
+New Jersey is the second state here with no federal starting line, and the larger one. Its
+gross income tax enumerates its own categories, and the differences run both ways: it does
+not tax Social Security or unemployment compensation, and it *does* tax 403(b) elective
+deferrals and traditional IRA contributions, which never reach federal AGI. So it demands
+`newJerseyGrossIncome` — NJ-1040 line 27 — rather than accepting federal AGI.
+
+**The published rate schedules are generated.** New Jersey prints its tax as "multiply by
+`.05525` and subtract `$1,492.50`". All thirteen subtraction constants across the two
+schedules are `rate x threshold - the tax already collected below it`; this package stores
+the marginal schedule and derives every one of them.
+
+**Below the filing threshold there is no tax at all**, and one dollar later the whole first
+bracket arrives:
+
+```js
+const single = (grossIncome) => stateIncomeTax({
+  state: 'NJ', year: 2025, filingStatus: 'single', federal, newJerseyGrossIncome: grossIncome,
+});
+
+single(10_000).tax;  // 0
+single(10_001).tax;  // 126.01
+```
+
+The threshold is on *gross* income and the tax it triggers is on *taxable* income, so the
+size of the cliff is a property of the filer standing on it: `$126.01` for a single filer
+with one exemption, `$252.01` for a joint couple with two.
+
+**The retirement income exclusion ends in a wall.** Pass `filerAge` and `retirementIncome`
+and a filer aged 62 excludes 100% of a pension below `$100,000` of total income, 50% to
+`$125,000`, 25% to `$150,000` — and nothing at `$150,001`:
+
+```js
+const retiree = (totalIncome) => stateIncomeTax({
+  state: 'NJ', year: 2025, filingStatus: 'marriedFilingJointly', federal,
+  newJerseyGrossIncome: totalIncome, retirementIncome: 100_000, filerAge: 70,
+});
+
+retiree(150_000).tax;          // 3965.50
+retiree(150_001).tax;          // 5346.81
+retiree(150_000).marginalRate; // 1381.3052  <- one dollar of income
+```
+
+That is the largest one-dollar cliff in this package. The exclusion's six non-joint
+percentages are derived rather than stored: in each partial tier the percentage is the joint
+one scaled by that status's share of the joint maximum, so `0.5 x (75,000/100,000) = 0.375`
+and `0.25 x (50,000/100,000) = 0.125` — four for four against the published figures.
+
+**The child tax credit is a staircase with five steps**, not a phase-out: `$1,000` per child
+under 6 at `$30,000` of New Jersey taxable income and `$800` at `$30,001`, so a family with
+three young children loses `$600` on one dollar — and `$750` from 2026, because P.L. 2026,
+c.26 raised every step by exactly 25% for tax years 2026 through 2028. Married filing
+separately gets none of it, and the income steps are not halved for that status either.
+
+Two more things a table cannot hold. A **head of household files on the joint schedule**,
+which almost no other state does. And a **qualifying surviving spouse gets three different
+mappings on one return** — the joint rate schedule, the single `$75,000` exclusion maximum,
+and one `$1,000` personal exemption rather than two.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -359,7 +420,7 @@ deduction and dependent exemption are all fixed in statute.
 
 ## No fallback to a neighbouring year
 
-Seven of the fourteen taxing states cut their rate between 2025 and 2026 — New York's
+Seven of the fifteen taxing states cut their rate between 2025 and 2026 — New York's
 bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
 North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%. Asking for an unsupported year throws
@@ -367,7 +428,7 @@ rather than answering with the nearest one.
 
 ## Coverage
 
-**Graduated:** California, Mississippi, New York.
+**Graduated:** California, Mississippi, New Jersey, New York.
 **Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky, Michigan,
 North Carolina, Pennsylvania, Utah.
 **No income tax:** Alaska, Florida, Nevada, New Hampshire, South Dakota, Tennessee, Texas,
@@ -379,20 +440,21 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.4.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.6.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 23 states.** No New Jersey, Massachusetts, Ohio, Virginia, Maryland, Minnesota,
-  Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of
-  Columbia. Asking for one throws rather than returning zero.
+- **Only 24 states.** No Massachusetts, Ohio, Virginia, Maryland, Minnesota, Wisconsin,
+  Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
+  Asking for one throws rather than returning zero.
 - **Local income tax in New York only.** New York City and Yonkers are computed; pass
   `locality`. Every Indiana county, most Pennsylvania municipalities and school districts,
   Detroit and 23 other Michigan cities, Ohio's municipalities, Kentucky's occupational
   taxes and Maryland's counties are not, and for an Indiana or Pennsylvania filer the local
   tax is a large fraction of the bill. Nor is part-year city residency, or the New York
   City child and dependent care credit.
-- **Two states' child credits.** New York's Empire State child credit and California's
-  Young Child Tax Credit are computed from `dependentAges`. Absent: the California Foster
+- **Three states' child credits.** New York's Empire State child credit, California's
+  Young Child Tax Credit and New Jersey's child tax credit are computed from
+  `dependentAges`. Absent: the California Foster
   Youth Tax Credit, the Arizona dependent credit, the North Carolina child deduction, the
   Georgia and Kentucky retirement exclusions, and the Utah retirement and Social Security
   credits. A family return or a retiree return outside New York and California will be
