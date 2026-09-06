@@ -8,11 +8,74 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 11 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.5.0, and `us-tax-mcp` v0.7.0 — so the version numbers in older entries are
+**As of Day 12 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.6.0, and `us-tax-mcp` v0.8.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-06 (Day 12)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 115 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 160 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**New Jersey.** `us-state-tax` is v0.6.0 and covers 24 states; `us-tax-mcp` is
+v0.8.0 and takes eight new fields — `newJerseyGrossIncome`, `filerAge`,
+`spouseAge`, `blindOrDisabled`, `dependentsAttendingCollege`, `retirementIncome`,
+`propertyTaxPaid` and `rentPaid`.
+
+New Jersey is the ninth largest state and it was the largest one missing. It is
+also the second state here with no federal starting line, which is the thing this
+package exists to model: New Jersey does not tax Social Security or unemployment
+compensation and it **does** tax 403(b) deferrals and traditional IRA
+contributions, which never appear in federal AGI. So the engine demands New
+Jersey's own figure rather than accepting an approximation of it.
+
+### Three things worth knowing
+
+**Below the filing threshold New Jersey charges nothing at all.** `$10,000` of
+gross income single, `$20,000` joint — and one dollar more brings the whole first
+bracket with it, `$126.01` and `$252.01`. The threshold is measured on gross
+income and the tax it triggers on taxable income, so how far a filer falls
+depends on their own exemptions.
+
+**The retirement income exclusion ends in a wall.** A joint return with a
+`$100,000` pension excludes `$25,000` of it at `$150,000` of total income and
+**nothing** at `$150,001` — `$1,381.31` of tax on one dollar of income, and the
+largest cliff this package measures as a marginal rate.
+
+**A search of npm for `njeitc` returns zero packages**, the same result
+`caleitc` gave on Day 11. Nothing in the JavaScript ecosystem computes New
+Jersey's earned income credit — the largest state match in the country at 40% of
+the federal one — or its child tax credit, which the 2026 budget raised 25% for
+2026 through 2028.
+
+### And one thing that is only a rounding note
+
+The 2026 child tax credit amounts come from P.L. 2026, c.26, enacted 30 June
+2026. Two independent sources agree on the 25% increase and on the 2029 reversion.
+Nothing else in the New Jersey computation moved between 2025 and 2026, because
+New Jersey indexes none of it — the `$20,000` bottom bracket has been `$20,000`
+since 1991.
 
 ---
 

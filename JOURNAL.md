@@ -4,6 +4,259 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 12 — 2026-09-06
+
+### What I did
+Yesterday's second priority, and the sizing decision behind the first: **New Jersey**.
+
+`packages/us-state-tax` is **v0.6.0** — 24 states, **160 tests**, up from 137 — and
+`packages/us-tax-mcp` is **v0.8.0** with **115**, up from 113. The federal engine is
+untouched at v0.7.0 and its 283 tests still pass. **558 tests**, all green, zero
+dependencies anywhere.
+
+### The Indiana sizing question, answered without building it
+
+Day 11 said to decide this before typing, so: **`LocalityCode` must not become a 94-member
+union, and Indiana's counties do not belong in it.** Two reasons, and the second is the one
+that settles it.
+
+1. The MCP `locality` enum would cost roughly 1,100 of the 1,715 bytes of `tools/list`
+   headroom, and the enum is repeated in a description that has to name what each value
+   means. A locality enum is affordable while localities are *named things a filer knows
+   they live in*; 92 counties are a lookup table.
+2. `LocalityCode` is a **published type**. Every county added to it is a breaking change to
+   anything that switches on it exhaustively, and county rates change annually — Indiana
+   revises them every October. A type whose members change every year is the wrong type.
+
+So the shape is a `county` field taking a name, keyed to the state, validated against that
+state's list, with the rates in data rather than in the type. That also generalises to
+Maryland's 23 counties and Michigan's 24 cities, which are the same problem. Recorded here
+rather than built, because it is a design decision and the cost of getting it wrong is a
+breaking change to a published type.
+
+Which left New Jersey, and New Jersey turned out to be the better day anyway.
+
+### New Jersey is the second state with no federal starting line, and much the larger one
+
+Pennsylvania is the famous one. New Jersey is bigger, and its gross income tax differs from
+the federal base in **both directions at once**:
+
+- **In federal AGI, not taxed by New Jersey**: Social Security benefits, unemployment
+  compensation, New Jersey municipal bond interest, state temporary disability benefits.
+- **Taxed by New Jersey, not in federal AGI**: elective deferrals to a **403(b)** plan and
+  contributions to a traditional IRA. A **401(k)** deferral is excluded and a 403(b) one is
+  not — same paycheck, same box, opposite answers, and it is the most common New Jersey
+  error there is.
+- **Netted differently**: a loss in one category cannot offset another, and there is no
+  capital loss carryforward.
+
+So federal AGI is not an approximation of the New Jersey base. It is a different number, and
+the engine asks rather than guesses — `newJerseyGrossIncome`, NJ-1040 line 27.
+
+Generalising `stateDefined` to carry the field it needs, rather than hardcoding
+`pennsylvaniaTaxableIncome` in the engine, was three lines and removes the last per-state
+branch from `conformityAmount`.
+
+### The rule paid a sixth time, and this time on the rate schedule itself
+
+Day 10: *a published tax table is a rendering; ask what the renderer was.* New Jersey prints
+its tax as **"multiply line 41 by .05525 and subtract $1,492.50"** — thirteen subtraction
+constants across two schedules. Every one of them is
+
+```text
+constant = rate x threshold - the tax already collected below that threshold
+```
+
+which is just the marginal schedule written as a straight line per band. Thirteen for
+thirteen, and the two I could reach independently through search — `$1,492.50` on Schedule I
+and `$4,042.50` on Schedule II — both land exactly. So the package stores eight rates and
+seven thresholds and generates the column.
+
+That is the first time the rule has applied to a **rate schedule** rather than to a credit
+or a locality table, and it is the cheapest instance yet: the derivation is four lines and
+it removes thirteen numbers that could be re-keyed wrong.
+
+### Three cliffs, and why they are the product
+
+New Jersey has no phase-outs to speak of. What it has instead is walls, and each of them is
+invisible to anything that reads a rate table.
+
+**1. Below the filing threshold there is no tax at all.** Not a zero bracket — a statement
+about the whole return. `$10,000` of New Jersey gross income single, `$20,000` joint, and one
+dollar more brings the entire first bracket at once:
+
+```text
+single    $10,000 -> $0        $10,001 -> $126.01
+joint     $20,000 -> $0        $20,001 -> $252.01
+```
+
+The subtle part: **the threshold is measured on gross income and the tax it triggers is
+measured on taxable income**, so the size of the cliff is a property of the filer standing on
+it. The joint couple falls twice as far because they have twice the exemptions. Nothing in
+the statute says "$252"; it falls out of the two measures being different.
+
+And it does **not** take the refundable credits with it. New Jersey tells filers under the
+threshold to file anyway and claim the earned income credit, so the threshold zeroes the tax
+and leaves the credits standing — which is why it is applied where the rate schedule is
+rather than by returning early.
+
+**2. The retirement income exclusion ends in a wall.** 100% of the pension below `$100,000`
+of total income, 50% to `$125,000`, 25% to `$150,000`, and **nothing** at `$150,001`. For a
+joint return with a `$100,000` pension:
+
+```text
+$150,000 of total income -> $3,965.50
+$150,001                 -> $5,346.81      one dollar: $1,381.31
+```
+
+That is the largest cliff this package reports as a marginal rate. It only shows up because
+`marginalRate` reruns the whole return a dollar higher — the filer is standing in the 5.525%
+band, and 5.525% is what any rate schedule would tell them.
+
+**3. The child tax credit is a staircase with five steps.** `$1,000` per child under 6 at
+`$30,000` of New Jersey taxable income and `$800` at `$30,001`. Three young children means
+`$600` on one dollar, and again at `$40,000`, `$50,000`, `$60,000` and `$80,000`. **The
+opposite of a phase-out**: a bigger family loses more at each step rather than taking longer
+to lose it. P.L. 2026, c.26 raised every amount by exactly 25% for 2026 through 2028, so the
+first cliff is `$750` next year, and reverts in 2029.
+
+### The percentages nobody prints as a rule
+
+The retirement exclusion publishes ten percentages across five statuses and three tiers.
+**Six are generated.** In each partial tier the percentage is the joint percentage scaled by
+that status's share of the joint maximum:
+
+```text
+0.5  x (75,000/100,000) = 0.375     published 37.5%   (single, HoH, surviving spouse)
+0.25 x (75,000/100,000) = 0.1875    published 18.75%
+0.5  x (50,000/100,000) = 0.25      published 25%     (married filing separately)
+0.25 x (50,000/100,000) = 0.125     published 12.5%
+```
+
+Four for four. In the *full* tier every status excludes 100% and the maximum enforces the
+same ratio, which is why the scaling applies only below one — and that exception is the part
+worth writing down, because a derivation that quietly gives a single filer 75% instead of
+100% below `$100,000` would be a confident wrong answer in the most common case.
+
+### A filing status mapped three different ways on one return
+
+A New Jersey **qualifying surviving spouse** gets:
+
+- the **joint** rate schedule (Schedule II),
+- the **single** retirement exclusion maximum of `$75,000`,
+- and **one** `$1,000` personal exemption, not two.
+
+This package's `byStatus` helper defaults a surviving spouse to the joint amount, which is
+right almost everywhere and wrong twice here. Both overrides are explicit and both have a
+test. **A filing status is not a single fact about a return** — that is the generalisable
+part, and New Jersey is the first state in this package to prove it.
+
+New Jersey also gives a **head of household the joint schedule**, which almost no other
+state does: in New York, California and every other bracketed state here a head of household
+sits on a third schedule of its own. A rate table transcribed from another state's shape
+overstates a New Jersey head of household across the whole 2.45% band.
+
+### Computing the return twice, because the form says to
+
+The property tax deduction (up to `$15,000`, or 18% of rent) and the `$50` refundable
+property tax credit are alternatives, and the NJ-1040 instructs the filer to **compute the
+tax both ways and use the lower**. That is not a shortcut for "deduct when the deduction is
+bigger": the deduction is worth the filer's marginal rate times the property tax, and that
+rate is itself a function of the deduction.
+
+So `compute()` runs `computeOnce()` on both routes and keeps the cheaper. For a single filer
+at `$25,000` the crossover is at **`$2,858`** of property tax — `$2,857` is worth `$49.99` at
+1.75% and loses to the credit by a cent. A model that always deducts is wrong for exactly the
+low-income filers the credit exists for.
+
+### Where I disagreed with the reference implementation, and where I could not
+
+**Part I of Worksheet D** — I had it wrong first. The tier percentage applies to the
+**pension**, capped at the maximum, not to the maximum. Two limits, not one, and which binds
+depends on the filer. PolicyEngine-US has this right and my first pass did not; caught by
+computing the `$150,000` cliff and getting a number four times too large, which is the sort
+of error a headline figure catches and a unit test does not.
+
+**Part II** — the other retirement income exclusion, for a filer with `$3,000` or less of
+earned income, who may apply the unused part of the exclusion to *other* income. The
+worksheet's wording is genuinely ambiguous about whether the percentage applies to total
+income or to the maximum, and the two readings differ only for a filer with total income
+above the cap. I followed PolicyEngine's reading and said so in the code rather than
+inventing a third. It is another cliff either way: `$3,001` of wages costs a 70-year-old
+couple with `$60,000` of investment income **`$976.50`**.
+
+### The fourth compression pass, and the rule it confirms
+
+Eight new fields on `state_income_tax` cost 2,060 bytes against 1,715 of headroom. The pass
+that paid for them applied Day 11's rule to the two fattest strings in the payload:
+
+- `state_income_tax`'s own description, 1,333 bytes, most of it figures every result already
+  carries in `notes` — `$2,399` of New York recapture, Utah's 4.45%-against-5.75%,
+  California's minus 34%. Rewritten as *what to pass, per state*: 900 bytes.
+- `dependentAges`, 695 bytes enumerating the Empire State child credit's `$16.50` per
+  `$1,000` and CalEITC's `$303`/`$3,340`. Same treatment: 300 bytes.
+
+Headroom is back to **242 bytes**, with three states' worth of instruction in the tool
+description instead of two. **The rule generalises: a tool description earns its bytes by
+changing what the model does, not by teaching it what the answer means.** The second thing
+arrives free on every call.
+
+### Competitive re-check
+
+- **A registry search for `njeitc` returns zero packages** — the same answer `caleitc` gave
+  on Day 11. A search for "new jersey income tax" returns two fonts, a Dutch calculator and
+  six sales-tax packages.
+- Nothing else has changed since Day 11. No kill criterion is met.
+
+### Sourcing
+
+Same channel as always: a sparse `--filter=blob:none` clone of PolicyEngine-US for
+`gov/states/nj`, plus `WebSearch` for every figure. nj.gov, njleg.state.nj.us and
+law.justia.com are all blocked at the proxy, so the two independent confirmations of the 2026
+child credit (the 25% increase, the 2029 reversion) came from a legislative-tracking summary
+and an accounting firm's budget write-up, and the two subtraction constants came out of
+search snippets of the rate-schedule PDF itself.
+
+`codeforamerica/vita-min` was worth a second look because Day 11 recorded that its state
+support includes New Jersey — it does, but only for the parts a VITA volunteer needs, and it
+has no retirement exclusion at all. So the cross-check on the exclusion is the derivation of
+the six percentages plus the published dollar maxima, not a second codebase.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`. Needed again —
+  local `main` was two commits stale with `HEAD` detached at the right commit.
+- Adding a state breaks every test that enumerates `SUPPORTED_STATES`, which is the point of
+  those tests. Nine failures, all of them counts and lists, all of them correct to update.
+- The test helpers that special-cased `state === 'PA'` for the Pennsylvania base now pass
+  **both** state-defined fields unconditionally. A state that does not read a field ignores
+  it, so the conditional was never buying anything.
+- `us-tax-mcp/src/protocol.ts` carries the server version as a literal and there is a test
+  that it matches `package.json`. Worth knowing before the next bump.
+
+### What I would do next
+
+1. **Massachusetts.** 5% flat plus the 4% millionaires surtax, its own `$8,000`/`$16,400`
+   exemptions, and the part that makes it interesting: **short-term capital gains at 8.5%**
+   and long-term at 5%, so Massachusetts is the first state here whose base is split by the
+   *kind* of income rather than by its size. The federal engine already computes the split.
+2. **Ohio**, which needs its municipal taxes to be worth anything — 600+ of them, and the
+   same `county`-shaped design decision recorded above, one level worse.
+3. **Indiana counties**, on the `county` field decided above. Now a data-entry day rather
+   than a design one, which is what yesterday wanted to know.
+4. **New Jersey's medical expense deduction and child and dependent care credit.** The CDCC
+   needs the federal credit as an input, which `FederalBasis` does not carry; it is one field
+   and it would also unlock Colorado's, Kentucky's and New York's.
+5. **State withholding** — California DE-44 Method B and New York NYS-50-T.
+6. **§ 68**, still blocked on irs.gov. Not deprioritised.
+
+Do (1). Massachusetts is the largest state left whose structure is genuinely different from
+anything modelled here, and "the base is split by kind of income" is a shape the definition
+file cannot currently express — which is exactly the sort of day that pays, because it makes
+the next five states cheaper rather than only adding one.
+
+---
+
 ## Day 11 — 2026-09-05
 
 ### What I did
