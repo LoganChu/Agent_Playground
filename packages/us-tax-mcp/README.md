@@ -3,8 +3,8 @@
 **US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
-**state income tax for 23 states including New York** and **New York City and Yonkers local
-tax** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+**state income tax for 24 states including New York and New Jersey** and **New York City and
+Yonkers local tax** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -170,7 +170,7 @@ of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same*
 
 **New York City is bigger than most states, and it is not a state.** Pass `locality: "NYC"`
 and the city tax comes back beside the state one. A single filer at $100,000 owes the city
-**$3,174.69** — more than the entire state income tax of **twelve of these twenty-three
+**$3,174.69** — more than the entire state income tax of **twelve of these twenty-four
 states** at the same income. The published city rates are derived rather than stored:
 N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% / 3.35% / 3.4%, § 11-1704.1 adds a tax of
 **14% of that tax**, and 2.7% x 1.14 = 3.078% to the last digit. The city earned income
@@ -223,6 +223,34 @@ per return however many children, and gated on CalEITC, so the `$4,814` investme
 limit is a cliff worth `$4,528.82`. A single parent of two at `$25,000` goes from a
 California tax of `$0` to a refund of `$1,520.76`.
 
+**New Jersey has no federal starting line at all, and the cliffs are the point.** Pass
+`newJerseyGrossIncome` — NJ-1040 line 27 — because federal AGI is not an approximation of it:
+New Jersey ignores Social Security and unemployment compensation and *taxes* 403(b) deferrals
+and traditional IRA contributions, which never reach federal AGI. Then three things happen
+that no rate table can show.
+
+- **Below the filing threshold there is no tax at all**, and one dollar later the whole first
+  bracket arrives: `$0` at `$10,000` of gross income and `$126.01` at `$10,001` for a single
+  filer, `$252.01` for a joint one. The threshold is on gross income and the tax is on taxable
+  income, so how far a filer falls depends on their own exemptions.
+- **The retirement income exclusion ends in a wall.** Pass `filerAge` and `retirementIncome`
+  and a 62-year-old excludes 100% of a pension below `$100,000` of total income, 50% to
+  `$125,000`, 25% to `$150,000` — and **nothing** at `$150,001`. For a joint return with a
+  `$100,000` pension that single dollar costs **$1,381.31**, the largest one-dollar cliff in
+  this package.
+- **The child tax credit is a staircase with five steps.** `$1,000` per child under 6 at
+  `$30,000` of New Jersey taxable income and `$800` at `$30,001`, so a family with three
+  young children loses `$600` on one dollar — and `$750` from 2026, because P.L. 2026, c.26
+  raised every step by exactly 25% for 2026 through 2028.
+
+The published rate schedules are generated too: New Jersey prints its tax as "multiply by
+.05525 and subtract `$1,492.50`", and all thirteen subtraction constants across the two
+schedules are `rate x threshold - the tax already collected below it`. This package stores
+the marginal schedule and derives every one of them. A head of household files on the
+**joint** schedule, which almost no other state does, and a qualifying surviving spouse gets
+three different mappings on one return — the joint rate schedule, the single `$75,000`
+exclusion maximum, and one `$1,000` exemption rather than two.
+
 **A flat rate is not a marginal rate.** `state_income_tax` measures the marginal rate by
 running the whole computation one dollar higher, which is the only way any of this is
 visible:
@@ -235,7 +263,7 @@ visible:
 | California, at a credit phase-out step | 9.3% | 9.3 cents **plus $6** of lost exemption credit |
 | New York, single at $130,000 | 6% | **7.14%** — the supplemental tax phases in underneath the rate |
 
-Seven of the fourteen taxing states cut their rate for 2026, so an unsupported year is an
+Seven of the fifteen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and seven of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
 
@@ -251,7 +279,7 @@ least one indexed figure forward from 2025, which every result says out loud.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City?" A state return for 23 states plus New York City and Yonkers, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City?" A state return for 24 states plus New York City and Yonkers, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -339,8 +367,8 @@ confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
 - **27 states, the District of Columbia, and every local income tax outside New York.**
-  `state_income_tax` covers 23 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC,
-  NH, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else. New Jersey,
+  `state_income_tax` covers 24 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC,
+  NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else.
   Massachusetts, Ohio, Virginia and Maryland are absent, and asking for one is an error
   rather than a zero. Local tax is New York City and Yonkers only: Indiana county taxes,
   Pennsylvania municipal earned income taxes, Ohio municipalities, Detroit and Maryland

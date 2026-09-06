@@ -1059,20 +1059,17 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE individual income tax return for 2025 or 2026, for 23 states plus NEW YORK CITY and ' +
+    'Compute a US STATE individual income tax return for 2025 or 2026 — 24 states plus NEW YORK CITY and ' +
     'YONKERS local tax. Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome, ' +
-    'deduction and earned income credit — a state return is a function of the federal one, and which federal ' +
-    'figure a state starts from decides the answer. ALWAYS pass locality for a New York filer: a New York ' +
-    'City resident owes 3.078-3.876% more, $3,174.69 at $100,000, and New York recaptures the lower brackets ' +
-    'above $107,650 of AGI, so walking the bracket table is short by $2,399 at $300,000. ALWAYS pass ' +
-    'earnedIncome and dependentAges for a California filer: CalEITC and the Young Child Tax Credit are ' +
-    'refundable, worth up to $4,946 together, and without earnings a low-income California return comes back ' +
-    'too high. Reports the true marginal rate by rerunning the whole return a dollar higher, which is not the ' +
-    'statutory rate wherever a credit phases out — Utah 4.45% headline against 5.75% real, and California ' +
-    'MINUS 34% on the CalEITC phase-in. Every result carries that state\'s own notes and the statutes behind ' +
-    'them, so the conformity detail arrives with the answer rather than here. Does NOT cover any state ' +
-    'outside the state enum, local tax outside New York, or state withholding. An unlisted state is an ' +
-    'error, not a zero.',
+    'deduction and earned income credit: which federal figure a state starts from decides the answer. Three ' +
+    'states need more than that. NY: pass locality, because a New York City resident owes $3,174.69 more at ' +
+    '$100,000. CA: pass earnedIncome and dependentAges, because CalEITC and the Young Child Tax Credit are ' +
+    'refundable and worth up to $4,946. NJ: newJerseyGrossIncome is REQUIRED, because New Jersey has no ' +
+    'federal starting line — plus filerAge and retirementIncome for anyone over 62. Reports the true ' +
+    'marginal rate by rerunning the whole return a dollar higher, which is not the statutory rate wherever a ' +
+    'credit phases out or a cliff bites. Every result carries that state\'s own notes and statutes, so the ' +
+    'conformity detail arrives with the answer rather than here. Does NOT cover a state outside the enum, ' +
+    'local tax outside New York, or state withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1112,7 +1109,7 @@ const stateTool: ToolDefinition = {
         type: 'array',
         items: { type: 'integer', minimum: 0 },
         description:
-          'Age of EVERY dependent at year end, not only the children, because a count cannot tell a toddler from a 19-year-old. Required for New York: the Empire State child credit is $1,000 per child under 4 and $330 (2025) or $500 (2026) per child aged 4-16, refundable, and its phase-out cuts the WHOLE credit by $16.50 per $1,000 of AGI over $110,000 joint / $75,000 single, so a family with three young children keeps some of it to $291,000. Required for California too: CalEITC is worth $303 with no qualifying child and $3,340 with two, and the Young Child Tax Credit adds $1,189 for any child under 6. Supplying dependents without ages computes both California credits as ZERO rather than guessing.',
+          'Age of EVERY dependent at year end, not only the children, because a count cannot tell a toddler from a 19-year-old. Required in NY, CA and NJ, whose largest credits are all banded on a child\'s age and all refundable. Supplying dependents without ages computes those credits as ZERO rather than guessing, and the result says what that cost.',
       },
       earnedIncome: {
         type: 'number',
@@ -1159,6 +1156,52 @@ const stateTool: ToolDefinition = {
         minimum: 0,
         description:
           'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed, allows no standard deduction or exemption, and forbids offsetting a loss in one income class against a gain in another.',
+      },
+      newJerseyGrossIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Required for NJ and refused elsewhere. NJ-1040 line 27, before the retirement exclusion. New Jersey has no federal starting line: it does not tax Social Security or unemployment, it DOES tax 403(b) deferrals and traditional IRA contributions (401(k) deferrals are excluded), and a loss in one category cannot offset another.',
+      },
+      filerAge: {
+        type: 'integer',
+        minimum: 0,
+        description:
+          'Filer age at year end. NJ: $1,000 extra exemption at 65, and the retirement exclusion at 62 — worth up to $100,000 of excluded income, so omitting it makes a retiree return far too high.',
+      },
+      spouseAge: {
+        type: 'integer',
+        minimum: 0,
+        description: 'Spouse age at year end, joint returns. NJ gives the $1,000 senior exemption per person.',
+      },
+      blindOrDisabled: {
+        type: 'integer',
+        minimum: 0,
+        description: 'How many of filer and spouse are blind or disabled, 0-2. Worth $1,000 each in NJ.',
+      },
+      dependentsAttendingCollege: {
+        type: 'integer',
+        minimum: 0,
+        description:
+          'Dependents under 22 in full-time post-secondary study, also counted in dependents. A second $1,000 NJ exemption on top of the $1,500 dependent one.',
+      },
+      retirementIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single of it at 62+, at 100% of the pension below $100,000 of total income, 50% to $125,000 and 25% to $150,000 — then NOTHING. One dollar past $150,000 costs a joint retiree about $1,381, the largest cliff in this package.',
+      },
+      propertyTaxPaid: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Property tax paid on a principal residence in the state. NJ allows a deduction of up to $15,000 of it OR a flat $50 refundable credit; the engine computes the return both ways and keeps the lower tax, as the NJ-1040 instructs.',
+      },
+      rentPaid: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Rent paid on a principal residence in the state. NJ treats 18% of it as property tax, so a tenant gets the same deduction or credit. Ignored when propertyTaxPaid is given.',
       },
       locality: {
         type: 'string',
@@ -1238,6 +1281,25 @@ const stateTool: ToolDefinition = {
         `pennsylvaniaTaxableIncome only applies to PA, and ${state} was requested.`,
       );
     }
+    const njIncome = readNumber(source, 'newJerseyGrossIncome');
+    if (njIncome !== undefined && state !== 'NJ') {
+      throw new ToolInputError(
+        `newJerseyGrossIncome only applies to NJ, and ${state} was requested.`,
+      );
+    }
+    const filerAge = readNumber(source, 'filerAge', { integer: true });
+    const spouseAge = readNumber(source, 'spouseAge', { integer: true });
+    const blindOrDisabled = readNumber(source, 'blindOrDisabled', { integer: true });
+    if (blindOrDisabled !== undefined && blindOrDisabled > 2) {
+      throw new ToolInputError(
+        `blindOrDisabled counts the filer and spouse only, so it cannot exceed 2; received ${blindOrDisabled}. ` +
+          'New Jersey gives no additional exemption for a blind or disabled dependent.',
+      );
+    }
+    const collegeDependents = readNumber(source, 'dependentsAttendingCollege', { integer: true });
+    const retirementIncome = readNumber(source, 'retirementIncome');
+    const propertyTaxPaid = readNumber(source, 'propertyTaxPaid');
+    const rentPaid = readNumber(source, 'rentPaid');
 
     const locality = source['locality'];
     if (
@@ -1280,6 +1342,14 @@ const stateTool: ToolDefinition = {
       ...(additions !== undefined ? { additions } : {}),
       ...(subtractions !== undefined ? { subtractions } : {}),
       ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),
+      ...(njIncome !== undefined ? { newJerseyGrossIncome: njIncome } : {}),
+      ...(filerAge !== undefined ? { filerAge } : {}),
+      ...(spouseAge !== undefined ? { spouseAge } : {}),
+      ...(blindOrDisabled !== undefined ? { blindOrDisabled } : {}),
+      ...(collegeDependents !== undefined ? { dependentsAttendingCollege: collegeDependents } : {}),
+      ...(retirementIncome !== undefined ? { retirementIncome } : {}),
+      ...(propertyTaxPaid !== undefined ? { propertyTaxPaid } : {}),
+      ...(rentPaid !== undefined ? { rentPaid } : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
       ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),
       ...(qbi !== undefined || overtime !== undefined

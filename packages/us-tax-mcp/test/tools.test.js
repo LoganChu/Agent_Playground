@@ -780,6 +780,75 @@ test('state_income_tax refuses earnedIncome it cannot validate, and unknown fiel
   );
 });
 
+test('state_income_tax carries the New Jersey fields, and refuses them elsewhere', () => {
+  const nj = (extra = {}) =>
+    ok('state_income_tax', {
+      state: 'NJ',
+      filingStatus: 'marriedFilingJointly',
+      year: 2025,
+      federalAdjustedGrossIncome: 150_000,
+      federalTaxableIncome: 118_000,
+      federalDeduction: 32_000,
+      newJerseyGrossIncome: 150_000,
+      ...extra,
+    }).structured.state;
+
+  // The wall at $150,000 of total income, through the tool rather than the
+  // engine: the same dollar, the same $1,381.31.
+  const at = nj({ filerAge: 70, retirementIncome: 100_000 });
+  const past = nj({ filerAge: 70, retirementIncome: 100_000, newJerseyGrossIncome: 150_001 });
+  assert.equal(at.tax, 3965.5);
+  assert.equal(past.tax, 5346.81);
+  assert.equal(Number((past.tax - at.tax).toFixed(2)), 1381.31);
+
+  // And the exclusion is reported, not merely applied.
+  assert.equal(at.computedSubtractions[0].amount, 25_000);
+
+  // A New Jersey field on another state's return is an error rather than a
+  // silently ignored key, because the two states' bases are different figures.
+  const wrongState = call('state_income_tax', {
+    state: 'CA',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    newJerseyGrossIncome: 100_000,
+  });
+  assert.equal(wrongState.isError, true);
+  assert.match(wrongState.content[0].text, /newJerseyGrossIncome only applies to NJ/);
+
+  // blindOrDisabled counts two people at most.
+  const tooMany = call('state_income_tax', {
+    state: 'NJ',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    newJerseyGrossIncome: 100_000,
+    blindOrDisabled: 3,
+  });
+  assert.equal(tooMany.isError, true);
+  assert.match(tooMany.content[0].text, /cannot exceed 2/);
+});
+
+test('state_income_tax runs the New Jersey property tax return both ways', () => {
+  const withTax = (propertyTaxPaid) =>
+    ok('state_income_tax', {
+      state: 'NJ',
+      filingStatus: 'single',
+      year: 2025,
+      federalAdjustedGrossIncome: 25_000,
+      federalTaxableIncome: 9_250,
+      newJerseyGrossIncome: 25_000,
+      propertyTaxPaid,
+    }).structured.state;
+
+  const credited = withTax(2_857);
+  assert.equal(credited.deduction, 0);
+  assert.equal(credited.tax, 300);
+  const deducted = withTax(2_858);
+  assert.equal(deducted.deduction, 2_858);
+  assert.equal(deducted.tax, 299.99);
+});
+
 test('state_income_tax passes the Colorado add-backs through', () => {
   const withQbi = ok('state_income_tax', {
     state: 'CO',
