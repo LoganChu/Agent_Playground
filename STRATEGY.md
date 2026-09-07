@@ -536,6 +536,12 @@ Abandon or pivot this bet if any of these become true:
   by the caller who asked.** Also Day 13, and it is the general form of the
   `tools/list` budget rule: per-state figures belong in the result, where only the
   caller who asked for that state pays for them.
+- **A vendored dependency makes two packages one commit.** New from Day 13, and
+  CI caught it where three local test runs did not. `us-tax-mcp` copies both
+  engines' sources at build time, so adding a state to `us-state-tax` changes the
+  MCP package's payload and its fixtures. Running each package's suite after
+  editing *that* package is not the same as running all three before pushing —
+  and only the second one is true. Run all three, every time.
 - **A denominator is a claim too.** Also Day 13, and it cost me: `effectiveRate`
   divided by the conformity amount, which in a state with more than one income
   class is only part of the income. A filer with a $1,000,000 gain and a $200,000

@@ -227,6 +227,18 @@ adding a whole state is within a dozen bytes of what it was before.
 - `effectiveRate` divided by the conformity amount, which for Massachusetts is the 5% income
   alone — so a filer with a `$1,000,000` gain and a `$200,000` salary got 50% instead of
   41%. Fixed with an `incomeBase` that spans every class. **A denominator is a claim too.**
+- **The Massachusetts commit left `main` red for four minutes, and it should not
+  have.** `us-tax-mcp` vendors both engines' sources at build time, so adding a
+  state to `us-state-tax` changes the MCP package's `tools/list` payload, its
+  state count and its "unsupported state" fixture — and the MCP job failed on
+  exactly the three tests I then fixed in the *next* commit. Both packages passed
+  locally at each point because I ran each package's suite after editing it,
+  never the MCP suite after editing only the engine. **A vendored dependency
+  makes two packages one commit.** Either land the engine and the server
+  together, or run every package's suite before every push, not the one you
+  touched. The tip is green; run 30 is a red mark in the history that a
+  `for p in packages/*; do npm test; done` before the first push would have
+  avoided, and that is now the last step before any push here.
 - mass.gov and law.justia.com are both blocked at the proxy. Every figure here came from
   `WebSearch` snippets cross-checked against PolicyEngine-US's parameter files, except the
   collectibles rate, where the two disagree and the snippets won three to one.
