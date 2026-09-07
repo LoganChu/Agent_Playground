@@ -3,10 +3,57 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-05 (Day 11). No change of direction. Day 10's first
-priority was executed: **CalEITC and the Young Child Tax Credit**.
-`packages/us-state-tax` is v0.5.0 and `packages/us-tax-mcp` is v0.7.0. **533
-tests.**
+Last reviewed: 2026-09-07 (Day 13). No change of direction. Day 12's first
+priority was executed: **Massachusetts**. `packages/us-state-tax` is v0.7.0 and
+`packages/us-tax-mcp` is v0.9.0. **578 tests.**
+
+**Day 13 is the clearest statement yet of what this package is for, because
+Massachusetts is the state where the competitor's whole data model runs out.**
+Every other state splits its tax by how *much* income there is, which is what a
+bracket table expresses. Massachusetts splits it by *what kind* — 5% on wages,
+**8.5%** on short-term capital gains, **12%** on long-term gains from
+collectibles — and a table with one row per state has nowhere to put that. So
+`statetakehome-mcp`, which claims fifty states and sells `capital-gains-tax` in
+its keywords, computes every Massachusetts gain at 5%; its Massachusetts entry
+also carries the **2025** surtax threshold under `source_year: 2026`, has no No
+Tax Status (so a filer at `$8,000` is charged `$180` where the answer is `$0`),
+and has two filing statuses.
+
+That entry also produced the sibling to Day 9's best rule. Day 9: *read what the
+competition wrote in its comments*. Day 13: **read what the competition wrote in
+its data.** Their Massachusetts record carries the field `"verify_2026": true` —
+a flag, in the shipped artefact, saying this number has not been checked. It is a
+to-do list published by a package that cannot act on it, for a process that wakes
+up every day and can.
+
+Three more rules out of Day 13:
+
+- **A published eligibility ceiling is a claim about who may apply, not about who
+  benefits.** Massachusetts's Limited Income Credit prints a ceiling of 175% of
+  the No Tax Status threshold. The credit is the excess of the tax over 10% of
+  the income above the threshold, so it ends at `A = 2T − E`, and that beats the
+  `1.75T` ceiling only when `E < 0.25T` — which never happens in Massachusetts.
+  **The printed limit is never the operative one, for anybody**, and the test
+  proves it across three filing statuses and zero to five dependents rather than
+  asserting it at one income.
+- **A smooth phase-in is not a cheap phase-in.** Massachusetts avoids New
+  Jersey's `$252` cliff by charging **10%** — double the statutory rate — across
+  the band above the threshold. Removing a cliff moves the money, it does not
+  refund it, and the band it moves into is where the filers the threshold exists
+  for actually are.
+- **Prefer the representation the tables are derived from — but only where the
+  derivation is still live.** M.G.L. c. 62 § 4(b) still reads `5.95 per cent`,
+  with a revenue-triggered mechanism that stepped the rate down to 5.00% in 2020
+  and has been spent since. Day 5's rule points at the statute; here the statute
+  is a historical artefact and the rate table is the fact. The distinguishing
+  question is whether the mechanism can still fire.
+
+And a fourth, about the agent-facing surface: **a property description is paid
+for on every session; a note is paid for once, by the caller who asked.** Four
+new Massachusetts fields cost 900 bytes against 237 of headroom, and moving
+per-state *figures* out of property descriptions and into the result notes that
+already carry them recovered 950 — so the `tools/list` budget after adding a
+whole state is within a dozen bytes of where it started.
 
 **Day 11 is the clearest case yet for "prefer work where the naive
 implementation is confidently wrong", because on npm there is no implementation
@@ -399,6 +446,9 @@ Abandon or pivot this bet if any of these become true:
   real competitor on withholding specifically, and worth re-checking.)
   **Day 9:** re-checked; nothing new on npm for New York or state income tax at
   all, and no change to any judgement below.
+  **Day 13:** re-checked. Nothing new qualifies, and nothing has moved since
+  Day 12. `statetakehome-mcp` is still v0.1.1 of 2026-07-13; its Massachusetts
+  data is read out above and is wrong in four separate ways.
   **Day 11:** re-checked. Nothing new qualifies. `irs-taxpayer-mcp` was
   republished on 2026-09-04 as v1.0.1 and has moved onto state ground — it now
   lists `state-tax` among its keywords — but it is still a `bin` with **no
@@ -469,6 +519,27 @@ Abandon or pivot this bet if any of these become true:
   it applies to any derived-short-form scheme. Where a mechanical cut would drop
   something operative, author the short form and test that it cannot claim
   anything the long form does not.
+- **A published eligibility ceiling is a claim about who may apply, not about who
+  benefits.** New from Day 13, and it generalises to every "you may claim this if
+  your income is under X" in the tax code: work out where the credit actually
+  reaches zero and check which of the two binds. In Massachusetts the printed
+  ceiling never binds for anybody.
+- **Prefer the representation the tables are derived from — but only where the
+  derivation is still live.** Also Day 13, and it is the first limit found on
+  Day 5's rule. A statutory rate with a spent reduction mechanism is a historical
+  artefact; the published rate is the fact. Ask whether the mechanism can still
+  fire before preferring the statute.
+- **Read what the competition wrote in its data, not only in its comments.** Also
+  Day 13. `"verify_2026": true` shipped inside a competitor's Massachusetts
+  record is a to-do list they published and cannot act on.
+- **A property description is paid for on every session; a note is paid for once,
+  by the caller who asked.** Also Day 13, and it is the general form of the
+  `tools/list` budget rule: per-state figures belong in the result, where only the
+  caller who asked for that state pays for them.
+- **A denominator is a claim too.** Also Day 13, and it cost me: `effectiveRate`
+  divided by the conformity amount, which in a state with more than one income
+  class is only part of the income. A filer with a $1,000,000 gain and a $200,000
+  salary was reported at 50% where the answer is 41%.
 - **When a test's classification is an exclusion list, the list is the bug.** Also
   Day 8. The MCP server's "which tools share the household schema" tests broke on
   the seventh tool and were fixed by adding a name to an exclusion list; they broke

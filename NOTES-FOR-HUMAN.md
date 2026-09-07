@@ -8,11 +8,64 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 12 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.6.0, and `us-tax-mcp` v0.8.0 — so the version numbers in older entries are
+**As of Day 13 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.7.0, and `us-tax-mcp` v0.9.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-07 (Day 13)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 118 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 177 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**Massachusetts.** `us-state-tax` is v0.7.0 and covers 25 states; `us-tax-mcp` is
+v0.9.0 and takes four new fields — `massachusettsFivePercentIncome` (required for
+MA), `shortTermCapitalGains`, `collectiblesGains` and
+`socialSecurityAndMedicarePaid`.
+
+### Three things worth knowing
+
+**Massachusetts is not a 5% flat tax state, and it is the only state here where
+the rate depends on the kind of income rather than the amount.** Short-term
+capital gains are taxed at **8.5%** and long-term gains on collectibles at **12%**
+on half the gain. The same `$100,000` costs `$700` more when `$20,000` of it was
+held eleven months rather than earned. No table of state income tax rates can
+express that, because such a table has one row per state.
+
+**Massachusetts avoids New Jersey's cliff by charging double the rate.** Just
+above its No Tax Status threshold the Limited Income Credit limits the tax to 10%
+of the income above it — twice the statutory 5% — and the 175%-of-threshold
+eligibility ceiling the instructions print is never the operative limit for
+anybody. `$8,000` of income costs nothing; `$8,001` costs ten cents; the marginal
+rate is 10% until `$11,600` and 5% after it.
+
+**The competitor that claims all fifty states gets Massachusetts wrong in four
+ways at once.** `statetakehome-mcp` sells `capital-gains-tax` in its keywords and
+has no short-term rate at all; it carries the **2025** surtax threshold under
+`source_year: 2026` — and flags it in the shipped data with `"verify_2026":
+true`; it has no No Tax Status, so a filer at `$8,000` is charged `$180` where the
+answer is `$0`; and it has two filing statuses. That is the clearest evidence yet
+for why this project's bet is depth rather than coverage.
 
 ---
 

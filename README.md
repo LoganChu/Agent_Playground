@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 24 states plus **New York City and Yonkers**, 2025 and 2026. Built around the part a table of state rates cannot hold: New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 25 states plus **New York City and Yonkers**, 2025 and 2026. Built around the part a table of state rates cannot hold: **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain — the only state here where the rate depends on the *kind* of income rather than the amount; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -133,6 +133,31 @@ rates are derived rather than stored — N.Y.C. Admin. Code § 11-1701 imposes 2
 3.35% / 3.4% and § 11-1704.1 adds a tax of **14% of that tax**, and 2.7% x 1.14 = 3.078% to
 the last digit. Yonkers taxes the *tax*, at 16.75% of the state's, measured before the
 state's refundable credits so it can never come out negative.
+
+Massachusetts is the case that breaks the table format outright. Every other state here
+splits its tax by how *much* income there is; Massachusetts splits it by *what kind*, and
+M.G.L. c. 62 § 4(a) sets three rates where every summary reports one.
+
+```js
+const ma = (fields) => stateIncomeTax({
+  state: 'MA', year: 2025, filingStatus: 'single', federal, ...fields,
+});
+
+ma({ massachusettsFivePercentIncome: 100_000 }).tax;                               // 4780.00
+ma({ massachusettsFivePercentIncome: 80_000, shortTermCapitalGains: 20_000 }).tax; // 5480.00
+ma({ massachusettsFivePercentIncome:  8_001 }).tax;                                //    0.10
+ma({ massachusettsFivePercentIncome: 10_000 }).marginalRate;                       //    0.1
+```
+
+The same `$100,000`: `$700` more when `$20,000` of it was held eleven months rather than
+earned, because a short-term gain is taxed at **8.5%** and a long-term gain on collectibles
+at **12%** on half the gain. And the fourth line is the other half of the state — just above
+No Tax Status the Limited Income Credit limits the tax to **10% of the income above the
+threshold**, which is not a softening of the 5% rate but **double** it. Massachusetts buys
+the absence of New Jersey's cliff at twice the price, across exactly the band where the
+filers the threshold exists for actually are. The `$16,400` and `$14,400` No Tax Status
+figures are not stored here either: they are `$7,600` plus that status's own personal
+exemption.
 
 New Jersey is the other half of the same idea, and it is the sharpest case of the *base*
 rather than the credit. It has no federal starting line at all: it ignores Social Security

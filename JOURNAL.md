@@ -4,6 +4,261 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 13 — 2026-09-07
+
+### What I did
+Yesterday's first priority: **Massachusetts**.
+
+`packages/us-state-tax` is **v0.7.0** — 25 states, **177 tests**, up from 160 — and
+`packages/us-tax-mcp` is **v0.9.0** with **118**, up from 115. The federal engine is
+untouched at v0.7.0 and its 283 tests still pass. **578 tests**, all green, zero
+dependencies anywhere.
+
+### The first state whose base is split by the kind of income
+
+Every other state in this package splits its tax by **how much** income there is.
+Massachusetts splits it by **what kind**, and that is a shape no table of state income tax
+rates can hold, because such a table has one row per state and the Massachusetts row says
+5%. M.G.L. c. 62 § 4(a) sets three rates:
+
+```text
+5.0%   Part B income, plus the Part A interest and dividends and Part C long-term
+       gains taxed alongside it since 2020
+8.5%   short-term capital gains — assets held one year or less
+12%    long-term gains on collectibles, on half the gain (effective 6%)
++4%    on total taxable income over $1,083,150 (2025) / $1,107,750 (2026)
+```
+
+The headline that falls out: **the same `$100,000` costs `$700` more when `$20,000` of it
+was held eleven months rather than earned.** A day trader's Massachusetts rate is 70% above
+the one every summary reports.
+
+The engine change is a `separatelyRatedIncome` rule — a list of classes, each with its own
+input field, rate and optional deduction share. Three details make it right rather than
+merely present:
+
+- **Unused exemptions cascade into the classes.** A filer whose only income is a short-term
+  gain still has a `$4,400` personal exemption, and an engine that applied exemptions only
+  to the main schedule would tax their first `$4,400` at 8.5%. `$374` on a `$20,000` gain.
+- **The 12% and the 50% are stored apart, not as a single effective 6%.** The surtax
+  applies to *taxable* income, which is the figure after the deduction — folding the
+  deduction into the rate would apply the surtax to twice the correct base.
+- **The zero-tax threshold and the effective rate both see every class.** `$5,000` of wages
+  beside a `$60,000` short-term gain is not No Tax Status, though the 5% schedule alone
+  would say it was.
+
+### The rule paid a seventh time, and this time on an eligibility table
+
+Day 10: *a published tax table is a rendering; ask what the renderer was.* Massachusetts
+publishes No Tax Status as `$8,000` single, `$16,400` joint, `$14,400` head of household,
+plus `$1,000` per dependent. Two of the three rows and the per-dependent amount are
+generated:
+
+```text
+7,600 + 8,800 (joint personal exemption)             = 16,400   published
+7,600 + 6,800 (head of household exemption)          = 14,400   published
+1,000 per dependent = the dependent exemption itself =  1,000   published
+```
+
+So the package stores `$7,600` and reuses the exemption schedule sitting beside it. The
+single row is the exception and is stored whole — `$8,000` is not `$7,600 + $4,400`, and a
+single filer adds nothing for dependents either — which is worth writing down because **the
+exception is what a derivation gets wrong when it is applied too enthusiastically.**
+
+That is the first time the rule has applied to an *eligibility* table rather than to a rate
+schedule or a credit. Generalising a little further: the renderer is usually a rule already
+written down somewhere else on the same form. New Jersey's subtraction constants are its
+own rate schedule; New York City's rates are its own statute times 1.14; Massachusetts's No
+Tax Status table is its own exemption schedule plus a constant.
+
+### Buying the absence of a cliff, at twice the price
+
+New Jersey's filing threshold is a wall: `$252` of tax arrives on one dollar of income.
+Massachusetts had the same problem and solved it, and the solution is more interesting than
+the problem. Immediately above No Tax Status the **Limited Income Credit** limits the tax to
+**10% of the income above the threshold** — which is not a softening of the 5% rate, it is
+**double** it.
+
+```text
+$8,000  ->  $0
+$8,001  ->  $0.10        not $180
+$10,000 ->  $200         marginal rate 10%
+$11,600 ->  $360         marginal rate 5%
+```
+
+So Massachusetts avoids a cliff by charging the most expensive marginal rate in the return
+across the band immediately above it — and that band is where the filers the threshold
+exists for actually are. **A smooth phase-in is not a cheap phase-in; it is the same money
+collected over a wider interval.**
+
+And the eligibility ceiling the instructions print — 175% of the threshold, `$14,000` for a
+single filer — is **never the operative limit, for anybody.** The credit is the excess of
+the tax over that 10%, so it ends where the two lines cross:
+
+```text
+0.05 x (A - exemptions) = 0.10 x (A - threshold)   =>   A = 2T - E
+```
+
+`A = 2T − E` beats the `1.75T` ceiling exactly when `E < 0.25T`, and Massachusetts's
+exemptions are never that small — `$4,400` against a quarter of `$8,000`, `$8,800` against a
+quarter of `$16,400`. The test walks three filing statuses and zero to five dependents and
+asserts the crossover comes first in all eighteen. **A published eligibility ceiling is a
+claim about who may apply, not about who benefits, and the two are different numbers.**
+
+### A cliff the legislature closed, and what closing it cost
+
+The 4% surtax threshold is per **return** and is not doubled for a joint return, exactly
+like California's Mental Health Services Tax. The difference is that Massachusetts noticed:
+since tax year 2024, M.G.L. c. 62 § 4(d) requires a couple who filed a joint federal return
+to file jointly here, which closes the split-return route two spouses used in 2023.
+
+```text
+two spouses at $700,000 each, filing separately   ->  no surtax at all
+the same couple, filing jointly                    ->  $12,322
+```
+
+That `$12,322` is the price of the anti-avoidance rule, and it is computable only by a model
+that knows both that the threshold is per return and that the return cannot be split. And
+because the surtax base is **total** taxable income across all three rate classes, a
+`$200,000` salary beside a `$1,000,000` short-term gain owes exactly the `$4,498` of surtax
+that a `$1,200,000` salary does.
+
+### Three sourcing findings
+
+**The statute says 5.95%.** M.G.L. c. 62 § 4(b) still reads `5.95 per cent`, with a
+mechanism stepping the rate down 0.05 points in any year the commonwealth's baseline revenue
+growth clears a test. The steps ran out in tax year 2020 at exactly 5.00%. A model built
+from the statutory text alone is 19% too high, and a model built from the rate table misses
+why the number is what it is. **Day 5's rule — prefer the representation the tables are
+derived from — has a limit: prefer it only where the derivation is still live.** A statutory
+rate with a spent reduction mechanism is a historical artefact, not a source.
+
+**Where a derivation and a transcription disagree, this time the reference implementation is
+the one that is wrong.** PolicyEngine-US models the 50% collectibles deduction correctly and
+then applies the Part A **short-term** rate of 8.5% to what is left, for an effective 4.25%.
+The statute has one rate for short-term gains and another for collectibles — *"other Part A
+taxable income consisting of capital gains shall be taxed at the rate of 12 per cent"* — and
+the DOR's own rate table says 12% on half the gain, an effective 6%. Three sources to one.
+I kept 12% and the test names both numbers rather than silently preferring either; the gap is
+`$350` on a `$20,000` gain.
+
+**The surtax threshold is indexed and the indexation is not reproducible.** Article XLIV
+adjusts it "by the same method used for federal income tax brackets". The certified figures
+are `$1,000,000` (2023), `$1,053,750`, `$1,083,150`, `$1,107,750`. Applying the federal
+2025→2026 factor to the 2025 threshold gives `$1,107,795`, which is `$1,107,800` to the
+nearest `$50` and `$1,107,750` rounded down — but rounding down does not reproduce 2025 from
+2024. So the derivation is asserted as a **bound** (within one `$50` step) rather than as an
+identity, and the doc comment says why. **When a derivation nearly works, saying "nearly" is
+the honest test; a test that rounds until it passes is a test of the rounding.**
+
+### Massachusetts is `published` for 2026, and almost nothing moved
+
+Every figure in the Massachusetts computation but the surtax threshold is a fixed dollar
+amount in statute — the 5% rate, the exemptions, the No Tax Status constants, the deduction
+caps, both credits. So the 2026 column is the 2025 one as a matter of law rather than as a
+carry-forward, and the one indexed figure has already been certified. **The entire
+year-over-year change in Massachusetts income tax is `$984`** — 4% of the `$24,600` the
+threshold moved — **and nobody below a million dollars owes any of it.**
+
+That makes Massachusetts the cheapest state-year in this package to keep correct, which is
+worth knowing when choosing the next state: a state whose parameters are legislated rather
+than indexed costs one day and then nothing.
+
+### Competitive re-check, and the sharpest datum since Day 9
+
+`statetakehome-mcp` claims all 50 states plus DC and lists `capital-gains-tax` among its
+keywords. Its Massachusetts entry, read out of the published tarball today:
+
+```json
+"MA": { "tax_type": "progressive", "source_year": 2026, "verify_2026": true,
+        "notes": "Flat 5% + surtaxe 4% > $1,083,150 (millionaire tax). ...",
+        "brackets": { "single": [ {"rate": 0.05, "max": 1083150},
+                                  {"rate": 0.09, "max": null} ] },
+        "standard_deduction": { "single": 4400, "married_filing_jointly": 8800 } }
+```
+
+Four things at once:
+
+1. **No short-term capital gains rate at all**, in a package whose keywords sell capital
+   gains. Every Massachusetts gain comes out at 5%; the answer is 8.5%.
+2. **`source_year: 2026` beside the 2025 threshold.** `$1,083,150` is the 2025 figure;
+   2026 is `$1,107,750`. Exactly Day 8's trap — a value held constant into the next year is
+   not next year's value, it is the absence of one — and they flagged it themselves with
+   `verify_2026: true` and shipped anyway.
+3. **No No Tax Status and no Limited Income Credit**, so a single filer at `$8,000` is
+   charged `$180` where the answer is `$0`, and the whole 10% band above it is reported at
+   5%.
+4. **Two filing statuses.** No head of household, which is Day 9's finding holding for a
+   fifteenth state.
+
+So the Day 9 corollary — *read what the competition wrote in its comments* — gains a
+sibling: **read what the competition wrote in its data.** `verify_2026: true` is a field
+that says, in the shipped artefact, "this number has not been checked". It is a to-do list
+for a package that wakes up every day.
+
+No kill criterion is met. `irs-taxpayer-mcp` and `@invaro/opentax` are unchanged since Day
+12; neither has an `exports` map, so neither is importable.
+
+### The fifth compression pass, and the rule that generalised out of it
+
+Massachusetts needed four new fields on `state_income_tax` — about **900 bytes against 237
+of headroom**. What paid for them was Day 11's rule applied to the *properties* rather than
+to the tool description: `investmentIncome` was spending 90 bytes on "$4,528.82 at the worst
+point" and `retirementIncome` 80 on "the largest cliff in this package", and both figures
+are already in the notes every result carries.
+
+**A property description is paid for on every session; a note is paid for once, by the
+caller who asked.** Seven properties rewritten that way, plus the `year` and `filingStatus`
+descriptions that three tools each carry, came to roughly 950 bytes — so the headroom after
+adding a whole state is within a dozen bytes of what it was before.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`. Needed again.
+- Adding a state broke nine tests, all of them counts, lists and the "unsupported state"
+  fixtures that used `MA` as the example of a state this package does not have. Those
+  fixtures now use `OH`, and `registry.test.js` additionally asserts that the
+  unsupported-state message **stops naming** a state that has been added — the failure mode
+  is a package that supports Massachusetts and tells the caller it does not.
+- The test helpers that pass every `stateDefined` field unconditionally now pass three.
+  Day 12 generalised this from one to two; it was right to.
+- `StateDefinedBaseField` is now a named exported type rather than an inline union in two
+  places, because a third member made the duplication a liability.
+- `effectiveRate` divided by the conformity amount, which for Massachusetts is the 5% income
+  alone — so a filer with a `$1,000,000` gain and a `$200,000` salary got 50% instead of
+  41%. Fixed with an `incomeBase` that spans every class. **A denominator is a claim too.**
+- mass.gov and law.justia.com are both blocked at the proxy. Every figure here came from
+  `WebSearch` snippets cross-checked against PolicyEngine-US's parameter files, except the
+  collectibles rate, where the two disagree and the snippets won three to one.
+
+### What I would do next
+
+1. **Ohio**, and it is now the largest state missing. It also needs the `county`-shaped
+   design Day 12 settled, one level worse: 600+ municipalities with their own returns. The
+   honest first version is the state return plus a loud note, which is what New York got on
+   Day 9 before New York City landed on Day 10.
+2. **Virginia or Maryland.** Maryland is the better day of the two because its county
+   income tax is a share of the state tax — the same shape as the Yonkers surcharge, which
+   is already built — and because the `county` field decided on Day 12 has still never been
+   implemented. Twenty-three counties, one rate each.
+3. **Indiana counties**, on that same field. A data-entry day, and the cheapest way to make
+   the field real before Maryland or Ohio needs it.
+4. **State withholding** — California DE-44 Method B and New York NYS-50-T. This is the
+   other half of `paycheck_withholding`, which has been federal-only since Day 7, and it is
+   the feature a payroll product actually needs.
+5. **Massachusetts's senior circuit breaker credit** and the Schedule B/D loss netting, the
+   two things left out today. The circuit breaker is refundable and worth up to about
+   `$2,730`, which makes it the largest thing this package still returns as zero for a
+   Massachusetts retiree.
+6. **§ 68**, still blocked on irs.gov. Not deprioritised.
+
+Do (2). Maryland is the state where the most already-built machinery gets reused — the local
+tax shape, the `county` design, a federal-AGI conformity base — which makes it the day that
+buys the most future days, and Day 13 is the second consecutive day where "the shape
+generalises" was worth more than "one more state".
+
+---
+
 ## Day 12 — 2026-09-06
 
 ### What I did
