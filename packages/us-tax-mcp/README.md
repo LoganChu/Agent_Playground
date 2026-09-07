@@ -3,7 +3,7 @@
 **US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
-**state income tax for 24 states including New York and New Jersey** and **New York City and
+**state income tax for 25 states including New York, New Jersey and Massachusetts** and **New York City and
 Yonkers local tax** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
@@ -170,7 +170,7 @@ of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same*
 
 **New York City is bigger than most states, and it is not a state.** Pass `locality: "NYC"`
 and the city tax comes back beside the state one. A single filer at $100,000 owes the city
-**$3,174.69** — more than the entire state income tax of **twelve of these twenty-four
+**$3,174.69** — more than the entire state income tax of **twelve of these twenty-five
 states** at the same income. The published city rates are derived rather than stored:
 N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% / 3.35% / 3.4%, § 11-1704.1 adds a tax of
 **14% of that tax**, and 2.7% x 1.14 = 3.078% to the last digit. The city earned income
@@ -193,6 +193,25 @@ York's Empire State child credit is computed: **$1,000** for each child under 4 
 to **$170,000**, three keep some to **$291,000**. And $16.50 is exactly one third of the
 federal § 24 phase-out of $50 per $1,000, because New York's credit *was* 33% of the federal
 one until the FY2026 budget replaced the amount and left the rate alone.
+
+**Massachusetts is not a 5% flat tax state, and it is the only state here where the rate
+depends on the KIND of income.** M.G.L. c. 62 § 4(a) sets three: 5% on Part B income and on
+the interest, dividends and long-term gains taxed alongside it, **8.5%** on short-term
+capital gains, and **12%** on long-term gains from collectibles, on half the gain. The same
+$100,000 costs **$700 more** when $20,000 of it was held eleven months rather than earned.
+Pass `massachusettsFivePercentIncome` — it is **required**, because Massachusetts has no
+federal starting line either — plus `shortTermCapitalGains` and `collectiblesGains`, and
+`result.incomeClasses` reports each with its own rate.
+
+Three more Massachusetts facts no rate table holds. **The statute reads 5.95%**; § 4(b)
+steps it down 0.05 points per qualifying revenue year and the steps ran out in 2020 at
+exactly 5.00%. **No Tax Status is a generated table** — the published $16,400 joint and
+$14,400 head of household are $7,600 plus that status's own personal exemption — and the
+**Limited Income Credit above it charges 10%, double the statutory rate**, which is how
+Massachusetts buys the absence of New Jersey's cliff. And the **4% surtax threshold**
+($1,083,150 for 2025, $1,107,750 for 2026) is per return and cannot be doubled by filing
+separately, because since 2024 a couple filing a joint federal return must file jointly
+here: that requirement costs two $700,000 earners **$12,322**.
 
 **Six states match the federal earned income credit, and three of them are not what that
 sounds like.** Pass `federalEarnedIncomeCredit` from `estimate_federal_tax` and Colorado
@@ -263,7 +282,7 @@ visible:
 | California, at a credit phase-out step | 9.3% | 9.3 cents **plus $6** of lost exemption credit |
 | New York, single at $130,000 | 6% | **7.14%** — the supplemental tax phases in underneath the rate |
 
-Seven of the fifteen taxing states cut their rate for 2026, so an unsupported year is an
+Seven of the sixteen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and seven of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
 
@@ -279,7 +298,7 @@ least one indexed figure forward from 2025, which every result says out loud.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City?" A state return for 24 states plus New York City and Yonkers, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City?" A state return for 25 states plus New York City and Yonkers, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -366,10 +385,10 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **27 states, the District of Columbia, and every local income tax outside New York.**
-  `state_income_tax` covers 24 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MI, MS, NC,
-  NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else.
-  Massachusetts, Ohio, Virginia and Maryland are absent, and asking for one is an error
+- **26 states, the District of Columbia, and every local income tax outside New York.**
+  `state_income_tax` covers 25 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MA, MI, MS,
+  NC, NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else.
+  Ohio, Virginia, Maryland and Minnesota are absent, and asking for one is an error
   rather than a zero. Local tax is New York City and Yonkers only: Indiana county taxes,
   Pennsylvania municipal earned income taxes, Ohio municipalities, Detroit and Maryland
   counties are not modelled, nor is part-year city residency. State earned income credits

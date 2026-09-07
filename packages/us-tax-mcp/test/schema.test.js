@@ -279,6 +279,18 @@ test('tools/list stays within a sane context budget', () => {
   // description says WHAT TO PASS while facts the result already carries are
   // delivered on every call anyway, paid for earnedIncome and investmentIncome
   // with room left over.
+  //
+  // The fifth pass paid for a whole state. Massachusetts needed four new fields
+  // on state_income_tax — about 900 bytes against 237 of headroom — and the rule
+  // that bought them is the one from the fourth pass applied to the PROPERTIES
+  // rather than to the tool description: `investmentIncome` was spending 90
+  // bytes on "$4,528.82 at the worst point", `retirementIncome` 80 on "the
+  // largest cliff in this package", and both figures are in the notes the result
+  // carries on every call anyway. A property description is paid for on every
+  // session; a note is paid for once, by the caller who asked. Seven properties
+  // rewritten that way, plus the year and filing-status descriptions that three
+  // tools each carry, came to roughly 950 bytes — and the headroom after adding
+  // Massachusetts is within a dozen bytes of what it was before.
   assert.ok(
     48_000 - payload.length < 2_200,
     `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +

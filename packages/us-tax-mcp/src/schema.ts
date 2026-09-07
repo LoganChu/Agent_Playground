@@ -54,7 +54,7 @@ export const FILING_STATUS_PROPERTY: JsonSchema = {
   type: 'string',
   enum: [...FILING_STATUSES],
   description:
-    'Filing status. "qualifyingSurvivingSpouse" is the status a widow or widower with a dependent child uses for the two years after the year of death; it uses the joint rate schedule.',
+    'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent child in the two years after the death, on the joint rate schedule.',
 };
 
 export const YEAR_PROPERTY: JsonSchema = {
@@ -62,7 +62,7 @@ export const YEAR_PROPERTY: JsonSchema = {
   enum: [...SUPPORTED_YEARS],
   description: `Tax year, one of ${SUPPORTED_YEARS.join(', ')}, defaulting to ${
     SUPPORTED_YEARS[SUPPORTED_YEARS.length - 1]
-  }. An unsupported year is an error rather than a silent fallback — computing one year's income with another year's brackets is the kind of mistake that stays invisible until it is expensive.`,
+  }. An unsupported year is an error, not a silent fallback to the nearest one.`,
 };
 
 const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {

@@ -1059,17 +1059,18 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE individual income tax return for 2025 or 2026 — 24 states plus NEW YORK CITY and ' +
+    'Compute a US STATE individual income tax return for 2025 or 2026 — 25 states plus NEW YORK CITY and ' +
     'YONKERS local tax. Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome, ' +
-    'deduction and earned income credit: which federal figure a state starts from decides the answer. Three ' +
-    'states need more than that. NY: pass locality, because a New York City resident owes $3,174.69 more at ' +
-    '$100,000. CA: pass earnedIncome and dependentAges, because CalEITC and the Young Child Tax Credit are ' +
-    'refundable and worth up to $4,946. NJ: newJerseyGrossIncome is REQUIRED, because New Jersey has no ' +
-    'federal starting line — plus filerAge and retirementIncome for anyone over 62. Reports the true ' +
-    'marginal rate by rerunning the whole return a dollar higher, which is not the statutory rate wherever a ' +
-    'credit phases out or a cliff bites. Every result carries that state\'s own notes and statutes, so the ' +
-    'conformity detail arrives with the answer rather than here. Does NOT cover a state outside the enum, ' +
-    'local tax outside New York, or state withholding. An unlisted state is an error, not a zero.',
+    'deduction and earned income credit: which federal figure a state starts from decides the answer. Four ' +
+    'states need more than that. NY: pass locality. CA: pass earnedIncome and dependentAges. NJ: ' +
+    'newJerseyGrossIncome is REQUIRED, plus filerAge and retirementIncome over 62. MA: ' +
+    'massachusettsFivePercentIncome is REQUIRED and is NOT federal AGI, plus shortTermCapitalGains and ' +
+    'collectiblesGains, which Massachusetts taxes at 8.5% and 12% rather than at the 5% every rate table ' +
+    'reports. Reports the true marginal rate by rerunning the whole return a dollar higher, which is not the ' +
+    'statutory rate wherever a credit phases out or a cliff bites. Every result carries that state\'s own ' +
+    'notes and statutes, so the conformity detail arrives with the answer rather than here. Does NOT cover a ' +
+    'state outside the enum, local tax outside New York, or state withholding. An unlisted state is an ' +
+    'error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1079,7 +1080,7 @@ const stateTool: ToolDefinition = {
         type: 'string',
         enum: [...STATE_CODES],
         description:
-          'Two-letter state code. Only these 23 are supported; any other state is an error rather than a zero.',
+          'Two-letter state code. Only these are supported; any other state is an error, not a zero.',
       },
       filingStatus: FILING_STATUS_PROPERTY,
       year: {
@@ -1109,19 +1110,19 @@ const stateTool: ToolDefinition = {
         type: 'array',
         items: { type: 'integer', minimum: 0 },
         description:
-          'Age of EVERY dependent at year end, not only the children, because a count cannot tell a toddler from a 19-year-old. Required in NY, CA and NJ, whose largest credits are all banded on a child\'s age and all refundable. Supplying dependents without ages computes those credits as ZERO rather than guessing, and the result says what that cost.',
+          'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ and MA, whose largest credits are banded on age; without it they are computed as ZERO and the result says what that cost.',
       },
       earnedIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Wages plus net self-employment earnings. Required for California, where CalEITC and the Young Child Tax Credit are functions of earnings and of nothing else on the return; neither can be recovered from AGI. CalEITC peaks at ONE dollar of income — $9,823 with two children — and has no plateau, so the state marginal rate is minus 34% below that dollar and plus 34% above it.',
+          'Wages plus net self-employment earnings. Required for California: CalEITC and the Young Child Tax Credit are functions of earnings alone and cannot be recovered from AGI.',
       },
       investmentIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Interest (taxable and tax-exempt), dividends, net capital gain and net rent and royalty income. California only: over $4,814 it is a CLIFF that costs the whole CalEITC and, because that credit gates it, the whole Young Child Tax Credit — $4,528.82 at the worst point. Treated as zero when omitted.',
+          'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC and the credit gated on it. Zero when omitted.',
       },
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
@@ -1137,7 +1138,7 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Form 1040 line 27 — estimate_federal_tax credits.earnedIncomeCredit.credit. CO, IL, IN, MI, NY and UT set their own credit as 10-50% of it; omitting it makes a low-income return too high.',
+          'Form 1040 line 27 — estimate_federal_tax credits.earnedIncomeCredit.credit. CO, IL, IN, MA, MI, NJ, NY and UT set their own credit as 10-50% of it; omitting it makes a low-income return too high.',
       },
       stateAdditions: {
         type: 'number',
@@ -1161,7 +1162,31 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Required for NJ and refused elsewhere. NJ-1040 line 27, before the retirement exclusion. New Jersey has no federal starting line: it does not tax Social Security or unemployment, it DOES tax 403(b) deferrals and traditional IRA contributions (401(k) deferrals are excluded), and a loss in one category cannot offset another.',
+          'Required for NJ, refused elsewhere. NJ-1040 line 27, before the retirement exclusion. NOT federal AGI: New Jersey excludes Social Security and unemployment and taxes 403(b) deferrals and traditional IRA contributions (401(k) deferrals are excluded).',
+      },
+      massachusettsFivePercentIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'Required for MA and refused elsewhere. Form 1 line 21, total 5.0% income — including interest, dividends and LONG-term capital gains, excluding short-term and collectibles gains. NOT federal AGI: Massachusetts excludes Social Security entirely and disallows the traditional IRA deduction, half of self-employment tax and the early-withdrawal penalty, all of which must be added back.',
+      },
+      shortTermCapitalGains: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MA only: net gains on assets held one year or less, taxed at 8.5% rather than 5%. Do not include them in massachusettsFivePercentIncome.',
+      },
+      collectiblesGains: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MA only: long-term gains on collectibles and pre-1996 installment sales, taxed at 12% on half the gain. Pass the WHOLE gain; the 50% deduction is applied here.',
+      },
+      socialSecurityAndMedicarePaid: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MA only: FICA, Medicare, railroad and public retirement contributions paid, deducted up to $2,000 per filer. No federal equivalent, so it cannot be derived from a federal return.',
       },
       filerAge: {
         type: 'integer',
@@ -1189,25 +1214,25 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single of it at 62+, at 100% of the pension below $100,000 of total income, 50% to $125,000 and 25% to $150,000 — then NOTHING. One dollar past $150,000 costs a joint retiree about $1,381, the largest cliff in this package.',
+          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, in three tiers ending in a wall at $150,000 of total income — so omitting it, or filerAge, makes a retiree return far too high.',
       },
       propertyTaxPaid: {
         type: 'number',
         minimum: 0,
         description:
-          'Property tax paid on a principal residence in the state. NJ allows a deduction of up to $15,000 of it OR a flat $50 refundable credit; the engine computes the return both ways and keeps the lower tax, as the NJ-1040 instructs.',
+          'Property tax paid on a principal residence in the state. NJ allows a $15,000 deduction OR a flat $50 refundable credit; the engine computes both routes and keeps the lower tax.',
       },
       rentPaid: {
         type: 'number',
         minimum: 0,
         description:
-          'Rent paid on a principal residence in the state. NJ treats 18% of it as property tax, so a tenant gets the same deduction or credit. Ignored when propertyTaxPaid is given.',
+          'Rent paid on a principal residence in the state. NJ treats 18% of it as property tax (ignored when propertyTaxPaid is given); MA deducts half of it, capped at $4,000.',
       },
       locality: {
         type: 'string',
         enum: [...LOCALITY_CODES],
         description:
-          'The locality the filer LIVES in. NY only. NYC charges 3.078-3.876% of state taxable income; YONKERS charges 16.75% of the state tax. Omitting it for a New York City resident understates the bill by more than the entire state tax of 12 of these 23 states.',
+          'The locality the filer LIVES in. NY only. NYC charges 3.078-3.876% of state taxable income; YONKERS charges 16.75% of the state tax. Omitting it for a city resident understates the bill by thousands.',
       },
       yonkersNonresidentEarnings: {
         type: 'number',
@@ -1287,6 +1312,24 @@ const stateTool: ToolDefinition = {
         `newJerseyGrossIncome only applies to NJ, and ${state} was requested.`,
       );
     }
+    // Massachusetts is the only state here whose base is split by the KIND of
+    // income, so these four are refused elsewhere for the same reason the
+    // Pennsylvania and New Jersey figures are: a model that sent a short-term
+    // gain to New York would be told nothing and get a wrong answer.
+    const maIncome = readNumber(source, 'massachusettsFivePercentIncome');
+    const shortTermGains = readNumber(source, 'shortTermCapitalGains');
+    const collectibles = readNumber(source, 'collectiblesGains');
+    const ficaPaid = readNumber(source, 'socialSecurityAndMedicarePaid');
+    for (const [field, value] of [
+      ['massachusettsFivePercentIncome', maIncome],
+      ['shortTermCapitalGains', shortTermGains],
+      ['collectiblesGains', collectibles],
+      ['socialSecurityAndMedicarePaid', ficaPaid],
+    ] as const) {
+      if (value !== undefined && state !== 'MA') {
+        throw new ToolInputError(`${field} only applies to MA, and ${state} was requested.`);
+      }
+    }
     const filerAge = readNumber(source, 'filerAge', { integer: true });
     const spouseAge = readNumber(source, 'spouseAge', { integer: true });
     const blindOrDisabled = readNumber(source, 'blindOrDisabled', { integer: true });
@@ -1343,6 +1386,10 @@ const stateTool: ToolDefinition = {
       ...(subtractions !== undefined ? { subtractions } : {}),
       ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),
       ...(njIncome !== undefined ? { newJerseyGrossIncome: njIncome } : {}),
+      ...(maIncome !== undefined ? { massachusettsFivePercentIncome: maIncome } : {}),
+      ...(shortTermGains !== undefined ? { shortTermCapitalGains: shortTermGains } : {}),
+      ...(collectibles !== undefined ? { collectiblesGains: collectibles } : {}),
+      ...(ficaPaid !== undefined ? { socialSecurityAndMedicarePaid: ficaPaid } : {}),
       ...(filerAge !== undefined ? { filerAge } : {}),
       ...(spouseAge !== undefined ? { spouseAge } : {}),
       ...(blindOrDisabled !== undefined ? { blindOrDisabled } : {}),

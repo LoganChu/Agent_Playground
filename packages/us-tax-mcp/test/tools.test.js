@@ -903,7 +903,7 @@ test('a state with no income tax answers zero and says what is still taxed', () 
 
 test('an unsupported state is an error that names the supported ones', () => {
   const message = err('state_income_tax', {
-    state: 'MA',
+    state: 'OH',
     filingStatus: 'single',
     federalAdjustedGrossIncome: 100_000,
     federalTaxableIncome: 84_250,
@@ -1165,4 +1165,104 @@ test('dependentAges computes the Empire State child credit, and a count does not
     }),
     /dependentAges\[1\] must be a non-negative whole number/,
   );
+});
+
+test('state_income_tax computes Massachusetts at three rates, not one', () => {
+  const { text, structured } = ok('state_income_tax', {
+    state: 'MA',
+    year: 2025,
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    federalDeduction: 15_750,
+    massachusettsFivePercentIncome: 80_000,
+    shortTermCapitalGains: 20_000,
+  });
+  // 5.0% income 80,000 - 4,400 exemption = 75,600 at 5%   3,780.00
+  // short-term gain                        20,000 at 8.5% 1,700.00
+  assert.equal(structured.state.taxableIncome, 75_600);
+  assert.equal(structured.state.tax, 5_480);
+  assert.equal(structured.state.incomeClasses[0].rate, 0.085);
+  assert.equal(structured.state.incomeClasses[0].tax, 1_700);
+  // The rendered text has to show the rate, because a single total cannot tell
+  // 5% from 8.5% and that distinction is the whole of what Massachusetts adds.
+  assert.match(text, /Short-term capital gains/);
+  assert.match(text, /8\.50%/);
+
+  const collectibles = ok('state_income_tax', {
+    state: 'MA',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    massachusettsFivePercentIncome: 80_000,
+    collectiblesGains: 20_000,
+  }).structured.state;
+  assert.equal(collectibles.incomeClasses[1].rate, 0.12);
+  assert.equal(collectibles.incomeClasses[1].taxableAmount, 10_000);
+  assert.equal(collectibles.incomeClasses[1].tax, 1_200);
+});
+
+test('Massachusetts requires its own base and refuses it elsewhere', () => {
+  const missing = err('state_income_tax', {
+    state: 'MA',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+  });
+  assert.match(missing, /massachusettsFivePercentIncome/);
+
+  for (const field of [
+    'massachusettsFivePercentIncome',
+    'shortTermCapitalGains',
+    'collectiblesGains',
+    'socialSecurityAndMedicarePaid',
+  ]) {
+    const message = err('state_income_tax', {
+      state: 'NY',
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+      [field]: 1_000,
+    });
+    assert.match(message, new RegExp(`${field} only applies to MA`));
+  }
+});
+
+test('the Massachusetts No Tax Status band charges twice the statutory rate', () => {
+  const at = (income) =>
+    ok('state_income_tax', {
+      state: 'MA',
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: income,
+      federalTaxableIncome: income,
+      federalDeduction: 0,
+      massachusettsFivePercentIncome: income,
+    }).structured.state;
+
+  assert.equal(at(8_000).tax, 0);
+  assert.equal(at(8_001).tax, 0.1);
+  assert.equal(at(10_000).marginalRate, 0.1);
+  assert.equal(at(11_600).marginalRate, 0.05);
+
+  // And the surtax, which two spouses cannot halve by filing separately.
+  const joint = ok('state_income_tax', {
+    state: 'MA',
+    year: 2025,
+    filingStatus: 'marriedFilingJointly',
+    federalAdjustedGrossIncome: 1_400_000,
+    federalTaxableIncome: 1_400_000,
+    federalDeduction: 0,
+    massachusettsFivePercentIncome: 1_400_000,
+  }).structured.state;
+  assert.equal(joint.surtaxes[0].amount, 12_322);
+  // 2026 defaults in, and the threshold has moved: 4% of $24,600 less surtax.
+  const next = ok('state_income_tax', {
+    state: 'MA',
+    filingStatus: 'marriedFilingJointly',
+    federalAdjustedGrossIncome: 1_400_000,
+    federalTaxableIncome: 1_400_000,
+    federalDeduction: 0,
+    massachusettsFivePercentIncome: 1_400_000,
+  }).structured.state;
+  assert.equal(joint.surtaxes[0].amount - next.surtaxes[0].amount, 984);
 });

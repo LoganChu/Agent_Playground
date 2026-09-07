@@ -445,14 +445,14 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('24 states');
-  assert.equal(SUPPORTED_STATES.length, 24);
+  quotes('25 states');
+  assert.equal(SUPPORTED_STATES.length, 25);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 15);
-  quotes('Seven of the fifteen taxing states cut their rate for 2026');
+  assert.equal(taxing.length, 16);
+  quotes('Seven of the sixteen taxing states cut their rate for 2026');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
@@ -481,9 +481,9 @@ test('README: the New York City and Yonkers figures', () => {
     federal: stateFed(100_000, 92_000, 8_000),
   });
   assert.equal(nyc.localTaxes[0].tax, 3174.69);
-  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **twelve of these twenty-four states**');
+  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **twelve of these twenty-five states**');
 
-  // "twelve of these twenty-four states", checked against every one of them.
+  // "twelve of these twenty-five states", checked against every one of them.
   const federal = stateFed(100_000, 85_000, 15_000);
   const cheaper = SUPPORTED_STATES.filter(
     (state) =>
@@ -494,6 +494,7 @@ test('README: the New York City and Yonkers figures', () => {
         federal,
         pennsylvaniaTaxableIncome: 100_000,
         newJerseyGrossIncome: 100_000,
+        massachusettsFivePercentIncome: 100_000,
       }).tax < 3174.69,
   );
   assert.equal(cheaper.length, 12);

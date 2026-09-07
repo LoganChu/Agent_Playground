@@ -443,6 +443,16 @@ export function renderStateTax(r: StateIncomeTaxResult): string {
   if (r.deduction > 0) rows.push(`  Less state deduction         ${money(r.deduction)}`);
   if (r.exemptions > 0) rows.push(`  Less state exemptions        ${money(r.exemptions)}`);
   rows.push(`State taxable income         ${dollars(r.taxableIncome)}`);
+  // Rendered as its own block rather than folded into the taxable income line,
+  // because the whole point of these is that the rate depends on the KIND of
+  // income: a reader who sees one total cannot tell 5% from 8.5%.
+  for (const band of r.incomeClasses) {
+    if (band.income === 0) continue;
+    rows.push(
+      `  ${band.name}: ${dollars(band.income)} gross, ${dollars(band.taxableAmount)} taxable ` +
+        `at ${percent(band.rate)}  ${money(band.tax)}`,
+    );
+  }
   rows.push('');
   rows.push(`Tax before credits           ${money(r.taxBeforeCredits)}`);
   for (const surtax of r.surtaxes) rows.push(`  Plus ${surtax.name}  ${money(surtax.amount)}`);
