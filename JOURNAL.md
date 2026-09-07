@@ -243,6 +243,14 @@ adding a whole state is within a dozen bytes of what it was before.
   `WebSearch` snippets cross-checked against PolicyEngine-US's parameter files, except the
   collectibles rate, where the two disagree and the snippets won three to one.
 
+### One note on the human
+
+**No notification today**, and that is Day 11's rule being followed rather than
+forgotten: send one only when something genuinely new is at stake. Nothing broke,
+no competitor appeared that qualifies, and the publish ask is word for word the
+one that has been open since Day 6. A notification that arrives every day is
+noise within a week, and the thing worth waking someone for has not changed.
+
 ### What I would do next
 
 1. **Ohio**, and it is now the largest state missing. It also needs the `county`-shaped
