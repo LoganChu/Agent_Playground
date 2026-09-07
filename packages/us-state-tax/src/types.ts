@@ -42,6 +42,7 @@ export type StateCode =
   | 'IL'
   | 'IN'
   | 'KY'
+  | 'MA'
   | 'MI'
   | 'MS'
   | 'NC'
@@ -101,6 +102,20 @@ export type ConformityBase =
    * Pennsylvania: eight classes of income, no federal AGI anywhere on the form.
    */
   | 'stateDefined';
+
+/**
+ * Which input field carries a `stateDefined` state's own measure of income.
+ *
+ * Three states in this package have no federal starting line, and each needs a
+ * different figure. Naming them in a union rather than accepting a generic
+ * `stateIncome` keeps the error message specific — a caller who passes
+ * Pennsylvania's figure to Massachusetts is told which line of which form the
+ * state actually wants.
+ */
+export type StateDefinedBaseField =
+  | 'pennsylvaniaTaxableIncome'
+  | 'newJerseyGrossIncome'
+  | 'massachusettsFivePercentIncome';
 
 /** One marginal rate band. `upTo` is the top of the band; the last band uses `Infinity`. */
 export interface Bracket {
@@ -321,6 +336,71 @@ export interface StateIncomeTaxInput {
    */
   readonly newJerseyGrossIncome?: number;
   /**
+   * Massachusetts only, and required there: total 5.0% income — Form 1 line 21.
+   *
+   * Massachusetts has no federal starting line either, and the divergences are
+   * not the same ones New Jersey has:
+   *
+   * - **Not taxed by Massachusetts but in federal AGI**: Social Security and
+   *   railroad retirement benefits (entirely, not 15% of them), contributory
+   *   pensions paid by the United States or by Massachusetts and its political
+   *   subdivisions, and interest on Massachusetts municipal bonds.
+   * - **Taxed by Massachusetts but not in federal AGI**: the amount of any
+   *   traditional IRA deduction, the deductible half of self-employment tax, and
+   *   the early-withdrawal penalty — Massachusetts disallows all three of those
+   *   federal above-the-line deductions under M.G.L. c. 62 § 2(d)(1)(A), so each
+   *   one has to be added back to federal AGI to reach this figure.
+   * - **Interest and dividends belong here**, even though they are Part A income
+   *   rather than Part B: since 2020 they are taxed at the same 5% and Form 1
+   *   line 21 adds them in. So do long-term capital gains, which are Part C and
+   *   also taxed at 5%.
+   *
+   * What does *not* belong here is anything taxed at a rate other than 5% —
+   * {@link shortTermCapitalGains} and {@link collectiblesGains}, which are
+   * separate inputs because they are separate rates.
+   *
+   * Supply the figure after the federal above-the-line deductions Massachusetts
+   * does allow and before the Form 1 line 11–15 deductions this package models
+   * from {@link socialSecurityAndMedicarePaid} and {@link rentPaid}.
+   */
+  readonly massachusettsFivePercentIncome?: number;
+  /**
+   * Net short-term capital gains — gains on assets held one year or less.
+   *
+   * Massachusetts taxes these at **8.5%**, not at the 5% every "Massachusetts is
+   * a 5% flat tax state" summary reports. It is the only state in this package
+   * whose base is split by the *kind* of income rather than by its size, and the
+   * gap is 70% of the headline rate. M.G.L. c. 62 § 4(a).
+   *
+   * Net of losses, and not below zero: Massachusetts allows a net capital loss
+   * to offset only up to `$2,000` of interest and dividend income, and this
+   * package does not model that offset — see the state's notes.
+   */
+  readonly shortTermCapitalGains?: number;
+  /**
+   * Long-term capital gains on collectibles and pre-1996 installment sales,
+   * before the 50% deduction.
+   *
+   * Massachusetts taxes these at **12%** — the highest rate in the state — on
+   * half the gain, for an effective 6%. Pass the whole gain; the deduction is
+   * applied here. M.G.L. c. 62 § 4(a) and § 2(c)(3).
+   */
+  readonly collectiblesGains?: number;
+  /**
+   * Social Security, Medicare, railroad, US or Massachusetts public retirement
+   * contributions paid during the year, per return.
+   *
+   * Massachusetts deducts them, up to `$2,000` **per filer** — Form 1 line 11.
+   * Almost every Massachusetts wage earner has one and it is worth `$100` of
+   * tax at the 5% rate, `$200` on a joint return where both spouses work. There
+   * is no federal equivalent, so it cannot be recovered from any federal figure
+   * and is treated as zero when absent, which overstates the tax.
+   *
+   * Medicare premiums withheld from a Social Security payment are **not**
+   * deductible and should not be included.
+   */
+  readonly socialSecurityAndMedicarePaid?: number;
+  /**
    * Age of the filer at the end of the tax year.
    *
    * Consulted by any rule banded on the filer's own age rather than a
@@ -370,6 +450,12 @@ export interface StateIncomeTaxInput {
    * deduction or credit as an owner. Ignored when {@link propertyTaxPaid} is
    * supplied; a filer who both owned and rented in the same year should add the
    * two into {@link propertyTaxPaid} themselves.
+   *
+   * Massachusetts reads the same field for a different rule: half the rent, up
+   * to `$4,000` per return (`$2,000` married filing separately), is deducted
+   * outright — Form 1 line 14. There the cap binds at `$8,000` of annual rent,
+   * which is below the market rent of anywhere in the state, so for a
+   * Massachusetts tenant this field is worth a flat `$200` of tax.
    */
   readonly rentPaid?: number;
   /**
@@ -428,6 +514,34 @@ export interface CreditDetail {
 export interface SurtaxDetail {
   readonly name: string;
   readonly amount: number;
+}
+
+/**
+ * Income the state taxes at a rate of its own, beside the main schedule.
+ *
+ * Massachusetts is the only supported state that does this, and it is the reason
+ * calling it "a 5% flat tax state" is wrong rather than merely rough: a
+ * short-term capital gain is taxed at **8.5%** and a long-term gain on
+ * collectibles at **12%** on half the gain. Neither rate appears in any table of
+ * state income tax rates, because such a table has one row per state.
+ *
+ * The distinction from {@link SurtaxDetail} is which question the rate answers.
+ * A surtax asks *how much* income there is — California's 1% over `$1,000,000`,
+ * Massachusetts's own 4% over the indexed threshold. An income class asks *what
+ * kind* it is, and the answer does not change with the amount.
+ */
+export interface IncomeClassDetail {
+  readonly name: string;
+  readonly rate: number;
+  /** The gross amount supplied, before any class deduction. */
+  readonly income: number;
+  /**
+   * What the rate was actually applied to — after the class's own deduction
+   * (Massachusetts deducts half of a collectibles gain) and after any exemption
+   * left over from the main schedule.
+   */
+  readonly taxableAmount: number;
+  readonly tax: number;
 }
 
 /**
@@ -498,8 +612,22 @@ export interface StateIncomeTaxResult {
   readonly deduction: number;
   /** Exemptions taken as a *deduction* from income, not as a credit. */
   readonly exemptions: number;
+  /**
+   * Taxable income on the state's main schedule. In Massachusetts this is the
+   * 5.0% income only; the separately rated classes are in
+   * {@link incomeClasses} and are **not** included here.
+   */
   readonly taxableIncome: number;
+  /**
+   * Tax on {@link taxableIncome} plus the tax on every {@link incomeClasses}
+   * entry, before surtaxes and before credits.
+   */
   readonly taxBeforeCredits: number;
+  /**
+   * Income the state taxes at a rate of its own. Empty for every state but
+   * Massachusetts — see {@link IncomeClassDetail}.
+   */
+  readonly incomeClasses: readonly IncomeClassDetail[];
   /** Additional taxes layered on the same base — California's 1% over $1,000,000. */
   readonly surtaxes: readonly SurtaxDetail[];
   readonly credits: readonly CreditDetail[];

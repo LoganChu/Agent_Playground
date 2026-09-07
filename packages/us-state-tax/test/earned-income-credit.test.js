@@ -38,6 +38,7 @@ const run = (state, opts = {}) =>
     // supplied unconditionally; a state that does not read the field ignores it.
     pennsylvaniaTaxableIncome: opts.agi ?? 30_000,
     newJerseyGrossIncome: opts.agi ?? 30_000,
+    massachusettsFivePercentIncome: opts.agi ?? 30_000,
   });
 
 const eitcOf = (result) =>
@@ -58,7 +59,7 @@ test('every state whose definition carries an earned income credit pays its matc
       money(eitcOf(r), rule.matchRate * 4_000, `${state} ${year}`);
     }
   }
-  assert.deepEqual(withCredit.sort(), ['CO', 'IL', 'IN', 'MI', 'NJ', 'NY', 'UT']);
+  assert.deepEqual(withCredit.sort(), ['CO', 'IL', 'IN', 'MA', 'MI', 'NJ', 'NY', 'UT']);
 });
 
 test('a state with no earned income credit ignores a federal one entirely', () => {

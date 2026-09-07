@@ -22,7 +22,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 24);
+  assert.equal(SUPPORTED_STATES.length, 25);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -44,16 +44,27 @@ test('an unsupported year is an error, not a silent fallback', () => {
   assert.equal(isSupported('NC', 2025), true);
 });
 
+const getMissingStatesMessage = () => {
+  try {
+    getStateDefinition('OH', 2026);
+  } catch (e) {
+    return e.message;
+  }
+  throw new Error('OH resolved');
+};
+
 test('an unsupported state names what is missing rather than returning zero', () => {
-  assert.throws(() => getStateDefinition('MA', 2026), /not supported/);
+  assert.throws(() => getStateDefinition('OH', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('MA', 2026), /Massachusetts/);
-  // New York and New Jersey were both on this list until they were not. When a
-  // state moves from the gap list into the registry, this is where the two have
-  // to be kept in step.
+  assert.throws(() => getStateDefinition('OH', 2026), /Ohio/);
+  // New York, New Jersey and Massachusetts were all on this list until they were
+  // not. When a state moves from the gap list into the registry, this is where
+  // the two have to be kept in step — and the message must stop naming it.
   assert.equal(isSupported('NY', 2026), true);
   assert.equal(isSupported('NJ', 2026), true);
+  assert.equal(isSupported('MA', 2026), true);
+  assert.doesNotMatch(getMissingStatesMessage(), /Massachusetts/);
 });
 
 test('every state computes for every filing status without throwing', () => {
@@ -67,6 +78,7 @@ test('every state computes for every filing status without throwing', () => {
           federal: federal(90_000, 74_250, 15_750),
           pennsylvaniaTaxableIncome: 90_000,
           newJerseyGrossIncome: 90_000,
+          massachusettsFivePercentIncome: 90_000,
           dependents: 2,
         });
         assert.ok(Number.isFinite(r.tax), `${state} ${year} ${filingStatus} produced ${r.tax}`);

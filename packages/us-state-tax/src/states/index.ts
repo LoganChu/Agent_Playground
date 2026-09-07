@@ -9,6 +9,7 @@ import type { StateIncomeTaxDefinition } from '../definition.js';
 import { california } from './california.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
 import { flatStates } from './flat-states.js';
+import { massachusetts } from './massachusetts.js';
 import { newJersey } from './new-jersey.js';
 import { newYork } from './new-york.js';
 import {
@@ -24,6 +25,7 @@ export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
 
 function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const ca = california(year);
+  const ma = massachusetts(year);
   const nj = newJersey(year);
   const ny = newYork(year);
   return [
@@ -32,6 +34,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...federalTaxableBaseStates(year),
     ...utahAndPennsylvania(year),
     ...(ca ? [ca] : []),
+    ...(ma ? [ma] : []),
     ...(nj ? [nj] : []),
     ...(ny ? [ny] : []),
   ];
@@ -78,10 +81,10 @@ export function getStateDefinition(state: StateCode, year: number): StateIncomeT
     throw new RangeError(
       `${state} is not supported. This package covers ${SUPPORTED_STATES.join(', ')}. ` +
         `The states it does NOT cover include every graduated-rate state other than ` +
-        `California, New Jersey, New York and Mississippi — Massachusetts, Ohio, Virginia, ` +
-        `Maryland, Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, ` +
-        `Connecticut and the rest — and the District of Columbia. Returning zero for ` +
-        `those would be a wrong answer rather than a missing one.`,
+        `California, New Jersey, New York and Mississippi — Ohio, Virginia, Maryland, ` +
+        `Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut ` +
+        `and the rest — and the District of Columbia. Returning zero for those would be ` +
+        `a wrong answer rather than a missing one.`,
     );
   }
   throw new RangeError(

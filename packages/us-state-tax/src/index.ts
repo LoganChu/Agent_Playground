@@ -26,6 +26,7 @@ export {
   localityState,
 } from './localities/index.js';
 export { NYC_ADDITIONAL_TAX_RATE, NYC_PERMANENT_RATES, nycRate } from './localities/new-york.js';
+export { massachusettsSurtaxThreshold } from './states/massachusetts.js';
 export { ownEarnedIncomeCreditAt, childCountBand } from './engine.js';
 export {
   doubled,
@@ -45,15 +46,18 @@ export type {
   FederalDeductionKey,
   FederalDeductionsTaken,
   FilingStatus,
+  IncomeClassDetail,
   LocalIncomeTaxResult,
   LocalityCode,
   ParameterStatus,
   StateCode,
+  StateDefinedBaseField,
   StateIncomeTaxInput,
   StateIncomeTaxResult,
   SurtaxDetail,
 } from './types.js';
 export type {
+  AgeBand,
   ByChildCount,
   ChildCreditRule,
   CreditStep,
@@ -63,13 +67,20 @@ export type {
   ExemptionRule,
   ForgivenessRule,
   HouseholdCreditRule,
+  IncomeClassRule,
   OwnEarnedIncomeCreditRule,
+  PayrollTaxDeductionRule,
+  PropertyTaxReliefRule,
   RateRule,
   RecaptureRule,
+  RentDeductionRule,
+  RetirementExclusionRule,
+  SteppedChildCreditRule,
   StateIncomeTaxDefinition,
   SurtaxRule,
   TaxpayerCreditRule,
   YoungChildCreditRule,
+  ZeroTaxThresholdRule,
 } from './definition.js';
 export type {
   LocalBase,

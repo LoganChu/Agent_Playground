@@ -13,6 +13,7 @@ import type {
   FederalDeductionKey,
   ParameterStatus,
   StateCode,
+  StateDefinedBaseField,
 } from './types.js';
 
 /** How a state's own deduction is determined. */
@@ -71,12 +72,63 @@ export type RateRule =
   | { readonly kind: 'brackets'; readonly byStatus: ByStatus<readonly Bracket[]> };
 
 /**
+ * Income the state pulls out of the main schedule and taxes at its own rate.
+ *
+ * **This is the shape a table of state income tax rates cannot hold**, and
+ * Massachusetts is the state that proves it. Massachusetts appears in every such
+ * table as a single row reading 5%. Its statute, M.G.L. c. 62 § 4(a), sets three
+ * rates: 5% on Part B income and on the Part A interest and dividends and Part C
+ * long-term gains that are taxed alongside it, **8.5%** on short-term capital
+ * gains, and **12%** on long-term gains from collectibles. A day trader's
+ * Massachusetts rate is 70% higher than the one every rate table reports, and a
+ * coin dealer's is 140% higher before the {@link deductionShare} halves it.
+ *
+ * The distinction from {@link SurtaxRule} is which question decides the rate. A
+ * surtax asks how much income there is; a class asks what kind it is.
+ *
+ * Deductions and exemptions are applied to the main schedule first. Whatever
+ * exemption is left over cascades through these classes in order — see
+ * {@link StateIncomeTaxDefinition.separatelyRatedIncome}.
+ */
+export interface IncomeClassRule {
+  readonly name: string;
+  /** Which input field carries this class's income. */
+  readonly field: 'shortTermCapitalGains' | 'collectiblesGains';
+  readonly rate: number;
+  /**
+   * The share of the gain the state deducts before applying {@link rate}.
+   *
+   * Massachusetts deducts 50% of a long-term collectibles gain (M.G.L. c. 62
+   * § 2(c)(3)), so the 12% statutory rate is an effective 6%. Storing the two
+   * separately rather than as a single 6% rate is what makes the surtax right:
+   * the 4% surtax applies to *taxable* income, which is the amount after the
+   * deduction, so folding the deduction into the rate would apply the surtax to
+   * twice the correct base.
+   */
+  readonly deductionShare?: number;
+}
+
+/**
  * A tax layered on the same taxable income as the main schedule.
  *
- * California's Mental Health Services Tax is the supported case: an extra 1% on
- * taxable income over $1,000,000, and — the part that surprises people — the
- * threshold is **not** doubled for a joint return even though every bracket in the
- * main schedule is.
+ * Two states here have one, and both put the threshold on the *return* rather
+ * than on the filer:
+ *
+ * - **California's Mental Health Services Tax** — 1% on taxable income over
+ *   `$1,000,000`, and the threshold is not doubled for a joint return even
+ *   though every bracket in the main schedule is. A `$2,000` marriage penalty
+ *   invisible in the brackets.
+ * - **Massachusetts's 4% surtax**, the "millionaires tax" of Article XLIV of the
+ *   Amendments. Same shape and a much sharper edge, because Massachusetts
+ *   *closed* the obvious escape: since tax year 2024 a couple filing a joint
+ *   federal return must file jointly in Massachusetts too (M.G.L. c. 62 § 4(d)),
+ *   so two spouses with `$700,000` each cannot take two thresholds the way they
+ *   could in 2023. The base is total taxable income across every income class,
+ *   which is why a once-in-a-lifetime capital gain reaches it.
+ *
+ * The surtax is applied to the sum of the main schedule's taxable income and
+ * every {@link IncomeClassRule}'s, which for a single-class state is just the
+ * main schedule.
  */
 export interface SurtaxRule {
   readonly name: string;
@@ -234,22 +286,45 @@ export interface HouseholdCreditRule {
  *
  * The reduction is per increment "or fraction thereof", so it is a staircase:
  * the dollar that crosses each `$1,000` boundary costs `$16.50` at once.
+ *
+ * Massachusetts's Child and Family Tax Credit is the same rule with the two
+ * hardest parts removed and one added. There is **no phase-out at all** — a
+ * household earning `$40,000` and one earning `$400,000` get the same `$440` per
+ * dependent — and since tax year 2024 there is **no cap on the number of
+ * dependents**, where the credit it replaced stopped at two. What it adds is a
+ * band at the *other end of life*: a dependent aged 65 or over qualifies exactly
+ * as a child under 13 does, which is why {@link AgeBand} takes a `minAge` as well
+ * as a `maxAge`.
  */
 export interface ChildCreditRule {
   readonly name: string;
   /**
-   * Amount per dependent, by the oldest age that gets it. Bands are matched in
-   * order, so `[{ maxAge: 3, amount: 1000 }, { maxAge: 16, amount: 500 }]` pays
-   * `$1,000` up to and including age 3 and `$500` from 4 to 16.
+   * Amount per dependent by age. Bands are matched in order and the first match
+   * wins, so `[{ maxAge: 3, amount: 1000 }, { maxAge: 16, amount: 500 }]` pays
+   * `$1,000` up to and including age 3 and `$500` from 4 to 16, and
+   * `[{ maxAge: 12, amount: 440 }, { minAge: 65, amount: 440 }]` pays `$440` at
+   * either end of life and nothing in between.
    */
-  readonly amountByAge: readonly { readonly maxAge: number; readonly amount: number }[];
-  readonly phaseOut: {
+  readonly amountByAge: readonly AgeBand[];
+  /**
+   * Absent where the credit does not phase out. Massachusetts's does not, which
+   * is rarer than it sounds: it is the only credit in this package worth the
+   * same to a household at `$400,000` as at `$40,000`.
+   */
+  readonly phaseOut?: {
     readonly threshold: ByStatus;
     /** Subtracted from the whole credit per increment, or fraction of one. */
     readonly amountPerIncrement: number;
     readonly increment: number;
   };
   readonly refundable: boolean;
+}
+
+/** One age band of a per-dependent credit. Bounds are inclusive. */
+export interface AgeBand {
+  readonly maxAge?: number;
+  readonly minAge?: number;
+  readonly amount: number;
 }
 
 /**
@@ -448,10 +523,118 @@ export interface RecaptureRule {
  *
  * It is measured on gross income **after** any {@link RetirementExclusionRule},
  * because New Jersey's is line 29 of the NJ-1040 and the exclusion is line 28.
+ *
+ * **Massachusetts has the same rule and prints it as a different kind of
+ * object.** No Tax Status is a table — `$8,000` single, `$16,400` joint,
+ * `$14,400` head of household, plus `$1,000` per dependent — and the table is
+ * generated. Two of its three rows are `$7,600` plus that status's own personal
+ * exemption:
+ *
+ * ```text
+ * 7,600 + 8,800 (joint)             = 16,400
+ * 7,600 + 6,800 (head of household)  = 14,400
+ * 1,000 per dependent                = the dependent exemption, unchanged
+ * ```
+ *
+ * Two for two, and the `$1,000` is the dependent exemption itself. So this rule
+ * stores one constant and reuses the {@link ExemptionRule} beside it rather than
+ * a table that can drift away from the exemptions it is made of. The single row
+ * is the exception and is stored: `$8,000` is not `$7,600 + $4,400`, and a single
+ * filer adds nothing for dependents either.
  */
 export interface ZeroTaxThresholdRule {
   readonly name: string;
+  /**
+   * The threshold, or — where {@link addsPersonalExemption} is true for the
+   * status — the constant the exemptions are added to.
+   */
   readonly threshold: ByStatus;
+  /** Added to the threshold for each dependent claimed. Massachusetts: $1,000. */
+  readonly perDependent?: number;
+  /**
+   * Statuses whose own personal exemption is added to {@link threshold}. False
+   * for a single filer in Massachusetts, which is why `$8,000` is stored whole.
+   */
+  readonly addsPersonalExemption?: ByStatus<boolean>;
+  /**
+   * Statuses that cannot claim the threshold at all. Massachusetts bars married
+   * filing separately from No Tax Status and from the credit below.
+   */
+  readonly ineligibleFilingStatuses?: readonly string[];
+  /**
+   * The credit that keeps the threshold from being a cliff — Massachusetts's
+   * Limited Income Credit, M.G.L. c. 62 § 5(b).
+   *
+   * New Jersey's threshold is a wall: `$252` of tax arrives on one dollar of
+   * income. Massachusetts saw the same problem and solved it, and the solution
+   * is more interesting than the problem. Just above No Tax Status the tax is
+   * limited to **10% of the income above the threshold**, which is not a
+   * softening of the 5% rate — it is **double** it. Massachusetts buys the
+   * absence of a cliff by charging twice the statutory rate across the band, and
+   * that band is the single largest departure from "5%" that an ordinary
+   * Massachusetts wage earner will ever see.
+   *
+   * The published eligibility ceiling is `175%` of the threshold, and it is not
+   * where the credit stops being worth anything: the credit is the excess of the
+   * tax over that 10%, so it reaches zero where the two lines cross. For a
+   * single filer with no dependents that is `$11,600`, not the `$14,000` the
+   * instructions print — see {@link ceilingMultiple}.
+   */
+  readonly limitedIncomeCredit?: {
+    readonly name: string;
+    /** The share of income above the threshold the tax is limited to. 10%. */
+    readonly rate: number;
+    /**
+     * Eligibility ceiling as a multiple of the threshold — `1.75`.
+     *
+     * It is a statutory eligibility test and not the end of the credit. Which of
+     * the two binds depends on the filer: for a single filer the credit runs out
+     * first, and for a joint return with several dependents the ceiling does.
+     */
+    readonly ceilingMultiple: number;
+  };
+}
+
+/**
+ * A deduction for rent paid on a principal residence in the state.
+ *
+ * Massachusetts's, M.G.L. c. 62 § 3(B)(a)(9) — half the rent, capped. It is
+ * distinct from {@link PropertyTaxReliefRule}, which offers a tenant the *choice*
+ * of a deduction or a credit and has to compute the return both ways; this is a
+ * deduction and nothing else.
+ *
+ * The cap is what makes it uninteresting to model as a function of rent and
+ * interesting to model at all: at `$4,000` it binds at `$8,000` of annual rent,
+ * which is `$667` a month and below the rent of anywhere in Massachusetts. So in
+ * practice it is a flat `$4,000` deduction that every Massachusetts tenant gets
+ * and no Massachusetts owner does — worth `$200`, and missing from any model that
+ * has no way to know the filer rents.
+ */
+export interface RentDeductionRule {
+  readonly name: string;
+  /** Share of rent paid that is deductible. 50%. */
+  readonly share: number;
+  readonly cap: ByStatus;
+}
+
+/**
+ * A deduction for payroll and public-retirement contributions the filer paid.
+ *
+ * Massachusetts's, M.G.L. c. 62 § 3(B)(a)(4) — Social Security, Medicare,
+ * railroad retirement, and contributions to a United States or Massachusetts
+ * public employee retirement system, up to `$2,000` **per filer**. There is no
+ * federal analogue at all: the employee half of FICA is not deductible federally,
+ * so this figure appears nowhere on a federal return and cannot be derived from
+ * one.
+ *
+ * It binds at `$26,144` of wages (`$2,000 ÷ 7.65%`), so almost every full-time
+ * Massachusetts wage earner takes the full `$2,000` and almost every part-time one
+ * does not.
+ */
+export interface PayrollTaxDeductionRule {
+  readonly name: string;
+  /** The most one filer may deduct. A joint return with two earners gets two. */
+  readonly perFilerCap: number;
 }
 
 /**
@@ -566,7 +749,14 @@ export interface StateIncomeTaxDefinition {
   readonly status: ParameterStatus;
   readonly base: ConformityBase;
   readonly rate: RateRule;
+  /**
+   * Income taken out of {@link rate} and taxed at a rate of its own, in the
+   * order any leftover exemption cascades through them. Massachusetts only.
+   */
+  readonly separatelyRatedIncome?: readonly IncomeClassRule[];
   readonly deduction: DeductionRule;
+  readonly rentDeduction?: RentDeductionRule;
+  readonly payrollTaxDeduction?: PayrollTaxDeductionRule;
   readonly exemption?: ExemptionRule;
   readonly surtax?: SurtaxRule;
   readonly exemptionCredit?: ExemptionCreditRule;
@@ -594,7 +784,7 @@ export interface StateIncomeTaxDefinition {
    * state's own measure of income, and why no federal figure can stand in.
    */
   readonly stateDefinedBase?: {
-    readonly field: 'pennsylvaniaTaxableIncome' | 'newJerseyGrossIncome';
+    readonly field: StateDefinedBaseField;
     readonly why: string;
   };
   /**

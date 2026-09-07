@@ -1,8 +1,8 @@
 # us-state-tax
 
-US **state** individual income tax for tax years **2025 and 2026**, across **24 states**
-including **New York** and — new in 0.6.0 — **New Jersey**, plus **New York City and
-Yonkers** local tax. Dependency-free,
+US **state** individual income tax for tax years **2025 and 2026**, across **25 states**
+including **New York**, **New Jersey** and — new in 0.7.0 — **Massachusetts**, plus **New
+York City and Yonkers** local tax. Dependency-free,
 MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
@@ -139,7 +139,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-four
+That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-five
 states in this package** at the same income — every one of the nine with no income tax,
 plus Arizona, Indiana and Pennsylvania. Omit the locality on a New York return and the
 result says so, and says what it would have cost this filer.
@@ -394,6 +394,76 @@ which almost no other state does. And a **qualifying surviving spouse gets three
 mappings on one return** — the joint rate schedule, the single `$75,000` exclusion maximum,
 and one `$1,000` personal exemption rather than two.
 
+### Massachusetts is not a 5% flat tax state
+
+Every table of state income tax rates gives Massachusetts one row, and the row says 5%.
+M.G.L. c. 62 § 4(a) sets three rates, and which one applies depends on the **kind** of
+income rather than on how much of it there is — the one shape a rate table cannot hold,
+because a rate table has one row per state.
+
+```js
+const ma = (fields) => stateIncomeTax({
+  state: 'MA', year: 2025, filingStatus: 'single', federal, ...fields,
+});
+
+ma({ massachusettsFivePercentIncome: 100_000 }).tax;                              // 4780.00
+ma({ massachusettsFivePercentIncome: 80_000, shortTermCapitalGains: 20_000 }).tax; // 5480.00
+ma({ massachusettsFivePercentIncome: 80_000, collectiblesGains: 20_000 }).tax;     // 4980.00
+```
+
+The same `$100,000`. Twenty thousand of it held eleven months rather than earned costs
+**`$700` more**, because a short-term capital gain is taxed at **8.5%** — 70% above the
+headline rate. A long-term gain on collectibles is taxed at **12%** on half the gain, an
+effective 6%, and `result.incomeClasses` reports each class with its own rate and tax.
+
+Three more things here are invisible from outside.
+
+**The statute says 5.95%.** § 4(b) still reads `5.95 per cent`, with a mechanism that
+steps the rate down 0.05 points in any year the commonwealth's revenue growth clears a
+test. The steps ran out in tax year 2020 at exactly 5.00%. Reading the statute gives a
+number 19% too high; reading the rate table misses the mechanism that produced it.
+
+**No Tax Status is a generated table, and the credit above it charges double the rate.**
+The published `$16,400` (joint) and `$14,400` (head of household) are `$7,600` plus that
+status's own personal exemption, and the `$1,000` per dependent is the dependent exemption
+— so this package stores `$7,600` and the exemptions, not the table. Above the threshold
+the Limited Income Credit limits the tax to **10% of the income above it**, which is not a
+softening of the 5% rate, it is twice it:
+
+```js
+ma({ massachusettsFivePercentIncome:  8_000 }).tax;          // 0
+ma({ massachusettsFivePercentIncome:  8_001 }).tax;          // 0.10   <- not $180
+ma({ massachusettsFivePercentIncome: 10_000 }).marginalRate; // 0.1
+ma({ massachusettsFivePercentIncome: 11_600 }).marginalRate; // 0.05
+```
+
+That is Massachusetts buying the absence of New Jersey's `$252` cliff at the price of the
+most expensive marginal band in the return. And the `175%`-of-threshold eligibility ceiling
+the instructions print — `$14,000` for a single filer — is **never** the operative limit:
+the credit is the excess of the tax over that 10%, so it reaches zero where the two lines
+cross, at `2 × threshold − exemptions`. For every filing status and every number of
+dependents that crossover comes first.
+
+**The 4% surtax is per return, and filing separately no longer escapes it.** The threshold
+is `$1,083,150` for 2025 and `$1,107,750` for 2026, and it is not doubled for a joint
+return. Since tax year 2024, M.G.L. c. 62 § 4(d) requires a couple who filed a joint
+federal return to file jointly in Massachusetts, which closed the split-return route two
+spouses used in 2023:
+
+```js
+const each = ma({ massachusettsFivePercentIncome: 700_000, filingStatus: 'marriedFilingSeparately' });
+const both = ma({ massachusettsFivePercentIncome: 1_400_000, filingStatus: 'marriedFilingJointly' });
+
+each.surtaxes.length;        // 0
+both.surtaxes[0].amount;     // 12322.00
+both.tax - 2 * each.tax;     // 12322.00
+```
+
+The surtax base is **total** taxable income across all three rate classes, so a single
+large capital gain reaches it for a filer whose salary does not: `$200,000` of salary
+beside a `$1,000,000` short-term gain owes exactly the `$4,498` of surtax that a
+`$1,200,000` salary does.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -412,15 +482,20 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, IL, KY, MI, UT**. Published: **AZ, GA, IN, MS, NC, NY,
-PA** and the nine states with no income tax. Nothing is provisional for 2025.
+Provisional for 2026: **CA, CO, ID, IL, KY, MI, UT**. Published: **AZ, GA, IN, MA, MS, NC,
+NJ, NY, PA** and the nine states with no income tax. Nothing is provisional for 2025.
 
 New York is published for both years because it indexes nothing: its brackets, standard
-deduction and dependent exemption are all fixed in statute.
+deduction and dependent exemption are all fixed in statute. Massachusetts is published for
+the same reason with one exception, and the exception has already been certified: the 4%
+surtax threshold is the only indexed figure in the whole Massachusetts computation, and
+the Department of Revenue has published `$1,107,750` for 2026 against `$1,083,150` for
+2025. So the entire year-over-year change in Massachusetts income tax is `$984` — 4% of
+the `$24,600` the threshold moved — and it is owed by nobody below a million dollars.
 
 ## No fallback to a neighbouring year
 
-Seven of the fifteen taxing states cut their rate between 2025 and 2026 — New York's
+Seven of the sixteen taxing states cut their rate between 2025 and 2026 — New York's
 bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
 North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%. Asking for an unsupported year throws
@@ -429,8 +504,10 @@ rather than answering with the nearest one.
 ## Coverage
 
 **Graduated:** California, Mississippi, New Jersey, New York.
-**Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky, Michigan,
-North Carolina, Pennsylvania, Utah.
+**Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky,
+Massachusetts, Michigan, North Carolina, Pennsylvania, Utah.
+**Rated by kind of income:** Massachusetts, which is in the flat list above and does not
+belong there — see below.
 **No income tax:** Alaska, Florida, Nevada, New Hampshire, South Dakota, Tennessee, Texas,
 Washington, Wyoming.
 
@@ -440,18 +517,27 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.6.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.7.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 24 states.** No Massachusetts, Ohio, Virginia, Maryland, Minnesota, Wisconsin,
+- **Only 25 states.** No Ohio, Virginia, Maryland, Minnesota, Wisconsin,
   Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
   Asking for one throws rather than returning zero.
+- **Massachusetts's Schedule B and D netting is not modelled.** Short-term and long-term
+  gains are taken as given; the `$2,000` limit on net capital losses deductible against
+  interest and dividend income, and the order in which short-term and long-term losses are
+  applied against each other, are not computed. Nor is the senior circuit breaker credit,
+  which is the largest credit on many Massachusetts retirees' returns.
 - **Local income tax in New York only.** New York City and Yonkers are computed; pass
   `locality`. Every Indiana county, most Pennsylvania municipalities and school districts,
   Detroit and 23 other Michigan cities, Ohio's municipalities, Kentucky's occupational
   taxes and Maryland's counties are not, and for an Indiana or Pennsylvania filer the local
   tax is a large fraction of the bill. Nor is part-year city residency, or the New York
   City child and dependent care credit.
+- **Four states' child credits.** Massachusetts's Child and Family Tax Credit is computed
+  for a dependent under 13 or aged 65 and over; a permanently and totally disabled
+  dependent of any age also qualifies and this package cannot see disability, so such a
+  return is too high by `$440` per such dependent.
 - **Three states' child credits.** New York's Empire State child credit, California's
   Young Child Tax Credit and New Jersey's child tax credit are computed from
   `dependentAges`. Absent: the California Foster

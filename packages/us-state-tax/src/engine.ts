@@ -25,6 +25,7 @@ import type {
   BracketDetail,
   CreditDetail,
   FilingStatus,
+  IncomeClassDetail,
   LocalIncomeTaxResult,
   StateCode,
   StateIncomeTaxInput,
@@ -70,7 +71,7 @@ function conformityAmount(def: StateIncomeTaxDefinition, input: StateIncomeTaxIn
   }
 }
 
-function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+function standardDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
   switch (def.deduction.kind) {
     case 'none':
       return 0;
@@ -79,6 +80,34 @@ function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInpu
     case 'table':
       return def.deduction.amounts[input.filingStatus];
   }
+}
+
+/**
+ * The state's own deductions from income, before exemptions.
+ *
+ * Massachusetts has no standard deduction and two specific ones instead, both of
+ * which need a fact no federal figure carries: what the filer paid in FICA, and
+ * whether they rent. Neither is large, and together they are `$400` of tax for a
+ * two-earner renting couple — but a model with no way to represent them is
+ * silently wrong for every Massachusetts tenant, which is a third of the state.
+ */
+function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  let total = standardDeduction(def, input);
+
+  if (def.payrollTaxDeduction) {
+    const paid = nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid');
+    // Per filer, so a joint return with two working spouses deducts twice as
+    // much — but only up to what was actually paid between them, which is the
+    // one figure this package cannot split.
+    total += Math.min(paid, def.payrollTaxDeduction.perFilerCap * filerCount(input.filingStatus));
+  }
+
+  if (def.rentDeduction) {
+    const rent = nonNegative(input.rentPaid, 'rentPaid');
+    total += Math.min(rent * def.rentDeduction.share, def.rentDeduction.cap[input.filingStatus]);
+  }
+
+  return total;
 }
 
 function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
@@ -341,13 +370,21 @@ function childCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput):
       throw new RangeError(`dependentAges must be non-negative finite numbers, received ${age}`);
     }
     for (const band of rule.amountByAge) {
-      if (age <= band.maxAge) {
+      // Bounds are inclusive and either may be absent, which is what lets one
+      // list express New York's "under 4, then 4 to 16" and Massachusetts's
+      // "under 13, or 65 and over" — a credit banded at both ends of life.
+      if ((band.maxAge === undefined || age <= band.maxAge) &&
+          (band.minAge === undefined || age >= band.minAge)) {
         credit += band.amount;
         break;
       }
     }
   }
   if (credit <= 0) return 0;
+  // Massachusetts's has no phase-out at all, which is the whole of what makes it
+  // unusual: it is worth the same $440 per dependent at $400,000 of income as at
+  // $40,000.
+  if (!rule.phaseOut) return credit;
 
   const excess = input.federal.adjustedGrossIncome - rule.phaseOut.threshold[input.filingStatus];
   if (excess <= 0) return credit;
@@ -524,8 +561,84 @@ function recapture(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput, ag
   return Math.max(0, recaptured);
 }
 
+/**
+ * The income a state taxes at a rate of its own, with any exemption the main
+ * schedule could not use cascaded through it.
+ *
+ * Massachusetts is the only state here with such classes, and the cascade is the
+ * part that is easy to leave out: a retiree whose only income is a short-term
+ * capital gain has a `$4,400` personal exemption and no 5.0% income to set it
+ * against, so an engine that applies exemptions only to the main schedule taxes
+ * their first `$4,400` at 8.5%.
+ *
+ * `deductionShare` is applied first and the exemption second, which is the order
+ * Massachusetts uses: the 50% collectibles deduction is subtracted in reaching
+ * Part A adjusted gross income (M.G.L. c. 62 § 2(c)(3)) and exemptions come out
+ * of adjusted gross income afterwards.
+ */
+function incomeClassDetails(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  unusedExemption: number,
+): { details: IncomeClassDetail[]; taxableTotal: number; adjustedTotal: number; tax: number } {
+  const details: IncomeClassDetail[] = [];
+  let remainingExemption = unusedExemption;
+  let taxableTotal = 0;
+  let adjustedTotal = 0;
+  let tax = 0;
+
+  for (const rule of def.separatelyRatedIncome ?? []) {
+    const income = nonNegative(input[rule.field], rule.field);
+    const adjusted = income * (1 - (rule.deductionShare ?? 0));
+    const applied = Math.min(remainingExemption, adjusted);
+    remainingExemption -= applied;
+    const taxableAmount = adjusted - applied;
+    adjustedTotal += adjusted;
+    taxableTotal += taxableAmount;
+    tax += taxableAmount * rule.rate;
+    details.push({ name: rule.name, rate: rule.rate, income, taxableAmount, tax: taxableAmount * rule.rate });
+  }
+
+  return { details, taxableTotal, adjustedTotal, tax };
+}
+
+/**
+ * The income at or below which the state charges no tax at all, or `undefined`
+ * when this filer cannot claim it.
+ *
+ * New Jersey stores the whole figure. Massachusetts stores `$7,600` and derives
+ * the rest from the exemption schedule sitting beside it — see
+ * {@link ZeroTaxThresholdRule} — which is why the published `$16,400` and
+ * `$14,400` are not in this package at all.
+ */
+function zeroTaxThreshold(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number | undefined {
+  const rule = def.zeroTaxThreshold;
+  if (!rule) return undefined;
+  if (rule.ineligibleFilingStatuses?.includes(input.filingStatus)) return undefined;
+  let threshold = rule.threshold[input.filingStatus];
+  if (rule.addsPersonalExemption?.[input.filingStatus] && def.exemption) {
+    threshold += def.exemption.perFiler[input.filingStatus];
+  }
+  if (rule.perDependent !== undefined) {
+    threshold += rule.perDependent * dependentCount(input);
+  }
+  return threshold;
+}
+
 interface Computed {
   conformityAmount: number;
+  /**
+   * Every dollar of income the state saw, across all rate classes.
+   *
+   * Equal to {@link conformityAmount} everywhere but Massachusetts, and the
+   * denominator {@link StateIncomeTaxResult.effectiveRate} needs: a filer whose
+   * income is a $1,000,000 short-term gain and a $200,000 salary has an
+   * effective rate of 41%, not the 50% that dividing by the salary alone gives.
+   */
+  incomeBase: number;
   addBacks: { name: string; amount: number }[];
   additions: number;
   subtractions: number;
@@ -537,6 +650,7 @@ interface Computed {
   taxableIncome: number;
   taxBeforeCredits: number;
   brackets: BracketDetail[];
+  incomeClasses: IncomeClassDetail[];
   surtaxes: SurtaxDetail[];
   credits: CreditDetail[];
   /**
@@ -581,15 +695,26 @@ function computeOnce(
   const propertyTaxDeduction = propertyTaxRoute === 'deduction' ? propertyTax : 0;
   const deduction = stateDeduction(def, input) + propertyTaxDeduction;
   const exemptions = stateExemptions(def, input);
-  const taxableIncome = Math.max(0, stateAgi - deduction - exemptions);
+  const afterDeduction = Math.max(0, stateAgi - deduction);
+  const taxableIncome = Math.max(0, afterDeduction - exemptions);
+  // What the main schedule could not absorb cascades into the separately rated
+  // classes, in the order they are declared.
+  const classes = incomeClassDetails(def, input, Math.max(0, exemptions - afterDeduction));
+
+  // The figure a "no tax at all" threshold is measured against. Massachusetts
+  // measures No Tax Status on Massachusetts AGI, which includes the Part A and
+  // Part C income taxed at the other rates — so a filer with $5,000 of wages and
+  // a $60,000 short-term gain is not in No Tax Status, and an engine that looked
+  // only at the main schedule would say they were.
+  const totalStateAgi = stateAgi + classes.adjustedTotal;
 
   // Below the filing threshold the state charges nothing at all — not a zero
   // bracket, a statement about the whole return. Refundable credits survive it:
   // New Jersey tells filers under the threshold to file anyway and claim the
   // earned income and child credits, which is the whole reason the threshold is
   // applied here rather than by returning early.
-  const belowThreshold =
-    def.zeroTaxThreshold !== undefined && stateAgi <= def.zeroTaxThreshold.threshold[input.filingStatus];
+  const threshold = zeroTaxThreshold(def, input);
+  const belowThreshold = threshold !== undefined && totalStateAgi <= threshold;
 
   let taxBeforeCredits = 0;
   let brackets: BracketDetail[] = [];
@@ -605,10 +730,18 @@ function computeOnce(
     taxBeforeCredits = walked.tax;
     brackets = walked.detail;
   }
+  const incomeClasses = belowThreshold
+    ? classes.details.map((c) => ({ ...c, taxableAmount: 0, tax: 0 }))
+    : classes.details;
+  if (!belowThreshold) taxBeforeCredits += classes.tax;
 
   const surtaxes: SurtaxDetail[] = [];
   if (def.surtax && !belowThreshold) {
-    const amount = applyBrackets(taxableIncome, def.surtax.brackets).tax;
+    // On *total* taxable income, across every class. Massachusetts's 4% surtax
+    // is the reason this matters: a filer whose salary is $200,000 and whose
+    // one-time capital gain is $1,000,000 owes it, and a surtax measured on the
+    // main schedule alone would say they do not.
+    const amount = applyBrackets(taxableIncome + classes.taxableTotal, def.surtax.brackets).tax;
     if (amount > 0) surtaxes.push({ name: def.surtax.name, amount });
   }
   if (def.recapture && !belowThreshold) {
@@ -691,6 +824,23 @@ function computeOnce(
   }
 
   const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
+
+  // The credit that stops the threshold above from being a cliff. It limits the
+  // tax to a share of the income above the threshold — 10% in Massachusetts,
+  // which is twice the statutory rate, so the band immediately above No Tax
+  // Status is the most expensive marginal income an ordinary Massachusetts wage
+  // earner ever earns.
+  const limited = def.zeroTaxThreshold?.limitedIncomeCredit;
+  if (limited && threshold !== undefined) {
+    const withinCeiling = totalStateAgi <= threshold * limited.ceilingMultiple;
+    const capped = limited.rate * Math.max(0, totalStateAgi - threshold);
+    credits.push({
+      name: limited.name,
+      amount: withinCeiling && !belowThreshold ? Math.max(0, grossTax - capped) : 0,
+      refundable: false,
+    });
+  }
+
   if (def.forgiveness) {
     credits.push({
       name: def.forgiveness.name,
@@ -705,6 +855,7 @@ function computeOnce(
 
   return {
     conformityAmount: base,
+    incomeBase: base + classes.details.reduce((sum, c) => sum + c.income, 0),
     addBacks: back,
     additions,
     subtractions,
@@ -715,6 +866,7 @@ function computeOnce(
     taxableIncome,
     taxBeforeCredits,
     brackets,
+    incomeClasses,
     surtaxes,
     credits,
     taxBeforeRefundableCredits,
@@ -755,6 +907,17 @@ function oneDollarMore(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
 ): StateIncomeTaxInput {
+  if (def.base === 'stateDefined' && def.stateDefinedBase?.field === 'massachusettsFivePercentIncome') {
+    // The extra dollar is a dollar of 5.0% income, not of a capital gain: the
+    // marginal rate a caller wants is the one on the next dollar they earn. It
+    // still has to reach the No Tax Status threshold and the Limited Income
+    // Credit, which are measured on Massachusetts AGI — and inside that band the
+    // answer is 10%, twice the rate the schedule reports.
+    return {
+      ...input,
+      massachusettsFivePercentIncome: (input.massachusettsFivePercentIncome ?? 0) + 1,
+    };
+  }
   if (def.base === 'stateDefined' && def.stateDefinedBase?.field === 'newJerseyGrossIncome') {
     // The extra dollar has to reach the retirement exclusion's income test as
     // well as the rate schedule: at $150,000 of total income it is worth
@@ -886,6 +1049,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       exemptions: 0,
       taxableIncome: 0,
       taxBeforeCredits: 0,
+      incomeClasses: [],
       surtaxes: [],
       credits: [],
       tax: 0,
@@ -970,6 +1134,19 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `this family return is too high by that much per child until the ages are given.`,
     );
   }
+  if (def.payrollTaxDeduction && input.socialSecurityAndMedicarePaid === undefined) {
+    const rule = def.payrollTaxDeduction;
+    const worth = rule.perFilerCap * filerCount(input.filingStatus);
+    dynamic.push(
+      `${def.name} deducts ${rule.name.toLowerCase()} up to $${rule.perFilerCap.toLocaleString('en-US')} ` +
+        `per filer, and socialSecurityAndMedicarePaid was not supplied, so it was computed as ` +
+        `zero — which is right for a filer with no earnings and too high by up to ` +
+        `$${worth.toLocaleString('en-US')} of deduction for everyone else. There is no federal ` +
+        `equivalent of this deduction, so it cannot be recovered from any figure on a federal ` +
+        `return; the employee half of FICA is 7.65% of wages, so the cap binds at ` +
+        `$${Math.round(rule.perFilerCap / 0.0765).toLocaleString('en-US')} of wages per filer.`,
+    );
+  }
   if (input.state === 'NY' && input.locality === undefined) {
     // Quantified rather than hedged: the city tax this exact filer would owe, run
     // through the same engine, so a caller who left `locality` out learns what it
@@ -1014,6 +1191,13 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     exemptions: roundCents(here.exemptions),
     taxableIncome: roundCents(here.taxableIncome),
     taxBeforeCredits: roundCents(here.taxBeforeCredits),
+    incomeClasses: here.incomeClasses.map((c) => ({
+      name: c.name,
+      rate: c.rate,
+      income: roundCents(c.income),
+      taxableAmount: roundCents(c.taxableAmount),
+      tax: roundCents(c.tax),
+    })),
     surtaxes: here.surtaxes.map((s) => ({ name: s.name, amount: roundCents(s.amount) })),
     credits: here.credits.map((c) => ({ ...c, amount: roundCents(c.amount) })),
     tax: roundCents(here.tax),
@@ -1023,7 +1207,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       tax: roundCents(b.tax),
     })),
     marginalRate: stateMarginal,
-    effectiveRate: here.conformityAmount > 0 ? here.tax / here.conformityAmount : 0,
+    effectiveRate: here.incomeBase > 0 ? here.tax / here.incomeBase : 0,
     localTaxes,
     totalTax: roundCents(here.tax + localTax),
     totalMarginalRate: rate(stateMarginal + localMarginal),

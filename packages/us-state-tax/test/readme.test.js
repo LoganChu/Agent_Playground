@@ -36,23 +36,33 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 24 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 24);
+test('README: 25 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 25);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Five graduated, ten flat, nine with none.
+  // Five graduated, eleven flat, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
   const flat = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind === 'flat');
   assert.deepEqual(graduated, ['CA', 'ID', 'MS', 'NJ', 'NY']);
-  assert.equal(flat.length, 10);
+  assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
-  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 24);
-  // Fifteen taxing states — the count the README quotes when it says seven of
+  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 25);
+  // Sixteen taxing states — the count the README quotes when it says seven of
   // them cut their rate for 2026.
-  assert.equal(graduated.length + flat.length, 15);
+  assert.equal(graduated.length + flat.length, 16);
+  // Massachusetts counts as flat here and is the reason the label is wrong: its
+  // rate rule is one 5% rate, and the statute puts short-term capital gains at
+  // 8.5% and collectibles at 12% beside it.
+  const classes = getStateDefinition('MA', 2026).separatelyRatedIncome;
+  assert.deepEqual(classes.map((c) => c.rate), [0.085, 0.12]);
+  assert.equal(
+    SUPPORTED_STATES.filter((s) => (getStateDefinition(s, 2026).separatelyRatedIncome ?? []).length > 0)
+      .length,
+    1,
+  );
 });
 
 test('README: New York recaptures the brackets, and the identity that says so', () => {
@@ -350,7 +360,7 @@ test('README: the provisional and published lists for 2026', () => {
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
   assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MI', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MS', 'NC', 'NJ', 'NY', 'PA']);
+  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MA', 'MS', 'NC', 'NJ', 'NY', 'PA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -366,7 +376,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['MA', 'OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
+  for (const state of ['OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -409,6 +419,7 @@ test('README: the New York City quick-start figures', () => {
       federal,
       pennsylvaniaTaxableIncome: 100_000,
       newJerseyGrossIncome: 100_000,
+      massachusettsFivePercentIncome: 100_000,
     });
     return result.tax < 3174.69;
   });
@@ -551,4 +562,64 @@ test('README: the New Jersey section', () => {
     0.25 * (rule.maximum.marriedFilingSeparately / rule.maximum.marriedFilingJointly),
     0.125,
   );
+});
+
+test('README: Massachusetts is not a 5% flat tax state', () => {
+  const ma = (fields) =>
+    stateIncomeTax({
+      state: 'MA',
+      year: 2025,
+      filingStatus: 'single',
+      federal: FEDERAL_2025,
+      ...fields,
+    });
+
+  assert.equal(ma({ massachusettsFivePercentIncome: 100_000 }).tax, 4780.0);
+  assert.equal(
+    ma({ massachusettsFivePercentIncome: 80_000, shortTermCapitalGains: 20_000 }).tax,
+    5480.0,
+  );
+  assert.equal(
+    ma({ massachusettsFivePercentIncome: 80_000, collectiblesGains: 20_000 }).tax,
+    4980.0,
+  );
+
+  // No Tax Status and the Limited Income Credit's 10%.
+  assert.equal(ma({ massachusettsFivePercentIncome: 8_000 }).tax, 0);
+  assert.equal(ma({ massachusettsFivePercentIncome: 8_001 }).tax, 0.1);
+  assert.equal(ma({ massachusettsFivePercentIncome: 10_000 }).marginalRate, 0.1);
+  assert.equal(ma({ massachusettsFivePercentIncome: 11_600 }).marginalRate, 0.05);
+
+  // The joint filing requirement, priced.
+  const each = ma({
+    massachusettsFivePercentIncome: 700_000,
+    filingStatus: 'marriedFilingSeparately',
+  });
+  const both = ma({
+    massachusettsFivePercentIncome: 1_400_000,
+    filingStatus: 'marriedFilingJointly',
+  });
+  assert.equal(each.surtaxes.length, 0);
+  assert.equal(both.surtaxes[0].amount, 12322.0);
+  assert.equal(both.tax - 2 * each.tax, 12322.0);
+
+  // The surtax reached by a capital gain rather than by salary.
+  assert.equal(
+    ma({ massachusettsFivePercentIncome: 200_000, shortTermCapitalGains: 1_000_000 })
+      .surtaxes[0].amount,
+    4498.0,
+  );
+  assert.equal(ma({ massachusettsFivePercentIncome: 1_200_000 }).surtaxes[0].amount, 4498.0);
+
+  // "The entire year-over-year change in Massachusetts income tax is $984."
+  const at2m = (year) =>
+    stateIncomeTax({
+      state: 'MA',
+      year,
+      filingStatus: 'single',
+      federal: FEDERAL_2025,
+      massachusettsFivePercentIncome: 2_000_000,
+    }).tax;
+  assert.equal(at2m(2025) - at2m(2026), 984);
+  assert.equal((1_107_750 - 1_083_150) * 0.04, 984);
 });
