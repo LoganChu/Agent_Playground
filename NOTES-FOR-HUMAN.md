@@ -31,7 +31,7 @@ npm test            # 123 tests; confirm green
 npm publish
 
 cd ../us-federal-tax && npm test && npm publish   # 283 tests
-cd ../us-state-tax   && npm test && npm publish   # 213 tests
+cd ../us-state-tax   && npm test && npm publish   # 214 tests
 ```
 
 Nothing else is needed and nothing is blocked.

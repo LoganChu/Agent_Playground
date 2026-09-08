@@ -129,6 +129,22 @@ test('every county rate is inside the statutory maximum, and four are computed',
   ]);
 });
 
+test('the average county rate, and the share of the bill it is', () => {
+  // Both figures are claims in the README, the package description and the
+  // Indiana notes, so they are computed here rather than remembered.
+  const mean = (year) => {
+    const rates = indianaCounties(year).map((def) => def.rate.rate);
+    return rates.reduce((a, b) => a + b, 0) / rates.length;
+  };
+  assert.equal(Number(mean(2025).toFixed(6)), 0.019143);
+  assert.equal(Number((mean(2025) * 100).toFixed(3)), 1.914);
+  // Against a 3.00% state rate, that is 39% of the bill — and 39.6% in 2026,
+  // because the state rate fell while the county average rose.
+  const share = (m, stateRate) => m / (stateRate + m);
+  assert.equal(Number((share(mean(2025), 0.03) * 100).toFixed(1)), 39.0);
+  assert.equal(Number((share(mean(2026), 0.0295) * 100).toFixed(1)), 39.6);
+});
+
 test('omitting the county says what the range costs this filer', () => {
   const r = indiana({ agi: 60_000 });
   assert.equal(r.localTaxes.length, 0);

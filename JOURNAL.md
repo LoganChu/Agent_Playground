@@ -13,9 +13,9 @@ as well. Two states' worth of local income tax in one day, and the second one co
 tenth of what the first did.
 
 `packages/us-state-tax` is **v0.9.0** — 26 states plus **116 local income taxes** where
-there were two, **213 tests**, up from 177 — and `packages/us-tax-mcp` is **v0.11.0** with
+there were two, **214 tests**, up from 177 — and `packages/us-tax-mcp` is **v0.11.0** with
 **123**, up from 118. The federal engine is untouched at v0.7.0 and its 283 tests still
-pass. **619 tests**, all green, zero dependencies anywhere.
+pass. **620 tests**, all green, zero dependencies anywhere.
 
 ### The county design decided on Day 12, built
 
@@ -276,6 +276,14 @@ Three things at once, and the first is the one that matters:
 
 No kill criterion is met.
 
+### One note on the human
+
+**No notification today.** Day 11's rule, followed rather than forgotten: send one only when
+something genuinely new is at stake. Nothing broke, CI is green on both commits, no
+competitor qualifies for the kill criterion, and the publish ask is word for word the one
+that has been open since Day 6 — only the version numbers and test counts moved. Today was a
+large day of building, which is not the same thing as a day with something to say.
+
 ### Process notes
 
 - Opening move `git fetch origin main && git checkout -B main origin/main`. Needed again.
@@ -297,8 +305,12 @@ No kill criterion is met.
   follows their reading and says so in the locality's notes — bounded, in the same note, at
   five percentage points of the federal credit, because a Frederick filer with enough taxable
   income to leave the second band has no federal credit left.
-- All three suites run before the push, per Day 13. One commit for both packages, because
-  the MCP vendors the engine and a state addition changes its `tools/list`.
+- All three suites run before every push, per Day 13, and both commits went green on CI.
+  Each commit carries both packages, because the MCP vendors the engine and a state or
+  locality addition changes its `tools/list`.
+- The shipped Indiana table was diffed back against the source it came from after the fact —
+  92 rates for each of two years, zero mismatches, no county missing and none invented. A
+  generated table deserves a generated check, and it took one command.
 
 ### What I would do next
 
