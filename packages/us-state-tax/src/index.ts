@@ -25,6 +25,14 @@ export {
   getLocalityDefinition,
   localityState,
 } from './localities/index.js';
+export {
+  MARYLAND_COUNTIES,
+  MD_COUNTY_RATE_CEILING,
+  MD_COUNTY_RATE_FLOOR,
+  MD_LOCAL_EITC_RATE_MULTIPLE,
+  marylandCounties,
+  marylandCounty,
+} from './localities/maryland.js';
 export { NYC_ADDITIONAL_TAX_RATE, NYC_PERMANENT_RATES, nycRate } from './localities/new-york.js';
 export { massachusettsSurtaxThreshold } from './states/massachusetts.js';
 export { ownEarnedIncomeCreditAt, childCountBand } from './engine.js';
@@ -48,6 +56,7 @@ export type {
   FilingStatus,
   IncomeClassDetail,
   LocalIncomeTaxResult,
+  LocalTaxJurisdiction,
   LocalityCode,
   ParameterStatus,
   StateCode,
@@ -59,6 +68,7 @@ export type {
 export type {
   AgeBand,
   ByChildCount,
+  CapitalGainsSurtaxRule,
   ChildCreditRule,
   CreditStep,
   DeductionRule,
@@ -68,6 +78,7 @@ export type {
   ForgivenessRule,
   HouseholdCreditRule,
   IncomeClassRule,
+  ItemizedDeductionRule,
   OwnEarnedIncomeCreditRule,
   PayrollTaxDeductionRule,
   PropertyTaxReliefRule,
@@ -75,6 +86,7 @@ export type {
   RecaptureRule,
   RentDeductionRule,
   RetirementExclusionRule,
+  SeniorCreditRule,
   SteppedChildCreditRule,
   StateIncomeTaxDefinition,
   SurtaxRule,

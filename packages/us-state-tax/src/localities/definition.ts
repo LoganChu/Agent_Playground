@@ -26,7 +26,7 @@ import type { CreditStep, RateRule } from '../definition.js';
 import type {
   ByStatus,
   Citation,
-  LocalityCode,
+  LocalTaxJurisdiction,
   ParameterStatus,
   StateCode,
 } from '../types.js';
@@ -160,7 +160,7 @@ export interface SlidingEarnedIncomeCreditRule {
  * that state's return, because every base it can use is a figure from it.
  */
 export interface LocalIncomeTaxDefinition {
-  readonly code: LocalityCode;
+  readonly code: LocalTaxJurisdiction;
   readonly name: string;
   readonly state: StateCode;
   readonly year: number;
@@ -170,6 +170,24 @@ export interface LocalIncomeTaxDefinition {
   readonly householdCredit?: LocalPerPersonCreditRule;
   readonly schoolTaxCredit?: SchoolTaxCreditRule;
   readonly earnedIncomeCredit?: SlidingEarnedIncomeCreditRule;
+  /**
+   * A local earned income credit that is **a multiple of the locality's own rate
+   * times the federal credit**, capped at the local tax — Maryland's, Md. Code,
+   * Tax-Gen. § 10-704(d), where the multiple is 10.
+   *
+   * This is the most economical credit in the package: twenty-four counties have
+   * twenty-four different local earned income credits and there is not one number
+   * per county anywhere in this file, because each credit *is* that county's rate
+   * times ten. Worcester at 2.25% matches 22.5% of the federal credit and
+   * Dorchester at 3.30% matches 33%, and when a county council changes its rate
+   * next October its earned income credit changes with it, in the same line of
+   * data.
+   *
+   * The one place the derivation stops being obvious is a county with more than
+   * one rate — see {@link LocalIncomeTaxDefinition.notes} for Anne Arundel and
+   * Frederick, where this package follows PolicyEngine-US's reading and says so.
+   */
+  readonly earnedIncomeCreditRateMultiple?: number;
   /**
    * Rate charged on wages earned inside the locality by someone who lives
    * elsewhere. Residents pay the resident tax above instead, never both.

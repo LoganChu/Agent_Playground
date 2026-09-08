@@ -51,6 +51,7 @@ import {
   statusLabel,
 } from './format.js';
 import {
+  MARYLAND_COUNTIES,
   SUPPORTED_LOCALITIES as LOCALITY_CODES,
   SUPPORTED_STATES as STATE_CODES,
   SUPPORTED_YEARS as STATE_YEARS,
@@ -1059,18 +1060,19 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE individual income tax return for 2025 or 2026 — 25 states plus NEW YORK CITY and ' +
-    'YONKERS local tax. Call estimate_federal_tax FIRST and pass its adjustedGrossIncome, taxableIncome, ' +
-    'deduction and earned income credit: which federal figure a state starts from decides the answer. Four ' +
-    'states need more than that. NY: pass locality. CA: pass earnedIncome and dependentAges. NJ: ' +
-    'newJerseyGrossIncome is REQUIRED, plus filerAge and retirementIncome over 62. MA: ' +
-    'massachusettsFivePercentIncome is REQUIRED and is NOT federal AGI, plus shortTermCapitalGains and ' +
-    'collectiblesGains, which Massachusetts taxes at 8.5% and 12% rather than at the 5% every rate table ' +
-    'reports. Reports the true marginal rate by rerunning the whole return a dollar higher, which is not the ' +
-    'statutory rate wherever a credit phases out or a cliff bites. Every result carries that state\'s own ' +
-    'notes and statutes, so the conformity detail arrives with the answer rather than here. Does NOT cover a ' +
-    'state outside the enum, local tax outside New York, or state withholding. An unlisted state is an ' +
-    'error, not a zero.',
+    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 26 states plus NEW YORK ' +
+    'CITY, YONKERS and all 24 MARYLAND counties. Call estimate_federal_tax FIRST and pass its ' +
+    'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a state ' +
+    'starts from decides the answer. Five states need more than that. NY: pass locality. MD: pass county — ' +
+    'every Maryland resident owes one and it is a third to two fifths of the bill — plus netCapitalGain and ' +
+    'stateItemizedDeductions. CA: pass earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
+    'REQUIRED, plus filerAge and retirementIncome over 62. MA: massachusettsFivePercentIncome is REQUIRED ' +
+    'and is NOT federal AGI, plus shortTermCapitalGains and collectiblesGains, taxed at 8.5% and 12% rather ' +
+    'than the 5% every rate table reports. Reports the true marginal rate by rerunning the whole return a ' +
+    'dollar higher, which is not the statutory rate wherever a credit phases out or a cliff bites. Every ' +
+    'result carries that state\'s own notes and statutes, so the conformity detail arrives with the answer ' +
+    'rather than here. Does NOT cover a state outside the enum, local tax outside New York and Maryland, or ' +
+    'state withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1087,7 +1089,7 @@ const stateTool: ToolDefinition = {
         type: 'integer',
         enum: [...STATE_YEARS],
         description:
-          'State tax year. Seven states cut their rate for 2026, so an unsupported year is an error rather than a fallback.',
+          'State tax year. Seven states cut their rate for 2026; an unsupported year is an error, not a fallback.',
       },
       federalAdjustedGrossIncome: {
         type: 'number',
@@ -1103,26 +1105,26 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'The standard or itemized deduction actually taken federally — estimate_federal_tax deduction. Arizona uses it directly and Utah bases its credit on it. Defaults to AGI minus taxable income.',
+          'The deduction actually taken federally — estimate_federal_tax deduction. Arizona uses it directly, Utah bases its credit on it. Defaults to AGI minus taxable income.',
       },
       dependents: { type: 'integer', minimum: 0, description: 'Dependents claimed on the state return. Defaults to the length of dependentAges.' },
       dependentAges: {
         type: 'array',
         items: { type: 'integer', minimum: 0 },
         description:
-          'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ and MA, whose largest credits are banded on age; without it they are computed as ZERO and the result says what that cost.',
+          'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ, MA and MD, whose age-banded credits are otherwise computed as ZERO, and the result says what that cost.',
       },
       earnedIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Wages plus net self-employment earnings. Required for California: CalEITC and the Young Child Tax Credit are functions of earnings alone and cannot be recovered from AGI.',
+          'Wages plus net self-employment earnings. Required for California: CalEITC and the Young Child Tax Credit are functions of earnings alone, not of AGI.',
       },
       investmentIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC and the credit gated on it. Zero when omitted.',
+          'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC. Zero when omitted.',
       },
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
@@ -1138,7 +1140,7 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Form 1040 line 27 — estimate_federal_tax credits.earnedIncomeCredit.credit. CO, IL, IN, MA, MI, NJ, NY and UT set their own credit as 10-50% of it; omitting it makes a low-income return too high.',
+          'Form 1040 line 27 — estimate_federal_tax credits.earnedIncomeCredit.credit. Nine states match 10-100% of it and each Maryland county another ten times its own rate; omitting it makes a low-income return too high.',
       },
       stateAdditions: {
         type: 'number',
@@ -1156,19 +1158,19 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed, allows no standard deduction or exemption, and forbids offsetting a loss in one income class against a gain in another.',
+          'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed and allows no deduction or exemption.',
       },
       newJerseyGrossIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Required for NJ, refused elsewhere. NJ-1040 line 27, before the retirement exclusion. NOT federal AGI: New Jersey excludes Social Security and unemployment and taxes 403(b) deferrals and traditional IRA contributions (401(k) deferrals are excluded).',
+          'Required for NJ, refused elsewhere. NJ-1040 line 27, before the retirement exclusion. NOT federal AGI: it excludes Social Security and unemployment and taxes 403(b) deferrals and IRA contributions.',
       },
       massachusettsFivePercentIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Required for MA and refused elsewhere. Form 1 line 21, total 5.0% income — including interest, dividends and LONG-term capital gains, excluding short-term and collectibles gains. NOT federal AGI: Massachusetts excludes Social Security entirely and disallows the traditional IRA deduction, half of self-employment tax and the early-withdrawal penalty, all of which must be added back.',
+          'Required for MA and refused elsewhere. Form 1 line 21, total 5.0% income — including interest, dividends and LONG-term gains, excluding short-term and collectibles gains. NOT federal AGI; the result names the add-backs Massachusetts needs.',
       },
       shortTermCapitalGains: {
         type: 'number',
@@ -1186,13 +1188,35 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'MA only: FICA, Medicare, railroad and public retirement contributions paid, deducted up to $2,000 per filer. No federal equivalent, so it cannot be derived from a federal return.',
+          'MA only: FICA, Medicare, railroad and public retirement contributions paid, deducted up to $2,000 per filer. No federal equivalent.',
+      },
+      county: {
+        type: 'string',
+        description:
+          'MD only and effectively REQUIRED: the county or Baltimore City the filer lived in. Every Maryland resident owes a county tax of 2.25-3.30% on the same taxable income. Case and the word "County" are ignored; "Baltimore" alone is an error, City and County differ.',
+      },
+      stateItemizedDeductions: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MD only: federal Schedule A less the state and local INCOME taxes in it. Needs federalItemized, and is reduced by 7.5% of federal AGI over $200,000 ($100,000 separate).',
+      },
+      federalItemized: {
+        type: 'boolean',
+        description:
+          'Whether the filer itemized federally. MD allows itemizing only if they did, so the OBBBA standard deduction ended it for many.',
+      },
+      netCapitalGain: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MD only: net capital gain in taxable income, surtaxed 2% when federal AGI exceeds $350,000. Exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains.',
       },
       filerAge: {
         type: 'integer',
         minimum: 0,
         description:
-          'Filer age at year end. NJ: $1,000 extra exemption at 65, and the retirement exclusion at 62 — worth up to $100,000 of excluded income, so omitting it makes a retiree return far too high.',
+          'Filer age at year end. NJ: the $1,000 exemption at 65 and the retirement exclusion at 62, which omitting makes a retiree return far too high. MD: the $1,000 exemption and the $1,000-$1,750 senior credit, both at 65.',
       },
       spouseAge: {
         type: 'integer',
@@ -1208,13 +1232,13 @@ const stateTool: ToolDefinition = {
         type: 'integer',
         minimum: 0,
         description:
-          'Dependents under 22 in full-time post-secondary study, also counted in dependents. A second $1,000 NJ exemption on top of the $1,500 dependent one.',
+          'NJ only: dependents under 22 in full-time study, also counted in dependents. A second $1,000 exemption on top of the $1,500 dependent one.',
       },
       retirementIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, in three tiers ending in a wall at $150,000 of total income — so omitting it, or filerAge, makes a retiree return far too high.',
+          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, ending in a wall at $150,000 of total income; omitting it makes a retiree return far too high.',
       },
       propertyTaxPaid: {
         type: 'number',
@@ -1330,6 +1354,46 @@ const stateTool: ToolDefinition = {
         throw new ToolInputError(`${field} only applies to MA, and ${state} was requested.`);
       }
     }
+    const county = source['county'];
+    const itemized = readNumber(source, 'stateItemizedDeductions');
+    const capitalGain = readNumber(source, 'netCapitalGain');
+    const federalItemized = source['federalItemized'];
+    if (federalItemized !== undefined && typeof federalItemized !== 'boolean') {
+      throw new ToolInputError('federalItemized must be true or false.');
+    }
+    for (const [field, value] of [
+      ['county', county],
+      ['stateItemizedDeductions', itemized],
+      ['netCapitalGain', capitalGain],
+      ['federalItemized', federalItemized],
+    ] as const) {
+      if (value !== undefined && state !== 'MD') {
+        throw new ToolInputError(
+          `${field} only applies to MD, and ${state} was requested. Local income tax outside ` +
+            'New York and Maryland is not modelled here.',
+        );
+      }
+    }
+    if (county !== undefined && typeof county !== 'string') {
+      throw new ToolInputError(
+        `county must be the name of a Maryland jurisdiction: ${MARYLAND_COUNTIES.join(', ')}.`,
+      );
+    }
+    // Refused rather than ignored. Md. Code, Tax-Gen. § 10-218(b) allows a
+    // Maryland itemized deduction only to a filer who itemized federally, so a
+    // model that supplies one without saying the filer itemized has either got
+    // the federal return wrong or is about to get a Maryland answer that is too
+    // low — and silently dropping the figure would hide both.
+    if (itemized !== undefined && federalItemized !== true) {
+      throw new ToolInputError(
+        'stateItemizedDeductions needs federalItemized: true. Maryland allows itemizing only ' +
+          'if the filer itemized federally (§ 10-218(b)) — which is why the larger federal ' +
+          'standard deduction ended the Maryland itemized deduction for filers whose Maryland ' +
+          'deductions never changed. Pass the standard-deduction return instead, or set ' +
+          'federalItemized.',
+      );
+    }
+
     const filerAge = readNumber(source, 'filerAge', { integer: true });
     const spouseAge = readNumber(source, 'spouseAge', { integer: true });
     const blindOrDisabled = readNumber(source, 'blindOrDisabled', { integer: true });
@@ -1373,7 +1437,7 @@ const stateTool: ToolDefinition = {
         adjustedGrossIncome: agi,
         taxableIncome: taxable,
         deduction,
-        deductionKind: 'standard',
+        deductionKind: federalItemized === true ? 'itemized' : 'standard',
         ...(federalEitc !== undefined ? { earnedIncomeCredit: federalEitc } : {}),
       },
       // Ages are authoritative when both are given; the engine refuses a pair that
@@ -1397,6 +1461,9 @@ const stateTool: ToolDefinition = {
       ...(retirementIncome !== undefined ? { retirementIncome } : {}),
       ...(propertyTaxPaid !== undefined ? { propertyTaxPaid } : {}),
       ...(rentPaid !== undefined ? { rentPaid } : {}),
+      ...(county !== undefined ? { county } : {}),
+      ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),
+      ...(capitalGain !== undefined ? { netCapitalGain: capitalGain } : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
       ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),
       ...(qbi !== undefined || overtime !== undefined

@@ -445,20 +445,20 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('25 states');
-  assert.equal(SUPPORTED_STATES.length, 25);
+  quotes('26 states');
+  assert.equal(SUPPORTED_STATES.length, 26);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 16);
-  quotes('Seven of the sixteen taxing states cut their rate for 2026');
+  assert.equal(taxing.length, 17);
+  quotes('Seven of the seventeen taxing states cut their rate for 2026');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.equal(provisional.length, 7);
-  quotes('seven of the 2026 state-years carry at');
+  assert.equal(provisional.length, 8);
+  quotes('eight of the 2026 state-years carry at');
 
   // Colorado's 2026 overtime add-back, which the section names.
   const co = stateIncomeTax({
@@ -472,6 +472,59 @@ test('README: the state coverage claims are the ones the engine actually holds',
   assert.match(co.addBacks[0].name, /overtime/i);
 });
 
+test('README: the Maryland county figures', () => {
+  const md = (extra) =>
+    stateIncomeTax({
+      state: 'MD',
+      year: 2025,
+      filingStatus: 'single',
+      federal: stateFed(100_000, 84_250, 15_750),
+      ...extra,
+    });
+  const montgomery = md({ county: 'Montgomery County' });
+  assert.equal(montgomery.tax, 4386.38);
+  assert.equal(montgomery.localTaxes[0].tax, 2990.4);
+  quotesAcrossLines('the state **$4,386.38** and Montgomery County **$2,990.40**');
+
+  // "more than the entire state income tax of Arizona or Indiana".
+  for (const state of ['AZ', 'IN']) {
+    const other = stateIncomeTax({
+      state,
+      year: 2025,
+      filingStatus: 'single',
+      federal: stateFed(100_000, 84_250, 15_750),
+    });
+    assert.ok(other.tax < 2990.4, `${state} is ${other.tax}`);
+  }
+
+  // Frederick's rate applies to the whole income, so the step is $360.03.
+  const frederick = (taxableIncome) =>
+    stateIncomeTax({
+      state: 'MD',
+      year: 2025,
+      filingStatus: 'single',
+      county: 'Frederick County',
+      federal: stateFed(taxableIncome + 3_350, taxableIncome + 3_350, 0),
+    }).localTaxes[0].tax;
+  assert.equal(Math.round((frederick(150_001) - frederick(150_000)) * 100) / 100, 360.03);
+  quotesAcrossLines('**$360.03 of tax on one dollar**');
+
+  // And the capital gains surtax cliff.
+  const gain = (agi) =>
+    stateIncomeTax({
+      state: 'MD',
+      year: 2025,
+      filingStatus: 'single',
+      county: 'Howard County',
+      netCapitalGain: agi,
+      federal: stateFed(agi, agi, 0),
+    });
+  assert.equal(gain(350_000).surtaxes.length, 0);
+  assert.equal(gain(350_001).surtaxes[0].amount, 6933.02);
+  assert.equal(gain(350_000).marginalRate, 6933.0775);
+  quotesAcrossLines('$6,933.08 of tax on one dollar');
+});
+
 test('README: the New York City and Yonkers figures', () => {
   const nyc = stateIncomeTax({
     state: 'NY',
@@ -481,9 +534,9 @@ test('README: the New York City and Yonkers figures', () => {
     federal: stateFed(100_000, 92_000, 8_000),
   });
   assert.equal(nyc.localTaxes[0].tax, 3174.69);
-  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **twelve of these twenty-five states**');
+  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **twelve of these twenty-six states**');
 
-  // "twelve of these twenty-five states", checked against every one of them.
+  // "twelve of these twenty-six states", checked against every one of them.
   const federal = stateFed(100_000, 85_000, 15_000);
   const cheaper = SUPPORTED_STATES.filter(
     (state) =>

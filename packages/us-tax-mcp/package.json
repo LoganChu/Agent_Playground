@@ -1,7 +1,7 @@
 {
   "name": "us-tax-mcp",
-  "version": "0.9.0",
-  "description": "Zero-dependency MCP server that computes US federal, state and LOCAL tax \u2014 federal income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding for 2024-2026, plus state income tax for 25 states including New Jersey, whose filing threshold makes the next dollar cost $126 and whose retirement exclusion costs a joint retiree $1,381 on one dollar at $150,000 of income, and New York, whose supplemental tax recaptures the lower brackets so a high earner pays their top rate on their whole income, New York City and Yonkers \u2014 a New York City resident owes more city tax than the entire state tax of twelve of those states \u2014 and the Empire State child credit, whose phase-out cuts the whole credit rather than each child's share, so a family with three young children keeps some of it to $291,000. Compares a household across tax years, reports the true marginal rate including credit phase-outs and state and city cliffs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release or state statute behind every figure.",
+  "version": "0.10.0",
+  "description": "Zero-dependency MCP server that computes US federal, state and LOCAL tax \u2014 federal income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding for 2024-2026, plus state income tax for 26 states and the local tax of New York City, Yonkers and all 24 Maryland counties. Maryland is two income taxes rather than one: every resident owes a county tax of 2.25-3.30% on the same taxable income, a third to two fifths of the whole bill and absent from every table of state rates, and in Frederick County the bracket selects one rate that applies to the WHOLE income, so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents. Its new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08. New Jersey's filing threshold makes the next dollar cost $126 and its retirement exclusion costs a joint retiree $1,381 on one dollar; New York's supplemental tax recaptures the lower brackets so a high earner pays their top rate on their whole income, and a New York City resident owes more city tax than the entire state tax of twelve of those states. Compares a household across tax years, reports the true marginal rate including credit phase-outs and state and local cliffs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release or state statute behind every figure.",
   "keywords": [
     "mcp",
     "mcp-server",
@@ -52,6 +52,11 @@
     "take-home-pay",
     "paycheck-calculator",
     "state-tax",
+    "local-income-tax",
+    "maryland",
+    "maryland-tax",
+    "maryland-counties",
+    "county-income-tax",
     "state-income-tax",
     "california",
     "california-tax",

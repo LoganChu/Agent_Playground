@@ -19,6 +19,7 @@ import {
 } from './localities/engine.js';
 import type { StateFigures } from './localities/engine.js';
 import { getLocalityDefinition, localityState } from './localities/index.js';
+import { marylandCounty } from './localities/maryland.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
 import type {
   Bracket,
@@ -83,6 +84,28 @@ function standardDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxI
 }
 
 /**
+ * The state's itemized deduction, after any limit on it, or zero.
+ *
+ * Maryland's, and two things about it are the point. It is available **only** to
+ * a filer who itemized federally, so the OBBBA's larger federal standard
+ * deduction took it away from Maryland filers whose Maryland deductions had not
+ * changed. And from 2025 it is reduced by 7.5% of federal AGI over `$200,000`,
+ * a state revival of the federal § 68 limitation that Congress suspended in
+ * 2018 — the reduction is not capped at a share of the deduction the way § 68's
+ * 80% floor was, so it runs all the way to zero.
+ */
+function itemizedDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  const rule = def.itemizedDeduction;
+  if (!rule) return 0;
+  if (rule.requiresFederalItemizing && input.federal.deductionKind !== 'itemized') return 0;
+  const claimed = nonNegative(input.stateItemizedDeductions, 'stateItemizedDeductions');
+  if (claimed <= 0) return 0;
+  const excess = input.federal.adjustedGrossIncome - rule.phaseOutThreshold[input.filingStatus];
+  const reduction = excess > 0 ? rule.phaseOutRate * excess : 0;
+  return Math.max(0, claimed - reduction);
+}
+
+/**
  * The state's own deductions from income, before exemptions.
  *
  * Massachusetts has no standard deduction and two specific ones instead, both of
@@ -92,7 +115,11 @@ function standardDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxI
  * silently wrong for every Massachusetts tenant, which is a third of the state.
  */
 function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
-  let total = standardDeduction(def, input);
+  // A filer takes the larger of the two, which is also what a state that forces
+  // the standard deduction when the itemized figure falls below it produces —
+  // the Maryland instructions say so in as many words, and it is the same
+  // arithmetic.
+  let total = Math.max(standardDeduction(def, input), itemizedDeduction(def, input));
 
   if (def.payrollTaxDeduction) {
     const paid = nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid');
@@ -115,7 +142,16 @@ function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
   if (!rule) return 0;
   const cliff = rule.cliff?.[input.filingStatus];
   if (cliff !== undefined && input.federal.adjustedGrossIncome > cliff) return 0;
-  let total = rule.perFiler[input.filingStatus] + rule.perDependent * dependentCount(input);
+  const dependents = dependentCount(input);
+  // Maryland: every exemption on the return is worth the same stepped amount,
+  // and the step is chosen by federal AGI. So the filer's exemption and the
+  // dependents' are one figure times a count, not two figures — and the staircase
+  // costs a family with six exemptions six times what it costs a single filer.
+  const filers = rule.filersClaimed?.[input.filingStatus] ?? filerCount(input.filingStatus);
+  let total = rule.perExemptionSteps
+    ? stepAmount(rule.perExemptionSteps[input.filingStatus], input.federal.adjustedGrossIncome) *
+      (filers + dependents)
+    : rule.perFiler[input.filingStatus] + rule.perDependent * dependents;
 
   // New Jersey's per-person additions. Each is claimed by a *filer*, never by a
   // dependent: New Jersey gives nothing extra for a blind or elderly dependent.
@@ -129,9 +165,50 @@ function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
   }
   if (rule.perCollegeDependent !== undefined) {
     const college = nonNegative(input.dependentsAttendingCollege, 'dependentsAttendingCollege');
-    total += rule.perCollegeDependent * Math.min(college, dependentCount(input));
+    total += rule.perCollegeDependent * Math.min(college, dependents);
+  }
+  // Maryland's second exemption for a dependent aged 65 or over — the dependent
+  // parent case. It needs ages rather than a count, and it is not stepped by
+  // income the way the base exemption is.
+  if (rule.perSeniorDependent !== undefined && seniorAge !== undefined) {
+    const aged = (input.dependentAges ?? []).filter((age) => age >= seniorAge).length;
+    total += rule.perSeniorDependent * aged;
   }
   return total;
+}
+
+/**
+ * A flat credit for an older filer under an income cliff — Maryland's senior tax
+ * credit, Md. Code, Tax-Gen. § 10-754.
+ *
+ * The income test is on federal AGI and it is a cliff, not a phase-out: a
+ * 66-year-old single filer at `$100,000` keeps `$1,000` and the same filer at
+ * `$100,001` keeps nothing.
+ */
+function seniorCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  const rule = def.seniorCredit;
+  if (!rule) return 0;
+  const qualifying = seniorFilers(input, rule.minimumAge);
+  if (qualifying === 0) return 0;
+  if (input.federal.adjustedGrossIncome > rule.incomeLimit[input.filingStatus]) return 0;
+  const status = input.filingStatus;
+  return qualifying >= 2 ? rule.amountBothSpouses[status] : rule.amount[status];
+}
+
+/**
+ * Whether this return takes a state earned income credit's *childless* schedule.
+ *
+ * Maryland's § 10-704(c)(3) asks whether the filer is unmarried and has no
+ * qualifying child, and the answer decides between a 100% match and a 50% one.
+ * This package sees dependents rather than qualifying children, so a filer whose
+ * only dependent is a dependent parent — childless for the federal credit — is
+ * treated here as having a child and matched at 50%. The state's notes say so.
+ */
+function unmarriedChildless(input: StateIncomeTaxInput): boolean {
+  const status = input.filingStatus;
+  const unmarried =
+    status === 'single' || status === 'headOfHousehold' || status === 'qualifyingSurvivingSpouse';
+  return unmarried && dependentCount(input) === 0;
 }
 
 /** How many of the filer and spouse are at or above an age. */
@@ -750,8 +827,33 @@ function computeOnce(
     const amount = recapture(def, input, stateAgi);
     if (amount > 0) surtaxes.push({ name: def.recapture.name, amount });
   }
+  if (def.capitalGainsSurtax && !belowThreshold) {
+    // Maryland's, and it asks two questions of two different figures: is FEDERAL
+    // AGI over the threshold, and how much of the state's taxable income was
+    // capital gain. The threshold is a test rather than a floor, so the whole
+    // gain is taxed the moment one dollar of AGI crosses it — $20,000 of tax on
+    // one dollar of income for a filer with a $1,000,000 gain.
+    const rule = def.capitalGainsSurtax;
+    const gain = nonNegative(input.netCapitalGain, 'netCapitalGain');
+    if (gain > 0 && input.federal.adjustedGrossIncome > rule.agiThreshold) {
+      // Only the gain that reached the state's taxable income is surtaxed: the
+      // statute reaches "net capital gain included in Maryland taxable income",
+      // so a filer whose deductions consumed part of the gain is not surtaxed on
+      // the part that never got there.
+      const reached = Math.min(gain, taxableIncome);
+      if (reached > 0) surtaxes.push({ name: rule.name, amount: reached * rule.rate });
+    }
+  }
+
+  // The tax every credit is measured against, and the figure Maryland's
+  // refundable earned income credit is netted from — so it is computed here,
+  // before the credits, rather than after them.
+  const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
 
   const credits: CreditDetail[] = [];
+  if (def.seniorCredit) {
+    credits.push({ name: def.seniorCredit.name, amount: seniorCredit(def, input), refundable: false });
+  }
   if (def.exemptionCredit) {
     credits.push({
       name: def.exemptionCredit.name,
@@ -776,7 +878,11 @@ function computeOnce(
       input.federal.earnedIncomeCredit,
       'federal.earnedIncomeCredit',
     );
-    const matched = rule.matchRate * federalCredit;
+    // Maryland matches the federal childless credit at 100% and the with-child
+    // credit at 50%, which is the opposite way round from every intuition about
+    // state earned income credits.
+    const childless = rule.childlessMatchRate !== undefined && unmarriedChildless(input);
+    const matched = (childless ? rule.childlessMatchRate! : rule.matchRate) * federalCredit;
     credits.push({
       name: rule.name,
       // New York pays the match less the household credit, so the two are not
@@ -784,6 +890,18 @@ function computeOnce(
       amount: rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched,
       refundable: rule.refundable,
     });
+    if (rule.refundableMatchRate !== undefined) {
+      // The floor under the non-refundable match above. Maryland's two published
+      // earned income credits are one credit: the 50% (or 100%) half is capped at
+      // the tax, and this pays the shortfall down to 45% of the federal credit —
+      // 100% for a childless filer, whose whole match is paid whatever their tax.
+      const floor = (childless ? rule.childlessMatchRate! : rule.refundableMatchRate) * federalCredit;
+      credits.push({
+        name: `${rule.name} (refundable half)`,
+        amount: Math.max(0, floor - grossTax),
+        refundable: true,
+      });
+    }
   }
 
   if (def.childCredit) {
@@ -822,8 +940,6 @@ function computeOnce(
       refundable: true,
     });
   }
-
-  const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
 
   // The credit that stops the threshold above from being a cliff. It limits the
   // tax to a share of the income above the threshold — 10% in Massachusetts,
@@ -1003,6 +1119,20 @@ function localTaxesFor(
     out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
   }
 
+  if (input.county !== undefined) {
+    if (input.state !== 'MD') {
+      throw new RangeError(
+        `county applies to a Maryland return; state is ${input.state}. Maryland's 23 counties ` +
+          `and Baltimore City each levy their own income tax on Maryland taxable income. The ` +
+          `local income taxes of Indiana, Michigan, Ohio and Kentucky are not modelled here.`,
+      );
+    }
+    const def = marylandCounty(input.county, input.year);
+    const computed = computeLocalResidentTax(def, input, stateFigures(here));
+    const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher));
+    out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
+  }
+
   const earnings = nonNegative(input.yonkersNonresidentEarnings, 'yonkersNonresidentEarnings');
   // A Yonkers resident pays the surcharge instead, never both — so the earnings
   // figure is ignored rather than added, which is what Form Y-203 says and what a
@@ -1145,6 +1275,35 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `equivalent of this deduction, so it cannot be recovered from any figure on a federal ` +
         `return; the employee half of FICA is 7.65% of wages, so the cap binds at ` +
         `$${Math.round(rule.perFilerCap / 0.0765).toLocaleString('en-US')} of wages per filer.`,
+    );
+  }
+  if (input.state === 'MD' && input.county === undefined) {
+    // Stronger than the New York note below, because the omission is worse. Every
+    // Maryland resident owes a county tax; only 43% of New Yorkers owe a city
+    // one. So this quantifies both ends of the range, run through the same
+    // engine on this filer's own figures.
+    const cheapest = computeLocalResidentTax(
+      marylandCounty('Worcester County', input.year),
+      input,
+      stateFigures(here),
+    ).tax;
+    const dearest = computeLocalResidentTax(
+      marylandCounty('Dorchester County', input.year),
+      input,
+      stateFigures(here),
+    ).tax;
+    const shown = (value: number) =>
+      roundCents(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    dynamic.push(
+      `No county was supplied, so this is the Maryland STATE tax alone, and no Maryland ` +
+        `resident pays only that. The county income tax is charged on the same taxable income ` +
+        `at 2.25% to 3.30%, and for this filer it is $${shown(cheapest)} in Worcester County and ` +
+        `$${shown(dearest)} in Dorchester County — pass county: 'Montgomery County' or whichever ` +
+        `applies. Anne Arundel and Frederick have more than one rate, and Frederick's is a rate ` +
+        `on the whole income rather than a bracket schedule.`,
     );
   }
   if (input.state === 'NY' && input.locality === undefined) {

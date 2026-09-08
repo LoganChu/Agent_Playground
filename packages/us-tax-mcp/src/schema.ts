@@ -54,15 +54,15 @@ export const FILING_STATUS_PROPERTY: JsonSchema = {
   type: 'string',
   enum: [...FILING_STATUSES],
   description:
-    'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent child in the two years after the death, on the joint rate schedule.',
+    'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent child, on the joint rate schedule.',
 };
 
 export const YEAR_PROPERTY: JsonSchema = {
   type: 'integer',
   enum: [...SUPPORTED_YEARS],
-  description: `Tax year, one of ${SUPPORTED_YEARS.join(', ')}, defaulting to ${
+  description: `Tax year: ${SUPPORTED_YEARS.join(', ')}, default ${
     SUPPORTED_YEARS[SUPPORTED_YEARS.length - 1]
-  }. An unsupported year is an error, not a silent fallback to the nearest one.`,
+  }. An unsupported year is an error, not a fallback.`,
 };
 
 const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {
@@ -77,7 +77,7 @@ const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {
     },
     w2Wages: money('W-2 wages paid by this business and allocable to its QBI (§ 199A(b)(4)).'),
     unadjustedBasisOfQualifiedProperty: money(
-      'UBIA: unadjusted basis of qualified property still inside its depreciable period (§ 199A(b)(2)(B)(ii)).',
+      'UBIA: unadjusted basis of qualified property inside its depreciable period.',
     ),
     // The first sentence is deliberately short, because it is the whole
     // description in the three tools that ask for the terse schema. Putting the
@@ -160,7 +160,7 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
     'Qualified tips under § 224, already filtered to tips that actually qualify (cash tips, a listed occupation, not an SSTB). This money is ALSO part of w2Wages or selfEmploymentNetProfit — the deduction subtracts it back out, it does not exclude it from income. 2025-2028 only.',
   ),
   qualifiedTipsBusinessIncomeLimit: money(
-    'Net income of the trade or business in which self-employed tips were earned, which caps the § 224 deduction for a self-employed filer.',
+    'Net income of the business the self-employed tips were earned in. Caps the § 224 deduction.',
   ),
   qualifiedOvertimeCompensation: withShortForm(
     money(

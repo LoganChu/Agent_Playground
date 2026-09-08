@@ -22,7 +22,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 25);
+  assert.equal(SUPPORTED_STATES.length, 26);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -64,7 +64,14 @@ test('an unsupported state names what is missing rather than returning zero', ()
   assert.equal(isSupported('NY', 2026), true);
   assert.equal(isSupported('NJ', 2026), true);
   assert.equal(isSupported('MA', 2026), true);
+  assert.equal(isSupported('MD', 2026), true);
   assert.doesNotMatch(getMissingStatesMessage(), /Massachusetts/);
+  // Maryland is now named in that message as a state this package DOES cover, so
+  // the check is on the list of gaps — the part after the em dash — rather than
+  // on the whole sentence.
+  const gaps = getMissingStatesMessage().split('—')[1] ?? '';
+  assert.match(gaps, /Ohio/);
+  assert.doesNotMatch(gaps, /Maryland/);
 });
 
 test('every state computes for every filing status without throwing', () => {
@@ -152,17 +159,17 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has seven', () => {
+test('2025 has no provisional state and 2026 has eight', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
   // not been released — plus Colorado, whose rate can still be cut retroactively.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 7);
+  assert.equal(count(2026), 8);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'IL', 'KY', 'MI', 'UT']);
+  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'IL', 'KY', 'MD', 'MI', 'UT']);
 });
 
 test('the package has no runtime dependencies', () => {

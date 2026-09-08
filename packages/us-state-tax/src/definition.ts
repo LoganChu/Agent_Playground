@@ -56,6 +56,53 @@ export interface ExemptionRule {
    */
   readonly perCollegeDependent?: number;
   /**
+   * An additional exemption for each **dependent** at or above {@link seniorAge}
+   * — Maryland's, Md. Code, Tax-Gen. § 10-211(b). Worth the same `$3,200` as the
+   * dependent exemption it doubles, and claimable for a dependent parent or
+   * grandparent, which is the case it exists for.
+   *
+   * It needs {@link StateIncomeTaxInput.dependentAges}: a count cannot tell a
+   * dependent child from a dependent parent, and here the two differ by `$3,200`
+   * of exemption.
+   */
+  readonly perSeniorDependent?: number;
+  /**
+   * The amount **each** exemption is worth, as a step function of federal AGI —
+   * Maryland's, Md. Code, Tax-Gen. § 10-211(c).
+   *
+   * When present it replaces {@link perFiler} and {@link perDependent} for the
+   * base exemption: the amount is the step for this filer's federal AGI, times
+   * the number of exemptions claimed (the filer, the spouse on a joint return,
+   * and each dependent). `perFiler` and `perDependent` still hold the top-step
+   * figures, and `test/maryland.test.js` asserts that the two agree, so the
+   * stored table cannot drift away from the steps that generate it.
+   *
+   * It is a **staircase, not a phase-out**, and that is the whole of what makes
+   * it expensive. Maryland's `$3,200` exemption drops to `$1,600` above
+   * `$100,000` of federal AGI, `$800` above `$125,000` and nothing above
+   * `$150,000` — each of them arriving on one dollar, and each of them
+   * multiplied by every exemption on the return. A joint return with four
+   * dependents loses `$9,600` of exemption on the dollar that crosses
+   * `$150,000`, which at 4.75% state plus a 3.20% county rate is **`$763.28` of
+   * tax on one dollar of income**.
+   *
+   * The additions above — senior, blind, senior dependent — are *not* stepped.
+   * The Form 502 exemption boxes multiply them by a flat `$1,000` (or `$3,200`)
+   * regardless of income, and only box A carries the chart.
+   */
+  readonly perExemptionSteps?: ByStatus<readonly CreditStep[]>;
+  /**
+   * How many personal exemptions the filer or filers themselves claim, where it
+   * is not the number of people on the return.
+   *
+   * A qualifying surviving spouse is the case. This package counts that status as
+   * two filers everywhere else, because it files on the joint rate schedule — but
+   * there is no spouse to claim an exemption for, and the Form 502 exemption box
+   * has a line for "Yourself" and a line for "Spouse". Maryland is the first
+   * state here where the two counts have to differ.
+   */
+  readonly filersClaimed?: ByStatus;
+  /**
    * Income at or above which the exemption is lost **entirely**, not phased out.
    *
    * Illinois is the only supported state that does this, and it is a genuine
@@ -69,7 +116,114 @@ export interface ExemptionRule {
 export type RateRule =
   | { readonly kind: 'none' }
   | { readonly kind: 'flat'; readonly rate: number }
-  | { readonly kind: 'brackets'; readonly byStatus: ByStatus<readonly Bracket[]> };
+  | { readonly kind: 'brackets'; readonly byStatus: ByStatus<readonly Bracket[]> }
+  /**
+   * **One rate, chosen by a bracket, applied to the whole income** — Frederick
+   * County, Maryland.
+   *
+   * This is not a graduated schedule and the difference is the whole point. A
+   * `brackets` rule taxes each band at its own rate, so crossing a threshold
+   * costs the rate difference on *one dollar*. This rule looks the bracket up and
+   * charges that rate on **every** dollar, so crossing a threshold costs the rate
+   * difference on the *whole income*.
+   *
+   * Frederick and Anne Arundel are the only two Maryland counties with more than
+   * one rate; both appear as multi-row entries in the same local tax rate chart
+   * in the Maryland instructions, and only one of them is marginal. A model that
+   * reads the chart and assumes brackets gets Frederick wrong by up to `$360.03` at
+   * `$150,000` of Maryland taxable income — where the rate steps from 2.96% to
+   * 3.20% and the county collects the difference on all of it.
+   */
+  | { readonly kind: 'rateByBracket'; readonly byStatus: ByStatus<readonly Bracket[]> };
+
+/**
+ * A state itemized deduction, taken instead of the standard one — Maryland's,
+ * Md. Code, Tax-Gen. § 10-218.
+ *
+ * Two facts make this a rule rather than a number the caller passes in as a
+ * deduction:
+ *
+ * 1. **It is gated on the federal election.** Maryland allows itemizing only if
+ *    the filer itemized federally. So the OBBBA's larger federal standard
+ *    deduction removed the Maryland itemized deduction from filers whose
+ *    Maryland deductions did not change at all — the conformity story of this
+ *    package, arriving one level down.
+ * 2. **From tax year 2025 it phases out, and the phase-out has no federal
+ *    twin.** The 2025 Budget Reconciliation and Financing Act (HB 352) reduces
+ *    Maryland itemized deductions by {@link phaseOutRate} of federal AGI above
+ *    {@link phaseOutThreshold}, which is § 68 ("Pease") reinvented by a state
+ *    seven years after Congress suspended the federal version.
+ *
+ * The phase-out is worth more than it looks. At 7.5% of AGI, every dollar of
+ * income above the threshold removes 7.5 cents of deduction, which adds
+ * `7.5% x (state rate + county rate)` to the marginal rate — about **0.67
+ * points** for a filer in the 5.75% bracket in a 3.20% county. It runs until the
+ * itemized deduction falls to the standard one, so the band is
+ * `(itemized - standard) / 0.075` dollars wide: for `$50,000` of Maryland
+ * itemized deductions, more than half a million dollars of income.
+ *
+ * And the threshold is **not doubled for a joint return** — `$200,000` for a
+ * couple and `$200,000` for each of two single filers — while married filing
+ * separately gets exactly half.
+ */
+export interface ItemizedDeductionRule {
+  readonly name: string;
+  /** True where the state allows itemizing only if the filer itemized federally. */
+  readonly requiresFederalItemizing: boolean;
+  /** Share of federal AGI above the threshold subtracted from the deduction. */
+  readonly phaseOutRate: number;
+  readonly phaseOutThreshold: ByStatus;
+}
+
+/**
+ * A surtax on capital gains, gated on income — Maryland's 2% surtax, new in tax
+ * year 2025 under HB 352.
+ *
+ * The distinction from {@link SurtaxRule} is what the rate applies to. That one
+ * layers a rate on the same taxable income the main schedule already taxed. This
+ * one asks two different questions of two different figures: **is federal AGI
+ * over the threshold**, and if so, **how much of the income was capital gain**.
+ *
+ * It is the sharpest cliff in this package. The threshold is a **test, not a
+ * floor**: below it the surtax is nothing and above it the *whole* gain is taxed,
+ * so the dollar that crosses `$350,000` of federal AGI costs 2% of everything
+ * that reached taxable income. For a single filer whose `$350,000` is all
+ * capital gain that is **`$6,933.08` on one dollar** — larger than any other
+ * single-dollar step here, against `$4,528.82` for the CalEITC investment-income
+ * cliff and `$1,381` for New Jersey's retirement exclusion wall. Higher up it
+ * stops being a cliff and is simply 2%: `$20,000` on a `$1,000,000` gain.
+ *
+ * The threshold is also per **return**, not per person, so two spouses with
+ * `$300,000` each pay it and two single filers with the same income do not.
+ */
+export interface CapitalGainsSurtaxRule {
+  readonly name: string;
+  readonly rate: number;
+  /** Federal AGI **above** which the surtax applies to the whole gain. */
+  readonly agiThreshold: number;
+  /** True when the threshold is per return regardless of filing status. */
+  readonly thresholdNotDoubledForJoint: boolean;
+}
+
+/**
+ * A flat credit for an older filer, cut off by an income limit — Maryland's
+ * senior tax credit, Md. Code, Tax-Gen. § 10-754.
+ *
+ * `$1,000` for one filer aged 65 or over and `$1,750` where a joint return has
+ * two, and the income limit is a cliff rather than a phase-out: `$100,000` of
+ * federal AGI for a single filer, `$150,000` on a joint return. One dollar over
+ * costs the whole credit, which makes it the second-largest single-dollar cliff
+ * in the Maryland return after the capital gains surtax.
+ */
+export interface SeniorCreditRule {
+  readonly name: string;
+  readonly minimumAge: number;
+  /** Amount where one filer qualifies, and where two do. */
+  readonly amount: ByStatus;
+  readonly amountBothSpouses: ByStatus;
+  /** Federal AGI at or below which the credit is allowed at all. A cliff. */
+  readonly incomeLimit: ByStatus;
+}
 
 /**
  * Income the state pulls out of the main schedule and taxes at its own rate.
@@ -229,6 +383,45 @@ export interface EarnedIncomeCreditRule {
    * filer who gets both keeps only the larger. N.Y. Tax Law § 606(d)(1).
    */
   readonly reducedByHouseholdCredit?: boolean;
+  /**
+   * A **second, lower match that is paid out** where {@link matchRate} is capped
+   * at the tax — Maryland's, Md. Code, Tax-Gen. § 10-704(c).
+   *
+   * Maryland is published everywhere as having two earned income credits: a
+   * non-refundable one worth 50% of the federal credit and a refundable one
+   * worth 45%. They are one credit with a floor. The non-refundable half is
+   * `min(50% x federal, Maryland tax)` and the refundable half is
+   * `max(45% x federal - Maryland tax, 0)`, so the two never overlap and the
+   * total is
+   *
+   * ```text
+   * tax = 0            ->  45% of the federal credit
+   * tax >= 50% of it   ->  50% of the federal credit
+   * in between         ->  the tax itself
+   * ```
+   *
+   * — a match that **rises from 45% to 50% as the filer's tax rises**, which is
+   * the opposite of how a phase-out behaves and is invisible if the two credits
+   * are read as separate programmes. Adding 50% and 45% to get 95%, which a model
+   * that treats them as two credits does, is wrong by roughly the whole state tax.
+   */
+  readonly refundableMatchRate?: number;
+  /**
+   * The match for a filer who is unmarried and has no qualifying child, where it
+   * differs — Maryland's is **100%**, § 10-704(c)(3).
+   *
+   * The largest state match of the federal childless credit in the country, and
+   * paid in full: the non-refundable half is capped at the tax and the remainder
+   * is refunded, so the total is the whole 100% however small the tax.
+   *
+   * Maryland also computes it on a federal credit the filer may not have got.
+   * § 10-704(c)(3) disregards the § 32 minimum age of 25, so a 21-year-old whose
+   * federal childless credit is **zero because of their age** has a Maryland
+   * credit of up to `$649`. This package cannot recompute the federal credit, so
+   * such a filer must pass the pro forma figure as
+   * {@link FederalBasis.earnedIncomeCredit} — the state's notes say so.
+   */
+  readonly childlessMatchRate?: number;
 }
 
 /** One step of a step-function credit: the amount for income at or below `upTo`. */
@@ -755,10 +948,18 @@ export interface StateIncomeTaxDefinition {
    */
   readonly separatelyRatedIncome?: readonly IncomeClassRule[];
   readonly deduction: DeductionRule;
+  /**
+   * A state itemized deduction taken instead of {@link deduction} when it is
+   * worth more. Maryland only — see {@link ItemizedDeductionRule}.
+   */
+  readonly itemizedDeduction?: ItemizedDeductionRule;
   readonly rentDeduction?: RentDeductionRule;
   readonly payrollTaxDeduction?: PayrollTaxDeductionRule;
   readonly exemption?: ExemptionRule;
   readonly surtax?: SurtaxRule;
+  /** A surtax on capital gains alone, gated on federal AGI. Maryland only. */
+  readonly capitalGainsSurtax?: CapitalGainsSurtaxRule;
+  readonly seniorCredit?: SeniorCreditRule;
   readonly exemptionCredit?: ExemptionCreditRule;
   readonly taxpayerCredit?: TaxpayerCreditRule;
   readonly forgiveness?: ForgivenessRule;

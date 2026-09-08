@@ -43,6 +43,7 @@ export type StateCode =
   | 'IN'
   | 'KY'
   | 'MA'
+  | 'MD'
   | 'MI'
   | 'MS'
   | 'NC'
@@ -62,12 +63,35 @@ export type StateCode =
  * A locality that levies its own income tax on a state return this package knows.
  *
  * A local income tax is not a rounding error. New York City's costs a resident
- * more than the entire state income tax of twelve of the twenty-three states here
+ * more than the entire state income tax of twelve of the twenty-six states here
  * — every one of the nine with no income tax, plus Arizona, Indiana and
  * Pennsylvania — and it appears in no table of state tax rates because it is not
  * one.
  */
 export type LocalityCode = 'NYC' | 'YONKERS';
+
+/**
+ * A locality identified by name rather than by code — every Maryland county and
+ * Baltimore City.
+ *
+ * Two kinds of local income tax live in this package and they are named
+ * differently on purpose. New York City and Yonkers are **named things a filer
+ * knows they live in**, there are two of them, and their rates move rarely: an
+ * enum is right. Maryland's twenty-four jurisdictions are a *lookup table*. Every
+ * one of them sets its own rate, they may revise it every year — five did for
+ * 2025 and two for 2026 — and `LocalityCode` is a published type, so each county
+ * added to it would be a breaking change to anything that switches on it
+ * exhaustively.
+ *
+ * So a county is a string validated at runtime against the year's table, with the
+ * rates in data rather than in the type, and the same decision covers Indiana's
+ * 92 counties and Michigan's 24 cities when they arrive.
+ *
+ * `(string & {})` rather than plain `string` keeps `'NYC'` and `'YONKERS'`
+ * offered by an editor's autocomplete instead of being swallowed by the wider
+ * type.
+ */
+export type LocalTaxJurisdiction = LocalityCode | (string & {});
 
 /** A value that differs by filing status. */
 export type ByStatus<T = number> = Readonly<Record<FilingStatus, T>>;
@@ -484,7 +508,7 @@ export interface StateIncomeTaxInput {
    *
    * Omitting it for a New York City resident is not a small error: the city tax
    * runs to 3.876% of taxable income — $3,174.69 for a single filer at $100,000,
-   * which is more than the entire state income tax of twelve of the twenty-three
+   * which is more than the entire state income tax of twelve of the twenty-six
    * states in this package at the same income. When the state is New York and this is absent,
    * {@link StateIncomeTaxResult.notes} says so and says what it would cost.
    *
@@ -492,6 +516,59 @@ export interface StateIncomeTaxInput {
    * does not is an error rather than a silently ignored field.
    */
   readonly locality?: LocalityCode;
+  /**
+   * The Maryland county — or Baltimore City — the filer lived in on the last day
+   * of the tax year.
+   *
+   * **Not optional in practice.** Every Maryland resident owes a county income
+   * tax; there is no county-free jurisdiction. It runs from 2.25% (Worcester,
+   * which is exactly the statutory floor) to 3.30% (Dorchester and Kent) of
+   * Maryland taxable income, and for a middle-income filer it is roughly a third
+   * of the whole Maryland bill — more than the entire state income tax of nine
+   * of the states in this package. Omitting it computes the state half of a
+   * Maryland return, and {@link StateIncomeTaxResult.notes} then says what the
+   * cheapest and dearest counties would have cost this exact filer.
+   *
+   * Names are matched case-insensitively and the word "County" is optional, so
+   * `'Montgomery'`, `'montgomery county'` and `'Montgomery County'` are the same
+   * jurisdiction. `'Baltimore'` alone is an error rather than a guess: Baltimore
+   * City and Baltimore County are different jurisdictions that set their own
+   * rates.
+   */
+  readonly county?: string;
+  /**
+   * Maryland itemized deductions — the federal Schedule A total less the state
+   * and local **income** taxes inside it, which Maryland does not allow.
+   *
+   * Supplied rather than derived because no figure on a federal return carries
+   * it: `federal.deduction` is the whole Schedule A total including the state
+   * income tax that has to come out. Maryland also allows itemizing **only** if
+   * the filer itemized federally (Md. Code, Tax-Gen. § 10-218(b)), so this field
+   * is ignored unless {@link FederalBasis.deductionKind} is `itemized`.
+   *
+   * From tax year 2025 the amount is then reduced by 7.5% of federal AGI over
+   * `$200,000` (`$100,000` married filing separately) — a limit with no federal
+   * analogue since § 68 lapsed, and one that adds about two thirds of a point to
+   * the marginal rate of every Maryland itemizer above the threshold.
+   */
+  readonly stateItemizedDeductions?: number;
+  /**
+   * Net capital gain included in the state's taxable income, for a state that
+   * charges a surtax on it — Maryland's 2% surtax, new for tax year 2025.
+   *
+   * Maryland exempts several classes of gain from the surtax: the sale of a
+   * principal residence for `$1.5 million` or less, property expensed under IRC
+   * § 179, and gains inside 401(k), 403(b), § 408 IRA and Roth accounts. Pass
+   * the net gain **after** removing those; this package cannot tell one gain from
+   * another.
+   *
+   * Treated as zero when absent, which is right for the great majority of filers
+   * and understates the tax for a filer with a large gain — the surtax is 2% of
+   * the whole gain, and it arrives on the single dollar of federal AGI that
+   * crosses `$350,000`: `$6,933.08` of tax on one dollar for a single filer whose
+   * `$350,000` is all gain.
+   */
+  readonly netCapitalGain?: number;
   /**
    * Wages earned inside Yonkers by a filer who does **not** live there, Form
    * Y-203. Yonkers charges non-residents 0.5% of Yonkers-source earnings.
@@ -553,7 +630,7 @@ export interface IncomeClassDetail {
  * year, and the same pattern is the norm in Ohio, Michigan and Kentucky.
  */
 export interface LocalIncomeTaxResult {
-  readonly locality: LocalityCode;
+  readonly locality: LocalTaxJurisdiction;
   readonly localityName: string;
   /** Whether this is the tax on living there or the tax on earning there. */
   readonly basis: 'resident' | 'nonresidentEarnings';

@@ -829,6 +829,131 @@ test('state_income_tax carries the New Jersey fields, and refuses them elsewhere
   assert.match(tooMany.content[0].text, /cannot exceed 2/);
 });
 
+test('state_income_tax carries the Maryland county, and refuses it elsewhere', () => {
+  const md = (extra = {}) =>
+    ok('state_income_tax', {
+      state: 'MD',
+      filingStatus: 'single',
+      year: 2025,
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+      federalDeduction: 15_750,
+      ...extra,
+    });
+
+  // The county half of the bill, through the tool rather than the engine.
+  const montgomery = md({ county: 'Montgomery County' }).structured.state;
+  assert.equal(montgomery.tax, 4386.38);
+  assert.equal(montgomery.localTaxes[0].tax, 2990.4);
+  assert.equal(montgomery.totalTax, 7376.78);
+  assert.equal(montgomery.localTaxes[0].locality, 'Montgomery County');
+
+  // The name is matched loosely, but Baltimore is not a place.
+  assert.equal(md({ county: 'montgomery' }).structured.state.totalTax, 7376.78);
+  const ambiguous = call('state_income_tax', {
+    state: 'MD',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    county: 'Baltimore',
+  });
+  assert.equal(ambiguous.isError, true);
+  assert.match(ambiguous.content[0].text, /ambiguous/);
+
+  // An unknown county lists the twenty-four rather than returning a zero.
+  const unknown = call('state_income_tax', {
+    state: 'MD',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    county: 'Fairfax County',
+  });
+  assert.equal(unknown.isError, true);
+  assert.match(unknown.content[0].text, /not a Maryland taxing jurisdiction/);
+
+  // And a Maryland field on another state's return is an error, the same way
+  // the New Jersey and Massachusetts fields are.
+  for (const field of ['county', 'netCapitalGain', 'stateItemizedDeductions']) {
+    const wrong = call('state_income_tax', {
+      state: 'NY',
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+      [field]: field === 'county' ? 'Montgomery County' : 10_000,
+      ...(field === 'stateItemizedDeductions' ? { federalItemized: true } : {}),
+    });
+    assert.equal(wrong.isError, true, field);
+    assert.match(wrong.content[0].text, new RegExp(`${field} only applies to MD`));
+  }
+
+  // Omitting the county is answerable but incomplete, and the result says what
+  // the two ends of the range would have cost.
+  const stateOnly = md({});
+  assert.equal(stateOnly.structured.state.localTaxes.length, 0);
+  assert.ok(stateOnly.structured.state.notes.some((n) => n.startsWith('No county was supplied')));
+});
+
+test('state_income_tax computes the Maryland surtax cliff and the Frederick rate step', () => {
+  // The 2% capital gains surtax: the threshold is a test, not a floor.
+  const gain = (agi) =>
+    ok('state_income_tax', {
+      state: 'MD',
+      filingStatus: 'single',
+      year: 2025,
+      federalAdjustedGrossIncome: agi,
+      federalTaxableIncome: agi,
+      federalDeduction: 0,
+      netCapitalGain: agi,
+      county: 'Howard County',
+    }).structured.state;
+  assert.equal(gain(350_000).surtaxes.length, 0);
+  assert.equal(gain(350_001).surtaxes[0].amount, 6933.02);
+
+  // Frederick County's rate applies to the whole income, so the same dollar at
+  // $150,000 of taxable income costs $360.03 of county tax.
+  const frederick = (taxableIncome) =>
+    ok('state_income_tax', {
+      state: 'MD',
+      filingStatus: 'single',
+      year: 2025,
+      federalAdjustedGrossIncome: taxableIncome + 3_350,
+      federalTaxableIncome: taxableIncome + 3_350,
+      federalDeduction: 0,
+      county: 'Frederick',
+    }).structured.state.localTaxes[0].tax;
+  assert.equal(frederick(150_000), 4440);
+  assert.equal(frederick(150_001), 4800.03);
+
+  // And the itemized deduction limit, which is § 68 revived by a state.
+  const itemizer = ok('state_income_tax', {
+    state: 'MD',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 300_000,
+    federalTaxableIncome: 250_000,
+    federalDeduction: 50_000,
+    stateItemizedDeductions: 40_000,
+    federalItemized: true,
+    county: 'Howard County',
+  }).structured.state;
+  assert.equal(itemizer.deduction, 32_500);
+  assert.equal(itemizer.totalMarginalRate, 0.0962);
+
+  // Refused rather than silently ignored: Maryland allows itemizing only if the
+  // filer itemized federally, so an itemized figure without that flag is either
+  // a wrong federal return or an answer about to come out too low.
+  const ungated = call('state_income_tax', {
+    state: 'MD',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 300_000,
+    federalTaxableIncome: 250_000,
+    stateItemizedDeductions: 40_000,
+    county: 'Howard County',
+  });
+  assert.equal(ungated.isError, true);
+  assert.match(ungated.content[0].text, /needs federalItemized/);
+});
+
 test('state_income_tax runs the New Jersey property tax return both ways', () => {
   const withTax = (propertyTaxPaid) =>
     ok('state_income_tax', {

@@ -247,52 +247,31 @@ test('tools/list stays within a sane context budget', () => {
   // share a schema between tools, so the ninth tool has to displace one of those or
   // the household schema has to lose fields.
   //
-  // Two compression passes so far, and the second is the lesson. Making
-  // `terseProperties` recurse into an array's `items` recovered 1,110 bytes: it had
-  // been trimming only the surface, so the fattest object in the payload was carried
-  // at full length in all four household tools including the three that asked for the
-  // terse variant. A compression pass that does not reach the biggest object is not a
-  // compression pass.
+  // Six compression passes so far. The first two were hand-edits on the fattest
+  // object and on the longest single sentence; the third made the short form
+  // AUTHORED where a mechanical trim would drop an operative clause ("not total
+  // overtime wages") and derived everywhere else; the fourth rewrote the
+  // state_income_tax description on the rule that a tool description says WHAT TO
+  // PASS while facts the result already carries are delivered on every call anyway.
   //
-  // Then 581 more, from moving the twenty-item § 199A(d)(2) list out of the FIRST
-  // SENTENCE of `isSpecifiedServiceTradeOrBusiness`. The trim keeps the first
-  // sentence, so a description whose first sentence is the whole description
-  // survives it untouched — and that one was the largest string in the payload. A
-  // trim that reaches the biggest object still does nothing if the biggest object is
-  // one sentence.
+  // The fifth applied that rule to the PROPERTIES rather than the description and
+  // paid for Massachusetts. The sixth paid for Maryland, and its lesson is about
+  // WHICH properties to spend the pass on. Maryland cost 1,146 bytes — three new
+  // fields plus a 26th state code — against 225 of headroom, and the trims that
+  // covered it were chosen by multiplicity rather than by length: `filingStatus`,
+  // `year` and two § 199A fields appear in three or four tools each, so 130 bytes
+  // cut from them are 400 recovered. A property carried by four tools is worth four
+  // times what a longer one carried by a single tool is worth, which is not what
+  // reading a sorted list of description lengths tells you.
   //
-  // Both were spent: locality, yonkersNonresidentEarnings and dependentAges on
-  // state_income_tax took the headroom back to a few hundred bytes.
-  //
-  // The third pass is the one that generalises, and it came from noticing why the
-  // first two kept needing hand-edits: `firstSentence` is a SYNTACTIC trim, and
-  // most of this payload is one-sentence descriptions, on which it is a no-op.
-  // Widening it to cut at the first dash or colon recovers 2,275 bytes and drops
-  // an operative definition in three cases out of eight — "not total overtime
-  // wages" among them, which is the single most expensive clause in the file. So
-  // the short form is AUTHORED where a mechanical cut would lose something, via
-  // `x-terse`, and derived everywhere else. Ten authored forms recovered 2,193
-  // bytes with nothing lost, and the test above stops an authored form inventing
-  // a statute or a figure the long one does not have.
-  //
-  // That, plus rewriting state_income_tax's description on the rule that a tool
-  // description says WHAT TO PASS while facts the result already carries are
-  // delivered on every call anyway, paid for earnedIncome and investmentIncome
-  // with room left over.
-  //
-  // The fifth pass paid for a whole state. Massachusetts needed four new fields
-  // on state_income_tax — about 900 bytes against 237 of headroom — and the rule
-  // that bought them is the one from the fourth pass applied to the PROPERTIES
-  // rather than to the tool description: `investmentIncome` was spending 90
-  // bytes on "$4,528.82 at the worst point", `retirementIncome` 80 on "the
-  // largest cliff in this package", and both figures are in the notes the result
-  // carries on every call anyway. A property description is paid for on every
-  // session; a note is paid for once, by the caller who asked. Seven properties
-  // rewritten that way, plus the year and filing-status descriptions that three
-  // tools each carry, came to roughly 950 bytes — and the headroom after adding
-  // Massachusetts is within a dozen bytes of what it was before.
+  // The rest came from the same source as the fifth pass: `filerAge`,
+  // `investmentIncome`, `retirementIncome` and `massachusettsFivePercentIncome` were
+  // each spending 40-150 bytes restating a figure that the state's own notes carry
+  // on every call. Six passes in, the payload describes one more state, a whole
+  // local tax system and 24 named jurisdictions than it did two versions ago, and it
+  // is smaller than it was then.
   assert.ok(
-    48_000 - payload.length < 2_200,
+    48_000 - payload.length < 1_500,
     `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +
       'this note about the budget is stale and should be rewritten with the real figure',
   );

@@ -4,7 +4,7 @@
  *
  * New York City's is the largest local income tax in the United States by a wide
  * margin. A single filer at $100,000 owes the city $3,174.69 — more than the
- * *entire* state income tax of twelve of the twenty-three states this package
+ * *entire* state income tax of twelve of the twenty-six states this package
  * covers, at the same income — and it is invisible in every table of state tax
  * rates because it is not a state tax.
  *

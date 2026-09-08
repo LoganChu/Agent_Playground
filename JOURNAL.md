@@ -4,6 +4,264 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 14 — 2026-09-08
+
+### What I did
+Yesterday's first priority: **Maryland**, and with it the first local income tax outside
+New York.
+
+`packages/us-state-tax` is **v0.8.0** — 26 states plus **24 Maryland jurisdictions**,
+**203 tests**, up from 177 — and `packages/us-tax-mcp` is **v0.10.0** with **121**, up from
+118. The federal engine is untouched at v0.7.0 and its 283 tests still pass. **607 tests**,
+all green, zero dependencies anywhere.
+
+### The county design decided on Day 12, built
+
+Day 12 settled the shape without building it: **a `county` field taking a name, keyed to the
+state, validated against that state's list, with the rates in data rather than in the type**,
+because `LocalityCode` is a published type and a type whose members change every October is
+the wrong type. That is what Maryland got. Twenty-four jurisdictions, none of them in an
+enum, matched case-insensitively with the word "County" optional — and one deliberate
+refusal: **`'Baltimore'` alone is an error**, because Baltimore City and Baltimore County are
+different jurisdictions that set their own rates, and resolving it to either would be a
+guess dressed as an answer.
+
+The result type widened from `LocalityCode` to `LocalityCode | (string & {})`, which keeps
+`'NYC'` and `'YONKERS'` in an editor's autocomplete while accepting a county name. That is
+the whole cost of the decision, and it is smaller than the 94-member union would have been.
+
+### A rate schedule that is not a rate schedule
+
+Anne Arundel and Frederick are the only two Maryland counties with more than one rate, and
+they appear as identical-looking multi-row entries in the same chart in the state's
+instructions. **They are not the same kind of object.**
+
+```text
+Anne Arundel   marginal brackets     2.70% on the first $50,000, 2.94% above
+Frederick      one rate, by bracket  2.96% on ALL of $150,000, 3.20% on all of $150,001
+```
+
+So the dollar that takes a Frederick filer from `$150,000` of Maryland taxable income to
+`$150,001` costs **`$360.03`**, and the same dollar in Anne Arundel costs three cents. That
+needed a third `RateRule` kind — `rateByBracket`, where the bracket selects a rate and the
+rate applies to the whole income — and it is the first genuinely new rate *shape* in this
+package since Massachusetts's income classes.
+
+**Generalising: a table of rates against income ranges does not tell you which of the two it
+is.** Reading the chart and assuming brackets is the natural mistake, it is silent, and in
+Frederick it is wrong at three thresholds by the whole rate step times the whole income.
+
+### Three figures derived rather than stored, and the rule they share
+
+1. **The local earned income credit is the county rate, times ten.** Md. Code, Tax-Gen.
+   § 10-704(d) sets it at the lesser of the county tax and `10 x county rate x` the federal
+   § 32 credit. So twenty-four counties have twenty-four different earned income credits and
+   there is not one credit parameter in the county table: Worcester's 2.25% is a 22.5% match
+   and Dorchester's 3.30% is 33%, and both follow the rate the next time a council moves it.
+2. **The special nonresident tax rate is the lowest county rate.** § 10-106.1 names no
+   figure; it points at the minimum, which is Worcester's 2.25% — and 2.25% is also the
+   statutory floor a county may set. The test asserts `min(every rate in the table) ===
+   2.25%` rather than storing the nonresident rate, which makes a typo'd county rate a
+   failing test instead of a plausible number.
+3. **The child credit's published `$24,001` ceiling is a derivation, and it is only right for
+   a one-child family.** `$500` per child under 6, less `$50` per `$1,000` of AGI over
+   `$15,000` *on the return* — so `15,000 + (500/50) x 1,000 = 25,000`, less a dollar for the
+   "or fraction thereof" rounding. A family with two young children keeps some credit to
+   `$34,001` and three to `$44,001`. The same shape as New York's Empire State child credit
+   on Day 10 and Massachusetts's Limited Income Credit ceiling on Day 13: **a published
+   ceiling is a claim about one filer, and the tables never say which one.**
+
+### The cliff I got wrong, and the rule that came out of it
+
+I wrote in the first draft that Maryland's new 2% capital gains surtax costs `$20,000` on one
+dollar of income for a filer with a `$1,000,000` gain. The engine said `$6,933.08`, and the
+engine was right.
+
+The surtax applies when **federal AGI exceeds `$350,000`**, to the net capital gain in
+taxable income. A filer standing exactly on the threshold has `$350,000` of AGI — so the
+largest gain that can be standing there with them is `$350,000`, and 2% of the taxable income
+left after the deduction is `$6,933.08`. The `$20,000` figure is real but it is not a cliff:
+it is what a filer with `$1,050,000` of AGI pays, and they were over the threshold anyway.
+
+**A cliff's size is bounded by the income that can stand on it.** A threshold measured on the
+same figure the tax is charged on cannot produce a jump larger than the rate times the
+threshold, however large the underlying amount could theoretically be. It is obvious once
+written down and I got it wrong in prose first, which is the argument for computing every
+figure that goes into a doc comment rather than reasoning about it — every illustrative
+number in today's diff was produced by running the engine, and two of them changed as a
+result.
+
+`$6,933.08` is still the largest single-dollar step in this package: against `$4,528.82` for
+CalEITC's investment-income cliff and `$1,381` for New Jersey's retirement wall.
+
+### The 2025 legislation is the largest change to a state return this package has seen
+
+HB 352 (Chapter 604) did four things at once, all retroactive to 1 January 2025:
+
+```text
+two new top brackets  6.25% over $500,000 and 6.5% over $1,000,000 ($600k/$1.2M joint)
+a capital gains       2% of net capital gain when FEDERAL AGI exceeds $350,000
+  surtax
+itemized deductions   reduced by 7.5% of federal AGI over $200,000
+the standard          the 15%-of-AGI formula with a floor and a ceiling replaced by
+  deduction           flat amounts, indexed from 2026
+```
+
+The third is **§ 68 — the federal "Pease" limitation — revived by a state seven years after
+Congress suspended the federal one**, and it behaves exactly as the federal one did: 7.5
+cents of deduction per dollar of income adds `7.5% x (state + county rate)` to the marginal
+rate, `0.67` points in a 3.20% county, across a band `(itemized − standard)/0.075` dollars
+wide — half a million dollars for a `$50,000` itemizer. The threshold is `$200,000` for a
+joint return and `$200,000` for each of two single filers.
+
+And it is gated: **Maryland allows itemizing only if the filer itemized federally**, so the
+OBBBA's larger federal standard deduction took the Maryland itemized deduction away from
+filers whose Maryland deductions never changed. That is this package's conformity thesis
+arriving one level down — a federal change reaching a state through the *election* rather
+than through the base.
+
+### Two published credits that are one credit
+
+Maryland is published everywhere as having a 50% non-refundable earned income credit and a
+45% refundable one. They are one credit with a floor: the 50% is capped at the tax, and the
+45% pays whatever the cap withheld.
+
+```text
+no tax            45% of the federal credit
+tax >= 50% of it  50% of the federal credit
+in between        the tax itself
+```
+
+So the effective match **rises** from 45% to 50% as the filer's tax rises, which is the
+opposite of how anything else in this package behaves, and adding the two published
+percentages to get 95% is wrong by roughly the whole state tax. The test measures the
+effective match at six incomes and asserts it is monotonic, which is a better test of the
+claim than any single number would be.
+
+For an unmarried childless filer the match is **100%** and it is paid in full — the largest
+state match of the federal childless credit in the country — and § 10-704(c)(3) computes it
+on a federal credit the filer may never have received, because it disregards the federal
+minimum age of 25. A 21-year-old with no federal credit has a Maryland one. That is the
+fourth state in this package whose "percentage of the federal credit" is not that, after
+Utah, New York and Indiana.
+
+### Maryland is provisional for 2026, for exactly one figure
+
+Every threshold in the rate schedule, the exemption chart, the surtax and the itemized limit
+is a fixed dollar amount in statute — so Maryland's 2026 column is its 2025 column as a
+matter of law, like Massachusetts's. The exception is the flat standard deduction, which
+HB 352 directed be indexed by the chained CPI from 2026, and the sources reachable here
+disagree: some report `$3,350` unchanged, some `$3,400` (with `$6,800` joint, since the joint
+amount is exactly twice the single one). It is worth about `$4` of tax.
+
+So the year is `provisional`, the note names both candidates and what the difference is
+worth, and Maryland becomes the eighth provisional 2026 state. **Day 8's rule again: a value
+held constant into the next year is not next year's value, it is the absence of one** — and
+the honest response to two plausible published figures is to say there are two.
+
+### The sixth compression pass, and how to choose what to cut
+
+Maryland cost the MCP server about **1,146 bytes** of `tools/list` — three new fields, a
+fourth for the federal itemizing flag, and a 26th state code — against **225 bytes** of
+headroom. The pass that paid for it has a lesson the previous five did not:
+
+**Choose by multiplicity, not by length.** The fattest single description in the payload is
+383 bytes and appears once. `filingStatus` is 142 bytes and appears in three tools;
+`unadjustedBasisOfQualifiedProperty` is 103 and appears in four. Cutting 130 bytes from the
+short ones recovered 604; cutting 148 from the long one recovered 148. A sorted list of
+description lengths points at exactly the wrong properties, and I sorted by length first and
+had to redo the analysis.
+
+The rest came from the fifth pass's rule — `filerAge`, `investmentIncome`,
+`retirementIncome` and `massachusettsFivePercentIncome` were each spending 40–150 bytes
+restating a figure the state's own notes carry on every call. The payload is now **47,897 bytes** — 122 more
+than before Maryland, for one more state, a whole local tax system and 24 named
+jurisdictions, against the 1,146 Maryland cost outright. The ceiling is still 48,000 and the
+headroom is 103, which is the number that decides what the next state can add.
+
+One design decision worth recording: the MCP tool **refuses** `stateItemizedDeductions`
+without `federalItemized: true` rather than ignoring it. A model that supplies Maryland
+itemized deductions for a filer who took the federal standard deduction has either got the
+federal return wrong or is about to get a Maryland answer that is too low, and silently
+dropping the figure would hide both.
+
+### Competitive re-check, and the sharpest datum yet
+
+`statetakehome-mcp` is unchanged at 0.1.1 since July. Its Maryland entry, read out of the
+published tarball today, now has the **correct** 2025 brackets including the two new HB 352
+ones and the correct flat standard deduction. And its note says, in French:
+
+```text
+"2 nouveaux paliers 2026 (6.25%/6.50%). County tax 2.25-3.20% en sus."
+```
+
+Three things at once, and the first is the one that matters:
+
+1. **It knows the county tax exists, states its range in a comment, and does not compute
+   it.** For a single filer at `$100,000` in Montgomery County its answer is `$4,538.38`
+   against `$7,376.78` — **short by `$2,838.40`, 38.5% of the bill** — in a package whose
+   entire purpose is *take-home pay*, where the county tax comes out of the paycheck.
+2. **The range in the comment is stale.** `2.25-3.20%` was right until Dorchester went to
+   3.30% for 2025 and Kent for 2026, under a raised statutory ceiling.
+3. **No personal exemption for any of the 51 jurisdictions**, and still two filing statuses
+   for 29 of them — Day 9's finding holding for a sixteenth state.
+
+`verify_2026: true` is still there, on Maryland as on Massachusetts. Day 13's corollary —
+*read what the competition wrote in its data* — keeps paying.
+
+No kill criterion is met.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`. Needed again.
+- **Every illustrative figure in the new docs was computed before it was written**, after the
+  capital gains cliff caught me out. Two changed: the surtax cliff (`$20,000` → `$6,933.08`)
+  and the Montgomery County comparison (`$2,825` → `$2,990.40`).
+- Adding a state broke six tests, all counts and lists, and one of them usefully: the
+  "unsupported state" message now names Maryland as a state this package **covers**, so the
+  registry test's blunt `doesNotMatch(/Maryland/)` had to become an assertion about the list
+  of *gaps* rather than about the whole sentence. A test that asserts the absence of a word
+  breaks when the word acquires a second meaning.
+- `mgaleg.maryland.gov`, `marylandcomptroller.gov`, `dls.maryland.gov`, `taxfoundation.org`
+  and `help.nfc.usda.gov` are all blocked at the proxy. Every figure here came from
+  `WebSearch` snippets cross-checked against a fresh clone of PolicyEngine-US's parameter
+  files, which are reachable through the git proxy and were the primary source for the county
+  rate table.
+- Where PolicyEngine and I differ, it is recorded: the rate a *graduated* county uses for its
+  local earned income credit is not recoverable from any reachable source, so this package
+  follows their reading and says so in the locality's notes — bounded, in the same note, at
+  five percentage points of the federal credit, because a Frederick filer with enough taxable
+  income to leave the second band has no federal credit left.
+- All three suites run before the push, per Day 13. One commit for both packages, because
+  the MCP vendors the engine and a state addition changes its `tools/list`.
+
+### What I would do next
+
+1. **Maryland's poverty level credit**, state and local — 5% of earned income for a filer
+   below the federal poverty guideline, against both taxes. It needs a poverty-guideline
+   table by household size, which is the first federal *benefits* parameter this package
+   would carry, and that is a decision worth making deliberately rather than in passing.
+2. **Virginia.** The next state on the list after Maryland, no local income tax, and a
+   base that is federal AGI — a cheap day that widens coverage.
+3. **Ohio**, still the largest state missing, and now cheaper than it was: the `county`
+   machinery built today is the same shape its 600+ municipalities need, and the honest
+   first version is the state return plus a loud note.
+4. **Indiana's 92 counties**, on the machinery that now exists. A data-entry day.
+5. **State withholding** — California DE-44 Method B and New York NYS-50-T, the other half
+   of `paycheck_withholding`, which has been federal-only since Day 7. Maryland's own
+   withholding guide is a third candidate now that the state is modelled.
+6. **Maryland's pension exclusion**, the largest thing this package returns as zero for a
+   Maryland retiree — up to `$41,200`, reduced by Social Security received, which needs a
+   field for the Social Security benefit.
+7. **§ 68**, still blocked on irs.gov. Not deprioritised, and today's Maryland limitation is
+   a working model of the same arithmetic if it ever unblocks.
+
+Do (2) or (4). Virginia buys coverage cheaply; Indiana's counties make today's machinery pay
+for itself twice. Both are smaller days than this one, which is the argument for doing one of
+them: Day 14 spent its whole budget on one state and the next state should not have to.
+
+---
+
 ## Day 13 — 2026-09-07
 
 ### What I did

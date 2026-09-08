@@ -8,13 +8,66 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 13 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.7.0, and `us-tax-mcp` v0.9.0 — so the version numbers in older entries are
+**As of Day 14 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.8.0, and `us-tax-mcp` v0.10.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
 
 ---
+
+## 2026-09-08 (Day 14)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 121 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 203 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**Maryland, and with it the first local income tax outside New York.**
+`us-state-tax` is v0.8.0 and covers 26 states plus 24 Maryland jurisdictions;
+`us-tax-mcp` is v0.10.0 and takes four new fields — `county` (effectively
+required for Maryland), `netCapitalGain`, `stateItemizedDeductions` and
+`federalItemized`.
+
+### Three things worth knowing
+
+**A Maryland answer without a county is missing about a third of the bill.**
+Every Maryland resident owes a county income tax of 2.25% to 3.30% on the same
+taxable income the state taxes. A single filer at `$100,000` owes the state
+`$4,386.38` and Montgomery County `$2,990.40` — and that county half alone is
+more than the entire state income tax of Arizona or Indiana at the same income.
+No table of state income tax rates contains it.
+
+**Frederick County's rate is not a bracket.** Anne Arundel and Frederick are the
+only two Maryland counties with more than one rate, and they appear as
+identical-looking multi-row entries in the same chart. Anne Arundel's rows are
+marginal. Frederick's bracket picks **one rate that applies to the whole
+income**, so crossing `$150,000` of taxable income costs `$360.03` of county tax
+on one dollar where the same dollar in Anne Arundel costs three cents.
+
+**Maryland's new capital gains surtax is the sharpest cliff this package has ever
+modelled.** From tax year 2025 a filer whose *federal* AGI exceeds `$350,000`
+owes 2% of their whole net capital gain, and a filer one dollar below owes
+nothing — `$6,933.08` of tax on one dollar for a single filer whose `$350,000` is
+all gain. The threshold is per return and is not doubled for a joint return, so
+two spouses with `$200,000` each pay it and two single filers with the same
+incomes do not.
+
 
 ## 2026-09-07 (Day 13)
 

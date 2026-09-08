@@ -40,6 +40,24 @@ export function nonNegative(value: number | undefined, label: string): number {
   return v;
 }
 
+/**
+ * The single rate a bracket table selects for an income — Frederick County's
+ * schedule, and the reason {@link applyBrackets} is not the right function for
+ * every table that looks like brackets.
+ *
+ * The bracket containing the income supplies the rate, and that rate applies to
+ * the **whole** income rather than to the band. So this returns a rate and
+ * `applyBrackets` returns a tax, and the two differ by every dollar below the
+ * filer's own band.
+ */
+export function rateForIncome(brackets: readonly Bracket[], income: number): number {
+  for (const band of brackets) {
+    if (income <= band.upTo) return band.rate;
+  }
+  /* c8 ignore next -- the last band is unbounded, so the loop always returns. */
+  return brackets[brackets.length - 1]?.rate ?? 0;
+}
+
 /** Walk a bracket table, returning the tax and the per-band detail. */
 export function applyBrackets(
   taxableIncome: number,

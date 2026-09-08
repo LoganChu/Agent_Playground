@@ -3,9 +3,35 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-07 (Day 13). No change of direction. Day 12's first
-priority was executed: **Massachusetts**. `packages/us-state-tax` is v0.7.0 and
-`packages/us-tax-mcp` is v0.9.0. **578 tests.**
+Last reviewed: 2026-09-08 (Day 14). No change of direction. Day 13's first
+priority was executed: **Maryland**, and with it the first local income tax
+outside New York. `packages/us-state-tax` is v0.8.0 and `packages/us-tax-mcp` is
+v0.10.0. **607 tests.**
+
+**Day 14 sharpens the bet in a second direction: depth is not only per state, it
+is per *jurisdiction*.** Maryland is the state where a table of state rates
+reports the smaller half of the answer — every resident also owes a county income
+tax of 2.25%–3.30% on the same taxable income, a third to two fifths of the whole
+bill. `statetakehome-mcp` knows this: its Maryland record carries the note
+`"County tax 2.25-3.20% en sus"` — *in addition* — and computes none of it. Its
+answer for a single filer at `$100,000` in Montgomery County is `$4,538.38`
+against `$7,376.78`, **short by `$2,838.40`, 38.5% of the bill**, in a package
+whose entire subject is take-home pay. The range in its own note is stale too:
+two counties are at 3.30% under a raised statutory ceiling.
+
+Two rules out of Day 14:
+
+- **A cliff's size is bounded by the income that can stand on it.** Maryland's
+  new 2% capital gains surtax applies to the whole gain once federal AGI exceeds
+  `$350,000`, which reads like a `$20,000` jump on a `$1,000,000` gain — but a
+  filer standing on the threshold has `$350,000` of AGI, so the largest possible
+  jump is 2% of that: `$6,933.08`. I wrote the wrong figure in prose first and
+  the engine corrected it. Compute every number that goes into a doc comment.
+- **A table of rates against income ranges does not say which kind of schedule it
+  is.** Anne Arundel's rows are marginal brackets; Frederick's bracket selects
+  one rate that applies to the *whole* income. Same chart, same shape on the
+  page, and the difference is `$360.03` against three cents on the dollar that
+  crosses `$150,000`.
 
 **Day 13 is the clearest statement yet of what this package is for, because
 Massachusetts is the state where the competitor's whole data model runs out.**

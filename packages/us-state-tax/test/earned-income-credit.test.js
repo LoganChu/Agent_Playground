@@ -56,10 +56,15 @@ test('every state whose definition carries an earned income credit pays its matc
       if (!rule) continue;
       if (!withCredit.includes(state)) withCredit.push(state);
       const r = run(state, { year, earnedIncomeCredit: 4_000 });
+      // This filer has a dependent, so Maryland's 100% childless match does not
+      // apply and its ordinary 50% does. The credit reported here is the match
+      // itself; whether the filer keeps all of it is the netting question, and
+      // Maryland's refundable half — which is what makes that netting visible —
+      // is asserted in test/maryland.test.js.
       money(eitcOf(r), rule.matchRate * 4_000, `${state} ${year}`);
     }
   }
-  assert.deepEqual(withCredit.sort(), ['CO', 'IL', 'IN', 'MA', 'MI', 'NJ', 'NY', 'UT']);
+  assert.deepEqual(withCredit.sort(), ['CO', 'IL', 'IN', 'MA', 'MD', 'MI', 'NJ', 'NY', 'UT']);
 });
 
 test('a state with no earned income credit ignores a federal one entirely', () => {

@@ -1,9 +1,9 @@
 # us-state-tax
 
-US **state** individual income tax for tax years **2025 and 2026**, across **25 states**
-including **New York**, **New Jersey** and — new in 0.7.0 — **Massachusetts**, plus **New
-York City and Yonkers** local tax. Dependency-free,
-MIT, ESM and CommonJS, TypeScript types included.
+US **state and local** individual income tax for tax years **2025 and 2026**, across **26
+states** including **New York**, **New Jersey**, **Massachusetts** and — new in 0.8.0 —
+**Maryland**, plus **New York City**, **Yonkers** and all **24 Maryland counties**.
+Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -139,7 +139,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-five
+That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-six
 states in this package** at the same income — every one of the nine with no income tax,
 plus Arizona, Indiana and Pennsylvania. Omit the locality on a New York return and the
 result says so, and says what it would have cost this filer.
@@ -464,6 +464,98 @@ large capital gain reaches it for a filer whose salary does not: `$200,000` of s
 beside a `$1,000,000` short-term gain owes exactly the `$4,498` of surtax that a
 `$1,200,000` salary does.
 
+### Maryland is two income taxes, and rate tables report the smaller one
+
+Every Maryland resident pays a **county** income tax of 2.25% to 3.30% on the same taxable
+income the state taxes. There is no county-free jurisdiction, and for a middle-income filer
+the county half is a third to two fifths of the whole bill.
+
+```js
+const md = stateIncomeTax({
+  state: 'MD', year: 2025, filingStatus: 'single', county: 'Montgomery County',
+  federal: { adjustedGrossIncome: 100_000, taxableIncome: 84_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+md.tax;                  // 4386.38   Maryland State
+md.localTaxes[0].tax;    // 2990.40   Montgomery County, 3.20% of the same $93,450
+md.totalTax;             // 7376.78
+```
+
+That `$2,990.40` of county tax is more than the **entire** state income tax of Arizona or
+Indiana at the same income. Leave `county` out and the result says what the cheapest and
+dearest counties would have cost this exact filer.
+
+**Two counties have more than one rate, and only one of them is graduated.** Anne Arundel
+and Frederick appear as multi-row entries in the same chart. Anne Arundel's rows are
+marginal brackets. Frederick's are not: the bracket selects **one rate that applies to the
+whole income**.
+
+```js
+const frederick = (taxableIncome) => stateIncomeTax({
+  state: 'MD', year: 2025, filingStatus: 'single', county: 'Frederick',
+  federal: { adjustedGrossIncome: taxableIncome + 3_350, taxableIncome,
+             deduction: 0, deductionKind: 'standard' },
+}).localTaxes[0].tax;
+
+frederick(150_000);   // 4440.00   2.96% of all of it
+frederick(150_001);   // 4800.03   3.20% of all of it
+```
+
+`$360.03` of tax on one dollar of income. The same dollar in Anne Arundel costs three
+cents.
+
+**The local earned income credit is not a stored number.** Md. Code, Tax-Gen. § 10-704(d)
+makes it ten times the county rate, times the federal credit, capped at the county tax — so
+twenty-four counties have twenty-four different earned income credits and this package
+stores none of them. Worcester's 2.25% is a 22.5% match; Dorchester's 3.30% is 33%.
+
+**The 2025 legislation left four cliffs in the state half.** HB 352 added two brackets
+(6.25% and 6.5%), a capital gains surtax, an itemized deduction limit, and a flat standard
+deduction, all at once:
+
+```text
+$350,000 federal AGI   the 2% capital gains surtax applies to the WHOLE gain — the
+                       threshold is a test, not a floor. For a single filer whose
+                       $350,000 is all gain that is $6,933.08 of tax on one dollar,
+                       the largest single-dollar step in this package
+$100,000 / $150,000    the $3,200 personal exemption steps down to $1,600, then $800,
+                       then nothing — times every exemption on the return, so a joint
+                       return with four dependents loses $9,600 at one threshold:
+                       $763.28 of state and county tax on one dollar
+$100,000 / $150,000    the senior tax credit's income limit, $1,000 or $1,750, gone
+                       entirely one dollar over
+$150,000 (Frederick)   the county rate step above
+```
+
+And the itemized deduction limit is § 68 — the federal "Pease" limitation — revived by a
+state seven years after Congress suspended the federal one. Maryland itemized deductions
+fall by **7.5% of federal AGI over `$200,000`**, a threshold that is *not* doubled for a
+joint return:
+
+```js
+const itemizer = stateIncomeTax({
+  state: 'MD', year: 2025, filingStatus: 'single', county: 'Howard County',
+  stateItemizedDeductions: 40_000,
+  federal: { adjustedGrossIncome: 300_000, taxableIncome: 250_000,
+             deduction: 50_000, deductionKind: 'itemized' },
+});
+
+itemizer.deduction;           // 32500     $40,000 less 7.5% of $100,000
+itemizer.totalMarginalRate;   // 0.0962    8.95% charged on 1.075 dollars per dollar earned
+```
+
+Maryland allows itemizing **only** if the filer itemized federally, so the OBBBA's larger
+federal standard deduction took the Maryland itemized deduction away from filers whose
+Maryland deductions never changed — this package's conformity story, one level down.
+
+**And its two published earned income credits are one credit.** The 50% non-refundable
+credit is capped at the Maryland tax; the 45% refundable one pays whatever the cap
+withheld. So the effective match *rises* from 45% to 50% as the filer's tax rises, and
+adding the two published percentages to get 95% is wrong by roughly the whole state tax.
+For an unmarried childless filer the match is **100%** and it is paid in full — the largest
+state match of the federal childless credit in the country.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -482,8 +574,15 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, IL, KY, MI, UT**. Published: **AZ, GA, IN, MA, MS, NC,
-NJ, NY, PA** and the nine states with no income tax. Nothing is provisional for 2025.
+Provisional for 2026: **CA, CO, ID, IL, KY, MD, MI, UT**. Published: **AZ, GA, IN, MA, MS,
+NC, NJ, NY, PA** and the nine states with no income tax. Nothing is provisional for 2025.
+
+Maryland is provisional for one figure and one only. Every threshold in its rate schedule,
+its exemption chart, its capital gains surtax and its itemized deduction limit is a fixed
+dollar amount in statute; the flat standard deduction that replaced the old 15%-of-AGI
+formula in 2025 is indexed from 2026, and the sources reachable here disagree between
+`$3,350` unchanged and `$3,400`. That disagreement is worth about `$4` of state and county
+tax, and the note says so rather than leaving the year looking settled.
 
 New York is published for both years because it indexes nothing: its brackets, standard
 deduction and dependent exemption are all fixed in statute. Massachusetts is published for
@@ -495,7 +594,7 @@ the `$24,600` the threshold moved — and it is owed by nobody below a million d
 
 ## No fallback to a neighbouring year
 
-Seven of the sixteen taxing states cut their rate between 2025 and 2026 — New York's
+Seven of the seventeen taxing states cut their rate between 2025 and 2026 — New York's
 bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
 North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%. Asking for an unsupported year throws
@@ -503,7 +602,7 @@ rather than answering with the nearest one.
 
 ## Coverage
 
-**Graduated:** California, Mississippi, New Jersey, New York.
+**Graduated:** California, Maryland, Mississippi, New Jersey, New York.
 **Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky,
 Massachusetts, Michigan, North Carolina, Pennsylvania, Utah.
 **Rated by kind of income:** Massachusetts, which is in the flat list above and does not
@@ -520,7 +619,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 State tax is deep and this is version 0.7.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 25 states.** No Ohio, Virginia, Maryland, Minnesota, Wisconsin,
+- **Only 26 states.** No Ohio, Virginia, Minnesota, Wisconsin,
   Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
   Asking for one throws rather than returning zero.
 - **Massachusetts's Schedule B and D netting is not modelled.** Short-term and long-term
@@ -528,12 +627,19 @@ hides its gaps is worse than useless:
   interest and dividend income, and the order in which short-term and long-term losses are
   applied against each other, are not computed. Nor is the senior circuit breaker credit,
   which is the largest credit on many Massachusetts retirees' returns.
-- **Local income tax in New York only.** New York City and Yonkers are computed; pass
-  `locality`. Every Indiana county, most Pennsylvania municipalities and school districts,
-  Detroit and 23 other Michigan cities, Ohio's municipalities, Kentucky's occupational
-  taxes and Maryland's counties are not, and for an Indiana or Pennsylvania filer the local
-  tax is a large fraction of the bill. Nor is part-year city residency, or the New York
-  City child and dependent care credit.
+- **Local income tax in New York and Maryland only.** New York City and Yonkers are
+  computed from `locality`; all 23 Maryland counties and Baltimore City from `county`.
+  Every Indiana county, most Pennsylvania municipalities and school districts, Detroit and
+  23 other Michigan cities, Ohio's municipalities and Kentucky's occupational taxes are
+  not, and for an Indiana or Pennsylvania filer the local tax is a large fraction of the
+  bill. Nor is part-year city residency, the New York City child and dependent care
+  credit, or Maryland's local poverty level credit and Montgomery County's own refundable
+  earned income supplement.
+- **Maryland's pension exclusion is not computed.** Up to `$41,200` for a filer aged 65 or
+  over, reduced by Social Security benefits received — the largest subtraction on a
+  Maryland retiree's return, and omitting it can overstate the tax by about `$3,300` of
+  state and county tax. Nor is the poverty level credit or the two-income subtraction.
+  Pass them through `subtractions`.
 - **Four states' child credits.** Massachusetts's Child and Family Tax Credit is computed
   for a dependent under 13 or aged 65 and over; a permanently and totally disabled
   dependent of any age also qualifies and this package cannot see disability, so such a

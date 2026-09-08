@@ -7,7 +7,7 @@
  * return produced, so it takes the state's intermediate results rather than the
  * caller's.
  */
-import { applyBrackets, dependentCount, roundCents } from '../engine-core.js';
+import { applyBrackets, dependentCount, rateForIncome, roundCents } from '../engine-core.js';
 import { filerCount } from '../definition.js';
 import type { LocalBase, LocalIncomeTaxDefinition } from './definition.js';
 import type {
@@ -161,6 +161,34 @@ export function slidingEarnedIncomeMatch(def: LocalIncomeTaxDefinition, stateAgi
 }
 
 /**
+ * The single rate a locality's earned income credit is computed from.
+ *
+ * Trivial for the twenty-two Maryland jurisdictions with one rate and a judgment
+ * call for the two without. A marginal-rate county (Anne Arundel) uses its
+ * lowest rate; a rate-by-bracket county (Frederick) uses the rate its bracket
+ * selects, because that rate *is* the county's rate for this filer. Both
+ * readings follow PolicyEngine-US, and the locality's notes say so — see
+ * `localities/maryland.ts`.
+ */
+export function localApplicableRate(
+  def: LocalIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  base: number,
+): number {
+  switch (def.rate.kind) {
+    case 'flat':
+      return def.rate.rate;
+    case 'brackets':
+      return def.rate.byStatus[input.filingStatus][0]?.rate ?? 0;
+    case 'rateByBracket':
+      return rateForIncome(def.rate.byStatus[input.filingStatus], base);
+    /* c8 ignore next 2 -- no locality has a 'none' rate. */
+    default:
+      return 0;
+  }
+}
+
+/**
  * Compute one locality's resident income tax from the finished state figures.
  *
  * Credit order is part of the contract, and it follows the return: the
@@ -183,6 +211,13 @@ export function computeLocalResidentTax(
     const walked = applyBrackets(base, def.rate.byStatus[input.filingStatus]);
     taxBeforeCredits = walked.tax;
     brackets = walked.detail;
+  } else if (def.rate.kind === 'rateByBracket') {
+    // Frederick County: the bracket picks the rate and the rate applies to
+    // everything. One band in the detail, not one per threshold crossed, because
+    // that is what actually happened.
+    const rate = rateForIncome(def.rate.byStatus[input.filingStatus], base);
+    taxBeforeCredits = base * rate;
+    if (base > 0) brackets = [{ rate, incomeInBracket: base, tax: taxBeforeCredits }];
   }
 
   const federalAgi = input.federal.adjustedGrossIncome;
@@ -212,6 +247,19 @@ export function computeLocalResidentTax(
       name: def.earnedIncomeCredit.name,
       amount: slidingEarnedIncomeMatch(def, figures.stateAdjustedGrossIncome) * federalCredit,
       refundable: true,
+    });
+  }
+  if (def.earnedIncomeCreditRateMultiple !== undefined) {
+    // § 10-704(d): the lesser of the county tax and ten times the county rate
+    // times the federal credit. Non-refundable, and the cap is what makes it so:
+    // a Maryland county never pays out more earned income credit than it charged
+    // in tax, which is why the state's refundable half exists.
+    const federalCredit = input.federal.earnedIncomeCredit ?? 0;
+    const match = def.earnedIncomeCreditRateMultiple * localApplicableRate(def, input, base);
+    credits.push({
+      name: 'Local earned income credit',
+      amount: Math.min(match * federalCredit, taxBeforeCredits),
+      refundable: false,
     });
   }
 

@@ -3,8 +3,8 @@
 **US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
-**state income tax for 25 states including New York, New Jersey and Massachusetts** and **New York City and
-Yonkers local tax** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+**state income tax for 26 states including New York, New Jersey, Massachusetts and Maryland**
+and **local tax for New York City, Yonkers and all 24 Maryland counties** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -170,7 +170,7 @@ of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same*
 
 **New York City is bigger than most states, and it is not a state.** Pass `locality: "NYC"`
 and the city tax comes back beside the state one. A single filer at $100,000 owes the city
-**$3,174.69** — more than the entire state income tax of **twelve of these twenty-five
+**$3,174.69** — more than the entire state income tax of **twelve of these twenty-six
 states** at the same income. The published city rates are derived rather than stored:
 N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% / 3.35% / 3.4%, § 11-1704.1 adds a tax of
 **14% of that tax**, and 2.7% x 1.14 = 3.078% to the last digit. The city earned income
@@ -193,6 +193,32 @@ York's Empire State child credit is computed: **$1,000** for each child under 4 
 to **$170,000**, three keep some to **$291,000**. And $16.50 is exactly one third of the
 federal § 24 phase-out of $50 per $1,000, because New York's credit *was* 33% of the federal
 one until the FY2026 budget replaced the amount and left the rate alone.
+
+**Maryland is two income taxes, and rate tables report the smaller one.** Every Maryland
+resident owes a **county** income tax of 2.25% to 3.30% on the same taxable income the state
+taxes — there is no county-free jurisdiction, and for a middle-income filer it is a third to
+two fifths of the whole bill. A single filer at $100,000 owes the state **$4,386.38** and
+Montgomery County **$2,990.40**, and that county half alone is more than the entire state
+income tax of Arizona or Indiana. Pass `county`; leave it out and the result says what the
+cheapest and dearest counties would have cost that filer.
+
+Two counties have more than one rate and **only one of them is graduated**. Anne Arundel's
+rows are marginal brackets; Frederick's bracket selects *one rate that applies to the whole
+income*, so a Frederick filer crossing $150,000 of taxable income pays 3.20% on all of it
+instead of 2.96% — **$360.03 of tax on one dollar**, where the same dollar in Anne Arundel
+costs three cents. And the county earned income credit is not a stored number at all:
+§ 10-704(d) makes it **ten times the county rate** times the federal credit, so twenty-four
+counties have twenty-four different credits and none of them is a parameter.
+
+The 2025 budget act (HB 352) added two brackets, a **2% capital gains surtax** whose
+$350,000 threshold is a *test rather than a floor* — $6,933.08 of tax on one dollar for a
+single filer whose $350,000 is all gain, the largest single-dollar step in this package —
+and an **itemized deduction limit** that is § 68 revived by a state seven years after
+Congress suspended the federal one: deductions fall by 7.5% of federal AGI over $200,000, a
+threshold that is not doubled for a joint return. Maryland's two published earned income
+credits (50% non-refundable, 45% refundable) are **one credit with a floor**, whose effective
+match rises from 45% to 50% as the filer's tax rises — and 100% for an unmarried childless
+filer, paid in full.
 
 **Massachusetts is not a 5% flat tax state, and it is the only state here where the rate
 depends on the KIND of income.** M.G.L. c. 62 § 4(a) sets three: 5% on Part B income and on
@@ -281,10 +307,17 @@ visible:
 | Illinois, single at $250,000 | 4.95% | **$141.12 on one dollar** — the exemption is a cliff, not a phase-out |
 | California, at a credit phase-out step | 9.3% | 9.3 cents **plus $6** of lost exemption credit |
 | New York, single at $130,000 | 6% | **7.14%** — the supplemental tax phases in underneath the rate |
+| Maryland, Frederick County at $150,000 of taxable income | 2.96% | **$360.03 on one dollar** — the county rate applies to the whole income, not the band |
+| Maryland, single at $350,000 of capital gain | 5.75% | **$6,933.08 on one dollar** — the 2% surtax threshold is a test, not a floor |
 
-Seven of the sixteen taxing states cut their rate for 2026, so an unsupported year is an
-error rather than a fallback to the nearest one — and seven of the 2026 state-years carry at
+Seven of the seventeen taxing states cut their rate for 2026, so an unsupported year is an
+error rather than a fallback to the nearest one — and eight of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
+
+Maryland is two income taxes rather than one. Every resident owes a **county** income tax of
+2.25% to 3.30% on the same taxable income the state taxes — a third to two fifths of the whole
+bill, and absent from every table of state rates. Pass `county`; leave it out and the result
+says what the cheapest and dearest counties would have cost that filer.
 
 ---
 
@@ -298,7 +331,7 @@ least one indexed figure forward from 2025, which every result says out loud.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City?" A state return for 25 states plus New York City and Yonkers, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, or Montgomery County?" A state and local return for 26 states plus New York City, Yonkers and all 24 Maryland counties, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -385,13 +418,14 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **26 states, the District of Columbia, and every local income tax outside New York.**
-  `state_income_tax` covers 25 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY, MA, MI, MS,
-  NC, NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and nothing else.
-  Ohio, Virginia, Maryland and Minnesota are absent, and asking for one is an error
-  rather than a zero. Local tax is New York City and Yonkers only: Indiana county taxes,
-  Pennsylvania municipal earned income taxes, Ohio municipalities, Detroit and Maryland
-  counties are not modelled, nor is part-year city residency. State earned income credits
+- **24 states, the District of Columbia, and every local income tax outside New York and
+  Maryland.** `state_income_tax` covers 26 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
+  MA, MD, MI, MS, NC, NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
+  nothing else. Ohio, Virginia and Minnesota are absent, and asking for one is an error
+  rather than a zero. Local tax is New York City, Yonkers and Maryland's 24 jurisdictions:
+  Indiana county taxes, Pennsylvania municipal earned income taxes, Ohio municipalities and
+  Detroit are not modelled, nor is part-year city residency, nor Maryland's local poverty
+  level credit. State earned income credits
   are modelled for the six states that set them as a share of the federal credit, and New
   York's Empire State child credit and California's Young Child Tax Credit from
   `dependentAges`; no other state child credit or retirement exclusion is, so a family or

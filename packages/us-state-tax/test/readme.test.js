@@ -36,23 +36,23 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 25 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 25);
+test('README: 26 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 26);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Five graduated, eleven flat, nine with none.
+  // Six graduated, eleven flat, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
   const flat = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind === 'flat');
-  assert.deepEqual(graduated, ['CA', 'ID', 'MS', 'NJ', 'NY']);
+  assert.deepEqual(graduated, ['CA', 'ID', 'MD', 'MS', 'NJ', 'NY']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
-  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 25);
-  // Sixteen taxing states — the count the README quotes when it says seven of
+  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 26);
+  // Seventeen taxing states — the count the README quotes when it says seven of
   // them cut their rate for 2026.
-  assert.equal(graduated.length + flat.length, 16);
+  assert.equal(graduated.length + flat.length, 17);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -355,10 +355,56 @@ test('README: the seven 2026 rate cuts, quoted exactly', () => {
   assert.deepEqual(nyRates(2025).slice(5), nyRates(2026).slice(5));
 });
 
+test('README: the Maryland quick-start and county figures', () => {
+  const md = stateIncomeTax({
+    state: 'MD',
+    year: 2025,
+    filingStatus: 'single',
+    county: 'Montgomery County',
+    federal: FEDERAL_2025,
+  });
+  assert.equal(md.tax, 4386.38);
+  assert.equal(md.localTaxes[0].tax, 2990.4);
+  assert.equal(md.totalTax, 7376.78);
+
+  const frederick = (taxableIncome) =>
+    stateIncomeTax({
+      state: 'MD',
+      year: 2025,
+      filingStatus: 'single',
+      county: 'Frederick',
+      federal: {
+        adjustedGrossIncome: taxableIncome + 3_350,
+        taxableIncome,
+        deduction: 0,
+        deductionKind: 'standard',
+      },
+    }).localTaxes[0].tax;
+  assert.equal(frederick(150_000), 4440);
+  assert.equal(frederick(150_001), 4800.03);
+  assert.equal(Math.round((frederick(150_001) - frederick(150_000)) * 100) / 100, 360.03);
+
+  const itemizer = stateIncomeTax({
+    state: 'MD',
+    year: 2025,
+    filingStatus: 'single',
+    county: 'Howard County',
+    stateItemizedDeductions: 40_000,
+    federal: {
+      adjustedGrossIncome: 300_000,
+      taxableIncome: 250_000,
+      deduction: 50_000,
+      deductionKind: 'itemized',
+    },
+  });
+  assert.equal(itemizer.deduction, 32_500);
+  assert.equal(itemizer.totalMarginalRate, 0.0962);
+});
+
 test('README: the provisional and published lists for 2026', () => {
   const byStatus = (status) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
-  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MI', 'UT']);
+  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MD', 'MI', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MA', 'MS', 'NC', 'NJ', 'NY', 'PA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
@@ -376,7 +422,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['OH', 'VA', 'MD', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
+  for (const state of ['OH', 'VA', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,

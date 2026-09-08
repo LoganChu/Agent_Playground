@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 25 states plus **New York City and Yonkers**, 2025 and 2026. Built around the part a table of state rates cannot hold: **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain — the only state here where the rate depends on the *kind* of income rather than the amount; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 26 states plus **New York City, Yonkers and all 24 Maryland counties**, 2025 and 2026. Built around the part a table of state rates cannot hold: **Maryland**, where every resident owes a county income tax of 2.25%–3.30% on the same taxable income — a third to two fifths of the whole bill, reported by no table of state rates — where Frederick County's bracket selects one rate that applies to the *whole* income so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents, where the county earned income credit is not stored but is ten times each county's own rate, and where the new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08; **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -186,6 +186,28 @@ and a child tax credit that is a staircase of five cliffs, each `$600` per step 
 of three young children and `$750` from 2026 under P.L. 2026, c.26. The thirteen subtraction
 constants New Jersey prints in its rate schedules — "multiply by `.05525` and subtract
 `$1,492.50`" — are derived here rather than transcribed.
+
+Maryland is the case where a rate table reports the *smaller* half of the answer. Every
+Maryland resident also owes a county income tax on the same taxable income:
+
+```js
+const md = stateIncomeTax({
+  state: 'MD', year: 2025, filingStatus: 'single', county: 'Montgomery County', federal,
+});
+
+md.tax;                 // 4386.38   Maryland State
+md.localTaxes[0].tax;   // 2990.40   Montgomery County — more than Arizona's whole state tax
+md.totalTax;            // 7376.78
+```
+
+Twenty-three counties and Baltimore City, each setting its own rate between the statutory
+floor of 2.25% and the ceiling of 3.30% — and two of them with more than one rate, only one
+of which is graduated. Frederick County's bracket picks a single rate that applies to the
+*whole* income, so a Frederick filer crossing $150,000 of taxable income pays $360.03 of tax
+on one dollar; the same dollar in Anne Arundel, whose rates are marginal, costs three cents.
+The county earned income credit is not a parameter at all: § 10-704(d) makes it ten times
+the county rate, so twenty-four counties have twenty-four different credits and every one of
+them follows its rate.
 
 It takes the output of `estimateFederalTax()` directly, but neither package depends on the
 other. See the [package README](packages/us-state-tax/README.md) for the full list of what
