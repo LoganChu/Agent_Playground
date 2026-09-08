@@ -869,28 +869,80 @@ test('state_income_tax carries the Maryland county, and refuses it elsewhere', (
     county: 'Fairfax County',
   });
   assert.equal(unknown.isError, true);
-  assert.match(unknown.content[0].text, /not a Maryland taxing jurisdiction/);
+  assert.match(unknown.content[0].text, /not a MD taxing jurisdiction/);
 
   // And a Maryland field on another state's return is an error, the same way
   // the New Jersey and Massachusetts fields are.
-  for (const field of ['county', 'netCapitalGain', 'stateItemizedDeductions']) {
+  for (const field of ['netCapitalGain', 'stateItemizedDeductions']) {
     const wrong = call('state_income_tax', {
       state: 'NY',
       filingStatus: 'single',
       federalAdjustedGrossIncome: 100_000,
       federalTaxableIncome: 84_250,
-      [field]: field === 'county' ? 'Montgomery County' : 10_000,
+      [field]: 10_000,
       ...(field === 'stateItemizedDeductions' ? { federalItemized: true } : {}),
     });
     assert.equal(wrong.isError, true, field);
     assert.match(wrong.content[0].text, new RegExp(`${field} only applies to MD`));
   }
+  // `county` belongs to two states now, so it is refused by naming them.
+  const wrongState = call('state_income_tax', {
+    state: 'NY',
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    county: 'Montgomery County',
+  });
+  assert.equal(wrongState.isError, true);
+  assert.match(wrongState.content[0].text, /county applies to a return in IN or MD/);
 
   // Omitting the county is answerable but incomplete, and the result says what
   // the two ends of the range would have cost.
   const stateOnly = md({});
   assert.equal(stateOnly.structured.state.localTaxes.length, 0);
   assert.ok(stateOnly.structured.state.notes.some((n) => n.startsWith('No county was supplied')));
+});
+
+test('state_income_tax carries the Indiana county, on the same figure as the state', () => {
+  const inCounty = (county, year = 2025) =>
+    ok('state_income_tax', {
+      state: 'IN',
+      filingStatus: 'single',
+      year,
+      federalAdjustedGrossIncome: 60_000,
+      federalTaxableIncome: 44_250,
+      federalDeduction: 15_750,
+      ...(county ? { county } : {}),
+    }).structured.state;
+
+  const marion = inCounty('Marion');
+  assert.equal(marion.tax, 1770);
+  assert.equal(marion.localTaxes[0].tax, 1191.8);
+  assert.equal(marion.localTaxes[0].baseAmount, 59_000, 'CT-40 line 1 is IT-40 line 7');
+  assert.equal(marion.totalTax, 2961.8);
+
+  // From 2026 a Randolph County filer pays their county more than their state.
+  const randolph = inCounty('Randolph County', 2026);
+  assert.ok(randolph.localTaxes[0].tax > randolph.tax);
+
+  // Omitting it is answerable but incomplete, and the note says what the range
+  // costs this filer.
+  const stateOnly = inCounty(null);
+  assert.equal(stateOnly.localTaxes.length, 0);
+  const note = stateOnly.notes.find((n) => n.startsWith('No county was supplied'));
+  assert.ok(note && note.includes('all 92'), note);
+
+  // Montgomery County is in both states and the state decides the table.
+  const md = ok('state_income_tax', {
+    state: 'MD',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 60_000,
+    federalTaxableIncome: 44_250,
+    federalDeduction: 15_750,
+    county: 'Montgomery',
+  }).structured.state;
+  assert.notEqual(md.localTaxes[0].tax, inCounty('Montgomery').localTaxes[0].tax);
 });
 
 test('state_income_tax computes the Maryland surtax cliff and the Frederick rate step', () => {

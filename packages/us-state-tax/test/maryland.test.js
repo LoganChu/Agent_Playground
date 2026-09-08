@@ -475,7 +475,7 @@ test('county names are matched loosely, except where the answer would differ', (
   assert.equal(marylandCounty('Baltimore City', 2025).code, 'Baltimore City');
   assert.equal(marylandCounty('Baltimore County', 2025).code, 'Baltimore County');
   // An unknown name lists the twenty-four rather than returning zero.
-  assert.throws(() => marylandCounty('Fairfax County', 2025), /not a Maryland taxing jurisdiction/);
+  assert.throws(() => marylandCounty('Fairfax County', 2025), /not a MD taxing jurisdiction/);
   assert.throws(() => marylandCounty('Fairfax County', 2025), /Worcester County/);
   assert.throws(() => marylandCounty('Montgomery', 2024), /2025 and 2026/);
 });
@@ -483,7 +483,7 @@ test('county names are matched loosely, except where the answer would differ', (
 test('a county on a return that is not Maryland is an error', () => {
   assert.throws(
     () => stateIncomeTax({ state: 'NY', year: 2025, filingStatus: 'single', federal: federal(80_000), county: 'Montgomery County' }),
-    /county applies to a Maryland return/,
+    /county applies to a return in IN or MD/,
   );
   // And the locality codes say where the counties went.
   assert.throws(

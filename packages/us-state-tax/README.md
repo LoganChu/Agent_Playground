@@ -1,9 +1,10 @@
 # us-state-tax
 
 US **state and local** individual income tax for tax years **2025 and 2026**, across **26
-states** including **New York**, **New Jersey**, **Massachusetts** and — new in 0.8.0 —
-**Maryland**, plus **New York City**, **Yonkers** and all **24 Maryland counties**.
-Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+states** including **New York**, **New Jersey**, **Massachusetts** and **Maryland**, plus
+**116 local income taxes**: New York City, Yonkers, all 24 Maryland jurisdictions and — new
+in 0.9.0 — all **92 Indiana counties**. Dependency-free, MIT, ESM and CommonJS, TypeScript
+types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -556,6 +557,49 @@ adding the two published percentages to get 95% is wrong by roughly the whole st
 For an unmarried childless filer the match is **100%** and it is paid in full — the largest
 state match of the federal childless credit in the country.
 
+### Indiana's county tax is 39% of the bill, and it is charged on the same line
+
+Indiana's state rate is 3.00% in 2025 and 2.95% in 2026. The average county rate is
+**1.914%** of the same figure — IT-40 line 7, after the same deductions and the same `$1,000`
+exemptions — so about two fifths of an Indiana income tax bill is levied by a county.
+
+```js
+const inCounty = (county) => stateIncomeTax({
+  state: 'IN', year: 2025, filingStatus: 'single', county,
+  federal: { adjustedGrossIncome: 60_000, taxableIncome: 44_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+inCounty('Marion').tax;                 // 1770.00   the state, at 3%
+inCounty('Marion').localTaxes[0].tax;   // 1191.80   Marion County, at 2.02%
+inCounty('Porter').localTaxes[0].tax;   //  295.00   0.5%, the lowest in the state
+inCounty('Randolph').localTaxes[0].tax; // 1770.00   3.00%, the statutory maximum
+```
+
+Randolph County's rate is exactly the state's — and from 2026, when the state rate falls to
+2.95%, **a Randolph County filer pays their county more than their state.** Porter County's
+is one sixth of it, on the same income.
+
+**Six counties raised their rate for 2026, in the same year the state cut its own.** Carroll,
+Grant, Greene, Howard, Shelby and Union all moved on 1 January 2026, by 0.10 to 0.75 points,
+against a state cut of 0.05. For a Union County filer with `$59,000` of Indiana taxable
+income the state cut is worth `$29.50` and the county rise costs `$442.50`: their total bill
+went **up 14%** in a tax-cut year.
+
+Two rules a rate table cannot express, and this package models both:
+
+- **The county is the one the filer lived in on 1 January**, for the whole year. Moving in
+  February changes nothing until the next return.
+- **A county rate can change on 1 October as well as on 1 January**, and the Department of
+  Revenue revises the withholding notice when it does — so the rate withheld and the rate
+  the return settles at can be different numbers. This package stores the 1 January rate,
+  which is the one the annual return uses.
+
+Four counties have rates with more than four decimal places — Brown 2.5234%, Carroll 2.2733%,
+Jasper 2.8640%, Whitley 1.6829% — because an Indiana county rate is assembled from separate
+expenditure, public safety, economic development and property tax relief components under
+IC 6-3.6. A rate nobody would choose is a rate that was computed.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -627,12 +671,14 @@ hides its gaps is worse than useless:
   interest and dividend income, and the order in which short-term and long-term losses are
   applied against each other, are not computed. Nor is the senior circuit breaker credit,
   which is the largest credit on many Massachusetts retirees' returns.
-- **Local income tax in New York and Maryland only.** New York City and Yonkers are
-  computed from `locality`; all 23 Maryland counties and Baltimore City from `county`.
-  Every Indiana county, most Pennsylvania municipalities and school districts, Detroit and
-  23 other Michigan cities, Ohio's municipalities and Kentucky's occupational taxes are
-  not, and for an Indiana or Pennsylvania filer the local tax is a large fraction of the
-  bill. Nor is part-year city residency, the New York City child and dependent care
+- **Local income tax in New York, Maryland and Indiana only.** New York City and Yonkers
+  are computed from `locality`; all 23 Maryland counties and Baltimore City, and all 92
+  Indiana counties, from `county`. Most Pennsylvania municipalities and school districts,
+  Detroit and 23 other Michigan cities, Ohio's municipalities and Kentucky's occupational
+  taxes are not, and for a Pennsylvania or Ohio filer the local tax is a large fraction of
+  the bill. Indiana's nonresident and part-year county tax (Schedule CT-40PNR), which
+  apportions by where the income was earned rather than where the filer lived, is not
+  modelled either. Nor is part-year city residency, the New York City child and dependent care
   credit, or Maryland's local poverty level credit and Montgomery County's own refundable
   earned income supplement.
 - **Maryland's pension exclusion is not computed.** Up to `$41,200` for a filer aged 65 or

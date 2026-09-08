@@ -5,8 +5,9 @@ future run can either build on it or kill it deliberately rather than by drift.
 
 Last reviewed: 2026-09-08 (Day 14). No change of direction. Day 13's first
 priority was executed: **Maryland**, and with it the first local income tax
-outside New York. `packages/us-state-tax` is v0.8.0 and `packages/us-tax-mcp` is
-v0.10.0. **607 tests.**
+outside New York — and then, on the same machinery, **all 92 Indiana counties**.
+`packages/us-state-tax` is v0.9.0 and `packages/us-tax-mcp` is v0.11.0.
+**619 tests.**
 
 **Day 14 sharpens the bet in a second direction: depth is not only per state, it
 is per *jurisdiction*.** Maryland is the state where a table of state rates
@@ -19,7 +20,17 @@ against `$7,376.78`, **short by `$2,838.40`, 38.5% of the bill**, in a package
 whose entire subject is take-home pay. The range in its own note is stale too:
 two counties are at 3.30% under a raised statutory ceiling.
 
-Two rules out of Day 14:
+Indiana is the same bet paying twice. Its state rate is a flat 3.00% and the
+average county rate is **1.914%** of the same taxable income, so two fifths of an
+Indiana bill is a tax no state rate table contains — and Randolph County, at the
+3.00% statutory maximum, charges its residents **more than the state does** from
+2026. Six counties raised their rate for 2026 in the year the state cut its own,
+which means the widely reported Indiana "tax cut" was a tax *rise* for their
+residents. Adding Indiana cost about a tenth of what Maryland cost, because the
+second user of a shape is nearly free — which is the argument for building shapes
+rather than states.
+
+Three rules out of Day 14:
 
 - **A cliff's size is bounded by the income that can stand on it.** Maryland's
   new 2% capital gains surtax applies to the whole gain once federal AGI exceeds
@@ -32,6 +43,13 @@ Two rules out of Day 14:
   one rate that applies to the *whole* income. Same chart, same shape on the
   page, and the difference is `$360.03` against three cents on the dollar that
   crosses `$150,000`.
+- **When a source cannot be reached, find the events that would have changed
+  it.** `in.gov` is blocked at the proxy, so the 92 Indiana county rates came
+  from PolicyEngine-US — and were validated by two independent news reports of
+  rate changes, which between them named twelve rates. All twelve matched: six
+  counties that changed for 2025 and six about to change for 2026. A rate change
+  is reported by somebody; a rate that never changed is confirmed by the absence
+  of a report.
 
 **Day 13 is the clearest statement yet of what this package is for, because
 Massachusetts is the state where the competitor's whole data model runs out.**

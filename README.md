@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 26 states plus **New York City, Yonkers and all 24 Maryland counties**, 2025 and 2026. Built around the part a table of state rates cannot hold: **Maryland**, where every resident owes a county income tax of 2.25%–3.30% on the same taxable income — a third to two fifths of the whole bill, reported by no table of state rates — where Frederick County's bracket selects one rate that applies to the *whole* income so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents, where the county earned income credit is not stored but is ten times each county's own rate, and where the new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08; **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 26 states and **116 local income taxes** — New York City, Yonkers, all 24 Maryland jurisdictions and all 92 Indiana counties — 2025 and 2026. Built around the part a table of state rates cannot hold: **Indiana**, where the average county rate is 1.914% against a state rate of 3.00%, so two fifths of the bill is levied by a county — Randolph County at the 3.00% statutory maximum charges more than the state does from 2026, Porter County charges one sixth of that, and six counties raised their rate for 2026 in the year the state cut its own; **Maryland**, where every resident owes a county income tax of 2.25%–3.30% on the same taxable income — a third to two fifths of the whole bill, reported by no table of state rates — where Frederick County's bracket selects one rate that applies to the *whole* income so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents, where the county earned income credit is not stored but is ten times each county's own rate, and where the new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08; **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -208,6 +208,26 @@ on one dollar; the same dollar in Anne Arundel, whose rates are marginal, costs 
 The county earned income credit is not a parameter at all: § 10-704(d) makes it ten times
 the county rate, so twenty-four counties have twenty-four different credits and every one of
 them follows its rate.
+
+Indiana is the same lesson in a state nobody thinks of as complicated. Its rate is a flat
+3.00% (2.95% in 2026) — and all 92 counties levy their own tax on the same line of the same
+return:
+
+```js
+const marion = stateIncomeTax({
+  state: 'IN', year: 2025, filingStatus: 'single', county: 'Marion',
+  federal: { adjustedGrossIncome: 60_000, taxableIncome: 44_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+marion.tax;                 // 1770.00   the state
+marion.localTaxes[0].tax;   // 1191.80   Marion County — 40% of the bill
+```
+
+The average county rate is 1.914%, the spread is six to one — Porter County 0.5%, Randolph
+County 3.00% — and from 2026 a Randolph County filer pays their county more than their
+state, because the state rate fell to 2.95% and the county's is the statutory maximum. Six
+counties raised their rate for 2026 in the same year the state cut its own.
 
 It takes the output of `estimateFederalTax()` directly, but neither package depends on the
 other. See the [package README](packages/us-state-tax/README.md) for the full list of what

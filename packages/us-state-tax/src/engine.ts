@@ -19,7 +19,7 @@ import {
 } from './localities/engine.js';
 import type { StateFigures } from './localities/engine.js';
 import { getLocalityDefinition, localityState } from './localities/index.js';
-import { marylandCounty } from './localities/maryland.js';
+import { countiesFor, countyDefinition } from './localities/counties.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
 import type {
   Bracket,
@@ -1120,14 +1120,9 @@ function localTaxesFor(
   }
 
   if (input.county !== undefined) {
-    if (input.state !== 'MD') {
-      throw new RangeError(
-        `county applies to a Maryland return; state is ${input.state}. Maryland's 23 counties ` +
-          `and Baltimore City each levy their own income tax on Maryland taxable income. The ` +
-          `local income taxes of Indiana, Michigan, Ohio and Kentucky are not modelled here.`,
-      );
-    }
-    const def = marylandCounty(input.county, input.year);
+    // The state decides which table the name is looked up in, and a state with no
+    // county income tax at all is an error naming the two that have one.
+    const def = countyDefinition(input.state, input.county, input.year);
     const computed = computeLocalResidentTax(def, input, stateFigures(here));
     const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher));
     out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
@@ -1277,33 +1272,32 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `$${Math.round(rule.perFilerCap / 0.0765).toLocaleString('en-US')} of wages per filer.`,
     );
   }
-  if (input.state === 'MD' && input.county === undefined) {
+  const counties = input.county === undefined ? countiesFor(input.state, input.year) : [];
+  if (counties.length > 0) {
     // Stronger than the New York note below, because the omission is worse. Every
-    // Maryland resident owes a county tax; only 43% of New Yorkers owe a city
-    // one. So this quantifies both ends of the range, run through the same
-    // engine on this filer's own figures.
-    const cheapest = computeLocalResidentTax(
-      marylandCounty('Worcester County', input.year),
-      input,
-      stateFigures(here),
-    ).tax;
-    const dearest = computeLocalResidentTax(
-      marylandCounty('Dorchester County', input.year),
-      input,
-      stateFigures(here),
-    ).tax;
+    // Maryland and every Indiana resident owes a county tax; only 43% of New
+    // Yorkers owe a city one. So this quantifies both ends of the range, run
+    // through the same engine on this filer's own figures rather than quoted from
+    // a rate chart.
+    const costs = counties
+      .map((county) => ({
+        name: county.name,
+        tax: computeLocalResidentTax(county, input, stateFigures(here)).tax,
+      }))
+      .sort((a, b) => a.tax - b.tax);
+    const cheapest = costs[0]!;
+    const dearest = costs[costs.length - 1]!;
     const shown = (value: number) =>
       roundCents(value).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
     dynamic.push(
-      `No county was supplied, so this is the Maryland STATE tax alone, and no Maryland ` +
-        `resident pays only that. The county income tax is charged on the same taxable income ` +
-        `at 2.25% to 3.30%, and for this filer it is $${shown(cheapest)} in Worcester County and ` +
-        `$${shown(dearest)} in Dorchester County — pass county: 'Montgomery County' or whichever ` +
-        `applies. Anne Arundel and Frederick have more than one rate, and Frederick's is a rate ` +
-        `on the whole income rather than a bracket schedule.`,
+      `No county was supplied, so this is the ${def.name} STATE tax alone, and no ` +
+        `${def.name} resident pays only that: all ${counties.length} of its jurisdictions levy a ` +
+        `county income tax on the same taxable income. For this filer it runs from ` +
+        `$${shown(cheapest.tax)} (${cheapest.name}) to $${shown(dearest.tax)} ` +
+        `(${dearest.name}) — pass the county the filer lived in on 1 January.`,
     );
   }
   if (input.state === 'NY' && input.locality === undefined) {

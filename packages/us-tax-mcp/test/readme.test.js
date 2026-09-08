@@ -472,6 +472,26 @@ test('README: the state coverage claims are the ones the engine actually holds',
   assert.match(co.addBacks[0].name, /overtime/i);
 });
 
+test('README: the Indiana county figures', () => {
+  const inCounty = (county, year = 2025) =>
+    stateIncomeTax({
+      state: 'IN',
+      year,
+      filingStatus: 'single',
+      county,
+      federal: stateFed(60_000, 44_250, 15_750),
+    });
+  quotes('the average county rate is **1.914%**');
+  quotesAcrossLines('Porter County\ncharges 0.5% and **Randolph County charges 3.00%**');
+  const randolph = inCounty('Randolph', 2026);
+  assert.ok(randolph.localTaxes[0].tax > randolph.tax);
+  const union2025 = inCounty('Union');
+  const union2026 = inCounty('Union', 2026);
+  assert.equal(union2025.tax - union2026.tax, 29.5);
+  assert.equal(union2026.localTaxes[0].tax - union2025.localTaxes[0].tax, 442.5);
+  assert.ok(union2026.totalTax / union2025.totalTax > 1.13);
+});
+
 test('README: the Maryland county figures', () => {
   const md = (extra) =>
     stateIncomeTax({

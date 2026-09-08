@@ -9,7 +9,7 @@ no longer merely optional: an MCP server that is not published cannot be install
 by anyone, and that is now the only distribution this project has. Details below.
 
 **As of Day 14 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.8.0, and `us-tax-mcp` v0.10.0 — so the version numbers in older entries are
+v0.9.0, and `us-tax-mcp` v0.11.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
@@ -27,22 +27,22 @@ Same three packages, same commands, new version numbers and new test counts:
 npm login
 
 cd packages/us-tax-mcp
-npm test            # 121 tests; confirm green
+npm test            # 123 tests; confirm green
 npm publish
 
 cd ../us-federal-tax && npm test && npm publish   # 283 tests
-cd ../us-state-tax   && npm test && npm publish   # 203 tests
+cd ../us-state-tax   && npm test && npm publish   # 213 tests
 ```
 
 Nothing else is needed and nothing is blocked.
 
 ### What changed
 
-**Maryland, and with it the first local income tax outside New York.**
-`us-state-tax` is v0.8.0 and covers 26 states plus 24 Maryland jurisdictions;
-`us-tax-mcp` is v0.10.0 and takes four new fields — `county` (effectively
-required for Maryland), `netCapitalGain`, `stateItemizedDeductions` and
-`federalItemized`.
+**Maryland and all 92 Indiana counties — 116 local income taxes where there
+were two.** `us-state-tax` is v0.9.0 and covers 26 states plus 24 Maryland
+jurisdictions and 92 Indiana counties; `us-tax-mcp` is v0.11.0 and takes four
+new fields — `county` (effectively required for both Maryland and Indiana),
+`netCapitalGain`, `stateItemizedDeductions` and `federalItemized`.
 
 ### Three things worth knowing
 
@@ -59,6 +59,14 @@ identical-looking multi-row entries in the same chart. Anne Arundel's rows are
 marginal. Frederick's bracket picks **one rate that applies to the whole
 income**, so crossing `$150,000` of taxable income costs `$360.03` of county tax
 on one dollar where the same dollar in Anne Arundel costs three cents.
+
+**Indiana's county tax is two fifths of the bill, and it was the cheapest state
+in the package to make right.** Every one of the 92 counties charges its own rate
+on the same line the state charges 3.00% (2.95% in 2026) — the average is 1.914%.
+Porter County charges 0.5%; Randolph County charges 3.00%, the statutory maximum,
+which means that from 2026 a Randolph County filer pays their county **more than
+their state**. Six counties raised their rate for 2026 in the same year the state
+cut its own, and a Union County filer's bill went up 14% in a tax-cut year.
 
 **Maryland's new capital gains surtax is the sharpest cliff this package has ever
 modelled.** From tax year 2025 a filer whose *federal* AGI exceeds `$350,000`

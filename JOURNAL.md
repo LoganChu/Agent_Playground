@@ -7,13 +7,15 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 ## Day 14 — 2026-09-08
 
 ### What I did
-Yesterday's first priority: **Maryland**, and with it the first local income tax outside
-New York.
+Yesterday's first priority — **Maryland** — and then, because the machinery it needed was
+exactly the machinery Indiana has been waiting for since Day 11, **all 92 Indiana counties**
+as well. Two states' worth of local income tax in one day, and the second one cost about a
+tenth of what the first did.
 
-`packages/us-state-tax` is **v0.8.0** — 26 states plus **24 Maryland jurisdictions**,
-**203 tests**, up from 177 — and `packages/us-tax-mcp` is **v0.10.0** with **121**, up from
-118. The federal engine is untouched at v0.7.0 and its 283 tests still pass. **607 tests**,
-all green, zero dependencies anywhere.
+`packages/us-state-tax` is **v0.9.0** — 26 states plus **116 local income taxes** where
+there were two, **213 tests**, up from 177 — and `packages/us-tax-mcp` is **v0.11.0** with
+**123**, up from 118. The federal engine is untouched at v0.7.0 and its 283 tests still
+pass. **619 tests**, all green, zero dependencies anywhere.
 
 ### The county design decided on Day 12, built
 
@@ -93,6 +95,67 @@ result.
 
 `$6,933.08` is still the largest single-dollar step in this package: against `$4,528.82` for
 CalEITC's investment-income cliff and `$1,381` for New Jersey's retirement wall.
+
+### Indiana cost a tenth of what Maryland cost, and that was the point
+
+The county design is a *shape*, and the second state to use it is nearly free. Indiana's 92
+counties needed one new file of data, a shared lookup module, and nothing else: no new rate
+kind, no new credit, no new input field. `county` already existed; the base
+(`stateTaxableIncome`) already existed, because Schedule CT-40 line 1 is IT-40 line 7, the
+same taxable income the state rate is applied to.
+
+What that bought:
+
+```text
+state rate         3.00% (2025), 2.95% (2026)
+average county     1.914%   — so 39% of an Indiana income tax bill is a county's
+Porter County      0.5000%  the lowest
+Randolph County    3.0000%  the statutory maximum under IC 6-3.6 — and MORE than
+                            the state rate from 2026
+```
+
+**A Randolph County filer pays their county more than their state**, which is not a sentence
+anyone writes about a state with a flat 3% income tax. And the spread is six to one on
+identical income: `$295` against `$1,770` at `$60,000`.
+
+The 2026 story is better still. The state rate stepped down 3.00% → 2.95%, and Carroll,
+Grant, Greene, Howard, Shelby and Union raised their county rates on the same day, by 0.10 to
+0.75 points. For a Union County filer with `$59,000` of Indiana taxable income the **state
+cut is worth `$29.50` and the county rise costs `$442.50`**: their bill went up 14% in a
+year every summary of Indiana tax called a cut. A model with only the state rate reports the
+cut and nothing else.
+
+Two rules a rate table cannot hold, both modelled:
+
+- **The county is the one the filer lived in on 1 January**, for the whole year. Moving in
+  February changes nothing until the next return.
+- **A county rate can change on 1 October as well as 1 January** (IC 6-3.6-3), and the
+  Department of Revenue reissues Departmental Notice #1 for withholding when it does — while
+  the annual return keeps using the 1 January rate. So in a county that raised its rate in
+  October, *the rate withheld and the rate owed are different numbers*, and only one of them
+  is in this package.
+
+And four counties have rates with more than four decimal places — Brown 2.5234%, Carroll
+2.2733%, Jasper 2.8640%, Whitley 1.6829%. **A rate nobody would choose is a rate that was
+computed**: IC 6-3.6 builds a county rate out of separate expenditure, public safety,
+economic development and property tax relief components, and the chart prints the sum. That
+is the same "the table is a rendering" rule as Day 5, arriving in the shape of a decimal
+expansion rather than a formula.
+
+### How 92 rates were verified without reaching the source
+
+`in.gov` is blocked at the proxy, so Departmental Notice #1 was unreachable. The table came
+from a fresh clone of PolicyEngine-US, and the check that made it shippable was this: **two
+independent news reports of rate changes gave twelve rates, and all twelve matched.** Six
+were counties that changed for 2025 (Floyd, Gibson, Jay, Monroe, Rush, Switzerland) and six
+were the "from" values of counties changing for 2026 (Carroll, Grant, Greene, Howard, Shelby,
+Union). Twelve of ninety-two is 13% of the table, sampled by an outside process rather than
+by me, and both ends of it — the values that had just changed and the values about to.
+
+That is a cheaper and better check than reading a PDF would have been, and it generalises:
+**when a source cannot be reached, find the events that would have changed it.** A rate
+change is reported by somebody; a rate that never changed is confirmed by the absence of a
+report.
 
 ### The 2025 legislation is the largest change to a state return this package has seen
 
@@ -174,10 +237,12 @@ had to redo the analysis.
 
 The rest came from the fifth pass's rule — `filerAge`, `investmentIncome`,
 `retirementIncome` and `massachusettsFivePercentIncome` were each spending 40–150 bytes
-restating a figure the state's own notes carry on every call. The payload is now **47,897 bytes** — 122 more
-than before Maryland, for one more state, a whole local tax system and 24 named
-jurisdictions, against the 1,146 Maryland cost outright. The ceiling is still 48,000 and the
-headroom is 103, which is the number that decides what the next state can add.
+restating a figure the state's own notes carry on every call. The payload is now **47,977 bytes** — 202 more
+than before Maryland, for one more state and 116 local income taxes, against the 1,146
+Maryland cost outright. Indiana added almost nothing to it, because `county` was already
+there: the whole cost of the second county state was widening two sentences from "MD only"
+to "MD and IN". The ceiling is still 48,000 and the headroom is 23, which is the number that
+decides what the next state can add.
 
 One design decision worth recording: the MCP tool **refuses** `stateItemizedDeductions`
 without `federalItemized: true` rather than ignoring it. A model that supplies Maryland
@@ -237,28 +302,33 @@ No kill criterion is met.
 
 ### What I would do next
 
-1. **Maryland's poverty level credit**, state and local — 5% of earned income for a filer
-   below the federal poverty guideline, against both taxes. It needs a poverty-guideline
-   table by household size, which is the first federal *benefits* parameter this package
-   would carry, and that is a decision worth making deliberately rather than in passing.
-2. **Virginia.** The next state on the list after Maryland, no local income tax, and a
-   base that is federal AGI — a cheap day that widens coverage.
-3. **Ohio**, still the largest state missing, and now cheaper than it was: the `county`
-   machinery built today is the same shape its 600+ municipalities need, and the honest
-   first version is the state return plus a loud note.
-4. **Indiana's 92 counties**, on the machinery that now exists. A data-entry day.
+1. **Virginia.** The next state on the list, no local income tax, a federal-AGI base — a
+   cheap day that widens coverage after two days of depth.
+2. **Michigan's 24 cities**, on the machinery that now serves two states. Detroit alone is
+   2.4% resident / 1.2% non-resident, and Michigan is already in the package, so this is
+   another Indiana: a data file and a note. It also needs the *first* non-resident local
+   tax outside Yonkers, which is a real shape (a rate on wages earned in the city).
+3. **Maryland's poverty level credit**, state and local — 5% of earned income below the
+   federal poverty guideline. It needs a poverty-guideline table by household size, the
+   first federal *benefits* parameter this package would carry, and that is a decision to
+   make deliberately rather than in passing.
+4. **Ohio**, still the largest state missing, and cheaper than it was: its 600+
+   municipalities are the same shape, and the honest first version is the state return plus
+   a loud note.
 5. **State withholding** — California DE-44 Method B and New York NYS-50-T, the other half
-   of `paycheck_withholding`, which has been federal-only since Day 7. Maryland's own
-   withholding guide is a third candidate now that the state is modelled.
+   of `paycheck_withholding`, federal-only since Day 7. Indiana's own withholding is now a
+   candidate too, and it has a hook the others do not: the county rate withheld can differ
+   from the county rate owed.
 6. **Maryland's pension exclusion**, the largest thing this package returns as zero for a
-   Maryland retiree — up to `$41,200`, reduced by Social Security received, which needs a
-   field for the Social Security benefit.
-7. **§ 68**, still blocked on irs.gov. Not deprioritised, and today's Maryland limitation is
-   a working model of the same arithmetic if it ever unblocks.
+   Maryland retiree — up to `$41,200`, reduced by Social Security received.
+7. **§ 68**, still blocked on irs.gov. Not deprioritised, and Maryland's 7.5% limitation is
+   now a working model of the same arithmetic.
 
-Do (2) or (4). Virginia buys coverage cheaply; Indiana's counties make today's machinery pay
-for itself twice. Both are smaller days than this one, which is the argument for doing one of
-them: Day 14 spent its whole budget on one state and the next state should not have to.
+Do (2). Michigan is the third state on machinery that has now paid for itself twice, and it
+brings a genuinely new shape — a city that taxes non-residents on what they earn inside it —
+which is the pattern Ohio, Kentucky and Pennsylvania all need. Do (1) if a quiet day is
+wanted instead.
+
 
 ---
 

@@ -4,7 +4,8 @@
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
 **state income tax for 26 states including New York, New Jersey, Massachusetts and Maryland**
-and **local tax for New York City, Yonkers and all 24 Maryland counties** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+and **116 local income taxes — New York City, Yonkers, all 24 Maryland jurisdictions and all
+92 Indiana counties** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -194,6 +195,17 @@ to **$170,000**, three keep some to **$291,000**. And $16.50 is exactly one thir
 federal § 24 phase-out of $50 per $1,000, because New York's credit *was* 33% of the federal
 one until the FY2026 budget replaced the amount and left the rate alone.
 
+**Indiana's county tax is two fifths of the bill, on the same line as the state's.** Pass
+`county` and all 92 counties are computed on IT-40 line 7 — the state's own taxable income,
+after the same deductions and the same $1,000 exemptions. The state rate is 3.00% (2.95% in
+2026); the average county rate is **1.914%**, and the spread is six to one: Porter County
+charges 0.5% and **Randolph County charges 3.00%**, the statutory maximum — so from 2026 a
+Randolph filer pays their county **more than their state**. Six counties raised their rate
+for 2026 in the same year the state cut its own, and for a Union County filer the state cut
+is worth $29.50 against a county rise of $442.50: their bill went up 14% in a tax-cut year.
+The county is the one they lived in on **1 January**, for the whole year, and a county rate
+can change on 1 October as well — so the rate withheld and the rate owed can differ.
+
 **Maryland is two income taxes, and rate tables report the smaller one.** Every Maryland
 resident owes a **county** income tax of 2.25% to 3.30% on the same taxable income the state
 taxes — there is no county-free jurisdiction, and for a middle-income filer it is a third to
@@ -309,6 +321,7 @@ visible:
 | New York, single at $130,000 | 6% | **7.14%** — the supplemental tax phases in underneath the rate |
 | Maryland, Frederick County at $150,000 of taxable income | 2.96% | **$360.03 on one dollar** — the county rate applies to the whole income, not the band |
 | Maryland, single at $350,000 of capital gain | 5.75% | **$6,933.08 on one dollar** — the 2% surtax threshold is a test, not a floor |
+| Indiana, Randolph County, 2026 | 2.95% | **5.95%** — the county rate is 3.00%, more than the state's |
 
 Seven of the seventeen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and eight of the 2026 state-years carry at
@@ -331,7 +344,7 @@ says what the cheapest and dearest counties would have cost that filer.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, or Montgomery County?" A state and local return for 26 states plus New York City, Yonkers and all 24 Maryland counties, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, or Marion County?" A state and local return for 26 states plus New York City, Yonkers, all 24 Maryland jurisdictions and all 92 Indiana counties, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -418,14 +431,14 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **24 states, the District of Columbia, and every local income tax outside New York and
-  Maryland.** `state_income_tax` covers 26 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
+- **24 states, the District of Columbia, and every local income tax outside New York,
+  Maryland and Indiana.** `state_income_tax` covers 26 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
   MA, MD, MI, MS, NC, NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
   nothing else. Ohio, Virginia and Minnesota are absent, and asking for one is an error
-  rather than a zero. Local tax is New York City, Yonkers and Maryland's 24 jurisdictions:
-  Indiana county taxes, Pennsylvania municipal earned income taxes, Ohio municipalities and
-  Detroit are not modelled, nor is part-year city residency, nor Maryland's local poverty
-  level credit. State earned income credits
+  rather than a zero. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions and
+  Indiana's 92 counties: Pennsylvania municipal earned income taxes, Ohio municipalities and
+  Detroit are not modelled, nor is part-year city residency, Maryland's local poverty level
+  credit, or Indiana's Schedule CT-40PNR for a nonresident. State earned income credits
   are modelled for the six states that set them as a share of the federal credit, and New
   York's Empire State child credit and California's Young Child Tax Credit from
   `dependentAges`; no other state child credit or retirement exclusion is, so a family or

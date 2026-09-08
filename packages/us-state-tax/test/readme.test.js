@@ -401,6 +401,35 @@ test('README: the Maryland quick-start and county figures', () => {
   assert.equal(itemizer.totalMarginalRate, 0.0962);
 });
 
+test('README: the Indiana county figures', () => {
+  const inCounty = (county, year = 2025) =>
+    stateIncomeTax({
+      state: 'IN',
+      year,
+      filingStatus: 'single',
+      county,
+      federal: {
+        adjustedGrossIncome: 60_000,
+        taxableIncome: 44_250,
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+    });
+  assert.equal(inCounty('Marion').tax, 1770);
+  assert.equal(inCounty('Marion').localTaxes[0].tax, 1191.8);
+  assert.equal(inCounty('Porter').localTaxes[0].tax, 295);
+  assert.equal(inCounty('Randolph').localTaxes[0].tax, 1770);
+  // From 2026 the county tax exceeds the state tax in Randolph County.
+  const randolph = inCounty('Randolph', 2026);
+  assert.ok(randolph.localTaxes[0].tax > randolph.tax);
+  // Union County: the state cut is worth $30 and the county rise costs $450.
+  const union2025 = inCounty('Union');
+  const union2026 = inCounty('Union', 2026);
+  assert.equal(union2025.tax - union2026.tax, 29.5);
+  assert.equal(union2026.localTaxes[0].tax - union2025.localTaxes[0].tax, 442.5);
+  assert.ok(union2026.totalTax / union2025.totalTax > 1.13);
+});
+
 test('README: the provisional and published lists for 2026', () => {
   const byStatus = (status) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);

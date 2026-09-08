@@ -51,7 +51,7 @@ import {
   statusLabel,
 } from './format.js';
 import {
-  MARYLAND_COUNTIES,
+  COUNTY_TAX_STATES,
   SUPPORTED_LOCALITIES as LOCALITY_CODES,
   SUPPORTED_STATES as STATE_CODES,
   SUPPORTED_YEARS as STATE_YEARS,
@@ -1061,18 +1061,19 @@ const stateTool: ToolDefinition = {
   title: 'State income tax',
   description:
     'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 26 states plus NEW YORK ' +
-    'CITY, YONKERS and all 24 MARYLAND counties. Call estimate_federal_tax FIRST and pass its ' +
+    'CITY, YONKERS, all 24 MARYLAND jurisdictions and all 92 INDIANA counties. Call estimate_federal_tax ' +
+    'FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a state ' +
-    'starts from decides the answer. Five states need more than that. NY: pass locality. MD: pass county — ' +
-    'every Maryland resident owes one and it is a third to two fifths of the bill — plus netCapitalGain and ' +
-    'stateItemizedDeductions. CA: pass earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
+    'starts from decides the answer. Six states need more than that. NY: pass locality. MD and IN: pass ' +
+    'county — every resident of both owes one and it is two fifths of the bill — plus, in MD, netCapitalGain ' +
+    'and stateItemizedDeductions. CA: pass earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
     'REQUIRED, plus filerAge and retirementIncome over 62. MA: massachusettsFivePercentIncome is REQUIRED ' +
     'and is NOT federal AGI, plus shortTermCapitalGains and collectiblesGains, taxed at 8.5% and 12% rather ' +
     'than the 5% every rate table reports. Reports the true marginal rate by rerunning the whole return a ' +
     'dollar higher, which is not the statutory rate wherever a credit phases out or a cliff bites. Every ' +
     'result carries that state\'s own notes and statutes, so the conformity detail arrives with the answer ' +
-    'rather than here. Does NOT cover a state outside the enum, local tax outside New York and Maryland, or ' +
-    'state withholding. An unlisted state is an error, not a zero.',
+    'rather than here. Does NOT cover a state outside the enum, local tax outside New York, Maryland and ' +
+    'Indiana, or state withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1193,7 +1194,7 @@ const stateTool: ToolDefinition = {
       county: {
         type: 'string',
         description:
-          'MD only and effectively REQUIRED: the county or Baltimore City the filer lived in. Every Maryland resident owes a county tax of 2.25-3.30% on the same taxable income. Case and the word "County" are ignored; "Baltimore" alone is an error, City and County differ.',
+          'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every MD and every IN resident owes a county tax on the same taxable income — 2.25-3.30% in Maryland, 0.5-3.00% in Indiana, two fifths of the bill. "Baltimore" alone is an error; the City and the County differ.',
       },
       stateItemizedDeductions: {
         type: 'number',
@@ -1362,21 +1363,21 @@ const stateTool: ToolDefinition = {
       throw new ToolInputError('federalItemized must be true or false.');
     }
     for (const [field, value] of [
-      ['county', county],
       ['stateItemizedDeductions', itemized],
       ['netCapitalGain', capitalGain],
       ['federalItemized', federalItemized],
     ] as const) {
       if (value !== undefined && state !== 'MD') {
         throw new ToolInputError(
-          `${field} only applies to MD, and ${state} was requested. Local income tax outside ` +
-            'New York and Maryland is not modelled here.',
+          `${field} only applies to MD, and ${state} was requested.`,
         );
       }
     }
+    // The county itself belongs to two states, and the engine's own message
+    // names them and lists that state's jurisdictions — so it is left to throw.
     if (county !== undefined && typeof county !== 'string') {
       throw new ToolInputError(
-        `county must be the name of a Maryland jurisdiction: ${MARYLAND_COUNTIES.join(', ')}.`,
+        `county must be the name of a county in ${COUNTY_TAX_STATES.join(' or ')}.`,
       );
     }
     // Refused rather than ignored. Md. Code, Tax-Gen. § 10-218(b) allows a

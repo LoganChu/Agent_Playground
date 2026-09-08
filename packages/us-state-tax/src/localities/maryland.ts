@@ -47,6 +47,8 @@
  * second derived figure here, and `test/maryland.test.js` asserts it against the
  * table below rather than storing it.
  */
+import { countyRegistry, resolveCounty } from './counties.js';
+import type { CountyLookup } from './counties.js';
 import { byStatusOf } from '../states/helpers.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { Bracket, ByStatus, Citation, StateCode } from '../types.js';
@@ -213,102 +215,54 @@ const COUNTIES: readonly {
 /** The names this package answers to, for the error message and for callers. */
 export const MARYLAND_COUNTIES: readonly string[] = COUNTIES.map((c) => c.name);
 
-/**
- * Normalise a county name for matching.
- *
- * Case, punctuation and the trailing word "County" are all optional, because a
- * caller — often a language model filling in a form — writes "montgomery",
- * "Montgomery County" and "MONTGOMERY CO." for the same place. What is *not*
- * optional is the distinction between Baltimore City and Baltimore County: they
- * are separate jurisdictions with separate rates, so a bare "Baltimore" is
- * rejected rather than resolved to either.
- */
-function normalise(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[.'’]/g, '')
-    .replace(/\bco\b/g, 'county')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 const AMBIGUOUS: ReadonlyMap<string, readonly string[]> = new Map([
+  // Baltimore City and Baltimore County are different jurisdictions with
+  // different rates, so a bare "Baltimore" is refused rather than resolved.
   ['baltimore', ['Baltimore City', 'Baltimore County']],
 ]);
 
-/**
- * The Maryland county tax definitions for one year, keyed by normalised name.
- */
-function definitionsFor(year: number): Map<string, LocalIncomeTaxDefinition> {
-  const map = new Map<string, LocalIncomeTaxDefinition>();
-  for (const county of COUNTIES) {
+function definitionsFor(year: number): readonly LocalIncomeTaxDefinition[] {
+  return COUNTIES.map((county) => {
     const rate = year >= 2026 && county.rate2026 ? county.rate2026 : county.rate2025;
     const graduated = rate.kind !== 'flat';
-    map.set(normalise(county.name), {
+    return {
       code: county.name,
       name: `${county.name}, Maryland`,
       state: 'MD' as StateCode,
       year,
-      status: 'published',
+      status: 'published' as const,
       // Md. Code, Tax-Gen. § 10-103: the county tax is imposed on Maryland
       // taxable income — the same line 20 the state rate schedule is applied to,
       // after the same deductions and exemptions. So every state deduction is
       // already inside the county tax, and a county rate quoted against gross
       // income overstates it.
-      base: 'stateTaxableIncome',
+      base: 'stateTaxableIncome' as const,
       rate,
       earnedIncomeCreditRateMultiple: MD_LOCAL_EITC_RATE_MULTIPLE,
       notes: graduated ? [GRADUATED_NOTE, EITC_RATE_NOTE, ...NOTES] : NOTES,
       citations: CITATIONS,
-    });
-  }
-  return map;
+    };
+  });
 }
 
-const BY_YEAR: ReadonlyMap<number, ReadonlyMap<string, LocalIncomeTaxDefinition>> = new Map(
-  [2025, 2026].map((year) => [year, definitionsFor(year)]),
-);
+const LOOKUP: CountyLookup = {
+  names: MARYLAND_COUNTIES,
+  ambiguous: AMBIGUOUS,
+  byYear: countyRegistry([2025, 2026], definitionsFor),
+  describe: 'Maryland has 23 counties plus Baltimore City, each setting its own income tax rate',
+};
 
 /**
- * Resolve a county name to its definition for a year.
+ * Resolve a Maryland county name to its definition for a year.
  *
- * @throws {RangeError} when the name is not a Maryland jurisdiction, or is one
- * of the ambiguous ones. Both messages name the alternatives, because the caller
- * is often a language model and a model that cannot see the list will invent an
- * answer for a county that does not exist.
+ * @throws {RangeError} when the name is not a Maryland jurisdiction, or is the
+ * ambiguous one. See {@link resolveCounty}.
  */
 export function marylandCounty(county: string, year: number): LocalIncomeTaxDefinition {
-  const key = normalise(county);
-  // Checked before the lookup, so that dropping the "County" suffix — which is
-  // otherwise allowed — cannot silently resolve Baltimore County.
-  const ambiguous = AMBIGUOUS.get(key);
-  if (ambiguous) {
-    throw new RangeError(
-      `"${county}" is ambiguous in Maryland: ${ambiguous.join(' and ')} are separate ` +
-        `jurisdictions that set their own income tax rates. Name which one.`,
-    );
-  }
-  const forYear = BY_YEAR.get(year);
-  if (!forYear) {
-    throw new RangeError(
-      `Maryland county income tax is supported for 2025 and 2026, not ${year}. Two counties ` +
-        `changed their rate between them, so there is no fallback to the nearer year.`,
-    );
-  }
-  // "Montgomery" and "Montgomery County" are the same place; "Baltimore" is not
-  // a place, which is why the ambiguity check above comes first.
-  const def = forYear.get(key) ?? forYear.get(`${key} county`);
-  if (!def) {
-    throw new RangeError(
-      `"${county}" is not a Maryland taxing jurisdiction. Maryland has 23 counties plus ` +
-        `Baltimore City, each setting its own income tax rate: ${MARYLAND_COUNTIES.join(', ')}. ` +
-        `The word "County" is optional and matching ignores case.`,
-    );
-  }
-  return def;
+  return resolveCounty(LOOKUP, 'MD', county, year);
 }
 
 /** Every Maryland jurisdiction's definition for a year, for tests and tooling. */
 export function marylandCounties(year: number): readonly LocalIncomeTaxDefinition[] {
-  return [...(BY_YEAR.get(year)?.values() ?? [])];
+  return [...(LOOKUP.byYear.get(year)?.values() ?? [])];
 }

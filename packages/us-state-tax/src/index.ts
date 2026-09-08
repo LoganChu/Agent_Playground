@@ -33,6 +33,18 @@ export {
   marylandCounties,
   marylandCounty,
 } from './localities/maryland.js';
+export {
+  INDIANA_COUNTIES,
+  IN_COUNTY_RATE_CEILING,
+  indianaCounties,
+  indianaCounty,
+} from './localities/indiana.js';
+export {
+  COUNTY_TAX_STATES,
+  countiesFor,
+  countyDefinition,
+  normaliseCounty,
+} from './localities/counties.js';
 export { NYC_ADDITIONAL_TAX_RATE, NYC_PERMANENT_RATES, nycRate } from './localities/new-york.js';
 export { massachusettsSurtaxThreshold } from './states/massachusetts.js';
 export { ownEarnedIncomeCreditAt, childCountBand } from './engine.js';
