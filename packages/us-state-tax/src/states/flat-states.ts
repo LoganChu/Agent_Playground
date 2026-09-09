@@ -251,7 +251,7 @@ const MI_CITATIONS: readonly Citation[] = [
 
 const MI_NOTES: readonly string[] = [
   "Michigan's rate briefly fell to 4.05% for tax year 2023 under the MCL 206.51(1)(c) revenue trigger and returned to 4.25% for 2024. The trigger is a one-year reduction, not a permanent one, and the Michigan Supreme Court declined to make it permanent — a 2023 figure carried forward is 4.7% too low.",
-  'Michigan cities levy their own income taxes — Detroit at 2.4% for residents, and 23 other cities. This package computes the state tax only.',
+  'Michigan cities levy their own income taxes on a base of their own — Detroit at 2.4% for residents and 23 other cities, all computed here: pass `city`, and `workCity` for a city the filer works in but does not live in. The city base is NOT the MI-1040\'s: the Uniform City Income Tax Ordinance excludes pensions, IRA distributions, Social Security, unemployment compensation and military pay entirely, and its personal exemption is the $600 fixed in 1964 rather than the indexed state one.',
   'Michigan is phasing back in a deduction for retirement and pension income through 2026 (the "retirement tax" repeal). Not modelled; supply it through `subtractions`.',
   'The Michigan earned income tax credit for working families is 30% of the federal credit and is refundable. It was 6% through tax year 2022 and was raised fivefold retroactively by Public Act 4 of 2023 — a Michigan return computed on the old 6% understates a family with two children by about $1,700.',
 ];
@@ -277,7 +277,7 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the $5,800 personal exemption is the published 2025 figure carried forward. Michigan indexes it annually under MCL 206.30(2) and had not published the 2026 amount when this was written. The 4.25% rate is set by statute and is correct.',
+            'PROVISIONAL: the $5,800 personal exemption is the published 2025 figure carried forward. Michigan indexes it annually under MCL 206.30(2) and no 2026 amount was reachable when this was written; one published dataset carries $5,900, which would be $4.25 less tax per exemption. The 4.25% rate is set by statute and is correct, and the CITY income taxes computed alongside it are not affected either way — a city exemption is $600 by ordinance and does not index.',
             ...MI_NOTES,
           ]
         : MI_NOTES,

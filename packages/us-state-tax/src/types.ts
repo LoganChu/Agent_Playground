@@ -579,6 +579,65 @@ export interface StateIncomeTaxInput {
    * local taxes rather than one.
    */
   readonly yonkersNonresidentEarnings?: number;
+  /**
+   * The Michigan city the filer **lives in**, if it is one of the 24 that levy
+   * an income tax.
+   *
+   * Unlike Maryland's and Indiana's counties this is genuinely optional: most
+   * Michigan residents live in none of the 24, and for them there is no city tax
+   * and nothing to pass. For the ones who do it is the larger half of a
+   * paycheck's local deduction — Detroit charges residents **2.4%** of city
+   * income, which is 57% of what Michigan itself charges at 4.25%, and Highland
+   * Park 2.0%.
+   *
+   * Names are matched case-insensitively. The 24 are Albion, Battle Creek,
+   * Benton Harbor, Big Rapids, Detroit, East Lansing, Flint, Grand Rapids,
+   * Grayling, Hamtramck, Highland Park, Hudson, Ionia, Jackson, Lansing, Lapeer,
+   * Muskegon, Muskegon Heights, Pontiac, Port Huron, Portland, Saginaw,
+   * Springfield and Walker; anything else is an error rather than a zero.
+   */
+  readonly city?: string;
+  /**
+   * Income as the city measures it, **before** the city's own exemptions.
+   *
+   * A Michigan city income tax has no line on the MI-1040 behind it. The Uniform
+   * City Income Tax Ordinance defines its own base, and it excludes several
+   * things federal AGI contains, **entirely and for every city**:
+   *
+   * - pensions, annuities and IRA distributions;
+   * - Social Security and railroad retirement benefits;
+   * - unemployment compensation;
+   * - the military pay of members of the armed forces.
+   *
+   * A resident is taxed on everything else wherever earned — including interest,
+   * dividends and capital gains, which is why this is not simply wages.
+   *
+   * When it is absent the engine uses federal AGI less {@link retirementIncome},
+   * and {@link StateIncomeTaxResult.notes} says so. That derivation is right for
+   * a working filer with no Social Security, unemployment or military pay, and
+   * **overstates** the tax for anyone with them.
+   */
+  readonly cityIncome?: number;
+  /**
+   * A Michigan taxing city the filer worked in but does **not** live in, and
+   * {@link workCityEarnings} the wages earned inside it.
+   *
+   * The city taxes a nonresident at half its resident rate, and the filer's home
+   * city — if it is also one of the 24 — credits the tax paid, capped at the
+   * home city's own nonresident rate. Both are computed when both cities are
+   * supplied, and the credit appears in the home city's result.
+   */
+  readonly workCity?: string;
+  /**
+   * Wages earned inside {@link workCity}, apportioned by working days.
+   *
+   * Detroit's Form DW-4 and Grand Rapids's GRW-4 both compute it the same way —
+   * gross wages times city working days over total working days — and days at
+   * the home office, sick days, vacation and holidays are not city days wherever
+   * they were taken. This package takes the apportioned figure; it cannot
+   * compute it.
+   */
+  readonly workCityEarnings?: number;
 }
 
 export interface CreditDetail {
@@ -635,7 +694,12 @@ export interface LocalIncomeTaxResult {
   /** Whether this is the tax on living there or the tax on earning there. */
   readonly basis: 'resident' | 'nonresidentEarnings';
   /** Which figure from the state return the locality applied its rate to. */
-  readonly base: 'stateTaxableIncome' | 'stateAdjustedGrossIncome' | 'stateNetTax' | 'wages';
+  readonly base:
+    | 'stateTaxableIncome'
+    | 'stateAdjustedGrossIncome'
+    | 'stateNetTax'
+    | 'cityIncome'
+    | 'wages';
   readonly baseAmount: number;
   readonly taxBeforeCredits: number;
   readonly credits: readonly CreditDetail[];

@@ -54,7 +54,26 @@ export type LocalBase =
    * reduce it — and a model that nets them first hands a Yonkers family with a
    * refundable state credit larger than their state tax a **negative** city tax.
    */
-  | 'stateNetTax';
+  | 'stateNetTax'
+  /**
+   * Michigan's 24 cities: **a base of the city's own**, with no line on the
+   * state return behind it.
+   *
+   * The three above are all rates on something the state already computed, which
+   * is why a state change flows through to them. This one is not, and the
+   * consequence is the reverse: a Michigan city's tax is untouched by every
+   * Michigan deduction, exemption and credit, and the city's own exclusions
+   * — pensions, annuities and IRA distributions, Social Security, unemployment
+   * compensation and military pay, all excluded entirely under the Uniform City
+   * Income Tax Ordinance — have no state analogue either.
+   *
+   * So the caller supplies the figure, the same way Pennsylvania, New Jersey and
+   * Massachusetts supply theirs, and the engine subtracts the city's own
+   * exemptions from it. When it is absent the engine derives it from federal AGI
+   * less any retirement income supplied, and the result says so — see
+   * {@link LocalIncomeTaxDefinition.exemptionAmount}.
+   */
+  | 'cityIncome';
 
 /**
  * A credit that is a flat dollar amount per person, stepped by income.
@@ -189,10 +208,37 @@ export interface LocalIncomeTaxDefinition {
    */
   readonly earnedIncomeCreditRateMultiple?: number;
   /**
+   * A flat deduction the locality allows for each personal and dependency
+   * exemption — the filer, a spouse on a joint return, and every dependent.
+   *
+   * Only Michigan's cities have one, and it is the smallest meaningful number in
+   * this package: MCL 141.631(1) fixed the floor at `$600` in 1964 and never
+   * indexed it, so sixteen of the twenty-four cities still allow exactly that.
+   * Against Michigan's own indexed `$5,800` state exemption it is 10.3%, and at
+   * Detroit's 2.4% it is worth **`$14.40` of tax per person per year**.
+   *
+   * It is subtracted from {@link LocalIncomeTaxDefinition.base}, floored at
+   * zero, on the resident and the nonresident return alike — a nonresident
+   * claims the same exemptions against the income the city may reach.
+   */
+  readonly exemptionAmount?: number;
+  /**
    * Rate charged on wages earned inside the locality by someone who lives
    * elsewhere. Residents pay the resident tax above instead, never both.
    */
   readonly nonresidentEarningsRate?: number;
+  /**
+   * Whether a resident of this locality may credit tax paid to another locality
+   * of the same kind, and at what rate the credit is capped.
+   *
+   * Michigan's is the only one, and the cap is the locality's **own nonresident
+   * rate**: a home city will absorb another city's tax only up to what it would
+   * have charged a commuter coming the other way. So the credit is complete for
+   * a Detroit resident working in Grand Rapids (1.2% cap against a 0.75% tax)
+   * and short for a Lansing resident working in Detroit (0.5% cap against a 1.2%
+   * tax), which is the direction people actually commute.
+   */
+  readonly creditsTaxPaidToPeerLocality?: boolean;
   readonly notes: readonly string[];
   readonly citations: readonly Citation[];
 }

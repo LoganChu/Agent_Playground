@@ -2,9 +2,9 @@
 
 US **state and local** individual income tax for tax years **2025 and 2026**, across **26
 states** including **New York**, **New Jersey**, **Massachusetts** and **Maryland**, plus
-**116 local income taxes**: New York City, Yonkers, all 24 Maryland jurisdictions and — new
-in 0.9.0 — all **92 Indiana counties**. Dependency-free, MIT, ESM and CommonJS, TypeScript
-types included.
+**140 local income taxes**: New York City, Yonkers, all 24 Maryland jurisdictions, all 92
+Indiana counties and — new in 0.10.0 — all **24 Michigan cities**, including Detroit at
+2.4%. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -600,6 +600,92 @@ Jasper 2.8640%, Whitley 1.6829% — because an Indiana county rate is assembled 
 expenditure, public safety, economic development and property tax relief components under
 IC 6-3.6. A rate nobody would choose is a rate that was computed.
 
+### Detroit's city tax is 60% of what Michigan itself charges
+
+Michigan is a flat 4.25% on federal AGI less a `$5,800` exemption. Twenty-four Michigan
+cities levy an income tax of their own **on a base the MI-1040 does not contain**, and
+Detroit's is the largest local income tax in this package outside New York City.
+
+```js
+const mi = (city) => stateIncomeTax({
+  state: 'MI', year: 2025, filingStatus: 'single', city,
+  federal: { adjustedGrossIncome: 100_000, taxableIncome: 84_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+mi('Detroit').tax;                     // 4003.50   Michigan, at 4.25%
+mi('Detroit').localTaxes[0].tax;       // 2385.60   Detroit, at 2.4%
+mi('Highland Park').localTaxes[0].tax; // 1988.00   2.0%
+mi('Grand Rapids').localTaxes[0].tax;  // 1491.00   1.5%
+mi('Lansing').localTaxes[0].tax;       //  994.00   1.0%, and twenty cities are here
+mi('Grayling').localTaxes[0].tax;      //  970.00   1.0%, with a $3,000 exemption
+```
+
+**A Michigan city is not downstream of the Michigan return.** The other local taxes in this
+package charge a rate on a state figure — New York City on New York taxable income, Yonkers
+on the New York tax, Maryland's and Indiana's counties on the state's own taxable income —
+so every state deduction and credit is already inside them. The Uniform City Income Tax
+Ordinance (MCL 141.601 et seq.) defines its own base instead, and it **excludes pensions,
+annuities and IRA distributions, Social Security, unemployment compensation and military pay
+entirely**, for every city. So a retired Detroit filer owes the city nothing on their pension
+while Michigan is still working out which tier of MCL 206.30(9) they fall in — and a family
+whose Michigan tax is a refund because of the state's 30% earned income credit still owes
+Detroit in full.
+
+Pass `cityIncome` for the city's own figure. Leave it out and the result says it was derived
+from federal AGI less `retirementIncome`, and that the answer is **too high** by the city
+rate times any Social Security, unemployment or military pay inside AGI.
+
+#### The exemption has been `$600` since 1964
+
+MCL 141.631(1) set the floor at `$600` for each personal and dependency exemption and never
+indexed it. Sixteen of the twenty-four cities are still on it, against Michigan's own
+`$5,800` state exemption, which *is* indexed annually.
+
+```text
+Detroit, 2.4% x $600   =  $14.40   of tax, per person, per year
+a 1% city, $600        =   $6.00
+```
+
+That is also why the per-city variations in *which* additional exemptions a city allows —
+age 65, blindness, deafness, paraplegia, all set by ordinance — are not modelled: each one
+is bounded by `$14.40`. Eight cities pay above the floor, and Grayling's `$3,000` is enough
+to make it the cheapest city in the state despite sharing a rate with nineteen others.
+
+#### The nonresident rate is derived, not stored
+
+MCL 141.611 fixes the nonresident rate at **one half** of the resident rate, and all
+twenty-four honour it exactly — including the four levying above the ordinary 1% ceiling
+under their own enabling acts (Detroit 2.4%/1.2% under Public Act 56 of 2011, Highland Park
+2.0%/1.0%, Grand Rapids and Saginaw 1.5%/0.75%). So this package stores one rate per city
+and halves it, and a test checks the halving against the four separately published figures.
+
+#### The credit for tax paid to another city fails in the direction people commute
+
+A resident of one taxing city who works in another owes both, and the home city credits the
+tax paid — **capped at the home city's own nonresident rate**. Pass `workCity` and
+`workCityEarnings` (the day-count-apportioned wage from Form DW-4 or GRW-4) and both are
+computed:
+
+```js
+const commute = stateIncomeTax({
+  state: 'MI', year: 2025, filingStatus: 'single',
+  city: 'Lansing', workCity: 'Detroit', workCityEarnings: 60_000,
+  federal: { adjustedGrossIncome: 60_000, taxableIncome: 44_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+commute.localTaxes[0].tax;             // 712.80   Detroit, nonresident, at 1.2%
+commute.localTaxes[1].tax;             // 297.00   Lansing, after a $297 credit
+commute.localTaxes[1].credits[0];      // capped at Lansing's own 0.5%
+```
+
+`$1,009.80` against the `$594.00` the same filer would owe on wages earned at home: **70%
+more city tax for the same wage**. Reverse it and the credit is exactly whole — a Detroit
+resident working in Grand Rapids pays Grand Rapids `$445.50` and Detroit `$980.10`, which is
+the `$1,425.60` they would have owed Detroit anyway. The cap binds only when the work city
+charges more than the home city would, which is the direction traffic runs.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -671,16 +757,21 @@ hides its gaps is worse than useless:
   interest and dividend income, and the order in which short-term and long-term losses are
   applied against each other, are not computed. Nor is the senior circuit breaker credit,
   which is the largest credit on many Massachusetts retirees' returns.
-- **Local income tax in New York, Maryland and Indiana only.** New York City and Yonkers
-  are computed from `locality`; all 23 Maryland counties and Baltimore City, and all 92
-  Indiana counties, from `county`. Most Pennsylvania municipalities and school districts,
-  Detroit and 23 other Michigan cities, Ohio's municipalities and Kentucky's occupational
-  taxes are not, and for a Pennsylvania or Ohio filer the local tax is a large fraction of
-  the bill. Indiana's nonresident and part-year county tax (Schedule CT-40PNR), which
-  apportions by where the income was earned rather than where the filer lived, is not
-  modelled either. Nor is part-year city residency, the New York City child and dependent care
-  credit, or Maryland's local poverty level credit and Montgomery County's own refundable
-  earned income supplement.
+- **Local income tax in New York, Maryland, Indiana and Michigan only.** New York City and
+  Yonkers are computed from `locality`; all 23 Maryland counties and Baltimore City, and all
+  92 Indiana counties, from `county`; all 24 Michigan cities from `city` and `workCity`.
+  Most Pennsylvania municipalities and school districts, Ohio's 600-odd municipalities and
+  Kentucky's occupational taxes are not, and for a Pennsylvania or Ohio filer the local tax
+  is a large fraction of the bill. Indiana's nonresident and part-year county tax (Schedule
+  CT-40PNR), which apportions by where the income was earned rather than where the filer
+  lived, is not modelled either. Nor is part-year city residency, the New York City child
+  and dependent care credit, Maryland's local poverty level credit and Montgomery County's
+  own refundable earned income supplement, or the day-count apportionment behind a Michigan
+  nonresident's city wage — pass `workCityEarnings` already apportioned.
+- **Michigan's per-city additional exemptions are not modelled.** Age 65, blindness,
+  deafness and paraplegia are allowed by some of the 24 cities and not others. Each is
+  worth the city rate times the exemption amount, so the whole class of omission is bounded
+  by `$14.40` per exemption, in Detroit, and by `$6.00` in twenty of the cities.
 - **Maryland's pension exclusion is not computed.** Up to `$41,200` for a filer aged 65 or
   over, reduced by Social Security benefits received — the largest subtraction on a
   Maryland retiree's return, and omitting it can overstate the tax by about `$3,300` of

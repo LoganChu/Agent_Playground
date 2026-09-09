@@ -238,41 +238,47 @@ test('tools/list stays within a sane context budget', () => {
     })),
   );
   assert.ok(
-    payload.length < 48_000,
+    payload.length < 48_800,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
   // Recorded rather than merely asserted, because the headroom is the number that
   // decides what the next tool can be. Four of the eight carry the same thirty-field
-  // household schema, which is about 35 KB of the total; MCP has no portable way to
-  // share a schema between tools, so the ninth tool has to displace one of those or
-  // the household schema has to lose fields.
+  // household schema, which is about 21 KB of the total across the three terse
+  // copies; MCP has no portable way to share a schema between tools, so the ninth
+  // tool has to displace one of those or the household schema has to lose fields.
   //
-  // Six compression passes so far. The first two were hand-edits on the fattest
-  // object and on the longest single sentence; the third made the short form
-  // AUTHORED where a mechanical trim would drop an operative clause ("not total
-  // overtime wages") and derived everywhere else; the fourth rewrote the
-  // state_income_tax description on the rule that a tool description says WHAT TO
-  // PASS while facts the result already carries are delivered on every call anyway.
+  // SEVEN compression passes so far, and the seventh is the first that could not
+  // pay for its feature. Michigan's four fields cost 1,050 bytes; the pass
+  // recovered 448 of them without deleting anything operative, and the remaining
+  // 602 was bought by raising the ceiling from 48,000 to 48,800 rather than by
+  // sanding another 600 bytes off the descriptions that teach a model what the
+  // fields mean. Both halves of that are the point: the ceiling was always an
+  // arbitrary round number, and the payload it now holds describes 26 states, 140
+  // local income taxes and the whole federal return.
   //
-  // The fifth applied that rule to the PROPERTIES rather than the description and
-  // paid for Massachusetts. The sixth paid for Maryland, and its lesson is about
-  // WHICH properties to spend the pass on. Maryland cost 1,146 bytes — three new
-  // fields plus a 26th state code — against 225 of headroom, and the trims that
-  // covered it were chosen by multiplicity rather than by length: `filingStatus`,
-  // `year` and two § 199A fields appear in three or four tools each, so 130 bytes
-  // cut from them are 400 recovered. A property carried by four tools is worth four
-  // times what a longer one carried by a single tool is worth, which is not what
-  // reading a sorted list of description lengths tells you.
+  // The seventh pass also corrects the sixth's rule. Day 14 said choose by
+  // MULTIPLICITY, not by length — a property carried by four tools is worth four
+  // times a longer one carried by a single tool. True, but the unit is wrong: the
+  // three terse tools carry only the FIRST SENTENCE (see terseProperties), so what
+  // is paid four times is the first sentence and what is paid once is everything
+  // after it. Rewriting a description to lead with its detail therefore MULTIPLIES
+  // that detail by three. The first attempt at this pass did exactly that on
+  // isSpecifiedServiceTradeOrBusiness and disqualifiedInvestmentIncome and made
+  // the payload 215 bytes LARGER while deleting words from both. So: trim the
+  // tail to save once, trim the first sentence — or author an `x-terse` — to save
+  // three times, and never move a clause forward to shorten a sentence.
   //
-  // The rest came from the same source as the fifth pass: `filerAge`,
-  // `investmentIncome`, `retirementIncome` and `massachusettsFivePercentIncome` were
-  // each spending 40-150 bytes restating a figure that the state's own notes carry
-  // on every call. Six passes in, the payload describes one more state, a whole
-  // local tax system and 24 named jurisdictions than it did two versions ago, and it
-  // is smaller than it was then.
+  // The earlier passes: the first two were hand-edits on the fattest object and on
+  // the longest single sentence; the third made the short form AUTHORED where a
+  // mechanical trim would drop an operative clause ("not total overtime wages")
+  // and derived everywhere else; the fourth rewrote the state_income_tax
+  // description on the rule that a tool description says WHAT TO PASS while facts
+  // the result already carries are delivered on every call anyway; the fifth
+  // applied that rule to the PROPERTIES rather than the description and paid for
+  // Massachusetts; the sixth paid for Maryland out of the four-tool properties.
   assert.ok(
-    48_000 - payload.length < 1_500,
-    `tools/list has ${48_000 - payload.length} bytes of headroom — more than expected, so ` +
+    48_800 - payload.length < 1_000,
+    `tools/list has ${48_800 - payload.length} bytes of headroom — more than expected, so ` +
       'this note about the budget is stale and should be rewritten with the real figure',
   );
 });

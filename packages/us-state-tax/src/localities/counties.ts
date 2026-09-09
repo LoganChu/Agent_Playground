@@ -57,6 +57,15 @@ export interface CountyLookup {
   readonly byYear: ReadonlyMap<number, CountyRegistry>;
   /** How the state describes its jurisdictions, for the error message. */
   readonly describe: string;
+  /**
+   * The word a caller may leave off the end of a name — "County" for Maryland
+   * and Indiana. `null` for a state whose jurisdictions are cities, where there
+   * is no suffix to make optional and claiming there is one would be a lie in
+   * the error message a model reads.
+   */
+  readonly suffix?: string | null;
+  /** What one of these jurisdictions is called, for the error message. */
+  readonly noun?: string;
 }
 
 /**
@@ -83,19 +92,23 @@ export function resolveCounty(
         `jurisdictions that set their own income tax rates. Name which one.`,
     );
   }
+  const suffix = lookup.suffix === undefined ? 'county' : lookup.suffix;
+  const noun = lookup.noun ?? 'county';
   const forYear = lookup.byYear.get(year);
   if (!forYear) {
     throw new RangeError(
-      `${state} county income tax is supported for ${[...lookup.byYear.keys()].join(' and ')}, ` +
-        `not ${year}. Counties revise their rates every year, so there is no fallback to the ` +
-        `nearer one.`,
+      `${state} ${noun} income tax is supported for ${[...lookup.byYear.keys()].join(' and ')}, ` +
+        `not ${year}. Rates are revised every year, so there is no fallback to the nearer one.`,
     );
   }
-  const def = forYear.get(key) ?? forYear.get(`${key} county`);
+  const def = forYear.get(key) ?? (suffix === null ? undefined : forYear.get(`${key} ${suffix}`));
   if (!def) {
     throw new RangeError(
       `"${county}" is not a ${state} taxing jurisdiction. ${lookup.describe}: ` +
-        `${lookup.names.join(', ')}. The word "County" is optional and matching ignores case.`,
+        `${lookup.names.join(', ')}.` +
+        (suffix === null || suffix === ''
+          ? ' Matching ignores case.'
+          : ` The word "${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}" is optional and matching ignores case.`),
     );
   }
   return def;
@@ -141,9 +154,11 @@ export function countyDefinition(
   throw new RangeError(
     `county applies to a return in ${COUNTY_TAX_STATES.join(' or ')}; state is ${state}. ` +
       `Maryland's 23 counties and Baltimore City, and all 92 Indiana counties, levy an ` +
-      `income tax on the state's own taxable income. The local income taxes of Michigan, ` +
-      `Ohio, Kentucky and Pennsylvania are not modelled here, and returning zero for them ` +
-      `would be a wrong answer rather than a missing one.`,
+      `income tax on the state's own taxable income. Michigan's 24 city income taxes are ` +
+      `modelled too, but they are cities rather than counties — pass \`city\` on a Michigan ` +
+      `return. Ohio's municipal income taxes, Kentucky's occupational taxes and ` +
+      `Philadelphia's wage tax are not modelled here, and returning zero for them would be a ` +
+      `wrong answer rather than a missing one.`,
   );
 }
 

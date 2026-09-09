@@ -16,10 +16,12 @@ import {
   computeLocalResidentTax,
   localNonresidentEarningsResult,
   localResidentResult,
+  nonresidentTaxableEarnings,
 } from './localities/engine.js';
 import type { StateFigures } from './localities/engine.js';
 import { getLocalityDefinition, localityState } from './localities/index.js';
-import { countiesFor, countyDefinition } from './localities/counties.js';
+import { countiesFor, countyDefinition, normaliseCounty } from './localities/counties.js';
+import { michiganCities, michiganCity } from './localities/michigan.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
 import type {
   Bracket,
@@ -1009,12 +1011,27 @@ function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Com
   return credited.tax < deducted.tax ? credited : deducted;
 }
 
+/**
+ * Income as a Michigan city measures it.
+ *
+ * Supplied, or derived from federal AGI less retirement income. The derivation
+ * is deliberately incomplete and the result says which way it errs: it removes
+ * the pensions, annuities and IRA distributions the caller named, and cannot
+ * remove the Social Security, unemployment compensation or military pay inside
+ * federal AGI, all three of which a Michigan city also excludes entirely.
+ */
+function cityIncomeFor(input: StateIncomeTaxInput): number {
+  if (input.cityIncome !== undefined) return nonNegative(input.cityIncome, 'cityIncome');
+  return Math.max(0, input.federal.adjustedGrossIncome - (input.retirementIncome ?? 0));
+}
+
 /** The state figures a locality computes from. */
-function stateFigures(computed: Computed): StateFigures {
+function stateFigures(computed: Computed, input: StateIncomeTaxInput): StateFigures {
   return {
     stateTaxableIncome: computed.taxableIncome,
     stateAdjustedGrossIncome: computed.stateAgi,
     stateNetTax: computed.taxBeforeRefundableCredits,
+    cityIncome: cityIncomeFor(input),
   };
 }
 
@@ -1090,6 +1107,27 @@ function withOneMoreEarnedDollar(input: StateIncomeTaxInput): StateIncomeTaxInpu
 }
 
 /**
+ * `city` and `workCity` are Michigan's, and naming the state is the point of the
+ * error: a caller who passes `city: 'Cleveland'` on an Ohio return has to learn
+ * that Ohio's 600-odd municipal income taxes are not modelled here, rather than
+ * receive a zero that looks like an answer.
+ */
+function requireMichigan(input: StateIncomeTaxInput, field: 'city' | 'workCity'): void {
+  if (input.state === 'MI') return;
+  throw new RangeError(
+    `${field} applies to a Michigan return; state is ${input.state}. Michigan's 24 cities are ` +
+      `the only city income taxes this package models. Ohio's municipal income taxes, ` +
+      `Kentucky's occupational taxes and Philadelphia's wage tax are not modelled, and ` +
+      `returning zero for them would be a wrong answer rather than a missing one.`,
+  );
+}
+
+/** Two spellings of the same city, by the same normalisation the lookup uses. */
+function sameCity(a: string, b: string): boolean {
+  return normaliseCounty(a) === normaliseCounty(b);
+}
+
+/**
  * Every local income tax this filer owes, resident tax first.
  *
  * The locality is computed twice, on the state figures from each of the two runs
@@ -1114,8 +1152,8 @@ function localTaxesFor(
       );
     }
     const def = getLocalityDefinition(input.locality, input.year);
-    const computed = computeLocalResidentTax(def, input, stateFigures(here));
-    const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher));
+    const computed = computeLocalResidentTax(def, input, stateFigures(here, input));
+    const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher, higherInput));
     out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
   }
 
@@ -1123,8 +1161,41 @@ function localTaxesFor(
     // The state decides which table the name is looked up in, and a state with no
     // county income tax at all is an error naming the two that have one.
     const def = countyDefinition(input.state, input.county, input.year);
-    const computed = computeLocalResidentTax(def, input, stateFigures(here));
-    const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher));
+    const computed = computeLocalResidentTax(def, input, stateFigures(here, input));
+    const computedHigher = computeLocalResidentTax(def, higherInput, stateFigures(higher, higherInput));
+    out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
+  }
+
+  // Michigan: the work city is computed first, because the home city's credit is
+  // capped against the tax it produced and against the income it reached.
+  let peerLocality: { name: string; tax: number; taxedIncome: number } | undefined;
+  const workCityEarnings = nonNegative(input.workCityEarnings, 'workCityEarnings');
+  if (input.workCity !== undefined) {
+    requireMichigan(input, 'workCity');
+    if (input.city !== undefined && sameCity(input.city, input.workCity)) {
+      throw new RangeError(
+        `workCity and city are both "${input.workCity}". A resident pays the resident tax on ` +
+          `everything they earn, wherever they earn it, and never the nonresident tax as well. ` +
+          `Pass workCity only for a DIFFERENT Michigan taxing city the filer worked in.`,
+      );
+    }
+    const def = michiganCity(input.workCity, input.year);
+    const taxedIncome = nonresidentTaxableEarnings(def, workCityEarnings, input);
+    const result = localNonresidentEarningsResult(def, workCityEarnings, input);
+    out.push(result);
+    peerLocality = { name: def.name, tax: result.tax, taxedIncome };
+  }
+
+  if (input.city !== undefined) {
+    requireMichigan(input, 'city');
+    const def = michiganCity(input.city, input.year);
+    const computed = computeLocalResidentTax(def, input, stateFigures(here, input), peerLocality);
+    const computedHigher = computeLocalResidentTax(
+      def,
+      higherInput,
+      stateFigures(higher, higherInput),
+      peerLocality,
+    );
     out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
   }
 
@@ -1282,7 +1353,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     const costs = counties
       .map((county) => ({
         name: county.name,
-        tax: computeLocalResidentTax(county, input, stateFigures(here)).tax,
+        tax: computeLocalResidentTax(county, input, stateFigures(here, input)).tax,
       }))
       .sort((a, b) => a.tax - b.tax);
     const cheapest = costs[0]!;
@@ -1300,12 +1371,48 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `(${dearest.name}) — pass the county the filer lived in on 1 January.`,
     );
   }
+  if (input.state === 'MI' && input.city === undefined) {
+    // Weaker than the county note above and deliberately so: most Michigan
+    // residents live in none of the 24, so this says what the two extremes would
+    // cost rather than claiming the filer owes something. Both figures are this
+    // filer's own, run through the same engine.
+    const cities = michiganCities(input.year);
+    const costs = cities
+      .map((city) => ({
+        name: city.name,
+        tax: computeLocalResidentTax(city, input, stateFigures(here, input)).tax,
+      }))
+      .sort((a, b) => a.tax - b.tax);
+    const cheapest = costs[0]!;
+    const dearest = costs[costs.length - 1]!;
+    const shown = (value: number) =>
+      roundCents(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    dynamic.push(
+      `No city was supplied, so this is the Michigan STATE tax alone. ${cities.length} Michigan ` +
+        `cities levy an income tax of their own on a base the MI-1040 does not contain, and for ` +
+        `this filer they run from $${shown(cheapest.tax)} (${cheapest.name}) to ` +
+        `$${shown(dearest.tax)} (${dearest.name}) — pass city if the filer lives in one of them. ` +
+        `Most Michigan residents live in none, and owe nothing.`,
+    );
+  }
+  if (input.state === 'MI' && input.city !== undefined && input.cityIncome === undefined) {
+    dynamic.push(
+      `cityIncome was not supplied, so the city tax above was computed on federal AGI less any ` +
+        `retirementIncome given. A Michigan city excludes pensions, annuities and IRA ` +
+        `distributions, Social Security, unemployment compensation and military pay ENTIRELY, ` +
+        `and federal AGI contains the last three — so this answer is TOO HIGH by the city rate ` +
+        `times whatever the filer has of them. It is exact for a wage earner with none.`,
+    );
+  }
   if (input.state === 'NY' && input.locality === undefined) {
     // Quantified rather than hedged: the city tax this exact filer would owe, run
     // through the same engine, so a caller who left `locality` out learns what it
     // is worth for them rather than being told that it exists.
     const nyc = getLocalityDefinition('NYC', input.year);
-    const cost = roundCents(computeLocalResidentTax(nyc, input, stateFigures(here)).tax);
+    const cost = roundCents(computeLocalResidentTax(nyc, input, stateFigures(here, input)).tax);
     const shown = cost.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,

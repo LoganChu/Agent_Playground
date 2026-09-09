@@ -662,3 +662,58 @@ test('README: the CalEITC marginal-rate block, recomputed', () => {
   }).tax;
   assert.equal(Math.round((lost - kept) * 100) / 100, 4528.82);
 });
+
+test('README: the Michigan city figures and the commuter table row', () => {
+  const federal = (agi, taxable) => ({
+    adjustedGrossIncome: agi,
+    taxableIncome: taxable,
+    deduction: 15_750,
+    deductionKind: 'standard',
+  });
+  const mi = (extra) =>
+    stateIncomeTax({
+      state: 'MI',
+      year: 2025,
+      filingStatus: 'single',
+      federal: federal(100_000, 84_250),
+      ...extra,
+    });
+
+  quotes('all 24 Michigan cities');
+  const detroit = mi({ city: 'Detroit' });
+  quotes('a Detroit resident owes the state $4,003.50 and the city');
+  assert.equal(detroit.tax, 4003.5);
+  quotes('**$2,385.60**');
+  assert.equal(detroit.localTaxes[0].tax, 2385.6);
+  quotes('60% as much again');
+  assert.equal(Math.round((detroit.localTaxes[0].tax / detroit.tax) * 100), 60);
+  quotes("| Michigan, Detroit resident | 4.25% | **6.65%**");
+  assert.equal(detroit.totalMarginalRate, 0.0665);
+  quotesAcrossLines('it is worth **$14.40** of tax a\nyear');
+  assert.equal(Math.round(0.024 * 600 * 100) / 100, 14.4);
+
+  const wage = { state: 'MI', year: 2025, filingStatus: 'single', federal: federal(60_000, 44_250) };
+  const commuting = stateIncomeTax({
+    ...wage,
+    city: 'Lansing',
+    workCity: 'Detroit',
+    workCityEarnings: 60_000,
+  });
+  const atHome = stateIncomeTax({ ...wage, city: 'Lansing' });
+  quotes('pays **70% more** city tax than one working at home');
+  const paid = commuting.localTaxes.reduce((sum, l) => sum + l.tax, 0);
+  assert.equal(Math.round((paid / atHome.localTaxes[0].tax - 1) * 100), 70);
+
+  quotes('whole for a Detroit resident commuting to Grand Rapids');
+  const downhill = stateIncomeTax({
+    ...wage,
+    city: 'Detroit',
+    workCity: 'Grand Rapids',
+    workCityEarnings: 60_000,
+  });
+  const detroitAtHome = stateIncomeTax({ ...wage, city: 'Detroit' });
+  assert.equal(
+    downhill.localTaxes.reduce((sum, l) => sum + l.tax, 0),
+    detroitAtHome.localTaxes[0].tax,
+  );
+});

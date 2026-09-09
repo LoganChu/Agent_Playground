@@ -49,11 +49,11 @@ export function getLocalityDefinition(
     throw new RangeError(
       `${locality} is not a supported locality code. This package covers ` +
         `${SUPPORTED_LOCALITIES.join(', ')} by code, and Maryland's 23 counties and ` +
-        `Baltimore City by name — pass those as \`county\` rather than as \`locality\`. ` +
-        `Local income taxes it does NOT cover include Indiana's 92 counties, Michigan's ` +
-        `24 cities, Ohio's municipal income taxes, Kentucky's occupational taxes and ` +
-        `Philadelphia. Returning zero for those would be a wrong answer rather than a ` +
-        `missing one.`,
+        `Baltimore City and Indiana's 92 counties by name — pass those as \`county\`, and ` +
+        `Michigan's 24 cities as \`city\`, rather than as \`locality\`. Local income taxes ` +
+        `it does NOT cover include Ohio's municipal income taxes, Kentucky's occupational ` +
+        `taxes and Philadelphia. Returning zero for those would be a wrong answer rather ` +
+        `than a missing one.`,
     );
   }
   throw new RangeError(

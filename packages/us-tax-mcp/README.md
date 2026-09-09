@@ -4,8 +4,8 @@
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
 **state income tax for 26 states including New York, New Jersey, Massachusetts and Maryland**
-and **116 local income taxes — New York City, Yonkers, all 24 Maryland jurisdictions and all
-92 Indiana counties** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+and **140 local income taxes — New York City, Yonkers, all 24 Maryland jurisdictions, all
+92 Indiana counties and all 24 Michigan cities** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -206,7 +206,26 @@ is worth $29.50 against a county rise of $442.50: their bill went up 14% in a ta
 The county is the one they lived in on **1 January**, for the whole year, and a county rate
 can change on 1 October as well — so the rate withheld and the rate owed can differ.
 
-**Maryland is two income taxes, and rate tables report the smaller one.** Every Maryland
+**A Michigan city taxes what the MI-1040 does not.** Every other local tax here charges a
+rate on a state figure. Michigan's 24 cities define their own base under the Uniform City
+Income Tax Ordinance, and it excludes pensions, IRA distributions, Social Security,
+unemployment compensation and military pay **entirely** — so a retired Detroit filer owes
+the city nothing on their pension while Michigan is still working out which tier of MCL
+206.30(9) they are in, and a family whose Michigan tax is a refund from the state's 30%
+earned income credit still owes Detroit in full. Pass `city`, and `cityIncome` if the filer
+has any of those. At $100,000 a Detroit resident owes the state $4,003.50 and the city
+**$2,385.60** — 60% as much again, from a rate no table of state taxes contains.
+
+The exemption is the **$600** the Legislature set in Act 284 of **1964** and never indexed,
+against Michigan's own indexed $5,800: at Detroit's 2.4% it is worth **$14.40** of tax a
+year. The nonresident rate is one half of the resident rate by statute, so this server
+derives it rather than storing 24 more numbers. And a resident who works in another taxing
+city gets a credit for the tax paid — **capped at their own city's nonresident rate**, which
+means it is whole for a Detroit resident commuting to Grand Rapids and short for a Lansing
+resident commuting to Detroit, who pays **70% more** city tax than one working at home. Pass
+`workCity` and `workCityEarnings` and both are computed.
+
+**Maryland is two income taxes, and rate tables report the smaller one.**  Every Maryland
 resident owes a **county** income tax of 2.25% to 3.30% on the same taxable income the state
 taxes — there is no county-free jurisdiction, and for a middle-income filer it is a third to
 two fifths of the whole bill. A single filer at $100,000 owes the state **$4,386.38** and
@@ -322,6 +341,7 @@ visible:
 | Maryland, Frederick County at $150,000 of taxable income | 2.96% | **$360.03 on one dollar** — the county rate applies to the whole income, not the band |
 | Maryland, single at $350,000 of capital gain | 5.75% | **$6,933.08 on one dollar** — the 2% surtax threshold is a test, not a floor |
 | Indiana, Randolph County, 2026 | 2.95% | **5.95%** — the county rate is 3.00%, more than the state's |
+| Michigan, Detroit resident | 4.25% | **6.65%** — the city takes another 2.4% of a base the state return does not compute |
 
 Seven of the seventeen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and eight of the 2026 state-years carry at
@@ -344,7 +364,7 @@ says what the cheapest and dearest counties would have cost that filer.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, or Marion County?" A state and local return for 26 states plus New York City, Yonkers, all 24 Maryland jurisdictions and all 92 Indiana counties, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, or Detroit?" A state and local return for 26 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties and all 24 Michigan cities, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -432,13 +452,15 @@ confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
 - **24 states, the District of Columbia, and every local income tax outside New York,
-  Maryland and Indiana.** `state_income_tax` covers 26 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
+  Maryland, Indiana and Michigan.** `state_income_tax` covers 26 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
   MA, MD, MI, MS, NC, NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
   nothing else. Ohio, Virginia and Minnesota are absent, and asking for one is an error
-  rather than a zero. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions and
-  Indiana's 92 counties: Pennsylvania municipal earned income taxes, Ohio municipalities and
-  Detroit are not modelled, nor is part-year city residency, Maryland's local poverty level
-  credit, or Indiana's Schedule CT-40PNR for a nonresident. State earned income credits
+  rather than a zero. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
+  Indiana's 92 counties and Michigan's 24 cities: Pennsylvania municipal earned income
+  taxes, Ohio municipalities and Kentucky's occupational taxes are not modelled, nor is
+  part-year city residency, Maryland's local poverty level credit, Indiana's Schedule
+  CT-40PNR for a nonresident, or the day-count apportionment behind a Michigan
+  nonresident's city wage — pass `workCityEarnings` already apportioned. State earned income credits
   are modelled for the six states that set them as a share of the federal credit, and New
   York's Empire State child credit and California's Young Child Tax Credit from
   `dependentAges`; no other state child credit or retirement exclusion is, so a family or

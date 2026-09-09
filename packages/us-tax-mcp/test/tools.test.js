@@ -945,6 +945,100 @@ test('state_income_tax carries the Indiana county, on the same figure as the sta
   assert.notEqual(md.localTaxes[0].tax, inCounty('Montgomery').localTaxes[0].tax);
 });
 
+test('state_income_tax carries the Michigan city, on a base the MI-1040 does not contain', () => {
+  const mi = (extra = {}) =>
+    ok('state_income_tax', {
+      state: 'MI',
+      filingStatus: 'single',
+      year: 2025,
+      federalAdjustedGrossIncome: 100_000,
+      federalTaxableIncome: 84_250,
+      federalDeduction: 15_750,
+      ...extra,
+    }).structured.state;
+
+  const detroit = mi({ city: 'Detroit' });
+  assert.equal(detroit.tax, 4003.5);
+  assert.equal(detroit.localTaxes[0].tax, 2385.6);
+  assert.equal(detroit.localTaxes[0].baseAmount, 99_400, 'city income less the $600 exemption');
+  assert.equal(detroit.localTaxes[0].base, 'cityIncome');
+  assert.equal(detroit.totalTax, 6389.1);
+  // Matching ignores case, as it does for a county.
+  assert.equal(mi({ city: 'grand rapids' }).localTaxes[0].tax, 1491);
+
+  // Omitting the city is answerable and, unlike Maryland, usually right: most
+  // Michigan residents live in none of the 24. The note says so and prices both
+  // ends anyway.
+  const stateOnly = mi();
+  assert.equal(stateOnly.localTaxes.length, 0);
+  const note = stateOnly.notes.find((n) => n.startsWith('No city was supplied'));
+  assert.ok(note && note.includes('Most Michigan residents live in none'), note);
+
+  // The city excludes a pension entirely; supplying the city's own figure stops
+  // the engine deriving one and removes the note that says it did.
+  const supplied = mi({ city: 'Detroit', cityIncome: 10_000 });
+  assert.equal(supplied.localTaxes[0].tax, 225.6);
+  assert.equal(
+    supplied.notes.some((n) => n.startsWith('cityIncome was not supplied')),
+    false,
+  );
+  assert.ok(mi({ city: 'Detroit' }).notes.some((n) => n.startsWith('cityIncome was not supplied')));
+
+  // An unknown Michigan city names all 24 rather than returning a zero.
+  const unknown = err('state_income_tax', {
+    state: 'MI',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 84_250,
+    federalDeduction: 15_750,
+    city: 'Ann Arbor',
+  });
+  assert.match(unknown, /not a MI taxing jurisdiction/);
+  assert.match(unknown, /Muskegon Heights/);
+});
+
+test('state_income_tax computes the Michigan commuter, and refuses a half-given one', () => {
+  const commute = ok('state_income_tax', {
+    state: 'MI',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 60_000,
+    federalTaxableIncome: 44_250,
+    federalDeduction: 15_750,
+    city: 'Lansing',
+    workCity: 'Detroit',
+    workCityEarnings: 60_000,
+  }).structured.state;
+  assert.equal(commute.localTaxes[0].basis, 'nonresidentEarnings');
+  assert.equal(commute.localTaxes[0].tax, 712.8);
+  assert.equal(commute.localTaxes[1].tax, 297);
+  assert.equal(commute.localTaxes[1].credits[0].amount, 297, 'capped at Lansing\'s own 0.5%');
+
+  // A work city with no wage figure is refused rather than silently charged
+  // nothing, for the same reason a Maryland itemized deduction without
+  // federalItemized is refused.
+  const base = {
+    state: 'MI',
+    filingStatus: 'single',
+    year: 2025,
+    federalAdjustedGrossIncome: 60_000,
+    federalTaxableIncome: 44_250,
+    federalDeduction: 15_750,
+  };
+  assert.match(err('state_income_tax', { ...base, workCity: 'Detroit' }), /needs workCityEarnings/);
+  assert.match(err('state_income_tax', { ...base, workCityEarnings: 1000 }), /needs workCity/);
+  assert.match(
+    err('state_income_tax', { ...base, city: 'Detroit', workCity: 'Detroit', workCityEarnings: 1 }),
+    /A resident pays the resident tax on everything/,
+  );
+  // And a Michigan field on another state's return is an error, not an ignore.
+  assert.match(
+    err('state_income_tax', { ...base, state: 'NY', city: 'Detroit' }),
+    /city only applies to MI, and NY was requested/,
+  );
+});
+
 test('state_income_tax computes the Maryland surtax cliff and the Frederick rate step', () => {
   // The 2% capital gains surtax: the threshold is a test, not a floor.
   const gain = (agi) =>

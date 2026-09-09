@@ -1061,19 +1061,20 @@ const stateTool: ToolDefinition = {
   title: 'State income tax',
   description:
     'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 26 states plus NEW YORK ' +
-    'CITY, YONKERS, all 24 MARYLAND jurisdictions and all 92 INDIANA counties. Call estimate_federal_tax ' +
-    'FIRST and pass its ' +
+    'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties and all 24 MICHIGAN cities. ' +
+    'Call estimate_federal_tax FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a state ' +
-    'starts from decides the answer. Six states need more than that. NY: pass locality. MD and IN: pass ' +
+    'starts from decides the answer. Seven states need more than that. NY: pass locality. MD and IN: pass ' +
     'county — every resident of both owes one and it is two fifths of the bill — plus, in MD, netCapitalGain ' +
-    'and stateItemizedDeductions. CA: pass earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
+    'and stateItemizedDeductions. MI: pass city, and cityIncome, which is NOT federal AGI. CA: pass ' +
+    'earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
     'REQUIRED, plus filerAge and retirementIncome over 62. MA: massachusettsFivePercentIncome is REQUIRED ' +
     'and is NOT federal AGI, plus shortTermCapitalGains and collectiblesGains, taxed at 8.5% and 12% rather ' +
     'than the 5% every rate table reports. Reports the true marginal rate by rerunning the whole return a ' +
     'dollar higher, which is not the statutory rate wherever a credit phases out or a cliff bites. Every ' +
     'result carries that state\'s own notes and statutes, so the conformity detail arrives with the answer ' +
-    'rather than here. Does NOT cover a state outside the enum, local tax outside New York, Maryland and ' +
-    'Indiana, or state withholding. An unlisted state is an error, not a zero.',
+    'rather than here. Does NOT cover a state outside the enum, local tax outside NY, MD, IN and MI, or ' +
+    'state withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1195,6 +1196,28 @@ const stateTool: ToolDefinition = {
         type: 'string',
         description:
           'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every MD and every IN resident owes a county tax on the same taxable income — 2.25-3.30% in Maryland, 0.5-3.00% in Indiana, two fifths of the bill. "Baltimore" alone is an error; the City and the County differ.',
+      },
+      city: {
+        type: 'string',
+        description:
+          'MI only: the city the filer LIVES in, if it is one of the 24 that levy. Detroit 2.4%, Highland Park 2.0%, Grand Rapids and Saginaw 1.5%, twenty others 1%; an unlisted city is an error naming all 24. Most Michigan residents live in none.',
+      },
+      cityIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MI only: income as the CITY measures it, before its $600-$3,000 exemptions — no pensions, IRA distributions, Social Security, unemployment or military pay, none of which any city taxes. Omitted, it is derived from federal AGI less retirementIncome and runs high.',
+      },
+      workCity: {
+        type: 'string',
+        description:
+          'MI only: a DIFFERENT taxing city the filer worked in, taxed at half its resident rate on workCityEarnings. The home city credits that tax, capped at its OWN nonresident rate.',
+      },
+      workCityEarnings: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'MI only: wages earned inside workCity, already apportioned by working days (Form DW-4, GRW-4).',
       },
       stateItemizedDeductions: {
         type: 'number',
@@ -1409,6 +1432,47 @@ const stateTool: ToolDefinition = {
     const propertyTaxPaid = readNumber(source, 'propertyTaxPaid');
     const rentPaid = readNumber(source, 'rentPaid');
 
+    const city = source['city'];
+    const workCity = source['workCity'];
+    const workCityEarnings = readNumber(source, 'workCityEarnings');
+    const cityIncome = readNumber(source, 'cityIncome');
+    for (const [field, value] of [
+      ['city', city],
+      ['cityIncome', cityIncome],
+      ['workCity', workCity],
+      ['workCityEarnings', workCityEarnings],
+    ] as const) {
+      if (value !== undefined && state !== 'MI') {
+        throw new ToolInputError(
+          `${field} only applies to MI, and ${state} was requested. Michigan's 24 city income ` +
+            `taxes are the only ones this server models; Ohio's municipalities, Kentucky's ` +
+            `occupational taxes and Philadelphia are not.`,
+        );
+      }
+    }
+    for (const [field, value] of [
+      ['city', city],
+      ['workCity', workCity],
+    ] as const) {
+      // The engine's own message names all 24 cities, so a bad name is left to it.
+      if (value !== undefined && typeof value !== 'string') {
+        throw new ToolInputError(`${field} must be the name of a Michigan city that levies an income tax.`);
+      }
+    }
+    // Refused rather than ignored, for the same reason stateItemizedDeductions is:
+    // a nonresident city tax with no wage figure is silently zero, and a model
+    // that named a work city meant to be charged for it.
+    if (workCity !== undefined && workCityEarnings === undefined) {
+      throw new ToolInputError(
+        'workCity needs workCityEarnings — the wages earned inside that city, apportioned by ' +
+          'working days. Without it the nonresident city tax is zero, which is a wrong answer ' +
+          'rather than a missing one.',
+      );
+    }
+    if (workCityEarnings !== undefined && workCity === undefined) {
+      throw new ToolInputError('workCityEarnings needs workCity: the city those wages were earned in.');
+    }
+
     const locality = source['locality'];
     if (
       locality !== undefined &&
@@ -1463,6 +1527,10 @@ const stateTool: ToolDefinition = {
       ...(propertyTaxPaid !== undefined ? { propertyTaxPaid } : {}),
       ...(rentPaid !== undefined ? { rentPaid } : {}),
       ...(county !== undefined ? { county } : {}),
+      ...(city !== undefined ? { city: city as string } : {}),
+      ...(cityIncome !== undefined ? { cityIncome } : {}),
+      ...(workCity !== undefined ? { workCity: workCity as string } : {}),
+      ...(workCityEarnings !== undefined ? { workCityEarnings } : {}),
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),
       ...(capitalGain !== undefined ? { netCapitalGain: capitalGain } : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),

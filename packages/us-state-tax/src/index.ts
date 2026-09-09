@@ -40,6 +40,16 @@ export {
   indianaCounty,
 } from './localities/indiana.js';
 export {
+  MICHIGAN_CITIES,
+  MI_CITY_EXEMPTIONS,
+  MI_CITY_EXEMPTION_FLOOR,
+  MI_CITY_ORDINARY_RATE_CEILING,
+  MI_PUBLISHED_NONRESIDENT_RATES,
+  michiganCities,
+  michiganCity,
+  michiganNonresidentRate,
+} from './localities/michigan.js';
+export {
   COUNTY_TAX_STATES,
   countiesFor,
   countyDefinition,

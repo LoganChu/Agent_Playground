@@ -5,10 +5,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  MICHIGAN_CITIES,
+  MI_CITY_EXEMPTIONS,
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
+  michiganCities,
   nycRate,
   stateIncomeTax,
 } from '../dist/esm/index.js';
@@ -428,6 +431,90 @@ test('README: the Indiana county figures', () => {
   assert.equal(union2025.tax - union2026.tax, 29.5);
   assert.equal(union2026.localTaxes[0].tax - union2025.localTaxes[0].tax, 442.5);
   assert.ok(union2026.totalTax / union2025.totalTax > 1.13);
+});
+
+test('README: the Michigan city figures', () => {
+  const mi = (city, extra = {}) =>
+    stateIncomeTax({
+      state: 'MI',
+      year: 2025,
+      filingStatus: 'single',
+      city,
+      federal: {
+        adjustedGrossIncome: 100_000,
+        taxableIncome: 84_250,
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+      ...extra,
+    });
+  assert.equal(mi('Detroit').tax, 4003.5);
+  assert.equal(mi('Detroit').localTaxes[0].tax, 2385.6);
+  assert.equal(mi('Highland Park').localTaxes[0].tax, 1988);
+  assert.equal(mi('Grand Rapids').localTaxes[0].tax, 1491);
+  assert.equal(mi('Lansing').localTaxes[0].tax, 994);
+  assert.equal(mi('Grayling').localTaxes[0].tax, 970);
+  // "60% of what Michigan itself charges", rounded the way the heading rounds.
+  assert.equal(Math.round((2385.6 / 4003.5) * 100), 60);
+  // 24 cities, 20 of them at exactly 1%, 16 of them at the $600 floor.
+  assert.equal(MICHIGAN_CITIES.length, 24);
+  assert.equal(michiganCities(2025).filter((c) => c.rate.rate === 0.01).length, 20);
+  assert.equal([...MI_CITY_EXEMPTIONS.values()].filter((v) => v === 600).length, 16);
+  assert.equal(MI_CITY_EXEMPTIONS.get('Grayling'), 3000);
+  // "$14.40 of tax, per person, per year" and "$6.00".
+  assert.equal(Math.round(0.024 * 600 * 100) / 100, 14.4);
+  assert.equal(Math.round(0.01 * 600 * 100) / 100, 6);
+  // Grayling really is the cheapest city in the state at this income, on the
+  // strength of its exemption rather than its rate.
+  const cheapest = michiganCities(2025)
+    .map((c) => ({ name: String(c.code), tax: mi(String(c.code)).localTaxes[0].tax }))
+    .sort((a, b) => a.tax - b.tax)[0];
+  assert.equal(cheapest.name, 'Grayling');
+});
+
+test('README: the Michigan commute, and the credit that is capped at the home rate', () => {
+  const federal60 = {
+    adjustedGrossIncome: 60_000,
+    taxableIncome: 44_250,
+    deduction: 15_750,
+    deductionKind: 'standard',
+  };
+  const commute = stateIncomeTax({
+    state: 'MI',
+    year: 2025,
+    filingStatus: 'single',
+    city: 'Lansing',
+    workCity: 'Detroit',
+    workCityEarnings: 60_000,
+    federal: federal60,
+  });
+  assert.equal(commute.localTaxes[0].tax, 712.8);
+  assert.equal(commute.localTaxes[1].tax, 297);
+  assert.equal(commute.localTaxes[1].credits[0].amount, 297);
+  assert.equal(commute.localTaxes[0].tax + commute.localTaxes[1].tax, 1009.8);
+
+  const atHome = stateIncomeTax({
+    state: 'MI',
+    year: 2025,
+    filingStatus: 'single',
+    city: 'Lansing',
+    federal: federal60,
+  });
+  assert.equal(atHome.localTaxes[0].tax, 594);
+  assert.equal(Math.round((1009.8 / 594 - 1) * 100), 70);
+
+  const downhill = stateIncomeTax({
+    state: 'MI',
+    year: 2025,
+    filingStatus: 'single',
+    city: 'Detroit',
+    workCity: 'Grand Rapids',
+    workCityEarnings: 60_000,
+    federal: federal60,
+  });
+  assert.equal(downhill.localTaxes[0].tax, 445.5);
+  assert.equal(downhill.localTaxes[1].tax, 980.1);
+  assert.equal(downhill.localTaxes[0].tax + downhill.localTaxes[1].tax, 1425.6);
 });
 
 test('README: the provisional and published lists for 2026', () => {

@@ -35,6 +35,14 @@ export interface StateFigures {
    * Floored at zero, which is why a Yonkers surcharge can never be negative.
    */
   readonly stateNetTax: number;
+  /**
+   * Income as a *city* measures it, before the city's own exemptions — the base
+   * of every Michigan city income tax, and the only figure here that is not a
+   * line on the state return. Supplied by the caller through
+   * {@link StateIncomeTaxInput.cityIncome}, or derived from federal AGI less
+   * retirement income when they did not supply it.
+   */
+  readonly cityIncome: number;
 }
 
 function baseAmount(base: LocalBase, figures: StateFigures): number {
@@ -45,7 +53,25 @@ function baseAmount(base: LocalBase, figures: StateFigures): number {
       return figures.stateAdjustedGrossIncome;
     case 'stateNetTax':
       return figures.stateNetTax;
+    case 'cityIncome':
+      return figures.cityIncome;
   }
+}
+
+/**
+ * The locality's own exemptions — Michigan's, and nothing else's.
+ *
+ * One per filer, one for a spouse on a joint return, one per dependent, at the
+ * flat amount the city's ordinance sets. Floored against the base by the caller,
+ * because a city taxable income cannot be negative and a negative one would hand
+ * a low-income filer a refund the city does not pay.
+ */
+export function localExemption(
+  def: LocalIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  if (def.exemptionAmount === undefined) return 0;
+  return def.exemptionAmount * (filerCount(input.filingStatus) + dependentCount(input));
 }
 
 /** The amount of a step-function credit at a given income. */
@@ -199,8 +225,15 @@ export function computeLocalResidentTax(
   def: LocalIncomeTaxDefinition,
   input: StateIncomeTaxInput,
   figures: StateFigures,
+  /**
+   * Tax already paid to a peer locality for the same year, for a locality that
+   * credits it — Michigan's cities. The cap is applied here rather than by the
+   * caller, because the cap is this locality's own nonresident rate and only
+   * this locality knows it.
+   */
+  peerLocality?: { readonly name: string; readonly tax: number; readonly taxedIncome: number },
 ): { baseAmount: number; taxBeforeCredits: number; brackets: BracketDetail[]; credits: CreditDetail[]; tax: number } {
-  const base = baseAmount(def.base, figures);
+  const base = Math.max(0, baseAmount(def.base, figures) - localExemption(def, input));
 
   let taxBeforeCredits = 0;
   let brackets: BracketDetail[] = [];
@@ -262,6 +295,20 @@ export function computeLocalResidentTax(
       refundable: false,
     });
   }
+  if (def.creditsTaxPaidToPeerLocality && peerLocality && peerLocality.tax > 0) {
+    // MCL 141.601 et seq., as every city's own instructions state it: the credit
+    // is the tax paid to the other city, but never more than this city's own
+    // nonresident rate applied to the income that other city taxed. The cap is
+    // what makes the credit incomplete in exactly one direction — a resident of
+    // a 1% city commuting into a 2.4% one — and the arithmetic has to see both
+    // rates to show it.
+    const cap = (def.nonresidentEarningsRate ?? 0) * peerLocality.taxedIncome;
+    credits.push({
+      name: `Credit for income tax paid to ${peerLocality.name}`,
+      amount: Math.min(peerLocality.tax, cap),
+      refundable: false,
+    });
+  }
 
   const nonRefundable = credits.filter((c) => !c.refundable).reduce((s, c) => s + c.amount, 0);
   const refundable = credits.filter((c) => c.refundable).reduce((s, c) => s + c.amount, 0);
@@ -305,22 +352,45 @@ export function localResidentResult(
  * state's income measure, not to this. A dollar more of Yonkers-source wages does
  * cost 0.5 cents — that is the rate, and it is in the result.
  */
+/**
+ * The city-source earnings a nonresident is actually taxed on, after the
+ * locality's own exemptions.
+ *
+ * Separate from {@link localNonresidentEarningsResult} because the home city's
+ * credit is capped against *this* figure, and the two computations have to agree
+ * about it to the cent.
+ */
+export function nonresidentTaxableEarnings(
+  def: LocalIncomeTaxDefinition,
+  earnings: number,
+  input?: StateIncomeTaxInput,
+): number {
+  return Math.max(0, earnings - (input ? localExemption(def, input) : 0));
+}
+
 export function localNonresidentEarningsResult(
   def: LocalIncomeTaxDefinition,
   earnings: number,
+  /**
+   * Supplied for a locality whose exemptions a nonresident may also claim.
+   * Michigan's cities allow them against city-source income; Yonkers has none,
+   * which is why this is optional rather than always computed.
+   */
+  input?: StateIncomeTaxInput,
 ): LocalIncomeTaxResult {
   const rate = def.nonresidentEarningsRate ?? 0;
-  const tax = earnings * rate;
+  const taxable = nonresidentTaxableEarnings(def, earnings, input);
+  const tax = taxable * rate;
   return {
     locality: def.code,
     localityName: def.name,
     basis: 'nonresidentEarnings',
     base: 'wages',
-    baseAmount: roundCents(earnings),
+    baseAmount: roundCents(taxable),
     taxBeforeCredits: roundCents(tax),
     credits: [],
     tax: roundCents(tax),
-    brackets: earnings > 0 ? [{ rate, incomeInBracket: roundCents(earnings), tax: roundCents(tax) }] : [],
+    brackets: taxable > 0 ? [{ rate, incomeInBracket: roundCents(taxable), tax: roundCents(tax) }] : [],
     marginalRate: 0,
     provisional: def.status === 'provisional',
     notes: def.notes,

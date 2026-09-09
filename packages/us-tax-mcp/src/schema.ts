@@ -112,26 +112,26 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   ),
   otherOrdinaryIncome: withShortForm(
     money(
-      'Income taxed at ordinary rates that is neither wages nor self-employment: interest, non-qualified dividends, retirement distributions, short-term capital gains, taxable social security.',
+      'Income taxed at ordinary rates that is neither wages nor self-employment: interest, non-qualified dividends, retirement distributions, short-term gains, taxable social security.',
     ),
     'Income taxed at ordinary rates that is neither wages nor self-employment.',
   ),
   longTermCapitalGains: money(
-    'Long-term capital gains and qualified dividends, taxed at preferential rates. These stack on top of ordinary income rather than being taxed in isolation.',
+    'Long-term capital gains and qualified dividends, taxed at preferential rates. They stack on top of ordinary income rather than being taxed in isolation.',
   ),
   netInvestmentIncome: money(
     'Investment income subject to the 3.8% net investment income tax. Defaults to longTermCapitalGains.',
   ),
 
   itemizedDeductions: money(
-    'Total itemized deductions supplied as a finished, already-capped figure. Prefer stateAndLocalTaxesPaid plus otherItemizedDeductions, which apply the § 164(b)(6) cap for you; when those are given this is ignored.',
+    'Total itemized deductions supplied as a finished, already-capped figure. Prefer stateAndLocalTaxesPaid plus otherItemizedDeductions, which apply the § 164(b)(6) cap; when given, this is ignored.',
   ),
   stateAndLocalTaxesPaid: money(
     'State and local income (or sales), real property and personal property tax actually paid, BEFORE the § 164(b)(6) cap. The cap and its 2026 phase-down are applied for you.',
   ),
   otherItemizedDeductions: withShortForm(
     money(
-      'Every itemized deduction other than SALT: mortgage interest, charitable contributions, medical expense over the 7.5%-of-AGI floor, investment interest. Not further limited by this server — see the coverage notes from list_supported_years.',
+      'Every itemized deduction other than SALT: mortgage interest, charity, medical expense over the 7.5%-of-AGI floor, investment interest. Not further limited here — see list_supported_years.',
     ),
     'Every itemized deduction other than SALT, not further limited here.',
   ),
@@ -141,7 +141,7 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
       type: 'array',
       items: QUALIFIED_BUSINESS_SCHEMA,
       description:
-        'Each § 199A trade or business separately, so the deduction is computed rather than assumed — SSTB phase-out, W-2 wage and property cap, loss netting and the taxable income limit included. A single Schedule C is one entry. These describe income already reported through selfEmploymentNetProfit or otherOrdinaryIncome; listing a business here does not add income.',
+        'Each § 199A trade or business separately, so the deduction is computed rather than assumed — SSTB phase-out, W-2 wage and property cap, loss netting and the taxable income limit included. One entry per Schedule C, describing income already reported through selfEmploymentNetProfit or otherOrdinaryIncome; it adds none.',
     },
     'Each § 199A trade or business separately; one entry per Schedule C. Adds no income.',
   ),
@@ -157,7 +157,7 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   reitPtpLossCarryforward: money('Prior-year § 199A REIT/PTP loss carryforward.'),
 
   qualifiedTips: money(
-    'Qualified tips under § 224, already filtered to tips that actually qualify (cash tips, a listed occupation, not an SSTB). This money is ALSO part of w2Wages or selfEmploymentNetProfit — the deduction subtracts it back out, it does not exclude it from income. 2025-2028 only.',
+    'Qualified tips under § 224, already filtered to tips that actually qualify (cash tips, a listed occupation, not an SSTB). ALSO part of w2Wages or selfEmploymentNetProfit — the deduction subtracts it back out rather than excluding it. 2025-2028 only.',
   ),
   qualifiedTipsBusinessIncomeLimit: money(
     'Net income of the business the self-employed tips were earned in. Caps the § 224 deduction.',
@@ -166,14 +166,14 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
     money(
       'The FLSA PREMIUM PORTION of overtime pay under § 225 — the excess over the regular rate ("the half" in time-and-a-half), not total overtime wages. Also counted in w2Wages. 2025-2028 only.',
     ),
-    'The FLSA PREMIUM PORTION of overtime under § 225 — the excess over the regular rate, NOT total overtime wages. 2025-2028.',
+    'The FLSA PREMIUM PORTION of overtime under § 225 — the excess over the regular rate, NOT total overtime. 2025-2028.',
   ),
   qualifiedVehicleLoanInterest: money(
     'Interest on a qualifying post-2024 loan for a new US-assembled personal-use vehicle (§ 163(h)(4)). 2025-2028 only.',
   ),
   foreignEarnedIncomeExclusion: withShortForm(
     money(
-      'Income excluded under § 911, § 931 or § 933, added back when computing modified AGI for the SALT phase-down, the Schedule 1-A phase-outs and the child tax credit.',
+      'Income excluded under § 911, § 931 or § 933, added back into modified AGI for the SALT phase-down, the Schedule 1-A phase-outs and the child credit.',
     ),
     'Income excluded under § 911, § 931 or § 933, added back into modified AGI.',
   ),
@@ -182,7 +182,7 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
     type: 'integer',
     minimum: 0,
     description:
-      "The filer's age at the end of the year. Required for the earned income credit of a household with NO qualifying children, because § 32(c)(1)(A)(ii)(II) allows it only from 25 to 64. Without children and without this, the EITC is reported as null rather than guessed.",
+      "The filer's age at the end of the year. Required for the earned income credit of a household with NO qualifying children — § 32(c)(1)(A)(ii)(II) allows it only from 25 to 64, and without it the EITC is reported as null rather than guessed.",
   },
   age65OrOlder: flag('Filer is 65 or older. Adds the extra standard deduction and the OBBBA senior deduction.'),
   blind: flag('Filer is blind. Adds another extra standard deduction amount.'),
@@ -200,30 +200,30 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   ),
   eitcQualifyingChildren: withShortForm(
     count(
-      'Children meeting the § 32(c)(3) tests, which genuinely differ from § 24 — no age-17 cut-off for a permanently disabled child, and no requirement to claim the dependency exemption. Defaults to qualifyingChildren.',
+      'Children meeting the § 32(c)(3) tests, which differ from § 24 — no age-17 cut-off for a permanently disabled child, no need to claim the dependency exemption. Defaults to qualifyingChildren.',
     ),
-    'Children meeting the § 32(c)(3) tests: no age-17 cut-off if permanently disabled. Defaults to qualifyingChildren.',
+    '§ 32(c)(3) children: no age-17 cut-off if permanently disabled. Defaults to qualifyingChildren.',
   ),
   disqualifiedInvestmentIncome: withShortForm(
     money(
-      'Disqualified investment income for the § 32(i) cliff: taxable AND tax-exempt interest, dividends, net capital gain, net rental and royalty income, net passive income. Defaults to longTermCapitalGains, which is the only component that can be identified with certainty. A filer with substantial interest or ordinary dividends inside otherOrdinaryIncome should supply this explicitly.',
+      'Disqualified investment income for the § 32(i) cliff: taxable AND tax-exempt interest, dividends, net capital gain, net rental and royalty income, net passive income. Defaults to longTermCapitalGains, the only component identifiable with certainty — supply it when otherOrdinaryIncome holds interest or ordinary dividends.',
     ),
-    'Investment income for the § 32(i) cliff: interest (taxable AND tax-exempt), dividends, capital gain, rent, royalties, passive income.',
+    'The § 32(i) cliff figure: interest (taxable AND tax-exempt), dividends, capital gain, rent, royalties, passive income.',
   ),
   separatedFromSpouse: flag(
     'Whether a married-filing-separately filer meets § 32(d)(2) (living apart for the last six months, or a separation decree). Defaults to false, which bars the earned income credit.',
   ),
   taxpayerHasWorkAuthorizedSocialSecurityNumber: withShortForm(
     flag(
-      'Whether the taxpayer, or a spouse on a joint return, has a social security number valid for employment, as OBBBA § 70104(c) requires from 2025 for the child portion of the § 24 credit. Defaults to true.',
+      'Whether the taxpayer, or a spouse on a joint return, has a social security number valid for employment, as OBBBA § 70104(c) requires from 2025 for the § 24 child credit. Defaults to true.',
     ),
-    'Filer or spouse has a work-authorized SSN, required from 2025 for the § 24 child credit. Defaults to true.',
+    'Filer or spouse has a work-authorized SSN, required from 2025 for the § 24 child credit. Default true.',
   ),
   employeeSocialSecurityAndMedicareTax: withShortForm(
     money(
-      'Employee-share social security and Medicare tax withheld, used only by the § 24(d)(1)(B)(ii) alternative for families with three or more children. Defaults to the FICA implied by w2Wages.',
+      'Employee-share social security and Medicare tax withheld, used only by the § 24(d)(1)(B)(ii) alternative for three or more children. Defaults to the FICA implied by w2Wages.',
     ),
-    'Employee-share FICA withheld; § 24(d)(1)(B)(ii) only. Defaults to the FICA implied by w2Wages.',
+    'Employee-share FICA withheld; § 24(d)(1)(B)(ii) only. Defaults to the FICA in w2Wages.',
   ),
 
   federalWithholding: money('Federal income tax already withheld, used to compute the balance due or refund.'),
