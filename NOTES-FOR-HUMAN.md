@@ -8,11 +8,81 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 14 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.9.0, and `us-tax-mcp` v0.11.0 — so the version numbers in older entries are
+**As of Day 15 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.10.0, and `us-tax-mcp` v0.12.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-09 (Day 15)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 126 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 231 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed
+
+**All 24 Michigan city income taxes**, so there are now 140 local income taxes
+where there were 116. `us-state-tax` is v0.10.0 and `us-tax-mcp` is v0.12.0,
+taking four new fields — `city`, `cityIncome`, `workCity` and
+`workCityEarnings`, all Michigan-only.
+
+### Three things worth knowing
+
+**A Michigan city taxes something the Michigan return does not compute.** Every
+other local tax in this package charges a rate on a line of the state return.
+Michigan's cities define their own base and exclude pensions, IRA
+distributions, Social Security, unemployment compensation and military pay
+**entirely** — so a retired Detroit filer owes the city nothing on their
+pension, and a family whose Michigan tax is a refund from the state's earned
+income credit still owes Detroit in full. A single filer at `$100,000` owes
+Michigan `$4,003.50` and Detroit `$2,385.60`.
+
+**The city exemption has been `$600` since 1964 and is worth `$14.40`.** MCL
+141.631(1) set the floor and never indexed it; Michigan's own exemption is
+`$5,800` and is indexed every year. That is also why the per-city variations in
+which extra exemptions a city allows are not modelled: the whole class of
+omission is bounded by that `$14.40`, and the result says so.
+
+**The credit for tax paid to another city is capped at your own city's
+nonresident rate**, which means it is complete for a Detroit resident commuting
+to Grand Rapids and short for a Lansing resident commuting to Detroit — who pays
+70% more city tax than one working at home. Pass `workCity` and
+`workCityEarnings` and both taxes and the credit are computed.
+
+### One competitive datum, if you are deciding whether this is worth publishing
+
+`statetakehome-mcp`, the npm package that claims all fifty states, has **no
+Michigan city income tax at all**. For a single Detroit filer at `$100,000` its
+answer is `$3,999.25` against `$6,389.10` — short by 37.4% of the bill, in a
+package whose entire subject is take-home pay. Separately, it files Michigan's
+per-*person* `$5,900` exemption under `standard_deduction`, so a joint return
+with two children gets `$11,800` of exemptions where the answer is `$23,200`:
+`$484.50` too much tax, in the opposite direction, on the same state.
+
+### One thing I could not verify, recorded so you can
+
+Hudson's city personal exemption is `$1,000` here. Every other above-floor
+exemption (Grayling `$3,000`, Portland `$1,000`, Ionia `$700`, Battle Creek,
+Benton Harbor, Saginaw and Springfield `$750`) was confirmed from two
+independent sources today; Hudson's rests on one. It is worth `$10` of tax per
+exemption. `ci.hudson.mi.us` is blocked from here.
 
 ---
 

@@ -4,6 +4,268 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 15 — 2026-09-09
+
+### What I did
+Yesterday's first priority: **Michigan's 24 cities**. `packages/us-state-tax` is **v0.10.0**
+— 26 states plus **140 local income taxes**, **231 tests**, up from 214 — and
+`packages/us-tax-mcp` is **v0.12.0** with **126**, up from 123. The federal engine is
+untouched at v0.7.0 and its 283 tests still pass. **640 tests**, all green, zero dependencies
+anywhere.
+
+### The first local tax here that is not a rate on a state figure
+
+Every local tax this package had before today charges a rate on something the state return
+already computed. New York City on New York taxable income, Yonkers on the New York *tax*,
+Maryland's and Indiana's counties on the state's own taxable income. That is what made them
+cheap: `LocalBase` picks a line and the engine applies a rate to it.
+
+**A Michigan city has no line to pick.** The Uniform City Income Tax Ordinance (MCL 141.601
+et seq.) defines its own base, and the divergences from federal AGI are large, uniform across
+all 24 cities, and all in the same direction:
+
+```text
+pensions, annuities and IRA distributions   excluded ENTIRELY
+Social Security and railroad retirement     excluded entirely
+unemployment compensation                   excluded entirely
+military pay                                excluded entirely
+```
+
+So a Michigan city taxes a retiree at **zero** while Michigan itself is still working out
+which of the four birth-year tiers of MCL 206.30(9) they fall in. And it runs the other way
+too: a family whose *Michigan* tax is a refund because of the state's 30% earned income
+credit still owes Detroit in full — `$614.40` on `$28,000` of wages with two children,
+against a state result that is negative. **The city is not downstream of the state return,
+so nothing on the state return can reach it.**
+
+That needed a new `LocalBase` — `cityIncome` — plus a `cityIncome` input, and the same
+treatment Pennsylvania, New Jersey and Massachusetts get: ask for the figure, and when it is
+missing derive it and **say which way the derivation errs**. Federal AGI less
+`retirementIncome` is exact for a wage earner and too high for anyone with Social Security,
+unemployment or military pay in AGI. The note says exactly that.
+
+### Detroit is 60% of what Michigan itself charges
+
+```text
+single filer, $100,000                     Michigan   $4,003.50   at 4.25%
+                                           Detroit    $2,385.60   at 2.4%
+                                           total      $6,389.10   marginal 6.65%
+```
+
+Twenty of the 24 are at 1%, Highland Park at 2%, Grand Rapids and Saginaw at 1.5%. Detroit's
+2.4% comes from Public Act 56 of 2011; the others above 1% have their own enabling acts.
+
+### Three things derived rather than stored, and the third is the interesting one
+
+**1. The nonresident rate is half the resident rate.** MCL 141.611 fixes the ratio and all
+24 honour it exactly, the four above-1% cities included. So the file stores one rate per city
+and halves it, and a test checks the halving against the four separately published
+nonresident rates. Day 5's rule, in the cheapest form it has ever taken: 24 numbers that a
+division already produces.
+
+**2. The exemption is `$600` and it was `$600` in 1964.** MCL 141.631(1) set the floor and
+never indexed it. Sixteen of the 24 are still on it. Michigan's *own* personal exemption is
+`$5,800` for 2025 and **is** indexed annually, so the city one is 10.3% of it. At the highest
+rate in the state it is worth this:
+
+```text
+Detroit, 2.4% x $600   =  $14.40   of tax, per person, per year
+a 1% city, $600        =   $6.00
+```
+
+**A statutory minimum that is never indexed is a tax rise every year**, and this is the
+cleanest instance of it I have found: sixty-two years of inflation have turned the deduction
+the Legislature thought it was granting into fourteen dollars and forty cents. It is also
+what made a scoping decision easy. The 24 cities differ, by ordinance, in *which* additional
+exemptions they allow — age 65, blindness, deafness, paraplegia — and I could not source that
+for all 24. I did not need to: **the whole class of omission is bounded by `$14.40`**, the
+note says so, and being exactly right about it would have cost more bytes than the rest of
+the file. That is a better answer than either guessing or refusing.
+
+The corollary worth keeping: **when you cannot source a parameter, price it before deciding
+whether you need it.** A missing figure that cannot move the answer by more than a rounding
+error is a footnote, not a blocker.
+
+**3. The credit for tax paid to another city fails in the direction people commute.** A
+resident of one taxing city who works in another owes both, and the home city credits the tax
+paid — capped at **the home city's own nonresident rate**. The cap is the whole story:
+
+```text
+Detroit resident working in Grand Rapids
+  pays GR $445.50 (0.75%), Detroit credits all of it (cap 1.2%)
+  total $1,425.60 — exactly what they would owe Detroit if they never left
+
+Lansing resident working in Detroit
+  pays Detroit $712.80 (1.2%), Lansing credits $297 of it (cap 0.5%)
+  total $1,009.80 against $594.00 at home — 70% MORE city tax for the same wage
+```
+
+**The credit is complete for the filer who did not need it and short for the one who did**,
+and which of the two you are is decided by the ratio of your own city's rate to the other's.
+A rate table cannot express it because it is a fact about a *pair* of jurisdictions.
+
+### The sourcing problem, and how it was solved
+
+`michigan.gov`, `legislature.mi.gov`, `detroitmi.gov`, `grandrapidsmi.gov`,
+`help.nfc.usda.gov` and every SEO tax site are blocked at the proxy — `WebFetch` has a
+narrower allowlist than I assumed and returned `EGRESS_BLOCKED` for all of them. And
+**PolicyEngine-US does not model Michigan city income tax at all**, so Day 14's rescue was
+unavailable.
+
+What worked was GitHub code search. Three independent repositories carry the table:
+
+1. `openaccountants/openaccountants` — a payroll skill doc with all 24 cities, rates and the
+   inter-city credit rule.
+2. `mkyw/finance-app-public` — a curated `_MI_CITY_RATES` dict, same 24 cities, same four
+   non-1% rates.
+3. `capable78638974979473297813001-pixel/payroll-tax-engine-` — a `MI-cities-2026.json` with
+   per-city rates **and exemptions**, each carrying a provenance note naming the city page or
+   PDF it was read from, plus a recorded correction (a consolidated table's Saginaw entry was
+   wrong and was fixed against Saginaw's own FAQ).
+
+All three agree on the city list and on every rate. For the exemptions I then confirmed the
+outliers independently through `WebSearch`: Grayling `$3,000` (its own GR W-4), Portland
+`$1,000` (its P-1040 instructions), Ionia `$700` and Springfield `$750` (their own pages),
+Detroit `$600`, Battle Creek and Saginaw `$750`. **Hudson's `$1,000` is the one I could not
+confirm a second time from here**, and it is recorded as such.
+
+Generalising Day 14: *when a source cannot be reached, find the events that would have
+changed it.* Day 15 adds the sibling — **when a source cannot be reached, find who else had
+to read it.** A rate table that three unrelated codebases transcribed independently, from
+different documents, is better evidence than one fetch of the document would have been,
+because three transcriptions agreeing rules out the transcription error a single fetch cannot.
+
+I also checked the events, per Day 14: a Michigan city income tax rate changes only by
+ordinance with voter approval, no such change is reported for 2026, and the only live
+Michigan income tax story is the *state* "Invest in MI Kids" ballot measure — a 5% surcharge
+over `$500,000`/`$1,000,000` that would take effect in **2027** if it makes the ballot. So
+2026 is 2025 as a matter of ordinance rather than as a carry-forward, and neither year is
+provisional. A test asserts every city's two years are identical and both `published`.
+
+### The seventh compression pass corrected the sixth's rule, expensively
+
+Day 14: *choose by multiplicity, not by length* — a property carried by four tools is worth
+four times a longer one carried by one. True, and I applied it, and **the payload got 215
+bytes bigger while I deleted words from it.**
+
+The unit was wrong. Three of the four tools carry only the **first sentence** of each
+description (`terseProperties` derives the short form that way). So what is paid four times
+is the first sentence and what is paid once is everything after it. Rewriting
+`isSpecifiedServiceTradeOrBusiness` from
+
+```text
+"True for a specified service trade or business under § 199A(d)(2). That covers health, ..."
+```
+
+to a tighter single sentence beginning `"A § 199A(d)(2) specified service trade or business:
+health, law, ..."` shortened the description by 53 bytes and lengthened the *first sentence*
+by 218 — which is 654 bytes across the three terse copies. Same for
+`disqualifiedInvestmentIncome`.
+
+**The rule, corrected: trim the tail to save once, trim the first sentence (or author an
+`x-terse`) to save three times, and never move a clause forward in order to shorten a
+sentence.** In any derived-short-form scheme, ask what the derivation keeps before deciding
+what is expensive.
+
+The redone pass recovered **448 bytes** against Michigan's **1,050**, all of it from tails
+and authored short forms, none of it operative content. The remaining 602 was bought by
+raising the ceiling from 48,000 to **48,800** — and that is the other half of the entry.
+**Six passes in, the payload has no fat left; what is left is content.** The ceiling was
+always an arbitrary round number, the payload it now holds describes 26 states, 140 local
+income taxes and the whole federal return in 48,579 bytes, and the honest move was to say so
+in the test rather than sand another 600 bytes off the descriptions that exist to teach a
+model what the fields mean. The test comment records both the new figure and why.
+
+### Competitive re-check: their Michigan record is wrong in both directions at once
+
+`statetakehome-mcp` is still v0.1.1 of 2026-07-13. Its Michigan entry, read out of the
+published tarball today:
+
+```json
+{"name":"Michigan","tax_type":"flat","rate":0.0425,"verify_2026":true,
+ "notes":"Flat 4.25%. Exemption perso $5,900/pers.",
+ "standard_deduction":{"single":5900,"married_filing_jointly":11800},
+ "source_year":2026}
+```
+
+Three findings:
+
+1. **No mention of a city income tax anywhere** — not even the `"County tax 2.25-3.20% en
+   sus"` note their Maryland record carries. For a single Detroit filer at `$100,000` their
+   answer is `$3,999.25` against `$6,389.10`: **short by `$2,389.85`, 37.4% of the bill**, in
+   a package whose entire subject is take-home pay.
+2. **The `$5,900` is a per-person exemption filed under `standard_deduction`, so it is not
+   multiplied by anything.** A Michigan joint return with two children has `$23,200` of
+   exemptions; their model gives `$11,800`. That is **`$484.50` too high** — the opposite
+   direction to (1), from a different mechanism, on the same state.
+3. `verify_2026: true` again, a third state carrying their own published to-do flag.
+
+And (2) is a gift as well as a finding: their `$5,900` is a plausible 2026 Michigan
+exemption, which I could not source from here. Michigan's 2026 stays `provisional` and its
+note now **names both candidates and prices the difference at `$4.25` per exemption** — the
+same treatment Maryland's 2026 standard deduction got on Day 14. Day 13's rule keeps paying:
+read what the competition wrote in its data. Sometimes it is a to-do list; sometimes it is a
+figure you could not otherwise reach, and the honest response to two plausible published
+figures is still to say there are two.
+
+No kill criterion is met. Nothing new on npm for Michigan, Detroit or city income tax;
+`irs-taxpayer-mcp` moved 1.0.1 → 1.0.2 and still cannot be imported.
+
+### One note on the human
+
+**A notification today**, the second since Day 11 and for the same reason: something new is
+at stake that they would want to know without opening the session. Not the publish ask —
+that is word for word the one open since Day 6. The new thing is the competitive datum: a
+published competitor's Michigan answer is short by 37% of the bill for a Detroit filer, and
+their own data hands us a 2026 figure we could not otherwise source.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`. Needed again.
+- **`npm ci` in `packages/us-tax-mcp` was missing**, and `npm run build` failed silently with
+  `error TS2688: Cannot find type definition file for 'node'` because I had piped the build
+  to `/dev/null`. I then measured a **stale `dist/`** twice and drew a wrong conclusion from
+  it. *Never redirect a build to `/dev/null` when the next command reads its output.* The
+  215-byte mystery above cost twenty minutes for this reason.
+- Every illustrative figure in the new docs was computed before it was written, per Day 14.
+  `test/michigan-cities.test.js` (15 tests) and two new `readme.test.js` cases pin all of
+  them, including the ones stated as ratios — "60% of what Michigan itself charges" and "70%
+  more city tax" are both assertions, not prose.
+- The shared name-lookup in `localities/counties.ts` grew a `suffix` and a `noun`. A city has
+  no suffix to make optional, and the old message ended `The word "County" is optional` — a
+  model reading it would try `"Detroit County"`. `suffix: null` suppresses it and a test
+  asserts the word "County" does not appear in a Michigan error at all.
+- `workCity` without `workCityEarnings` is **refused** rather than computed as zero, on the
+  same reasoning as Maryland's `stateItemizedDeductions` without `federalItemized`: a model
+  that named a work city meant to be charged for it, and a silent zero hides that.
+- All three suites run before the push, per Day 13. One commit carries both packages.
+
+### What I would do next
+
+1. **Ohio**, and it is now the obvious one. It is the largest state missing, its 600-odd
+   municipal income taxes are the *same shape* Michigan just built — a city base, a resident
+   and a nonresident rate, a credit for tax paid to another municipality — and the honest
+   first version is the state return plus the largest 30 or so municipalities and a loud
+   note. The Finder's rate CSV is blocked at the proxy, but `mkyw/finance-app-public` carries
+   a curated fallback table and today's method (three independent transcriptions) applies.
+2. **Kentucky's occupational taxes**, on the same machinery. Louisville 2.2%, Lexington
+   2.25%, and Kentucky is already in the package.
+3. **Virginia.** Still the cheap quiet day: no local income tax, a federal-AGI base.
+4. **State withholding** — California DE-44 Method B and New York NYS-50-T, the other half of
+   `paycheck_withholding`. Michigan's own is now a candidate too, and Detroit's has a hook:
+   Treasury administers it, so it is one portal with the state's.
+5. **Maryland's pension exclusion**, the largest thing this package still returns as zero for
+   a Maryland retiree.
+6. **Maryland's poverty level credit**, which needs a federal poverty-guideline table by
+   household size — a deliberate decision, not a passing one.
+7. **§ 68**, still blocked on irs.gov.
+
+Do (1). Ohio is the third state on the city-base machinery, it is the largest gap left, and
+the `workCity`/`cityIncome` shape built today is exactly what it needs. Do (3) if a quiet
+day is wanted instead.
+
+---
+
 ## Day 14 — 2026-09-08
 
 ### What I did

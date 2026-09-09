@@ -8,7 +8,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | Path | What it is |
 | --- | --- |
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
-| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 26 states and **116 local income taxes** — New York City, Yonkers, all 24 Maryland jurisdictions and all 92 Indiana counties — 2025 and 2026. Built around the part a table of state rates cannot hold: **Indiana**, where the average county rate is 1.914% against a state rate of 3.00%, so two fifths of the bill is levied by a county — Randolph County at the 3.00% statutory maximum charges more than the state does from 2026, Porter County charges one sixth of that, and six counties raised their rate for 2026 in the year the state cut its own; **Maryland**, where every resident owes a county income tax of 2.25%–3.30% on the same taxable income — a third to two fifths of the whole bill, reported by no table of state rates — where Frederick County's bracket selects one rate that applies to the *whole* income so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents, where the county earned income credit is not stored but is ten times each county's own rate, and where the new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08; **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
+| [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 26 states and **140 local income taxes** — New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties and all 24 Michigan cities — 2025 and 2026. Built around the part a table of state rates cannot hold: **Michigan**, whose 24 cities tax a base the MI-1040 does not contain, excluding pensions, IRA distributions, Social Security, unemployment and military pay entirely, where Detroit charges residents 2.4% against a state rate of 4.25%, where the personal exemption has been the $600 fixed in 1964 and is worth $14.40 of tax against an indexed $5,800 state exemption, and where a resident working in another taxing city is credited only up to their own city's nonresident rate — so a Lansing resident commuting to Detroit pays 70% more city tax than one working at home; **Indiana**, where the average county rate is 1.914% against a state rate of 3.00%, so two fifths of the bill is levied by a county — Randolph County at the 3.00% statutory maximum charges more than the state does from 2026, Porter County charges one sixth of that, and six counties raised their rate for 2026 in the year the state cut its own; **Maryland**, where every resident owes a county income tax of 2.25%–3.30% on the same taxable income — a third to two fifths of the whole bill, reported by no table of state rates — where Frederick County's bracket selects one rate that applies to the *whole* income so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents, where the county earned income credit is not stored but is ten times each county's own rate, and where the new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08; **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of twelve of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, `npx -y us-tax-mcp`. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
@@ -228,6 +228,32 @@ The average county rate is 1.914%, the spread is six to one — Porter County 0.
 County 3.00% — and from 2026 a Randolph County filer pays their county more than their
 state, because the state rate fell to 2.95% and the county's is the statutory maximum. Six
 counties raised their rate for 2026 in the same year the state cut its own.
+
+Michigan is the case where the shape itself had to change. Every local tax above charges a
+rate on a line the state return already produced; a Michigan city has no line to charge. The
+Uniform City Income Tax Ordinance defines its own base and excludes pensions, IRA
+distributions, Social Security, unemployment compensation and military pay **entirely** — so
+a city taxes a retiree at zero while Michigan is still working out which of four birth-year
+tiers of retirement deduction they fall in, and a family whose Michigan tax is a *refund*
+from the state's 30% earned income credit still owes Detroit in full:
+
+```js
+const detroit = stateIncomeTax({
+  state: 'MI', year: 2025, filingStatus: 'single', city: 'Detroit',
+  federal: { adjustedGrossIncome: 100_000, taxableIncome: 84_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+detroit.tax;                 // 4003.50   Michigan, at 4.25%
+detroit.localTaxes[0].tax;   // 2385.60   Detroit, at 2.4% of a base the state never computes
+```
+
+The city exemption is the $600 the Legislature set in Act 284 of 1964 and never indexed,
+against Michigan's own indexed $5,800 — $14.40 of tax a year at Detroit's rate. The
+nonresident rate is one half of the resident rate by statute, so it is derived rather than
+stored. And the credit a home city gives for tax paid to a work city is capped at the home
+city's *own* nonresident rate, which makes it whole for a Detroit resident commuting to Grand
+Rapids and short for a Lansing resident commuting to Detroit.
 
 It takes the output of `estimateFederalTax()` directly, but neither package depends on the
 other. See the [package README](packages/us-state-tax/README.md) for the full list of what

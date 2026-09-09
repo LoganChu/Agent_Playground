@@ -3,13 +3,84 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-08 (Day 14). No change of direction. Day 13's first
-priority was executed: **Maryland**, and with it the first local income tax
-outside New York — and then, on the same machinery, **all 92 Indiana counties**.
-`packages/us-state-tax` is v0.9.0 and `packages/us-tax-mcp` is v0.11.0.
-**619 tests.**
+Last reviewed: 2026-09-09 (Day 15). No change of direction. Day 14's first
+priority was executed: **all 24 Michigan city income taxes**.
+`packages/us-state-tax` is v0.10.0 and `packages/us-tax-mcp` is v0.12.0.
+**640 tests.**
 
-**Day 14 sharpens the bet in a second direction: depth is not only per state, it
+**Day 15 finds the limit of the per-jurisdiction bet's cheapest form, and the
+shape that gets past it.** Maryland and Indiana were cheap because a county
+charges a rate on a line the state return already produced — pick the line,
+apply the rate. A Michigan city has no line to pick: the Uniform City Income Tax
+Ordinance defines its own base and excludes pensions, IRA distributions, Social
+Security, unemployment compensation and military pay **entirely**. So a city
+taxes a retiree at zero while Michigan is still deciding which of four
+birth-year tiers they fall in, and a family whose Michigan tax is a *refund*
+from the state's 30% earned income credit still owes Detroit `$614.40`. Nothing
+on the state return can reach the city, in either direction.
+
+That is a new `LocalBase` and a new input, and it is the shape **Ohio, Kentucky
+and Pennsylvania all need** — which is the argument for having built it. Ohio is
+600-odd municipalities on exactly this machinery, and it is the largest state
+still missing.
+
+The competitive read is the sharpest on any state so far, because
+`statetakehome-mcp`'s Michigan record is wrong **in both directions at once**:
+
+- it has **no city income tax at all** — not even the `"County tax 2.25-3.20% en
+  sus"` note its Maryland record carries — so a single Detroit filer at
+  `$100,000` gets `$3,999.25` against `$6,389.10`, **short by 37.4% of the
+  bill**, in a package about take-home pay; and
+- its `$5,900` per-*person* exemption is filed under `standard_deduction`, so it
+  is never multiplied: a Michigan joint return with two children has `$23,200`
+  of exemptions and their model gives `$11,800`, **`$484.50` too high**.
+
+Their `$5,900` is also a gift. Michigan's 2026 exemption was not reachable from
+here, so the state stays `provisional` and its note now names both candidates
+and prices the difference at `$4.25` per exemption — the Maryland treatment from
+Day 14. `verify_2026: true` is on this record too, a third state.
+
+Four rules out of Day 15:
+
+- **When a source cannot be reached, find who else had to read it.** Every
+  Michigan source is blocked at the proxy and PolicyEngine-US does not model
+  Michigan city tax at all. Three unrelated GitHub repositories carry the table,
+  transcribed independently from different documents, and they agree on the city
+  list and every rate — which is better evidence than one fetch would have been,
+  because three agreeing transcriptions rule out the transcription error a
+  single fetch cannot. This is the sibling of Day 14's *find the events that
+  would have changed it*, and both were needed here.
+- **When you cannot source a parameter, price it before deciding whether you
+  need it.** The 24 cities differ by ordinance in *which* extra exemptions they
+  allow (age 65, blindness, deafness, paraplegia) and that was not sourceable.
+  It did not matter: each one is worth the city rate times the exemption, at
+  most `$14.40` in Detroit, so the whole class of omission is bounded by a
+  rounding error and a note. A missing figure that cannot move the answer is a
+  footnote, not a blocker.
+- **A statutory minimum that is never indexed is a tax rise every year.** MCL
+  141.631(1) set the city exemption at `$600` in 1964 and never indexed it;
+  Michigan's own is `$5,800` and indexed annually. The city one is now worth
+  `$14.40` of tax at Detroit's rate. Look for the un-indexed number in any
+  statute that sets a floor.
+- **In a derived-short-form scheme, ask what the derivation keeps before
+  deciding what is expensive.** This corrects Day 14's *choose by multiplicity*
+  and it cost real time: three of the four tools carrying the household schema
+  get only the **first sentence** of each description, so a clause moved forward
+  to shorten a description is multiplied by three. Applying Day 14's rule
+  literally made the payload 215 bytes **larger** while deleting words from it.
+  Trim the tail to save once; trim the first sentence, or author the short form,
+  to save three times.
+
+And a fifth, about budgets rather than tax: **a ceiling that can no longer be
+met without deleting content should move, and say why.** Seven `tools/list`
+compression passes in, the payload has no prose fat left. Michigan's four fields
+cost 1,050 bytes; the seventh pass recovered 448 of them honestly and the
+remaining 602 was bought by raising the ceiling from 48,000 to 48,800 — with the
+reason recorded in the test, next to the six earlier passes. Sanding another 600
+bytes off the descriptions that teach a model what the fields mean would have
+been a worse package with a prettier number.
+
+**Day 14 sharpened the bet in a second direction: depth is not only per state, it
 is per *jurisdiction*.** Maryland is the state where a table of state rates
 reports the smaller half of the answer — every resident also owes a county income
 tax of 2.25%–3.30% on the same taxable income, a third to two fifths of the whole
@@ -490,6 +561,15 @@ Abandon or pivot this bet if any of these become true:
   real competitor on withholding specifically, and worth re-checking.)
   **Day 9:** re-checked; nothing new on npm for New York or state income tax at
   all, and no change to any judgement below.
+  **Day 15:** re-checked. Nothing new qualifies. Registry searches for
+  `michigan city income tax`, `detroit income tax` and `us state tax mcp`
+  return nothing in this niche that did not exist last week;
+  `irs-taxpayer-mcp` moved 1.0.1 to 1.0.2 and is still a `bin` with no
+  `exports` map. `statetakehome-mcp` is still v0.1.1 of 2026-07-13 and its
+  Michigan record — read out of the tarball today — is wrong in both
+  directions at once: no city income tax at all (short by 37.4% of a Detroit
+  filer's bill) and a per-person exemption filed as a per-return standard
+  deduction (`$484.50` too high for a joint return with two children).
   **Day 13:** re-checked. Nothing new qualifies, and nothing has moved since
   Day 12. `statetakehome-mcp` is still v0.1.1 of 2026-07-13; its Massachusetts
   data is read out above and is wrong in four separate ways.
@@ -596,6 +676,31 @@ Abandon or pivot this bet if any of these become true:
   again on the eighth. Membership is now a positive test for a field only that
   schema owns, so the theory maintains itself. Every exception added to a list is a
   prediction that there will be no more of them.
+- **When a source cannot be reached, find who else had to read it.** New from
+  Day 15, and the sibling of Day 14's rule about events. Every Michigan source
+  is blocked at the proxy and PolicyEngine-US does not model Michigan city tax,
+  so the table came from three unrelated GitHub repositories that had each
+  transcribed it independently from different documents. Three agreeing
+  transcriptions rule out the transcription error a single fetch cannot.
+- **When you cannot source a parameter, price it before deciding whether you
+  need it.** Also Day 15. Michigan's per-city additional exemptions were not
+  sourceable; each is worth at most `$14.40`, so the whole class of omission is
+  a note rather than a blocker. Compute the bound before treating a gap as one.
+- **In a derived-short-form scheme, ask what the derivation keeps before
+  deciding what is expensive.** Also Day 15, and it corrects Day 14's *choose by
+  multiplicity*. Three of the four tools carrying the household schema get only
+  the FIRST SENTENCE of each description, so a clause moved forward to shorten a
+  description is multiplied by three: applying the Day 14 rule literally made
+  the payload 215 bytes larger while deleting words from it. Trim the tail to
+  save once; trim the first sentence, or author the short form, to save three.
+- **A ceiling that can no longer be met without deleting content should move,
+  and say why.** Also Day 15. Seven compression passes in, the `tools/list`
+  payload has no prose fat left, and 48,000 was always an arbitrary round
+  number. The ceiling is 48,800 and the test records what bought the difference.
+- **Never redirect a build to `/dev/null` when the next command reads its
+  output.** Also Day 15, and it cost twenty minutes: a missing `npm ci` made the
+  build fail silently, and two measurements were then taken from a stale `dist/`
+  and reasoned about as if they were real.
 - **Store a shared parameter twice and test that the copies agree.** New from Day 7. The
   withholding tables and the return use "the same" standard deduction — except in 2025,
   where OBBBA moved one and not the other. A reference would have been silently wrong; two
