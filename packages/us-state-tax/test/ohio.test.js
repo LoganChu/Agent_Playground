@@ -681,3 +681,22 @@ test('all three Ohio taxes on one return, which is what an Ohio filer actually o
   // that appear in no table of state income tax rates.
   assert.ok(all.tax / all.totalTax < 0.41);
 });
+
+test('the levy terms are kept as a note, and the counts in the docs are real', () => {
+  const districts = ohioSchoolDistricts(2026);
+  const withTerms = districts.filter((d) => d.notes[0].startsWith('The '));
+  const expiring = withTerms.filter((d) => d.notes[0].includes('expires'));
+  assert.equal(withTerms.length, 108);
+  assert.equal(expiring.length, 102, 'the count the file comment quotes');
+  // Danville's 1.75% is two levies, and the note says which and until when.
+  const danville = ohioSchoolDistrict('4202', 2026);
+  assert.equal(danville.rate.rate, 0.0175);
+  assert.match(danville.notes[0], /1\.25% expires 2034; 0\.50% CPT/);
+  // The name a result prints is the short one; the terms are in the note.
+  assert.equal(danville.name, 'Danville LSD (4202), Knox County, Ohio');
+  // 2025 leads with the carry-forward warning instead, and is flagged.
+  const back = ohioSchoolDistrict('4202', 2025);
+  assert.equal(back.status, 'provisional');
+  assert.match(back.notes[0], /^PROVISIONAL:/);
+  assert.equal(ohioSchoolDistrict('4202', 2026).status, 'published');
+});

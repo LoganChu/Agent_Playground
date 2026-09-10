@@ -108,7 +108,20 @@ const NOTES: readonly string[] = [
   'An earned income district allows NO deductions and NO exemptions at all — not the personal exemption the traditional base subtracts, and nothing else. The rate is charged on the first dollar of wages.',
   'The $50 senior citizen credit is per return and per district, for a filer aged 65 or over, and it is allowed on both bases. It is the only credit against this tax.',
   'The rate published for a district is the SUM of the levies in force, and every levy has terms: the district name here carries Ohio’s own note of them verbatim — "expires 2034" for a dated levy and "CPT" for one that runs until repealed. A rate with an expiry date is a rate that will change.',
-  'Not modelled: the part-year return for a filer who moved between districts, the estate tax base some districts once used, and the withholding schedule. Rates are for tax year 2026 as Ohio published them on 30 December 2025 and are carried into 2025 in this package, which is wrong for any district whose rate changed between the two years — pass 2026 for the published figure.',
+  'Not modelled: the part-year return for a filer who moved between districts, the estate tax base some districts once used, and the withholding schedule.',
+];
+
+/**
+ * The 2025 warning, first in the list so a caller reads it before the rate.
+ *
+ * The rates here are the ones Ohio published on 30 December 2025 for tax year
+ * 2026. A district rate moves only by a vote of its electors, but districts do
+ * vote, so carrying 2026 backwards is a real risk rather than a formality — and
+ * this is the one table in the package where the newer year is the published one
+ * and the older is the carry-forward.
+ */
+const NOTES_2025: readonly string[] = [
+  'PROVISIONAL: these are the rates Ohio published on 30 December 2025 for tax year 2026, carried BACKWARDS into 2025 — the only table in this package where the newer year is the sourced one. A district whose electors changed its rate for 2026 had a different rate in 2025, and this answer is wrong for them by the difference. Pass 2026 for the figure Ohio actually published.',
 ];
 
 /**
@@ -383,10 +396,30 @@ export const OH_SDIT_RATE_INCREMENT = 0.0025;
 /** The senior citizen credit, per return and per district. SD 100 line 4. */
 export const OH_SDIT_SENIOR_CREDIT = 50;
 
+/**
+ * Ohio publishes each district's rate with the terms of the levies that make it
+ * up, inside the district's name: `Danville LSD (1.25% expires 2034; 0.50% CPT)`
+ * is a 1.75% rate built from a levy that ends in 2034 and one that runs until
+ * repealed. The terms belong in a note rather than in the name a result prints
+ * on every line — but they belong somewhere, because **a rate with an expiry
+ * date is a rate that will change**, and 102 of the 214 carry one.
+ */
+function levyNote(district: District): readonly string[] {
+  const open = district.name.indexOf(' (');
+  if (open < 0) return [];
+  const terms = district.name.slice(open + 2, district.name.lastIndexOf(')'));
+  return [
+    `The ${(district.rate * 100).toFixed(2)}% rate is levied as "${terms}", in Ohio's own words ` +
+      `— "CPT" is a continuing period of time, a levy that runs until repealed. A rate with an ` +
+      `expiry date is a rate that will change.`,
+  ];
+}
+
 function definitionFor(district: District, year: number): LocalIncomeTaxDefinition {
+  const bare = district.name.replace(/\s*\(.*?\)\s*$/, '').trim();
   return {
     code: district.number,
-    name: `${district.name} school district (${district.number}), ${district.county} County, Ohio`,
+    name: `${bare} (${district.number}), ${district.county} County, Ohio`,
     state: 'OH' as StateCode,
     year,
     // Rates are published for 2026 and carried into 2025 — see the notes. A
@@ -403,7 +436,10 @@ function definitionFor(district: District, year: number): LocalIncomeTaxDefiniti
       amount: OH_SDIT_SENIOR_CREDIT,
       minimumAge: 65,
     },
-    notes: NOTES,
+    notes:
+      year >= 2026
+        ? [...levyNote(district), ...NOTES]
+        : [...NOTES_2025, ...levyNote(district), ...NOTES],
     citations: CITATIONS,
   };
 }

@@ -7,7 +7,7 @@ Last reviewed: 2026-09-10 (Day 16). No change of direction. Day 15's first
 priority was executed and then some: **Ohio, all 679 of its municipal income
 taxes, and all 214 of its school district income taxes**.
 `packages/us-state-tax` is v0.12.0 and `packages/us-tax-mcp` is v0.14.0.
-**682 tests.**
+**683 tests.**
 
 **Day 16 is the largest single expansion this repo has had, and it is the
 per-jurisdiction bet paying at a scale the per-state bet cannot reach.** Ohio's

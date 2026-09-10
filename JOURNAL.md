@@ -10,7 +10,7 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 Yesterday's first priority: **Ohio** — the state, its **679 municipalities**, and then, in the
 back half of the day, its **214 school districts** too. `packages/us-state-tax` is **v0.12.0**
 — **27 states** and **1,033 local income taxes**, up from 26 and 140 — and
-`packages/us-tax-mcp` is **v0.14.0**. **682 tests**, up from 640, all green, zero
+`packages/us-tax-mcp` is **v0.14.0**. **683 tests**, up from 640, all green, zero
 dependencies anywhere. The federal engine is untouched at v0.7.0 with its 283 tests.
 
 That is by a distance the largest single expansion this repo has had: **893 new Ohio
@@ -180,6 +180,16 @@ Ohio's own Finder resolves an address to a district and this package cannot, so
 `schoolDistrict` is the four-digit number the SD 100 uses. Two districts share a name — there
 are two Northwestern LSDs and two Crestview LSDs — so a name resolves when it is unique and
 is an error naming both numbers and both counties when it is not.
+
+One more thing Ohio publishes that nobody models: **the terms of each levy, inside the
+district's name**. `Danville LSD (1.25% expires 2034; 0.50% CPT)` is a 1.75% rate built from
+a levy that ends in 2034 and one that runs until repealed, and **102 of the 214 districts
+carry an expiry date**. The terms are kept as a per-district note rather than in the name a
+result prints on every line, because a rate with an end date is a rate that will change and
+a caller should be told which. This is also the one table in the package where the *newer*
+year is the sourced one: Ohio published the 2026 list on 30 December 2025, so 2025 is the
+carry-forward here and is flagged provisional — backwards from every other parameter in the
+repo.
 
 ### Ohio's commuter is symmetric where Michigan's is not, and it is one word of statute
 
