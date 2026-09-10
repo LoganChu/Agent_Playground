@@ -2,10 +2,10 @@
 
 US **state and local** individual income tax for tax years **2025 and 2026**, across **27
 states** including **New York**, **New Jersey**, **Massachusetts**, **Maryland** and — new
-in 0.11.0 — **Ohio**, plus **819 local income taxes**: New York City, Yonkers, all 24
-Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, and all **679 Ohio
-municipalities**, which are more taxing jurisdictions than the rest of the United States put
-together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+in 0.11.0 — **Ohio**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
+Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
+municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
+rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -844,6 +844,57 @@ Pass `residentCreditRate` and `residentCreditLimitRate` — the "Credit Rate" an
 Factor" columns of Ohio's own municipal rate table — for a municipality that credits less.
 Leave them out and the result labels the credit as assumed and says what it is worth.
 
+### Ohio taxes one paycheck on three bases, and they disagree about what a wage is
+
+214 of Ohio's 600-odd school districts levy an income tax of their own, at 0.25% to 2.00%,
+on a separate SD 100 return and **on top of** the state and municipal taxes. Pass
+`schoolDistrict` — the four-digit number Ohio's own forms use.
+
+The base is one of two, chosen by the district's own ballot language, and they are not
+variations of each other:
+
+```text
+traditional     modified AGI less exemptions — Ohio AGI with the business income
+                deduction ADDED BACK, less the personal exemptions      146 districts
+earned income   wages and net self-employment earnings only, to the extent included
+                in modified AGI, with NO deductions and NO exemptions    68 districts
+```
+
+Stack the three and the disagreement is visible on one deferral:
+
+```js
+// $100,000 salary, $24,500 deferred to a 401(k), 2026.
+const oh = stateIncomeTax({
+  state: 'OH', year: 2026, filingStatus: 'single',
+  city: 'Columbus',        qualifyingWages: 100_000,   // box 5 — gross of the deferral
+  schoolDistrict: '0404',  earnedIncome:     75_500,   // box 1 — net of it
+  federal: { adjustedGrossIncome: 75_500, taxableIncome: 59_750,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+oh.localTaxes[0].baseAmount;   // 100000   Columbus, at 2.5%
+oh.localTaxes[1].baseAmount;   //  75500   Geneva Area CSD, at 1.25%
+```
+
+**The same dollar, deferred out of the same paycheck, is inside one local wage tax and
+outside the other** — worth `$612.50` to Columbus and saving `$306.25` from the district.
+A model that reads "Ohio local wage tax" as one thing gets one of the two wrong whichever
+way it guesses.
+
+The traditional base has the mirror-image quirk. A pass-through owner's `$250,000` business
+income deduction takes the income out of Ohio AGI and out of every municipal base in the
+state — and a traditional district **adds it straight back**, so it is the only base in this
+package that reaches income the state's own return does not.
+
+Every rate is a multiple of one quarter of one per cent, because § 5748.02 requires it, and
+all 214 are — which is also the strongest check available on a transcription of a five-page
+PDF. The `$50` senior citizen credit is per return and per district, on both bases, and
+unlike the state's own `$50` credit it has **no income limit at all**.
+
+A district taxes where the filer **lives** and nothing else: § 5748.01(E) reaches residents
+only, so there is no nonresident district tax and no credit for tax paid to another district
+— the opposite of the municipal tax sitting beside it.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -913,16 +964,12 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.11.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.12.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 27 states.** No Virginia, Minnesota, Wisconsin,
   Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
   Asking for one throws rather than returning zero.
-- **No Ohio school district income tax.** About 200 of Ohio's school districts levy one at
-  0.25% to 2.00% on a separate SD 100 return — on Ohio taxable income in a traditional
-  district and on earned income alone in an earned-income district. A resident of a taxing
-  district owes it on top of everything this package computes.
 - **Ohio's resident credit is assumed, and labelled.** Chapter 718 grants none, so each
   municipality's ordinance decides; where the two figures are not supplied this package
   assumes the modal 100%-capped-at-the-home-rate and says so in the result.
@@ -934,8 +981,9 @@ hides its gaps is worse than useless:
 - **Local income tax in New York, Maryland, Indiana, Michigan and Ohio only.** New York City
   and Yonkers are computed from `locality`; all 23 Maryland counties and Baltimore City, and
   all 92 Indiana counties, from `county`; all 24 Michigan cities and all 679 Ohio
-  municipalities from `city` and `workCity`. Most Pennsylvania municipalities and school
-  districts and Kentucky's occupational taxes are not, and for a Pennsylvania filer the local
+  municipalities from `city` and `workCity`; all 214 taxing Ohio school districts from
+  `schoolDistrict`. Most Pennsylvania municipalities and school districts and Kentucky's
+  occupational taxes are not, and for a Pennsylvania filer the local
   tax is a large fraction of the bill. Indiana's nonresident and part-year county tax (Schedule
   CT-40PNR), which apportions by where the income was earned rather than where the filer
   lived, is not modelled either. Nor is part-year city residency, the New York City child

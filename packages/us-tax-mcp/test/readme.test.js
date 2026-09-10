@@ -752,3 +752,23 @@ test('README: the Ohio claims are the ones the engine actually holds', () => {
   assert.ok(oh(126_409).tax > 0.025 * 126_409);
   assert.equal(0.025 * 24_500, 612.5);
 });
+
+test('README: the third Ohio base, and the deferral the two local wage taxes disagree about', () => {
+  const oh = stateIncomeTax({
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    city: 'Columbus',
+    qualifyingWages: 100_000,
+    schoolDistrict: '0404',
+    earnedIncome: 75_500,
+    federal: stateFed(75_500, 59_750, 15_750),
+  });
+  assert.equal(oh.localTaxes[0].baseAmount, 100_000);
+  assert.equal(oh.localTaxes[1].baseAmount, 75_500);
+  assert.equal(oh.localTaxes[0].tax, 2500);
+  assert.equal(oh.localTaxes[1].tax, 943.75);
+  quotesAcrossLines('worth `$612.50` to Columbus and saving `$306.25` from the district');
+  assert.equal(0.025 * 24_500, 612.5);
+  assert.equal(0.0125 * 24_500, 306.25);
+});

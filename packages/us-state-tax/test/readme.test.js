@@ -6,8 +6,11 @@ import assert from 'node:assert/strict';
 
 import {
   MICHIGAN_CITIES,
+  OHIO_EARNED_INCOME_DISTRICTS,
   OHIO_MUNICIPALITIES,
   OHIO_MUNICIPAL_RATES,
+  OHIO_SCHOOL_DISTRICTS,
+  OHIO_SCHOOL_DISTRICT_RATES,
   MI_CITY_EXEMPTIONS,
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
@@ -892,4 +895,37 @@ test('README: 679 municipalities, the rate distribution, and the commuter symmet
     }).localTaxes.map((l) => l.tax);
   assert.deepEqual(live('Westerville', 'Columbus'), [1500, 0]);
   assert.deepEqual(live('Columbus', 'Westerville'), [1200, 300]);
+});
+
+test('README: the three Ohio bases, and the deferral they disagree about', () => {
+  const oh = stateIncomeTax({
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    city: 'Columbus',
+    qualifyingWages: 100_000,
+    schoolDistrict: '0404',
+    earnedIncome: 75_500,
+    federal: {
+      adjustedGrossIncome: 75_500,
+      taxableIncome: 59_750,
+      deduction: 15_750,
+      deductionKind: 'standard',
+    },
+  });
+  assert.equal(oh.localTaxes[0].baseAmount, 100_000);
+  assert.equal(oh.localTaxes[1].baseAmount, 75_500);
+  money(0.025 * 24_500, 612.5);
+  money(0.0125 * 24_500, 306.25);
+  // 214 districts, 68 of them on the earned income base, every rate a quarter point.
+  assert.equal(OHIO_SCHOOL_DISTRICTS.length, 214);
+  assert.equal(OHIO_EARNED_INCOME_DISTRICTS.length, 68);
+  assert.equal(
+    OHIO_SCHOOL_DISTRICTS.length - OHIO_EARNED_INCOME_DISTRICTS.length,
+    146,
+    'the traditional count the README quotes',
+  );
+  for (const rate of OHIO_SCHOOL_DISTRICT_RATES.values()) {
+    assert.ok(Math.abs(rate / 0.0025 - Math.round(rate / 0.0025)) < 1e-9);
+  }
 });

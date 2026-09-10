@@ -1062,12 +1062,14 @@ const stateTool: ToolDefinition = {
   description:
     'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 27 states plus NEW YORK ' +
     'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties, all 24 MICHIGAN cities and all ' +
-    '679 OHIO municipalities. Call estimate_federal_tax FIRST and pass its ' +
+    '679 OHIO municipalities and all 214 taxing OHIO school districts. Call estimate_federal_tax ' +
+    'FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a state ' +
     'starts from decides the answer. Eight states need more than that. NY: pass locality. MD and IN: pass ' +
     'county — every resident of both owes one and it is two fifths of the bill — plus, in MD, netCapitalGain ' +
     'and stateItemizedDeductions. OH: pass city and qualifyingWages, which is box 5 of the W-2 and NOT ' +
-    'federal AGI; the municipal tax is the LARGER half of an Ohio return below $126,408. MI: pass city, and ' +
+    'federal AGI, and schoolDistrict — Ohio taxes one paycheck on THREE bases and they disagree, so a ' +
+    '401(k) deferral is inside the municipal tax and outside the school district one. MI: pass city, and ' +
     'cityIncome, which is NOT federal AGI. CA: pass ' +
     'earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
     'REQUIRED, plus filerAge and retirementIncome over 62. MA: massachusettsFivePercentIncome is REQUIRED ' +
@@ -1076,7 +1078,7 @@ const stateTool: ToolDefinition = {
     'dollar higher, which is not the statutory rate wherever a credit phases out or a cliff bites. Every ' +
     'result carries that state\'s own notes and statutes, so the conformity detail arrives with the answer ' +
     'rather than here. Does NOT cover a state outside the enum, local tax outside NY, MD, IN, MI and OH, ' +
-    'Ohio school district tax, or state withholding. An unlisted state is an error, not a zero.',
+    'or state withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1202,7 +1204,7 @@ const stateTool: ToolDefinition = {
       city: {
         type: 'string',
         description:
-          'MI and OH only: the city or municipality the filer LIVES in. MI has 24 that levy — Detroit 2.4%, Highland Park 2.0%, Grand Rapids and Saginaw 1.5%, twenty others 1% — and most Michiganders live in none. OH has 679 at 0.45-3.00%, and most Ohioans live in one. An unlisted name is an error listing them.',
+          'MI and OH only: the city or municipality the filer LIVES in. MI has 24 that levy — Detroit 2.4%, Highland Park 2.0%, Grand Rapids and Saginaw 1.5%, twenty others 1% — and most Michiganders live in none. OH has 679 at 0.45-3.00% and most Ohioans live in one. An unlisted name errors, listing them.',
       },
       cityIncome: {
         type: 'number',
@@ -1220,7 +1222,7 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45. Omitted, the tax runs high.',
+          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
       },
       bothSpousesHaveQualifyingIncome: {
         type: 'boolean',
@@ -1244,6 +1246,11 @@ const stateTool: ToolDefinition = {
         maximum: 1,
         description:
           'OH only: the share of the workCity tax the HOME municipality credits — Ohio\'s own "Credit Rate" column. Omitted with residentCreditLimitRate, the modal 100%-capped-at-the-home-rate ordinance is assumed and the result says so.',
+      },
+      schoolDistrict: {
+        type: 'string',
+        description:
+          'OH only: the four-digit district the filer LIVES in ("0203" is Bluffton EVSD). 214 levy 0.25-2.00% on a separate SD 100, over the state and municipal taxes: 146 on modified AGI less exemptions, which ADDS THE BUSINESS INCOME DEDUCTION BACK, and 68 on earnedIncome alone with no deductions or exemptions, which they REQUIRE. Most Ohioans live in one that levies nothing.',
       },
       residentCreditLimitRate: {
         type: 'number',
@@ -1474,6 +1481,13 @@ const stateTool: ToolDefinition = {
     const bothSpouses = source['bothSpousesHaveQualifyingIncome'];
     const residentCreditRate = readNumber(source, 'residentCreditRate');
     const residentCreditLimitRate = readNumber(source, 'residentCreditLimitRate');
+    const schoolDistrict = source['schoolDistrict'];
+    if (schoolDistrict !== undefined && typeof schoolDistrict !== 'string') {
+      throw new ToolInputError(
+        'schoolDistrict must be the four-digit number of an Ohio school district that levies an ' +
+          'income tax, as a string — "0203", not 203.',
+      );
+    }
     // Two city states now, and the fields divide unevenly between them: the base
     // is a different figure in each, so `cityIncome` is Michigan's alone and
     // `qualifyingWages` Ohio's alone, while the city names are shared.
@@ -1487,6 +1501,7 @@ const stateTool: ToolDefinition = {
       ['bothSpousesHaveQualifyingIncome', bothSpouses, ['OH']],
       ['residentCreditRate', residentCreditRate, ['OH']],
       ['residentCreditLimitRate', residentCreditLimitRate, ['OH']],
+      ['schoolDistrict', schoolDistrict, ['OH']],
     ] as const) {
       if (value !== undefined && !(states as readonly string[]).includes(state)) {
         throw new ToolInputError(
@@ -1599,6 +1614,7 @@ const stateTool: ToolDefinition = {
         : {}),
       ...(residentCreditRate !== undefined ? { residentCreditRate } : {}),
       ...(residentCreditLimitRate !== undefined ? { residentCreditLimitRate } : {}),
+      ...(schoolDistrict !== undefined ? { schoolDistrict: schoolDistrict as string } : {}),
       ...(workCity !== undefined ? { workCity: workCity as string } : {}),
       ...(workCityEarnings !== undefined ? { workCityEarnings } : {}),
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),

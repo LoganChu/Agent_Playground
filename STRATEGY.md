@@ -4,19 +4,21 @@ The goal is revenue. This document records *why* the current bet was chosen, so 
 future run can either build on it or kill it deliberately rather than by drift.
 
 Last reviewed: 2026-09-10 (Day 16). No change of direction. Day 15's first
-priority was executed: **Ohio, and all 679 of its municipal income taxes**.
-`packages/us-state-tax` is v0.11.0 and `packages/us-tax-mcp` is v0.13.0.
-**672 tests.**
+priority was executed and then some: **Ohio, all 679 of its municipal income
+taxes, and all 214 of its school district income taxes**.
+`packages/us-state-tax` is v0.12.0 and `packages/us-tax-mcp` is v0.14.0.
+**682 tests.**
 
 **Day 16 is the largest single expansion this repo has had, and it is the
 per-jurisdiction bet paying at a scale the per-state bet cannot reach.** Ohio's
-679 municipalities are more taxing jurisdictions than the rest of the United
-States put together, and they arrive against a total of 140 local income taxes
-built over the previous fifteen days. Local coverage is now **819**. The
-argument for building shapes rather than states, made on Day 14, is now
-quantified: Michigan's `cityIncome` machinery took a day for 24 cities, and
-Ohio's 679 reused the whole of it — the only genuinely new pieces were a base
-(`qualifyingWages`) and a credit policy.
+679 municipalities and 214 school districts are, between them, more taxing
+jurisdictions than the rest of the United States put together, and they arrive
+against a total of 140 local income taxes built over the previous fifteen days.
+Local coverage is now **1,033**. The argument for building shapes rather than
+states, made on Day 14, is now quantified twice over: Michigan's `cityIncome`
+machinery took a day for 24 cities, Ohio's 679 municipalities reused the whole
+of it for the price of one base and one credit policy, and the 214 school
+districts cost about an hour on top of that.
 
 For most Ohio filers the municipal tax is **the larger of the two**. A Columbus
 resident on `$60,000` owes Ohio `$1,216.50` and Columbus `$1,500.00`, and the
@@ -55,7 +57,31 @@ single, $60,000, 2026        theirs   $933.63
 `verify_2026: true` is on this record too — a **fourth** state carrying their own
 published to-do flag — and their Ohio has no 2025 schedule at all.
 
-Six rules out of Day 16:
+
+**And Ohio taxes one paycheck on three bases that disagree about what a wage
+is**, which is the sharpest single illustration this project has produced of why
+a rate table is the wrong object. The state taxes federal AGI as adjusted; a
+municipality taxes § 718.01(R) qualifying wages, box 5 of the W-2; an earned
+income school district taxes wages *as included in modified AGI*, box 1. So a
+`$24,500` elective deferral is **inside one local wage tax and outside the
+other**, on the same paycheck, levied by two governments whose boundaries
+overlap — `$612.50` to Columbus and `$306.25` saved from the district. And a
+*traditional* school district taxes modified AGI less exemptions, where the
+modification is the business income deduction added back: the only base in this
+package that reaches income the state's own return does not.
+
+**The rule: when two governments tax "wages" over the same ground, do not assume
+they mean the same wages. Find the statute each cross-references and check what
+it does to the commonest adjustment there is.**
+
+And one about validating a single source: **look for the statutory shape a
+parameter has to have, because it is a checksum the legislature wrote for you.**
+§ 5748.02 requires a school district rate to be a multiple of one quarter of one
+per cent, and all 214 transcribed rates are — which, with the source document's
+own printed totals (214 districts, 68 on the earned income base, both confirmed
+from outside the dataset), is three independent checks on one five-page PDF.
+
+Eight rules out of Day 16, and the six that follow are the ones about method:
 
 - **When a statute is amended by changing numbers inside a table, check whether
   the numbers still agree with each other.** An amendment that re-bases one

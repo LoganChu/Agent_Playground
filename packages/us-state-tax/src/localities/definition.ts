@@ -102,7 +102,30 @@ export type LocalBase =
    * municipality may not tax and is net of deductions box 5 never saw, which is
    * why this package asks for it rather than deriving it.
    */
-  | 'qualifyingWages';
+  | 'qualifyingWages'
+  /**
+   * Ohio's 146 traditional school districts: **modified AGI less exemptions**.
+   *
+   * The word doing the work is *modified*. A traditional district adds the
+   * business income deduction back — O.R.C. § 5748.01(E)(1)(a) — so a
+   * pass-through owner whose `$250,000` deduction removed the income from Ohio
+   * AGI, and with it from every municipal base in the state, **is still taxed on
+   * it by their school district**. It is the only base in this package that
+   * reaches income the state's own return does not.
+   */
+  | 'stateModifiedTaxableIncome'
+  /**
+   * Ohio's 68 earned income school districts: **wages and net self-employment
+   * earnings, and nothing else** — § 5748.01(E)(1)(b).
+   *
+   * No deductions, no exemptions, not even the personal exemption the
+   * traditional base subtracts. And the wages are "to the extent included in
+   * modified adjusted gross income", which is **box 1 of the W-2** — so a 401(k)
+   * elective deferral is *outside* this base while being *inside* the municipal
+   * one two paragraphs up. Two local wage taxes on the same paycheck,
+   * disagreeing about the same dollar.
+   */
+  | 'stateEarnedIncome';
 
 /**
  * A credit that is a flat dollar amount per person, stepped by income.
@@ -289,6 +312,19 @@ export interface LocalIncomeTaxDefinition {
    * makes.
    */
   readonly residentCreditByOrdinance?: boolean;
+  /**
+   * A flat credit for an older filer — the `$50` Ohio school districts allow on
+   * SD 100 line 4, per return and per district, on both bases.
+   *
+   * Distinct from the state's {@link SeniorCreditRule} in having no income limit
+   * at all: a district gives it to a 65-year-old with a million dollars of
+   * income, which the state's own `$50` credit does not.
+   */
+  readonly seniorCredit?: {
+    readonly name: string;
+    readonly amount: number;
+    readonly minimumAge: number;
+  };
   readonly notes: readonly string[];
   readonly citations: readonly Citation[];
 }

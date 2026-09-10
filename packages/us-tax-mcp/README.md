@@ -4,9 +4,9 @@
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
 **state income tax for 27 states including New York, New Jersey, Massachusetts, Maryland and
-Ohio** and **819 local income taxes — New York City, Yonkers, all 24 Maryland jurisdictions,
-all 92 Indiana counties, all 24 Michigan cities and all 679 Ohio municipalities** — for
-**tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+Ohio** and **1,033 local income taxes — New York City, Yonkers, all 24 Maryland
+jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities
+and all 214 Ohio school districts** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -375,6 +375,24 @@ their municipality nothing. Ohio grants **no statutory resident credit**, so whe
 lives in one taxing municipality and works in another this server assumes the modal
 ordinance — 100% capped at the home rate — and labels the credit as assumed.
 
+**And 214 Ohio school districts levy a third tax on the same paycheck, on a base that
+disagrees with the municipal one.** Pass `schoolDistrict`, the four-digit number. 146
+districts tax modified AGI less exemptions — which *adds the business income deduction
+back*, so a district reaches income the Ohio return itself does not — and 68 tax
+`earnedIncome` alone with no deductions and no exemptions at all. That earned income is
+wages *as included in modified AGI*, which is **box 1** of the W-2, where the municipal tax
+reaches **box 5**:
+
+```text
+$100,000 salary, $24,500 deferred to a 401(k), 2026
+  Columbus              2.5% of $100,000   the deferral is inside the base
+  Geneva Area CSD      1.25% of  $75,500   the deferral is outside it
+```
+
+The same dollar, deferred out of the same paycheck, is inside one local wage tax and outside
+the other — worth `$612.50` to Columbus and saving `$306.25` from the district. A model that
+reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
+
 Eight of the eighteen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and nine of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
@@ -396,7 +414,7 @@ says what the cheapest and dearest counties would have cost that filer.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 27 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities and all 679 Ohio municipalities, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 27 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -488,10 +506,10 @@ confidently fill them in.
   MA, MD, MI, MS, NC, NH, NJ, NV, NY, OH, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
   nothing else. Virginia, Minnesota and Wisconsin are absent, and asking for one is an error
   rather than a zero. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
-  Indiana's 92 counties, Michigan's 24 cities and Ohio's 679 municipalities: Pennsylvania
-  municipal earned income taxes and Kentucky's occupational taxes are not modelled, nor is
-  **Ohio school district income tax**, which about 200 districts levy at 0.25% to 2.00% on a
-  separate SD 100 return, nor Ohio's resident credit for tax paid to another municipality,
+  Indiana's 92 counties, Michigan's 24 cities, Ohio's 679 municipalities and Ohio's 214
+  taxing school districts: Pennsylvania municipal earned income taxes and Kentucky's
+  occupational taxes are not modelled, nor is Ohio's resident credit for tax paid to another
+  municipality,
   which each ordinance sets and which this server assumes at the modal 100%-capped-at-the-
   home-rate and labels as assumed. Nor is
   part-year city residency, Maryland's local poverty level credit, Indiana's Schedule

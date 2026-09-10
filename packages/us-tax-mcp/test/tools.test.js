@@ -1632,3 +1632,51 @@ test('state_income_tax computes an Ohio municipality, and refuses one without wa
   }).structured.state;
   assert.equal(strict.localTaxes[1].tax, 1200);
 });
+
+test('state_income_tax computes an Ohio school district, and the base it disagrees about', () => {
+  const base = {
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 75_500,
+    federalTaxableIncome: 59_750,
+    federalDeduction: 15_750,
+  };
+  // A Columbus resident in an earned income district, deferring $24,500 to a
+  // 401(k). Box 5 is $100,000 and box 1 is $75,500, and the two local wage taxes
+  // reach different ones.
+  const both = ok('state_income_tax', {
+    ...base,
+    city: 'Columbus',
+    qualifyingWages: 100_000,
+    schoolDistrict: '0404',
+    earnedIncome: 75_500,
+  }).structured.state;
+  const municipal = both.localTaxes.find((l) => l.base === 'qualifyingWages');
+  const district = both.localTaxes.find((l) => l.base === 'stateEarnedIncome');
+  assert.equal(municipal.baseAmount, 100_000);
+  assert.equal(district.baseAmount, 75_500);
+  assert.equal(municipal.tax, 2500);
+  assert.equal(district.tax, 943.75);
+
+  // An earned income district with no earnedIncome is refused, not charged zero.
+  assert.match(
+    err('state_income_tax', { ...base, schoolDistrict: '0404' }),
+    /taxes EARNED INCOME ONLY/,
+  );
+  // A traditional district adds the business income deduction back.
+  const owner = ok('state_income_tax', {
+    ...base,
+    federalAdjustedGrossIncome: 300_000,
+    federalTaxableIncome: 284_250,
+    businessIncome: 300_000,
+    schoolDistrict: '0203',
+  }).structured.state;
+  assert.equal(owner.localTaxes[0].base, 'stateModifiedTaxableIncome');
+  assert.equal(owner.localTaxes[0].baseAmount, 298_100);
+  // And a school district outside Ohio is an error naming why.
+  assert.match(
+    err('state_income_tax', { ...base, state: 'MI', schoolDistrict: '0203' }),
+    /schoolDistrict only applies to OH/,
+  );
+});

@@ -64,6 +64,16 @@ export {
   OH_ZERO_BAND_CEILING,
 } from './states/ohio.js';
 export {
+  OHIO_EARNED_INCOME_DISTRICTS,
+  OHIO_SCHOOL_DISTRICTS,
+  OHIO_SCHOOL_DISTRICT_RATES,
+  OH_SDIT_RATE_INCREMENT,
+  OH_SDIT_SENIOR_CREDIT,
+  ohioSchoolDistrict,
+  ohioSchoolDistricts,
+  ohioSchoolDistrictTaxesEarnedIncomeOnly,
+} from './localities/ohio-school-districts.js';
+export {
   CITY_TAX_STATES,
   COUNTY_TAX_STATES,
   citiesFor,

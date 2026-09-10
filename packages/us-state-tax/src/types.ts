@@ -740,6 +740,32 @@ export interface StateIncomeTaxInput {
    * times the earnings the other municipality taxed.
    */
   readonly residentCreditLimitRate?: number;
+  /**
+   * Ohio only: the **school district** the filer lives in, as its four-digit
+   * number — `'0203'` is Bluffton EVSD in Allen County — or by name where the
+   * name is unique.
+   *
+   * 214 of Ohio's 600-odd districts levy an income tax of their own, at 0.25% to
+   * 2.00%, on a separate SD 100 return and **on top of** the state and municipal
+   * taxes. It is charged on residence and on nothing else: there is no
+   * nonresident district tax and no credit for tax paid to another district.
+   *
+   * The base is one of two, chosen by the district's own ballot language, and
+   * they are not variations of each other:
+   *
+   * - **traditional** (146 districts) — modified AGI less exemptions, which
+   *   *adds the business income deduction back*, so a district taxes income the
+   *   Ohio return itself does not;
+   * - **earned income** (68 districts) — {@link earnedIncome} and nothing else,
+   *   with no deductions and no exemptions at all, measured as included in
+   *   modified AGI, which is **box 1** of the W-2 where the municipal tax
+   *   reaches **box 5**.
+   *
+   * An earned income district needs {@link earnedIncome} and is an error without
+   * it. Ohio's own Finder resolves an address to a district; this package
+   * cannot, and a district that levies nothing is simply not in the table.
+   */
+  readonly schoolDistrict?: string;
 }
 
 export interface CreditDetail {
@@ -802,6 +828,8 @@ export interface LocalIncomeTaxResult {
     | 'stateNetTax'
     | 'cityIncome'
     | 'qualifyingWages'
+    | 'stateModifiedTaxableIncome'
+    | 'stateEarnedIncome'
     | 'wages';
   readonly baseAmount: number;
   readonly taxBeforeCredits: number;

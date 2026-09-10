@@ -43,7 +43,7 @@ export const SUPPORTED_PROTOCOL_VERSIONS: readonly string[] = [
 export const SERVER_INFO = {
   name: 'us-tax-mcp',
   title: 'US Federal Tax',
-  version: '0.13.0',
+  version: '0.14.0',
 } as const;
 
 const INSTRUCTIONS = [

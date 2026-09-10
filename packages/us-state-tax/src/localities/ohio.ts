@@ -80,14 +80,15 @@
  * why the distribution is so lumpy: 266 municipalities sit exactly on the
  * un-voted ceiling and the next 122 sit exactly on 1.5%.
  *
- * ## What is not here
+ * ## What sits beside it
  *
- * **School district income tax.** About 200 of Ohio's school districts levy
- * their own, at 0.25% to 2.00%, on a separate SD 100 return — and it is charged
- * on *Ohio taxable income* in a traditional district and on *earned income only*
- * in an earned-income district, so it is a third base again. A resident of a
- * taxing district owes it on top of everything here. It is a separate dataset
- * and it is not modelled; the notes say so.
+ * **School district income tax**, which 214 districts levy at 0.25% to 2.00% on
+ * a separate SD 100 return — see `localities/ohio-school-districts.ts`. It is
+ * modelled, and the pair is the point: two local wage taxes on the same
+ * paycheck, one reaching box 5 of the W-2 and the other box 1, so a 401(k)
+ * deferral is inside one and outside the other.
+ *
+ * ## What is not here
  *
  * **JEDDs and JEDZs.** Joint economic development districts are contractual
  * zones rather than municipalities, they levy at the rate of the partner city,
@@ -140,7 +141,7 @@ const NOTES: readonly string[] = [
   'Ohio has NO nonresident rate. Unlike Michigan, which halves it by statute, an Ohio municipality charges a commuter exactly what it charges a resident, and § 718.03 makes the employer withhold it for the WORKPLACE municipality. Ohio municipal income tax is a tax on where you work with a residence tax layered over it, not the other way round.',
   'There is no statutory resident credit. O.R.C. Chapter 718 grants none: each municipality decides by its own ordinance what share of another municipality’s tax it credits and what rate it caps the credit at, and Ohio publishes the two figures as the "Credit Rate" and "Credit Factor" columns of its own rate table. Where a filer works in one taxing municipality and lives in another and neither figure is supplied, this package ASSUMES the modal ordinance — 100% of the tax paid, capped at the home municipality’s own rate — and labels the assumption in the credit line. Pass residentCreditRate and residentCreditLimitRate for a municipality that grants less.',
   'Ohio’s own personal exemption is a state figure under § 5747.025 and does not reach a municipality. There are no municipal exemptions in this package because there are none in Chapter 718: the rate is charged on the first dollar of qualifying wages.',
-  'Not modelled: Ohio school district income tax. About 200 of the state’s school districts levy their own at 0.25% to 2.00% on a separate SD 100 return — on Ohio taxable income in a traditional district and on earned income alone in an earned-income district — and a resident of a taxing district owes it on top of everything computed here.',
+  'A resident may also owe an Ohio SCHOOL DISTRICT income tax on the same paycheck — 214 districts levy one at 0.25% to 2.00% — and the two wage taxes disagree about what a wage is. A municipality reaches § 718.01(R) qualifying wages, box 5 of the W-2, gross of a 401(k) deferral; an earned income school district reaches wages as included in modified AGI, which is box 1, net of it. Pass `schoolDistrict` as well as `city`.',
   'Not modelled: joint economic development districts and zones (JEDDs and JEDZs), which are contractual zones rather than municipalities and levy at the partner city’s rate; and the § 718.011 twenty-day rule, which relieves an employer of withholding for a municipality where the employee worked 20 days or fewer. Pass the apportioned figure as workCityEarnings.',
   'Twelve of the 679 municipalities are registered at a 0% rate — a levy that was repealed keeps its row in Ohio’s own database — so naming one of them is answered with a zero tax rather than an error. Above 1% a levy needs voter approval under § 718.04(G), which is why 266 municipalities sit exactly on 1% and 122 exactly on 1.5%.',
 ];

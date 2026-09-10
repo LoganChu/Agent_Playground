@@ -9,7 +9,7 @@ no longer merely optional: an MCP server that is not published cannot be install
 by anyone, and that is now the only distribution this project has. Details below.
 
 **As of Day 16 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.11.0, and `us-tax-mcp` v0.13.0 — so the version numbers in older entries are
+v0.12.0, and `us-tax-mcp` v0.14.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
@@ -27,24 +27,24 @@ Same three packages, same commands, new version numbers and new test counts:
 npm login
 
 cd packages/us-tax-mcp
-npm test            # 129 tests; confirm green
+npm test            # 131 tests; confirm green
 npm publish
 
 cd ../us-federal-tax && npm test && npm publish   # 283 tests
-cd ../us-state-tax   && npm test && npm publish   # 260 tests
+cd ../us-state-tax   && npm test && npm publish   # 268 tests
 ```
 
 Nothing else is needed and nothing is blocked.
 
 ### What changed, and it is the largest change so far
 
-**Ohio, and all 679 of its municipal income taxes.** Local coverage went from 140
-jurisdictions to **819** in one day — Ohio has more taxing municipalities than the
-rest of the United States put together — and Ohio was the largest state the
-package was missing. `us-state-tax` is v0.11.0 (27 states) and `us-tax-mcp` is
-v0.13.0.
+**Ohio, all 679 of its municipal income taxes, and all 214 of its school district
+income taxes.** Local coverage went from 140 jurisdictions to **1,033** in one day
+— Ohio alone now has more taxing jurisdictions in this package than the rest of
+the United States put together — and Ohio was the largest state the package was
+missing. `us-state-tax` is v0.12.0 (27 states) and `us-tax-mcp` is v0.14.0.
 
-### Four things worth knowing
+### Five things worth knowing
 
 **Ohio's printed rate schedule is discontinuous, and it is the law rather than a
 typo.** O.R.C. § 5747.02(A)(3) charges 0% on the first `$26,050` of taxable
@@ -73,6 +73,16 @@ closes it — so a per-exemption credit is claimable only by a filer with exactl
 one exemption. The joint filing credit's top 20% row is unreachable for the same
 reason; the highest rate it is ever actually paid at is 15%. Both are pinned by
 tests.
+
+**Ohio taxes one paycheck on three bases and they disagree about what a wage is.**
+The state taxes federal AGI as adjusted. A municipality taxes "qualifying wages" —
+box 5 of the W-2, so a 401(k) deferral does not reduce it. An earned-income school
+district taxes wages as included in modified AGI — box 1, so the same deferral
+*does* reduce it. A `$24,500` deferral is therefore worth `$612.50` to Columbus and
+saves `$306.25` from the district, on the same paycheck. And a traditional school
+district taxes modified AGI less exemptions, where "modified" means the business
+income deduction is added back — the only base in this package that reaches income
+the Ohio return itself does not.
 
 **One deliberate guess, labelled.** Ohio grants no statutory resident credit for
 tax paid to another municipality — each ordinance decides — and the table of

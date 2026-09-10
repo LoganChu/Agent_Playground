@@ -51,6 +51,19 @@ export interface StateFigures {
    * {@link StateIncomeTaxInput.earnedIncome} where they gave that instead.
    */
   readonly qualifyingWages: number;
+  /**
+   * Modified taxable income — Ohio's traditional school district base, which is
+   * the state's own taxable income with the business income deduction added
+   * back. Equal to {@link stateTaxableIncome} for every state that has no such
+   * deduction, which is every state here but Ohio.
+   */
+  readonly stateModifiedTaxableIncome: number;
+  /**
+   * Earned income as the state measures it — Ohio's earned income school
+   * district base. Wages and net self-employment earnings, to the extent they
+   * reached modified AGI, which is box 1 of the W-2 rather than box 5.
+   */
+  readonly stateEarnedIncome: number;
 }
 
 function baseAmount(base: LocalBase, figures: StateFigures): number {
@@ -65,6 +78,10 @@ function baseAmount(base: LocalBase, figures: StateFigures): number {
       return figures.cityIncome;
     case 'qualifyingWages':
       return figures.qualifyingWages;
+    case 'stateModifiedTaxableIncome':
+      return figures.stateModifiedTaxableIncome;
+    case 'stateEarnedIncome':
+      return figures.stateEarnedIncome;
   }
 }
 
@@ -265,6 +282,17 @@ export function computeLocalResidentTax(
 
   const federalAgi = input.federal.adjustedGrossIncome;
   const credits: CreditDetail[] = [];
+  if (def.seniorCredit) {
+    // SD 100 line 4: $50 per return, not per filer, and with no income limit —
+    // a district gives it to a 65-year-old at any income, where the state's own
+    // $50 credit stops at $100,000.
+    const rule = def.seniorCredit;
+    const ages = [input.filerAge, input.spouseAge].filter(
+      (age): age is number => age !== undefined,
+    );
+    const qualifies = ages.some((age) => age >= rule.minimumAge);
+    credits.push({ name: rule.name, amount: qualifies ? rule.amount : 0, refundable: false });
+  }
   if (def.householdCredit) {
     credits.push({
       name: def.householdCredit.name,

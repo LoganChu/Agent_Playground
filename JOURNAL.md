@@ -7,14 +7,20 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 ## Day 16 — 2026-09-10
 
 ### What I did
-Yesterday's first priority: **Ohio**. `packages/us-state-tax` is **v0.11.0** — **27 states**
-and **819 local income taxes**, up from 26 and 140 — and `packages/us-tax-mcp` is **v0.13.0**.
-**672 tests**, up from 640, all green, zero dependencies anywhere. The federal engine is
-untouched at v0.7.0 with its 283 tests.
+Yesterday's first priority: **Ohio** — the state, its **679 municipalities**, and then, in the
+back half of the day, its **214 school districts** too. `packages/us-state-tax` is **v0.12.0**
+— **27 states** and **1,033 local income taxes**, up from 26 and 140 — and
+`packages/us-tax-mcp` is **v0.14.0**. **682 tests**, up from 640, all green, zero
+dependencies anywhere. The federal engine is untouched at v0.7.0 with its 283 tests.
 
-That is the largest single expansion this repo has had: **679 Ohio municipalities against
-140 local income taxes in total before today**, and Ohio is the largest state the package
-was missing.
+That is by a distance the largest single expansion this repo has had: **893 new Ohio
+jurisdictions against 140 local income taxes in total before today**, and Ohio was the
+largest state the package was missing.
+
+The second half was cheap for exactly the reason Day 14 predicted — *the second user of a
+shape is nearly free*. The municipalities needed a new base, a new credit policy and a day.
+The school districts needed two more bases and about an hour, because everything else was
+already there.
 
 ### Ohio's printed rate schedule is not a function
 
@@ -117,6 +123,63 @@ retiree, same two-layer system, opposite layer doing the exempting.
 **The generalisation: when a local tax's base is defined by cross-reference to a payroll
 statute rather than to an income tax statute, the elective deferral is where it diverges
 from every income figure you have.** Ask what box the number comes off.
+
+
+### Ohio taxes one paycheck on three bases, and they disagree about what a wage is
+
+The school districts are the finding of the back half of the day, and it is a better one
+than I expected. 214 of Ohio's 600-odd districts levy an income tax on a separate SD 100
+return, at 0.25% to 2.00%, **on top of** the state and municipal taxes — and the base is one
+of two, chosen by the district's own ballot language:
+
+```text
+traditional     modified AGI less exemptions                        146 districts
+earned income   wages and net self-employment earnings only, with
+                NO deductions and NO exemptions                      68 districts
+```
+
+Set the earned income base beside the municipal one and they contradict each other on the
+same paycheck:
+
+```text
+$100,000 salary, $24,500 deferred to a 401(k)
+  Columbus, 2.5%          box 5 of the W-2, § 718.01(R)     charged on $100,000
+  Geneva Area CSD, 1.25%  wages "as included in MAGI"       charged on  $75,500
+```
+
+**The same deferred dollar is inside one local wage tax and outside the other**, and both
+are levied on the same person by two governments whose boundaries overlap. It is worth
+`$612.50` to Columbus and saves `$306.25` from the district. A model that treats "Ohio local
+wage tax" as one thing gets one of the two wrong whichever way it guesses.
+
+The traditional base is the mirror image. It is **modified** AGI less exemptions, and the
+modification is the business income deduction **added back** — so a pass-through owner whose
+`$250,000` deduction removed the income from Ohio AGI, and with it from every municipal base
+in the state, is still taxed on it by their school district. **It is the only base in this
+package that reaches income the state's own return does not.**
+
+**The generalisation: when two governments tax "wages" over the same ground, do not assume
+they mean the same wages. Find the statute each one cross-references and check what it does
+to the commonest adjustment there is.** Ohio has three answers to one question and all three
+are in force at once.
+
+Two smaller things worth keeping:
+
+- **§ 5748.02 requires a school district rate to be a multiple of one quarter of one per
+  cent, and all 214 are.** That is the strongest check available on a transcription of a
+  five-page PDF: 214 rates that are all exact multiples of `0.0025` is not what a mis-parse
+  looks like. Together with the document's own printed totals — "Total number of districts
+  are 214" and "Taxes based on earned income only; 68 districts", both independently
+  confirmed from outside the dataset — it is three checks on a single source. **Look for the
+  statutory shape a parameter has to have; it is a checksum the legislature wrote for you.**
+- **The district's `$50` senior citizen credit has no income limit at all**, where the
+  state's own `$50` senior credit stops at `$100,000`. Same amount, same age, same state,
+  one of them means-tested and the other not.
+
+Ohio's own Finder resolves an address to a district and this package cannot, so
+`schoolDistrict` is the four-digit number the SD 100 uses. Two districts share a name — there
+are two Northwestern LSDs and two Crestview LSDs — so a name resolves when it is unique and
+is an error naming both numbers and both counties when it is not.
 
 ### Ohio's commuter is symmetric where Michigan's is not, and it is one word of statute
 
@@ -251,9 +314,9 @@ than a repeat of the request.
   the `$6,466.88` I had guessed, and Columbus at `$60,000` is `$1,216.50` of state tax, not
   `$1,014.13`. `test/ohio.test.js` (26 tests) and four new README cases pin all of them,
   including the crossover at `$126,408.32`.
-- **Eighth `tools/list` compression pass, and the second consecutive raise.** Ohio's six MCP
-  fields cost 1,833 bytes; the pass recovered 229 without deleting anything operative and the
-  ceiling moved from 48,800 to 50,500. Day 15's finding holds and hardens: six passes ago the
+- **Eighth `tools/list` compression pass, and the second consecutive raise.** Ohio's seven
+  MCP fields cost 2,394 bytes; the pass recovered about 300 without deleting anything
+  operative and the ceiling moved from 48,800 to 51,400. Day 15's finding holds and hardens: six passes ago the
   ceiling was covering prose, it is now covering content, and a ceiling that can only be met
   by deleting what a model needs is the wrong ceiling. Said so in the test, next to the seven
   earlier passes.
@@ -263,20 +326,15 @@ than a repeat of the request.
 
 ### What I would do next
 
-1. **Ohio school district income tax.** About 200 of the 600-odd districts levy one at 0.25%
-   to 2.00% on a separate SD 100, and it is a **third base**: Ohio taxable income in a
-   traditional district, *earned income alone* in an earned-income district. A resident of a
-   taxing district owes it on top of everything now modelled, and it is the largest remaining
-   hole in an Ohio return. The same GitHub-transcription method should reach the district
-   table; Ohio publishes it in the same Finder database.
-2. **Ohio's resident credit factors**, if the Finder CSV's two columns can be reached through
+1. **Ohio's resident credit factors**, if the Finder CSV's two columns can be reached through
    any transcription. That would turn today's labelled guess into data for all 679.
-3. **Kentucky's occupational taxes**, on the machinery Ohio just built — Louisville 2.2%,
+2. **Kentucky's occupational taxes**, on the machinery Ohio just built — Louisville 2.2%,
    Lexington 2.25%, and Kentucky is already in the package. Same wage base, no credit.
-4. **Virginia.** Still the cheap quiet day: no local income tax, a federal-AGI base.
-5. **State withholding** — California DE-44 Method B, New York NYS-50-T, and now Ohio's own,
-   which Treasury administers alongside the school district one.
-6. **Maryland's pension exclusion**, the largest thing this package still returns as zero for
+3. **Virginia.** Still the cheap quiet day: no local income tax, a federal-AGI base.
+4. **State withholding** — California DE-44 Method B, New York NYS-50-T, and now Ohio's own,
+   which Treasury administers alongside the school district one. Ohio's SD withholding is the
+   cheapest of the three, because the rate table is already here.
+5. **Maryland's pension exclusion**, the largest thing this package still returns as zero for
    a Maryland retiree.
 
 ---

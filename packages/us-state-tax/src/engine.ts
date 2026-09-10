@@ -34,6 +34,7 @@ import {
   countyDefinition,
   normaliseCounty,
 } from './localities/counties.js';
+import { ohioSchoolDistrict } from './localities/ohio-school-districts.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
 import type {
   Bracket,
@@ -814,6 +815,12 @@ interface Computed {
    */
   taxBeforeRefundableCredits: number;
   tax: number;
+  /**
+   * Taxable income with any business income deduction added back — Ohio's
+   * traditional school district base. Equal to {@link taxableIncome} in every
+   * state that has no such deduction.
+   */
+  modifiedTaxableIncome: number;
 }
 
 /**
@@ -1151,6 +1158,7 @@ function computeOnce(
     credits,
     taxBeforeRefundableCredits,
     tax,
+    modifiedTaxableIncome: measures.stateModifiedAdjustedGrossIncomeLessExemptions,
   };
 }
 
@@ -1195,6 +1203,11 @@ function stateFigures(computed: Computed, input: StateIncomeTaxInput): StateFigu
     stateNetTax: computed.taxBeforeRefundableCredits,
     cityIncome: cityIncomeFor(input),
     qualifyingWages: qualifyingWagesFor(input),
+    stateModifiedTaxableIncome: computed.modifiedTaxableIncome,
+    // Box 1 of the W-2, where `qualifyingWages` above is box 5. An Ohio filer
+    // in both a municipality and an earned income school district is taxed on
+    // two different wage figures out of the same paycheck.
+    stateEarnedIncome: nonNegative(input.earnedIncome, 'earnedIncome'),
   };
 }
 
@@ -1415,6 +1428,37 @@ function localTaxesFor(
     out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
   }
 
+  if (input.schoolDistrict !== undefined) {
+    if (input.state !== 'OH') {
+      throw new RangeError(
+        `schoolDistrict applies to an Ohio return; state is ${input.state}. Ohio is the only ` +
+          `state whose school districts levy an income tax of their own on the state return's ` +
+          `own figures — 214 of them do, at 0.25% to 2.00% — and Pennsylvania's school district ` +
+          `earned income taxes, which are collected with the municipal ones, are not modelled ` +
+          `here.`,
+      );
+    }
+    const def = ohioSchoolDistrict(input.schoolDistrict, input.year);
+    // An earned income district taxes nothing else, so a missing figure is a
+    // zero tax rather than an approximate one — the same refusal `city` makes.
+    if (def.base === 'stateEarnedIncome' && input.earnedIncome === undefined) {
+      throw new RangeError(
+        `${def.name} taxes EARNED INCOME ONLY — O.R.C. § 5748.01(E)(1)(b), wages and net ` +
+          `self-employment earnings to the extent included in modified adjusted gross income, ` +
+          `with no deductions and no exemptions — and earnedIncome was not supplied. That is ` +
+          `box 1 of the W-2, so it is NET of a 401(k) deferral, unlike the qualifyingWages an ` +
+          `Ohio municipality taxes. 68 of the 214 taxing districts use this base.`,
+      );
+    }
+    const computed = computeLocalResidentTax(def, input, stateFigures(here, input));
+    const computedHigher = computeLocalResidentTax(
+      def,
+      higherInput,
+      stateFigures(higher, higherInput),
+    );
+    out.push(localResidentResult(def, computed, computedHigher.tax - computed.tax));
+  }
+
   const earnings = nonNegative(input.yonkersNonresidentEarnings, 'yonkersNonresidentEarnings');
   // A Yonkers resident pays the surcharge instead, never both — so the earnings
   // figure is ignored rather than added, which is what Form Y-203 says and what a
@@ -1619,6 +1663,17 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
             `deferral does not reduce, and not any line of the IT 1040. For most Ohio filers it ` +
             `is LARGER than the state tax: 2.5% in Columbus, Cleveland, Toledo, Akron and ` +
             `Dayton. Pass city and qualifyingWages.`,
+    );
+  }
+  if (input.state === 'OH' && input.schoolDistrict === undefined) {
+    dynamic.push(
+      'No schoolDistrict was supplied. 214 of Ohio\u2019s school districts levy an income tax of ' +
+        'their own at 0.25% to 2.00%, on a separate SD 100 return and on top of the state and ' +
+        'municipal taxes above — 146 on modified AGI less exemptions, which adds the business ' +
+        'income deduction back, and 68 on earned income alone with no deductions or exemptions ' +
+        'at all. Most Ohioans live in a district that levies nothing and owe none of it; pass ' +
+        'the four-digit district number if this filer does. Ohio\u2019s own Finder resolves an ' +
+        'address to a district and this package cannot.',
     );
   }
   if (

@@ -15,11 +15,18 @@ import {
   OH_TOP_BASE_AMOUNT_2025,
   OH_TOP_BASE_AMOUNT_CHAINED_2025,
   OH_UNVOTED_RATE_CEILING,
+  OHIO_EARNED_INCOME_DISTRICTS,
+  OHIO_SCHOOL_DISTRICTS,
+  OHIO_SCHOOL_DISTRICT_RATES,
+  OH_SDIT_RATE_INCREMENT,
   OH_ZERO_BAND_CEILING,
   applyBaseAmountSchedule,
   getStateDefinition,
   ohioMunicipalities,
   ohioMunicipality,
+  ohioSchoolDistrict,
+  ohioSchoolDistricts,
+  ohioSchoolDistrictTaxesEarnedIncomeOnly,
   stateIncomeTax,
 } from '../dist/esm/index.js';
 
@@ -520,4 +527,157 @@ test('both years are published for every municipality and identical', () => {
       name,
     );
   }
+});
+
+//
+// The school districts.
+//
+
+test('214 districts, 68 on the earned income base, and every rate a quarter point', () => {
+  assert.equal(OHIO_SCHOOL_DISTRICTS.length, 214);
+  assert.equal(OHIO_EARNED_INCOME_DISTRICTS.length, 68);
+  // Ohio's own SDIT list states both totals on its face — "Total number of
+  // districts are 214" and "Taxes based on earned income only; 68 districts" —
+  // which is the check that a transcription of a five-page PDF gets to have.
+  assert.equal(ohioSchoolDistricts(2026).length, 214);
+  // § 5748.02 requires a multiple of one quarter of one per cent, and 214 rates
+  // that are all exact multiples of 0.0025 is not what a mis-parse looks like.
+  for (const [number, rate] of OHIO_SCHOOL_DISTRICT_RATES) {
+    const steps = rate / OH_SDIT_RATE_INCREMENT;
+    assert.ok(Math.abs(steps - Math.round(steps)) < 1e-9, `${number}: ${rate}`);
+    assert.ok(rate >= 0.0025 && rate <= 0.02, `${number}: ${rate}`);
+  }
+  // Every district number is four digits and unique.
+  assert.equal(new Set(OHIO_SCHOOL_DISTRICTS).size, 214);
+  for (const number of OHIO_SCHOOL_DISTRICTS) assert.match(number, /^\d{4}$/);
+});
+
+test('the two bases disagree about a 401(k) deferral, on the same paycheck', () => {
+  // A Columbus resident in an earned income school district, deferring the 2026
+  // maximum. Box 5 is the salary; box 1 is the salary less the deferral.
+  const salary = 100_000;
+  const deferral = 24_500;
+  const both = stateIncomeTax({
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    federal: federal(salary - deferral),
+    city: 'Columbus',
+    qualifyingWages: salary,
+    earnedIncome: salary - deferral,
+    // Geneva Area CSD, Ashtabula County — an earned income district at 1.25%.
+    schoolDistrict: '0404',
+  });
+  const municipal = both.localTaxes.find((l) => l.base === 'qualifyingWages');
+  const district = both.localTaxes.find((l) => l.base === 'stateEarnedIncome');
+  money(municipal.baseAmount, salary, 'the municipality reaches box 5');
+  money(district.baseAmount, salary - deferral, 'the district reaches box 1');
+  money(municipal.tax, 2_500);
+  money(district.tax, 943.75);
+  // The deferral is inside one local wage tax and outside the other. At the two
+  // rates that is what the same $24,500 costs and saves.
+  money(0.025 * deferral, 612.5);
+  money(0.0125 * deferral, 306.25);
+});
+
+test('a traditional district adds back the business income deduction the state took out', () => {
+  // $300,000 of business income, $250,000 of it deducted. Ohio AGI is $50,000
+  // and modified AGI is $300,000, so the district taxes $248,100 that the Ohio
+  // schedule never saw as nonbusiness income.
+  const owner = oh({
+    agi: 300_000,
+    businessIncome: 300_000,
+    year: 2026,
+    schoolDistrict: '0203', // Bluffton EVSD, traditional, 0.50%
+  });
+  const district = owner.localTaxes[0];
+  assert.equal(district.base, 'stateModifiedTaxableIncome');
+  money(owner.exemptions, 1_900);
+  money(district.baseAmount, 298_100);
+  money(district.tax, 1_490.5);
+  // A municipality reaches none of it, because the deduction removed it from
+  // Ohio AGI and a municipality taxes wages anyway.
+  const wageEarner = oh({ agi: 300_000, year: 2026, schoolDistrict: '0203' });
+  money(wageEarner.localTaxes[0].baseAmount, 298_100);
+});
+
+test('the district senior credit is $50, per return, with no income limit', () => {
+  const rich = oh({ agi: 400_000, year: 2026, schoolDistrict: '0203', filerAge: 70 });
+  const credit = rich.localTaxes[0].credits.find((c) => c.name === 'Senior citizen credit');
+  money(credit.amount, 50);
+  // The state's own $50 senior credit stops at $100,000 of modified AGI less
+  // exemptions; the district's does not stop at all.
+  money(rich.credits.find((c) => c.name === 'Senior citizen credit').amount, 0);
+  // Per return, not per filer: two 65-year-olds on a joint return get one.
+  const couple = oh({
+    agi: 80_000,
+    year: 2026,
+    schoolDistrict: '0203',
+    filingStatus: 'marriedFilingJointly',
+    filerAge: 70,
+    spouseAge: 68,
+  });
+  money(
+    couple.localTaxes[0].credits.find((c) => c.name === 'Senior citizen credit').amount,
+    50,
+  );
+  const young = oh({ agi: 80_000, year: 2026, schoolDistrict: '0203' });
+  money(young.localTaxes[0].credits.find((c) => c.name === 'Senior citizen credit').amount, 0);
+});
+
+test('a district resolves by number or by a unique name, and refuses the rest', () => {
+  assert.equal(ohioSchoolDistrict('0203', 2026).rate.rate, 0.005);
+  assert.equal(ohioSchoolDistrict('203', 2026).rate.rate, 0.005);
+  assert.equal(ohioSchoolDistrict('Bluffton EVSD', 2026).rate.rate, 0.005);
+  assert.equal(ohioSchoolDistrict('bluffton evsd', 2026).rate.rate, 0.005);
+  // Two districts share each of these names, so the name is refused with both
+  // numbers and both counties.
+  assert.throws(() => ohioSchoolDistrict('Northwestern LSD', 2026), /names 2 Ohio school districts/);
+  assert.throws(() => ohioSchoolDistrict('Crestview LSD', 2026), /Pass the four-digit district number/);
+  // A district that levies nothing is simply not in the table.
+  assert.throws(() => ohioSchoolDistrict('Dublin CSD', 2026), /is not an Ohio school district that levies/);
+  assert.equal(ohioSchoolDistrictTaxesEarnedIncomeOnly('0404'), true);
+  assert.equal(ohioSchoolDistrictTaxesEarnedIncomeOnly('0203'), false);
+});
+
+test('an earned income district without earnedIncome is refused, and so is a district outside Ohio', () => {
+  assert.throws(
+    () => oh({ agi: 60_000, year: 2026, schoolDistrict: '0404' }),
+    /taxes EARNED INCOME ONLY/,
+  );
+  assert.throws(
+    () => oh({ agi: 60_000, year: 2026, schoolDistrict: '0404' }),
+    /box 1 of the W-2/,
+  );
+  assert.throws(
+    () =>
+      stateIncomeTax({
+        state: 'MI',
+        year: 2026,
+        filingStatus: 'single',
+        federal: federal(60_000),
+        schoolDistrict: '0203',
+      }),
+    /schoolDistrict applies to an Ohio return/,
+  );
+});
+
+test('all three Ohio taxes on one return, which is what an Ohio filer actually owes', () => {
+  const all = stateIncomeTax({
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    federal: federal(60_000),
+    city: 'Columbus',
+    qualifyingWages: 60_000,
+    earnedIncome: 60_000,
+    schoolDistrict: '0203',
+  });
+  money(all.tax, 1_206.5); // Ohio
+  money(all.localTaxes[0].tax, 1_500); // Columbus, 2.5% of box 5
+  money(all.localTaxes[1].tax, 289.25); // Bluffton EVSD, 0.5% of MAGI less exemptions
+  money(all.totalTax, 2_995.75);
+  // The state is 40% of it. Two of the three taxes are levied by governments
+  // that appear in no table of state income tax rates.
+  assert.ok(all.tax / all.totalTax < 0.41);
 });
