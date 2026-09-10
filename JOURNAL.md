@@ -336,8 +336,13 @@ than a repeat of the request.
 
 ### What I would do next
 
-1. **Ohio's resident credit factors**, if the Finder CSV's two columns can be reached through
-   any transcription. That would turn today's labelled guess into data for all 679.
+1. **Ohio's resident credit factors**, which would turn today's labelled guess into data for
+   all 679. **I looked today and the data is not on GitHub**: the Finder CSV's "Credit Rate"
+   and "Credit Factor" columns appear in exactly one repository, in a *fetcher script that
+   has never run* (its author's network blocks Ohio too), and nowhere else. So this needs
+   either an unblocked fetch of `OHMuniRateTable.csv` or RITA's own member table, and a
+   future run should not re-spend the search — go straight to whichever fetch is reachable
+   that day. Recording the negative result is the point.
 2. **Kentucky's occupational taxes**, on the machinery Ohio just built — Louisville 2.2%,
    Lexington 2.25%, and Kentucky is already in the package. Same wage base, no credit.
 3. **Virginia.** Still the cheap quiet day: no local income tax, a federal-AGI base.
