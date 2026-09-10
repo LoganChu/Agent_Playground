@@ -8,11 +8,95 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 15 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.10.0, and `us-tax-mcp` v0.12.0 — so the version numbers in older entries are
+**As of Day 16 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.11.0, and `us-tax-mcp` v0.13.0 — so the version numbers in older entries are
 stale. The publishing commands themselves are unchanged.
 
 Newest first.
+
+---
+
+## 2026-09-10 (Day 16)
+
+### The ask is unchanged: publish
+
+Same three packages, same commands, new version numbers and new test counts:
+
+```bash
+# once, on your machine
+npm login
+
+cd packages/us-tax-mcp
+npm test            # 129 tests; confirm green
+npm publish
+
+cd ../us-federal-tax && npm test && npm publish   # 283 tests
+cd ../us-state-tax   && npm test && npm publish   # 260 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed, and it is the largest change so far
+
+**Ohio, and all 679 of its municipal income taxes.** Local coverage went from 140
+jurisdictions to **819** in one day — Ohio has more taxing municipalities than the
+rest of the United States put together — and Ohio was the largest state the
+package was missing. `us-state-tax` is v0.11.0 (27 states) and `us-tax-mcp` is
+v0.13.0.
+
+### Four things worth knowing
+
+**Ohio's printed rate schedule is discontinuous, and it is the law rather than a
+typo.** O.R.C. § 5747.02(A)(3) charges 0% on the first `$26,050` of taxable
+nonbusiness income and then `$342.00` **plus** 2.75% of the excess — with the
+`$342.00` charged whole on the first dollar of the band. A filer at `$26,050`
+owes nothing and a filer one cent later owes `$342.00`. It steps a second time by
+`$18.69` at `$100,000`, because HB 96 lowered the lower constant for 2025 and left
+the upper one at what the old lower one chained to. Five independent
+transcriptions of the booklet agree. Every rate table that reports "Ohio: 0% /
+2.75% / 3.125%" invites a reader to walk three marginal brackets, which
+**understates every Ohio filer above the threshold by the whole `$342`**.
+
+**For most Ohio filers the municipal tax is the larger of the two.** A Columbus
+resident on `$60,000` owes Ohio `$1,216.50` and Columbus `$1,500.00`. The state
+tax does not overtake a 2.5% municipal one until `$126,408.32` of income. The
+municipal base is *qualifying wages* — box 5 of the W-2 — so a 401(k) deferral
+does not reduce it (`$612.50` a year for a Columbus saver at the 2026 maximum),
+while interest, dividends, capital gains and pensions are outside it entirely, so
+an Ohio retiree owes their municipality nothing.
+
+**Two Ohio credits turn out to be unclaimable, and I believe nobody else says so.**
+The `$20` exemption credit needs modified AGI below `$30,000`; the zero band means
+a filer needs taxable income above `$26,050` before there is any tax to credit. At
+`$2,400` an exemption those overlap in a `$1,550` window, and a *second* exemption
+closes it — so a per-exemption credit is claimable only by a filer with exactly
+one exemption. The joint filing credit's top 20% row is unreachable for the same
+reason; the highest rate it is ever actually paid at is 15%. Both are pinned by
+tests.
+
+**One deliberate guess, labelled.** Ohio grants no statutory resident credit for
+tax paid to another municipality — each ordinance decides — and the table of
+per-municipality figures is blocked at the proxy. Rather than make a large share
+of working Ohio uncomputable, the engine assumes the common ordinance (100% of the
+tax paid, capped at the home rate), **names the assumption inside the credit line
+itself**, says in a note what a less generous ordinance would cost, and accepts
+two overrides. If you would rather it refused, that is a one-line change and I
+will make it.
+
+### The competitive picture, since it bears on whether publishing is worth it
+
+`statetakehome-mcp` (npm, v0.1.1, unchanged since July) now has an Ohio record. It
+has two marginal brackets, **no base amount** and **no personal exemption**, so for
+a single filer at `$60,000` in 2026 it answers `$933.63` against `$1,206.50` —
+short by 22.6% of the state tax, and by **65.5% of the whole bill** once Columbus
+is counted. Its own note says "Municipalités 1-3% en sus" and computes none of
+them; the range is wrong at both ends (the real one is 0.45% to 3.00%). It carries
+`verify_2026: true` — their own unchecked-figure flag — on a fourth state.
+
+### Still open from earlier days
+
+Everything below this entry still stands. Nothing has been added to the list and
+nothing has been withdrawn.
 
 ---
 

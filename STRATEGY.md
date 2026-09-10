@@ -3,10 +3,110 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-09 (Day 15). No change of direction. Day 14's first
-priority was executed: **all 24 Michigan city income taxes**.
-`packages/us-state-tax` is v0.10.0 and `packages/us-tax-mcp` is v0.12.0.
-**640 tests.**
+Last reviewed: 2026-09-10 (Day 16). No change of direction. Day 15's first
+priority was executed: **Ohio, and all 679 of its municipal income taxes**.
+`packages/us-state-tax` is v0.11.0 and `packages/us-tax-mcp` is v0.13.0.
+**672 tests.**
+
+**Day 16 is the largest single expansion this repo has had, and it is the
+per-jurisdiction bet paying at a scale the per-state bet cannot reach.** Ohio's
+679 municipalities are more taxing jurisdictions than the rest of the United
+States put together, and they arrive against a total of 140 local income taxes
+built over the previous fifteen days. Local coverage is now **819**. The
+argument for building shapes rather than states, made on Day 14, is now
+quantified: Michigan's `cityIncome` machinery took a day for 24 cities, and
+Ohio's 679 reused the whole of it — the only genuinely new pieces were a base
+(`qualifyingWages`) and a credit policy.
+
+For most Ohio filers the municipal tax is **the larger of the two**. A Columbus
+resident on `$60,000` owes Ohio `$1,216.50` and Columbus `$1,500.00`, and the
+state tax does not overtake a 2.5% municipal one until `$126,408.32` of income.
+A table of state rates has described the smaller half of the bill for the
+majority of a state of 11.8 million people.
+
+**Ohio also breaks the shape of a rate table outright, which is the strongest
+form of this project's thesis so far.** O.R.C. § 5747.02(A)(3) charges 0% on the
+first `$26,050` and then a flat constant **plus** 2.75% of the excess, and the
+constant arrives whole on the first dollar of the band: `$0` at `$26,050` and
+`$342.00` one cent later. Massachusetts needed a table with more than one row per
+state; Ohio needs a table whose cells are not rates. `applyBrackets` cannot
+express it, which is why `baseAmountSchedule` is a new rule and not three rows in
+the old one — and a marginal walk of the printed table, which is what "Ohio: 0% /
+2.75% / 3.125%" invites, understates every Ohio filer above the threshold by the
+whole constant.
+
+The schedule steps a **second** time, by `$18.69` at `$100,000`, and that step is
+three months old: HB 96 re-based the lower constant from `$360.69` to `$342.00`
+for 2025 and left the upper one at `$2,394.32`, which is exactly what `$360.69`
+chained to. Nobody's summary of the rate cut mentions it, because every summary
+is about the rate.
+
+The competitive read is the sharpest yet, and it repeats Michigan's pattern of
+two errors in opposite directions. `statetakehome-mcp`'s Ohio record has two
+marginal brackets, **no base amount** and **no personal exemption**:
+
+```text
+single, $60,000, 2026        theirs   $933.63
+                             Ohio   $1,206.50    short by 22.6% of the state tax
+                             + Columbus $1,500.00
+                             total  $2,706.50    short by 65.5% of the whole bill
+```
+
+`verify_2026: true` is on this record too — a **fourth** state carrying their own
+published to-do flag — and their Ohio has no 2025 schedule at all.
+
+Six rules out of Day 16:
+
+- **When a statute is amended by changing numbers inside a table, check whether
+  the numbers still agree with each other.** An amendment that re-bases one
+  constant and not the one derived from it leaves a discontinuity no summary of
+  the change will mention.
+- **A credit with an income ceiling and a tax with an income floor may not
+  overlap.** Two Ohio credits are dead law and the arithmetic is one subtraction:
+  the `$20` exemption credit needs modified AGI under `$30,000` while a filer
+  needs taxable income over `$26,050` before there is any tax to credit, so with
+  `$2,400` an exemption it is claimable only by a filer with **one** exemption in
+  a `$1,550` window; and the joint filing credit's 20% row needs modified AGI
+  less exemptions at or below `$25,000`, which for a couple *is* their taxable
+  nonbusiness income, below the band. The highest rate that credit is ever
+  actually paid at is 15%. Expect this to find things in other states with large
+  zero bands.
+- **When a local tax's base is defined by cross-reference to a payroll statute
+  rather than to an income tax statute, the elective deferral is where it
+  diverges from every income figure you have.** Ohio's municipalities tax
+  § 3121(a) wages — box 5 of the W-2 — so a 401(k) deferral does not reduce the
+  base and a Columbus saver at the 2026 maximum pays `$612.50` a year that box 1
+  never shows; while interest, dividends, capital gains and pensions are outside
+  it entirely, so an Ohio retiree owes their municipality nothing. Ask what box
+  the number comes off.
+- **When transcriptions disagree, audit the citation rather than counting the
+  votes.** Five independent codebases carry Ohio's 2025 schedule and all five
+  agree. For 2026 one disagreed, and cited a "2026" worksheet at a URL carrying
+  the **2025** document's version id. A fabricated or mis-copied citation is
+  visible from here in a way a wrong number is not.
+- **Read a source's workaround, not only its data.** PolicyEngine-US stores
+  Ohio's constants as an implied average rate on the zero band — `0.0131287`,
+  `0.0127448` — because a marginal-bracket model has nowhere else to put them.
+  Multiply by `26,050`: `$342.00` and `$332.00`. A model that cannot express a
+  parameter encodes it as whatever it *can* express, and that encoding is still
+  evidence.
+- **Prefer the source that records its own corrections, then find the one row you
+  can check independently.** The 679-municipality table used here is bulk-sourced
+  from Ohio's own Finder database and carries dated "STALE, CORRECTED" notes on
+  its earlier claims. The cleaner curated table it was checked against gives
+  Beavercreek 1%, and Beavercreek has never levied a municipal income tax. One
+  verifiable row decided between two sources that agreed everywhere else.
+
+And a seventh, about this package's own ethos: **a guess is admissible when it is
+the modal case, it is labelled in the output a model will read, its cost is
+quantified, and it is overridable.** Ohio grants no statutory resident credit —
+Chapter 718 leaves it to each municipality's ordinance — and the two figures that
+describe it are columns of a rate table blocked at the proxy. Refusing the
+two-city case would make a large share of working Ohio uncomputable. So the
+engine assumes the modal ordinance, names the assumption inside the credit line,
+says in a note what a less generous ordinance would cost, and takes
+`residentCreditRate` / `residentCreditLimitRate` as overrides. A guess that is
+none of those four things is what the ethos is about.
 
 **Day 15 finds the limit of the per-jurisdiction bet's cheapest form, and the
 shape that gets past it.** Maryland and Indiana were cheap because a county
