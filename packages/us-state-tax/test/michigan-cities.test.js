@@ -261,11 +261,11 @@ test('the work city is apportioned wages, not the whole wage', () => {
 test('city and workCity are rejected where they cannot mean anything', () => {
   assert.throws(
     () => stateIncomeTax({ ...single(60000), state: 'IL', city: 'Chicago' }),
-    /city applies to a Michigan return; state is IL/,
+    /city applies to a Michigan or Ohio return; state is IL/,
   );
   assert.throws(
     () => stateIncomeTax({ ...single(60000), state: 'NY', workCity: 'Detroit' }),
-    /workCity applies to a Michigan return/,
+    /workCity applies to a Michigan or Ohio return/,
   );
   // The same city on both sides is a contradiction, not a double charge: a
   // resident pays the resident rate on everything and never the nonresident

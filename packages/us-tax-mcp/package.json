@@ -1,7 +1,7 @@
 {
   "name": "us-tax-mcp",
-  "version": "0.12.0",
-  "description": "Zero-dependency MCP server that computes US federal, state and LOCAL tax \u2014 federal income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding for 2024-2026, plus state income tax for 26 states and 140 local income taxes: New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties and all 24 Michigan cities. A Michigan city taxes a base the MI-1040 does not contain: Detroit charges residents 2.4% where the state charges 4.25%, the Uniform City Income Tax Ordinance excludes pensions, IRA distributions, Social Security, unemployment and military pay entirely, the personal exemption has been the $600 set in 1964 and is worth $14.40 of tax against an indexed $5,800 state exemption, the nonresident rate is one half of the resident rate by statute, and a resident working in another taxing city is credited only up to their OWN city's nonresident rate \u2014 so a Lansing resident commuting to Detroit pays 70% more city tax than one working at home. Indiana\u2019s county tax is two fifths of the bill and is charged on the same line as the state tax, with Randolph County at the 3.00% statutory maximum \u2014 more than the state rate from 2026 \u2014 against Porter County\u2019s 0.5%, and six counties raised their rate for 2026 in the year the state cut its own. Maryland is two income taxes rather than one: every resident owes a county tax of 2.25-3.30% on the same taxable income, a third to two fifths of the whole bill and absent from every table of state rates, and in Frederick County the bracket selects one rate that applies to the WHOLE income, so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents. Its new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08. New Jersey's filing threshold makes the next dollar cost $126 and its retirement exclusion costs a joint retiree $1,381 on one dollar; New York's supplemental tax recaptures the lower brackets so a high earner pays their top rate on their whole income, and a New York City resident owes more city tax than the entire state tax of twelve of those states. Compares a household across tax years, reports the true marginal rate including credit phase-outs and state and local cliffs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release or state statute behind every figure.",
+  "version": "0.13.0",
+  "description": "Zero-dependency MCP server that computes US federal, state and LOCAL tax — federal income tax, self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, Section 199A, the SALT cap, quarterly estimated payments and Publication 15-T paycheck withholding for 2024-2026, plus state income tax for 27 states and 819 local income taxes: New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities and all 679 OHIO municipalities - more taxing jurisdictions than the rest of the United States put together. Ohio's printed rate schedule is DISCONTINUOUS: a filer with $26,050 of taxable nonbusiness income owes nothing and one with $26,050.01 owes $342.00, because O.R.C. 5747.02(A)(3) charges the constant whole on the first dollar of the band - and it steps a second time by $18.69 at $100,000 because HB 96 re-based the lower constant and left the upper one at what the old one chained to. Ohio deducts the first $250,000 of business income and taxes the excess at a flat 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45. Its 679 municipalities charge 0.45% to 3.00% on QUALIFYING WAGES - box 5 of the W-2, which a 401(k) deferral does not reduce, costing a Columbus saver $612.50 a year - so the municipal tax is the LARGER half of every Ohio return below $126,408 of income and an Ohio retiree owes their municipality nothing. A Michigan city taxes a base the MI-1040 does not contain: Detroit charges residents 2.4% where the state charges 4.25%, the Uniform City Income Tax Ordinance excludes pensions, IRA distributions, Social Security, unemployment and military pay entirely, the personal exemption has been the $600 set in 1964 and is worth $14.40 of tax against an indexed $5,800 state exemption, the nonresident rate is one half of the resident rate by statute, and a resident working in another taxing city is credited only up to their OWN city's nonresident rate — so a Lansing resident commuting to Detroit pays 70% more city tax than one working at home. Indiana’s county tax is two fifths of the bill and is charged on the same line as the state tax, with Randolph County at the 3.00% statutory maximum — more than the state rate from 2026 — against Porter County’s 0.5%, and six counties raised their rate for 2026 in the year the state cut its own. Maryland is two income taxes rather than one: every resident owes a county tax of 2.25-3.30% on the same taxable income, a third to two fifths of the whole bill and absent from every table of state rates, and in Frederick County the bracket selects one rate that applies to the WHOLE income, so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents. Its new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08. New Jersey's filing threshold makes the next dollar cost $126 and its retirement exclusion costs a joint retiree $1,381 on one dollar; New York's supplemental tax recaptures the lower brackets so a high earner pays their top rate on their whole income, and a New York City resident owes more city tax than the entire state tax of twelve of those states. Compares a household across tax years, reports the true marginal rate including credit phase-outs and state and local cliffs, tells an employee what to put on Form W-4 Step 4(c), and cites the IRS release or state statute behind every figure.",
   "keywords": [
     "mcp",
     "mcp-server",
@@ -97,7 +97,22 @@
     "collectibles",
     "michigan",
     "detroit",
-    "michigan-city-tax"
+    "michigan-city-tax",
+    "ohio",
+    "ohio-tax",
+    "it-1040",
+    "ohio-municipal-income-tax",
+    "municipal-income-tax",
+    "columbus",
+    "cleveland",
+    "cincinnati",
+    "toledo",
+    "akron",
+    "dayton",
+    "rita",
+    "qualifying-wages",
+    "business-income-deduction",
+    "hb96"
   ],
   "license": "MIT",
   "type": "module",

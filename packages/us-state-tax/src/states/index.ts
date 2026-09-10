@@ -13,6 +13,7 @@ import { maryland } from './maryland.js';
 import { massachusetts } from './massachusetts.js';
 import { newJersey } from './new-jersey.js';
 import { newYork } from './new-york.js';
+import { ohio } from './ohio.js';
 import {
   NO_INCOME_TAX_NAMES,
   NO_INCOME_TAX_STATES,
@@ -30,6 +31,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const md = maryland(year);
   const nj = newJersey(year);
   const ny = newYork(year);
+  const oh = ohio(year);
   return [
     ...noIncomeTaxDefinitions(year),
     ...flatStates(year),
@@ -40,6 +42,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(md ? [md] : []),
     ...(nj ? [nj] : []),
     ...(ny ? [ny] : []),
+    ...(oh ? [oh] : []),
   ];
 }
 
@@ -84,7 +87,7 @@ export function getStateDefinition(state: StateCode, year: number): StateIncomeT
     throw new RangeError(
       `${state} is not supported. This package covers ${SUPPORTED_STATES.join(', ')}. ` +
         `The states it does NOT cover include every graduated-rate state other than ` +
-        `California, Maryland, New Jersey, New York and Mississippi — Ohio, Virginia, ` +
+        `California, Maryland, New Jersey, New York, Ohio and Mississippi — Virginia, ` +
         `Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut ` +
         `and the rest — and the District of Columbia. Returning zero for those would be ` +
         `a wrong answer rather than a missing one.`,

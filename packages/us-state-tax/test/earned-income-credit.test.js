@@ -64,7 +64,7 @@ test('every state whose definition carries an earned income credit pays its matc
       money(eitcOf(r), rule.matchRate * 4_000, `${state} ${year}`);
     }
   }
-  assert.deepEqual(withCredit.sort(), ['CO', 'IL', 'IN', 'MA', 'MD', 'MI', 'NJ', 'NY', 'UT']);
+  assert.deepEqual(withCredit.sort(), ['CO', 'IL', 'IN', 'MA', 'MD', 'MI', 'NJ', 'NY', 'OH', 'UT']);
 });
 
 test('a state with no earned income credit ignores a federal one entirely', () => {

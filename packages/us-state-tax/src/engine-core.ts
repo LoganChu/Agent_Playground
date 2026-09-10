@@ -58,6 +58,44 @@ export function rateForIncome(brackets: readonly Bracket[], income: number): num
   return brackets[brackets.length - 1]?.rate ?? 0;
 }
 
+/**
+ * Ohio's schedule: find the band, charge its constant in full, then its rate on
+ * the excess over the band floor.
+ *
+ * The detail is reported as two rows, because two things happened. The first is
+ * the constant, charged on everything up to the band floor at whatever average
+ * rate that implies — `$342.00` over `$26,050` is **1.3129%**, and it is the
+ * only "rate" in this package that is a consequence rather than a parameter. The
+ * second is the marginal rate on the excess. Reporting them as one row would
+ * hide that the first is a step and not a slope: it is the same `$342` at
+ * `$26,050.01` as at `$99,999`.
+ *
+ * The last band's `upTo` is `Infinity`, so the loop always returns.
+ */
+export function applyBaseAmountSchedule(
+  taxableIncome: number,
+  bands: readonly { upTo: number; base: number; rate: number }[],
+): { tax: number; detail: BracketDetail[] } {
+  const income = Math.max(0, taxableIncome);
+  let floor = 0;
+  for (const band of bands) {
+    if (income > band.upTo) {
+      floor = band.upTo;
+      continue;
+    }
+    const excess = Math.max(0, income - floor);
+    const marginal = excess * band.rate;
+    const detail: BracketDetail[] = [];
+    if (band.base > 0 && floor > 0) {
+      detail.push({ rate: band.base / floor, incomeInBracket: floor, tax: band.base });
+    }
+    if (excess > 0) detail.push({ rate: band.rate, incomeInBracket: excess, tax: marginal });
+    return { tax: band.base + marginal, detail };
+  }
+  /* c8 ignore next 2 -- the last band is unbounded, so the loop always returns. */
+  return { tax: 0, detail: [] };
+}
+
 /** Walk a bracket table, returning the tax and the per-band detail. */
 export function applyBrackets(
   taxableIncome: number,

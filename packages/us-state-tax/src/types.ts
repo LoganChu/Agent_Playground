@@ -51,6 +51,7 @@ export type StateCode =
   | 'NJ'
   | 'NV'
   | 'NY'
+  | 'OH'
   | 'PA'
   | 'SD'
   | 'TN'
@@ -595,6 +596,14 @@ export interface StateIncomeTaxInput {
    * Grayling, Hamtramck, Highland Park, Hudson, Ionia, Jackson, Lansing, Lapeer,
    * Muskegon, Muskegon Heights, Pontiac, Port Huron, Portland, Saginaw,
    * Springfield and Walker; anything else is an error rather than a zero.
+   *
+   * **In Ohio the same field carries the municipality**, and there are 679 of
+   * them — every city and village in the state that levies an income tax, from
+   * Columbus and Cleveland at 2.5% to Bedford and Parma Heights at 3.0%. Ohio's
+   * municipal income taxes raise more than half of what the state income tax
+   * does, and a Columbus resident's 2.5% on gross wages is **larger than their
+   * whole Ohio state tax** at every income up to about `$130,000`. The base is
+   * {@link qualifyingWages}, not any line of the IT 1040.
    */
   readonly city?: string;
   /**
@@ -619,13 +628,20 @@ export interface StateIncomeTaxInput {
    */
   readonly cityIncome?: number;
   /**
-   * A Michigan taxing city the filer worked in but does **not** live in, and
-   * {@link workCityEarnings} the wages earned inside it.
+   * A Michigan or Ohio taxing city the filer worked in but does **not** live
+   * in, and {@link workCityEarnings} the wages earned inside it.
    *
-   * The city taxes a nonresident at half its resident rate, and the filer's home
-   * city — if it is also one of the 24 — credits the tax paid, capped at the
-   * home city's own nonresident rate. Both are computed when both cities are
-   * supplied, and the credit appears in the home city's result.
+   * In **Michigan** the city taxes a nonresident at half its resident rate, and
+   * the filer's home city — if it is also one of the 24 — credits the tax paid,
+   * capped at the home city's own nonresident rate.
+   *
+   * In **Ohio** there is no half rate: a municipality charges a commuter the
+   * same rate it charges a resident, and it is the *workplace* municipality that
+   * gets the money first. The home municipality's credit is set by its own
+   * ordinance rather than by statute — see {@link residentCreditRate}.
+   *
+   * Both taxes are computed when both cities are supplied, and the credit
+   * appears in the home city's result.
    */
   readonly workCity?: string;
   /**
@@ -635,9 +651,95 @@ export interface StateIncomeTaxInput {
    * gross wages times city working days over total working days — and days at
    * the home office, sick days, vacation and holidays are not city days wherever
    * they were taken. This package takes the apportioned figure; it cannot
-   * compute it.
+   * compute it. In Ohio the same field carries the qualifying wages earned
+   * inside {@link workCity}, which is what the employer withheld on.
    */
   readonly workCityEarnings?: number;
+  /**
+   * Ohio only: **qualifying wages** — the base of every Ohio municipal income
+   * tax, and a figure with no line on the IT 1040 behind it.
+   *
+   * O.R.C. § 718.01(R) defines it as "wages, as defined in section 3121(a) of
+   * the Internal Revenue Code, without regard to any wage limitations" — which
+   * is **Medicare wages, box 5 of the W-2**, and not box 1. The gap is the whole
+   * point:
+   *
+   * - a **401(k), 457 or SIMPLE elective deferral does not reduce it.** Box 1 is
+   *   net of the deferral and box 5 is not, so a Columbus resident deferring the
+   *   `$24,500` 2026 maximum is charged 2.5% on all of it — `$612.50` a year
+   *   that a model reading box 1, or federal AGI, never sees;
+   * - a **§ 125 cafeteria-plan (health premium) contribution does** reduce it,
+   *   because it is outside § 3121(a) altogether;
+   * - **intangible income — interest, dividends and capital gains — is excluded
+   *   entirely** by § 718.01(S), as are pensions, IRA distributions, Social
+   *   Security and unemployment compensation. An Ohio retiree with no wages owes
+   *   their municipality nothing.
+   *
+   * A resident is also taxed on the **net profit** of a business or rental
+   * carried on anywhere; add it here if there is any. Ohio's own personal
+   * exemption is a state figure under § 5747.025 and does not reach a
+   * municipality, so this is not reduced by it.
+   *
+   * There is deliberately no derivation from federal AGI: AGI contains the
+   * intangible income a municipality may not tax and is net of above-the-line
+   * deductions box 5 never saw, so it is a different figure rather than an
+   * approximation of this one. An Ohio return naming a `city` without this — or
+   * without {@link earnedIncome} to stand in for it — is an error.
+   */
+  readonly qualifyingWages?: number;
+  /**
+   * Ohio only: **Ohio business income** — Schedule IT BUS line 10, before the
+   * business income deduction.
+   *
+   * Ohio is the only state in this package that taxes two kinds of income on the
+   * same return at two unrelated rates. The first `$250,000` of business income
+   * (`$125,000` married filing separately) is deducted outright under
+   * § 5747.01(A)(31), and every dollar above it is taxed at a **flat 3%** —
+   * which is *below* the 2.75% nonbusiness rate only in the sense that it never
+   * rises: a pass-through owner with `$1,000,000` of Ohio business income pays
+   * 3% on `$750,000` of it and nothing on the rest.
+   *
+   * Treated as zero when absent, which is right for a wage earner and
+   * **overstates** the tax for anyone with Schedule C, Schedule F or active
+   * Schedule E income — the deduction is the largest single thing on an Ohio
+   * small business owner's return.
+   */
+  readonly businessIncome?: number;
+  /**
+   * Ohio only: whether **each** spouse on a joint return has at least `$500` of
+   * qualifying income — O.R.C. § 5747.05(E)(1).
+   *
+   * The joint filing credit is worth up to `$650` and is allowed only where both
+   * spouses have qualifying income of their own: Ohio AGI **less** interest,
+   * dividends, capital gains and rental income, computed per spouse. No federal
+   * figure on a joint return splits income between the two people on it, so this
+   * package cannot derive it.
+   *
+   * Absent, the credit is computed as **zero** and the result says what it would
+   * have been worth. That is the safe direction — a single-earner couple is not
+   * entitled to it — but it is wrong for the majority of joint returns, where
+   * both spouses work.
+   */
+  readonly bothSpousesHaveQualifyingIncome?: boolean;
+  /**
+   * Ohio only: the share of the tax paid to {@link workCity} that the filer's
+   * **home** municipality credits — the "Credit Rate" column of Ohio's own
+   * municipal rate table.
+   *
+   * Ohio has no statutory resident credit. O.R.C. Chapter 718 leaves it to each
+   * municipality's ordinance, so the two numbers below are jurisdiction-specific
+   * data that no state rate table carries. Most municipalities credit 100%
+   * limited to their own rate, which is what this package assumes when neither
+   * field is supplied — and says so in the result, with the amount at stake.
+   */
+  readonly residentCreditRate?: number;
+  /**
+   * Ohio only: the rate the home municipality caps its resident credit at — the
+   * "Credit Factor" (or credit limit) column of the same table. The credit is
+   * the lesser of {@link residentCreditRate} times the tax paid and this rate
+   * times the earnings the other municipality taxed.
+   */
+  readonly residentCreditLimitRate?: number;
 }
 
 export interface CreditDetail {
@@ -699,6 +801,7 @@ export interface LocalIncomeTaxResult {
     | 'stateAdjustedGrossIncome'
     | 'stateNetTax'
     | 'cityIncome'
+    | 'qualifyingWages'
     | 'wages';
   readonly baseAmount: number;
   readonly taxBeforeCredits: number;

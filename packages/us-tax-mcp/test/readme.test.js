@@ -445,20 +445,20 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('26 states');
-  assert.equal(SUPPORTED_STATES.length, 26);
+  quotes('27 states');
+  assert.equal(SUPPORTED_STATES.length, 27);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 17);
-  quotes('Seven of the seventeen taxing states cut their rate for 2026');
+  assert.equal(taxing.length, 18);
+  quotes('Eight of the eighteen taxing states cut their rate for 2026');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.equal(provisional.length, 8);
-  quotes('eight of the 2026 state-years carry at');
+  assert.equal(provisional.length, 9);
+  quotes('nine of the 2026 state-years carry at');
 
   // Colorado's 2026 overtime add-back, which the section names.
   const co = stateIncomeTax({
@@ -554,9 +554,9 @@ test('README: the New York City and Yonkers figures', () => {
     federal: stateFed(100_000, 92_000, 8_000),
   });
   assert.equal(nyc.localTaxes[0].tax, 3174.69);
-  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **twelve of these twenty-six states**');
+  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **thirteen of these twenty-seven states**');
 
-  // "twelve of these twenty-six states", checked against every one of them.
+  // "thirteen of these twenty-seven states", checked against every one of them.
   const federal = stateFed(100_000, 85_000, 15_000);
   const cheaper = SUPPORTED_STATES.filter(
     (state) =>
@@ -570,7 +570,7 @@ test('README: the New York City and Yonkers figures', () => {
         massachusettsFivePercentIncome: 100_000,
       }).tax < 3174.69,
   );
-  assert.equal(cheaper.length, 12);
+  assert.equal(cheaper.length, 13);
 
   // 2.7% x 1.14 = 3.078%, to the last digit.
   quotesAcrossLines('2.7% x 1.14 = 3.078% to the last digit');
@@ -716,4 +716,39 @@ test('README: the Michigan city figures and the commuter table row', () => {
     downhill.localTaxes.reduce((sum, l) => sum + l.tax, 0),
     detroitAtHome.localTaxes[0].tax,
   );
+});
+
+test('README: the Ohio claims are the ones the engine actually holds', () => {
+  const oh = (agi, extra = {}) =>
+    stateIncomeTax({
+      state: 'OH',
+      year: 2025,
+      filingStatus: 'single',
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: Math.max(0, agi - 15_750),
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+      ...extra,
+    });
+  quotes('**$322.00 on one cent**');
+  assert.equal(oh(28_450).tax, 0);
+  assert.equal(oh(28_450.01).tax, 322.0);
+  quotesAcrossLines('costs a further `$18.69` on one cent');
+  assert.equal(oh(101_900).tax, 2375.63);
+  assert.equal(oh(101_900.01).tax, 2394.32);
+  quotesAcrossLines('`$250,000` of wages costs `$7,022.45`');
+  assert.equal(oh(250_000).tax, 7022.45);
+  assert.equal(oh(250_000, { businessIncome: 250_000 }).tax, 0);
+
+  const columbus = oh(60_000, { city: 'Columbus', qualifyingWages: 60_000 });
+  quotesAcrossLines('owes Ohio `$1,216.50` and Columbus\n`$1,500.00`');
+  assert.equal(columbus.tax, 1216.5);
+  assert.equal(columbus.localTaxes[0].tax, 1500);
+  assert.equal(columbus.totalMarginalRate, 0.0525);
+  // The crossover, and the deferral.
+  assert.ok(oh(126_408).tax < 0.025 * 126_408);
+  assert.ok(oh(126_409).tax > 0.025 * 126_409);
+  assert.equal(0.025 * 24_500, 612.5);
 });

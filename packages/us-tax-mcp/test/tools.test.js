@@ -1032,10 +1032,19 @@ test('state_income_tax computes the Michigan commuter, and refuses a half-given 
     err('state_income_tax', { ...base, city: 'Detroit', workCity: 'Detroit', workCityEarnings: 1 }),
     /A resident pays the resident tax on everything/,
   );
-  // And a Michigan field on another state's return is an error, not an ignore.
+  // And a Michigan field on another state's return is an error, not an ignore —
+  // including on Ohio's, which shares `city` and shares no base with it.
+  assert.match(
+    err('state_income_tax', { ...base, state: 'OH', cityIncome: 50_000 }),
+    /cityIncome only applies to MI, and OH was requested/,
+  );
+  assert.match(
+    err('state_income_tax', { ...base, state: 'MI', qualifyingWages: 50_000 }),
+    /qualifyingWages only applies to OH, and MI was requested/,
+  );
   assert.match(
     err('state_income_tax', { ...base, state: 'NY', city: 'Detroit' }),
-    /city only applies to MI, and NY was requested/,
+    /city only applies to MI and OH, and NY was requested/,
   );
 });
 
@@ -1174,7 +1183,7 @@ test('a state with no income tax answers zero and says what is still taxed', () 
 
 test('an unsupported state is an error that names the supported ones', () => {
   const message = err('state_income_tax', {
-    state: 'OH',
+    state: 'VA',
     filingStatus: 'single',
     federalAdjustedGrossIncome: 100_000,
     federalTaxableIncome: 84_250,
@@ -1536,4 +1545,90 @@ test('the Massachusetts No Tax Status band charges twice the statutory rate', ()
     massachusettsFivePercentIncome: 1_400_000,
   }).structured.state;
   assert.equal(joint.surtaxes[0].amount - next.surtaxes[0].amount, 984);
+});
+
+test('state_income_tax computes Ohio, and the constant that arrives on one cent', () => {
+  const oh = (agi, extra = {}) =>
+    ok('state_income_tax', {
+      state: 'OH',
+      year: 2025,
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: agi,
+      federalTaxableIncome: Math.max(0, agi - 15_750),
+      federalDeduction: 15_750,
+      ...extra,
+    }).structured.state;
+  assert.equal(oh(28_450).tax, 0);
+  assert.equal(oh(28_450.01).tax, 322.0);
+  assert.equal(oh(101_900).tax, 2375.63);
+  assert.equal(oh(101_900.01).tax, 2394.32);
+  // The business income deduction, which is a subtraction and not a rate rule.
+  assert.equal(oh(250_000).tax, 7022.45);
+  assert.equal(oh(250_000, { businessIncome: 250_000 }).tax, 0);
+  // 2026: one rate above the band, and the constant re-based to $332.
+  const flat = ok('state_income_tax', {
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 60_000,
+    federalTaxableIncome: 44_250,
+    federalDeduction: 15_750,
+  }).structured.state;
+  assert.equal(flat.tax, 1206.5);
+});
+
+test('state_income_tax computes an Ohio municipality, and refuses one without wages', () => {
+  const base = {
+    state: 'OH',
+    year: 2025,
+    filingStatus: 'single',
+    federalAdjustedGrossIncome: 60_000,
+    federalTaxableIncome: 44_250,
+    federalDeduction: 15_750,
+  };
+  const columbus = ok('state_income_tax', {
+    ...base,
+    city: 'Columbus',
+    qualifyingWages: 60_000,
+  }).structured.state;
+  assert.equal(columbus.tax, 1216.5);
+  assert.equal(columbus.localTaxes[0].tax, 1500);
+  assert.equal(columbus.localTaxes[0].base, 'qualifyingWages');
+  assert.equal(columbus.totalTax, 2716.5);
+
+  // The municipal base has no line on the IT 1040 behind it, so this is refused
+  // rather than charged on federal AGI or on nothing.
+  assert.match(err('state_income_tax', { ...base, city: 'Columbus' }), /needs qualifyingWages/);
+  assert.match(err('state_income_tax', { ...base, city: 'Columbus' }), /box 5 of the/);
+  // A name Ohio does not levy for is an error, and so is an ambiguous one.
+  assert.match(
+    err('state_income_tax', { ...base, city: 'Beavercreek', qualifyingWages: 60_000 }),
+    /not a OH taxing jurisdiction/,
+  );
+  assert.match(
+    err('state_income_tax', { ...base, city: 'Oakwood', qualifyingWages: 60_000 }),
+    /ambiguous/,
+  );
+
+  // The commuter, both ways, and the assumption the credit is labelled with.
+  const outbound = ok('state_income_tax', {
+    ...base,
+    city: 'Westerville',
+    workCity: 'Columbus',
+    workCityEarnings: 60_000,
+    qualifyingWages: 60_000,
+  }).structured.state;
+  assert.equal(outbound.localTaxes[0].tax, 1500);
+  assert.equal(outbound.localTaxes[1].tax, 0);
+  assert.match(outbound.localTaxes[1].credits[0].name, /assumed/);
+  const strict = ok('state_income_tax', {
+    ...base,
+    city: 'Westerville',
+    workCity: 'Columbus',
+    workCityEarnings: 60_000,
+    qualifyingWages: 60_000,
+    residentCreditRate: 0,
+    residentCreditLimitRate: 0,
+  }).structured.state;
+  assert.equal(strict.localTaxes[1].tax, 1200);
 });

@@ -6,6 +6,8 @@ import assert from 'node:assert/strict';
 
 import {
   MICHIGAN_CITIES,
+  OHIO_MUNICIPALITIES,
+  OHIO_MUNICIPAL_RATES,
   MI_CITY_EXEMPTIONS,
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
@@ -39,23 +41,33 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 26 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 26);
+test('README: 27 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 27);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Six graduated, eleven flat, nine with none.
+  // Six graduated, eleven flat, one on a schedule of its own, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
   const flat = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind === 'flat');
+  // Ohio is neither. Its schedule charges a flat constant on entering a band and
+  // a rate on the excess, which is a `baseAmountSchedule` and not expressible as
+  // either of the two above — the whole reason the rule exists.
+  const baseAmount = SUPPORTED_STATES.filter(
+    (s) => getStateDefinition(s, 2026).rate.kind === 'baseAmountSchedule',
+  );
   assert.deepEqual(graduated, ['CA', 'ID', 'MD', 'MS', 'NJ', 'NY']);
+  assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
-  assert.equal(graduated.length + flat.length + NO_INCOME_TAX_STATES.length, 26);
-  // Seventeen taxing states — the count the README quotes when it says seven of
+  assert.equal(
+    graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
+    27,
+  );
+  // Eighteen taxing states — the count the README quotes when it says seven of
   // them cut their rate for 2026.
-  assert.equal(graduated.length + flat.length, 17);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 18);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -520,7 +532,7 @@ test('README: the Michigan commute, and the credit that is capped at the home ra
 test('README: the provisional and published lists for 2026', () => {
   const byStatus = (status) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
-  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MD', 'MI', 'UT']);
+  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MD', 'MI', 'OH', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MA', 'MS', 'NC', 'NJ', 'NY', 'PA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
@@ -538,7 +550,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['OH', 'VA', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
+  for (const state of ['VA', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -565,8 +577,11 @@ test('README: the New York City quick-start figures', () => {
   assert.equal(nyc.totalTax, 8126.44);
   assert.equal(nyc.totalMarginalRate, 0.0965);
 
-  // "More than the entire state income tax of twelve of the twenty-three states
-  // at the same income" — checked against every one of them rather than asserted.
+  // "More than the entire state income tax of thirteen of the twenty-seven
+  // states at the same income" — checked against every one of them rather than
+  // asserted. Ohio joined the list on Day 16 without its rate changing: at
+  // $100,000 the Ohio STATE tax is $2,323.38, and the Columbus resident paying
+  // it also owes their municipality $2,500 that no state rate table reports.
   const federal = {
     adjustedGrossIncome: 100_000,
     taxableIncome: 85_000,
@@ -585,10 +600,10 @@ test('README: the New York City quick-start figures', () => {
     });
     return result.tax < 3174.69;
   });
-  assert.equal(cheaper.length, 12);
+  assert.equal(cheaper.length, 13);
   assert.deepEqual(
     cheaper.filter((s) => !NO_INCOME_TAX_STATES.includes(s)),
-    ['AZ', 'IN', 'PA'],
+    ['AZ', 'IN', 'OH', 'PA'],
   );
 });
 
@@ -784,4 +799,97 @@ test('README: Massachusetts is not a 5% flat tax state', () => {
     }).tax;
   assert.equal(at2m(2025) - at2m(2026), 984);
   assert.equal((1_107_750 - 1_083_150) * 0.04, 984);
+});
+
+test('README: the Ohio quick-start figures and both discontinuities', () => {
+  const oh = (agi, extra = {}) =>
+    stateIncomeTax({
+      state: 'OH',
+      year: 2025,
+      filingStatus: 'single',
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: Math.max(0, agi - 15_750),
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+      ...extra,
+    });
+  assert.equal(oh(28_450).tax, 0);
+  assert.equal(oh(28_450.01).tax, 322.0);
+  assert.equal(oh(101_900).tax, 2375.63);
+  assert.equal(oh(101_900.01).tax, 2394.32);
+  money(oh(101_900.01).tax - oh(101_900).tax, 18.69);
+  assert.equal(oh(250_000).tax, 7022.45);
+  assert.equal(oh(250_000, { businessIncome: 250_000 }).tax, 0);
+  // "$360.69 + 2.75% x $73,950 = $2,394.315" — the chaining that stopped.
+  money(360.69 + 0.0275 * 73_950, 2394.315);
+});
+
+test('README: Columbus, the crossover, and the $612.50 a deferral does not save', () => {
+  const columbus = stateIncomeTax({
+    state: 'OH',
+    year: 2025,
+    filingStatus: 'single',
+    city: 'Columbus',
+    qualifyingWages: 60_000,
+    federal: {
+      adjustedGrossIncome: 60_000,
+      taxableIncome: 44_250,
+      deduction: 15_750,
+      deductionKind: 'standard',
+    },
+  });
+  assert.equal(columbus.tax, 1216.5);
+  assert.equal(columbus.localTaxes[0].tax, 1500);
+  assert.equal(columbus.totalTax, 2716.5);
+  // The crossover: below $126,408.32 the municipality takes more than Ohio does.
+  const stateAt = (agi) =>
+    stateIncomeTax({
+      state: 'OH',
+      year: 2025,
+      filingStatus: 'single',
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: agi - 15_750,
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+    }).tax;
+  assert.ok(stateAt(126_408) < 0.025 * 126_408);
+  assert.ok(stateAt(126_409) > 0.025 * 126_409);
+  money(0.025 * 24_500, 612.5);
+});
+
+test('README: 679 municipalities, the rate distribution, and the commuter symmetry', () => {
+  assert.equal(OHIO_MUNICIPALITIES.length, 679);
+  const counts = new Map();
+  for (const rate of OHIO_MUNICIPAL_RATES.values()) {
+    counts.set(rate, (counts.get(rate) ?? 0) + 1);
+  }
+  assert.equal(counts.get(0.01), 266);
+  assert.equal(counts.get(0.015), 122);
+  assert.equal(counts.get(0.02), 122);
+  assert.equal(counts.get(0.025), 41);
+  assert.equal(OHIO_MUNICIPAL_RATES.get('Indian Hill'), 0.0045);
+  assert.equal(OHIO_MUNICIPAL_RATES.get('Bedford'), 0.03);
+
+  const live = (city, workCity) =>
+    stateIncomeTax({
+      state: 'OH',
+      year: 2025,
+      filingStatus: 'single',
+      city,
+      workCity,
+      workCityEarnings: 60_000,
+      qualifyingWages: 60_000,
+      federal: {
+        adjustedGrossIncome: 60_000,
+        taxableIncome: 44_250,
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+    }).localTaxes.map((l) => l.tax);
+  assert.deepEqual(live('Westerville', 'Columbus'), [1500, 0]);
+  assert.deepEqual(live('Columbus', 'Westerville'), [1200, 300]);
 });

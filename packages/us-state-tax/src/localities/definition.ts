@@ -73,7 +73,36 @@ export type LocalBase =
    * less any retirement income supplied, and the result says so — see
    * {@link LocalIncomeTaxDefinition.exemptionAmount}.
    */
-  | 'cityIncome';
+  | 'cityIncome'
+  /**
+   * Ohio's 679 municipalities: **qualifying wages**, O.R.C. § 718.01(R).
+   *
+   * Michigan's cities define a base of their own that resembles AGI with four
+   * classes taken out. Ohio's is narrower and much more sharply drawn: the
+   * statute adopts "wages, as defined in section 3121(a) of the Internal Revenue
+   * Code, without regard to any wage limitations" — **W-2 box 5, Medicare
+   * wages** — plus, for a resident, the net profit of a business or rental
+   * carried on anywhere.
+   *
+   * Two consequences that a rate applied to any other figure gets wrong, in
+   * opposite directions:
+   *
+   * 1. **A 401(k) deferral does not reduce it.** Box 5 is gross of elective
+   *    deferrals and box 1 is not, so a Columbus resident deferring the 2026
+   *    maximum is charged 2.5% on all of it — `$612.50` a year that a model
+   *    reading box 1 or federal AGI never sees. A § 125 health premium *does*
+   *    reduce it, because it is outside § 3121(a) altogether.
+   * 2. **Intangible income is excluded entirely** — § 718.01(S) puts interest,
+   *    dividends and capital gains outside the base, and pensions, IRA
+   *    distributions, Social Security and unemployment compensation are outside
+   *    it too. An Ohio retiree with no wages owes their municipality nothing,
+   *    however large their income.
+   *
+   * So federal AGI is not an approximation of this figure. It contains what the
+   * municipality may not tax and is net of deductions box 5 never saw, which is
+   * why this package asks for it rather than deriving it.
+   */
+  | 'qualifyingWages';
 
 /**
  * A credit that is a flat dollar amount per person, stepped by income.
@@ -239,6 +268,27 @@ export interface LocalIncomeTaxDefinition {
    * tax), which is the direction people actually commute.
    */
   readonly creditsTaxPaidToPeerLocality?: boolean;
+  /**
+   * Whether the resident credit above is set by **ordinance** rather than by
+   * statute — Ohio, and the reason its 679 municipalities cannot carry one
+   * number each here.
+   *
+   * Michigan's credit is in MCL 141.601 et seq. and applies to all 24 cities on
+   * the same terms, so the cap is derivable from the home city's own rate.
+   * O.R.C. Chapter 718 grants no resident credit at all: § 718.04 leaves it to
+   * each municipality's own ordinance, and the two figures that describe it —
+   * the share of the other municipality's tax credited, and the rate that share
+   * is capped at — appear as the "Credit Rate" and "Credit Factor" columns of
+   * Ohio's own municipal rate table rather than in the statute.
+   *
+   * When this is true and the caller supplies neither figure, the engine assumes
+   * the modal ordinance — 100% of the tax paid, capped at the home
+   * municipality's own rate — names the assumption in the credit, and says in
+   * the result what it is worth. That is a guess, and it is labelled as one; the
+   * alternative is refusing to compute the commute that half of working Ohio
+   * makes.
+   */
+  readonly residentCreditByOrdinance?: boolean;
   readonly notes: readonly string[];
   readonly citations: readonly Citation[];
 }

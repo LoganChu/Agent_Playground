@@ -3,9 +3,10 @@
 **US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
-**state income tax for 26 states including New York, New Jersey, Massachusetts and Maryland**
-and **140 local income taxes — New York City, Yonkers, all 24 Maryland jurisdictions, all
-92 Indiana counties and all 24 Michigan cities** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
+**state income tax for 27 states including New York, New Jersey, Massachusetts, Maryland and
+Ohio** and **819 local income taxes — New York City, Yonkers, all 24 Maryland jurisdictions,
+all 92 Indiana counties, all 24 Michigan cities and all 679 Ohio municipalities** — for
+**tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
 
 - **Zero dependencies.** Nothing to install but this package. An MCP server is spawned once
@@ -171,7 +172,7 @@ of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same*
 
 **New York City is bigger than most states, and it is not a state.** Pass `locality: "NYC"`
 and the city tax comes back beside the state one. A single filer at $100,000 owes the city
-**$3,174.69** — more than the entire state income tax of **twelve of these twenty-six
+**$3,174.69** — more than the entire state income tax of **thirteen of these twenty-seven
 states** at the same income. The published city rates are derived rather than stored:
 N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% / 3.35% / 3.4%, § 11-1704.1 adds a tax of
 **14% of that tax**, and 2.7% x 1.14 = 3.078% to the last digit. The city earned income
@@ -342,9 +343,40 @@ visible:
 | Maryland, single at $350,000 of capital gain | 5.75% | **$6,933.08 on one dollar** — the 2% surtax threshold is a test, not a floor |
 | Indiana, Randolph County, 2026 | 2.95% | **5.95%** — the county rate is 3.00%, more than the state's |
 | Michigan, Detroit resident | 4.25% | **6.65%** — the city takes another 2.4% of a base the state return does not compute |
+| Ohio, single at $26,050 of taxable income | 0% | **$322.00 on one cent** — the schedule's constant is charged whole on entering the band |
+| Ohio, Columbus resident at $60,000 | 2.75% | **5.25%** — the municipality takes 2.5% of box 5 of the W-2 |
 
-Seven of the seventeen taxing states cut their rate for 2026, so an unsupported year is an
-error rather than a fallback to the nearest one — and eight of the 2026 state-years carry at
+**Ohio's printed rate schedule is not a function.** O.R.C. § 5747.02(A)(3) charges 0% on the
+first `$26,050` and then `$342.00` **plus** 2.75% of the excess — and the `$342.00` arrives
+whole on the first dollar of the band. A filer at `$26,050` of taxable nonbusiness income
+owes nothing and a filer one cent later owes `$342.00`. It steps a second time at
+`$100,000`: HB 96 re-based the lower constant from `$360.69` to `$342.00` for 2025 and left
+the upper one at `$2,394.32`, which is what `$360.69` chained to, so crossing `$100,000`
+costs a further `$18.69` on one cent. Reading the three printed rows as ordinary marginal
+brackets — which is what "Ohio: 0% / 2.75% / 3.125%" invites — understates every Ohio filer
+above the threshold by the whole constant. From 2026 there is one rate above the band and
+the constant is re-based to `$332.00`.
+
+Ohio also taxes **business income** separately: the first `$250,000` is deducted and the
+excess is charged a flat 3%, so `$250,000` of Schedule C profit costs `$0` where `$250,000`
+of wages costs `$7,022.45`. And two Ohio credits turn out to be dead law once the zero band
+is taken seriously — the `$20` exemption credit can only ever be claimed by a childless
+single filer in a `$1,550` window of income, and the joint filing credit's 20% row is
+unreachable arithmetic.
+
+**Ohio's 679 municipalities are the larger half of most Ohio returns.** Pass `city` and
+`qualifyingWages`. A Columbus resident on `$60,000` owes Ohio `$1,216.50` and Columbus
+`$1,500.00`, and the state tax does not overtake a 2.5% municipal one until `$126,408.32` of
+income. The base is § 718.01(R) qualifying wages — **box 5 of the W-2, not box 1** — so a
+401(k) deferral does not reduce it and a Columbus saver deferring the `$24,500` 2026 maximum
+pays `$612.50` a year that a model reading federal AGI never sees; while interest,
+dividends, capital gains and pensions are outside the base entirely, so an Ohio retiree owes
+their municipality nothing. Ohio grants **no statutory resident credit**, so where a filer
+lives in one taxing municipality and works in another this server assumes the modal
+ordinance — 100% capped at the home rate — and labels the credit as assumed.
+
+Eight of the eighteen taxing states cut their rate for 2026, so an unsupported year is an
+error rather than a fallback to the nearest one — and nine of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
 
 Maryland is two income taxes rather than one. Every resident owes a **county** income tax of
@@ -364,7 +396,7 @@ says what the cheapest and dearest counties would have cost that filer.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, or Detroit?" A state and local return for 26 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties and all 24 Michigan cities, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 27 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities and all 679 Ohio municipalities, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -451,13 +483,17 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **24 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana and Michigan.** `state_income_tax` covers 26 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
-  MA, MD, MI, MS, NC, NH, NJ, NV, NY, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
-  nothing else. Ohio, Virginia and Minnesota are absent, and asking for one is an error
+- **23 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 27 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
+  MA, MD, MI, MS, NC, NH, NJ, NV, NY, OH, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
+  nothing else. Virginia, Minnesota and Wisconsin are absent, and asking for one is an error
   rather than a zero. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
-  Indiana's 92 counties and Michigan's 24 cities: Pennsylvania municipal earned income
-  taxes, Ohio municipalities and Kentucky's occupational taxes are not modelled, nor is
+  Indiana's 92 counties, Michigan's 24 cities and Ohio's 679 municipalities: Pennsylvania
+  municipal earned income taxes and Kentucky's occupational taxes are not modelled, nor is
+  **Ohio school district income tax**, which about 200 districts levy at 0.25% to 2.00% on a
+  separate SD 100 return, nor Ohio's resident credit for tax paid to another municipality,
+  which each ordinance sets and which this server assumes at the modal 100%-capped-at-the-
+  home-rate and labels as assumed. Nor is
   part-year city residency, Maryland's local poverty level credit, Indiana's Schedule
   CT-40PNR for a nonresident, or the day-count apportionment behind a Michigan
   nonresident's city wage — pass `workCityEarnings` already apportioned. State earned income credits

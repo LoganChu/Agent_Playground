@@ -23,6 +23,8 @@
  * expressible at all — see {@link LocalBase}.
  */
 import { indianaCounties, indianaCounty } from './indiana.js';
+import { michiganCities, michiganCity } from './michigan.js';
+import { ohioMunicipalities, ohioMunicipality } from './ohio.js';
 import { marylandCounties, marylandCounty } from './maryland.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { StateCode } from '../types.js';
@@ -44,6 +46,16 @@ export function normaliseCounty(name: string): string {
     .replace(/\bco\b/g, 'county')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * "A and B", "A, B and C" — the ambiguity message reads to a person and to a
+ * model, and Ohio has three villages called Oakwood where Maryland had two
+ * Baltimores.
+ */
+function listOf(names: readonly string[]): string {
+  if (names.length <= 2) return names.join(' and ');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
 
 /** One state's county table for one year, keyed by normalised name. */
@@ -88,7 +100,7 @@ export function resolveCounty(
   const ambiguous = lookup.ambiguous?.get(key);
   if (ambiguous) {
     throw new RangeError(
-      `"${county}" is ambiguous in ${state}: ${ambiguous.join(' and ')} are separate ` +
+      `"${county}" is ambiguous in ${state}: ${listOf(ambiguous)} are separate ` +
         `jurisdictions that set their own income tax rates. Name which one.`,
     );
   }
@@ -154,12 +166,57 @@ export function countyDefinition(
   throw new RangeError(
     `county applies to a return in ${COUNTY_TAX_STATES.join(' or ')}; state is ${state}. ` +
       `Maryland's 23 counties and Baltimore City, and all 92 Indiana counties, levy an ` +
-      `income tax on the state's own taxable income. Michigan's 24 city income taxes are ` +
-      `modelled too, but they are cities rather than counties — pass \`city\` on a Michigan ` +
-      `return. Ohio's municipal income taxes, Kentucky's occupational taxes and ` +
+      `income tax on the state's own taxable income. Michigan's 24 city income taxes and ` +
+      `Ohio's 679 municipal ones are modelled too, but they are cities rather than counties ` +
+      `— pass \`city\` on a Michigan or Ohio return. Kentucky's occupational taxes and ` +
       `Philadelphia's wage tax are not modelled here, and returning zero for them would be a ` +
       `wrong answer rather than a missing one.`,
   );
+}
+
+/**
+ * The states whose local income tax is identified by **city or village** name.
+ *
+ * Michigan's 24 and Ohio's 679, and the two are not the same kind of tax. A
+ * Michigan city taxes a base of its own that resembles AGI with four classes
+ * removed, halves its rate for a commuter by statute, and credits another city's
+ * tax on terms the statute fixes. An Ohio municipality taxes Medicare wages,
+ * halves nothing, and credits another municipality's tax only to the extent its
+ * own ordinance says. So the field is shared and nothing behind it is.
+ */
+export const CITY_TAX_STATES: readonly StateCode[] = ['MI', 'OH'];
+
+/**
+ * Resolve a city on whichever state's table owns it.
+ *
+ * The same dispatch `countyDefinition` does, and for the same reason: the state
+ * decides the table, so an unknown name is an error about the city rather than
+ * about the state, and a state with no city income tax at all names the two that
+ * have one instead of returning a zero that looks like an answer.
+ */
+export function cityDefinition(
+  state: StateCode,
+  city: string,
+  year: number,
+): LocalIncomeTaxDefinition {
+  if (state === 'MI') return michiganCity(city, year);
+  if (state === 'OH') return ohioMunicipality(city, year);
+  throw new RangeError(
+    `city applies to a return in ${CITY_TAX_STATES.join(' or ')}; state is ${state}. ` +
+      `Michigan's 24 cities and Ohio's 679 municipalities levy an income tax on a base of ` +
+      `their own — city income under the Uniform City Income Tax Ordinance in Michigan, ` +
+      `qualifying wages under O.R.C. § 718.01(R) in Ohio. Maryland's and Indiana's county ` +
+      `income taxes are modelled too, but they are counties rather than cities — pass ` +
+      `\`county\` there. Kentucky's occupational taxes and Philadelphia's wage tax are not ` +
+      `modelled, and returning zero for them would be a wrong answer rather than a missing one.`,
+  );
+}
+
+/** Every city definition a state has for a year. */
+export function citiesFor(state: StateCode, year: number): readonly LocalIncomeTaxDefinition[] {
+  if (state === 'MI') return michiganCities(year);
+  if (state === 'OH') return ohioMunicipalities(year);
+  return [];
 }
 
 /** Every county definition a state has for a year. */

@@ -11,6 +11,7 @@
  * {@link FederalBasis} is a structural subset of that package's `EstimateResult`.
  */
 export { stateIncomeTax, applyBrackets, roundCents } from './engine.js';
+export { applyBaseAmountSchedule } from './engine-core.js';
 export {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
@@ -50,7 +51,23 @@ export {
   michiganNonresidentRate,
 } from './localities/michigan.js';
 export {
+  OHIO_MUNICIPALITIES,
+  OHIO_MUNICIPAL_RATES,
+  OH_UNVOTED_RATE_CEILING,
+  ohioMunicipalities,
+  ohioMunicipality,
+} from './localities/ohio.js';
+export {
+  OH_BASE_AMOUNT,
+  OH_TOP_BASE_AMOUNT_2025,
+  OH_TOP_BASE_AMOUNT_CHAINED_2025,
+  OH_ZERO_BAND_CEILING,
+} from './states/ohio.js';
+export {
+  CITY_TAX_STATES,
   COUNTY_TAX_STATES,
+  citiesFor,
+  cityDefinition,
   countiesFor,
   countyDefinition,
   normaliseCounty,
@@ -93,6 +110,8 @@ export type {
   CapitalGainsSurtaxRule,
   ChildCreditRule,
   CreditStep,
+  BaseAmountBand,
+  BusinessIncomeRule,
   DeductionRule,
   EarnedIncomeCreditRule,
   ExemptionCreditRule,
@@ -100,6 +119,8 @@ export type {
   ForgivenessRule,
   HouseholdCreditRule,
   IncomeClassRule,
+  IncomeMeasure,
+  JointFilingCreditRule,
   ItemizedDeductionRule,
   OwnEarnedIncomeCreditRule,
   PayrollTaxDeductionRule,
@@ -108,6 +129,7 @@ export type {
   RecaptureRule,
   RentDeductionRule,
   RetirementExclusionRule,
+  RetirementIncomeCreditRule,
   SeniorCreditRule,
   SteppedChildCreditRule,
   StateIncomeTaxDefinition,

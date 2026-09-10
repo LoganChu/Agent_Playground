@@ -8,10 +8,17 @@
 import { filerCount } from './definition.js';
 import type {
   ByChildCount,
+  IncomeMeasure,
   OwnEarnedIncomeCreditRule,
   StateIncomeTaxDefinition,
 } from './definition.js';
-import { applyBrackets, dependentCount, nonNegative, roundCents } from './engine-core.js';
+import {
+  applyBaseAmountSchedule,
+  applyBrackets,
+  dependentCount,
+  nonNegative,
+  roundCents,
+} from './engine-core.js';
 import {
   computeLocalResidentTax,
   localNonresidentEarningsResult,
@@ -20,8 +27,13 @@ import {
 } from './localities/engine.js';
 import type { StateFigures } from './localities/engine.js';
 import { getLocalityDefinition, localityState } from './localities/index.js';
-import { countiesFor, countyDefinition, normaliseCounty } from './localities/counties.js';
-import { michiganCities, michiganCity } from './localities/michigan.js';
+import {
+  citiesFor,
+  cityDefinition,
+  countiesFor,
+  countyDefinition,
+  normaliseCounty,
+} from './localities/counties.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
 import type {
   Bracket,
@@ -139,7 +151,31 @@ function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInpu
   return total;
 }
 
-function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+/**
+ * The income figure an income test reads.
+ *
+ * Federal AGI unless the rule says otherwise, which is every state but Ohio. The
+ * two Ohio measures are supplied by the caller because they are figures the
+ * computation produces rather than figures it was given — modified AGI is known
+ * before the exemptions and modified AGI less exemptions only after them, which
+ * is why they arrive as a pair.
+ */
+interface IncomeMeasures {
+  readonly federalAdjustedGrossIncome: number;
+  readonly stateModifiedAdjustedGrossIncome: number;
+  readonly stateModifiedAdjustedGrossIncomeLessExemptions: number;
+}
+
+function measured(measures: IncomeMeasures, which: IncomeMeasure | undefined): number {
+  return measures[which ?? 'federalAdjustedGrossIncome'];
+}
+
+function stateExemptions(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  /** Ohio's modified AGI; ignored by every other state. */
+  modifiedAgi: number,
+): number {
   const rule = def.exemption;
   if (!rule) return 0;
   const cliff = rule.cliff?.[input.filingStatus];
@@ -150,9 +186,15 @@ function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
   // dependents' are one figure times a count, not two figures — and the staircase
   // costs a family with six exemptions six times what it costs a single filer.
   const filers = rule.filersClaimed?.[input.filingStatus] ?? filerCount(input.filingStatus);
+  // Maryland reads the staircase against federal AGI; Ohio against its own
+  // modified AGI, which is Ohio AGI with the business income deduction added
+  // back. The two are the same figure only for a filer with no business income.
+  const stepIncome =
+    rule.stepsMeasuredOn === 'federalAdjustedGrossIncome' || rule.stepsMeasuredOn === undefined
+      ? input.federal.adjustedGrossIncome
+      : modifiedAgi;
   let total = rule.perExemptionSteps
-    ? stepAmount(rule.perExemptionSteps[input.filingStatus], input.federal.adjustedGrossIncome) *
-      (filers + dependents)
+    ? stepAmount(rule.perExemptionSteps[input.filingStatus], stepIncome) * (filers + dependents)
     : rule.perFiler[input.filingStatus] + rule.perDependent * dependents;
 
   // New Jersey's per-person additions. Each is claimed by a *filer*, never by a
@@ -187,14 +229,35 @@ function stateExemptions(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
  * 66-year-old single filer at `$100,000` keeps `$1,000` and the same filer at
  * `$100,001` keeps nothing.
  */
-function seniorCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+function seniorCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  measures: IncomeMeasures,
+): number {
   const rule = def.seniorCredit;
   if (!rule) return 0;
   const qualifying = seniorFilers(input, rule.minimumAge);
   if (qualifying === 0) return 0;
-  if (input.federal.adjustedGrossIncome > rule.incomeLimit[input.filingStatus]) return 0;
+  // Maryland tests federal AGI; Ohio tests its own modified AGI less exemptions.
+  if (measured(measures, rule.incomeMeasure) > rule.incomeLimit[input.filingStatus]) return 0;
   const status = input.filingStatus;
   return qualifying >= 2 ? rule.amountBothSpouses[status] : rule.amount[status];
+}
+
+/**
+ * Ohio's retirement income credit — § 5747.055(B), a step function of the
+ * retirement income on the return under a cliff on modified AGI less exemptions.
+ */
+function retirementIncomeCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  measures: IncomeMeasures,
+): number {
+  const rule = def.retirementIncomeCredit;
+  if (!rule) return 0;
+  if (measures.stateModifiedAdjustedGrossIncomeLessExemptions >= rule.incomeLimit) return 0;
+  const retirement = nonNegative(input.retirementIncome, 'retirementIncome');
+  return stepAmount(rule.steps, retirement);
 }
 
 /**
@@ -319,13 +382,23 @@ function qualifyingPropertyTax(def: StateIncomeTaxDefinition, input: StateIncome
   return 0;
 }
 
-function exemptionCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+function exemptionCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  measures: IncomeMeasures,
+): number {
   const rule = def.exemptionCredit;
   if (!rule) return 0;
   const status = input.filingStatus;
   const dependents = dependentCount(input);
   const exemptions = filerCount(status) + dependents;
   const full = rule.perFiler[status] + rule.perDependent * dependents;
+  // Ohio's is switched off rather than tapered: § 5747.022 allows the $20 only
+  // below $30,000 of modified AGI, so a family of four loses $80 on one dollar.
+  if (rule.incomeLimit !== undefined && measured(measures, rule.incomeMeasure) >= rule.incomeLimit) {
+    return 0;
+  }
+  if (!rule.phaseOut) return full;
   const excess = input.federal.adjustedGrossIncome - rule.phaseOut.start[status];
   if (excess <= 0) return full;
   // "$6 for each $2,500, or fraction thereof" — a partial increment counts in
@@ -767,13 +840,36 @@ function computeOnce(
   if (def.retirementExclusion) {
     computedSubtractions.push({ name: def.retirementExclusion.name, amount: exclusion });
   }
-  const subtractions = given + exclusion;
+  // Ohio's business income deduction — Schedule of Adjustments, and a
+  // SUBTRACTION rather than a rate rule, which is the part that is easy to miss:
+  // it moves Ohio AGI, so it moves the exemption staircase and every credit
+  // limit downstream of it. What it does not move is the modified AGI those
+  // limits are actually read against, because § 5747.01(JJ) adds it straight
+  // back.
+  const businessIncome = nonNegative(input.businessIncome, 'businessIncome');
+  let businessDeduction = 0;
+  if (def.businessIncome) {
+    businessDeduction = Math.min(
+      businessIncome,
+      def.businessIncome.deductionCap[input.filingStatus],
+    );
+    if (businessDeduction > 0) {
+      computedSubtractions.push({ name: 'Business income deduction', amount: businessDeduction });
+    }
+  }
+  const subtractions = given + exclusion + businessDeduction;
   const stateAgi = Math.max(0, base + additions - subtractions);
+  const modifiedAgi = stateAgi + businessDeduction;
 
   const propertyTax = qualifyingPropertyTax(def, input);
   const propertyTaxDeduction = propertyTaxRoute === 'deduction' ? propertyTax : 0;
   const deduction = stateDeduction(def, input) + propertyTaxDeduction;
-  const exemptions = stateExemptions(def, input);
+  const exemptions = stateExemptions(def, input, modifiedAgi);
+  const measures: IncomeMeasures = {
+    federalAdjustedGrossIncome: input.federal.adjustedGrossIncome,
+    stateModifiedAdjustedGrossIncome: modifiedAgi,
+    stateModifiedAdjustedGrossIncomeLessExemptions: Math.max(0, modifiedAgi - exemptions),
+  };
   const afterDeduction = Math.max(0, stateAgi - deduction);
   const taxableIncome = Math.max(0, afterDeduction - exemptions);
   // What the main schedule could not absorb cascades into the separately rated
@@ -795,17 +891,31 @@ function computeOnce(
   const threshold = zeroTaxThreshold(def, input);
   const belowThreshold = threshold !== undefined && totalStateAgi <= threshold;
 
+  // Ohio splits the base it just computed. IT 1040 line 6 is the taxable
+  // business income and line 7 is what is left, so the exemptions subtracted
+  // above come out of the NONBUSINESS half — and where they exceed it, the
+  // excess is simply lost rather than reducing the 3% half. Line 6 is capped at
+  // line 5 for the same reason: the two halves cannot together exceed the base.
+  const taxableBusinessIncome = def.businessIncome
+    ? Math.min(Math.max(0, businessIncome - businessDeduction), taxableIncome)
+    : 0;
+  const scheduleIncome = Math.max(0, taxableIncome - taxableBusinessIncome);
+
   let taxBeforeCredits = 0;
   let brackets: BracketDetail[] = [];
   if (belowThreshold) {
     // no tax
   } else if (def.rate.kind === 'flat') {
-    taxBeforeCredits = taxableIncome * def.rate.rate;
-    if (taxableIncome > 0) {
-      brackets = [{ rate: def.rate.rate, incomeInBracket: taxableIncome, tax: taxBeforeCredits }];
+    taxBeforeCredits = scheduleIncome * def.rate.rate;
+    if (scheduleIncome > 0) {
+      brackets = [{ rate: def.rate.rate, incomeInBracket: scheduleIncome, tax: taxBeforeCredits }];
     }
   } else if (def.rate.kind === 'brackets') {
-    const walked = applyBrackets(taxableIncome, def.rate.byStatus[input.filingStatus]);
+    const walked = applyBrackets(scheduleIncome, def.rate.byStatus[input.filingStatus]);
+    taxBeforeCredits = walked.tax;
+    brackets = walked.detail;
+  } else if (def.rate.kind === 'baseAmountSchedule') {
+    const walked = applyBaseAmountSchedule(scheduleIncome, def.rate.bands);
     taxBeforeCredits = walked.tax;
     brackets = walked.detail;
   }
@@ -813,6 +923,21 @@ function computeOnce(
     ? classes.details.map((c) => ({ ...c, taxableAmount: 0, tax: 0 }))
     : classes.details;
   if (!belowThreshold) taxBeforeCredits += classes.tax;
+  // Ohio's 3% on the business half, reported as an income class because that is
+  // exactly what it is: income pulled out of the main schedule and charged at a
+  // rate of its own. Unlike Massachusetts's classes it is not a separate input —
+  // it was already inside federal AGI — so it is not added to `incomeBase`.
+  if (def.businessIncome && businessIncome > 0 && !belowThreshold) {
+    const businessTax = taxableBusinessIncome * def.businessIncome.rate;
+    incomeClasses.push({
+      name: def.businessIncome.name,
+      rate: def.businessIncome.rate,
+      income: businessIncome,
+      taxableAmount: taxableBusinessIncome,
+      tax: businessTax,
+    });
+    taxBeforeCredits += businessTax;
+  }
 
   const surtaxes: SurtaxDetail[] = [];
   if (def.surtax && !belowThreshold) {
@@ -853,13 +978,50 @@ function computeOnce(
   const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
 
   const credits: CreditDetail[] = [];
+  // Ohio's Schedule of Credits runs retirement, then senior, then the $20
+  // exemption credit, then a SUBTOTAL, and only then the joint filing credit —
+  // which is a percentage of what is left. So the order here is the form's, and
+  // for Ohio it is load-bearing rather than cosmetic.
+  if (def.retirementIncomeCredit) {
+    credits.push({
+      name: def.retirementIncomeCredit.name,
+      amount: retirementIncomeCredit(def, input, measures),
+      refundable: false,
+    });
+  }
   if (def.seniorCredit) {
-    credits.push({ name: def.seniorCredit.name, amount: seniorCredit(def, input), refundable: false });
+    credits.push({
+      name: def.seniorCredit.name,
+      amount: seniorCredit(def, input, measures),
+      refundable: false,
+    });
   }
   if (def.exemptionCredit) {
     credits.push({
       name: def.exemptionCredit.name,
-      amount: exemptionCredit(def, input),
+      amount: exemptionCredit(def, input, measures),
+      refundable: false,
+    });
+  }
+  if (def.jointFilingCredit) {
+    const rule = def.jointFilingCredit;
+    // The subtotal line: everything above, capped at the tax, is what the
+    // percentage is taken of. Applying it to the gross tax instead overstates
+    // the credit for every filer who also claimed one of the three above.
+    const already = credits.reduce((sum, c) => sum + c.amount, 0);
+    const remaining = Math.max(0, grossTax - Math.min(grossTax, already));
+    const joint =
+      input.filingStatus === 'marriedFilingJointly' &&
+      input.bothSpousesHaveQualifyingIncome === true &&
+      (rule.incomeLimit === undefined ||
+        measures.stateModifiedAdjustedGrossIncome < rule.incomeLimit);
+    const share = stepAmount(
+      rule.steps,
+      measures.stateModifiedAdjustedGrossIncomeLessExemptions,
+    );
+    credits.push({
+      name: rule.name,
+      amount: joint ? Math.min(remaining * share, rule.cap) : 0,
       refundable: false,
     });
   }
@@ -1032,6 +1194,7 @@ function stateFigures(computed: Computed, input: StateIncomeTaxInput): StateFigu
     stateAdjustedGrossIncome: computed.stateAgi,
     stateNetTax: computed.taxBeforeRefundableCredits,
     cityIncome: cityIncomeFor(input),
+    qualifyingWages: qualifyingWagesFor(input),
   };
 }
 
@@ -1100,25 +1263,74 @@ function oneDollarMore(
  * inside it because the two are different claims: `federalOneDollarHigher` is
  * the caller telling this package what the federal engine did, and earned income
  * is a state input this package owns.
+ *
+ * The same dollar has to reach {@link StateIncomeTaxInput.qualifyingWages}, for
+ * a stronger reason: an Ohio municipality's whole base is that field, so holding
+ * it constant would report a municipal marginal rate of **zero** for a Columbus
+ * resident whose next dollar of wages costs 2.5 cents — and the municipal tax is
+ * the larger half of most Ohio returns.
  */
 function withOneMoreEarnedDollar(input: StateIncomeTaxInput): StateIncomeTaxInput {
-  if (input.earnedIncome === undefined) return input;
-  return { ...input, earnedIncome: input.earnedIncome + 1 };
+  const next = { ...input };
+  if (input.earnedIncome !== undefined) next.earnedIncome = input.earnedIncome + 1;
+  if (input.qualifyingWages !== undefined) next.qualifyingWages = input.qualifyingWages + 1;
+  return next;
 }
 
 /**
- * `city` and `workCity` are Michigan's, and naming the state is the point of the
- * error: a caller who passes `city: 'Cleveland'` on an Ohio return has to learn
- * that Ohio's 600-odd municipal income taxes are not modelled here, rather than
- * receive a zero that looks like an answer.
+ * Qualifying wages as an Ohio municipality measures them — O.R.C. § 718.01(R).
+ *
+ * Supplied, or taken from {@link StateIncomeTaxInput.earnedIncome}, which is the
+ * same gross-wage figure for the great majority of filers. There is deliberately
+ * no fall back to federal AGI: AGI holds the interest, dividends and capital
+ * gains § 718.01(S) puts outside the base, and is net of above-the-line
+ * deductions box 5 of the W-2 never saw, so it is a different figure rather than
+ * a rough one. A caller who names an Ohio municipality and neither figure is
+ * told so.
  */
-function requireMichigan(input: StateIncomeTaxInput, field: 'city' | 'workCity'): void {
-  if (input.state === 'MI') return;
+function qualifyingWagesFor(input: StateIncomeTaxInput): number {
+  if (input.qualifyingWages !== undefined) {
+    return nonNegative(input.qualifyingWages, 'qualifyingWages');
+  }
+  if (input.earnedIncome !== undefined) return nonNegative(input.earnedIncome, 'earnedIncome');
+  return 0;
+}
+
+/**
+ * `city` and `workCity` belong to Michigan and Ohio, and naming the state is the
+ * point of the error: a caller who passes `city: 'Louisville'` on a Kentucky
+ * return has to learn that Kentucky's occupational taxes are not modelled here,
+ * rather than receive a zero that looks like an answer.
+ */
+function requireCityState(input: StateIncomeTaxInput, field: 'city' | 'workCity'): void {
+  if (input.state === 'MI' || input.state === 'OH') return;
   throw new RangeError(
-    `${field} applies to a Michigan return; state is ${input.state}. Michigan's 24 cities are ` +
-      `the only city income taxes this package models. Ohio's municipal income taxes, ` +
+    `${field} applies to a Michigan or Ohio return; state is ${input.state}. Michigan's 24 ` +
+      `cities and Ohio's 679 municipalities are the city income taxes this package models. ` +
       `Kentucky's occupational taxes and Philadelphia's wage tax are not modelled, and ` +
       `returning zero for them would be a wrong answer rather than a missing one.`,
+  );
+}
+
+/**
+ * An Ohio municipality needs a wage figure and there is nothing to derive it
+ * from, so this refuses rather than charging 2.5% of zero.
+ *
+ * The same reasoning that makes `workCity` without `workCityEarnings` an error:
+ * a caller who named a municipality meant to be charged by it, and a silent zero
+ * hides the largest tax on most Ohio returns.
+ */
+function requireQualifyingWages(input: StateIncomeTaxInput, field: 'city' | 'workCity'): void {
+  if (input.state !== 'OH') return;
+  if (input.qualifyingWages !== undefined || input.earnedIncome !== undefined) return;
+  throw new RangeError(
+    `${field} names an Ohio municipality but neither qualifyingWages nor earnedIncome was ` +
+      `supplied, and an Ohio municipal income tax has no line on the IT 1040 behind it. The ` +
+      `base is O.R.C. § 718.01(R) qualifying wages — box 5 of the W-2, which a 401(k) ` +
+      `deferral does NOT reduce — plus a resident's net profit from business or rental. ` +
+      `Federal AGI is not a substitute: § 718.01(S) puts interest, dividends and capital ` +
+      `gains outside the base entirely, along with pensions, IRA distributions, Social ` +
+      `Security and unemployment compensation.`,
   );
 }
 
@@ -1171,15 +1383,18 @@ function localTaxesFor(
   let peerLocality: { name: string; tax: number; taxedIncome: number } | undefined;
   const workCityEarnings = nonNegative(input.workCityEarnings, 'workCityEarnings');
   if (input.workCity !== undefined) {
-    requireMichigan(input, 'workCity');
+    requireCityState(input, 'workCity');
     if (input.city !== undefined && sameCity(input.city, input.workCity)) {
       throw new RangeError(
         `workCity and city are both "${input.workCity}". A resident pays the resident tax on ` +
           `everything they earn, wherever they earn it, and never the nonresident tax as well. ` +
-          `Pass workCity only for a DIFFERENT Michigan taxing city the filer worked in.`,
+          `Pass workCity only for a DIFFERENT taxing city the filer worked in.`,
       );
     }
-    const def = michiganCity(input.workCity, input.year);
+    const def = cityDefinition(input.state, input.workCity, input.year);
+    // Michigan's cities allow their exemptions against city-source income; Ohio
+    // has none to allow, so the two agree by way of `exemptionAmount` being
+    // absent rather than by a special case here.
     const taxedIncome = nonresidentTaxableEarnings(def, workCityEarnings, input);
     const result = localNonresidentEarningsResult(def, workCityEarnings, input);
     out.push(result);
@@ -1187,8 +1402,9 @@ function localTaxesFor(
   }
 
   if (input.city !== undefined) {
-    requireMichigan(input, 'city');
-    const def = michiganCity(input.city, input.year);
+    requireCityState(input, 'city');
+    requireQualifyingWages(input, 'city');
+    const def = cityDefinition(input.state, input.city, input.year);
     const computed = computeLocalResidentTax(def, input, stateFigures(here, input), peerLocality);
     const computedHigher = computeLocalResidentTax(
       def,
@@ -1371,12 +1587,85 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `(${dearest.name}) — pass the county the filer lived in on 1 January.`,
     );
   }
+  if (input.state === 'OH' && input.city === undefined) {
+    // Ohio's is the strongest of the three, because for most Ohio filers the
+    // municipal tax is the LARGER of the two. Quantified on this filer's own
+    // wages, and only when there are wages to quantify it on.
+    const wages = qualifyingWagesFor(input);
+    const cities = citiesFor('OH', input.year);
+    const levying = cities.filter((c) => c.rate.kind === 'flat' && c.rate.rate > 0);
+    const rates = levying
+      .map((c) => (c.rate.kind === 'flat' ? c.rate.rate : 0))
+      .sort((a, b) => a - b);
+    const low = rates[0] ?? 0;
+    const high = rates[rates.length - 1] ?? 0;
+    const shown = (value: number) =>
+      roundCents(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    dynamic.push(
+      wages > 0
+        ? `No city was supplied, so this is the Ohio STATE tax alone. ${cities.length} Ohio ` +
+            `municipalities levy an income tax of their own on qualifying wages — box 5 of the ` +
+            `W-2, not any line of the IT 1040 — at ${(low * 100).toFixed(2)}% to ` +
+            `${(high * 100).toFixed(2)}%. On this filer's $${shown(wages)} of wages that is ` +
+            `$${shown(wages * low)} to $${shown(wages * high)}, and $${shown(wages * 0.025)} in ` +
+            `Columbus, Cleveland, Toledo, Akron or Dayton. For most Ohio filers the municipal ` +
+            `tax is LARGER than the state one — pass city and qualifyingWages.`
+        : `No city was supplied, so this is the Ohio STATE tax alone. ${cities.length} Ohio ` +
+            `municipalities levy an income tax of their own at ${(low * 100).toFixed(2)}% to ` +
+            `${(high * 100).toFixed(2)}% of qualifying wages — box 5 of the W-2, which a 401(k) ` +
+            `deferral does not reduce, and not any line of the IT 1040. For most Ohio filers it ` +
+            `is LARGER than the state tax: 2.5% in Columbus, Cleveland, Toledo, Akron and ` +
+            `Dayton. Pass city and qualifyingWages.`,
+    );
+  }
+  if (
+    input.state === 'OH' &&
+    input.city !== undefined &&
+    input.qualifyingWages === undefined &&
+    input.earnedIncome !== undefined
+  ) {
+    dynamic.push(
+      `qualifyingWages was not supplied, so the municipal tax above was computed on ` +
+        `earnedIncome. That is right for a wage earner — O.R.C. § 718.01(R) reaches box 5 of ` +
+        `the W-2, which is gross of a 401(k) deferral, and earnedIncome is gross wages here ` +
+        `too — and it is TOO LOW for a resident with net profit from a business or a rental, ` +
+        `which their municipality also taxes.`,
+    );
+  }
+  if (
+    input.state === 'OH' &&
+    input.city !== undefined &&
+    input.workCity !== undefined &&
+    input.residentCreditRate === undefined &&
+    input.residentCreditLimitRate === undefined
+  ) {
+    const credited = localTaxes
+      .flatMap((l) => l.credits)
+      .filter((c) => c.name.startsWith('Credit for income tax paid to'))
+      .reduce((sum, c) => sum + c.amount, 0);
+    const shown = roundCents(credited).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    dynamic.push(
+      `Ohio has NO statutory resident credit — O.R.C. Chapter 718 leaves it to each ` +
+        `municipality's own ordinance — so the credit of $${shown} above is an ASSUMPTION: ` +
+        `100% of the tax paid to the work municipality, capped at the home municipality's own ` +
+        `rate, which is the common ordinance but not the universal one. A municipality that ` +
+        `credits less would raise this return by up to $${shown}. Ohio's own municipal rate ` +
+        `table publishes the two figures as the "Credit Rate" and "Credit Factor" columns; ` +
+        `pass them as residentCreditRate and residentCreditLimitRate.`,
+    );
+  }
   if (input.state === 'MI' && input.city === undefined) {
     // Weaker than the county note above and deliberately so: most Michigan
     // residents live in none of the 24, so this says what the two extremes would
     // cost rather than claiming the filer owes something. Both figures are this
     // filer's own, run through the same engine.
-    const cities = michiganCities(input.year);
+    const cities = citiesFor('MI', input.year);
     const costs = cities
       .map((city) => ({
         name: city.name,

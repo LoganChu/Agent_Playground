@@ -1060,21 +1060,23 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 26 states plus NEW YORK ' +
-    'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties and all 24 MICHIGAN cities. ' +
-    'Call estimate_federal_tax FIRST and pass its ' +
+    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 27 states plus NEW YORK ' +
+    'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties, all 24 MICHIGAN cities and all ' +
+    '679 OHIO municipalities. Call estimate_federal_tax FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a state ' +
-    'starts from decides the answer. Seven states need more than that. NY: pass locality. MD and IN: pass ' +
+    'starts from decides the answer. Eight states need more than that. NY: pass locality. MD and IN: pass ' +
     'county — every resident of both owes one and it is two fifths of the bill — plus, in MD, netCapitalGain ' +
-    'and stateItemizedDeductions. MI: pass city, and cityIncome, which is NOT federal AGI. CA: pass ' +
+    'and stateItemizedDeductions. OH: pass city and qualifyingWages, which is box 5 of the W-2 and NOT ' +
+    'federal AGI; the municipal tax is the LARGER half of an Ohio return below $126,408. MI: pass city, and ' +
+    'cityIncome, which is NOT federal AGI. CA: pass ' +
     'earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
     'REQUIRED, plus filerAge and retirementIncome over 62. MA: massachusettsFivePercentIncome is REQUIRED ' +
     'and is NOT federal AGI, plus shortTermCapitalGains and collectiblesGains, taxed at 8.5% and 12% rather ' +
     'than the 5% every rate table reports. Reports the true marginal rate by rerunning the whole return a ' +
     'dollar higher, which is not the statutory rate wherever a credit phases out or a cliff bites. Every ' +
     'result carries that state\'s own notes and statutes, so the conformity detail arrives with the answer ' +
-    'rather than here. Does NOT cover a state outside the enum, local tax outside NY, MD, IN and MI, or ' +
-    'state withholding. An unlisted state is an error, not a zero.',
+    'rather than here. Does NOT cover a state outside the enum, local tax outside NY, MD, IN, MI and OH, ' +
+    'Ohio school district tax, or state withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1091,7 +1093,7 @@ const stateTool: ToolDefinition = {
         type: 'integer',
         enum: [...STATE_YEARS],
         description:
-          'State tax year. Seven states cut their rate for 2026; an unsupported year is an error, not a fallback.',
+          'State tax year. Eight states cut their rate for 2026; an unsupported year is an error, not a fallback.',
       },
       federalAdjustedGrossIncome: {
         type: 'number',
@@ -1200,7 +1202,7 @@ const stateTool: ToolDefinition = {
       city: {
         type: 'string',
         description:
-          'MI only: the city the filer LIVES in, if it is one of the 24 that levy. Detroit 2.4%, Highland Park 2.0%, Grand Rapids and Saginaw 1.5%, twenty others 1%; an unlisted city is an error naming all 24. Most Michigan residents live in none.',
+          'MI and OH only: the city or municipality the filer LIVES in. MI has 24 that levy — Detroit 2.4%, Highland Park 2.0%, Grand Rapids and Saginaw 1.5%, twenty others 1% — and most Michiganders live in none. OH has 679 at 0.45-3.00%, and most Ohioans live in one. An unlisted name is an error listing them.',
       },
       cityIncome: {
         type: 'number',
@@ -1208,16 +1210,47 @@ const stateTool: ToolDefinition = {
         description:
           'MI only: income as the CITY measures it, before its $600-$3,000 exemptions — no pensions, IRA distributions, Social Security, unemployment or military pay, none of which any city taxes. Omitted, it is derived from federal AGI less retirementIncome and runs high.',
       },
+      qualifyingWages: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'OH only, REQUIRED with city: O.R.C. 718.01(R) wages — box 5 of the W-2, which a 401(k) deferral does NOT reduce — plus a resident\'s net business or rental profit. Interest, dividends, capital gains, pensions and Social Security are outside it. Federal AGI is a different figure, not an approximation.',
+      },
+      businessIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45. Omitted, the tax runs high.',
+      },
+      bothSpousesHaveQualifyingIncome: {
+        type: 'boolean',
+        description:
+          'OH only: true where EACH spouse on a joint return has $500+ of Ohio AGI less interest, dividends, capital gains and rent. Gates the joint filing credit, up to $650. Omitted, that credit is zero.',
+      },
       workCity: {
         type: 'string',
         description:
-          'MI only: a DIFFERENT taxing city the filer worked in, taxed at half its resident rate on workCityEarnings. The home city credits that tax, capped at its OWN nonresident rate.',
+          'MI and OH only: a DIFFERENT taxing city the filer worked in, charged on workCityEarnings. MI halves its rate for a nonresident and the home city credits that tax, capped at its OWN nonresident rate. OH halves nothing and has no statutory credit — the ordinance decides.',
       },
       workCityEarnings: {
         type: 'number',
         minimum: 0,
         description:
-          'MI only: wages earned inside workCity, already apportioned by working days (Form DW-4, GRW-4).',
+          'MI and OH only: wages earned inside workCity, already apportioned by working days (Form DW-4, GRW-4).',
+      },
+      residentCreditRate: {
+        type: 'number',
+        minimum: 0,
+        maximum: 1,
+        description:
+          'OH only: the share of the workCity tax the HOME municipality credits — Ohio\'s own "Credit Rate" column. Omitted with residentCreditLimitRate, the modal 100%-capped-at-the-home-rate ordinance is assumed and the result says so.',
+      },
+      residentCreditLimitRate: {
+        type: 'number',
+        minimum: 0,
+        maximum: 1,
+        description:
+          'OH only: the rate that credit is capped at — the "Credit Factor" column. The credit is the lesser of the two.',
       },
       stateItemizedDeductions: {
         type: 'number',
@@ -1436,17 +1469,32 @@ const stateTool: ToolDefinition = {
     const workCity = source['workCity'];
     const workCityEarnings = readNumber(source, 'workCityEarnings');
     const cityIncome = readNumber(source, 'cityIncome');
-    for (const [field, value] of [
-      ['city', city],
-      ['cityIncome', cityIncome],
-      ['workCity', workCity],
-      ['workCityEarnings', workCityEarnings],
+    const qualifyingWages = readNumber(source, 'qualifyingWages');
+    const businessIncome = readNumber(source, 'businessIncome');
+    const bothSpouses = source['bothSpousesHaveQualifyingIncome'];
+    const residentCreditRate = readNumber(source, 'residentCreditRate');
+    const residentCreditLimitRate = readNumber(source, 'residentCreditLimitRate');
+    // Two city states now, and the fields divide unevenly between them: the base
+    // is a different figure in each, so `cityIncome` is Michigan's alone and
+    // `qualifyingWages` Ohio's alone, while the city names are shared.
+    for (const [field, value, states] of [
+      ['city', city, ['MI', 'OH']],
+      ['workCity', workCity, ['MI', 'OH']],
+      ['workCityEarnings', workCityEarnings, ['MI', 'OH']],
+      ['cityIncome', cityIncome, ['MI']],
+      ['qualifyingWages', qualifyingWages, ['OH']],
+      ['businessIncome', businessIncome, ['OH']],
+      ['bothSpousesHaveQualifyingIncome', bothSpouses, ['OH']],
+      ['residentCreditRate', residentCreditRate, ['OH']],
+      ['residentCreditLimitRate', residentCreditLimitRate, ['OH']],
     ] as const) {
-      if (value !== undefined && state !== 'MI') {
+      if (value !== undefined && !(states as readonly string[]).includes(state)) {
         throw new ToolInputError(
-          `${field} only applies to MI, and ${state} was requested. Michigan's 24 city income ` +
-            `taxes are the only ones this server models; Ohio's municipalities, Kentucky's ` +
-            `occupational taxes and Philadelphia are not.`,
+          `${field} only applies to ${states.join(' and ')}, and ${state} was requested. ` +
+            `Michigan's 24 city income taxes and Ohio's 679 municipal ones are the only local ` +
+            `taxes of this kind this server models — Kentucky's occupational taxes and ` +
+            `Philadelphia's wage tax are not — and the two do not share a base: Michigan taxes ` +
+            `city income and Ohio taxes qualifying wages.`,
         );
       }
     }
@@ -1454,10 +1502,15 @@ const stateTool: ToolDefinition = {
       ['city', city],
       ['workCity', workCity],
     ] as const) {
-      // The engine's own message names all 24 cities, so a bad name is left to it.
+      // The engine's own message names every city, so a bad name is left to it.
       if (value !== undefined && typeof value !== 'string') {
-        throw new ToolInputError(`${field} must be the name of a Michigan city that levies an income tax.`);
+        throw new ToolInputError(
+          `${field} must be the name of a Michigan or Ohio city that levies an income tax.`,
+        );
       }
+    }
+    if (bothSpouses !== undefined && typeof bothSpouses !== 'boolean') {
+      throw new ToolInputError('bothSpousesHaveQualifyingIncome must be true or false.');
     }
     // Refused rather than ignored, for the same reason stateItemizedDeductions is:
     // a nonresident city tax with no wage figure is silently zero, and a model
@@ -1471,6 +1524,16 @@ const stateTool: ToolDefinition = {
     }
     if (workCityEarnings !== undefined && workCity === undefined) {
       throw new ToolInputError('workCityEarnings needs workCity: the city those wages were earned in.');
+    }
+    // Ohio's municipal base has no line on the IT 1040 behind it and nothing on
+    // a federal return stands in for it, so this is a refusal rather than a zero.
+    if (state === 'OH' && city !== undefined && qualifyingWages === undefined) {
+      throw new ToolInputError(
+        'city on an Ohio return needs qualifyingWages — O.R.C. 718.01(R) wages, box 5 of the ' +
+          'W-2, which a 401(k) deferral does not reduce, plus a resident\'s net business or ' +
+          'rental profit. Federal AGI is NOT a substitute: it holds the interest, dividends and ' +
+          'capital gains 718.01(S) puts outside the base, and is net of deductions box 5 never saw.',
+      );
     }
 
     const locality = source['locality'];
@@ -1529,6 +1592,13 @@ const stateTool: ToolDefinition = {
       ...(county !== undefined ? { county } : {}),
       ...(city !== undefined ? { city: city as string } : {}),
       ...(cityIncome !== undefined ? { cityIncome } : {}),
+      ...(qualifyingWages !== undefined ? { qualifyingWages } : {}),
+      ...(businessIncome !== undefined ? { businessIncome } : {}),
+      ...(bothSpouses !== undefined
+        ? { bothSpousesHaveQualifyingIncome: bothSpouses as boolean }
+        : {}),
+      ...(residentCreditRate !== undefined ? { residentCreditRate } : {}),
+      ...(residentCreditLimitRate !== undefined ? { residentCreditLimitRate } : {}),
       ...(workCity !== undefined ? { workCity: workCity as string } : {}),
       ...(workCityEarnings !== undefined ? { workCityEarnings } : {}),
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),

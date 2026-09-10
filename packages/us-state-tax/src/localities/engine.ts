@@ -43,6 +43,14 @@ export interface StateFigures {
    * retirement income when they did not supply it.
    */
   readonly cityIncome: number;
+  /**
+   * Qualifying wages as O.R.C. § 718.01(R) defines them — the base of every Ohio
+   * municipal income tax, and the second figure here that is not a line on the
+   * state return. Supplied by the caller through
+   * {@link StateIncomeTaxInput.qualifyingWages}, or by
+   * {@link StateIncomeTaxInput.earnedIncome} where they gave that instead.
+   */
+  readonly qualifyingWages: number;
 }
 
 function baseAmount(base: LocalBase, figures: StateFigures): number {
@@ -55,6 +63,8 @@ function baseAmount(base: LocalBase, figures: StateFigures): number {
       return figures.stateNetTax;
     case 'cityIncome':
       return figures.cityIncome;
+    case 'qualifyingWages':
+      return figures.qualifyingWages;
   }
 }
 
@@ -296,16 +306,31 @@ export function computeLocalResidentTax(
     });
   }
   if (def.creditsTaxPaidToPeerLocality && peerLocality && peerLocality.tax > 0) {
-    // MCL 141.601 et seq., as every city's own instructions state it: the credit
-    // is the tax paid to the other city, but never more than this city's own
-    // nonresident rate applied to the income that other city taxed. The cap is
-    // what makes the credit incomplete in exactly one direction — a resident of
-    // a 1% city commuting into a 2.4% one — and the arithmetic has to see both
-    // rates to show it.
-    const cap = (def.nonresidentEarningsRate ?? 0) * peerLocality.taxedIncome;
+    // Michigan: MCL 141.601 et seq., as every city's own instructions state it —
+    // the credit is the tax paid to the other city, but never more than this
+    // city's own NONRESIDENT rate applied to the income that other city taxed.
+    // The cap is what makes the credit incomplete in exactly one direction, a
+    // resident of a 1% city commuting into a 2.4% one, and the arithmetic has to
+    // see both rates to show it.
+    //
+    // Ohio: there is no statute, only the home municipality's ordinance, so the
+    // caller supplies the two figures Ohio's own rate table publishes — the
+    // share credited and the rate it is capped at — and where they did not, the
+    // modal ordinance is assumed and said so.
+    const ordinance = def.residentCreditByOrdinance === true;
+    const share = ordinance ? (input.residentCreditRate ?? 1) : 1;
+    const capRate = ordinance
+      ? (input.residentCreditLimitRate ?? localApplicableRate(def, input, base))
+      : (def.nonresidentEarningsRate ?? 0);
+    const assumed =
+      ordinance &&
+      input.residentCreditRate === undefined &&
+      input.residentCreditLimitRate === undefined;
     credits.push({
-      name: `Credit for income tax paid to ${peerLocality.name}`,
-      amount: Math.min(peerLocality.tax, cap),
+      name: assumed
+        ? `Credit for income tax paid to ${peerLocality.name} (assumed: 100% of the tax, capped at ${def.name}'s own rate — Ohio has no statutory credit)`
+        : `Credit for income tax paid to ${peerLocality.name}`,
+      amount: Math.min(share * peerLocality.tax, capRate * peerLocality.taxedIncome),
       refundable: false,
     });
   }

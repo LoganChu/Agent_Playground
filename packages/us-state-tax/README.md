@@ -1,10 +1,11 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **26
-states** including **New York**, **New Jersey**, **Massachusetts** and **Maryland**, plus
-**140 local income taxes**: New York City, Yonkers, all 24 Maryland jurisdictions, all 92
-Indiana counties and — new in 0.10.0 — all **24 Michigan cities**, including Detroit at
-2.4%. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+US **state and local** individual income tax for tax years **2025 and 2026**, across **27
+states** including **New York**, **New Jersey**, **Massachusetts**, **Maryland** and — new
+in 0.11.0 — **Ohio**, plus **819 local income taxes**: New York City, Yonkers, all 24
+Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, and all **679 Ohio
+municipalities**, which are more taxing jurisdictions than the rest of the United States put
+together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -140,9 +141,9 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of twelve of the twenty-six
+That `$3,174.69` is **more than the entire state income tax of thirteen of the twenty-seven
 states in this package** at the same income — every one of the nine with no income tax,
-plus Arizona, Indiana and Pennsylvania. Omit the locality on a New York return and the
+plus Arizona, Indiana, Ohio and Pennsylvania. Omit the locality on a New York return and the
 result says so, and says what it would have cost this filer.
 
 **The published city rates are derived, not stored.** N.Y.C. Admin. Code § 11-1701 imposes
@@ -686,6 +687,163 @@ resident working in Grand Rapids pays Grand Rapids `$445.50` and Detroit `$980.1
 the `$1,425.60` they would have owed Detroit anyway. The cap binds only when the work city
 charges more than the home city would, which is the direction traffic runs.
 
+### Ohio's rate schedule is not a function, and $342 arrives on one cent
+
+Every other state here charges a tax that rises continuously with income. Ohio's does not.
+O.R.C. § 5747.02(A)(3) prints three rows for 2025:
+
+```text
+$0 - $26,050         0.000%
+$26,050 - $100,000   $342.00 plus 2.750% of the excess over $26,050
+over $100,000        $2,394.32 plus 3.125% of the excess over $100,000
+```
+
+and the constants are charged **in full on the first dollar of the band**:
+
+```js
+const oh = (agi) => stateIncomeTax({
+  state: 'OH', year: 2025, filingStatus: 'single',
+  federal: { adjustedGrossIncome: agi, taxableIncome: agi - 15_750,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+oh(28_450).tax;      //   0.00   Ohio taxable income of exactly $26,050
+oh(28_450.01).tax;   // 322.00   one cent later
+```
+
+`$322` rather than `$342` because the `$20` exemption credit is worth something to the
+second filer and nothing to the first. The credit makes the cliff smaller; it does not make
+it a slope. Reading the printed table as ordinary marginal brackets — which is what "Ohio:
+0% / 2.75% / 3.125%" invites — **understates every Ohio filer above the threshold by the
+whole constant**.
+
+The `$342` is a fossil: before 2019 Ohio taxed the bottom of the schedule at 0.495% and up,
+and when the legislature zeroed those bands it kept the constants they had accumulated.
+
+#### There is a second discontinuity, and it is three months old
+
+HB 96 (signed 30 June 2025) cut the top rate from 3.5% to 3.125% and lowered the `$26,050`
+constant from `$360.69` to `$342.00` — but left the `$100,000` constant at `$2,394.32`,
+which is precisely what `$360.69` chained to (`$360.69 + 2.75% × $73,950 = $2,394.315`).
+Against the new constant the same arithmetic gives `$2,375.63`:
+
+```js
+oh(101_900).tax;     // 2375.63   Ohio taxable income of exactly $100,000
+oh(101_900.01).tax;  // 2394.32   $18.69 later, on one cent
+```
+
+Four independent transcriptions of the 2025 booklet agree on both constants. This package
+implements the table as printed rather than the smooth schedule the drafter meant.
+
+From **2026** HB 96 finishes the flattening: one rate above `$26,050`, no `$100,000` step,
+and the constant re-based to `$332.00`. "Ohio is a flat 2.75% state" is now true of the rate
+and still false of the tax.
+
+#### Two taxes on one return, at two unrelated rates
+
+The first `$250,000` of Ohio **business income** (`$125,000` married filing separately) is
+deducted outright and the excess is taxed at a flat **3%**, while everything else runs up
+the schedule above:
+
+```js
+oh(250_000).tax;                                  // 7022.45   $250,000 of wages
+stateIncomeTax({ ...same, businessIncome: 250_000 }).tax;  // 0.00   $250,000 of Schedule C
+```
+
+The deduction is a *subtraction* on the Schedule of Adjustments, so it moves Ohio AGI — but
+the exemption chart and every credit limit are read against **modified** AGI, which adds it
+straight back. A pass-through owner whose Ohio AGI is near zero is still tested at the full
+amount.
+
+#### Two Ohio credits are dead law, and the arithmetic says why
+
+The `$20` exemption credit needs modified AGI **below `$30,000`**; the zero band means a
+filer needs taxable income **above `$26,050`** before there is any tax to credit. With
+`$2,400` an exemption those two conditions overlap in a `$1,550` window — and a *second*
+exemption moves the lower end to `$30,850` and closes it. So the credit is claimable only by
+a childless single or married-filing-separately filer, and is worth exactly `$20`.
+
+The joint filing credit's top row, 20% of the tax, needs modified AGI less exemptions at or
+below `$25,000` — which for a couple with no business income *is* their taxable nonbusiness
+income, below the `$26,050` zero band, so the tax it would be a share of is zero. Business
+income cannot rescue it either: the 3% only reaches income above the `$250,000` deduction,
+so any couple with business tax has a modified AGI ten times the row's ceiling. **The
+highest rate that credit is ever actually paid at is 15%.**
+
+### Ohio's 679 municipalities are the larger half of most Ohio returns
+
+Six hundred and seventy-nine Ohio cities and villages levy an income tax — more taxing
+jurisdictions than the rest of the United States put together, and five times the 140 this
+package covered before them.
+
+```js
+const columbus = stateIncomeTax({
+  state: 'OH', year: 2025, filingStatus: 'single',
+  city: 'Columbus', qualifyingWages: 60_000,
+  federal: { adjustedGrossIncome: 60_000, taxableIncome: 44_250,
+             deduction: 15_750, deductionKind: 'standard' },
+});
+
+columbus.tax;                  // 1216.50   Ohio
+columbus.localTaxes[0].tax;    // 1500.00   Columbus, at 2.5%
+columbus.totalTax;             // 2716.50
+```
+
+The state tax does not overtake a 2.5% municipal one until **`$126,408.32`** of income.
+Below that, a table of state rates has described the smaller half of the bill.
+
+```text
+0.45%    Indian Hill — the lowest levy in the state
+1.00%    266 municipalities, the modal rate and the ceiling without a vote
+1.50%    122
+2.00%    122
+2.50%    41, including Columbus, Cleveland, Toledo, Akron, Dayton and Parma
+2.75%    Youngstown, Trotwood, North Randall
+2.85%    Euclid
+3.00%    Bedford and Parma Heights
+```
+
+#### The base is box 5, so a 401(k) deferral does not reduce it
+
+O.R.C. § 718.01(R) adopts "wages, as defined in section 3121(a) of the Internal Revenue
+Code, without regard to any wage limitations" — **Medicare wages, box 5 of the W-2**, not
+box 1. A Columbus resident deferring the `$24,500` 2026 maximum is charged 2.5% on every
+dollar of it: **`$612.50` a year** that a model reading box 1 or federal AGI never sees. A
+§ 125 cafeteria plan contribution *does* reduce it, because it is outside § 3121(a).
+
+And § 718.01(S) puts interest, dividends and capital gains outside the base entirely, along
+with pensions, IRA distributions, Social Security and unemployment compensation. **An Ohio
+retiree with no wages owes their municipality nothing** — the mirror image of Michigan,
+where the city excludes the pension and the state taxes it through a four-tier deduction.
+Here the municipality excludes it and Ohio taxes it in full. So `qualifyingWages` is asked
+for rather than derived: federal AGI is a different figure, not a rough one, and an Ohio
+return naming a `city` without it is an error.
+
+#### There is no nonresident rate, and no statutory resident credit
+
+Michigan halves the commuter rate by statute. Ohio halves nothing — a municipality charges a
+commuter exactly what it charges a resident, and § 718.03 makes the *workplace* municipality
+the one paid first, by withholding. And O.R.C. Chapter 718 grants **no** resident credit at
+all: the home municipality decides by its own ordinance what share of the other tax it
+absorbs and at what rate it caps that.
+
+Where an ordinance credits in full — the common case — the result is a symmetry Michigan
+does not have:
+
+```js
+// $60,000 of wages, Westerville 2.0% and Columbus 2.5%.
+live('Westerville', 'Columbus'); // Columbus 1500.00 + Westerville    0.00 = 1500.00
+live('Columbus', 'Westerville'); // Westerville 1200.00 + Columbus  300.00 = 1500.00
+```
+
+**A commuter pays the higher of the two rates, whichever way they commute.** In Michigan the
+same commute costs 70% more in one direction than the other. What still differs is who is
+paid.
+
+Pass `residentCreditRate` and `residentCreditLimitRate` — the "Credit Rate" and "Credit
+Factor" columns of Ohio's own municipal rate table — for a municipality that credits less.
+Leave them out and the result labels the credit as assumed and says what it is worth.
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -704,8 +862,14 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, IL, KY, MD, MI, UT**. Published: **AZ, GA, IN, MA, MS,
-NC, NJ, NY, PA** and the nine states with no income tax. Nothing is provisional for 2025.
+Provisional for 2026: **CA, CO, ID, IL, KY, MD, MI, OH, UT**. Published: **AZ, GA, IN, MA,
+MS, NC, NJ, NY, PA** and the nine states with no income tax. Nothing is provisional for
+2025.
+
+Ohio is provisional for the two indexed figures behind an otherwise statutory schedule. HB
+96 wrote "$332.00 plus 2.75% of the amount in excess of $26,050" into § 5747.02(A)(3), but
+the `$26,050` band and the exemption chart are re-indexed by the tax commissioner each
+August and the 2026 booklet is not out. Both have held since 2022.
 
 Maryland is provisional for one figure and one only. Every threshold in its rate schedule,
 its exemption chart, its capital gains surtax and its itemized deduction limit is a fixed
@@ -724,17 +888,20 @@ the `$24,600` the threshold moved — and it is owed by nobody below a million d
 
 ## No fallback to a neighbouring year
 
-Seven of the seventeen taxing states cut their rate between 2025 and 2026 — New York's
+Eight of the eighteen taxing states cut their rate between 2025 and 2026 — New York's
 bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
-North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%. Asking for an unsupported year throws
-rather than answering with the nearest one.
+North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%, and Ohio, which abolished its 3.125%
+bracket outright and re-based the constant beneath it from `$342.00` to `$332.00`. Asking
+for an unsupported year throws rather than answering with the nearest one.
 
 ## Coverage
 
 **Graduated:** California, Maryland, Mississippi, New Jersey, New York.
 **Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky,
 Massachusetts, Michigan, North Carolina, Pennsylvania, Utah.
+**A constant plus a rate:** Ohio, whose schedule is neither of the above and cannot be
+written as either — see below.
 **Rated by kind of income:** Massachusetts, which is in the flat list above and does not
 belong there — see below.
 **No income tax:** Alaska, Florida, Nevada, New Hampshire, South Dakota, Tennessee, Texas,
@@ -746,23 +913,30 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.7.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.11.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 26 states.** No Ohio, Virginia, Minnesota, Wisconsin,
+- **Only 27 states.** No Virginia, Minnesota, Wisconsin,
   Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
   Asking for one throws rather than returning zero.
+- **No Ohio school district income tax.** About 200 of Ohio's school districts levy one at
+  0.25% to 2.00% on a separate SD 100 return — on Ohio taxable income in a traditional
+  district and on earned income alone in an earned-income district. A resident of a taxing
+  district owes it on top of everything this package computes.
+- **Ohio's resident credit is assumed, and labelled.** Chapter 718 grants none, so each
+  municipality's ordinance decides; where the two figures are not supplied this package
+  assumes the modal 100%-capped-at-the-home-rate and says so in the result.
 - **Massachusetts's Schedule B and D netting is not modelled.** Short-term and long-term
   gains are taken as given; the `$2,000` limit on net capital losses deductible against
   interest and dividend income, and the order in which short-term and long-term losses are
   applied against each other, are not computed. Nor is the senior circuit breaker credit,
   which is the largest credit on many Massachusetts retirees' returns.
-- **Local income tax in New York, Maryland, Indiana and Michigan only.** New York City and
-  Yonkers are computed from `locality`; all 23 Maryland counties and Baltimore City, and all
-  92 Indiana counties, from `county`; all 24 Michigan cities from `city` and `workCity`.
-  Most Pennsylvania municipalities and school districts, Ohio's 600-odd municipalities and
-  Kentucky's occupational taxes are not, and for a Pennsylvania or Ohio filer the local tax
-  is a large fraction of the bill. Indiana's nonresident and part-year county tax (Schedule
+- **Local income tax in New York, Maryland, Indiana, Michigan and Ohio only.** New York City
+  and Yonkers are computed from `locality`; all 23 Maryland counties and Baltimore City, and
+  all 92 Indiana counties, from `county`; all 24 Michigan cities and all 679 Ohio
+  municipalities from `city` and `workCity`. Most Pennsylvania municipalities and school
+  districts and Kentucky's occupational taxes are not, and for a Pennsylvania filer the local
+  tax is a large fraction of the bill. Indiana's nonresident and part-year county tax (Schedule
   CT-40PNR), which apportions by where the income was earned rather than where the filer
   lived, is not modelled either. Nor is part-year city residency, the New York City child
   and dependent care credit, Maryland's local poverty level credit and Montgomery County's

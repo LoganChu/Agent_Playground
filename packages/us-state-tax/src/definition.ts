@@ -16,6 +16,27 @@ import type {
   StateDefinedBaseField,
 } from './types.js';
 
+/**
+ * Which income figure an income test on a state return is measured against.
+ *
+ * Almost every such test in this package reads federal AGI, which is why that is
+ * the default and why the field is optional. Ohio is the exception and it reads
+ * a figure of its own: **modified adjusted gross income**, which is Ohio AGI
+ * with the business income deduction *added back* (O.R.C. § 5747.01(JJ)). The
+ * add-back is what makes it a different question — a pass-through owner whose
+ * `$240,000` of business income is entirely deducted has an Ohio AGI near zero
+ * and a modified AGI of `$240,000`, so they lose the personal exemption, the
+ * `$20` exemption credit, the senior credit and the retirement credit that the
+ * Ohio AGI figure alone would have handed them.
+ */
+export type IncomeMeasure =
+  /** Federal AGI — Form 1040 line 11. */
+  | 'federalAdjustedGrossIncome'
+  /** Ohio's modified AGI: Ohio AGI plus the business income deduction. */
+  | 'stateModifiedAdjustedGrossIncome'
+  /** Ohio's modified AGI less exemptions — the figure the credits are banded on. */
+  | 'stateModifiedAdjustedGrossIncomeLessExemptions';
+
 /** How a state's own deduction is determined. */
 export type DeductionRule =
   /** A fixed table of amounts by filing status. */
@@ -92,6 +113,11 @@ export interface ExemptionRule {
    */
   readonly perExemptionSteps?: ByStatus<readonly CreditStep[]>;
   /**
+   * Which income figure {@link perExemptionSteps} is read against. Federal AGI
+   * in Maryland; Ohio's modified AGI in Ohio — see {@link IncomeMeasure}.
+   */
+  readonly stepsMeasuredOn?: IncomeMeasure;
+  /**
    * How many personal exemptions the filer or filers themselves claim, where it
    * is not the number of people on the return.
    *
@@ -134,7 +160,130 @@ export type RateRule =
    * `$150,000` of Maryland taxable income — where the rate steps from 2.96% to
    * 3.20% and the county collects the difference on all of it.
    */
-  | { readonly kind: 'rateByBracket'; readonly byStatus: ByStatus<readonly Bracket[]> };
+  | { readonly kind: 'rateByBracket'; readonly byStatus: ByStatus<readonly Bracket[]> }
+  /**
+   * **A flat dollar amount plus a rate on the excess** — Ohio's schedule,
+   * O.R.C. § 5747.02(A)(3), and the only rate structure in this package that is
+   * discontinuous.
+   *
+   * Ohio's table reads:
+   *
+   * ```text
+   * 2025   $0 - $26,050        0.000%
+   *        $26,050 - $100,000  $342.00 plus 2.750% of the excess over $26,050
+   *        over $100,000       $2,394.32 plus 3.125% of the excess over $100,000
+   *
+   * 2026   $0 - $26,050        0.000%
+   *        over $26,050        $332.00 plus 2.750% of the excess over $26,050
+   * ```
+   *
+   * The `$342.00` is not the accumulated tax of the band below it — that band is
+   * charged at 0% — so **it arrives whole on the first dollar above `$26,050`**.
+   * A filer with `$26,050` of Ohio taxable nonbusiness income owes nothing and
+   * one with `$26,050.01` owes `$342.00`. It is a fossil: before 2019 Ohio taxed
+   * the bottom of the schedule at 0.495% and up, and when the legislature zeroed
+   * those bands it kept the constants they had accumulated.
+   *
+   * The second discontinuity is newer and is an artifact of the rate cut. HB 96
+   * lowered the `$26,050` constant from `$360.69` to `$342.00` for 2025 but left
+   * the `$100,000` constant at `$2,394.32`, which is what `$360.69` chained to.
+   * So `$342.00 + 2.75% x $73,950` is `$2,375.63` and the next row starts at
+   * `$2,394.32`: **another `$18.69` on one cent of income**, at `$100,000`.
+   *
+   * Neither step can be expressed by {@link applyBrackets}, which is why this is
+   * a separate rule rather than a bracket table: a marginal walk of the same
+   * three rows understates every Ohio filer above `$26,050` by the whole
+   * constant.
+   */
+  | {
+      readonly kind: 'baseAmountSchedule';
+      readonly name: string;
+      readonly bands: readonly BaseAmountBand[];
+    };
+
+/**
+ * One row of a {@link RateRule} `baseAmountSchedule`: a flat amount charged the
+ * moment income enters the band, plus a rate on the excess over the band floor.
+ */
+export interface BaseAmountBand {
+  /** Top of the band. The last band uses `Infinity`. */
+  readonly upTo: number;
+  /** Charged in full on the first dollar in the band. Ohio's `$342.00`. */
+  readonly base: number;
+  /** Applied to income above the *previous* band's `upTo`. */
+  readonly rate: number;
+}
+
+/**
+ * A second class of income taxed at a flat rate of its own, after a deduction —
+ * Ohio's business income, O.R.C. § 5747.01(A)(31) and § 5747.02(A)(4).
+ *
+ * The distinction from {@link IncomeClassRule} is where the income comes from.
+ * Massachusetts's classes are pulled out of figures the caller supplies
+ * separately because they are taxed at other rates. Ohio's business income is
+ * already inside the state's AGI, is then **deducted out of it** up to the cap,
+ * and what is left is subtracted from the tax base and charged separately. So
+ * the deduction moves Ohio AGI and the rate applies to the remainder, and both
+ * halves have to be modelled or neither works.
+ *
+ * The `$250,000` deduction is the largest single line on an Ohio small business
+ * owner's return, and the 3% flat rate above it is the only place in this
+ * package where earning *more* of one kind of income lowers the average rate on
+ * it below the rate on wages.
+ */
+export interface BusinessIncomeRule {
+  readonly name: string;
+  /** The deduction cap — `$250,000`, halved for married filing separately. */
+  readonly deductionCap: ByStatus;
+  /** Flat rate on business income above the cap. */
+  readonly rate: number;
+}
+
+/**
+ * A credit that is a step function of retirement income — Ohio's, O.R.C.
+ * § 5747.055(B).
+ *
+ * Six steps from `$25` to `$200`, and the whole thing is gone above an income
+ * limit measured on the *return*. At `$200` it is worth less than a Columbus
+ * resident pays their municipality in a month, which is the point worth knowing
+ * about it: Ohio's headline generosity to retirees is the § 5747.01 deduction of
+ * Social Security and railroad benefits, not this.
+ */
+export interface RetirementIncomeCreditRule {
+  readonly name: string;
+  readonly steps: readonly CreditStep[];
+  /** Modified AGI less exemptions at or above which nothing is allowed. A cliff. */
+  readonly incomeLimit: number;
+}
+
+/**
+ * Ohio's joint filing credit — O.R.C. § 5747.05(E).
+ *
+ * A percentage of the tax **after every other non-refundable credit**, capped at
+ * `$650`, and allowed only where each spouse has at least `$500` of qualifying
+ * income of their own. Three things make it worth its own rule:
+ *
+ * 1. **It is a staircase on the tax base, not on the credit.** 20% below
+ *    `$25,000`, then 15%, 10% and 5% — so the dollar that crosses `$25,000` of
+ *    Ohio AGI less exemptions costs 5% of the whole tax, not 5% of one dollar.
+ * 2. **It is computed on tax already reduced by the credits above it**, which is
+ *    why the Schedule of Credits puts it on its own line below a subtotal. A
+ *    model that applies it to the gross tax overstates it for every filer who
+ *    also claims the senior, retirement or exemption credit.
+ * 3. **The `$500` test is per spouse**, and no figure on a joint return splits
+ *    income between two people — see
+ *    {@link StateIncomeTaxInput.bothSpousesHaveQualifyingIncome}.
+ */
+export interface JointFilingCreditRule {
+  readonly name: string;
+  /** Share of the remaining tax, by modified AGI less exemptions. */
+  readonly steps: readonly CreditStep[];
+  readonly cap: number;
+  /** Qualifying income each spouse must have. `$500`. */
+  readonly perSpouseIncomeThreshold: number;
+  /** Modified AGI at or above which the credit is disallowed entirely. */
+  readonly incomeLimit?: number;
+}
 
 /**
  * A state itemized deduction, taken instead of the standard one — Maryland's,
@@ -221,8 +370,16 @@ export interface SeniorCreditRule {
   /** Amount where one filer qualifies, and where two do. */
   readonly amount: ByStatus;
   readonly amountBothSpouses: ByStatus;
-  /** Federal AGI at or below which the credit is allowed at all. A cliff. */
+  /** Income at or below which the credit is allowed at all. A cliff. */
   readonly incomeLimit: ByStatus;
+  /** Which figure {@link incomeLimit} tests. Federal AGI unless stated. */
+  readonly incomeMeasure?: IncomeMeasure;
+  /**
+   * True where the credit is a flat amount **per return** however many filers
+   * qualify — Ohio's `$50`, O.R.C. § 5747.05(C), which does not double when both
+   * spouses on a joint return are 65. Maryland's does.
+   */
+  readonly onePerReturn?: boolean;
 }
 
 /**
@@ -304,12 +461,27 @@ export interface ExemptionCreditRule {
   /** Credit per filer — one for single, two for joint. */
   readonly perFiler: ByStatus;
   readonly perDependent: number;
-  readonly phaseOut: {
+  /**
+   * California's taper. Absent in Ohio, where the credit is not phased out at
+   * all — it is simply switched off by {@link incomeLimit}.
+   */
+  readonly phaseOut?: {
     /** Reduction per counted increment, per exemption claimed. */
     readonly amountPerIncrement: number;
     readonly increment: ByStatus;
     readonly start: ByStatus;
   };
+  /**
+   * Income at or above which the credit is nothing at all — Ohio's `$30,000`,
+   * O.R.C. § 5747.022.
+   *
+   * A cliff, and a steep one for its size: a family of four crossing `$30,000`
+   * of Ohio modified AGI loses `$80` of credit on one dollar of income, which is
+   * more than the 2.75% rate charges on the next `$2,900`.
+   */
+  readonly incomeLimit?: number;
+  /** Which figure {@link incomeLimit} tests. Federal AGI unless stated. */
+  readonly incomeMeasure?: IncomeMeasure;
 }
 
 /**
@@ -959,7 +1131,15 @@ export interface StateIncomeTaxDefinition {
   readonly surtax?: SurtaxRule;
   /** A surtax on capital gains alone, gated on federal AGI. Maryland only. */
   readonly capitalGainsSurtax?: CapitalGainsSurtaxRule;
+  /**
+   * A second class of income taxed at a flat rate after a deduction — Ohio's
+   * business income. It changes the state's AGI as well as the tax, so it is a
+   * rule rather than an input the caller nets themselves.
+   */
+  readonly businessIncome?: BusinessIncomeRule;
   readonly seniorCredit?: SeniorCreditRule;
+  readonly retirementIncomeCredit?: RetirementIncomeCreditRule;
+  readonly jointFilingCredit?: JointFilingCreditRule;
   readonly exemptionCredit?: ExemptionCreditRule;
   readonly taxpayerCredit?: TaxpayerCreditRule;
   readonly forgiveness?: ForgivenessRule;
