@@ -1183,7 +1183,9 @@ test('a state with no income tax answers zero and says what is still taxed', () 
 
 test('an unsupported state is an error that names the supported ones', () => {
   const message = err('state_income_tax', {
-    state: 'VA',
+    // Ohio was this example until Day 16 and Virginia until Day 17. It has to
+    // move every time the gap closes, which is the point of using a real state.
+    state: 'MN',
     filingStatus: 'single',
     federalAdjustedGrossIncome: 100_000,
     federalTaxableIncome: 84_250,
@@ -1678,5 +1680,73 @@ test('state_income_tax computes an Ohio school district, and the base it disagre
   assert.match(
     err('state_income_tax', { ...base, state: 'MI', schoolDistrict: '0203' }),
     /schoolDistrict only applies to OH/,
+  );
+});
+
+test('state_income_tax computes Virginia, its 11.5% band and its unreachable ceiling', () => {
+  const base = {
+    state: 'VA',
+    year: 2025,
+    filingStatus: 'marriedFilingJointly',
+    federalDeduction: 15_750,
+  };
+  const fed = (agi) => ({
+    federalAdjustedGrossIncome: agi,
+    federalTaxableIncome: Math.max(0, agi - 15_750),
+  });
+
+  // The age deduction is withdrawn dollar for dollar, per person, so the whole
+  // $24,000 band between the threshold and exhaustion is charged at 11.5%.
+  const low = ok('state_income_tax', { ...base, ...fed(75_000), filerAge: 70, spouseAge: 70 })
+    .structured.state;
+  const high = ok('state_income_tax', { ...base, ...fed(99_000), filerAge: 70, spouseAge: 70 })
+    .structured.state;
+  assert.equal(low.tax, 1469.8);
+  assert.equal(high.tax, 4229.8);
+  assert.equal(Number(((high.tax - low.tax) / 24_000).toFixed(4)), 0.115);
+
+  // taxableSocialSecurity moves the base and the income test together.
+  const retired = ok('state_income_tax', {
+    ...base,
+    ...fed(90_000),
+    filerAge: 70,
+    spouseAge: 70,
+    taxableSocialSecurity: 30_000,
+  }).structured.state;
+  assert.equal(retired.tax, 622);
+
+  // The spouse tax adjustment, and the $259 that cannot be reached.
+  const both = ok('state_income_tax', {
+    ...base,
+    ...fed(120_000),
+    bothSpousesHaveQualifyingIncome: true,
+  }).structured.state;
+  const one = ok('state_income_tax', { ...base, ...fed(120_000) }).structured.state;
+  assert.equal(one.tax - both.tax, 257.5);
+
+  // Virginia has no local income tax at all, which is the law rather than a gap.
+  assert.deepEqual(both.localTaxes, []);
+
+  // The three Virginia-only fields are refused elsewhere rather than dropped.
+  for (const field of ['taxableSocialSecurity', 'lesserSpouseIncome', 'federalPovertyGuideline']) {
+    assert.match(
+      err('state_income_tax', {
+        state: 'NY',
+        filingStatus: 'single',
+        ...fed(100_000),
+        [field]: 1_000,
+      }),
+      /only applies to VA/,
+    );
+  }
+  // And the shared one is refused outside the two states that ask it.
+  assert.match(
+    err('state_income_tax', {
+      state: 'NY',
+      filingStatus: 'marriedFilingJointly',
+      ...fed(100_000),
+      bothSpousesHaveQualifyingIncome: true,
+    }),
+    /only applies to OH and VA/,
   );
 });

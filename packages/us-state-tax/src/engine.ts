@@ -134,7 +134,15 @@ function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInpu
   // the standard deduction when the itemized figure falls below it produces —
   // the Maryland instructions say so in as many words, and it is the same
   // arithmetic.
-  let total = Math.max(standardDeduction(def, input), itemizedDeduction(def, input));
+  const itemized = itemizedDeduction(def, input);
+  // Virginia does not offer the larger of the two. Itemizing federally compels
+  // itemizing here, so the max() that is right everywhere else would hand a
+  // Virginia filer a deduction the statute forbids them.
+  const forced =
+    def.itemizedDeduction?.forcedWhenFederalItemizing === true &&
+    input.federal.deductionKind === 'itemized' &&
+    (input.stateItemizedDeductions ?? 0) > 0;
+  let total = forced ? itemized : Math.max(standardDeduction(def, input), itemized);
 
   if (def.payrollTaxDeduction) {
     const paid = nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid');
@@ -284,6 +292,130 @@ function seniorFilers(input: StateIncomeTaxInput, age: number): number {
   if (input.filerAge !== undefined && input.filerAge >= age) count += 1;
   if (filers === 2 && input.spouseAge !== undefined && input.spouseAge >= age) count += 1;
   return count;
+}
+
+/**
+ * Virginia's age deduction, Va. Code § 58.1-322.03(5).
+ *
+ * Two deductions with one name. Subdivision (a) gives filers born before the
+ * statute's frozen date the whole amount with **no income test at all**;
+ * subdivision (b) gives everyone else the same amount and takes it back at a
+ * dollar a dollar. Only the second is reduced, which is why the two counts are
+ * kept apart here rather than multiplied together and tested once.
+ *
+ * The income the test reads is *adjusted* federal AGI — federal AGI less the
+ * taxable Social Security and Tier 1 railroad benefits inside it — and not the
+ * Virginia AGI the deduction comes off. Two different figures, one line apart.
+ */
+function ageDeduction(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  taxableSocialSecurity: number,
+): number {
+  const rule = def.ageDeduction;
+  if (!rule) return 0;
+  const filers = filerCount(input.filingStatus);
+  let untested = 0;
+  let tested = 0;
+  const consider = (age: number | undefined): void => {
+    if (age === undefined || age < rule.minimumAge) return;
+    // Birth year from the tax year, which is how Virginia's own worksheet asks
+    // the question. It puts a filer born on 1 January 1939 — whom the statute
+    // gives the untested amount — into the tested group, and understates that
+    // one day of births by the whole deduction.
+    if (def.year - age < rule.fullAmountIfBornBefore) untested += 1;
+    else tested += 1;
+  };
+  consider(input.filerAge);
+  if (filers === 2) consider(input.spouseAge);
+  if (untested === 0 && tested === 0) return 0;
+  const adjustedFederalAgi = Math.max(0, input.federal.adjustedGrossIncome - taxableSocialSecurity);
+  const excess = Math.max(0, adjustedFederalAgi - rule.threshold[input.filingStatus]);
+  const incomeTested = Math.max(0, rule.amount * tested - excess * rule.reductionRate);
+  return rule.amount * untested + incomeTested;
+}
+
+/**
+ * Virginia's spouse tax adjustment, Form 760 line 17.
+ *
+ * The worksheet is eight lines and one idea: charge the couple as though the
+ * return had been split in two, and hand back the difference. Lines 8 and 9 pin
+ * each half at no less than the midpoint, which is the same as saying the split
+ * is taken at the midpoint when the smaller spouse is above it — so the value is
+ * maximised by an even split and falls away as the second earner shrinks.
+ *
+ * Its maximum is a constant: the tax on the first `$17,000` at the flat top rate
+ * less the tax on it at the graduated rates, which is `$257.50`. `cap` is the
+ * `$259` the Commonwealth publishes and it is never reached.
+ */
+function spouseTaxAdjustment(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  taxableIncome: number,
+  grossTax: number,
+): { readonly amount: number; readonly assumedEvenSplit: boolean } {
+  const rule = def.spouseTaxAdjustment;
+  const none = { amount: 0, assumedEvenSplit: false };
+  if (!rule || def.rate.kind !== 'brackets') return none;
+  if (input.filingStatus !== 'marriedFilingJointly') return none;
+  // Both spouses must have had income of their own. Same question Ohio's joint
+  // filing credit asks, and the same answer when it is not asked: nothing.
+  if (input.bothSpousesHaveQualifyingIncome !== true) return none;
+  const brackets = def.rate.byStatus[input.filingStatus];
+  const half = taxableIncome / rule.divisor;
+  const supplied = input.lesserSpouseIncome;
+  const assumedEvenSplit = supplied === undefined;
+  const smaller = assumedEvenSplit
+    ? half
+    : Math.max(0, nonNegative(supplied, 'lesserSpouseIncome'));
+  const tax = (amount: number): number => applyBrackets(Math.max(0, amount), brackets).tax;
+  const lower = Math.min(tax(smaller), tax(half));
+  const upper = Math.max(tax(taxableIncome - smaller), tax(half));
+  return {
+    amount: Math.min(Math.max(0, grossTax - (lower + upper)), rule.cap),
+    assumedEvenSplit,
+  };
+}
+
+/** The federal poverty guideline Virginia's low income credit is a cliff at. */
+function povertyGuideline(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  const rule = def.lowIncomeCredit;
+  if (!rule) return 0;
+  if (input.federalPovertyGuideline !== undefined) {
+    return nonNegative(input.federalPovertyGuideline, 'federalPovertyGuideline');
+  }
+  const size = filerCount(input.filingStatus) + dependentCount(input);
+  return (
+    rule.povertyGuideline.firstPerson + rule.povertyGuideline.additionalPerson * (size - 1)
+  );
+}
+
+/**
+ * Virginia's Credit for Low Income Individuals, Va. Code § 58.1-339.8(B)(1).
+ *
+ * `$300` an exemption, and unavailable to a filer who claimed any of four other
+ * Virginia benefits — § 58.1-339.8(D). Two of the four are visible from this
+ * package's inputs and are enforced; the other two are subtractions a caller
+ * nets themselves, and the state's notes say so.
+ */
+function lowIncomeCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  stateAgi: number,
+  ageDeductionTaken: number,
+): number {
+  const rule = def.lowIncomeCredit;
+  if (!rule) return 0;
+  if (ageDeductionTaken > 0) return 0;
+  if (def.exemption?.perSeniorFiler !== undefined || def.exemption?.perBlindOrDisabledFiler) {
+    const seniors = def.exemption.seniorAge !== undefined
+      ? seniorFilers(input, def.exemption.seniorAge)
+      : 0;
+    const blind = input.blindOrDisabled ?? 0;
+    if (seniors > 0 || blind > 0) return 0;
+  }
+  if (stateAgi > povertyGuideline(def, input)) return 0;
+  return rule.perExemption * (filerCount(input.filingStatus) + dependentCount(input));
 }
 
 /**
@@ -864,7 +996,28 @@ function computeOnce(
       computedSubtractions.push({ name: 'Business income deduction', amount: businessDeduction });
     }
   }
-  const subtractions = given + exclusion + businessDeduction;
+  // Virginia takes the taxable Social Security inside federal AGI straight back
+  // out, and needs the same figure again for the age deduction's income test —
+  // which is why it is an input here rather than something the caller nets into
+  // `subtractions` the way Illinois, Kentucky and North Carolina ask for it.
+  const taxableSocialSecurity = nonNegative(
+    input.taxableSocialSecurity,
+    'taxableSocialSecurity',
+  );
+  let socialSecuritySubtraction = 0;
+  if (def.subtractsTaxableSocialSecurity && taxableSocialSecurity > 0) {
+    socialSecuritySubtraction = taxableSocialSecurity;
+    computedSubtractions.push({
+      name: 'Social Security and Tier 1 railroad retirement benefits',
+      amount: socialSecuritySubtraction,
+    });
+  }
+  const ageDeductionTaken = ageDeduction(def, input, taxableSocialSecurity);
+  if (def.ageDeduction && ageDeductionTaken > 0) {
+    computedSubtractions.push({ name: def.ageDeduction.name, amount: ageDeductionTaken });
+  }
+  const subtractions =
+    given + exclusion + businessDeduction + socialSecuritySubtraction + ageDeductionTaken;
   const stateAgi = Math.max(0, base + additions - subtractions);
   const modifiedAgi = stateAgi + businessDeduction;
 
@@ -985,6 +1138,21 @@ function computeOnce(
   const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
 
   const credits: CreditDetail[] = [];
+  // Virginia's Form 760 subtracts the spouse tax adjustment on line 17, before
+  // every credit, and the Credit for Low Income Individuals is capped at what is
+  // left — so this one is genuinely first rather than merely listed first.
+  const spouse = belowThreshold
+    ? { amount: 0, assumedEvenSplit: false }
+    : spouseTaxAdjustment(def, input, taxableIncome, grossTax);
+  if (def.spouseTaxAdjustment) {
+    credits.push({
+      name: spouse.assumedEvenSplit && spouse.amount > 0
+        ? `${def.spouseTaxAdjustment.name} (assumed: an even split of taxable income between the spouses — pass lesserSpouseIncome for the exact figure)`
+        : def.spouseTaxAdjustment.name,
+      amount: spouse.amount,
+      refundable: false,
+    });
+  }
   // Ohio's Schedule of Credits runs retirement, then senior, then the $20
   // exemption credit, then a SUBTOTAL, and only then the joint filing credit —
   // which is a percentage of what is left. So the order here is the form's, and
@@ -1054,13 +1222,27 @@ function computeOnce(
     // state earned income credits.
     const childless = rule.childlessMatchRate !== undefined && unmarriedChildless(input);
     const matched = (childless ? rule.childlessMatchRate! : rule.matchRate) * federalCredit;
-    credits.push({
-      name: rule.name,
-      // New York pays the match less the household credit, so the two are not
-      // additive — Tax Law § 606(d)(1).
-      amount: rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched,
-      refundable: rule.refundable,
-    });
+    // Virginia offers a flat per-exemption credit as an ALTERNATIVE to the
+    // match, not in addition to it, and the filer takes whichever leaves them
+    // better off. Which one that is turns on refundability rather than on size:
+    // $300 a head is capped at the tax, the match is not, so a family under the
+    // poverty guideline with no Virginia tax is better off with the smaller
+    // number. The engine compares what each is actually worth.
+    const alternative = def.lowIncomeCredit
+      ? lowIncomeCredit(def, input, stateAgi, ageDeductionTaken)
+      : 0;
+    const alternativeWorth = Math.min(alternative, Math.max(0, grossTax - spouse.amount));
+    if (def.lowIncomeCredit && alternativeWorth > matched) {
+      credits.push({ name: def.lowIncomeCredit.name, amount: alternative, refundable: false });
+    } else {
+      credits.push({
+        name: rule.name,
+        // New York pays the match less the household credit, so the two are not
+        // additive — Tax Law § 606(d)(1).
+        amount: rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched,
+        refundable: rule.refundable,
+      });
+    }
     if (rule.refundableMatchRate !== undefined) {
       // The floor under the non-refundable match above. Maryland's two published
       // earned income credits are one credit: the 50% (or 100%) half is capped at

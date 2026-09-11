@@ -44,11 +44,11 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 27 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 27);
+test('README: 28 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 28);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Six graduated, eleven flat, one on a schedule of its own, nine with none.
+  // Seven graduated, eleven flat, one on a schedule of its own, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
@@ -59,18 +59,18 @@ test('README: 27 states, 2025 and 2026, nine with no income tax', () => {
   const baseAmount = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'baseAmountSchedule',
   );
-  assert.deepEqual(graduated, ['CA', 'ID', 'MD', 'MS', 'NJ', 'NY']);
+  assert.deepEqual(graduated, ['CA', 'ID', 'MD', 'MS', 'NJ', 'NY', 'VA']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    27,
+    28,
   );
-  // Eighteen taxing states — the count the README quotes when it says seven of
+  // Nineteen taxing states — the count the README quotes when it says seven of
   // them cut their rate for 2026.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 18);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 19);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -537,7 +537,7 @@ test('README: the provisional and published lists for 2026', () => {
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
   assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'IL', 'KY', 'MD', 'MI', 'OH', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MA', 'MS', 'NC', 'NJ', 'NY', 'PA']);
+  assert.deepEqual(published, ['AZ', 'GA', 'IN', 'MA', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -553,7 +553,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['VA', 'MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
+  for (const state of ['MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'CT', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -928,4 +928,68 @@ test('README: the three Ohio bases, and the deferral they disagree about', () =>
   for (const rate of OHIO_SCHOOL_DISTRICT_RATES.values()) {
     assert.ok(Math.abs(rate / 0.0025 - Math.round(rate / 0.0025)) < 1e-9);
   }
+});
+
+test('README: every Virginia figure quoted above', () => {
+  const fed = (agi) => ({
+    adjustedGrossIncome: agi,
+    taxableIncome: Math.max(0, agi - 15_750),
+    deduction: 15_750,
+    deductionKind: 'standard',
+  });
+  const va = (agi, opts = {}) =>
+    stateIncomeTax({
+      state: 'VA',
+      year: 2025,
+      filingStatus: 'single',
+      federal: fed(agi),
+      ...opts,
+    });
+
+  // "$2,635.90 on $60,000 — 4.39% effective, 5.75% marginal"
+  const single = va(60_000);
+  money(single.tax, 2_635.9);
+  assert.equal((single.effectiveRate * 100).toFixed(2), '4.39');
+  money(single.marginalRate, 0.0575);
+
+  // "5271.80 on $120,000 / the same couple on one income 5529.30 / 257.50"
+  const joint = { filingStatus: 'marriedFilingJointly' };
+  money(va(120_000, { ...joint, bothSpousesHaveQualifyingIncome: true }).tax, 5_271.8);
+  money(va(120_000, joint).tax, 5_529.3);
+  money(va(120_000, joint).tax - va(120_000, { ...joint, bothSpousesHaveQualifyingIncome: true }).tax, 257.5);
+
+  // "$75,000 $1,469.80 / $99,000 $4,229.80 / $2,760.00 on $24,000 — 11.50%"
+  const older = { ...joint, filerAge: 70, spouseAge: 70 };
+  money(va(75_000, older).tax, 1_469.8);
+  money(va(99_000, older).tax, 4_229.8);
+  money(va(99_000, older).tax - va(75_000, older).tax, 2_760);
+  money((va(99_000, older).tax - va(75_000, older).tax) / 24_000, 0.115);
+
+  // "622.00 on $90,000 ... 3194.80 with taxableSocialSecurity left out"
+  money(va(90_000, { ...older, taxableSocialSecurity: 30_000 }).tax, 622);
+  money(va(90_000, older).tax, 3_194.8);
+
+  // The two-floors table, in the order the README prints it.
+  const jump = (agi, opts) => va(agi + 1, opts).tax - va(agi, opts).tax;
+  money(jump(11_950), 0);
+  money(jump(15_650), 168.55);
+  money(jump(21_150, joint), 0);
+  money(jump(23_900, joint), 106.23);
+  const four = { ...joint, dependents: 2 };
+  money(jump(23_900, four), 0);
+  money(jump(32_150, four), 416.55);
+
+  // "$383.50 in refund on both sides of the guideline"
+  const withEitc = stateIncomeTax({
+    state: 'VA',
+    year: 2025,
+    filingStatus: 'marriedFilingJointly',
+    dependents: 2,
+    federal: { ...fed(32_150), earnedIncomeCredit: 4_000 },
+  });
+  money(withEitc.tax, -383.5);
+
+  // "va.localTaxes; // []"
+  assert.deepEqual(single.localTaxes, []);
+  money(single.totalTax, single.tax);
 });

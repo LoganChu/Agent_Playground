@@ -1,0 +1,84 @@
+# Publish one or more packages to npm, from a button rather than from a laptop.
+#
+# This exists because publishing has been the single open ask in
+# NOTES-FOR-HUMAN.md since Day 6, and the shape of the ask was three `npm
+# publish` runs on a machine with the right Node, the right checkout and a
+# logged-in npm session. This replaces that with: add one secret once, then
+# Actions -> Release -> Run workflow.
+#
+# It refuses to publish anything that has not just passed its own tests, and it
+# defaults to a dry run, so pressing the button by accident publishes nothing.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Which packages to publish (comma-separated, or "all")'
+        required: true
+        default: 'all'
+        type: string
+      dry_run:
+        description: 'Dry run — build, test and pack, but do not publish'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm provenance: the published package carries a signed
+      # attestation linking it to this workflow run and this commit.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Resolve the package list
+        id: list
+        run: |
+          if [ "${{ inputs.packages }}" = "all" ]; then
+            echo 'names=us-federal-tax us-state-tax us-tax-mcp' >> "$GITHUB_OUTPUT"
+          else
+            echo "names=$(echo '${{ inputs.packages }}' | tr ',' ' ')" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build, test and publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          for name in ${{ steps.list.outputs.names }}; do
+            dir="packages/$name"
+            if [ ! -d "$dir" ]; then
+              echo "::error::no such package: $name"
+              exit 1
+            fi
+            echo "::group::$name"
+            (
+              cd "$dir"
+              npm install
+              npm run typecheck
+              # Nothing is published that has not just passed its own suite in
+              # this same checkout. The MCP server vendors both engines' sources
+              # at build time, so this is also the only place the three are
+              # guaranteed to agree.
+              npm test
+              version="$(node -p "require('./package.json').version")"
+              if [ "${{ inputs.dry_run }}" = "true" ]; then
+                npm pack --dry-run
+                echo "DRY RUN: would publish $name@$version"
+              elif npm view "$name@$version" version >/dev/null 2>&1; then
+                echo "$name@$version is already on npm; skipping"
+              else
+                npm publish --provenance --access public
+                echo "published $name@$version"
+              fi
+            )
+            echo "::endgroup::"
+          done

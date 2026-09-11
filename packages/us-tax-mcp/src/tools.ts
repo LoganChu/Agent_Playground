@@ -1060,25 +1060,25 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 27 states plus NEW YORK ' +
-    'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties, all 24 MICHIGAN cities and all ' +
-    '679 OHIO municipalities and all 214 taxing OHIO school districts. Call estimate_federal_tax ' +
-    'FIRST and pass its ' +
-    'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a state ' +
-    'starts from decides the answer. Eight states need more than that. NY: pass locality. MD and IN: pass ' +
-    'county — every resident of both owes one and it is two fifths of the bill — plus, in MD, netCapitalGain ' +
-    'and stateItemizedDeductions. OH: pass city and qualifyingWages, which is box 5 of the W-2 and NOT ' +
-    'federal AGI, and schoolDistrict — Ohio taxes one paycheck on THREE bases and they disagree, so a ' +
-    '401(k) deferral is inside the municipal tax and outside the school district one. MI: pass city, and ' +
-    'cityIncome, which is NOT federal AGI. CA: pass ' +
-    'earnedIncome and dependentAges. NJ: newJerseyGrossIncome is ' +
-    'REQUIRED, plus filerAge and retirementIncome over 62. MA: massachusettsFivePercentIncome is REQUIRED ' +
-    'and is NOT federal AGI, plus shortTermCapitalGains and collectiblesGains, taxed at 8.5% and 12% rather ' +
-    'than the 5% every rate table reports. Reports the true marginal rate by rerunning the whole return a ' +
-    'dollar higher, which is not the statutory rate wherever a credit phases out or a cliff bites. Every ' +
-    'result carries that state\'s own notes and statutes, so the conformity detail arrives with the answer ' +
-    'rather than here. Does NOT cover a state outside the enum, local tax outside NY, MD, IN, MI and OH, ' +
-    'or state withholding. An unlisted state is an error, not a zero.',
+    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 28 states plus NEW YORK ' +
+    'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties, all 24 MICHIGAN cities, all ' +
+    '679 OHIO municipalities and all 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and ' +
+    'pass its adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure ' +
+    'a state starts from decides the answer. Nine states need more. NY: locality. MD and IN: county — every ' +
+    'resident owes one and it is two fifths of the bill — plus netCapitalGain and stateItemizedDeductions ' +
+    'in MD. OH: city and qualifyingWages, which is box 5 of the W-2 and NOT federal AGI, and ' +
+    'schoolDistrict; Ohio taxes one paycheck on THREE bases that disagree, so a 401(k) deferral is inside ' +
+    'the municipal tax and outside the school district one. MI: city and cityIncome, which is NOT federal ' +
+    'AGI. VA: filerAge, spouseAge and taxableSocialSecurity, because the age deduction is withdrawn DOLLAR ' +
+    'FOR DOLLAR and puts a couple both 65 at 11.5%, twice the top rate — and ' +
+    'bothSpousesHaveQualifyingIncome for the spouse tax adjustment. CA: earnedIncome and dependentAges. ' +
+    'NJ: newJerseyGrossIncome is REQUIRED, plus filerAge and retirementIncome over 62. MA: ' +
+    'massachusettsFivePercentIncome is REQUIRED and is NOT federal AGI, plus shortTermCapitalGains and ' +
+    'collectiblesGains, taxed at 8.5% and 12% rather than the 5% every rate table reports. Reports the ' +
+    'true marginal rate by rerunning the whole return a dollar higher, which is not the statutory rate ' +
+    'wherever a credit phases out or a cliff bites. Every result carries that state\'s own notes and ' +
+    'statutes. Does NOT cover a state outside the enum, local tax outside NY, MD, IN, MI and OH, or state ' +
+    'withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
     type: 'object',
     required: ['state', 'filingStatus', 'federalAdjustedGrossIncome', 'federalTaxableIncome'],
@@ -1199,40 +1199,40 @@ const stateTool: ToolDefinition = {
       county: {
         type: 'string',
         description:
-          'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every MD and every IN resident owes a county tax on the same taxable income — 2.25-3.30% in Maryland, 0.5-3.00% in Indiana, two fifths of the bill. "Baltimore" alone is an error; the City and the County differ.',
+          'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every resident of both owes a county tax on the same taxable income — 2.25-3.30% in MD, 0.5-3.00% in IN, two fifths of the bill. "Baltimore" alone errors: the City and the County differ.',
       },
       city: {
         type: 'string',
         description:
-          'MI and OH only: the city or municipality the filer LIVES in. MI has 24 that levy — Detroit 2.4%, Highland Park 2.0%, Grand Rapids and Saginaw 1.5%, twenty others 1% — and most Michiganders live in none. OH has 679 at 0.45-3.00% and most Ohioans live in one. An unlisted name errors, listing them.',
+          'MI and OH only: the city or municipality the filer LIVES in. MI has 24 that levy, Detroit at 2.4% and twenty at 1%, and most Michiganders live in none; OH has 679 at 0.45-3.00% and most Ohioans live in one. An unlisted name errors, listing them.',
       },
       cityIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'MI only: income as the CITY measures it, before its $600-$3,000 exemptions — no pensions, IRA distributions, Social Security, unemployment or military pay, none of which any city taxes. Omitted, it is derived from federal AGI less retirementIncome and runs high.',
+          'MI only: income as the CITY measures it, before its $600-$3,000 exemptions — no pensions, IRA distributions, Social Security, unemployment or military pay. Omitted, it is derived from federal AGI less retirementIncome and runs high.',
       },
       qualifyingWages: {
         type: 'number',
         minimum: 0,
         description:
-          'OH only, REQUIRED with city: O.R.C. 718.01(R) wages — box 5 of the W-2, which a 401(k) deferral does NOT reduce — plus a resident\'s net business or rental profit. Interest, dividends, capital gains, pensions and Social Security are outside it. Federal AGI is a different figure, not an approximation.',
+          'OH only, REQUIRED with city: O.R.C. 718.01(R) wages — box 5 of the W-2, which a 401(k) deferral does NOT reduce — plus a resident\'s net business or rental profit. Interest, dividends, gains, pensions and Social Security are outside it, so federal AGI is a different figure.',
       },
       businessIncome: {
         type: 'number',
         minimum: 0,
         description:
-          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
+          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so Schedule C profit and wages of the same size are not the same tax. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
       },
       bothSpousesHaveQualifyingIncome: {
         type: 'boolean',
         description:
-          'OH only: true where EACH spouse on a joint return has $500+ of Ohio AGI less interest, dividends, capital gains and rent. Gates the joint filing credit, up to $650. Omitted, that credit is zero.',
+          'OH and VA: true where EACH spouse on a joint return had income of their own — in OH, $500+ of Ohio AGI less interest, dividends, capital gains and rent. Gates the OH joint filing credit (up to $650) and the VA spouse tax adjustment ($257.50). Omitted, both are zero.',
       },
       workCity: {
         type: 'string',
         description:
-          'MI and OH only: a DIFFERENT taxing city the filer worked in, charged on workCityEarnings. MI halves its rate for a nonresident and the home city credits that tax, capped at its OWN nonresident rate. OH halves nothing and has no statutory credit — the ordinance decides.',
+          'MI and OH only: a DIFFERENT taxing city the filer worked in, charged on workCityEarnings. MI halves the rate for a nonresident and caps the home credit at its OWN nonresident rate; OH halves nothing and has no statutory credit.',
       },
       workCityEarnings: {
         type: 'number',
@@ -1245,12 +1245,12 @@ const stateTool: ToolDefinition = {
         minimum: 0,
         maximum: 1,
         description:
-          'OH only: the share of the workCity tax the HOME municipality credits — Ohio\'s own "Credit Rate" column. Omitted with residentCreditLimitRate, the modal 100%-capped-at-the-home-rate ordinance is assumed and the result says so.',
+          'OH only: the share of the workCity tax the HOME municipality credits — Ohio\'s "Credit Rate" column. Omitted, the modal 100%-capped-at-the-home-rate ordinance is assumed and the result says so.',
       },
       schoolDistrict: {
         type: 'string',
         description:
-          'OH only: the four-digit district the filer LIVES in ("0203" is Bluffton EVSD). 214 levy 0.25-2.00% on a separate SD 100, over the state and municipal taxes: 146 on modified AGI less exemptions, which ADDS THE BUSINESS INCOME DEDUCTION BACK, and 68 on earnedIncome alone with no deductions or exemptions, which they REQUIRE. Most Ohioans live in one that levies nothing.',
+          'OH only: the four-digit district the filer LIVES in ("0203" is Bluffton EVSD). 214 levy 0.25-2.00% on a separate SD 100, over the state and municipal taxes — 146 on modified AGI less exemptions, which ADDS THE BUSINESS INCOME DEDUCTION BACK, and 68 on earnedIncome alone, which they REQUIRE. Most Ohioans live in one that levies nothing.',
       },
       residentCreditLimitRate: {
         type: 'number',
@@ -1263,12 +1263,12 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'MD only: federal Schedule A less the state and local INCOME taxes in it. Needs federalItemized, and is reduced by 7.5% of federal AGI over $200,000 ($100,000 separate).',
+          'MD and VA: federal Schedule A less the state and local INCOME taxes in it. Needs federalItemized. MD reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate). VA COMPELS it: a federal itemizer may not take the state standard deduction even when it is larger.',
       },
       federalItemized: {
         type: 'boolean',
         description:
-          'Whether the filer itemized federally. MD allows itemizing only if they did, so the OBBBA standard deduction ended it for many.',
+          'Whether the filer itemized federally. MD allows itemizing only if they did, so the OBBBA standard deduction ended it for many. VA goes further and REQUIRES itemizing here if they did.',
       },
       netCapitalGain: {
         type: 'number',
@@ -1276,16 +1276,34 @@ const stateTool: ToolDefinition = {
         description:
           'MD only: net capital gain in taxable income, surtaxed 2% when federal AGI exceeds $350,000. Exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains.',
       },
+      taxableSocialSecurity: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'VA only: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. Virginia subtracts it AND tests the age deduction on federal AGI less it, so it moves the base and the test together. Do not also net it into stateSubtractions.',
+      },
+      lesserSpouseIncome: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'VA only: line 5 of the Spouse Tax Adjustment Worksheet — the SMALLER spouse\'s Virginia AGI less their exemptions. Omitted, an even split is assumed, which is the adjustment\'s $257.50 maximum, and the result says so.',
+      },
+      federalPovertyGuideline: {
+        type: 'number',
+        minimum: 0,
+        description:
+          'VA only: overrides the HHS guideline the $300-a-head Credit for Low Income Individuals is a cliff at. Pass 0 to switch it off for a filer barred by a military or state-employee subtraction this server cannot see.',
+      },
       filerAge: {
         type: 'integer',
         minimum: 0,
         description:
-          'Filer age at year end. NJ: the $1,000 exemption at 65 and the retirement exclusion at 62, which omitting makes a retiree return far too high. MD: the $1,000 exemption and the $1,000-$1,750 senior credit, both at 65.',
+          'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint) of federal AGI less taxable Social Security — 11.5% marginal, twice the top rate. NJ: a $1,000 exemption at 65, the retirement exclusion at 62. MD: a $1,000 exemption and the senior credit, both at 65. Omitted, a retiree return runs far too high.',
       },
       spouseAge: {
         type: 'integer',
         minimum: 0,
-        description: 'Spouse age at year end, joint returns. NJ gives the $1,000 senior exemption per person.',
+        description: 'Spouse age at year end, joint returns. VA gives a SECOND $12,000 age deduction over the same band, so two 65-year-olds face 11.5% for $24,000. NJ: the senior exemption is per person.',
       },
       blindOrDisabled: {
         type: 'integer',
@@ -1425,14 +1443,14 @@ const stateTool: ToolDefinition = {
     if (federalItemized !== undefined && typeof federalItemized !== 'boolean') {
       throw new ToolInputError('federalItemized must be true or false.');
     }
-    for (const [field, value] of [
-      ['stateItemizedDeductions', itemized],
-      ['netCapitalGain', capitalGain],
-      ['federalItemized', federalItemized],
+    for (const [field, value, states] of [
+      ['stateItemizedDeductions', itemized, ['MD', 'VA']],
+      ['netCapitalGain', capitalGain, ['MD']],
+      ['federalItemized', federalItemized, ['MD', 'VA']],
     ] as const) {
-      if (value !== undefined && state !== 'MD') {
+      if (value !== undefined && !(states as readonly string[]).includes(state)) {
         throw new ToolInputError(
-          `${field} only applies to MD, and ${state} was requested.`,
+          `${field} only applies to ${states.join(' and ')}, and ${state} was requested.`,
         );
       }
     }
@@ -1453,8 +1471,9 @@ const stateTool: ToolDefinition = {
         'stateItemizedDeductions needs federalItemized: true. Maryland allows itemizing only ' +
           'if the filer itemized federally (§ 10-218(b)) — which is why the larger federal ' +
           'standard deduction ended the Maryland itemized deduction for filers whose Maryland ' +
-          'deductions never changed. Pass the standard-deduction return instead, or set ' +
-          'federalItemized.',
+          'deductions never changed — and Virginia COMPELS it (§ 58.1-322.03(1)(a)), barring ' +
+          'the state standard deduction outright. Pass the standard-deduction return instead, ' +
+          'or set federalItemized.',
       );
     }
 
@@ -1479,6 +1498,9 @@ const stateTool: ToolDefinition = {
     const qualifyingWages = readNumber(source, 'qualifyingWages');
     const businessIncome = readNumber(source, 'businessIncome');
     const bothSpouses = source['bothSpousesHaveQualifyingIncome'];
+    const taxableSocialSecurity = readNumber(source, 'taxableSocialSecurity');
+    const lesserSpouseIncome = readNumber(source, 'lesserSpouseIncome');
+    const federalPovertyGuideline = readNumber(source, 'federalPovertyGuideline');
     const residentCreditRate = readNumber(source, 'residentCreditRate');
     const residentCreditLimitRate = readNumber(source, 'residentCreditLimitRate');
     const schoolDistrict = source['schoolDistrict'];
@@ -1498,7 +1520,6 @@ const stateTool: ToolDefinition = {
       ['cityIncome', cityIncome, ['MI']],
       ['qualifyingWages', qualifyingWages, ['OH']],
       ['businessIncome', businessIncome, ['OH']],
-      ['bothSpousesHaveQualifyingIncome', bothSpouses, ['OH']],
       ['residentCreditRate', residentCreditRate, ['OH']],
       ['residentCreditLimitRate', residentCreditLimitRate, ['OH']],
       ['schoolDistrict', schoolDistrict, ['OH']],
@@ -1526,6 +1547,28 @@ const stateTool: ToolDefinition = {
     }
     if (bothSpouses !== undefined && typeof bothSpouses !== 'boolean') {
       throw new ToolInputError('bothSpousesHaveQualifyingIncome must be true or false.');
+    }
+    // Two states ask the same question of a joint return and pay differently for
+    // the answer: Ohio's joint filing credit is a percentage of the tax, capped
+    // at $650, and Virginia's spouse tax adjustment is a flat $257.50 because
+    // Virginia never doubled its brackets.
+    if (bothSpouses !== undefined && state !== 'OH' && state !== 'VA') {
+      throw new ToolInputError(
+        `bothSpousesHaveQualifyingIncome only applies to OH and VA, and ${state} was requested.`,
+      );
+    }
+    for (const [field, value] of [
+      ['taxableSocialSecurity', taxableSocialSecurity],
+      ['lesserSpouseIncome', lesserSpouseIncome],
+      ['federalPovertyGuideline', federalPovertyGuideline],
+    ] as const) {
+      if (value !== undefined && state !== 'VA') {
+        throw new ToolInputError(
+          `${field} only applies to VA, and ${state} was requested. Virginia is the one state ` +
+            `here that needs the Social Security figure rather than accepting it through ` +
+            `subtractions, because its age deduction is tested on federal AGI less that number.`,
+        );
+      }
     }
     // Refused rather than ignored, for the same reason stateItemizedDeductions is:
     // a nonresident city tax with no wage figure is silently zero, and a model
@@ -1618,6 +1661,9 @@ const stateTool: ToolDefinition = {
       ...(workCity !== undefined ? { workCity: workCity as string } : {}),
       ...(workCityEarnings !== undefined ? { workCityEarnings } : {}),
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),
+      ...(taxableSocialSecurity !== undefined ? { taxableSocialSecurity } : {}),
+      ...(lesserSpouseIncome !== undefined ? { lesserSpouseIncome } : {}),
+      ...(federalPovertyGuideline !== undefined ? { federalPovertyGuideline } : {}),
       ...(capitalGain !== undefined ? { netCapitalGain: capitalGain } : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
       ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),

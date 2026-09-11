@@ -57,6 +57,7 @@ export type StateCode =
   | 'TN'
   | 'TX'
   | 'UT'
+  | 'VA'
   | 'WA'
   | 'WY';
 
@@ -461,6 +462,46 @@ export interface StateIncomeTaxInput {
    * package can give for the same filer.
    */
   readonly retirementIncome?: number;
+  /**
+   * Social Security and Tier 1 railroad retirement benefits **as included in
+   * federal AGI** — Form 1040 line 6b, not line 6a.
+   *
+   * Virginia is the state in this package that needs the figure rather than
+   * accepting it through `subtractions`, and it needs it twice over:
+   *
+   * 1. Virginia does not tax it, so it comes off the base; and
+   * 2. Virginia's age deduction is withdrawn against *adjusted* federal AGI,
+   *    which is federal AGI **less** this number. A retiree with `$30,000` of
+   *    taxable benefits is tested `$30,000` lower than their 1040 says, which at
+   *    the 100% withdrawal rate is up to `$24,000` of deduction — worth
+   *    `$1,380` of Virginia tax on a joint return where both spouses are 65.
+   *
+   * Do not also include it in `subtractions` on a Virginia return; it would be
+   * subtracted twice.
+   */
+  readonly taxableSocialSecurity?: number;
+  /**
+   * The federal poverty guideline for this household, where the caller knows it.
+   *
+   * Virginia's Credit for Low Income Individuals is a cliff at the guideline for
+   * the filer's family size. This package computes it from the HHS contiguous-US
+   * table for the tax year; pass this to override — an Alaska or Hawaii address,
+   * or a family size counted differently from `1 + filers + dependents`.
+   */
+  readonly federalPovertyGuideline?: number;
+  /**
+   * Line 5 of Virginia's Spouse Tax Adjustment Worksheet: **the smaller of the
+   * two spouses' Virginia adjusted gross income, less the exemptions claimed for
+   * that spouse.**
+   *
+   * Supplied only on a Virginia joint return where
+   * {@link bothSpousesHaveQualifyingIncome} is true. Leave it out and the
+   * adjustment is computed on an even split — its maximum, `$257.50` — and the
+   * credit line says so. The assumption costs a couple whose second earner is
+   * small: at `$60,000` of joint taxable income and a second spouse with
+   * `$5,000` of income the true adjustment is `$167.50`, not `$257.50`.
+   */
+  readonly lesserSpouseIncome?: number;
   /**
    * Property tax paid in the year on a principal residence in the state.
    *

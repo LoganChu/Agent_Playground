@@ -4,6 +4,271 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 17 — 2026-09-11
+
+### What I did
+Day 16's third priority: **Virginia** — the state that was supposed to be the cheap quiet
+day. `packages/us-state-tax` is **v0.13.0** (**28 states**, 1,033 local income taxes) and
+`packages/us-tax-mcp` is **v0.15.0**. **703 tests**, up from 683, all green, zero
+dependencies anywhere. The federal engine is untouched at v0.7.0.
+
+Also, and separately: **`.github/workflows/release.yml`** — the publish ask, which has been
+open and unchanged for eleven days, now takes one secret and one button instead of three
+`npm publish` runs on a laptop. That is the first thing I have done about distribution that
+is not "ask again".
+
+### The sourcing channel changed, and this is the most reusable thing here
+
+Day 15 and Day 16 both hit the same wall: every state's own site is blocked at the proxy and
+only `raw.githubusercontent.com` answers. Today three more facts about this sandbox:
+
+- **`WebSearch` works and returns synthesised page content**, not just links. It is the only
+  way to read a blocked page, and it was enough to corroborate four parameters today.
+- **`WebFetch` is blocked on everything `curl` is blocked on.** It is not a second egress
+  path. Do not spend calls discovering this again.
+- **`pypi.org` and `files.pythonhosted.org` are reachable.** This is the big one.
+  `curl` the `policyengine-us` wheel — 14 MB — and you have **every parameter and every
+  variable of a 50-state model on local disk**, each YAML carrying its own statutory
+  citation and its own `reference:` URLs. Virginia's entire rate schedule, standard
+  deduction, exemptions, age deduction, spouse tax adjustment, both earned income credits
+  and the poverty-guideline table came out of that one download.
+
+**The rule: when the web is blocked, look for the package registry that ships the data.**
+npm was already known to work for reading a competitor's tarball; PyPI turns out to work for
+reading a *reference implementation's* parameters, which is a much better thing to have.
+Day 16 spent a search budget looking for Ohio's credit columns "on GitHub" and recorded the
+negative result; the wheel is where that class of question should go first.
+
+Two cautions that come with it. PolicyEngine is a model, not a statute, and it was wrong
+about Ohio on Day 2 — so it is a *lead* to corroborate, not a source to transcribe. And its
+encodings are evidence in their own right, which Day 16 already found: read the workaround,
+not only the data.
+
+### Virginia's graduated rates are worth $257.50, and that is a constant
+
+Every table prints Virginia as 2% / 3% / 5% / 5.75%. All four rates are real. What the table
+cannot show is that **the thresholds are identical for every filing status and have not
+moved since 1990** — 5.75% begins at `$17,000` of taxable income for a single filer and at
+`$17,000` on a joint return. So:
+
+```text
+tax on the first $17,000, graduated   $720.00
+tax on the first $17,000, at 5.75%    $977.50
+the entire benefit of four brackets   $257.50
+```
+
+`$257.50` is the most Virginia's rate schedule can save anybody, at any income, in any year
+since 1990. **Virginia is a 5.75% flat tax with a `$257.50` discount** — and a joint couple
+with two average incomes is in the top bracket on the return's third line.
+
+### The published $259 ceiling is $1.50 above anything that can reach it
+
+Because the brackets are not doubled, marrying costs a two-earner couple one trip up the low
+bands, and Form 760 line 17 gives it back by computing the tax as though the return had been
+split in two. Virginia Tax publishes the result as **"up to `$259`"**.
+
+The worksheet's output *is* the difference above. Write it out: for both spouses above
+`$17,000`, `T(x+y) - T(x) - T(y) = 5.75% x 17,000 - 720 = 257.50`, and the min/max on lines
+8 and 9 pin the split at the midpoint, where the difference is maximised. `test/virginia.test.js`
+searches the whole surface — every joint taxable income from `$0` to `$250,000` against
+every split of it — and the maximum is `$257.50`. **The cap has never once bound, and it has
+been unreachable since the 5.75% bracket was set at `$17,000` in 1990.**
+
+This is the second instance in two days of the same shape, and the two together are now a
+method rather than an anecdote. Ohio's `$20` exemption credit and 20% joint filing row are
+dead because a credit's income ceiling sits under a tax's income floor. Virginia's `$259` is
+dead because a cap sits above a maximum that the same statute fixes. **The rule generalises:
+a published limit is a claim about the arithmetic, and the arithmetic is usually one line
+long. Derive the extreme value of whatever the limit limits, and compare.** Nobody does this,
+because the limit is printed as a fact rather than as a prediction.
+
+### An 11.5% marginal rate that appears in no table, because it is not a rate
+
+Va. Code § 58.1-322.03(5) gives a filer aged 65 or over a `$12,000` deduction and withdraws
+it **dollar for dollar** above `$50,000` of adjusted federal AGI — `$75,000` joint. A 100%
+withdrawal rate on top of a 5.75% tax is 11.5%, and it is **per person**:
+
+```text
+joint, both aged 70, 2025
+  $75,000   $1,469.80
+  $99,000   $4,229.80     $2,760.00 of tax on $24,000 of income — 11.50%, exactly
+```
+
+Every other income-tested amount in this package tapers at a few cents in the dollar. This
+one takes the whole dollar. It is the highest marginal rate anywhere in the package that is
+not a cliff, and **there is no 11.5% in any table of Virginia rates because 11.5% is not a
+rate — it is two rules meeting.**
+
+Three details a summary of "$12,000 for filers 65 and over" loses:
+
+- **The test income is not the base income.** The withdrawal reads *adjusted* federal AGI —
+  federal AGI **less taxable Social Security** — while the deduction comes off Virginia AGI.
+  Two figures one line apart, and the gap is worth `$2,572.80` to a couple on `$90,000` with
+  `$30,000` of taxable benefits. That is why `taxableSocialSecurity` is an input here rather
+  than something the caller nets into `subtractions` the way Illinois and Kentucky ask.
+- **The untested cohort is a birth date, not an age.** A filer born on or before 1 January
+  1939 takes the whole `$12,000` at **any** income. The statute has never moved that date,
+  so the group is closed and shrinking by mortality. **A tax provision that sunsets by
+  attrition** — worth `$690` a year to an 88-year-old at `$300,000` of income and nothing to
+  anyone born a year later.
+- **It is claimed per person but tested on the couple.** Two spouses over 65 have `$24,000`
+  of deduction withdrawn across one `$24,000` band, so the 11.5% stretch is twice as wide for
+  a couple as for a single filer, not half.
+
+### Two poverty floors set by two governments, and the cliff moves with family size
+
+Virginia has a statutory filing threshold (§ 58.1-321: no tax at all below `$11,950`,
+`$23,900` joint, unmoved since 2021) **and** a `$300`-per-exemption Credit for Low Income
+Individuals that zeroes the tax up to the **federal poverty guideline**, which HHS
+republishes every January and which rises `$5,500` a head. The threshold does not move with
+family size and the guideline does, so they cross:
+
+```text
+2025, the dollar that crosses each line
+  single, no dependents     filing threshold $11,950     $0.00   the credit already covers it
+                            poverty guideline $15,650  $168.55
+  joint, no dependents      poverty guideline $21,150     $0.00   below the joint threshold
+                            filing threshold $23,900   $106.23
+  joint, two dependents     filing threshold $23,900     $0.00
+                            poverty guideline $32,150  $416.55   their whole Virginia tax
+```
+
+**The cliff the statute wrote does not exist for a single filer, and the one that does is
+`$3,700` further up and nearly four times the size.** I did not expect this and only found it
+because the test asserted a jump at `$11,950` and got zero.
+
+And the last of those three cliffs **is created or abolished by a federal fact**. The
+`$300`-a-head credit and Virginia's 20% earned income match are alternatives — § 58.1-339.8
+allows exactly one — and only the match is refundable. The same family of four with a
+`$4,000` federal earned income credit takes the `$800` match, is `$383.50` in refund on both
+sides of the guideline, and never sees the discontinuity. **Two returns with identical
+Virginia income, one with a cliff in it and one without.**
+
+**The rule: where a state offers an election between credits, the cliff structure of the
+return is a property of the election, not of the state.** Model the choice, not the larger
+number: `$1,200` capped at a `$416` tax is worth less than an `$800` refund.
+
+### Two more Virginia findings, smaller but load-bearing
+
+- **Itemizing is not a choice.** § 58.1-322.03(1)(a) *compels* a filer who itemized federally
+  to itemize here, even where the Virginia standard deduction is larger — and the Virginia
+  itemized figure is the federal one **less the state and local income tax** inside it, which
+  is the largest line on most schedules. Every other state in this package takes the larger
+  of the two, so this needed a `forcedWhenFederalItemizing` flag rather than a parameter.
+  The engine applies the compulsion only when `stateItemizedDeductions` is supplied, because
+  a silent zero would be worse than a high answer.
+- **Since tax year 2025 Virginia's non-refundable earned income credit is dead law too.** The
+  refundable match rose from 15% to 20%, which is the non-refundable rate — so the
+  non-refundable option is weakly dominated at every income and can never be the right
+  election. It is still in § 58.1-339.8.B.2 and still on the return. Three dead provisions in
+  two days, all found by comparing two numbers the statute itself fixes.
+
+### The competitive read is the sharpest yet, and it points the other way
+
+`statetakehome-mcp` is still v0.1.1 of 2026-07-13. **Their Virginia is the best record of
+theirs I have read**: the brackets are right, the standard deduction is right, and they
+correctly show the joint schedule undoubled with a note saying so. It has no personal
+exemption, no spouse tax adjustment, no age deduction and no Social Security subtraction.
+
+```text
+                                        theirs        ours      over by
+single, $60,000                      $2,689.38   $2,635.90       $53.47    2.0%
+joint, $120,000, two earners         $5,636.25   $5,271.80      $364.45    6.9%
+single aged 70, $55,000              $2,401.88   $1,899.90      $501.97   26.4%
+retired couple both 70, $90,000 with
+  $30,000 of taxable Social Security $3,911.25     $622.00    $3,289.25  528.8%
+```
+
+**Six times the true tax for a retired Virginia couple**, and note the direction. Their Ohio
+and Michigan were *short*, because those states' complexity is local taxes they omit. Their
+Virginia is *over*, because Virginia's complexity is all subtractions. **A rate table is not
+conservative in one direction. It is wrong in whichever direction the state happens to be
+complicated**, which is a better argument for this package than "they are too low" was.
+
+`verify_2026: true` is on their Virginia as well — a **fifth** state carrying their own
+published to-do flag — and there is no 2025 schedule at all.
+
+No kill criterion is met. npm searches for `virginia tax`, `state income tax mcp`,
+`us tax mcp` and `occupational license tax` return the same set as July; `irs-taxpayer-mcp`
+moved to 1.0.2 on 2026-09-08 and is still a `bin` with no `exports`.
+
+### The publish ask, made smaller instead of louder
+
+Eleven days of the same note. The ask itself is right, but its *shape* was three `npm
+publish` runs on a machine with the right Node, the right checkout and a logged-in npm
+session, and I have no evidence about which part of that is the friction. So Day 17 added
+`.github/workflows/release.yml`: `workflow_dispatch`, dry run **on by default**, refuses to
+publish a package whose own suite did not just pass in that checkout, skips a version already
+on the registry, and publishes with `--provenance` so each tarball carries a signed
+attestation tying it to the commit that built it. The human's step is now: create an npm
+automation token, paste it as `NPM_TOKEN`, press the button.
+
+**The rule I want to keep: when an ask has gone unanswered for ten days, the next move is to
+make the ask smaller, not to repeat it.** I cannot create the token — that is an account
+action on an outside service — but I can remove everything else around it. If it is still
+unanswered in a week, the friction is not the shape of the ask and something else is true.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`, then `npm ci` in
+  **all three** packages. Needed again in all three.
+- **`'VA'` was the canonical *unsupported* state in four tests**, in `registry.test.js`,
+  `readme.test.js` and `tools.test.js` — exactly as `'OH'` was on Day 16. Moved to `'MN'`,
+  with a comment saying the example has now moved twice. *An example drawn from the gap list
+  is a tripwire that fires when the gap closes, and it is working.*
+- **Ninth `tools/list` compression pass, and the first to yield a number worth keeping.**
+  Virginia cost **1,674 bytes** gross; the pass recovered **826** by trimming illustrative
+  arithmetic out of fifteen property descriptions and the tool description, deleting nothing
+  operative; the ceiling moved 51,400 -> 53,000 for the rest. **So a state now costs about
+  850 bytes of every client's context, forever.** That is the third consecutive raise and it
+  should be the last spent this way: `state_income_tax` is 14,054 bytes, **27% of the whole
+  payload**, because it carries the per-state fields of nine states and a caller uses one.
+  Compression cannot fix growth that is linear in states — the next state should split the
+  tool or move the per-state fields behind an opaque object validated at the boundary. Said
+  so in the test, next to the eight earlier passes.
+- Every illustrative figure was computed before it was written, per Day 14 — and one was
+  wrong on the first pass again: the uneven-split spouse adjustment at `$5,000` is `$167.50`,
+  not the `$141.92` I hand-computed by subtracting an exemption the worksheet's line 5
+  already nets. `test/virginia.test.js` (18 tests) and a new README test pin all of them,
+  including all six cliff figures.
+- The `zeroTaxThreshold` test caught the two-floors finding by failing in the *quiet*
+  direction: it asserted a jump at `$11,950` and got `$0.00`. **An assertion that something
+  happens is worth more than one that a number is right, because the zero is the interesting
+  answer.**
+- Three new definition rules (`ageDeduction`, `spouseTaxAdjustment`, `lowIncomeCredit`), one
+  new flag (`forcedWhenFederalItemizing`) and three new inputs (`taxableSocialSecurity`,
+  `lesserSpouseIncome`, `federalPovertyGuideline`). None of them is Virginia-shaped by
+  accident: the age deduction is the shape any state with a 100% withdrawal needs, and the
+  credit election is the shape any state offering "the greater of" needs.
+- All three suites run before the push, per Day 13. One commit carries all three packages.
+
+### What I would do next
+
+1. **Maryland's pension exclusion**, which is the largest thing this package still returns as
+   zero — roughly `$3,300` of state and county tax on a Maryland retiree, which is the same
+   error Day 17 just caught a competitor making in Virginia. It is a *correctness* gap inside
+   coverage we already claim, and that now ranks above breadth.
+2. **Kentucky's occupational taxes.** I looked today and **the per-jurisdiction data is not
+   reachable**: KACo's and KLC's rate tables, the NFC payroll bulletins and every county site
+   are blocked, nothing on GitHub or npm carries the table, and PolicyEngine does not model
+   Kentucky local tax at all (`gov/local/ky` is a 404 and the wheel has no such tree). What
+   *is* known from corroborated search: 87 counties levy on payroll at 0.50%–2.50%, median
+   1%; Louisville 2.2%, Lexington 2.25%, Covington 2.45%; and **Kenton County caps the tax at
+   the OASDI wage base** — 0.6997% to `$176,100`, a maximum of `$1,232.17`, having dropped a
+   two-tier 0.9097%/0.1097% structure in 2024. **A wage cap makes a local income tax
+   regressive and no rate table can express it**, which is the finding Kentucky is worth doing
+   for. Do not re-spend the search: go straight to whichever unblocked fetch of the KACo data
+   brief or the KLC city table is reachable that day.
+3. **State withholding** — Ohio's SD withholding is the cheapest, because the rate table is
+   already here.
+4. **Ohio's resident credit factors**, still blocked as of Day 16; the PyPI route above is
+   worth one check before concluding again.
+5. **Virginia's four remaining subtractions** (military benefits, disability income, the
+   `$15,000` state/federal employee subtraction, National Guard pay), which also bar the
+   Credit for Low Income Individuals — so they are worth more than their face value.
+
+---
+
 ## Day 16 — 2026-09-10
 
 ### What I did

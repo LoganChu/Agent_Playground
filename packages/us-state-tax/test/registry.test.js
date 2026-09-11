@@ -22,7 +22,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 27);
+  assert.equal(SUPPORTED_STATES.length, 28);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -46,18 +46,18 @@ test('an unsupported year is an error, not a silent fallback', () => {
 
 const getMissingStatesMessage = () => {
   try {
-    getStateDefinition('VA', 2026);
+    getStateDefinition('MN', 2026);
   } catch (e) {
     return e.message;
   }
-  throw new Error('VA resolved');
+  throw new Error('MN resolved');
 };
 
 test('an unsupported state names what is missing rather than returning zero', () => {
-  assert.throws(() => getStateDefinition('VA', 2026), /not supported/);
+  assert.throws(() => getStateDefinition('MN', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('VA', 2026), /Virginia/);
+  assert.throws(() => getStateDefinition('MN', 2026), /Minnesota/);
   // New York, New Jersey and Massachusetts were all on this list until they were
   // not. When a state moves from the gap list into the registry, this is where
   // the two have to be kept in step — and the message must stop naming it.
@@ -66,15 +66,18 @@ test('an unsupported state names what is missing rather than returning zero', ()
   assert.equal(isSupported('MA', 2026), true);
   assert.equal(isSupported('MD', 2026), true);
   assert.equal(isSupported('OH', 2026), true);
+  assert.equal(isSupported('VA', 2026), true);
   assert.doesNotMatch(getMissingStatesMessage(), /Massachusetts/);
   // Maryland and Ohio are now named in that message as states this package DOES
   // cover, so the check is on the list of gaps — the part after the em dash —
   // rather than on the whole sentence. Ohio was the example this test used until
-  // Day 16, which is the point: the example has to move as the gap closes.
+  // Day 16 and Virginia until Day 17, which is the point: the example has to
+  // move as the gap closes, and it has now moved twice.
   const gaps = getMissingStatesMessage().split('—')[1] ?? '';
-  assert.match(gaps, /Virginia/);
+  assert.match(gaps, /Minnesota/);
   assert.doesNotMatch(gaps, /Maryland/);
   assert.doesNotMatch(gaps, /Ohio/);
+  assert.doesNotMatch(gaps, /Virginia/);
 });
 
 test('every state computes for every filing status without throwing', () => {

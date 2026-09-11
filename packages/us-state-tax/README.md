@@ -1,8 +1,8 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **27
-states** including **New York**, **New Jersey**, **Massachusetts**, **Maryland** and — new
-in 0.11.0 — **Ohio**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
+US **state and local** individual income tax for tax years **2025 and 2026**, across **28
+states** including **New York**, **New Jersey**, **Massachusetts**, **Maryland**, **Ohio**
+and — new in 0.13.0 — **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
@@ -895,6 +895,129 @@ A district taxes where the filer **lives** and nothing else: § 5748.01(E) reach
 only, so there is no nonresident district tax and no credit for tax paid to another district
 — the opposite of the municipal tax sitting beside it.
 
+### Virginia's graduated rates are worth $257.50, to everybody, forever
+
+Every table of state income tax rates prints Virginia as four brackets — 2%, 3%, 5% and
+5.75%. All four are real. What the table cannot show is that **the thresholds are the same
+for every filing status and have not moved since 1990**, so the top rate begins at
+`$17,000` of taxable income for a single filer and at `$17,000` on a joint return.
+
+That makes the whole value of the graduation a constant:
+
+```text
+tax on the first $17,000, graduated   $720.00     2% x 3,000 + 3% x 2,000 + 5% x 12,000
+tax on the first $17,000, at 5.75%    $977.50
+the entire benefit of four brackets   $257.50
+```
+
+`$257.50` is the most Virginia's rate schedule can save anybody, at any income, in any year
+since 1990. **Virginia is a 5.75% flat tax with a `$257.50` discount** — and the same number
+turns up twice more.
+
+```js
+const va = stateIncomeTax({ state: 'VA', year: 2025, filingStatus: 'single', federal });
+va.tax;            // 2635.90 on $60,000 — 4.39% effective, 5.75% marginal
+```
+
+### The $259 ceiling on Virginia's spouse tax adjustment cannot be reached
+
+Because the brackets are not doubled, marrying costs a two-earner couple one trip up the
+low bands. Form 760 line 17 hands it back by computing the tax as though the return had
+been split in two, and the Commonwealth publishes the result as **"up to `$259`"**.
+
+The worksheet's output *is* the difference above, so `$257.50` is the largest figure it can
+produce:
+
+```js
+const both = stateIncomeTax({ state: 'VA', year: 2025, filingStatus: 'marriedFilingJointly',
+                              federal, bothSpousesHaveQualifyingIncome: true });
+both.tax;          // 5271.80 on $120,000
+// the same couple on one income                       5529.30
+// the adjustment, which is also the graduation           257.50
+```
+
+**The published ceiling is `$1.50` above anything that can reach it, and has been since the
+5.75% bracket was set at `$17,000` in 1990.** `test/virginia.test.js` searches the whole
+surface — every joint taxable income against every split of it — and asserts that the cap
+never binds. Pass `lesserSpouseIncome` (line 5 of the worksheet) where the second earner is
+small; without it the engine assumes an even split and says so inside the credit's name.
+
+### A Virginia sixty-five-year-old faces 11.5%, twice the state's top rate
+
+Va. Code § 58.1-322.03(5) gives a filer aged 65 or over a `$12,000` deduction and withdraws
+it **dollar for dollar** above `$50,000` of adjusted federal AGI — `$75,000` on a joint
+return. A 100% withdrawal rate on top of a 5.75% tax is an 11.5% marginal rate, and it is
+*per person*, so a couple who are both 65 lose `$24,000` of deduction across `$24,000` of
+income:
+
+```text
+joint, both aged 70, 2025
+  $75,000   $1,469.80
+  $99,000   $4,229.80
+  ---------------------------------------
+  $2,760.00 of tax on $24,000 of income — 11.50%, exactly, across the whole band
+```
+
+There is no 11.5% in any table of Virginia rates, because 11.5% is not a rate; it is two
+rules meeting. It is the highest marginal rate anywhere in this package that is not a cliff.
+
+The income the withdrawal is tested on is *adjusted* federal AGI — federal AGI **less the
+taxable Social Security inside it** — while the deduction comes off Virginia AGI. Two
+different figures, one line apart, and the gap between them is the largest single thing a
+Virginia retiree's return turns on:
+
+```js
+stateIncomeTax({ state: 'VA', year: 2025, filingStatus: 'marriedFilingJointly', federal,
+                 filerAge: 70, spouseAge: 70, taxableSocialSecurity: 30_000 }).tax;
+// 622.00 on $90,000 of federal AGI
+// 3194.80 for the same couple with taxableSocialSecurity left out
+```
+
+A filer born on or before 1 January 1939 takes the full `$12,000` with **no income test at
+all**, at any income. The statute has never moved that date, so the untested group is closed
+and shrinking by mortality — a tax provision that sunsets by attrition rather than by a date.
+
+### Virginia has two poverty floors, and which one bites depends on family size
+
+Two different governments set them. § 58.1-321 exempts a filer whose Virginia AGI is below
+`$11,950` — `$23,900` joint — from the tax entirely, and the figure has not moved since
+2021. The Credit for Low Income Individuals zeroes the tax up to the **federal poverty
+guideline**, which HHS republishes every January and which rises `$5,500` a head.
+
+```text
+2025, the dollar that crosses each line
+  single, no dependents     filing threshold $11,950     $0.00   the credit already covers it
+                            poverty guideline $15,650  $168.55
+  joint, no dependents      poverty guideline $21,150     $0.00   below the joint threshold
+                            filing threshold $23,900   $106.23
+  joint, two dependents     filing threshold $23,900     $0.00
+                            poverty guideline $32,150  $416.55   their whole Virginia tax
+```
+
+And whether the last of those exists is decided on the **federal** return. The `$300`-a-head
+credit and Virginia's 20% earned income match are alternatives — § 58.1-339.8 allows exactly
+one — and only the match is refundable. The same family of four with a `$4,000` federal
+earned income credit takes the `$800` match, is `$383.50` in refund on both sides of the
+guideline, and walks over the discontinuity without noticing it. This package computes both
+and takes whichever leaves the filer better off.
+
+Since tax year 2025 the refundable match has been 20%, the same rate as the non-refundable
+one in § 58.1-339.8.B.2 — which leaves the non-refundable option dominated at every income
+and never the right election. It is still on the return.
+
+### Virginia has no local income tax, and that is worth saying
+
+No county, city or town in the Commonwealth levies one. Localities are funded by the BPOL
+licence tax, the machinery and tools tax and the personal property "car tax", none of which
+touch an individual return. Virginia sits between Maryland, where every resident owes a
+county income tax of 2.25% to 3.30%, and Kentucky, where 87 counties levy an occupational
+tax on gross wages — and it is the largest state in this package with a single layer.
+
+```js
+va.localTaxes;     // []
+va.totalTax;       // === va.tax
+```
+
 ### Mississippi's zero bracket is per return
 
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
@@ -948,7 +1071,10 @@ for an unsupported year throws rather than answering with the nearest one.
 
 ## Coverage
 
-**Graduated:** California, Maryland, Mississippi, New Jersey, New York.
+**Graduated:** California, Maryland, Mississippi, New Jersey, New York, Virginia — though
+Virginia's graduation is worth `$257.50` to every filer at every income, forever, because
+its top bracket begins at `$17,000` for a single filer and at `$17,000` on a joint return
+and has since 1990.
 **Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky,
 Massachusetts, Michigan, North Carolina, Pennsylvania, Utah.
 **A constant plus a rate:** Ohio, whose schedule is neither of the above and cannot be
@@ -964,12 +1090,16 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.12.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.13.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 27 states.** No Virginia, Minnesota, Wisconsin,
+- **Only 28 states.** No Minnesota, Wisconsin,
   Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
   Asking for one throws rather than returning zero.
+- **Virginia's four smaller subtractions are not modelled** — the military benefits
+  subtraction, the disability income subtraction, the `$15,000` state/federal employee
+  subtraction and National Guard pay. Pass them through `subtractions`; the notes say so,
+  and say which of them also bar the Credit for Low Income Individuals.
 - **Ohio's resident credit is assumed, and labelled.** Chapter 718 grants none, so each
   municipality's ordinance decides; where the two figures are not supplied this package
   assumes the modal 100%-capped-at-the-home-rate and says so in the result.

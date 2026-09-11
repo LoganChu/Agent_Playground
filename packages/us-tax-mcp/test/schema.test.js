@@ -238,7 +238,7 @@ test('tools/list stays within a sane context budget', () => {
     })),
   );
   assert.ok(
-    payload.length < 51_400,
+    payload.length < 53_000,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
   // Recorded rather than merely asserted, because the headroom is the number that
@@ -247,19 +247,29 @@ test('tools/list stays within a sane context budget', () => {
   // copies; MCP has no portable way to share a schema between tools, so the ninth
   // tool has to displace one of those or the household schema has to lose fields.
   //
-  // EIGHT compression passes so far, and the eighth did not come close to paying
-  // for its day. Ohio's seven fields — city and workCity are shared with Michigan,
-  // qualifyingWages, businessIncome, bothSpousesHaveQualifyingIncome, the two
-  // resident-credit rates and schoolDistrict are not — cost 2,394 bytes, the pass
-  // recovered about 300 of them without deleting anything operative, and the rest
-  // was bought by raising the ceiling from 48,800 to 51,400.
+  // NINE compression passes, and the ninth is the first to produce a number
+  // worth keeping: the MARGINAL COST OF A STATE.
   //
-  // That is the second consecutive raise and it is the finding rather than the
-  // embarrassment. Six passes ago the ceiling was covering PROSE; it is now
-  // covering CONTENT, and the payload it holds describes 27 states, 1,033 local
-  // income taxes and the whole federal return. A ceiling that can only be met by
-  // deleting what a model needs is the wrong ceiling, and the honest move is to
-  // move it and say by how much.
+  // Virginia arrived with three fields of its own — taxableSocialSecurity,
+  // lesserSpouseIncome, federalPovertyGuideline — and a clause added to six
+  // shared ones. Gross, it cost 1,674 bytes. The pass recovered 826 of them by
+  // trimming illustrative arithmetic out of fifteen property descriptions and
+  // out of the tool description, deleting nothing operative. So a state now
+  // costs about 850 bytes of every client's context, forever, and the ceiling
+  // moved from 51,400 to 53,000 to carry the rest.
+  //
+  // That is the third consecutive raise, and at 850 bytes a state it is the last
+  // one that should be spent this way. state_income_tax is now 14,054 bytes —
+  // 27% of the whole payload — because it carries the per-state fields of nine
+  // different states and a caller only ever uses one state's. The next state
+  // should not buy another raise: either the per-state fields move behind a
+  // second tool that a model calls only once it knows the state, or the tool
+  // takes an opaque `stateSpecific` object and validates it at the boundary.
+  // Compression cannot solve a payload whose growth is linear in states.
+  //
+  // Six passes ago the ceiling was covering PROSE; it is now covering CONTENT,
+  // and the payload it holds describes 28 states, 1,033 local income taxes and
+  // the whole federal return.
   //
   // The seventh pass corrects the sixth's rule. Day 14 said choose by
   // MULTIPLICITY, not by length — a property carried by four tools is worth four
@@ -281,10 +291,12 @@ test('tools/list stays within a sane context budget', () => {
   // the result already carries are delivered on every call anyway; the fifth
   // applied that rule to the PROPERTIES rather than the description and paid for
   // Massachusetts; the sixth paid for Maryland out of the four-tool properties;
-  // the eighth trimmed Ohio's own seven and the tail of the `year` description.
+  // the eighth trimmed Ohio's own seven and the tail of the `year` description;
+  // the ninth applied the fourth's rule to fifteen properties at once and to the
+  // description again, and paid for half of Virginia.
   assert.ok(
-    51_400 - payload.length < 1_000,
-    `tools/list has ${51_400 - payload.length} bytes of headroom — more than expected, so ` +
+    53_000 - payload.length < 1_000,
+    `tools/list has ${53_000 - payload.length} bytes of headroom — more than expected, so ` +
       'this note about the budget is stale and should be rewritten with the real figure',
   );
 });

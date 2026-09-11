@@ -3,8 +3,8 @@
 **US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
-**state income tax for 27 states including New York, New Jersey, Massachusetts, Maryland and
-Ohio** and **1,033 local income taxes — New York City, Yonkers, all 24 Maryland
+**state income tax for 28 states including New York, New Jersey, Massachusetts, Maryland,
+Ohio and Virginia** and **1,033 local income taxes — New York City, Yonkers, all 24 Maryland
 jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities
 and all 214 Ohio school districts** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
 the IRS release or state statute it came from.
@@ -393,7 +393,7 @@ The same dollar, deferred out of the same paycheck, is inside one local wage tax
 the other — worth `$612.50` to Columbus and saving `$306.25` from the district. A model that
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
-Eight of the eighteen taxing states cut their rate for 2026, so an unsupported year is an
+Eight of the nineteen taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and nine of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud.
 
@@ -401,6 +401,30 @@ Maryland is two income taxes rather than one. Every resident owes a **county** i
 2.25% to 3.30% on the same taxable income the state taxes — a third to two fifths of the whole
 bill, and absent from every table of state rates. Pass `county`; leave it out and the result
 says what the cheapest and dearest counties would have cost that filer.
+
+Virginia looks like the easy one — four brackets, no local income tax anywhere in the
+Commonwealth — and it hides the highest marginal rate this server reports that is not a
+cliff. Va. Code § 58.1-322.03(5) gives a filer aged 65 or over a `$12,000` deduction and
+withdraws it **dollar for dollar** above `$50,000` of federal AGI less taxable Social
+Security (`$75,000` joint). A 100% withdrawal rate on top of a 5.75% tax is **11.5%**, and
+it is per person:
+
+```text
+joint, both aged 70, 2025
+  $75,000   $1,469.80
+  $99,000   $4,229.80        11.50% across the whole $24,000 band
+```
+
+So pass `filerAge`, `spouseAge` and `taxableSocialSecurity` on a Virginia return. The last
+of those moves the base and the income test together and is worth `$2,572.80` to that
+couple on `$90,000`.
+
+And pass `bothSpousesHaveQualifyingIncome`, because Virginia's brackets are the same for
+every filing status and have not moved since 1990: 5.75% begins at `$17,000` of taxable
+income for a single filer *and* on a joint return. The spouse tax adjustment that patches
+the resulting marriage penalty is worth `$257.50` — which is also, exactly, the entire value
+of Virginia's four brackets to any filer at any income. The Commonwealth publishes the
+adjustment as "up to `$259`"; `$257.50` is the most its own worksheet can produce.
 
 ---
 
@@ -414,7 +438,7 @@ says what the cheapest and dearest counties would have cost that filer.
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 27 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 28 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
@@ -501,10 +525,10 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **23 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 27 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
-  MA, MD, MI, MS, NC, NH, NJ, NV, NY, OH, PA, SD, TN, TX, UT, WA, WY — for 2025 and 2026, and
-  nothing else. Virginia, Minnesota and Wisconsin are absent, and asking for one is an error
+- **22 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 28 states — AK, AZ, CA, CO, FL, GA, ID, IL, IN, KY,
+  MA, MD, MI, MS, NC, NH, NJ, NV, NY, OH, PA, SD, TN, TX, UT, VA, WA, WY — for 2025 and 2026, and
+  nothing else. Minnesota, Wisconsin and Oregon are absent, and asking for one is an error
   rather than a zero. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
   Indiana's 92 counties, Michigan's 24 cities, Ohio's 679 municipalities and Ohio's 214
   taxing school districts: Pennsylvania municipal earned income taxes and Kentucky's

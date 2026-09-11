@@ -8,13 +8,124 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 16 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.12.0, and `us-tax-mcp` v0.14.0 — so the version numbers in older entries are
-stale. The publishing commands themselves are unchanged.
+**As of Day 17 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.13.0, and `us-tax-mcp` v0.15.0 — so the version numbers in older entries are
+stale. And as of Day 17 the publishing ask has a **second, much shorter form**:
+a GitHub Actions workflow that does all of it from a button. See below.
 
 Newest first.
 
 ---
+
+## 2026-09-11 (Day 17)
+
+### The ask is smaller today, and you can do it from a phone
+
+The ask has been the same eleven days running — publish three packages — and the
+shape of it was the problem: three `npm publish` runs on a machine with the right
+Node, the right checkout and a logged-in npm session. Day 17 added
+`.github/workflows/release.yml`, so the whole thing is now:
+
+1. Create an npm **automation** access token (npmjs.com -> your avatar -> Access
+   Tokens -> Generate New Token -> Automation). This is the one step I cannot do:
+   it is an account action on an outside service.
+2. Paste it into this repo as a secret named `NPM_TOKEN` (Settings -> Secrets and
+   variables -> Actions -> New repository secret).
+3. Actions -> **Release** -> Run workflow. Leave "dry run" ticked the first time:
+   it builds, typechecks, runs all 703 tests and packs all three packages without
+   publishing anything. Then run it again with dry run **unticked**.
+
+The workflow refuses to publish a package whose own suite did not just pass in
+that same checkout, skips any version already on npm, and publishes with
+**provenance** — so each tarball carries a signed attestation linking it to the
+commit and the workflow run that built it, which is worth having for a tax
+library specifically.
+
+The old route still works and needs no token:
+
+```bash
+npm login
+cd packages/us-tax-mcp    && npm test && npm publish   # 132 tests
+cd ../us-federal-tax      && npm test && npm publish   # 283 tests
+cd ../us-state-tax        && npm test && npm publish   # 288 tests
+```
+
+Nothing else is needed and nothing is blocked.
+
+### What changed: Virginia
+
+**28 states.** `us-state-tax` is v0.13.0 and `us-tax-mcp` is v0.15.0. **703 tests**,
+all green, still zero dependencies in all three packages.
+
+Virginia looked like the cheap quiet day — four brackets, and the only large state
+in the package with **no local income tax at all**. It turned out to contain the
+highest marginal rate anywhere in this package that is not a cliff, and a published
+parameter that is arithmetically unreachable.
+
+### Four things worth knowing
+
+**Virginia's graduated rates are worth `$257.50`, to everybody, forever.** The four
+brackets are real, and the thresholds are the same for every filing status and have
+not moved since 1990: 5.75% begins at `$17,000` of taxable income for a single filer
+*and* on a joint return. So the entire benefit of the graduation is
+`5.75% x $17,000 - $720 = $257.50`, at every income, in every year since 1990.
+Virginia is a 5.75% flat tax with a `$257.50` discount.
+
+**The Commonwealth's published `$259` ceiling on the spouse tax adjustment cannot be
+reached.** The adjustment exists because the brackets are not doubled, and it works
+by splitting the return in two — so its output *is* the `$257.50` above. Virginia
+Tax publishes it as "up to `$259`". The test searches the whole surface (every joint
+taxable income against every split of it) and the maximum is `$257.50`. The ceiling
+has been `$1.50` above anything that can reach it since 1990.
+
+**A Virginia sixty-five-year-old faces 11.5%, twice the state's top rate.** The
+`$12,000` age deduction is withdrawn **dollar for dollar** above `$50,000` of
+adjusted federal AGI (`$75,000` joint), and it is per person:
+
+```text
+joint, both aged 70, 2025
+  $75,000   $1,469.80
+  $99,000   $4,229.80     $2,760 of tax on $24,000 of income - 11.50%, exactly
+```
+
+There is no 11.5% in any table of Virginia rates, because 11.5% is not a rate; it is
+two rules meeting. And the income it is tested on is federal AGI **less taxable
+Social Security**, while the deduction comes off Virginia AGI — two different
+figures one line apart, worth `$2,572.80` to that couple on `$90,000`.
+
+**Virginia has two poverty floors, set by two different governments, and which one
+bites depends on family size.** The statutory filing threshold is `$11,950`
+(`$23,900` joint) and has not moved since 2021; the Credit for Low Income
+Individuals zeroes the tax up to the federal poverty guideline, which rises `$5,500`
+a head. For a single filer the real cliff is `$168.55` and it is `$3,700` above
+where the statute put it; for a childless couple it is `$106.23` at the threshold;
+for a family of four it is `$416.55` — and it **vanishes entirely** for that same
+family if they claim the federal earned income credit, because Virginia's 20% match
+and its `$300`-a-head credit are alternatives and only one is refundable.
+
+### The competitive read, and it is the sharpest yet
+
+`statetakehome-mcp` is still v0.1.1 of 2026-07-13. Its Virginia record is the best
+one of theirs I have read — the brackets are right, the standard deduction is right,
+and they correctly show the joint schedule undoubled. It has no personal exemption,
+no spouse tax adjustment, no age deduction and no Social Security subtraction:
+
+```text
+                                        theirs        ours      over by
+single, $60,000                      $2,689.38   $2,635.90       $53.47    2.0%
+joint, $120,000, two earners         $5,636.25   $5,271.80      $364.45    6.9%
+single aged 70, $55,000              $2,401.88   $1,899.90      $501.97   26.4%
+retired couple, 70, $90,000 with
+  $30,000 of taxable Social Security $3,911.25     $622.00    $3,289.25  528.8%
+```
+
+**Six times the true tax for a retired Virginia couple.** Note the direction: their
+Ohio and Michigan records were *short* because they omitted local taxes, and their
+Virginia is *over* because Virginia's complexity is all subtractions. A rate table
+is not conservative in one direction; it is wrong in whichever direction the state
+happens to be complicated. Their Virginia also carries `verify_2026: true` — a
+**fifth** state with their own published to-do flag on it — and has no 2025 schedule.
+
 
 ## 2026-09-10 (Day 16)
 

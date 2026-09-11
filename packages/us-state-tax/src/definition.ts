@@ -319,6 +319,25 @@ export interface ItemizedDeductionRule {
   readonly name: string;
   /** True where the state allows itemizing only if the filer itemized federally. */
   readonly requiresFederalItemizing: boolean;
+  /**
+   * True where the federal election does not merely *permit* the state one but
+   * **compels** it — Virginia, Va. Code § 58.1-322.03(1)(a).
+   *
+   * The difference is not cosmetic and it runs the wrong way for the filer. A
+   * Virginia filer who itemized federally may not take the Virginia standard
+   * deduction *even when it is larger*, and the Virginia itemized figure is the
+   * federal one **less the state and local income tax** inside it — which for
+   * most itemizers is the largest line on the schedule. A filer with `$14,000`
+   * of federal itemized deductions of which `$6,000` is Virginia income tax is
+   * forced onto `$8,000` against a `$8,750` standard deduction they are barred
+   * from: the federal election costs them `$750` of Virginia deduction.
+   *
+   * This package applies the compulsion only when
+   * {@link StateIncomeTaxInput.stateItemizedDeductions} is supplied. A caller who
+   * itemized federally and does not supply the state figure gets the standard
+   * deduction and a note, because a silent zero would be worse than a high one.
+   */
+  readonly forcedWhenFederalItemizing?: boolean;
   /** Share of federal AGI above the threshold subtracted from the deduction. */
   readonly phaseOutRate: number;
   readonly phaseOutThreshold: ByStatus;
@@ -1107,6 +1126,134 @@ export interface PropertyTaxReliefRule {
   readonly credit: ByStatus;
 }
 
+/**
+ * A deduction for older filers, withdrawn dollar for dollar above an income
+ * threshold — Virginia's age deduction, Va. Code § 58.1-322.03(5).
+ *
+ * **The withdrawal rate is 100%, and that is the whole point of the rule.** Every
+ * other income-tested amount in this package tapers at a few cents in the dollar;
+ * this one takes the entire dollar. A Virginia filer inside the band therefore
+ * faces **twice** the statutory rate that applies to them — 11.5% against a top
+ * rate of 5.75%, which is the highest marginal rate anywhere in this package that
+ * is not a cliff — and no table of Virginia rates contains an 11.5%.
+ *
+ * Three details that a summary of "$12,000 for filers 65 and over" leaves out:
+ *
+ * 1. **It is per person.** A joint return where both spouses are 65 has `$24,000`
+ *    of deduction and loses all of it across the same `$24,000` of income, so the
+ *    11.5% band is twice as wide for a couple as for a single filer, not half.
+ * 2. **The income it is tested on is not the income it is subtracted from.** The
+ *    test reads *adjusted* federal AGI — federal AGI **less taxable Social
+ *    Security and Tier 1 railroad benefits** — while the deduction comes off
+ *    Virginia AGI. A retiree with `$30,000` of taxable Social Security is tested
+ *    on a figure `$30,000` below their federal AGI.
+ * 3. **{@link fullAmountIfBornBefore} is a birth date, not an age.** A filer born
+ *    on or before 1 January 1939 takes the whole `$12,000` at **any** income,
+ *    with no test at all; one born a day later is tested. The statute has never
+ *    moved that date, so the untested group is closed and shrinking by mortality
+ *    — a tax provision that sunsets by attrition rather than by a date.
+ */
+export interface AgeDeductionRule {
+  readonly name: string;
+  /** The most one eligible filer may deduct. */
+  readonly amount: number;
+  readonly minimumAge: number;
+  /**
+   * Filers born strictly before this year take {@link amount} with no income
+   * test. Virginia's statutory date is 1 January 1939, which in birth-year terms
+   * is "born in 1938 or earlier, or on 1 January 1939" — this package treats the
+   * single 1 January 1939 birthday as the 1939 cohort, understating by `$12,000`
+   * of deduction for one day of births.
+   */
+  readonly fullAmountIfBornBefore: number;
+  /** Adjusted federal AGI above which the income-tested amount is withdrawn. */
+  readonly threshold: ByStatus;
+  /** Dollars of deduction lost per dollar of income over the threshold. */
+  readonly reductionRate: number;
+}
+
+/**
+ * Virginia's spouse tax adjustment — the patch for a marriage penalty the state
+ * created by never doubling its brackets.
+ *
+ * Virginia's rate schedule is the **same for every filing status**: 5.75% begins
+ * at `$17,000` of taxable income for a single filer and at `$17,000` on a joint
+ * return. Two single filers each get their own run up the 2%, 3% and 5% bands;
+ * marrying costs them one of the two. The adjustment hands it back, by computing
+ * the tax as though the return had been split between the spouses.
+ *
+ * The size of the giveback is a **constant**, and it is the same constant as the
+ * entire value of Virginia's rate graduation:
+ *
+ * ```text
+ * tax on $17,000, graduated   $720.00     2% x 3,000 + 3% x 2,000 + 5% x 12,000
+ * tax on $17,000, at 5.75%    $977.50
+ * difference                  $257.50     one extra trip up the low brackets
+ * ```
+ *
+ * So every two-earner couple with at least `$17,000` of taxable income each gets
+ * **exactly `$257.50`**, and every Virginia filer alive gets exactly `$257.50` of
+ * benefit from the state's graduated rates. It is the same number twice because
+ * it is the same arithmetic twice.
+ *
+ * Which makes {@link cap} the interesting field. Virginia publishes the
+ * adjustment as "up to `$259`" — and `$257.50` is the largest figure the
+ * worksheet can produce, because the worksheet's output is exactly the
+ * difference above. **The ceiling is `$1.50` higher than anything that can reach
+ * it, and has been since the 5.75% bracket was set at `$17,000` in 1990.** It is
+ * carried here because it is the law, and `test/virginia.test.js` asserts that it
+ * never binds.
+ */
+export interface SpouseTaxAdjustmentRule {
+  readonly name: string;
+  /** The statutory ceiling. See the note above: it cannot be reached. */
+  readonly cap: number;
+  /** The worksheet splits the return in two. */
+  readonly divisor: number;
+}
+
+/**
+ * A flat per-person credit for filers under the federal poverty guideline, taken
+ * **instead of** the state's earned income credit — Virginia's Credit for Low
+ * Income Individuals, Va. Code § 58.1-339.8.
+ *
+ * The shape worth naming is the election. Virginia offers three amounts and lets
+ * the filer claim exactly one:
+ *
+ * ```text
+ * Credit for Low Income Individuals   $300 x exemptions   non-refundable
+ * Virginia earned income credit       20% of federal      non-refundable
+ * Virginia earned income credit       20% of federal      REFUNDABLE
+ * ```
+ *
+ * Two of those three have been the same percentage since tax year 2025, when the
+ * refundable match rose from 15% to 20% — so **the non-refundable earned income
+ * credit is now dominated by the refundable one at every income and can never be
+ * the right election.** It remains in § 58.1-339.8.B.2 and on the return.
+ *
+ * The live choice is therefore between the `$300` credit and 20% of the federal
+ * one, and it is decided by which is worth more *after* refundability: `$300` a
+ * head is capped at the filer's tax, where the refundable match is not. A family
+ * of four under the guideline has `$1,200` of credit that is worth nothing at all
+ * if their Virginia tax is zero, and a `$900` refundable match that is worth
+ * `$900`.
+ */
+export interface LowIncomeCreditRule {
+  readonly name: string;
+  /** Per exemption on the return — the filers and their dependents. */
+  readonly perExemption: number;
+  /**
+   * The federal poverty guideline the state's AGI is tested against. A cliff:
+   * one dollar over and the whole credit goes.
+   */
+  readonly povertyGuideline: {
+    readonly firstPerson: number;
+    readonly additionalPerson: number;
+    /** Which year's HHS guidelines these are. */
+    readonly year: number;
+  };
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -1159,6 +1306,27 @@ export interface StateIncomeTaxDefinition {
   readonly recapture?: RecaptureRule;
   readonly zeroTaxThreshold?: ZeroTaxThresholdRule;
   readonly retirementExclusion?: RetirementExclusionRule;
+  /** Virginia's age deduction — a subtraction withdrawn at 100%. */
+  readonly ageDeduction?: AgeDeductionRule;
+  /**
+   * True where the state subtracts the taxable Social Security and Tier 1
+   * railroad benefits inside federal AGI as a matter of course, from
+   * {@link StateIncomeTaxInput.taxableSocialSecurity}.
+   *
+   * Most states in this package that exempt Social Security ask the caller to
+   * net it through `subtractions` instead. Virginia needs the figure as an input
+   * either way, because its age deduction is tested on federal AGI **less** this
+   * number — so subtracting it here as well keeps one figure doing both jobs
+   * rather than asking for it twice.
+   */
+  readonly subtractsTaxableSocialSecurity?: boolean;
+  /** Virginia's spouse tax adjustment. Joint returns only. */
+  readonly spouseTaxAdjustment?: SpouseTaxAdjustmentRule;
+  /**
+   * A credit claimed **instead of** {@link earnedIncomeCredit}; the engine takes
+   * whichever leaves the filer better off. Virginia only.
+   */
+  readonly lowIncomeCredit?: LowIncomeCreditRule;
   readonly propertyTaxRelief?: PropertyTaxReliefRule;
   /**
    * Required when {@link base} is `stateDefined`: which input field carries the
