@@ -4,6 +4,279 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 18 — 2026-09-12
+
+### What I did
+Day 17's first priority: **Maryland's retirement income**, which was the largest thing this
+package returned as zero. `packages/us-state-tax` is **v0.14.0** and `packages/us-tax-mcp`
+is **v0.16.0**. **721 tests**, up from 703, all green, zero dependencies anywhere. The
+federal engine is untouched at v0.7.0.
+
+No new state. This is the first day spent entirely on **correctness inside coverage already
+claimed**, and Day 17 was right to rank it above breadth: the gap was larger than the
+`$3,300` Day 17 estimated. A couple both 70 with `$100,000` of pension in Montgomery County
+came back at **`$4,947.05` against a true `$80.00`**.
+
+Three rules landed — the pension exclusion of Md. Code, Tax-Gen. § 10-209(b), the military
+retirement subtraction of § 10-207(q) and the centenarian subtraction of § 10-207(nn) — plus
+`subtractsTaxableSocialSecurity` on Maryland, a new per-person input, and two repairs found
+on the way.
+
+### Maryland taxes Social Security and exempts pensions
+
+The best finding this project has produced, and it is the same *shape* as Day 17's Virginia
+result: two rules that are each quoted correctly everywhere and never quoted together.
+
+Maryland does not tax Social Security. Maryland also excludes up to `$41,200` (2025) of
+employee-retirement-system pension at 65 — and § 10-209(b) reduces that exclusion **dollar
+for dollar by the total benefits received, taxable or not**. Worksheet 13A line 3 says so in
+as many words: Social Security and railroad retirement, Tier I *and* Tier II, "whether or not
+you included any portion of these amounts in your federal adjusted gross income". So across
+the whole band where the pension reaches the cap, the exemption and the offset cancel:
+
+```text
+$30,000 of benefits + $60,000 of pension   Maryland AGI $48,800   tax $2,226.88
+$90,000 of pension, no benefits            Maryland AGI $48,800   tax $2,226.88
+```
+
+Identical to the cent, and the test asserts it that way. Decompose a dollar of benefit: 85
+cents of it arrive through federal AGI, the subtraction takes those same 85 cents back out,
+and the lost exclusion puts a whole dollar in. **A dollar of benefit adds a full dollar to
+Maryland's base and a dollar of pension adds nothing** — so in that band Maryland taxes the benefit it exempts at a
+*higher* inclusion rate than the pension it taxes, and even the 15% of benefits the federal
+government never reaches is clawed back.
+
+**The rule, and it is the generalisation of Day 17's:** *a state's exemption of an income
+class is worth nothing if the same class is charged against an allowance elsewhere on the
+return. Follow the dollar through every line that mentions it, not only the line that
+exempts it.* Day 17 derived the extreme value of a published limit; today's move is to trace
+one dollar through two provisions. Both are one line of arithmetic that nobody does because
+the two facts are printed on different pages.
+
+### The return's totals do not determine the tax, and that is a first
+
+Everything else in this package can be computed from a household total. The pension exclusion
+cannot: it is claimed by a person, capped per person, and offset by *that person's* own
+benefits. One couple both 70, `$80,000` of pension and `$40,000` of benefits between them:
+
+```text
+                                          excluded    state + county
+$40,000 and $20,000 each                   $42,400           $720.00
+the pension on one, the benefits on the
+  other                                    $41,200           $758.40
+all of both on the same spouse              $1,200         $3,261.65
+```
+
+`$41,200` of exclusion and **`$2,541.65` of tax**, on identical totals. And note the middle
+row: separating the pension from the benefits is *worse* than splitting both evenly, because
+the cap wastes the allowance of a spouse who has no pension behind it. I expected the middle
+row to be the best one and it is not — the per-person cap makes the optimum an even split,
+not a concentration.
+
+This forced a new input shape, `retirement: { filer, spouse }`, and the shape is the finding:
+**where a subtraction is capped per person, the household total is not merely imprecise, it
+is insufficient.** When the caller leaves it out the engine puts everything on one spouse —
+the worst of the three cases, so the error runs towards too much tax — and reports the
+assumption *in the name of the subtraction*, which is Day 17's Virginia pattern reused.
+
+### An IRA is not an employee retirement system
+
+§ 10-209(a) excludes an individual retirement account or annuity under IRC § 408, a Roth
+under § 408A, a **rollover** IRA, a SEP under § 408(k) and a § 457(f) plan. A 401(a), 401(k),
+403(b) or 457(b) qualifies.
+
+So **the single most routinely recommended move in retirement planning destroys the
+exclusion**: roll the 401(k) into an IRA and up to `$41,200` a year of excluded income
+becomes fully taxed, for the rest of the retiree's life, at no federal cost and with nothing
+on the federal return to show it happened.
+
+```text
+$50,000 a year, left in the 401(k)          $40.00
+$50,000 a year, rolled into an IRA       $2,322.28
+$150,000 a year, left in the 401(k)      $8,196.80
+$150,000 a year, rolled into an IRA     $11,624.83
+```
+
+**The rule: an eligibility test written on the *form* of an account rather than on the
+character of the income is a trap, because the form is the thing a filer changes for
+unrelated reasons.** Nobody rolls over for tax reasons; everybody rolls over.
+
+### Three age tests on one return, and one of them is 100
+
+The three subtractions disagree about who qualifies, which is why they are one engine
+function over a list of people rather than three:
+
+- **65**, or total disability at any age — *or a spouse's* total disability, which qualifies
+  the healthy spouse too. `$3,361.78` on one birthday for a single filer with `$50,000` of
+  pension, a larger step than any rate change in Maryland's schedule.
+- **No age test at all** for military retired pay: `$12,500` under 55, `$20,000` at 55 or
+  over. A 42-year-old military retiree has a subtraction twenty-five years before any other
+  Maryland retiree, and the fifty-fifth birthday is worth `$596.25`. § 10-207(q) includes
+  death benefits from military service, so a survivor's cap is set by the **survivor's** age,
+  not the service member's — a 45-year-old widow takes `$12,500` of the same benefit a
+  56-year-old widow takes `$20,000` of.
+- **100**, for the first `$100,000` of income of any kind — § 10-207(nn), and the largest
+  subtraction in this package by a factor of two. `$9,049.60` to `$1,064.48` on one birthday.
+
+And the two routes are alternatives that **swap places at `$21,200` of benefits**:
+`min(pay, 41,200 - benefits)` beats a flat `$20,000` exactly while benefits are below
+`$21,200`. The package does not make the election — it says which field is worth more and
+why, and a test brackets the break-even from both sides.
+
+### The only parameter in this package that has ever gone down
+
+`$41,200` for 2025, **`$40,600` for 2026**. Both published by the Comptroller; the Bloomberg
+Tax headline is literally "Maryland Comptroller Publishes 2025, 2026 Pension Exclusion
+Benefits", so it is not a projection. § 10-209(a) ties the maximum to the maximum annual
+benefit under the Social Security Act — and PolicyEngine's own YAML carries a comment saying
+the published figures have never matched the SSA's maxima, so **it cannot be derived and has
+to be transcribed each year.**
+
+**This breaks an assumption I did not know the package was making.** Day 8's rule was "a value
+a reference dataset holds constant into the next year is not next year's value"; today adds
+the other half: **a parameter can move DOWN, and every mechanism for carrying one forward —
+indexation, uprating, `year >= 2026 ? x : x` — assumes it does not.** Anything that indexed
+this upward is wrong for 2026 in the expensive direction. There is now a test asserting the
+2026 maximum is *less* than the 2025 one, which is the only test in the package of that form.
+
+### Two repairs found on the way, and the second is a real defect
+
+- **`totalTax` did not equal the sum of the figures the result reports.** It was
+  `roundCents(unrounded state + local)`, while `tax` and `localTaxes[].tax` were each rounded
+  separately — so wherever a component landed on a half cent the two differed by a cent. The
+  centenarian case found it: `$614.875` of state tax exactly. It now adds the parts as
+  reported. They are separate lines on a real return, charged by different governments, and
+  **"the numbers do not add up" is the one arithmetic complaint a tax library cannot
+  survive.** Nothing else in 721 tests depended on the old behaviour, which is how I know the
+  change is safe and also that nobody had checked.
+- **The MCP server never named the subtractions it computed itself** — one "Less state
+  subtractions" total, with New Jersey's exclusion and now Maryland's three invisible inside
+  it. It lists them now. That is not cosmetic: it is the only path by which the
+  assumption-bearing name above reaches the caller, and I had written the assumption into a
+  string that nothing displayed.
+
+### `stateAdjustedGrossIncome` is now in the result, for a reason worth keeping
+
+The result reported `subtractions` and `taxableIncome` but not the AGI between them, and
+Maryland's whole story is about that figure. It is also **not** the figure Maryland's own
+limits read: § 10-211(c)'s exemption chart, the senior credit and the capital gains surtax are
+all tested on **federal** AGI, so a `$41,200` exclusion moves Maryland AGI and none of them.
+Having both in the result is what lets a caller see that a subtraction did not buy back an
+exemption. I checked the engine was already doing this correctly before documenting it — it
+was, via `stepsMeasuredOn`.
+
+### The tenth `tools/list` compression pass, and it bought no raise
+
+Day 17 said the next state should not buy another ceiling raise. This was not a state, but it
+cost more than one: **1,918 bytes gross**, and `retirement` at 1,870 was the largest single
+property in the payload — four times the next. All of it was recovered and the ceiling is
+Day 17's 53,000 unchanged, at **52,988**. Three rules came out of the pass:
+
+- **A duplicated sub-schema is pure cost.** `retirement.spouse` takes exactly the four fields
+  `retirement.filer` does; a second copy of the property table said nothing new. 230 bytes.
+- **Merging two sentences into one LENGTHENS the payload.** The derived terse form keeps the
+  first sentence, so folding the § 199A SSTB description's opening sentence into its
+  occupation list *added* 408 bytes across four tools. Restoring the short first sentence and
+  trimming only the tail took 540 out. **When a property has a derived short form, the first
+  full stop is a budget line.** I found this by making the change and watching the total go
+  up, which is the only reason I know it.
+- **A correction to Day 14's multiplicity rule: multiplicity applies to the form that is
+  EMITTED.** Trimming a full description carried by one tool and three terse copies pays
+  once, not four times — the `qualifiedBusinesses` trim recovered 16 bytes where it looked
+  like 120.
+
+The rest came out of illustrative arithmetic in six property descriptions and three clauses
+of the tool description, none of it operative and all of it still in the state's own notes.
+
+### The figure I refused to commit
+
+Maryland gives **`$15,000`** to retired correctional officers, law enforcement officers and
+fire, rescue or emergency services personnel aged 55 or over — Form 502SU code letter `v`,
+which stacks with the pension exclusion but reduces the pension figure it is computed on.
+**HB 792 of the 2025 session would raise it to `$20,000`** for tax years after 2024. I have
+the bill, its fiscal-note summary, and a practitioner reporting the change as already in
+their tax software. I could not establish that it was **enacted**: Maryland was running a
+$2.7 billion deficit that session and revenue bills died.
+
+Two sources for `$20,000` would have satisfied the letter of the operating rule. I did not
+commit it, because the rule's *purpose* is to keep a wrong number out and both sources
+describe the same bill rather than the same law. **A second source that is downstream of the
+first is not a second source.** Neither figure is in the package; both are in its notes, and
+in `NOTES-FOR-HUMAN.md` as a one-sentence ask.
+
+Same for the Worksheet 13E ranger exclusion: available at 55 but apparently **not** to a
+filer who is 65 or over, which would mean a retired Maryland park ranger's exclusion *falls*
+on their sixty-fifth birthday — the 13E figure is not reduced by Social Security and the 13A
+one is. That is a good finding if it is true and I could not confirm the age ceiling.
+
+### Sourcing: the PyPI route paid immediately, and its limits showed too
+
+Day 17's rule — when the web is blocked, look for the package registry that ships the data —
+worked on the first try. The `policyengine-us` 2.0.1 wheel gave me Maryland's whole
+retirement tree in one download: the exclusion maxima for five years, the minimum age, the
+military caps and their `2023-01-01` step, the centenarian parameters, the two-income
+subtraction, and — more useful than any of the numbers — **their `md_pension_subtraction_amount`
+formula, which is where the per-person structure and the `has_disabled_spouse` clause came
+from.** Reading the *encoding* beat reading the data, again, which is Day 16's rule.
+
+Its limits also showed, and they are worth recording:
+
+- **The wheel has no public-safety subtraction and no 13E at all.** So the reference model
+  also omits them, which is a small competitive datum: this package's notes now describe two
+  Maryland provisions PolicyEngine does not model.
+- **Its 2026 exclusion figure needed corroborating and it was right.** The YAML carries
+  `uprating: gov.ssa.uprating` *and* an explicit `2026-01-01: 40_600`, which reads like a
+  projection until you find that the Comptroller published it. Search confirmed it. If I had
+  trusted the `uprating` tag I would have gone up instead of down.
+- **`WebSearch` remains the only way to read a blocked page** and returned the § 10-209(a)
+  exclusion list and Worksheet 13A's line 3 wording verbatim. `law.justia.com` is blocked,
+  which is new information — the existing Maryland citations point at it.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`, then `npm ci` in
+  all three packages.
+- Every illustrative figure was computed from the built engine *before* it was written, per
+  Day 14, and it caught me three times: the exclusion spread is `$2,541.65` of tax and not
+  the `$3,240` I had reasoned from a 7.95% rate, because the good splits zero the state tax
+  entirely; the rollover is `$3,428.03` at `$150,000` and not `41,200 × 7.95%`, because the
+  filer's marginal rate spans three brackets; and I wrote `$1,064.47` into the README from
+  the *pre-fix* rounding and had to correct it to `$1,064.48`. **A figure computed before the
+  fix is not a figure computed.**
+- The test that earned its keep was the "all three rules on one return" one: it asserted
+  `$120,000` of exclusion for two spouses with `$60,000` of pension each and got `$82,400`,
+  because the `$41,200` cap binds per person. My expectation was wrong, not the engine.
+- Maryland now carries **17 notes**, the most of any state, and a retiree's result is
+  dominated by them. Day 6's rule says every result costs the caller context. The notes are
+  currently unconditional; they should be filtered by what the inputs actually contain — a
+  return with no military pay does not need the military note. That is the next context
+  saving worth making and it applies to all 28 states.
+- All three suites run before the push, per Day 13. One commit carries all three packages.
+
+### What I would do next
+
+1. **Filter the per-state notes by relevance to the inputs.** Maryland's 17 notes are the
+   proof that the current approach does not scale, and the fix is one predicate per note
+   rather than a new mechanism. It is the cheapest context win left and it improves every
+   state at once.
+2. **Maryland's two-income subtraction**, which is `$1,200` and would ordinarily not be worth
+   a day — except that it is capped at the lesser spouse's income **net of that spouse's own
+   subtractions**, so the pension exclusion reduces it. That ordering is the finding, and it
+   is the last piece of the Maryland return that moves a real number. PolicyEngine's
+   `md_two_income_subtraction` has the whole computation, including their `head_frac`
+   apportionment workaround, which is itself evidence about what the form leaves unsaid.
+3. **The other states' retirement subtractions**, now that the per-person shape exists.
+   Georgia's retirement income exclusion (`$65,000` at 65, and it is per person too),
+   Kentucky's, and Utah's retirement and Social Security credits are all listed as absent in
+   the README and all three make a retiree return too high. The second user of a shape is
+   nearly free, per Day 14, and this shape now has one user.
+4. **Kentucky's occupational taxes** — still blocked as of Day 17; the PyPI route has now
+   proved itself, but PolicyEngine has no `gov/local/ky` tree, so this needs the KACo or KLC
+   table and nothing else has worked. Do not re-spend the search budget.
+5. **State withholding**, Ohio's SD withholding first, because the rate table is already here.
+
+---
+
 ## Day 17 — 2026-09-11
 
 ### What I did

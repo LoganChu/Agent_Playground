@@ -462,6 +462,140 @@ function retirementExclusion(
 }
 
 /**
+ * One person's share of the retirement income on the return, and their age.
+ *
+ * `present` distinguishes "this person has no retirement income" from "this
+ * person does not exist", because a single filer's spouse must not be given a
+ * `$41,200` exclusion of their own.
+ */
+interface RetirementPerson {
+  readonly age: number | undefined;
+  readonly pension: number;
+  readonly benefits: number;
+  readonly military: number;
+  readonly disabled: boolean;
+}
+
+/**
+ * The two people on the return, with the retirement income each of them
+ * received.
+ *
+ * When the caller supplies {@link StateIncomeTaxInput.retirement} this is a
+ * transcription. When they do not, everything is placed on the first filer,
+ * which is deliberate: of the ways a household total can be split, that is the
+ * one that produces the *smallest* Maryland pension exclusion, so the assumption
+ * errs towards too much tax rather than too little. The subtraction's name says
+ * which case was used.
+ */
+function retirementPeople(
+  input: StateIncomeTaxInput,
+): { readonly people: readonly RetirementPerson[]; readonly assumed: boolean } {
+  const filers = filerCount(input.filingStatus);
+  const split = input.retirement;
+  const read = (
+    part: { readonly age: number | undefined; readonly from: NonNullable<StateIncomeTaxInput['retirement']>['filer'] },
+  ): RetirementPerson => ({
+    age: part.age,
+    pension: nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension'),
+    benefits: nonNegative(part.from?.socialSecurityBenefits, 'retirement.socialSecurityBenefits'),
+    military: nonNegative(part.from?.militaryRetirement, 'retirement.militaryRetirement'),
+    disabled: part.from?.totallyDisabled === true,
+  });
+  if (split !== undefined) {
+    const people = [read({ age: input.filerAge, from: split.filer })];
+    if (filers === 2) people.push(read({ age: input.spouseAge, from: split.spouse }));
+    return { people, assumed: false };
+  }
+  // The fallback. `retirementIncome` is the field New Jersey and Ohio already
+  // ask for, and `taxableSocialSecurity` is the taxable part rather than the
+  // total received — so the offset it produces is too small and the exclusion
+  // too large, in the opposite direction from concentrating the income on one
+  // spouse. Both are stated rather than silently netted.
+  const sole: RetirementPerson = {
+    age: input.filerAge,
+    pension: nonNegative(input.retirementIncome, 'retirementIncome'),
+    benefits: nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity'),
+    military: 0,
+    disabled: false,
+  };
+  const people: RetirementPerson[] = [sole];
+  if (filers === 2) {
+    people.push({ age: input.spouseAge, pension: 0, benefits: 0, military: 0, disabled: false });
+  }
+  return { people, assumed: sole.pension > 0 };
+}
+
+/**
+ * Maryland's three per-person retirement subtractions — the pension exclusion of
+ * § 10-209(b), the military retirement subtraction of § 10-207(q) and the
+ * centenarian subtraction of § 10-207(nn).
+ *
+ * They are computed together because they are all keyed to a person rather than
+ * a return, and they disagree about which person qualifies: 65 or totally
+ * disabled for the first, no age test at all for the second, 100 for the third.
+ * One Maryland couple can be inside all three.
+ */
+function retirementSubtractions(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): { readonly total: number; readonly details: readonly { name: string; amount: number }[] } {
+  const none = { total: 0, details: [] as { name: string; amount: number }[] };
+  const pension = def.pensionExclusion;
+  const military = def.militaryRetirementSubtraction;
+  const aged = def.agedIncomeSubtraction;
+  if (!pension && !military && !aged) return none;
+  const { people, assumed } = retirementPeople(input);
+  const anyDisabled = people.some((p) => p.disabled);
+  const details: { name: string; amount: number }[] = [];
+
+  if (pension) {
+    let excluded = 0;
+    for (const person of people) {
+      // § 10-209(b): 65 or over, or totally disabled, or married to someone who
+      // is. The spouse's disability qualifies a person of any age, which is why
+      // `anyDisabled` is computed across the return rather than per person.
+      const qualified =
+        (person.age !== undefined && person.age >= pension.minimumAge) ||
+        (pension.disabilityQualifies && anyDisabled);
+      if (!qualified) continue;
+      excluded += Math.min(person.pension, Math.max(0, pension.maximum - person.benefits));
+    }
+    if (excluded > 0) {
+      details.push({
+        name: assumed
+          ? `${pension.name} (assumed: all of it received by one spouse, and the taxable part of the benefits taken as the total received — pass \`retirement\` for the exact figure)`
+          : pension.name,
+        amount: excluded,
+      });
+    }
+  }
+
+  if (military) {
+    let subtracted = 0;
+    for (const person of people) {
+      if (person.military <= 0) continue;
+      const cap =
+        person.age !== undefined && person.age >= military.ageThreshold
+          ? military.capAtOrAboveAge
+          : military.capUnderAge;
+      subtracted += Math.min(person.military, cap);
+    }
+    if (subtracted > 0) details.push({ name: military.name, amount: subtracted });
+  }
+
+  if (aged) {
+    // Limited by the claimant's own income, which a return-level computation
+    // cannot see. `stateAgi` is clamped at zero downstream, so the only case
+    // this overstates is two centenarians on one return with less than
+    // `$200,000` between them — and it is recorded in the state's notes.
+    const claimants = people.filter((p) => p.age !== undefined && p.age >= aged.minimumAge).length;
+    if (claimants > 0) details.push({ name: aged.name, amount: aged.maximum * claimants });
+  }
+
+  return { total: details.reduce((sum, d) => sum + d.amount, 0), details };
+}
+
+/**
  * The share of pension income a filing status may exclude in one income tier.
  *
  * The statute publishes ten percentages across five statuses and three tiers.
@@ -1016,8 +1150,19 @@ function computeOnce(
   if (def.ageDeduction && ageDeductionTaken > 0) {
     computedSubtractions.push({ name: def.ageDeduction.name, amount: ageDeductionTaken });
   }
+  // Maryland's three per-person retirement subtractions. They come after the
+  // Social Security subtraction above because they read the *total* benefits
+  // received while that one reads the taxable part — the same dollars, counted
+  // twice on one return, in opposite directions.
+  const retirement = retirementSubtractions(def, input);
+  for (const detail of retirement.details) computedSubtractions.push(detail);
   const subtractions =
-    given + exclusion + businessDeduction + socialSecuritySubtraction + ageDeductionTaken;
+    given +
+    exclusion +
+    businessDeduction +
+    socialSecuritySubtraction +
+    ageDeductionTaken +
+    retirement.total;
   const stateAgi = Math.max(0, base + additions - subtractions);
   const modifiedAgi = stateAgi + businessDeduction;
 
@@ -1683,6 +1828,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       addBacks: [],
       subtractions: 0,
       computedSubtractions: [],
+      stateAdjustedGrossIncome: 0,
       deduction: 0,
       exemptions: 0,
       taxableIncome: 0,
@@ -1973,6 +2119,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       name: x.name,
       amount: roundCents(x.amount),
     })),
+    stateAdjustedGrossIncome: roundCents(here.stateAgi),
     deduction: roundCents(here.deduction),
     exemptions: roundCents(here.exemptions),
     taxableIncome: roundCents(here.taxableIncome),
@@ -1995,7 +2142,15 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     marginalRate: stateMarginal,
     effectiveRate: here.incomeBase > 0 ? here.tax / here.incomeBase : 0,
     localTaxes,
-    totalTax: roundCents(here.tax + localTax),
+    // The sum of the figures this result reports, not of the unrounded ones
+    // behind them. They are separate lines on a real return — Maryland's county
+    // tax is line 20 and the total line 21 — and each is charged by a different
+    // government, so a caller who adds `tax` to `localTaxes[].tax` has to get
+    // this number. Rounding the sum instead differs by a cent wherever a
+    // component lands on a half cent, as Maryland's centenarian subtraction
+    // does at $120,000, and "the parts do not add up" is the one arithmetic
+    // complaint a tax library cannot survive.
+    totalTax: roundCents(roundCents(here.tax) + localTax),
     totalMarginalRate: rate(stateMarginal + localMarginal),
     provisional: def.status === 'provisional',
     notes: dynamic.length > 0 ? [...dynamic, ...def.notes] : def.notes,

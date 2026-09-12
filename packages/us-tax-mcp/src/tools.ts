@@ -60,8 +60,60 @@ import {
 import type {
   FilingStatus as StateFilingStatus,
   LocalityCode,
+  PersonRetirementIncome,
+  RetirementIncomeSplit,
   StateCode,
 } from './state-engine/index.js';
+
+/**
+ * Maryland's per-person retirement income.
+ *
+ * Read as an object rather than as six flat fields because the `tools/list`
+ * payload is paid for on every session: one nested property costs a fraction of
+ * `filerEmployerPlanPension`, `spouseEmployerPlanPension` and the four others,
+ * and it is the shape the state actually uses — Worksheet 13A has a "You" column
+ * and a "Spouse" column.
+ */
+function readPersonRetirement(
+  source: Record<string, unknown>,
+  key: string,
+): PersonRetirementIncome | undefined {
+  const raw = source[key];
+  if (raw === undefined || raw === null) return undefined;
+  const person = asRecord(raw, `retirement.${key}`);
+  const pension = readNumber(person, 'employerPlanPension');
+  const benefits = readNumber(person, 'socialSecurityBenefits');
+  const military = readNumber(person, 'militaryRetirement');
+  const disabled = readBoolean(person, 'totallyDisabled');
+  return {
+    ...(pension !== undefined ? { employerPlanPension: pension } : {}),
+    ...(benefits !== undefined ? { socialSecurityBenefits: benefits } : {}),
+    ...(military !== undefined ? { militaryRetirement: military } : {}),
+    ...(disabled !== undefined ? { totallyDisabled: disabled } : {}),
+  };
+}
+
+function readRetirementSplit(
+  source: Record<string, unknown>,
+): RetirementIncomeSplit | undefined {
+  const raw = source['retirement'];
+  if (raw === undefined || raw === null) return undefined;
+  const split = asRecord(raw, 'retirement');
+  const filer = readPersonRetirement(split, 'filer');
+  const spouse = readPersonRetirement(split, 'spouse');
+  if (filer === undefined && spouse === undefined) {
+    throw new ToolInputError(
+      'retirement must contain a filer and/or a spouse object. Maryland\'s pension exclusion is ' +
+        'per person, so there is no household-level figure to fall back on: pass ' +
+        'retirement: { filer: { employerPlanPension: 60000, socialSecurityBenefits: 30000 } }. ' +
+        'Omitting retirement entirely is allowed and puts retirementIncome on one spouse.',
+    );
+  }
+  return {
+    ...(filer !== undefined ? { filer } : {}),
+    ...(spouse !== undefined ? { spouse } : {}),
+  };
+}
 
 export interface ToolResult {
   /** What the model reads. */
@@ -1066,15 +1118,15 @@ const stateTool: ToolDefinition = {
     'pass its adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure ' +
     'a state starts from decides the answer. Nine states need more. NY: locality. MD and IN: county — every ' +
     'resident owes one and it is two fifths of the bill — plus netCapitalGain and stateItemizedDeductions ' +
-    'in MD. OH: city and qualifyingWages, which is box 5 of the W-2 and NOT federal AGI, and ' +
-    'schoolDistrict; Ohio taxes one paycheck on THREE bases that disagree, so a 401(k) deferral is inside ' +
-    'the municipal tax and outside the school district one. MI: city and cityIncome, which is NOT federal ' +
+    'in MD, and retirement for a retiree, because the MD pension exclusion is PER PERSON. OH: city and ' +
+    'qualifyingWages, which is box 5 of the W-2 and NOT federal AGI, and schoolDistrict; Ohio taxes one ' +
+    'paycheck on THREE bases that disagree. MI: city and cityIncome, which is NOT federal ' +
     'AGI. VA: filerAge, spouseAge and taxableSocialSecurity, because the age deduction is withdrawn DOLLAR ' +
-    'FOR DOLLAR and puts a couple both 65 at 11.5%, twice the top rate — and ' +
+    'FOR DOLLAR — and ' +
     'bothSpousesHaveQualifyingIncome for the spouse tax adjustment. CA: earnedIncome and dependentAges. ' +
     'NJ: newJerseyGrossIncome is REQUIRED, plus filerAge and retirementIncome over 62. MA: ' +
     'massachusettsFivePercentIncome is REQUIRED and is NOT federal AGI, plus shortTermCapitalGains and ' +
-    'collectiblesGains, taxed at 8.5% and 12% rather than the 5% every rate table reports. Reports the ' +
+    'collectiblesGains, taxed at 8.5% and 12%. Reports the ' +
     'true marginal rate by rerunning the whole return a dollar higher, which is not the statutory rate ' +
     'wherever a credit phases out or a cliff bites. Every result carries that state\'s own notes and ' +
     'statutes. Does NOT cover a state outside the enum, local tax outside NY, MD, IN, MI and OH, or state ' +
@@ -1199,7 +1251,7 @@ const stateTool: ToolDefinition = {
       county: {
         type: 'string',
         description:
-          'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every resident of both owes a county tax on the same taxable income — 2.25-3.30% in MD, 0.5-3.00% in IN, two fifths of the bill. "Baltimore" alone errors: the City and the County differ.',
+          'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every resident of both owes a county tax on the same taxable income — 2.25-3.30% in MD, 0.5-3.00% in IN. "Baltimore" alone errors: the City and the County differ.',
       },
       city: {
         type: 'string',
@@ -1222,12 +1274,12 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so Schedule C profit and wages of the same size are not the same tax. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
+          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
       },
       bothSpousesHaveQualifyingIncome: {
         type: 'boolean',
         description:
-          'OH and VA: true where EACH spouse on a joint return had income of their own — in OH, $500+ of Ohio AGI less interest, dividends, capital gains and rent. Gates the OH joint filing credit (up to $650) and the VA spouse tax adjustment ($257.50). Omitted, both are zero.',
+          'OH and VA: true where EACH spouse on a joint return had income of their own — in OH, $500+ of Ohio AGI less interest, dividends, capital gains and rent. Gates the OH joint filing credit and the VA spouse tax adjustment. Omitted, both are zero.',
       },
       workCity: {
         type: 'string',
@@ -1250,7 +1302,7 @@ const stateTool: ToolDefinition = {
       schoolDistrict: {
         type: 'string',
         description:
-          'OH only: the four-digit district the filer LIVES in ("0203" is Bluffton EVSD). 214 levy 0.25-2.00% on a separate SD 100, over the state and municipal taxes — 146 on modified AGI less exemptions, which ADDS THE BUSINESS INCOME DEDUCTION BACK, and 68 on earnedIncome alone, which they REQUIRE. Most Ohioans live in one that levies nothing.',
+          'OH only: the four-digit district the filer LIVES in. 214 levy 0.25-2.00% on a separate SD 100, over the state and municipal taxes — 146 on modified AGI less exemptions, which ADDS THE BUSINESS INCOME DEDUCTION BACK, and 68 on earnedIncome alone, which they REQUIRE.',
       },
       residentCreditLimitRate: {
         type: 'number',
@@ -1280,7 +1332,31 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'VA only: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. Virginia subtracts it AND tests the age deduction on federal AGI less it, so it moves the base and the test together. Do not also net it into stateSubtractions.',
+          'VA and MD: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. Both subtract it; VA also tests the age deduction on federal AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
+      },
+      retirement: {
+        type: 'object',
+        description:
+          'MD only: retirement income PER PERSON. Maryland caps and offsets its pension exclusion per person, so a return\'s totals do not determine its tax — one couple\'s can swing $41,200. Omit it and it all lands on one spouse, the worst case, and the result says so.',
+        properties: {
+          filer: {
+            type: 'object',
+            description:
+              'employerPlanPension: taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b) — NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which § 10-209(a) excludes. socialSecurityBenefits: the TOTAL received, Tier I and Tier II, taxable or not — not the part inside federal AGI. militaryRetirement: retired or survivor pay; do not also put it in employerPlanPension. totallyDisabled: qualifies at any age, and the spouse too.',
+            properties: {
+              employerPlanPension: { type: 'number', minimum: 0 },
+              socialSecurityBenefits: { type: 'number', minimum: 0 },
+              militaryRetirement: { type: 'number', minimum: 0 },
+              totallyDisabled: { type: 'boolean' },
+            },
+            additionalProperties: false,
+          },
+          // The same four fields, described once. A second copy of the property
+          // table would cost every client 230 bytes to say nothing new, and
+          // `readPersonRetirement` validates both halves identically anyway.
+          spouse: { type: 'object', description: 'The spouse\'s own, same fields.' },
+        },
+        additionalProperties: false,
       },
       lesserSpouseIncome: {
         type: 'number',
@@ -1298,7 +1374,7 @@ const stateTool: ToolDefinition = {
         type: 'integer',
         minimum: 0,
         description:
-          'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint) of federal AGI less taxable Social Security — 11.5% marginal, twice the top rate. NJ: a $1,000 exemption at 65, the retirement exclusion at 62. MD: a $1,000 exemption and the senior credit, both at 65. Omitted, a retiree return runs far too high.',
+          'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint) of federal AGI less taxable Social Security. NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. Omitted, a retiree return runs far too high.',
       },
       spouseAge: {
         type: 'integer',
@@ -1499,6 +1575,7 @@ const stateTool: ToolDefinition = {
     const businessIncome = readNumber(source, 'businessIncome');
     const bothSpouses = source['bothSpousesHaveQualifyingIncome'];
     const taxableSocialSecurity = readNumber(source, 'taxableSocialSecurity');
+    const retirement = readRetirementSplit(source);
     const lesserSpouseIncome = readNumber(source, 'lesserSpouseIncome');
     const federalPovertyGuideline = readNumber(source, 'federalPovertyGuideline');
     const residentCreditRate = readNumber(source, 'residentCreditRate');
@@ -1558,17 +1635,37 @@ const stateTool: ToolDefinition = {
       );
     }
     for (const [field, value] of [
-      ['taxableSocialSecurity', taxableSocialSecurity],
       ['lesserSpouseIncome', lesserSpouseIncome],
       ['federalPovertyGuideline', federalPovertyGuideline],
     ] as const) {
       if (value !== undefined && state !== 'VA') {
         throw new ToolInputError(
-          `${field} only applies to VA, and ${state} was requested. Virginia is the one state ` +
-            `here that needs the Social Security figure rather than accepting it through ` +
-            `subtractions, because its age deduction is tested on federal AGI less that number.`,
+          `${field} only applies to VA, and ${state} was requested. Both belong to the spouse ` +
+            `tax adjustment and the Credit for Low Income Individuals, neither of which any ` +
+            `other supported state has.`,
         );
       }
+    }
+    // Two states need the Social Security figure rather than accepting it
+    // through subtractions, and they need it for opposite reasons: Virginia
+    // tests its age deduction on federal AGI LESS this number, and Maryland
+    // subtracts it and then charges the total received against the pension
+    // exclusion. Maryland therefore needs two Social Security figures on one
+    // return — the taxable part here, the total received in `retirement`.
+    if (taxableSocialSecurity !== undefined && state !== 'VA' && state !== 'MD') {
+      throw new ToolInputError(
+        `taxableSocialSecurity only applies to VA and MD, and ${state} was requested. Every ` +
+          `other supported state that exempts Social Security takes it through ` +
+          `stateSubtractions instead.`,
+      );
+    }
+    if (retirement !== undefined && state !== 'MD') {
+      throw new ToolInputError(
+        `retirement only applies to MD, and ${state} was requested. Maryland's pension ` +
+          `exclusion is the one subtraction here that is capped and offset PER PERSON, so it ` +
+          `is the one that needs the income split between the spouses. New Jersey's exclusion ` +
+          `is per return: pass retirementIncome.`,
+      );
     }
     // Refused rather than ignored, for the same reason stateItemizedDeductions is:
     // a nonresident city tax with no wage figure is silently zero, and a model
@@ -1662,6 +1759,7 @@ const stateTool: ToolDefinition = {
       ...(workCityEarnings !== undefined ? { workCityEarnings } : {}),
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),
       ...(taxableSocialSecurity !== undefined ? { taxableSocialSecurity } : {}),
+      ...(retirement !== undefined ? { retirement } : {}),
       ...(lesserSpouseIncome !== undefined ? { lesserSpouseIncome } : {}),
       ...(federalPovertyGuideline !== undefined ? { federalPovertyGuideline } : {}),
       ...(capitalGain !== undefined ? { netCapitalGain: capitalGain } : {}),

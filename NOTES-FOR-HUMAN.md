@@ -8,12 +8,112 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 17 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.13.0, and `us-tax-mcp` v0.15.0 — so the version numbers in older entries are
+**As of Day 18 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.14.0, and `us-tax-mcp` v0.16.0 — so the version numbers in older entries are
 stale. And as of Day 17 the publishing ask has a **second, much shorter form**:
 a GitHub Actions workflow that does all of it from a button. See below.
 
 Newest first.
+
+---
+
+## 2026-09-12 (Day 18)
+
+### The ask is unchanged, and it is still one token and one button
+
+Twelve days now. The shape of it has not changed since Day 17 and I have nothing
+to add to it, so I have not made it louder:
+
+1. Create an npm **automation** access token (npmjs.com -> your avatar -> Access
+   Tokens -> Generate New Token -> Automation). The one step I cannot do.
+2. Paste it into this repo as a secret named `NPM_TOKEN`.
+3. Actions -> **Release** -> Run workflow, dry run ticked the first time
+   (it builds, typechecks, runs all **721** tests and packs all three without
+   publishing), then again with dry run unticked.
+
+Nothing is blocked either way.
+
+### One thing I could not verify, and deliberately did not guess
+
+Maryland gives a **$15,000** subtraction to retired correctional officers, law
+enforcement officers and fire, rescue or emergency services personnel aged 55 or
+over — Form 502SU code letter `v`. **HB 792 of the 2025 session would raise it to
+$20,000** for tax years after 2024. I found the bill, its fiscal note summary and
+a tax-software practitioner reporting the change as already in their product, but
+I could not establish from any source reachable here whether it was *enacted* —
+Maryland was running a $2.7 billion deficit in that session, and revenue bills
+died. So I committed **neither** figure and the package says so in its own notes
+rather than returning a confident wrong number.
+
+If you happen to know, or can check `mgaleg.maryland.gov` for HB 792's chapter
+number, that is one sentence that unblocks a real subtraction. Same for the
+Worksheet 13E ranger exclusion, which appears to be available at 55 but *not* to a
+filer who is 65 or over — if that is right, a retired Maryland park ranger's
+exclusion **falls** on their sixty-fifth birthday, which would be worth writing up.
+
+### What changed: Maryland's retirement income
+
+`us-state-tax` v0.14.0 and `us-tax-mcp` v0.16.0. **721 tests**, all green, still
+zero dependencies in all three packages. No new states — this closes the largest
+*correctness* gap inside coverage the package already claimed.
+
+Before today a Maryland retiree's return came back with no pension exclusion at
+all. For a couple both 70 with $100,000 of pension in Montgomery County that was
+**$4,947.05 of tax against a true $80.00** — Day 17 estimated the gap at about
+$3,300 and it was larger than that at every income I checked.
+
+### Four things worth knowing
+
+**Maryland taxes Social Security and exempts pensions**, which is the reverse of
+every summary of the state. It does not tax the benefit — and then charges the
+whole benefit, taxable or not, against the pension exclusion, dollar for dollar.
+So across the band where the pension reaches the cap the two rules cancel exactly:
+
+```text
+$30,000 of benefits + $60,000 of pension    Maryland AGI $48,800, tax $2,226.88
+$90,000 of pension, no benefits             Maryland AGI $48,800, tax $2,226.88
+```
+
+A dollar of benefit adds a **full** dollar to Maryland's base; a dollar of pension
+adds nothing. Even the 15% of benefits the federal government never taxes is
+clawed back.
+
+**A Maryland couple's totals do not determine their tax.** The exclusion is per
+person, capped per person, and offset by that person's own benefits. One couple
+both 70 with $80,000 of pension and $40,000 of benefits between them:
+
+```text
+$40,000 and $20,000 each                    $720.00
+the pension on one, the benefits on the other   $758.40
+all of both on the same spouse             $3,261.65
+```
+
+$2,541.65 decided by nothing but whose name the income is in. Every other
+computation in these packages can be done from a household total. This one cannot,
+so there is now a `retirement: { filer, spouse }` input — and if you omit it the
+result tells you which assumption it made.
+
+**An IRA is not an employee retirement system.** § 10-209(a) excludes an IRA, a
+Roth, a **rollover** IRA, a SEP and a § 457(f) plan. So rolling a 401(k) into an
+IRA — the most routinely recommended move in retirement planning — costs a
+Montgomery County retiree **$2,282.28 a year at $50,000 of income and $3,428.03 at
+$150,000**, for life, at no federal cost and with nothing on the federal return to
+show it happened. I have not seen this priced anywhere.
+
+**And the maximum exclusion goes DOWN in 2026**, from $41,200 to $40,600, both
+figures published by the Comptroller. It is the only parameter in any of these
+packages that has ever decreased, and anything that indexes it upward will be
+wrong for 2026 in the expensive direction.
+
+### Two small repairs found on the way
+
+- `totalTax` disagreed with the sum of the figures the result reports, by a cent,
+  wherever a component landed on a half cent. It was rounding the sum of the
+  unrounded parts. It now adds up the parts as reported, because "the numbers do
+  not add up" is the one arithmetic complaint a tax library cannot survive.
+- The MCP server never named the subtractions it computed itself — it printed one
+  "Less state subtractions" total. It now lists them, which is also the only way
+  the assumption warning above can reach anyone.
 
 ---
 

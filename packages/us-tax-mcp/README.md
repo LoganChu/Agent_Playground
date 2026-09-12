@@ -252,6 +252,30 @@ credits (50% non-refundable, 45% refundable) are **one credit with a floor**, wh
 match rises from 45% to 50% as the filer's tax rises — and 100% for an unmarried childless
 filer, paid in full.
 
+**And Maryland taxes Social Security and exempts pensions**, which is the reverse of every
+summary of the state and follows from two rules that are each quoted correctly and never
+quoted together. Maryland does not tax Social Security; Maryland also excludes up to $41,200
+(2025) of employee-retirement-system pension at 65 — and § 10-209(b) reduces that exclusion
+dollar for dollar by the **total** benefits received, taxable or not. So in the whole band
+where the pension reaches the cap the two cancel: $30,000 of benefits plus $60,000 of pension
+and $90,000 of pension alone both reach a Maryland AGI of $48,800 and a bill of **$2,226.88**.
+A dollar of benefit adds a *full* dollar to Maryland's base; a dollar of pension adds nothing.
+
+The exclusion is claimed **per person**, so a Maryland return's totals do not determine its
+tax. One couple both 70, with $80,000 of pension and $40,000 of benefits between them, pays
+**$720.00** split evenly, **$758.40** with the pension on one spouse and the benefits on the
+other, and **$3,261.65** with both on the same spouse — $2,541.65 decided by nothing but whose
+name the income is in. Pass `retirement: { filer, spouse }`; omit it and everything lands on
+one spouse, the worst case, and the result says which assumption it made.
+
+An **IRA is not an employee retirement system**: § 10-209(a) excludes § 408, § 408A, a
+*rollover* IRA, a SEP and a § 457(f) plan. So the most routinely recommended move in
+retirement planning costs a Montgomery County retiree **$2,282.28 a year at $50,000** and
+**$3,428.03 at $150,000**, at no federal cost and with nothing on the federal return to show
+it happened. Military retired pay has no age gate at all ($12,500 under 55, $20,000 at 55+),
+and at 100 the first $100,000 of income comes off whatever it is. The maximum exclusion
+**falls** in 2026, to $40,600 — the only parameter in this package that has ever gone down.
+
 **Massachusetts is not a 5% flat tax state, and it is the only state here where the rate
 depends on the KIND of income.** M.G.L. c. 62 § 4(a) sets three: 5% on Part B income and on
 the interest, dividends and long-term gains taxed alongside it, **8.5%** on short-term
@@ -341,6 +365,8 @@ visible:
 | New York, single at $130,000 | 6% | **7.14%** — the supplemental tax phases in underneath the rate |
 | Maryland, Frederick County at $150,000 of taxable income | 2.96% | **$360.03 on one dollar** — the county rate applies to the whole income, not the band |
 | Maryland, single at $350,000 of capital gain | 5.75% | **$6,933.08 on one dollar** — the 2% surtax threshold is a test, not a floor |
+| Maryland, a retiree's Social Security | 0% | **7.95%** — the benefit is exempt and then charged against the pension exclusion, dollar for dollar |
+| Maryland, retiree turning 65 on $50,000 of pension | — | **$3,361.78 less**, on one birthday — the pension exclusion arrives |
 | Indiana, Randolph County, 2026 | 2.95% | **5.95%** — the county rate is 3.00%, more than the state's |
 | Michigan, Detroit resident | 4.25% | **6.65%** — the city takes another 2.4% of a base the state return does not compute |
 | Ohio, single at $26,050 of taxable income | 0% | **$322.00 on one cent** — the schedule's constant is charged whole on entering the band |

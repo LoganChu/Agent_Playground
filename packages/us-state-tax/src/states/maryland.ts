@@ -60,6 +60,49 @@
  * tax. For an unmarried childless filer the match is **100%**, the largest in the
  * country, and it is computed on a federal credit the filer may not have received
  * — § 10-704(c)(3) disregards the federal minimum age of 25.
+ *
+ * ## Maryland taxes Social Security and exempts pensions
+ *
+ * Which is the reverse of every summary of Maryland's treatment of retirement
+ * income, and it follows from two rules that are each quoted correctly and never
+ * quoted together.
+ *
+ * Maryland does not tax Social Security. Maryland also excludes up to `$41,200`
+ * (2025) of employee-retirement-system pension for a filer aged 65 or over — and
+ * § 10-209(b) reduces that exclusion, dollar for dollar, by the **total**
+ * benefits the filer received, taxable or not. So across the whole band where the
+ * pension reaches the cap:
+ *
+ * ```text
+ * $30,000 of benefits + $60,000 of pension   Maryland AGI $48,800
+ * $90,000 of pension, no benefits            Maryland AGI $48,800
+ * ```
+ *
+ * The exemption and the offset cancel to the cent. A dollar of benefit adds a
+ * full dollar to Maryland's base — 0.85 of it arriving through federal AGI and
+ * taken straight out again, 1.00 of it through the lost exclusion — while a
+ * dollar of pension adds nothing. **The benefit Maryland exempts is worth less
+ * than the pension it taxes**, and the 15% of benefits the federal government
+ * never taxes is clawed back with the rest.
+ *
+ * ## The return's totals do not determine the tax
+ *
+ * The exclusion is claimed by a person, capped per person, and offset by that
+ * person's own benefits. Three splits of one couple's `$80,000` of pension and
+ * `$40,000` of benefits:
+ *
+ * ```text
+ *                                    excluded    state + county tax
+ * $40,000 and $20,000 each            $42,400              $720.00
+ * the pension on one spouse, the
+ *   benefits on the other             $41,200              $758.40
+ * all of both on the same spouse       $1,200            $3,261.65
+ * ```
+ *
+ * `$41,200` of exclusion and `$2,541.65` of tax, on identical household totals,
+ * in Montgomery County. Every other computation in this package can be performed
+ * from a household total. This one cannot, which is why `retirement` exists as
+ * an input.
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
 import { byStatus, byStatusOf, uniform } from './helpers.js';
@@ -78,6 +121,22 @@ const CITATIONS: readonly Citation[] = [
   {
     title: 'Md. Code, Tax-Gen. § 10-217 — the standard deduction, flat and indexed from tax year 2025',
     url: 'https://law.justia.com/codes/maryland/tax-general/title-10/subtitle-2/part-iv/section-10-217/',
+  },
+  {
+    title: 'Md. Code, Tax-Gen. § 10-209 — the pension exclusion: the definition of "employee retirement system", the age and disability tests, and the dollar-for-dollar reduction for Social Security and railroad retirement benefits',
+    url: 'https://mgaleg.maryland.gov/mgawebsite/Laws/StatuteText?article=gtg&section=10-209&enactments=false',
+  },
+  {
+    title: 'Maryland Pension Exclusion Computation Worksheet (13A) — line 3 is the total benefits received, Tier I and Tier II, whether or not any part reached federal AGI',
+    url: 'https://www.marylandcomptroller.gov/content/dam/mdcomp/tax/forms/worksheets/Pension-Exclusion-Worksheet.pdf',
+  },
+  {
+    title: 'Md. Code, Tax-Gen. § 10-207(q) — the military retirement income subtraction, and (nn), the centenarian subtraction',
+    url: 'https://mgaleg.maryland.gov/mgawebsite/Laws/StatuteText?article=gtg&section=10-207&enactments=false',
+  },
+  {
+    title: 'Comptroller of Maryland — Technical Bulletin No. 51, senior citizens and Maryland income tax',
+    url: 'https://www.marylandcomptroller.gov/content/dam/mdcomp/tax/legal-publications/technical-bulletins/tb-51.pdf',
   },
   {
     title: 'Md. Code, Tax-Gen. § 10-704 — the earned income credit, state and county',
@@ -177,8 +236,15 @@ const NOTES: readonly string[] = [
   'The county earned income credit is not a separate parameter: § 10-704(d) makes it the lesser of the county tax and TEN TIMES the county rate times the federal credit, so it is 22.5% of the federal credit in Worcester and 33% in Dorchester, and it follows each county\'s rate automatically.',
   'The senior tax credit is $1,000 for a filer aged 65 or over ($1,750 where both spouses on a joint return are, and $1,750 for a head of household or surviving spouse), and its income limit is a cliff: $100,000 of federal AGI for a single filer, $150,000 on a joint return. One dollar over costs the whole credit.',
   'The refundable child tax credit is $500 per dependent under 6, and the phase-out is on the RETURN rather than per child — $50 for each $1,000 of federal AGI over $15,000, or any fraction of $1,000. So the $24,001 ceiling published for it is the right answer only for a one-child family: a family with two young children keeps some credit to $34,001 and one with three to $44,001. A dependent of any age who is disabled also qualifies (under 17), which this package cannot see.',
-  'Maryland does not tax Social Security or railroad retirement benefits at all, and allows a pension exclusion of up to $41,200 (2025) for a filer aged 65 or over or disabled, reduced dollar for dollar by Social Security benefits received. Neither is modelled here: pass them through `subtractions`. The pension exclusion is the largest single subtraction on a Maryland retiree\'s return and omitting it can overstate the tax by roughly $3,300 of state and county tax.',
-  'Not modelled: the poverty level credit (5% of earned income for a filer below the federal poverty guideline, against both the state and the county tax); the two-income subtraction of up to $1,200 for a joint return where both spouses have income; the child and dependent care credit; the 529 contribution subtraction; and the special nonresident tax of § 10-106.1, which a nonresident pays in place of a county tax and which the statute sets to the lowest county rate in the state — 2.25%, Worcester\'s. This package computes a full-year resident return.',
+  'Maryland does not tax Social Security or railroad retirement benefits at all. Pass the taxable part — Form 1040 line 6b — as `taxableSocialSecurity` and it comes off the base; do NOT also put it in `subtractions`, or it will be subtracted twice.',
+  'The pension exclusion of § 10-209(b) is PER PERSON, so a Maryland return\'s totals do not determine its tax. Each spouse excludes up to $41,200 (2025) of employee-retirement-system pension LESS that spouse\'s own total Social Security and railroad retirement. A couple both aged 65 with $80,000 of pension and $40,000 of benefits between them excludes $42,400 split evenly, $41,200 with the pension on one spouse and the benefits on the other, and $1,200 with both on the same spouse — which in Montgomery County is $720.00, $758.40 and $3,261.65 of state and county tax, so $2,541.65 is decided by nothing but whose name the income is in. Pass `retirement` with a `filer` and a `spouse`; supply only `retirementIncome` and the engine puts it all on one spouse and says so.',
+  'The exclusion\'s offset is the TOTAL benefit received — Worksheet 13A line 3 asks for Social Security and railroad retirement, Tier I and Tier II, "whether or not you included any portion of these amounts in your federal adjusted gross income" — while the base subtraction above removes only the taxable part. The same dollars are therefore counted twice in opposite directions, and the consequence is that MARYLAND\'S EXEMPTION OF SOCIAL SECURITY IS WORTH NOTHING to a retiree whose qualifying pension reaches the cap: $30,000 of benefits plus $60,000 of pension and $90,000 of pension alone reach the same Maryland AGI to the cent. In that band a dollar of Social Security adds a full dollar to Maryland\'s base while a dollar of pension adds nothing, so Maryland taxes the benefit and exempts the pension — the reverse of what a table of state retirement rules says.',
+  'An IRA is not an employee retirement system. § 10-209(a) excludes an individual retirement account or annuity under IRC § 408, a Roth account under § 408A, a ROLLOVER IRA, a simplified employee pension under § 408(k) and an ineligible deferred compensation plan under § 457(f); qualified defined benefit and defined contribution plans, 401(a), 401(k), 403(b) and 457(b) plans qualify. So rolling a 401(k) into an IRA — the most routinely recommended move in retirement planning — converts up to $41,200 a year of excluded income into fully taxed income for the rest of the retiree\'s life — $2,282.28 a year for a single Montgomery County retiree on $50,000 and $3,428.03 at $150,000 — at no federal cost and with nothing on the federal return to show it happened. Put only qualifying income in `retirement.filer.employerPlanPension`.',
+  'The maximum exclusion FALLS in 2026, from $41,200 to $40,600. Both figures are published by the Comptroller. § 10-209(a) ties the maximum to the maximum annual benefit under the Social Security Act, but the published figures have never matched the Social Security Administration\'s own maxima, so the figure cannot be derived and must be transcribed each year — and a model that indexes it upward is wrong for 2026 in the expensive direction. It is the only parameter in this package that has ever decreased.',
+  'Military retirement income — § 10-207(q), which includes death benefits received as a result of military service, so a Survivor Benefit Plan payment belongs here — is subtracted up to $12,500 for a person under 55 and $20,000 at 55 or over, per person, with no age-65 gate and no benefit offset. A 56-year-old military retiree therefore has a subtraction nine years before any other Maryland retiree has one, and a survivor\'s cap is set by the SURVIVOR\'S age, not the service member\'s. The same dollars may not be claimed twice: for a military retiree aged 65 or over the pension exclusion is worth more whenever their benefits are below $21,200 (2025) and the military subtraction when they are above it, and this package does not make that election for you — put the pay in whichever field is worth more.',
+  'The centenarian subtraction of § 10-207(nn) is $100,000 of income at age 100, per person, with no income or source test at all. This package cannot apportion income between two spouses, so a return with two centenarians and less than $200,000 between them may show a larger subtraction than either could use; the tax is floored at zero either way, so the answer is only wrong where a credit depends on Maryland AGI.',
+  'Not modelled among the retirement provisions: the $15,000 subtraction for retired correctional officers, law enforcement officers and fire, rescue or emergency services personnel aged 55 or over (Form 502SU code letter v), which stacks with the pension exclusion but reduces the pension figure the exclusion is computed on — HB 792 of the 2025 session would raise it to $20,000 for tax years after 2024 and this package could not establish from reachable sources whether it was enacted, so neither figure is committed; and the Worksheet 13E exclusion for a retired forest, park or wildlife ranger, which is available at 55 but NOT to a filer who is 65 or over or disabled, so a ranger\'s exclusion can fall on their sixty-fifth birthday — the 13E figure is not reduced by Social Security and the 13A one is.',
+  'Not modelled: the poverty level credit (5% of earned income for a filer below the federal poverty guideline, against both the state and the county tax); the two-income subtraction of up to $1,200 for a joint return where both spouses have income, which is capped at the lesser spouse\'s income NET of that spouse\'s own subtractions and is therefore reduced by their pension exclusion; the child and dependent care credit; the 529 contribution subtraction; and the special nonresident tax of § 10-106.1, which a nonresident pays in place of a county tax and which the statute sets to the lowest county rate in the state — 2.25%, Worcester\'s. This package computes a full-year resident return.',
 ];
 
 export function maryland(year: number): StateIncomeTaxDefinition | undefined {
@@ -246,6 +312,32 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       amount: byStatus({ single: 1_000, joint: 1_000, separate: 1_000, headOfHousehold: 1_750, qualifyingSurvivingSpouse: 1_750 }),
       amountBothSpouses: byStatus({ single: 1_000, joint: 1_750, separate: 1_000, headOfHousehold: 1_750, qualifyingSurvivingSpouse: 1_750 }),
       incomeLimit: byStatus({ single: 100_000, joint: 150_000, separate: 100_000, headOfHousehold: 150_000 }),
+    },
+    // The taxable part of Social Security and Tier 1 railroad benefits comes
+    // straight back off federal AGI — and is then charged against the pension
+    // exclusion below as part of the *total* received, which is the interaction
+    // that makes Maryland's exemption of Social Security worth nothing to a
+    // retiree whose pension reaches the cap.
+    subtractsTaxableSocialSecurity: true,
+    pensionExclusion: {
+      name: 'Pension exclusion (Worksheet 13A)',
+      // The only figure in this package that falls year over year. Both are
+      // published by the Comptroller; neither can be derived — see the rule's
+      // documentation.
+      maximum: year >= 2026 ? 40_600 : 41_200,
+      minimumAge: 65,
+      disabilityQualifies: true,
+    },
+    militaryRetirementSubtraction: {
+      name: 'Military retirement income subtraction',
+      ageThreshold: 55,
+      capUnderAge: 12_500,
+      capAtOrAboveAge: 20_000,
+    },
+    agedIncomeSubtraction: {
+      name: 'Centenarian subtraction',
+      minimumAge: 100,
+      maximum: 100_000,
     },
     earnedIncomeCredit: {
       name: 'Maryland earned income credit',

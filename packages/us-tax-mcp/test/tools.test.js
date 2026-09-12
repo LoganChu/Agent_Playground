@@ -1750,3 +1750,63 @@ test('state_income_tax computes Virginia, its 11.5% band and its unreachable cei
     /only applies to OH and VA/,
   );
 });
+
+test('state_income_tax carries the Maryland retirement split through untouched', () => {
+  // The per-person object is the first nested input this server takes, so the
+  // test that matters is that it reaches the engine exactly: the split decides
+  // $2,541.65 of tax and no household total can stand in for it.
+  const md = (retirement) =>
+    ok('state_income_tax', {
+      state: 'MD',
+      filingStatus: 'marriedFilingJointly',
+      year: 2025,
+      county: 'Montgomery County',
+      federalAdjustedGrossIncome: 114_000,
+      federalTaxableIncome: 82_500,
+      federalDeduction: 31_500,
+      taxableSocialSecurity: 34_000,
+      filerAge: 70,
+      spouseAge: 70,
+      retirement,
+    });
+  const even = md({
+    filer: { employerPlanPension: 40_000, socialSecurityBenefits: 20_000 },
+    spouse: { employerPlanPension: 40_000, socialSecurityBenefits: 20_000 },
+  });
+  const concentrated = md({
+    filer: { employerPlanPension: 80_000, socialSecurityBenefits: 40_000 },
+  });
+  assert.equal(even.structured.state.totalTax, 720);
+  assert.equal(concentrated.structured.state.totalTax, 3261.65);
+  assert.match(even.text, /Pension exclusion/);
+
+  // A boolean inside the nested object survives the string coercion readNumber
+  // applies to its siblings.
+  const disabled = md({ filer: { employerPlanPension: 40_000, totallyDisabled: true } });
+  assert.equal(
+    disabled.structured.state.computedSubtractions.some((s) =>
+      s.name.startsWith('Pension exclusion'),
+    ),
+    true,
+  );
+});
+
+test('state_income_tax rejects a retirement object with neither person', () => {
+  const message = err('state_income_tax', {
+    state: 'MD',
+    filingStatus: 'single',
+    year: 2025,
+    county: 'Montgomery County',
+    federalAdjustedGrossIncome: 90_000,
+    federalTaxableIncome: 74_250,
+    federalDeduction: 15_750,
+    filerAge: 70,
+    retirement: { employerPlanPension: 60_000 },
+  });
+  // The mistake this catches is the natural one — putting the four fields at the
+  // top of `retirement` instead of under `filer` — and the message has to name
+  // the shape rather than say "invalid", because the exclusion is per person and
+  // there is nothing to fall back on.
+  assert.match(message, /must contain a filer and\/or a spouse object/);
+  assert.match(message, /per person/);
+});

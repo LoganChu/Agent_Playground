@@ -86,7 +86,7 @@ const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {
     // that reaches the biggest object still does nothing if the biggest object is
     // one sentence.
     isSpecifiedServiceTradeOrBusiness: flag(
-      'True for a specified service trade or business under § 199A(d)(2). That covers health, law, accounting, actuarial science, performing arts, consulting, athletics, financial services, brokerage, investing, trading, dealing in securities, and any business whose principal asset is the reputation or skill of its owners. Engineering and architecture are excluded. Below the threshold this flag changes nothing.',
+      'True for a specified service trade or business under § 199A(d)(2). That covers health, law, accounting, consulting, financial services, athletics, performing arts, securities, and any business whose principal asset is its owners\' reputation or skill. Engineering and architecture are excluded. Below the threshold this flag changes nothing.',
     ),
     materiallyParticipates: flag(
       'Whether the taxpayer materially participates (§ 469(h)). Used only by the § 199A(i) $400 minimum deduction. Defaults to true.',
@@ -141,7 +141,7 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
       type: 'array',
       items: QUALIFIED_BUSINESS_SCHEMA,
       description:
-        'Each § 199A trade or business separately, so the deduction is computed rather than assumed — SSTB phase-out, W-2 wage and property cap, loss netting and the taxable income limit included. One entry per Schedule C, describing income already reported through selfEmploymentNetProfit or otherOrdinaryIncome; it adds none.',
+        'Each § 199A trade or business separately, so the deduction is computed rather than assumed — SSTB phase-out, wage and property cap, loss netting and income limit included. One entry per Schedule C, describing income already reported through selfEmploymentNetProfit or otherOrdinaryIncome; it adds none.',
     },
     'Each § 199A trade or business separately; one entry per Schedule C. Adds no income.',
   ),

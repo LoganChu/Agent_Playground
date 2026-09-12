@@ -419,6 +419,112 @@ test('README: the Maryland quick-start and county figures', () => {
   assert.equal(itemizer.totalMarginalRate, 0.0962);
 });
 
+test('README: every Maryland retirement figure quoted above', () => {
+  const mdRetiree = (opts) =>
+    stateIncomeTax({
+      state: 'MD',
+      year: opts.year ?? 2025,
+      filingStatus: opts.filingStatus ?? 'single',
+      county: 'Montgomery County',
+      federal: {
+        adjustedGrossIncome: opts.agi,
+        taxableIncome: Math.max(0, opts.agi - (opts.filingStatus ? 31_500 : 15_750)),
+        deduction: opts.filingStatus ? 31_500 : 15_750,
+        deductionKind: 'standard',
+      },
+      ...opts,
+    });
+
+  // "Maryland taxes Social Security and exempts pensions" — the quick-start
+  // block and the claim that a pure-pension retiree reaches the same figures.
+  const withBenefits = mdRetiree({
+    agi: 85_500,
+    filerAge: 70,
+    taxableSocialSecurity: 25_500,
+    retirement: { filer: { employerPlanPension: 60_000, socialSecurityBenefits: 30_000 } },
+  });
+  assert.equal(withBenefits.stateAdjustedGrossIncome, 48_800);
+  assert.equal(withBenefits.totalTax, 2226.88);
+  const allPension = mdRetiree({
+    agi: 90_000,
+    filerAge: 70,
+    retirement: { filer: { employerPlanPension: 90_000 } },
+  });
+  assert.equal(allPension.stateAdjustedGrossIncome, 48_800);
+  assert.equal(allPension.totalTax, 2226.88);
+
+  // The three splits table, and the $2,541.65 between its extremes.
+  const couple = (retirement) =>
+    mdRetiree({
+      filingStatus: 'marriedFilingJointly',
+      agi: 114_000,
+      taxableSocialSecurity: 34_000,
+      filerAge: 70,
+      spouseAge: 70,
+      retirement,
+    });
+  const exclusion = (r) =>
+    r.computedSubtractions.find((s) => s.name.startsWith('Pension exclusion')).amount;
+  const even = couple({
+    filer: { employerPlanPension: 40_000, socialSecurityBenefits: 20_000 },
+    spouse: { employerPlanPension: 40_000, socialSecurityBenefits: 20_000 },
+  });
+  const separated = couple({
+    filer: { employerPlanPension: 80_000 },
+    spouse: { socialSecurityBenefits: 40_000 },
+  });
+  const concentrated = couple({
+    filer: { employerPlanPension: 80_000, socialSecurityBenefits: 40_000 },
+  });
+  assert.equal(exclusion(even), 42_400);
+  assert.equal(even.totalTax, 720);
+  assert.equal(exclusion(separated), 41_200);
+  assert.equal(separated.totalTax, 758.4);
+  assert.equal(exclusion(concentrated), 1_200);
+  assert.equal(concentrated.totalTax, 3261.65);
+  assert.equal(
+    Math.round((concentrated.totalTax - even.totalTax) * 100) / 100,
+    2541.65,
+  );
+
+  // The rollover table.
+  const inPlan = (agi) =>
+    mdRetiree({ agi, filerAge: 70, retirement: { filer: { employerPlanPension: agi } } }).totalTax;
+  const rolled = (agi) => mdRetiree({ agi, filerAge: 70, retirement: { filer: {} } }).totalTax;
+  assert.equal(inPlan(50_000), 40);
+  assert.equal(rolled(50_000), 2322.28);
+  assert.equal(inPlan(150_000), 8196.8);
+  assert.equal(rolled(150_000), 11_624.83);
+  assert.equal(Math.round((rolled(150_000) - inPlan(150_000)) * 100) / 100, 3428.03);
+
+  // Military: the fifty-fifth birthday, and the $21,200 break-even.
+  const military = (age) =>
+    mdRetiree({
+      agi: 40_000,
+      filerAge: age,
+      retirement: { filer: { militaryRetirement: 40_000 } },
+    }).totalTax;
+  assert.equal(Math.round((military(54) - military(55)) * 100) / 100, 596.25);
+  const route = (benefits, field) =>
+    mdRetiree({
+      agi: 40_000 + 0.85 * benefits,
+      filerAge: 70,
+      taxableSocialSecurity: 0.85 * benefits,
+      retirement: { filer: { [field]: 40_000, socialSecurityBenefits: benefits } },
+    }).totalTax;
+  assert.ok(route(15_000, 'employerPlanPension') < route(15_000, 'militaryRetirement'));
+  assert.ok(route(25_000, 'militaryRetirement') < route(25_000, 'employerPlanPension'));
+
+  // The hundredth birthday.
+  const aged = (age) => mdRetiree({ agi: 120_000, filerAge: age }).totalTax;
+  assert.equal(aged(99), 9049.6);
+  assert.equal(aged(100), 1064.48);
+
+  // The only parameter in this package that goes down.
+  assert.equal(getStateDefinition('MD', 2025).pensionExclusion.maximum, 41_200);
+  assert.equal(getStateDefinition('MD', 2026).pensionExclusion.maximum, 40_600);
+});
+
 test('README: the Indiana county figures', () => {
   const inCounty = (county, year = 2025) =>
     stateIncomeTax({

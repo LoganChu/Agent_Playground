@@ -247,8 +247,35 @@ test('tools/list stays within a sane context budget', () => {
   // copies; MCP has no portable way to share a schema between tools, so the ninth
   // tool has to displace one of those or the household schema has to lose fields.
   //
-  // NINE compression passes, and the ninth is the first to produce a number
-  // worth keeping: the MARGINAL COST OF A STATE.
+  // THE TENTH PASS BOUGHT NO RAISE, which is what the ninth said the next one
+  // had to do. Maryland's retirement work added a nested `retirement` object
+  // and clauses to three shared properties: 1,918 bytes gross, the single
+  // largest property in the payload at 1,870 of them. All of it was recovered,
+  // and the ceiling below is the ninth pass's 53,000 unchanged.
+  //
+  // Where it came from, and the two rules the pass produced:
+  //
+  // 1. A DUPLICATED SUB-SCHEMA IS PURE COST. `retirement.spouse` takes exactly
+  //    the four fields `retirement.filer` does, and a second copy of the
+  //    property table said nothing new — `readPersonRetirement` validates both
+  //    halves identically. Describing them once saved 230 bytes.
+  // 2. MERGING TWO SENTENCES INTO ONE *LENGTHENS* THE PAYLOAD. The derived
+  //    terse form keeps the first sentence, so shortening the § 199A SSTB
+  //    description by folding its opening sentence into the occupation list
+  //    added 408 bytes across four tools instead of removing them. Restoring
+  //    the short first sentence and trimming only the tail took 540 out. When a
+  //    property has a derived short form, the first full stop is a budget line.
+  // 3. And the correction to Day 14's multiplicity rule: multiplicity applies
+  //    to the form that is EMITTED. Trimming a full description carried by one
+  //    tool and three terse copies pays once, not four times — the
+  //    `qualifiedBusinesses` trim recovered 16 bytes where it looked like 120.
+  //
+  // The rest came from illustrative arithmetic in six property descriptions and
+  // three clauses of the tool description, none of it operative and all of it
+  // still in the state's own notes, which every result carries.
+  //
+  // NINE compression passes before it, and the ninth is the first to produce a
+  // number worth keeping: the MARGINAL COST OF A STATE.
   //
   // Virginia arrived with three fields of its own — taxableSocialSecurity,
   // lesserSpouseIncome, federalPovertyGuideline — and a clause added to six

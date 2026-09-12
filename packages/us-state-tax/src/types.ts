@@ -248,6 +248,89 @@ export interface FederalDeductionsTaken {
 /** The federal deductions a state may add back, as a discriminator. */
 export type FederalDeductionKey = keyof FederalDeductionsTaken;
 
+/**
+ * One person's retirement income, for a state that subtracts it per person.
+ *
+ * Every field here is about *one* human being, which is the point: Maryland's
+ * pension exclusion, its military retirement subtraction and its centenarian
+ * subtraction are each claimed by a person and capped per person, and three
+ * different age tests decide them — 65, 55 and 100.
+ */
+export interface PersonRetirementIncome {
+  /**
+   * Taxable pension and annuity income from an **employee retirement system**,
+   * as Md. Code, Tax-Gen. § 10-209(a) defines one: a qualified defined benefit
+   * or defined contribution plan, a `401(a)`, `401(k)`, `403(b)` or `457(b)`.
+   *
+   * **An IRA is not one, and that is the largest trap on a Maryland return.**
+   * The statute excludes an individual retirement account or annuity under
+   * IRC § 408, a Roth account under § 408A, a *rollover* IRA, a simplified
+   * employee pension under § 408(k) and an ineligible deferred compensation plan
+   * under § 457(f). So the single most-recommended move in retirement planning —
+   * roll the 401(k) into an IRA — converts up to `$41,200` a year of excluded
+   * income into fully taxed income, for the rest of the retiree's life, at no
+   * federal cost and with nothing on the federal return to show it happened.
+   * For a single Montgomery County retiree it is `$2,282.28` a year at `$50,000`
+   * of income and `$3,428.03` at `$150,000`.
+   *
+   * Do not include Social Security, railroad retirement or military retired pay
+   * here; each has its own field.
+   */
+  readonly employerPlanPension?: number;
+  /**
+   * **Total** Social Security and railroad retirement benefits this person
+   * received in the year — Tier I *and* Tier II, and whether or not any part of
+   * it reached federal AGI.
+   *
+   * Not {@link StateIncomeTaxInput.taxableSocialSecurity}, which is the part
+   * federal AGI contains. Maryland needs both figures on the same return and
+   * they do opposite jobs: the taxable part comes **off** the base, and the total
+   * received comes off the **pension exclusion**, dollar for dollar.
+   *
+   * The consequence is that Maryland's exemption of Social Security is worth
+   * nothing to a retiree with a pension at or above the cap: every dollar of
+   * benefit is subtracted from the base and then charged again against the
+   * exclusion, so the two rules cancel exactly. The 15% or more of benefits that
+   * the federal government never taxes is clawed back with the rest.
+   */
+  readonly socialSecurityBenefits?: number;
+  /**
+   * Military retirement income — Md. Code, Tax-Gen. § 10-207(q), which defines
+   * it to include death benefits received as a result of military service, so a
+   * surviving spouse's Survivor Benefit Plan payments belong here too.
+   *
+   * Subtracted up to `$12,500` for a person under 55 and `$20,000` at 55 or
+   * over, per person, with **no** age-65 gate and **no** Social Security offset —
+   * so a 56-year-old military retiree has a subtraction nine years before any
+   * other Maryland retiree has one.
+   *
+   * The same dollars may not also be claimed as {@link employerPlanPension}: a
+   * military retiree aged 65 or over should be given whichever field is worth
+   * more, which is the pension exclusion whenever their benefits are below
+   * `$21,200` (2025) and the military subtraction when they are above it.
+   */
+  readonly militaryRetirement?: number;
+  /**
+   * True where this person is **totally disabled**, which qualifies them for
+   * Maryland's pension exclusion at any age — and qualifies their spouse too.
+   *
+   * Narrower than {@link StateIncomeTaxInput.blindOrDisabled}, which counts a
+   * blind filer for the additional exemption whether or not they are disabled.
+   * The two are separate fields because the exclusion is worth up to `$41,200`
+   * and the exemption `$1,000`.
+   */
+  readonly totallyDisabled?: boolean;
+}
+
+/**
+ * Retirement income by person. `spouse` is read only on a joint return or a
+ * qualifying surviving spouse return — the two statuses with two filers.
+ */
+export interface RetirementIncomeSplit {
+  readonly filer?: PersonRetirementIncome;
+  readonly spouse?: PersonRetirementIncome;
+}
+
 export interface StateIncomeTaxInput {
   readonly state: StateCode;
   readonly year: number;
@@ -480,6 +563,35 @@ export interface StateIncomeTaxInput {
    * subtracted twice.
    */
   readonly taxableSocialSecurity?: number;
+  /**
+   * Retirement income **split between the two spouses**, for the states whose
+   * retirement subtractions are per person rather than per return.
+   *
+   * Maryland is the state that makes this necessary, and it is the sharpest
+   * illustration in this package of a return-level total not determining the
+   * answer. Its pension exclusion — Md. Code, Tax-Gen. § 10-209(b) — caps each
+   * *person's* exclusion at `$41,200` (2025) **less that person's own Social
+   * Security**, so the same two return totals can produce four different taxes:
+   *
+   * ```text
+   * a couple, both 65, $80,000 of employer pension and $40,000 of benefits
+   *   $40,000 / $20,000 each             $42,400 excluded
+   *   all the pension on one spouse,
+   *     all the benefits on the other    $41,200 excluded
+   *   all of both on the same spouse      $1,200 excluded
+   * ```
+   *
+   * `$41,200` of spread on identical household totals. For that couple in
+   * Montgomery County the three splits are `$720.00`, `$758.40` and `$3,261.65`
+   * of state and county tax — **`$2,541.65` decided by nothing but whose name
+   * the income is in**. No rate table can express that, and neither can a model
+   * that works from a household total.
+   *
+   * Leave it out and the engine puts {@link retirementIncome} and
+   * {@link taxableSocialSecurity} on one spouse, which is the worst of the three
+   * cases above; the result says so in the name of the subtraction.
+   */
+  readonly retirement?: RetirementIncomeSplit;
   /**
    * The federal poverty guideline for this household, where the caller knows it.
    *
@@ -919,6 +1031,20 @@ export interface StateIncomeTaxResult {
    */
   readonly computedSubtractions: readonly { readonly name: string; readonly amount: number }[];
   /**
+   * The state's adjusted gross income — {@link conformity}`.amount` plus
+   * {@link additions} less {@link subtractions}, floored at zero, and before
+   * {@link deduction} and {@link exemptions}.
+   *
+   * Reported because it is not always the figure the state's own limits are
+   * read against, and the difference is expensive. Maryland's exemption chart,
+   * its senior credit and its capital gains surtax are all tested on **federal**
+   * AGI, so a `$41,200` pension exclusion moves this number and none of them;
+   * Ohio's credit limits are read against a modified AGI that adds its business
+   * income deduction straight back. Having both figures in the result is what
+   * lets a caller see that a subtraction did not buy back an exemption.
+   */
+  readonly stateAdjustedGrossIncome: number;
+  /**
    * The state's own standard or itemized deduction, plus any property tax
    * deduction the engine decided was worth more than the credit it replaces.
    */
@@ -963,7 +1089,16 @@ export interface StateIncomeTaxResult {
    * {@link StateIncomeTaxInput.yonkersNonresidentEarnings} was supplied.
    */
   readonly localTaxes: readonly LocalIncomeTaxResult[];
-  /** {@link tax} plus every local tax. Equal to {@link tax} when there are none. */
+  /**
+   * {@link tax} plus every {@link localTaxes} entry's own `tax`. Equal to
+   * {@link tax} when there are none.
+   *
+   * The sum of the figures **as this result reports them**, each already rounded
+   * to the cent, rather than a rounding of the unrounded amounts behind them.
+   * They are separate lines on a real return, charged by different governments,
+   * so the two differ wherever a component lands on a half cent and a caller who
+   * adds up what they were shown must reach this number.
+   */
   readonly totalTax: number;
   /**
    * {@link marginalRate} plus every local marginal rate — what the next dollar

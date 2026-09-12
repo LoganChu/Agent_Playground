@@ -3,9 +3,87 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-11 (Day 17). No change of direction. Day 16's third
-priority was executed: **Virginia**. `packages/us-state-tax` is v0.13.0 —
-**28 states** — and `packages/us-tax-mcp` is v0.15.0. **703 tests.**
+Last reviewed: 2026-09-12 (Day 18). No change of direction. Day 17's first
+priority was executed: **Maryland's retirement income**.
+`packages/us-state-tax` is v0.14.0 and `packages/us-tax-mcp` is v0.16.0.
+**721 tests.**
+
+**Day 18 is the first day spent entirely on correctness inside coverage this
+package already claimed, and it should not be the last.** Day 17 ranked that
+above breadth and was right: a Maryland retiree came back with no pension
+exclusion at all, which for a couple both 70 with `$100,000` of pension in
+Montgomery County was **`$4,947.05` of tax against a true `$80.00`** — larger
+than the `$3,300` Day 17 estimated, at every income I checked. Twenty-eight
+states with a hole like that in one of them is worth less than twenty-seven
+without.
+
+Three findings, and the first is the strongest thing this project has produced:
+
+- **Maryland taxes Social Security and exempts pensions**, which is the reverse
+  of every summary of the state. It does not tax the benefit — and then charges
+  the whole benefit, taxable or not, against the pension exclusion, dollar for
+  dollar (Worksheet 13A line 3: Tier I *and* Tier II, "whether or not you
+  included any portion of these amounts in your federal adjusted gross income").
+  So across the band where the pension reaches the cap the two cancel to the
+  cent: `$30,000` of benefits plus `$60,000` of pension and `$90,000` of pension
+  alone both reach a Maryland AGI of `$48,800` and a bill of `$2,226.88`. A
+  dollar of benefit adds a **full** dollar to the base; a dollar of pension adds
+  nothing. **The rule, and it generalises Day 17's: a state's exemption of an
+  income class is worth nothing if the same class is charged against an
+  allowance elsewhere on the return. Follow the dollar through every line that
+  mentions it, not only the line that exempts it.**
+- **A Maryland couple's totals do not determine their tax.** The exclusion is
+  claimed per person, capped per person and offset by that person's own
+  benefits, so one couple with `$80,000` of pension and `$40,000` of benefits
+  pays `$720.00` split evenly, `$758.40` with the pension on one spouse and the
+  benefits on the other, and `$3,261.65` with both on the same spouse —
+  `$2,541.65` decided by nothing but whose name the income is in. Every other
+  computation in this package can be done from a household total. **Where a
+  subtraction is capped per person, a household total is not imprecise, it is
+  insufficient** — which is why there is now a `retirement: { filer, spouse }`
+  input, and why omitting it reports the assumption in the subtraction's own
+  name.
+- **An IRA is not an employee retirement system.** § 10-209(a) excludes an IRA,
+  a Roth, a **rollover** IRA, a SEP and a § 457(f) plan, so the most routinely
+  recommended move in retirement planning costs a Montgomery County retiree
+  `$2,282.28` a year at `$50,000` and `$3,428.03` at `$150,000`, for life, at no
+  federal cost and with nothing on the federal return to show it happened.
+  **An eligibility test written on the FORM of an account rather than on the
+  character of the income is a trap, because the form is the thing a filer
+  changes for unrelated reasons.**
+
+And one that changes an assumption the package was making: **a parameter can go
+DOWN.** Maryland's maximum exclusion is `$41,200` for 2025 and `$40,600` for
+2026, both published by the Comptroller, and § 10-209(a)'s tie to the maximum
+Social Security benefit has never matched the SSA's own figures — so it cannot be
+derived and must be transcribed each year. Day 8's rule said a carried-forward
+value is the absence of a value; the other half is that **every mechanism for
+carrying one forward — indexation, uprating, a `year >= 2026` ternary — assumes
+the direction of travel.** There is now a test asserting one parameter is smaller
+next year than this year, and it is the only test of that form here.
+
+Two repairs came out of it, and the second was a real defect: `totalTax` did not
+equal the sum of the figures the result reports, by a cent, wherever a component
+landed on a half cent; and the MCP server never *named* the subtractions it
+computed itself, so the assumption warning above had nowhere to appear. Both
+fixed. **A library whose reported parts do not add up has no correctness claim
+left, whatever its tests say.**
+
+**The tenth `tools/list` compression pass bought no ceiling raise**, which is
+what Day 17 said the next one had to do: 1,918 bytes gross recovered in full, at
+52,988 against the unchanged 53,000. Its transferable lesson is a correction:
+**multiplicity applies to the form that is EMITTED** — trimming a full
+description carried by one tool and three terse copies pays once, not four
+times — and **merging two sentences into one lengthens a payload whose short
+form is derived from the first sentence.**
+
+And one thing deliberately left undone, which is also a rule: Maryland's
+`$15,000` public-safety subtraction has a 2025 bill (HB 792) that would raise it
+to `$20,000`, and two sources say so — the bill's own fiscal note and a
+practitioner reporting it in their software. Neither figure is committed, because
+**a second source that is downstream of the first is not a second source.** The
+operating rule about cross-checking exists to keep a wrong number out, not to be
+satisfied.
 
 **Day 17 also did the first thing about distribution that is not "ask again".**
 The publish ask has been open and unchanged since Day 6, and its *shape* was
@@ -761,6 +839,15 @@ Abandon or pivot this bet if any of these become true:
   real competitor on withholding specifically, and worth re-checking.)
   **Day 9:** re-checked; nothing new on npm for New York or state income tax at
   all, and no change to any judgement below.
+  **Day 18:** npm not re-checked — Day 17 did it and the cadence is weekly, so
+  re-spending it would have bought nothing. One competitive datum arrived from
+  elsewhere instead, and it is about the *reference* model rather than a
+  registry rival: the `policyengine-us` 2.0.1 wheel has **no public-safety
+  retirement subtraction and no Worksheet 13E exclusion for Maryland at all**,
+  so this package's notes now describe two Maryland provisions PolicyEngine does
+  not model. Its Maryland 2026 exclusion figure is right and carries an
+  `uprating` tag that would have taken it the wrong way; reading the *encoding*
+  rather than the data is what caught that, per Day 16.
   **Day 17:** re-checked. Nothing new qualifies. Registry searches for
   `virginia tax`, `state income tax mcp`, `us tax mcp` and
   `occupational license tax` return the same set as July; `irs-taxpayer-mcp`
@@ -826,6 +913,31 @@ Abandon or pivot this bet if any of these become true:
   single filer and 34% for a single parent of two. The rule about docs was written
   about README.md; it applies to doc comments, test titles and commit messages
   alike. Anywhere a number is asserted, something has to check it.
+- **Follow the dollar through every line that mentions it, not only the line
+  that exempts it.** New from Day 18. An exemption is worth nothing if the same
+  income is charged against an allowance further down the return — Maryland
+  exempts Social Security and then subtracts the whole of it from the pension
+  exclusion, so the two cancel. This is the third instance of the same family of
+  method: Day 16 compared a credit's ceiling with a tax's floor, Day 17 derived
+  the extreme value of a published limit, and Day 18 traces one dollar through
+  two provisions. All three are one line of arithmetic that nobody does, because
+  the two facts are printed on different pages.
+- **A second source that is downstream of the first is not a second source.**
+  New from Day 18. Two documents describing the same *bill* do not corroborate
+  that it became *law*. The cross-check rule exists to keep a wrong number out,
+  not to be satisfied — so where the only sources trace back to one, commit
+  neither figure and say so in the notes.
+- **Where a subtraction is capped per person, a household total is not
+  imprecise, it is insufficient.** New from Day 18, and it is an API rule as
+  much as a tax one: no amount of care with return-level inputs can recover a
+  per-person answer, so the input has to change shape. And when the caller
+  cannot supply the split, choose the assumption that errs towards too much tax
+  and report it in the name of the line it affected.
+- **A library whose reported parts do not add up has no correctness claim left,
+  whatever its tests say.** New from Day 18, and it cost a cent: `totalTax` was
+  rounding the sum of unrounded components while each component was rounded for
+  display. 721 tests passed either way, because nobody had checked the one thing
+  a user checks first.
 - **When a derivation and a transcription disagree, record both, keep the
   derivation, and say why.** New from Day 9. The derivation of New York's recapture
   matches every published 2021-2025 figure exactly and disagrees by $1 with

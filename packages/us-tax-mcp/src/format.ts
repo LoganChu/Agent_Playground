@@ -439,7 +439,22 @@ export function renderStateTax(r: StateIncomeTaxResult): string {
   for (const back of r.addBacks) rows.push(`  Plus ${back.name}  ${money(back.amount)}`);
   const otherAdditions = r.additions - r.addBacks.reduce((sum, a) => sum + a.amount, 0);
   if (otherAdditions > 0) rows.push(`  Plus other state additions   ${money(otherAdditions)}`);
-  if (r.subtractions > 0) rows.push(`  Less state subtractions      ${money(r.subtractions)}`);
+  // Named one by one, like the add-backs above, because a subtraction this
+  // package computed itself is the part of the answer a caller cannot check
+  // against their own figures — and because the name is where an assumption is
+  // reported. Maryland's pension exclusion says in its name when it had to
+  // guess which spouse received the income, and a single "state subtractions"
+  // total hid that from the only person who could correct it.
+  if (r.subtractions > 0) {
+    let computed = 0;
+    for (const subtraction of r.computedSubtractions) {
+      if (subtraction.amount === 0) continue;
+      computed += subtraction.amount;
+      rows.push(`  Less ${subtraction.name}  ${money(subtraction.amount)}`);
+    }
+    const supplied = r.subtractions - computed;
+    if (supplied > 0) rows.push(`  Less state subtractions      ${money(supplied)}`);
+  }
   if (r.deduction > 0) rows.push(`  Less state deduction         ${money(r.deduction)}`);
   if (r.exemptions > 0) rows.push(`  Less state exemptions        ${money(r.exemptions)}`);
   rows.push(`State taxable income         ${dollars(r.taxableIncome)}`);

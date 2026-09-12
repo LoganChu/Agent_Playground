@@ -1254,6 +1254,103 @@ export interface LowIncomeCreditRule {
   };
 }
 
+/**
+ * A per-person exclusion of employer-plan pension income, reduced dollar for
+ * dollar by the same person's Social Security — Maryland's, Md. Code, Tax-Gen.
+ * § 10-209(b), computed on Worksheet 13A.
+ *
+ * Three things make it a rule of its own rather than another
+ * {@link RetirementExclusionRule}.
+ *
+ * **It is per person, so the return's totals do not determine it.** Each spouse
+ * has their own {@link maximum} and their own benefits charged against it. A
+ * couple with `$80,000` of pension and `$40,000` of benefits between them
+ * excludes `$42,400` if both are split evenly, `$41,200` if the pension is all
+ * on one spouse and the benefits all on the other, and `$1,200` if both are on
+ * the same spouse — `$720.00`, `$758.40` and `$3,261.65` of state and county
+ * tax in Montgomery County. Everything else in this package can be computed
+ * from a household total; this cannot.
+ *
+ * **The offset is the total benefit received, not the taxable part.** Worksheet
+ * 13A line 3 asks for Social Security and railroad retirement, Tier I and Tier
+ * II, "whether or not you included any portion of these amounts in your federal
+ * adjusted gross income". Maryland has already taken the taxable part off the
+ * base by then, so the same dollars are counted twice, in opposite directions —
+ * which is what makes Maryland's exemption of Social Security worth exactly
+ * nothing to a retiree whose pension reaches the cap.
+ *
+ * **The qualifying income is narrower than "retirement income".** § 10-209(a)
+ * excludes an IRA, a Roth, a *rollover* IRA, a SEP and a § 457(f) plan from
+ * "employee retirement system", so the exclusion is worth up to `$41,200` a year
+ * to a retiree who left the money in a 401(k) — `$3,428.03` of state and county
+ * tax for a single Montgomery County filer at `$150,000` — and nothing to the
+ * same retiree after the rollover that every adviser recommends.
+ *
+ * The {@link maximum} is the only figure in this package that has ever gone
+ * **down**: `$41,200` for 2025 and `$40,600` for 2026, both published by the
+ * Comptroller. § 10-209(a) ties it to the maximum annual benefit under the
+ * Social Security Act, and the published figures have never matched the Social
+ * Security Administration's own maxima, so it cannot be derived — it has to be
+ * transcribed each year, and a model that indexes it upward will be wrong for
+ * 2026 in the expensive direction.
+ */
+export interface PensionExclusionRule {
+  readonly name: string;
+  /** The most one person may exclude, before the benefit offset. */
+  readonly maximum: number;
+  /** Age at which a person qualifies regardless of disability. */
+  readonly minimumAge: number;
+  /**
+   * True where being totally disabled qualifies a person at any age — and where
+   * a person is also qualified by their *spouse* being totally disabled, which
+   * is how Maryland reads it.
+   */
+  readonly disabilityQualifies: boolean;
+}
+
+/**
+ * A per-person subtraction of military retirement income, capped by the
+ * person's age — Maryland's, Md. Code, Tax-Gen. § 10-207(q).
+ *
+ * The shape is a two-step cap and nothing else: no income test, no offset for
+ * benefits, and no minimum age at all. That last absence is the part worth
+ * storing: a Maryland military retiree has a subtraction at 40, where every
+ * other Maryland retiree waits until 65, and at 55 it more than doubles.
+ *
+ * § 10-207(q)(1) defines military retirement income to include death benefits
+ * received as a result of military service, so Survivor Benefit Plan payments to
+ * a surviving spouse are subtracted on the *survivor's* age, not the service
+ * member's — a 45-year-old widow takes `$12,500` and a 56-year-old widow
+ * `$20,000` of the same benefit.
+ */
+export interface MilitaryRetirementSubtractionRule {
+  readonly name: string;
+  /** Age at or above which the larger cap applies. */
+  readonly ageThreshold: number;
+  readonly capUnderAge: number;
+  readonly capAtOrAboveAge: number;
+}
+
+/**
+ * A subtraction of the first N dollars of a very old person's income — Md. Code,
+ * Tax-Gen. § 10-207(nn), added by House Bill 186 of 2022 for tax years after
+ * 2021.
+ *
+ * `$100,000` of income, per person, at age 100. It is the largest subtraction in
+ * this package by a factor of two, and the only one limited by nothing but the
+ * claimant's own income.
+ *
+ * Worth having for a reason beyond the centenarians: it is a subtraction of
+ * *income*, not of a class of income, so it is the only Maryland rule here that
+ * cannot be exhausted by choosing the wrong kind of retirement account.
+ */
+export interface AgedIncomeSubtractionRule {
+  readonly name: string;
+  readonly minimumAge: number;
+  /** The most one person may subtract, limited by their own income. */
+  readonly maximum: number;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -1306,6 +1403,15 @@ export interface StateIncomeTaxDefinition {
   readonly recapture?: RecaptureRule;
   readonly zeroTaxThreshold?: ZeroTaxThresholdRule;
   readonly retirementExclusion?: RetirementExclusionRule;
+  /**
+   * Maryland's pension exclusion — per person, and offset by that person's own
+   * Social Security. Reads {@link StateIncomeTaxInput.retirement}.
+   */
+  readonly pensionExclusion?: PensionExclusionRule;
+  /** Maryland's military retirement subtraction — per person, capped by age. */
+  readonly militaryRetirementSubtraction?: MilitaryRetirementSubtractionRule;
+  /** Maryland's centenarian subtraction — `$100,000` of income at age 100. */
+  readonly agedIncomeSubtraction?: AgedIncomeSubtractionRule;
   /** Virginia's age deduction — a subtraction withdrawn at 100%. */
   readonly ageDeduction?: AgeDeductionRule;
   /**

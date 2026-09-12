@@ -2,10 +2,15 @@
 
 US **state and local** individual income tax for tax years **2025 and 2026**, across **28
 states** including **New York**, **New Jersey**, **Massachusetts**, **Maryland**, **Ohio**
-and — new in 0.13.0 — **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
+and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.14.0: **Maryland's retirement subtractions** — the pension exclusion, which is
+claimed *per person* and reduced dollar for dollar by the same person's Social Security, so
+**Maryland taxes the benefit it exempts and exempts the pension it taxes**; the military
+retirement subtraction, which has no age gate at all; and the centenarian subtraction.
 
 Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
 that package's `estimateFederalTax()` result directly, but neither depends on the other.
@@ -557,6 +562,106 @@ withheld. So the effective match *rises* from 45% to 50% as the filer's tax rise
 adding the two published percentages to get 95% is wrong by roughly the whole state tax.
 For an unmarried childless filer the match is **100%** and it is paid in full — the largest
 state match of the federal childless credit in the country.
+
+### Maryland taxes Social Security and exempts pensions
+
+Which is the reverse of every summary of Maryland's treatment of retirement income, and it
+follows from two rules that are each quoted correctly and never quoted together.
+
+Maryland does not tax Social Security. Maryland also excludes up to `$41,200` (2025) of
+**employee retirement system** pension for a filer aged 65 or over — and Md. Code, Tax-Gen.
+§ 10-209(b) reduces that exclusion, dollar for dollar, by the **total** benefits the filer
+received, taxable or not. Worksheet 13A line 3 says so in as many words: Social Security and
+railroad retirement, Tier I *and* Tier II, "whether or not you included any portion of these
+amounts in your federal adjusted gross income".
+
+So in the whole band where the pension reaches the cap, the two rules cancel:
+
+```js
+const withBenefits = stateIncomeTax({
+  state: 'MD', year: 2025, filingStatus: 'single', county: 'Montgomery County',
+  filerAge: 70, taxableSocialSecurity: 25_500,
+  federal: { adjustedGrossIncome: 85_500, taxableIncome: 69_750,
+             deduction: 15_750, deductionKind: 'standard' },
+  retirement: { filer: { employerPlanPension: 60_000, socialSecurityBenefits: 30_000 } },
+});
+
+withBenefits.stateAdjustedGrossIncome;   // 48800   $30,000 of benefits + $60,000 of pension
+withBenefits.totalTax;                   // 2226.88
+```
+
+A retiree with `$90,000` of pension and **no benefits at all** reaches the same `$48,800` and
+the same `$2,226.88`. A dollar of benefit adds a full dollar to Maryland's base — 0.85 of it
+through federal AGI and taken straight back out, 1.00 of it through the lost exclusion — while
+a dollar of pension adds nothing. **The benefit Maryland exempts is worth less than the
+pension it taxes**, and the 15% of benefits the federal government never taxes is clawed back
+with the rest.
+
+### A Maryland couple's totals do not determine their tax
+
+The exclusion is claimed by a **person**, capped per person, and offset by that person's own
+benefits. So one couple both aged 70, with `$80,000` of employer-plan pension and `$40,000`
+of Social Security between them, has three different taxes:
+
+| how the income is split | excluded | state + county tax |
+| --- | --- | --- |
+| `$40,000` and `$20,000` each | `$42,400` | `$720.00` |
+| the pension on one spouse, the benefits on the other | `$41,200` | `$758.40` |
+| all of both on the same spouse | `$1,200` | `$3,261.65` |
+
+`$41,200` of exclusion and **`$2,541.65` of tax**, on identical household totals, decided by
+nothing but whose name the income is in. Note that separating the pension from the benefits is
+*worse* than splitting both evenly: the cap wastes the allowance of a spouse with no pension
+behind it.
+
+Every other computation in this package can be performed from a household total. This one
+cannot, which is why there is a `retirement` input with a `filer` and a `spouse`. Supply only
+`retirementIncome` and the engine puts it all on one spouse — the worst of the three cases —
+and says so in the name of the subtraction.
+
+### An IRA is not an employee retirement system, and the rollover costs $3,428.03 a year
+
+§ 10-209(a) excludes from "employee retirement system" an individual retirement account or
+annuity under IRC § 408, a Roth account under § 408A, a **rollover** IRA, a simplified
+employee pension under § 408(k), and an ineligible deferred compensation plan under § 457(f).
+Qualified defined benefit and defined contribution plans, `401(a)`, `401(k)`, `403(b)` and
+`457(b)` plans qualify.
+
+So the single most routinely recommended move in retirement planning — roll the 401(k) into an
+IRA — converts up to `$41,200` a year of excluded income into fully taxed income for the rest
+of the retiree's life, at no federal cost and with nothing on the federal return to show it
+happened. For a single Montgomery County retiree aged 70:
+
+```text
+$50,000 a year, left in the 401(k)          $40.00
+$50,000 a year, rolled into an IRA       $2,322.28
+$150,000 a year, left in the 401(k)      $8,196.80
+$150,000 a year, rolled into an IRA     $11,624.83
+```
+
+### Two more Maryland retirement rules, on two more age tests
+
+**Military retirement income has no age gate at all.** § 10-207(q) subtracts up to `$12,500`
+for a person under 55 and `$20,000` at 55 or over, per person, with no benefit offset — so a
+42-year-old military retiree has a subtraction twenty-five years before any other Maryland
+retiree has one, and the fifty-fifth birthday is worth `$596.25`. The statute includes death
+benefits received as a result of military service, so a Survivor Benefit Plan payment is
+capped on the **survivor's** age, not the service member's. The two routes are not additive
+and they swap places: for a military retiree aged 65 or over the pension exclusion is worth
+more whenever their benefits are below `$21,200` (2025) and the military subtraction when they
+are above it.
+
+**And at 100 the first `$100,000` of income comes off, whatever it is.** § 10-207(nn), per
+person, with no income or source test — the largest subtraction in this package by a factor of
+two. It takes a Montgomery County filer on `$120,000` from `$9,049.60` to `$1,064.48` on the
+day they turn 100.
+
+**The maximum pension exclusion falls in 2026**, from `$41,200` to `$40,600`. Both figures are
+published by the Comptroller. § 10-209(a) ties the maximum to the maximum annual benefit under
+the Social Security Act, but the published figures have never matched the Social Security
+Administration's own maxima, so it cannot be derived — and **it is the only parameter in this
+package that has ever gone down**. A model that indexes it upward is wrong for 2026 in the
+expensive direction.
 
 ### Indiana's county tax is 39% of the bill, and it is charged on the same line
 
@@ -1124,11 +1229,20 @@ hides its gaps is worse than useless:
   deafness and paraplegia are allowed by some of the 24 cities and not others. Each is
   worth the city rate times the exemption amount, so the whole class of omission is bounded
   by `$14.40` per exemption, in Detroit, and by `$6.00` in twenty of the cities.
-- **Maryland's pension exclusion is not computed.** Up to `$41,200` for a filer aged 65 or
-  over, reduced by Social Security benefits received — the largest subtraction on a
-  Maryland retiree's return, and omitting it can overstate the tax by about `$3,300` of
-  state and county tax. Nor is the poverty level credit or the two-income subtraction.
-  Pass them through `subtractions`.
+- **Two of Maryland's retirement subtractions.** The pension exclusion, the military
+  retirement subtraction and the centenarian subtraction are computed — pass `retirement`.
+  Absent: the `$15,000` subtraction for retired correctional officers, law enforcement
+  officers and fire, rescue or emergency services personnel aged 55 or over (Form 502SU
+  code letter `v`), which stacks with the pension exclusion but reduces the pension figure
+  the exclusion is computed on; and the Worksheet 13E exclusion for a retired forest, park
+  or wildlife ranger, which is available at 55 but **not** to a filer who is 65 or over,
+  so a ranger's exclusion can *fall* on their sixty-fifth birthday. HB 792 of the 2025
+  session would raise the first from `$15,000` to `$20,000` for tax years after 2024, and
+  this package could not establish from any reachable source whether it was enacted, so
+  **neither figure is committed** rather than one being guessed. Nor is the poverty level
+  credit or the two-income subtraction — which is capped at the lesser spouse's income
+  *net of that spouse's own subtractions*, so the pension exclusion reduces it. Pass those
+  through `subtractions`.
 - **Four states' child credits.** Massachusetts's Child and Family Tax Credit is computed
   for a dependent under 13 or aged 65 and over; a permanently and totally disabled
   dependent of any age also qualifies and this package cannot see disability, so such a
@@ -1172,6 +1286,19 @@ passing one that does not is an error rather than a silently ignored field. Loca
 come back in `result.localTaxes`, a list, because a filer can owe a resident tax to one
 locality and an earnings tax to another; `result.totalTax` and `result.totalMarginalRate`
 cover both levels, and `result.tax` and `result.marginalRate` remain the state alone.
+
+`input.retirement` splits retirement income between the two spouses, for Maryland, whose
+pension exclusion is capped and offset **per person**. It is the only input in this package
+that a household total cannot stand in for. Leave it out and `retirementIncome` and
+`taxableSocialSecurity` are placed on one spouse — of the possible splits, the one producing
+the smallest exclusion — and the subtraction's own name in `result.computedSubtractions`
+says so.
+
+`result.stateAdjustedGrossIncome` is the state's AGI, after additions and subtractions and
+before the deduction and exemptions. It is reported because it is *not* always the figure
+the state's own limits read: Maryland's exemption chart, senior credit and capital gains
+surtax are all tested on **federal** AGI, so a `$41,200` pension exclusion moves this number
+and none of them.
 
 Also exported: `SUPPORTED_STATES`, `SUPPORTED_YEARS`, `SUPPORTED_LOCALITIES`,
 `NO_INCOME_TAX_STATES`, `supportedYears(state)`, `isSupported(state, year)`,
