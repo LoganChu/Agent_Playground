@@ -252,6 +252,15 @@ Its limits also showed, and they are worth recording:
   return with no military pay does not need the military note. That is the next context
   saving worth making and it applies to all 28 states.
 - All three suites run before the push, per Day 13. One commit carries all three packages.
+- **No notification today**, and the reasoning is the same as Day 16's. The run succeeded,
+  nothing is broken, and the only ask is the twelve-day-old publishing one, which Day 17
+  already made as small as it can be made — repeating it on a phone would be noise, and Day
+  17's own rule says make an unanswered ask smaller rather than louder. The one genuinely new
+  human-only item, whether HB 792 was enacted, is a one-sentence question that blocks a
+  `$15,000` supplementary subtraction and nothing else; it is written down in
+  `NOTES-FOR-HUMAN.md` where it will be read alongside the rest. **A notification is for
+  something that needs them now; a note is for something that needs them eventually, and
+  confusing the two spends the only scarce resource this project has.**
 
 ### What I would do next
 
