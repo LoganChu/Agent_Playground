@@ -7,8 +7,8 @@
  * Kentucky, Mississippi, North Carolina and Utah, last year's rate is a number
  * that looks right and is wrong by between 1% and 12.5% of the bill.
  */
-import type { StateIncomeTaxDefinition } from '../definition.js';
-import { byStatus, perPerson, uniform } from './helpers.js';
+import type { ConditionalNote, StateIncomeTaxDefinition } from '../definition.js';
+import { byStatus, perPerson, uniform, whenMilitaryRetirement } from './helpers.js';
 import type { Citation } from '../types.js';
 
 const AZ_CITATIONS: readonly Citation[] = [
@@ -60,12 +60,43 @@ const GA_CITATIONS: readonly Citation[] = [
     title: 'Georgia Department of Revenue — tax tables and rate schedule',
     url: 'https://dor.georgia.gov/tax-tables-georgia-tax-rate-schedule',
   },
+  {
+    title:
+      'O.C.G.A. § 48-7-27(a)(5) and (a)(5.1) — the retirement income exclusion and the military retirement exclusion',
+    url: 'https://law.justia.com/codes/georgia/title-48/chapter-7/article-2/section-48-7-27/',
+  },
+  {
+    title:
+      'Georgia Department of Revenue — Retirement Income Exclusion, and the IT-511 Schedule 1 worksheets',
+    url: 'https://dor.georgia.gov/retirement-income-exclusion',
+  },
+  {
+    title:
+      'Georgia HB 463 (2026) — 4.99% for 2026 and annual cuts to 3.99%, the $70,000 exclusion from 2027, and the 2026-2028 overtime and cash tip exclusions',
+    url: 'https://www.legis.ga.gov/legislation/70350',
+  },
 ];
 
 const GA_NOTES: readonly string[] = [
-  'Georgia repealed the personal exemption for the filer and spouse when it moved to a flat rate in 2024 (HB 1437) and replaced it with a much larger standard deduction. Only the dependent exemption survives. An engine carrying forward a pre-2024 Georgia personal exemption double-counts it.',
+  'Georgia repealed the personal exemption for the filer and spouse when it moved to a flat rate in 2024 (HB 1437) and replaced it with a much larger standard deduction. Only the dependent exemption survives. An engine carrying forward a pre-2024 Georgia personal exemption double-counts it. The additional $1,300 standard deduction for a filer or spouse aged 65 or over or blind went the same way and is not available from 2024 either, so age buys nothing on the deduction line in Georgia — it buys the retirement income exclusion instead.',
   'Georgia has no separate qualifying-surviving-spouse amount: HB 1437 sets the standard deduction at one figure "in the case of a married couple filing a joint return" and another "in the case of any other taxpayer", so a surviving spouse is treated here as any other taxpayer. PolicyEngine-US models the 2026 surviving-spouse standard deduction at the joint amount while modelling the 2025 one at the single amount; that internal inconsistency is why this package follows the statutory pattern instead.',
-  'Not modelled: the Georgia retirement income exclusion, which is large ($35,000 at 62-64 and $65,000 at 65+ per taxpayer) and will make a retiree return computed here far too high.',
+  'The retirement income exclusion of O.C.G.A. § 48-7-27(a)(5) is PER PERSON and is measured on the CHARACTER of the income, not on the plan it came from: interest, dividends, net capital gain, net rents, royalties, alimony received, taxable pensions and taxable IRA distributions all qualify in full. Pass `retirement` with a `filer` and a `spouse`. It is $35,000 for a person aged 62 to 64 — or permanently and totally disabled at any age — and $65,000 at 65 or over, rising to $70,000 at 65 from 2027 under HB 463.',
+  'At most $5,000 of one person\'s EARNED income may enter the exclusion, so Georgia\'s exclusion is a test on the type of a retiree\'s income and not on its amount. In 2026 a single 65-year-old with $65,000 of dividends excludes all of it and owes nothing, while one with $65,000 of wages excludes $5,000 and owes $2,245.50 — the whole bill, on identical income at an identical age. Georgia treats partnership and S corporation income as earned for this purpose, so an active owner\'s distributive share is inside the $5,000 cap and a passive investor\'s interest and dividends are not. The $5,000 figure has applied since 2024; most summaries still print the $4,000 that preceded it.',
+  'Because net capital gain is in the qualifying pool and the allowance is annual, per person and use-it-or-lose-it, Georgia\'s "retirement income exclusion" is also a capital gains allowance: a couple both 65 with no other income may realise $130,000 of gain every year and owe Georgia nothing on it. No guide to the provision says so, because of what it is called.',
+  'Georgia and Maryland use the same words for opposite constructions, and the difference decides the commonest question in retirement planning. Georgia counts taxable IRA distributions in full, so rolling a 401(k) into an IRA costs a Georgia retiree nothing; Maryland\'s § 10-209(a) writes an IRA out of its exclusion by name, so the same rollover costs a Montgomery County retiree $3,378.83 a year at $150,000, for life. And Georgia subtracts taxable Social Security separately without charging it against the exclusion, where Maryland reduces the exclusion by the whole benefit received. Put IRA money in `retirement.filer.iraDistributions`, not in `employerPlanPension`.',
+  'Georgia does not tax Social Security or Tier 1 railroad retirement benefits. Pass the taxable part — Form 1040 line 6b — as `taxableSocialSecurity` and it comes off the base; do NOT also put it in `subtractions`, or it will be subtracted twice.',
+  'Not modelled: the low income credit of O.C.G.A. § 48-7-29.7, which is at most $26 per exemption and is gone at $20,000 of federal AGI; the $4,000-per-return exclusion for income from a disability retirement; the Georgia 529 (Path2College) contribution subtraction; the child and dependent care credit (30% of the federal credit); the qualified education expense and rural hospital credits; and the surplus tax refund, which is not part of the return. Pass any of these through `subtractions` if you have them.',
+];
+
+const GA_MILITARY_NOTES: readonly ConditionalNote[] = [
+  { text: 'The military retirement exclusion of § 48-7-27(a)(5.1) is available only BELOW age 62 — $17,500, plus a second $17,500 for a veteran whose earned income EXCEEDS $17,500. The second half is a cliff on employment: for a veteran with at least $35,000 of military retired pay, one dollar of wages at $17,500 is worth $873.20 of Georgia tax in 2026, the largest single-dollar step in the state. A veteran too disabled to work cannot meet the test — what saves them is the ordinary exclusion, which disability opens at any age.', relevantWhen: whenMilitaryRetirement },
+  { text: 'Composing the two exclusions gives Georgia\'s true maximum, and it is not the $65,000 every table prints. A permanently disabled veteran under 62 with earned income above $17,500 may claim both, up to $70,000 — and it falls to $35,000 on their sixty-second birthday, the birthday every guide describes as the one where Georgia\'s retirement exclusion begins. On $35,000 of military retired pay, $40,000 of IRA distributions and $20,000 of wages that is $1,746.50 of extra Georgia tax for turning 62, and it is not recovered until 65.', relevantWhen: whenMilitaryRetirement },
+  { text: 'This package counts military retired pay left over after the military exclusion as ordinary taxable pension income for the retirement income exclusion, which is what it is on a 1099-R. PolicyEngine-US keeps military pay out of Georgia\'s qualifying pool altogether, so in that model a 65-year-old Georgia military retiree gets no exclusion at all on a pension the state plainly exempts — worth knowing if you are comparing the two.', relevantWhen: whenMilitaryRetirement },
+];
+
+const GA_2026_NOTES: readonly string[] = [
+  'New for 2026 and gone after 2028: HB 463 excludes up to $1,750 of qualified overtime compensation (§ 48-7-27(a)(16)) and up to $1,750 of cash tips (§ 48-7-27(a)(17)), each per employee. Both are read here off `federalDeductions.overtime` and `federalDeductions.tips`, because the federal § 224 and § 225 deductions are below the line and the compensation they exempt is still inside Georgia\'s federal-AGI base — which is the reason a state has to legislate its own subtraction at all. Two limits: the figure is understated for a filer whose federal deduction was cut by the federal phase-out, and the caps are per employee, so a joint return with two tipped workers is entitled to $3,500 and gets $1,750 here.',
+  'HB 463 also set the rate at 4.99% for 2026 and directed further cuts of 0.125 points a year from 2027 until the rate reaches 3.99%, subject to revenue conditions. A model that carries 2026\'s rate forward will be wrong in the expensive direction every year until then; this package refuses years it has not transcribed.',
 ];
 
 function georgia(year: number): StateIncomeTaxDefinition | undefined {
@@ -92,7 +123,40 @@ function georgia(year: number): StateIncomeTaxDefinition | undefined {
       }),
     },
     exemption: { perFiler: uniform(0), perDependent: dependent },
-    notes: GA_NOTES,
+    subtractsTaxableSocialSecurity: true,
+    retirementIncomeExclusion: {
+      name: 'Georgia retirement income exclusion',
+      minimumAge: 62,
+      olderAge: 65,
+      capUnderOlderAge: 35_000,
+      // $70,000 from 2027 under HB 463 § 2-3, which adds § 48-7-27(a)(5)(A)(xiv)
+      // and is not subject to the revenue triggers the rate cuts are.
+      capAtOlderAge: 65_000,
+      // $4,000 through 2023. Most summaries still print that figure.
+      earnedIncomeCap: 5_000,
+      disabilityQualifies: true,
+    },
+    militaryRetirementExclusion: {
+      name: 'Georgia military retirement exclusion',
+      maximumAge: 62,
+      base: 17_500,
+      additional: 17_500,
+      additionalEarnedIncomeThreshold: 17_500,
+    },
+    ...(year >= 2026
+      ? {
+          compensationExclusions: [
+            { name: 'Georgia qualified overtime exclusion', source: 'overtime', cap: 1_750 },
+            { name: 'Georgia cash tip exclusion', source: 'tips', cap: 1_750 },
+          ] as const,
+        }
+      : {}),
+    notes: year >= 2026 ? [...GA_2026_NOTES, ...GA_NOTES] : GA_NOTES,
+    // Three notes about a veterans' exclusion, on a state where almost no return
+    // has military pay on it. The first use of the mechanism, and the argument
+    // for it: they are 1,900 characters that most Georgia callers pay for and
+    // none of them can use.
+    conditionalNotes: GA_MILITARY_NOTES,
     citations: GA_CITATIONS,
   };
 }

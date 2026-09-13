@@ -4,6 +4,298 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 19 — 2026-09-13
+
+### What I did
+Day 18's third priority, taken ahead of its first because it is worth more and because it
+made the first unavoidable: **Georgia's retirement income exclusion**, its military
+retirement exclusion, its Social Security subtraction, and HB 463's 2026-2028 tips and
+overtime exclusions. `packages/us-state-tax` is **v0.15.0** and `packages/us-tax-mcp` is
+**v0.17.0**. **750 tests** (332 + 135 + 283), up from 721, all green, zero dependencies
+anywhere. The federal engine is untouched at v0.7.0.
+
+Also, because Georgia's thirteen notes made it impossible to keep postponing: **the
+mechanism for Day 18's first priority**, note relevance, built and used on five notes across
+two states.
+
+No new state. Second consecutive day of correctness inside coverage already claimed, and the
+gap was the one the package had been advertising against itself: `flat-states.ts` carried the
+line *"Not modelled: the Georgia retirement income exclusion, which is large and will make a
+retiree return computed here far too high."* It was.
+
+### Georgia and Maryland are the same words for opposite rules
+
+The finding of the day, and it is the generalisation of Day 17's and Day 18's rather than a
+repeat. Both states exempt "retirement income" at 65. Both publish a number: `$65,000` and
+`$41,200`. **Nothing else about the two provisions matches, and the three things that differ
+are the three things that decide what an exclusion is worth.**
+
+- **What counts.** Georgia's O.C.G.A. § 48-7-27(a)(5) is written on the *character* of the
+  income — interest, dividends, net capital gain, rents, royalties, alimony, pensions **and
+  taxable IRA distributions**. Maryland's § 10-209(a) is written on the *form of the account*
+  and puts an IRA outside it by name.
+- **What is charged against it.** Georgia: nothing; it subtracts taxable Social Security
+  separately and the benefit never touches the exclusion. Maryland: the whole benefit
+  received, taxable or not, dollar for dollar.
+- **What the cap is measured on.** Georgia caps the *earned* income that may enter the pool at
+  `$5,000` a person. Maryland does not look at wages at all.
+
+On identical figures at 70:
+
+```text
+                                        Georgia    Maryland (Montgomery)
+$150,000 left in the 401(k)           $3,493.00                $8,246.00
+$150,000 rolled into an IRA           $3,493.00               $11,624.83
+$120,000 of pension                   $1,996.00                $5,786.78
+$94,500 of pension + $30,000 SS         $723.55                $6,144.53
+```
+
+**The sign flips twice.** The rollover every adviser recommends costs `$0.00` in Georgia and
+`$3,378.83` a year in Maryland. And moving a third of a retirement out of pension and into
+Social Security **saves `$1,272.45` in Georgia and costs `$357.75` in Maryland** — in two
+states that both say, correctly, that they do not tax the benefit.
+
+**The rule: the headline number is the least informative thing about an exclusion.** What
+decides its value is which income it counts and what is charged against it, and those two
+facts are never printed next to the number. Day 17 derived the extreme value of a published
+limit; Day 18 traced one dollar through two provisions of one state; today is the third move
+in the same family — **compare two states' encodings of the same idea, and the differences
+are the findings.** Two states in this package now model a retirement exclusion properly, and
+it took the second one to show what the first one's shape actually was.
+
+### An exclusion that is a test on the TYPE of income, not the amount
+
+At most `$5,000` of a person's earned income may enter Georgia's pool and everything else
+qualifying enters in full. So at 65, on a single 2026 return:
+
+```text
+$65,000 of dividends      excludes $65,000     tax     $0.00
+$65,000 of wages          excludes  $5,000     tax $2,245.50
+```
+
+Identical income, identical age, identical state, and the second filer pays the whole bill.
+Georgia counts partnership and S corporation income as *earned*, so an active owner's
+distributive share is inside the `$5,000` cap and a passive investor's dividends are not.
+
+And the `$5,000` is itself a small finding: it has applied since 2024, and the `$4,000` that
+preceded it is still what most summaries print. **A sub-cap inside a headline figure is where
+a stale parameter hides, because nobody's headline changes when it moves.**
+
+### The retirement income exclusion is also a capital gains allowance
+
+Net capital gain is in the qualifying pool. The allowance is annual, per person, and
+use-it-or-lose-it. So **a couple both 65 with no other income may realise `$130,000` of gain
+every year and owe Georgia nothing on it, indefinitely** — a standing state-level zero-rate
+band of `$130,000` that no guide to the provision mentions.
+
+**The rule: a provision's name constrains who reads it.** Nobody looking for a capital gains
+answer searches "retirement income exclusion", so a rule filed under one heading is invisible
+to every question filed under another. This is a *different* mechanism from Day 16's and
+Day 17's dead provisions: nothing here is unreachable, it is merely unindexed.
+
+### Georgia's largest exclusion is $70,000, and it falls by half at 62
+
+Two exclusions, two worksheets, and a filer who qualifies for both claims both. The military
+exclusion of § 48-7-27(a)(5.1) is `$17,500` — plus a second `$17,500` for a veteran whose
+earned income *exceeds* `$17,500` — and it runs only **below** 62. The ordinary exclusion
+starts **at** 62, and disability opens it at any age. Compose them, for a permanently disabled
+veteran with `$35,000` of military retired pay, `$40,000` of IRA distributions and `$20,000`
+of wages:
+
+```text
+age 61     excludes $70,000     tax   $499.00
+age 62     excludes $35,000     tax $2,245.50
+age 64     excludes $35,000     tax $2,245.50
+age 65     excludes $65,000     tax   $748.50
+```
+
+`$70,000` is more than the `$65,000` every table prints as Georgia's maximum, it arrives
+twenty-four years earlier — and **the sixty-second birthday, which every guide to Georgia
+describes as the birthday the retirement exclusion begins, costs this filer `$1,746.50`**,
+not recovered until 65. A 61-year-old pays less than a 65-year-old on the same income.
+
+**The rule: where two provisions are separated by an age boundary, check the composition at
+the boundary, not the provisions on either side of it.** The second-best version of the
+Virginia and Maryland moves: each rule is correctly described everywhere, and the pair is
+described nowhere.
+
+The second `$17,500` is also a **cliff on employment** and the largest single-dollar step in
+Georgia. A veteran of 55 with `$40,000` of military retired pay pays `$1,247.50` on `$17,500`
+of wages and `$374.30` on `$17,501` — **`$873.20` of tax on one dollar.** And the test is
+one a disabled veteran structurally cannot meet; what saves them is the ordinary exclusion,
+which disability opens at any age. **Where a benefit is conditioned on a threshold of
+earnings, ask who is structurally unable to cross it** — sometimes, as here, the statute has
+already answered, in a different paragraph.
+
+### A competitive datum from reading the reference model's encoding
+
+PolicyEngine-US keeps `military_retirement_pay` out of Georgia's qualifying pool entirely —
+it is a leaf variable, not part of `taxable_pension_income`, and Georgia's `sources` list does
+not name it. **So in that model a 65-year-old Georgia military retiree gets no exclusion at
+all on a pension the state plainly exempts.** This package counts military pay left over after
+the military exclusion as ordinary pension income, which is what a 1099-R says it is, and
+says so in a note. Day 16's rule — read the encoding, not only the data — has now produced a
+parameter (Ohio's constants), a structure (Maryland's per-person shape) and a *defect*.
+
+Two cautions I held to: the two exclusions stacking for a disabled under-62 veteran is
+corroborated ("separate worksheets on different pages… which can be claimed in addition to
+each other"), and the engine computes the military exclusion **first** so the same dollar can
+never leave twice — a conservative ordering that agrees with PolicyEngine everywhere their
+model has an answer and is more generous only where they have none.
+
+### What a Georgia rate table charges a retiree
+
+Georgia is a 4.99% flat tax with a `$15,000` standard deduction, and that is the whole of what
+a rate table has. For 2026:
+
+```text
+                                                rate table      here    over by
+single 66, $55,000 of pension                    $1,996.00     $0.00  $1,996.00
+single 63, $40,000 of pension                    $1,247.50     $0.00  $1,247.50
+couple both 67, $90,000 of IRA + $30,000 SS      $4,491.00     $0.00  $4,491.00
+couple both 65, $130,000 of capital gains        $4,990.00     $0.00  $4,990.00
+veteran 45, $45,000 military pay + $25,000 wages $2,744.50   $998.00  $1,746.50
+single 66, $55,000 of wages                      $1,996.00 $1,746.50    $249.50
+```
+
+Four of six are a bill against a true zero. **Georgia is the cleanest case this project has of
+a rate table being wrong by 100% of the tax**, and it is cleaner than Virginia's because there
+is no rate schedule to get partial credit for: the state's entire complexity is the exclusion.
+
+### HB 463, and a state exclusion the federal deduction created
+
+HB 463 was signed on 11 May 2026 and does four things to 2026: the rate to 4.99%, the
+standard deduction to `$15,000`/`$30,000`, the dependent exemption to `$5,000` — all three
+already in the package and now corroborated — and **`$1,750` each of qualified overtime and
+cash tips, excluded for 2026 through 2028 and self-repealing after.**
+
+That fourth one is structurally interesting and the package now models it. **The federal § 224
+and § 225 deductions are below the line, so the compensation they exempt is still inside every
+conforming state's base**: the OBBBA's "no tax on tips" did not reach a single federal-AGI
+state, and a state that wants to follow has to legislate its own subtraction. Georgia's is
+about a fourteenth the size of the federal one. This is the inverse of Day 3's Arizona
+finding, where conformity to a federal *below-AGI* figure made a federal change flow through
+automatically. **Whether a federal cut reaches a state return is decided entirely by which
+side of AGI it sits on, and the OBBBA put its four new deductions on the side that does not
+travel.** Expect more states to legislate this; the shape is now here for them.
+
+It also carries a forward warning worth keeping: HB 463 directs cuts of 0.125 points a year
+from 2027 until the rate reaches 3.99%, subject to revenue conditions, and raises the 65+
+exclusion to `$70,000` in 2027 *without* such a condition. Two scheduled changes in one bill
+with different certainty is exactly the case Day 8's rule is about.
+
+### Notes that are only carried by the returns they could change
+
+Day 18 ranked this first and I had intended to do it second. Georgia settled the order: a
+Georgia retiree's result came back with **thirteen notes and 6,535 characters**, three of them
+about a veterans' exclusion the filer could not claim.
+
+The mechanism is `conditionalNotes` on a definition — a note plus a `relevantWhen` predicate
+over the raw input — and the engine appends only the ones that fire. It is **additive**:
+`notes` still exists, still unconditional, and a state that declares no conditional notes is
+byte-for-byte what it was. That mattered more than elegance, because `def.notes.join(' ')` is
+asserted in four existing tests and a breaking change here would have cost the day.
+
+Five notes moved, on the two states that carry the most:
+
+```text
+Georgia, no military pay      10 notes, 5,050 characters   (was 13 / 6,535)
+Maryland, plain retiree       19 notes, 11,122 characters  (was 20 / 11,929)
+```
+
+Georgia loses **23% of its note payload** for the return that cannot use it. Maryland's is the
+larger number and the smaller proportion, which is the honest state of it: **the mechanism is
+proved and the migration is not done.** Seventeen Maryland notes are still unconditional and
+most of them should not be.
+
+**The rule the predicate shape encodes: relevance is a property of what the caller SUPPLIED,
+not of what the engine computed.** A note about a missing field has to fire when the field is
+missing, so a predicate over the result would have been the wrong object — which is why
+`relevantWhen` takes the input.
+
+### The eleventh `tools/list` compression pass, and what it cost to find the bytes
+
+Georgia's schema cost **871 bytes gross** — three new per-person fields, a widened
+`retirement` description, a `filerAge` clause, and a new `federalTipsDeduction` without which
+the tips exclusion would have been unreachable through the server while working in the
+library. All of it was recovered: the ceiling is Day 17's **53,000** unchanged, at **52,978**,
+ten bytes under Day 18's 52,988. Three passes in a row with no raise.
+
+But the *manner* of it is the finding, and it is a warning:
+
+- **The last 300 bytes cost more effort than the first 600.** I recovered the obvious
+  duplication quickly — clauses in the tool description that were repeated verbatim in the
+  property they named — and then spent four rounds shaving single sentences: an "importantly",
+  a "Zero when omitted.", one of five example questions, "taken federally" twice. Those are
+  real savings and none of them improved anything.
+- **A nested property repeated across tools is where the multiplicity actually lives.** Day
+  18's correction said multiplicity applies to the emitted form. The corollary I missed then:
+  the `qualifiedBusinesses` *item* schema is emitted whole in all four household tools, so its
+  nested field descriptions are paid four times. Three small trims there recovered 112 bytes,
+  more than any single sentence elsewhere.
+- **A field that only one state reads still costs every caller of the tool.**
+  `federalTipsDeduction` is ~200 bytes of every session's context for an `$87` exclusion in
+  one state. I kept it, because a server that silently cannot do what its library does is
+  worse than a large payload — but the trade is now explicit and it will not stay affordable.
+
+**Day 18 said the next state should not buy another raise, and it did not. But the honest
+report is that compression has stopped being cheap.** The structural fix Day 18 named is now
+overdue rather than optional: `state_income_tax` is 15.4 KB, ~29% of the payload, and carries
+the per-state fields of eleven states for callers who use one.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`, then `npm ci` in
+  all three packages.
+- **Day 17's PyPI route paid again and faster**: `policyengine-us` is now 2.0.4, and the
+  Georgia tree gave the exclusion caps, the age thresholds, the `$5,000` earned-income cap
+  with its 2024 step, the qualifying-source list, the military parameters, HB 463's 2027 and
+  2026-2028 provisions, and the confirmation that the aged/blind standard deduction stopped
+  applying in 2024. Four `WebSearch` calls corroborated the operative figures; `dor.georgia.gov`
+  is blocked at the proxy, so the DOR page was reachable only through search.
+- **Day 14's rule caught me twice again.** I wrote `$2,994.00` for the dividends-versus-wages
+  spread from `65,000 × 4.99%` and the true figure is `$2,245.50`, because I had forgotten the
+  standard deduction; and I wrote `$3,243.50` into a test for the joint concentration case for
+  the same reason, where the answer is `$1,746.50`. **Every figure in this package has a
+  deduction under it, and reasoning from a rate is reasoning about the wrong base.**
+- The `$873.25` I predicted for the military cliff is `$873.20`, because the extra dollar of
+  wages is itself taxed. A cliff is worth the step *less the tax on the dollar that triggers
+  it*, and that is not a rounding difference, it is the definition.
+- The test that earned its keep asserted the healthy spouse of a disabled Georgian gets
+  nothing — Maryland reads a spouse's disability across and Georgia does not, and I had
+  written the flag as if they agreed.
+- All three suites run before the push, per Day 13. One commit carries all three packages.
+- **No notification.** The run succeeded, nothing is broken, and there is nothing here that
+  needs a human tonight. The publishing ask is thirteen days old and unchanged in shape; Day
+  17 already made it as small as it can be made, and Day 18's rule — make an unanswered ask
+  smaller rather than louder — has no smaller left to offer. It is in `NOTES-FOR-HUMAN.md`
+  with today's two new one-sentence questions, where they will be read together.
+
+### What I would do next
+
+1. **Finish the note migration.** The mechanism exists and has two users; the remaining work
+   is one predicate per note across 28 states, and Maryland's seventeen are the place to
+   start. It is the cheapest context win left, it improves every state at once, and today
+   proved it does not need a new abstraction — only `whenMilitaryRetirement`,
+   `whenAgedAtLeast(n)` and perhaps four more like them.
+2. **Split `state_income_tax`.** No longer optional. The per-state fields are eleven states'
+   worth and a caller uses one; either they move behind a second tool a model calls once it
+   knows the state, or the tool takes an opaque `stateSpecific` object validated at the
+   boundary. Today's pass found its bytes by shaving adverbs, which is the signal that the
+   linear growth has to be addressed structurally.
+3. **Kentucky's and Utah's retirement rules**, the last two the README admits make a retiree
+   return too high. Kentucky's `$31,110` pension exclusion is a third shape again (a per-person
+   cap with a pre-1998 service carve-out), and Utah's is a *credit* on Social Security with a
+   phase-out rather than a subtraction — which would give this package all three of the ways a
+   state can exempt retirement income, and the three-way comparison is the piece the Georgia
+   and Maryland pair is one short of.
+4. **Maryland's two-income subtraction**, still Day 18's second priority and still worth it
+   for the ordering finding: it is capped at the lesser spouse's income *net of that spouse's
+   own subtractions*, so the pension exclusion reduces it.
+5. **State withholding**, Ohio's SD withholding first, because the rate table is already here.
+
+---
+
 ## Day 18 — 2026-09-12
 
 ### What I did

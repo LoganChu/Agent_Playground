@@ -14,6 +14,7 @@ import type {
   ParameterStatus,
   StateCode,
   StateDefinedBaseField,
+  StateIncomeTaxInput,
 } from './types.js';
 
 /**
@@ -1351,6 +1352,135 @@ export interface AgedIncomeSubtractionRule {
   readonly maximum: number;
 }
 
+/**
+ * A per-person exclusion of retirement income measured by the **character** of
+ * the income rather than by the plan it came out of — Georgia's, O.C.G.A.
+ * § 48-7-27(a)(5), computed on the IT-511 Schedule 1 worksheet.
+ *
+ * It is the opposite construction from {@link PensionExclusionRule} in all three
+ * of the ways that decide what an exclusion is worth, which is why the two
+ * cannot share a rule:
+ *
+ * **What counts.** Georgia's qualifying pool is interest, dividends, net capital
+ * gain, rents, royalties, alimony, taxable pensions **and taxable IRA
+ * distributions**. Maryland's is employee retirement systems only, with an IRA
+ * written out of it by name. The rollover that destroys a Maryland exclusion
+ * does nothing at all in Georgia.
+ *
+ * **What is charged against it.** Nothing. Georgia subtracts taxable Social
+ * Security separately and the benefit does not touch this exclusion, where
+ * Maryland reduces its exclusion by the whole benefit received. So Georgia's
+ * exemption of Social Security is worth its face value and Maryland's is worth
+ * nothing to a retiree at the cap.
+ *
+ * **What the cap is measured against.** Only {@link earnedIncomeCap} dollars of
+ * a person's wages may enter the pool, so the exclusion is a test on the *type*
+ * of a retiree's income and not on its amount: at 65 in 2026 a filer with
+ * `$65,000` of dividends excludes all of it and a filer with `$65,000` of wages
+ * excludes `$5,000` — a difference of `$2,245.50` in tax, which is the whole of the
+ * second filer's bill.
+ *
+ * The consequence nobody prints: because net capital gain is in the pool and the
+ * allowance is annual, per person and use-it-or-lose-it, **a retired Georgia
+ * couple at 65 can realise `$130,000` of capital gains every year and owe
+ * Georgia nothing on them.** The provision is called a retirement income
+ * exclusion, so it is not indexed in any guide as what it also is.
+ */
+export interface RetirementIncomeExclusionRule {
+  readonly name: string;
+  /** Age at which a person qualifies at all — Georgia's 62. */
+  readonly minimumAge: number;
+  /** Age at which {@link capAtOlderAge} replaces {@link capUnderOlderAge}. */
+  readonly olderAge: number;
+  readonly capUnderOlderAge: number;
+  readonly capAtOlderAge: number;
+  /**
+   * The most of one person's earned income that may enter the qualifying pool.
+   * Georgia's was `$4,000` through 2023 and has been `$5,000` since 2024, and
+   * the older figure is still the one most summaries print.
+   */
+  readonly earnedIncomeCap: number;
+  /**
+   * True where a permanently and totally disabled person qualifies below
+   * {@link minimumAge}, at {@link capUnderOlderAge}. Georgia reads this per
+   * person; it does not carry across to a spouse the way Maryland's does.
+   */
+  readonly disabilityQualifies: boolean;
+}
+
+/**
+ * An exclusion of military retired pay available only **below** an age —
+ * Georgia's, O.C.G.A. § 48-7-27(a)(5.1).
+ *
+ * Distinct from {@link MilitaryRetirementSubtractionRule}, which is Maryland's
+ * and is capped *by* age with no upper bound. Georgia's has an upper bound and
+ * nothing else: at {@link maximumAge} it disappears, because that is the age at
+ * which {@link RetirementIncomeExclusionRule} begins.
+ *
+ * The second half of it is a cliff on employment. {@link additional} is paid
+ * only to a veteran whose earned income **exceeds**
+ * {@link additionalEarnedIncomeThreshold}, so a veteran with enough military
+ * retired pay to use it turns `$17,500` of exclusion on one dollar of wages —
+ * `$873.20` of Georgia tax in 2026, the largest single-dollar step in the state.
+ * A veteran too disabled to work cannot meet the test; what saves them is the
+ * ordinary exclusion, which disability opens at any age.
+ *
+ * Composing the two rules produces the finding neither one shows on its own:
+ * a disabled working veteran under 62 may claim **both**, up to `$70,000`, which
+ * is more than the `$65,000` every table prints as Georgia's maximum — and it
+ * falls to `$35,000` on their sixty-second birthday, the birthday every guide
+ * describes as the one where Georgia's retirement exclusion *begins*.
+ */
+export interface MilitaryRetirementExclusionRule {
+  readonly name: string;
+  /** Available only to a person strictly below this age. Georgia's is 62. */
+  readonly maximumAge: number;
+  readonly base: number;
+  readonly additional: number;
+  /** Earned income must strictly exceed this for {@link additional}. */
+  readonly additionalEarnedIncomeThreshold: number;
+}
+
+/**
+ * A capped exclusion of one class of compensation, read off the federal
+ * deduction the same dollars produced — Georgia's qualified overtime and cash
+ * tip exclusions, O.C.G.A. § 48-7-27(a)(16) and (17), added by HB 463 of 2026
+ * for tax years 2026 through 2028 and self-repealing after.
+ *
+ * The federal § 224 and § 225 deductions are below-the-line, so they never
+ * reached a federal-AGI base and a conforming state taxes the whole of the tips
+ * and overtime the federal government just exempted. A state that wants to
+ * follow has to legislate its own subtraction, and Georgia's is about a
+ * fourteenth the size of the federal one: `$1,750` against `$25,000`.
+ *
+ * {@link source} names the federal deduction whose underlying compensation this
+ * reads. That is an approximation in one direction only — the deduction equals
+ * the qualifying compensation up to the federal cap and below the federal
+ * phase-out, and is smaller above either — so a high-income filer's state
+ * exclusion is understated here and never overstated.
+ */
+export interface CompensationExclusionRule {
+  readonly name: string;
+  readonly source: FederalDeductionKey;
+  readonly cap: number;
+}
+
+/**
+ * Whether a note is worth one caller's context, given what they supplied.
+ *
+ * Deliberately a predicate over the raw input rather than a declarative tag.
+ * The conditions that matter are statements about *fields* — was military pay
+ * supplied, is anyone over 100 — and a tag vocabulary large enough to express
+ * them is just a predicate with extra steps.
+ */
+export type NoteRelevance = (input: StateIncomeTaxInput) => boolean;
+
+/** A note and the returns it applies to. */
+export interface ConditionalNote {
+  readonly text: string;
+  readonly relevantWhen: NoteRelevance;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -1410,6 +1540,18 @@ export interface StateIncomeTaxDefinition {
   readonly pensionExclusion?: PensionExclusionRule;
   /** Maryland's military retirement subtraction — per person, capped by age. */
   readonly militaryRetirementSubtraction?: MilitaryRetirementSubtractionRule;
+  /**
+   * Georgia's retirement income exclusion — per person, measured on the
+   * character of the income. Reads {@link StateIncomeTaxInput.retirement}.
+   */
+  readonly retirementIncomeExclusion?: RetirementIncomeExclusionRule;
+  /** Georgia's military retirement exclusion — per person, and below 62 only. */
+  readonly militaryRetirementExclusion?: MilitaryRetirementExclusionRule;
+  /**
+   * Exclusions of a class of compensation the federal government deducts below
+   * the line, so a federal-AGI base never saw them. Georgia's tips and overtime.
+   */
+  readonly compensationExclusions?: readonly CompensationExclusionRule[];
   /** Maryland's centenarian subtraction — `$100,000` of income at age 100. */
   readonly agedIncomeSubtraction?: AgedIncomeSubtractionRule;
   /** Virginia's age deduction — a subtraction withdrawn at 100%. */
@@ -1450,6 +1592,21 @@ export interface StateIncomeTaxDefinition {
   readonly addBacks?: readonly FederalDeductionKey[];
   /** Facts a caller would otherwise get wrong. Surfaced in every result. */
   readonly notes: readonly string[];
+  /**
+   * Notes carried only by the returns they could change.
+   *
+   * Every note in {@link notes} is paid for by every caller of that state, in
+   * context, whether or not it is about them: Maryland carries seventeen and
+   * Georgia thirteen, and a Georgia return with no military pay on it has no use
+   * for six hundred words about a veterans' exclusion. The cost is real and it
+   * is the reason this exists — a model reading a result should spend its
+   * context on the notes that bear on the figures in front of it.
+   *
+   * The predicate takes the whole input rather than a summary because relevance
+   * is a property of what the caller supplied, not of what the engine computed:
+   * a note about a field's absence has to fire when the field is absent.
+   */
+  readonly conditionalNotes?: readonly ConditionalNote[];
   readonly citations: readonly Citation[];
 }
 

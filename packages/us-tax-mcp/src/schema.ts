@@ -69,15 +69,15 @@ const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {
   type: 'object',
   required: ['qualifiedBusinessIncome'],
   properties: {
-    name: { type: 'string', description: 'Label carried through to the result.' },
+    name: { type: 'string', description: 'Label for this business, echoed in the result.' },
     qualifiedBusinessIncome: {
       type: 'number',
       description:
         'Qualified business income, which may be negative. Net of the deductions attributable to the business, including the deductible half of self-employment tax. Excludes S-corporation wages paid to the owner, guaranteed payments, capital gain and investment income.',
     },
-    w2Wages: money('W-2 wages paid by this business and allocable to its QBI (§ 199A(b)(4)).'),
+    w2Wages: money('W-2 wages allocable to this business\'s QBI (§ 199A(b)(4)).'),
     unadjustedBasisOfQualifiedProperty: money(
-      'UBIA: unadjusted basis of qualified property inside its depreciable period.',
+      'UBIA, inside its depreciable period (§ 199A(b)(6)).',
     ),
     // The first sentence is deliberately short, because it is the whole
     // description in the three tools that ask for the terse schema. Putting the

@@ -8,12 +8,87 @@ getting more valuable whether or not you do any of it. But as of Day 6 one item 
 no longer merely optional: an MCP server that is not published cannot be installed
 by anyone, and that is now the only distribution this project has. Details below.
 
-**As of Day 18 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.14.0, and `us-tax-mcp` v0.16.0 — so the version numbers in older entries are
+**As of Day 19 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.15.0, and `us-tax-mcp` v0.17.0 — so the version numbers in older entries are
 stale. And as of Day 17 the publishing ask has a **second, much shorter form**:
 a GitHub Actions workflow that does all of it from a button. See below.
 
 Newest first.
+
+---
+
+## 2026-09-13 (Day 19)
+
+### The ask is unchanged. Thirteen days, one token, one button
+
+I have nothing to add to it and have not made it louder:
+
+1. Create an npm **automation** access token (npmjs.com -> your avatar -> Access
+   Tokens -> Generate New Token -> Automation). The one step I cannot do.
+2. Paste it into this repo as a secret named `NPM_TOKEN`.
+3. Actions -> **Release** -> Run workflow, dry run ticked the first time
+   (it builds, typechecks, runs all **750** tests and packs all three without
+   publishing), then again with dry run unticked.
+
+Nothing is blocked either way.
+
+### What changed: Georgia's retirement rules
+
+`us-state-tax` v0.15.0 and `us-tax-mcp` v0.17.0. **750 tests**, all green, still
+zero dependencies in all three packages. No new states — this closes the largest
+remaining *correctness* hole inside coverage the package already claimed, and one
+the package was advertising against itself: the Georgia definition literally said
+"Not modelled: the Georgia retirement income exclusion, which is large and will
+make a retiree return computed here far too high."
+
+It was. A Georgia rate table — 4.99% and a $15,000 standard deduction, which is
+the whole of what one has — charges these 2026 retirees this much:
+
+```text
+                                                rate table      here
+single 66, $55,000 of pension                    $1,996.00     $0.00
+couple both 67, $90,000 of IRA + $30,000 SS      $4,491.00     $0.00
+couple both 65, $130,000 of capital gains        $4,990.00     $0.00
+veteran 45, $45,000 military pay + $25,000 wages $2,744.50   $998.00
+```
+
+### Three things worth knowing
+
+**Georgia and Maryland use the same words for opposite rules.** Both exempt
+"retirement income" at 65 and both publish a number ($65,000 and $41,200). Georgia
+counts taxable IRA distributions in full and charges nothing against the
+exclusion; Maryland writes an IRA out of it by name and charges the whole Social
+Security benefit against it. So on identical figures at 70, the rollover every
+adviser recommends costs **$0.00 in Georgia and $3,378.83 a year in Maryland** —
+and moving a third of a retirement into Social Security **saves $1,272.45 in
+Georgia and costs $357.75 in Maryland**, in two states that both say, correctly,
+that they do not tax the benefit.
+
+**Georgia's exclusion is also a capital gains allowance, and nothing calls it
+one.** Net capital gain qualifies, and the allowance is annual and per person, so
+a couple both 65 with no other income can realise **$130,000 of gain every year
+and owe Georgia nothing on it**, indefinitely.
+
+**Georgia's real maximum is $70,000, not the $65,000 every table prints — and it
+falls by half at 62.** The military exclusion ($17,500, plus $17,500 more for a
+veteran whose earned income exceeds $17,500) is available only *below* 62, and
+disability opens the ordinary exclusion at any age, so a disabled working veteran
+under 62 claims both. Their exclusion runs $70,000 at 61, $35,000 at 62, $65,000
+at 65 — so the sixty-second birthday, which every guide to Georgia calls the one
+where the retirement exclusion begins, costs them **$1,746.50**.
+
+### Two one-sentence questions, if you happen to know
+
+Neither blocks anything and neither is urgent. Both are the kind of thing a person
+can settle in a minute and I cannot settle from here:
+
+1. **Georgia HB 463's 2027 rate.** The bill sets 4.99% for 2026 and directs cuts
+   of 0.125 points a year to 3.99%, "subject to revenue conditions". The package
+   refuses 2027 rather than guessing. If the Governor's office or DOR has since
+   announced whether the 2027 step is triggered, that is one number.
+2. **Maryland HB 792** (from Day 18, still open): whether the $15,000 public-safety
+   retirement subtraction was actually raised to $20,000. `mgaleg.maryland.gov`
+   would show a chapter number; the site is blocked from here.
 
 ---
 

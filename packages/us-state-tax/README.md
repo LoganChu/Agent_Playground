@@ -663,6 +663,125 @@ Administration's own maxima, so it cannot be derived — and **it is the only pa
 package that has ever gone down**. A model that indexes it upward is wrong for 2026 in the
 expensive direction.
 
+### Georgia and Maryland use the same words for opposite rules
+
+Both states exempt "retirement income" at 65 and both publish a number for it. The numbers are
+comparable — `$65,000` in Georgia, `$41,200` in Maryland — and nothing else about the two
+provisions is. Three questions decide what an exclusion is actually worth, and Georgia and
+Maryland answer all three the other way round:
+
+|                                             | Georgia § 48-7-27(a)(5)                                                                     | Maryland § 10-209(b)                          |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| **What counts**                             | interest, dividends, capital gain, rents, royalties, alimony, pensions, **IRA distributions** | employee retirement systems only — an IRA is written out by name |
+| **What is charged against it**              | nothing                                                                                       | the **whole** Social Security benefit received, taxable or not |
+| **What the cap is measured on**             | the income's character — at most `$5,000` of a person's wages may enter it                     | the plan's form; wages are irrelevant          |
+
+So the same two decisions land in opposite places, on identical figures. A single filer aged
+70 with `$150,000` a year:
+
+```text
+                                     Georgia     Maryland (Montgomery)
+left in the 401(k)                 $3,493.00              $8,246.00
+rolled into an IRA                 $3,493.00             $11,624.83
+the cost of the rollover               $0.00              $3,378.83
+```
+
+And `$120,000` of income at 70, once as pension alone and once with `$30,000` of Social
+Security benefits in place of `$30,000` of pension — in two states that both say they do not
+tax Social Security:
+
+```text
+                                     Georgia     Maryland (Montgomery)
+$120,000 of pension                $1,996.00              $5,786.78
+$94,500 of pension + $30,000 SS      $723.55              $6,144.53
+the swap                          -$1,272.45                +$357.75
+```
+
+**The rule: the headline number is the least informative thing about an exclusion.** What
+decides its value is which income it counts and what is charged against it, and those two
+facts are never printed next to the number.
+
+### Georgia's retirement exclusion is a test on the TYPE of income, not the amount
+
+At most `$5,000` of one person's earned income may enter the qualifying pool — and everything
+else that qualifies enters in full. So at 65 in 2026, on a single return:
+
+```text
+$65,000 of dividends       excludes $65,000      tax     $0.00
+$65,000 of wages           excludes  $5,000      tax $2,245.50
+```
+
+Identical income, identical age, identical state. Georgia counts partnership and S corporation
+income as *earned* for this purpose, so an active owner's distributive share is inside the
+`$5,000` cap and a passive investor's dividends are not. (The `$5,000` figure has applied since
+2024. Most summaries still print the `$4,000` that preceded it.)
+
+Because net capital gain is in the pool, and the allowance is annual, per person and
+use-it-or-lose-it, **Georgia's "retirement income exclusion" is also a capital gains
+allowance**: a couple both 65 with no other income may realise `$130,000` of gain every year
+and owe Georgia nothing on it, indefinitely. No guide to the provision says so, because of what
+it is called.
+
+### Georgia's largest exclusion is $70,000, and it falls by half at 62
+
+Georgia has two exclusions and they are on separate worksheets, so a filer who qualifies for
+both claims both. The military exclusion of § 48-7-27(a)(5.1) is `$17,500` — plus a second
+`$17,500` for a veteran whose earned income **exceeds** `$17,500` — and it is available only
+**below** 62. The ordinary exclusion starts *at* 62, and disability opens it at any age.
+
+Compose them. A permanently disabled veteran with `$35,000` of military retired pay, `$40,000`
+of IRA distributions and `$20,000` of wages:
+
+```text
+age 61     excludes $70,000     tax   $499.00
+age 62     excludes $35,000     tax $2,245.50
+age 64     excludes $35,000     tax $2,245.50
+age 65     excludes $65,000     tax   $748.50
+```
+
+`$70,000` is more than the `$65,000` every table prints as Georgia's maximum, it arrives
+twenty-four years earlier, and **the sixty-second birthday — the one every guide to Georgia
+describes as the birthday the retirement exclusion begins — costs this filer `$1,746.50`**,
+which is not recovered until 65.
+
+The second `$17,500` is also a cliff on employment, and the largest single-dollar step in the
+state. A veteran of 55 with `$40,000` of military retired pay:
+
+```text
+$17,500 of wages    excludes $17,500    tax $1,247.50
+$17,501 of wages    excludes $35,000    tax   $374.30
+```
+
+`$873.20` of tax on one dollar of wages. A veteran too disabled to work cannot meet the test;
+what saves them is the ordinary exclusion, which disability opens at any age. **The rule: where
+a benefit is conditioned on a threshold of earnings, ask who is structurally unable to cross
+it.**
+
+### What a Georgia rate table charges a retiree
+
+Georgia is a 4.99% flat tax with a `$15,000` standard deduction, and that is all a rate table
+has. Against this package, for 2026:
+
+```text
+                                                rate table      here    over by
+single 66, $55,000 of pension                    $1,996.00     $0.00  $1,996.00
+single 63, $40,000 of pension                    $1,247.50     $0.00  $1,247.50
+couple both 67, $90,000 of IRA + $30,000 SS      $4,491.00     $0.00  $4,491.00
+couple both 65, $130,000 of capital gains        $4,990.00     $0.00  $4,990.00
+veteran 45, $45,000 military pay + $25,000 wages $2,744.50   $998.00  $1,746.50
+single 66, $55,000 of wages                      $1,996.00 $1,746.50    $249.50
+```
+
+Four of those six are a bill against a true zero. And the last row is the reason the exclusion
+has to be modelled rather than assumed: the same `$55,000` at the same age is `$1,746.50` or
+nothing depending only on where it came from.
+
+New for 2026 and gone after 2028: HB 463 also excludes up to `$1,750` of qualified overtime and
+up to `$1,750` of cash tips. The federal § 224 and § 225 deductions are below the line, so the
+compensation they exempt is still inside every conforming state's base — which is why a state
+that wants to follow has to legislate its own subtraction, and why Georgia's is a fourteenth
+the size of the federal one.
+
 ### Indiana's county tax is 39% of the bill, and it is charged on the same line
 
 Indiana's state rate is 3.00% in 2025 and 2.95% in 2026. The average county rate is
@@ -1251,9 +1370,13 @@ hides its gaps is worse than useless:
   Young Child Tax Credit and New Jersey's child tax credit are computed from
   `dependentAges`. Absent: the California Foster
   Youth Tax Credit, the Arizona dependent credit, the North Carolina child deduction, the
-  Georgia and Kentucky retirement exclusions, and the Utah retirement and Social Security
+  Kentucky pension exclusion, and the Utah retirement and Social Security
   credits. A family return or a retiree return outside New York and California will be
   **too high**.
+- **Georgia's exclusions need `retirement`, and say so when they do not get it.** The
+  exclusion is measured on the character of the income, which a federal AGI does not
+  record, so a Georgia return that supplies only an age gets no exclusion — and a note on
+  that return prices what the omitted field is worth on those very figures.
 - **CalEITC qualifying children are counted from `dependentAges` alone.** A dependent aged
   18 or under counts; a full-time student under 24 and a permanently disabled dependent of
   any age also qualify under § 17052 and this package cannot see either. Nor does it check

@@ -3,10 +3,104 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-12 (Day 18). No change of direction. Day 17's first
-priority was executed: **Maryland's retirement income**.
-`packages/us-state-tax` is v0.14.0 and `packages/us-tax-mcp` is v0.16.0.
-**721 tests.**
+Last reviewed: 2026-09-13 (Day 19). No change of direction. Day 18's third
+priority was executed ahead of its first: **Georgia's retirement income
+exclusion**, and then the first one's *mechanism* because Georgia forced it.
+`packages/us-state-tax` is v0.15.0 and `packages/us-tax-mcp` is v0.17.0.
+**750 tests.**
+
+**Day 19 is the second consecutive day of correctness inside coverage already
+claimed, and it closed a hole the package was advertising against itself**: the
+Georgia definition carried the line "Not modelled: the Georgia retirement income
+exclusion, which is large and will make a retiree return computed here far too
+high." It did. A Georgia rate table — 4.99% and a `$15,000` standard deduction,
+which is the whole of what one has — charges a retired couple with `$90,000` of
+IRA distributions and `$30,000` of Social Security **`$4,491.00` against a true
+`$0.00`**, and four of six retiree profiles come out as a bill against a true
+zero. Georgia is now the cleanest case this project has of a rate table being
+wrong by **100% of the tax**, and cleaner than Virginia's, because there is no
+rate schedule to get partial credit for.
+
+**The finding is the comparison, not the state, and it is the third move in a
+family.** Day 17 derived the extreme value of a published limit; Day 18 traced
+one dollar through two provisions of one state; Day 19 compares two states'
+encodings of the same idea. Georgia and Maryland both exempt "retirement income"
+at 65 and both publish a number — `$65,000` and `$41,200`. Nothing else about
+them matches, and the three things that differ are the three that decide what an
+exclusion is worth: **what counts** (Georgia reads the income's character and
+includes IRA distributions; Maryland reads the account's form and writes an IRA
+out by name), **what is charged against it** (Georgia nothing; Maryland the whole
+Social Security benefit received, taxable or not), and **what the cap is measured
+on** (Georgia caps the *earned* income entering the pool at `$5,000` a person;
+Maryland never looks at wages). So the sign flips twice on identical figures at
+70: the rollover every adviser recommends costs `$0.00` in Georgia and
+`$3,378.83` a year in Maryland, and moving a third of a retirement from pension
+into Social Security **saves `$1,272.45` in Georgia and costs `$357.75` in
+Maryland** — in two states that both correctly say they do not tax the benefit.
+**The rule: the headline number is the least informative thing about an
+exclusion.**
+
+Three more from Georgia, and the second is the best:
+
+- **It is a test on the TYPE of income, not the amount.** At 65 a single filer
+  with `$65,000` of dividends owes nothing and one with `$65,000` of wages owes
+  `$2,245.50` — the whole bill, on identical income at an identical age, because
+  only `$5,000` of wages may enter the pool. (That `$5,000` has applied since
+  2024 and most summaries still print the `$4,000` before it: **a sub-cap inside
+  a headline figure is where a stale parameter hides, because nobody's headline
+  changes when it moves.**)
+- **The "retirement income exclusion" is also a capital gains allowance.** Net
+  capital gain is in the pool, the allowance is annual and per person, so a
+  couple both 65 may realise `$130,000` of gain every year and owe Georgia
+  nothing on it, indefinitely. **The rule: a provision's name constrains who
+  reads it.** Nothing here is unreachable, unlike Day 16's and Day 17's dead
+  provisions — it is merely unindexed, which is a different and commoner defect.
+- **Georgia's true maximum is `$70,000`, not the `$65,000` every table prints,
+  and it falls by half at 62.** The military exclusion (`$17,500`, plus `$17,500`
+  more for a veteran whose earned income *exceeds* `$17,500`) runs only *below*
+  62; disability opens the ordinary exclusion at any age; a disabled working
+  veteran claims both. Their exclusion goes `$70,000` at 61, `$35,000` at 62,
+  `$65,000` at 65 — so **the sixty-second birthday, which every guide calls the
+  one where Georgia's exclusion begins, costs `$1,746.50`**. **The rule: where
+  two provisions are separated by an age boundary, check the composition at the
+  boundary, not the provisions on either side of it.**
+
+And one about the federal government's reach into state returns, which is the
+inverse of Day 3's Arizona finding and will matter in more states than this one.
+HB 463 (signed 11 May 2026) excludes `$1,750` each of qualified overtime and cash
+tips for 2026-2028. It has to, because **the OBBBA's § 224 and § 225 deductions
+are BELOW the line, so the compensation they exempt never left any conforming
+state's base**: "no tax on tips" reached no federal-AGI state at all, and a state
+that wants to follow must legislate its own subtraction. **Whether a federal cut
+reaches a state return is decided entirely by which side of AGI it sits on, and
+the OBBBA put its four new deductions on the side that does not travel.** The
+shape is now in the package for the states that follow.
+
+**Day 18's first priority now has a mechanism, because Georgia made it
+unavoidable.** A Georgia retiree's result came back with thirteen notes and 6,535
+characters, three of them about a veterans' exclusion the filer could not claim.
+`conditionalNotes` — a note plus a `relevantWhen` predicate over the raw input —
+is additive, so a state that declares none is byte-for-byte what it was, which
+mattered because four existing tests assert on `def.notes.join(' ')`. Five notes
+moved; Georgia's non-military return lost **23% of its note payload**. The honest
+state of it: **the mechanism is proved and the migration is not done**, and
+Maryland's seventeen are still unconditional. **The predicate takes the INPUT,
+not the result, because relevance is a property of what the caller supplied — a
+note about a missing field has to fire when the field is missing.**
+
+**The eleventh `tools/list` pass bought no raise — 52,978 against the unchanged
+53,000 — but compression has stopped being cheap, and that is the real report.**
+Georgia cost 871 bytes gross and all of it came back, but the last 300 took four
+rounds of shaving adverbs, an "importantly", and one of five example questions.
+Two transferable notes: **a nested property repeated across tools is where
+multiplicity actually lives** (the `qualifiedBusinesses` item schema is emitted
+whole in four tools, so three small trims inside it beat any single sentence
+elsewhere), and **a field only one state reads still costs every caller of the
+tool** — `federalTipsDeduction` is ~200 bytes of every session for an `$87`
+exclusion in one state, kept only because a server that silently cannot do what
+its library does is worse. **The structural fix Day 18 named is now overdue
+rather than optional**: `state_income_tax` is 15.4 KB, 29% of the payload, and
+carries eleven states' per-state fields for callers who use one.
 
 **Day 18 is the first day spent entirely on correctness inside coverage this
 package already claimed, and it should not be the last.** Day 17 ranked that

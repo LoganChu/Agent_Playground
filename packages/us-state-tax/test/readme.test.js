@@ -1099,3 +1099,120 @@ test('README: every Virginia figure quoted above', () => {
   assert.deepEqual(single.localTaxes, []);
   money(single.totalTax, single.tax);
 });
+
+test('README: Georgia against Maryland, and Georgia against a rate table', () => {
+  const ga = (agi, opts = {}) =>
+    stateIncomeTax({
+      state: 'GA',
+      year: 2026,
+      filingStatus: opts.filingStatus ?? 'single',
+      federal: { adjustedGrossIncome: agi },
+      ...opts,
+    }).totalTax;
+  const md = (agi, opts = {}) =>
+    stateIncomeTax({
+      state: 'MD',
+      year: 2026,
+      filingStatus: opts.filingStatus ?? 'single',
+      county: 'Montgomery',
+      federal: { adjustedGrossIncome: agi },
+      ...opts,
+    }).totalTax;
+
+  // "the cost of the rollover  $0.00 / $3,378.83"
+  const plan = { filerAge: 70, retirement: { filer: { employerPlanPension: 150_000 } } };
+  const ira = { filerAge: 70, retirement: { filer: { iraDistributions: 150_000 } } };
+  money(ga(150_000, plan), 3_493);
+  money(ga(150_000, ira), 3_493);
+  money(md(150_000, plan), 8_246);
+  money(md(150_000, ira), 11_624.83);
+  money(md(150_000, ira) - md(150_000, plan), 3_378.83);
+
+  // "the swap  -$1,272.45 / +$357.75"
+  const pensionOnly = { filerAge: 70, retirement: { filer: { employerPlanPension: 120_000 } } };
+  const withBenefits = {
+    filerAge: 70,
+    taxableSocialSecurity: 25_500,
+    retirement: { filer: { employerPlanPension: 94_500, socialSecurityBenefits: 30_000 } },
+  };
+  money(ga(120_000, pensionOnly), 1_996);
+  money(ga(120_000, withBenefits), 723.55);
+  money(md(120_000, pensionOnly), 5_786.78);
+  money(md(120_000, withBenefits), 6_144.53);
+
+  // "$65,000 of dividends ... $0.00 / $65,000 of wages ... $2,245.50"
+  money(ga(65_000, { filerAge: 65, retirement: { filer: { investmentIncome: 65_000 } } }), 0);
+  money(ga(65_000, { filerAge: 65, retirement: { filer: { earnedIncome: 65_000 } } }), 2_245.5);
+
+  // "$130,000 of gain every year and owe Georgia nothing"
+  money(
+    ga(130_000, {
+      filingStatus: 'marriedFilingJointly',
+      filerAge: 65,
+      spouseAge: 65,
+      retirement: {
+        filer: { investmentIncome: 65_000 },
+        spouse: { investmentIncome: 65_000 },
+      },
+    }),
+    0,
+  );
+
+  // The disabled veteran's four ages.
+  const vet = {
+    militaryRetirement: 35_000,
+    iraDistributions: 40_000,
+    earnedIncome: 20_000,
+    totallyDisabled: true,
+  };
+  const atAge = (age) => ga(95_000, { filerAge: age, retirement: { filer: vet } });
+  money(atAge(61), 499);
+  money(atAge(62), 2_245.5);
+  money(atAge(64), 2_245.5);
+  money(atAge(65), 748.5);
+  money(atAge(62) - atAge(61), 1_746.5);
+
+  // "$873.20 of tax on one dollar of wages"
+  const atWages = (wages) =>
+    ga(40_000 + wages, {
+      filerAge: 55,
+      retirement: { filer: { militaryRetirement: 40_000, earnedIncome: wages } },
+    });
+  money(atWages(17_500), 1_247.5);
+  money(atWages(17_501), 374.3);
+  money(atWages(17_500) - atWages(17_501), 873.2);
+
+  // The rate-table table. The left column is 4.99% of AGI less the standard
+  // deduction, which is everything a rate table has about Georgia.
+  const rateTable = (agi, status = 'single') =>
+    Math.max(0, agi - (status === 'marriedFilingJointly' ? 30_000 : 15_000)) * 0.0499;
+  const joint = { filingStatus: 'marriedFilingJointly' };
+  money(rateTable(55_000), 1_996);
+  money(ga(55_000, { filerAge: 66, retirement: { filer: { employerPlanPension: 55_000 } } }), 0);
+  money(rateTable(40_000), 1_247.5);
+  money(ga(40_000, { filerAge: 63, retirement: { filer: { employerPlanPension: 40_000 } } }), 0);
+  money(rateTable(120_000, 'marriedFilingJointly'), 4_491);
+  money(
+    ga(120_000, {
+      ...joint,
+      filerAge: 67,
+      spouseAge: 67,
+      taxableSocialSecurity: 25_500,
+      retirement: {
+        filer: { iraDistributions: 45_000, socialSecurityBenefits: 15_000 },
+        spouse: { iraDistributions: 45_000, socialSecurityBenefits: 15_000 },
+      },
+    }),
+    0,
+  );
+  money(rateTable(130_000, 'marriedFilingJointly'), 4_990);
+  money(rateTable(70_000), 2_744.5);
+  money(
+    ga(70_000, {
+      filerAge: 45,
+      retirement: { filer: { militaryRetirement: 45_000, earnedIncome: 25_000 } },
+    }),
+    998,
+  );
+  money(rateTable(55_000) - ga(55_000, { filerAge: 66, retirement: { filer: { earnedIncome: 55_000 } } }), 249.5);
+});

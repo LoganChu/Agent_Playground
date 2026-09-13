@@ -84,11 +84,19 @@ function readPersonRetirement(
   const pension = readNumber(person, 'employerPlanPension');
   const benefits = readNumber(person, 'socialSecurityBenefits');
   const military = readNumber(person, 'militaryRetirement');
+  const ira = readNumber(person, 'iraDistributions');
+  // Signed: Georgia's worksheet floors the non-earned sources as a block, so a
+  // net loss here is a zero rather than an error.
+  const investment = readNumber(person, 'investmentIncome', { allowNegative: true });
+  const earned = readNumber(person, 'earnedIncome');
   const disabled = readBoolean(person, 'totallyDisabled');
   return {
     ...(pension !== undefined ? { employerPlanPension: pension } : {}),
     ...(benefits !== undefined ? { socialSecurityBenefits: benefits } : {}),
     ...(military !== undefined ? { militaryRetirement: military } : {}),
+    ...(ira !== undefined ? { iraDistributions: ira } : {}),
+    ...(investment !== undefined ? { investmentIncome: investment } : {}),
+    ...(earned !== undefined ? { earnedIncome: earned } : {}),
     ...(disabled !== undefined ? { totallyDisabled: disabled } : {}),
   };
 }
@@ -426,8 +434,8 @@ const marginalTool: ToolDefinition = {
     'Measure what another dollar of income ACTUALLY costs this household, by running the full ' +
     'estimate twice and differencing it. This is usually not the tax bracket. Credit phase-outs, the ' +
     'SALT phase-down, self-employment tax, the Additional Medicare Tax and the net investment income ' +
-    'tax all stack on top of it: a head-of-household filer with two children at $30,000 is in the 10% ' +
-    'bracket and faces 21.06%, because the whole cost is earned-income-credit withdrawal. ' +
+    'tax all stack on top of it: a two-child household at $30,000 is in the 10% bracket and faces ' +
+    '21.06%, all of it earned-income-credit withdrawal. ' +
     'Use this for "should I take the raise", "what will this bonus cost me", "am I better off ' +
     'converting to a Roth", "what is my real marginal rate". Reports the ordinary bracket alongside ' +
     'the real number so the difference is visible. Household fields are the same as estimate_federal_tax, which documents each one in full.',
@@ -681,14 +689,12 @@ const parametersTool: ToolDefinition = {
   name: 'get_tax_parameters',
   title: 'Published tax parameters for a year',
   description:
-    'Return the published parameters for a tax year: the ordinary rate brackets, the long-term ' +
-    'capital gains brackets, the standard deduction and its age/blindness additions, the social ' +
-    'security wage base and payroll rates, the Additional Medicare and NIIT thresholds, the SALT cap, ' +
-    'the Section 199A thresholds, the Schedule 1-A caps and phase-outs, and the child tax credit and ' +
-    'EITC tables — each cited to the IRS Revenue Procedure it came from. ' +
-    'Use this when asked "what are the 2026 brackets", rather than answering from memory: the ' +
-    'figures here are cross-checked against two independent sources, and the IRS has issued errata ' +
-    'to two of these tables since first publication.',
+    'Return the published parameters for a tax year: the ordinary and long-term capital gains ' +
+    'brackets, the standard deduction and its age/blindness additions, the payroll bases and rates, ' +
+    'the Additional Medicare, NIIT and Section 199A thresholds, the SALT cap, the Schedule 1-A caps ' +
+    'and phase-outs, and the child tax credit and EITC tables — each cited to its Revenue Procedure. ' +
+    'Use this when asked "what are the 2026 brackets", rather than answering from memory: two of ' +
+    'these tables have IRS errata against them.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -833,9 +839,9 @@ const yearsTool: ToolDefinition = {
   name: 'list_supported_years',
   title: 'Supported tax years and coverage',
   description:
-    'List the tax years this server can compute, the IRS releases each one is sourced from, and — ' +
-    'importantly — what is NOT modelled. Call this first if you are unsure whether a question is in ' +
-    'scope, or before telling a user a figure is complete: AMT, state tax and several credits are ' +
+    'List the tax years this server can compute, the IRS releases each one is sourced from, and ' +
+    'what is NOT modelled. Call this first if you are unsure whether a question is in ' +
+    'scope, or before telling a user a figure is complete: AMT and several credits are ' +
     'deliberately absent, and the § 68 limitation is a documented gap with a stated bound.',
   inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   annotations: { ...READ_ONLY, title: 'Supported tax years and coverage' },
@@ -907,8 +913,8 @@ const paycheckTool: ToolDefinition = {
     'Compute what an employer withholds from one paycheck — federal income tax by the IRS ' +
     'Publication 15-T percentage method, plus Social Security, Medicare and Additional Medicare — ' +
     'and, given targetAnnualTax, whether it will be enough and what to put on Form W-4 Step 4(c). ' +
-    'Answers "what will my take-home pay be", "how much is withheld from my paycheck", "how should ' +
-    'I fill out my W-4", "why do I owe money every April", "should I check the multiple jobs box". ' +
+    'Answers "what will my take-home pay be", "how should I fill out my W-4", "why do I owe money ' +
+    'every April", "should I check the multiple jobs box". ' +
     'This is NOT the same as the tax on a return: a second job, a working spouse or 1099 income is ' +
     'invisible to the tables, and 2025 withholds on the pre-OBBBA standard deduction because the ' +
     'IRS never reissued that year\'s tables. Use estimate_federal_tax for the return itself, and ' +
@@ -1113,22 +1119,20 @@ const stateTool: ToolDefinition = {
   title: 'State income tax',
   description:
     'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 28 states plus NEW YORK ' +
-    'CITY, YONKERS, all 24 MARYLAND jurisdictions, all 92 INDIANA counties, all 24 MICHIGAN cities, all ' +
-    '679 OHIO municipalities and all 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and ' +
-    'pass its adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure ' +
-    'a state starts from decides the answer. Nine states need more. NY: locality. MD and IN: county — every ' +
-    'resident owes one and it is two fifths of the bill — plus netCapitalGain and stateItemizedDeductions ' +
-    'in MD, and retirement for a retiree, because the MD pension exclusion is PER PERSON. OH: city and ' +
-    'qualifyingWages, which is box 5 of the W-2 and NOT federal AGI, and schoolDistrict; Ohio taxes one ' +
-    'paycheck on THREE bases that disagree. MI: city and cityIncome, which is NOT federal ' +
-    'AGI. VA: filerAge, spouseAge and taxableSocialSecurity, because the age deduction is withdrawn DOLLAR ' +
-    'FOR DOLLAR — and ' +
-    'bothSpousesHaveQualifyingIncome for the spouse tax adjustment. CA: earnedIncome and dependentAges. ' +
+    'CITY, YONKERS, all 24 MARYLAND jurisdictions, 92 INDIANA counties, 24 MICHIGAN cities, 679 OHIO ' +
+    'municipalities and 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and pass its ' +
+    'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a ' +
+    'state starts from decides the answer. Ten states need more. NY: locality. MD and IN: county, plus ' +
+    'netCapitalGain and stateItemizedDeductions in MD. MD and GA: retirement for a retiree — both ' +
+    'exclusions are PER PERSON, and GA excludes nothing without it. OH: city and ' +
+    'qualifyingWages, box 5 of the W-2 and NOT federal AGI, and schoolDistrict. MI: city and cityIncome, ' +
+    'which is NOT federal AGI. VA: filerAge, spouseAge, taxableSocialSecurity and ' +
+    'bothSpousesHaveQualifyingIncome. CA: earnedIncome and dependentAges. ' +
     'NJ: newJerseyGrossIncome is REQUIRED, plus filerAge and retirementIncome over 62. MA: ' +
     'massachusettsFivePercentIncome is REQUIRED and is NOT federal AGI, plus shortTermCapitalGains and ' +
     'collectiblesGains, taxed at 8.5% and 12%. Reports the ' +
-    'true marginal rate by rerunning the whole return a dollar higher, which is not the statutory rate ' +
-    'wherever a credit phases out or a cliff bites. Every result carries that state\'s own notes and ' +
+    'true marginal rate by rerunning the whole return a dollar higher, and carries that state\'s own ' +
+    'notes and ' +
     'statutes. Does NOT cover a state outside the enum, local tax outside NY, MD, IN, MI and OH, or state ' +
     'withholding. An unlisted state is an error, not a zero.',
   inputSchema: {
@@ -1170,7 +1174,7 @@ const stateTool: ToolDefinition = {
         type: 'array',
         items: { type: 'integer', minimum: 0 },
         description:
-          'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ, MA and MD, whose age-banded credits are otherwise computed as ZERO, and the result says what that cost.',
+          'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ, MA and MD, whose age-banded credits are otherwise ZERO, and the result says what that cost.',
       },
       earnedIncome: {
         type: 'number',
@@ -1182,17 +1186,22 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC. Zero when omitted.',
+          'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC.',
       },
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
         minimum: 0,
-        description: 'The Section 199A deduction taken federally. Colorado adds it back; Idaho allows it.',
+        description: 'The Section 199A deduction taken federally. CO adds it back; ID allows it.',
       },
       federalOvertimeDeduction: {
         type: 'number',
         minimum: 0,
-        description: 'The OBBBA qualified overtime deduction taken federally. Colorado adds it back from 2026.',
+        description: 'The OBBBA qualified overtime deduction. CO adds it back from 2026; GA excludes $1,750 of the same pay for 2026-2028.',
+      },
+      federalTipsDeduction: {
+        type: 'number',
+        minimum: 0,
+        description: 'The OBBBA qualified tips deduction. GA excludes $1,750 of the same tips for 2026-2028.',
       },
       federalEarnedIncomeCredit: {
         type: 'number',
@@ -1204,13 +1213,13 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'State-specific additions — most often another state\'s municipal bond interest. Not enumerated here; a partial list would be worse than none.',
+          'State-specific additions — most often another state\'s municipal bond interest. Not enumerated: a partial list would be worse than none.',
       },
       stateSubtractions: {
         type: 'number',
         minimum: 0,
         description:
-          'State-specific subtractions — US government interest, Social Security and retirement income where the state exempts them, 529 contributions, military pay.',
+          'State-specific subtractions — US government interest, Social Security and retirement income the state exempts, 529 contributions, military pay.',
       },
       pennsylvaniaTaxableIncome: {
         type: 'number',
@@ -1332,28 +1341,31 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'VA and MD: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. Both subtract it; VA also tests the age deduction on federal AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
+          'VA, MD and GA: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. All three subtract it; VA also tests its age deduction on AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
       },
       retirement: {
         type: 'object',
         description:
-          'MD only: retirement income PER PERSON. Maryland caps and offsets its pension exclusion per person, so a return\'s totals do not determine its tax — one couple\'s can swing $41,200. Omit it and it all lands on one spouse, the worst case, and the result says so.',
+          'MD and GA: retirement income PER PERSON, because both cap their exclusion per person and GA measures it on the CHARACTER of the income, which a federal AGI does not record. Omit it and everything lands on one spouse, the worst case, and the result says so.',
         properties: {
           filer: {
             type: 'object',
             description:
-              'employerPlanPension: taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b) — NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which § 10-209(a) excludes. socialSecurityBenefits: the TOTAL received, Tier I and Tier II, taxable or not — not the part inside federal AGI. militaryRetirement: retired or survivor pay; do not also put it in employerPlanPension. totallyDisabled: qualifies at any age, and the spouse too.',
+              'employerPlanPension: taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b) — NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes and GA counts. iraDistributions: taxable IRA and Roth-conversion income, 1040 line 4b — GA-qualifying, MD-disqualifying. investmentIncome: interest, dividends, net capital gain, rents, royalties, alimony; GA only, may be negative. earnedIncome: wages plus partnership and S corp income; GA counts at most $5,000 of it, and doubles the military exclusion above $17,500. socialSecurityBenefits: the TOTAL received, Tier I and Tier II, taxable or not — MD offsets its exclusion by it, GA does not. militaryRetirement: retired or survivor pay, not also in employerPlanPension. totallyDisabled: qualifies at any age, and in MD the spouse too.',
             properties: {
               employerPlanPension: { type: 'number', minimum: 0 },
+              iraDistributions: { type: 'number', minimum: 0 },
+              investmentIncome: { type: 'number' },
+              earnedIncome: { type: 'number', minimum: 0 },
               socialSecurityBenefits: { type: 'number', minimum: 0 },
               militaryRetirement: { type: 'number', minimum: 0 },
               totallyDisabled: { type: 'boolean' },
             },
             additionalProperties: false,
           },
-          // The same four fields, described once. A second copy of the property
-          // table would cost every client 230 bytes to say nothing new, and
-          // `readPersonRetirement` validates both halves identically anyway.
+          // The same seven fields, described once. A second copy of the property
+          // table would cost every client hundreds of bytes to say nothing new,
+          // and `readPersonRetirement` validates both halves identically anyway.
           spouse: { type: 'object', description: 'The spouse\'s own, same fields.' },
         },
         additionalProperties: false,
@@ -1374,7 +1386,7 @@ const stateTool: ToolDefinition = {
         type: 'integer',
         minimum: 0,
         description:
-          'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint) of federal AGI less taxable Social Security. NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. Omitted, a retiree return runs far too high.',
+          'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. Omitted, a retiree return runs far too high.',
       },
       spouseAge: {
         type: 'integer',
@@ -1396,7 +1408,7 @@ const stateTool: ToolDefinition = {
         type: 'number',
         minimum: 0,
         description:
-          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, ending in a wall at $150,000 of total income; omitting it makes a retiree return far too high.',
+          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, ending in a wall at $150,000 of total income. MD and GA read `retirement` instead.',
       },
       propertyTaxPaid: {
         type: 'number',
@@ -1464,6 +1476,7 @@ const stateTool: ToolDefinition = {
 
     const qbi = readNumber(source, 'federalQualifiedBusinessIncomeDeduction');
     const overtime = readNumber(source, 'federalOvertimeDeduction');
+    const tips = readNumber(source, 'federalTipsDeduction');
     const federalEitc = readNumber(source, 'federalEarnedIncomeCredit');
     const additions = readNumber(source, 'stateAdditions');
     const subtractions = readNumber(source, 'stateSubtractions');
@@ -1652,19 +1665,24 @@ const stateTool: ToolDefinition = {
     // subtracts it and then charges the total received against the pension
     // exclusion. Maryland therefore needs two Social Security figures on one
     // return — the taxable part here, the total received in `retirement`.
-    if (taxableSocialSecurity !== undefined && state !== 'VA' && state !== 'MD') {
+    if (
+      taxableSocialSecurity !== undefined &&
+      state !== 'VA' &&
+      state !== 'MD' &&
+      state !== 'GA'
+    ) {
       throw new ToolInputError(
-        `taxableSocialSecurity only applies to VA and MD, and ${state} was requested. Every ` +
+        `taxableSocialSecurity only applies to VA, MD and GA, and ${state} was requested. Every ` +
           `other supported state that exempts Social Security takes it through ` +
           `stateSubtractions instead.`,
       );
     }
-    if (retirement !== undefined && state !== 'MD') {
+    if (retirement !== undefined && state !== 'MD' && state !== 'GA') {
       throw new ToolInputError(
-        `retirement only applies to MD, and ${state} was requested. Maryland's pension ` +
-          `exclusion is the one subtraction here that is capped and offset PER PERSON, so it ` +
-          `is the one that needs the income split between the spouses. New Jersey's exclusion ` +
-          `is per return: pass retirementIncome.`,
+        `retirement only applies to MD and GA, and ${state} was requested. Those are the two ` +
+          `states here whose retirement exclusion is capped PER PERSON, so they are the two ` +
+          `that need the income split between the spouses. New Jersey's exclusion is per ` +
+          `return: pass retirementIncome.`,
       );
     }
     // Refused rather than ignored, for the same reason stateItemizedDeductions is:
@@ -1765,11 +1783,12 @@ const stateTool: ToolDefinition = {
       ...(capitalGain !== undefined ? { netCapitalGain: capitalGain } : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
       ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),
-      ...(qbi !== undefined || overtime !== undefined
+      ...(qbi !== undefined || overtime !== undefined || tips !== undefined
         ? {
             federalDeductions: {
               ...(qbi !== undefined ? { qualifiedBusinessIncome: qbi } : {}),
               ...(overtime !== undefined ? { overtime } : {}),
+              ...(tips !== undefined ? { tips } : {}),
             },
           }
         : {}),

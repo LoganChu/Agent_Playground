@@ -104,8 +104,8 @@
  * from a household total. This one cannot, which is why `retirement` exists as
  * an input.
  */
-import type { StateIncomeTaxDefinition } from '../definition.js';
-import { byStatus, byStatusOf, uniform } from './helpers.js';
+import type { ConditionalNote, StateIncomeTaxDefinition } from '../definition.js';
+import { byStatus, byStatusOf, uniform, whenAgedAtLeast, whenMilitaryRetirement } from './helpers.js';
 import type { CreditStep } from '../definition.js';
 import type { Bracket, Citation } from '../types.js';
 
@@ -241,10 +241,13 @@ const NOTES: readonly string[] = [
   'The exclusion\'s offset is the TOTAL benefit received — Worksheet 13A line 3 asks for Social Security and railroad retirement, Tier I and Tier II, "whether or not you included any portion of these amounts in your federal adjusted gross income" — while the base subtraction above removes only the taxable part. The same dollars are therefore counted twice in opposite directions, and the consequence is that MARYLAND\'S EXEMPTION OF SOCIAL SECURITY IS WORTH NOTHING to a retiree whose qualifying pension reaches the cap: $30,000 of benefits plus $60,000 of pension and $90,000 of pension alone reach the same Maryland AGI to the cent. In that band a dollar of Social Security adds a full dollar to Maryland\'s base while a dollar of pension adds nothing, so Maryland taxes the benefit and exempts the pension — the reverse of what a table of state retirement rules says.',
   'An IRA is not an employee retirement system. § 10-209(a) excludes an individual retirement account or annuity under IRC § 408, a Roth account under § 408A, a ROLLOVER IRA, a simplified employee pension under § 408(k) and an ineligible deferred compensation plan under § 457(f); qualified defined benefit and defined contribution plans, 401(a), 401(k), 403(b) and 457(b) plans qualify. So rolling a 401(k) into an IRA — the most routinely recommended move in retirement planning — converts up to $41,200 a year of excluded income into fully taxed income for the rest of the retiree\'s life — $2,282.28 a year for a single Montgomery County retiree on $50,000 and $3,428.03 at $150,000 — at no federal cost and with nothing on the federal return to show it happened. Put only qualifying income in `retirement.filer.employerPlanPension`.',
   'The maximum exclusion FALLS in 2026, from $41,200 to $40,600. Both figures are published by the Comptroller. § 10-209(a) ties the maximum to the maximum annual benefit under the Social Security Act, but the published figures have never matched the Social Security Administration\'s own maxima, so the figure cannot be derived and must be transcribed each year — and a model that indexes it upward is wrong for 2026 in the expensive direction. It is the only parameter in this package that has ever decreased.',
-  'Military retirement income — § 10-207(q), which includes death benefits received as a result of military service, so a Survivor Benefit Plan payment belongs here — is subtracted up to $12,500 for a person under 55 and $20,000 at 55 or over, per person, with no age-65 gate and no benefit offset. A 56-year-old military retiree therefore has a subtraction nine years before any other Maryland retiree has one, and a survivor\'s cap is set by the SURVIVOR\'S age, not the service member\'s. The same dollars may not be claimed twice: for a military retiree aged 65 or over the pension exclusion is worth more whenever their benefits are below $21,200 (2025) and the military subtraction when they are above it, and this package does not make that election for you — put the pay in whichever field is worth more.',
-  'The centenarian subtraction of § 10-207(nn) is $100,000 of income at age 100, per person, with no income or source test at all. This package cannot apportion income between two spouses, so a return with two centenarians and less than $200,000 between them may show a larger subtraction than either could use; the tax is floored at zero either way, so the answer is only wrong where a credit depends on Maryland AGI.',
   'Not modelled among the retirement provisions: the $15,000 subtraction for retired correctional officers, law enforcement officers and fire, rescue or emergency services personnel aged 55 or over (Form 502SU code letter v), which stacks with the pension exclusion but reduces the pension figure the exclusion is computed on — HB 792 of the 2025 session would raise it to $20,000 for tax years after 2024 and this package could not establish from reachable sources whether it was enacted, so neither figure is committed; and the Worksheet 13E exclusion for a retired forest, park or wildlife ranger, which is available at 55 but NOT to a filer who is 65 or over or disabled, so a ranger\'s exclusion can fall on their sixty-fifth birthday — the 13E figure is not reduced by Social Security and the 13A one is.',
   'Not modelled: the poverty level credit (5% of earned income for a filer below the federal poverty guideline, against both the state and the county tax); the two-income subtraction of up to $1,200 for a joint return where both spouses have income, which is capped at the lesser spouse\'s income NET of that spouse\'s own subtractions and is therefore reduced by their pension exclusion; the child and dependent care credit; the 529 contribution subtraction; and the special nonresident tax of § 10-106.1, which a nonresident pays in place of a county tax and which the statute sets to the lowest county rate in the state — 2.25%, Worcester\'s. This package computes a full-year resident return.',
+];
+
+const CONDITIONAL_NOTES: readonly ConditionalNote[] = [
+  { text: 'Military retirement income — § 10-207(q), which includes death benefits received as a result of military service, so a Survivor Benefit Plan payment belongs here — is subtracted up to $12,500 for a person under 55 and $20,000 at 55 or over, per person, with no age-65 gate and no benefit offset. A 56-year-old military retiree therefore has a subtraction nine years before any other Maryland retiree has one, and a survivor\'s cap is set by the SURVIVOR\'S age, not the service member\'s. The same dollars may not be claimed twice: for a military retiree aged 65 or over the pension exclusion is worth more whenever their benefits are below $21,200 (2025) and the military subtraction when they are above it, and this package does not make that election for you — put the pay in whichever field is worth more.', relevantWhen: whenMilitaryRetirement },
+  { text: 'The centenarian subtraction of § 10-207(nn) is $100,000 of income at age 100, per person, with no income or source test at all. This package cannot apportion income between two spouses, so a return with two centenarians and less than $200,000 between them may show a larger subtraction than either could use; the tax is floored at zero either way, so the answer is only wrong where a credit depends on Maryland AGI.', relevantWhen: whenAgedAtLeast(100) },
 ];
 
 export function maryland(year: number): StateIncomeTaxDefinition | undefined {
@@ -359,6 +362,11 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       refundable: true,
     },
     notes: year >= 2026 ? [...NOTES_2026, ...NOTES] : NOTES,
+    // The military subtraction and the centenarian one, which between them are
+    // about 1,200 characters and apply to a vanishing share of Maryland returns.
+    // Maryland carries the most notes of any state here, so it is where the cost
+    // of an unconditional note is easiest to see.
+    conditionalNotes: CONDITIONAL_NOTES,
     citations: CITATIONS,
   };
 }

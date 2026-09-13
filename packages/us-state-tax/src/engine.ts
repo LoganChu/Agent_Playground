@@ -473,6 +473,9 @@ interface RetirementPerson {
   readonly pension: number;
   readonly benefits: number;
   readonly military: number;
+  readonly ira: number;
+  readonly investment: number;
+  readonly earned: number;
   readonly disabled: boolean;
 }
 
@@ -499,6 +502,13 @@ function retirementPeople(
     pension: nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension'),
     benefits: nonNegative(part.from?.socialSecurityBenefits, 'retirement.socialSecurityBenefits'),
     military: nonNegative(part.from?.militaryRetirement, 'retirement.militaryRetirement'),
+    ira: nonNegative(part.from?.iraDistributions, 'retirement.iraDistributions'),
+    // Net of losses by the time it reaches here, and a loss is not a negative
+    // exclusion: Georgia's worksheet floors the non-earned sources at zero as a
+    // block before adding the earned part, so a rental loss cannot eat into the
+    // $5,000 of wages that also qualify.
+    investment: Math.max(0, part.from?.investmentIncome ?? 0),
+    earned: nonNegative(part.from?.earnedIncome, 'retirement.earnedIncome'),
     disabled: part.from?.totallyDisabled === true,
   });
   if (split !== undefined) {
@@ -516,11 +526,23 @@ function retirementPeople(
     pension: nonNegative(input.retirementIncome, 'retirementIncome'),
     benefits: nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity'),
     military: 0,
+    ira: 0,
+    investment: 0,
+    earned: 0,
     disabled: false,
   };
   const people: RetirementPerson[] = [sole];
   if (filers === 2) {
-    people.push({ age: input.spouseAge, pension: 0, benefits: 0, military: 0, disabled: false });
+    people.push({
+      age: input.spouseAge,
+      pension: 0,
+      benefits: 0,
+      military: 0,
+      ira: 0,
+      investment: 0,
+      earned: 0,
+      disabled: false,
+    });
   }
   return { people, assumed: sole.pension > 0 };
 }
@@ -543,7 +565,9 @@ function retirementSubtractions(
   const pension = def.pensionExclusion;
   const military = def.militaryRetirementSubtraction;
   const aged = def.agedIncomeSubtraction;
-  if (!pension && !military && !aged) return none;
+  const characterExclusion = def.retirementIncomeExclusion;
+  const militaryExclusion = def.militaryRetirementExclusion;
+  if (!pension && !military && !aged && !characterExclusion && !militaryExclusion) return none;
   const { people, assumed } = retirementPeople(input);
   const anyDisabled = people.some((p) => p.disabled);
   const details: { name: string; amount: number }[] = [];
@@ -581,6 +605,67 @@ function retirementSubtractions(
       subtracted += Math.min(person.military, cap);
     }
     if (subtracted > 0) details.push({ name: military.name, amount: subtracted });
+  }
+
+  // Georgia's two exclusions, in the order the IT-511 Schedule 1 worksheets are
+  // numbered: the military one first, because whatever it leaves behind is
+  // ordinary taxable pension income for the other. Computing them the other way
+  // round would let the same dollar out twice for the one filer who can claim
+  // both — a disabled veteran under 62.
+  const militaryExcludedBy = new Map<RetirementPerson, number>();
+  if (militaryExclusion) {
+    let subtracted = 0;
+    for (const person of people) {
+      if (person.military <= 0) continue;
+      // Strictly below the age, and an unknown age does not qualify: a "below
+      // N" test read as satisfied by a missing figure is the one direction in
+      // which a guess costs the filer an audit rather than money.
+      if (person.age === undefined || person.age >= militaryExclusion.maximumAge) continue;
+      const cap =
+        militaryExclusion.base +
+        (person.earned > militaryExclusion.additionalEarnedIncomeThreshold
+          ? militaryExclusion.additional
+          : 0);
+      const taken = Math.min(person.military, cap);
+      militaryExcludedBy.set(person, taken);
+      subtracted += taken;
+    }
+    if (subtracted > 0) details.push({ name: militaryExclusion.name, amount: subtracted });
+  }
+
+  if (characterExclusion) {
+    let excluded = 0;
+    for (const person of people) {
+      const qualified =
+        (person.age !== undefined && person.age >= characterExclusion.minimumAge) ||
+        (characterExclusion.disabilityQualifies && person.disabled);
+      if (!qualified) continue;
+      const cap =
+        person.age !== undefined && person.age >= characterExclusion.olderAge
+          ? characterExclusion.capAtOlderAge
+          : characterExclusion.capUnderOlderAge;
+      // Military retired pay is taxable pension income like any other once the
+      // exclusion written for it has been used — which matters most at the age
+      // where that exclusion no longer exists. PolicyEngine-US keeps military
+      // pay out of Georgia's pool entirely, which leaves a 65-year-old military
+      // retiree with no exclusion on a pension the state plainly exempts.
+      const remainingMilitary = person.military - (militaryExcludedBy.get(person) ?? 0);
+      const qualifying =
+        Math.min(person.earned, characterExclusion.earnedIncomeCap) +
+        person.pension +
+        person.ira +
+        person.investment +
+        remainingMilitary;
+      excluded += Math.min(qualifying, cap);
+    }
+    if (excluded > 0) {
+      details.push({
+        name: assumed
+          ? `${characterExclusion.name} (assumed: all of it received by one spouse — pass \`retirement\` for the exact figure)`
+          : characterExclusion.name,
+        amount: excluded,
+      });
+    }
   }
 
   if (aged) {
@@ -688,6 +773,25 @@ function taxpayerCredit(
   const excess = stateTaxableIncome - rule.phaseOutThreshold[input.filingStatus];
   if (excess <= 0) return full;
   return Math.max(0, full - rule.phaseOutRate * excess);
+}
+
+/**
+ * The state's notes, less the ones this return cannot be affected by.
+ *
+ * Every note a result carries is context the caller pays for. Maryland has
+ * seventeen and Georgia thirteen, and most of a retiree's are about provisions
+ * they did not claim — so a note whose whole subject is a field the caller left
+ * empty is a cost with no benefit. `conditionalNotes` is the opt-in: a note
+ * moved into it appears only on the returns it could change, and one left in
+ * `notes` still appears on all of them.
+ */
+function relevantNotes(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): readonly string[] {
+  if (!def.conditionalNotes || def.conditionalNotes.length === 0) return def.notes;
+  const extra = def.conditionalNotes.filter((n) => n.relevantWhen(input)).map((n) => n.text);
+  return extra.length > 0 ? [...def.notes, ...extra] : def.notes;
 }
 
 const ADD_BACK_LABELS: Readonly<Record<string, string>> = {
@@ -1156,13 +1260,33 @@ function computeOnce(
   // twice on one return, in opposite directions.
   const retirement = retirementSubtractions(def, input);
   for (const detail of retirement.details) computedSubtractions.push(detail);
+  // Georgia's tips and overtime exclusions. They are read off the federal
+  // deductions the same dollars produced, which is the only figure a package
+  // whose base is federal AGI has: the § 224 and § 225 deductions are below the
+  // line, so the compensation they exempt is still inside every conforming
+  // state's base and a state that wants to follow has to legislate for itself.
+  let compensationExcluded = 0;
+  if (def.compensationExclusions) {
+    const taken = input.federalDeductions ?? {};
+    for (const rule of def.compensationExclusions) {
+      const amount = Math.min(
+        nonNegative(taken[rule.source], `federalDeductions.${rule.source}`),
+        rule.cap,
+      );
+      if (amount > 0) {
+        compensationExcluded += amount;
+        computedSubtractions.push({ name: rule.name, amount });
+      }
+    }
+  }
   const subtractions =
     given +
     exclusion +
     businessDeduction +
     socialSecuritySubtraction +
     ageDeductionTaken +
-    retirement.total;
+    retirement.total +
+    compensationExcluded;
   const stateAgi = Math.max(0, base + additions - subtractions);
   const modifiedAgi = stateAgi + businessDeduction;
 
@@ -1844,7 +1968,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       totalTax: 0,
       totalMarginalRate: 0,
       provisional: def.status === 'provisional',
-      notes: def.notes,
+      notes: relevantNotes(def, input),
       citations: def.citations,
     };
   }
@@ -1930,6 +2054,40 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
         `return; the employee half of FICA is 7.65% of wages, so the cap binds at ` +
         `$${Math.round(rule.perFilerCap / 0.0765).toLocaleString('en-US')} of wages per filer.`,
     );
+  }
+  if (
+    def.retirementIncomeExclusion &&
+    input.retirement === undefined &&
+    input.retirementIncome === undefined
+  ) {
+    const rule = def.retirementIncomeExclusion;
+    const ages = [input.filerAge, input.spouseAge].slice(0, filerCount(input.filingStatus));
+    if (ages.some((age) => age !== undefined && age >= rule.minimumAge)) {
+      // Priced by running this filer's own return again with every dollar of it
+      // treated as qualifying income — the most the exclusion could be worth
+      // here. The state has no way to tell what a federal AGI is made of, so the
+      // honest report is the size of the question, not a guess at its answer.
+      const best = compute(def, {
+        ...input,
+        retirement: {
+          filer: { investmentIncome: here.conformityAmount },
+          spouse: { investmentIncome: here.conformityAmount },
+        },
+      });
+      const most = roundCents(here.tax - best.tax);
+      if (most > 0) {
+        dynamic.push(
+          `No \`retirement\` was supplied, so none of this income was treated as qualifying for ` +
+            `the ${rule.name} and the return assumes the worst case. ${def.name} measures the ` +
+            `exclusion on the CHARACTER of the income — interest, dividends, net capital gain, ` +
+            `rents, royalties, alimony, pensions and taxable IRA distributions all qualify in ` +
+            `full, and at most $${rule.earnedIncomeCap.toLocaleString('en-US')} of a person's ` +
+            `wages — so a filer with $60,000 of dividends and one with $60,000 of wages owe ` +
+            `different tax on the same income. For this return the exclusion is worth up to ` +
+            `$${most.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
+        );
+      }
+    }
   }
   const counties = input.county === undefined ? countiesFor(input.state, input.year) : [];
   if (counties.length > 0) {
@@ -2153,7 +2311,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     totalTax: roundCents(roundCents(here.tax) + localTax),
     totalMarginalRate: rate(stateMarginal + localMarginal),
     provisional: def.status === 'provisional',
-    notes: dynamic.length > 0 ? [...dynamic, ...def.notes] : def.notes,
+    notes: dynamic.length > 0 ? [...dynamic, ...relevantNotes(def, input)] : relevantNotes(def, input),
     citations: def.citations,
   };
 }

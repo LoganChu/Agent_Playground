@@ -772,3 +772,69 @@ test('README: the third Ohio base, and the deferral the two local wage taxes dis
   assert.equal(0.025 * 24_500, 612.5);
   assert.equal(0.0125 * 24_500, 306.25);
 });
+
+test('README: the Georgia table, against Maryland on the same figures', () => {
+  const at = (state, extra) =>
+    stateIncomeTax({
+      state,
+      year: 2026,
+      filingStatus: 'single',
+      federal: { adjustedGrossIncome: extra.agi, taxableIncome: extra.agi, deduction: 0, deductionKind: 'standard' },
+      ...(state === 'MD' ? { county: 'Montgomery County' } : {}),
+      ...extra.opts,
+    }).totalTax;
+
+  const plan = { filerAge: 70, retirement: { filer: { employerPlanPension: 150_000 } } };
+  const ira = { filerAge: 70, retirement: { filer: { iraDistributions: 150_000 } } };
+  assert.equal(at('GA', { agi: 150_000, opts: plan }), 3493);
+  assert.equal(at('GA', { agi: 150_000, opts: ira }), 3493);
+  assert.equal(at('MD', { agi: 150_000, opts: plan }), 8246);
+  assert.equal(at('MD', { agi: 150_000, opts: ira }), 11624.83);
+
+  const pensionOnly = { filerAge: 70, retirement: { filer: { employerPlanPension: 120_000 } } };
+  const withBenefits = {
+    filerAge: 70,
+    taxableSocialSecurity: 25_500,
+    retirement: { filer: { employerPlanPension: 94_500, socialSecurityBenefits: 30_000 } },
+  };
+  assert.equal(at('GA', { agi: 120_000, opts: pensionOnly }), 1996);
+  assert.equal(at('GA', { agi: 120_000, opts: withBenefits }), 723.55);
+  assert.equal(at('MD', { agi: 120_000, opts: pensionOnly }), 5786.78);
+  assert.equal(at('MD', { agi: 120_000, opts: withBenefits }), 6144.53);
+
+  // "$3,378.83", "saves $1,272.45", "costs $357.75"
+  quotes('`$3,378.83`');
+  quotes('saves `$1,272.45`');
+  quotes('costs `$357.75`');
+
+  // "$65,000 of dividends owes nothing and one with $65,000 of wages owes $2,245.50"
+  assert.equal(
+    at('GA', { agi: 65_000, opts: { filerAge: 65, retirement: { filer: { investmentIncome: 65_000 } } } }),
+    0,
+  );
+  assert.equal(
+    at('GA', { agi: 65_000, opts: { filerAge: 65, retirement: { filer: { earnedIncome: 65_000 } } } }),
+    2245.5,
+  );
+  // "$130,000 of gain every year and owe Georgia nothing"
+  assert.equal(
+    stateIncomeTax({
+      state: 'GA',
+      year: 2026,
+      filingStatus: 'marriedFilingJointly',
+      federal: { adjustedGrossIncome: 130_000, taxableIncome: 130_000, deduction: 0, deductionKind: 'standard' },
+      filerAge: 65,
+      spouseAge: 65,
+      retirement: { filer: { investmentIncome: 65_000 }, spouse: { investmentIncome: 65_000 } },
+    }).totalTax,
+    0,
+  );
+  // "one dollar of wages at $17,500 is worth $873.20"
+  const vet = (wages) =>
+    at('GA', {
+      agi: 40_000 + wages,
+      opts: { filerAge: 55, retirement: { filer: { militaryRetirement: 40_000, earnedIncome: wages } } },
+    });
+  assert.equal(Math.round((vet(17_500) - vet(17_501)) * 100) / 100, 873.2);
+  quotes('`$873.20`');
+});

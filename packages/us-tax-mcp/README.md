@@ -276,6 +276,42 @@ it happened. Military retired pay has no age gate at all ($12,500 under 55, $20,
 and at 100 the first $100,000 of income comes off whatever it is. The maximum exclusion
 **falls** in 2026, to $40,600 — the only parameter in this package that has ever gone down.
 
+**Georgia's exclusion is the mirror image of Maryland's, and nothing says so.** Both exempt
+"retirement income" at 65 and both publish a number for it — `$65,000` and `$41,200`. Nothing
+else about them matches. Georgia measures the exclusion on the **character** of the income, so
+interest, dividends, net capital gain, rents, royalties, alimony, pensions **and taxable IRA
+distributions** all qualify in full; and it charges **nothing** against it, subtracting Social
+Security separately. So on identical figures at 70:
+
+```text
+                                        Georgia    Maryland (Montgomery)
+$150,000 left in the 401(k)           $3,493.00                $8,246.00
+$150,000 rolled into an IRA           $3,493.00               $11,624.83
+$120,000 of pension                   $1,996.00                $5,786.78
+$94,500 of pension + $30,000 SS         $723.55                $6,144.53
+```
+
+The rollover every adviser recommends costs `$0.00` in one state and `$3,378.83` in the other,
+and moving a third of a retirement into Social Security **saves `$1,272.45`** in Georgia and
+**costs `$357.75`** in Maryland — in two states that both say they do not tax the benefit.
+Pass `retirement: { filer, spouse }` with `iraDistributions` and `investmentIncome`; Georgia
+excludes nothing without it, because a federal AGI does not record what it is made of.
+
+At most **`$5,000`** of a person's wages may enter the pool, so Georgia's exclusion is a test
+on the *type* of a retiree's income: at 65 a filer with `$65,000` of dividends owes nothing and
+one with `$65,000` of wages owes `$2,245.50`. And because net capital gain is in the pool and
+the allowance is annual and per person, the "retirement income exclusion" is also a **capital
+gains allowance** — a couple both 65 may realise `$130,000` of gain every year and owe Georgia
+nothing on it.
+
+Georgia's real maximum is **`$70,000`, not the `$65,000` every table prints**: the military
+exclusion (`$17,500`, plus `$17,500` more for a veteran whose earned income *exceeds*
+`$17,500`) runs only **below** 62, and disability opens the ordinary exclusion at any age, so a
+disabled working veteran claims both — and then **loses half of it on their sixty-second
+birthday**, the birthday every guide calls the one where Georgia's exclusion begins. That
+second `$17,500` is also a cliff on employment: one dollar of wages at `$17,500` is worth
+`$873.20`.
+
 **Massachusetts is not a 5% flat tax state, and it is the only state here where the rate
 depends on the KIND of income.** M.G.L. c. 62 § 4(a) sets three: 5% on Part B income and on
 the interest, dividends and long-term gains taxed alongside it, **8.5%** on short-term
@@ -567,8 +603,10 @@ confidently fill them in.
   nonresident's city wage — pass `workCityEarnings` already apportioned. State earned income credits
   are modelled for the six states that set them as a share of the federal credit, and New
   York's Empire State child credit and California's Young Child Tax Credit from
-  `dependentAges`; no other state child credit or retirement exclusion is, so a family or
-  retiree state return outside New York and California comes out **too high**. California's
+  `dependentAges`; no other state child credit is, so a family state return outside New York
+  and California comes out **too high**. Retirement exclusions are modelled for New Jersey,
+  Maryland and Georgia; Kentucky's and Utah's are not, so a retiree return in those two comes
+  out too high. California's
   Foster Youth Tax Credit — the same `$1,189` on the same phase-out — needs a foster-care
   history there is no field for, and CalEITC qualifying children are counted from
   `dependentAges` alone, so a full-time student under 24 and a permanently disabled

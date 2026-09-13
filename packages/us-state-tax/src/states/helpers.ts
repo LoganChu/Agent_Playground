@@ -1,3 +1,4 @@
+import type { NoteRelevance } from '../definition.js';
 import type { ByStatus, FilingStatus } from '../types.js';
 
 /**
@@ -63,4 +64,23 @@ export function byStatusOf<T>(v: {
   };
 }
 
-export type { FilingStatus };
+/**
+ * Whether either person on the return has military retired pay.
+ *
+ * The first relevance predicate, and the one that pays best: Georgia carries
+ * three notes about its military exclusion and Maryland one about its military
+ * subtraction, all of them long, and the overwhelming majority of returns in
+ * either state have no military pay on them at all.
+ */
+export const whenMilitaryRetirement: NoteRelevance = (input) =>
+  (input.retirement?.filer?.militaryRetirement ?? 0) > 0 ||
+  (input.retirement?.spouse?.militaryRetirement ?? 0) > 0;
+
+/** Whether anyone on the return has reached an age. */
+export const whenAgedAtLeast =
+  (age: number): NoteRelevance =>
+  (input) =>
+    (input.filerAge !== undefined && input.filerAge >= age) ||
+    (input.spouseAge !== undefined && input.spouseAge >= age);
+
+export type { FilingStatus, NoteRelevance };

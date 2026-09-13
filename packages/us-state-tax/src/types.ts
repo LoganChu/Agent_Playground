@@ -311,8 +311,60 @@ export interface PersonRetirementIncome {
    */
   readonly militaryRetirement?: number;
   /**
+   * Taxable distributions from an individual retirement account or annuity —
+   * a traditional IRA, a rollover IRA, a SEP or SIMPLE, and the taxable part of
+   * a Roth conversion. Form 1040 line 4b.
+   *
+   * **This field exists because two states disagree about whether these dollars
+   * are retirement income at all.** Maryland's § 10-209(a) writes its exclusion
+   * on the *form* of the account and puts an IRA outside it, so the same money
+   * that would be excluded from a 401(k) is fully taxed once it is rolled over.
+   * Georgia's O.C.G.A. § 48-7-27(a)(5) writes its exclusion on the *character*
+   * of the income and counts taxable IRA distributions in full. So the rollover
+   * that costs a Montgomery County retiree `$3,378.83` a year at `$150,000`
+   * costs a Georgia retiree nothing, and the advice that is right in one state
+   * is expensive in the other.
+   *
+   * Do not put these dollars in {@link employerPlanPension}, which is read as
+   * Maryland-qualifying income.
+   */
+  readonly iraDistributions?: number;
+  /**
+   * This person's taxable interest, ordinary dividends, net capital gain, net
+   * rents and royalties, and alimony received.
+   *
+   * Read only by a state whose retirement exclusion counts income by character
+   * rather than by source — Georgia's, whose worksheet lines 6 to 13 are exactly
+   * this list plus pensions and IRA distributions. **It makes Georgia's
+   * "retirement income exclusion" a capital gains allowance:** a couple both 65
+   * with no other income may realise `$130,000` of gains a year and pay Georgia
+   * nothing on them, every year, and no summary of the provision says so because
+   * of what it is called.
+   *
+   * Net figures, and net of losses; a negative total is read as zero.
+   */
+  readonly investmentIncome?: number;
+  /**
+   * This person's earned income — wages, salary, self-employment income, and
+   * partnership or S corporation income, which Georgia's worksheet treats as
+   * earned.
+   *
+   * Two rules read it and they pull in opposite directions. Georgia counts at
+   * most `$5,000` of it towards the retirement income exclusion, so a 65-year-old
+   * with `$65,000` of wages excludes `$5,000` where one with `$65,000` of
+   * dividends excludes all of it. And Georgia's military retirement exclusion
+   * *doubles* — `$17,500` to `$35,000` — for a veteran under 62 whose earned
+   * income exceeds `$17,500`, so one dollar of wages there is worth `$873.20` of
+   * tax in 2026.
+   */
+  readonly earnedIncome?: number;
+  /**
    * True where this person is **totally disabled**, which qualifies them for
    * Maryland's pension exclusion at any age — and qualifies their spouse too.
+   *
+   * Georgia also qualifies a permanently and totally disabled person for its
+   * retirement income exclusion below 62, and there it is *not* read across to
+   * the spouse.
    *
    * Narrower than {@link StateIncomeTaxInput.blindOrDisabled}, which counts a
    * blind filer for the additional exemption whether or not they are disabled.
