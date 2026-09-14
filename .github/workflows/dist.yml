@@ -1,0 +1,107 @@
+# Attach each package's tarball to a GitHub Release, so the packages can be
+# installed by anyone, today, from a URL.
+#
+# This exists because for thirteen days NOTES-FOR-HUMAN.md has said that an
+# unpublished package "cannot be installed by anyone", and that is not true.
+# This repository is public and MIT licensed, the three packages have no runtime
+# dependencies, and `npm pack` produces a self-contained tarball. npm installs a
+# tarball from an https URL without a registry, an account or a token:
+#
+#   npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.15.0/us-state-tax-0.15.0.tgz
+#
+# So the npm ask in NOTES-FOR-HUMAN.md is now an ask about REACH — a name people
+# can search for, and `npm i us-state-tax` — rather than about whether the work
+# is usable at all. Nothing here replaces it; this only removes the floor.
+#
+# The only credential used is the GITHUB_TOKEN that Actions mints for this run.
+# There is no secret to add.
+name: Distribute
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - '.github/workflows/dist.yml'
+  workflow_dispatch:
+
+# One release per package VERSION, at an immutable tag. npm caches a remote
+# tarball by its URL, so a rolling "latest" tag would hand a cached user stale
+# bytes under a URL that promised otherwise. A version in the tag is the only
+# honest form.
+permissions:
+  contents: write
+
+concurrency:
+  group: distribute
+  cancel-in-progress: false
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build, test and pack every package
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/packs"
+          for name in us-federal-tax us-state-tax us-tax-mcp; do
+            echo "::group::$name"
+            (
+              cd "packages/$name"
+              npm install
+              npm run typecheck
+              # Nothing is offered for installation that has not just passed its
+              # own suite in this same checkout.
+              npm test
+              npm pack --pack-destination "$RUNNER_TEMP/packs"
+            )
+            echo "::endgroup::"
+          done
+          ls -l "$RUNNER_TEMP/packs"
+
+      - name: Release any version that does not already have one
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          created=0
+          for name in us-federal-tax us-state-tax us-tax-mcp; do
+            version="$(node -p "require('./packages/$name/package.json').version")"
+            tag="$name-v$version"
+            tarball="$RUNNER_TEMP/packs/$name-$version.tgz"
+            if gh release view "$tag" >/dev/null 2>&1; then
+              echo "$tag already released; leaving it alone"
+              continue
+            fi
+            url="https://github.com/${{ github.repository }}/releases/download/$tag/$name-$version.tgz"
+            {
+              echo "\`$name@$version\`, built and tested from \`${{ github.sha }}\`."
+              echo
+              echo "Install it without a registry, an account or a token:"
+              echo
+              echo '```bash'
+              echo "npm i $url"
+              echo '```'
+              if [ "$name" = "us-tax-mcp" ]; then
+                echo
+                echo "Or run the MCP server straight from the tarball:"
+                echo
+                echo '```bash'
+                echo "npx -y $url"
+                echo '```'
+              fi
+              echo
+              echo "Zero runtime dependencies. See the repository README for what is in it."
+            } > "$RUNNER_TEMP/notes-$name.md"
+            gh release create "$tag" "$tarball" \
+              --title "$name v$version" \
+              --notes-file "$RUNNER_TEMP/notes-$name.md"
+            echo "released $tag"
+            created=$((created + 1))
+          done
+          echo "created $created release(s)"
