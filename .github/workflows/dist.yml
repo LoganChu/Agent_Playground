@@ -45,6 +45,26 @@ jobs:
         with:
           node-version: '22'
 
+      # An install line that names a version is a promise, and a promise in a
+      # README rots silently. This is the only mechanism that keeps the four
+      # READMEs honest across a version bump, so it runs before anything is
+      # built and it fails the release rather than warning about it.
+      - name: Refuse to release if a README still advertises an older version
+        run: |
+          set -euo pipefail
+          stale=0
+          for name in us-federal-tax us-state-tax us-tax-mcp; do
+            version="$(node -p "require('./packages/$name/package.json').version")"
+            want="releases/download/$name-v$version/$name-$version.tgz"
+            for doc in README.md packages/$name/README.md; do
+              if grep -q "releases/download/$name-v" "$doc" && ! grep -qF "$want" "$doc"; then
+                echo "::error file=$doc::$doc links a $name tarball that is not $version"
+                stale=1
+              fi
+            done
+          done
+          [ "$stale" -eq 0 ] || exit 1
+
       - name: Build, test and pack every package
         run: |
           set -euo pipefail

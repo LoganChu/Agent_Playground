@@ -272,12 +272,26 @@ const KY_CITATIONS: readonly Citation[] = [
     title: 'Kentucky Department of Revenue — Form 740 instructions',
     url: 'https://revenue.ky.gov/Forms/Pages/Individual-Income-Tax-Forms.aspx',
   },
+  {
+    title:
+      'KRS 141.019(1) — the pension income exclusion, and the exemption for service performed before 1 January 1998',
+    url: 'https://apps.legislature.ky.gov/law/statutes/statute.aspx?id=53498',
+  },
+  {
+    title: 'Kentucky Schedule P (42A740-P) — Kentucky Pension Income Exclusion',
+    url: 'https://revenue.ky.gov/Forms/Schedule%20P%20(2025).pdf',
+  },
 ];
 
 const KY_NOTES: readonly string[] = [
   "Kentucky's rate falls from 4.0% in 2025 to 3.5% in 2026 under HB 1 (2025), a 12.5% cut in the bill. Further reductions are conditional on revenue triggers in KRS 141.020(4) and are not scheduled.",
   'This package applies one standard deduction per return. Kentucky couples commonly file "married filing separately on a combined return" (Form 740 filing status 2), which claims two standard deductions on one form; that is worth $3,270 of deduction, about $131 of tax in 2025, and this package does not model it.',
-  'Kentucky exempts all Social Security benefits and up to $31,110 per person of other pension income. Supply those through `subtractions`.',
+  'Kentucky does not tax Social Security or Tier 1 railroad retirement benefits. Pass the taxable part — Form 1040 line 6b — as `taxableSocialSecurity` and it comes off the base; do NOT also put it in `subtractions`, or it will be subtracted twice.',
+  'The pension income exclusion of KRS 141.019(1) is PER PERSON and is claimed on Schedule P. It covers pensions, annuities, IRA and 401(k) distributions and other written retirement plans alike — Kentucky asks nothing about the character of the income or the form of the account — and it has NO AGE TEST AT ALL. Pass `retirement` with a `filer` and a `spouse`. Of the three states here that exempt retirement income, Kentucky has the smallest headline figure and is the only one a 55-year-old retiree can use: Georgia\'s exclusion begins at 62 and Maryland\'s at 65, so a couple who both retire at 55 with $70,000 of pension exclude $62,220 in Kentucky and nothing in either of the others.',
+  'The $31,110 is NOT Kentucky\'s maximum. Retired pay from the federal government, the Commonwealth or a Kentucky local government is exempt IN FULL to the extent it is attributable to service performed before 1 January 1998, with no ceiling — and that exempt amount is not charged against the $31,110, which stays available against everything else. Pass it as `retirement.filer.governmentPension` with `serviceMonthsBefore1998` and `serviceMonthsAfter1997`. A Kentucky teacher who served 1975-2005 with a $70,000 pension and $40,000 of IRA distributions excludes $84,776.67 on a return whose published exclusion is $31,110.',
+  'Military retired pay is federal service, so it belongs in `governmentPension` with the months: a Kentucky military retiree who served before 1998 has the same uncapped exemption as a state employee. Do not put it in `militaryRetirement`, which is Maryland\'s and Georgia\'s field and is not read here.',
+  'The 1 January 1998 cutoff has never moved, which makes the uncapped exemption a closed cohort emptying by retirement — the same shape as Virginia\'s untested age deduction for filers born before 1939. It also means every further month of service DILUTES the exempt percentage, because the denominator grows and the numerator cannot: a Kentucky employee hired in 1988 was 100% exempt if they retired in 1997 and is 25% exempt if they retire in 2027. The exempt DOLLARS are roughly unchanged, because a pension earned over more months is larger; it is the taxable remainder that grows.',
+  'The $31,110 is the only figure in this package other than Maryland\'s exclusion that has ever gone DOWN, and it fell much further. It was indexed from $35,700 in 1999 to $41,110 in 2005, frozen there for thirteen years, cut by 24% to $31,110 by the 2018 reform, and frozen again. It is not indexed, so it has lost roughly half its real value since it was last set — and the rate cut from 4.0% to 3.5% cuts what is left of it by a further 12.5%.',
 ];
 
 function kentucky(year: number): StateIncomeTaxDefinition | undefined {
@@ -291,6 +305,13 @@ function kentucky(year: number): StateIncomeTaxDefinition | undefined {
     rate: { kind: 'flat', rate: year === 2025 ? 0.04 : 0.035 },
     // Indexed annually. $3,160 for 2024, $3,270 for 2025.
     deduction: { kind: 'table', amounts: uniform(3270) },
+    subtractsTaxableSocialSecurity: true,
+    pensionIncomeExclusion: {
+      name: 'Kentucky pension income exclusion (Schedule P)',
+      // $41,110 from 2005 until the 2018 reform cut it. Not indexed since.
+      cap: 31_110,
+      uncappedServiceBefore: 1998,
+    },
     notes:
       year === 2026
         ? [

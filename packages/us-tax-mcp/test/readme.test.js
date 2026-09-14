@@ -249,7 +249,20 @@ test('the test counts the README advertises are the real ones', () => {
 
 test('the client configuration in the README is the one that actually works', () => {
   quotes('"command": "npx"');
-  quotes('"args": ["-y", "us-tax-mcp"]');
+  // Not `us-tax-mcp`: this package is not on npm, so the name would resolve to
+  // nothing and the config in the README would be a config that fails. It has
+  // no runtime dependencies, so the release tarball is self-contained and npx
+  // runs a URL exactly as it runs a name — and the URL carries a version, which
+  // is a promise that rots the moment the version moves. Hence the second
+  // assertion, which is the only thing that keeps the README honest across a
+  // bump.
+  const version = JSON.parse(
+    readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+  ).version;
+  const url =
+    'https://github.com/LoganChu/Agent_Playground/releases/download/' +
+    `us-tax-mcp-v${version}/us-tax-mcp-${version}.tgz`;
+  quotes(url);
 });
 
 test('README: the two-job trap, recomputed', () => {

@@ -16,7 +16,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
-import { TOOLS, ToolInputError, readHousehold } from '../dist/index.js';
+import { TOOLS, ToolInputError, readHousehold, handleMessage } from '../dist/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
@@ -238,14 +238,46 @@ test('tools/list stays within a sane context budget', () => {
     })),
   );
   assert.ok(
-    payload.length < 53_000,
+    payload.length < 52_000,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
+  // THE TWELFTH PASS CUT THE CEILING, which is the first time that has happened.
+  // 53,000 to 52,000, at 51,625 bytes, with Kentucky's three new fields already
+  // inside it — Day 19 reported that compression had "stopped being cheap" after
+  // three passes that found their bytes by shaving adverbs, and it was right
+  // about the prose. There is none left: a scan for any 45-character substring
+  // occurring twice in the payload returns schema punctuation and nothing else.
+  //
+  // What was left was a CONSTANT, and constants are where multiplicity actually
+  // compounds. `"minimum":0` appeared 164 times for 1,968 bytes — 3.7% of the
+  // whole payload — attached to fields called `wagesThisPeriod`,
+  // `employerPlanPension` and `dependents`, telling a model something their own
+  // names already say. Removing it cost nothing real:
+  //
+  //   - `readNumber` already rejects a negative, with a better message than a
+  //     schema violation produces, so the guarantee was never coming from here.
+  //   - The schema was in fact the LOOSER document, not the stricter one. The
+  //     server deliberately accepts `"85,000"` as a number because models send
+  //     it; a client that validated `minimum: 0` strictly would have rejected
+  //     the string first and never reached the coercion.
+  //   - The fields where the sign is genuinely load-bearing — investmentIncome,
+  //     businessIncome, qualifiedBusinessIncome — never carried it, and say so
+  //     in prose instead.
+  //
+  // THE RULE: a schema constraint that restates the field's own name is paid
+  // once per field per tool and informs nothing. Look for the repeated CONSTANT
+  // before the repeated sentence — it is invisible to a reader, it does not
+  // appear in any single description, and it is the only kind of bloat that
+  // grows without anybody writing a word.
+  //
   // Recorded rather than merely asserted, because the headroom is the number that
   // decides what the next tool can be. Four of the eight carry the same thirty-field
   // household schema, which is about 21 KB of the total across the three terse
   // copies; MCP has no portable way to share a schema between tools, so the ninth
   // tool has to displace one of those or the household schema has to lose fields.
+  // The structural fix Day 18 and Day 19 both named is still owed:
+  // `state_income_tax` is 15.9 KB and carries twelve states' per-state fields for
+  // a caller who uses one. This pass bought time for it, not a reprieve from it.
   //
   // THE TENTH PASS BOUGHT NO RAISE, which is what the ninth said the next one
   // had to do. Maryland's retirement work added a nested `retirement` object
@@ -322,10 +354,42 @@ test('tools/list stays within a sane context budget', () => {
   // the ninth applied the fourth's rule to fifteen properties at once and to the
   // description again, and paid for half of Virginia.
   assert.ok(
-    53_000 - payload.length < 1_000,
-    `tools/list has ${53_000 - payload.length} bytes of headroom — more than expected, so ` +
+    52_000 - payload.length < 1_000,
+    `tools/list has ${52_000 - payload.length} bytes of headroom — more than expected, so ` +
       'this note about the budget is stale and should be rewritten with the real figure',
   );
+});
+
+test('the server, not the schema, is what rejects a negative money field', () => {
+  // The twelfth compression pass took `minimum: 0` out of 164 properties on the
+  // strength of this. If it ever stops holding, the constraint has to go back in
+  // and the 1,968 bytes with it.
+  const reply = handleMessage({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'tools/call',
+    params: {
+      name: 'estimate_federal_tax',
+      arguments: { filingStatus: 'single', year: 2026, w2Wages: -1 },
+    },
+  });
+  const text = JSON.stringify(reply);
+  assert.match(text, /must not be negative/, 'the server must reject a negative money field');
+  assert.match(text, /w2Wages/, 'and it must name the field that was wrong');
+
+  // And the other half of why the schema was the looser document: a numeric
+  // string is accepted, which a strict `minimum: 0` validator would have
+  // rejected before the server ever saw it.
+  const coerced = handleMessage({
+    jsonrpc: '2.0',
+    id: 2,
+    method: 'tools/call',
+    params: {
+      name: 'estimate_federal_tax',
+      arguments: { filingStatus: 'single', year: 2026, w2Wages: '85,000' },
+    },
+  });
+  assert.ok(!coerced.result?.isError, '"85,000" must still be accepted');
 });
 
 test('the terse household schema trims nested item descriptions, not just the surface', () => {

@@ -22,13 +22,22 @@ the IRS release or state statute it came from.
   "mcpServers": {
     "us-tax": {
       "command": "npx",
-      "args": ["-y", "us-tax-mcp"]
+      "args": [
+        "-y",
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.18.0/us-tax-mcp-0.18.0.tgz"
+      ]
     }
   }
 }
 ```
 
-That is the whole setup. `npx -y us-tax-mcp` needs Node 18 or later and nothing else.
+That is the whole setup: Node 18 or later and nothing else. The package is not on npm
+yet, and does not need to be — it has no runtime dependencies, so the tarball is
+self-contained, and `npx` runs a tarball URL exactly as it runs a package name. Every
+version is on the
+[releases page](https://github.com/LoganChu/Agent_Playground/releases) at an immutable
+tag. When it lands on npm the second argument shortens to `us-tax-mcp` and the URL
+above keeps working.
 
 ---
 
@@ -605,8 +614,8 @@ confidently fill them in.
   York's Empire State child credit and California's Young Child Tax Credit from
   `dependentAges`; no other state child credit is, so a family state return outside New York
   and California comes out **too high**. Retirement exclusions are modelled for New Jersey,
-  Maryland and Georgia; Kentucky's and Utah's are not, so a retiree return in those two comes
-  out too high. California's
+  Maryland, Georgia and Kentucky; Utah's retirement and Social Security **credits** are not,
+  so a Utah retiree return comes out too high. California's
   Foster Youth Tax Credit — the same `$1,189` on the same phase-out — needs a foster-care
   history there is no field for, and CalEITC qualifying children are counted from
   `dependentAges` alone, so a full-time student under 24 and a permanently disabled

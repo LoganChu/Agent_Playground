@@ -477,6 +477,10 @@ interface RetirementPerson {
   readonly investment: number;
   readonly earned: number;
   readonly disabled: boolean;
+  /** Kentucky Schedule P Part I: federal, Commonwealth or local retired pay. */
+  readonly governmentPension: number;
+  readonly monthsBefore1998: number;
+  readonly monthsAfter1997: number;
 }
 
 /**
@@ -510,6 +514,15 @@ function retirementPeople(
     investment: Math.max(0, part.from?.investmentIncome ?? 0),
     earned: nonNegative(part.from?.earnedIncome, 'retirement.earnedIncome'),
     disabled: part.from?.totallyDisabled === true,
+    governmentPension: nonNegative(part.from?.governmentPension, 'retirement.governmentPension'),
+    monthsBefore1998: nonNegative(
+      part.from?.serviceMonthsBefore1998,
+      'retirement.serviceMonthsBefore1998',
+    ),
+    monthsAfter1997: nonNegative(
+      part.from?.serviceMonthsAfter1997,
+      'retirement.serviceMonthsAfter1997',
+    ),
   });
   if (split !== undefined) {
     const people = [read({ age: input.filerAge, from: split.filer })];
@@ -530,6 +543,9 @@ function retirementPeople(
     investment: 0,
     earned: 0,
     disabled: false,
+    governmentPension: 0,
+    monthsBefore1998: 0,
+    monthsAfter1997: 0,
   };
   const people: RetirementPerson[] = [sole];
   if (filers === 2) {
@@ -542,20 +558,27 @@ function retirementPeople(
       investment: 0,
       earned: 0,
       disabled: false,
+      governmentPension: 0,
+      monthsBefore1998: 0,
+      monthsAfter1997: 0,
     });
   }
   return { people, assumed: sole.pension > 0 };
 }
 
 /**
- * Maryland's three per-person retirement subtractions — the pension exclusion of
- * § 10-209(b), the military retirement subtraction of § 10-207(q) and the
- * centenarian subtraction of § 10-207(nn).
+ * Every per-person retirement subtraction in the package — Maryland's three (the
+ * pension exclusion of § 10-209(b), the military retirement subtraction of
+ * § 10-207(q) and the centenarian subtraction of § 10-207(nn)), Georgia's two,
+ * and Kentucky's Schedule P exclusion.
  *
  * They are computed together because they are all keyed to a person rather than
- * a return, and they disagree about which person qualifies: 65 or totally
- * disabled for the first, no age test at all for the second, 100 for the third.
- * One Maryland couple can be inside all three.
+ * a return, and because they disagree about *which* person qualifies — which is
+ * the most transferable thing here. Maryland asks 65, or totally disabled, or
+ * married to someone who is; Georgia asks 62, then 65; Maryland's military
+ * subtraction asks nothing at all; the centenarian subtraction asks 100; and
+ * **Kentucky asks no question about the person and one about their employment
+ * thirty years ago.** One Maryland couple can be inside three of these at once.
  */
 function retirementSubtractions(
   def: StateIncomeTaxDefinition,
@@ -567,7 +590,10 @@ function retirementSubtractions(
   const aged = def.agedIncomeSubtraction;
   const characterExclusion = def.retirementIncomeExclusion;
   const militaryExclusion = def.militaryRetirementExclusion;
-  if (!pension && !military && !aged && !characterExclusion && !militaryExclusion) return none;
+  const kentucky = def.pensionIncomeExclusion;
+  if (!pension && !military && !aged && !characterExclusion && !militaryExclusion && !kentucky) {
+    return none;
+  }
   const { people, assumed } = retirementPeople(input);
   const anyDisabled = people.some((p) => p.disabled);
   const details: { name: string; amount: number }[] = [];
@@ -663,6 +689,39 @@ function retirementSubtractions(
         name: assumed
           ? `${characterExclusion.name} (assumed: all of it received by one spouse — pass \`retirement\` for the exact figure)`
           : characterExclusion.name,
+        amount: excluded,
+      });
+    }
+  }
+
+  if (kentucky) {
+    let excluded = 0;
+    for (const person of people) {
+      // Schedule P Part I. The ratio is months of service credit, not a date,
+      // so it is computed even for a person who retired long after the cutoff —
+      // and a person with no post-1997 months at all is 100% exempt, which is
+      // what line 1(a) does for anyone who retired before 1 January 1998.
+      const months = person.monthsBefore1998 + person.monthsAfter1997;
+      const exemptShare = months > 0 ? person.monthsBefore1998 / months : 0;
+      const exempt = person.governmentPension * exemptShare;
+      // Part II. Everything else — including the part of the government pension
+      // the ratio did not reach — against the cap. The exempt amount is NOT
+      // charged against it: Kentucky adds the two, which is what makes this
+      // exclusion unbounded above for the pre-1998 cohort.
+      const capped = Math.min(
+        kentucky.cap,
+        person.pension +
+          person.ira +
+          person.military +
+          (person.governmentPension - exempt),
+      );
+      excluded += exempt + Math.max(0, capped);
+    }
+    if (excluded > 0) {
+      details.push({
+        name: assumed
+          ? `${kentucky.name} (assumed: all of it received by one spouse, and none of it exempt government service — pass \`retirement\` for the exact figure)`
+          : kentucky.name,
         amount: excluded,
       });
     }

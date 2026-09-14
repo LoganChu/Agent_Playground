@@ -1442,6 +1442,61 @@ export interface MilitaryRetirementExclusionRule {
 }
 
 /**
+ * A per-person exclusion of retirement income that is capped for most filers
+ * and **uncapped for a closed cohort** — Kentucky's, KRS 141.019(1), computed on
+ * Schedule P.
+ *
+ * This is the third construction of the same idea in this package and it is
+ * built on a third axis. {@link RetirementIncomeExclusionRule} (Georgia) asks
+ * what *character* the income has. {@link PensionExclusionRule} (Maryland) asks
+ * what *form of account* it came out of. Kentucky asks **who the employer was
+ * and when the service was performed** — a fact about the retiree's working
+ * life, not about their portfolio, and the only one of the three that no
+ * financial decision taken after retirement can change.
+ *
+ * Two consequences a table of state pension exclusions cannot carry:
+ *
+ * **The `$31,110` is not the maximum.** Retired pay from the federal
+ * government, the Commonwealth or a Kentucky local government is exempt in full
+ * to the extent it is attributable to service performed before 1 January 1998,
+ * with no ceiling — *and* that exempt amount does not consume the `$31,110`,
+ * which remains available against everything else. A Kentucky teacher who
+ * worked from 1975 to 2005 with a `$70,000` pension and a `$40,000` IRA excludes
+ * `$53,666.67` plus `$31,110`: `$84,776.67`, on a return whose published
+ * exclusion is `$31,110`.
+ *
+ * **There is no age test at any point.** Georgia's exclusion begins at 62 and
+ * Maryland's at 65; Kentucky's applies to a 45-year-old. So of the three states,
+ * the one with the smallest headline number is the only one whose exclusion an
+ * early retiree can use at all — and at `$31,110` per person it is worth more to
+ * a couple retiring at 55 than either of the others, which are worth nothing to
+ * them for a decade.
+ *
+ * {@link uncappedServiceBefore} is a **fixed date that has never moved**, which
+ * makes this the second provision here that sunsets by attrition rather than by
+ * a repeal date — the first being Virginia's 1 January 1939 birth date. Nobody
+ * has joined the cohort since 1998, and every further month a member works
+ * dilutes their exempt percentage.
+ */
+export interface PensionIncomeExclusionRule {
+  readonly name: string;
+  /**
+   * The most one person may exclude of retirement income that is not exempt
+   * outright. `$31,110` since 2018 — and **the figure has gone down**: it was
+   * indexed from `$35,700` in 1999 to `$41,110` in 2005, frozen there for
+   * thirteen years, then cut by 24% by the 2018 reform and frozen again. It is
+   * not indexed, so it has lost about half its real value since it was last set.
+   */
+  readonly cap: number;
+  /**
+   * Retired pay attributable to government service performed before this year is
+   * exempt in full, over and above {@link cap}. Kentucky's is 1998 and has never
+   * moved.
+   */
+  readonly uncappedServiceBefore: number;
+}
+
+/**
  * A capped exclusion of one class of compensation, read off the federal
  * deduction the same dollars produced — Georgia's qualified overtime and cash
  * tip exclusions, O.C.G.A. § 48-7-27(a)(16) and (17), added by HB 463 of 2026
@@ -1547,6 +1602,12 @@ export interface StateIncomeTaxDefinition {
   readonly retirementIncomeExclusion?: RetirementIncomeExclusionRule;
   /** Georgia's military retirement exclusion — per person, and below 62 only. */
   readonly militaryRetirementExclusion?: MilitaryRetirementExclusionRule;
+  /**
+   * Kentucky's pension income exclusion — per person, with no age test, and
+   * uncapped for government service performed before 1998. Reads
+   * {@link StateIncomeTaxInput.retirement}.
+   */
+  readonly pensionIncomeExclusion?: PensionIncomeExclusionRule;
   /**
    * Exclusions of a class of compensation the federal government deducts below
    * the line, so a federal-AGI base never saw them. Georgia's tips and overtime.

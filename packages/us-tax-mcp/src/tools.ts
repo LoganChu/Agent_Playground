@@ -90,6 +90,9 @@ function readPersonRetirement(
   const investment = readNumber(person, 'investmentIncome', { allowNegative: true });
   const earned = readNumber(person, 'earnedIncome');
   const disabled = readBoolean(person, 'totallyDisabled');
+  const govPension = readNumber(person, 'governmentPension');
+  const monthsBefore = readNumber(person, 'serviceMonthsBefore1998');
+  const monthsAfter = readNumber(person, 'serviceMonthsAfter1997');
   return {
     ...(pension !== undefined ? { employerPlanPension: pension } : {}),
     ...(benefits !== undefined ? { socialSecurityBenefits: benefits } : {}),
@@ -98,6 +101,9 @@ function readPersonRetirement(
     ...(investment !== undefined ? { investmentIncome: investment } : {}),
     ...(earned !== undefined ? { earnedIncome: earned } : {}),
     ...(disabled !== undefined ? { totallyDisabled: disabled } : {}),
+    ...(govPension !== undefined ? { governmentPension: govPension } : {}),
+    ...(monthsBefore !== undefined ? { serviceMonthsBefore1998: monthsBefore } : {}),
+    ...(monthsAfter !== undefined ? { serviceMonthsAfter1997: monthsAfter } : {}),
   };
 }
 
@@ -623,14 +629,12 @@ const quarterlyTool: ToolDefinition = {
     {
       priorYearTotalTax: {
         type: 'number',
-        minimum: 0,
         description:
           "Total tax from last year's return (Form 1040 line 24). Unlocks the prior-year safe harbor, " +
           'which is usually the cheaper of the two and is the only one that is certain in advance.',
       },
       priorYearAdjustedGrossIncome: {
         type: 'number',
-        minimum: 0,
         description:
           "Last year's AGI. Above $150,000 ($75,000 filing separately) the prior-year safe harbor is " +
           '110% rather than 100%.',
@@ -926,7 +930,6 @@ const paycheckTool: ToolDefinition = {
     properties: {
       wagesThisPeriod: {
         type: 'number',
-        minimum: 0,
         description:
           'Taxable wages for ONE pay period, not for the year. Gross pay less pre-tax deductions such as a 401(k) deferral or a section 125 premium.',
       },
@@ -945,57 +948,46 @@ const paycheckTool: ToolDefinition = {
       },
       dependentsCredit: {
         type: 'number',
-        minimum: 0,
         description: 'Form W-4 Step 3, the ANNUAL credit amount (e.g. 4400 for two children in 2026).',
       },
       otherIncome: {
         type: 'number',
-        minimum: 0,
         description: 'Form W-4 Step 4(a), annual income with no withholding of its own — interest, dividends, retirement income.',
       },
       deductions: {
         type: 'number',
-        minimum: 0,
         description: 'Form W-4 Step 4(b), annual deductions beyond the standard deduction. The only place to claim the OBBBA tips, overtime, senior or car loan interest deductions, which no withholding table accounts for.',
       },
       extraWithholding: {
         type: 'number',
-        minimum: 0,
         description: 'Form W-4 Step 4(c), extra withholding PER PAY PERIOD.',
       },
       allowances2019OrEarlier: {
         type: 'integer',
-        minimum: 0,
         description: 'Allowances on a Form W-4 from 2019 or earlier, if the employee has never filed a new one. Switches to Worksheet 1B, where each allowance is worth $4,300 of wages. Mutually exclusive with the Step 2/3/4 fields.',
       },
       ficaWagesThisPeriod: {
         type: 'number',
-        minimum: 0,
         description: 'Wages subject to Social Security and Medicare, when they differ from wagesThisPeriod. A 401(k) deferral reduces income tax withholding and not FICA; a section 125 premium reduces both.',
       },
       yearToDateSocialSecurityWages: {
         type: 'number',
-        minimum: 0,
         description: 'Social Security wages THIS employer has already paid this calendar year, so the wage base applies. The base is per employer, so two jobs over-withhold and the excess is a credit on the return.',
       },
       yearToDateMedicareWages: {
         type: 'number',
-        minimum: 0,
         description: 'Medicare wages paid year to date by this employer. Additional Medicare Tax is withheld above $200,000 from one employer regardless of filing status, which is not the threshold the return uses.',
       },
       targetAnnualTax: {
         type: 'number',
-        minimum: 0,
         description: 'The tax expected for the whole year — normally estimate_federal_tax totalTax. Supplying it turns this into a Form W-4 plan: projected withholding, the shortfall, and the Step 4(c) amount that closes it.',
       },
       payPeriodsRemaining: {
         type: 'integer',
-        minimum: 0,
         description: 'Pay periods left in the year. Defaults to a full year. Only used with targetAnnualTax.',
       },
       withheldToDate: {
         type: 'number',
-        minimum: 0,
         description: 'Federal income tax already withheld this year, from all employers. Only used with targetAnnualTax.',
       },
     },
@@ -1123,8 +1115,9 @@ const stateTool: ToolDefinition = {
     'municipalities and 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a ' +
     'state starts from decides the answer. Ten states need more. NY: locality. MD and IN: county, plus ' +
-    'netCapitalGain and stateItemizedDeductions in MD. MD and GA: retirement for a retiree — both ' +
-    'exclusions are PER PERSON, and GA excludes nothing without it. OH: city and ' +
+    'netCapitalGain and stateItemizedDeductions in MD. MD, GA and KY: retirement for a retiree — all ' +
+    'three exclusions are PER PERSON, GA excludes nothing without it, and KY has NO CEILING for ' +
+    'pre-1998 government service. OH: city and ' +
     'qualifyingWages, box 5 of the W-2 and NOT federal AGI, and schoolDistrict. MI: city and cityIncome, ' +
     'which is NOT federal AGI. VA: filerAge, spouseAge, taxableSocialSecurity and ' +
     'bothSpousesHaveQualifyingIncome. CA: earnedIncome and dependentAges. ' +
@@ -1155,105 +1148,88 @@ const stateTool: ToolDefinition = {
       },
       federalAdjustedGrossIncome: {
         type: 'number',
-        minimum: 0,
         description: 'Form 1040 line 11 — estimate_federal_tax adjustedGrossIncome.',
       },
       federalTaxableIncome: {
         type: 'number',
-        minimum: 0,
         description: 'Form 1040 line 15 — estimate_federal_tax taxableIncome. Colorado and Idaho start here.',
       },
       federalDeduction: {
         type: 'number',
-        minimum: 0,
         description:
           'The deduction actually taken federally — estimate_federal_tax deduction. Arizona uses it directly, Utah bases its credit on it. Defaults to AGI minus taxable income.',
       },
-      dependents: { type: 'integer', minimum: 0, description: 'Dependents claimed on the state return. Defaults to the length of dependentAges.' },
+      dependents: { type: 'integer', description: 'Dependents claimed on the state return. Defaults to the length of dependentAges.' },
       dependentAges: {
         type: 'array',
-        items: { type: 'integer', minimum: 0 },
+        items: { type: 'integer' },
         description:
           'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ, MA and MD, whose age-banded credits are otherwise ZERO, and the result says what that cost.',
       },
       earnedIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'Wages plus net self-employment earnings. Required for California: CalEITC and the Young Child Tax Credit are functions of earnings alone, not of AGI.',
       },
       investmentIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC.',
       },
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
-        minimum: 0,
         description: 'The Section 199A deduction taken federally. CO adds it back; ID allows it.',
       },
       federalOvertimeDeduction: {
         type: 'number',
-        minimum: 0,
         description: 'The OBBBA qualified overtime deduction. CO adds it back from 2026; GA excludes $1,750 of the same pay for 2026-2028.',
       },
       federalTipsDeduction: {
         type: 'number',
-        minimum: 0,
         description: 'The OBBBA qualified tips deduction. GA excludes $1,750 of the same tips for 2026-2028.',
       },
       federalEarnedIncomeCredit: {
         type: 'number',
-        minimum: 0,
         description:
           'Form 1040 line 27 — estimate_federal_tax credits.earnedIncomeCredit.credit. Nine states match 10-100% of it and each Maryland county another ten times its own rate; omitting it makes a low-income return too high.',
       },
       stateAdditions: {
         type: 'number',
-        minimum: 0,
         description:
           'State-specific additions — most often another state\'s municipal bond interest. Not enumerated: a partial list would be worse than none.',
       },
       stateSubtractions: {
         type: 'number',
-        minimum: 0,
         description:
           'State-specific subtractions — US government interest, Social Security and retirement income the state exempts, 529 contributions, military pay.',
       },
       pennsylvaniaTaxableIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed and allows no deduction or exemption.',
       },
       newJerseyGrossIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'Required for NJ, refused elsewhere. NJ-1040 line 27, before the retirement exclusion. NOT federal AGI: it excludes Social Security and unemployment and taxes 403(b) deferrals and IRA contributions.',
       },
       massachusettsFivePercentIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'Required for MA and refused elsewhere. Form 1 line 21, total 5.0% income — including interest, dividends and LONG-term gains, excluding short-term and collectibles gains. NOT federal AGI; the result names the add-backs Massachusetts needs.',
       },
       shortTermCapitalGains: {
         type: 'number',
-        minimum: 0,
         description:
           'MA only: net gains on assets held one year or less, taxed at 8.5% rather than 5%. Do not include them in massachusettsFivePercentIncome.',
       },
       collectiblesGains: {
         type: 'number',
-        minimum: 0,
         description:
           'MA only: long-term gains on collectibles and pre-1996 installment sales, taxed at 12% on half the gain. Pass the WHOLE gain; the 50% deduction is applied here.',
       },
       socialSecurityAndMedicarePaid: {
         type: 'number',
-        minimum: 0,
         description:
           'MA only: FICA, Medicare, railroad and public retirement contributions paid, deducted up to $2,000 per filer. No federal equivalent.',
       },
@@ -1269,19 +1245,16 @@ const stateTool: ToolDefinition = {
       },
       cityIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'MI only: income as the CITY measures it, before its $600-$3,000 exemptions — no pensions, IRA distributions, Social Security, unemployment or military pay. Omitted, it is derived from federal AGI less retirementIncome and runs high.',
       },
       qualifyingWages: {
         type: 'number',
-        minimum: 0,
         description:
           'OH only, REQUIRED with city: O.R.C. 718.01(R) wages — box 5 of the W-2, which a 401(k) deferral does NOT reduce — plus a resident\'s net business or rental profit. Interest, dividends, gains, pensions and Social Security are outside it, so federal AGI is a different figure.',
       },
       businessIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
       },
@@ -1297,13 +1270,11 @@ const stateTool: ToolDefinition = {
       },
       workCityEarnings: {
         type: 'number',
-        minimum: 0,
         description:
           'MI and OH only: wages earned inside workCity, already apportioned by working days (Form DW-4, GRW-4).',
       },
       residentCreditRate: {
         type: 'number',
-        minimum: 0,
         maximum: 1,
         description:
           'OH only: the share of the workCity tax the HOME municipality credits — Ohio\'s "Credit Rate" column. Omitted, the modal 100%-capped-at-the-home-rate ordinance is assumed and the result says so.',
@@ -1315,14 +1286,12 @@ const stateTool: ToolDefinition = {
       },
       residentCreditLimitRate: {
         type: 'number',
-        minimum: 0,
         maximum: 1,
         description:
           'OH only: the rate that credit is capped at — the "Credit Factor" column. The credit is the lesser of the two.',
       },
       stateItemizedDeductions: {
         type: 'number',
-        minimum: 0,
         description:
           'MD and VA: federal Schedule A less the state and local INCOME taxes in it. Needs federalItemized. MD reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate). VA COMPELS it: a federal itemizer may not take the state standard deduction even when it is larger.',
       },
@@ -1333,33 +1302,34 @@ const stateTool: ToolDefinition = {
       },
       netCapitalGain: {
         type: 'number',
-        minimum: 0,
         description:
           'MD only: net capital gain in taxable income, surtaxed 2% when federal AGI exceeds $350,000. Exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains.',
       },
       taxableSocialSecurity: {
         type: 'number',
-        minimum: 0,
         description:
-          'VA, MD and GA: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. All three subtract it; VA also tests its age deduction on AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
+          'VA, MD, GA and KY: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. All four subtract it; VA also tests its age deduction on AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
       },
       retirement: {
         type: 'object',
         description:
-          'MD and GA: retirement income PER PERSON, because both cap their exclusion per person and GA measures it on the CHARACTER of the income, which a federal AGI does not record. Omit it and everything lands on one spouse, the worst case, and the result says so.',
+          'MD, GA and KY: retirement income PER PERSON, because all three cap their exclusion per person and none of them reads it off a federal AGI — GA measures the CHARACTER of the income, MD the FORM OF THE ACCOUNT, KY WHEN THE SERVICE WAS PERFORMED. Omit it and everything lands on one spouse, the worst case, and the result says so.',
         properties: {
           filer: {
             type: 'object',
             description:
-              'employerPlanPension: taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b) — NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes and GA counts. iraDistributions: taxable IRA and Roth-conversion income, 1040 line 4b — GA-qualifying, MD-disqualifying. investmentIncome: interest, dividends, net capital gain, rents, royalties, alimony; GA only, may be negative. earnedIncome: wages plus partnership and S corp income; GA counts at most $5,000 of it, and doubles the military exclusion above $17,500. socialSecurityBenefits: the TOTAL received, Tier I and Tier II, taxable or not — MD offsets its exclusion by it, GA does not. militaryRetirement: retired or survivor pay, not also in employerPlanPension. totallyDisabled: qualifies at any age, and in MD the spouse too.',
+              'employerPlanPension: taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b) — NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes and GA counts. iraDistributions: taxable IRA and Roth-conversion income, 1040 line 4b — GA-qualifying, MD-disqualifying. investmentIncome: interest, dividends, net capital gain, rents, royalties, alimony; GA only, may be negative. earnedIncome: wages plus partnership and S corp income; GA counts at most $5,000 of it, and doubles the military exclusion above $17,500. socialSecurityBenefits: the TOTAL received, Tier I and Tier II, taxable or not — MD offsets its exclusion by it, GA does not. militaryRetirement: retired or survivor pay, not also in employerPlanPension. totallyDisabled: qualifies at any age, and in MD the spouse too. governmentPension: KY only — federal, Commonwealth or KY local retired pay, military included; the share attributable to service before 1998 is exempt WITHOUT LIMIT and does not consume the $31,110, so KY has no maximum for that cohort. Give the share as serviceMonthsBefore1998 and serviceMonthsAfter1997 (months of service credit; a person who retired before 1998 has none after).',
             properties: {
-              employerPlanPension: { type: 'number', minimum: 0 },
-              iraDistributions: { type: 'number', minimum: 0 },
+              employerPlanPension: { type: 'number' },
+              iraDistributions: { type: 'number' },
               investmentIncome: { type: 'number' },
-              earnedIncome: { type: 'number', minimum: 0 },
-              socialSecurityBenefits: { type: 'number', minimum: 0 },
-              militaryRetirement: { type: 'number', minimum: 0 },
+              earnedIncome: { type: 'number' },
+              socialSecurityBenefits: { type: 'number' },
+              militaryRetirement: { type: 'number' },
               totallyDisabled: { type: 'boolean' },
+              governmentPension: { type: 'number' },
+              serviceMonthsBefore1998: { type: 'number' },
+              serviceMonthsAfter1997: { type: 'number' },
             },
             additionalProperties: false,
           },
@@ -1372,53 +1342,44 @@ const stateTool: ToolDefinition = {
       },
       lesserSpouseIncome: {
         type: 'number',
-        minimum: 0,
         description:
           'VA only: line 5 of the Spouse Tax Adjustment Worksheet — the SMALLER spouse\'s Virginia AGI less their exemptions. Omitted, an even split is assumed, which is the adjustment\'s $257.50 maximum, and the result says so.',
       },
       federalPovertyGuideline: {
         type: 'number',
-        minimum: 0,
         description:
           'VA only: overrides the HHS guideline the $300-a-head Credit for Low Income Individuals is a cliff at. Pass 0 to switch it off for a filer barred by a military or state-employee subtraction this server cannot see.',
       },
       filerAge: {
         type: 'integer',
-        minimum: 0,
         description:
           'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. Omitted, a retiree return runs far too high.',
       },
       spouseAge: {
         type: 'integer',
-        minimum: 0,
         description: 'Spouse age at year end, joint returns. VA gives a SECOND $12,000 age deduction over the same band, so two 65-year-olds face 11.5% for $24,000. NJ: the senior exemption is per person.',
       },
       blindOrDisabled: {
         type: 'integer',
-        minimum: 0,
         description: 'How many of filer and spouse are blind or disabled, 0-2. Worth $1,000 each in NJ.',
       },
       dependentsAttendingCollege: {
         type: 'integer',
-        minimum: 0,
         description:
           'NJ only: dependents under 22 in full-time study, also counted in dependents. A second $1,000 exemption on top of the $1,500 dependent one.',
       },
       retirementIncome: {
         type: 'number',
-        minimum: 0,
         description:
-          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, ending in a wall at $150,000 of total income. MD and GA read `retirement` instead.',
+          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, ending in a wall at $150,000 of total income. MD, GA and KY read `retirement` instead.',
       },
       propertyTaxPaid: {
         type: 'number',
-        minimum: 0,
         description:
           'Property tax paid on a principal residence in the state. NJ allows a $15,000 deduction OR a flat $50 refundable credit; the engine computes both routes and keeps the lower tax.',
       },
       rentPaid: {
         type: 'number',
-        minimum: 0,
         description:
           'Rent paid on a principal residence in the state. NJ treats 18% of it as property tax (ignored when propertyTaxPaid is given); MA deducts half of it, capped at $4,000.',
       },
@@ -1430,7 +1391,6 @@ const stateTool: ToolDefinition = {
       },
       yonkersNonresidentEarnings: {
         type: 'number',
-        minimum: 0,
         description:
           'Wages earned in Yonkers by someone who lives elsewhere, taxed at 0.5%. Ignored when locality is YONKERS: a resident pays the surcharge instead, never both.',
       },
@@ -1669,19 +1629,20 @@ const stateTool: ToolDefinition = {
       taxableSocialSecurity !== undefined &&
       state !== 'VA' &&
       state !== 'MD' &&
-      state !== 'GA'
+      state !== 'GA' &&
+      state !== 'KY'
     ) {
       throw new ToolInputError(
-        `taxableSocialSecurity only applies to VA, MD and GA, and ${state} was requested. Every ` +
-          `other supported state that exempts Social Security takes it through ` +
+        `taxableSocialSecurity only applies to VA, MD, GA and KY, and ${state} was requested. ` +
+          `Every other supported state that exempts Social Security takes it through ` +
           `stateSubtractions instead.`,
       );
     }
-    if (retirement !== undefined && state !== 'MD' && state !== 'GA') {
+    if (retirement !== undefined && state !== 'MD' && state !== 'GA' && state !== 'KY') {
       throw new ToolInputError(
-        `retirement only applies to MD and GA, and ${state} was requested. Those are the two ` +
-          `states here whose retirement exclusion is capped PER PERSON, so they are the two ` +
-          `that need the income split between the spouses. New Jersey's exclusion is per ` +
+        `retirement only applies to MD, GA and KY, and ${state} was requested. Those are the ` +
+          `three states here whose retirement exclusion is capped PER PERSON, so they are the ` +
+          `three that need the income split between the spouses. New Jersey's exclusion is per ` +
           `return: pass retirementIncome.`,
       );
     }

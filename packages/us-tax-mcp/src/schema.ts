@@ -22,7 +22,7 @@ export class ToolInputError extends Error {
 
 export type JsonSchema = Record<string, unknown>;
 
-const money = (description: string): JsonSchema => ({ type: 'number', minimum: 0, description });
+const money = (description: string): JsonSchema => ({ type: 'number', description });
 
 /**
  * Attach an authored short form to a property.
@@ -46,7 +46,6 @@ const flag = (description: string): JsonSchema => ({ type: 'boolean', descriptio
 
 const count = (description: string): JsonSchema => ({
   type: 'integer',
-  minimum: 0,
   description,
 });
 
@@ -180,7 +179,6 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
 
   age: {
     type: 'integer',
-    minimum: 0,
     description:
       "The filer's age at the end of the year. Required for the earned income credit of a household with NO qualifying children — § 32(c)(1)(A)(ii)(II) allows it only from 25 to 64, and without it the EITC is reported as null rather than guessed.",
   },

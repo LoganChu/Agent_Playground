@@ -1791,6 +1791,37 @@ test('state_income_tax carries the Maryland retirement split through untouched',
   );
 });
 
+test("state_income_tax carries Kentucky's service months through to Schedule P", () => {
+  // Three numbers a federal return does not contain and a household total cannot
+  // express: who the employer was, and how many months on each side of a date in
+  // 1998. They decide $1,878.33 of tax on two otherwise identical returns.
+  const ky = (retirement) =>
+    ok('state_income_tax', {
+      state: 'KY',
+      filingStatus: 'single',
+      year: 2026,
+      federalAdjustedGrossIncome: 110_000,
+      federalTaxableIncome: 94_250,
+      federalDeduction: 15_750,
+      retirement,
+    });
+  const base = { governmentPension: 70_000, iraDistributions: 40_000 };
+  const early = ky({
+    filer: { ...base, serviceMonthsBefore1998: 276, serviceMonthsAfter1997: 84 },
+  });
+  const late = ky({ filer: { ...base, serviceMonthsAfter1997: 360 } });
+  assert.equal(early.structured.state.totalTax, 768.37);
+  assert.equal(late.structured.state.totalTax, 2646.7);
+  assert.match(early.text, /pension income exclusion/i);
+
+  // The uncapped half: pre-1998 service is exempt in full AND leaves the
+  // $31,110 intact, so the exclusion here is well above Kentucky's headline.
+  const excluded = early.structured.state.computedSubtractions
+    .filter((s) => s.name.toLowerCase().includes('pension income exclusion'))
+    .reduce((sum, s) => sum + s.amount, 0);
+  assert.ok(excluded > 84_000, `expected more than $84,000 of exclusion, got ${excluded}`);
+});
+
 test('state_income_tax rejects a retirement object with neither person', () => {
   const message = err('state_income_tax', {
     state: 'MD',

@@ -12,7 +12,9 @@ the IRS release it came from.
 **Tax years 2024, 2025 and 2026.**
 
 ```bash
-npm install us-federal-tax
+# Not on npm yet — and it does not have to be. Zero runtime dependencies means the
+# tarball is self-contained, and npm installs one from a URL without an account.
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.7.0/us-federal-tax-0.7.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.

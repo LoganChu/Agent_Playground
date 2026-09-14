@@ -359,6 +359,52 @@ export interface PersonRetirementIncome {
    */
   readonly earnedIncome?: number;
   /**
+   * Taxable retired pay from the **federal government**, the **Commonwealth of
+   * Kentucky**, or a **Kentucky local government** — Part I of Kentucky's
+   * Schedule P, which also takes military retired pay (military service is
+   * federal service) and federal or Kentucky disability retirement income.
+   *
+   * It is a field of its own because Kentucky is the only state here whose
+   * exclusion turns on **who the employer was and when the service was
+   * performed**, rather than on the character of the income (Georgia) or the
+   * form of the account (Maryland). The part of this pension attributable to
+   * service performed before 1 January 1998 is exempt **in full, with no cap at
+   * all**, and it does not consume the `$31,110` that everything else shares —
+   * so Kentucky's exclusion has no ceiling for the cohort that qualifies, and
+   * the `$31,110` every table prints is the figure for everyone else.
+   *
+   * Give the months with {@link serviceMonthsBefore1998} and
+   * {@link serviceMonthsAfter1997}. A person who retired before 1 January 1998
+   * has no post-1997 service at all, so leaving `serviceMonthsAfter1997` at zero
+   * exempts the whole pension, which is what Schedule P line 1(a) does.
+   *
+   * Do not also put these dollars in {@link employerPlanPension}; the engine
+   * counts both towards the capped pool and would count this pension twice.
+   * Deferred compensation is not Part I income — put a `457(b)` in
+   * {@link employerPlanPension}.
+   */
+  readonly governmentPension?: number;
+  /**
+   * Months of service credit this person earned **before 1 January 1998**,
+   * towards {@link governmentPension}.
+   *
+   * Schedule P asks for months rather than years, and for a ratio rather than a
+   * date, which has a consequence the form does not state: **1 January 1998 does
+   * not move, so every further month of service dilutes the exempt percentage.**
+   * A Kentucky teacher hired in 1988 who retired in 1997 was 100% exempt; the
+   * same teacher retiring in 2027 is 25% exempt. The exempt *dollars* are
+   * roughly unchanged, because a pension earned over more months is larger — but
+   * the taxable remainder grows without limit, and the cohort that can claim
+   * anything here closed to new entrants in 1998 and is emptying by retirement.
+   */
+  readonly serviceMonthsBefore1998?: number;
+  /**
+   * Months of service credit this person earned **after 31 December 1997**,
+   * towards {@link governmentPension}. Zero for anyone who retired before
+   * 1 January 1998.
+   */
+  readonly serviceMonthsAfter1997?: number;
+  /**
    * True where this person is **totally disabled**, which qualifies them for
    * Maryland's pension exclusion at any age — and qualifies their spouse too.
    *

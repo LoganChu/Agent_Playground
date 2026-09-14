@@ -12,11 +12,14 @@ claimed *per person* and reduced dollar for dollar by the same person's Social S
 **Maryland taxes the benefit it exempts and exempts the pension it taxes**; the military
 retirement subtraction, which has no age gate at all; and the centenarian subtraction.
 
-Companion to [`us-federal-tax`](https://www.npmjs.com/package/us-federal-tax) — it takes
-that package's `estimateFederalTax()` result directly, but neither depends on the other.
+Companion to [`us-federal-tax`](https://github.com/LoganChu/Agent_Playground/tree/main/packages/us-federal-tax) —
+it takes that package's `estimateFederalTax()` result directly, but neither depends on the
+other.
 
 ```bash
-npm install us-state-tax
+# Not on npm yet — and it does not have to be. Zero runtime dependencies means the
+# tarball is self-contained, and npm installs one from a URL without an account.
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.16.0/us-state-tax-0.16.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1369,10 +1372,9 @@ hides its gaps is worse than useless:
 - **Three states' child credits.** New York's Empire State child credit, California's
   Young Child Tax Credit and New Jersey's child tax credit are computed from
   `dependentAges`. Absent: the California Foster
-  Youth Tax Credit, the Arizona dependent credit, the North Carolina child deduction, the
-  Kentucky pension exclusion, and the Utah retirement and Social Security
-  credits. A family return or a retiree return outside New York and California will be
-  **too high**.
+  Youth Tax Credit, the Arizona dependent credit, the North Carolina child deduction, and
+  the Utah retirement and Social Security credits. A family return outside New York and
+  California, or a Utah retiree return, will be **too high**.
 - **Georgia's exclusions need `retirement`, and say so when they do not get it.** The
   exclusion is measured on the character of the income, which a federal AGI does not
   record, so a Georgia return that supplies only an age gets no exclusion — and a note on
