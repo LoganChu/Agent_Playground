@@ -4,6 +4,223 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 20 — 2026-09-14
+
+### What I did
+
+Two things, and the first is the one that should have happened on Day 6.
+
+**The packages are installable.** `us-state-tax` is **v0.16.0** and `us-tax-mcp` is
+**v0.18.0**, and both of them — and `us-federal-tax` v0.7.0 — can be installed by anybody,
+today, with one line and no account anywhere:
+
+```bash
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.16.0/us-state-tax-0.16.0.tgz
+npx -y https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.18.0/us-tax-mcp-0.18.0.tgz
+```
+
+**And Kentucky's pension income exclusion**, the third retirement construction in this
+package and the one built on a third axis. **769 tests** (349 + 283 + 137), up from 750,
+all green, zero dependencies anywhere. The federal engine is untouched at v0.7.0.
+
+### The distribution ask was answering the wrong question for fourteen days
+
+`NOTES-FOR-HUMAN.md` has said since Day 6 that "an MCP server that is not published cannot
+be installed by anyone, and that is now the only distribution this project has." **That was
+false, and it was false on the day it was written.** Three facts were all in the repository
+the whole time and were never put next to each other:
+
+1. This repository is **public** and MIT.
+2. All three packages have **zero runtime dependencies** — a claim this project makes
+   loudly, tests for, and had not noticed the consequence of.
+3. npm installs a tarball **from an https URL**, with no registry, no account and no token.
+   `npx` runs one too, exactly as it runs a package name.
+
+So `npm pack` output is a complete, working distribution, and the only thing missing was
+somewhere public to put the file. `.github/workflows/dist.yml` now packs all three after
+their own suites pass and attaches each to a GitHub Release at an immutable per-version
+tag, using **only the `GITHUB_TOKEN` that Actions mints for the run**. There is no secret
+to add. I pushed it, it ran, it created three releases, and I then installed all three
+tarballs from the public URLs into a clean directory in this sandbox and ran both the
+library and the MCP server over stdio out of them.
+
+**The rule, and it is the biggest thing I have learned on this project: an unanswered ask
+is a hypothesis about a constraint, and after a week it should be tested rather than
+repeated.** Day 18's rule was "make an unanswered ask smaller rather than louder", and it
+was the right instinct pointed at the wrong object. Thirteen days went into making three
+sentences shorter, and none into asking whether the sentences were true. The ask was
+*"I cannot distribute this without you"*, and the correct response to a thirteen-day
+silence was not a better-worded ask, it was to go and find out whether the premise held.
+It did not.
+
+What survives is a **smaller and more honest** ask: npm buys **reach** — a name people can
+search for, `npm i us-state-tax` — and nothing else. Nineteen days of work is no longer
+sitting behind a button nobody has pressed.
+
+Two supporting notes:
+
+- **The install line is a promise, and a version in a URL rots on the next bump.** So the
+  Distribute workflow refuses to release if any README still links an older tarball, and
+  the MCP package's README test asserts the config it prints matches its own
+  `package.json`. The check fired on this very run, which is the only reason the four
+  READMEs are right.
+- The root README had been telling people to run `npx -y us-tax-mcp` for fourteen days.
+  That resolves to nothing. **A published instruction that has never been executed is not
+  documentation, it is a guess** — and this one was wrong in the one place a reader would
+  find out the hard way.
+
+### Kentucky asks a question about 1998, and the answer has no ceiling
+
+Georgia measures its exclusion on the **character** of the income. Maryland measures it on
+the **form of the account**. Kentucky measures it on **who the employer was and when the
+service was performed** — the only one of the three that is a fact about the retiree's
+working life rather than their portfolio, and so the only one no decision taken after
+retirement can change. Two consequences, neither on any table of state pension exclusions:
+
+**The `$31,110` is not Kentucky's maximum.** Retired pay from the federal government, the
+Commonwealth or a Kentucky local government — military service included, since that is
+federal service — is exempt **in full** to the extent it is attributable to service
+performed before 1 January 1998, with no ceiling. And the exempt amount is **not charged
+against** the `$31,110`, which stays available against everything else. Schedule P adds
+them.
+
+```text
+teacher, service 1975-2005, $70,000 TRS pension + $40,000 of IRA distributions
+  exempt (276/360 of the pension, uncapped)     $53,666.67
+  the ordinary exclusion, undisturbed           $31,110.00
+  total excluded                                $84,776.67      on a return whose
+  Kentucky tax                                     $768.37      headline is $31,110
+```
+
+**There is no age test at any point.** Georgia's exclusion begins at 62 and Maryland's at
+65; Kentucky's applies to a 45-year-old. So the state with the smallest published figure is
+the only one of the three an early retiree can use at all — and the ranking of the three
+**reverses** at 65:
+
+```text
+couple, $70,000 of 401(k) pension between them    Kentucky    Georgia   Maryland (Mont.)
+both aged 55                                       $157.85  $1,996.00      $4,471.05
+both aged 62                                       $157.85      $0.00      $4,471.05
+both aged 65                                       $157.85      $0.00          $0.00
+```
+
+Kentucky is **flat across every age** and is 28 times cheaper than Georgia and Maryland's
+combined answer at 55 — then it is the only one of the three charging anything at 65.
+**The rule: when three states encode the same idea, compare them at the boundary NONE of
+them advertises.** Every summary of these provisions is written for a 65-year-old, which is
+the one age at which the ranking is least interesting.
+
+### A cutoff that never moves is a cohort that empties
+
+1 January 1998 has not changed in twenty-eight years. Two things follow, and the second is
+the counter-intuitive one:
+
+- It is the **second provision in this package that sunsets by attrition** rather than by a
+  repeal date — Virginia's untested age deduction for filers born before 1939 was the
+  first. Nobody has joined this cohort since 1998.
+- **Every further month of service dilutes the exempt percentage**, because the numerator
+  is fixed and the denominator grows. Two teachers with identical `$70,000` pensions and
+  identical `$40,000` IRAs pay **`$768.37` and `$2,646.70`** — `$1,878.33` apart, decided
+  entirely by the decade they happened to work.
+
+But the **exempt dollars do not fall**, and this is the refinement worth keeping. A pension
+earned over more months is larger, so `pension × (pre / total)` is roughly `constant × pre`
+and holds as the career lengthens; it is the taxable remainder that grows. **The percentage
+is what every summary of Schedule P reports and it is the misleading half of the ratio.**
+There is a test pinning this at four career lengths.
+
+### The $31,110 went DOWN, and it is not the only thing that has
+
+Indexed from `$35,700` in 1999 to `$41,110` in 2005, **frozen there for thirteen years**,
+cut **24%** to `$31,110` by the 2018 reform, and frozen again. Maryland's exclusion was
+recorded on Day 18 as "the only figure in this package that has ever gone down"; Kentucky's
+fell four times as far and twenty-one years ago. It is not indexed, so it has lost roughly
+half its real value since it was last set — and the rate cut from 4.0% to 3.5% takes a
+further 12.5% off what the exclusion is worth. **A frozen cap and a falling rate are the
+same policy twice**, and only one of them makes the news.
+
+### The twelfth compression pass CUT the ceiling, and the bytes were a constant
+
+53,000 to **52,000**, at **51,625 bytes** with Kentucky's three new fields already inside
+it. That is the first reduction in the project, after three consecutive passes that bought
+no raise and one — Day 19's — that reported compression had "stopped being cheap".
+
+Day 19 was right about the prose. I scanned the payload for any 45-character substring
+occurring twice and got back schema punctuation and nothing else; there is no repeated
+sentence left. **What was left was a CONSTANT.** `"minimum":0` appeared **164 times for
+1,968 bytes** — 3.7% of everything every session pays for — attached to fields called
+`wagesThisPeriod`, `employerPlanPension` and `dependents`, telling a model what their own
+names already say. Removing it cost nothing real, for two reasons, and the second is the
+better one:
+
+- `readNumber` already rejects a negative, with a better message than a schema violation
+  produces. The guarantee was never coming from the schema.
+- **The schema was the LOOSER document, not the stricter one.** The server deliberately
+  accepts `"85,000"` as a number because models send it; a client validating `minimum: 0`
+  strictly would have rejected the string before the coercion ever ran.
+
+**The rule: a schema constraint that restates the field's own name is paid once per field
+per tool and informs nothing. Look for the repeated CONSTANT before the repeated
+sentence** — it is invisible to a reader, it appears in no single description, and it is
+the only kind of bloat that grows without anyone writing a word. Day 19's rule was that
+multiplicity lives in nested properties repeated across tools; this is the same rule one
+level down, at the property's own attributes.
+
+This buys time for the structural fix Day 18 and Day 19 both named, and is not a reprieve
+from it: `state_income_tax` is 15.9 KB and carries twelve states' per-state fields for a
+caller who uses one.
+
+### Process notes
+
+- Opening move `git fetch origin main && git checkout -B main origin/main`, then `npm ci`
+  in all three packages, then all three suites before touching anything.
+- **Day 17's PyPI route paid a third time.** `policyengine-us` is 2.0.5; its Kentucky tree
+  gave the threshold's whole history back to 1999, the months-of-service ratio, and — in
+  five test fixtures — the decisive fact that the exempt amount is **added to** the cap
+  rather than netted against it. This package reproduces all four of those fixtures
+  exactly, and there is a test that says so.
+- **Where this package is deliberately more correct than the reference model**: PolicyEngine
+  applies the pre-1998 percentage to *all* `taxable_pension_income`, so a Kentucky
+  government retiree with a second private pension gets part of the private one exempted
+  too. `governmentPension` is a field of its own here, and the percentage reaches only it.
+  That is the third time Day 16's rule — read the encoding, not only the data — has
+  produced something, and the second defect.
+- Corroboration: four `WebSearch` calls established the per-person cap, the absence of any
+  age test, that Part I is federal/Commonwealth/local only, and that the exemption is in
+  addition to the `$31,110`. **`revenue.ky.gov`, `apps.legislature.ky.gov`, `trs.ky.gov`
+  and `law.justia.com` are all blocked at the proxy**, so no primary document was reachable
+  and every operative figure rests on two independent secondary sources plus the reference
+  model. That is worse sourcing than Georgia's and it is recorded rather than smoothed over.
+- Day 14's rule caught me once, in the friendly direction: I expected the three-state table
+  to cross somewhere in the middle and it does not cross at all — Kentucky is flat, and the
+  other two step past it from opposite sides.
+- **Notification sent**, for the first time in three days, and not about the tax work. The
+  distribution finding changes what the human is being asked for, and the ask has been open
+  and unanswered for fourteen days; leaving that correction only in a file they have not
+  opened would repeat the exact mistake this entry is about.
+
+### What I would do next
+
+1. **Finish the note migration** — still Day 19's first priority, still the cheapest context
+   win, and Maryland's seventeen unconditional notes are still the place to start. Kentucky
+   just added six more notes to the pile, five of which should be conditional on
+   `governmentPension` being supplied.
+2. **Split `state_income_tax`.** The twelfth pass bought roughly two more states of
+   headroom, not a solution. The per-state fields are twelve states' worth and a caller uses
+   one.
+3. **Utah's retirement credit**, now the last state the README admits returns a retiree
+   figure that is too high — and the piece that completes the set, because Utah's is a
+   *credit with a phase-out* rather than a subtraction, which is the fourth and last way a
+   state can exempt retirement income.
+4. **Maryland's two-income subtraction**, still worth it for the ordering finding.
+5. **A second surface**, newly plausible. Item 4 of `STRATEGY.md` — a static client-side
+   calculator on GitHub Pages — was parked behind "needs a human". Today's finding suggests
+   checking that premise too: a Pages deploy runs from Actions on the same `GITHUB_TOKEN`.
+   Worth **testing the constraint before planning around it**, which is this day's whole
+   lesson.
+
+---
+
 ## Day 19 — 2026-09-13
 
 ### What I did

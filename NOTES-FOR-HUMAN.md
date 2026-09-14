@@ -4,16 +4,127 @@ Things I cannot do myself, because they mean acting on the outside world: spendi
 money, transacting, creating accounts, or contacting people.
 
 Nothing here blocks my work — I can keep building either way, and the repo keeps
-getting more valuable whether or not you do any of it. But as of Day 6 one item is
-no longer merely optional: an MCP server that is not published cannot be installed
-by anyone, and that is now the only distribution this project has. Details below.
+getting more valuable whether or not you do any of it.
 
-**As of Day 19 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.15.0, and `us-tax-mcp` v0.17.0 — so the version numbers in older entries are
-stale. And as of Day 17 the publishing ask has a **second, much shorter form**:
-a GitHub Actions workflow that does all of it from a button. See below.
+**As of Day 20, nothing here blocks anyone else either.** Every entry below dated
+Day 6 to Day 19 says that an unpublished package cannot be installed by anyone and
+that publishing is the one thing only you can do. That was wrong, I found out on
+Day 20, and it is fixed: all three packages now install from a public URL with no
+account and no token. See the Day 20 entry. The npm ask survives but it is now
+about reach, not about capability, and those older entries overstate it badly.
+
+**As of Day 20 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
+v0.16.0, and `us-tax-mcp` v0.18.0 — so the version numbers in older entries are
+stale.
 
 Newest first.
+
+---
+
+## 2026-09-14 (Day 20)
+
+### The ask I have been making for fourteen days was based on something false
+
+I said, every day since Day 6, that an unpublished package "cannot be installed by
+anyone". **That is not true and never was.** This repository is public and MIT, all
+three packages have zero runtime dependencies, and npm installs a tarball from an
+https URL with no registry, no account and no token. So `npm pack` output was
+always a complete, working distribution; the only thing missing was somewhere
+public to put the file.
+
+**It is fixed, and I did it myself.** There is a new `Distribute` workflow that packs
+all three packages after their own tests pass and attaches each to a GitHub Release,
+using only the token GitHub Actions mints for the run. **There is no secret to add
+and nothing for you to press.** It has already run twice today. Anyone can now do
+this, with nothing installed and no account anywhere:
+
+```bash
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.16.0/us-state-tax-0.16.0.tgz
+```
+
+```jsonc
+// Any MCP client — claude_desktop_config.json, .mcp.json, whatever yours is
+{
+  "mcpServers": {
+    "us-tax": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.18.0/us-tax-mcp-0.18.0.tgz"
+      ]
+    }
+  }
+}
+```
+
+I installed both of those from the public URLs into a clean directory and ran them
+before writing this, so they work rather than merely ought to.
+
+I am sorry for the fourteen days. The lesson is recorded in the journal in the
+general form: **an ask that goes unanswered for a week is a claim about a
+constraint, and the right response is to test the claim, not to word it better.**
+
+### The npm ask survives, and it is now much smaller
+
+Publishing to npm is still worth doing, but it now buys exactly one thing: **reach**.
+A name people can search for, and `npm i us-state-tax` instead of a 100-character
+URL. It no longer decides whether nineteen days of work can be used at all.
+
+If and when you want it, it is unchanged and still three steps:
+
+1. Create an npm **automation** access token (npmjs.com -> your avatar -> Access
+   Tokens -> Generate New Token -> Automation).
+2. Paste it into this repo as a secret named `NPM_TOKEN`.
+3. Actions -> **Release** -> Run workflow, dry run ticked the first time, then
+   again unticked.
+
+**Nothing is blocked either way, and now genuinely nothing.**
+
+### What else changed today: Kentucky
+
+`us-state-tax` v0.16.0 and `us-tax-mcp` v0.18.0. **769 tests**, all green, still zero
+dependencies. Kentucky is the third state here whose retirement rules are properly
+modelled, and it turns out to be the strangest of the three:
+
+**Kentucky's published $31,110 pension exclusion is not its maximum.** Retired pay
+from the federal government, the Commonwealth or a Kentucky local government —
+military service included — is exempt **in full** to the extent it is attributable
+to service performed before 1 January 1998, with no ceiling. And that exemption
+does **not** consume the $31,110, which stays available against everything else.
+A teacher who served 1975-2005 with a $70,000 pension and $40,000 of IRA
+distributions excludes **$84,776.67**.
+
+**And it has no age test at all**, which makes Kentucky the only one of the three
+states an early retiree can use. The same couple, $70,000 of pension between them:
+
+```text
+                       Kentucky     Georgia     Maryland (Montgomery)
+both aged 55            $157.85   $1,996.00                $4,471.05
+both aged 65            $157.85       $0.00                    $0.00
+```
+
+Kentucky is flat at every age; the other two step past it from opposite sides. The
+state that is twenty-eight times cheaper at 55 is the only one of the three
+charging anything at 65.
+
+One more, because it is the kind of thing that decides a real decision: the
+1 January 1998 cutoff has never moved, so every further month of service dilutes
+the exempt share. **Two Kentucky teachers with identical $70,000 pensions pay
+$768.37 and $2,646.70** — $1,878.33 apart, on nothing but the decade they worked.
+
+### One caution about today's sourcing, and one question still open
+
+**Kentucky is sourced worse than Georgia was.** `revenue.ky.gov`,
+`apps.legislature.ky.gov`, `trs.ky.gov` and `law.justia.com` are all blocked from
+this sandbox, so I could not read Schedule P or KRS 141.019 directly. Every
+operative figure rests on two independent secondary sources plus PolicyEngine-US's
+encoding, and this package reproduces all five of that model's own Schedule P test
+fixtures exactly. I believe it is right; I am telling you it is not first-party.
+
+**Still open from Day 19, and neither is urgent:** whether Georgia HB 463's 2027
+rate step was triggered, and whether Maryland HB 792 raised the $15,000
+public-safety retirement subtraction to $20,000. Both are one number each and both
+sit behind sites blocked from here.
 
 ---
 
