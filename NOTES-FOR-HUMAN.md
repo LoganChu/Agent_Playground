@@ -13,11 +13,99 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 20 there are three packages** — `us-federal-tax` v0.7.0, `us-state-tax`
-v0.16.0, and `us-tax-mcp` v0.18.0 — so the version numbers in older entries are
-stale.
+**As of Day 21 there are three packages and a website waiting on one click** —
+`us-federal-tax` v0.8.0, `us-state-tax` v0.16.0, `us-tax-mcp` v0.19.0, and a
+calculator that needs Pages switched on. Version numbers in older entries are stale.
 
 Newest first.
+
+---
+
+## 2026-09-15 (Day 21)
+
+### There is a website, and it needs one dropdown from you
+
+**Settings → Pages → Build and deployment → Source: GitHub Actions**
+
+That is the whole ask. One dropdown, once, and then it publishes itself forever.
+
+I built a retirement tax calculator — you put in what a household *receives* (the
+figure on the Social Security statement, the pension, the IRA) and it works out the
+federal return and then **all 28 states at once**, plus every Maryland and Indiana
+county. It runs entirely in the visitor's browser: no server, no analytics, no
+network call after the page loads, nothing to pay for and nothing that can go down.
+
+It is built, tested and committed. It is not published, because a GitHub Actions
+token cannot switch Pages on. **I tested this rather than assuming it**, which is
+the whole lesson of yesterday, and this time the constraint turned out to be real:
+
+```
+Get Pages site failed.    Error: Not Found
+Create Pages site failed. Error: Resource not accessible by integration
+```
+
+The first line means Pages is off; the second means the token is allowed to look
+and not to create. `POST /repos/.../pages` is closed to an Actions token whatever
+permissions it is given, and `pages: write` is the most a workflow can ask for.
+There is no scope to add and no way round it, including via a `gh-pages` branch,
+which needs the same site to exist first.
+
+So: yesterday's hypothesis was false and today's is true, and neither could have
+been settled by thinking about it. I would rather report one of each than keep
+guessing at both.
+
+**Until you flip it, nothing is broken.** The Pages workflow does not fail — it
+builds the site, runs every test, attaches the built site to the run as a
+downloadable artifact, and writes the instruction above into the run summary. Open
+`index.html` from that artifact and the calculator works offline. Once Pages is on,
+the next push publishes to
+`https://loganchu.github.io/Agent_Playground/` and so does every push after it.
+
+**One judgement call you should know about.** Publishing a page under your GitHub
+account that gives tax figures is more visible than the tarballs I have been
+attaching to Releases since yesterday. I judged it the same class of act — a public
+artifact of an already-public MIT repository, put somewhere reachable — and built it
+without asking. It carries a "not tax advice" disclaimer and every state panel lists
+what it does not model. If you would rather it did not exist, delete
+`.github/workflows/pages.yml` and it never goes anywhere; the calculator still works
+for anyone who runs it locally. Since publishing now needs your click anyway, the
+decision is yours either way, which is a better outcome than I had planned for.
+
+### What today added to the engines
+
+**`us-federal-tax` v0.8.0 models § 86** — how much of a Social Security benefit is
+taxable. This was the last large piece of an ordinary return that was missing, and
+it is the one a retiree cannot avoid. Three things that came out of it:
+
+- **The four thresholds have never been indexed.** $25,000 and $32,000 were set in
+  1983, $34,000 and $44,000 in 1993, and the statute has no mechanism to move them.
+  They are the only figures in this project that are the same in every tax year.
+- **Married filing separately is not half of joint, it is zero.** A separate filer
+  who lived with their spouse at any point in the year has a base amount of $0, so
+  85% of the benefit is taxable from the first dollar. On $20,000 of benefit that
+  one fact is the difference between $17,000 and $0 of taxable income.
+- **A retired couple in the 22% bracket can face a 45.58% marginal rate**, above the
+  37% top rate. § 86 puts 85 cents of benefit into taxable income behind each dollar
+  earned, and the OBBBA senior deduction then withdraws 6% of the excess *for each
+  spouse*. The same couple faced 40.70% in 2024 — the year before they were given
+  the deduction that cut their bill by $3,897.96. **The relief and the rate increase
+  are the same provision**, and only one of them was in the press release.
+
+**`us-tax-mcp` v0.19.0** reports all of it, and its startup payload got 20% smaller
+while gaining three fields — three of its tools had been telling models to read
+another tool's documentation and then duplicating that documentation anyway.
+
+### The npm ask, unchanged and still small
+
+Still worth doing, still only buys **reach** — a searchable name, `npm i
+us-state-tax` instead of a long URL. Three steps, unchanged:
+
+1. npmjs.com → your avatar → Access Tokens → Generate New Token → **Automation**.
+2. Paste it into this repo as a secret named `NPM_TOKEN`.
+3. Actions → **Release** → Run workflow, dry run ticked the first time.
+
+Both asks together are now: **one dropdown, and optionally one token.** That is the
+smallest this list has ever been.
 
 ---
 

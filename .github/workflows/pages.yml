@@ -1,21 +1,49 @@
-# Publish the calculator to GitHub Pages.
+# Build, test and publish the calculator to GitHub Pages.
 #
-# This is the second constraint this project has tested rather than planned
-# around. Day 20 discovered that "the packages cannot be installed without an
-# npm account" was false and had been false for fourteen days; the note it left
-# was that a static site on Pages had been parked behind "needs a human" on the
-# same kind of unexamined assumption, and should be checked the same way.
+# ## The constraint, tested rather than assumed
 #
-# It does not need one. `actions/configure-pages` will turn Pages on through the
-# API with `enablement: true`, using only the GITHUB_TOKEN that Actions mints for
-# this run. There is no secret to add and no setting to click. If that turns out
-# to be wrong, this workflow fails loudly at that step and the failure is the
-# answer — which is still better than another day of assuming.
+# Day 20 found that "the packages cannot be installed without an npm account" had
+# been false for fourteen days, and left the rule: an ask that goes unanswered is
+# a hypothesis about a constraint, and the right response is to test the claim
+# rather than word it better. It also named the next hypothesis — that a static
+# site on Pages "needs a human" — and said to check it the same way.
 #
-# The site itself is a copy, not a build: both engines compile to ES modules with
-# explicit `.js` extensions on every relative import, which browsers load
-# natively, and neither has a runtime dependency. So the page a visitor loads is
-# the same code the test suites run.
+# Day 21 checked it. The first version of this file used
+# `actions/configure-pages@v5` with `enablement: true`, which asks the Pages API
+# to switch Pages on using only the GITHUB_TOKEN Actions mints for the run. The
+# answer, in twenty seconds:
+#
+#   Get Pages site failed.    Error: Not Found
+#   Create Pages site failed. Error: Resource not accessible by integration
+#
+# **So this one is real.** Note what the pair of errors says precisely: the token
+# can *read* the Pages configuration — the 404 means Pages is off, not that the
+# token was refused — and cannot *create* it. `POST /repos/{owner}/{repo}/pages`
+# is not available to an Actions token however much `pages: write` it holds, and
+# `pages: write` is the most a workflow can ask for. There is no scope to add and
+# no way around it from inside a run. The same applies to serving from a
+# `gh-pages` branch, which also requires the site to exist first.
+#
+# That is a different result from Day 20's and it is worth just as much: one of
+# the two hypotheses was false and one is true, and neither could be settled by
+# thinking about it.
+#
+# ## What the human has to do — once, and it is one dropdown
+#
+#   Settings -> Pages -> Build and deployment -> Source: **GitHub Actions**
+#
+# Nothing else. No secret, no token, no branch to create. The next push deploys,
+# and every push after that.
+#
+# ## What happens until then
+#
+# This workflow does NOT fail while Pages is off. A workflow that is permanently
+# red teaches the reader to ignore Actions, which costs more than the thing it is
+# complaining about. Instead it builds the site, runs both engines' suites and the
+# site's own, uploads the result as an artifact anybody can download, and writes
+# the one-line instruction above into the run summary. The deploy job is skipped
+# rather than failed. The regression guard — that the calculator still builds and
+# its figures are still right — runs either way, which is most of the value.
 name: Pages
 
 on:
@@ -42,6 +70,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages_enabled: ${{ steps.probe.outputs.enabled }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,21 +90,52 @@ jobs:
             echo "::endgroup::"
           done
 
+      # Runs against the built output, so it also proves the vendored engines
+      # load as plain ES modules with nothing installed — which is the claim the
+      # build makes and the one a visitor's browser tests in public.
       - name: Build and test the site
         run: cd site && npm test
 
-      - uses: actions/configure-pages@v5
-        with:
-          # Turn Pages on if it is off. This is the line the whole workflow
-          # exists to find out about.
-          enablement: true
+      - name: Is Pages switched on?
+        id: probe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/pages" >/dev/null 2>&1; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+            echo "Pages is on; the deploy job will publish this build."
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo "::warning::GitHub Pages is off, so the site was built and tested but not published. Settings -> Pages -> Source: GitHub Actions. An Actions token cannot switch it on."
+            {
+              echo '### The site built and tested, and was not published'
+              echo
+              echo 'GitHub Pages is not switched on for this repository, and a workflow'
+              echo 'cannot switch it on: `POST /repos/{owner}/{repo}/pages` is closed to the'
+              echo 'token Actions mints, whatever permissions it is given.'
+              echo
+              echo 'One dropdown, once:'
+              echo
+              echo '> **Settings → Pages → Build and deployment → Source: GitHub Actions**'
+              echo
+              echo 'The next push then publishes to'
+              echo '`https://'"${GITHUB_REPOSITORY_OWNER,,}"'.github.io/'"${GITHUB_REPOSITORY#*/}"'/`,'
+              echo 'and so does every push after it. Until then the built site is attached to'
+              echo 'this run as an artifact — download it, open `index.html`, and it works'
+              echo 'offline, because the calculator makes no network call after it loads.'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
+      # Uploaded either way. While Pages is off this is how anyone gets the built
+      # site; once it is on, this is what the deploy job publishes.
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site/dist
 
   deploy:
     needs: build
+    if: needs.build.outputs.pages_enabled == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

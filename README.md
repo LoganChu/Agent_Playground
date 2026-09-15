@@ -10,6 +10,7 @@ sandbox. Nothing survives a run except what gets committed here.
 | [`packages/us-federal-tax`](packages/us-federal-tax) | A zero-dependency US federal tax engine for JavaScript. Income tax, self-employment tax, FICA, capital gains, NIIT, the Section 199A QBI deduction, the SALT cap, the OBBBA Schedule 1-A deductions, quarterly estimated payments, and Publication 15-T paycheck withholding — every figure cited to the IRS release it came from. |
 | [`packages/us-state-tax`](packages/us-state-tax) | A zero-dependency US **state and local** income tax engine for 28 states and **1,033 local income taxes** — New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 Ohio school districts — 2025 and 2026. Built around the part a table of state rates cannot hold: **Ohio**, whose printed schedule is not a function — 0% on the first $26,050 and then a flat constant *plus* 2.75%, charged whole on the first dollar of the band, so a filer at $26,050 owes $0 and one at $26,050.01 owes $342.00, and a marginal walk of the printed rows understates every Ohio filer by the whole constant — which steps a second time by $18.69 at $100,000 because HB 96 re-based one constant and left the other at what the old one chained to; where the first $250,000 of business income is deducted and the excess taxed at a flat 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45; where two published credits turn out to be unclaimable once the zero band is set against their income ceilings; and whose 679 municipalities charge 0.45%–3.00% on *qualifying wages*, box 5 of the W-2, so a 401(k) deferral does not reduce the base ($612.50 a year for a Columbus saver) while a retiree owes nothing at all — making the municipal tax the larger half of every Ohio return below $126,408.32 of income — and whose 214 school districts levy a THIRD tax on the same paycheck, 68 of them on box 1, so a 401(k) deferral is inside one local wage tax and outside the other; **Michigan**, whose 24 cities tax a base the MI-1040 does not contain, excluding pensions, IRA distributions, Social Security, unemployment and military pay entirely, where Detroit charges residents 2.4% against a state rate of 4.25%, where the personal exemption has been the $600 fixed in 1964 and is worth $14.40 of tax against an indexed $5,800 state exemption, and where a resident working in another taxing city is credited only up to their own city's nonresident rate — so a Lansing resident commuting to Detroit pays 70% more city tax than one working at home; **Indiana**, where the average county rate is 1.914% against a state rate of 3.00%, so two fifths of the bill is levied by a county — Randolph County at the 3.00% statutory maximum charges more than the state does from 2026, Porter County charges one sixth of that, and six counties raised their rate for 2026 in the year the state cut its own; **Maryland**, where every resident owes a county income tax of 2.25%–3.30% on the same taxable income — a third to two fifths of the whole bill, reported by no table of state rates — where Frederick County's bracket selects one rate that applies to the *whole* income so one dollar at $150,000 costs $360.03 while the same dollar in Anne Arundel costs three cents, where the county earned income credit is not stored but is ten times each county's own rate, and where the new 2% capital gains surtax is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08; **Georgia**, whose retirement income exclusion is the mirror image of Maryland's and is described that way nowhere: both exempt "retirement income" at 65 and publish a number for it, and then Georgia counts taxable IRA distributions in full and charges nothing against the exclusion while Maryland writes an IRA out of it by name and charges the whole Social Security benefit against it — so the rollover every adviser recommends costs $0.00 in Georgia and $3,378.83 a year in Maryland, and moving a third of a retirement into Social Security saves $1,272.45 in one and costs $357.75 in the other; where at most $5,000 of a person's wages may enter the exclusion, making it a test on the type of a retiree's income rather than its amount — at 65 a filer with $65,000 of dividends owes nothing and one with $65,000 of wages owes $2,245.50; where net capital gain is in the pool and the allowance is annual and per person, so the "retirement income exclusion" is also a capital gains allowance that lets a couple both 65 realise $130,000 of gain a year tax-free; and where composing the ordinary exclusion with the military one gives a true maximum of $70,000 rather than the $65,000 every table prints, for a disabled veteran under 62 whose exclusion then falls by half on their sixty-second birthday — the birthday every guide calls the one where Georgia's exclusion begins; **Kentucky**, whose published $31,110 pension exclusion is not its maximum and is not its shape: retired pay from the federal government, the Commonwealth or a Kentucky local government is exempt *in full* to the extent it is attributable to service performed before 1 January 1998, with no ceiling — and that exemption does not consume the $31,110, which stays available against everything else, so a teacher who served 1975–2005 with a $70,000 pension and a $40,000 IRA excludes $84,776.67; where the exclusion has **no age test at all**, making Kentucky the only one of the three retirement states an early retiree can use — at 55 a couple with $70,000 of pension pays $157.85 in Kentucky, $1,996.00 in Georgia and $4,471.05 in Montgomery County, and at 65 the ranking reverses and Kentucky is the only one of the three that charges anything; and where the 1998 cutoff has never moved, so every further month of service dilutes the exempt percentage and two teachers with identical pensions pay $1,878.33 apart on the decade they happened to work; **Massachusetts**, which every rate table reports as a flat 5% and which taxes short-term capital gains at 8.5% and long-term gains on collectibles at 12% on half the gain; New York's supplemental tax, which claws back the benefit of the lower brackets so a high earner pays their top rate on their whole income; New York City's resident tax, which costs more than the entire state tax of thirteen of those states; New Jersey, which has no federal starting line at all and whose retirement exclusion ends in a wall that costs a joint retiree $1,381 on one dollar of income; which federal figure each state starts from; which federal deductions it adds back; California's CalEITC, which has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars of income; and the credit phase-outs that make Utah's and Pennsylvania's flat taxes anything but flat. |
 | [`packages/us-tax-mcp`](packages/us-tax-mcp) | Both engines as an MCP server, so an AI assistant can compute tax rather than recall it. Eight tools, zero dependencies, and one `npx` line that works today without npm. |
+| [`site`](site) | A **retirement tax calculator** built on both engines and running entirely in the browser — put in what a household *receives* and it computes the federal return and then all 28 states at once, plus every Maryland and Indiana county. No server, no analytics, no network call after the page loads. Publishes itself to GitHub Pages once Pages is switched on; until then every run attaches the built site to the workflow as a downloadable artifact that works offline. |
 | [`STRATEGY.md`](STRATEGY.md) | Why this work and not something else, what was rejected, and the conditions under which the current bet should be abandoned. |
 | [`JOURNAL.md`](JOURNAL.md) | Daily log: what was done, what was learned, what to do next. |
 | [`NOTES-FOR-HUMAN.md`](NOTES-FOR-HUMAN.md) | The short list of things the agent cannot do itself. |
@@ -33,6 +34,44 @@ at an immutable tag, built and tested from the commit it was cut from by the
 When the packages do land on npm the names shorten to `npm i us-state-tax` and the
 URLs above keep working. What npm adds is **reach** — a name that can be searched
 for — not capability.
+
+## The calculator
+
+[`site/`](site) is the same two engines with a face on, for the question they have
+always been able to answer and have never been able to answer to anybody who is not
+a programmer: **what does a retirement actually cost?** You enter what a household
+*receives* — box 5 of the Social Security statement, the pension, the IRA — and it
+derives the federal return from that and ranks all 28 states, with every Maryland
+and Indiana county priced, because in those two states every resident owes a county
+income tax and a "state tax" that leaves it out is not smaller, it is wrong.
+
+```bash
+cd site && npm test   # builds dist/ and checks its figures
+# then open site/dist/index.html — it works from the filesystem
+```
+
+There is no bundler and no dependency. Both engines compile to ES modules with
+explicit `.js` extensions on every relative import, which is exactly what a browser
+loads natively, so the build is a copy that drops declarations and sourcemaps. The
+page a visitor loads is the same code the test suites run.
+
+Three things it does that a rate table cannot:
+
+- **Measures the real marginal rate** by running the whole estimate twice and
+  differencing it. A retired couple in the 22% bracket can see 45.58%.
+- **Shows a mandatory local income tax as a range.** One test household's Maryland
+  *state* tax is `$0.00` and its *county* tax is `$758.25` to `$1,112.10`.
+- **Asks whose name the retirement income is in**, because three states — Georgia,
+  Maryland and Kentucky — claim their exclusion per person. On identical household
+  totals that is worth `$4,264.85`, and the federal return cannot see the
+  difference at all, so nothing else would warn you.
+
+**It is not published yet, and that is the one thing a human has to do.** An Actions
+token can read the Pages configuration and cannot create it — `POST /repos/.../pages`
+is closed to it whatever permissions the workflow requests — so Pages has to be
+switched on once, by hand, at *Settings → Pages → Source: GitHub Actions*. The
+[Pages workflow](.github/workflows/pages.yml) does not fail while it is off: it
+builds, tests, uploads the site as an artifact and says so in the run summary.
 
 ## us-federal-tax
 
