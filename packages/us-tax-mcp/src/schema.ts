@@ -170,6 +170,21 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   qualifiedVehicleLoanInterest: money(
     'Interest on a qualifying post-2024 loan for a new US-assembled personal-use vehicle (§ 163(h)(4)). 2025-2028 only.',
   ),
+  socialSecurityBenefits: withShortForm(
+    money(
+      'TOTAL Social Security and tier 1 railroad retirement benefits received — box 5 of Form SSA-1099, NOT the taxable part. Supplying it runs § 86 and puts the taxable portion (0% to 85% of it) into gross income, so the same dollars must NOT also appear in otherOrdinaryIncome. Omitting it for a retiree makes the return too low; putting box 5 in otherOrdinaryIncome makes it too high.',
+    ),
+    'TOTAL Social Security received — box 5 of Form SSA-1099, not the taxable part. § 86 works out how much is taxable. Do not also put it in otherOrdinaryIncome.',
+  ),
+  taxExemptInterest: withShortForm(
+    money(
+      'Tax-exempt municipal bond interest — Form 1040 line 2a. Excluded from income, then added back IN FULL by § 86(b)(2)(B), so for a retiree inside the phase-in band $10,000 of it pulls $8,500 of Social Security into taxable income exactly as taxable interest would.',
+    ),
+    'Tax-exempt municipal interest (Form 1040 line 2a). Excluded from income, added back in full by § 86(b)(2)(B).',
+  ),
+  livedWithSpouse: flag(
+    'Married filing separately ONLY: did the filer live with their spouse at any time during the year? § 86(c)(1)(C) then gives them a base amount of $0, so 85% of the benefit is taxable from the first dollar. Living apart all year restores the single thresholds. Defaults to true, the expensive reading. Ignored by every other filing status.',
+  ),
   foreignEarnedIncomeExclusion: withShortForm(
     money(
       'Income excluded under § 911, § 931 or § 933, added back into modified AGI for the SALT phase-down, the Schedule 1-A phase-outs and the child credit.',
@@ -280,6 +295,56 @@ export function terseProperties(properties: Record<string, JsonSchema>): Record<
 }
 
 /**
+ * Every household property with the **description removed entirely**, keeping
+ * only what a client needs to validate a call: the type, the enum, the minimum,
+ * and the nested item schema.
+ *
+ * Three of the eight tools have been telling a model, in their own tool
+ * description, that "household fields are the same as estimate_federal_tax,
+ * which documents each one in full" — and then paying to describe all
+ * thirty-seven of them again anyway. **The pointer and the copy do the same
+ * job, and only one of them costs anything.** Keeping the copy cost 14,771
+ * bytes of every `tools/list`, which is more than the entire
+ * `estimate_federal_tax` schema those bytes were duplicating.
+ *
+ * This is the same rule as {@link terseProperties} taken to its end. That pass
+ * shortened the repeated prose; this one deletes it, because a *repeated*
+ * description is not short prose, it is a second copy of a document the client
+ * already has. What the trimming could never reach is the repetition itself.
+ *
+ * The three tools that use this are the ones whose own distinguishing fields
+ * carry full descriptions — `years`, `increment`, `priorYearTotalTax` — so
+ * nothing a model needs to use *that* tool is lost. It only has to look up a
+ * shared field where the tool already said to look it up.
+ */
+export function referenceProperties(
+  properties: Record<string, JsonSchema>,
+): Record<string, JsonSchema> {
+  return Object.fromEntries(
+    Object.entries(properties).map(([key, schema]) => {
+      const { [TERSE_KEY]: _terse, description: _description, ...rest } = schema;
+      let out: JsonSchema = rest;
+      const items = schema['items'];
+      if (items && typeof items === 'object' && !Array.isArray(items)) {
+        const itemSchema = items as JsonSchema;
+        const itemProperties = itemSchema['properties'];
+        if (itemProperties && typeof itemProperties === 'object') {
+          const { description: _itemDescription, ...itemRest } = itemSchema;
+          out = {
+            ...out,
+            items: {
+              ...itemRest,
+              properties: referenceProperties(itemProperties as Record<string, JsonSchema>),
+            },
+          };
+        }
+      }
+      return [key, out];
+    }),
+  );
+}
+
+/**
  * The key an authored short form is written under. Never emitted: it is a
  * property of this codebase, not of the JSON Schema a client receives.
  */
@@ -326,7 +391,7 @@ export function emitProperties(
  * since they are what distinguishes that tool.
  */
 export interface HouseholdSchemaOptions {
-  verbosity?: 'full' | 'terse';
+  verbosity?: 'full' | 'terse' | 'reference';
   /**
    * Whether to advertise `year`.
    *
@@ -343,9 +408,17 @@ export function householdSchema(
   options: HouseholdSchemaOptions = {},
 ): JsonSchema {
   const { verbosity = 'full', includeYear = true } = options;
-  const terse = verbosity === 'terse';
-  const base = terse ? terseProperties(HOUSEHOLD_PROPERTIES) : emitProperties(HOUSEHOLD_PROPERTIES);
-  const year = terse ? terseProperties({ year: YEAR_PROPERTY })['year']! : YEAR_PROPERTY;
+  const shape =
+    verbosity === 'reference'
+      ? referenceProperties
+      : verbosity === 'terse'
+        ? terseProperties
+        : emitProperties;
+  const base = shape(HOUSEHOLD_PROPERTIES);
+  // `year` keeps its description at every verbosity. It is the one shared field
+  // whose meaning is tool-specific — `compare_tax_years` refuses it outright —
+  // and it is 90 bytes.
+  const year = verbosity === 'terse' ? terseProperties({ year: YEAR_PROPERTY })['year']! : YEAR_PROPERTY;
   return {
     type: 'object',
     required: ['filingStatus'],
@@ -474,6 +547,8 @@ const MONEY_KEYS = [
   'qualifiedTipsBusinessIncomeLimit',
   'qualifiedOvertimeCompensation',
   'qualifiedVehicleLoanInterest',
+  'socialSecurityBenefits',
+  'taxExemptInterest',
   'foreignEarnedIncomeExclusion',
   'disqualifiedInvestmentIncome',
   'employeeSocialSecurityAndMedicareTax',
@@ -487,6 +562,7 @@ const FLAG_KEYS = [
   'blind',
   'spouseAge65OrOlder',
   'spouseBlind',
+  'livedWithSpouse',
   'separatedFromSpouse',
   'taxpayerHasWorkAuthorizedSocialSecurityNumber',
 ] as const;

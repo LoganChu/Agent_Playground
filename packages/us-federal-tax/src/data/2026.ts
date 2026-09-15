@@ -1,4 +1,5 @@
 import type { YearParameters } from '../types.js';
+import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
 
 /**
  * Tax year 2026 federal parameters.
@@ -469,6 +470,10 @@ export const YEAR_2026: YearParameters = {
   // `src/withholding.ts` derives all eight rate schedules from `ordinaryBrackets`
   // and the figures below. See that file for the identity and why it is preferred
   // to transcribing the printed tables.
+  // § 86. Not a per-year figure at all: see `social-security.ts` for why the
+  // same object is shared by every year in this package.
+  socialSecurity: SOCIAL_SECURITY_TAXABILITY,
+
   withholding: {
     // Back in step with `standardDeduction`: Rev. Proc. 2025-32 indexes the
     // post-OBBBA amounts, so 2026's tables and 2026's return agree again.

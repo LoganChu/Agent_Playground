@@ -443,6 +443,66 @@ export interface WithholdingParameters {
   readonly notes: readonly string[];
 }
 
+/**
+ * § 86 parameters — the four thresholds and five fractions that decide how much
+ * of a Social Security benefit is taxable.
+ *
+ * **None of these has ever been adjusted for inflation**, and that is not an
+ * oversight in this file: § 86 contains no § 1(f) cross-reference, so the figures
+ * below are the same in 2024, 2025 and 2026 as they were in 1994. They are held as
+ * per-year data anyway, because the alternative is a constant that nobody thinks
+ * to check — and because the whole story of this provision is what happens to a
+ * threshold that stops moving while everything it is measured against does not.
+ */
+export interface SocialSecurityTaxabilityParameters {
+  /** § 86(c)(1). Below this, no benefit is taxable. Set in 1983; never indexed. */
+  readonly baseAmount: Readonly<Record<FilingStatus, number>>;
+  /** § 86(c)(2). Above this, up to 85% is taxable. Set in 1993; never indexed. */
+  readonly adjustedBaseAmount: Readonly<Record<FilingStatus, number>>;
+  /** § 86(c)(1)(C). Zero — a separate filer who lived with their spouse has no band. */
+  readonly separateCohabitingBaseAmount: number;
+  /** § 86(c)(2)(C). Also zero, so the two bands collapse into one another. */
+  readonly separateCohabitingAdjustedBaseAmount: number;
+  /** § 86(b)(1). Half the benefit enters combined income. */
+  readonly benefitFractionInCombinedIncome: number;
+  /** § 86(a)(1)(A). The first-tier ceiling: half the benefit. */
+  readonly firstTierBenefitFraction: number;
+  /** § 86(a)(1)(B). Half of the excess over the base amount. */
+  readonly firstTierExcessFraction: number;
+  /** § 86(a)(2)(A)(i). 85% of the excess over the adjusted base amount. */
+  readonly secondTierExcessFraction: number;
+  /** § 86(a)(2)(A)(ii). Half the gap between the two thresholds — $4,500 or $6,000. */
+  readonly secondTierBracketFraction: number;
+  /** § 86(a)(2)(B). The absolute ceiling: 85% of the benefit, never more. */
+  readonly maximumBenefitFraction: number;
+}
+
+/** The § 86 computation, with every intermediate figure kept. */
+export interface SocialSecurityTaxabilityResult {
+  readonly year: number;
+  readonly filingStatus: FilingStatus;
+  /** Total benefits received — box 5 of Form SSA-1099. */
+  readonly benefits: number;
+  /** § 86(b)(2) modified AGI: everything but the benefit, plus tax-exempt interest. */
+  readonly modifiedAdjustedGrossIncome: number;
+  /** § 86(b)(1) "combined income": modified AGI plus half the benefit. */
+  readonly combinedIncome: number;
+  readonly baseAmount: number;
+  readonly adjustedBaseAmount: number;
+  /** True when § 86(c)(1)(C) applied and both thresholds were zero. */
+  readonly cohabitingSeparate: boolean;
+  /** 0 = nothing taxable, 1 = the 50% band, 2 = the 85% band. */
+  readonly tier: 0 | 1 | 2;
+  /** The figure that goes on Form 1040 line 6b. */
+  readonly taxableBenefits: number;
+  /** The rest of the benefit, which never reaches gross income at all. */
+  readonly untaxedBenefits: number;
+  /** `taxableBenefits / benefits` — 0 to 0.85. */
+  readonly inclusionRate: number;
+  /** True once the § 86(a)(2)(B) ceiling binds, after which the torpedo is spent. */
+  readonly atMaximumInclusion: boolean;
+}
+
 export interface YearParameters {
   readonly year: number;
   readonly ordinaryBrackets: Readonly<Record<FilingStatus, readonly Bracket[]>>;
@@ -479,6 +539,8 @@ export interface YearParameters {
   readonly childTaxCredit: ChildTaxCreditParameters;
   /** § 32 earned income credit. */
   readonly earnedIncomeCredit: EarnedIncomeCreditParameters;
+  /** § 86 taxation of Social Security benefits. */
+  readonly socialSecurity: SocialSecurityTaxabilityParameters;
   /** Publication 15-T payroll withholding. */
   readonly withholding: WithholdingParameters;
   readonly sources: readonly Citation[];

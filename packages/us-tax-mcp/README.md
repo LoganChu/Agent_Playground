@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.18.0/us-tax-mcp-0.18.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.19.0/us-tax-mcp-0.19.0.tgz"
       ]
     }
   }
@@ -70,12 +70,25 @@ cost me" and the honest answer is frequently double the bracket:
 | --- | --- | --- |
 | Head of household, 2 children, $30,000 | 10% | **21.06%** |
 | Head of household, 1 child, $45,000 | 12% | **27.98%** |
+| Retired couple, both 65, $90,000 of Social Security, $80,000 of other income | 22% | **45.58%** |
 | Joint, $560,000, $60,000 of state tax | 35% | **45.5%** |
 
 The first row is the striking one: the child tax credit absorbs the entire income tax at
 both incomes, so the bracket is invisible and the whole marginal cost is earned income
-credit withdrawal. `effective_marginal_rate` measures this by running the full estimate
-twice and differencing it, so it cannot miss an interaction.
+credit withdrawal. The third is the one nobody expects — a retired couple in the 22% bracket
+paying a higher marginal rate than the 37% top rate, because § 86 drags 85 cents of
+Social Security into taxable income behind every dollar *and* the OBBBA senior deduction
+withdraws 6% of the excess for each of them. `effective_marginal_rate` measures all of this
+by running the full estimate twice and differencing it, so it cannot miss an interaction.
+
+**4. Social Security is the question a model is most likely to get wrong**, because the
+answer is not a rate. Up to 85% of a benefit is *included* in taxable income, on four
+thresholds that have not moved since 1993 and are therefore not where anyone's intuition
+puts them. Pass `socialSecurityBenefits` — box 5 of the SSA-1099, the total received — and
+the server runs § 86 and reports the taxable part, the part that is never taxed, and the
+combined income that decided it. A married filer filing separately who lived with their
+spouse at any point in the year has a base amount of **$0**, so 85% is taxable from the
+first dollar; that one fact is worth thousands and appears on no summary table.
 
 **3. The IRS issues errata, and a model trained on a cached PDF carries them.** Two of the
 tables this server uses were corrected after first publication, and both corrections are

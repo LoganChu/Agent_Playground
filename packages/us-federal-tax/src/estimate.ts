@@ -3,6 +3,7 @@ import { childTaxCredit, earnedIncomeCredit, earnedIncomeForCredits } from './cr
 import { additionalDeductions } from './obbba.js';
 import { qbiDeduction } from './qbi.js';
 import { stateAndLocalTaxDeduction } from './salt.js';
+import { socialSecurityTaxability } from './socialSecurity.js';
 import {
   additionalMedicareTax,
   federalIncomeTax,
@@ -18,6 +19,7 @@ import type {
   QualifiedBusiness,
   SaltDeductionResult,
   SelfEmploymentTaxResult,
+  SocialSecurityTaxabilityResult,
 } from './types.js';
 
 export interface EstimateInput {
@@ -95,6 +97,32 @@ export interface EstimateInput {
   qualifiedOvertimeCompensation?: number;
   /** Interest on a qualifying post-2024 loan for a new US-assembled vehicle. */
   qualifiedVehicleLoanInterest?: number;
+  /**
+   * **Total** Social Security and tier 1 railroad retirement benefits received —
+   * box 5 of Form SSA-1099, not the taxable part.
+   *
+   * Supplying this runs § 86 and puts the taxable portion into gross income, so
+   * the same dollars must **not** also appear in `otherOrdinaryIncome`. A caller
+   * who already knows the taxable figure can keep putting it in
+   * `otherOrdinaryIncome` and leave this alone; the two routes are mutually
+   * exclusive and the second one cannot tell you what the first would have said.
+   */
+  socialSecurityBenefits?: number;
+  /**
+   * Tax-exempt interest — Form 1040 line 2a.
+   *
+   * Excluded from gross income, and then counted in full when § 86 decides how
+   * much of a Social Security benefit is taxable. For a retiree inside the § 86
+   * phase-in band a municipal bond is therefore **not** tax-free: each dollar of
+   * exempt interest can pull 85 cents of benefit into taxable income.
+   */
+  taxExemptInterest?: number;
+  /**
+   * For a married filer filing separately: did they live with their spouse at any
+   * time during the year? Only § 86 reads it, and it is worth thousands — see
+   * {@link socialSecurityTaxability}. Defaults to `true`.
+   */
+  livedWithSpouse?: boolean;
   /** Income excluded under § 911, § 931, or § 933, added back for MAGI. */
   foreignEarnedIncomeExclusion?: number;
   age65OrOlder?: boolean;
@@ -176,6 +204,16 @@ export interface EstimateResult {
   year: number;
   filingStatus: FilingStatus;
   grossIncome: number;
+  /**
+   * The § 86 computation, or `null` when no `socialSecurityBenefits` were given.
+   *
+   * Note that `grossIncome` above follows Form 1040 and contains only
+   * `socialSecurity.taxableBenefits` — the rest of the benefit never enters gross
+   * income at all, so `effectiveRate` is a rate on income the IRS counts, not on
+   * money the household received. `socialSecurity.untaxedBenefits` is the
+   * difference, for a caller who wants the other denominator.
+   */
+  socialSecurity: SocialSecurityTaxabilityResult | null;
   adjustedGrossIncome: number;
   deduction: number;
   deductionKind: 'standard' | 'itemized';
@@ -285,7 +323,29 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
 
   const se = selfEmploymentTax({ netProfit, year, w2SocialSecurityWages: wages });
 
-  const grossIncome = wages + netProfit + otherIncome + ltcg;
+  // § 86 sits *before* AGI, because the taxable part of the benefit is a component
+  // of gross income (Form 1040 line 6b). Nothing above the line that this package
+  // models depends on it, so there is no fixed point to solve: the deductible half
+  // of self-employment tax is a function of net profit alone, which is why it can
+  // be subtracted here and then again below without changing the answer.
+  const grossIncomeExcludingSocialSecurity = wages + netProfit + otherIncome + ltcg;
+  const socialSecurity =
+    input.socialSecurityBenefits === undefined
+      ? null
+      : socialSecurityTaxability({
+          socialSecurityBenefits: input.socialSecurityBenefits,
+          adjustedGrossIncomeExcludingSocialSecurity: Math.max(
+            0,
+            grossIncomeExcludingSocialSecurity - se.deductibleHalf,
+          ),
+          taxExemptInterest: input.taxExemptInterest,
+          foreignEarnedIncomeExclusion: input.foreignEarnedIncomeExclusion,
+          filingStatus,
+          livedWithSpouse: input.livedWithSpouse,
+          year,
+        });
+
+  const grossIncome = grossIncomeExcludingSocialSecurity + (socialSecurity?.taxableBenefits ?? 0);
   const adjustedGrossIncome = Math.max(0, grossIncome - se.deductibleHalf);
 
   const standard = standardDeduction({
@@ -483,6 +543,7 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     year,
     filingStatus,
     grossIncome: roundCents(grossIncome),
+    socialSecurity,
     adjustedGrossIncome: roundCents(adjustedGrossIncome),
     deduction,
     deductionKind: useItemized ? 'itemized' : 'standard',

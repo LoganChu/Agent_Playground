@@ -77,6 +77,22 @@ export function renderEstimate(estimate: EstimateResult): string {
 
   rows.push(`Tax year ${estimate.year}, ${statusLabel(estimate.filingStatus)}`);
   rows.push('');
+  const ss = estimate.socialSecurity;
+  if (ss !== null) {
+    // Reported before gross income because it is a *component* of it, and
+    // because the untaxed part is money the household has that the two lines
+    // below do not contain. A model that reports only AGI to a retiree is
+    // understating their cash by up to the whole benefit.
+    rows.push(line('Social Security received', money(ss.benefits)));
+    rows.push(
+      line(
+        '  taxable (\u00a7 86)',
+        `${money(ss.taxableBenefits)} (${(ss.inclusionRate * 100).toFixed(1)}%)`,
+      ),
+    );
+    rows.push(line('  never taxed', money(ss.untaxedBenefits)));
+    rows.push(line('  \u00a7 86 combined income', money(ss.combinedIncome)));
+  }
   rows.push(line('Gross income', money(estimate.grossIncome)));
   rows.push(line('Adjusted gross income', money(estimate.adjustedGrossIncome)));
   rows.push(
@@ -241,6 +257,36 @@ export function estimateNotes(estimate: EstimateResult): string[] {
         estimate.stateAndLocalTax.cap,
       )}. Inside the phase-down band the marginal rate is above the bracket, and it drops back once the ` +
         `cap reaches its floor.`,
+    );
+  }
+
+  const ss = estimate.socialSecurity;
+  if (ss !== null && ss.tier > 0 && !ss.atMaximumInclusion) {
+    notes.push(
+      `\u00a7 86 is in its phase-in: ${money(ss.taxableBenefits)} of the ${money(ss.benefits)} benefit ` +
+        `is taxable and the ceiling is 85%. Inside this band each extra dollar of ordinary income pulls ` +
+        `50 or 85 cents of benefit into taxable income behind it, so the real marginal rate is up to 1.85 ` +
+        `times the ${percent(estimate.marginalRate, 0)} bracket — this is the "tax torpedo". Call ` +
+        `effective_marginal_rate to measure it.`,
+    );
+  }
+
+  if (ss !== null && ss.cohabitingSeparate) {
+    notes.push(
+      `Married filing separately and living with the spouse at any time in the year: \u00a7 86(c)(1)(C) ` +
+        `sets both thresholds to $0, so 85% of the benefit is taxable from the first dollar. A separate ` +
+        `filer who lived apart for the WHOLE year uses the single thresholds instead — set ` +
+        `livedWithSpouse to false, which here would change the taxable benefit from ` +
+        `${money(ss.taxableBenefits)}.`,
+    );
+  }
+
+  if (ss !== null && ss.tier === 0) {
+    notes.push(
+      `None of the ${money(ss.benefits)} benefit is taxable: \u00a7 86 combined income of ` +
+        `${money(ss.combinedIncome)} is at or below the ${money(ss.baseAmount)} base amount. That ` +
+        `threshold was set in 1983 and has never been indexed, so it is crossed by ordinary income ` +
+        `growth alone — ${money(Math.max(0, ss.baseAmount - ss.combinedIncome))} of headroom is left.`,
     );
   }
 

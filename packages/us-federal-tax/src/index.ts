@@ -53,6 +53,11 @@ export { qbiDeduction, section199AParameters } from './qbi.js';
 export type { QbiDeductionInput } from './qbi.js';
 
 export { saltCapParameters, stateAndLocalTaxDeduction } from './salt.js';
+
+/** § 86 — the taxable portion of a Social Security benefit. */
+export { socialSecurityTaxability } from './socialSecurity.js';
+export type { SocialSecurityTaxabilityOptions } from './socialSecurity.js';
+export { SOCIAL_SECURITY_TAXABILITY } from './data/social-security.js';
 export type { SaltDeductionInput } from './salt.js';
 
 export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
@@ -108,6 +113,8 @@ export type {
   ScheduleOneAParameters,
   Section199AParameters,
   SelfEmploymentTaxResult,
+  SocialSecurityTaxabilityParameters,
+  SocialSecurityTaxabilityResult,
   SteppedPhaseOut,
   W4,
   WithholdingColumn,

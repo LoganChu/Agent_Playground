@@ -22,8 +22,8 @@ installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.16.0/us-state-tax-0.16.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.7.0/us-federal-tax-0.7.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.18.0/us-tax-mcp-0.18.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.8.0/us-federal-tax-0.8.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.19.0/us-tax-mcp-0.19.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -68,6 +68,25 @@ const check = computePaycheck({
 
 check.federalIncomeTax.withholding; // 320.38
 check.takeHomeAfterFederal;         // 2450.12
+```
+
+```js
+import { estimateFederalTax } from 'us-federal-tax';
+
+// § 86: give it what the SSA-1099 says, not the taxable part.
+const retired = estimateFederalTax({
+  filingStatus: 'marriedFilingJointly',
+  year: 2026,
+  socialSecurityBenefits: 90_000,
+  otherOrdinaryIncome: 80_000,
+  age65OrOlder: true,
+  spouseAge65OrOlder: true,
+});
+
+retired.socialSecurity.taxableBenefits; // 74850 — 83.2% of the benefit
+retired.socialSecurity.untaxedBenefits; // 15150 — never reaches gross income
+retired.marginalRate;                   // 0.22 — the bracket
+// and the real rate on the next $1,000 is 45.58%, above the 37% top rate
 ```
 
 See the [package README](packages/us-federal-tax/README.md) for the full API, the
@@ -291,7 +310,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.18.0/us-tax-mcp-0.18.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.19.0/us-tax-mcp-0.19.0.tgz"
       ]
     }
   }

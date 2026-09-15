@@ -5,7 +5,8 @@ A dependency-free US federal tax engine for JavaScript and TypeScript.
 Income tax brackets, self-employment tax, FICA, Additional Medicare Tax, long-term
 capital gains, net investment income tax, the child tax credit, the earned income
 credit, the Section 199A qualified business income deduction, the SALT cap and its
-phase-down, the four OBBBA deductions on Schedule 1-A, quarterly estimated payments,
+phase-down, the four OBBBA deductions on Schedule 1-A, the § 86 taxation of Social
+Security benefits, quarterly estimated payments,
 and Publication 15-T payroll withholding — with every published figure traceable to
 the IRS release it came from.
 
@@ -14,7 +15,7 @@ the IRS release it came from.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.7.0/us-federal-tax-0.7.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.8.0/us-federal-tax-0.8.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -269,6 +270,87 @@ estimate.deductionKind; // 'itemized'
 
 `stateAndLocalTax` is reported even when the standard deduction wins, so you can
 see how near the decision was.
+
+## Social Security benefits (§ 86)
+
+Up to 85% of a Social Security benefit is taxable, and *which* part depends on
+everything else on the return. Give `estimateFederalTax` the total received — box
+5 of Form SSA-1099 — and it runs § 86 and puts the taxable portion into gross
+income, so a retiree's AGI can be derived from what they actually get rather than
+supplied as a figure they would have to compute first.
+
+```js
+import { estimateFederalTax } from 'us-federal-tax';
+
+const estimate = estimateFederalTax({
+  filingStatus: 'single',
+  year: 2026,
+  otherOrdinaryIncome: 30_000,
+  socialSecurityBenefits: 30_000,
+  age65OrOlder: true,
+});
+
+estimate.socialSecurity.combinedIncome; // 45000
+estimate.socialSecurity.taxableBenefits; // 13850
+estimate.socialSecurity.untaxedBenefits; // 16150
+estimate.grossIncome; // 43850 — Form 1040 line 9 contains line 6b, not box 5
+```
+
+**The four thresholds have never been indexed.** `$25,000` and `$32,000` were set
+by the Social Security Amendments of 1983; `$34,000` and `$44,000` by OBRA 1993.
+§ 86 contains no cross-reference to § 1(f), so there is no mechanism by which they
+could move. They are the only figures in this package that are the same object in
+every year — `YEAR_2024.socialSecurity === YEAR_2026.socialSecurity`, and a test
+asserts it, because three copies would imply three sourced figures that happen to
+agree rather than one figure that stopped moving.
+
+**Married filing separately is not half of joint — it is zero.** § 86(c)(1)(C)
+gives a separate filer who lived with their spouse at any time in the year a base
+amount of `$0`, so 85% of the benefit is taxable from the first dollar. Living
+apart for the whole year restores the single figures. On `$20,000` of benefit and
+`$10,000` of other income that one fact is the difference between `$17,000` and
+`$0` of taxable benefit. `livedWithSpouse` defaults to `true`, the expensive
+reading, because this package does not guess in the taxpayer's favour.
+
+### The tax torpedo, and what OBBBA did to it
+
+§ 86 does not tax the benefit at 50% or 85%. It *includes* up to 85% of it in
+taxable income, so inside the phase-in band each dollar of other income drags up
+to 85 cents of previously untaxed benefit in behind it. A couple both 65 with a
+`$90,000` benefit and `$80,000` of other income, in 2024:
+
+```js
+// taxable income rises by $1,850 per $1,000 of ordinary income
+estimate.marginalRate; // 0.22 — the bracket
+// the real rate on the next dollar: 40.70%
+```
+
+From 2025 to 2028 it composes with the OBBBA senior deduction, which phases out at
+6% of the MAGI excess **per eligible person** — and § 86 is what moves MAGI. For
+that same couple, one dollar of ordinary income raises AGI by `$1.85`, which costs
+`$0.222` of senior deduction, so taxable income rises by `$2.072`:
+
+| Year | Total tax at `$80,000` | Marginal rate on the next dollar | Bracket |
+| --- | --- | --- | --- |
+| 2024 | `$17,067.00` | 40.70% | 22% |
+| 2026 | `$13,169.04` | **45.58%** | 22% |
+
+**The senior deduction cuts this couple's tax by `$3,897.96` and raises their
+marginal rate by 4.88 points**, to a figure above the 37% top rate. Both are true,
+and only the first one was in the press release.
+
+Sweeping their other income from `$75,000` to `$175,000` — never leaving the 22%
+and 24% brackets — the marginal rate goes 22.2%, 45.58%, 24.64%, 26.88%, 24.0%. It
+reverses direction four times, and the rate at `$78,000` is higher than the rate at
+`$171,000` although the bracket at `$171,000` is higher. `test/social-security.test.js`
+pins every figure on this page.
+
+### Tax-exempt interest is counted in full
+
+§ 86(b)(2)(B) adds municipal bond interest back. A retiree inside the phase-in band
+therefore pays for it: `$10,000` of exempt interest pulls `$8,500` of benefit into
+taxable income, exactly as `$10,000` of taxable interest would have. The bond is
+tax-free on its own line and not on the return as a whole.
 
 ## Credits: the child tax credit and the EITC
 

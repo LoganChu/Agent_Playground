@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import { TOOLS, ToolInputError, readHousehold, handleMessage } from '../dist/index.js';
+import { HOUSEHOLD_KEYS } from '../dist/schema.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
@@ -156,26 +157,57 @@ test('every tool schema is a JSON Schema object with the shape MCP requires', ()
       `${tool.name} should reject unknown properties at the schema level too`,
     );
     for (const [name, schema] of Object.entries(tool.inputSchema.properties)) {
+      assert.ok(schema.type, `${tool.name}.${name} declares no type`);
+      // A shared household field may be undescribed on a tool that cross-references
+      // `estimate_federal_tax` for it — see `referenceProperties`. A field the tool
+      // does not share is its own to explain, and always must.
+      if (schema.description === undefined && HOUSEHOLD_KEYS.includes(name)) continue;
       assert.equal(
         typeof schema.description,
         'string',
         `${tool.name}.${name} has no description; the model reads these`,
       );
       assert.ok(schema.description.length > 10, `${tool.name}.${name} description is too short to help`);
-      assert.ok(schema.type, `${tool.name}.${name} declares no type`);
     }
     assert.ok(tool.name.match(/^[a-z][a-z0-9_]*$/), `${tool.name} is not a snake_case tool name`);
     assert.ok(tool.description.length > 80, `${tool.name} description is too thin for tool selection`);
   }
 });
 
-test('the terse schemas keep every field, and only shorten the prose', () => {
-  const full = TOOLS.find((t) => t.name === 'estimate_federal_tax').inputSchema.properties;
+test('a cross-referencing tool keeps every field and every type, and drops only prose', () => {
+  const primary = TOOLS.find((t) => t.name === 'estimate_federal_tax');
+  const full = primary.inputSchema.properties;
   for (const tool of householdTools) {
     if (tool.name === 'estimate_federal_tax') continue;
+    // All or nothing. A schema where some shared fields are documented and
+    // others are silently not is the worst of both: the model cannot tell
+    // whether an undescribed field is undocumented or unimportant.
+    // `year` is excluded: it is the one shared field whose meaning is
+    // tool-specific — compare_tax_years refuses it outright — so it keeps its
+    // description at every verbosity and cannot stand for the rest.
+    const shared = Object.keys(full).filter(
+      (name) => name !== 'year' && tool.inputSchema.properties[name],
+    );
+    const described = shared.filter(
+      (name) => tool.inputSchema.properties[name].description !== undefined,
+    );
+    const isReference = described.length === 0;
+    assert.ok(
+      isReference || described.length === shared.length,
+      `${tool.name} documents ${described.length} of ${shared.length} shared fields; it must do all or none`,
+    );
+    if (isReference) {
+      // Then the tool's own description has to send the model somewhere, or the
+      // fields are simply undocumented.
+      assert.ok(
+        tool.description.includes('estimate_federal_tax'),
+        `${tool.name} drops the shared descriptions without naming where they live`,
+      );
+    }
+
     for (const name of Object.keys(full)) {
-      const terse = tool.inputSchema.properties[name];
-      if (name === 'year' && !terse) {
+      const shortened = tool.inputSchema.properties[name];
+      if (name === 'year' && !shortened) {
         // A tool may legitimately not take a single year — compare_tax_years
         // takes `years` — but then it must not advertise `year` either, or the
         // model is invited to send a field the tool rejects.
@@ -185,9 +217,23 @@ test('the terse schemas keep every field, and only shorten the prose', () => {
         );
         continue;
       }
-      assert.ok(terse, `${tool.name} is missing the household field ${name}`);
+      assert.ok(shortened, `${tool.name} is missing the household field ${name}`);
+      // Dropping the prose must never drop the validation. Type, enum and the
+      // nested item shape are what a client needs to make a legal call, and the
+      // model can still discover the meaning from the primary tool.
+      assert.equal(shortened.type, full[name].type, `${tool.name}.${name} changed type`);
+      assert.deepEqual(shortened.enum, full[name].enum, `${tool.name}.${name} changed its enum`);
+      if (full[name].items?.properties) {
+        assert.deepEqual(
+          Object.keys(shortened.items.properties),
+          Object.keys(full[name].items.properties),
+          `${tool.name}.${name} lost item properties`,
+        );
+      }
+      if (shortened.description === undefined) continue;
+
       const long = full[name].description;
-      if (!long.startsWith(terse.description)) {
+      if (!long.startsWith(shortened.description)) {
         // Not a prefix, so it is an AUTHORED short form. Those exist because the
         // derived trim keeps the first sentence and cannot tell an example from a
         // definition — see `withShortForm` in src/schema.ts. An authored form is
@@ -195,10 +241,10 @@ test('the terse schemas keep every field, and only shorten the prose', () => {
         // statute it cites and every dollar figure it quotes must appear in the
         // long description too, so the two cannot drift into disagreeing.
         assert.ok(
-          terse.description.length < long.length,
+          shortened.description.length < long.length,
           `${tool.name}.${name} authored short form is not shorter than the full one`,
         );
-        const claims = terse.description.match(/§ \d+[\w().]*|\$[\d,]+/g) ?? [];
+        const claims = shortened.description.match(/\u00a7 \d+[\w().]*|\$[\d,]+/g) ?? [];
         for (const claim of claims) {
           assert.ok(
             long.includes(claim),
@@ -206,8 +252,27 @@ test('the terse schemas keep every field, and only shorten the prose', () => {
           );
         }
       }
-      assert.equal(terse.type, full[name].type, `${tool.name}.${name} changed type`);
     }
+  }
+});
+
+test('the primary tool documents every shared field in full', () => {
+  // The cross-reference above is only honest if the place it points at is
+  // complete. Every household field must be described on `estimate_federal_tax`,
+  // because three other tools now have nothing else to offer a model.
+  const full = TOOLS.find((t) => t.name === 'estimate_federal_tax').inputSchema.properties;
+  for (const name of HOUSEHOLD_KEYS) {
+    if (name === 'year') continue;
+    assert.ok(full[name], `estimate_federal_tax is missing the household field ${name}`);
+    assert.equal(
+      typeof full[name].description,
+      'string',
+      `estimate_federal_tax.${name} is undescribed, and three tools point here for it`,
+    );
+    assert.ok(
+      full[name].description.length > 30,
+      `estimate_federal_tax.${name} is the only description of this field and it is too thin`,
+    );
   }
 });
 
@@ -238,126 +303,67 @@ test('tools/list stays within a sane context budget', () => {
     })),
   );
   assert.ok(
-    payload.length < 52_000,
+    payload.length < 45_000,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
-  // THE TWELFTH PASS CUT THE CEILING, which is the first time that has happened.
-  // 53,000 to 52,000, at 51,625 bytes, with Kentucky's three new fields already
-  // inside it — Day 19 reported that compression had "stopped being cheap" after
-  // three passes that found their bytes by shaving adverbs, and it was right
-  // about the prose. There is none left: a scan for any 45-character substring
-  // occurring twice in the payload returns schema punctuation and nothing else.
+
+  // THE THIRTEENTH PASS CUT THE CEILING BY 7,000 BYTES — 52,000 to 45,000, at
+  // 43,243 — while ADDING three § 86 fields. Twelve passes before it bought a
+  // total of 1,000. It is not a better compression; it is the first one that
+  // stopped compressing.
   //
-  // What was left was a CONSTANT, and constants are where multiplicity actually
-  // compounds. `"minimum":0` appeared 164 times for 1,968 bytes — 3.7% of the
-  // whole payload — attached to fields called `wagesThisPeriod`,
-  // `employerPlanPension` and `dependents`, telling a model something their own
-  // names already say. Removing it cost nothing real:
+  // Every pass from the first to the twelfth asked "what in this payload is
+  // longer than it needs to be". The answer this time was that nothing was too
+  // long: 14,771 bytes of it were a SECOND AND THIRD COPY of a document the
+  // client already had. `compare_tax_years`, `effective_marginal_rate` and
+  // `quarterly_estimated_payments` take the same thirty-seven household fields
+  // as `estimate_federal_tax`. Their tool descriptions have said so in words
+  // for several releases — "household fields are the same as
+  // estimate_federal_tax, which documents each one in full" — and then
+  // described all thirty-seven again anyway.
   //
-  //   - `readNumber` already rejects a negative, with a better message than a
-  //     schema violation produces, so the guarantee was never coming from here.
-  //   - The schema was in fact the LOOSER document, not the stricter one. The
-  //     server deliberately accepts `"85,000"` as a number because models send
-  //     it; a client that validated `minimum: 0` strictly would have rejected
-  //     the string first and never reached the coercion.
-  //   - The fields where the sign is genuinely load-bearing — investmentIncome,
-  //     businessIncome, qualifiedBusinessIncome — never carried it, and say so
-  //     in prose instead.
+  // THE RULE: A POINTER AND A COPY DO THE SAME JOB, AND ONLY ONE OF THEM COSTS
+  // ANYTHING. When a schema already tells the reader where the real
+  // documentation lives, the duplicate beside it is not documentation, it is
+  // the cost of not believing your own cross-reference. Day 19's rule was that
+  // multiplicity lives in properties repeated across tools and Day 20's was to
+  // look for the repeated constant before the repeated sentence; both were
+  // about making a repeated thing smaller. This is the step neither took:
+  // ask whether the repetition has to exist at all.
   //
-  // THE RULE: a schema constraint that restates the field's own name is paid
-  // once per field per tool and informs nothing. Look for the repeated CONSTANT
-  // before the repeated sentence — it is invisible to a reader, it does not
-  // appear in any single description, and it is the only kind of bloat that
-  // grows without anybody writing a word.
+  // What is kept is everything a client needs to make a legal call — type,
+  // enum, nested item shape — and what is dropped is only prose that exists in
+  // full one tool away. The test above pins that: all-or-nothing per tool, the
+  // cross-reference named in the tool description, and every shared field
+  // documented in full on the primary tool, since three tools now have nothing
+  // else to offer.
   //
-  // Recorded rather than merely asserted, because the headroom is the number that
-  // decides what the next tool can be. Four of the eight carry the same thirty-field
-  // household schema, which is about 21 KB of the total across the three terse
-  // copies; MCP has no portable way to share a schema between tools, so the ninth
-  // tool has to displace one of those or the household schema has to lose fields.
-  // The structural fix Day 18 and Day 19 both named is still owed:
-  // `state_income_tax` is 15.9 KB and carries twelve states' per-state fields for
-  // a caller who uses one. This pass bought time for it, not a reprieve from it.
+  // Where the remaining 43,243 bytes are, and what the next pass has to do:
   //
-  // THE TENTH PASS BOUGHT NO RAISE, which is what the ninth said the next one
-  // had to do. Maryland's retirement work added a nested `retirement` object
-  // and clauses to three shared properties: 1,918 bytes gross, the single
-  // largest property in the payload at 1,870 of them. All of it was recovered,
-  // and the ceiling below is the ninth pass's 53,000 unchanged.
+  //   estimate_federal_tax  10,359   the primary schema — now load-bearing for
+  //                                  four tools, so it must NOT be trimmed
+  //   state_income_tax      15,380   twelve states' per-state fields for a
+  //                                  caller who uses one. 36% of the payload
+  //                                  and the largest single item by far.
+  //   paycheck_withholding   4,634   its own field set; shares nothing
+  //   the three reference tools     10,728 combined, down from 21,916
   //
-  // Where it came from, and the two rules the pass produced:
+  // THE STRUCTURAL FIX DAY 18, 19 AND 20 ALL NAMED IS STILL OWED, and it is now
+  // the only thing left worth doing: `state_income_tax` carries `retirement`
+  // (2,149 bytes), `county`, `schoolDistrict`, `city`, `workCity`,
+  // `cityIncome`, `businessIncome`, `qualifyingWages`, three stateDefined base
+  // fields and more, and a caller names exactly one state. The pointer rule
+  // does not reach it — there is no second tool to point at — so it needs a
+  // different move: either a `describe_state` lookup, or per-state fields
+  // folded into one free-form object the tool validates at runtime against the
+  // state actually given. This pass bought 7 KB of room to do it properly, not
+  // a reprieve from it.
   //
-  // 1. A DUPLICATED SUB-SCHEMA IS PURE COST. `retirement.spouse` takes exactly
-  //    the four fields `retirement.filer` does, and a second copy of the
-  //    property table said nothing new — `readPersonRetirement` validates both
-  //    halves identically. Describing them once saved 230 bytes.
-  // 2. MERGING TWO SENTENCES INTO ONE *LENGTHENS* THE PAYLOAD. The derived
-  //    terse form keeps the first sentence, so shortening the § 199A SSTB
-  //    description by folding its opening sentence into the occupation list
-  //    added 408 bytes across four tools instead of removing them. Restoring
-  //    the short first sentence and trimming only the tail took 540 out. When a
-  //    property has a derived short form, the first full stop is a budget line.
-  // 3. And the correction to Day 14's multiplicity rule: multiplicity applies
-  //    to the form that is EMITTED. Trimming a full description carried by one
-  //    tool and three terse copies pays once, not four times — the
-  //    `qualifiedBusinesses` trim recovered 16 bytes where it looked like 120.
-  //
-  // The rest came from illustrative arithmetic in six property descriptions and
-  // three clauses of the tool description, none of it operative and all of it
-  // still in the state's own notes, which every result carries.
-  //
-  // NINE compression passes before it, and the ninth is the first to produce a
-  // number worth keeping: the MARGINAL COST OF A STATE.
-  //
-  // Virginia arrived with three fields of its own — taxableSocialSecurity,
-  // lesserSpouseIncome, federalPovertyGuideline — and a clause added to six
-  // shared ones. Gross, it cost 1,674 bytes. The pass recovered 826 of them by
-  // trimming illustrative arithmetic out of fifteen property descriptions and
-  // out of the tool description, deleting nothing operative. So a state now
-  // costs about 850 bytes of every client's context, forever, and the ceiling
-  // moved from 51,400 to 53,000 to carry the rest.
-  //
-  // That is the third consecutive raise, and at 850 bytes a state it is the last
-  // one that should be spent this way. state_income_tax is now 14,054 bytes —
-  // 27% of the whole payload — because it carries the per-state fields of nine
-  // different states and a caller only ever uses one state's. The next state
-  // should not buy another raise: either the per-state fields move behind a
-  // second tool that a model calls only once it knows the state, or the tool
-  // takes an opaque `stateSpecific` object and validates it at the boundary.
-  // Compression cannot solve a payload whose growth is linear in states.
-  //
-  // Six passes ago the ceiling was covering PROSE; it is now covering CONTENT,
-  // and the payload it holds describes 28 states, 1,033 local income taxes and
-  // the whole federal return.
-  //
-  // The seventh pass corrects the sixth's rule. Day 14 said choose by
-  // MULTIPLICITY, not by length — a property carried by four tools is worth four
-  // times a longer one carried by a single tool. True, but the unit is wrong: the
-  // three terse tools carry only the FIRST SENTENCE (see terseProperties), so what
-  // is paid four times is the first sentence and what is paid once is everything
-  // after it. Rewriting a description to lead with its detail therefore MULTIPLIES
-  // that detail by three. The first attempt at that pass did exactly that on
-  // isSpecifiedServiceTradeOrBusiness and disqualifiedInvestmentIncome and made
-  // the payload 215 bytes LARGER while deleting words from both. So: trim the
-  // tail to save once, trim the first sentence — or author an `x-terse` — to save
-  // three times, and never move a clause forward to shorten a sentence.
-  //
-  // The earlier passes: the first two were hand-edits on the fattest object and on
-  // the longest single sentence; the third made the short form AUTHORED where a
-  // mechanical trim would drop an operative clause ("not total overtime wages")
-  // and derived everywhere else; the fourth rewrote the state_income_tax
-  // description on the rule that a tool description says WHAT TO PASS while facts
-  // the result already carries are delivered on every call anyway; the fifth
-  // applied that rule to the PROPERTIES rather than the description and paid for
-  // Massachusetts; the sixth paid for Maryland out of the four-tool properties;
-  // the eighth trimmed Ohio's own seven and the tail of the `year` description;
-  // the ninth applied the fourth's rule to fifteen properties at once and to the
-  // description again, and paid for half of Virginia.
-  assert.ok(
-    52_000 - payload.length < 1_000,
-    `tools/list has ${52_000 - payload.length} bytes of headroom — more than expected, so ` +
-      'this note about the budget is stale and should be rewritten with the real figure',
-  );
+  // The twelfth pass's finding stands and should not be re-derived: `"minimum":0`
+  // appeared 164 times for 1,968 bytes, restating what the field names already
+  // said, and `readNumber` was the thing actually enforcing it. A schema
+  // constraint that restates the field's own name is paid once per field per
+  // tool and informs nothing.
 });
 
 test('the server, not the schema, is what rejects a negative money field', () => {

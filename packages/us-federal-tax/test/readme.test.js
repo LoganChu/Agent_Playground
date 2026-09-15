@@ -23,6 +23,7 @@ import {
   qualifiedTipsDeduction,
   quarterlyEstimatedPayments,
   saltCapParameters,
+  socialSecurityTaxability,
   scheduleOneAParameters,
   section199AParameters,
   selfEmploymentTax,
@@ -615,4 +616,89 @@ test('README: a legacy W-4 with two allowances equals a blank modern one', () =>
     year: 2026,
   }).withholding;
   assert.equal(legacy, modern);
+});
+
+// --------------------------------------------------------------------------
+// "Social Security benefits (§ 86)"
+// --------------------------------------------------------------------------
+
+test('README: the § 86 quick-start figures', () => {
+  const estimate = estimateFederalTax({
+    filingStatus: 'single',
+    year: 2026,
+    otherOrdinaryIncome: 30_000,
+    socialSecurityBenefits: 30_000,
+    age65OrOlder: true,
+  });
+  assert.equal(estimate.socialSecurity.combinedIncome, 45_000);
+  assert.equal(estimate.socialSecurity.taxableBenefits, 13_850);
+  assert.equal(estimate.socialSecurity.untaxedBenefits, 16_150);
+  assert.equal(estimate.grossIncome, 43_850);
+});
+
+test('README: the thresholds are one shared object, not three', () => {
+  assert.equal(getYearParameters(2024).socialSecurity, getYearParameters(2026).socialSecurity);
+  assert.equal(getYearParameters(2025).socialSecurity, getYearParameters(2026).socialSecurity);
+});
+
+test('README: married filing separately, $17,000 against $0', () => {
+  const at = (livedWithSpouse) =>
+    socialSecurityTaxability({
+      filingStatus: 'marriedFilingSeparately',
+      year: 2026,
+      socialSecurityBenefits: 20_000,
+      adjustedGrossIncomeExcludingSocialSecurity: 10_000,
+      livedWithSpouse,
+    }).taxableBenefits;
+  assert.equal(at(true), 17_000);
+  assert.equal(at(false), 0);
+});
+
+test('README: the torpedo table, 2024 against 2026', () => {
+  const at = (year, other) =>
+    estimateFederalTax({
+      filingStatus: 'marriedFilingJointly',
+      year,
+      age65OrOlder: true,
+      spouseAge65OrOlder: true,
+      socialSecurityBenefits: 90_000,
+      otherOrdinaryIncome: other,
+    });
+  const marginal = (year) =>
+    Number((((at(year, 81_000).totalTax - at(year, 80_000).totalTax) / 1_000) * 100).toFixed(2));
+
+  assert.equal(at(2024, 80_000).totalTax, 17_067.0);
+  assert.equal(at(2026, 80_000).totalTax, 13_169.04);
+  assert.equal(
+    Number((at(2024, 80_000).totalTax - at(2026, 80_000).totalTax).toFixed(2)),
+    3_897.96,
+  );
+  assert.equal(at(2024, 80_000).marginalRate, 0.22);
+  assert.equal(at(2026, 80_000).marginalRate, 0.22);
+  assert.equal(marginal(2024), 40.7);
+  assert.equal(marginal(2026), 45.58);
+  assert.equal(Number((marginal(2026) - marginal(2024)).toFixed(2)), 4.88);
+  assert.equal(at(2026, 81_000).taxableIncome - at(2026, 80_000).taxableIncome, 2_072);
+
+  const sweep = (other) =>
+    Number((((at(2026, other + 1_000).totalTax - at(2026, other).totalTax) / 1_000) * 100).toFixed(2));
+  assert.deepEqual(
+    [sweep(75_000), sweep(78_000), sweep(82_000), sweep(171_000), sweep(174_000)],
+    [22.2, 45.58, 24.64, 26.88, 24.0],
+  );
+  assert.ok(sweep(78_000) > sweep(171_000));
+  assert.ok(at(2026, 78_000).marginalRate < at(2026, 171_000).marginalRate);
+});
+
+test('README: $10,000 of exempt interest pulls $8,500 of benefit in', () => {
+  const at = (exempt, other) =>
+    socialSecurityTaxability({
+      filingStatus: 'single',
+      year: 2026,
+      socialSecurityBenefits: 30_000,
+      adjustedGrossIncomeExcludingSocialSecurity: other,
+      taxExemptInterest: exempt,
+    }).taxableBenefits;
+  assert.equal(at(10_000, 20_000) - at(0, 20_000), 8_500);
+  assert.equal(at(10_000, 20_000), at(0, 30_000));
 });

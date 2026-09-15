@@ -1,4 +1,5 @@
 import type { YearParameters } from '../types.js';
+import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
 
 /**
  * Tax year 2025 federal parameters.
@@ -440,6 +441,10 @@ export const YEAR_2025: YearParameters = {
   // `src/withholding.ts` derives all eight rate schedules from `ordinaryBrackets`
   // and the figures below. See that file for the identity and why it is preferred
   // to transcribing the printed tables.
+  // § 86. Not a per-year figure at all: see `social-security.ts` for why the
+  // same object is shared by every year in this package.
+  socialSecurity: SOCIAL_SECURITY_TAXABILITY,
+
   withholding: {
     // NOT `standardDeduction`, which is the post-OBBBA figure the *return* uses.
     // Publication 15-T for 2025 was published in December 2024 and was never

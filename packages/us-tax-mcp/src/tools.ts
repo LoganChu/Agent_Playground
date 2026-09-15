@@ -238,7 +238,7 @@ const compareTool: ToolDefinition = {
     'copying 2024 forward or 2026 backward is wrong in both directions. Defaults to every supported ' +
     'year (' +
     SUPPORTED_YEARS.join(', ') +
-    '). Household fields are the same as estimate_federal_tax, which documents each one in full.',
+    '). The household fields below are listed WITHOUT descriptions on purpose: they are the same fields estimate_federal_tax takes, and its schema documents every one of them in full. Read them there. Duplicating thirty-seven descriptions here cost more context than the whole of that tool.',
   inputSchema: householdSchema(
     {
         years: {
@@ -248,7 +248,7 @@ const compareTool: ToolDefinition = {
         description: `Tax years to compare, ascending. Defaults to all of ${SUPPORTED_YEARS.join(', ')}.`,
       },
     },
-    { verbosity: 'terse', includeYear: false },
+    { verbosity: 'reference', includeYear: false },
   ),
   annotations: { ...READ_ONLY, title: 'Compare a household across tax years' },
   run(args) {
@@ -444,7 +444,7 @@ const marginalTool: ToolDefinition = {
     '21.06%, all of it earned-income-credit withdrawal. ' +
     'Use this for "should I take the raise", "what will this bonus cost me", "am I better off ' +
     'converting to a Roth", "what is my real marginal rate". Reports the ordinary bracket alongside ' +
-    'the real number so the difference is visible. Household fields are the same as estimate_federal_tax, which documents each one in full.',
+    'the real number so the difference is visible. The household fields below are listed WITHOUT descriptions on purpose: they are the same fields estimate_federal_tax takes, and its schema documents every one of them in full. Read them there. Duplicating thirty-seven descriptions here cost more context than the whole of that tool.',
   inputSchema: householdSchema(
     {
       additionalIncome: {
@@ -466,7 +466,7 @@ const marginalTool: ToolDefinition = {
         'whichever income the household already has the most of.',
       },
     },
-    { verbosity: 'terse' },
+    { verbosity: 'reference' },
   ),
   annotations: { ...READ_ONLY, title: 'True marginal rate on the next dollar' },
   run(args) {
@@ -624,7 +624,7 @@ const quarterlyTool: ToolDefinition = {
     'dates. Answers "how much should I send the IRS each quarter", "what are my 1099 estimated ' +
     'taxes", "how do I avoid an underpayment penalty". Supplying priorYearTotalTax usually lowers ' +
     'the required payment, because the safe harbor is the LESSER of 90% of this year and 100% (or ' +
-    '110% for higher earners) of last year. Household fields are the same as estimate_federal_tax, which documents each one in full.',
+    '110% for higher earners) of last year. The household fields below are listed WITHOUT descriptions on purpose: they are the same fields estimate_federal_tax takes, and its schema documents every one of them in full. Read them there. Duplicating thirty-seven descriptions here cost more context than the whole of that tool.',
   inputSchema: householdSchema(
     {
       priorYearTotalTax: {
@@ -640,7 +640,7 @@ const quarterlyTool: ToolDefinition = {
           '110% rather than 100%.',
       },
     },
-    { verbosity: 'terse' },
+    { verbosity: 'reference' },
   ),
   annotations: { ...READ_ONLY, title: 'Quarterly estimated tax payments' },
   run(args) {
@@ -1308,7 +1308,7 @@ const stateTool: ToolDefinition = {
       taxableSocialSecurity: {
         type: 'number',
         description:
-          'VA, MD, GA and KY: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a. All four subtract it; VA also tests its age deduction on AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
+          'VA, MD, GA and KY: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. All four subtract it; VA also tests its age deduction on AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
       },
       retirement: {
         type: 'object',
