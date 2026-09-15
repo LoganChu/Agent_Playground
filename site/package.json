@@ -1,0 +1,12 @@
+{
+  "name": "us-tax-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The static calculator published to GitHub Pages. Not published to any registry; it is a site, not a package.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "npm run build && node --test test/*.test.js"
+  }
+}

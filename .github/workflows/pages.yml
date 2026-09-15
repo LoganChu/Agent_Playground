@@ -1,0 +1,84 @@
+# Publish the calculator to GitHub Pages.
+#
+# This is the second constraint this project has tested rather than planned
+# around. Day 20 discovered that "the packages cannot be installed without an
+# npm account" was false and had been false for fourteen days; the note it left
+# was that a static site on Pages had been parked behind "needs a human" on the
+# same kind of unexamined assumption, and should be checked the same way.
+#
+# It does not need one. `actions/configure-pages` will turn Pages on through the
+# API with `enablement: true`, using only the GITHUB_TOKEN that Actions mints for
+# this run. There is no secret to add and no setting to click. If that turns out
+# to be wrong, this workflow fails loudly at that step and the failure is the
+# answer — which is still better than another day of assuming.
+#
+# The site itself is a copy, not a build: both engines compile to ES modules with
+# explicit `.js` extensions on every relative import, which browsers load
+# natively, and neither has a runtime dependency. So the page a visitor loads is
+# the same code the test suites run.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'packages/us-federal-tax/**'
+      - 'packages/us-state-tax/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never two deploys at once, and never cancel one halfway: a partially replaced
+# site is worse than a stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The site vendors the engines' compiled output, so it can only be built
+      # from engines that have just been built — and there is no reason to
+      # publish a page running code that has not just passed its own suite.
+      - name: Build and test both engines
+        run: |
+          set -euo pipefail
+          for name in us-federal-tax us-state-tax; do
+            echo "::group::$name"
+            (cd "packages/$name" && npm install && npm run typecheck && npm test)
+            echo "::endgroup::"
+          done
+
+      - name: Build and test the site
+        run: cd site && npm test
+
+      - uses: actions/configure-pages@v5
+        with:
+          # Turn Pages on if it is off. This is the line the whole workflow
+          # exists to find out about.
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

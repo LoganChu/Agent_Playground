@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Retirement tax, all 28 states at once</title>
+    <meta
+      name="description"
+      content="What a retirement actually costs in federal and state income tax, computed in your browser for 28 states and every Maryland and Indiana county. Models the Social Security tax torpedo, the OBBBA senior deduction, and the state pension exclusions that rate tables leave out."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <header class="wrap">
+      <h1>Where does a retirement actually get taxed?</h1>
+      <p class="lede">
+        Enter what a household <em>receives</em> — not what a tax form says — and this works out
+        the federal return and then all
+        <strong>28 states</strong> at once, plus every Maryland and Indiana county.
+        Nothing is sent anywhere: the whole calculation runs in this page.
+      </p>
+    </header>
+
+    <main class="wrap">
+      <form id="form" autocomplete="off">
+        <fieldset>
+          <legend>The household</legend>
+          <div class="grid">
+            <label>
+              Tax year
+              <select name="year" id="year"></select>
+            </label>
+            <label>
+              Filing status
+              <select name="filingStatus" id="filingStatus"></select>
+            </label>
+            <label>
+              Your age
+              <input type="number" name="filerAge" value="67" min="0" max="120" inputmode="numeric" />
+            </label>
+            <label class="spouse-only">
+              Spouse's age
+              <input type="number" name="spouseAge" value="67" min="0" max="120" inputmode="numeric" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>What comes in, for the year</legend>
+          <div class="grid">
+            <label>
+              Social Security received
+              <span class="hint">Box 5 of the SSA&#8209;1099 — the whole benefit, not the taxable part</span>
+              <input type="text" name="socialSecurity" value="45,000" inputmode="decimal" />
+            </label>
+            <label>
+              Pension from an employer plan
+              <span class="hint">401(k), 403(b), 457(b) or a defined-benefit pension</span>
+              <input type="text" name="pension" value="40,000" inputmode="decimal" />
+            </label>
+            <label>
+              IRA distributions
+              <span class="hint">Traditional, rollover, SEP or SIMPLE. Three states treat these differently from the line above</span>
+              <input type="text" name="ira" value="20,000" inputmode="decimal" />
+            </label>
+            <label>
+              Military retired pay
+              <input type="text" name="militaryRetirement" value="0" inputmode="decimal" />
+            </label>
+            <label>
+              Wages and salary
+              <input type="text" name="wages" value="0" inputmode="decimal" />
+            </label>
+            <label>
+              Interest and ordinary dividends
+              <input type="text" name="interestDividends" value="5,000" inputmode="decimal" />
+            </label>
+            <label>
+              Long-term capital gains
+              <span class="hint">And qualified dividends</span>
+              <input type="text" name="longTermCapitalGains" value="0" inputmode="decimal" />
+            </label>
+            <label>
+              Tax-exempt municipal interest
+              <span class="hint">Excluded from income, and counted in full against Social Security</span>
+              <input type="text" name="taxExemptInterest" value="0" inputmode="decimal" />
+            </label>
+            <label class="spouse-only">
+              Whose retirement income is it?
+              <span class="hint">Georgia, Maryland and Kentucky all claim their exclusion per person, so a couple&rsquo;s totals do not decide their state tax</span>
+              <select name="allocation">
+                <option value="even">Split evenly between you</option>
+                <option value="filer">All in your name</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+      </form>
+
+      <section id="federal" class="card" aria-live="polite"></section>
+      <section id="ranking" class="card"></section>
+      <section id="detail" class="card"></section>
+    </main>
+
+    <footer class="wrap">
+      <h2>What this is</h2>
+      <p>
+        A front end for two open-source, dependency-free tax engines —
+        <code>us-federal-tax</code> and <code>us-state-tax</code> — compiled straight to ES
+        modules and run in your browser. There is no server and no analytics; close the tab and
+        nothing remains. The same engines are available as an
+        <a href="https://github.com/LoganChu/Agent_Playground#us-tax-mcp">MCP server</a> so a
+        language model can call them instead of guessing.
+      </p>
+      <p>
+        <a href="https://github.com/LoganChu/Agent_Playground">Source, tests and provenance on GitHub</a>.
+        Every published figure is cited to the Revenue Procedure or state release it came from,
+        and every carried-forward figure is flagged as provisional.
+      </p>
+      <p class="disclaimer">
+        <strong>Not tax advice.</strong> An estimate of income tax only, for a full-year resident
+        of one state, and it leaves things out — read the <em>What is missing</em> notes under each
+        state. Check anything that matters against the forms or a professional.
+      </p>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
