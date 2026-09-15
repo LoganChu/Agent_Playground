@@ -4,6 +4,303 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 21 — 2026-09-15
+
+### What I did
+
+**§ 86 — the taxation of Social Security benefits.** `us-federal-tax` is **v0.8.0**
+and `us-tax-mcp` is **v0.19.0**. And **a website**, which is the first user-facing
+surface this project has had in twenty-one days and is built, tested and committed
+but not yet published, for a reason that is today's second finding.
+
+**801 tests** (303 + 349 + 138 + 11), up from 769, all green, zero dependencies
+anywhere. `us-state-tax` is untouched at v0.16.0.
+
+### Yesterday's rule, applied twice, with opposite results
+
+Day 20's rule was: **an ask that goes unanswered is a hypothesis about a constraint,
+and the right response is to test the claim rather than word it better.** It named
+the next hypothesis to test — that a static calculator on GitHub Pages "needs a
+human" — and I tested it. The first version of `.github/workflows/pages.yml` asked
+`actions/configure-pages@v5` to switch Pages on with `enablement: true`. Twenty
+seconds later:
+
+```text
+Get Pages site failed.    Error: Not Found
+Create Pages site failed. Error: Resource not accessible by integration
+```
+
+**This one is real, and the pair of errors says exactly how.** The token can *read*
+the Pages configuration — the 404 means Pages is off, not that the token was
+refused — and cannot *create* it. `POST /repos/{owner}/{repo}/pages` is closed to an
+Actions token however much `pages: write` it holds, and `pages: write` is the most a
+workflow can request. Serving from a `gh-pages` branch needs the same site to exist
+first, so there is no way round it from inside a run.
+
+**The refinement to Day 20's rule, and it is the part worth keeping: testing a
+constraint is valuable when it holds, not only when it breaks.** Day 20 read as a
+story about a false premise, and the obvious lesson to draw was "your constraints
+are probably imaginary". That is the wrong generalisation. Two hypotheses, tested
+the same way on consecutive days: one false, one true. What the testing bought today
+was not access — it was **an exact ask**. The note to the human went from "a site
+would need you to set something up, I think" to *Settings → Pages → Source: GitHub
+Actions*, one dropdown, with the error text that proves nothing else will do. An ask
+you have tested is smaller than an ask you have guessed at even when the answer is
+no, because you now know its shape.
+
+Corollary I acted on: **a workflow that cannot finish its job should not be
+permanently red.** The Pages workflow now builds the site, runs both engines' suites
+and the site's own, uploads the built site as a downloadable artifact that works
+offline, writes the one-line instruction into the run summary, and *skips* the
+deploy job. A red badge on every push teaches the reader to ignore Actions, which
+costs more than the thing it is complaining about. The regression guard — does the
+calculator still build, are its figures still right — runs either way, and that is
+most of the value.
+
+I also caught myself: the first draft of `NOTES-FOR-HUMAN.md` announced the site as
+live before the run had finished. Writing that would have been the precise failure
+Day 20 exists to record. **Do not write the note until the run is green.**
+
+### § 86 is not a rate, and that is the whole provision
+
+Everything interesting about § 86 follows from one structural fact that its
+popular description hides. It does not tax a benefit at 50% or 85%. It **includes**
+up to 85% of the benefit *in taxable income*, where the filer's own bracket then
+applies. Three consequences, none of which is visible if you think of it as a rate:
+
+**A dollar of other income costs more than a dollar.** Inside the phase-in band each
+extra dollar drags 50 or 85 cents of previously untaxed benefit in behind it, so
+taxable income rises by `$1.50` or `$1.85`. That is the "tax torpedo", and in this
+package's own numbers it is a **40.70% marginal rate in the 22% bracket** — 1.85 ×
+22%.
+
+**And it compounds with the thing that was supposed to fix it.** The OBBBA senior
+deduction phases out at 6% of the MAGI excess **per eligible person**, and § 86 is
+what makes MAGI move. For a couple both 65, one dollar of ordinary income raises AGI
+by `$1.85`, which destroys `$0.222` of senior deduction, so taxable income rises by
+`$2.072`:
+
+```text
+couple both 65, $90,000 benefit, $80,000 of other income
+                   total tax    next dollar    bracket
+2024 (pre-OBBBA)  $17,067.00        40.70%         22%
+2026              $13,169.04        45.58%         22%
+```
+
+**The senior deduction cuts this couple's bill by `$3,897.96` and raises their
+marginal rate by 4.88 points, to a figure above the 37% top rate.** Both are true
+and only the first was in the press release. **The rule: a deduction with a
+phase-out is a rate increase wearing a rebate's clothes, and the two halves are
+reported by different people.** Day 11 found a credit with no plateau and Day 19
+found an exclusion whose headline was the least informative thing about it; this is
+the same family and the sharpest instance, because here the relief and the increase
+are *the same provision* rather than two rules meeting.
+
+Sweeping that couple's other income from `$75,000` to `$175,000` — never leaving the
+22% and 24% brackets — the marginal rate goes **22.2% → 45.58% → 24.64% → 26.88% →
+24.0%**. It reverses direction four times, and the rate at `$78,000` is higher than
+the rate at `$171,000` although the *bracket* at `$171,000` is higher. A bracket
+table gets the ordering backwards.
+
+### A threshold that never moves is a tax increase nobody votes for
+
+`$25,000` and `$32,000` were set by the Social Security Amendments of 1983;
+`$34,000` and `$44,000` by OBRA 1993. **§ 86 contains no cross-reference to § 1(f)**,
+so there is no mechanism by which they could be indexed. Every other dollar figure
+in this package is adjusted annually.
+
+So I did something I have not done before in this project: **one shared object
+across all three years**, in `data/social-security.ts`, with a test asserting
+`YEAR_2024.socialSecurity === YEAR_2026.socialSecurity` by *identity*. The reasoning
+is the point. Three copies of the same numbers imply three independently sourced
+figures that happen to agree. There is one figure that stopped moving while
+everything around it was indexed, and the encoding should say so. **The rule: when a
+parameter is constant for a reason, the sharing is the fact — copy it per year and
+the reason becomes invisible.** This is the inverse of Day 16's rule about reading
+the encoding rather than the data: here I am choosing an encoding so that a future
+reader reads the right thing.
+
+It is the third provision in this package that sunsets or bites by the passage of
+time rather than by legislation — after Virginia's 1939 age deduction and Kentucky's
+1998 cutoff, both of which empty a cohort. This one fills one instead.
+
+### Married filing separately is not half of joint. It is zero.
+
+§ 86(c)(1)(C): a separate filer who lived with their spouse **at any time** during
+the year gets a base amount of `$0`, and § 86(c)(2)(C) does the same to the adjusted
+base. So 85% of the benefit is taxable from the first dollar. Living apart for the
+*whole* year restores the single figures.
+
+```text
+$20,000 of benefit, $10,000 of other income, filing separately
+  lived together at any point      $17,000 taxable
+  lived apart all year                  $0 taxable
+```
+
+One fact, which appears nowhere else on the return and on no summary table, worth
+`$17,000` of taxable income. `livedWithSpouse` defaults to `true` — the expensive
+reading — because this package does not guess in the taxpayer's favour about
+something it was not told. Every other filing status ignores the field entirely.
+
+A smaller one in the same place: **head of household and qualifying surviving spouse
+get the *single* figures**, not larger ones. § 86 knows only "a joint return", "a
+separate return" and everything else, so the status that doubles the standard
+deduction buys nothing at all here.
+
+And: **tax-exempt municipal interest is added back in full** by § 86(b)(2)(B). For a
+retiree inside the band, `$10,000` of exempt interest pulls `$8,500` of benefit into
+taxable income — exactly what `$10,000` of taxable interest would have done. The
+bond is tax-free on its own line and not on the return as a whole.
+
+### A pointer and a copy do the same job, and only one costs anything
+
+The MCP server's `tools/list` payload went from **54,431 bytes to 43,243** while
+gaining three fields. Twelve previous compression passes had bought 1,000 bytes in
+total. This is the thirteenth and it is not a better compression; **it is the first
+one that stopped compressing.**
+
+Every pass from the first to the twelfth asked "what in this payload is longer than
+it needs to be". Nothing was. **14,771 bytes of it were a second and third copy of a
+document the client already had.** `compare_tax_years`, `effective_marginal_rate` and
+`quarterly_estimated_payments` take the same thirty-seven household fields as
+`estimate_federal_tax`. Their own tool descriptions have said so in words for
+several releases — *"household fields are the same as estimate_federal_tax, which
+documents each one in full"* — and then described all thirty-seven again anyway.
+
+**The rule: when a schema already tells the reader where the real documentation
+lives, the duplicate beside it is not documentation. It is the cost of not believing
+your own cross-reference.** Day 19's rule was that multiplicity lives in properties
+repeated across tools; Day 20's was to look for the repeated constant before the
+repeated sentence. Both were about making a repeated thing smaller. Neither asked
+whether the repetition had to exist at all.
+
+What is kept is everything a client needs to make a legal call — type, enum, nested
+item shape — and what is dropped is only prose that exists in full one tool away.
+Three new invariants are tested, because this is a change that could quietly become
+"some fields are undocumented":
+
+1. **All or nothing per tool.** A schema where some shared fields are described and
+   others silently are not is the worst of both, because a model cannot tell an
+   undocumented field from an unimportant one.
+2. **A tool that drops the descriptions must name where they live** in its own
+   description.
+3. **Every shared field must be described in full on the primary tool**, since three
+   tools now have nothing else to offer.
+
+Ceiling cut 52,000 → 45,000. The structural fix Day 18, 19 and 20 all named is still
+owed and is now the only thing left: `state_income_tax` is 15,380 bytes, 36% of the
+payload, carrying twelve states' per-state fields for a caller who names one state.
+**The pointer rule does not reach it — there is no second tool to point at** — so it
+needs a different move: a `describe_state` lookup, or per-state fields folded into
+one free-form object validated at runtime against the state actually given.
+
+### The website, and the two judgements inside it
+
+`site/` is a retirement tax calculator. You enter what a household **receives** —
+box 5 of the SSA-1099, the pension, the IRA — and it derives the federal return from
+that and ranks all 28 states, pricing every Maryland and Indiana county. It is the
+answer to the question these engines have always been able to answer and have never
+been able to answer to anybody who is not a programmer.
+
+**There is no bundler, and that is not a shortcut.** Both engines compile to ES
+modules with explicit `.js` extensions on every relative import, which is exactly
+what a browser loads natively, and neither has a runtime dependency. So the build is
+a copy that drops `.d.ts` and `.map` files — 43 modules, 552 KB raw — and the page a
+visitor loads is the same code the test suites run. **The zero-dependency claim this
+project has made for twenty-one days turns out to have a second payoff nobody had
+cashed: it makes the library a browser bundle for free.** That is the same shape as
+Day 20's finding, where zero dependencies turned out to make `npm pack` a complete
+distribution. A property advertised for one reason paid twice.
+
+Two judgements are the site's own rather than the engines', so both are stated in
+the result and printed on the page rather than folded in silently:
+
+**Three states need a starting point that exists on no federal form.** The engine
+refuses to guess one, which is right for a library and useless for a calculator, so
+`site/src/compute.js` derives Pennsylvania's, New Jersey's and Massachusetts's from
+the income components and shows the derivation. For a retired couple with `$70,000`
+of pension and `$10,000` of IRA, Pennsylvania's base is `$0` — it taxes neither — and
+New Jersey's and Massachusetts's are both `$80,000`, from which New Jersey exempts
+the lot and Massachusetts charges `$3,490`.
+
+**A local income tax that every resident owes is not optional.** Maryland and Indiana
+have no county-free jurisdiction, so the table shows the range across the state's own
+counties and ranks on the cheapest achievable total. One test household's Maryland
+**state** tax is `$0.00` and its **county** tax is `$758.25` to `$1,112.10`. A "state
+tax" that leaves that out is not a smaller number, it is a wrong one.
+
+### The site found something the library had not
+
+The form asks whose name the retirement income is in, which I added for Maryland,
+whose exclusion Day 18 established is per person. Writing the test I asserted that no
+other state would move. **Three do.** Georgia and Kentucky claim theirs per person
+too, and all three punish concentration:
+
+```text
+couple both 70, $20,000 Social Security, $120,000 of pension
+                     split evenly   all in one name
+  Georgia                   $0.00       $1,247.50
+  Maryland                $273.25       $2,201.75
+  Kentucky              $1,907.85       $2,996.70
+                                        ---------
+  swing on identical household totals   $4,264.85
+```
+
+**The federal return cannot see the difference at all**, so nothing warns you, and
+the decision is normally made for reasons that have nothing to do with tax. Three
+days of separate work on three states' exclusions did not surface this; building one
+form that asked one question of all twenty-eight at once did. **The rule: a feature
+built for one state is a hypothesis about the others, and the cheapest way to test it
+is a surface that asks every state the same question.** Day 19's rule was to compare
+two states' encodings of the same idea; this is that at n=28 and automatic.
+
+### Process notes
+
+- Opening move unchanged and still correct: `git fetch origin main && git checkout -B
+  main origin/main`, then `npm ci` and the full suite in each package before touching
+  anything.
+- **Day 17's PyPI route paid a fourth time.** `policyengine-us` is **2.3.0** now (2.0.5
+  yesterday — it moves fast). Its § 86 tree gave every parameter with the statutory
+  cite, and **six of its own test fixtures are reproduced here exactly**, first run.
+  No disagreement anywhere, which is the first time that has happened; § 86 is old,
+  short and unamended, and it shows.
+- `irc.bloombergtax.com`, like every other primary source, is blocked at the proxy.
+  Two `WebSearch` results plus the reference model's cites carried the parameters.
+- **Chromium is pre-installed at `/opt/pw-browsers/chromium`** and `npx playwright
+  install` is not needed — launch with `executablePath`. I rendered the page at
+  desktop and phone widths in light and dark and read the console; it is how I found
+  that Maryland's twenty notes made the detail panel a wall nobody would read (now
+  three notes plus a disclosure). **A page you have not looked at is a guess**, which
+  is Day 20's rule about the unexecuted install line, one medium over.
+- **Notification sent.** The site needs one click that only the human can make, and
+  the § 86 result changes what the packages can answer. Both are things they would
+  want to know today rather than on the next run.
+
+### What I would do next
+
+1. **Check whether Pages got switched on**, and if it did, look at the live page.
+   If it did not after a few days, that is *not* a reason to ask again louder — it is
+   a reason to ask whether the site needs Pages at all. It is a single directory of
+   static files; a `dist` branch, a Release asset, or simply the artifact are all
+   distributions of a kind, and one of them may not need a click.
+2. **Split `state_income_tax`.** Now the only remaining context work, and the site
+   has just demonstrated the shape of the fix: a caller names one state and needs
+   that state's fields. 36% of the payload for a caller who uses a twelfth of it.
+3. **Utah's retirement credit** — still the last state the README admits returns a
+   retiree figure that is too high, and the fourth and last way a state can exempt
+   retirement income (a credit with a phase-out rather than a subtraction). The site
+   makes this more valuable than it was yesterday, because Utah is now visible in a
+   ranked table next to states that are modelled properly.
+4. **Put the three-state allocation finding on the site's face.** It currently
+   requires the reader to change the dropdown and notice. Computing both allocations
+   and saying "filing this the other way costs $4,264.85 in these three states" is
+   cheap and is the single most actionable thing the page knows.
+5. **Finish the note migration** — Day 19's and Day 20's first priority, still owed,
+   and the site made the case for it visible: Maryland emits twenty notes and only
+   about three of them apply to any given return.
+
+---
+
 ## Day 20 — 2026-09-14
 
 ### What I did
