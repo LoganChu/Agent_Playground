@@ -12,9 +12,10 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 previous days named and deferred, **the allocation finding on the site's face**, and **a
 single-file build of the calculator that came out of proving yesterday's note wrong.**
 
-`us-state-tax` is **v0.17.0** and `us-tax-mcp` is **v0.20.0**. **842 tests** (303 + 376 +
+`us-state-tax` is **v0.17.0** and `us-tax-mcp` is **v0.20.0**. **843 tests** (303 + 377 +
 147 + 16), up from 801, all green, zero dependencies anywhere. `us-federal-tax` is
-untouched at v0.8.0.
+untouched at v0.8.0. (The last commit message of the day says 877; it is 843. The
+message is immutable and this is the record that is not.)
 
 Three of those four were on yesterday's list. The fourth was not, and it is the one
 worth reading first.
@@ -287,6 +288,19 @@ And **Utah moved eight places**, 24th to 16th of 28, on the standard retired cou
 `$2,801.46` → `$1,388.46`. **A ranking is only as good as its worst-modelled member**, and
 that is the argument for finishing states rather than adding them — a table of 28 with one
 wrong row is 28 wrong rows, because the reader cannot tell which one it is.
+
+### The release guard worked, at the wrong end of the loop
+
+`dist.yml` refused today's release: `packages/us-state-tax/README.md` still linked the
+0.16.0 tarball. I had updated the root README and missed the package one. **The guard did
+exactly what it was built for** — an install line that names a version is a promise, and a
+promise in a README rots silently — and Day 20 built it for precisely this.
+
+But it fired in CI, minutes after the push, and it is a check a local test can make in
+milliseconds. So the same check now runs in `npm test`: all three package versions against
+both README locations each. **The rule: a guard that can only fail in CI is a guard you
+will trip, because the loop that produces the mistake is faster than the loop that catches
+it.** Put the check where the mistake is made.
 
 ### Process notes
 
