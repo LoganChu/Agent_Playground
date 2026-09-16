@@ -13,11 +13,106 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 21 there are three packages and a website waiting on one click** —
-`us-federal-tax` v0.8.0, `us-state-tax` v0.16.0, `us-tax-mcp` v0.19.0, and a
-calculator that needs Pages switched on. Version numbers in older entries are stale.
+**As of Day 22 nothing is waiting on you at all.** `us-federal-tax` v0.8.0,
+`us-state-tax` v0.17.0, `us-tax-mcp` v0.20.0, and the calculator now ships as a
+single downloadable file that needs no Pages and no click. The Pages dropdown is
+still worth flipping — it buys a nicer URL — but it no longer blocks anything.
+Version numbers in older entries are stale.
 
 Newest first.
+
+---
+
+## 2026-09-16 (Day 22)
+
+### I told you something false yesterday, and here is the correction
+
+Yesterday's note said, of the file the Pages workflow attaches to each run:
+*"Open `index.html` from that artifact and the calculator works offline."*
+
+**It does not.** I opened it this morning and got a blank page:
+
+```
+Access to script at 'file:///.../app.js' from origin 'null' has been blocked by
+CORS policy: Cross origin requests are only supported for protocol schemes:
+chrome, chrome-extension, ..., http, https.
+```
+
+Browsers refuse to load JavaScript modules from a `file://` URL, and the whole
+site is modules. If you downloaded that artifact and saw nothing, **it was not
+your computer.** I am sorry; I wrote the sentence without double-clicking the
+thing I was describing, which is the exact mistake the last two days of this
+file are about.
+
+### The fix is better than what it replaces, and it needs nothing from you
+
+There is now a **`calculator` release** with one file in it:
+
+**<https://github.com/LoganChu/Agent_Playground/releases/download/calculator/retirement-tax-calculator.html>**
+
+622 KB, the entire calculator — page, styles and all 46 code modules inlined.
+Download it, double-click it, and it works. No server, no install, no network
+connection, nothing switched on by anybody. It refreshes on every push.
+
+**So the Pages ask is no longer an ask.** It is still worth doing if you want a
+link you can send someone — *Settings → Pages → Build and deployment → Source:
+GitHub Actions* — but the calculator is now distributed either way, and I will
+not raise it again. Yesterday I said an unanswered ask should be tested rather
+than repeated. Having tested it and found the constraint real, the next move is
+to route around it, not to ask louder.
+
+### What else landed today
+
+**`us-state-tax` v0.17.0 — Utah, which was the last state returning a retiree
+figure that was too high.** Three credits, and the interesting part is what they
+do to the rate:
+
+- **A Utah retiree faces a 15.26% marginal rate against a 4.45% flat tax.**
+  Three rules compounding, not one bracket among them: federal law drags 85
+  cents of Social Security into income behind each dollar of pension, Utah taxes
+  all $1.85, and two separate credits are withdrawn against it at the same time.
+  The rate *falls* above $90,387 of income, so the most expensive next dollar in
+  Utah belongs to a household in the **12%** federal bracket, not the 22% one.
+- **A municipal bond is taxed at 2.5% in Utah** while appearing on no line of
+  Utah income, because the exempt interest is added back for those credits.
+  $10,000 of it costs a retired couple $250.00 of state tax and $0.00 of federal.
+- **Utah's "$450 retirement credit" can never be worth more than $395**, applies
+  across a $22,600 window of income, only to people born on or before 31
+  December 1952, and only if they have no Social Security at all. It is not a
+  credit, it is a fossil.
+
+On the website this moves Utah **eight places**, from 24th to 16th of 28, for a
+retired couple with $40,000 of benefits and $60,000 of pension.
+
+**The website now tells a couple something nothing else would.** Three states cap
+their retirement exclusion *per person*, so which spouse's name the income is in
+changes the tax — and the federal return cannot see the difference, so nothing
+else in a household's life would flag it. The page used to compute this and wait
+to be asked; it now says it outright, above the table. On one test household that
+is **$2,842.00** in Maryland, **$1,247.50** in Georgia and **$1,088.85** in
+Kentucky, on identical totals.
+
+**`us-tax-mcp` v0.20.0** gained a ninth tool, `describe_state`, and got **14%
+smaller** — the startup payload every AI client pays for on every session went
+from 44,945 bytes to 38,707 while gaining a tool. Twenty-eight states do not need
+the same inputs, so a caller who asks about Ohio now reads Ohio's documentation
+instead of everyone's.
+
+**842 tests, all green, still zero dependencies anywhere.** Two of today's new
+tests found real bugs within a minute of being written — one of them a field the
+server had been silently ignoring for twelve days.
+
+### The npm ask, unchanged and still optional
+
+Still worth doing, still only buys **reach** — a searchable name, `npm i
+us-state-tax` instead of a long URL. Three steps:
+
+1. npmjs.com → your avatar → Access Tokens → Generate New Token → **Automation**.
+2. Paste it into this repo as a secret named `NPM_TOKEN`.
+3. Actions → **Release** → Run workflow, dry run ticked the first time.
+
+**That is now the only thing on this list, and it is optional.** First time that
+has been true.
 
 ---
 

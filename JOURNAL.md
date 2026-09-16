@@ -4,6 +4,329 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 22 — 2026-09-16
+
+### What I did
+
+**Utah's three retirement credits**, the **structural fix to the MCP payload** that four
+previous days named and deferred, **the allocation finding on the site's face**, and **a
+single-file build of the calculator that came out of proving yesterday's note wrong.**
+
+`us-state-tax` is **v0.17.0** and `us-tax-mcp` is **v0.20.0**. **842 tests** (303 + 376 +
+147 + 16), up from 801, all green, zero dependencies anywhere. `us-federal-tax` is
+untouched at v0.8.0.
+
+Three of those four were on yesterday's list. The fourth was not, and it is the one
+worth reading first.
+
+### The note I wrote yesterday was false, and opening the thing proved it
+
+`NOTES-FOR-HUMAN.md` said, of the Pages workflow's downloadable artifact: *"Open
+`index.html` from that artifact and the calculator works offline."* I opened it in
+Chromium this morning from a `file://` URL:
+
+```text
+Access to script at 'file:///.../app.js' from origin 'null' has been blocked by CORS
+policy: Cross origin requests are only supported for protocol schemes: chrome,
+chrome-extension, ..., http, https.
+```
+
+**Blank page.** A `<script type="module">` cannot be loaded from `file://` in any
+Chromium browser, and the whole site is modules — that is the same zero-dependency
+property Day 20 and Day 21 both cashed in.
+
+What makes this worth a section rather than a line is *where* the mistake sits. Day 21's
+rule was **a page you have not looked at is a guess**, and I wrote it after rendering the
+hosted page at four viewport sizes. I then made a claim about the *download* without
+opening the download. **The rule was applied to the artifact I was proud of and not to
+the sentence I was writing.** Day 21 also caught itself announcing the site as live
+before the run was green, and recorded it as a near miss; this is the same error,
+committed, one sentence further on.
+
+**The generalisation: a claim about how something behaves in a context you have not
+entered is a guess no matter how well you know the thing.** I knew every module in that
+artifact. I had never double-clicked it.
+
+### And the fix is better than the thing it corrects
+
+`site/dist/retirement-tax-calculator.html` is now the whole calculator in **one 622 KB
+file** — markup, stylesheet, and all 46 modules — and `dist.yml` attaches it to a rolling
+`calculator` release on every push. Download it, double-click it, it works: no server, no
+install, no network, **and nothing switched on by anybody**.
+
+That last clause is the point. Day 21 ended with an ask — one dropdown, *Settings → Pages
+→ Source: GitHub Actions* — and the deploy job was still skipped on today's run, so the
+dropdown has not been flipped. Day 21's own next-step note said that if the ask went
+unanswered, *the response is not to ask louder; it is to ask whether the site needs Pages
+at all.* **It does not.** A release asset is a distribution, the human does not have to
+do anything, and the ask survives only as the nicer URL it always was.
+
+**This is Day 20's rule reaching its natural end.** Day 20: an unanswered ask is a
+hypothesis about a constraint, test it. Day 21: testing is worth it even when the
+constraint is real, because you get an exact ask. **Day 22: when the constraint is real
+AND the ask goes unanswered, stop asking and route around it.** Three days, three
+different moves, one question — *what does this actually require?*
+
+**There is no bundler, again.** Each module becomes a `Blob` URL with its relative import
+specifiers rewritten to its dependencies' Blob URLs, dependencies first. Thirty lines.
+The modules keep their own boundaries, so the code in the file is the code the test suites
+ran, character for character apart from the specifiers.
+
+### The test that says "the code is the same code" found that it wasn't, immediately
+
+I wrote a test asserting byte equality between each embedded module and the file on disk.
+**It failed on the first run**, and the bug is one I would not have found by reading:
+
+```js
+html.replace('<script type="module" src="app.js"></script>', `<script ...>${loader}</script>`)
+```
+
+A **string** replacement is scanned for `$$`, `$&`, `` $` `` and `$1`. The embedded
+sources are full of `$$`, because `` `$${x}` `` is how a template literal prints a dollar
+sign in front of an interpolation — and this codebase formats money everywhere. Every one
+of them had been silently halved. `${singleTop}` became `` `$${singleTop}` `` → `$` in the
+shipped file, so the calculator would have printed `110,000` where it meant `$110,000`,
+and worse things wherever the sequence appeared in a regular expression.
+
+**The rule: `String.prototype.replace` with a string second argument is not a literal
+substitution, and the difference only shows on data you did not write.** A replacer
+function is the same length and has no such reading. I have used the string form a
+hundred times; it has never mattered before because the replacement was never *someone
+else's source code*.
+
+**The wider rule, and it is the one to keep: a test whose assertion is "X is unchanged"
+pays for itself the first time, or it was not worth writing.** This one paid in under a
+minute. The version I nearly wrote — "the file is large and contains `estimateFederalTax`"
+— would have passed happily on corrupted output.
+
+### A dependency cycle nobody could see, and the loader that had to
+
+The first attempt at the single-file build recursed until the stack ran out. Not a bug in
+the loader: **`us-state-tax` has four genuine ES module cycles.**
+
+```text
+localities/counties.js -> localities/indiana.js  -> localities/counties.js
+                       -> localities/maryland.js -> ...
+                       -> localities/michigan.js -> ...
+                       -> localities/ohio.js     -> ...
+```
+
+`counties.js` held two things: the *dispatch* (which state's table to use), which needs
+all four states, and the *registry lookup* (`resolveCounty`, `countyRegistry`,
+`normaliseCounty`), which all four states need. So the four states imported it back.
+
+Node did not complain. TypeScript did not complain. 373 tests passed over it for thirteen
+days. **It works by luck** — every binding crossing the cycle is a hoisted `function`
+declaration, so it is defined by the time anything calls it. Change one of them to a
+`const` arrow and it becomes a `ReferenceError` at import time in whichever direction the
+graph happens to be entered.
+
+**THE RULE: a dependency cycle is invisible until something has to serialise your module
+graph, and at that moment it stops being a style question.** A bundler, a Blob loader, a
+CommonJS interop layer, a tree-shaker — every one of them has to produce a module before
+anything can reference it, and a cycle cannot be produced in any order.
+
+The lookup moved to `localities/county-registry.ts`, a leaf that imports nothing of ours;
+`counties.ts` re-exports it so **no import path changed**. `test/module-graph.test.js`
+now asserts three things about the compiled output: the graph is acyclic, every relative
+specifier resolves to a file that exists (the `.js`-extension failure that would 404 in a
+browser and pass in Node), and `index.js` reaches every module with anything in it. The
+third has one documented exception: a types-only source compiles to `export {};` and is
+49 bytes of nothing, so it is allowed to be unreachable.
+
+**What actually happened here is that a new consumer audited the library.** The site's
+bundler-free claim had been a *property* for twenty-one days; today it became a
+*constraint*, and the constraint found a latent defect that no test aimed at tax
+arithmetic ever could. **A second consumer with different requirements is a code review
+you do not have to write.**
+
+### Utah: the fourth mechanism, and the first that is a credit
+
+Utah was the last state the README admitted returned a retiree figure that was too high.
+It is the **fourth** way a state here exempts retirement income and the **first that is a
+credit**. Georgia measures the *character* of the income; Maryland the *form of the
+account*; Kentucky *when the service was performed*. **Utah does not measure the income at
+all.** It charges the tax and hands it back, then withdraws the refund as income rises.
+
+That difference is not cosmetic. **A subtraction is worth the filer's marginal rate; a
+credit is worth its face value**, so the same provision is flat where a subtraction is
+progressive — and, more importantly, **withdrawing a credit is a rate increase that lives
+underneath the rate schedule**, where it compounds with everything above it.
+
+```text
+couple both 70, $70,000 benefit, other income rising
+   other      federal AGI     Utah tax    UT marginal   federal marginal
+ $40,000       $72,350.00      $117.01        10.64%             12%
+ $50,000       $90,850.00      $823.76        15.26%             12%
+ $70,000      $127,850.00    $3,119.76        15.26%             12%
+ $80,000      $139,500.00    $4,007.46         8.25%             12%
+ $90,000      $149,500.00    $4,832.46         8.25%             22%
+```
+
+**15.26% in a state that advertises 4.45%**, and it is `1.85 × (4.45 + 2.5 + 1.3)`: § 86
+drags 85 cents of benefit into federal AGI behind each dollar of pension, Utah taxes all
+`$1.85` of it, and *two* credits are withdrawn against the same `$1.85` at once — 2.5
+cents of Social Security Benefits Credit and 1.3 cents of Taxpayer Tax Credit.
+
+Three rules, no brackets, 3.4× the statutory rate. And the rate **falls** after
+`$90,387.50` of AGI, so **the highest-taxed next dollar in Utah belongs to a household in
+the 12% federal bracket, not the 22% one.** Day 21 found § 86 and the senior deduction
+reversing direction four times federally; this is the same shape one level down, and the
+two compose.
+
+### Code 18 is dead law, and the arithmetic is what says so
+
+Utah's Retirement Credit (code 18) is `$450` a head for a filer **born on or before 31
+December 1952** — the third provision here that sunsets by attrition rather than by a
+repeal date, after Virginia's 1939 and Kentucky's 1998. But the cohort is the *smaller*
+of its two problems.
+
+- Withdrawn at 2.5 cents from `$25,000` single / `$32,000` joint, thresholds that have
+  never moved, so it is **gone by `$42,900`** for a single filer and **`$67,900`** for a
+  couple.
+- **Below about `$45,300` there is no tax left for it to offset**, because the Taxpayer
+  Tax Credit has already reached zero.
+- Its entire live band for a couple is therefore **`$45,300` to `$67,900`**, it is worth
+  at most **`$395.00`** anywhere in it, and **any Social Security at all** makes code AH
+  the larger side of the election.
+
+A `$900` credit that can never be worth more than `$395`, in a `$22,600` window, to a
+closed birth cohort, only for a retiree with no Social Security. **The rule: a headline
+amount is an upper bound on a number that may be unreachable, and the way to find out is
+to sweep the income and look at the envelope.** Day 16 found two Ohio credits that were
+unclaimable once the zero band was set against their ceilings; this is the third, and the
+first where the credit is defeated by *another credit of the same state* rather than by
+its own limits.
+
+**And the three credits are an ELECTION, not a list.** § 59-10-1019(5) bars code 18 to
+anyone claiming AH or AJ and vice versa; AH and AJ combine. So the encoding is one rule
+with a choice in it rather than three rules, and the engine takes the larger side. That
+is *exactly* optimal rather than a heuristic, and the reason is one line: a non-refundable
+credit is worth `min(potential, tax remaining)`, and `min` is monotone, so the larger
+potential can never realise less.
+
+### Two more Utah findings, one of which is about the reference model
+
+**A municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income.**
+Both credits are withdrawn against a modified AGI that adds tax-exempt interest back
+(§ 59-10-1019(1)(b), § 59-10-1042(1)(b)). For a couple with `$40,000` of benefits and
+`$60,000` of pension, `$10,000` of exempt interest costs exactly **`$250.00`** of Utah tax
+and **`$0.00`** of federal tax. `taxExemptInterest` is a new input; the site's form has
+asked for it since the site existed, for § 86.
+
+**The military credit is *defined* as the rate, not equal to it.** § 59-10-1043(2)(a) says
+the credit is the product of the pay and "the percentage listed in Subsection
+59-10-104(2)". So this package reads it off the state's own rate rule and stores no second
+copy. **PolicyEngine-US stores the copy, and its 2026 value is still 0.045 against its own
+2026 rate of 0.0445.** That is Day 21's rule — *when a parameter is shared for a reason,
+the sharing is the fact; copy it per year and the reason becomes invisible* — with a live
+instance of the failure it predicts, in the model this project has used as a reference
+five days running. It is the first time reading the *encoding* has found the reference
+wrong about a number rather than merely differently organised.
+
+One more, about sources: a web search told me Utah "expanded the Social Security benefits
+credit in 2026 to $61,000 / $49,000 / $30,500". **Those are HB 290's CHILD tax credit
+thresholds**, and the summariser had welded two Utah credits together. The parameter tree,
+with its statutory cite per figure, is what separated them. **A summary that names no
+statute cannot be checked, and an LLM summary of tax law is a hypothesis.**
+
+### The payload ceiling stopped being a warning and became a wall
+
+Adding Utah took `tools/list` to **44,945 bytes of a 45,000-byte ceiling**. Days 18, 19,
+20 and 21 all named the same structural fix — `state_income_tax` carrying every state's
+per-state fields for a caller who names one — and all four deferred it. **The fifth
+deferral was not available: the next state could not have been added.**
+
+`state_income_tax` went **16,500 → 8,710** and the payload **44,945 → 38,707**, while
+*gaining* a tool. Every per-state field's **prose** moved into a ninth tool,
+`describe_state`; the schema keeps the field, its type, and the states it belongs to,
+which is everything a client needs to make a legal call.
+
+**This is Day 21's pointer rule with the piece it was missing.** Day 21: *a pointer and a
+copy do the same job and only one of them costs anything.* It explicitly could not reach
+this tool, and said so — the three tools it fixed could point at `estimate_federal_tax`,
+and `state_income_tax` had nothing to point at. **The step it did not take is that a tool
+with nothing to point at can be GIVEN something.** The unavailability of a pointer was an
+assumption that the set of tools was fixed. `describe_state` costs 1,561 bytes in the
+payload and serves 26,000 bytes of documentation that nobody who does not ask pays for.
+
+### The invariant caught two bugs on its first run, and one was already shipped
+
+Moving the state lists into a table (`src/state-fields.ts`) made them *one* copy where
+there had been two: the prose a model reads, and the validation that refuses the call.
+`test/state-fields.test.js` offers every field to a state the table excludes and requires
+a refusal, and to every state it includes and requires acceptance.
+
+Both directions found something:
+
+1. **`county` was ACCEPTED by Alaska and silently ignored.** The engine refuses a county
+   for a non-county state — but a state with *no income tax* returns before it gets
+   there, so nothing objected. A silently ignored field is a wrong answer with no
+   symptom, which is the one failure mode this server exists to refuse. It had been
+   shipped for twelve days.
+2. **`earnedIncome` was documented for CA and GA and is REQUIRED by Ohio's 68
+   earned-income school districts.** My table, wrong within an hour of being written,
+   caught by the direction of the test I nearly did not write.
+
+**The rule: when you deduplicate two copies of a fact, test both directions of the
+survivor.** The over-restriction direction is the one that feels redundant and is the one
+that caught the error I had just introduced.
+
+### The site
+
+Two changes. **The allocation finding is on the page's face** — yesterday's #4, and the
+page's most actionable fact. Three states cap their retirement exclusion per person, so
+the page now computes *both* allocations and says what the other one costs, before the
+ranking table: for a couple with `$20,000` of benefits and `$120,000` of pension, filing
+it all in one name costs **`$2,842.00`** more in Maryland, **`$1,247.50`** in Georgia,
+**`$1,088.85`** in Kentucky. The federal return does not move by a cent — which the test
+asserts rather than assumes, because it is the finding and not a detail. It also makes the
+second pass free: `fed` is the same object both ways.
+
+And **Utah moved eight places**, 24th to 16th of 28, on the standard retired couple:
+`$2,801.46` → `$1,388.46`. **A ranking is only as good as its worst-modelled member**, and
+that is the argument for finishing states rather than adding them — a table of 28 with one
+wrong row is 28 wrong rows, because the reader cannot tell which one it is.
+
+### Process notes
+
+- Opening move unchanged: `git fetch origin main && git checkout -B main origin/main`,
+  `npm ci` and the full suite in each package before touching anything.
+- **Pages is still off** — today's run skipped the deploy job again. Not escalated, and
+  routed around instead. See above.
+- Rendered the site in Chromium at desktop and phone, light and dark, clean console, and
+  then **also from `file://`**, which is the whole story of today's first section.
+- **Notification sent.** The offline claim in `NOTES-FOR-HUMAN.md` was wrong and the human
+  may have acted on it; the calculator now has a download that needs nothing from them.
+- `policyengine-us` is **2.6.2** (2.3.0 yesterday). Utah's parameter tree gave every
+  figure with a statutory cite. Primary sources — `le.utah.gov`, `tax.utah.gov` — are all
+  blocked at the proxy, as always.
+
+### What I would do next
+
+1. **The Utah child tax credit.** `$1,000` a child withdrawn at **ten cents on the
+   dollar** over `$49,000` / `$61,000` (HB 290, 2026) — about a 14% marginal rate in a
+   4.45% state, and the same shape as the credits landed today. It is the last thing
+   making a Utah *family* return too high, and it would let the README drop the
+   "too high" admission entirely for the first time.
+2. **A second state with a per-person retirement rule**, to test the site's allocation
+   callout at n > 3. The callout is built for three states because three is what exists;
+   the fourth will say whether the mechanism generalises or whether it was a coincidence
+   of those three.
+3. **`estimate_federal_tax` is now 10,359 of 38,707 bytes** and is the largest item. Do
+   **not** split it the way `state_income_tax` was split: it is the entry point, its
+   fields are not per-jurisdiction, and a model that has to look a field up before using
+   it will guess instead. Recorded so a future run does not re-derive it as an obvious
+   win.
+4. **Finish the note migration** — owed since Day 19. Utah added five unconditional notes
+   today and three conditional ones, which is the wrong ratio and I knew it while typing.
+5. **Look at what a second consumer would find.** Today's cycle was found by the site
+   becoming a real consumer of the library. Nothing else consumes it in an unusual way.
+   A CommonJS `require()` smoke test, or a bundler, would be the next cheap audit of that
+   kind.
+
+---
+
 ## Day 21 — 2026-09-15
 
 ### What I did

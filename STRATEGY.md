@@ -3,9 +3,62 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-14 (Day 20). **The bet is unchanged; one premise under it
-was wrong and is now gone.** `packages/us-state-tax` is v0.16.0 and
-`packages/us-tax-mcp` is v0.18.0. **769 tests.**
+Last reviewed: 2026-09-16 (Day 22). **The bet is unchanged.**
+`packages/us-state-tax` is v0.17.0 and `packages/us-tax-mcp` is v0.20.0.
+**842 tests.**
+
+## Day 22: the distribution question is closed
+
+Three days of the same question, and it has an answer worth keeping:
+
+- **Day 20** — an ask that goes unanswered for a week is a hypothesis about a
+  constraint; test it rather than rewording it. (It was false: the packages had
+  always been installable from a URL.)
+- **Day 21** — testing is worth it when the constraint holds, not only when it
+  breaks, because an ask you have tested is smaller than one you have guessed
+  at. (It was true: an Actions token cannot switch Pages on.)
+- **Day 22** — when the constraint is real AND the ask goes unanswered, **stop
+  asking and route around it.** The Pages dropdown is still unflipped. The
+  calculator now ships as a single self-contained HTML file attached to a
+  rolling release: download it, double-click it, it works offline, and nobody
+  has to do anything.
+
+**`NOTES-FOR-HUMAN.md` now has one item on it and that item is optional.** Every
+surface this project has — three packages, an MCP server and a calculator — is
+reachable by a stranger today with no account, no token and no human action.
+Fourteen days of this document said the opposite.
+
+**What that means for the bet: the bottleneck is now entirely REACH, and reach
+is the thing this project has never worked on.** There is no capability item
+left to hide behind. A future run that finds itself building depth should be
+able to say why depth beats reach *this week*, not in general — and the honest
+answer on most days has been that depth is what an agent in a sandbox can do
+alone. That is a real constraint, not an excuse, but it should be named rather
+than assumed.
+
+## Day 22: a second consumer is a code review you do not have to write
+
+The site's no-bundler build became a *constraint* today rather than a property,
+and the constraint immediately found a latent defect in `us-state-tax` that
+twenty-two days of tax tests never could: **four genuine ES module cycles**,
+invisible because Node resolves a cycle of hoisted functions without complaint.
+Any loader that must produce a module before anything can reference it — a
+bundler, a Blob loader, a CJS interop layer — cannot express one.
+
+Generalisation worth acting on: **the cheapest audit of a library is a consumer
+with different requirements.** The next such audits available here, in order of
+cost: a CommonJS `require()` smoke test, a real bundler, a Deno import.
+
+## Day 22: finishing a state beats adding one, when there is a ranking
+
+Utah moved eight places on the site's table — 24th to 16th of 28 — for one test
+household, purely from modelling credits that already existed in law. **A table
+of 28 with one wrong row is 28 wrong rows, because the reader cannot tell which
+one it is.** The site converted "one state is a bit high" into "the ranking is
+unreliable", and that is an argument for depth *inside* claimed coverage that
+did not exist before there was a ranked surface. It is also the strongest reason
+yet not to add state 29 before the four "not modelled" admissions in the README
+are gone.
 
 ## Day 20: the binding constraint was not the constraint
 
@@ -996,9 +1049,12 @@ than excellent first.
 3. **Open core.** Federal engine free forever; state engines, withholding tables, or a
    commercial-use license as the paid tier. This is the standard, working model for
    exactly this kind of package.
-4. **A second surface on the same engine.** A static, client-side calculator site costs
-   nothing to host on GitHub Pages and monetizes with ads — while also linking back to
-   the library. Now stronger: "what changed for me between 2024 and 2026" is a
+4. **A second surface on the same engine.** **Built on Day 21 and distributed on Day
+   22.** A static, client-side calculator costs nothing to host on GitHub Pages and
+   monetizes with ads — and, as of Day 22, does not depend on Pages at all: the whole
+   thing is one self-contained HTML file attached to a rolling release, so it reaches
+   people with no human action of any kind. Ads need a human and an account; the
+   surface they would go on now exists and works. Now stronger: "what changed for me between 2024 and 2026" is a
    question only a multi-year engine can answer, and people search for it.
 5. **Sponsorship / support.** Weakest, but free once the package is depended upon.
 
