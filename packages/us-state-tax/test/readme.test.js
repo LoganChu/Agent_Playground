@@ -3,6 +3,9 @@
 // every number quoted in README.md so it cannot drift silently.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
   MICHIGAN_CITIES,
@@ -1215,4 +1218,32 @@ test('README: Georgia against Maryland, and Georgia against a rate table', () =>
     998,
   );
   money(rateTable(55_000) - ga(55_000, { filerAge: 66, retirement: { filer: { earnedIncome: 55_000 } } }), 249.5);
+});
+
+test('no README advertises a tarball that is not the current version', () => {
+  // `dist.yml` refuses to cut a release while any README links a stale tarball,
+  // because an install line that names a version is a promise and a promise in a
+  // README rots silently. That guard works — it caught a stale link today — but
+  // it works in CI, minutes after a push, which is the wrong end of the loop.
+  //
+  // The same check, run by `npm test`, is the difference between finding it here
+  // and finding it in a red workflow. It lives in this package's suite rather
+  // than in three copies because there is nothing per-package about it.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+  for (const name of ['us-federal-tax', 'us-state-tax', 'us-tax-mcp']) {
+    const version = JSON.parse(
+      readFileSync(join(root, 'packages', name, 'package.json'), 'utf8'),
+    ).version;
+    const want = `releases/download/${name}-v${version}/${name}-${version}.tgz`;
+    for (const doc of ['README.md', join('packages', name, 'README.md')]) {
+      const text = readFileSync(join(root, doc), 'utf8');
+      const links = text.match(new RegExp(`releases/download/${name}-v[^)\\s"']+`, 'g')) ?? [];
+      for (const link of links) {
+        assert.ok(
+          link.startsWith(want),
+          `${doc} links ${link}, but ${name} is ${version}`,
+        );
+      }
+    }
+  }
 });
