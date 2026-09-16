@@ -486,6 +486,7 @@ test('every tool answers its own name with a text block and structured content',
       federalTaxableIncome: 84_250,
       federalDeduction: 15_750,
     },
+    describe_state: { state: 'OH', year: 2026 },
     get_tax_parameters: { year: 2026 },
     list_supported_years: {},
   };

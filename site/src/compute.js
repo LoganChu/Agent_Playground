@@ -286,6 +286,10 @@ export function forState(state, input, fed) {
     filerAge: input.filerAge || undefined,
     spouseAge: input.joint ? input.spouseAge || undefined : undefined,
     taxableSocialSecurity: fed.socialSecurity?.taxableBenefits ?? 0,
+    // Utah adds the exempt coupon back into the income its retirement credits
+    // are withdrawn against, so a municipal bond is taxed at 2.5% there while
+    // appearing on no line of Utah income. Every other state ignores this.
+    taxExemptInterest: input.taxExemptInterest,
     retirement: retirementSplit(input),
     earnedIncome: input.wages,
   };

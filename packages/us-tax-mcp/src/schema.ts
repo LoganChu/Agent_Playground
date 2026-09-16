@@ -262,7 +262,7 @@ function firstSentence(text: string): string {
  * **including the descriptions nested inside an array's `items`**.
  *
  * The recursion is the whole point and it was missing for three releases. Four of
- * the eight tools carry this schema and only one carries it in full, so anything
+ * the nine tools carry this schema and only one carries it in full, so anything
  * the trimming does not reach is paid for four times in every session. The single
  * fattest object in the payload is `qualifiedBusinesses`, whose weight is entirely
  * in its item schema — which is exactly what a surface-only trim never touched.
@@ -299,7 +299,7 @@ export function terseProperties(properties: Record<string, JsonSchema>): Record<
  * only what a client needs to validate a call: the type, the enum, the minimum,
  * and the nested item schema.
  *
- * Three of the eight tools have been telling a model, in their own tool
+ * Three of the nine tools have been telling a model, in their own tool
  * description, that "household fields are the same as estimate_federal_tax,
  * which documents each one in full" — and then paying to describe all
  * thirty-seven of them again anyway. **The pointer and the copy do the same

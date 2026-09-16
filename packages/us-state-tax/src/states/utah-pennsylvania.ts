@@ -10,6 +10,10 @@
  *   because the Taxpayer Tax Credit phases out at 1.3 cents on the dollar
  *   underneath the tax. The band runs from about $18,000 of income to about
  *   $36,000 — which is to say, across most of the state's lower-paid workers.
+ *   A **retiree** faces **15.26%**, because a second credit is withdrawn at 2.5
+ *   cents over the same income and § 86 puts `$1.85` of taxable income behind
+ *   each dollar they draw: `1.85 × (4.45 + 2.5 + 1.3)`. Three rules, no
+ *   brackets, and 3.4 times the rate the state advertises.
  * - **Pennsylvania** charges 3.07%, and across the Special Tax Forgiveness band a
  *   single filer faces about **11%** and a single parent of two about **34%** —
  *   because forgiveness falls by ten percentage points of the *whole* tax for each
@@ -21,8 +25,8 @@
  * whole computation one dollar higher, which is what this package's
  * `marginalRate` does.
  */
-import type { StateIncomeTaxDefinition } from '../definition.js';
-import { byStatus } from './helpers.js';
+import type { ConditionalNote, StateIncomeTaxDefinition } from '../definition.js';
+import { byStatus, whenAgedAtLeast, whenMilitaryRetirement } from './helpers.js';
 import type { Citation } from '../types.js';
 
 const UT_CITATIONS: readonly Citation[] = [
@@ -46,14 +50,57 @@ const UT_CITATIONS: readonly Citation[] = [
     title: 'Utah State Tax Commission — Form TC-40 instructions, Taxpayer Tax Credit',
     url: 'https://incometax.utah.gov/credits/taxpayer-tax-credit',
   },
+  {
+    title: 'Utah Code § 59-10-1019 — Retirement Credit (code 18)',
+    url: 'https://le.utah.gov/xcode/Title59/Chapter10/59-10-S1019.html',
+  },
+  {
+    title: 'Utah Code § 59-10-1042 — Social Security Benefits Credit (code AH)',
+    url: 'https://le.utah.gov/xcode/Title59/Chapter10/59-10-S1042.html',
+  },
+  {
+    title: 'Utah Code § 59-10-1043 — Military Retirement Credit (code AJ)',
+    url: 'https://le.utah.gov/xcode/Title59/Chapter10/59-10-S1043.html',
+  },
+  {
+    title: 'Utah SB 71 (2025) — Social Security Tax Revisions, thresholds raised 20%',
+    url: 'https://le.utah.gov/~2025/bills/static/SB0071.html',
+  },
+  {
+    title: 'Utah State Tax Commission — Retirement Credit (code 18)',
+    url: 'https://incometax.utah.gov/credits/retirement-credit',
+  },
+  {
+    title: 'Utah State Tax Commission — Social Security Benefits Credit (code AH)',
+    url: 'https://incometax.utah.gov/credits/ss-benefits',
+  },
 ];
 
 const UT_NOTES: readonly string[] = [
   "Utah's statutory rate is not its marginal rate for most working filers. The Taxpayer Tax Credit is 6% of the federal standard or itemized deduction plus $2,111 per dependent, reduced by 1.3 cents for each dollar of Utah taxable income above $18,213 ($36,426 joint). Inside that band the true marginal rate is the statutory rate plus 1.3 points — 5.75% in 2026 against a headline 4.45%.",
   'The credit depends on the FEDERAL deduction, so Utah is a federal-AGI state whose credit is nonetheless sensitive to changes below AGI. The OBBBA standard deduction increase raised the Utah credit by 6% of the increase — about $69 for a single filer in 2025 — cutting Utah tax with no Utah legislation.',
   'Utah cut its rate twice in two years: 4.55% for 2024, 4.5% for 2025 (HB 106), and 4.45% for 2026 (SB 60).',
-  'Not modelled: the Utah credits for Social Security benefits, retirement income, at-home parents, and 529 contributions, and the Utah child tax credit. A retiree or a family return computed here will be too high.',
+  'Not modelled: the Utah credits for at-home parents and 529 contributions, and the Utah child tax credit — whose thresholds HB 290 (2026) raised to $49,000 single / $61,000 joint / $30,500 separate and which is withdrawn at TEN cents on the dollar, so a Utah family inside that band faces a marginal rate around 14% against a headline 4.45%. A family return computed here will be too high; a retiree return will not, as of v0.17.0.',
   "Utah's earned income credit is 20% of the federal credit and is NON-REFUNDABLE — Utah Code § 59-10-1044 sits in Part 10, the Nonrefundable Tax Credit Act. It is the only state credit in this package that is a share of the federal credit and cannot be paid out, and the difference is the whole point of the credit for the filers it is aimed at: a Utah single parent whose Taxpayer Tax Credit already wipes out their tax receives nothing from it.",
+  "Utah taxes Social Security and then hands the tax back. The Social Security Benefits Credit (code AH, § 59-10-1042) is the state's own rate applied to the part of the benefit § 86 made taxable, so below $90,000 of modified AGI ($54,000 single, $45,000 separate) the benefit costs a Utah retiree nothing — and above it the credit is withdrawn at 2.5 cents on the dollar. SB 71 (2025) raised those thresholds 20% from $75,000/$45,000/$37,500 and they are NOT indexed.",
+  'A retiree may claim only ONE side of Utah\'s retirement credits: the Retirement Credit (code 18) on one side, or the Social Security Benefits Credit (code AH) together with the Military Retirement Credit (code AJ) on the other — § 59-10-1019(5). This engine computes both sides and takes the larger, which is always optimal because a non-refundable credit is worth min(itself, tax remaining) and min is monotone. The result names the side that was taken.',
+  "Utah's real marginal rate on a retiree reaches 15.26% — 3.4 times the 4.45% statutory rate — and it is three rules compounding, none of which is a bracket. A dollar of pension drags 85 cents of Social Security into federal AGI under § 86; Utah taxes all $1.85 at 4.45%, withdraws 2.5 cents of AH per dollar of it and 1.3 cents of Taxpayer Tax Credit per dollar of it. 1.85 x 8.25%. For a couple with a $70,000 benefit the rate runs 10.64% -> 15.26% -> 8.25% as income rises, peaking at $90,387.50 of federal AGI and FALLING after it, so the highest-taxed next dollar in Utah belongs to a household in the 12% federal bracket.",
+  'Tax-exempt interest is added back for both credits (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income. For a couple with $40,000 of benefits and $60,000 of pension, $10,000 of exempt interest costs exactly $250.00 of Utah tax and $0.00 of federal tax. Pass it as `taxExemptInterest`; leaving it out understates a bondholding retiree.',
+];
+
+const UT_RETIREMENT_NOTES: readonly ConditionalNote[] = [
+  {
+    text: "The Retirement Credit (code 18) is all but dead law and the arithmetic says so. Its $450 a head is withdrawn at 2.5 cents against thresholds of $25,000 single and $32,000 joint that have not moved since the credit was written, so it is gone by $42,900 of modified AGI for a single filer and $67,900 for a couple — and below about $45,300 the Taxpayer Tax Credit has already reduced the tax to zero, leaving nothing for it to offset. Its whole live band for a couple is $45,300 to $67,900 of modified AGI, where it is worth at most $395.00, and only for a household with no Social Security at all, because any benefit makes code AH the larger side. Utah's own guidance says as much.",
+    relevantWhen: whenAgedAtLeast(70),
+  },
+  {
+    text: 'Code 18 also has a closed birth cohort: only a filer born on or before 31 December 1952 qualifies, a date that has never moved, so the eligible population shrinks every year and the credit sunsets by attrition rather than by repeal. It is the third such provision in this package after Virginia\'s 1939 age deduction and Kentucky\'s 1998 service cutoff. In 2026 it reaches a couple aged 74 and over: at $50,000 of modified AGI a couple born in 1951 pays $0.00 and the same couple born in 1953 pays $271.46.',
+    relevantWhen: whenAgedAtLeast(70),
+  },
+  {
+    text: "The Military Retirement Credit (code AJ, § 59-10-1043) is the state's own rate applied to military retired pay included in AGI, with NO phase-out of any kind — the only one of the three a high-income Utah retiree keeps. Because Utah has no deduction of its own, the credit exactly cancels the tax on that pay: $45,000 of retired pay is worth $2,002.50 of credit against $2,002.50 of tax. It may be claimed alongside code AH and not alongside code 18. The credit is DEFINED as the rate — § 59-10-1043(2)(a) cross-references § 59-10-104(2) — so this package reads it off the state's rate rather than storing a second copy; PolicyEngine-US stores the copy and its 2026 value is still 4.5% against its own 2026 rate of 4.45%, which overstates the credit on $45,000 of retired pay by $2.25.",
+    relevantWhen: whenMilitaryRetirement,
+  },
 ];
 
 function utah(year: number): StateIncomeTaxDefinition | undefined {
@@ -86,13 +133,49 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
         headOfHousehold: 27320,
       }),
     },
+    exclusiveRetirementCredits: {
+      why:
+        'Utah Code § 59-10-1019(5): a filer may not claim the Retirement Credit (code 18) ' +
+        'if the filer or the filer\'s spouse claims the Social Security Benefits Credit ' +
+        '(code AH) or the Military Retirement Credit (code AJ), and may not claim either ' +
+        'of those if the filer claims the Retirement Credit. AH and AJ may be claimed ' +
+        'together. This engine takes whichever side is worth more.',
+      retirement: {
+        name: 'Utah retirement credit (code 18)',
+        perPerson: 450,
+        bornOnOrBefore: 1952,
+        phaseOutRate: 0.025,
+        phaseOutThreshold: byStatus({
+          single: 25_000,
+          joint: 32_000,
+          separate: 16_000,
+          headOfHousehold: 32_000,
+        }),
+      },
+      socialSecurity: {
+        name: 'Utah Social Security benefits credit (code AH)',
+        phaseOutRate: 0.025,
+        phaseOutThreshold: byStatus({
+          single: 54_000,
+          joint: 90_000,
+          separate: 45_000,
+          headOfHousehold: 90_000,
+        }),
+      },
+      militaryRetirement: { name: 'Utah military retirement credit (code AJ)' },
+    },
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the $2,111 per-dependent exemption amount and the $18,213/$36,426/$27,320 phase-out thresholds are the published 2025 figures carried forward. Utah indexes them annually and had not published the 2026 amounts when this was written. The 4.45% rate is set by SB 60 (2026) and is correct.',
+            'PROVISIONAL: the $2,111 per-dependent exemption amount and the $18,213/$36,426/$27,320 phase-out thresholds are the published 2025 figures carried forward. Utah indexes them annually and had not published the 2026 amounts when this was written. The 4.45% rate is set by SB 60 (2026) and is correct. The retirement-credit figures are NOT provisional and are not carried forward for the same reason: $450, 1952, $25,000/$32,000/$16,000 and $54,000/$90,000/$45,000 are all set in statute with no indexing mechanism, so 2026 equals 2025 because the law says so and not because this package guessed.',
             ...UT_NOTES,
           ]
         : UT_NOTES,
+    // Three notes about a credit almost nobody can claim and one about military
+    // pay, on a state where most returns have neither. Code 18's two are gated
+    // on age rather than on a field, because their whole subject is who is too
+    // young for it.
+    conditionalNotes: UT_RETIREMENT_NOTES,
     citations: UT_CITATIONS,
   };
 }

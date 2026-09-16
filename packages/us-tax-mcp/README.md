@@ -1,6 +1,6 @@
 # us-tax-mcp
 
-**US federal, state and local tax as an MCP server.** Eight tools that compute income tax,
+**US federal, state and local tax as an MCP server.** Nine tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
 **state income tax for 28 states including New York, New Jersey, Massachusetts, Maryland,
@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.19.0/us-tax-mcp-0.19.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.20.0/us-tax-mcp-0.20.0.tgz"
       ]
     }
   }
@@ -523,6 +523,7 @@ adjustment as "up to `$259`"; `$257.50` is the most its own worksheet can produc
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
 | `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 28 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `describe_state` | "What does Ohio need?" "What does Utah do that a rate table doesn't?" The fields `state_income_tax` reads for ONE state — required ones first, each with the form line it comes off and what its absence costs — plus that state's conformity base, its own notes and its statutes. Call it before computing a state you have not computed before: an omitted per-state field is usually a wrong answer rather than a missing one, because the engine falls back to a federal figure the state does not use. It is also where the per-state documentation lives, so that `state_income_tax`'s schema costs every session one state's worth of context rather than twenty-eight. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a

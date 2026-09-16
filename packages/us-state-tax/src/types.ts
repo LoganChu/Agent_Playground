@@ -662,6 +662,25 @@ export interface StateIncomeTaxInput {
    */
   readonly taxableSocialSecurity?: number;
   /**
+   * Tax-exempt interest — Form 1040 line 2a, the municipal bond coupon that
+   * never entered federal AGI.
+   *
+   * Utah is the state in this package that needs it, and it needs it for a
+   * reason worth stating: its retirement credits are tested on a **modified**
+   * adjusted gross income that adds this figure back (Utah Code
+   * § 59-10-1019(1)(b), § 59-10-1042(1)(b)). So a Utah retiree holding
+   * municipal bonds is tested above a Utah retiree holding nothing, on income
+   * that appears on no line of either state or federal taxable income.
+   *
+   * This is the same shape as § 86 at the federal level, where the exempt
+   * coupon is added back to decide how much of a Social Security benefit is
+   * taxable — and the two compose, so one dollar of exempt interest can cost a
+   * Utah retiree federal tax on `$0.85` of benefit *and* `$0.025` of Utah
+   * credit. A bond that is tax-free on its own line is not tax-free on the
+   * return.
+   */
+  readonly taxExemptInterest?: number;
+  /**
    * Retirement income **split between the two spouses**, for the states whose
    * retirement subtractions are per person rather than per return.
    *

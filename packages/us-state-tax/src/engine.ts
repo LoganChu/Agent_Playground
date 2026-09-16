@@ -269,6 +269,87 @@ function retirementIncomeCredit(
   return stepAmount(rule.steps, retirement);
 }
 
+/** Military retired pay on the return, both spouses. */
+function militaryRetirementPay(input: StateIncomeTaxInput): number {
+  const split = input.retirement;
+  if (!split) return 0;
+  const filers = filerCount(input.filingStatus);
+  const filer = nonNegative(split.filer?.militaryRetirement, 'retirement.filer.militaryRetirement');
+  const spouse =
+    filers === 2
+      ? nonNegative(split.spouse?.militaryRetirement, 'retirement.spouse.militaryRetirement')
+      : 0;
+  return filer + spouse;
+}
+
+/**
+ * Utah's election between the Retirement Credit and the pair {Social Security
+ * Benefits Credit, Military Retirement Credit} — Utah Code §§ 59-10-1019, 1042
+ * and 1043.
+ *
+ * Returns the whole of the chosen side, named, so a result says which election
+ * was made and not merely what it was worth. A filer who qualifies for nothing
+ * gets the Social Security credit's name with a zero, because that is the side
+ * the form defaults to.
+ *
+ * `modifiedAgi` is Utah's, not this package's `stateModifiedAdjustedGrossIncome`
+ * — TC-40 line 6 (federal AGI plus Utah additions) **plus tax-exempt interest**,
+ * and notably *before* Utah's own subtractions. Passing the state AGI instead
+ * would let a caller's `subtractions` buy back a credit the statute withdraws.
+ */
+function exclusiveRetirementCredits(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  modifiedAgi: number,
+): { name: string; amount: number } | undefined {
+  const rule = def.exclusiveRetirementCredits;
+  if (!rule) return undefined;
+  // Both credits withdrawn here are defined as the state's own rate applied to a
+  // class of income, by cross-reference rather than by a number of their own —
+  // § 59-10-1043(2)(a) says "the percentage listed in Subsection 59-10-104(2)".
+  // So the rate is read off the state's rate rule: a year that moves the rate
+  // moves these credits, and there is no second copy to fall out of step.
+  const rate = def.rate.kind === 'flat' ? def.rate.rate : 0;
+  const status = input.filingStatus;
+  const filers = filerCount(status);
+
+  // Code 18. The birth-year test is on the calendar year of birth, so it turns
+  // over on 1 January rather than on a birthday.
+  const qualifyingAge = def.year - rule.retirement.bornOnOrBefore;
+  let heads = 0;
+  if (input.filerAge !== undefined && input.filerAge >= qualifyingAge) heads += 1;
+  if (filers === 2 && input.spouseAge !== undefined && input.spouseAge >= qualifyingAge) heads += 1;
+  const retirementExcess = Math.max(0, modifiedAgi - rule.retirement.phaseOutThreshold[status]);
+  const retirementCredit = Math.max(
+    0,
+    rule.retirement.perPerson * heads - rule.retirement.phaseOutRate * retirementExcess,
+  );
+
+  // Code AH. The base is the part of the benefit § 86 put into federal AGI, not
+  // the benefit received — so a retiree whose benefit is wholly untaxed federally
+  // has no credit to claim and needs none.
+  const taxedBenefit = nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity') * rate;
+  const ssExcess = Math.max(0, modifiedAgi - rule.socialSecurity.phaseOutThreshold[status]);
+  const socialSecurityCredit = Math.max(
+    0,
+    taxedBenefit - rule.socialSecurity.phaseOutRate * ssExcess,
+  );
+
+  // Code AJ. No phase-out at all: the only one of the three a high-income Utah
+  // retiree can still claim.
+  const militaryCredit = militaryRetirementPay(input) * rate;
+
+  const pair = socialSecurityCredit + militaryCredit;
+  if (retirementCredit > pair) {
+    return { name: rule.retirement.name, amount: retirementCredit };
+  }
+  if (militaryCredit > 0 && socialSecurityCredit > 0) {
+    return { name: `${rule.socialSecurity.name} and ${rule.militaryRetirement.name}`, amount: pair };
+  }
+  if (militaryCredit > 0) return { name: rule.militaryRetirement.name, amount: militaryCredit };
+  return { name: rule.socialSecurity.name, amount: socialSecurityCredit };
+}
+
 /**
  * Whether this return takes a state earned income credit's *childless* schedule.
  *
@@ -1534,6 +1615,15 @@ function computeOnce(
       amount: taxpayerCredit(def, input, taxableIncome),
       refundable: false,
     });
+  }
+  if (def.exclusiveRetirementCredits) {
+    // Utah's modified AGI: TC-40 line 6 — federal AGI plus Utah additions —
+    // plus tax-exempt interest, and before every Utah subtraction. It is a
+    // different figure from `stateAgi` on purpose; see the function.
+    const utahModifiedAgi =
+      base + additions + nonNegative(input.taxExemptInterest, 'taxExemptInterest');
+    const chosen = exclusiveRetirementCredits(def, input, utahModifiedAgi);
+    if (chosen) credits.push({ ...chosen, refundable: false });
   }
   const household = householdCredit(def, input, stateAgi);
   if (def.householdCredit) {

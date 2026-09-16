@@ -303,61 +303,61 @@ test('tools/list stays within a sane context budget', () => {
     })),
   );
   assert.ok(
-    payload.length < 45_000,
+    payload.length < 40_000,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
 
-  // THE THIRTEENTH PASS CUT THE CEILING BY 7,000 BYTES — 52,000 to 45,000, at
-  // 43,243 — while ADDING three § 86 fields. Twelve passes before it bought a
-  // total of 1,000. It is not a better compression; it is the first one that
-  // stopped compressing.
+  // THE FOURTEENTH PASS CUT THE CEILING AGAIN — 45,000 to 40,000, at 38,707 —
+  // and it did the structural fix Day 18, 19, 20 and 21 all named and all
+  // deferred. It was not deferrable a fifth time: Utah's three retirement
+  // credits took the payload to 44,945 of 45,000, and the ceiling stopped being
+  // a warning and became a wall. The next state could not have been added.
   //
-  // Every pass from the first to the twelfth asked "what in this payload is
-  // longer than it needs to be". The answer this time was that nothing was too
-  // long: 14,771 bytes of it were a SECOND AND THIRD COPY of a document the
-  // client already had. `compare_tax_years`, `effective_marginal_rate` and
-  // `quarterly_estimated_payments` take the same thirty-seven household fields
-  // as `estimate_federal_tax`. Their tool descriptions have said so in words
-  // for several releases — "household fields are the same as
-  // estimate_federal_tax, which documents each one in full" — and then
-  // described all thirty-seven again anyway.
+  // `state_income_tax` went from 16,500 bytes to 8,710 by moving every
+  // per-state field's PROSE into a second tool, `describe_state`, and keeping
+  // in the schema only what a client needs to make a legal call: the field, its
+  // type, and the states it belongs to. A caller who names Ohio now reads
+  // Ohio's fields; a caller who names nothing reads none of them.
   //
-  // THE RULE: A POINTER AND A COPY DO THE SAME JOB, AND ONLY ONE OF THEM COSTS
-  // ANYTHING. When a schema already tells the reader where the real
-  // documentation lives, the duplicate beside it is not documentation, it is
-  // the cost of not believing your own cross-reference. Day 19's rule was that
-  // multiplicity lives in properties repeated across tools and Day 20's was to
-  // look for the repeated constant before the repeated sentence; both were
-  // about making a repeated thing smaller. This is the step neither took:
-  // ask whether the repetition has to exist at all.
+  // THIS IS DAY 21'S POINTER RULE WITH THE MISSING PIECE SUPPLIED. That rule —
+  // a pointer and a copy do the same job, and only one costs anything — could
+  // not reach this tool, because the three tools it fixed could point at
+  // `estimate_federal_tax` and `state_income_tax` had nothing to point at. The
+  // step it did not take is that A TOOL WITH NOTHING TO POINT AT CAN BE GIVEN
+  // SOMETHING: the pointer is only unavailable if you assume the set of tools
+  // is fixed. `describe_state` costs 1,561 bytes in the payload and carries
+  // 26,000 bytes of documentation that nobody who does not ask for it pays for.
   //
-  // What is kept is everything a client needs to make a legal call — type,
-  // enum, nested item shape — and what is dropped is only prose that exists in
-  // full one tool away. The test above pins that: all-or-nothing per tool, the
-  // cross-reference named in the tool description, and every shared field
-  // documented in full on the primary tool, since three tools now have nothing
-  // else to offer.
+  // What that trades away, and the tests that hold it: a field's state list now
+  // appears in a table (`src/state-fields.ts`) rather than twice, once in prose
+  // a model reads and once in the validation that refuses the call. Those two
+  // copies had already drifted — `county` was ACCEPTED by Alaska and silently
+  // ignored, because a state with no income tax has no county tax to be wrong
+  // about and nothing objected. `test/state-fields.test.js` now offers every
+  // field to a state the table excludes and requires the refusal, and offers it
+  // to every state the table includes and requires acceptance. The second
+  // direction caught a second error on its first run: `earnedIncome` was
+  // documented for CA and GA and is REQUIRED by Ohio's 68 earned-income school
+  // districts.
   //
-  // Where the remaining 43,243 bytes are, and what the next pass has to do:
+  // Where the remaining 38,707 bytes are:
   //
-  //   estimate_federal_tax  10,359   the primary schema — now load-bearing for
-  //                                  four tools, so it must NOT be trimmed
-  //   state_income_tax      15,380   twelve states' per-state fields for a
-  //                                  caller who uses one. 36% of the payload
-  //                                  and the largest single item by far.
+  //   estimate_federal_tax  10,359   the primary schema — load-bearing for four
+  //                                  tools, so it must NOT be trimmed
+  //   state_income_tax       8,710   was 16,500; now the shared fields plus one
+  //                                  pointer per per-state field
   //   paycheck_withholding   4,634   its own field set; shares nothing
-  //   the three reference tools     10,728 combined, down from 21,916
+  //   the three reference tools     11,310 combined
+  //   describe_state         1,561   the pointer's target
   //
-  // THE STRUCTURAL FIX DAY 18, 19 AND 20 ALL NAMED IS STILL OWED, and it is now
-  // the only thing left worth doing: `state_income_tax` carries `retirement`
-  // (2,149 bytes), `county`, `schoolDistrict`, `city`, `workCity`,
-  // `cityIncome`, `businessIncome`, `qualifyingWages`, three stateDefined base
-  // fields and more, and a caller names exactly one state. The pointer rule
-  // does not reach it — there is no second tool to point at — so it needs a
-  // different move: either a `describe_state` lookup, or per-state fields
-  // folded into one free-form object the tool validates at runtime against the
-  // state actually given. This pass bought 7 KB of room to do it properly, not
-  // a reprieve from it.
+  // There is no obvious fifteenth pass, and that is the honest report. Two
+  // structural moves have now been made and each was worth more than every
+  // compression before it; what is left is four schemas that describe fields a
+  // caller genuinely has to choose between. The next real saving would come
+  // from splitting `estimate_federal_tax` the same way, and it should NOT be
+  // done on the strength of this one: that tool is the entry point, its fields
+  // are not per-jurisdiction, and a model that has to look up a field before
+  // using it will guess instead.
   //
   // The twelfth pass's finding stands and should not be re-derived: `"minimum":0`
   // appeared 164 times for 1,968 bytes, restating what the field names already

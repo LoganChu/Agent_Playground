@@ -1521,6 +1521,75 @@ export interface CompensationExclusionRule {
 }
 
 /**
+ * A set of retirement credits a filer may claim **only one side of** — Utah's
+ * Retirement Credit (code 18, Utah Code § 59-10-1019), Social Security Benefits
+ * Credit (code AH, § 59-10-1042) and Military Retirement Credit (code AJ,
+ * § 59-10-1043).
+ *
+ * This is the fourth way a state in this package can exempt retirement income
+ * and the only one that is a **credit**. The first three — Georgia's, Maryland's
+ * and Kentucky's — are subtractions, and a subtraction is worth the filer's
+ * marginal rate. A credit is worth its face value, which makes the same
+ * provision regressive where a subtraction is progressive and is the whole
+ * reason the shape matters rather than the number.
+ *
+ * It is also the only one in this package that is an **election**. § 59-10-1019(5)
+ * bars the retirement credit to a filer who claims either of the other two, and
+ * bars the other two to a filer who claims it; AH and AJ may be claimed
+ * together. So the rule is not three rules — it is one choice between
+ * `{18}` and `{AH, AJ}`, and the engine takes whichever side is worth more.
+ *
+ * Choosing on the *potential* credit rather than the realised one is exactly
+ * right and not an approximation: each credit is non-refundable and therefore
+ * worth `min(potential, tax remaining)`, and `min` is monotone, so the larger
+ * potential can never realise less.
+ *
+ * All three are withdrawn against, or computed from, figures the filer cannot
+ * see on their federal return, which is what makes this worth encoding rather
+ * than tabulating:
+ *
+ * - **18** is a flat `$450` a head with a birth-year test that has not moved
+ *   since it was written, so it empties a cohort year by year.
+ * - **AH** is the state's own rate applied to the part of the Social Security
+ *   benefit that § 86 made taxable — that is, Utah hands back exactly the tax it
+ *   charged on the benefit, up to a modified-AGI threshold, and then withdraws
+ *   the refund at 2.5 cents on the dollar.
+ * - **AJ** is the state's own rate applied to military retired pay, by
+ *   cross-reference to § 59-10-104(2) — so it is *defined* as the rate, not
+ *   merely equal to it, and a year in which the rate moves moves the credit.
+ *   {@link militaryRetirement} therefore carries no rate of its own.
+ */
+export interface ExclusiveRetirementCreditsRule {
+  /** Why the three cannot be combined, quoted into the result. */
+  readonly why: string;
+  /** Code 18 — a flat amount per qualifying person, withdrawn on modified AGI. */
+  readonly retirement: {
+    readonly name: string;
+    readonly perPerson: number;
+    /**
+     * Only a filer born in or before this year qualifies. Utah's is **1952** and
+     * has been since the credit replaced the old retirement exemption, so the
+     * eligible birth cohort is closed and shrinks every year — the third
+     * provision in this package that sunsets by attrition rather than by a
+     * repeal date, after Virginia's 1939 and Kentucky's 1998.
+     */
+    readonly bornOnOrBefore: number;
+    readonly phaseOutRate: number;
+    readonly phaseOutThreshold: ByStatus;
+  };
+  /** Code AH — the state's own tax on the federally taxable benefit, handed back. */
+  readonly socialSecurity: {
+    readonly name: string;
+    readonly phaseOutRate: number;
+    readonly phaseOutThreshold: ByStatus;
+  };
+  /** Code AJ — the state's own tax on military retired pay, handed back. */
+  readonly militaryRetirement: {
+    readonly name: string;
+  };
+}
+
+/**
  * Whether a note is worth one caller's context, given what they supplied.
  *
  * Deliberately a predicate over the raw input rather than a declarative tag.
@@ -1571,6 +1640,13 @@ export interface StateIncomeTaxDefinition {
   readonly jointFilingCredit?: JointFilingCreditRule;
   readonly exemptionCredit?: ExemptionCreditRule;
   readonly taxpayerCredit?: TaxpayerCreditRule;
+  /**
+   * Utah's three retirement credits and the election between them. Reads
+   * {@link StateIncomeTaxInput.taxableSocialSecurity},
+   * {@link StateIncomeTaxInput.retirement} and
+   * {@link StateIncomeTaxInput.taxExemptInterest}.
+   */
+  readonly exclusiveRetirementCredits?: ExclusiveRetirementCreditsRule;
   readonly forgiveness?: ForgivenessRule;
   readonly earnedIncomeCredit?: EarnedIncomeCreditRule;
   /**

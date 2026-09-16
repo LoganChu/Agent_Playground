@@ -318,7 +318,13 @@ credit, and the California AMT.
 catches every credit phase-out, cliff and staircase underneath the rate.
 
 - **Utah** charges **4.45%** in 2026. A single filer at `$25,000` faces **5.75%** — the
-  Taxpayer Tax Credit phases out at 1.3 cents on the dollar underneath the tax.
+  Taxpayer Tax Credit phases out at 1.3 cents on the dollar underneath the tax. A retired
+  couple faces **15.26%**, three and a half times the statutory rate, and the arithmetic is
+  `1.85 × (4.45 + 2.5 + 1.3)`: § 86 drags 85 cents of Social Security into federal AGI
+  behind each dollar of pension, Utah taxes all `$1.85` of it, and *two* credits are
+  withdrawn against it at once. The rate runs **10.64% → 15.26% → 8.25%** as income rises
+  and peaks at `$90,387.50` of federal AGI, so the highest-taxed next dollar in Utah
+  belongs to a household in the **12%** federal bracket, not the 22% one.
 - **Illinois** charges **4.95%**. Its exemption allowance is not phased out, it is *lost
   entirely* one dollar above `$250,000` of AGI: that dollar costs **`$141.12`**.
 - **Pennsylvania** charges **3.07%**. Across the Special Tax Forgiveness band a childless
@@ -1373,8 +1379,13 @@ hides its gaps is worse than useless:
   Young Child Tax Credit and New Jersey's child tax credit are computed from
   `dependentAges`. Absent: the California Foster
   Youth Tax Credit, the Arizona dependent credit, the North Carolina child deduction, and
-  the Utah retirement and Social Security credits. A family return outside New York and
-  California, or a Utah retiree return, will be **too high**.
+  the Utah child tax credit — whose thresholds HB 290 (2026) raised to `$49,000` single and
+  `$61,000` joint and which is withdrawn at **ten cents on the dollar**, so a Utah family
+  inside that band faces about 14% against a headline 4.45%. A family return outside New
+  York and California will be **too high**. **A Utah retiree return no longer is:** the
+  retirement credit (code 18), the Social Security benefits credit (code AH) and the
+  military retirement credit (code AJ) all landed in v0.17.0, with the § 59-10-1019(5)
+  election between them.
 - **Georgia's exclusions need `retirement`, and say so when they do not get it.** The
   exclusion is measured on the character of the income, which a federal AGI does not
   record, so a Georgia return that supplies only an age gets no exclusion — and a note on

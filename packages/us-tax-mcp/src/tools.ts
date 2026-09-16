@@ -40,6 +40,7 @@ import {
   toolOptions,
 } from './schema.js';
 import type { JsonSchema } from './schema.js';
+import { STATE_FIELDS, fieldsForState, stateFieldProperties } from './state-fields.js';
 import {
   dollars,
   money,
@@ -52,6 +53,8 @@ import {
 } from './format.js';
 import {
   COUNTY_TAX_STATES,
+  getStateDefinition,
+  stateName,
   SUPPORTED_LOCALITIES as LOCALITY_CODES,
   SUPPORTED_STATES as STATE_CODES,
   SUPPORTED_YEARS as STATE_YEARS,
@@ -1117,7 +1120,9 @@ const stateTool: ToolDefinition = {
     'state starts from decides the answer. Ten states need more. NY: locality. MD and IN: county, plus ' +
     'netCapitalGain and stateItemizedDeductions in MD. MD, GA and KY: retirement for a retiree — all ' +
     'three exclusions are PER PERSON, GA excludes nothing without it, and KY has NO CEILING for ' +
-    'pre-1998 government service. OH: city and ' +
+    'pre-1998 government service. UT: filerAge, spouseAge, taxableSocialSecurity, taxExemptInterest ' +
+    'and retirement.militaryRetirement — Utah taxes the benefit and hands the tax back as a credit, ' +
+    'so a Utah retiree comes back far too high without them. OH: city and ' +
     'qualifyingWages, box 5 of the W-2 and NOT federal AGI, and schoolDistrict. MI: city and cityIncome, ' +
     'which is NOT federal AGI. VA: filerAge, spouseAge, taxableSocialSecurity and ' +
     'bothSpousesHaveQualifyingIncome. CA: earnedIncome and dependentAges. ' +
@@ -1160,22 +1165,11 @@ const stateTool: ToolDefinition = {
           'The deduction actually taken federally — estimate_federal_tax deduction. Arizona uses it directly, Utah bases its credit on it. Defaults to AGI minus taxable income.',
       },
       dependents: { type: 'integer', description: 'Dependents claimed on the state return. Defaults to the length of dependentAges.' },
-      dependentAges: {
-        type: 'array',
-        items: { type: 'integer' },
-        description:
-          'Age of EVERY dependent at year end, not only the children. Required in NY, CA, NJ, MA and MD, whose age-banded credits are otherwise ZERO, and the result says what that cost.',
-      },
-      earnedIncome: {
-        type: 'number',
-        description:
-          'Wages plus net self-employment earnings. Required for California: CalEITC and the Young Child Tax Credit are functions of earnings alone, not of AGI.',
-      },
-      investmentIncome: {
-        type: 'number',
-        description:
-          'Interest (taxable and tax-exempt), dividends, net capital gain, net rent and royalty income. California only, where over $4,814 it is a cliff costing the whole CalEITC.',
-      },
+      // Every field only some states read. The schema keeps the name, the type
+      // and the state list — everything needed to make a legal call — and the
+      // prose lives in describe_state, which a caller reaches for exactly one
+      // state's worth of. See src/state-fields.ts for why.
+      ...stateFieldProperties(),
       federalQualifiedBusinessIncomeDeduction: {
         type: 'number',
         description: 'The Section 199A deduction taken federally. CO adds it back; ID allows it.',
@@ -1202,197 +1196,6 @@ const stateTool: ToolDefinition = {
         type: 'number',
         description:
           'State-specific subtractions — US government interest, Social Security and retirement income the state exempts, 529 contributions, military pay.',
-      },
-      pennsylvaniaTaxableIncome: {
-        type: 'number',
-        description:
-          'Required for PA and refused elsewhere. Pennsylvania has no federal starting line: it taxes 401(k) deferrals in the year contributed and allows no deduction or exemption.',
-      },
-      newJerseyGrossIncome: {
-        type: 'number',
-        description:
-          'Required for NJ, refused elsewhere. NJ-1040 line 27, before the retirement exclusion. NOT federal AGI: it excludes Social Security and unemployment and taxes 403(b) deferrals and IRA contributions.',
-      },
-      massachusettsFivePercentIncome: {
-        type: 'number',
-        description:
-          'Required for MA and refused elsewhere. Form 1 line 21, total 5.0% income — including interest, dividends and LONG-term gains, excluding short-term and collectibles gains. NOT federal AGI; the result names the add-backs Massachusetts needs.',
-      },
-      shortTermCapitalGains: {
-        type: 'number',
-        description:
-          'MA only: net gains on assets held one year or less, taxed at 8.5% rather than 5%. Do not include them in massachusettsFivePercentIncome.',
-      },
-      collectiblesGains: {
-        type: 'number',
-        description:
-          'MA only: long-term gains on collectibles and pre-1996 installment sales, taxed at 12% on half the gain. Pass the WHOLE gain; the 50% deduction is applied here.',
-      },
-      socialSecurityAndMedicarePaid: {
-        type: 'number',
-        description:
-          'MA only: FICA, Medicare, railroad and public retirement contributions paid, deducted up to $2,000 per filer. No federal equivalent.',
-      },
-      county: {
-        type: 'string',
-        description:
-          'MD and IN only, and effectively REQUIRED there: the county the filer lived in on 1 January. Every resident of both owes a county tax on the same taxable income — 2.25-3.30% in MD, 0.5-3.00% in IN. "Baltimore" alone errors: the City and the County differ.',
-      },
-      city: {
-        type: 'string',
-        description:
-          'MI and OH only: the city or municipality the filer LIVES in. MI has 24 that levy, Detroit at 2.4% and twenty at 1%, and most Michiganders live in none; OH has 679 at 0.45-3.00% and most Ohioans live in one. An unlisted name errors, listing them.',
-      },
-      cityIncome: {
-        type: 'number',
-        description:
-          'MI only: income as the CITY measures it, before its $600-$3,000 exemptions — no pensions, IRA distributions, Social Security, unemployment or military pay. Omitted, it is derived from federal AGI less retirementIncome and runs high.',
-      },
-      qualifyingWages: {
-        type: 'number',
-        description:
-          'OH only, REQUIRED with city: O.R.C. 718.01(R) wages — box 5 of the W-2, which a 401(k) deferral does NOT reduce — plus a resident\'s net business or rental profit. Interest, dividends, gains, pensions and Social Security are outside it, so federal AGI is a different figure.',
-      },
-      businessIncome: {
-        type: 'number',
-        description:
-          'OH only: Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction back.',
-      },
-      bothSpousesHaveQualifyingIncome: {
-        type: 'boolean',
-        description:
-          'OH and VA: true where EACH spouse on a joint return had income of their own — in OH, $500+ of Ohio AGI less interest, dividends, capital gains and rent. Gates the OH joint filing credit and the VA spouse tax adjustment. Omitted, both are zero.',
-      },
-      workCity: {
-        type: 'string',
-        description:
-          'MI and OH only: a DIFFERENT taxing city the filer worked in, charged on workCityEarnings. MI halves the rate for a nonresident and caps the home credit at its OWN nonresident rate; OH halves nothing and has no statutory credit.',
-      },
-      workCityEarnings: {
-        type: 'number',
-        description:
-          'MI and OH only: wages earned inside workCity, already apportioned by working days (Form DW-4, GRW-4).',
-      },
-      residentCreditRate: {
-        type: 'number',
-        maximum: 1,
-        description:
-          'OH only: the share of the workCity tax the HOME municipality credits — Ohio\'s "Credit Rate" column. Omitted, the modal 100%-capped-at-the-home-rate ordinance is assumed and the result says so.',
-      },
-      schoolDistrict: {
-        type: 'string',
-        description:
-          'OH only: the four-digit district the filer LIVES in. 214 levy 0.25-2.00% on a separate SD 100, over the state and municipal taxes — 146 on modified AGI less exemptions, which ADDS THE BUSINESS INCOME DEDUCTION BACK, and 68 on earnedIncome alone, which they REQUIRE.',
-      },
-      residentCreditLimitRate: {
-        type: 'number',
-        maximum: 1,
-        description:
-          'OH only: the rate that credit is capped at — the "Credit Factor" column. The credit is the lesser of the two.',
-      },
-      stateItemizedDeductions: {
-        type: 'number',
-        description:
-          'MD and VA: federal Schedule A less the state and local INCOME taxes in it. Needs federalItemized. MD reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate). VA COMPELS it: a federal itemizer may not take the state standard deduction even when it is larger.',
-      },
-      federalItemized: {
-        type: 'boolean',
-        description:
-          'Whether the filer itemized federally. MD allows itemizing only if they did, so the OBBBA standard deduction ended it for many. VA goes further and REQUIRES itemizing here if they did.',
-      },
-      netCapitalGain: {
-        type: 'number',
-        description:
-          'MD only: net capital gain in taxable income, surtaxed 2% when federal AGI exceeds $350,000. Exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains.',
-      },
-      taxableSocialSecurity: {
-        type: 'number',
-        description:
-          'VA, MD, GA and KY: Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. All four subtract it; VA also tests its age deduction on AGI less it. Do not also net it into stateSubtractions. MD needs the TOTAL received too, in retirement.',
-      },
-      retirement: {
-        type: 'object',
-        description:
-          'MD, GA and KY: retirement income PER PERSON, because all three cap their exclusion per person and none of them reads it off a federal AGI — GA measures the CHARACTER of the income, MD the FORM OF THE ACCOUNT, KY WHEN THE SERVICE WAS PERFORMED. Omit it and everything lands on one spouse, the worst case, and the result says so.',
-        properties: {
-          filer: {
-            type: 'object',
-            description:
-              'employerPlanPension: taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b) — NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes and GA counts. iraDistributions: taxable IRA and Roth-conversion income, 1040 line 4b — GA-qualifying, MD-disqualifying. investmentIncome: interest, dividends, net capital gain, rents, royalties, alimony; GA only, may be negative. earnedIncome: wages plus partnership and S corp income; GA counts at most $5,000 of it, and doubles the military exclusion above $17,500. socialSecurityBenefits: the TOTAL received, Tier I and Tier II, taxable or not — MD offsets its exclusion by it, GA does not. militaryRetirement: retired or survivor pay, not also in employerPlanPension. totallyDisabled: qualifies at any age, and in MD the spouse too. governmentPension: KY only — federal, Commonwealth or KY local retired pay, military included; the share attributable to service before 1998 is exempt WITHOUT LIMIT and does not consume the $31,110, so KY has no maximum for that cohort. Give the share as serviceMonthsBefore1998 and serviceMonthsAfter1997 (months of service credit; a person who retired before 1998 has none after).',
-            properties: {
-              employerPlanPension: { type: 'number' },
-              iraDistributions: { type: 'number' },
-              investmentIncome: { type: 'number' },
-              earnedIncome: { type: 'number' },
-              socialSecurityBenefits: { type: 'number' },
-              militaryRetirement: { type: 'number' },
-              totallyDisabled: { type: 'boolean' },
-              governmentPension: { type: 'number' },
-              serviceMonthsBefore1998: { type: 'number' },
-              serviceMonthsAfter1997: { type: 'number' },
-            },
-            additionalProperties: false,
-          },
-          // The same seven fields, described once. A second copy of the property
-          // table would cost every client hundreds of bytes to say nothing new,
-          // and `readPersonRetirement` validates both halves identically anyway.
-          spouse: { type: 'object', description: 'The spouse\'s own, same fields.' },
-        },
-        additionalProperties: false,
-      },
-      lesserSpouseIncome: {
-        type: 'number',
-        description:
-          'VA only: line 5 of the Spouse Tax Adjustment Worksheet — the SMALLER spouse\'s Virginia AGI less their exemptions. Omitted, an even split is assumed, which is the adjustment\'s $257.50 maximum, and the result says so.',
-      },
-      federalPovertyGuideline: {
-        type: 'number',
-        description:
-          'VA only: overrides the HHS guideline the $300-a-head Credit for Low Income Individuals is a cliff at. Pass 0 to switch it off for a filer barred by a military or state-employee subtraction this server cannot see.',
-      },
-      filerAge: {
-        type: 'integer',
-        description:
-          'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. Omitted, a retiree return runs far too high.',
-      },
-      spouseAge: {
-        type: 'integer',
-        description: 'Spouse age at year end, joint returns. VA gives a SECOND $12,000 age deduction over the same band, so two 65-year-olds face 11.5% for $24,000. NJ: the senior exemption is per person.',
-      },
-      blindOrDisabled: {
-        type: 'integer',
-        description: 'How many of filer and spouse are blind or disabled, 0-2. Worth $1,000 each in NJ.',
-      },
-      dependentsAttendingCollege: {
-        type: 'integer',
-        description:
-          'NJ only: dependents under 22 in full-time study, also counted in dependents. A second $1,000 exemption on top of the $1,500 dependent one.',
-      },
-      retirementIncome: {
-        type: 'number',
-        description:
-          'Taxable pension, annuity and IRA withdrawals. NJ excludes up to $100,000 joint / $75,000 single at 62+, ending in a wall at $150,000 of total income. MD, GA and KY read `retirement` instead.',
-      },
-      propertyTaxPaid: {
-        type: 'number',
-        description:
-          'Property tax paid on a principal residence in the state. NJ allows a $15,000 deduction OR a flat $50 refundable credit; the engine computes both routes and keeps the lower tax.',
-      },
-      rentPaid: {
-        type: 'number',
-        description:
-          'Rent paid on a principal residence in the state. NJ treats 18% of it as property tax (ignored when propertyTaxPaid is given); MA deducts half of it, capped at $4,000.',
-      },
-      locality: {
-        type: 'string',
-        enum: [...LOCALITY_CODES],
-        description:
-          'The locality the filer LIVES in. NY only. NYC charges 3.078-3.876% of state taxable income; YONKERS charges 16.75% of the state tax. Omitting it for a city resident understates the bill by thousands.',
-      },
-      yonkersNonresidentEarnings: {
-        type: 'number',
-        description:
-          'Wages earned in Yonkers by someone who lives elsewhere, taxed at 0.5%. Ignored when locality is YONKERS: a resident pays the surcharge instead, never both.',
       },
     },
   },
@@ -1548,6 +1351,7 @@ const stateTool: ToolDefinition = {
     const businessIncome = readNumber(source, 'businessIncome');
     const bothSpouses = source['bothSpousesHaveQualifyingIncome'];
     const taxableSocialSecurity = readNumber(source, 'taxableSocialSecurity');
+    const taxExemptInterest = readNumber(source, 'taxExemptInterest');
     const retirement = readRetirementSplit(source);
     const lesserSpouseIncome = readNumber(source, 'lesserSpouseIncome');
     const federalPovertyGuideline = readNumber(source, 'federalPovertyGuideline');
@@ -1625,25 +1429,30 @@ const stateTool: ToolDefinition = {
     // subtracts it and then charges the total received against the pension
     // exclusion. Maryland therefore needs two Social Security figures on one
     // return — the taxable part here, the total received in `retirement`.
+    const TAXABLE_SS_STATES = ['VA', 'MD', 'GA', 'KY', 'UT'] as const;
     if (
       taxableSocialSecurity !== undefined &&
-      state !== 'VA' &&
-      state !== 'MD' &&
-      state !== 'GA' &&
-      state !== 'KY'
+      !(TAXABLE_SS_STATES as readonly string[]).includes(state)
     ) {
       throw new ToolInputError(
-        `taxableSocialSecurity only applies to VA, MD, GA and KY, and ${state} was requested. ` +
-          `Every other supported state that exempts Social Security takes it through ` +
-          `stateSubtractions instead.`,
+        `taxableSocialSecurity only applies to ${TAXABLE_SS_STATES.join(', ')}, and ${state} ` +
+          `was requested. Every other supported state that exempts Social Security takes it ` +
+          `through stateSubtractions instead.`,
       );
     }
-    if (retirement !== undefined && state !== 'MD' && state !== 'GA' && state !== 'KY') {
+    const SPLIT_STATES = ['MD', 'GA', 'KY', 'UT'] as const;
+    if (retirement !== undefined && !(SPLIT_STATES as readonly string[]).includes(state)) {
       throw new ToolInputError(
-        `retirement only applies to MD, GA and KY, and ${state} was requested. Those are the ` +
-          `three states here whose retirement exclusion is capped PER PERSON, so they are the ` +
-          `three that need the income split between the spouses. New Jersey's exclusion is per ` +
-          `return: pass retirementIncome.`,
+        `retirement only applies to ${SPLIT_STATES.join(', ')}, and ${state} was requested. ` +
+          `MD, GA and KY cap a retirement exclusion PER PERSON, so they need the income split ` +
+          `between the spouses; UT needs militaryRetirement for its code AJ credit. New ` +
+          `Jersey's exclusion is per return: pass retirementIncome.`,
+      );
+    }
+    if (taxExemptInterest !== undefined && state !== 'UT') {
+      throw new ToolInputError(
+        `taxExemptInterest only applies to UT, and ${state} was requested. Utah is the only ` +
+          `supported state that adds tax-exempt interest back into an income test of its own.`,
       );
     }
     // Refused rather than ignored, for the same reason stateItemizedDeductions is:
@@ -1688,6 +1497,25 @@ const stateTool: ToolDefinition = {
         `locality and yonkersNonresidentEarnings apply to NY only, and ${state} was requested. ` +
           'Local income tax outside New York is not modelled here; returning zero for it would be ' +
           'a wrong answer rather than a missing one.',
+      );
+    }
+
+    // The backstop, and the reason the state lists live in one table.
+    //
+    // Every check above names its own field and says something a model can act
+    // on, and between them they missed `county` — which Alaska accepted and
+    // silently ignored, because a state with no income tax has no county tax to
+    // be wrong about and nothing objected. A silently ignored field is a wrong
+    // answer with no symptom, which is the one failure mode this server is
+    // supposed to refuse. So the table that documents a field for a state also
+    // decides whether the server takes it from that state, and this loop is the
+    // deciding: anything not caught by a better message above is caught here.
+    for (const field of STATE_FIELDS) {
+      if (source[field.name] === undefined) continue;
+      if (field.states.includes(state)) continue;
+      throw new ToolInputError(
+        `${field.name} applies to ${field.states.join(', ')}, and ${state} was requested. ` +
+          (field.refusal ?? `Call describe_state for ${state} to see what it does read.`),
       );
     }
 
@@ -1738,6 +1566,7 @@ const stateTool: ToolDefinition = {
       ...(workCityEarnings !== undefined ? { workCityEarnings } : {}),
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),
       ...(taxableSocialSecurity !== undefined ? { taxableSocialSecurity } : {}),
+      ...(taxExemptInterest !== undefined ? { taxExemptInterest } : {}),
       ...(retirement !== undefined ? { retirement } : {}),
       ...(lesserSpouseIncome !== undefined ? { lesserSpouseIncome } : {}),
       ...(federalPovertyGuideline !== undefined ? { federalPovertyGuideline } : {}),
@@ -1772,6 +1601,140 @@ const stateTool: ToolDefinition = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// describe_state
+// ---------------------------------------------------------------------------
+
+const describeStateTool: ToolDefinition = {
+  name: 'describe_state',
+  title: 'What a state needs, and what it does',
+  description:
+    'Say what state_income_tax needs for ONE state and what that state does that a rate table ' +
+    'cannot hold. Returns the fields that state reads — required ones first — each with the form ' +
+    'line it comes off and what happens if it is omitted, plus the state\'s conformity base, its ' +
+    'local income taxes, its own notes and its statutes. Call it before state_income_tax for any ' +
+    'state you have not computed before: an omitted per-state field is usually a WRONG answer ' +
+    'rather than a missing one, because the engine falls back to a federal figure the state does ' +
+    'not use. The documentation lives here and not in state_income_tax\'s schema, so that a caller ' +
+    'pays for one state rather than twenty-eight.',
+  inputSchema: {
+    type: 'object',
+    required: ['state'],
+    additionalProperties: false,
+    properties: {
+      state: { type: 'string', enum: [...STATE_CODES], description: 'Two-letter state code.' },
+      year: YEAR_PROPERTY,
+      includeNotes: {
+        type: 'boolean',
+        description:
+          "Include the state's own notes — what it taxes that others do not, and what this server " +
+          'does not model. Defaults to true.',
+      },
+    },
+  },
+  annotations: { ...READ_ONLY, title: 'What a state needs, and what it does' },
+  run(args) {
+    const source = asRecord(args ?? {}, 'arguments');
+    const known = ['state', 'year', 'includeNotes'];
+    const unknown = Object.keys(source).filter((key) => !known.includes(key));
+    if (unknown.length > 0) {
+      throw new ToolInputError(
+        `Unknown argument(s): ${unknown.join(', ')}. Accepted: ${known.join(', ')}.`,
+      );
+    }
+    const state = source['state'];
+    if (typeof state !== 'string' || !(STATE_CODES as readonly string[]).includes(state)) {
+      throw new ToolInputError(
+        `state must be one of ${STATE_CODES.join(', ')}, received ${JSON.stringify(state)}.`,
+      );
+    }
+    const year =
+      readNumber(source, 'year', { integer: true }) ?? STATE_YEARS[STATE_YEARS.length - 1]!;
+    if (!(STATE_YEARS as readonly number[]).includes(year)) {
+      throw new ToolInputError(
+        `year must be one of ${STATE_YEARS.join(', ')}, received ${year}.`,
+      );
+    }
+    const includeNotes = readBoolean(source, 'includeNotes') ?? true;
+
+    const code = state as StateCode;
+    const def = getStateDefinition(code, year);
+    const fields = fieldsForState(state);
+    const required = fields.filter((f) => (f.requiredIn ?? []).includes(state));
+    const optional = fields.filter((f) => !(f.requiredIn ?? []).includes(state));
+
+    const lines: string[] = [`# ${stateName(code)} (${code}), ${year}`];
+    if (!def) {
+      lines.push('');
+      lines.push(
+        `${stateName(code)} levies no individual income tax, so state_income_tax needs nothing ` +
+          `beyond state, filingStatus and the federal figures, and returns zero.`,
+      );
+      return { text: lines.join('\n'), structured: { state: code, year, hasIncomeTax: false, fields: [] } };
+    }
+
+    lines.push('');
+    lines.push(`Starts from: ${def.base}. Rate: ${def.rate.kind}.`);
+    const counties = (COUNTY_TAX_STATES as readonly string[]).includes(state);
+    if (counties) {
+      lines.push(
+        'EVERY resident owes a county income tax on the same taxable income, so `county` is ' +
+          'effectively required: there is no county-free jurisdiction in this state.',
+      );
+    }
+
+    const render = (field: (typeof fields)[number]) =>
+      `### ${field.name} (${String((field.schema as { type?: string }).type ?? 'object')})\n${field.doc}`;
+
+    if (required.length > 0) {
+      lines.push('');
+      lines.push('## Required');
+      for (const field of required) lines.push(render(field));
+    }
+    if (optional.length > 0) {
+      lines.push('');
+      lines.push('## Read when supplied');
+      for (const field of optional) lines.push(render(field));
+    }
+    if (required.length === 0 && optional.length === 0) {
+      lines.push('');
+      lines.push(
+        'No per-state fields: this state is computed from the federal figures, dependents and ' +
+          'the generic stateAdditions and stateSubtractions alone.',
+      );
+    }
+
+    if (includeNotes && def.notes.length > 0) {
+      lines.push('');
+      lines.push('## Notes');
+      for (const note of def.notes) lines.push(`- ${note}`);
+    }
+    lines.push('');
+    lines.push('Sources:');
+    for (const citation of def.citations) lines.push(`- ${citation.title} — ${citation.url}`);
+
+    return {
+      text: lines.join('\n'),
+      structured: {
+        state: code,
+        stateName: stateName(code),
+        year,
+        hasIncomeTax: true,
+        conformityBase: def.base,
+        provisional: def.status === 'provisional',
+        fields: fields.map((field) => ({
+          name: field.name,
+          type: String((field.schema as { type?: string }).type ?? 'object'),
+          required: (field.requiredIn ?? []).includes(state),
+          documentation: field.doc,
+        })),
+        notes: includeNotes ? [...def.notes] : [],
+        sources: def.citations.map((c) => ({ title: c.title, url: c.url })),
+      },
+    };
+  },
+};
+
 export const TOOLS: readonly ToolDefinition[] = [
   estimateTool,
   compareTool,
@@ -1779,6 +1742,7 @@ export const TOOLS: readonly ToolDefinition[] = [
   quarterlyTool,
   paycheckTool,
   stateTool,
+  describeStateTool,
   parametersTool,
   yearsTool,
 ];

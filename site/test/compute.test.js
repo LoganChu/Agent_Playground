@@ -227,3 +227,53 @@ test('a separate filer living with their spouse loses the § 86 thresholds', () 
   assert.equal(separate.socialSecurity.baseAmount, 0);
   assert.ok(separate.socialSecurity.taxableBenefits >= apart.socialSecurity.taxableBenefits);
 });
+
+test('Utah moves eight places up the ranking once its retirement credits exist', () => {
+  // The site's whole claim is that it ranks twenty-eight states against each
+  // other, and a ranking is only as good as its worst-modelled member. Until
+  // v0.17.0 of the engine this household's Utah figure was $2,801.46 — the tax
+  // before every credit but the Taxpayer Tax Credit — which put Utah 24th of 28
+  // between Mississippi and North Carolina. It is 16th.
+  const household = {
+    year: 2026,
+    filingStatus: 'marriedFilingJointly',
+    filerAge: 70,
+    spouseAge: 70,
+    socialSecurity: 40_000,
+    pension: 60_000,
+  };
+  const model = compute(household);
+  const utah = model.states.find((row) => row.state === 'UT');
+  assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
+  const place = model.states.indexOf(utah) + 1;
+  assert.equal(place, 16, `Utah ranks ${place}`);
+  // And what it would have been: everything the three credits are worth.
+  const credited = utah.result.credits.find((c) => /code A[HJ]|code 18/.test(c.name));
+  assert.ok(Math.abs(credited.amount - 1_413) < 0.005, `the credit is ${credited.amount}`);
+});
+
+test('a municipal bond is taxed at 2.5% in Utah and nowhere else on the page', () => {
+  // The form has asked for tax-exempt interest since the site existed, because
+  // § 86 adds it back federally. Utah adds it back a second time, against its
+  // own credits, and it is the only state here that does.
+  const household = {
+    year: 2026,
+    filingStatus: 'marriedFilingJointly',
+    filerAge: 70,
+    spouseAge: 70,
+    socialSecurity: 40_000,
+    pension: 60_000,
+  };
+  const plain = compute(household);
+  const bonds = compute({ ...household, taxExemptInterest: 10_000 });
+  assert.equal(plain.federal.totalTax, bonds.federal.totalTax, 'federal tax is unchanged');
+  for (const row of bonds.states) {
+    const before = plain.states.find((r) => r.state === row.state);
+    const moved = (row.total ?? 0) - (before.total ?? 0);
+    if (row.state === 'UT') {
+      assert.ok(Math.abs(moved - 250) < 0.005, `Utah moved ${moved}`);
+    } else {
+      assert.ok(Math.abs(moved) < 0.005, `${row.state} moved ${moved} on exempt interest`);
+    }
+  }
+});
