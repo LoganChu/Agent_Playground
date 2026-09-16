@@ -328,6 +328,57 @@ export function allStates(input, fed) {
   return rows.sort((a, b) => rank(a) - rank(b) || a.stateName.localeCompare(b.stateName));
 }
 
+
+/**
+ * What the OTHER allocation of the same income would cost, state by state.
+ *
+ * The form asks whose name the retirement income is in because three states —
+ * Georgia, Maryland and Kentucky — cap their exclusion per person, so a couple's
+ * totals do not decide their state tax. That much the page already handled. What
+ * it did not do was SAY so: a visitor had to change the dropdown and notice.
+ *
+ * The federal return cannot see the difference at all, and no summary of any of
+ * these provisions mentions it, so nothing else in a household's life would warn
+ * them. That makes it the single most actionable thing this page knows, and the
+ * one thing a reader cannot arrive at by reading a rate table harder.
+ *
+ * It costs one extra pass over the states and no extra federal computation,
+ * because `fed` is the same object both ways. That is not an optimisation, it is
+ * the finding: the federal figures are identical and only the states move.
+ */
+function allocationSwing(input, fed, states) {
+  if (!input.joint) return null;
+  const other = input.allocation === 'even' ? 'filer' : 'even';
+  const alternative = allStates({ ...input, allocation: other }, fed);
+  const total = (row) => (row.error ? null : row.localRange ? row.localRange.low.total : row.total);
+  const rows = [];
+  for (const here of states) {
+    const there = alternative.find((row) => row.state === here.state);
+    const now = total(here);
+    const then = total(there);
+    if (now === null || then === null) continue;
+    if (Math.abs(now - then) < 0.005) continue;
+    rows.push({
+      state: here.state,
+      stateName: here.stateName,
+      here: now,
+      there: then,
+      difference: then - now,
+    });
+  }
+  if (rows.length === 0) return null;
+  rows.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
+  return {
+    // What the dropdown would have to be changed to.
+    alternative: other,
+    rows,
+    // The widest gap any one state opens between the two allocations. A sum
+    // across states would be meaningless — a household lives in one of them.
+    widest: rows[0],
+    cheaperElsewhere: rows.filter((row) => row.difference < 0),
+  };
+}
+
 /** The whole answer, in one call. */
 export function compute(raw) {
   const input = normalise(raw);
@@ -337,6 +388,7 @@ export function compute(raw) {
     input,
     federal: fed,
     states,
+    allocation: allocationSwing(input, fed, states),
     marginal: trueMarginalRate(input, fed),
     // What the household actually received, which is not `grossIncome`: up to
     // 100% of a Social Security benefit never enters that figure at all.

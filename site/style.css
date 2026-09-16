@@ -364,3 +364,28 @@ summary:focus-visible {
 details[open] summary {
   margin-bottom: 0.4rem;
 }
+
+/*
+ * The allocation callout.
+ *
+ * Deliberately the only boxed thing on the page. It is the one figure here that
+ * a reader could not have arrived at from any table, any form or any adviser's
+ * summary — the federal return cannot see it — so it is the one thing worth
+ * interrupting the ranking for. A second box would make it furniture.
+ */
+.callout {
+  border: 1px solid var(--accent, var(--line));
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  margin: 0.9rem 0 0.2rem;
+}
+
+.callout p {
+  margin: 0 0 0.6rem;
+  max-width: 48rem;
+}
+
+.callout .rows {
+  font-size: 0.92rem;
+}

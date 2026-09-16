@@ -178,6 +178,55 @@ function renderFederal(model) {
   }
 }
 
+
+/**
+ * The one thing on this page that nothing else in a household's life would tell
+ * them.
+ *
+ * Three states cap their retirement exclusion PER PERSON, so the same two
+ * household totals produce different tax depending only on whose name the
+ * income is in — and the federal return cannot see the difference at all, so
+ * no form, no adviser's summary and no rate table would flag it. Until now the
+ * page computed it and waited to be asked; a visitor had to change a dropdown
+ * and notice that numbers moved.
+ *
+ * Printed as a saving or a cost rather than a difference, because the reader is
+ * standing at one of the two allocations and wants to know which way to walk.
+ */
+function renderAllocation(card, model) {
+  const swing = model.allocation;
+  if (!swing) return;
+  const other =
+    swing.alternative === 'even' ? 'split evenly between you' : 'all in one name';
+  const cheaper = swing.cheaperElsewhere;
+  const box = el('div', 'callout');
+  const names = swing.rows.map((row) => row.stateName);
+  const list =
+    names.length === 1
+      ? names[0]
+      : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+  box.append(
+    el(
+      'p',
+      null,
+      `Whose name the income is in changes the tax in ${list}, because all three cap ` +
+        `their retirement exclusion per person. Filing it ${other} would ` +
+        (cheaper.length > 0
+          ? `SAVE ${dollars(Math.abs(cheaper[0].difference))} in ${cheaper[0].stateName}`
+          : `COST ${dollars(swing.widest.difference)} more in ${swing.widest.stateName}`) +
+        ` on identical household totals. Your federal tax does not move by a cent, ` +
+        `so nothing on a federal return would tell you.`,
+    ),
+  );
+  const rows = el('div', 'rows');
+  for (const moved of swing.rows) {
+    rows.append(row(`${moved.stateName}, ${other}`, cents(moved.there)));
+    rows.append(row(`${moved.stateName}, as entered`, cents(moved.here), 'sub'));
+  }
+  box.append(rows);
+  card.append(box);
+}
+
 function renderRanking(model) {
   const card = $('#ranking');
   card.replaceChildren();
@@ -192,6 +241,8 @@ function renderRanking(model) {
         'wrong one.',
     ),
   );
+
+  renderAllocation(card, model);
 
   const table = el('table');
   const head = el('thead');

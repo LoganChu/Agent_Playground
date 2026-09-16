@@ -277,3 +277,55 @@ test('a municipal bond is taxed at 2.5% in Utah and nowhere else on the page', (
     }
   }
 });
+
+test('the allocation swing is computed and priced without being asked for', () => {
+  // Day 21 found this and left it behind a dropdown the reader had to change.
+  // It is the one figure on the page that no form, no rate table and no summary
+  // of these provisions would give a household, because the federal return
+  // cannot see it — so the page states it rather than waiting to be asked.
+  const household = {
+    year: 2026,
+    filingStatus: 'marriedFilingJointly',
+    filerAge: 70,
+    spouseAge: 70,
+    socialSecurity: 20_000,
+    pension: 120_000,
+    allocation: 'even',
+  };
+  const model = compute(household);
+  assert.ok(model.allocation, 'no swing computed');
+  assert.equal(model.allocation.alternative, 'filer');
+  assert.deepEqual(
+    model.allocation.rows.map((row) => row.state).sort(),
+    ['GA', 'KY', 'MD'],
+    'exactly three states move, and they are the three that cap per person',
+  );
+  // Widest first, and Maryland's is the widest of the three on these figures.
+  assert.equal(model.allocation.widest.state, 'MD');
+  assert.ok(Math.abs(model.allocation.widest.difference - 2_842) < 0.005);
+
+  // The federal return is identical both ways. That is the finding, not an
+  // implementation detail, so it is asserted rather than assumed.
+  const other = compute({ ...household, allocation: 'filer' });
+  assert.equal(other.federal.totalTax, model.federal.totalTax);
+  // And the swing is symmetric: reading it from the other side names the same
+  // three states and the same sizes, with the signs reversed.
+  assert.equal(other.allocation.alternative, 'even');
+  assert.deepEqual(
+    other.allocation.rows.map((row) => row.state).sort(),
+    ['GA', 'KY', 'MD'],
+  );
+  assert.ok(Math.abs(other.allocation.widest.difference + 2_842) < 0.005);
+  assert.equal(other.allocation.cheaperElsewhere.length, 3, 'every one is cheaper split');
+});
+
+test('a single filer has no allocation to swing', () => {
+  const model = compute({
+    year: 2026,
+    filingStatus: 'single',
+    filerAge: 70,
+    socialSecurity: 20_000,
+    pension: 120_000,
+  });
+  assert.equal(model.allocation, null);
+});
