@@ -50,8 +50,8 @@
  * county that raises its rate in October is withholding at one rate and settling
  * at another for the rest of the year, and this package models the return.
  */
-import { countyRegistry, resolveCounty } from './counties.js';
-import type { CountyLookup } from './counties.js';
+import { countyRegistry, resolveCounty } from './county-registry.js';
+import type { CountyLookup } from './county-registry.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { Citation, StateCode } from '../types.js';
 

@@ -47,8 +47,8 @@
  * second derived figure here, and `test/maryland.test.js` asserts it against the
  * table below rather than storing it.
  */
-import { countyRegistry, resolveCounty } from './counties.js';
-import type { CountyLookup } from './counties.js';
+import { countyRegistry, resolveCounty } from './county-registry.js';
+import type { CountyLookup } from './county-registry.js';
 import { byStatusOf } from '../states/helpers.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { Bracket, ByStatus, Citation, StateCode } from '../types.js';

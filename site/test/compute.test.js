@@ -329,3 +329,57 @@ test('a single filer has no allocation to swing', () => {
   });
   assert.equal(model.allocation, null);
 });
+
+test('the single-file build is genuinely single, and is the same code', () => {
+  // Day 21's note told the human the Pages artifact "works offline — open
+  // index.html". It does not: a <script type="module"> loaded from a file:// URL
+  // is blocked by CORS in every Chromium browser and the page comes up blank.
+  // The claim was written without opening it that way, which is the exact
+  // failure Day 20 and Day 21 exist to record.
+  //
+  // retirement-tax-calculator.html is the fix: one file, no server, no network,
+  // no Pages and no click from anybody. This pins the two things that make it
+  // worth having — that it references nothing beside it, and that the code
+  // inside it is the code these tests just ran.
+  const single = readFileSync(join(dist, 'retirement-tax-calculator.html'), 'utf8');
+  for (const external of ['src="app.js"', 'href="style.css"', 'src="vendor/', 'src="src/']) {
+    assert.ok(!single.includes(external), `it still loads ${external} from beside itself`);
+  }
+  // No http(s) SUBRESOURCE either: a font or a script from a CDN would make an
+  // offline file quietly worse than the hosted page rather than equal to it.
+  // Anchors are fine and there are two of them — a link is not a fetch.
+  const remote = [
+    ...(single.match(/src="https?:\/\/[^"]+"/g) ?? []),
+    ...(single.match(/<link[^>]+href="https?:\/\/[^"]+"/g) ?? []),
+  ];
+  assert.deepEqual(remote, [], `it fetches ${remote.join(', ')}`);
+
+  // Every module in dist is inside it, byte for byte apart from the import
+  // specifiers the loader rewrites.
+  const after = single.slice(single.indexOf('const SOURCES = ') + 'const SOURCES = '.length);
+  const embedded = JSON.parse(after.slice(0, after.indexOf('\nconst urls')).replace(/;$/, ''));
+  const walk = (dir, prefix, into) => {
+    for (const entry of readdirSync(dir)) {
+      const path = join(dir, entry);
+      if (statSync(path).isDirectory()) walk(path, `${prefix}${entry}/`, into);
+      else if (path.endsWith('.js')) into[`${prefix}${entry}`] = readFileSync(path, 'utf8');
+    }
+  };
+  const onDisk = {};
+  walk(join(dist, 'vendor'), 'vendor/', onDisk);
+  walk(join(dist, 'src'), 'src/', onDisk);
+  onDisk['app.js'] = readFileSync(join(dist, 'app.js'), 'utf8');
+  assert.deepEqual(Object.keys(embedded).sort(), Object.keys(onDisk).sort(), 'module list');
+  for (const [path, source] of Object.entries(onDisk)) {
+    assert.equal(embedded[path], source, `${path} differs from the file the suite ran`);
+  }
+
+  // And the closing-tag hazard: a "</script" anywhere in the embedded sources
+  // would end the tag that carries them.
+  const tag = single.slice(single.indexOf('<script type="module">'));
+  assert.equal(
+    tag.slice(0, tag.indexOf('</script>')).includes('</script'),
+    false,
+    'an embedded source closes the script tag early',
+  );
+});

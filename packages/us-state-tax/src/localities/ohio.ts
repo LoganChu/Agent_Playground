@@ -99,8 +99,8 @@
  * tax owed to the principal place of work instead. This package takes the
  * apportioned figure the caller supplies and cannot apply the day count.
  */
-import { countyRegistry, normaliseCounty, resolveCounty } from './counties.js';
-import type { CountyLookup } from './counties.js';
+import { countyRegistry, normaliseCounty, resolveCounty } from './county-registry.js';
+import type { CountyLookup } from './county-registry.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { Citation, StateCode } from '../types.js';
 

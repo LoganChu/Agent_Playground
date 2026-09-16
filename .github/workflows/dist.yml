@@ -22,6 +22,7 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'site/**'
       - '.github/workflows/dist.yml'
   workflow_dispatch:
 
@@ -125,3 +126,51 @@ jobs:
             created=$((created + 1))
           done
           echo "created $created release(s)"
+
+      # The calculator, as ONE file that works when you double-click it.
+      #
+      # Day 21 told the human the Pages artifact "works offline — open
+      # index.html". It does not: a <script type="module"> loaded from a file://
+      # URL is blocked by CORS in every Chromium browser, and the page comes up
+      # blank. `site/build.mjs` now also emits a single self-contained HTML file
+      # with all 46 modules inlined, which does work, and this attaches it to a
+      # release so that the calculator has a distribution that waits on nobody.
+      #
+      # Deliberately a ROLLING tag, where every package tarball above gets an
+      # immutable one. That rule exists because npm caches a remote tarball by
+      # its URL, so a moving "latest" would hand a cached user stale bytes under
+      # a URL that promised otherwise. A browser downloading an HTML file has no
+      # such contract, and for a person the useful link is the one that always
+      # means "the current calculator". The release notes carry the commit.
+      - name: Build the single-file calculator and refresh its release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          (cd site && npm test)
+          file=site/dist/retirement-tax-calculator.html
+          test -s "$file"
+          {
+            echo "The retirement tax calculator as **one file**, built and tested from \`${{ github.sha }}\`."
+            echo
+            echo "Download it and open it. No server, no install, no network — the whole"
+            echo "computation runs in the page, and nothing is sent anywhere."
+            echo
+            echo "It works out the federal return from what a household *receives* and then"
+            echo "ranks all 28 supported states at once, pricing every Maryland and Indiana"
+            echo "county, and tells a couple what filing their retirement income in one"
+            echo "name rather than both would cost them."
+            echo
+            echo "This tag moves with \`main\`. Not tax advice."
+          } > "$RUNNER_TEMP/notes-calculator.md"
+          if gh release view calculator >/dev/null 2>&1; then
+            gh release upload calculator "$file" --clobber
+            gh release edit calculator --notes-file "$RUNNER_TEMP/notes-calculator.md" \
+              --title "Retirement tax calculator (one file)"
+            echo "refreshed the calculator release"
+          else
+            gh release create calculator "$file" \
+              --title "Retirement tax calculator (one file)" \
+              --notes-file "$RUNNER_TEMP/notes-calculator.md"
+            echo "created the calculator release"
+          fi

@@ -100,8 +100,8 @@
  * commuting into the expensive city.** The credit is generous to exactly the
  * filers who did not need it.
  */
-import { countyRegistry, resolveCounty } from './counties.js';
-import type { CountyLookup } from './counties.js';
+import { countyRegistry, resolveCounty } from './county-registry.js';
+import type { CountyLookup } from './county-registry.js';
 import type { LocalIncomeTaxDefinition } from './definition.js';
 import type { Citation, StateCode } from '../types.js';
 
