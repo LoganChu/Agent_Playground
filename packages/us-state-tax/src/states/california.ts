@@ -195,6 +195,7 @@ export function california(year: number): StateIncomeTaxDefinition | undefined {
   if (year === 2025) {
     return {
       code: 'CA',
+      subtractsTaxableSocialSecurity: true,
       name: 'California',
       year,
       status: 'published',

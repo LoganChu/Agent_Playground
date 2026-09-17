@@ -312,8 +312,8 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'dependentAges',
     schema: { type: 'array', items: integer },
-    states: ['NY', 'CA', 'NJ', 'MA', 'MD'],
-    doc: 'Age of EVERY dependent at year end, not only the children. Five states band a credit by age and return ZERO without it, and the result says what that cost.',
+    states: ['NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA'],
+    doc: 'Age of EVERY dependent at year end, not only the children. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income.',
   },
   {
     name: 'filerAge',

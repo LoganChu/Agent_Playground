@@ -257,6 +257,39 @@ function seniorCredit(
  * Ohio's retirement income credit — § 5747.055(B), a step function of the
  * retirement income on the return under a cliff on modified AGI less exemptions.
  */
+/**
+ * Retirement income on the return, from whichever field the caller used.
+ *
+ * `retirementIncome` is a single figure for the household; `retirement` is the
+ * same income broken down per person, because three states subtract it per
+ * person. A caller who supplies the *more* detailed of the two was, until
+ * v0.18.0, treated as having supplied nothing at all by the rules that read the
+ * scalar — so Ohio's retirement income credit came back zero for a retiree
+ * whose pension the engine had been told about in full, and nothing in the
+ * result said so. Found by the differential test in `tools/differential`.
+ *
+ * Social Security is excluded here on purpose: it has its own field and its own
+ * treatment in every state, and Ohio deducts it before this credit is reached.
+ */
+function retirementIncomeOf(input: StateIncomeTaxInput): number {
+  if (input.retirementIncome !== undefined) {
+    return nonNegative(input.retirementIncome, 'retirementIncome');
+  }
+  const split = input.retirement;
+  if (!split) return 0;
+  const people = filerCount(input.filingStatus) === 2 ? [split.filer, split.spouse] : [split.filer];
+  let total = 0;
+  for (const person of people) {
+    if (!person) continue;
+    total +=
+      nonNegative(person.employerPlanPension, 'retirement.employerPlanPension') +
+      nonNegative(person.iraDistributions, 'retirement.iraDistributions') +
+      nonNegative(person.governmentPension, 'retirement.governmentPension') +
+      nonNegative(person.militaryRetirement, 'retirement.militaryRetirement');
+  }
+  return total;
+}
+
 function retirementIncomeCredit(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -265,8 +298,7 @@ function retirementIncomeCredit(
   const rule = def.retirementIncomeCredit;
   if (!rule) return 0;
   if (measures.stateModifiedAdjustedGrossIncomeLessExemptions >= rule.incomeLimit) return 0;
-  const retirement = nonNegative(input.retirementIncome, 'retirementIncome');
-  return stepAmount(rule.steps, retirement);
+  return stepAmount(rule.steps, retirementIncomeOf(input));
 }
 
 /** Military retired pay on the return, both spouses. */
@@ -1021,7 +1053,11 @@ function householdCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInp
  * And the increment counts "or fraction thereof", which makes it a staircase:
  * the dollar that crosses each boundary costs the whole increment at once.
  */
-function childCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+function childCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  stateTaxableIncome: number,
+): number {
   const rule = def.childCredit;
   if (!rule) return 0;
   const ages = input.dependentAges;
@@ -1049,8 +1085,18 @@ function childCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput):
   // $40,000.
   if (!rule.phaseOut) return credit;
 
-  const excess = input.federal.adjustedGrossIncome - rule.phaseOut.threshold[input.filingStatus];
+  // Utah withdraws its credit against a *post-subtraction* figure and its own
+  // retirement credits against a pre-subtraction one, on the same return. See
+  // {@link ChildCreditPhaseOutIncome}.
+  const income =
+    rule.phaseOut.income === 'stateTaxableIncomePlusTaxExemptInterest'
+      ? stateTaxableIncome + nonNegative(input.taxExemptInterest, 'taxExemptInterest')
+      : input.federal.adjustedGrossIncome;
+  const excess = income - rule.phaseOut.threshold[input.filingStatus];
   if (excess <= 0) return credit;
+  if (rule.phaseOut.kind === 'rate') {
+    return Math.max(0, credit - excess * rule.phaseOut.rate);
+  }
   const increments = Math.ceil(excess / rule.phaseOut.increment);
   return Math.max(0, credit - increments * rule.phaseOut.amountPerIncrement);
 }
@@ -1681,7 +1727,7 @@ function computeOnce(
     // caller indexing credits[0] should not break when a credit is added.
     credits.push({
       name: def.childCredit.name,
-      amount: childCredit(def, input),
+      amount: childCredit(def, input, taxableIncome),
       refundable: def.childCredit.refundable,
     });
   }

@@ -355,6 +355,7 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       phaseOut: {
         // The same $15,000 for every filing status — another threshold that is
         // not doubled for a joint return.
+        kind: 'perIncrement',
         threshold: uniform(15_000),
         amountPerIncrement: 50,
         increment: 1_000,

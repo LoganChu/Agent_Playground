@@ -197,6 +197,7 @@ export function newYork(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'NY',
+    subtractsTaxableSocialSecurity: true,
     name: 'New York',
     year,
     // Nothing in the New York computation is indexed, so there is no figure being
@@ -242,6 +243,7 @@ export function newYork(year: number): StateIncomeTaxDefinition | undefined {
         { maxAge: 16, amount: year >= 2026 ? 500 : 330 },
       ],
       phaseOut: {
+        kind: 'perIncrement',
         threshold: byStatusOf<number>({
           single: 75_000,
           separate: 55_000,

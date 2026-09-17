@@ -12,10 +12,19 @@ the IRS release it came from.
 
 **Tax years 2024, 2025 and 2026.**
 
+New in 0.9.0, and it is a **correction**: `age` and `age65OrOlder` are two fields for
+two different statutes — `age` is the § 32 earned income credit test, `age65OrOlder`
+the § 63(f) additional standard deduction and the `$6,000` Schedule 1-A senior
+deduction — and until now supplying only the first left the second false. A 67-year-old
+passed as `age: 67` lost **`$8,050`** of deduction in 2026 with nothing in the result to
+say so. `age65OrOlder` now defaults to `age >= 65`; pass `false` to override it. Found
+by a differential test against PolicyEngine-US, in
+[`tools/differential`](https://github.com/LoganChu/Agent_Playground/tree/main/tools/differential).
+
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.8.0/us-federal-tax-0.8.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.9.0/us-federal-tax-0.9.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.

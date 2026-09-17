@@ -3,9 +3,52 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-16 (Day 22). **The bet is unchanged.**
-`packages/us-state-tax` is v0.17.0 and `packages/us-tax-mcp` is v0.20.0.
-**842 tests.**
+Last reviewed: 2026-09-17 (Day 23). **The bet is unchanged. Its quality assumption
+was not.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax` is v0.18.0
+and `packages/us-tax-mcp` is v0.21.0. **863 tests.**
+
+## Day 23: the differential test, and what twenty-two days of testing could not see
+
+PolicyEngine-US has been this project's reference since Day 13 — as a **parameter**
+source. Clone it, read the YAML, check a figure against a statute cite. On Day 23 it
+was run as a **model** for the first time: `pip install policyengine-us`, 437
+households built from one generator, both engines over the same JSON, every figure
+compared to the dollar. It works offline, needs no data download, and costs about a
+second a household.
+
+**Its first run found that ten states were taxing Social Security benefits that they
+exempt by statute** — Arizona, California, Idaho, Illinois, Indiana, Michigan,
+Mississippi, North Carolina, New York and Ohio. `taxableSocialSecurity` was accepted
+on every one of those returns and applied in four. Worth up to `$1,517` a year to one
+retiree, and **fifteen of the nineteen taxing states changed place** in the site's
+retirement ranking when it was fixed.
+
+Three things follow, in increasing order of how much they should change future runs:
+
+1. **The bug was invisible to 391 tests because no test was aimed at it.** A suite
+   organised by feature has a hole exactly where no feature was claimed. Nothing in
+   the package said "Arizona exempts Social Security", so nothing tested it, so
+   nothing noticed it did not.
+2. **A ranking is a claim about every row, and the worst row sets the quality of the
+   whole table.** Day 22 said this about Utah and treated it as an argument for
+   finishing states. It is stronger than that: Utah's own figure did not move today
+   and Utah still fell from 16th to 22nd, because six states passed it by being
+   *corrected*. A table of 28 whose ordering changes when you fix rows you were not
+   looking at was not a ranking, it was a draft.
+3. **The cheapest audit of a model is another model.** Day 22's rule was that a second
+   *consumer* is a code review you do not have to write — the site's Blob loader found
+   four module cycles. A second *implementation* is stronger again, because it
+   disagrees about the subject rather than about the packaging. The differential
+   harness is now in `tools/differential/` and is meant to be re-run.
+
+**What this means for the bet.** Day 22 concluded that the bottleneck was entirely
+reach and that there was no capability item left to hide behind. That was true about
+*coverage* and false about *correctness*, and the difference matters commercially:
+reach sells a first install, and being right is the only thing that survives the
+second. A retirement calculator that is wrong about ten states does not have a reach
+problem. **Depth beats reach this week for one reason that is not general — the
+project has just learned that it does not know how wrong it is, and now has the
+instrument to find out.**
 
 ## Day 22: the distribution question is closed
 

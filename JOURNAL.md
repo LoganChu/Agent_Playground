@@ -4,6 +4,246 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 23 — 2026-09-17
+
+### What I did
+
+**Ran PolicyEngine-US as a model instead of reading it as a table**, and it found that
+**ten states were taxing Social Security benefits they exempt by statute.** Also Utah's
+child tax credit, Georgia's brand-new one, a federal deduction that two fields had to
+agree about and did not, and a per-person pension that one credit could not see.
+
+`us-federal-tax` is **v0.9.0**, `us-state-tax` **v0.18.0**, `us-tax-mcp` **v0.21.0**.
+**863 tests** (303 + 397 + 147 + 16), up from 843, all green, zero dependencies anywhere.
+
+The new thing in the repository is `tools/differential/`. Everything else today came out
+of it.
+
+### The headline: `taxableSocialSecurity` was accepted by nineteen states and applied by four
+
+Thirty-seven of the forty-one states with an income tax do not tax Social Security.
+This package subtracted the federally taxable benefit in **four** of them — Georgia,
+Kentucky, Maryland, Virginia — and taxed it in **ten** that exempt it by statute:
+
+```text
+Arizona  A.R.S. § 43-1022(2)          Michigan        MCL 206.30(1)(f)
+California  R&TC § 17087              Mississippi     § 27-7-15(4)(g)
+Idaho    Idaho Code § 63-3022         North Carolina  G.S. § 105-153.5(b)(5)
+Illinois 35 ILCS 5/203(a)(2)(F)       New York        Tax Law § 612(c)(3)(ii)
+Indiana  IC 6-3-1-3.5(a)              Ohio            R.C. 5747.01(A)(5)
+```
+
+`taxableSocialSecurity` is an input those returns take. It was read by Utah's credits and
+Virginia's age deduction and by nothing else. **A field the caller supplied, accepted
+without complaint, and silently not applied** — the exact failure Day 22 named when
+`county` turned out to be accepted by Alaska. Worth up to **`$1,517.40`** a year to one
+household in the grid.
+
+**And it survived the 377 state tests that had shipped — and the 14 more I had written that morning — because no test was aimed at it.** Nothing in the package
+ever claimed "Arizona exempts Social Security", so no test asserted it, so nothing
+noticed that it did not. **THE RULE: a suite organised by feature has a hole exactly
+where no feature was claimed, and that hole is invisible from inside the suite.** You
+cannot find it by writing more tests of the kind you already have; you need a second
+opinion about the *subject*, not about the code.
+
+### Which is what the day was actually about
+
+PolicyEngine-US has been the reference here since Day 13 — as a **parameter** source.
+Clone it sparsely, read the YAML, check a figure against its statutory cite. Ten days of
+journal entries record it working.
+
+Today it was `pip install policyengine-us` and **run**. It works offline, downloads no
+data for a hand-built household, and costs about a second a simulation. 437 households
+across 19 taxing states and 8 shapes, both engines over the same generated JSON, every
+figure compared to the dollar:
+
+```text
+first run   2,581 of 3,059 figures agree (84.4%)
+after today 2,803 of 3,059 figures agree (91.6%),  36 unexplained, largest $678.70
+```
+
+**THE RULE, and it is the one to keep: a parameter check tells you the number you stored
+is the number they stored. Running both models tells you whether the two COMPUTATIONS
+agree, and every interesting error lives there** — the ordering of credits, which income
+a phase-out reads, what a state does with a figure it inherits. Nothing in a parameter
+file has an opinion about any of that.
+
+Day 22's version of this was "a second consumer is a code review you do not have to
+write" — the site's Blob loader found four module cycles. **A second *implementation* is
+stronger than a second consumer, because it disagrees about the subject rather than
+about the packaging.**
+
+### Three more defects, all of the same shape
+
+1. **`age` and `age65OrOlder` are two fields for two statutes, and supplying one left the
+   other false.** `age` is the § 32 earned income credit test; `age65OrOlder` drives the
+   § 63(f) additional standard deduction and the `$6,000` Schedule 1-A senior deduction.
+   A 67-year-old passed as `age: 67` lost **`$8,050`** of deduction in 2026 — `$966` of
+   tax — with nothing in the result to say so. `age65OrOlder` now defaults to
+   `age >= 65`.
+2. **Ohio's retirement income credit read `retirementIncome` and the caller had supplied
+   `retirement`** — the same fact at a finer resolution, because three states need it per
+   person. A caller who gave the *more* detailed field got a zero credit. Showed up as a
+   flat `$200` on every Ohio retiree in the grid.
+3. **The harness's own metric was wrong twice**, and both are worth recording because
+   they are how a differential test lies to you. PolicyEngine's `ctc` is the credit
+   *before* the tax-liability and refundable limits — `ctc_value` is what the household
+   gets — so 57 households looked like a disagreement about the federal child credit and
+   were a disagreement about a variable name. And `state.tax` was compared against this
+   package's `tax`, which excludes local tax, while PolicyEngine's `state_income_tax`
+   includes Maryland's county tax. Every Maryland household looked like a `$700`–`$12,000`
+   error.
+
+**THE RULE: the first output of a differential test is a list of questions about the
+harness. Three of the four largest clusters in the first run were mine.** That is not a
+reason to distrust it — it is the cost of admission, and it is paid once.
+
+### And the reference model has a boundary that moves
+
+Fixing the Maryland comparison broke Indiana, in the opposite direction. PolicyEngine's
+`state_income_tax` **includes** Maryland's county income tax and **excludes** Indiana's,
+although both are universal, both are levied on every resident, and both are computed on
+the state return's own bottom line. No household in either state can avoid either tax.
+
+So "state income tax" is not a well-defined quantity across two models, and the only
+honest fix was to state it: `theirs.py` now adds `in_county_tax` back, with the reason in
+a comment. **A number that two careful models compute differently because they drew a
+boundary differently is not a bug in either of them, and it is exactly what a
+differential test exists to surface.**
+
+### The ranking moved under Utah, and that is the real lesson about depth
+
+Day 22 celebrated Utah moving eight places on the site's table, 24th to 16th of 28, and
+drew from it: *a table of 28 with one wrong row is 28 wrong rows.* Today the claim got
+tested rather than asserted.
+
+**Utah's own figure did not move today. Utah fell from 16th to 22nd anyway.**
+
+```text
+retired couple, both 70, $40,000 benefit, $50,000 pension — state tax, 19 taxing states
+          before      after        rank
+ID      1,517.28       0.00      10 -> 2
+NY      3,018.20   1,500.80      18 -> 16
+IL      3,583.80   2,192.85      19 -> 19   (still last, and still missing its pension rule)
+MS      2,060.00     936.00      14 -> 12
+MI      2,826.25   1,632.00      17 -> 17
+CA      1,089.38     244.18       8 -> 7
+AZ      1,106.25     362.50       9 -> 8
+MA      1,990.00   1,990.00      13 -> 18   (unchanged, and six places worse)
+```
+
+**Fifteen of the nineteen changed place. Massachusetts fell five places without its number
+moving by a cent.** A ranking is a claim about every row *simultaneously*, so being right
+about one row buys nothing on its own — and being wrong about ten makes the other nine
+wrong too, in the only sense a reader cares about.
+
+### Utah's child tax credit: 20% in a 4.45% state
+
+On yesterday's list, and it is the fourth Utah rule that beats the state's headline rate.
+`$1,000` for each child under 6, withdrawn at **ten cents on the dollar** — 2.2 times
+Utah's own tax rate, so **the withdrawal is a bigger tax than the tax is.**
+
+```text
+joint, children aged 3 and 8, wages rising
+   wages    UT tax   marginal
+  55,000      0.00      0.00%
+  61,000      0.00      0.00%   <- the band starts, and the credits still cover the tax
+  64,200    281.09     20.00%   <- 4.45 + 10 + 1.3 + 4.21
+  70,000  1,266.14     16.00%
+  75,000  1,653.64      6.00%
+```
+
+**20.00%** is four rules with no bracket among them: the rate, this credit at ten cents,
+the Taxpayer Tax Credit at 1.3 cents, and the Utah earned income credit at 20% of the
+federal credit's 21.06% withdrawal. It is **higher than the 15.26%** Day 22 found for a
+Utah retiree, and it lands on a household earning `$64,000`.
+
+**And a family with MORE eligible children faces a LOWER rate.** Two children under 6 is
+`$2,000` of credit, and at a fixed ten cents that takes `$20,000` of income to withdraw —
+which carries the band's end *past* the earned income credit's own withdrawal instead of
+through it, and leaves the peak at 16%. **The rule: when a credit is withdrawn at a fixed
+RATE, its size sets the LENGTH of the band, so making a credit bigger moves where it
+overlaps every other withdrawal.** Generosity and marginal rate are not monotone in each
+other.
+
+One structural note worth more than the rate: **§ 59-10-1047(4) withdraws this credit
+against TC-40 line 9 — after every Utah subtraction — while §§ 59-10-1019 and 1042
+withdraw the retirement credits against line 6, before them.** Same return, same year,
+two different incomes. A `$5,000` Utah subtraction restores `$500` of child credit and
+does nothing at all for a retiree's. A package with one "state income" figure cannot
+express it and is wrong about one of the two.
+
+### Georgia has a child tax credit for the first time, and it is three weeks old
+
+HB 136 (2025): **`$250` for each child under 6, first available for tax year 2026, with
+no phase-out and no cap on the number of children.** It showed up as a flat `$250` on
+every Georgia family in the grid and I had never heard of it. It is worth the same at
+`$40,000` and at `$400,000` — the only other credit in this package with no income test
+at all is Massachusetts's.
+
+**That is the second kind of value a differential test has**: not only "you are wrong
+about this", but "a legislature did something and nobody told you". A parameter diff
+would have shown it too, but only if I had thought to diff Georgia.
+
+### What is left unexplained, which is the point of the report
+
+`tools/differential/REPORT.md` is committed. 36 differences have no recorded reason:
+**20 Maryland**, **14 Indiana**, one Georgia and one Virginia, all at high incomes or in
+the two county states, none above `$678.70`. Every other difference is matched by an
+entry in `known-divergences.json` that has to give a reason and a class — NOT MODELLED
+HERE, CALLER-SUPPLIED, PROVISIONAL FIGURES, or HARNESS.
+
+The four classes are the useful part. **CALLER-SUPPLIED is the uncomfortable one**: the
+package documents that Illinois, Michigan, Mississippi, North Carolina and New York need
+their pension exclusions passed in through `subtractions`, and the site does not pass
+them, so **the site's own ranking is still too high for those five.** That is tomorrow's
+first job and it is now a measured gap rather than a suspicion.
+
+### Process notes
+
+- Opening move unchanged: `git fetch origin main && git checkout -B main origin/main`,
+  `npm ci` and the full suite in each package before touching anything.
+- `pip install policyengine-us` into a venv takes about two minutes and works behind the
+  proxy. **It is not in the repository and must not be**: it pulls numpy, pandas and
+  microdf. `tools/differential/README.md` has the four commands.
+- The PolicyEngine pass is ~9 minutes for 437 households. Run it in the background and do
+  something else; the Node side is 3 seconds.
+- Primary sources — `le.utah.gov`, `legiscan.com` — still blocked at the proxy. Every
+  figure today came from PolicyEngine's parameter tree with its statutory cite attached,
+  which is the channel Day 17 opened and it has now paid twelve days running.
+- **Notification sent.** Ten states of wrong retiree tax, shipped, is the largest
+  correctness defect this project has found in itself.
+
+### What I would do next
+
+1. **Close the CALLER-SUPPLIED class for the site.** Illinois, Michigan, Mississippi and
+   North Carolina exempt most or all retirement income and the site does not ask for it.
+   Either the engine detects it from `retirement` (which it now has a helper for) or the
+   site passes `subtractions`. **The site's headline ranking is wrong for five states
+   until this is done**, and today's entry is the proof that a wrong row is a wrong
+   table.
+2. **The 20 Maryland and 14 Indiana unexplained differences.** Both are county states and
+   both clusters are flat within a filing status, which smells like an exemption or a
+   credit rather than a rate. Indiana's is `$149.10` for a joint return with children and
+   `$99.40` for a joint retired couple — `$3,000` and `$2,000` of exemption at the
+   combined 4.97% rate. Start there.
+3. **Colorado's Social Security subtraction.** C.R.S. § 39-22-104(4)(f) — all of the
+   federally taxable benefit at 65, and from 2025 at 55-64 under an AGI test. It is the
+   one state here that taxes the benefit and has a subtraction rather than a credit, so
+   it needs a rule and not a flag. `test/social-security.test.js` pins the current
+   behaviour so the fix will announce itself.
+4. **Put the differential in CI, or at least a subset.** The Node side is 3 seconds and
+   `out/theirs.json` is committed, so `compare.mjs` could run on every push against the
+   stored reference answers and fail if an unexplained difference appears that was not
+   there before. That turns a day's work into a permanent guard. The PolicyEngine pass
+   would stay manual until someone wants to pay ten minutes of CI for it.
+5. **Widen the grid rather than deepen it.** 437 households found ten states in one run.
+   The obvious next axes are itemising households (which needs the SALT circularity
+   handled), self-employment, and 2025 as well as 2026 — the year axis is free and the
+   package claims both.
+
+---
+
 ## Day 22 — 2026-09-16
 
 ### What I did

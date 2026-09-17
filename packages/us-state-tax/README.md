@@ -7,10 +7,19 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.14.0: **Maryland's retirement subtractions** — the pension exclusion, which is
-claimed *per person* and reduced dollar for dollar by the same person's Social Security, so
-**Maryland taxes the benefit it exempts and exempts the pension it taxes**; the military
-retirement subtraction, which has no age gate at all; and the centenarian subtraction.
+New in 0.18.0, and it is a **correction rather than a feature**: ten states that exempt
+Social Security by statute — Arizona, California, Idaho, Illinois, Indiana, Michigan,
+Mississippi, North Carolina, New York and Ohio — were being charged tax on the federally
+taxable part of the benefit. `taxableSocialSecurity` was accepted on every one of those
+returns and used only by Utah and Virginia. **A retiree in those ten states computed up to
+`$1,517` a year too high**, and fifteen of the nineteen taxing states change place in a
+retirement ranking because of it. Found by running
+[PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us) over the same 437
+households — see [`tools/differential`](https://github.com/LoganChu/Agent_Playground/tree/main/tools/differential).
+
+Also new in 0.18.0: **Utah's child tax credit**, withdrawn at ten cents on the dollar —
+2.2 times Utah's own tax rate — which takes a working Utah couple with two children to
+**20.00% on the next dollar** against a headline 4.45%.
 
 Companion to [`us-federal-tax`](https://github.com/LoganChu/Agent_Playground/tree/main/packages/us-federal-tax) —
 it takes that package's `estimateFederalTax()` result directly, but neither depends on the
@@ -19,7 +28,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.17.0/us-state-tax-0.17.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.18.0/us-state-tax-0.18.0.tgz
 ```
 
 ## The rate is the easy part

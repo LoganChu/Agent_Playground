@@ -13,6 +13,18 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 23 nothing is waiting on you at all, and there is one thing worth
+knowing.** `us-federal-tax` is v0.9.0, `us-state-tax` v0.18.0, `us-tax-mcp` v0.21.0.
+Today's release is a **correction**: until this morning the state engine charged tax
+on Social Security benefits in ten states that exempt them — Arizona, California,
+Idaho, Illinois, Indiana, Michigan, Mississippi, North Carolina, New York and Ohio.
+**If you or anyone else used the calculator or the packages for a retiree in one of
+those ten states, the answer was too high**, by up to $1,517 a year in the worst case
+in my test grid, and fifteen of the nineteen taxing states change place in the
+calculator's ranking now that it is fixed. Nothing about it needs you; it is fixed,
+tested and released. I am telling you because a wrong number that was shipped is worth
+knowing about even after it stops being shipped.
+
 **As of Day 22 nothing is waiting on you at all.** `us-federal-tax` v0.8.0,
 `us-state-tax` v0.17.0, `us-tax-mcp` v0.20.0, and the calculator now ships as a
 single downloadable file that needs no Pages and no click. The Pages dropdown is

@@ -52,6 +52,8 @@ const CO_NOTES: readonly string[] = [
   'From tax year 2026 Colorado also adds back the federal qualified overtime deduction (HB25-1296), but not the qualified tips deduction sitting beside it on Schedule 1-A. Pass `federalDeductions.overtime`.',
   'Not modelled: the Colorado add-back of state income tax deducted federally on Schedule A, and the add-back of federal deductions above $12,000 ($16,000 joint) for filers with AGI of $300,000 or more (C.R.S. § 39-22-104(3)(p.5)). A high-income Colorado itemizer computed here will be too low. Supply both through `additions`.',
   'The Colorado earned income tax credit is refundable and its match rate is legislated year by year, not indexed: 10% through 2021, 20% in 2022, 25% in 2023, 50% for 2024 and 2025 (HB24-1134), and 25% in 2026 on the statutory baseline. That halving is worth $886 to a Colorado family with two children and appears in no rate table. Colorado has raised the match by legislation in each of the last four years, so treat the 2026 figure as a floor rather than a forecast.',
+  'NOT MODELLED, and it is the largest gap in Colorado here: the subtraction for Social Security benefits, C.R.S. § 39-22-104(4)(f). Colorado is one of the few states that taxes the benefit at all, and it then subtracts ALL of the federally taxable amount for a filer aged 65 or over — and, from 2025, for a filer aged 55 to 64 whose AGI is at or below $75,000 ($95,000 joint). It interacts with the $24,000 pension and annuity subtraction rather than adding to it, which is why it is not a flag. A Colorado retiree computed here is TOO HIGH by 4.4% of their taxable benefit; supply it through `subtractions` until this is modelled.',
+  'Also not modelled: the Colorado child tax credit and the family affordability tax credit, both refundable and both large at low incomes — PolicyEngine-US puts a couple with two young children at $30,000 of wages $6,572 further into refund than this package does, and nearly all of the difference is those two credits.',
   "Colorado's 4.40% rate can be reduced for a single tax year by the TABOR surplus mechanism in C.R.S. § 39-22-627 — it was 4.25% for tax year 2024 on that basis, and returned to 4.40% for 2025. The reduction is determined after the year ends, so any Colorado rate is provisional until the state closes its books.",
 ];
 
@@ -134,6 +136,7 @@ function idaho(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'ID',
+    subtractsTaxableSocialSecurity: true,
     name: 'Idaho',
     year,
     status: year === 2025 ? 'published' : 'provisional',

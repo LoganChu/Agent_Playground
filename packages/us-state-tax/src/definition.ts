@@ -696,14 +696,55 @@ export interface ChildCreditRule {
    * is rarer than it sounds: it is the only credit in this package worth the
    * same to a household at `$400,000` as at `$40,000`.
    */
-  readonly phaseOut?: {
-    readonly threshold: ByStatus;
-    /** Subtracted from the whole credit per increment, or fraction of one. */
-    readonly amountPerIncrement: number;
-    readonly increment: number;
-  };
+  readonly phaseOut?: ChildCreditPhaseOut;
   readonly refundable: boolean;
 }
+
+/**
+ * How a per-dependent credit is withdrawn. The two shapes are not a formatting
+ * choice: a staircase and a rate disagree by up to a whole step for every filer
+ * inside one, and they disagree about *where* the credit ends.
+ */
+export type ChildCreditPhaseOut =
+  /**
+   * New York's and Maryland's: the whole credit falls by `amountPerIncrement`
+   * for each `increment` of income **or fraction thereof**, so the dollar that
+   * crosses each boundary costs the whole step at once.
+   */
+  | {
+      readonly kind: 'perIncrement';
+      readonly threshold: ByStatus;
+      readonly amountPerIncrement: number;
+      readonly increment: number;
+      readonly income?: ChildCreditPhaseOutIncome;
+    }
+  /**
+   * Utah's: a flat `rate` of every dollar above the threshold, with no step.
+   * Ten cents on the dollar, which is 2.2 times Utah's own tax rate — the
+   * withdrawal of this credit is a larger marginal tax than the tax is.
+   */
+  | {
+      readonly kind: 'rate';
+      readonly threshold: ByStatus;
+      readonly rate: number;
+      readonly income?: ChildCreditPhaseOutIncome;
+    };
+
+/**
+ * Which income the credit is withdrawn against. Default `federalAdjustedGrossIncome`.
+ *
+ * Utah is the reason this exists, and the reason is worth stating: its child tax
+ * credit is withdrawn against **TC-40 line 9**, the state taxable income *after*
+ * every Utah subtraction, plus tax-exempt interest — while the same state's
+ * retirement credits are withdrawn against **line 6**, the modified AGI
+ * *before* them. So one Utah subtraction raises the child credit and does
+ * nothing for the retirement credits, on the same return, in the same year. A
+ * single "state income" figure cannot express that, and a package that uses one
+ * is wrong about one of the two credits.
+ */
+export type ChildCreditPhaseOutIncome =
+  | 'federalAdjustedGrossIncome'
+  | 'stateTaxableIncomePlusTaxExemptInterest';
 
 /** One age band of a per-dependent credit. Bounds are inclusive. */
 export interface AgeBand {

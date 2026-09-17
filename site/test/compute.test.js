@@ -228,12 +228,17 @@ test('a separate filer living with their spouse loses the § 86 thresholds', () 
   assert.ok(separate.socialSecurity.taxableBenefits >= apart.socialSecurity.taxableBenefits);
 });
 
-test('Utah moves eight places up the ranking once its retirement credits exist', () => {
+test('the ranking moved under Utah, which is what a ranking of 28 does', () => {
   // The site's whole claim is that it ranks twenty-eight states against each
-  // other, and a ranking is only as good as its worst-modelled member. Until
-  // v0.17.0 of the engine this household's Utah figure was $2,801.46 — the tax
-  // before every credit but the Taxpayer Tax Credit — which put Utah 24th of 28
-  // between Mississippi and North Carolina. It is 16th.
+  // other, and a ranking is only as good as its worst-modelled member. Utah's
+  // own figure has not moved since v0.17.0 — $1,388.46, down from $2,801.46
+  // before its retirement credits existed — and Utah has fallen from 16th to
+  // 22nd anyway, because v0.18.0 stopped taxing Social Security in ten states
+  // that exempt it. Six states passed Utah without Utah changing at all.
+  //
+  // That is the argument for the differential harness in one line: a wrong row
+  // is not a wrong row, it is a wrong TABLE, and the only way to find out which
+  // rows are wrong is to check every one of them against something.
   const household = {
     year: 2026,
     filingStatus: 'marriedFilingJointly',
@@ -246,7 +251,13 @@ test('Utah moves eight places up the ranking once its retirement credits exist',
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  assert.equal(place, 16, `Utah ranks ${place}`);
+  assert.equal(place, 22, `Utah ranks ${place}`);
+  // The six that passed it, all of them by being modelled rather than by
+  // changing: Idaho, California, Arizona, Ohio, Mississippi and North Carolina.
+  const ahead = model.states.slice(0, place - 1).map((row) => row.state);
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC']) {
+    assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
+  }
   // And what it would have been: everything the three credits are worth.
   const credited = utah.result.credits.find((c) => /code A[HJ]|code 18/.test(c.name));
   assert.ok(Math.abs(credited.amount - 1_413) < 0.005, `the credit is ${credited.amount}`);

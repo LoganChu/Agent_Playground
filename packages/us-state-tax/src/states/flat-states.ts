@@ -25,6 +25,7 @@ const AZ_CITATIONS: readonly Citation[] = [
 function arizona(year: number): StateIncomeTaxDefinition {
   return {
     code: 'AZ',
+    subtractsTaxableSocialSecurity: true,
     name: 'Arizona',
     year,
     status: 'published',
@@ -85,6 +86,7 @@ const GA_NOTES: readonly string[] = [
   'Because net capital gain is in the qualifying pool and the allowance is annual, per person and use-it-or-lose-it, Georgia\'s "retirement income exclusion" is also a capital gains allowance: a couple both 65 with no other income may realise $130,000 of gain every year and owe Georgia nothing on it. No guide to the provision says so, because of what it is called.',
   'Georgia and Maryland use the same words for opposite constructions, and the difference decides the commonest question in retirement planning. Georgia counts taxable IRA distributions in full, so rolling a 401(k) into an IRA costs a Georgia retiree nothing; Maryland\'s § 10-209(a) writes an IRA out of its exclusion by name, so the same rollover costs a Montgomery County retiree $3,378.83 a year at $150,000, for life. And Georgia subtracts taxable Social Security separately without charging it against the exclusion, where Maryland reduces the exclusion by the whole benefit received. Put IRA money in `retirement.filer.iraDistributions`, not in `employerPlanPension`.',
   'Georgia does not tax Social Security or Tier 1 railroad retirement benefits. Pass the taxable part — Form 1040 line 6b — as `taxableSocialSecurity` and it comes off the base; do NOT also put it in `subtractions`, or it will be subtracted twice.',
+  'Georgia\'s child tax credit is new for tax year 2026 — HB 136 (2025), $250 for each child under 6, non-refundable, with NO phase-out and no cap on the number of children. Pass `dependentAges`; a Georgia family return that omits them loses it silently. It is worth the same $250 to a household at $40,000 and at $400,000, which is rare: the only other credit in this package with no income test at all is Massachusetts\'s.',
   'Not modelled: the low income credit of O.C.G.A. § 48-7-29.7, which is at most $26 per exemption and is gone at $20,000 of federal AGI; the $4,000-per-return exclusion for income from a disability retirement; the Georgia 529 (Path2College) contribution subtraction; the child and dependent care credit (30% of the federal credit); the qualified education expense and rural hospital credits; and the surplus tax refund, which is not part of the return. Pass any of these through `subtractions` if you have them.',
 ];
 
@@ -124,6 +126,19 @@ function georgia(year: number): StateIncomeTaxDefinition | undefined {
     },
     exemption: { perFiler: uniform(0), perDependent: dependent },
     subtractsTaxableSocialSecurity: true,
+    // HB 136 (2025) creates a $250 credit for each child under 6, first
+    // available for tax year 2026 — the newest provision in this package, and
+    // the only per-dependent credit here with no phase-out and no ceiling on
+    // the number of children.
+    ...(year >= 2026
+      ? {
+          childCredit: {
+            name: 'Georgia child tax credit',
+            amountByAge: [{ maxAge: 5, amount: 250 }],
+            refundable: false,
+          } as const,
+        }
+      : {}),
     retirementIncomeExclusion: {
       name: 'Georgia retirement income exclusion',
       minimumAge: 62,
@@ -180,7 +195,7 @@ const IL_NOTES: readonly string[] = [
   "Illinois' exemption allowance is not phased out — it is lost entirely at the first dollar of federal AGI above $250,000 ($500,000 on a joint return). One extra dollar of income at the threshold costs a single filer the whole $2,850 exemption, and $141.12 of tax on that single dollar. 35 ILCS 5/204(g).",
   'Illinois has no standard deduction and no itemized deductions. The exemption allowance is the only subtraction from base income that most filers get.',
   'The Illinois earned income credit is 20% of the federal credit and is refundable — raised from 18% for tax year 2023 by Public Act 102-0700. Illinois also extends it to filers aged 18 to 24 and 65 and over who are barred from the federal childless credit by age, and to filers with an ITIN rather than a Social Security number; this package cannot see either, so an Illinois filer in one of those groups is understated.',
-  'Illinois does not tax retirement income — distributions from qualified plans, IRAs, and Social Security are all subtracted from base income. Supply them through `subtractions`; this package does not detect them.',
+  'Illinois does not tax retirement income at all — 35 ILCS 5/203(a)(2)(F). The taxable Social Security inside federal AGI is subtracted here automatically from `taxableSocialSecurity`; distributions from qualified plans and IRAs are NOT detected and must be supplied through `subtractions`, and an Illinois retiree return that omits them is far too high.',
 ];
 
 function illinois(year: number): StateIncomeTaxDefinition | undefined {
@@ -189,6 +204,7 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
   const exemption = 2850;
   return {
     code: 'IL',
+    subtractsTaxableSocialSecurity: true,
     name: 'Illinois',
     year,
     status: year === 2025 ? 'published' : 'provisional',
@@ -236,6 +252,7 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'IN',
+    subtractsTaxableSocialSecurity: true,
     name: 'Indiana',
     year,
     status: 'published',
@@ -347,6 +364,7 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
   const exemption = 5800;
   return {
     code: 'MI',
+    subtractsTaxableSocialSecurity: true,
     name: 'Michigan',
     year,
     status: year === 2025 ? 'published' : 'provisional',
@@ -389,6 +407,7 @@ function northCarolina(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'NC',
+    subtractsTaxableSocialSecurity: true,
     name: 'North Carolina',
     year,
     // The standard deduction is a fixed statutory figure rather than an indexed
@@ -409,7 +428,7 @@ function northCarolina(year: number): StateIncomeTaxDefinition | undefined {
     notes: [
       "North Carolina's rate steps down by statute: 4.50% in 2024, 4.25% in 2025, 3.99% in 2026, and lower still from 2027 if revenue triggers in G.S. 105-153.7(a2) are met.",
       'Not modelled: the North Carolina child deduction, worth up to $3,000 per qualifying child and phasing to zero as AGI rises (G.S. 105-153.5(a1)). A North Carolina family return computed here is too high — by up to $120 per child in 2026.',
-      'North Carolina does not tax Social Security benefits and exempts certain military retirement pay. Supply those through `subtractions`.',
+      'North Carolina does not tax Social Security benefits — G.S. § 105-153.5(b)(5) — and the taxable part is subtracted here from `taxableSocialSecurity`. The Bailey exemption for certain state and federal retirement pay, and the military retirement deduction, are not modelled: supply those through `subtractions`.',
     ],
     citations: NC_CITATIONS,
   };
@@ -434,6 +453,7 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'MS',
+    subtractsTaxableSocialSecurity: true,
     name: 'Mississippi',
     year,
     status: 'published',
@@ -477,7 +497,7 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
     notes: [
       'The first $10,000 of Mississippi taxable income is taxed at 0%, and that bracket is per return: it is not doubled on a joint return, even though the exemption and the standard deduction both are.',
       "Mississippi's rate falls from 4.7% in 2024 to 4.4% in 2025 and 4.0% in 2026 under the Build Up Mississippi Act, with further reductions toward zero conditional on revenue triggers.",
-      'Mississippi does not tax qualified retirement income, including Social Security, IRA and 401(k) distributions taken at retirement age. Supply those through `subtractions`.',
+      'Mississippi does not tax qualified retirement income. Social Security is subtracted here from `taxableSocialSecurity`; IRA and 401(k) distributions taken at retirement age are exempt too and are NOT detected — supply them through `subtractions`.',
     ],
     citations: MS_CITATIONS,
   };

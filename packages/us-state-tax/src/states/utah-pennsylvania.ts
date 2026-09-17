@@ -67,6 +67,22 @@ const UT_CITATIONS: readonly Citation[] = [
     url: 'https://le.utah.gov/~2025/bills/static/SB0071.html',
   },
   {
+    title: 'Utah Code § 59-10-1047 — child tax credit',
+    url: 'https://le.utah.gov/xcode/Title59/Chapter10/59-10-S1047.html',
+  },
+  {
+    title: 'Utah HB 106 (2025) — child tax credit extended to children under 6',
+    url: 'https://le.utah.gov/~2025/bills/static/HB0106.html',
+  },
+  {
+    title: 'Utah HB 290 (2026) — Child Tax Credit Amendments, thresholds raised',
+    url: 'https://le.utah.gov/~2026/bills/static/HB0290.html',
+  },
+  {
+    title: 'Utah State Tax Commission — Child Tax Credit',
+    url: 'https://incometax.utah.gov/credits/child-tax-credit',
+  },
+  {
     title: 'Utah State Tax Commission — Retirement Credit (code 18)',
     url: 'https://incometax.utah.gov/credits/retirement-credit',
   },
@@ -80,7 +96,10 @@ const UT_NOTES: readonly string[] = [
   "Utah's statutory rate is not its marginal rate for most working filers. The Taxpayer Tax Credit is 6% of the federal standard or itemized deduction plus $2,111 per dependent, reduced by 1.3 cents for each dollar of Utah taxable income above $18,213 ($36,426 joint). Inside that band the true marginal rate is the statutory rate plus 1.3 points — 5.75% in 2026 against a headline 4.45%.",
   'The credit depends on the FEDERAL deduction, so Utah is a federal-AGI state whose credit is nonetheless sensitive to changes below AGI. The OBBBA standard deduction increase raised the Utah credit by 6% of the increase — about $69 for a single filer in 2025 — cutting Utah tax with no Utah legislation.',
   'Utah cut its rate twice in two years: 4.55% for 2024, 4.5% for 2025 (HB 106), and 4.45% for 2026 (SB 60).',
-  'Not modelled: the Utah credits for at-home parents and 529 contributions, and the Utah child tax credit — whose thresholds HB 290 (2026) raised to $49,000 single / $61,000 joint / $30,500 separate and which is withdrawn at TEN cents on the dollar, so a Utah family inside that band faces a marginal rate around 14% against a headline 4.45%. A family return computed here will be too high; a retiree return will not, as of v0.17.0.',
+  "Utah's child tax credit is withdrawn at TEN cents on the dollar — 2.2 times the state's own tax rate, so the withdrawal is a larger marginal tax than the tax is. $1,000 for each child under 6, gone by $59,000 of income for a single filer with one child and $71,000 for a couple ($49,000/$61,000 in 2026 after HB 290, $43,000/$54,000 in 2025). Inside the band a Utah family faces about 14.75% on the next dollar against a headline 4.45%, and 16.05% where the Taxpayer Tax Credit is being withdrawn at the same time.",
+  "The child tax credit is withdrawn against a DIFFERENT income figure from Utah's retirement credits, on the same return. TC-40 line 9 — state taxable income, after every Utah subtraction — plus tax-exempt interest, where the Retirement and Social Security Benefits credits use line 6, before them. A Utah subtraction therefore buys back child credit and does nothing for a retiree's.",
+  'The credit is per child under 6 and ends the year the child turns 6, so a Utah family loses $1,000 on a birthday and nothing on the return says why. HB 106 (2025) widened it from the 1-to-3 band it had in 2024, where a newborn did not qualify at all.',
+  'Not modelled: the Utah credits for at-home parents and 529 contributions. A family claiming either will compute too high here.',
   "Utah's earned income credit is 20% of the federal credit and is NON-REFUNDABLE — Utah Code § 59-10-1044 sits in Part 10, the Nonrefundable Tax Credit Act. It is the only state credit in this package that is a share of the federal credit and cannot be paid out, and the difference is the whole point of the credit for the filers it is aimed at: a Utah single parent whose Taxpayer Tax Credit already wipes out their tax receives nothing from it.",
   "Utah taxes Social Security and then hands the tax back. The Social Security Benefits Credit (code AH, § 59-10-1042) is the state's own rate applied to the part of the benefit § 86 made taxable, so below $90,000 of modified AGI ($54,000 single, $45,000 separate) the benefit costs a Utah retiree nothing — and above it the credit is withdrawn at 2.5 cents on the dollar. SB 71 (2025) raised those thresholds 20% from $75,000/$45,000/$37,500 and they are NOT indexed.",
   'A retiree may claim only ONE side of Utah\'s retirement credits: the Retirement Credit (code 18) on one side, or the Social Security Benefits Credit (code AH) together with the Military Retirement Credit (code AJ) on the other — § 59-10-1019(5). This engine computes both sides and takes the larger, which is always optimal because a non-refundable credit is worth min(itself, tax remaining) and min is monotone. The result names the side that was taken.',
@@ -163,6 +182,27 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
         }),
       },
       militaryRetirement: { name: 'Utah military retirement credit (code AJ)' },
+    },
+    childCredit: {
+      name: 'Utah child tax credit',
+      // Under 6, both years. HB 106 (2025) replaced the original "at least one
+      // and under four" band, which excluded a newborn, with this one.
+      amountByAge: [{ maxAge: 5, amount: 1_000 }],
+      phaseOut: {
+        // Ten cents on the dollar with no step — § 59-10-1047(4) reduces the
+        // credit by "$.10 for each $1", not by a fixed amount per band.
+        kind: 'rate',
+        rate: 0.1,
+        income: 'stateTaxableIncomePlusTaxExemptInterest',
+        threshold: byStatus(
+          year === 2026
+            ? { single: 49_000, joint: 61_000, separate: 30_500, headOfHousehold: 49_000 }
+            : { single: 43_000, joint: 54_000, separate: 27_000, headOfHousehold: 43_000 },
+        ),
+      },
+      // Part 10 of Chapter 10 is the Nonrefundable Tax Credit Act, and
+      // § 59-10-1047 sits in it. A Utah family with no tax gets nothing.
+      refundable: false,
     },
     notes:
       year === 2026

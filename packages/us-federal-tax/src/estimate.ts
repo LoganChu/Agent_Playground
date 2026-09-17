@@ -125,8 +125,24 @@ export interface EstimateInput {
   livedWithSpouse?: boolean;
   /** Income excluded under § 911, § 931, or § 933, added back for MAGI. */
   foreignEarnedIncomeExclusion?: number;
+  /**
+   * Whether the filer was 65 or older at the end of the year — the additional
+   * standard deduction of § 63(f) and, from 2025, the `$6,000` senior deduction
+   * of Schedule 1-A.
+   *
+   * **Defaults to `age >= 65` when {@link age} is supplied**, because the two
+   * fields exist for different statutes and a caller who has stated the filer's
+   * age has already answered this question. Pass `false` explicitly to override
+   * it. The fields are separate because `age` is an EITC input that a household
+   * with qualifying children never needs, so most returns supply one and not the
+   * other.
+   */
   age65OrOlder?: boolean;
   blind?: boolean;
+  /**
+   * Whether the spouse was 65 or older at the end of the year. There is no
+   * `spouseAge`, so on a joint return this is the only way to say so.
+   */
   spouseAge65OrOlder?: boolean;
   spouseBlind?: boolean;
   /**
@@ -348,10 +364,19 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
   const grossIncome = grossIncomeExcludingSocialSecurity + (socialSecurity?.taxableBenefits ?? 0);
   const adjustedGrossIncome = Math.max(0, grossIncome - se.deductibleHalf);
 
+  // `age` is an EITC input and `age65OrOlder` a deduction input, and until
+  // v0.9.0 supplying the first left the second false: a 67-year-old passed as
+  // `age: 67` lost the § 63(f) addition AND the $6,000 senior deduction —
+  // $8,050 of deduction in 2026 — with nothing in the result to say so. A field
+  // that is silently ignored is a wrong answer with no symptom, which is the one
+  // failure mode this package exists to refuse. An explicit `false` still wins.
+  const age65OrOlder =
+    input.age65OrOlder ?? (input.age !== undefined ? input.age >= 65 : undefined);
+
   const standard = standardDeduction({
     filingStatus,
     year,
-    age65OrOlder: input.age65OrOlder,
+    age65OrOlder,
     blind: input.blind,
     spouseAge65OrOlder: input.spouseAge65OrOlder,
     spouseBlind: input.spouseBlind,
@@ -389,7 +414,7 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     qualifiedTipsBusinessIncomeLimit: input.qualifiedTipsBusinessIncomeLimit,
     qualifiedOvertimeCompensation: input.qualifiedOvertimeCompensation,
     qualifiedVehicleLoanInterest: input.qualifiedVehicleLoanInterest,
-    age65OrOlder: input.age65OrOlder,
+    age65OrOlder,
     spouseAge65OrOlder: input.spouseAge65OrOlder,
   });
 
