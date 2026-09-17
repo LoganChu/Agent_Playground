@@ -199,6 +199,28 @@ their pension exclusions passed in through `subtractions`, and the site does not
 them, so **the site's own ranking is still too high for those five.** That is tomorrow's
 first job and it is now a measured gap rather than a suspicion.
 
+### And CI caught something the local suite could not, which is the right way round
+
+The push went red. `us-state-tax`'s new Utah test imported
+`../../us-federal-tax/dist/esm/index.js` to build the federal side of a family
+return — convenient locally, where both packages are built, and broken in CI, where
+each package's job builds only itself. 384 tests ran instead of 397: the file failed
+to import and took its fourteen with it.
+
+The fix is better than the import. The federal figures those households need are a
+standard deduction and a § 32 credit, and both are now **computed in the test from
+published 2026 parameters**, in the open, so the arithmetic behind the 20% marginal
+rate can be checked by eye instead of taken from another engine. **The rule: a test
+that reaches into a sibling package's build has quietly added a dependency the package
+does not declare** — these two do not depend on each other in either direction, and
+that is a property worth more than the convenience.
+
+Day 22's rule was that a guard which can only fail in CI is a guard you will trip. This
+is its complement: **a guard that can only fail in CI is sometimes the only guard
+there is**, because the thing it tests — one package building alone — is a condition a
+developer's machine never reproduces. The answer is not to move it; it is to make the
+failure cheap, which a three-second job does.
+
 ### Process notes
 
 - Opening move unchanged: `git fetch origin main && git checkout -B main origin/main`,

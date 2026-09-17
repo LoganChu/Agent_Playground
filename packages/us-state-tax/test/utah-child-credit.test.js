@@ -25,7 +25,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { stateIncomeTax } from '../dist/esm/index.js';
-import { estimateFederalTax } from '../../us-federal-tax/dist/esm/index.js';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -36,6 +35,37 @@ const money = (actual, expected, msg) =>
 const creditNamed = (result, fragment) =>
   result.credits.find((c) => c.name.toLowerCase().includes(fragment.toLowerCase()));
 
+// The federal side of these households, stated here rather than imported.
+//
+// `us-state-tax` does not depend on `us-federal-tax` in either direction, and a
+// test that reaches across into the other package's build breaks the moment
+// anything runs one package's suite without building the other — which is
+// exactly what CI does. So the two federal figures Utah reads are computed from
+// published 2026 parameters, in the open, where the arithmetic behind the 20%
+// marginal rate can be checked by eye.
+const STANDARD_DEDUCTION = {
+  single: 15_750,
+  marriedFilingJointly: 32_200,
+  marriedFilingSeparately: 15_750,
+  headOfHousehold: 23_625,
+};
+
+/** § 32, 2026: rate, maximum and withdrawal rate by qualifying-child count. */
+const EITC = [
+  { creditRate: 0.0765, phaseOutRate: 0.0765, maximumCredit: 664, start: { single: 10_860, joint: 18_140 } },
+  { creditRate: 0.34, phaseOutRate: 0.1598, maximumCredit: 4_427, start: { single: 23_890, joint: 31_160 } },
+  { creditRate: 0.4, phaseOutRate: 0.2106, maximumCredit: 7_316, start: { single: 23_890, joint: 31_160 } },
+  { creditRate: 0.45, phaseOutRate: 0.2106, maximumCredit: 8_231, start: { single: 23_890, joint: 31_160 } },
+];
+
+function federalEarnedIncomeCredit(wages, children, filingStatus) {
+  const row = EITC[Math.min(children, 3)];
+  const start = filingStatus === 'marriedFilingJointly' ? row.start.joint : row.start.single;
+  const phasedIn = Math.min(row.maximumCredit, wages * row.creditRate);
+  const reduction = Math.max(0, wages - start) * row.phaseOutRate;
+  return Math.max(0, phasedIn - reduction);
+}
+
 /** A Utah family return, computed the way a caller would: federal first. */
 function family({
   wages,
@@ -45,25 +75,20 @@ function family({
   taxExemptInterest = 0,
   subtractions = 0,
 }) {
-  const fed = estimateFederalTax({
-    filingStatus,
-    year,
-    w2Wages: wages,
-    age: 38,
-    qualifyingChildren: childAges.filter((a) => a < 17).length,
-    eitcQualifyingChildren: childAges.length,
-    taxExemptInterest,
-  });
+  const deduction = STANDARD_DEDUCTION[filingStatus];
   return stateIncomeTax({
     state: 'UT',
     year,
     filingStatus,
     federal: {
-      adjustedGrossIncome: fed.adjustedGrossIncome,
-      taxableIncome: fed.taxableIncome,
-      deduction: fed.deduction,
-      deductionKind: fed.deductionKind,
-      earnedIncomeCredit: fed.credits.earnedIncomeCredit?.credit ?? 0,
+      // Wages only, so federal AGI is the wage and there is nothing above the
+      // line. Tax-exempt interest is outside AGI by definition; Utah adds it
+      // back itself, which is half of what these tests are about.
+      adjustedGrossIncome: wages,
+      taxableIncome: Math.max(0, wages - deduction),
+      deduction,
+      deductionKind: 'standard',
+      earnedIncomeCredit: federalEarnedIncomeCredit(wages, childAges.length, filingStatus),
     },
     dependents: childAges.length || undefined,
     dependentAges: childAges.length ? childAges : undefined,
