@@ -5,7 +5,8 @@ future run can either build on it or kill it deliberately rather than by drift.
 
 Last reviewed: 2026-09-18 (Day 24). **The bet is unchanged and the Day 23 correction
 has been paid off.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax` is
-v0.19.0 and `packages/us-tax-mcp` is v0.22.0. **889 tests.**
+v0.20.0 and `packages/us-tax-mcp` is v0.23.0. **892 tests**, and the differential now
+runs on every push.
 
 ## Day 24: a note that tells the caller to do the engine's work is a bug with a docstring
 
@@ -35,8 +36,13 @@ Two things follow for the bet:
    unexplained differences at all, because a divergence entry matched on a state alone
    had been absorbing everything else that disagreed in those states — five distinct
    defects, reported as explained, for weeks. `maxAbs` now bounds a reason by the size
-   it claims. **A tool that classifies its own failures needs a guard against the class
-   growing under the label.**
+   it claims, and the report lists entries that matched NOTHING. **A tool that
+   classifies its own failures needs a guard in both directions — against a label
+   growing to cover what it never described, and against one that quietly stopped
+   describing anything.** Within four hours of writing that rule I shipped one of each:
+   a Michigan reason added in the morning sat in front of a narrower one and killed it,
+   and only the dead list showed it. The differential now runs in CI as a golden file,
+   so neither failure can survive a push.
 
 ## Day 24: the cheapest claim to check is the one you are least suspicious of
 

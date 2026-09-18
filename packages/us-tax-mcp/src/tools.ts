@@ -1352,6 +1352,7 @@ const stateTool: ToolDefinition = {
     const bothSpouses = source['bothSpousesHaveQualifyingIncome'];
     const taxableSocialSecurity = readNumber(source, 'taxableSocialSecurity');
     const taxExemptInterest = readNumber(source, 'taxExemptInterest');
+    const outOfStateMunicipalInterest = readNumber(source, 'outOfStateMunicipalInterest');
     const retirement = readRetirementSplit(source);
     const lesserSpouseIncome = readNumber(source, 'lesserSpouseIncome');
     const federalPovertyGuideline = readNumber(source, 'federalPovertyGuideline');
@@ -1453,6 +1454,16 @@ const stateTool: ToolDefinition = {
           `split between the spouses; IL, MS and MI subtract retirement income without a ` +
           `per-person cap and NC deducts military retired pay; UT needs militaryRetirement ` +
           `for its code AJ credit. New Jersey's exclusion is per return: pass retirementIncome.`,
+      );
+    }
+    // Illinois only, and read off the table rather than restated — see the note
+    // on SPLIT_STATES above.
+    const MUNI_STATES = statesFor('outOfStateMunicipalInterest');
+    if (outOfStateMunicipalInterest !== undefined && !MUNI_STATES.includes(state)) {
+      throw new ToolInputError(
+        `outOfStateMunicipalInterest only applies to ${MUNI_STATES.join(', ')}, and ${state} ` +
+          `was requested. Every other state that adds back another state's municipal interest ` +
+          `takes it through stateAdditions.`,
       );
     }
     if (taxExemptInterest !== undefined && state !== 'UT') {
@@ -1573,6 +1584,7 @@ const stateTool: ToolDefinition = {
       ...(itemized !== undefined ? { stateItemizedDeductions: itemized } : {}),
       ...(taxableSocialSecurity !== undefined ? { taxableSocialSecurity } : {}),
       ...(taxExemptInterest !== undefined ? { taxExemptInterest } : {}),
+      ...(outOfStateMunicipalInterest !== undefined ? { outOfStateMunicipalInterest } : {}),
       ...(retirement !== undefined ? { retirement } : {}),
       ...(lesserSpouseIncome !== undefined ? { lesserSpouseIncome } : {}),
       ...(federalPovertyGuideline !== undefined ? { federalPovertyGuideline } : {}),

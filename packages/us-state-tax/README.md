@@ -7,6 +7,16 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.20.0: **the one place this package was too LOW.** Illinois adds back interest on
+the obligations of *other* states and their municipalities — 35 ILCS 5/203(a)(2)(A) — while
+exempting its own, so an Illinois bondholder owes tax on income **the federal return never
+saw**, and an engine that starts at federal AGI and stops misses the whole of it. Pass
+`outOfStateMunicipalInterest`; it is deliberately **not** `taxExemptInterest`, because
+taking that total would tax an Illinois resident on Illinois bonds and the split exists on
+no federal form. Every difference this project had found against an independent model until
+now had it charging too much; this one appeared the moment the new retirement subtraction
+took a retiree's base to zero and nothing else was left to be wrong about.
+
 New in 0.19.0, and it is the second **correction rather than a feature** in two releases:
 **four states that exempt most or all retirement income were taxing it** — Illinois,
 Mississippi, Michigan and New York. The package documented that each needed its exclusion
@@ -60,7 +70,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.19.0/us-state-tax-0.19.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.20.0/us-state-tax-0.20.0.tgz
 ```
 
 ## The rate is the easy part

@@ -224,6 +224,14 @@ export const STATE_FIELDS: readonly StateField[] = [
     doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement.',
   },
   {
+    name: 'outOfStateMunicipalInterest',
+    schema: number,
+    states: ['IL'],
+    doc: "Interest on the obligations of OTHER states and their municipalities — the part of 1040 line 2a the filer's own state did not issue. Illinois adds it to base income (35 ILCS 5/203(a)(2)(A)) while exempting its own, so an Illinois bondholder owes tax on income the FEDERAL RETURN NEVER SAW, and an engine that starts at federal AGI and stops is too LOW. It is NOT taxExemptInterest, which is the total and would tax an Illinois resident on Illinois bonds: the split exists on no federal form. Omitted, an Illinois return with out-of-state bonds is understated by 4.95% of them. Every other state here that does the same thing takes it through stateAdditions.",
+    refusal:
+      'Only Illinois reads it here. Every other state that adds back another state\'s municipal interest — and most of them do — takes it through stateAdditions, because this package will not assert a list of twenty-eight states it has not checked one at a time.',
+  },
+  {
     name: 'retirement',
     schema: {
       type: 'object',
@@ -324,20 +332,20 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'filerAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH'],
-    doc: 'Filer age at year end. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
+    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY'],
+    doc: 'Filer age at year end. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
   },
   {
     name: 'spouseAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'UT'],
-    doc: 'Spouse age at year end, joint returns. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
+    states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY'],
+    doc: 'Spouse age at year end, joint returns. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
   },
   {
     name: 'blindOrDisabled',
     schema: integer,
-    states: ['NJ'],
-    doc: 'How many of filer and spouse are blind or disabled, 0-2. Worth a $1,000 exemption each in New Jersey, on top of the age exemption a 65-year-old already has — the two are cumulative, so one person can carry both. There is no income test and no proration.',
+    states: ['NJ', 'IL'],
+    doc: 'How many of filer and spouse are blind or disabled, 0-2. Illinois adds $1,000 of exemption for each, which stacks with the $1,000 it adds at 65 — and neither figure is indexed, where the $2,850 beside them moves with the CPI every year. Worth a $1,000 exemption each in New Jersey, on top of the age exemption a 65-year-old already has — the two are cumulative, so one person can carry both. There is no income test and no proration.',
   },
 ];
 

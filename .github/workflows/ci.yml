@@ -28,3 +28,46 @@ jobs:
       - run: npm install
       - run: npm run typecheck
       - run: npm test
+
+  # The differential test against PolicyEngine-US, as a guard on every push.
+  #
+  # Only the cheap half runs here. PolicyEngine's answers for the 437 households
+  # are COMMITTED in `tools/differential/out/theirs.json`, and regenerating this
+  # project's side takes three seconds, so a push can be checked against an
+  # independent model for the price of a `node` invocation. The ten-minute
+  # PolicyEngine pass stays manual and is only needed when the grid changes.
+  #
+  # The assertion is a golden file and deliberately strict: regenerate all three
+  # artefacts and require that nothing changed. That fails on a NEW unexplained
+  # difference, which is the case it exists for — and it also fails when one is
+  # FIXED, because Day 24 is what happens when a classification is allowed to go
+  # stale: four reasons in `known-divergences.json` said the caller had to supply
+  # a pension the engine had started supplying itself, and five unrelated defects
+  # sat behind them being reported as explained. A report that is allowed to
+  # drift from its own code is worth less than no report.
+  differential:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build both engines
+        run: |
+          (cd packages/us-federal-tax && npm install && npm run build)
+          (cd packages/us-state-tax   && npm install && npm run build)
+      - name: Regenerate the cases, this project's answers and the report
+        run: |
+          node tools/differential/cases-to-json.mjs > tools/differential/out/cases.json
+          node tools/differential/ours.mjs          > tools/differential/out/ours.json
+          node tools/differential/compare.mjs       > tools/differential/REPORT.md
+      - name: Require the committed report to match the code that produced it
+        run: |
+          if ! git diff --quiet tools/differential/; then
+            echo "::error::The differential report is out of date. Run the four commands in"
+            echo "::error::tools/differential/README.md and commit the result. The diff follows."
+            git --no-pager diff --stat tools/differential/
+            git --no-pager diff tools/differential/REPORT.md
+            exit 1
+          fi
+          echo "Differential report matches. $(grep -o '\*\*[0-9,]* agree to the dollar\*\*' tools/differential/REPORT.md)"

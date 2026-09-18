@@ -500,6 +500,37 @@ export interface StateIncomeTaxInput {
    */
   readonly additions?: number;
   /**
+   * Interest on the obligations of **other** states and their municipalities —
+   * the part of Form 1040 line 2a that the filer's own state did not issue.
+   *
+   * A state that exempts its own bonds and taxes everyone else's is the commonest
+   * addition on any state return, and it is the one place a federal-AGI base
+   * *undershoots*: these dollars never reached federal AGI at all, so a state
+   * that wants them has to legislate an addition, and an engine that starts from
+   * AGI and stops there returns a figure that is **too low**.
+   *
+   * It is a separate field from {@link additions} for one reason:
+   * {@link taxExemptInterest} is already here, already asked for — Utah adds the
+   * whole of it back into the income test its credits are withdrawn against —
+   * and it is the *wrong* figure for this. Taking the total would tax an Illinois
+   * resident on Illinois bonds, which Illinois exempts by name. **The split
+   * between a filer's own state and everywhere else exists on no federal form
+   * and cannot be derived from anything else on the return**, so it has to be
+   * asked for, and a caller who cannot supply it is better served by an answer
+   * that is too low and says so than by one that is too high and does not.
+   *
+   * Read by Illinois. Every other state here that does the same thing —
+   * and most of them do — takes it through {@link additions}, and the reason is
+   * today's: this package will not assert a list of twenty-eight states from
+   * memory. See the README.
+   *
+   * PolicyEngine-US models Illinois's addition as the **whole** of tax-exempt
+   * interest, with no in-state carve-out, so the two engines disagree for an
+   * Illinois resident holding Illinois bonds, and this package is the one that
+   * follows the statute.
+   */
+  readonly outOfStateMunicipalInterest?: number;
+  /**
    * State-specific subtractions — US government interest (which no state may tax),
    * Social Security benefits in the many states that exempt them, state 529
    * contributions, military pay, and so on. Same reasoning as `additions`.
@@ -1133,10 +1164,15 @@ export interface StateIncomeTaxResult {
   };
   readonly additions: number;
   /**
-   * The part of {@link additions} this package computed itself: federal
-   * deductions the state adds back. Zero for every state that starts from
-   * federal AGI, because those deductions are below AGI and were never in the
-   * state's base to begin with.
+   * The part of {@link additions} this package computed itself.
+   *
+   * Two kinds, and they arrive from opposite directions. **Federal deductions a
+   * `federalTaxableIncome` state adds back** — below AGI, so they were never in
+   * a federal-AGI state's base to begin with, and that used to make this list
+   * empty for every state on that base. And, from v0.19.0, **interest on other
+   * states' municipal obligations**, which is in no federal base at all and so
+   * is the one addition a federal-AGI state needs. Illinois is the first state
+   * here to have anything in this list without starting from taxable income.
    */
   readonly addBacks: readonly { readonly name: string; readonly amount: number }[];
   readonly subtractions: number;

@@ -428,3 +428,48 @@ test('Illinois adds $1,000 of exemption at 65, and it has not been indexed since
   assert.equal(rule.perSeniorFiler, 1_000);
   assert.equal(rule.perBlindOrDisabledFiler, 1_000);
 });
+
+// ---------------------------------------------------------------------------
+// The addition that runs the other way
+// ---------------------------------------------------------------------------
+
+// Every other difference this project has found against an independent model had
+// it charging TOO MUCH. This is the first one the other way, and it only became
+// visible the moment the Illinois retirement subtraction took a retiree's base to
+// zero: until then something else was always left to be wrong about.
+test('Illinois taxes another state’s municipal bonds, and its own not at all', () => {
+  const retiree = {
+    filingStatus: 'marriedFilingJointly',
+    filerAge: 70,
+    spouseAge: 70,
+    taxableSocialSecurity: 34_000,
+    retirement: EVEN_SPLIT,
+  };
+  // The whole pension and the whole benefit come out, so the base is nothing but
+  // the bond interest — income that reached no line of the federal return.
+  const own = run('IL', 94_000, retiree);
+  money(own.tax, 0, 'Illinois bonds, or none at all');
+
+  const elsewhere = run('IL', 94_000, { ...retiree, outOfStateMunicipalInterest: 10_000 });
+  // $10,000, less two $2,850 exemptions and two $1,000 senior exemptions.
+  money(elsewhere.tax, (10_000 - 2 * 2_850 - 2 * 1_000) * 0.0495);
+  const addition = elsewhere.addBacks.find((a) => a.name.includes('municipal'));
+  money(addition.amount, 10_000);
+});
+
+test('`taxExemptInterest` is not the figure, and is not read as one', () => {
+  // Taking the total would tax an Illinois resident on Illinois bonds, which
+  // Illinois exempts by name. The two fields are asked for separately because
+  // the split exists on no federal form.
+  const withTotal = run('IL', 60_000, { filerAge: 70, taxExemptInterest: 10_000 });
+  const without = run('IL', 60_000, { filerAge: 70 });
+  money(withTotal.tax, without.tax);
+});
+
+test('no other state reads it, because this package will not assert a list of 28', () => {
+  for (const state of ['MI', 'MS', 'NC', 'NY', 'GA', 'KY']) {
+    const plain = run(state, 60_000, { filerAge: 70 });
+    const bonds = run(state, 60_000, { filerAge: 70, outOfStateMunicipalInterest: 10_000 });
+    money(bonds.tax, plain.tax, `${state} should ignore it until it is verified`);
+  }
+});

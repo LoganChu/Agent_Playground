@@ -83,6 +83,16 @@ function one(c) {
     spouseAge: c.spouseAge ?? undefined,
     taxableSocialSecurity: fed.socialSecurity?.taxableBenefits ?? 0,
     taxExemptInterest: c.taxExemptInterest,
+    // The same dollars again, under the name Illinois's addition asks for.
+    //
+    // A case says "$10,000 of municipal bond interest" and does not say whose
+    // bonds, because nothing in either model's input schema distinguishes them:
+    // PolicyEngine treats the whole of `tax_exempt_interest_income` as an
+    // Illinois addition with no in-state carve-out. Passing it here as entirely
+    // out-of-state is what makes the two sides answer the SAME question. This
+    // package's own answer for an Illinois resident holding Illinois bonds is
+    // different and better, and no case in this grid asks it.
+    outOfStateMunicipalInterest: c.taxExemptInterest,
     dependents: c.childAges.length || undefined,
     dependentAges: c.childAges.length ? c.childAges : undefined,
     earnedIncome: c.wages,

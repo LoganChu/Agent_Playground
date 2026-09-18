@@ -1930,6 +1930,19 @@ export interface StateIncomeTaxDefinition {
    * because those deductions never entered a federal-AGI base in the first place.
    */
   readonly addBacks?: readonly FederalDeductionKey[];
+  /**
+   * True where the state adds back interest on **other** states' municipal
+   * obligations while exempting its own, from
+   * {@link StateIncomeTaxInput.outOfStateMunicipalInterest}.
+   *
+   * The only addition in this package that makes a federal-AGI base too **low**
+   * rather than too high: the dollars never reached federal AGI, so a state that
+   * wants them has to legislate for them, and an engine that starts at AGI and
+   * stops misses the whole of it. It surfaced on Day 24 the moment Illinois's
+   * retirement subtraction took a retiree's base to zero and the addition was
+   * the only thing left that could have moved it.
+   */
+  readonly addsOutOfStateMunicipalInterest?: boolean;
   /** Facts a caller would otherwise get wrong. Surfaced in every result. */
   readonly notes: readonly string[];
   /**

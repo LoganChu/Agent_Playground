@@ -69,6 +69,7 @@ export function compare() {
   const ours = read('out/ours.json');
   const theirs = read('out/theirs.json');
   const known = read('known-divergences.json');
+  const used = new Set();
 
   const diffs = [];
   const errors = [];
@@ -107,10 +108,16 @@ export function compare() {
         delta,
         known: rule ? rule.reason : null,
       });
+      if (rule) used.add(rule);
     }
   }
 
-  return { compared, agreed, diffs, errors, cases: cases.length };
+  // An entry that matches nothing is the other half of Day 24's lesson. A stale
+  // reason that still matches hides defects behind it; a stale reason that
+  // matches nothing is a claim about this project that stopped being true and
+  // that nobody will notice, because a report only ever lists what it found.
+  const dead = known.filter((k) => !used.has(k));
+  return { compared, agreed, diffs, errors, dead, cases: cases.length };
 }
 
 function money(n) {
@@ -170,6 +177,23 @@ function report(result) {
     out.push(table([...unknown].sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta))));
   }
   out.push('');
+
+  if (result.dead.length > 0) {
+    out.push('## Reasons that matched nothing');
+    out.push('');
+    out.push(
+      'Each of these is an entry in `known-divergences.json` that no difference ' +
+        'in this run matched. That is usually good news — the difference it ' +
+        'described was fixed — and it is listed because a reason nobody can see ' +
+        'go stale is how a report starts lying.',
+    );
+    out.push('');
+    for (const k of result.dead) {
+      const scope = [k.state, k.kind, k.idIncludes].filter(Boolean).join(' / ') || 'any';
+      out.push(`- \`${k.metric}\` (${scope}) — ${k.reason}`);
+    }
+    out.push('');
+  }
 
   out.push('## Explained');
   out.push('');

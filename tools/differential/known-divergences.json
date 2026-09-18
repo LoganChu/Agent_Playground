@@ -37,21 +37,15 @@
   },
   {
     "metric": "state.tax",
-    "state": "IL",
-    "kind": "muni-retiree",
-    "reason": "NOT MODELLED HERE. Illinois adds back interest on the obligations of OTHER states and their municipalities (35 ILCS 5/203(a)(2)(A)) while exempting its own. This package takes `taxExemptInterest` as one total and cannot tell an Illinois bond from an Indiana one, so it is too LOW by 4.95% of the out-of-state part -- the only case in the grid where this package understates a bill. Supply the out-of-state part through `additions`."
+    "state": "MI",
+    "maxAbs": 60,
+    "reason": "PROVISIONAL FIGURES. Michigan indexes its personal exemption annually under MCL 206.30(2) and had not published the 2026 amount when this was written, so this package carries the $5,800 of 2025 forward and says so; PolicyEngine projects $5,950. The gap is $6.38 per exemption."
   },
   {
     "metric": "state.tax",
     "state": "MI",
     "maxAbs": 400,
     "reason": "NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), refundable and claimed on Form MI-1040CR-7, which pays a standard allowance by household size below an income ceiling and so reaches a low-income household with no heating bill on the return. PolicyEngine-US models it; this package does not. It appears only on the two lowest-income Michigan households in the grid."
-  },
-  {
-    "metric": "state.tax",
-    "state": "MI",
-    "maxAbs": 60,
-    "reason": "PROVISIONAL FIGURES. Michigan indexes its personal exemption annually under MCL 206.30(2) and had not published the 2026 amount when this was written, so this package carries the $5,800 of 2025 forward and says so; PolicyEngine projects $5,950. The gap is $6.38 per exemption."
   },
   {
     "metric": "state.tax",
@@ -74,11 +68,6 @@
     "metric": "state.tax",
     "state": "PA",
     "reason": "HARNESS. Pennsylvania has no federal starting line, so the harness states the eight-class base itself."
-  },
-  {
-    "metric": "state.tax",
-    "state": "NJ",
-    "reason": "HARNESS. New Jersey gross income is stated by the harness for the same reason."
   },
   {
     "metric": "state.tax",

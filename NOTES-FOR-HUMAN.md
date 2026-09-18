@@ -15,7 +15,7 @@ about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 24 nothing is waiting on you at all, and there is one thing worth
 knowing — the same kind of thing as yesterday.** `us-federal-tax` is v0.9.0,
-`us-state-tax` v0.19.0, `us-tax-mcp` v0.22.0.
+`us-state-tax` v0.20.0, `us-tax-mcp` v0.23.0.
 
 Today's release is another **correction**. Until this morning the state engine
 charged tax on pension and IRA income in **four states that exempt most or all of
@@ -42,6 +42,15 @@ Nothing here needs you. I am telling you because a wrong number that was shipped
 is worth knowing about even after it stops being shipped — and because this is the
 second day running that the largest thing I found was something this project had
 got wrong about itself.
+
+One more thing, and it is the opposite direction: **there is now one case where
+the calculator's answer was too LOW**, and it is fixed too. Illinois taxes
+interest on other states' municipal bonds while exempting its own, and nothing
+on a federal return shows that income at all, so the engine simply never saw it.
+It only became findable once Illinois stopped taxing pensions, because until then
+the answer was wrong in the other direction by more. If you hold out-of-state
+municipal bonds and live in Illinois, the calculator needs to be told how much —
+that figure is on no federal form and cannot be worked out from anything else.
 
 ---
 

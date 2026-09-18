@@ -1143,6 +1143,28 @@ function addBacks(
 }
 
 /**
+ * Interest on other states' municipal bonds, in a state that exempts its own.
+ *
+ * Separate from {@link addBacks} because it is a different kind of thing: those
+ * are federal deductions a `federalTaxableIncome` state never wanted, and this
+ * is income that reached **no** federal line at all. It is also the only
+ * addition here that a `federalAdjustedGrossIncome` base needs, which is why
+ * every other state in this package takes it through `additions`.
+ */
+function municipalInterestAddition(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): { name: string; amount: number }[] {
+  if (!def.addsOutOfStateMunicipalInterest) return [];
+  const amount = nonNegative(
+    input.outOfStateMunicipalInterest,
+    'outOfStateMunicipalInterest',
+  );
+  if (amount <= 0) return [];
+  return [{ name: `${def.name} addition for other states' municipal interest`, amount }];
+}
+
+/**
  * Pennsylvania Special Tax Forgiveness, as a percentage of the tax.
  *
  * The staircase is what matters: eligibility income at or below the allowance
@@ -1543,7 +1565,7 @@ function computeOnce(
   propertyTaxRoute: 'deduction' | 'credit',
 ): Computed {
   const base = conformityAmount(def, input);
-  const back = addBacks(def, input);
+  const back = [...addBacks(def, input), ...municipalInterestAddition(def, input)];
   const additions =
     nonNegative(input.additions, 'additions') + back.reduce((s, a) => s + a.amount, 0);
   const given = nonNegative(input.subtractions, 'subtractions');

@@ -15,7 +15,8 @@ credit**, an Illinois **senior exemption**, and a guard on the differential harn
 exists because of what today found inside its own report.
 
 `us-state-tax` is **v0.19.0**, `us-tax-mcp` **v0.22.0**, `us-federal-tax` untouched at
-v0.9.0. **889 tests** (303 + 423 + 147 + 16), up from 863, all green, zero dependencies
+v0.9.0 — and by the end of the day **v0.20.0** and **v0.23.0**, for the afternoon's work
+below. **892 tests** (303 + 426 + 147 + 16), up from 863, all green, zero dependencies
 anywhere. Agreement with PolicyEngine-US went from **2,803 of 3,059 figures to 2,822**
 (91.6% → 92.3%), and the four caller-supplied classes are gone from the report.
 
@@ -194,6 +195,50 @@ is the first one the other way, and it appeared the moment a subtraction got big
 take the base to zero. **THE RULE: a correction that removes income can expose an addition
 that was never there, because until the base reached zero nothing depended on it.**
 
+### Afternoon: the guard, the addition, and the same bug twice
+
+Three of the five things on this entry's own "what I would do next" list got done the same
+day, and the third one found the second instance of the morning's bug.
+
+**The differential now runs on every push.** PolicyEngine's answers are committed, so the
+cheap half costs three seconds: CI regenerates `cases.json`, `ours.json` and `REPORT.md`
+and fails if any of them changed. It is a golden file and it fails on a FIX as well as on a
+regression, which is the point — Day 24's morning is what happens when a classification is
+allowed to drift from the code that produced it. Proved it fires twice before trusting it:
+once by editing the report, once by moving the Illinois rate a single basis point, which
+took agreement from 2,822 to 2,821 and unexplained from 36 to 39.
+
+**Illinois's municipal interest addition closed the understating gap.** `taxExemptInterest`
+was the wrong figure and taking it would have taxed an Illinois resident on Illinois bonds,
+so `outOfStateMunicipalInterest` is a new field and the harness passes the same dollars to
+both sides under the name each model asks for. The Illinois case went from `-$106.43` to
+`+$7.42`, which is exactly the provisional exemption gap.
+
+**And a smoke test caught a bug the whole test suite had not.** The MCP server refuses a
+field a state does not read, and its list said `filerAge` applies to seven states — none of
+them the four whose retirement rules had just started needing an age. An Illinois caller
+could not pass the age its senior exemption needs. 147 MCP tests passed with that in place,
+because every one of them tested a state that was already on the list. **THE RULE: a
+refusal list is a claim about what is NOT there, and a test suite full of positive cases
+cannot see a hole in it. One call by hand found it in a minute.**
+
+**Then the dead-reason detector found the morning's bug again, in my own afternoon work.**
+`compare.mjs` now lists entries in `known-divergences.json` that matched nothing, and the
+first run printed three. One was the Illinois muni reason, correctly retired. One was New
+Jersey's, genuinely resolved. **And one was Michigan's provisional exemption reason, which
+had stopped matching because the home-heating entry I added this morning sat in front of it
+in the file and swallowed everything.** `find` takes the first match, so a wide reason
+listed before a narrow one makes the narrow one dead — and the report said 201 explained
+either way. Fixed by ordering narrow before wide, which is now a property of the file
+rather than an accident of when an entry was appended.
+
+**THE RULE, and it is the day's: a report that only lists what it FOUND cannot show you a
+reason that stopped being true.** `maxAbs` catches a reason that explains too much. The
+dead list catches one that explains nothing. Both failures are invisible in a count of
+explained differences, and I shipped one of each within four hours of writing the rule.
+
+`us-state-tax` is **v0.20.0** and `us-tax-mcp` **v0.23.0**. **892 tests.**
+
 ### Process notes
 
 - Opening move unchanged: `git fetch origin main && git checkout -B main origin/main`,
@@ -217,21 +262,23 @@ that was never there, because until the base reached zero nothing depended on it
 
 ### What I would do next
 
-1. **The out-of-state municipal interest addback.** It needs an input field this package
-   does not have — `taxExemptInterest` is one total and nearly every state adds back only
-   the out-of-state part. Illinois is the measured case; Indiana, Ohio, Virginia and
-   Maryland all do the same thing. It is the first gap found in the understating
-   direction and it should be closed before another subtraction hides it.
+1. ~~The out-of-state municipal interest addback.~~ **Done this afternoon, for Illinois
+   only.** The mechanism is there and one state uses it. Indiana, Ohio, Virginia, Maryland
+   and most of the other twenty-three almost certainly do the same thing, and not one of
+   them is turned on, because the only source that survives the proxy — PolicyEngine's
+   parameter tree — models this addition for Illinois and nobody else. **Verifying the
+   other states one at a time is the next day's work, and today is the argument for doing
+   it one at a time**: the morning of Day 24 is what a list copied without checking costs.
 2. **The 20 Maryland and 14 Indiana unexplained differences**, still the largest cluster and
    still untouched. Indiana's is `$149.10` for a joint return with children and `$99.40` for
    a joint retired couple — `$3,000` and `$2,000` of exemption at the combined 4.97% rate.
    Yesterday's note said start there and it was right; today went somewhere else because
    the caller-supplied class was bigger.
-3. **Put `compare.mjs` in CI.** `out/theirs.json` is committed and the Node side is three
-   seconds, so every push could re-run the comparison against the stored reference answers
-   and fail on an unexplained difference that was not there before. Today is the argument:
-   the harness caught five defects *and* was quietly mis-classifying them, and both halves
-   of that are things a guard on every push would have surfaced in a day rather than a week.
+3. ~~Put `compare.mjs` in CI.~~ **Done this afternoon.** The `differential` job regenerates
+   all three artefacts and requires that nothing changed. What is still manual is the
+   PolicyEngine pass itself, which only matters when `cases.mjs` changes — and the job does
+   not notice a stale `theirs.json`, so a future run that widens the grid has to remember to
+   re-run it. That is the next thing to make automatic.
 4. **Michigan's tier three and its standard deduction** (MCL 206.30(9)) — `$20,000` single
    and `$40,000` joint against ALL income for filers born 1946-1952, and the variants for a
    filer with no Social Security coverage. Where one of those beats the deduction computed
