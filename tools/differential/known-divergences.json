@@ -12,7 +12,7 @@
   {
     "metric": "state.tax",
     "state": "CO",
-    "reason": "NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. \u00a7 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js."
+    "reason": "NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. § 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js."
   },
   {
     "metric": "state.tax",
@@ -22,7 +22,7 @@
   {
     "metric": "state.tax",
     "state": "AZ",
-    "reason": "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. \u00a7 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit."
+    "reason": "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit."
   },
   {
     "metric": "state.tax",
@@ -32,27 +32,38 @@
   {
     "metric": "state.tax",
     "state": "IL",
-    "reason": "CALLER-SUPPLIED. Illinois exempts all retirement income (35 ILCS 5/203(a)(2)(F)); Social Security is subtracted automatically from taxableSocialSecurity, and qualified plan and IRA distributions must be passed through `subtractions`. The harness passes none, so an Illinois retiree here is high by the pension."
+    "maxAbs": 20,
+    "reason": "PROVISIONAL FIGURES. Illinois indexes its exemption allowance to the CPI under 35 ILCS 5/204(d-5) and had not published the 2026 amount when this was written, so this package carries the $2,850 of 2025 forward and says so; PolicyEngine projects $2,925. The gap is $3.72 per exemption and will close when Illinois publishes."
+  },
+  {
+    "metric": "state.tax",
+    "state": "IL",
+    "kind": "muni-retiree",
+    "reason": "NOT MODELLED HERE. Illinois adds back interest on the obligations of OTHER states and their municipalities (35 ILCS 5/203(a)(2)(A)) while exempting its own. This package takes `taxExemptInterest` as one total and cannot tell an Illinois bond from an Indiana one, so it is too LOW by 4.95% of the out-of-state part -- the only case in the grid where this package understates a bill. Supply the out-of-state part through `additions`."
   },
   {
     "metric": "state.tax",
     "state": "MI",
-    "reason": "CALLER-SUPPLIED. Michigan's retirement and pension deduction, fully phased in for 2026, is not detected \u2014 pass it through `subtractions`."
+    "maxAbs": 400,
+    "reason": "NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), refundable and claimed on Form MI-1040CR-7, which pays a standard allowance by household size below an income ceiling and so reaches a low-income household with no heating bill on the return. PolicyEngine-US models it; this package does not. It appears only on the two lowest-income Michigan households in the grid."
   },
   {
     "metric": "state.tax",
-    "state": "MS",
-    "reason": "CALLER-SUPPLIED. Mississippi exempts qualified retirement income taken at retirement age; only the Social Security part is automatic."
-  },
-  {
-    "metric": "state.tax",
-    "state": "NC",
-    "reason": "CALLER-SUPPLIED. North Carolina's Bailey exemption and military retirement deduction are not detected."
+    "state": "MI",
+    "maxAbs": 60,
+    "reason": "PROVISIONAL FIGURES. Michigan indexes its personal exemption annually under MCL 206.30(2) and had not published the 2026 amount when this was written, so this package carries the $5,800 of 2025 forward and says so; PolicyEngine projects $5,950. The gap is $6.38 per exemption."
   },
   {
     "metric": "state.tax",
     "state": "NY",
-    "reason": "CALLER-SUPPLIED. New York's $20,000 pension and annuity exclusion at 59 1/2 is not modelled; pass it through `subtractions`."
+    "maxAbs": 80,
+    "reason": "NOT MODELLED THERE. The New York household credit (Tax Law s 606(b)) -- $20 to $90 on a low or middle income, and subtracted from the New York earned income credit by s 606(d)(1) so the two are not additive. PolicyEngine-US models neither the credit nor the offset, so it is higher than this package on a return that has the credit and lower on one that also has the earned income credit. This package computes both and test/new-york.test.js pins them."
+  },
+  {
+    "metric": "state.tax",
+    "state": "NC",
+    "maxAbs": 250,
+    "reason": "NOT MODELLED HERE. The North Carolina child deduction, up to $3,000 a child and phasing to zero as AGI rises (G.S. 105-153.5(a1)), named in the state's notes. North Carolina's retirement rules are now modelled: it taxes a pension in FULL and deducts military retired pay in full, which is why no retiree case is left here."
   },
   {
     "metric": "state.tax",

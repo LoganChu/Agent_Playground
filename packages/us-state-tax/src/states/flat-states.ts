@@ -189,13 +189,30 @@ const IL_CITATIONS: readonly Citation[] = [
     title: 'Illinois Department of Revenue — Form IL-1040 instructions',
     url: 'https://tax.illinois.gov/forms/incometax/individual.html',
   },
+  {
+    title: '35 Ill. Comp. Stat. 5/203(a)(2)(F) — the subtraction for retirement income',
+    url: 'https://www.ilga.gov/legislation/ilcs/fulltext.asp?DocName=003500050K203',
+  },
+  {
+    title: 'Illinois Department of Revenue Publication 120 — Retirement Income',
+    url: 'https://tax.illinois.gov/research/publications.html',
+  },
+  {
+    title: '35 Ill. Comp. Stat. 5/244 — child tax credit, added by Public Act 103-0592',
+    url: 'https://www.ilga.gov/legislation/ilcs/fulltext.asp?DocName=003500050K244',
+  },
 ];
 
 const IL_NOTES: readonly string[] = [
   "Illinois' exemption allowance is not phased out — it is lost entirely at the first dollar of federal AGI above $250,000 ($500,000 on a joint return). One extra dollar of income at the threshold costs a single filer the whole $2,850 exemption, and $141.12 of tax on that single dollar. 35 ILCS 5/204(g).",
   'Illinois has no standard deduction and no itemized deductions. The exemption allowance is the only subtraction from base income that most filers get.',
+  'Illinois adds $1,000 to the exemption allowance for each filer aged 65 or over and another $1,000 for each who is blind — 35 ILCS 5/204(b). It is NOT indexed: the $2,850 beside it moves with the CPI every year and this figure has been $1,000 since 2004, so it is worth $49.50 of tax and falls in real terms annually. It needs `filerAge` and `spouseAge`, and the blind exemption needs `blindOrDisabledFilers`.',
+  'NOT MODELLED — Illinois adds back interest on the obligations of OTHER states and their municipalities (35 ILCS 5/203(a)(2)(A)), while exempting its own. So a retiree holding out-of-state municipal bonds owes Illinois tax on income the federal return never saw, and this package returns a figure that is too low by 4.95% of it. This package takes `taxExemptInterest` as one total and cannot tell an Illinois bond from an Indiana one; supply the out-of-state part through `additions`. This is the one place where a comparison against PolicyEngine-US found this package UNDERSTATING a bill rather than overstating it.',
   'The Illinois earned income credit is 20% of the federal credit and is refundable — raised from 18% for tax year 2023 by Public Act 102-0700. Illinois also extends it to filers aged 18 to 24 and 65 and over who are barred from the federal childless credit by age, and to filers with an ITIN rather than a Social Security number; this package cannot see either, so an Illinois filer in one of those groups is understated.',
-  'Illinois does not tax retirement income at all — 35 ILCS 5/203(a)(2)(F). The taxable Social Security inside federal AGI is subtracted here automatically from `taxableSocialSecurity`; distributions from qualified plans and IRAs are NOT detected and must be supplied through `subtractions`, and an Illinois retiree return that omits them is far too high.',
+  'The Illinois child tax credit — 35 ILCS 5/244, new for tax year 2024 — is 40% of the Illinois earned income credit for a filer with at least one qualifying child under 12, refundable. It is a percentage of a CREDIT, not an amount per child, so one child and four children are worth exactly the same and the child does nothing but switch it on. Pass `dependentAges`; a count cannot tell an 11-year-old from a 12-year-old, and the two are worth $600 and nothing. It was 20% for 2024 and is 40% from 2025.',
+  'Because it is a percentage of a percentage, the Illinois child tax credit is withdrawn faster than any credit here that has a phase-out of its own: 40% of 20% of the federal § 32 taper of 21.06% is 1.68 cents per dollar, on top of the 4.21 cents the Illinois earned income credit already withdraws. A working Illinois parent of two in the § 32 phase-out band faces 10.85% — the 4.95% flat rate plus 5.90 points of withdrawal — in the state whose entire tax policy is that the rate is the same for everyone. With one child the federal taper is 15.98% rather than 21.06% and the Illinois rate is 9.42%, so how flat Illinois is depends on how many children a household has, in a state with no per-child anything.',
+  'Illinois does not tax retirement income at all — 35 ILCS 5/203(a)(2)(F) — and from v0.19.0 this package applies that itself. Pass `retirement` (or `retirementIncome`) and pensions, IRA distributions, 401(k) and 403(b) distributions and government retired pay are all subtracted, with the taxable Social Security inside federal AGI coming off separately from `taxableSocialSecurity`. DO NOT ALSO PUT THEM IN `subtractions`: a caller who followed the old note and does both now subtracts twice.',
+  'Illinois is the largest exemption of retirement income in the United States and it has NO AGE TEST AT ANY POINT. A 40-year-old drawing a $200,000 pension pays Illinois nothing on it. Every table that groups Illinois with Mississippi as a state that "does not tax retirement income" is hiding that difference: Mississippi\'s exemption is for distributions taken at retirement age and an early one is fully taxed, so of the two states only Illinois is any use to someone who retired at 52.',
 ];
 
 function illinois(year: number): StateIncomeTaxDefinition | undefined {
@@ -216,9 +233,30 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
       matchRate: 0.2,
       refundable: true,
     },
+    // 35 ILCS 5/244, Public Act 103-0592. 20% of the Illinois earned income
+    // credit for 2024 and 40% from 2025 — a credit defined as a percentage of a
+    // credit, so it inherits the whole of § 32's phase-out and the child does
+    // nothing but switch it on.
+    ...(year >= 2025
+      ? {
+          earnedIncomeCreditChildBonus: {
+            name: 'Illinois child tax credit',
+            rate: 0.4,
+            maxChildAge: 11,
+            refundable: true,
+          } as const,
+        }
+      : {}),
     exemption: {
       perFiler: perPerson(exemption),
       perDependent: exemption,
+      // 35 ILCS 5/204(b): a further $1,000 for each filer aged 65 or over and
+      // another $1,000 for each who is blind. Unlike the $2,850 it sits beside,
+      // this figure is NOT indexed — it has been $1,000 since 2004 and is worth
+      // $49.50 of tax.
+      perSeniorFiler: 1_000,
+      seniorAge: 65,
+      perBlindOrDisabledFiler: 1_000,
       cliff: byStatus({
         single: 250_000,
         joint: 500_000,
@@ -226,6 +264,15 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
         headOfHousehold: 250_000,
       }),
     },
+    // 35 ILCS 5/203(a)(2)(F). No cap, no age, no test on the form of the
+    // account: the whole of a federally taxed retirement distribution comes out
+    // of Illinois base income.
+    retirementIncomeSubtractions: [
+      {
+        name: 'Illinois retirement income subtraction',
+        scope: 'perPerson',
+      },
+    ],
     notes:
       year === 2026
         ? [
@@ -354,7 +401,13 @@ const MI_CITATIONS: readonly Citation[] = [
 const MI_NOTES: readonly string[] = [
   "Michigan's rate briefly fell to 4.05% for tax year 2023 under the MCL 206.51(1)(c) revenue trigger and returned to 4.25% for 2024. The trigger is a one-year reduction, not a permanent one, and the Michigan Supreme Court declined to make it permanent — a 2023 figure carried forward is 4.7% too low.",
   'Michigan cities levy their own income taxes on a base of their own — Detroit at 2.4% for residents and 23 other cities, all computed here: pass `city`, and `workCity` for a city the filer works in but does not live in. The city base is NOT the MI-1040\'s: the Uniform City Income Tax Ordinance excludes pensions, IRA distributions, Social Security, unemployment compensation and military pay entirely, and its personal exemption is the $600 fixed in 1964 rather than the indexed state one.',
-  'Michigan is phasing back in a deduction for retirement and pension income through 2026 (the "retirement tax" repeal). Not modelled; supply it through `subtractions`.',
+  'Michigan\'s deduction for retirement and pension income is computed here from v0.19.0 — pass `retirement` (or `retirementIncome`) and do NOT also put the pension in `subtractions`, which is what this note said to do before. Public Act 4 of 2023 is restoring the deduction Michigan repealed in 2011 a quarter at a time: 25% for 2023, 50% for 2024, 75% for 2025 and the whole of it from 2026. A model that stores the 2026 rule and runs it on a 2025 return overstates the deduction by a third.',
+  "Michigan's cap is ONE FIGURE FOR THE RETURN and it is keyed to the OLDER spouse, which is the opposite of every other per-person retirement rule in this package. A couple share $135,220 in 2026 however the pension is split, and a 66-year-old married to a 58-year-old qualifies the whole return including the younger spouse's pension. New York's $20,000, by contrast, is per person and unused room is lost.",
+  'Military retired pay is subtracted in full — and it comes OFF the shared cap (Form 4884 Worksheet 3.3 line 3, before the phase-in percentage on line 4). So a Michigan couple with $135,220 of military retired pay have no room left for an IRA, while a couple with $135,220 of private pension are in the same place: the difference only appears above the cap. Pass it as `retirement.filer.militaryRetirement`.',
+  'For tax year 2025 the phased-in deduction is available only to a filer born in 1946 or later and before 1967 — ages 59 to 79 at the end of 2025 — because someone born before 1946 already has the tier one deduction the phase-in is catching up to. This package tests AGE, and Michigan tests BIRTH YEAR, so a filer whose birthday falls late in the year can be one year either side of the band here. For 2026 the question does not arise: every birth year from 1946 qualifies at 100%.',
+  'NOT MODELLED — the Michigan standard deduction for filers born 1946-1952 (MCL 206.30(9)), worth $20,000 single and $40,000 joint against ALL income rather than against pension income, and the tier three variants for a filer with no Social Security coverage. Where one of those is worth more than the deduction computed here, a Michigan return is overstated.',
+  'NOT MODELLED — the Michigan home heating credit (MCL 206.527a), refundable and claimed on Form MI-1040CR-7. It pays a standard allowance by household size below an income ceiling, so it reaches a low-income household that has no heating bill on its return at all, and it is worth more than the entire Michigan income tax of the households it reaches. Also not modelled: the homestead property tax credit.',
+  'NOT MODELLED — the qualified tips and qualified overtime deductions added by Public Act 24 of 2025 for tax years 2026 through 2028, which are Michigan\'s answer to the federal § 224 and § 225 deductions the state\'s federal-AGI base never saw. Georgia\'s equivalents ARE modelled; supply Michigan\'s through `subtractions`.',
   'The Michigan earned income tax credit for working families is 30% of the federal credit and is refundable. It was 6% through tax year 2022 and was raised fivefold retroactively by Public Act 4 of 2023 — a Michigan return computed on the old 6% understates a family with two children by about $1,700.',
 ];
 
@@ -362,6 +415,30 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   // Indexed. $5,600 for 2024, $5,800 for 2025.
   const exemption = 5800;
+  // MCL 206.30(1)(f). Indexed to the same figure the state publishes for
+  // withholding: $65,897/$131,794 for 2025 and $67,610/$135,220 for 2026.
+  // A surviving spouse takes the SINGLE amount here — one of the few places in
+  // this package where the usual "a surviving spouse files on the joint
+  // schedule" default is wrong, because MCL 206.30(1)(f) sets the larger figure
+  // for "a husband and wife filing a joint return" and there is only one person
+  // on this one.
+  const tierOneCap = byStatus(
+    year === 2025
+      ? {
+          single: 65_897,
+          joint: 131_794,
+          separate: 65_897,
+          headOfHousehold: 65_897,
+          qualifyingSurvivingSpouse: 65_897,
+        }
+      : {
+          single: 67_610,
+          joint: 135_220,
+          separate: 67_610,
+          headOfHousehold: 67_610,
+          qualifyingSurvivingSpouse: 67_610,
+        },
+  );
   return {
     code: 'MI',
     subtractsTaxableSocialSecurity: true,
@@ -377,6 +454,36 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
       matchRate: 0.3,
       refundable: true,
     },
+    // Two rules and at most one of them applies, which is Michigan's structure
+    // and not a convenience: the pre-1946 cohort takes the tier one deduction of
+    // MCL 206.30(1)(f), everyone else the phased-in one of § 206.30(9). Tier one
+    // is listed first because it is the more generous of the two at every point
+    // of the phase-in — it exempts public pensions over and above the cap, where
+    // the phased-in deduction puts every source inside it.
+    retirementIncomeSubtractions: [
+      {
+        name: 'Michigan retirement and pension benefits deduction (born before 1946)',
+        scope: 'return',
+        // Born before 1946: 80 or over at the end of 2025, 81 or over in 2026.
+        minimumAge: year === 2025 ? 80 : 81,
+        cap: tierOneCap,
+        governmentPensionExemptInFull: true,
+        militaryReducesCap: true,
+      },
+      {
+        name:
+          year === 2025
+            ? 'Michigan retirement and pension benefits deduction (phased in, 75% for 2025)'
+            : 'Michigan retirement and pension benefits deduction',
+        scope: 'return',
+        // Born in 1946 or later and, for 2025 only, before 1967. From 2026 the
+        // upper bound is gone and the deduction is universal.
+        ...(year === 2025 ? { minimumAge: 59, maximumAge: 80 } : {}),
+        cap: tierOneCap,
+        capMultiplier: year === 2025 ? 0.75 : 1,
+        militaryReducesCap: true,
+      },
+    ],
     notes:
       year === 2026
         ? [
@@ -425,10 +532,25 @@ function northCarolina(year: number): StateIncomeTaxDefinition | undefined {
         headOfHousehold: 19125,
       }),
     },
+    // G.S. § 105-153.5(b)(11). Uncapped, no age test, and the only retirement
+    // income North Carolina lets go: `cap` is absent and the pool is military
+    // pay alone, which the `militaryReducesCap` flag arranges by exempting it in
+    // full and leaving nothing else in.
+    retirementIncomeSubtractions: [
+      {
+        name: 'North Carolina military retirement deduction',
+        scope: 'perPerson',
+        cap: 0,
+        militaryReducesCap: true,
+      },
+    ],
     notes: [
       "North Carolina's rate steps down by statute: 4.50% in 2024, 4.25% in 2025, 3.99% in 2026, and lower still from 2027 if revenue triggers in G.S. 105-153.7(a2) are met.",
       'Not modelled: the North Carolina child deduction, worth up to $3,000 per qualifying child and phasing to zero as AGI rises (G.S. 105-153.5(a1)). A North Carolina family return computed here is too high — by up to $120 per child in 2026.',
-      'North Carolina does not tax Social Security benefits — G.S. § 105-153.5(b)(5) — and the taxable part is subtracted here from `taxableSocialSecurity`. The Bailey exemption for certain state and federal retirement pay, and the military retirement deduction, are not modelled: supply those through `subtractions`.',
+      'NORTH CAROLINA TAXES RETIREMENT INCOME IN FULL. It is grouped in most summaries with Illinois and Mississippi as a state that is kind to retirees, and it is not one: a pension, an IRA distribution and a 401(k) distribution are all fully taxable at 3.99% in 2026. The only three exceptions are Social Security, military retired pay and the Bailey cohort, all below. This package deliberately has no general retirement subtraction for North Carolina, and that is a finding rather than a gap.',
+      'North Carolina does not tax Social Security benefits — G.S. § 105-153.5(b)(5) — and the taxable part is subtracted here from `taxableSocialSecurity`.',
+      'Military retired pay is deducted IN FULL under G.S. § 105-153.5(b)(11), with no cap and no age test, and from v0.19.0 this package applies it: pass `retirement.filer.militaryRetirement`. The statute requires 20 years of service or a medical retirement, which this package cannot see, so a veteran who separated earlier is overstated in their favour here — and a surviving spouse receiving Survivor Benefit Plan payments qualifies too. Against a state that taxes every other pension in full, this is the largest military retirement preference in this package: $2,193 a year on a $55,000 pension in 2026, where Maryland\'s equivalent caps out at $20,000 of income.',
+      'NOT MODELLED — the Bailey exemption (Bailey v. State, 348 N.C. 130), which exempts in full the retirement pay of state, local and federal employees who were vested in a qualifying plan on 12 August 1989. It is a fact about a service record thirty-seven years ago that no figure on a return carries, so it cannot be derived; supply it through `subtractions`. Like Kentucky\'s pre-1998 cohort and Virginia\'s pre-1939 birth date, it is a provision emptying by attrition.',
     ],
     citations: NC_CITATIONS,
   };
@@ -494,10 +616,20 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
       perFiler: byStatus({ single: 6000, joint: 12000, separate: 6000, headOfHousehold: 8000 }),
       perDependent: 1500,
     },
+    // § 27-7-15(4)(k). Uncapped, like Illinois — and unlike Illinois, gated on
+    // retirement age, because (l) leaves a premature distribution fully taxable.
+    retirementIncomeSubtractions: [
+      {
+        name: 'Mississippi retirement income exemption',
+        scope: 'perPerson',
+        minimumAge: 59.5,
+      },
+    ],
     notes: [
       'The first $10,000 of Mississippi taxable income is taxed at 0%, and that bracket is per return: it is not doubled on a joint return, even though the exemption and the standard deduction both are.',
       "Mississippi's rate falls from 4.7% in 2024 to 4.4% in 2025 and 4.0% in 2026 under the Build Up Mississippi Act, with further reductions toward zero conditional on revenue triggers.",
-      'Mississippi does not tax qualified retirement income. Social Security is subtracted here from `taxableSocialSecurity`; IRA and 401(k) distributions taken at retirement age are exempt too and are NOT detected — supply them through `subtractions`.',
+      'Mississippi does not tax qualified retirement income — § 27-7-15(4)(k) — and from v0.19.0 this package applies that itself from `retirement` or `retirementIncome`. Social Security is subtracted separately from `taxableSocialSecurity`. DO NOT ALSO PUT THE PENSION IN `subtractions`, which is what the note here said to do before v0.19.0: doing both subtracts it twice.',
+      'The exemption is for income received AT retirement age. § 27-7-15(4)(l) leaves a premature distribution — one the federal § 72(t) penalty would reach — fully taxable, so this package requires an age of 59.5 or over. Ages are supplied as whole numbers, so a filer who turns 59½ during the year is treated here as not qualifying and their Mississippi tax is overstated for that one year. PolicyEngine-US models the exemption with no age test at all and says so in its own parameter file; the two disagree for exactly this filer.',
     ],
     citations: MS_CITATIONS,
   };

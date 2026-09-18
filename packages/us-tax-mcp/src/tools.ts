@@ -1429,24 +1429,30 @@ const stateTool: ToolDefinition = {
     // subtracts it and then charges the total received against the pension
     // exclusion. Maryland therefore needs two Social Security figures on one
     // return — the taxable part here, the total received in `retirement`.
-    const TAXABLE_SS_STATES = ['VA', 'MD', 'GA', 'KY', 'UT'] as const;
-    if (
-      taxableSocialSecurity !== undefined &&
-      !(TAXABLE_SS_STATES as readonly string[]).includes(state)
-    ) {
+    //
+    // Both lists are READ OFF the table rather than restated here. They used to
+    // be literals, and on Day 24 four states were added to `retirement` in the
+    // table and the literal here refused them — a test caught it, which is the
+    // good case, and the module's own header had already named the bad one: two
+    // copies of a fact that must agree is a bug with a waiting period.
+    const statesFor = (field: string): readonly string[] =>
+      STATE_FIELDS.find((f) => f.name === field)?.states ?? [];
+    const TAXABLE_SS_STATES = statesFor('taxableSocialSecurity');
+    if (taxableSocialSecurity !== undefined && !TAXABLE_SS_STATES.includes(state)) {
       throw new ToolInputError(
         `taxableSocialSecurity only applies to ${TAXABLE_SS_STATES.join(', ')}, and ${state} ` +
           `was requested. Every other supported state that exempts Social Security takes it ` +
           `through stateSubtractions instead.`,
       );
     }
-    const SPLIT_STATES = ['MD', 'GA', 'KY', 'UT'] as const;
-    if (retirement !== undefined && !(SPLIT_STATES as readonly string[]).includes(state)) {
+    const SPLIT_STATES = statesFor('retirement');
+    if (retirement !== undefined && !SPLIT_STATES.includes(state)) {
       throw new ToolInputError(
         `retirement only applies to ${SPLIT_STATES.join(', ')}, and ${state} was requested. ` +
-          `MD, GA and KY cap a retirement exclusion PER PERSON, so they need the income split ` +
-          `between the spouses; UT needs militaryRetirement for its code AJ credit. New ` +
-          `Jersey's exclusion is per return: pass retirementIncome.`,
+          `MD, GA, KY and NY cap a retirement exclusion PER PERSON, so they need the income ` +
+          `split between the spouses; IL, MS and MI subtract retirement income without a ` +
+          `per-person cap and NC deducts military retired pay; UT needs militaryRetirement ` +
+          `for its code AJ credit. New Jersey's exclusion is per return: pass retirementIncome.`,
       );
     }
     if (taxExemptInterest !== undefined && state !== 'UT') {

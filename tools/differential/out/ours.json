@@ -118,6 +118,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 69.46
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -563,6 +567,10 @@
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -1010,6 +1018,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -1455,6 +1467,10 @@
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -1902,6 +1918,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -2348,6 +2368,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -2789,11 +2813,15 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": -542.5,
+   "tax": -1127.78,
    "credits": [
     {
      "name": "Illinois earned income credit",
      "amount": 1463.2
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 585.28
     }
    ]
   },
@@ -3235,11 +3263,15 @@
    "earnedIncomeCredit": 1242.3
   },
   "state": {
-   "tax": 2157.24,
+   "tax": 2057.86,
    "credits": [
     {
      "name": "Illinois earned income credit",
      "amount": 248.46
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 99.38
     }
    ]
   },
@@ -3685,6 +3717,10 @@
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -4132,6 +4168,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -4573,11 +4613,15 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -504.15,
+   "tax": -830.55,
    "credits": [
     {
      "name": "Illinois earned income credit",
      "amount": 816
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 326.4
     }
    ]
   },
@@ -5019,11 +5063,15 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": 105.43,
+   "tax": -234.54,
    "credits": [
     {
      "name": "Illinois earned income credit",
      "amount": 849.92
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 339.97
     }
    ]
   },
@@ -5465,11 +5513,15 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1734.63,
+   "tax": 1650.34,
    "credits": [
     {
      "name": "Illinois earned income credit",
      "amount": 210.72
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 84.29
     }
    ]
   },
@@ -5916,6 +5968,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -6357,10 +6413,14 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 707.85,
+   "tax": 0,
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -6477,7 +6537,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 357,
+   "tax": 0,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -6555,11 +6615,11 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 79.05,
+   "tax": 0,
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 75
+     "amount": 105
     },
     {
      "name": "New York earned income credit",
@@ -6803,10 +6863,14 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2192.85,
+   "tax": 0,
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -6923,7 +6987,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1632,
+   "tax": 0,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -6944,7 +7008,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 936,
+   "tax": 0,
    "credits": []
   },
   "error": null
@@ -7001,11 +7065,11 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1500.8,
+   "tax": 519.05,
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 0
+     "amount": 25
     },
     {
      "name": "New York earned income credit",
@@ -7249,10 +7313,14 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4172.85,
+   "tax": 0,
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -7369,7 +7437,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3332,
+   "tax": 0,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -7390,7 +7458,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2536,
+   "tax": 0,
    "credits": []
   },
   "error": null
@@ -7447,7 +7515,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3660.8,
+   "tax": 2580.8,
    "credits": [
     {
      "name": "New York household credit",
@@ -7695,10 +7763,14 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 353.93,
+   "tax": 0,
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -7815,7 +7887,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 178.5,
+   "tax": 0,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -7893,11 +7965,11 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 33,
+   "tax": 0,
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 45
+     "amount": 75
     },
     {
      "name": "New York earned income credit",
@@ -8141,10 +8213,14 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1838.93,
+   "tax": 0,
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -8261,7 +8337,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1453.5,
+   "tax": 0,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -8282,7 +8358,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 868,
+   "tax": 0,
    "credits": []
   },
   "error": null
@@ -8339,11 +8415,11 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1563,
+   "tax": 442.75,
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 0
+     "amount": 45
     },
     {
      "name": "New York earned income credit",
@@ -8591,6 +8667,10 @@
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -9038,6 +9118,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -9484,6 +9568,10 @@
     {
      "name": "Illinois earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
     }
    ]
   },
@@ -9921,10 +10009,14 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2687.85,
+   "tax": 0,
    "credits": [
     {
      "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
      "amount": 0
     }
    ]
@@ -10041,7 +10133,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2057,
+   "tax": 0,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -10062,7 +10154,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1336,
+   "tax": 0,
    "credits": []
   },
   "error": null
@@ -10119,7 +10211,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2040.8,
+   "tax": 970.68,
    "credits": [
     {
      "name": "New York household credit",

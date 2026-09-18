@@ -38,11 +38,29 @@ const METRICS = [
   ['state.tax', (r) => r.state?.tax],
 ];
 
-function match(rule, caseRow, metric) {
+/**
+ * `maxAbs` is the guard this file was missing, and Day 24 is what it cost.
+ *
+ * An entry matched on state and metric alone swallows EVERY difference in that
+ * state. Four of the reasons in this file were stale on the morning of Day 24 —
+ * they said "the caller must supply the pension", the engine had started
+ * supplying it itself, and the differences left over in those states had four
+ * entirely different causes: an Illinois child tax credit nobody here had heard
+ * of, a Michigan exemption figure, a New York credit PolicyEngine does not
+ * model, and a North Carolina child deduction. All four were hidden behind a
+ * sentence about pensions, and the report called them explained.
+ *
+ * So a reason now states the size it claims. A difference larger than `maxAbs`
+ * is reported as unexplained however well the rest of the entry matches, which
+ * makes the report fail loudly in the one direction that matters: a known small
+ * gap growing into an unknown large one.
+ */
+function match(rule, caseRow, metric, delta) {
   if (rule.metric !== metric) return false;
   if (rule.state && rule.state !== caseRow.state) return false;
   if (rule.kind && rule.kind !== caseRow.kind) return false;
   if (rule.idIncludes && !caseRow.id.includes(rule.idIncludes)) return false;
+  if (rule.maxAbs !== undefined && Math.abs(delta) > rule.maxAbs) return false;
   return true;
 }
 
@@ -78,7 +96,7 @@ export function compare() {
         agreed += 1;
         continue;
       }
-      const rule = known.find((k) => match(k, c, metric));
+      const rule = known.find((k) => match(k, c, metric, delta));
       diffs.push({
         id: c.id,
         state: c.state,

@@ -138,11 +138,17 @@ test('what a household receives is not what the return calls income', () => {
   assert.equal(model.received - model.federal.grossIncome, 15_150);
 });
 
-test('three states charge a different tax on the same household totals', () => {
+test('four states charge a different tax on the same household totals', () => {
   // The reason the form asks whose name the retirement income is in. Georgia,
-  // Maryland and Kentucky all claim their retirement exclusion PER PERSON, so a
-  // couple's totals do not determine their state tax — and the federal return
-  // cannot see the difference at all, which is why nothing warns you.
+  // Maryland, Kentucky and — from v0.19.0 — New York all claim their retirement
+  // exclusion PER PERSON, so a couple's totals do not determine their state tax,
+  // and the federal return cannot see the difference at all, which is why
+  // nothing warns you.
+  //
+  // New York joined the list by being MODELLED, not by changing: its $20,000
+  // exclusion (Tax Law § 612(c)(3-a)) has been per person since 1981 and this
+  // package taxed the whole pension until today. The swing grew by a quarter
+  // when one state stopped being wrong.
   const split = { ...COUPLE, socialSecurity: 20_000, pension: 120_000, ira: 0 };
   const even = compute({ ...split, allocation: 'even' });
   const oneName = compute({ ...split, allocation: 'filer' });
@@ -153,16 +159,17 @@ test('three states charge a different tax on the same household totals', () => {
     const other = oneName.states.find((s) => s.state === state.state);
     if (other.tax !== state.tax) moved[state.state] = [state.tax, other.tax];
   }
-  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'MD']);
+  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'MD', 'NY']);
   assert.deepEqual(moved.GA, [0, 1_247.5]);
   assert.deepEqual(moved.MD, [273.25, 2_201.75]);
   assert.deepEqual(moved.KY, [1_907.85, 2_996.7]);
+  assert.deepEqual(moved.NY, [3_120.8, 4_200.8]);
 
-  // All three move the same way — concentrating the income wastes the absent
-  // spouse's allowance — and together they are worth $4,264.85 on a decision
+  // All four move the same way — concentrating the income wastes the absent
+  // spouse's allowance — and together they are worth $5,344.85 on a decision
   // that is usually made for reasons that have nothing to do with tax.
   const swing = Object.values(moved).reduce((total, [a, b]) => total + (b - a), 0);
-  assert.equal(Number(swing.toFixed(2)), 4_264.85);
+  assert.equal(Number(swing.toFixed(2)), 5_344.85);
 });
 
 test('the form cannot be made to throw', () => {
@@ -228,13 +235,16 @@ test('a separate filer living with their spouse loses the § 86 thresholds', () 
   assert.ok(separate.socialSecurity.taxableBenefits >= apart.socialSecurity.taxableBenefits);
 });
 
-test('the ranking moved under Utah, which is what a ranking of 28 does', () => {
+test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // The site's whole claim is that it ranks twenty-eight states against each
-  // other, and a ranking is only as good as its worst-modelled member. Utah's
-  // own figure has not moved since v0.17.0 — $1,388.46, down from $2,801.46
-  // before its retirement credits existed — and Utah has fallen from 16th to
-  // 22nd anyway, because v0.18.0 stopped taxing Social Security in ten states
-  // that exempt it. Six states passed Utah without Utah changing at all.
+  // other, and a ranking is only as good as its worst-modelled member.
+  //
+  // Utah's own figure has not changed since v0.17.0 — $1,388.46, down from
+  // $2,801.46 before its retirement credits existed. It has now fallen twice
+  // without moving: 16th to 22nd on v0.18.0, when ten states stopped taxing
+  // Social Security they exempt, and 22nd to 25th on v0.19.0, when Illinois,
+  // Michigan and New York stopped taxing pensions they exempt. NINE states have
+  // passed Utah in three days and not one of them by changing its own law.
   //
   // That is the argument for the differential harness in one line: a wrong row
   // is not a wrong row, it is a wrong TABLE, and the only way to find out which
@@ -251,14 +261,21 @@ test('the ranking moved under Utah, which is what a ranking of 28 does', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  assert.equal(place, 22, `Utah ranks ${place}`);
-  // The six that passed it, all of them by being modelled rather than by
-  // changing: Idaho, California, Arizona, Ohio, Mississippi and North Carolina.
+  assert.equal(place, 25, `Utah ranks ${place}`);
+  // The nine that passed it, all of them by being modelled rather than by
+  // changing: six on v0.18.0 and three more today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
-  // And what it would have been: everything the three credits are worth.
+  // Three of them now charge this couple NOTHING AT ALL, which is the size of
+  // what was wrong: Illinois, Michigan and Mississippi exempt every dollar of a
+  // $60,000 pension, and the page showed $2,192.85, $1,632 and $936 for them.
+  for (const code of ['IL', 'MI', 'MS']) {
+    const row = model.states.find((r) => r.state === code);
+    assert.equal(row.total, 0, `${code} should be zero for a retired couple`);
+  }
+  // And what it would have been: everything the three Utah credits are worth.
   const credited = utah.result.credits.find((c) => /code A[HJ]|code 18/.test(c.name));
   assert.ok(Math.abs(credited.amount - 1_413) < 0.005, `the credit is ${credited.amount}`);
 });
@@ -308,8 +325,8 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(model.allocation.alternative, 'filer');
   assert.deepEqual(
     model.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'MD'],
-    'exactly three states move, and they are the three that cap per person',
+    ['GA', 'KY', 'MD', 'NY'],
+    'exactly four states move, and they are the four that cap per person',
   );
   // Widest first, and Maryland's is the widest of the three on these figures.
   assert.equal(model.allocation.widest.state, 'MD');
@@ -324,10 +341,10 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(other.allocation.alternative, 'even');
   assert.deepEqual(
     other.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'MD'],
+    ['GA', 'KY', 'MD', 'NY'],
   );
   assert.ok(Math.abs(other.allocation.widest.difference + 2_842) < 0.005);
-  assert.equal(other.allocation.cheaperElsewhere.length, 3, 'every one is cheaper split');
+  assert.equal(other.allocation.cheaperElsewhere.length, 4, 'every one is cheaper split');
 });
 
 test('a single filer has no allocation to swing', () => {

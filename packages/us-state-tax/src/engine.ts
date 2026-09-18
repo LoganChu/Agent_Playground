@@ -10,6 +10,7 @@ import type {
   ByChildCount,
   IncomeMeasure,
   OwnEarnedIncomeCreditRule,
+  RetirementIncomeSubtractionRule,
   StateIncomeTaxDefinition,
 } from './definition.js';
 import {
@@ -704,7 +705,16 @@ function retirementSubtractions(
   const characterExclusion = def.retirementIncomeExclusion;
   const militaryExclusion = def.militaryRetirementExclusion;
   const kentucky = def.pensionIncomeExclusion;
-  if (!pension && !military && !aged && !characterExclusion && !militaryExclusion && !kentucky) {
+  const bySource = def.retirementIncomeSubtractions;
+  if (
+    !pension &&
+    !military &&
+    !aged &&
+    !characterExclusion &&
+    !militaryExclusion &&
+    !kentucky &&
+    !bySource
+  ) {
     return none;
   }
   const { people, assumed } = retirementPeople(input);
@@ -840,6 +850,19 @@ function retirementSubtractions(
     }
   }
 
+  if (bySource) {
+    const subtracted = retirementIncomeBySource(bySource, input, people);
+    if (subtracted) {
+      details.push({
+        name:
+          assumed && subtracted.allocationMatters
+            ? `${subtracted.name} (assumed: all of it received by one spouse, and none of it government service — pass \`retirement\` for the exact figure)`
+            : subtracted.name,
+        amount: subtracted.amount,
+      });
+    }
+  }
+
   if (aged) {
     // Limited by the claimant's own income, which a return-level computation
     // cannot see. `stateAgi` is clamped at zero downstream, so the only case
@@ -850,6 +873,137 @@ function retirementSubtractions(
   }
 
   return { total: details.reduce((sum, d) => sum + d.amount, 0), details };
+}
+
+/**
+ * Illinois, Mississippi, Michigan and New York — the states whose answer to "do
+ * you tax my pension?" is no, or nearly.
+ *
+ * The four of them were the whole of the `CALLER-SUPPLIED` class in the
+ * differential report: this package documented that each needed its exclusion
+ * passed in through `subtractions`, accepted a `retirement` split it had
+ * everything it needed in, and taxed the pension anyway. A caller who did
+ * exactly what the notes said got the right answer; every caller who did not —
+ * including this project's own calculator — got a retiree's tax that was too
+ * high, in four states at once, silently.
+ *
+ * The rules are ordered most generous first and **at most one applies**, which
+ * is Michigan's structure rather than a convenience: a taxpayer born before 1946
+ * takes the tier one deduction of MCL 206.30(1)(f) *or* the phased-in one of
+ * § 206.30(9), never both.
+ */
+function retirementIncomeBySource(
+  rules: readonly RetirementIncomeSubtractionRule[],
+  input: StateIncomeTaxInput,
+  people: readonly RetirementPerson[],
+):
+  | { readonly name: string; readonly amount: number; readonly allocationMatters: boolean }
+  | undefined {
+  const qualifies = (rule: RetirementIncomeSubtractionRule, age: number | undefined): boolean => {
+    if (rule.minimumAge !== undefined && !(age !== undefined && age >= rule.minimumAge)) {
+      return false;
+    }
+    if (rule.maximumAge !== undefined && !(age !== undefined && age < rule.maximumAge)) {
+      return false;
+    }
+    return true;
+  };
+
+  /**
+   * One person's retirement income, split into the part that leaves the return
+   * whatever the cap says and the part that has to queue for it.
+   *
+   * Two flags decide where military retired pay lands, and the difference is
+   * where each state put its military retirees. New York exempts federal
+   * service in full and leaves the `$20,000` intact for everything else;
+   * Michigan exempts the same pay and charges it against the shared cap, so a
+   * second pension behind a military one is worth less than the same pension on
+   * its own.
+   */
+  const split = (
+    rule: RetirementIncomeSubtractionRule,
+    person: RetirementPerson,
+  ): { readonly exempt: number; readonly chargedFirst: number; readonly pool: number } => {
+    const governmentExempt = rule.governmentPensionExemptInFull === true;
+    const militaryExempt = governmentExempt || rule.militaryReducesCap === true;
+    // New York's $20,000 opens at 59½ and its exemption of a government pension
+    // does not, so the age test belongs to the pool and not to the rule.
+    const oldEnough =
+      rule.cappedMinimumAge === undefined ||
+      (person.age !== undefined && person.age >= rule.cappedMinimumAge);
+    return {
+      exempt:
+        (governmentExempt ? person.governmentPension : 0) + (militaryExempt ? person.military : 0),
+      // Exempt in full AND deducted from the cap — Michigan's Form 4884 line 3,
+      // which New York's construction does not do.
+      chargedFirst: rule.militaryReducesCap === true ? person.military : 0,
+      pool: oldEnough
+        ? person.pension +
+          person.ira +
+          (governmentExempt ? 0 : person.governmentPension) +
+          (militaryExempt ? 0 : person.military)
+        : 0,
+    };
+  };
+
+  const capOf = (rule: RetirementIncomeSubtractionRule): number =>
+    rule.cap === undefined
+      ? Infinity
+      : typeof rule.cap === 'number'
+        ? rule.cap
+        : rule.cap[input.filingStatus];
+
+  /**
+   * One cap, shared by everything that has a claim on it — and the order is
+   * Michigan's Worksheet 3.3, where line 3 takes military pay off the cap and
+   * line 4 applies the phase-in percentage to what is left. Scaling first and
+   * subtracting after gives a military retiree a larger deduction than the form
+   * does, and only for them, which is exactly the kind of error a grid of
+   * households without a veteran in it never finds.
+   */
+  const against = (
+    rule: RetirementIncomeSubtractionRule,
+    parts: readonly { readonly exempt: number; readonly chargedFirst: number; readonly pool: number }[],
+  ): number => {
+    const exempt = parts.reduce((sum, p) => sum + p.exempt, 0);
+    const charged = parts.reduce((sum, p) => sum + p.chargedFirst, 0);
+    const pool = parts.reduce((sum, p) => sum + p.pool, 0);
+    const room = Math.max(0, capOf(rule) - charged) * (rule.capMultiplier ?? 1);
+    return exempt + Math.min(pool, room);
+  };
+
+  for (const rule of rules) {
+    let amount = 0;
+    if (rule.scope === 'return') {
+      // Michigan keys the whole return to the older spouse — Form 4884 asks for
+      // one birth year and one only — so a 66-year-old married to a 58-year-old
+      // qualifies both of their pensions, and they share one cap.
+      const ages = people.map((p) => p.age).filter((a): a is number => a !== undefined);
+      if (!qualifies(rule, ages.length > 0 ? Math.max(...ages) : undefined)) continue;
+      amount = against(
+        rule,
+        people.map((person) => split(rule, person)),
+      );
+    } else {
+      // Per person, with a cap each and no transfer between them: unused room is
+      // lost. That is why the same `$40,000` of New York pension is excluded in
+      // full when a couple split it and half taxed when one of them holds it.
+      for (const person of people) {
+        if (!qualifies(rule, person.age)) continue;
+        amount += against(rule, [split(rule, person)]);
+      }
+    }
+    if (amount <= 0) continue;
+    return {
+      name: rule.name,
+      amount,
+      // A capped or source-sensitive rule gives two different answers for the
+      // same household total depending on who received what, so a caller who
+      // supplied a total rather than a split is told which assumption was used.
+      allocationMatters: rule.cap !== undefined || rule.governmentPensionExemptInFull === true,
+    };
+  }
+  return undefined;
 }
 
 /**
@@ -1696,16 +1850,27 @@ function computeOnce(
       ? lowIncomeCredit(def, input, stateAgi, ageDeductionTaken)
       : 0;
     const alternativeWorth = Math.min(alternative, Math.max(0, grossTax - spouse.amount));
+    // New York pays the match less the household credit, so the two are not
+    // additive — Tax Law § 606(d)(1).
+    const paid = rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched;
     if (def.lowIncomeCredit && alternativeWorth > matched) {
       credits.push({ name: def.lowIncomeCredit.name, amount: alternative, refundable: false });
     } else {
-      credits.push({
-        name: rule.name,
-        // New York pays the match less the household credit, so the two are not
-        // additive — Tax Law § 606(d)(1).
-        amount: rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched,
-        refundable: rule.refundable,
-      });
+      credits.push({ name: rule.name, amount: paid, refundable: rule.refundable });
+      if (def.earnedIncomeCreditChildBonus) {
+        const bonus = def.earnedIncomeCreditChildBonus;
+        const ages = input.dependentAges;
+        // A child under the age limit is a switch, not a multiplier: one child
+        // and four are worth the same, because what the credit is a percentage
+        // of is the earned income credit and not the family.
+        const eligible =
+          ages !== undefined && ages.some((age) => age <= bonus.maxChildAge);
+        credits.push({
+          name: bonus.name,
+          amount: eligible ? paid * bonus.rate : 0,
+          refundable: bonus.refundable,
+        });
+      }
     }
     if (rule.refundableMatchRate !== undefined) {
       // The floor under the non-refundable match above. Maryland's two published

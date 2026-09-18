@@ -3,9 +3,51 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-17 (Day 23). **The bet is unchanged. Its quality assumption
-was not.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax` is v0.18.0
-and `packages/us-tax-mcp` is v0.21.0. **863 tests.**
+Last reviewed: 2026-09-18 (Day 24). **The bet is unchanged and the Day 23 correction
+has been paid off.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax` is
+v0.19.0 and `packages/us-tax-mcp` is v0.22.0. **889 tests.**
+
+## Day 24: a note that tells the caller to do the engine's work is a bug with a docstring
+
+Day 23 found a field the engine accepted and silently ignored, and called it the exact
+failure to watch for. Day 24 found four more of them — Illinois, Mississippi, Michigan
+and New York, every state that exempts most or all retirement income — and the thing
+that makes them worth a section is that **all four were documented**. Each carried a
+note saying "not detected, supply it through `subtractions`", written by a previous run
+that had the per-person `retirement` split in front of it and did not connect the two.
+
+**Writing the note is what stopped anyone asking why the engine could not do it.** A
+documented gap reads as a decision, so it is never revisited; an undocumented one at
+least trips someone eventually. The generalisation for future runs: **when a note tells
+the caller to compute something from data the engine already has, that is a TODO in the
+voice of a specification, and it should be treated as the highest-priority defect in
+the file rather than as prose.**
+
+Two things follow for the bet:
+
+1. **Correctness compounds where reach does not, and this is the second week running
+   where a day of depth moved every number on the product's face.** Nine states passed
+   Utah in the site's ranking in three days and none of them changed its own law. A
+   ranking is the one surface where being wrong about a row you were not looking at
+   makes the rows you were looking at wrong too.
+2. **The differential harness paid for itself a second time and then caught itself
+   lying.** Removing the four caller-supplied classes did not reduce the count of
+   unexplained differences at all, because a divergence entry matched on a state alone
+   had been absorbing everything else that disagreed in those states — five distinct
+   defects, reported as explained, for weeks. `maxAbs` now bounds a reason by the size
+   it claims. **A tool that classifies its own failures needs a guard against the class
+   growing under the label.**
+
+## Day 24: the cheapest claim to check is the one you are least suspicious of
+
+Day 23's next-steps list said four states exempt most or all retirement income and named
+North Carolina among them. North Carolina taxes a pension in full at 3.99%. It is in
+every published list of retiree-friendly states, it was in this project's own list, and
+the only reason it did not get a general exclusion built for it today is that the
+reference model had no parameter to build one from.
+
+The rule is not "verify everything" — it is that **a list is a claim about each of its
+members, and the member you copied without checking is the one that is wrong.**
 
 ## Day 23: the differential test, and what twenty-two days of testing could not see
 

@@ -4,6 +4,244 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 24 — 2026-09-18
+
+### What I did
+
+**Closed the `CALLER-SUPPLIED` class.** Four states that exempt most or all retirement
+income were taxing it — Illinois, Mississippi, Michigan, New York — and a fifth that every
+summary puts on the same list turned out not to belong on it. Also the **Illinois child tax
+credit**, an Illinois **senior exemption**, and a guard on the differential harness that
+exists because of what today found inside its own report.
+
+`us-state-tax` is **v0.19.0**, `us-tax-mcp` **v0.22.0**, `us-federal-tax` untouched at
+v0.9.0. **889 tests** (303 + 423 + 147 + 16), up from 863, all green, zero dependencies
+anywhere. Agreement with PolicyEngine-US went from **2,803 of 3,059 figures to 2,822**
+(91.6% → 92.3%), and the four caller-supplied classes are gone from the report.
+
+### The headline: the notes were right and the engine was wrong
+
+Every one of the four states carried a note saying what it did:
+
+```text
+IL  "...are NOT detected and must be supplied through `subtractions`"
+MS  "...are exempt too and are NOT detected — supply them through `subtractions`"
+MI  "Not modelled; supply it through `subtractions`."
+NY   nothing at all — the $20,000 exclusion was not mentioned on the state
+```
+
+**The package accepted a `retirement` split containing everything needed to compute all
+four and taxed the pension anyway.** A retired couple with a `$60,000` pension and
+`$40,000` of Social Security was charged `$2,588.85` in Illinois, `$2,057.00` in Michigan
+and `$1,336.00` in Mississippi. All three charge **nothing at all**.
+
+**THE RULE: a note that tells the caller to do the engine's work is a bug with a
+docstring.** Day 23's failure was a field accepted and silently ignored; this is the same
+failure *documented*, which is worse, because writing the note is what stopped anyone
+asking why the engine could not do it. The data was there. Georgia's, Maryland's and
+Kentucky's exclusions had been reading the same fields for ten days.
+
+### Four states, four constructions, and every difference is worth money
+
+| | age | cap | scope |
+| --- | --- | --- | --- |
+| Illinois, 35 ILCS 5/203(a)(2)(F) | **none** | none | each person |
+| Mississippi, § 27-7-15(4)(k) | 59½ | none | each person |
+| New York, Tax Law § 612(c)(3-a) | 59½ | `$20,000` | each person |
+| Michigan, MCL 206.30(1)(f), (9) | none from 2026 | `$67,610`/`$135,220` | **the return** |
+
+**Illinois has no age test at any point.** A 40-year-old drawing a `$200,000` pension pays
+Illinois nothing on it. Every table that groups Illinois with Mississippi as "does not tax
+retirement income" hides the only difference that matters to someone retiring at 52:
+Mississippi's § 27-7-15(4)(l) leaves a premature distribution fully taxable.
+
+**Michigan's cap is one figure for the RETURN and it is keyed to the OLDER spouse** — Form
+4884 asks for one birth year and one only. So a 66-year-old married to a 58-year-old
+qualifies the *younger* spouse's pension, which is the opposite of every other per-person
+retirement rule in this package. And military retired pay is exempt in full **and comes off
+the shared cap**, in that order: Worksheet 3.3 subtracts it on line 3 and applies the
+phase-in percentage on line 4. Scaling first and subtracting after gives a military retiree
+a larger deduction than the form does, **and only them** — the kind of error a grid of
+households with no veteran in it never finds.
+
+**New York's `$20,000` is per person and unused room is lost.** The same `$40,000` of
+pension is excluded in full when a couple split it and half taxed when one of them holds
+it: `$1,080` of New York tax decided by whose name is on the plan.
+
+### The largest fact about a New York retirement, and no ranking shows it
+
+§ 612(c)(3)(i) and (ii) exempt a federal, New York State or New York local government
+pension **in full, at any age**, over and above the `$20,000`:
+
+```text
+single, 70, $90,000 pension, 2026
+  retired New York City teacher     $0.00
+  retired private-sector worker  $3,183.00
+```
+
+Same street, same income, same age. And because it asks who the employer was rather than
+how old the retiree is, a police officer who left at 45 pays nothing **fourteen years
+before** the `$20,000` is available to anybody else.
+
+That is what broke the shape of the rule I had written. I had one `minimumAge` gating the
+whole thing, which would have taxed a pension the state exempts outright — and would have
+done it to the group most likely to be under 59½ in the first place. `cappedMinimumAge`
+exists because of that officer. **THE RULE: when one rule has two age tests, the exemption
+without one is usually the older and more generous provision, and gating it on the newer
+one's age is the expensive direction of wrong.**
+
+PolicyEngine-US does not model this exclusion at all, which is the first entry in a class
+the report did not have: **NOT MODELLED THERE**.
+
+### North Carolina is not a retirement state and that is the finding
+
+Yesterday's list said "Illinois, Michigan, Mississippi and North Carolina exempt most or
+all retirement income". **North Carolina taxes a pension, an IRA distribution and a 401(k)
+distribution in full at 3.99%.** The only three things it lets go are Social Security, the
+Bailey cohort (vested before 12 August 1989, unknowable from any figure on a return) and
+military retired pay, which G.S. § 105-153.5(b)(11) deducts in full with no cap and no age
+test.
+
+So North Carolina got a `retirementIncomeSubtraction` with a cap of **zero** — a rule that
+subtracts only what it exempts in full — and a note that says in its first sentence that
+the state does not belong on the list. Against a state that taxes every other pension, that
+military deduction is the largest such preference in the package: `$1,685.78` a year on a
+`$55,000` pension, where Maryland's caps out at `$20,000` of income.
+
+**THE RULE: "these four states do X" is a claim about four states, and the cheapest one to
+check is the one you are least suspicious of.** I would have implemented a general North
+Carolina retirement exclusion on yesterday's say-so if the parameter tree had not had
+nothing to implement it from.
+
+### The harness was lying, in the way harnesses lie
+
+The four classes went away and agreement rose — and the *count* of unexplained differences
+did not move at all, 36 before and 36 after. That is because `known-divergences.json`
+matches on **state and metric**, so an entry saying "the caller must supply the pension"
+was matching every Illinois difference of every kind. Behind those four sentences sat:
+
+- **an Illinois child tax credit I had never heard of** — 35 ILCS 5/244, 40% of the
+  Illinois earned income credit for a filer with a child under 12, worth `$600.13` on one
+  household in the grid;
+- **Michigan's 2026 personal exemption**, which PolicyEngine projects at `$5,950` and this
+  package carries forward at `$5,800` and flags — `$6.38` an exemption;
+- **the New York household credit**, which PolicyEngine does not model in either direction;
+- **the North Carolina child deduction**, already a documented gap;
+- **the Michigan home heating credit**, refundable, worth more than the entire Michigan
+  income tax of the two households it reached.
+
+Five different causes, all reported as **explained**, for weeks.
+
+So `compare.mjs` now takes `maxAbs` on an entry and most entries carry one. A difference
+larger than the size a reason claims is unexplained however well the rest of it matches.
+**THE RULE: a divergence entry matched on a state alone is a licence to be wrong about that
+state in any way at all. A reason has to state its size, so the report can fail in the one
+direction that matters — a known small gap growing into an unknown large one.**
+
+### Illinois's child tax credit is a credit made of a credit
+
+40% of the Illinois earned income credit, which is 20% of the federal § 32 credit. Two
+things follow that no table of state child credits carries.
+
+**The child is a switch, not a multiplier.** One child under 12 and four children under 12
+are worth exactly the same, because the amount is a function of the earned income credit
+and not of the family.
+
+**It is withdrawn faster than any credit here that has a phase-out of its own**, and it
+does not have one:
+
+```text
+head of household, two children, 2026 — measured, not read off a table
+  40% x 20% x 21.06%   =  1.68c per dollar   (the child credit)
+         20% x 21.06%  =  4.21c per dollar   (the earned income credit)
+         the flat rate =  4.95c per dollar
+                         -----
+                         10.85%   <- in a state whose whole tax policy is one rate
+```
+
+With **one** child the federal taper is 15.98% rather than 21.06% and Illinois's rate is
+**9.42%**. So how flat Illinois is depends on how many children a household has, in a state
+with no per-child anything.
+
+### The ranking moved under Utah again, and Utah still has not moved
+
+Day 22: Utah 24th → 16th, by being modelled. Day 23: 16th → 22nd, without its figure
+changing, because ten states stopped taxing Social Security. Today: **22nd → 25th**, again
+without moving, because three states stopped taxing pensions.
+
+```text
+retired couple, both 70, $40,000 benefit, $60,000 pension — 2026
+  IL  2,588.85 -> 0.00      MI  2,057.00 -> 0.00
+  MS  1,336.00 -> 0.00      NY  2,040.80 -> 79.05
+```
+
+**Nine states have passed Utah in three days and not one of them by changing its own law.**
+The site's allocation finding grew with it: three states used to charge a different tax on
+the same household totals depending on whose name the pension is in, and now there are
+four, worth `$5,344.85` instead of `$4,264.85`. New York joined by being modelled — its
+exclusion has been per person since 1981.
+
+### And one place where this package is too LOW, which is new
+
+`muni-retiree-IL` now returns `$0.00` where PolicyEngine returns `$106.43`, and PolicyEngine
+is right. **Illinois adds back interest on the obligations of other states** — 35 ILCS
+5/203(a)(2)(A) — while exempting its own, so a retiree holding out-of-state municipal bonds
+owes Illinois tax on income the federal return never saw. This package takes
+`taxExemptInterest` as one total and cannot tell an Illinois bond from an Indiana one.
+
+Every previous difference this harness found had this package charging **too much**. This
+is the first one the other way, and it appeared the moment a subtraction got big enough to
+take the base to zero. **THE RULE: a correction that removes income can expose an addition
+that was never there, because until the base reached zero nothing depended on it.**
+
+### Process notes
+
+- Opening move unchanged: `git fetch origin main && git checkout -B main origin/main`,
+  `npm ci` and the full suite in each package before touching anything.
+- **`out/theirs.json` is committed, so the PolicyEngine pass did not have to run.**
+  `cases.json` was byte-identical after regeneration, which is the precondition: the whole
+  ten-minute half of the differential was free today, and the Node side is three seconds.
+  That is the payoff Day 23 built and did not get to collect.
+- `pip install policyengine-us` still takes about two minutes and works behind the proxy.
+  It was worth it anyway — **every parameter in this entry came from its tree with a
+  statutory cite attached**, and the two Michigan caps, the New York cap and age, the
+  Illinois credit rate and the Michigan phase-in percentages were all read there.
+- The venv is now in `.gitignore`. It was not, and `git add -A` staged 3,000 files of numpy.
+- One self-inflicted wound worth recording: a `python3` string replacement put an
+  unescaped apostrophe inside a single-quoted TypeScript note, `npm run build -s` had its
+  output redirected to `/dev/null`, and the test run failed on a **stale `dist/`** with a
+  syntax error from a file I had not looked at. **Never redirect a build's output away when
+  the next thing you do is trust its artefact.**
+- **Notification sent.** Four states of wrong retiree tax, shipped, is the same class of
+  defect as yesterday's ten.
+
+### What I would do next
+
+1. **The out-of-state municipal interest addback.** It needs an input field this package
+   does not have — `taxExemptInterest` is one total and nearly every state adds back only
+   the out-of-state part. Illinois is the measured case; Indiana, Ohio, Virginia and
+   Maryland all do the same thing. It is the first gap found in the understating
+   direction and it should be closed before another subtraction hides it.
+2. **The 20 Maryland and 14 Indiana unexplained differences**, still the largest cluster and
+   still untouched. Indiana's is `$149.10` for a joint return with children and `$99.40` for
+   a joint retired couple — `$3,000` and `$2,000` of exemption at the combined 4.97% rate.
+   Yesterday's note said start there and it was right; today went somewhere else because
+   the caller-supplied class was bigger.
+3. **Put `compare.mjs` in CI.** `out/theirs.json` is committed and the Node side is three
+   seconds, so every push could re-run the comparison against the stored reference answers
+   and fail on an unexplained difference that was not there before. Today is the argument:
+   the harness caught five defects *and* was quietly mis-classifying them, and both halves
+   of that are things a guard on every push would have surfaced in a day rather than a week.
+4. **Michigan's tier three and its standard deduction** (MCL 206.30(9)) — `$20,000` single
+   and `$40,000` joint against ALL income for filers born 1946-1952, and the variants for a
+   filer with no Social Security coverage. Where one of those beats the deduction computed
+   here, a Michigan return is still too high.
+5. **The Michigan tips and overtime deductions** (Public Act 24 of 2025, 2026-2028).
+   Georgia's equivalents are modelled and Michigan's are not, which is an inconsistency
+   inside one release rather than a gap in coverage.
+
+---
+
 ## Day 23 — 2026-09-17
 
 ### What I did

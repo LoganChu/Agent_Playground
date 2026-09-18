@@ -74,6 +74,15 @@ const CITATIONS: readonly Citation[] = [
     url: 'https://www.nysenate.gov/legislation/laws/TAX/614',
   },
   {
+    title:
+      'N.Y. Tax Law § 612(c)(3) — government pensions excluded in full; § 612(c)(3-a) — the $20,000 pension and annuity exclusion',
+    url: 'https://www.nysenate.gov/legislation/laws/TAX/612',
+  },
+  {
+    title: 'Form IT-201-I, Instructions for Form IT-201, line 29',
+    url: 'https://www.tax.ny.gov/pdf/current_forms/it/it201i.pdf',
+  },
+  {
     title: 'New York FY2026 Enacted Budget, S.3009-C — rate reductions for 2026 and 2027',
     url: 'https://legislation.nysenate.gov/pdf/bills/2025/S3009C',
   },
@@ -176,6 +185,9 @@ const HOUSEHOLD_ADDITIONAL: readonly CreditStep[] = [
 ];
 
 const NOTES: readonly string[] = [
+  'New York excludes up to $20,000 of pension and annuity income PER PERSON at 59½ — Tax Law § 612(c)(3-a), IT-201 line 29 — and from v0.19.0 this package computes it from `retirement` or `retirementIncome`. Unused room is LOST, so the same $40,000 of pension is excluded in full when a couple split it evenly and half taxed when one of them holds it all: about $1,100 of New York tax decided by whose name is on the plan. Pass a `retirement` split; a total alone is assumed to sit with one person, which is the expensive assumption, and the subtraction says so.',
+  'A pension from the federal government, New York State or a New York local government is exempt IN FULL and at ANY AGE — § 612(c)(3)(i) and (ii) — over and above the $20,000. Military retired pay is federal service and belongs there too. So a retired New York City teacher with a $90,000 pension pays New York nothing, and a retired private-sector worker on the same $90,000 pays on $70,000 of it; and a police officer who retired at 45 pays nothing fourteen years before the $20,000 is available to anyone else. Pass it as `retirement.filer.governmentPension` — NOT as `employerPlanPension`, which is read as private. PolicyEngine-US does not model this exclusion at all, so the two engines disagree by the whole of a government pension.',
+  'NOT MODELLED — the § 612(c)(3-a) exclusion is also available to a BENEFICIARY of a deceased person who would have qualified, on the decedent\'s age rather than the beneficiary\'s, and the $20,000 is then shared among the beneficiaries. This package reads the age of the person on the return.',
   'New York adds a supplemental tax above $107,650 of New York AGI (Tax Law § 601(d)) that recaptures the benefit of the lower brackets, so a high earner pays their top rate on their whole income. Walking the rate schedule alone understates a $300,000 single filer by $2,399 and a $6,000,000 one by $65,071. This package derives the recapture from the rate schedule rather than storing the statutory table.',
   'The FY2026 enacted budget cut the bottom five rates for 2026 and cuts them again for 2027. The top four rates are unchanged, so the recapture owed by high earners RISES in 2026 — there is more graduated-rate benefit below the top bracket to claw back.',
   'The recapture also claws back the benefit of the filing-status schedules. Past the first phase-in — above $157,650 of New York AGI — a head of household and a single filer with the same New York taxable income in the 6% band pay exactly the same tax, because both schedules have been undone. The head-of-household schedule is worth $120.37 at $88,000 of taxable income and nothing at all above $157,650 of AGI.',
@@ -222,6 +234,24 @@ export function newYork(year: number): StateIncomeTaxDefinition | undefined {
       minAgi: 107_650,
       phaseInLength: 50_000,
     },
+    // Two subtractions in one rule, and the gap between them is the largest
+    // thing about a New York retirement that no ranking of state taxes shows.
+    // § 612(c)(3)(i) and (ii) exempt a federal, New York State or New York local
+    // government pension IN FULL; § 612(c)(3-a) gives everyone else $20,000 at
+    // 59½, per person, with unused room lost.
+    retirementIncomeSubtractions: [
+      {
+        name: 'New York pension and annuity exclusion',
+        scope: 'perPerson',
+        // 59½ — the federal § 72(t) age, which is what the IT-201 instructions
+        // for line 29 use. Ages here are whole numbers, so a filer who turns
+        // 59½ during the year is treated as not qualifying. It gates the
+        // $20,000 only: a government pension is exempt at any age.
+        cappedMinimumAge: 59.5,
+        cap: 20_000,
+        governmentPensionExemptInFull: true,
+      },
+    ],
     householdCredit: {
       name: 'New York household credit',
       base: byStatusOf<readonly CreditStep[]>({

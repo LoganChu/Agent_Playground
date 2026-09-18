@@ -1538,6 +1538,151 @@ export interface PensionIncomeExclusionRule {
 }
 
 /**
+ * A child tax credit that is a **percentage of another credit** — Illinois's,
+ * 35 ILCS 5/244, added by Public Act 103-0592 for tax year 2024.
+ *
+ * Every other child credit in this package is a number of dollars per child,
+ * withdrawn on income. Illinois's is 40% of the Illinois earned income credit,
+ * which is itself 20% of the federal § 32 credit, and the only thing the child
+ * does is **switch it on**: one child under 12 and four children under 12 are
+ * worth exactly the same, because the amount is a function of the earned income
+ * credit and not of the family.
+ *
+ * Two consequences a table of state child credits cannot carry.
+ *
+ * **It has no phase-out of its own and it is withdrawn faster than any credit
+ * here that does.** It inherits the whole of § 32's taper, twice discounted:
+ * for two children, 40% of 20% of 21.06% is 1.68 cents per dollar, on top of
+ * the 4.21 cents the Illinois earned income credit already withdraws. A working
+ * Illinois parent of two in the § 32 phase-out band faces **10.85%** — the
+ * 4.95% flat rate plus 5.90 points of withdrawal — in the state whose whole tax
+ * policy is that the rate is the same for everybody. With **one** child the
+ * federal taper is 15.98% rather than 21.06% and the Illinois rate is 9.42%, so
+ * how flat Illinois is depends on how many children a household has, in a state
+ * with no per-child anything.
+ *
+ * **A credit defined as a percentage of a credit moves when the other one
+ * does.** Illinois raised its earned income credit from 18% to 20% in 2023 and
+ * this credit from 20% to 40% in 2025; the two changes compound, and nothing in
+ * either statute mentions the other's figure.
+ */
+export interface EarnedIncomeCreditChildBonusRule {
+  readonly name: string;
+  /** Of the state earned income credit actually paid. Illinois's is 40%. */
+  readonly rate: number;
+  /** A qualifying child must be at most this age. Illinois: under 12. */
+  readonly maxChildAge: number;
+  readonly refundable: boolean;
+}
+
+/**
+ * A subtraction of retirement income granted by **source and age** — the fourth
+ * construction of the idea in this package, and the one that covers the states
+ * whose answer to "do you tax my pension?" is simply *no*.
+ *
+ * Georgia asks what **character** the income has, Maryland what **form of
+ * account** it came out of, Kentucky **who the employer was and when**. These
+ * four states ask nothing beyond "is it retirement income, and are you old
+ * enough" — which is why they can share a rule where the other three could not:
+ *
+ * | state | age | cap | scope |
+ * | --- | --- | --- | --- |
+ * | Illinois, 35 ILCS 5/203(a)(2)(F) | none | none | each person |
+ * | Mississippi, § 27-7-15(4)(k) | 59½ | none | each person |
+ * | New York, Tax Law § 612(c)(3-a) | 59½ | `$20,000` | each person |
+ * | Michigan, MCL 206.30(1)(f), (9) | see below | `$67,610` / `$135,220` (2026) | the return |
+ *
+ * **Illinois is the largest exemption of retirement income in the United States
+ * and has no age test at any point.** A 40-year-old drawing a `$200,000` pension
+ * pays Illinois nothing on it. Every summary that ranks states by whether they
+ * "tax retirement income" puts Illinois beside Mississippi; only one of the two
+ * is available to someone who retired at 52.
+ *
+ * {@link scope} is the axis that separates Michigan from the other three and it
+ * is not a detail. Michigan's cap is **one figure for the return**, keyed to the
+ * **older** spouse, so a couple share `$135,220` however the pension is split
+ * and a 66-year-old married to a 58-year-old qualifies the whole return. New
+ * York's `$20,000` is per person and unused room is lost, so the same `$40,000`
+ * of pension is fully excluded when it is split evenly and half taxed when it
+ * is not — a `$1,100` difference on identical income, decided by whose name is
+ * on the plan.
+ */
+export interface RetirementIncomeSubtractionRule {
+  readonly name: string;
+  /**
+   * `'perPerson'` — each person's own age decides their own income, and a cap
+   * applies to each of them separately. Illinois, Mississippi, New York.
+   *
+   * `'return'` — the **oldest** person on the return decides the whole return,
+   * and {@link cap} is one figure for both of them. Michigan, whose Form 4884
+   * asks for "the older of you and your spouse" and nothing else.
+   */
+  readonly scope: 'perPerson' | 'return';
+  /** Age at or above which the subtraction is available. Absent = no age test. */
+  readonly minimumAge?: number;
+  /**
+   * Age at or above which the **capped** part is available, where the
+   * exempt-in-full part has no age test of its own.
+   *
+   * New York is the whole reason this is separate from {@link minimumAge}. A
+   * retired New York City police officer who left at 45 on a `$70,000` pension
+   * pays New York nothing on it — § 612(c)(3)(i) asks who the employer was and
+   * not how old the retiree is — while the `$20,000` of § 612(c)(3-a) is not
+   * available to them for another fourteen years. Gating the whole rule on 59½
+   * would tax a pension the state exempts outright, and for the group of
+   * retirees most likely to be under 59½ in the first place.
+   */
+  readonly cappedMinimumAge?: number;
+  /**
+   * Available only **strictly below** this age. Michigan's phased-in deduction
+   * for 2025, which the pre-1946 cohort does not need because the tier the
+   * phase-in is catching up to is already theirs.
+   */
+  readonly maximumAge?: number;
+  /**
+   * The most that may be subtracted. Absent = the whole of it.
+   *
+   * A cap of **zero** is meaningful and is what North Carolina uses: a rule that
+   * subtracts only the income it exempts in full — military retired pay — and
+   * nothing else, because North Carolina taxes every other pension outright.
+   */
+  readonly cap?: number | ByStatus;
+  /**
+   * A fraction of {@link cap}, applied **after** {@link militaryReducesCap} has
+   * taken military retired pay off it — which is the order Michigan's Worksheet
+   * 3.3 uses, and it is not the same as scaling the cap first.
+   *
+   * Michigan is restoring a deduction it repealed in 2011, a quarter at a time:
+   * 25% for 2023, 50% for 2024, 75% for 2025 and the whole of it from 2026. A
+   * model that stores the 2026 rule and runs it on a 2025 return overstates the
+   * deduction by a third.
+   */
+  readonly capMultiplier?: number;
+  /**
+   * Retired pay from a government employer — and military retired pay, which is
+   * federal service — is subtracted **in full, outside the cap**.
+   *
+   * New York's § 612(c)(3)(i) and (ii) do this, and it is the largest thing
+   * about a New York retirement that no ranking of state taxes shows: a retired
+   * New York City teacher with a `$90,000` pension pays New York nothing, and a
+   * retired private-sector worker with the same `$90,000` pays on `$70,000` of
+   * it. The two live on the same street.
+   */
+  readonly governmentPensionExemptInFull?: boolean;
+  /**
+   * Military retired pay is subtracted in full **and comes off the cap** that
+   * everything else shares — Michigan's Form 4884 line 3.
+   *
+   * It is the one construction here that makes a second pension worth less
+   * because the first one was military: a Michigan couple with `$135,220` of
+   * military retired pay have no room left for an IRA, where a couple with
+   * `$135,220` of private pension are in exactly the same place. The difference
+   * only appears above the cap.
+   */
+  readonly militaryReducesCap?: boolean;
+}
+
+/**
  * A capped exclusion of one class of compensation, read off the federal
  * deduction the same dollars produced — Georgia's qualified overtime and cash
  * tip exclusions, O.C.G.A. § 48-7-27(a)(16) and (17), added by HB 463 of 2026
@@ -1725,6 +1870,23 @@ export interface StateIncomeTaxDefinition {
    * {@link StateIncomeTaxInput.retirement}.
    */
   readonly pensionIncomeExclusion?: PensionIncomeExclusionRule;
+  /**
+   * The subtraction of retirement income that a state grants by **source and
+   * age** — Illinois, Mississippi, Michigan and New York. An ordered list, most
+   * generous first; the first entry whose age test is met is the one that
+   * applies, because a state that offers two of these offers a choice and not a
+   * sum.
+   *
+   * Reads {@link StateIncomeTaxInput.retirement}, falling back to
+   * {@link StateIncomeTaxInput.retirementIncome}.
+   */
+  readonly retirementIncomeSubtractions?: readonly RetirementIncomeSubtractionRule[];
+  /**
+   * Illinois's child tax credit — a percentage of the state earned income
+   * credit, paid to a filer who has a young child. Gated on
+   * {@link earnedIncomeCredit}; never present without it.
+   */
+  readonly earnedIncomeCreditChildBonus?: EarnedIncomeCreditChildBonusRule;
   /**
    * Exclusions of a class of compensation the federal government deducts below
    * the line, so a federal-AGI base never saw them. Georgia's tips and overtime.

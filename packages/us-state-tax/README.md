@@ -7,19 +7,51 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.18.0, and it is a **correction rather than a feature**: ten states that exempt
-Social Security by statute — Arizona, California, Idaho, Illinois, Indiana, Michigan,
-Mississippi, North Carolina, New York and Ohio — were being charged tax on the federally
-taxable part of the benefit. `taxableSocialSecurity` was accepted on every one of those
-returns and used only by Utah and Virginia. **A retiree in those ten states computed up to
-`$1,517` a year too high**, and fifteen of the nineteen taxing states change place in a
-retirement ranking because of it. Found by running
+New in 0.19.0, and it is the second **correction rather than a feature** in two releases:
+**four states that exempt most or all retirement income were taxing it** — Illinois,
+Mississippi, Michigan and New York. The package documented that each needed its exclusion
+netted out by the caller through `subtractions`, accepted a `retirement` split that
+contained everything needed to compute it, and taxed the pension anyway. A retired couple
+with a `$60,000` pension and `$40,000` of Social Security was charged `$2,588.85` in
+Illinois, `$2,057.00` in Michigan and `$1,336.00` in Mississippi, where all three of those
+states charge **nothing at all**, and `$2,040.80` in New York where the answer is `$79.05`.
+
+Four states, four different constructions, and every difference between them is worth
+money:
+
+| | age | cap | scope |
+| --- | --- | --- | --- |
+| **Illinois**, 35 ILCS 5/203(a)(2)(F) | none | none | each person |
+| **Mississippi**, § 27-7-15(4)(k) | 59½ | none | each person |
+| **New York**, Tax Law § 612(c)(3-a) | 59½ | `$20,000` | each person |
+| **Michigan**, MCL 206.30(1)(f), (9) | none from 2026 | `$67,610` / `$135,220` | the **return** |
+
+**Illinois has no age test at any point**, so a 40-year-old drawing a `$200,000` pension
+pays Illinois nothing on it — the one state here an early retiree can use, and every table
+that groups it with Mississippi hides that. **New York's `$20,000` is per person and
+unused room is lost**, so the same `$40,000` of pension is excluded in full when a couple
+split it and half taxed when one of them holds it: `$1,080` decided by whose name is on the
+plan. And a federal, New York State or New York local government pension is exempt **in
+full and at any age** — a retired New York City teacher on `$90,000` pays nothing where a
+private-sector retiree on the same `$90,000` pays on `$70,000` of it. **Michigan's cap is
+one figure for the return, keyed to the older spouse**, and it is 75% of itself for 2025
+because Public Act 4 of 2023 is restoring it a quarter at a time.
+
+**North Carolina was on the same list and does not belong there.** It taxes a pension, an
+IRA distribution and a 401(k) distribution in full at 3.99%; the only things it lets go are
+Social Security, the Bailey cohort and military retired pay, which is now deducted in full
+here.
+
+Also new in 0.19.0: the **Illinois child tax credit** (35 ILCS 5/244), 40% of the Illinois
+earned income credit for a filer with a child under 12 — a credit that is a percentage of a
+credit, so it inherits the whole of § 32's taper and takes a working Illinois parent of two to
+**10.85%** on the next dollar in a state whose entire tax policy is one rate for everybody.
+And Illinois's `$1,000` additional exemption at 65, which is not indexed and has not moved
+since 2004.
+
+Both corrections were found the same way: by running
 [PolicyEngine-US](https://github.com/PolicyEngine/policyengine-us) over the same 437
 households — see [`tools/differential`](https://github.com/LoganChu/Agent_Playground/tree/main/tools/differential).
-
-Also new in 0.18.0: **Utah's child tax credit**, withdrawn at ten cents on the dollar —
-2.2 times Utah's own tax rate — which takes a working Utah couple with two children to
-**20.00% on the next dollar** against a headline 4.45%.
 
 Companion to [`us-federal-tax`](https://github.com/LoganChu/Agent_Playground/tree/main/packages/us-federal-tax) —
 it takes that package's `estimateFederalTax()` result directly, but neither depends on the
@@ -28,7 +60,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.18.0/us-state-tax-0.18.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.19.0/us-state-tax-0.19.0.tgz
 ```
 
 ## The rate is the easy part

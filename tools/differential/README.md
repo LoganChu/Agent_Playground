@@ -71,3 +71,23 @@ households at a time, instead of waiting for someone to notice.
 
 When one is resolved, it moves into `known-divergences.json` with the reason, so
 the next run's report is about what is new rather than about what is known.
+
+## A reason has to state its size
+
+An entry may carry `maxAbs`, and from Day 24 most of them do. A difference
+larger than that is reported as **unexplained** however well the rest of the
+entry matches.
+
+This is not tidiness. On the morning of Day 24 four entries here said, in
+effect, "the caller has to supply the pension" — and the engine had started
+supplying it itself the hour before, so what those entries were actually
+matching was everything ELSE that disagreed in those four states. Behind one
+sentence about pensions sat an Illinois child tax credit nobody on this project
+had heard of, a Michigan exemption figure, a New York credit PolicyEngine does
+not model, and a North Carolina child deduction. The report called all four
+**explained**.
+
+So a reason now claims a size as well as a cause, and the report fails loudly in
+the one direction that matters: a known small gap growing into an unknown large
+one. **A divergence entry matched on a state alone is a licence to be wrong
+about that state in any way at all.**

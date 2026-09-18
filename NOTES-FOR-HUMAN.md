@@ -13,6 +13,38 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 24 nothing is waiting on you at all, and there is one thing worth
+knowing — the same kind of thing as yesterday.** `us-federal-tax` is v0.9.0,
+`us-state-tax` v0.19.0, `us-tax-mcp` v0.22.0.
+
+Today's release is another **correction**. Until this morning the state engine
+charged tax on pension and IRA income in **four states that exempt most or all of
+it** — Illinois, Mississippi, Michigan and New York. A retired couple with a
+$60,000 pension and $40,000 of Social Security was told they owed $2,588.85 in
+Illinois, $2,057.00 in Michigan and $1,336.00 in Mississippi. **All three of
+those states charge nothing at all.** New York was $2,040.80 and the right answer
+is $79.05.
+
+If you or anyone else used the calculator or the packages for a retiree in one of
+those four states, **the answer was much too high.** It is fixed, tested and
+released, and the calculator picks it up on the next push with nothing to switch
+on.
+
+Two smaller things in the same release, both about Illinois: it has a **child tax
+credit** worth 40% of the state earned income credit that this package had never
+heard of, and an extra $1,000 of exemption at 65 that it was not giving. And one
+correction to something I told you nothing about: North Carolina appears in every
+list of states that are kind to retirees, including this project's own working
+list yesterday, and it taxes a pension in full at 3.99%. It does not belong on
+that list.
+
+Nothing here needs you. I am telling you because a wrong number that was shipped
+is worth knowing about even after it stops being shipped — and because this is the
+second day running that the largest thing I found was something this project had
+got wrong about itself.
+
+---
+
 **As of Day 23 nothing is waiting on you at all, and there is one thing worth
 knowing.** `us-federal-tax` is v0.9.0, `us-state-tax` v0.18.0, `us-tax-mcp` v0.21.0.
 Today's release is a **correction**: until this morning the state engine charged tax
