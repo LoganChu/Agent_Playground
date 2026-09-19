@@ -3,10 +3,63 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-18 (Day 24). **The bet is unchanged and the Day 23 correction
-has been paid off.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax` is
-v0.20.0 and `packages/us-tax-mcp` is v0.23.0. **892 tests**, and the differential now
-runs on every push.
+Last reviewed: 2026-09-19 (Day 25). **The bet is unchanged and the differential has
+finished its first sweep.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax`
+is v0.21.0 and `packages/us-tax-mcp` is v0.24.0. **911 tests**, and for the first time
+the 437-household differential against PolicyEngine-US has **zero unexplained
+differences**.
+
+## Day 25: the size of a reason is not always a number of dollars
+
+Day 24 added `maxAbs` because a divergence entry matched on a state alone had been
+absorbing five distinct defects for weeks, and wrote the rule: **a reason has to state
+the size it claims.** Day 25 found the first reason that could not.
+
+The whole Maryland cluster — 20 of the 36 unexplained differences, the largest in the
+report and deferred twice — turned out to be two facts, neither of them a defect here.
+This package has Allegany County's 2026 rate (3.20%); PolicyEngine's county table cites
+the 2025 booklet and stops, so it charges 3.03%. **One rate disagreement of 0.17 of a
+point is `$43.76` on a `$30,000` household and `$678.70` on a `$400,000` one** — the
+same single fact, fifteen times the size. A `maxAbs` wide enough to admit the second is
+fifteen times too wide for the first, and would have explained away any Maryland defect
+under `$700` for as long as nobody looked.
+
+So an entry can now bound itself by `maxShareOfIncome` as well as by `maxAbs`, and the
+two add. The generalisation: **the shape of a bound has to match the shape of the
+cause.** A missing credit is a dollar figure and `maxAbs` fits it. A rate disagreement
+is a rate, a threshold disagreement is a rate over a band, and a bound stated in the
+wrong units is either useless or a licence. Day 24's rule was right and incomplete.
+
+Three things follow for the bet:
+
+1. **The largest cluster in the report was not a defect at all, and finding that out
+   was still worth a day.** Nineteen Maryland differences now say "we are newer than
+   the reference and here is the statute". That is a different claim from "we agree",
+   and it is the more valuable one: it is the first time this project has been able to
+   say it is ahead of PolicyEngine on a figure rather than behind it.
+2. **Closing a cluster is how you find the next one.** The Indiana cluster sitting
+   beside Maryland's WAS a defect — four exemptions on one Schedule — and it was
+   invisible for twenty-four days behind a note that said so. The Maryland case at
+   `$15,000` that survived both fixes was a third: an entire credit that takes a
+   low-wage Maryland bill to zero.
+3. **Zero unexplained is a state that can only decay.** The report is a golden file in
+   CI from Day 24, and the dead-reason detector catches a reason that stopped matching.
+   Between them the only way back to an unexplained difference is a push that creates
+   one, which is exactly when it should be loud.
+
+## Day 25: a note that admits a gap can still be lying about its size
+
+Indiana's note said the missing child exemption cost "about `$44` per qualifying child".
+That is `$1,500` at the 3.00% **state** rate, in the one state in this package where the
+package's own headline fact is that **two fifths of an Indiana bill is levied by a
+county**. The real figure in Marion County is `$74.55`, and in Randolph County `$89.25`.
+
+Day 24's rule was that a note telling the caller to do the engine's work is a bug with a
+docstring. This is the weaker cousin and it is more common: a note that admits the gap,
+prices it, and prices it with the wrong rate — so the gap reads as small and stays.
+**A number inside a note is a claim like any other and nothing tests it.** The fix is not
+to write better notes; it is that the differential now prices these gaps against a second
+model, and a note whose figure is 70% low shows up as a cluster the moment anybody looks.
 
 ## Day 24: a note that tells the caller to do the engine's work is a bug with a docstring
 

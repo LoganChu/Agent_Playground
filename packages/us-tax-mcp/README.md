@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.23.0/us-tax-mcp-0.23.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.24.0/us-tax-mcp-0.24.0.tgz"
       ]
     }
   }
@@ -155,6 +155,19 @@ tool says in its own output rather than only here.
 ---
 
 ## State tax: the rate is the easy part
+
+**New in 0.24.0 — two corrections at the bottom of the income distribution, where being
+wrong means charging somebody their whole bill.** Indiana publishes a `$1,000` exemption a
+person and that is the smallest of the four figures on its own Schedule 3: `$1,500` more
+for each dependent **child**, `$1,000` at 65, `$1,000` for blindness, and `$500` MORE at 65
+below `$40,000` of federal AGI. None was computed, so an Indiana family with two children
+was `$149.10` too high in Marion County, and so was a retired couple under `$40,000`. Pass
+`dependentAges` (a dependent child carries `$1,500` that a dependent parent does not, and a
+count cannot tell them apart), `filerAge` and `spouseAge`. And **Maryland's poverty level
+credit** — 5% of earned income against the state tax and the **county's own rate** against
+the county tax — now takes a `$15,000` Maryland worker from `$160.85` to nothing. Pass
+`earnedIncome`.
+
 
 Every list of state income tax rates gives you a percentage. A percentage of *what* is the
 question that decides the answer, and it is different in every state — which is why

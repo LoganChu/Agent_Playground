@@ -69,6 +69,24 @@ export interface ExemptionRule {
    */
   readonly perSeniorFiler?: number;
   readonly seniorAge?: number;
+  /**
+   * A **further** exemption for each filer at {@link seniorAge} whose federal
+   * AGI is below {@link lowIncomeSeniorThreshold} — Indiana's `$500`, Ind. Code
+   * § 6-3-1-3.5(a). It stacks on top of {@link perSeniorFiler}, so an Indiana
+   * couple both 65 with `$39,999` of AGI claim `$3,000` of age exemption and
+   * the same couple one dollar higher claim `$2,000`.
+   *
+   * It is the only exemption in this package that is means-tested, and it is a
+   * **cliff**: nothing phases. One dollar of extra AGI at the threshold costs a
+   * joint return `$1,000` of exemption, which in a county at the 3.00% statutory
+   * maximum is `$59.50` of tax on that dollar.
+   */
+  readonly perLowIncomeSeniorFiler?: number;
+  /**
+   * Federal AGI at or above which {@link perLowIncomeSeniorFiler} is lost.
+   * Indiana's is `$40,000`, halved to `$20,000` for a separate return.
+   */
+  readonly lowIncomeSeniorThreshold?: ByStatus;
   /** An additional exemption for each blind or disabled filer or spouse. */
   readonly perBlindOrDisabledFiler?: number;
   /**
@@ -77,6 +95,35 @@ export interface ExemptionRule {
    * It stacks with {@link perDependent} rather than replacing it.
    */
   readonly perCollegeDependent?: number;
+  /**
+   * An additional exemption for each dependent **child** young enough to
+   * qualify — Indiana's `$1,500`, Ind. Code § 6-3-1-3.5(a).
+   *
+   * It stacks with {@link perDependent}, so in Indiana a dependent child is
+   * worth `$2,500` of exemption and a dependent parent `$1,000`. That is the
+   * whole reason it is a separate field: a count of dependents cannot tell the
+   * two apart, and in Indiana they differ by `$1,500`.
+   *
+   * It needs {@link StateIncomeTaxInput.dependentAges}, and a return that
+   * supplies only a count gets nothing for it and is told what that cost.
+   */
+  readonly perQualifyingChild?: number;
+  /**
+   * The oldest age that still qualifies for {@link perQualifyingChild}.
+   * Indiana's is **18** — the statute reads "under 19", and this package stores
+   * the inclusive age because that is what a list of ages is compared against.
+   */
+  readonly qualifyingChildMaxAge?: number;
+  /**
+   * The oldest age that qualifies where the dependent is a **full-time
+   * student**. Indiana's is 23, against 18 for everybody else.
+   *
+   * Which of the dependents are students comes from
+   * {@link StateIncomeTaxInput.dependentsAttendingCollege}, and the count is
+   * applied to the oldest dependents inside the band first — the only ones for
+   * whom the answer differs.
+   */
+  readonly qualifyingChildStudentMaxAge?: number;
   /**
    * An additional exemption for each **dependent** at or above {@link seniorAge}
    * — Maryland's, Md. Code, Tax-Gen. § 10-211(b). Worth the same `$3,200` as the
@@ -1280,6 +1327,51 @@ export interface SpouseTaxAdjustmentRule {
  * if their Virginia tax is zero, and a `$900` refundable match that is worth
  * `$900`.
  */
+/**
+ * A credit that forgives the tax of a filer whose income is under the federal
+ * poverty guideline — Maryland's poverty level credit, Md. Code, Tax-Gen.
+ * § 10-709, Form 502 line 23.
+ *
+ * Three things distinguish it from {@link LowIncomeCreditRule}, which is
+ * Virginia's and is a flat amount per exemption.
+ *
+ * **It is a percentage of EARNED income, not a flat amount**, so it grows with
+ * the wage it forgives right up to the guideline. At the top of the band — a
+ * single filer earning the guideline itself — 5% of earnings is more than twice
+ * the Maryland tax on them, so the credit is never the binding figure there and
+ * the tax is simply gone.
+ *
+ * **It is claimed TWICE at two different rates.** § 10-709(b)(1) allows it
+ * against the state tax at {@link earnedIncomeShare}; § 10-709(d) allows a
+ * second one against the county tax at *the county's own rate*. So the credit
+ * is worth a different amount in each of the twenty-four jurisdictions and
+ * there is no per-county figure anywhere — the same economy as the local earned
+ * income credit, for the same reason. See
+ * {@link LocalIncomeTaxDefinition.povertyLevelCreditAtOwnRate}.
+ *
+ * **Both halves are capped at the tax they are claimed against**, each after
+ * that government's own earned income credit. Neither half can be paid out, so
+ * between them they can take a Maryland bill to zero and never below it.
+ */
+export interface PovertyLevelCreditRule {
+  readonly name: string;
+  /** Share of earned income allowed against the state tax. Maryland's is 5%. */
+  readonly earnedIncomeShare: number;
+  /**
+   * The poverty income level both tests are read against — § 10-709(a)(4), the
+   * federal poverty guideline for the household's size. Overridden by
+   * {@link StateIncomeTaxInput.federalPovertyGuideline} when the caller has the
+   * real figure, which they should: this is a cliff, and the guideline is
+   * published in January for the year that has already started.
+   */
+  readonly povertyGuideline: {
+    readonly firstPerson: number;
+    readonly additionalPerson: number;
+    /** Which year's HHS guidelines these are. */
+    readonly year: number;
+  };
+}
+
 export interface LowIncomeCreditRule {
   readonly name: string;
   /** Per exemption on the return — the filers and their dependents. */
@@ -1915,6 +2007,7 @@ export interface StateIncomeTaxDefinition {
    * whichever leaves the filer better off. Virginia only.
    */
   readonly lowIncomeCredit?: LowIncomeCreditRule;
+  readonly povertyLevelCredit?: PovertyLevelCreditRule;
   readonly propertyTaxRelief?: PropertyTaxReliefRule;
   /**
    * Required when {@link base} is `stateDefined`: which input field carries the

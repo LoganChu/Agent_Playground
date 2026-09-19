@@ -204,7 +204,7 @@
    "earnedIncomeCredit": 347.29
   },
   "state": {
-   "tax": 160.85,
+   "tax": 0,
    "credits": [
     {
      "name": "Senior tax credit",
@@ -217,6 +217,10 @@
     {
      "name": "Maryland earned income credit (refundable half)",
      "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 1.58
     },
     {
      "name": "Maryland child tax credit",
@@ -666,6 +670,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -1119,6 +1127,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -1566,6 +1578,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -2019,6 +2035,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -2469,6 +2489,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -2838,7 +2862,7 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": 560.6,
+   "tax": 411.5,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -2917,6 +2941,10 @@
     {
      "name": "Maryland earned income credit (refundable half)",
      "amount": 2845.95
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
     },
     {
      "name": "Maryland child tax credit",
@@ -3288,7 +3316,7 @@
    "earnedIncomeCredit": 1242.3
   },
   "state": {
-   "tax": 2658.97,
+   "tax": 2509.87,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -3366,6 +3394,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -3738,7 +3770,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4771.2,
+   "tax": 4622.1,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -3816,6 +3848,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -4188,7 +4224,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 9741.2,
+   "tax": 9592.1,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -4266,6 +4302,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -4638,7 +4678,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": 89,
+   "tax": 14.45,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -4717,6 +4757,10 @@
     {
      "name": "Maryland earned income credit (refundable half)",
      "amount": 1836
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
     },
     {
      "name": "Maryland child tax credit",
@@ -5088,7 +5132,7 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": 718.14,
+   "tax": 643.59,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -5167,6 +5211,10 @@
     {
      "name": "Maryland earned income credit (refundable half)",
      "amount": 1399.58
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
     },
     {
      "name": "Maryland child tax credit",
@@ -5538,7 +5586,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 2031.74,
+   "tax": 1957.19,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -5616,6 +5664,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -6069,6 +6121,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -6438,7 +6494,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 894.6,
+   "tax": 745.5,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -6516,6 +6572,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -6888,7 +6948,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2385.6,
+   "tax": 2286.2,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -6966,6 +7026,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -7338,7 +7402,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4373.6,
+   "tax": 4274.2,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -7416,6 +7480,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -7788,7 +7856,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 447.3,
+   "tax": 372.75,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -7866,6 +7934,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -8238,7 +8310,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1938.3,
+   "tax": 1888.6,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -8316,6 +8388,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {
@@ -8769,6 +8845,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -9219,6 +9299,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -9665,6 +9749,10 @@
      "amount": 0
     },
     {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
      "name": "Maryland child tax credit",
      "amount": 0
     }
@@ -10034,7 +10122,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2882.6,
+   "tax": 2783.2,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -10112,6 +10200,10 @@
     },
     {
      "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
      "amount": 0
     },
     {

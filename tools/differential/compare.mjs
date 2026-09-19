@@ -55,12 +55,61 @@ const METRICS = [
  * makes the report fail loudly in the one direction that matters: a known small
  * gap growing into an unknown large one.
  */
+/**
+ * Every dollar of income a case puts in front of either model.
+ *
+ * The denominator `maxShareOfIncome` is read against — see {@link match}. It is
+ * the case's own figures rather than either model's answer, so the bound is a
+ * property of the question and cannot move when an engine changes.
+ */
+function caseIncome(caseRow) {
+  return (
+    (caseRow.wages ?? 0) +
+    (caseRow.pension ?? 0) +
+    (caseRow.socialSecurity ?? 0) +
+    (caseRow.longTermCapitalGains ?? 0) +
+    (caseRow.taxExemptInterest ?? 0)
+  );
+}
+
+/**
+ * `maxAbs` is the guard this file was missing, and Day 24 is what it cost.
+ *
+ * An entry matched on state and metric alone swallows EVERY difference in that
+ * state. Four of the reasons in this file were stale on the morning of Day 24 —
+ * they said "the caller must supply the pension", the engine had started
+ * supplying it itself, and the differences left over in those states had four
+ * entirely different causes: an Illinois child tax credit nobody here had heard
+ * of, a Michigan exemption figure, a New York credit PolicyEngine does not
+ * model, and a North Carolina child deduction. All four were hidden behind a
+ * sentence about pensions, and the report called them explained.
+ *
+ * So a reason states the size it claims. A difference larger than `maxAbs` is
+ * reported as unexplained however well the rest of the entry matches, which
+ * makes the report fail loudly in the one direction that matters: a known small
+ * gap growing into an unknown large one.
+ *
+ * `maxShareOfIncome` is Day 25's addition, and it exists because **a reason
+ * about a RATE cannot state its size in dollars.** The two models disagree
+ * about one Maryland county's 2026 rate by 0.17 of a point, which is $43.76 on
+ * a $30,000 household and $678.70 on a $400,000 one — the same single fact,
+ * fifteen times the size. A `maxAbs` wide enough for the second is fifteen
+ * times too wide for the first, and would quietly explain any Maryland defect
+ * under $700. So a rate disagreement states its bound as a rate, and the two
+ * fields add: the entry is allowed `maxAbs` dollars plus `maxShareOfIncome` of
+ * the household's income, which is exactly the shape of "one rate differs, and
+ * one fixed figure differs."
+ */
 function match(rule, caseRow, metric, delta) {
   if (rule.metric !== metric) return false;
   if (rule.state && rule.state !== caseRow.state) return false;
   if (rule.kind && rule.kind !== caseRow.kind) return false;
   if (rule.idIncludes && !caseRow.id.includes(rule.idIncludes)) return false;
-  if (rule.maxAbs !== undefined && Math.abs(delta) > rule.maxAbs) return false;
+  if (rule.maxAbs !== undefined || rule.maxShareOfIncome !== undefined) {
+    const bound =
+      (rule.maxAbs ?? 0) + (rule.maxShareOfIncome ?? 0) * caseIncome(caseRow);
+    if (Math.abs(delta) > bound) return false;
+  }
   return true;
 }
 

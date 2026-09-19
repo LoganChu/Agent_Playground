@@ -13,6 +13,46 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 25 nothing is waiting on you at all, and there are two things worth
+knowing.** `us-federal-tax` is v0.9.0, `us-state-tax` v0.21.0, `us-tax-mcp` v0.24.0.
+
+Today's release is two more **corrections**, and both of them are at the bottom
+of the income distribution, where being wrong means charging somebody their
+whole bill rather than a slice of it.
+
+**Indiana.** The state publishes a $1,000 exemption per person. That is the
+smallest of four figures on its own Schedule 3, and this package was computing
+only that one. It also allows $1,500 more for each dependent child, $1,000 for
+each person aged 65, $1,000 for each blind person, and $500 more for each person
+aged 65 whose income is under $40,000. **An Indiana family with two children was
+charged $149.10 too much, and so was a retired couple under $40,000.** Both are
+fixed. (The old note in the code admitted the gap and priced it at "about $44 a
+child" — that was the state rate only, and in Indiana two fifths of the bill is
+the county's. The real figure in Marion County is $74.55 a child.)
+
+**Maryland.** There is a credit called the poverty level credit that forgives the
+entire Maryland bill — state tax and county tax both — for a household earning
+under the federal poverty guideline. It was not computed here. **A single
+Maryland worker earning $15,000 was told they owed $160.85. They owe nothing.**
+That is fixed too. The credit is claimed at 5% of earnings against the state tax
+and at the county's own rate against the county tax, so it is worth a different
+amount in every one of the twenty-four Maryland jurisdictions.
+
+If you or anyone else used the calculator or the packages for an Indiana family,
+an Indiana retiree, or a low-earning Maryland worker, **the answer was too
+high.** Both are fixed, tested and released, and the calculator picks them up on
+the next push with nothing to switch on.
+
+One thing that is not a bug and is worth knowing anyway: the project now runs
+437 households through this engine and through an independent model
+(PolicyEngine-US) and compares every figure. As of today **every single
+difference between the two has a written reason**, for the first time — 223 of
+them. Two of those reasons are places where the other model is wrong rather than
+this one: it charges an Indiana county tax of *minus* $101 to a retiree with no
+income, and it is still using Allegany County's 2025 rate.
+
+---
+
 **As of Day 24 nothing is waiting on you at all, and there is one thing worth
 knowing — the same kind of thing as yesterday.** `us-federal-tax` is v0.9.0,
 `us-state-tax` v0.20.0, `us-tax-mcp` v0.23.0.

@@ -87,7 +87,8 @@ const GA_NOTES: readonly string[] = [
   'Georgia and Maryland use the same words for opposite constructions, and the difference decides the commonest question in retirement planning. Georgia counts taxable IRA distributions in full, so rolling a 401(k) into an IRA costs a Georgia retiree nothing; Maryland\'s § 10-209(a) writes an IRA out of its exclusion by name, so the same rollover costs a Montgomery County retiree $3,378.83 a year at $150,000, for life. And Georgia subtracts taxable Social Security separately without charging it against the exclusion, where Maryland reduces the exclusion by the whole benefit received. Put IRA money in `retirement.filer.iraDistributions`, not in `employerPlanPension`.',
   'Georgia does not tax Social Security or Tier 1 railroad retirement benefits. Pass the taxable part — Form 1040 line 6b — as `taxableSocialSecurity` and it comes off the base; do NOT also put it in `subtractions`, or it will be subtracted twice.',
   'Georgia\'s child tax credit is new for tax year 2026 — HB 136 (2025), $250 for each child under 6, non-refundable, with NO phase-out and no cap on the number of children. Pass `dependentAges`; a Georgia family return that omits them loses it silently. It is worth the same $250 to a household at $40,000 and at $400,000, which is rare: the only other credit in this package with no income test at all is Massachusetts\'s.',
-  'Not modelled: the low income credit of O.C.G.A. § 48-7-29.7, which is at most $26 per exemption and is gone at $20,000 of federal AGI; the $4,000-per-return exclusion for income from a disability retirement; the Georgia 529 (Path2College) contribution subtraction; the child and dependent care credit (30% of the federal credit); the qualified education expense and rural hospital credits; and the surplus tax refund, which is not part of the return. Pass any of these through `subtractions` if you have them.',
+  'NOT MODELLED \u2014 the eligible itemizer tax credit of O.C.G.A. \u00a7 48-7-29.23, $300 for each taxpayer and $600 on a joint return, allowed to a Georgia resident who ITEMISES. It has no income test at any level, so it is worth the same $300 to a filer at $50,000 and one at $5,000,000, and it is the largest thing in this package that turns on the standard-versus-itemised election rather than on income. A Georgia itemiser computed here is overstated by $300 a taxpayer. It was found by a differential test at $400,000, where the reference model itemised and this one did not.',
+  'Not modelled: the low income credit of O.C.G.A. \u00a7 48-7-29.7, which is at most $26 per exemption and is gone at $20,000 of federal AGI; the $4,000-per-return exclusion for income from a disability retirement; the Georgia 529 (Path2College) contribution subtraction; the child and dependent care credit (30% of the federal credit); the qualified education expense and rural hospital credits; and the surplus tax refund, which is not part of the return. Pass any of these through `subtractions` if you have them.',
 ];
 
 const GA_MILITARY_NOTES: readonly ConditionalNote[] = [
@@ -299,6 +300,10 @@ const IN_CITATIONS: readonly Citation[] = [
     title: 'Ind. Code § 6-3-1-3.5 — Indiana adjusted gross income and exemptions',
     url: 'https://iga.in.gov/laws/2024/ic/titles/6#6-3-1-3.5',
   },
+  {
+    title: 'Indiana IT-40 instruction booklet — Schedule 3, the exemptions',
+    url: 'https://forms.in.gov/Download.aspx?id=16915',
+  },
 ];
 
 function indiana(year: number): StateIncomeTaxDefinition | undefined {
@@ -312,7 +317,26 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'flat', rate: year === 2025 ? 0.03 : 0.0295 },
     deduction: { kind: 'none' },
-    exemption: { perFiler: perPerson(1000), perDependent: 1000 },
+    exemption: {
+      perFiler: perPerson(1000),
+      perDependent: 1000,
+      // The four additions Schedule 3 carries under the $1,000 line, none of
+      // which this package had until v0.21.0. Together they are the difference
+      // between an Indiana family return and an Indiana adult return.
+      perQualifyingChild: 1500,
+      qualifyingChildMaxAge: 18,
+      qualifyingChildStudentMaxAge: 23,
+      perSeniorFiler: 1000,
+      seniorAge: 65,
+      perBlindOrDisabledFiler: 1000,
+      perLowIncomeSeniorFiler: 500,
+      lowIncomeSeniorThreshold: byStatus({
+        single: 40_000,
+        joint: 40_000,
+        separate: 20_000,
+        headOfHousehold: 40_000,
+      }),
+    },
     earnedIncomeCredit: {
       name: 'Indiana earned income credit',
       matchRate: 0.1,
@@ -321,7 +345,10 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
     notes: [
       'Every Indiana county levies its own income tax on the SAME figure — IT-40 line 7, after the deductions and the $1,000 exemptions — from 0.5% (Porter) to 3.00% (Randolph, the statutory maximum). The average is 1.914% against a state rate of 3.00% in 2025 and 2.95% in 2026, so the county tax is about 39% of a typical Indiana bill, and a Randolph County filer pays their county MORE than their state in 2026. Pass `county`; without it this is the state half of the return, and the result says what the cheapest and dearest counties would have cost.',
       'The county is the one the filer lived in on 1 JANUARY, for the whole year, and a county rate can change on 1 October as well as on 1 January — so the rate an employer withholds and the rate the return settles at can differ for part of a year. This package stores the 1 January rate, which is what the annual return uses.',
-      'Not modelled: the additional $1,500 exemption for each qualifying dependent child under 19 (or under 24 and a full-time student), and the additional $3,000 first-year exemption for an adopted child. An Indiana family return computed here is too high by about $44 per qualifying child in 2025.',
+      'Indiana\'s $1,000 exemption is the SMALLEST of the four on Schedule 3 and the only one a household total can find. On top of it: $1,500 more for each dependent CHILD — under 19, or under 24 and a full-time student — $1,000 for each filer at 65, $1,000 for each blind filer, and $500 MORE for each filer at 65 whose federal AGI is under $40,000 ($20,000 filing separately). All four are computed here from v0.21.0; before that a family with two children was $149.10 too high in Marion County and a retired couple under $40,000 was $149.10 too high as well.',
+      'The child exemption needs `dependentAges`, not `dependents`: an Indiana dependent child is worth $2,500 of exemption and a dependent parent $1,000, and a count cannot tell them apart. Supply `dependentsAttendingCollege` as well for a dependent aged 19 to 23, who qualifies only as a full-time student.',
+      'The $500 is the only means-tested exemption in this package and it is a CLIFF. A joint return with both spouses at 65 claims $3,000 of age exemption at $39,999 of federal AGI and $2,000 at $40,000 — one dollar of income costs $1,000 of exemption, which is $49.70 of tax in Marion County and $59.50 in a county at the 3.00% statutory maximum. The test is on FEDERAL AGI, so an Indiana deduction that takes a retiree under the line does not buy it back.',
+      'Not modelled: the additional $3,000 first-year exemption for an adopted child, which needs a fact no other rule here asks for; the unified tax credit for the elderly (IC 6-3-3-9), $40 to $140 and refundable, for a filer at 65 with under $10,000 of AGI; and the renter\'s, homeowner\'s property tax and nonpublic school deductions.',
       "Indiana's statutory rate steps down each year: 3.05% in 2024, 3.00% in 2025, 2.95% in 2026, and 2.90% from 2027.",
       'The Indiana earned income credit is 10% of a federal credit the filer never claimed. IC 6-3.1-21-6 computes it under the Internal Revenue Code as of a FROZEN date — 1 January 2023 for tax years 2023 to 2025, and 1 January 2026 from tax year 2026 (SEA 243 of 2025) — and substitutes Indiana\'s own investment income limit of $3,800, which has not moved since 2022 and is now about a third of the federal one. A filer with $5,000 of interest income gets the federal credit and no Indiana credit at all. This package applies the 10% match to whatever federal credit you pass, so an Indiana filer near either limit is overstated.',
     ],

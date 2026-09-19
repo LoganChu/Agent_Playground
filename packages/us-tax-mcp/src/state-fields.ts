@@ -272,14 +272,14 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'federalPovertyGuideline',
     schema: number,
-    states: ['VA'],
-    doc: 'Overrides the HHS guideline that the $300-a-head Credit for Low Income Individuals is a cliff at. Pass 0 to switch the credit off for a filer barred from it by a military or state-employee subtraction this server cannot see.',
+    states: ['VA', 'MD'],
+    doc: 'Overrides the HHS guideline two credits are a cliff at. VA: the $300-a-head Credit for Low Income Individuals — pass 0 to switch it off for a filer barred from it by a military or state-employee subtraction this server cannot see. MD: the poverty level credit, which forgives the WHOLE Maryland bill, state and county, below the guideline. The guideline is republished every January for a year already under way, so a caller with the real figure should pass it.',
   },
   {
     name: 'dependentsAttendingCollege',
     schema: integer,
-    states: ['NJ'],
-    doc: 'Dependents under 22 in full-time study, also counted in dependents. A second $1,000 exemption on top of the $1,500 dependent one.',
+    states: ['NJ', 'IN'],
+    doc: 'Dependents in full-time study, also counted in dependents. NJ: under 22, a second $1,000 exemption on top of the $1,500 dependent one. IN: the only way a dependent aged 19 to 23 reaches the $1,500 child exemption, which otherwise stops at 18.',
   },
   {
     name: 'retirementIncome',
@@ -320,32 +320,32 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'earnedIncome',
     schema: number,
-    states: ['CA', 'GA', 'OH'],
-    doc: 'Wages plus net self-employment earnings. Required for California, where the CalEITC and the Young Child Tax Credit are functions of earnings alone rather than of AGI — and CalEITC has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars. REQUIRED for Ohio when schoolDistrict names one of the 68 districts that tax earned income alone: they reach box 1 of the W-2, net of a 401(k) deferral, where the same filer\'s municipality reaches box 5, gross of it.',
+    states: ['CA', 'GA', 'OH', 'MD'],
+    doc: 'Wages plus net self-employment earnings. REQUIRED in practice for a low-income Maryland filer: the poverty level credit is 5% of it against the state tax and the county\'s own rate against the county tax, and between them they take a $15,000 Maryland worker from $160.85 to nothing. Required for California, where the CalEITC and the Young Child Tax Credit are functions of earnings alone rather than of AGI — and CalEITC has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars. REQUIRED for Ohio when schoolDistrict names one of the 68 districts that tax earned income alone: they reach box 1 of the W-2, net of a 401(k) deferral, where the same filer\'s municipality reaches box 5, gross of it.',
   },
   {
     name: 'dependentAges',
     schema: { type: 'array', items: integer },
-    states: ['NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA'],
-    doc: 'Age of EVERY dependent at year end, not only the children. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income.',
+    states: ['NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA', 'IN'],
+    doc: 'Age of EVERY dependent at year end, not only the children. IN: a dependent CHILD carries $1,500 of exemption that a dependent parent does not, so a count alone costs an Indiana family $74.55 a child in Marion County. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income.',
   },
   {
     name: 'filerAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY'],
-    doc: 'Filer age at year end. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
+    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY', 'IN'],
+    doc: 'Filer age at year end. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
   },
   {
     name: 'spouseAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY'],
+    states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN'],
     doc: 'Spouse age at year end, joint returns. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
   },
   {
     name: 'blindOrDisabled',
     schema: integer,
-    states: ['NJ', 'IL'],
-    doc: 'How many of filer and spouse are blind or disabled, 0-2. Illinois adds $1,000 of exemption for each, which stacks with the $1,000 it adds at 65 — and neither figure is indexed, where the $2,850 beside them moves with the CPI every year. Worth a $1,000 exemption each in New Jersey, on top of the age exemption a 65-year-old already has — the two are cumulative, so one person can carry both. There is no income test and no proration.',
+    states: ['NJ', 'IL', 'IN'],
+    doc: 'How many of filer and spouse are blind or disabled, 0-2. Indiana adds $1,000 of exemption each, stacking with the $1,000 it adds at 65, so one person can carry both. Illinois adds $1,000 of exemption for each, which stacks with the $1,000 it adds at 65 — and neither figure is indexed, where the $2,850 beside them moves with the CPI every year. Worth a $1,000 exemption each in New Jersey, on top of the age exemption a 65-year-old already has — the two are cumulative, so one person can carry both. There is no income test and no proration.',
   },
 ];
 

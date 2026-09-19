@@ -1,5 +1,12 @@
 [
   {
+    "metric": "state.tax",
+    "state": "IN",
+    "idIncludes": "retired-couple-IN-0-0-40000",
+    "maxAbs": 250,
+    "reason": "NOT MODELLED HERE ($140), and a DEFECT THERE ($101). A retired couple both 70 with $40,000 of Social Security and no other income: Indiana exempts the benefit, so federal AGI is zero and the $5,000 of exemptions takes Indiana AGI to MINUS $5,000. (1) PolicyEngine pays the unified tax credit for the elderly, IC 6-3-3-9 - $140 refundable for two filers at 65 with under $1,000 of AGI - which this package does not model and now names in Indiana's notes. (2) The remaining $101.00 is Marion County's 2.02% applied to that negative Indiana AGI: `in_county_tax` is `rate * in_agi` with no floor, so PolicyEngine has an Indiana county paying a retiree $101 a year. It floors the STATE tax at zero on the same figure, which is what makes this an oversight rather than a reading of the statute."
+  },
+  {
     "metric": "federal.taxableIncome",
     "kind": "single-worker",
     "reason": "HARNESS. PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction; the harness supplies no itemised deductions, so this package takes the standard one. Above about $300,000 in a high-tax state the two diverge by the SALT deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
@@ -83,5 +90,19 @@
     "metric": "state.tax",
     "state": "OH",
     "reason": "NOT MODELLED HERE. Ohio's $20-per-exemption credit for a filer with Ohio AGI of $30,000 or less (R.C. 5747.022)."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MD",
+    "maxAbs": 6,
+    "maxShareOfIncome": 0.0017,
+    "reason": "NOT UPDATED THERE, plus PROVISIONAL FIGURES here. Two facts, and between them they account for every Maryland difference in this grid to the cent — verified by running this package with both of PolicyEngine's figures, after which 22 of the 23 Maryland cases agreed exactly. (1) ALLEGANY COUNTY raised its rate from 3.03% to 3.20% for 2026. This package carries the new rate; PolicyEngine's county table cites the 2025 resident booklet and stops there, so it charges 2025's. That is 0.17 of a point of taxable income, which is why this entry is bounded by a SHARE OF INCOME rather than by a dollar figure: the same one fact is $43.76 on a $30,000 household and $678.70 on a $400,000 one. (2) The 2026 standard deduction. HB 352 replaced the 15%-of-AGI formula with a flat $3,350/$6,700 indexed by the chained CPI from 2026; this package carries the 2025 figure forward and flags it provisional, and PolicyEngine uprates it to $3,400/$6,850. That is at most $150 of deduction, about $6 of state and county tax at the top rate."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "single-worker",
+    "idIncludes": "-400000-",
+    "maxAbs": 700,
+    "reason": "HARNESS, in the state. The same fact as the two federal entries above, one level down. At $400,000 PolicyEngine's household ITEMISES federally — its only itemised deduction being the state income tax it is in the middle of computing — and two states then follow the federal election. VIRGINIA requires a federal itemiser to itemise on the state return (Va. Code § 58.1-322.03(1)) and subtracts state income tax from the itemised total, which in this harness leaves ZERO, so PolicyEngine gives the filer no deduction at all where this package gives the $8,750 standard one: $503.13 at 5.75%. GEORGIA does the same, allowing $21,965 of itemised deductions against this package's $15,000 standard one, and then pays a credit for having itemised - $300 a taxpayer under O.C.G.A. § 48-7-29.23, which this package does not model and now names in Georgia's notes. $347.55 of deduction plus $300 of credit is the $647.55. Neither difference can be closed from this harness, which supplies no itemised deductions on purpose: feeding a state tax back into the federal return is circular."
   }
 ]

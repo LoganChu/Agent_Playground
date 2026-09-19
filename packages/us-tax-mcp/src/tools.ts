@@ -1412,17 +1412,22 @@ const stateTool: ToolDefinition = {
         `bothSpousesHaveQualifyingIncome only applies to OH and VA, and ${state} was requested.`,
       );
     }
-    for (const [field, value] of [
-      ['lesserSpouseIncome', lesserSpouseIncome],
-      ['federalPovertyGuideline', federalPovertyGuideline],
-    ] as const) {
-      if (value !== undefined && state !== 'VA') {
-        throw new ToolInputError(
-          `${field} only applies to VA, and ${state} was requested. Both belong to the spouse ` +
-            `tax adjustment and the Credit for Low Income Individuals, neither of which any ` +
-            `other supported state has.`,
-        );
-      }
+    if (lesserSpouseIncome !== undefined && state !== 'VA') {
+      throw new ToolInputError(
+        `lesserSpouseIncome only applies to VA, and ${state} was requested. It belongs to the ` +
+          `spouse tax adjustment, which no other supported state has.`,
+      );
+    }
+    // Two states read the poverty guideline and they do opposite things with
+    // it: Virginia's Credit for Low Income Individuals is $300 a head, and
+    // Maryland's poverty level credit is a percentage of earned income claimed
+    // twice, once against the state tax and once against the county's.
+    if (federalPovertyGuideline !== undefined && state !== 'VA' && state !== 'MD') {
+      throw new ToolInputError(
+        `federalPovertyGuideline only applies to VA and MD, and ${state} was requested. It is ` +
+          `the cliff under Virginia's Credit for Low Income Individuals and Maryland's poverty ` +
+          `level credit, and no other supported state tests one.`,
+      );
     }
     // Two states need the Social Security figure rather than accepting it
     // through subtractions, and they need it for opposite reasons: Virginia

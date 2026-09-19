@@ -239,6 +239,7 @@ function definitionsFor(year: number): readonly LocalIncomeTaxDefinition[] {
       base: 'stateTaxableIncome' as const,
       rate,
       earnedIncomeCreditRateMultiple: MD_LOCAL_EITC_RATE_MULTIPLE,
+      povertyLevelCreditAtOwnRate: true,
       notes: graduated ? [GRADUATED_NOTE, EITC_RATE_NOTE, ...NOTES] : NOTES,
       citations: CITATIONS,
     };

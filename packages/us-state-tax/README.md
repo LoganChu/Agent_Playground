@@ -7,6 +7,37 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.21.0: **two low-income corrections, both of them the whole bill.**
+
+**Indiana was computing the smallest of the four exemptions on its own Schedule 3.** The
+published figure is `$1,000` a person and that is right for exactly one household — a
+working adult with no children. On top of it Indiana allows `$1,500` more for each
+dependent **child**, `$1,000` for each filer at 65, `$1,000` for each blind filer, and
+`$500` MORE for each filer at 65 whose federal AGI is under `$40,000`. None of the four was
+computed here, and the note that said so put the cost at "about `$44` per qualifying
+child" — which was the **state** rate on `$1,500` in a state where two fifths of the bill
+is levied by a county. The real figure in Marion County is **`$74.55` a child**, `$149.10`
+for a family with two, and `$149.10` for a retired couple under `$40,000`.
+
+The `$500` is the only means-tested exemption in this package and it is a **cliff**: a
+joint return with both spouses at 65 claims `$3,000` of age exemption at `$39,999` of
+federal AGI and `$2,000` at `$40,000`, so one dollar of income costs **`$49.75`** in Marion
+County. And the child exemption needs `dependentAges`, not `dependents`: an Indiana
+dependent child is worth `$2,500` of exemption and a dependent parent `$1,000`, and a count
+cannot tell them apart.
+
+**Maryland's poverty level credit** (Md. Code, Tax-Gen. § 10-709) is now computed, and it
+is the only thing in a Maryland return that can forgive the **whole** bill. It is claimed
+twice at two different rates: 5% of earned income against the state tax, and **the county's
+own rate** against the county tax — 2.25% in Worcester, 3.30% in Dorchester, so the credit
+is worth a different amount in each of the twenty-four jurisdictions and there is no
+per-county figure stored anywhere. A single Maryland worker at `$15,000` went from
+`$160.85` to **nothing**. Pass `earnedIncome`; without it both halves compute as zero and
+the result says what that cost.
+
+After both, a 437-household differential against PolicyEngine-US has **zero unexplained
+differences** for the first time.
+
 New in 0.20.0: **the one place this package was too LOW.** Illinois adds back interest on
 the obligations of *other* states and their municipalities — 35 ILCS 5/203(a)(2)(A) — while
 exempting its own, so an Illinois bondholder owes tax on income **the federal return never
@@ -70,7 +101,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.20.0/us-state-tax-0.20.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.21.0/us-state-tax-0.21.0.tgz
 ```
 
 ## The rate is the easy part

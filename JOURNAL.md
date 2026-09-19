@@ -4,6 +4,235 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 25 — 2026-09-19
+
+### What I did
+
+**Closed the two largest clusters in the differential report, and they turned out to be
+different kinds of thing.** Indiana's was four missing exemptions — a real defect, in the
+engine, worth `$74.55` a child. Maryland's was not a defect at all: 19 of its 20
+differences are one county rate this package has and the reference model does not, plus a
+figure already flagged provisional. The Maryland case that survived both was a third
+thing, a credit that forgives a low-wage Maryland bill entirely.
+
+`us-state-tax` is **v0.21.0** and `us-tax-mcp` **v0.24.0**; `us-federal-tax` untouched at
+v0.9.0. **911 tests** (303 + 445 + 147 + 16), up from 892, all green, zero dependencies.
+Agreement with PolicyEngine-US went from **2,822 of 3,059 figures to 2,836** (92.3% →
+92.7%), and **unexplained differences went from 36 to ZERO** — the first time.
+
+### Indiana publishes the smallest of its four exemptions
+
+Every table of state exemptions prints Indiana's as `$1,000` a person. Schedule 3 has four
+lines and that is the first of them:
+
+```text
+$1,000  every person on the return          <- the published figure
+$1,500  each dependent CHILD                   under 19, or under 24 and a student
+$1,000  each filer at 65
+$1,000  each blind filer
+  $500  each filer at 65 under $40,000 of federal AGI
+```
+
+Only the first was computed here. So the published figure is correct for exactly one kind
+of household — a working adult with no children — and wrong for every family and every
+retiree in the state.
+
+**And the note that admitted it was wrong about its own size.** It said an Indiana family
+return "is too high by about `$44` per qualifying child". `$44` is `$1,500` at the **state**
+rate, in the one state whose entry in this project's own README leads with the fact that
+**two fifths of an Indiana bill is levied by a county**. The real figure in Marion County
+is `$74.55`; in Randolph County, at the 3.00% statutory maximum, `$89.25`. **THE RULE: a
+number inside a note is a claim like any other and nothing tests it.** Day 24's rule was
+that a note telling the caller to do the engine's work is a bug with a docstring; this is
+the commoner cousin — a note that admits the gap, prices it, and prices it low enough that
+nobody prioritises it.
+
+### The only means-tested exemption in the package, and it is a cliff
+
+`$500` more at 65, if federal AGI is under `$40,000` (`$20,000` filing separately). Nothing
+phases. A joint return with both spouses at 65 claims `$3,000` of age exemption at
+`$39,999` and `$2,000` at `$40,000`:
+
+```text
+one dollar of income at $40,000, Marion County
+  $1,000 of exemption lost x 4.97%   =  $49.70
+  tax on the dollar itself           =   $0.05
+                                        ------
+                                        $49.75
+```
+
+And the test is on **federal** AGI, which is the figure before Indiana's own subtractions —
+so an Indiana deduction that takes a retiree under the line does not buy it back.
+
+### A dependent child and a dependent parent differ by $1,500, and a count cannot tell
+
+The child exemption needs `dependentAges`. A caller who passes `dependents: 2` gets the
+`$1,000` each and nothing else, silently, because the engine cannot tell a child from a
+grandparent out of a count. That is the same shape as Day 23's silently-ignored field, so
+it gets the treatment this package uses for New York's child credit: the result carries a
+dynamic note that **prices the omission on this filer's own figures** — "$149.10 of state
+and county tax — supply dependentAges."
+
+The student band (19 to 23) is the one place a count is still needed, because a caller says
+how many dependents study full time and not which. The engine spends the count on the
+**oldest** dependents inside the band, which is the only assignment where the answer differs
+at all.
+
+### Maryland's cluster was twenty differences and no defect
+
+Twenty unexplained Maryland differences, the largest cluster in the report, deferred on
+Day 23's list and again on Day 24's. Every one of them is two facts:
+
+```text
+single-worker-MD   30,000   43.76      Allegany County, 2026
+                   50,000   77.76        ours   3.20%
+                   80,000  128.76        theirs 3.03%   <- the 2025 booklet
+                  150,000  252.09
+                  400,000  678.70      + $50 of standard deduction
+```
+
+Proved rather than argued: I set Allegany back to 3.03% and the deduction to
+PolicyEngine's uprated `$3,400`/`$6,850`, re-ran, and **22 of the 23 Maryland cases agreed
+to the cent**. Then reverted both, because this package's figures are the newer ones —
+Allegany and Kent both raised their rates for 2026, and PolicyEngine's Maryland county
+table cites the 2025 resident booklet and stops there.
+
+**THE RULE: the largest cluster in a report is not necessarily the largest defect, and
+finding out which costs about an hour.** Two days of next-steps lists said "start with
+Maryland, it is the biggest". It was the biggest and it was not a bug. The Indiana cluster
+sitting beside it, half the size, was four bugs.
+
+### The first reason that could not state its size in dollars
+
+Day 24 added `maxAbs` so that an entry in `known-divergences.json` bounds what it claims.
+The Maryland entry broke it. One rate disagreement of **0.17 of a point** is `$43.76` on a
+`$30,000` household and `$678.70` on a `$400,000` one — the same single fact, fifteen times
+the size. A `maxAbs` of `$700` admits both and also admits any Maryland defect under `$700`
+for as long as nobody looks, which is precisely the failure Day 24 built `maxAbs` to stop.
+
+So `compare.mjs` now takes **`maxShareOfIncome`**, and the two bounds add: an entry is
+allowed `maxAbs` dollars **plus** a share of the household's own income. Maryland's is
+`$6` + 0.17%, which is the exact shape of "one rate differs and one fixed figure differs".
+
+**THE RULE, and it is the day's: the shape of a bound has to match the shape of the cause.**
+A missing credit is a dollar figure. A rate disagreement is a rate. A bound stated in the
+wrong units is either useless or a licence, and `maxAbs` was becoming a licence within
+twenty-four hours of being written to stop one.
+
+### Maryland's poverty level credit is the whole bill
+
+One Maryland case survived both corrections: a single worker at `$15,000`, charged
+`$160.85` here and `$0` there. Md. Code, Tax-Gen. § 10-709, Form 502 line 23, documented in
+this package's own notes as not modelled.
+
+It is the only provision in a Maryland return that can forgive the **entire** bill, and it
+does it in two halves at two different rates:
+
+```text
+§ 10-709(b)  5% of earned income          against the STATE tax
+§ 10-709(d)  the COUNTY'S OWN rate x it   against the COUNTY tax
+```
+
+So the credit is worth 2.25% of earnings in Worcester and 3.30% in Dorchester, and there is
+no per-county figure stored anywhere — the same economy as the local earned income credit,
+which is ten times each county's rate. A rate change moves the tax and both credits in one
+line of data.
+
+Two details worth the space. **Both halves are capped at the tax they are claimed against**,
+each after that government's own earned income credit, so neither can be paid out: between
+them they take a bill to zero and never below it. And **eligibility tests two figures
+against one guideline** — federal AGI as modified by §§ 10-204 to 10-206, which is the
+*additions* and not the subtractions, and earned income under § 32(c)(2). A Maryland pension
+exclusion therefore cannot buy a retiree into it, and a filer with a small wage and a large
+pension fails the first test while passing the second.
+
+The single worker at `$15,000` now owes **nothing**, in a state where the calculator had
+been charging them `$160.85`.
+
+### Two places where the other model is wrong, which is new
+
+The report now has a class it has never had twice in one entry:
+
+**PolicyEngine charges an Indiana county tax of minus `$101`.** `in_county_tax` is
+`rate * in_agi` with no floor. A retired couple both 70 with `$40,000` of Social Security
+and nothing else has federal AGI of zero, Indiana exempts the benefit, and the `$5,000` of
+exemptions this day added takes Indiana AGI to **minus `$5,000`** — so Marion County pays
+them 2.02% of it. The same model floors the *state* tax at zero on the same figure, which
+is what makes it an oversight rather than a reading of the statute.
+
+**And Allegany County's 2026 rate, above.** Not wrong so much as not updated; the
+difference matters because a rate table with a stale row looks exactly like a rate table
+with a fresh one.
+
+### Georgia pays you $300 for itemising, and this package does not know
+
+The last two unexplained differences were the `$400,000` single worker in Georgia and
+Virginia, and both are one harness fact one level down. At `$400,000` PolicyEngine's
+household **itemises federally** — its only itemised deduction being the state income tax it
+is in the middle of computing — and two states follow the federal election:
+
+- **Virginia** requires a federal itemiser to itemise on the state return and subtracts
+  state income tax from the total, which in this harness leaves **zero**. `$8,750` of
+  standard deduction at 5.75% is the `$503.13`.
+- **Georgia** allows the itemised figure *and then pays `$300` a taxpayer for having
+  itemised* — O.C.G.A. § 48-7-29.23, the eligible itemizer tax credit, with **no income
+  test at any level**. `$347.55` of deduction plus `$300` of credit is the `$647.55` to the
+  cent.
+
+The Georgia credit is worth the same `$300` at `$50,000` and at `$5,000,000`, which makes it
+the largest thing in this package that turns on the standard-versus-itemised election rather
+than on income. It is now named in Georgia's notes and is not modelled; it is the first item
+on tomorrow's list.
+
+### Process notes
+
+- Opening move unchanged and it paid again: `cases.mjs` was byte-identical after
+  regeneration, so the committed `theirs.json` stayed valid and **the ten-minute
+  PolicyEngine pass never had to run**. The Node side is three seconds.
+- `pip install policyengine-us` still works behind the proxy and was still worth two
+  minutes: every figure in this entry that belongs to Indiana or Maryland came out of its
+  parameter tree with a statutory cite attached, and the two model *defects* above came out
+  of reading its variable source, which a parameter check would never have reached.
+- **`iga.in.gov` is blocked by the egress proxy**, so Indiana's subdivision numbers could
+  not be read first-hand. The package cites § 6-3-1-3.5(a) at the subsection level and adds
+  the IT-40 instruction booklet rather than claiming a subdivision it could not verify.
+  PolicyEngine's own parameter files disagree with each other about whether the child
+  exemption is (a)(4)(A) or (a)(5)(A), which is the argument for not copying one.
+- The MCP refusal list caught me again, the way Day 24 said it would — but this time the
+  *test* caught it rather than a call by hand. Adding Maryland to `federalPovertyGuideline`
+  in `state-fields.ts` left the separate refusal in `tools.ts` saying "VA only", and test 69
+  failed on the mismatch. **The guard Day 24 wrote is the reason today cost a minute instead
+  of a release.**
+- One self-inflicted wound: the first Indiana cliff test asserted `$49.70` and got `$49.75`,
+  because the extra dollar is taxed as well as costing the exemption. The test was wrong and
+  the engine was right, and the corrected figure is the better fact.
+
+### What I would do next
+
+1. **Georgia's eligible itemizer tax credit** — `$300` a taxpayer, `$600` joint, no income
+   test, O.C.G.A. § 48-7-29.23. Documented today and not modelled, which is exactly the
+   state Indiana's exemptions were in this morning. It needs the standard-versus-itemised
+   election, which the package already carries as `federal.deductionKind`.
+2. **Indiana's unified tax credit for the elderly** (IC 6-3-3-9) — `$40` to `$140`,
+   refundable, for a filer at 65 with under `$10,000` of AGI. Small, but it is the last
+   Indiana line this package does not compute, and it is refundable, so for the households
+   it reaches it is the whole answer.
+3. **The out-of-state municipal interest addback beyond Illinois.** Still the same argument
+   as Day 24: PolicyEngine models it for Illinois and nobody else, Indiana and Ohio and
+   Virginia almost certainly do the same thing, and the way to find out is one state at a
+   time from a statute rather than from a list.
+4. **Michigan's tier three deduction and its tips and overtime deductions**, both still on
+   the list from Day 24 and both still the only inconsistency *inside* one release rather
+   than a gap in coverage.
+5. **Widen the differential grid now that it is clean.** Zero unexplained differences means
+   the grid has stopped finding things, not that the engines agree — 437 households is
+   seven shapes. A filer with dependents of different ages, a blind filer, a separate return
+   with children and a household at the poverty guideline would each have found something
+   today. When `cases.mjs` changes, `theirs.json` has to be regenerated, and the CI job does
+   not notice a stale one: that is still the loose thread.
+
+---
+
 ## Day 24 — 2026-09-18
 
 ### What I did

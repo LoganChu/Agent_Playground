@@ -242,7 +242,9 @@ const NOTES: readonly string[] = [
   'An IRA is not an employee retirement system. § 10-209(a) excludes an individual retirement account or annuity under IRC § 408, a Roth account under § 408A, a ROLLOVER IRA, a simplified employee pension under § 408(k) and an ineligible deferred compensation plan under § 457(f); qualified defined benefit and defined contribution plans, 401(a), 401(k), 403(b) and 457(b) plans qualify. So rolling a 401(k) into an IRA — the most routinely recommended move in retirement planning — converts up to $41,200 a year of excluded income into fully taxed income for the rest of the retiree\'s life — $2,282.28 a year for a single Montgomery County retiree on $50,000 and $3,428.03 at $150,000 — at no federal cost and with nothing on the federal return to show it happened. Put only qualifying income in `retirement.filer.employerPlanPension`.',
   'The maximum exclusion FALLS in 2026, from $41,200 to $40,600. Both figures are published by the Comptroller. § 10-209(a) ties the maximum to the maximum annual benefit under the Social Security Act, but the published figures have never matched the Social Security Administration\'s own maxima, so the figure cannot be derived and must be transcribed each year — and a model that indexes it upward is wrong for 2026 in the expensive direction. It is the only parameter in this package that has ever decreased.',
   'Not modelled among the retirement provisions: the $15,000 subtraction for retired correctional officers, law enforcement officers and fire, rescue or emergency services personnel aged 55 or over (Form 502SU code letter v), which stacks with the pension exclusion but reduces the pension figure the exclusion is computed on — HB 792 of the 2025 session would raise it to $20,000 for tax years after 2024 and this package could not establish from reachable sources whether it was enacted, so neither figure is committed; and the Worksheet 13E exclusion for a retired forest, park or wildlife ranger, which is available at 55 but NOT to a filer who is 65 or over or disabled, so a ranger\'s exclusion can fall on their sixty-fifth birthday — the 13E figure is not reduced by Social Security and the 13A one is.',
-  'Not modelled: the poverty level credit (5% of earned income for a filer below the federal poverty guideline, against both the state and the county tax); the two-income subtraction of up to $1,200 for a joint return where both spouses have income, which is capped at the lesser spouse\'s income NET of that spouse\'s own subtractions and is therefore reduced by their pension exclusion; the child and dependent care credit; the 529 contribution subtraction; and the special nonresident tax of § 10-106.1, which a nonresident pays in place of a county tax and which the statute sets to the lowest county rate in the state — 2.25%, Worcester\'s. This package computes a full-year resident return.',
+  'The poverty level credit (\u00a7 10-709, Form 502 line 23) is claimed TWICE at two different rates and is the only thing in a Maryland return that can forgive the whole bill. The state half is 5% of earned income; the county half is THE COUNTY\'S OWN RATE times the same earned income, so it is worth 2.25% in Worcester and 3.30% in Dorchester. Each half is capped at the tax it is claimed against, after that government\'s own earned income credit, so neither can be paid out — and together they take a single Maryland worker at $15,000 from $160.85 to nothing. Supply `earnedIncome`; without it the credit is zero and the return is too high for exactly the filers it exists for.',
+  'The poverty level credit is a CLIFF at the federal poverty guideline and it tests TWO figures against it: federal AGI as modified by \u00a7\u00a7 10-204 to 10-206 — the ADDITIONS and not the subtractions — and earned income under \u00a7 32(c)(2). A Maryland pension exclusion therefore does not buy a retiree into it, and a filer with a small wage and a large pension fails the first test while passing the second. The guideline is republished every January; this package stores the HHS figure for the contiguous states and `federalPovertyGuideline` overrides it.',
+  'Not modelled: the two-income subtraction of up to $1,200 for a joint return where both spouses have income, which is capped at the lesser spouse\'s income NET of that spouse\'s own subtractions and is therefore reduced by their pension exclusion; the child and dependent care credit; the 529 contribution subtraction; and the special nonresident tax of § 10-106.1, which a nonresident pays in place of a county tax and which the statute sets to the lowest county rate in the state — 2.25%, Worcester\'s. This package computes a full-year resident return.',
 ];
 
 const CONDITIONAL_NOTES: readonly ConditionalNote[] = [
@@ -341,6 +343,17 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       name: 'Centenarian subtraction',
       minimumAge: 100,
       maximum: 100_000,
+    },
+    povertyLevelCredit: {
+      name: 'Maryland poverty level credit',
+      earnedIncomeShare: 0.05,
+      // Republished every January, so a stored copy is wrong about the start of
+      // the year it applies to. A caller with the real figure should pass
+      // `federalPovertyGuideline`, which overrides this.
+      povertyGuideline:
+        year >= 2026
+          ? { firstPerson: 15_960, additionalPerson: 5_680, year: 2026 }
+          : { firstPerson: 15_650, additionalPerson: 5_500, year: 2025 },
     },
     earnedIncomeCredit: {
       name: 'Maryland earned income credit',

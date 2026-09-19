@@ -42,6 +42,8 @@ about one of those would be a disagreement about this harness.
 (cd packages/us-state-tax   && npm ci && npm run build)
 
 python3 -m venv .pe && .pe/bin/pip install policyengine-us   # ~2 minutes, offline after
+#   (.pe/ and .venv/ are both gitignored; a `git add -A` over an unignored venv
+#    stages three thousand files of numpy, which is how that line got written)
 
 node   tools/differential/cases-to-json.mjs > tools/differential/out/cases.json
 node   tools/differential/ours.mjs          > tools/differential/out/ours.json
@@ -91,3 +93,31 @@ So a reason now claims a size as well as a cause, and the report fails loudly in
 the one direction that matters: a known small gap growing into an unknown large
 one. **A divergence entry matched on a state alone is a licence to be wrong
 about that state in any way at all.**
+
+### And the size is not always a number of dollars
+
+Day 25 found the first reason `maxAbs` could not hold. The two models disagree
+about **one Maryland county's 2026 rate** by 0.17 of a point, and that single
+fact is `$43.76` on a `$30,000` household and `$678.70` on a `$400,000` one — the
+same cause, fifteen times the size. A `maxAbs` wide enough for the second admits
+any Maryland defect under `$700`, which is exactly the licence `maxAbs` was
+written to withdraw.
+
+So an entry may also carry **`maxShareOfIncome`**, and the two bounds add: it is
+allowed `maxAbs` dollars plus that share of the household's own income, read off
+the case rather than off either model's answer. Maryland's entry is `$6` plus
+0.17%, which is the shape of the cause — one rate differs, and one fixed figure
+does.
+
+**The shape of a bound has to match the shape of the cause.** A missing credit is
+a dollar figure. A rate disagreement is a rate. A bound in the wrong units is
+either useless or a licence.
+
+### An entry that matches nothing is printed too
+
+A stale reason that still matches hides defects behind it; a stale reason that
+matches nothing is a claim about this project that stopped being true and that
+nobody will notice, because a report only ever lists what it found. `compare.mjs`
+lists them under **Dead reasons**. Entries are ordered narrow before wide, because
+`find()` takes the first match and a wide reason listed ahead of a narrow one
+kills the narrow one silently.

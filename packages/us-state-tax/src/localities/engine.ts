@@ -59,6 +59,13 @@ export interface StateFigures {
    */
   readonly stateModifiedTaxableIncome: number;
   /**
+   * Whether the state decided this filer is an "eligible low income taxpayer" —
+   * Md. Code, Tax-Gen. § 10-709(a)(3). The county credit of § 10-709(d) turns
+   * on the state's determination and cannot make its own: both income tests are
+   * read against figures that only the state return has.
+   */
+  readonly povertyLevelCreditEligible: boolean;
+  /**
    * Earned income as the state measures it — Ohio's earned income school
    * district base. Wages and net self-employment earnings, to the extent they
    * reached modified AGI, which is box 1 of the W-2 rather than box 5.
@@ -330,6 +337,24 @@ export function computeLocalResidentTax(
     credits.push({
       name: 'Local earned income credit',
       amount: Math.min(match * federalCredit, taxBeforeCredits),
+      refundable: false,
+    });
+  }
+  if (def.povertyLevelCreditAtOwnRate === true && figures.povertyLevelCreditEligible) {
+    // § 10-709(d): the same credit again, against the county tax, at THE
+    // COUNTY'S OWN RATE rather than the state's 5%. So it is worth 2.25% of
+    // earnings in Worcester and 3.30% in Dorchester, and there is no per-county
+    // figure here for the same reason the local earned income credit has none.
+    //
+    // Capped at the county tax left after the local earned income credit, which
+    // is already in `credits` above — so an eligible filer's county tax goes to
+    // zero and no further. The two halves of this credit together are the only
+    // thing in the Maryland return that can forgive the whole bill.
+    const already = credits.reduce((sum, c) => sum + c.amount, 0);
+    const rate = localApplicableRate(def, input, base);
+    credits.push({
+      name: 'Local poverty level credit',
+      amount: Math.max(0, Math.min(rate * figures.stateEarnedIncome, taxBeforeCredits - already)),
       refundable: false,
     });
   }

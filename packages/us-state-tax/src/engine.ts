@@ -8,6 +8,7 @@
 import { filerCount } from './definition.js';
 import type {
   ByChildCount,
+  ExemptionRule,
   IncomeMeasure,
   OwnEarnedIncomeCreditRule,
   RetirementIncomeSubtractionRule,
@@ -180,6 +181,34 @@ function measured(measures: IncomeMeasures, which: IncomeMeasure | undefined): n
   return measures[which ?? 'federalAdjustedGrossIncome'];
 }
 
+/**
+ * Dependents young enough for {@link ExemptionRule.perQualifyingChild}.
+ *
+ * Zero without {@link StateIncomeTaxInput.dependentAges}, deliberately and
+ * loudly: the engine cannot tell a child from a dependent parent out of a
+ * count, and guessing the generous way would understate an Indiana return with
+ * a dependent grandparent on it by `$74.55`. The dynamic note that goes with
+ * this says what the omission cost.
+ *
+ * The student band is applied to the OLDEST dependents inside it first. A
+ * caller says how many dependents are full-time students but not which, and
+ * the two readings differ only when a dependent is between
+ * {@link ExemptionRule.qualifyingChildMaxAge} and
+ * {@link ExemptionRule.qualifyingChildStudentMaxAge} — which is exactly where
+ * this assignment puts them.
+ */
+function qualifyingChildCount(rule: ExemptionRule, input: StateIncomeTaxInput): number {
+  const ages = input.dependentAges;
+  if (ages === undefined) return 0;
+  const childMax = rule.qualifyingChildMaxAge ?? Number.POSITIVE_INFINITY;
+  const byAge = ages.filter((age) => age <= childMax).length;
+  const studentMax = rule.qualifyingChildStudentMaxAge;
+  if (studentMax === undefined || studentMax <= childMax) return byAge;
+  const students = nonNegative(input.dependentsAttendingCollege, 'dependentsAttendingCollege');
+  const inBand = ages.filter((age) => age > childMax && age <= studentMax).length;
+  return byAge + Math.min(students, inBand);
+}
+
 function stateExemptions(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -220,6 +249,22 @@ function stateExemptions(
   if (rule.perCollegeDependent !== undefined) {
     const college = nonNegative(input.dependentsAttendingCollege, 'dependentsAttendingCollege');
     total += rule.perCollegeDependent * Math.min(college, dependents);
+  }
+  // Indiana's second exemption for a dependent CHILD, on top of the $1,000 every
+  // dependent gets. The age band is the whole of it: a nineteen-year-old who is
+  // not a student and a grandparent are both dependents and neither is a child.
+  if (rule.perQualifyingChild !== undefined) {
+    total += rule.perQualifyingChild * qualifyingChildCount(rule, input);
+  }
+  // Indiana's means-tested age exemption, on top of the untested one. The test
+  // is on FEDERAL AGI — the figure on the IT-40's first line, before Indiana's
+  // own deductions and before these exemptions — so an Indiana subtraction that
+  // takes a retiree under $40,000 does not buy this back.
+  if (rule.perLowIncomeSeniorFiler !== undefined && seniorAge !== undefined) {
+    const limit = rule.lowIncomeSeniorThreshold?.[input.filingStatus];
+    if (limit !== undefined && input.federal.adjustedGrossIncome < limit) {
+      total += rule.perLowIncomeSeniorFiler * seniorFilers(input, seniorAge);
+    }
   }
   // Maryland's second exemption for a dependent aged 65 or over — the dependent
   // parent case. It needs ages rather than a count, and it is not stepped by
@@ -491,9 +536,21 @@ function spouseTaxAdjustment(
   };
 }
 
-/** The federal poverty guideline Virginia's low income credit is a cliff at. */
-function povertyGuideline(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
-  const rule = def.lowIncomeCredit;
+/**
+ * The federal poverty guideline Virginia's low income credit and Maryland's
+ * poverty level credit are both a cliff at.
+ *
+ * The caller's own figure wins when they have one. The stored fallback is a
+ * stated year's HHS guideline, and a guideline is republished every January for
+ * a year that has already begun, so a package that only ever carries its own
+ * copy is wrong about January by construction.
+ */
+function povertyGuideline(
+  rule:
+    | { readonly povertyGuideline: { readonly firstPerson: number; readonly additionalPerson: number } }
+    | undefined,
+  input: StateIncomeTaxInput,
+): number {
   if (!rule) return 0;
   if (input.federalPovertyGuideline !== undefined) {
     return nonNegative(input.federalPovertyGuideline, 'federalPovertyGuideline');
@@ -502,6 +559,37 @@ function povertyGuideline(def: StateIncomeTaxDefinition, input: StateIncomeTaxIn
   return (
     rule.povertyGuideline.firstPerson + rule.povertyGuideline.additionalPerson * (size - 1)
   );
+}
+
+/**
+ * Whether a filer is an "eligible low income taxpayer" — Md. Code, Tax-Gen.
+ * § 10-709(a)(3).
+ *
+ * Two income tests, on two different figures, against the same guideline. The
+ * first is federal AGI **as modified by §§ 10-204 to 10-206**, which is the
+ * additions and not the subtractions: a Maryland pension exclusion does not buy
+ * a retiree into this credit. The second is earned income under § 32(c)(2),
+ * which is the figure the credit is then a percentage of. A filer with a small
+ * wage and a large pension fails the first test and passes the second.
+ *
+ * The third test, § 10-709(a)(3)(iv), is that the earned income credit is less
+ * than the tax — a filer whose earned income credit already covers the bill has
+ * nothing left for this to forgive.
+ */
+function povertyLevelCreditEligible(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  modifiedFederalAgi: number,
+  earnedIncomeCreditTaken: number,
+  taxBeforeCredits: number,
+): boolean {
+  const rule = def.povertyLevelCredit;
+  if (!rule) return false;
+  const limit = povertyGuideline(rule, input);
+  const earned = nonNegative(input.earnedIncome, 'earnedIncome');
+  if (modifiedFederalAgi > limit) return false;
+  if (earned > limit) return false;
+  return earnedIncomeCreditTaken < taxBeforeCredits;
 }
 
 /**
@@ -528,7 +616,7 @@ function lowIncomeCredit(
     const blind = input.blindOrDisabled ?? 0;
     if (seniors > 0 || blind > 0) return 0;
   }
-  if (stateAgi > povertyGuideline(def, input)) return 0;
+  if (stateAgi > povertyGuideline(def.lowIncomeCredit, input)) return 0;
   return rule.perExemption * (filerCount(input.filingStatus) + dependentCount(input));
 }
 
@@ -1553,6 +1641,14 @@ interface Computed {
    * state that has no such deduction.
    */
   modifiedTaxableIncome: number;
+  /**
+   * Whether the filer is an "eligible low income taxpayer" under Md. Code,
+   * Tax-Gen. § 10-709(a)(3). Carried out of the state computation because the
+   * COUNTY credit of § 10-709(d) turns on the same one determination, and a
+   * locality cannot make it: both income tests are read against figures on the
+   * state return.
+   */
+  povertyLevelCreditEligible: boolean;
 }
 
 /**
@@ -1851,6 +1947,7 @@ function computeOnce(
   if (def.householdCredit) {
     credits.push({ name: def.householdCredit.name, amount: household, refundable: false });
   }
+  let nonRefundableEarnedIncomeCredit = 0;
   if (def.earnedIncomeCredit) {
     const rule = def.earnedIncomeCredit;
     const federalCredit = nonNegative(
@@ -1878,6 +1975,11 @@ function computeOnce(
     if (def.lowIncomeCredit && alternativeWorth > matched) {
       credits.push({ name: def.lowIncomeCredit.name, amount: alternative, refundable: false });
     } else {
+      // Maryland's poverty level credit is measured against the tax left after
+      // THIS credit and no other — § 10-709(c)(1) names § 10-704(b)(1) by
+      // section number — so the figure is carried rather than re-derived from
+      // the credits list, which by then holds the senior credit too.
+      if (!rule.refundable) nonRefundableEarnedIncomeCredit = paid;
       credits.push({ name: rule.name, amount: paid, refundable: rule.refundable });
       if (def.earnedIncomeCreditChildBonus) {
         const bonus = def.earnedIncomeCreditChildBonus;
@@ -1906,6 +2008,36 @@ function computeOnce(
         refundable: true,
       });
     }
+  }
+
+  // Form 502 line 23, and the line that decides whether a low-wage Maryland
+  // household owes anything at all. It comes after the earned income credit
+  // because § 10-709(c)(1) measures it against the tax left over from that one.
+  let povertyLevelEligible = false;
+  if (def.povertyLevelCredit) {
+    const rule = def.povertyLevelCredit;
+    const eligible = povertyLevelCreditEligible(
+      def,
+      input,
+      base + additions,
+      nonRefundableEarnedIncomeCredit,
+      grossTax,
+    );
+    const earned = nonNegative(input.earnedIncome, 'earnedIncome');
+    povertyLevelEligible = eligible;
+    credits.push({
+      name: rule.name,
+      // Capped at the tax it is claimed against, so it never pays out — and the
+      // county half of § 10-709(d) is capped separately against the county tax,
+      // which is why eligibility and not this amount is what leaves here.
+      amount: eligible
+        ? Math.min(
+            Math.max(0, grossTax - nonRefundableEarnedIncomeCredit),
+            rule.earnedIncomeShare * earned,
+          )
+        : 0,
+      refundable: false,
+    });
   }
 
   if (def.childCredit) {
@@ -1992,6 +2124,7 @@ function computeOnce(
     taxBeforeRefundableCredits,
     tax,
     modifiedTaxableIncome: measures.stateModifiedAdjustedGrossIncomeLessExemptions,
+    povertyLevelCreditEligible: povertyLevelEligible,
   };
 }
 
@@ -2041,6 +2174,7 @@ function stateFigures(computed: Computed, input: StateIncomeTaxInput): StateFigu
     // in both a municipality and an earned income school district is taxed on
     // two different wage figures out of the same paycheck.
     stateEarnedIncome: nonNegative(input.earnedIncome, 'earnedIncome'),
+    povertyLevelCreditEligible: computed.povertyLevelCreditEligible,
   };
 }
 
@@ -2363,6 +2497,40 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   // Notes that depend on what the caller supplied rather than on the state, so a
   // model reading the result learns that a figure it left out was load-bearing.
   const dynamic: string[] = [];
+  // Indiana's child exemption is the first rule here that a caller can lose by
+  // supplying the *weaker* of two fields that both describe dependents. A count
+  // is accepted, so nothing fails; the exemption is simply not there.
+  if (
+    def.exemption?.perQualifyingChild !== undefined &&
+    input.dependentAges === undefined &&
+    (input.dependents ?? 0) > 0
+  ) {
+    const each = def.exemption.perQualifyingChild;
+    // Priced at this filer's own marginal rate — state plus county — rather than
+    // at the statutory rate, because in Indiana two fifths of it is the county's.
+    const combined =
+      higher.tax - here.tax + localTaxes.reduce((sum, local) => sum + local.marginalRate, 0);
+    const worth = roundCents(each * (input.dependents ?? 0) * combined);
+    dynamic.push(
+      `${def.name} gives a dependent CHILD $${each.toLocaleString('en-US')} of exemption on top of ` +
+        `the $${def.exemption.perDependent.toLocaleString('en-US')} every dependent gets, and ` +
+        `dependentAges was not supplied, so none of it was claimed. A count cannot tell a child ` +
+        `from a dependent parent and the two differ by that $${each.toLocaleString('en-US')}. For ` +
+        `this return, claiming all ${input.dependents} as children would be worth about ` +
+        `$${worth.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ` +
+        `of state and county tax — supply dependentAges.`,
+    );
+  }
+  if (def.povertyLevelCredit && input.earnedIncome === undefined) {
+    const rule = def.povertyLevelCredit;
+    dynamic.push(
+      `${def.name}'s ${rule.name} is ${(rule.earnedIncomeShare * 100).toFixed(0)}% of EARNED income ` +
+        `against the state tax and the county's own rate against the county tax, and earnedIncome ` +
+        `was not supplied, so both halves were computed as zero. Between them they can forgive the ` +
+        `WHOLE bill for a filer under the federal poverty guideline — supply earnedIncome, or this ` +
+        `return is too high for exactly the household the credit exists for.`,
+    );
+  }
   if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit === undefined) {
     dynamic.push(
       `${def.name} has an earned income credit worth ${(def.earnedIncomeCredit.matchRate * 100).toFixed(0)}% ` +

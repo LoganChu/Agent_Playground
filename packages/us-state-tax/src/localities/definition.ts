@@ -260,6 +260,22 @@ export interface LocalIncomeTaxDefinition {
    */
   readonly earnedIncomeCreditRateMultiple?: number;
   /**
+   * A second poverty level credit against the local tax, at **the locality's
+   * own rate** times earned income — Maryland's, Md. Code, Tax-Gen. § 10-709(d).
+   *
+   * The state half is 5% of earnings; this one is 2.25% in Worcester and 3.30%
+   * in Dorchester, because the rate it is computed at is the rate it is
+   * forgiving. Like the local earned income credit above it stores no number:
+   * the credit IS the county's rate, so a rate change moves both credits and the
+   * tax in one line of data.
+   *
+   * Eligibility is the state's — see
+   * {@link StateFigures.povertyLevelCreditEligible} — because both of
+   * § 10-709(a)(3)'s income tests are read against figures a county return does
+   * not contain.
+   */
+  readonly povertyLevelCreditAtOwnRate?: boolean;
+  /**
    * A flat deduction the locality allows for each personal and dependency
    * exemption — the filer, a spouse on a joint return, and every dependent.
    *

@@ -1,49 +1,12 @@
 # Differential test against PolicyEngine-US
 
-437 households, 3059 figures compared, **2822 agree to the dollar** (92.3%).
+437 households, 3059 figures compared, **2836 agree to the dollar** (92.7%).
 
-201 differences are explained by `known-divergences.json`; **36 are not.**
+223 differences are explained by `known-divergences.json`; **0 are not.**
 
 ## Unexplained
 
-| case | metric | us-tax | PolicyEngine | difference |
-| --- | --- | ---: | ---: | ---: |
-| `single-worker-MD-400000-0-0-0-0` | state.tax | $33,885.18 | $33,206.48 | $678.70 |
-| `single-worker-GA-400000-0-0-0-0` | state.tax | $19,211.50 | $18,563.95 | $647.55 |
-| `single-worker-VA-400000-0-0-0-0` | state.tax | $22,185.90 | $22,689.03 | -$503.13 |
-| `couple-two-children-MD-200000-0-0-0-0` | state.tax | $15,198.45 | $14,862.86 | $335.59 |
-| `single-worker-MD-150000-0-0-0-0` | state.tax | $11,709.33 | $11,457.24 | $252.09 |
-| `investor-MD-50000-0-0-100000-0` | state.tax | $11,709.33 | $11,457.24 | $252.09 |
-| `retired-couple-IN-0-0-40000-0-0` | state.tax | $0.00 | -$241.00 | $241.00 |
-| `single-worker-MD-15000-0-0-0-0` | state.tax | $160.85 | -$0.79 | $161.64 |
-| `couple-two-children-IN-30000-0-0-0-0` | state.tax | $560.60 | $411.50 | $149.10 |
-| `couple-two-children-IN-100000-0-0-0-0` | state.tax | $4,771.20 | $4,622.10 | $149.10 |
-| `retired-couple-IN-0-20000-40000-0-0` | state.tax | $894.60 | $745.50 | $149.10 |
-| `couple-two-children-IN-200000-0-0-0-0` | state.tax | $9,741.20 | $9,592.10 | $149.10 |
-| `couple-two-children-IN-60000-0-0-0-0` | state.tax | $2,658.97 | $2,509.87 | $149.10 |
-| `couple-two-children-MD-100000-0-0-0-0` | state.tax | $6,347.25 | $6,198.73 | $148.52 |
-| `retired-couple-MD-0-90000-40000-0-0` | state.tax | $4,104.35 | $3,966.37 | $137.98 |
-| `single-worker-MD-80000-0-0-0-0` | state.tax | $5,786.78 | $5,658.02 | $128.76 |
-| `investor-MD-50000-0-0-20000-0` | state.tax | $4,991.78 | $4,880.02 | $111.76 |
-| `retired-couple-IN-0-90000-40000-0-0` | state.tax | $4,373.60 | $4,274.20 | $99.40 |
-| `muni-retiree-IN-0-60000-40000-0-10000` | state.tax | $2,882.60 | $2,783.20 | $99.40 |
-| `retired-couple-IN-0-50000-40000-0-0` | state.tax | $2,385.60 | $2,286.20 | $99.40 |
-| `separate-MD-60000-0-0-0-0` | state.tax | $4,196.78 | $4,102.02 | $94.76 |
-| `muni-retiree-MD-0-60000-40000-0-10000` | state.tax | $1,719.35 | $1,632.37 | $86.98 |
-| `single-worker-MD-50000-0-0-0-0` | state.tax | $3,401.78 | $3,324.02 | $77.76 |
-| `single-parent-IN-25000-0-0-0-0` | state.tax | $718.14 | $643.59 | $74.55 |
-| `single-parent-IN-45000-0-0-0-0` | state.tax | $2,031.74 | $1,957.19 | $74.55 |
-| `single-parent-IN-12000-0-0-0-0` | state.tax | $89.00 | $14.45 | $74.55 |
-| `single-retiree-IN-0-10000-24000-0-0` | state.tax | $447.30 | $372.75 | $74.55 |
-| `retired-couple-MD-0-50000-40000-0-0` | state.tax | $1,097.60 | $1,034.74 | $62.86 |
-| `couple-two-children-MD-60000-0-0-0-0` | state.tax | $2,148.56 | $2,089.17 | $59.39 |
-| `single-retiree-IN-0-40000-24000-0-0` | state.tax | $1,938.30 | $1,888.60 | $49.70 |
-| `single-parent-MD-45000-0-0-0-0` | state.tax | $1,619.58 | $1,571.59 | $47.99 |
-| `single-worker-MD-30000-0-0-0-0` | state.tax | $1,811.78 | $1,768.02 | $43.76 |
-| `single-retiree-MD-0-40000-24000-0-0` | state.tax | $507.20 | $478.74 | $28.46 |
-| `retired-couple-MD-0-20000-40000-0-0` | state.tax | $137.60 | $125.75 | $11.85 |
-| `couple-two-children-MD-30000-0-0-0-0` | state.tax | -$2,845.95 | -$2,853.07 | $7.12 |
-| `single-parent-MD-25000-0-0-0-0` | state.tax | -$1,399.58 | -$1,406.70 | $7.12 |
+None. Every difference has a recorded reason.
 
 ## Explained
 
@@ -51,6 +14,7 @@
 - **21** — NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit. (largest: `investor-AZ-50000-0-0-100000-0`, $616.25)
 - **20** — NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes. (largest: `couple-two-children-ID-60000-0-0-0-0`, $631.55)
 - **20** — NOT MODELLED HERE. Kentucky's family size tax credit, which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%. (largest: `couple-two-children-KY-30000-0-0-0-0`, $935.55)
+- **19** — NOT UPDATED THERE, plus PROVISIONAL FIGURES here. Two facts, and between them they account for every Maryland difference in this grid to the cent — verified by running this package with both of PolicyEngine's figures, after which 22 of the 23 Maryland cases agreed exactly. (1) ALLEGANY COUNTY raised its rate from 3.03% to 3.20% for 2026. This package carries the new rate; PolicyEngine's county table cites the 2025 resident booklet and stops there, so it charges 2025's. That is 0.17 of a point of taxable income, which is why this entry is bounded by a SHARE OF INCOME rather than by a dollar figure: the same one fact is $43.76 on a $30,000 household and $678.70 on a $400,000 one. (2) The 2026 standard deduction. HB 352 replaced the 15%-of-AGI formula with a flat $3,350/$6,700 indexed by the chained CPI from 2026; this package carries the 2025 figure forward and flags it provisional, and PolicyEngine uprates it to $3,400/$6,850. That is at most $150 of deduction, about $6 of state and county tax at the top rate. (largest: `single-worker-MD-400000-0-0-0-0`, $678.70)
 - **18** — PROVISIONAL FIGURES. California's 2026 brackets, standard deduction and exemption credits are the 2025 published amounts carried forward; the FTB indexes them to the CCPI after this was written. PolicyEngine projects them. (largest: `retired-couple-CA-0-90000-40000-0-0`, $359.05)
 - **16** — PROVISIONAL FIGURES. Illinois indexes its exemption allowance to the CPI under 35 ILCS 5/204(d-5) and had not published the 2026 amount when this was written, so this package carries the $2,850 of 2025 forward and says so; PolicyEngine projects $2,925. The gap is $3.72 per exemption and will close when Illinois publishes. (largest: `couple-two-children-IL-60000-0-0-0-0`, $14.85)
 - **15** — HARNESS. Massachusetts taxes its own gross income and the harness states it directly, so any difference is a difference about what belongs on Form 1 line 21 rather than about the tax. Massachusetts also has a No Tax Status and a Limited Income Credit that this package does not model. (largest: `couple-two-children-MA-30000-0-0-0-0`, $100.00)
@@ -61,6 +25,8 @@
 - **6** — HARNESS. Pennsylvania has no federal starting line, so the harness states the eight-class base itself. (largest: `couple-two-children-PA-30000-0-0-0-0`, $731.60)
 - **5** — NOT MODELLED THERE. The New York household credit (Tax Law s 606(b)) -- $20 to $90 on a low or middle income, and subtracted from the New York earned income credit by s 606(d)(1) so the two are not additive. PolicyEngine-US models neither the credit nor the offset, so it is higher than this package on a return that has the credit and lower on one that also has the earned income credit. This package computes both and test/new-york.test.js pins them. (largest: `single-parent-NY-12000-0-0-0-0`, $75.00)
 - **5** — NOT MODELLED HERE. The North Carolina child deduction, up to $3,000 a child and phasing to zero as AGI rises (G.S. 105-153.5(a1)), named in the state's notes. North Carolina's retirement rules are now modelled: it taxes a pension in FULL and deducts military retired pay in full, which is why no retiree case is left here. (largest: `couple-two-children-NC-60000-0-0-0-0`, $199.50)
+- **2** — HARNESS, in the state. The same fact as the two federal entries above, one level down. At $400,000 PolicyEngine's household ITEMISES federally — its only itemised deduction being the state income tax it is in the middle of computing — and two states then follow the federal election. VIRGINIA requires a federal itemiser to itemise on the state return (Va. Code § 58.1-322.03(1)) and subtracts state income tax from the itemised total, which in this harness leaves ZERO, so PolicyEngine gives the filer no deduction at all where this package gives the $8,750 standard one: $503.13 at 5.75%. GEORGIA does the same, allowing $21,965 of itemised deductions against this package's $15,000 standard one, and then pays a credit for having itemised - $300 a taxpayer under O.C.G.A. § 48-7-29.23, which this package does not model and now names in Georgia's notes. $347.55 of deduction plus $300 of credit is the $647.55. Neither difference can be closed from this harness, which supplies no itemised deductions on purpose: feeding a state tax back into the federal return is circular. (largest: `single-worker-GA-400000-0-0-0-0`, $647.55)
 - **2** — NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), refundable and claimed on Form MI-1040CR-7, which pays a standard allowance by household size below an income ceiling and so reaches a low-income household with no heating bill on the return. PolicyEngine-US models it; this package does not. It appears only on the two lowest-income Michigan households in the grid. (largest: `single-parent-MI-12000-0-0-0-0`, $225.48)
 - **1** — NOT MODELLED HERE. Ohio's $20-per-exemption credit for a filer with Ohio AGI of $30,000 or less (R.C. 5747.022). (largest: `single-worker-OH-30000-0-0-0-0`, $20.00)
+- **1** — NOT MODELLED HERE ($140), and a DEFECT THERE ($101). A retired couple both 70 with $40,000 of Social Security and no other income: Indiana exempts the benefit, so federal AGI is zero and the $5,000 of exemptions takes Indiana AGI to MINUS $5,000. (1) PolicyEngine pays the unified tax credit for the elderly, IC 6-3-3-9 - $140 refundable for two filers at 65 with under $1,000 of AGI - which this package does not model and now names in Indiana's notes. (2) The remaining $101.00 is Marion County's 2.02% applied to that negative Indiana AGI: `in_county_tax` is `rate * in_agi` with no floor, so PolicyEngine has an Indiana county paying a retiree $101 a year. It floors the STATE tax at zero on the same figure, which is what makes this an oversight rather than a reading of the statute. (largest: `retired-couple-IN-0-0-40000-0-0`, $241.00)
 
