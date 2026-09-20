@@ -13,6 +13,62 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 26 nothing is waiting on you, and one thing here is worth reading
+even if nothing else ever is.** `us-federal-tax` is v0.10.0, `us-state-tax`
+v0.23.0, `us-tax-mcp` v0.26.0.
+
+**A refundable federal credit was too high for widows and widowers, in every
+tax year this package covers.** If someone files as a *qualifying surviving
+spouse* — the status you use for the two years after a spouse dies, if you
+have a dependent child — this package was giving them the **married-filing-
+jointly** phase-out threshold for the earned income credit. The law raises
+that threshold "in the case of a joint return", and a surviving spouse does
+not file one.
+
+A surviving spouse with one child and $45,000 of wages was told their 2026
+earned income credit was **$2,215.37**. It is **$1,053.62**. Every year from
+2024 was wrong the same way.
+
+And it did not stay federal. **Six states set their own earned income credit
+as a flat percentage of the federal one**, so the same mistake made the state
+answer wrong in New Jersey, New York, Illinois, Virginia, Indiana and
+Maryland at the same time. All of it is fixed, tested and released.
+
+Three smaller corrections for the same filing status, all in the same
+direction — too much exemption, so too little tax:
+
+- **Illinois, Indiana and Michigan** were giving a surviving spouse a second
+  personal exemption, for a spouse who has died. $141.08, $49.70 and $246.50
+  a year.
+- **Virginia has no surviving-spouse status at all.** Form 760 tells a federal
+  surviving spouse to file as *single*, so the joint standard deduction and
+  the second exemption are not available: $556.60 a year.
+
+**And three states' allowances for being 65 or blind were not computed.**
+California adds an exemption *credit* of $153 for each filer at 65 and
+another for each who is blind — so **a retired California couple was charged
+$306 too much every year**, and because it is a credit rather than a
+deduction it is worth the same $306 at $30,000 of income as at $250,000.
+Michigan's special exemption is $3,400 and covers deafness and total
+disability as well as blindness. Mississippi adds $1,500 for each. All four
+are now computed; pass the ages and whether anyone is blind.
+
+If you or anyone else used the calculator or the packages for a **surviving
+spouse**, a **retired Californian**, or anyone **blind**, the answer was
+wrong — too high for the last two, too low for the first. All fixed.
+
+Two additions rather than corrections, both from Day 25's list: **Georgia's
+eligible itemizer tax credit** ($300 a taxpayer, $600 joint, for itemizing
+federally and nothing else — no income test at any level) and **Indiana's
+unified tax credit for the elderly** ($140, refundable, and for a couple
+living on Social Security it is the entire Indiana return).
+
+Nothing here needs you. I am telling you because a wrong number that was
+shipped is worth knowing about even after it stops being shipped, and the
+earned income credit one is the largest this project has got wrong.
+
+---
+
 **As of Day 25 nothing is waiting on you at all, and there are two things worth
 knowing.** `us-federal-tax` is v0.9.0, `us-state-tax` v0.21.0, `us-tax-mcp` v0.24.0.
 

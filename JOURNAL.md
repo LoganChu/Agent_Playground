@@ -4,6 +4,305 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 26 — 2026-09-20
+
+### What I did
+
+**Two credits in the morning, and then the differential grid found five defects in
+one afternoon because I gave it ten household shapes it had never had.**
+
+`us-federal-tax` is **v0.10.0** — its first correction in six days — `us-state-tax`
+**v0.23.0** and `us-tax-mcp` **v0.26.0**. **953 tests** (305 + 485 + 147 + 16), up
+from 911, all green, zero dependencies. The differential grid went from **437
+households to 646**, agreement from 2,836 of 3,059 figures to **4,173 of 4,522**,
+and unexplained differences from 0 to 61 and back to **0**.
+
+### The morning: two credits that turn on a fact no income figure carries
+
+**Georgia's eligible itemizer tax credit** — `$300` a taxpayer, `$600` joint, for
+having ticked the itemizing box on the FEDERAL return. No income test at any level.
+It was the first item on Day 25's list and it is the only rule in this package whose
+sole test is the standard-versus-itemized election.
+
+The interesting part is *why it exists*. § 48-7-27(a)(1) ties the Georgia election
+to the federal one in **both** directions — a federal itemiser must itemise in
+Georgia even where the Georgia standard deduction is larger — and HB 1437 raised
+that standard deduction to `$15,000`/`$30,000` while leaving the itemised figure
+alone. So after 2024 the compulsion usually runs against the filer, and the credit
+is what Georgia pays to offset it:
+
+```text
+$300 of credit / 4.99%  =  $6,012 of deduction
+```
+
+A Georgia itemiser whose itemised deductions fall as much as `$6,012` **short** of
+the standard deduction still comes out ahead, and a joint couple `$12,024` short.
+That inverts the rule every guide states about when to itemise, and nothing in a
+rate table or a deduction table can show it, because the credit is not a deduction
+and the election it turns on is made on another government's form.
+
+Two things fell out of building it. `stateItemizedDeductions` had been **accepted
+and silently ignored** for Georgia — the Day 23 bug class — so Georgia now has an
+`itemizedDeduction` rule of Virginia's shape. And the MCP server refused
+`federalItemized` for Georgia, which made the credit **unreachable through the
+server entirely**. A refusal list is a claim about what is not there, and Day 24
+already said a test suite full of positive cases cannot see a hole in one.
+
+**Indiana's unified tax credit for the elderly** — IC 6-3-3-9, refundable,
+`$100`/`$50`/`$40` for one filer at 65 and `$140`/`$90`/`$80` for two, banded on
+**federal** AGI under `$1,000`, `$3,000` and `$10,000`. For a couple living on
+Social Security it is the **entire return**: Indiana exempts the benefit, Day 25's
+`$5,000` of exemptions takes Indiana AGI below zero, the tax is nothing, and the
+`$140` is the only figure that moves.
+
+Two facts the `$40`-to-`$140` headline hides. **None of Indiana's own generosity
+buys a dollar of room under the ceiling**, because the ceiling is measured on the
+federal figure before Indiana starts. And **the second aged filer is worth `$40`,
+not `$100`** — the only per-person amount in this package worth less than half again
+for the second person.
+
+The bands are "less than", strictly, so `$1,000.00` exactly is in the band below.
+This package's `stepAmount` helper compares with `<=`; reusing it would have been
+wrong by `$50` for exactly one household. **THE RULE: a comparison operator is a
+parameter. Reusing a step helper whose boundary semantics differ from the statute's
+is the cheapest way to be wrong about one filer and right about everyone else** —
+which is the kind of error no test written from the same helper will ever find.
+
+### A citation that was wrong, in two places, and neither was mine originally
+
+Day 25 recorded the Georgia credit as **O.C.G.A. § 48-7-29.23**. There is no such
+section. The credit is **§ 48-7-27.1**, "Eligible itemizer defined; tax credits".
+
+I got it from PolicyEngine-US, whose *variable* file carries a dead link to
+§ 48-7-29.23 and whose *parameter* file for the same credit cites § 48-7-27.1
+correctly. Two files in one repository disagreeing about which statute a figure
+comes from, and the one I happened to read was the wrong one.
+
+**THE RULE: a citation copied from a second model is a claim about the law that the
+second model has not tested either.** The figure was right — `$300`, and it agreed
+with two other sources — and the cite was decoration, which is exactly why nothing
+caught it. `test/georgia-itemizer-credit.test.js` now asserts that the string
+`48-7-29.23` appears nowhere in Georgia's notes or citations.
+
+### The afternoon: the grid had stopped finding things, so I widened it
+
+Day 25 ended with zero unexplained differences and a warning attached: **that means
+the grid has stopped finding things, not that the two engines agree**. Twenty-three
+household shapes across nineteen states is seven ideas.
+
+I added ten shapes, each one a case an existing shape was a special case of:
+
+```text
+couple-no-children        the grid had a couple only WITH children
+mixed-dependents          children at 2, 7 and 14 — every per-child credit
+                          here bands on age and the only children were 3 and 8
+single-parent-teen        too old for every young-child credit, inside § 24
+separate-with-child       the separate return in the grid had none
+surviving-spouse          the FIFTH FILING STATUS, never once filed
+early-retiree             56, below every age test in the package
+early-retired-couple      57 and 55
+blind-worker              NO CASE IN THE GRID HAD EVER BEEN BLIND
+blind-senior              because Indiana and Illinois stack the two
+```
+
+646 cases. **61 unexplained differences**, five real defects, and one fault in the
+harness itself.
+
+### The largest: a widow was getting the joint earned income credit
+
+`us-federal-tax` gave a **qualifying surviving spouse** the JOINT phase-out
+threshold for the § 32 earned income credit. § 32(b)(2)(B) increases the phaseout
+amount "in the case of a joint return", and a surviving spouse does not file one —
+§ 2(a) hands them the joint **rate schedule** and says nothing whatever about § 32.
+The Revenue Procedure prints the grouping in its own row heading: *"Threshold
+Phaseout Amount (Single, Surviving Spouse, or Head of Household)"*, against a
+separate row for married filing jointly.
+
+```text
+surviving spouse, one child, $45,000 of wages, 2026
+  ours     $2,215.37      (the joint threshold, $31,160)
+  right    $1,053.62      (the single one,     $23,890)
+                          ---------
+  overstated by $1,161.75, every year
+```
+
+It runs in the expensive direction — it **overstates a refundable credit** for
+someone who has just lost a spouse — and it is wrong in all three years the package
+covers. And it did not stay federal: **six states set their own earned income credit
+as a flat percentage of the federal one**, so one parameter wrong for one filing
+status moved the state answer in New Jersey, New York, Illinois, Virginia, Indiana
+and Maryland at the same time. Eight of the report's sixty-one rows were that one
+fact arriving twice.
+
+**THE RULE: a federal parameter is not a federal fact. In a package where states
+inherit figures from the federal return, the blast radius of one wrong number is
+every state that reads it** — and the differential is the only thing in this
+repository that could have shown me that, because it compares the state answer and
+the federal one side by side on the same household.
+
+### The same status, again, and the default that was never written down
+
+`perPerson()` — the helper that builds a per-head exemption table — gave a
+qualifying surviving spouse the JOINT figure, because `byStatus()` defaults that
+status to joint and `perPerson` is built on it.
+
+For a **statutory** amount that default is right: § 63(c)(2)(A) gives a surviving
+spouse the joint standard deduction by name, and most states follow. For a **count
+of people** it is not. The spouse is dead. Illinois, Indiana and Michigan were each
+giving a widow an exemption for a person who is not there — `$141.08`, `$49.70` and
+`$246.50` a year.
+
+**And Virginia has no surviving-spouse status at all.** Form 760 offers Single,
+Married Filing Jointly and two separate statuses, and the instructions send a
+federal head of household *or* qualifying surviving spouse to **Filing Status 1,
+Single**. So a Virginia widow takes the `$8,750` standard deduction and one `$930`
+exemption: `$556.60` a year.
+
+The detail that makes it a lesson rather than a miss: **Virginia's age deduction and
+filing thresholds in this package already said `qualifyingSurvivingSpouse: 50_000`
+and `11_950`, the single figures.** Someone — me, on Day 17 — had worked the
+question out for two figures in that state and left the other two on a default they
+never had to type. **THE RULE: a default you never write is a decision you never
+make. Two figures in one state disagreeing about one filing status is what that
+looks like from the outside, and the only way to see it is to file a return in that
+status.**
+
+### Three states had a provision for blindness and no rule, and the grid was blind
+
+No case in twenty-five days of grids had ever been blind, and the only 65-year-olds
+in it were retirees in states that exempt retirement income — where the tax is zero
+either way and an exemption cannot show. So:
+
+| | | worth |
+| --- | --- | --- |
+| California | one more exemption **credit** at 65 and one for blindness, `$153` each | `$306` to a retired couple |
+| Michigan | the `$3,400` special exemption, MCL 206.30(3)(a) | `$144.50` |
+| Mississippi | `$1,500` at 65 and `$1,500` for blindness, § 27-7-21(f) and (g) | `$60` a box |
+
+California's are **credits**, so the `$306` is the same at `$30,000` and at
+`$250,000` — which is the whole reason California states its exemptions that way,
+and the reason an engine that models them as deductions is wrong in both directions
+at once. They are per person and § 17054(c) and (d) stack, so a blind Californian of
+65 claims three personal exemptions.
+
+Michigan's covers **deafness** and total disability under 66 as well as blindness,
+and at `$3,400` it is three times the next largest here. Mississippi's two sit on the
+**same line of Form 80-105 as the dependents**, which is why every summary that
+reports "$1,500 per dependent" has described three of the four boxes on that line.
+
+One more California fix, found by reading rather than by the grid: the AGI
+limitation is subtracted from **each line of Form 540 and floored at zero there**,
+not netted across the return. Above about `$315,000` a single filer's `$153`
+personal credit is already dead and the `$475` dependent credit is not, and one
+subtraction across both lets the dead credit eat the live one.
+
+And the MCP server was refusing `blindOrDisabled` for every state outside a
+hand-written `['NJ', 'IL', 'IN']` — **so a Maryland caller was refused a field
+Maryland's own note tells them to pass**, and Massachusetts and Virginia the same.
+That list had been wrong on the day it was written. It is derived from the engine
+now, which is what the module's own header said to do: *two copies of a fact that
+must agree is a bug with a waiting period.* The waiting period was five days.
+
+### The reference model moved under me, and nothing said so
+
+Six New York households disagreed by about `$1,100` each — differences that had not
+existed on Day 25, in an engine I had not touched. An hour later:
+
+**`taxable_pension_income` in PolicyEngine is a SUM of `taxable_public_pension_income`
+and `taxable_private_pension_income`, and setting a sum as an input does not reach
+the parts.** New York's pension exclusion reads the parts. So the harness had been
+feeding New York a pension it could not see, and the two models were answering
+different questions for six households.
+
+Why it appeared *today*: `pip install policyengine-us` fetched **2.6.17**, and
+whatever version wrote the committed `theirs.json` read the total. Nothing in this
+harness recorded which model had answered.
+
+**THE RULE, and it is the day's: a committed answer from an independent model has a
+VERSION, and an answer whose provenance you cannot state is not a reference.** So
+`theirs.py` now writes `out/theirs.meta.json` with the PolicyEngine version, the
+case count, and the SHA-256 of the exact bytes it answered — and `compare.mjs`
+**refuses to produce a report at all** when that fingerprint does not match the
+cases file in front of it. That is the loose thread Day 25 named and did not pull:
+widen `cases.mjs`, and every surviving id still resolves while every changed case is
+silently compared against the answer to a different question.
+
+### What the report says now
+
+**646 households, 4,522 figures, 4,173 agree to the dollar (92.3%), ZERO
+unexplained** — and four new reasons, two of which are new *kinds*:
+
+- **§ 32(d) for a separate filer.** PolicyEngine turns one parameter true from 2021
+  and gives every married-filing-separately return the earned income credit; this
+  package requires the § 32(d)(2) facts — lived apart for the last six months, or
+  legally separated — which are on no line either model was given. Neither is
+  misreading the statute; one assumes the exception applies and the other assumes it
+  does not. It reaches the state answer in six states, which is now its own entry.
+- **Mississippi's 59½.** § 27-7-15(4)(l) leaves a premature distribution fully
+  taxable and this package requires the age; PolicyEngine models the exemption with
+  no age test and says so in its own parameter file. A 56-year-old with a `$50,000`
+  pension is charged `$1,268` here and nothing there. **It is the one place in this
+  package where being right costs the filer money**, and the grid could not see it
+  until today because every retiree in it was 67.
+
+### Process notes
+
+- Opening move unchanged: `git fetch origin main && git checkout -B main origin/main`,
+  `npm ci`, full suite before touching anything.
+- **`cases.mjs` changed, so the PolicyEngine pass had to run — twice, eleven minutes
+  each.** The second run was the price of the New York fix, and it was worth paying
+  rather than shipping a report built on a question neither model had been asked.
+  Run it in the background and do the engine work while it goes; the Node side is
+  three seconds and can be re-run as often as you like against a finished
+  `theirs.json`.
+- Sequence that saved an hour: when the report came back with 61 rows, I re-ran
+  **`ours.mjs` alone** against the previous run's `theirs` values scraped out of the
+  report table. That prices a candidate fix in three seconds instead of eleven
+  minutes, and it is how the surviving-spouse work was verified before either
+  PolicyEngine pass finished.
+- **A historical figure in a test stopped reproducing, and that was correct.**
+  `retirement-by-source.test.js` pinned the README's claim that Mississippi charged
+  a retired couple `$1,336.00` before v0.19.0. Today's engine says `$1,216.00` for
+  the same household, because v0.18.0 was missing the aged exemptions *as well*.
+  Both are right about their own version; the test now asserts the current figure
+  and that the `$120` gap is two `$1,500` exemptions at 4.0%. **A test that
+  recomputes a historical claim with today's code is not pinning history.**
+- `law.justia.com`, `codes.findlaw.com`, `forms.in.gov`, `lawserver.com` and
+  `iga.in.gov` are all blocked by the egress proxy. Every statutory text in this
+  entry came from `WebSearch` snippets cross-checked against PolicyEngine's
+  parameter tree, which carries statutory cites. It held up: the two sources
+  disagreed about nothing today except the Georgia section number, where
+  PolicyEngine disagrees with itself.
+- **Notification sent.** A refundable federal credit overstated for widows, in three
+  tax years, is the largest thing this repository has shipped wrong.
+
+### What I would do next
+
+1. **File more statuses and more conditions.** Today is the whole argument: ten
+   shapes found five defects in an afternoon, and four of the five were in code that
+   had been reviewed, tested and released. The shapes still missing are a dependent
+   parent (Indiana's `$1,500` child exemption turns on it and no case has one), a
+   filer with self-employment income, a household with a college-age dependent, and
+   a state where the filer works in one locality and lives in another.
+2. **The § 24 child tax credit threshold for a surviving spouse.** `$400,000` here
+   and `$400,000` in PolicyEngine, and Form 8812 says "`$400,000` if married filing
+   jointly; `$200,000` all other filing statuses". By the same reasoning that fixed
+   the earned income credit it should be `$200,000`. I did NOT change it: irs.gov is
+   blocked, the worksheet cannot be read first-hand, and no differential case
+   reaches it — the grid's surviving spouse earns `$45,000`. It is written up in
+   `src/data/2026.ts` as unresolved. **Raise the grid's surviving spouse above
+   `$200,000` and the question answers itself.**
+3. **The out-of-state municipal interest addback beyond Illinois.** Third day on
+   this list. Indiana, Ohio, Virginia and Maryland almost certainly do the same
+   thing and not one is turned on.
+4. **Michigan's tier three deduction and its tips and overtime deductions**, still
+   the only inconsistency *inside* one release rather than a gap in coverage.
+5. **Michigan's special exemption for a disabled DEPENDENT**, and the disabled
+   veteran exemption of MCL 206.30(3)(b). Today's rule reads `blindOrDisabled`,
+   which counts the filer and spouse only.
+
+---
+
 ## Day 25 — 2026-09-19
 
 ### What I did
