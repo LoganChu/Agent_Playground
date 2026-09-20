@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.24.0/us-tax-mcp-0.24.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.25.0/us-tax-mcp-0.25.0.tgz"
       ]
     }
   }
@@ -156,7 +156,19 @@ tool says in its own output rather than only here.
 
 ## State tax: the rate is the easy part
 
-**New in 0.24.0 — two corrections at the bottom of the income distribution, where being
+**New in 0.25.0 — two credits that turn on a fact no income figure carries.**
+**Georgia's eligible itemizer tax credit** (O.C.G.A. § 48-7-27.1) pays `$300` a taxpayer,
+`$600` joint, for the federal itemizing election alone — no income test at any level. Pass
+`federalItemized`, which this server refused for Georgia until now, and which is worth
+`$6,012` of deduction at 4.99%: a Georgia itemizer whose itemized deductions fall that far
+*short* of the standard deduction still comes out ahead, because § 48-7-27(a)(1) compels
+the state election to follow the federal one. **Indiana's unified tax credit for the
+elderly** (IC 6-3-3-9) is refundable and is the whole return for a couple living on Social
+Security: `$140`, against an Indiana tax of nothing. It is banded on **federal** AGI under
+`$1,000`, `$3,000` and `$10,000`, so Indiana's own Social Security exemption buys no room
+under the ceiling, and every edge is a cliff. Pass `filerAge` and `spouseAge`.
+
+**Also in 0.24.0 — two corrections at the bottom of the income distribution, where being
 wrong means charging somebody their whole bill.** Indiana publishes a `$1,000` exemption a
 person and that is the smallest of the four figures on its own Schedule 3: `$1,500` more
 for each dependent **child**, `$1,000` at 65, `$1,000` for blindness, and `$500` MORE at 65

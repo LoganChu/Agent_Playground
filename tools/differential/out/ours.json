@@ -81,6 +81,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -143,6 +147,10 @@
     {
      "name": "Indiana earned income credit",
      "amount": 34.73
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
     }
    ]
   },
@@ -535,6 +543,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -596,6 +608,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -989,6 +1005,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -1050,6 +1070,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -1443,6 +1467,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -1504,6 +1532,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -1897,6 +1929,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -1958,6 +1994,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -2351,6 +2391,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -2412,6 +2456,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -2805,6 +2853,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -2867,6 +2919,10 @@
     {
      "name": "Indiana earned income credit",
      "amount": 731.6
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
     }
    ]
   },
@@ -3259,6 +3315,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -3321,6 +3381,10 @@
     {
      "name": "Indiana earned income credit",
      "amount": 124.23
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
     }
    ]
   },
@@ -3713,6 +3777,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -3774,6 +3842,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -4167,6 +4239,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -4228,6 +4304,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -4621,6 +4701,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -4683,6 +4767,10 @@
     {
      "name": "Indiana earned income credit",
      "amount": 408
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
     }
    ]
   },
@@ -5075,6 +5163,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -5137,6 +5229,10 @@
     {
      "name": "Indiana earned income credit",
      "amount": 424.96
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
     }
    ]
   },
@@ -5529,6 +5625,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 250
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -5591,6 +5691,10 @@
     {
      "name": "Indiana earned income credit",
      "amount": 105.36
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
     }
    ]
   },
@@ -5983,6 +6087,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -6040,11 +6148,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 0,
+   "tax": -140,
    "credits": [
     {
      "name": "Indiana earned income credit",
      "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 140
     }
    ]
   },
@@ -6437,6 +6549,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -6498,6 +6614,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -6891,6 +7011,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -6952,6 +7076,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -7345,6 +7473,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -7406,6 +7538,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -7799,6 +7935,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -7860,6 +8000,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -8253,6 +8397,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -8314,6 +8462,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -8707,6 +8859,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -8768,6 +8924,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -9161,6 +9321,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -9222,6 +9386,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -9615,6 +9783,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -9676,6 +9848,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]
@@ -10065,6 +10241,10 @@
     {
      "name": "Georgia child tax credit",
      "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
     }
    ]
   },
@@ -10126,6 +10306,10 @@
    "credits": [
     {
      "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
      "amount": 0
     }
    ]

@@ -1247,3 +1247,49 @@ test('no README advertises a tarball that is not the current version', () => {
     }
   }
 });
+
+test("README: Georgia's itemizer credit is worth $6,012 of deduction, and Indiana's elderly credit is the whole return", () => {
+  const gaStandard = stateIncomeTax({
+    state: 'GA',
+    year: 2026,
+    filingStatus: 'single',
+    federal: { adjustedGrossIncome: 100_000, deductionKind: 'standard' },
+  });
+  const gaShort = stateIncomeTax({
+    state: 'GA',
+    year: 2026,
+    filingStatus: 'single',
+    federal: { adjustedGrossIncome: 100_000, deductionKind: 'itemized' },
+    stateItemizedDeductions: 15_000 - 6_012,
+  });
+  // The README's claim, to the cent: $6,012 short of the standard deduction is
+  // still not behind. It is a wash rather than a win, which is what "as much
+  // as" means — $6,012.02 is the exact figure and a README should not print it.
+  assert.ok(
+    gaShort.tax <= gaStandard.tax + 0.02,
+    `a $6,012 shortfall should not cost: ${gaShort.tax} vs ${gaStandard.tax}`,
+  );
+  assert.ok(
+    stateIncomeTax({
+      state: 'GA',
+      year: 2026,
+      filingStatus: 'single',
+      federal: { adjustedGrossIncome: 100_000, deductionKind: 'itemized' },
+      stateItemizedDeductions: 15_000 - 6_500,
+    }).tax > gaStandard.tax,
+    'and $6,500 short should',
+  );
+
+  // Indiana: $140 paid out to a couple whose only income is a benefit Indiana
+  // does not tax. The README calls it the entire return, and it is.
+  const inRetired = stateIncomeTax({
+    state: 'IN',
+    year: 2026,
+    filingStatus: 'marriedFilingJointly',
+    federal: { adjustedGrossIncome: 0 },
+    filerAge: 70,
+    spouseAge: 70,
+  });
+  money(inRetired.taxBeforeCredits, 0, 'no Indiana tax');
+  money(inRetired.tax, -140, 'and $140 paid out');
+});

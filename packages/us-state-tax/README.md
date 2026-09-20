@@ -7,7 +7,36 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.21.0: **two low-income corrections, both of them the whole bill.**
+New in 0.22.0: **two credits that turn on facts no income figure carries.**
+
+**Georgia's eligible itemizer tax credit** (O.C.G.A. § 48-7-27.1) is `$300` for each
+taxpayer — `$600` on a joint return — and its only test is which box was ticked on the
+**federal** return. Not income, not age, not what the deductions were. It is worth the
+same `$300` at `$50,000` and at `$5,000,000`.
+
+The reason it exists is the reason it inverts the rule every guide states. § 48-7-27(a)(1)
+ties the Georgia election to the federal one in **both** directions — a federal itemizer
+must itemize here even where the Georgia standard deduction is larger — and HB 1437 raised
+that standard deduction to `$15,000`/`$30,000` while leaving the itemized figure alone. At
+4.99% the credit is worth **`$6,012` of deduction**, so a Georgia itemizer whose itemized
+deductions fall that far *short* of the standard deduction still comes out ahead, and a
+joint couple `$12,024` short. Pass `federal.deductionKind`; `stateItemizedDeductions` is
+now read for Georgia too, where it had been accepted and silently ignored.
+
+**Indiana's unified tax credit for the elderly** (IC 6-3-3-9) is refundable, and for a
+household living on Social Security it is the **entire return**: Indiana exempts the
+benefit, the `$5,000` of exemptions takes Indiana AGI below zero, the tax is nothing, and
+the `$140` is the only figure that moves. It is `$100`/`$50`/`$40` for one filer at 65 and
+`$140`/`$90`/`$80` for two, banded on **federal** AGI under `$1,000`, `$3,000` and
+`$10,000` — so none of Indiana's own generosity buys a dollar of room under the ceiling.
+Every edge is a cliff and there are three: one dollar at `$1,000` costs `$50`. Pass
+`filerAge` and `spouseAge`.
+
+One correction that is not a number: this package cited the itemizer credit as
+O.C.G.A. § 48-7-29.23 until 0.22.0, copied from PolicyEngine-US's own variable file. **No
+such section exists.** Their *parameter* file has it right, and the two disagree.
+
+Also in 0.21.0: **two low-income corrections, both of them the whole bill.**
 
 **Indiana was computing the smallest of the four exemptions on its own Schedule 3.** The
 published figure is `$1,000` a person and that is right for exactly one household — a
@@ -101,7 +130,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.21.0/us-state-tax-0.21.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.22.0/us-state-tax-0.22.0.tgz
 ```
 
 ## The rate is the easy part

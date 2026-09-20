@@ -1277,6 +1277,32 @@ function forgivenessCredit(
   return tax * share;
 }
 
+/**
+ * Indiana's unified tax credit for the elderly, IC 6-3-3-9.
+ *
+ * Banded on **federal** adjusted gross income rather than on Indiana's, which
+ * is the fact that decides who gets it: the state's own Social Security
+ * exemption and its `$5,000` of exemptions for a retired couple move the
+ * Indiana figure and not this one.
+ *
+ * The comparison is strict — `income < band.under` — because the statute says
+ * "less than", and the boundary is worth `$50` at `$1,000`.
+ */
+function agedCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  const rule = def.agedCredit;
+  if (!rule) return 0;
+  if (rule.requiresJointReturnWhenMarried && input.filingStatus === 'marriedFilingSeparately') {
+    return 0;
+  }
+  const aged = seniorFilers(input, rule.minimumAge);
+  if (aged === 0) return 0;
+  const income = input.federal.adjustedGrossIncome;
+  for (const band of aged >= 2 ? rule.bothAged : rule.oneAged) {
+    if (income < band.under) return band.amount;
+  }
+  return 0;
+}
+
 /** The amount of a step-function credit at a given income. */
 function stepAmount(steps: readonly { upTo: number; amount: number }[], income: number): number {
   for (const step of steps) {
@@ -2068,6 +2094,27 @@ function computeOnce(
       refundable: def.steppedChildCredit.refundable,
     });
   }
+  if (def.agedCredit) {
+    credits.push({
+      name: def.agedCredit.name,
+      amount: agedCredit(def, input),
+      refundable: def.agedCredit.refundable,
+    });
+  }
+
+  if (def.itemizerCredit) {
+    // The whole rule. One `if` on the federal election, and a taxpayer count
+    // that is two only on a joint return — a qualifying surviving spouse is one
+    // taxpayer, which is why `filerCount` is not used here.
+    const taxpayers = input.filingStatus === 'marriedFilingJointly' ? 2 : 1;
+    credits.push({
+      name: def.itemizerCredit.name,
+      amount:
+        input.federal.deductionKind === 'itemized' ? def.itemizerCredit.perTaxpayer * taxpayers : 0,
+      refundable: false,
+    });
+  }
+
   if (def.propertyTaxRelief && propertyTaxRoute === 'credit' && propertyTax > 0) {
     credits.push({
       name: def.propertyTaxRelief.creditName,

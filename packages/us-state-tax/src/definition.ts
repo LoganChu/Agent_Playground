@@ -449,6 +449,109 @@ export interface SeniorCreditRule {
   readonly onePerReturn?: boolean;
 }
 
+/** One band of an {@link AgedCreditRule}: the amount for income strictly below `under`. */
+export interface AgedCreditBand {
+  /**
+   * Income **strictly below** this figure takes {@link amount}.
+   *
+   * Strictly, and it is not a formatting choice. IC 6-3-3-9(c) says "less than
+   * one thousand dollars ($1,000)", and a filer with federal AGI of exactly
+   * `$1,000.00` is in the next band down — `$50` rather than `$100`. The
+   * `<=` semantics {@link CreditStep} uses would get that one household wrong
+   * by half the credit, which is why this rule does not reuse it.
+   */
+  readonly under: number;
+  readonly amount: number;
+}
+
+/**
+ * A refundable credit banded on income and on how many filers are old enough —
+ * Indiana's unified tax credit for the elderly, IC 6-3-3-9.
+ *
+ * It is the last line of an Indiana return this package did not compute, and
+ * it is the only rule here that can be a household's **entire** answer: for a
+ * retired couple whose Social Security is their whole income, Indiana AGI is
+ * negative, the tax is zero, and the `$140` is all that moves.
+ *
+ * Three things about it that the `$40`-to-`$140` headline hides:
+ *
+ * 1. **It is banded on FEDERAL adjusted gross income**, so none of Indiana's own
+ *    generosity reaches it. The state exempts Social Security and allows `$5,000`
+ *    of exemptions to a retired couple; neither buys a dollar of room under the
+ *    `$10,000` ceiling, because that ceiling is measured before Indiana starts.
+ *    Untaxed Social Security *is* outside it — but that is § 86's doing, not
+ *    Indiana's.
+ * 2. **Every band edge is a cliff**, and there are three of them. One dollar at
+ *    `$1,000` costs `$50`, one dollar at `$3,000` costs `$10`, and one dollar at
+ *    `$10,000` costs the remaining `$80`. Nothing phases.
+ * 3. **The second aged filer is worth `$40`, not `$100`.** Two 65-year-olds under
+ *    `$1,000` claim `$140` between them where one claims `$100` — the only
+ *    per-person amount in this package that is worth less than half again for
+ *    the second person.
+ */
+export interface AgedCreditRule {
+  readonly name: string;
+  readonly minimumAge: number;
+  /** Bands for a return with one filer at {@link minimumAge}, ascending. */
+  readonly oneAged: readonly AgedCreditBand[];
+  /** Bands for a joint return with two, ascending. */
+  readonly bothAged: readonly AgedCreditBand[];
+  readonly refundable: boolean;
+  /**
+   * True where a married filer must file jointly to claim it.
+   *
+   * IC 6-3-3-9(b) requires a joint claim from spouses who "reside together",
+   * and residence is a fact no figure on a return carries. Barring the separate
+   * return is the direction that cannot pay a credit twice to a household
+   * entitled to it once; the state's notes say so, because it understates the
+   * married filer who genuinely lived apart.
+   */
+  readonly requiresJointReturnWhenMarried?: boolean;
+}
+
+/**
+ * A flat credit for having elected to itemize federally — Georgia's eligible
+ * itemizer credit, O.C.G.A. § 48-7-27.1.
+ *
+ * It is the only rule in this package whose sole test is the
+ * standard-versus-itemized election. Not income, not age, not what the
+ * deductions were: § 48-7-27.1(a) defines an eligible itemizer as a resident who
+ * "makes the election to deduct the itemized nonbusiness deductions used in
+ * computing such taxpayer's federal taxable income", and (b) gives each one
+ * `$300`. So it is worth the same at `$50,000` and at `$5,000,000`, and a
+ * Georgia filer whose itemized deductions beat the standard one by a dollar is
+ * `$300` better off than the arithmetic says.
+ *
+ * Two consequences of that shape:
+ *
+ * 1. **The credit is bigger than the election that earns it, over a wide band.**
+ *    At Georgia's 4.99% rate, `$300` of credit is `$6,012` of deduction. A
+ *    Georgia filer whose itemized deductions fall as much as `$6,012` short of
+ *    the Georgia standard deduction is still better off itemizing — which
+ *    inverts the rule every guide states, and which nothing in a rate table or a
+ *    deduction table can show.
+ * 2. **It is per taxpayer, and a joint return has two of them.** A married
+ *    couple who itemize claim `$600`; two separate returns claim `$300` each, so
+ *    for this credit alone the election is worth the same either way.
+ *
+ * Non-refundable and with no carryforward — § 48-7-27.1(b) says the credit may
+ * not exceed the liability and may not be carried to another year, which the
+ * engine gets from the shared non-refundable cap.
+ */
+export interface ItemizerCreditRule {
+  readonly name: string;
+  /**
+   * Credit for each taxpayer on the return: one, or two on a joint return.
+   *
+   * **A qualifying surviving spouse counts as one.** {@link filerCount} says two
+   * for that status, because a surviving spouse uses the joint rate schedule
+   * federally — but there is one taxpayer on the return, and Georgia already
+   * treats a surviving spouse as "any other taxpayer" for its standard
+   * deduction. This rule does not use {@link filerCount} for that reason.
+   */
+  readonly perTaxpayer: number;
+}
+
 /**
  * Income the state pulls out of the main schedule and taxes at its own rate.
  *
@@ -1939,6 +2042,17 @@ export interface StateIncomeTaxDefinition {
   /** Gated on {@link ownEarnedIncomeCredit}; never present without it. */
   readonly youngChildCredit?: YoungChildCreditRule;
   readonly steppedChildCredit?: SteppedChildCreditRule;
+  /**
+   * Georgia's eligible itemizer credit. Reads
+   * {@link FederalBasis.deductionKind} and nothing else.
+   */
+  readonly itemizerCredit?: ItemizerCreditRule;
+  /**
+   * Indiana's unified tax credit for the elderly. Reads
+   * {@link StateIncomeTaxInput.filerAge} and
+   * {@link StateIncomeTaxInput.spouseAge}, and bands on federal AGI.
+   */
+  readonly agedCredit?: AgedCreditRule;
   readonly recapture?: RecaptureRule;
   readonly zeroTaxThreshold?: ZeroTaxThresholdRule;
   readonly retirementExclusion?: RetirementExclusionRule;

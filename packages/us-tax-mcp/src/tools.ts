@@ -1118,9 +1118,12 @@ const stateTool: ToolDefinition = {
     'municipalities and 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a ' +
     'state starts from decides the answer. Ten states need more. NY: locality. MD and IN: county, plus ' +
-    'netCapitalGain and stateItemizedDeductions in MD. MD, GA and KY: retirement for a retiree — all ' +
+    'netCapitalGain and stateItemizedDeductions in MD, and filerAge and spouseAge in IN — its unified ' +
+    'tax credit for the elderly is REFUNDABLE and is the whole return for a retiree on Social ' +
+    'Security. MD, GA and KY: retirement for a retiree — all ' +
     'three exclusions are PER PERSON, GA excludes nothing without it, and KY has NO CEILING for ' +
-    'pre-1998 government service. UT: filerAge, spouseAge, taxableSocialSecurity, taxExemptInterest ' +
+    'pre-1998 government service. GA also takes federalItemized: $300 a taxpayer for the ' +
+    'election alone, with no income test. UT: filerAge, spouseAge, taxableSocialSecurity, taxExemptInterest ' +
     'and retirement.militaryRetirement — Utah taxes the benefit and hands the tax back as a credit, ' +
     'so a Utah retiree comes back far too high without them. OH: city and ' +
     'qualifyingWages, box 5 of the W-2 and NOT federal AGI, and schoolDistrict. MI: city and cityIncome, ' +
@@ -1296,9 +1299,14 @@ const stateTool: ToolDefinition = {
       throw new ToolInputError('federalItemized must be true or false.');
     }
     for (const [field, value, states] of [
-      ['stateItemizedDeductions', itemized, ['MD', 'VA']],
+      ['stateItemizedDeductions', itemized, ['MD', 'VA', 'GA']],
       ['netCapitalGain', capitalGain, ['MD']],
-      ['federalItemized', federalItemized, ['MD', 'VA']],
+      // Georgia joined on Day 26 and it is the one state where `federalItemized`
+      // is worth money on its own: the eligible itemizer credit of
+      // § 48-7-27.1 is $300 a taxpayer for the election alone, with no state
+      // itemized figure needed. A refusal list that left Georgia off would make
+      // that credit unreachable through this server.
+      ['federalItemized', federalItemized, ['MD', 'VA', 'GA']],
     ] as const) {
       if (value !== undefined && !(states as readonly string[]).includes(state)) {
         throw new ToolInputError(
@@ -1323,9 +1331,9 @@ const stateTool: ToolDefinition = {
         'stateItemizedDeductions needs federalItemized: true. Maryland allows itemizing only ' +
           'if the filer itemized federally (§ 10-218(b)) — which is why the larger federal ' +
           'standard deduction ended the Maryland itemized deduction for filers whose Maryland ' +
-          'deductions never changed — and Virginia COMPELS it (§ 58.1-322.03(1)(a)), barring ' +
-          'the state standard deduction outright. Pass the standard-deduction return instead, ' +
-          'or set federalItemized.',
+          'deductions never changed — and Virginia (§ 58.1-322.03(1)(a)) and Georgia ' +
+          '(§ 48-7-27(a)(1)) COMPEL it, barring the state standard deduction outright. ' +
+          'Pass the standard-deduction return instead, or set federalItemized.',
       );
     }
 

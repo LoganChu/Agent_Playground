@@ -196,14 +196,14 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'stateItemizedDeductions',
     schema: number,
-    states: ['MD', 'VA'],
-    doc: 'Federal Schedule A less the state and local INCOME taxes inside it. Needs federalItemized. Maryland reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate); Virginia COMPELS it, so a federal itemizer may not take the Virginia standard deduction even when it is larger.',
+    states: ['MD', 'VA', 'GA'],
+    doc: 'Federal Schedule A less the state and local INCOME taxes inside it. Needs federalItemized. Maryland reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate); Virginia and Georgia COMPEL it, so a federal itemizer may not take the state standard deduction even when it is larger. Georgia does NOT require the state income tax to come out — its adjustment is for taxes paid to other states and investment interest on exempt income — so pass the Georgia figure as the IT-511 worksheet computes it.',
   },
   {
     name: 'federalItemized',
     schema: boolean,
-    states: ['MD', 'VA'],
-    doc: 'Whether the filer itemized federally. Maryland allows state itemizing only if they did, so the OBBBA standard deduction ended it for many; Virginia goes further and REQUIRES itemizing on the state return if they did.',
+    states: ['MD', 'VA', 'GA'],
+    doc: 'Whether the filer itemized federally. Maryland allows state itemizing only if they did, so the OBBBA standard deduction ended it for many; Virginia and Georgia go further and REQUIRE itemizing on the state return if they did. In GEORGIA this flag is worth money by itself: the eligible itemizer tax credit of O.C.G.A. § 48-7-27.1 pays $300 a taxpayer ($600 joint) for the election alone, with no income test at any level and no state itemized figure needed. At 4.99% that is $6,012 of deduction, so a Georgia filer whose itemized deductions fall that far SHORT of the standard deduction still comes out ahead.',
   },
   {
     name: 'netCapitalGain',

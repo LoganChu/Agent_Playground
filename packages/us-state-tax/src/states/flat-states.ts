@@ -76,6 +76,20 @@ const GA_CITATIONS: readonly Citation[] = [
       'Georgia HB 463 (2026) — 4.99% for 2026 and annual cuts to 3.99%, the $70,000 exclusion from 2027, and the 2026-2028 overtime and cash tip exclusions',
     url: 'https://www.legis.ga.gov/legislation/70350',
   },
+  {
+    // NOT § 48-7-29.23, which is where this package and PolicyEngine-US's own
+    // variable file both put it until Day 26. No such section exists; the
+    // credit is § 48-7-27.1, "Eligible itemizer defined; tax credits", and
+    // PolicyEngine's *parameter* file has it right while its variable does not.
+    title:
+      'O.C.G.A. § 48-7-27.1 — eligible itemizer defined, and the $300-per-taxpayer credit, for tax years from 2024',
+    url: 'https://law.justia.com/codes/georgia/title-48/chapter-7/article-2/section-48-7-27-1/',
+  },
+  {
+    title:
+      'Georgia Department of Revenue — IT-511 Individual Income Tax Booklet, the eligible itemizer tax credit at Form 500 line 19',
+    url: 'https://dor.georgia.gov/document/document/2025-it-511-individual-income-tax-booklet/download',
+  },
 ];
 
 const GA_NOTES: readonly string[] = [
@@ -87,7 +101,8 @@ const GA_NOTES: readonly string[] = [
   'Georgia and Maryland use the same words for opposite constructions, and the difference decides the commonest question in retirement planning. Georgia counts taxable IRA distributions in full, so rolling a 401(k) into an IRA costs a Georgia retiree nothing; Maryland\'s § 10-209(a) writes an IRA out of its exclusion by name, so the same rollover costs a Montgomery County retiree $3,378.83 a year at $150,000, for life. And Georgia subtracts taxable Social Security separately without charging it against the exclusion, where Maryland reduces the exclusion by the whole benefit received. Put IRA money in `retirement.filer.iraDistributions`, not in `employerPlanPension`.',
   'Georgia does not tax Social Security or Tier 1 railroad retirement benefits. Pass the taxable part — Form 1040 line 6b — as `taxableSocialSecurity` and it comes off the base; do NOT also put it in `subtractions`, or it will be subtracted twice.',
   'Georgia\'s child tax credit is new for tax year 2026 — HB 136 (2025), $250 for each child under 6, non-refundable, with NO phase-out and no cap on the number of children. Pass `dependentAges`; a Georgia family return that omits them loses it silently. It is worth the same $250 to a household at $40,000 and at $400,000, which is rare: the only other credit in this package with no income test at all is Massachusetts\'s.',
-  'NOT MODELLED \u2014 the eligible itemizer tax credit of O.C.G.A. \u00a7 48-7-29.23, $300 for each taxpayer and $600 on a joint return, allowed to a Georgia resident who ITEMISES. It has no income test at any level, so it is worth the same $300 to a filer at $50,000 and one at $5,000,000, and it is the largest thing in this package that turns on the standard-versus-itemised election rather than on income. A Georgia itemiser computed here is overstated by $300 a taxpayer. It was found by a differential test at $400,000, where the reference model itemised and this one did not.',
+  'The eligible itemizer tax credit of O.C.G.A. \u00a7 48-7-27.1 \u2014 $300 for each taxpayer, $600 on a joint return, non-refundable and with no carryforward \u2014 is allowed to a Georgia resident for tax years from 2024 purely for having elected to ITEMISE federally. It asks nothing about income, age or what the deductions were, so it is worth the same $300 at $50,000 and at $5,000,000, and it is computed here from `federal.deductionKind` alone. A married couple who itemise claim $600; two separate returns claim $300 each, so this credit alone is worth the same either way.',
+  'Itemizing is not a choice in Georgia either way: \u00a7 48-7-27(a)(1) ties the state election to the federal one in BOTH directions \u2014 a federal itemiser must itemise here even where the Georgia standard deduction is larger, and a filer who took the federal standard deduction may not itemise here at all. HB 1437 raised the Georgia standard deduction to $15,000/$30,000 while leaving the itemised figure alone, so after 2024 the compulsion usually runs against the filer, and the eligible itemizer credit is what Georgia pays to offset it. At 4.99% the $300 is worth $6,012 of deduction, so a Georgia itemiser whose itemised deductions fall as much as $6,012 short of the standard deduction still comes out ahead \u2014 $12,024 on a joint return. This package applies the compulsion when `stateItemizedDeductions` is supplied and falls back to the standard deduction, with this note, when it is not; the credit is paid either way, because it turns on the federal election and not on the Georgia figure.',
   'Not modelled: the low income credit of O.C.G.A. \u00a7 48-7-29.7, which is at most $26 per exemption and is gone at $20,000 of federal AGI; the $4,000-per-return exclusion for income from a disability retirement; the Georgia 529 (Path2College) contribution subtraction; the child and dependent care credit (30% of the federal credit); the qualified education expense and rural hospital credits; and the surplus tax refund, which is not part of the return. Pass any of these through `subtractions` if you have them.',
 ];
 
@@ -125,8 +140,37 @@ function georgia(year: number): StateIncomeTaxDefinition | undefined {
         qualifyingSurvivingSpouse: single,
       }),
     },
+    // Georgia's election is not its own: § 48-7-27(a)(1) ties it to the federal
+    // one in both directions, so a federal itemizer must itemize here and a
+    // federal standard-deduction filer may not. Same shape as Virginia's, and
+    // without Virginia's mandatory subtraction of the state income tax — the
+    // Georgia adjustment is for taxes paid to other states and for investment
+    // interest on exempt income, neither of which this package can derive, so
+    // `stateItemizedDeductions` is taken as the Georgia figure.
+    itemizedDeduction: {
+      name: 'Georgia itemized deductions',
+      requiresFederalItemizing: true,
+      forcedWhenFederalItemizing: true,
+      phaseOutRate: 0,
+      phaseOutThreshold: byStatus({
+        single: Infinity,
+        joint: Infinity,
+        separate: Infinity,
+        headOfHousehold: Infinity,
+      }),
+    },
     exemption: { perFiler: uniform(0), perDependent: dependent },
     subtractsTaxableSocialSecurity: true,
+    // O.C.G.A. § 48-7-27.1, for tax years from 2024. The only rule in this
+    // package whose sole test is the standard-versus-itemized election.
+    ...(year >= 2024
+      ? {
+          itemizerCredit: {
+            name: 'Georgia eligible itemizer tax credit',
+            perTaxpayer: 300,
+          } as const,
+        }
+      : {}),
     // HB 136 (2025) creates a $250 credit for each child under 6, first
     // available for tax year 2026 — the newest provision in this package, and
     // the only per-dependent credit here with no phase-out and no ceiling on
@@ -304,6 +348,11 @@ const IN_CITATIONS: readonly Citation[] = [
     title: 'Indiana IT-40 instruction booklet — Schedule 3, the exemptions',
     url: 'https://forms.in.gov/Download.aspx?id=16915',
   },
+  {
+    title:
+      'Ind. Code § 6-3-3-9 — unified tax credit for the elderly, and Form SC-40, the standalone claim',
+    url: 'https://iga.in.gov/laws/2024/ic/titles/6#6-3-3-9',
+  },
 ];
 
 function indiana(year: number): StateIncomeTaxDefinition | undefined {
@@ -342,13 +391,35 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
       matchRate: 0.1,
       refundable: true,
     },
+    // IC 6-3-3-9. Banded on FEDERAL AGI, refundable, and the whole answer for a
+    // household whose income is Social Security: Indiana exempts the benefit, so
+    // the tax is zero and this is the only figure on the return that moves.
+    agedCredit: {
+      name: 'Indiana unified tax credit for the elderly',
+      minimumAge: 65,
+      oneAged: [
+        { under: 1_000, amount: 100 },
+        { under: 3_000, amount: 50 },
+        { under: 10_000, amount: 40 },
+      ],
+      bothAged: [
+        { under: 1_000, amount: 140 },
+        { under: 3_000, amount: 90 },
+        { under: 10_000, amount: 80 },
+      ],
+      refundable: true,
+      requiresJointReturnWhenMarried: true,
+    },
     notes: [
       'Every Indiana county levies its own income tax on the SAME figure — IT-40 line 7, after the deductions and the $1,000 exemptions — from 0.5% (Porter) to 3.00% (Randolph, the statutory maximum). The average is 1.914% against a state rate of 3.00% in 2025 and 2.95% in 2026, so the county tax is about 39% of a typical Indiana bill, and a Randolph County filer pays their county MORE than their state in 2026. Pass `county`; without it this is the state half of the return, and the result says what the cheapest and dearest counties would have cost.',
       'The county is the one the filer lived in on 1 JANUARY, for the whole year, and a county rate can change on 1 October as well as on 1 January — so the rate an employer withholds and the rate the return settles at can differ for part of a year. This package stores the 1 January rate, which is what the annual return uses.',
       'Indiana\'s $1,000 exemption is the SMALLEST of the four on Schedule 3 and the only one a household total can find. On top of it: $1,500 more for each dependent CHILD — under 19, or under 24 and a full-time student — $1,000 for each filer at 65, $1,000 for each blind filer, and $500 MORE for each filer at 65 whose federal AGI is under $40,000 ($20,000 filing separately). All four are computed here from v0.21.0; before that a family with two children was $149.10 too high in Marion County and a retired couple under $40,000 was $149.10 too high as well.',
       'The child exemption needs `dependentAges`, not `dependents`: an Indiana dependent child is worth $2,500 of exemption and a dependent parent $1,000, and a count cannot tell them apart. Supply `dependentsAttendingCollege` as well for a dependent aged 19 to 23, who qualifies only as a full-time student.',
       'The $500 is the only means-tested exemption in this package and it is a CLIFF. A joint return with both spouses at 65 claims $3,000 of age exemption at $39,999 of federal AGI and $2,000 at $40,000 — one dollar of income costs $1,000 of exemption, which is $49.70 of tax in Marion County and $59.50 in a county at the 3.00% statutory maximum. The test is on FEDERAL AGI, so an Indiana deduction that takes a retiree under the line does not buy it back.',
-      'Not modelled: the additional $3,000 first-year exemption for an adopted child, which needs a fact no other rule here asks for; the unified tax credit for the elderly (IC 6-3-3-9), $40 to $140 and refundable, for a filer at 65 with under $10,000 of AGI; and the renter\'s, homeowner\'s property tax and nonpublic school deductions.',
+      'The unified tax credit for the elderly (IC 6-3-3-9) is REFUNDABLE and is banded on FEDERAL AGI: $100/$50/$40 for one filer at 65 and $140/$90/$80 for two, under $1,000, $3,000 and $10,000 respectively. Pass `filerAge` and `spouseAge`. For a couple whose income is Social Security it is the whole return — Indiana exempts the benefit, the $5,000 of exemptions takes Indiana AGI below zero, the tax is nothing, and the $140 is the only figure that moves. Note that neither of those Indiana provisions buys a dollar of room under the $10,000 ceiling, because the ceiling is measured on the federal figure before Indiana starts.',
+      'Every edge of that credit is a CLIFF and there are three: one dollar of federal AGI at $1,000 costs $50, at $3,000 costs $10, and at $10,000 costs the remaining $80. Nothing phases. And the second aged filer is worth $40 rather than $100, which makes it the only per-person amount in this package worth less than half again for the second person.',
+      'The elderly credit is computed here only for a joint return, a single filer or a head of household. IC 6-3-3-9(b) requires spouses who RESIDE TOGETHER to claim it jointly, and residence is a fact no figure on a return carries, so a married-filing-separately return gets nothing rather than risking two claims for one household. A married filer who genuinely lived apart all year is understated by up to $100.',
+      'Not modelled: the additional $3,000 first-year exemption for an adopted child, which needs a fact no other rule here asks for; and the renter\'s, homeowner\'s property tax and nonpublic school deductions.',
       "Indiana's statutory rate steps down each year: 3.05% in 2024, 3.00% in 2025, 2.95% in 2026, and 2.90% from 2027.",
       'The Indiana earned income credit is 10% of a federal credit the filer never claimed. IC 6-3.1-21-6 computes it under the Internal Revenue Code as of a FROZEN date — 1 January 2023 for tax years 2023 to 2025, and 1 January 2026 from tax year 2026 (SEA 243 of 2025) — and substitutes Indiana\'s own investment income limit of $3,800, which has not moved since 2022 and is now about a third of the federal one. A filer with $5,000 of interest income gets the federal credit and no Indiana credit at all. This package applies the 10% match to whatever federal credit you pass, so an Indiana filer near either limit is overstated.',
     ],
