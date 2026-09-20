@@ -12,6 +12,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -28,6 +29,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -44,6 +46,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -60,6 +63,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -76,6 +80,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -92,6 +97,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -108,6 +114,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -127,6 +134,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -143,6 +151,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -159,6 +168,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -178,6 +188,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -194,6 +205,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -210,6 +222,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -226,6 +239,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -242,6 +256,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -258,6 +273,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -274,6 +290,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -290,6 +307,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -306,6 +324,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -322,6 +341,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -338,6 +358,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -354,6 +375,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -370,6 +392,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -386,6 +409,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -402,6 +426,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -418,6 +443,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -437,6 +463,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -453,6 +480,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -469,6 +497,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -488,6 +517,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -504,6 +534,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -520,6 +551,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -536,6 +568,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -552,6 +585,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -568,6 +602,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -584,6 +619,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -600,6 +636,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -616,6 +653,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -632,6 +670,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -648,6 +687,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -664,6 +704,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -680,6 +721,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -696,6 +738,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -712,6 +755,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -728,6 +772,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -747,6 +792,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -763,6 +809,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -779,6 +826,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -798,6 +846,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -814,6 +863,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -830,6 +880,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -846,6 +897,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -862,6 +914,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -878,6 +931,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -894,6 +948,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -910,6 +965,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -926,6 +982,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -942,6 +999,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -958,6 +1016,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -974,6 +1033,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -990,6 +1050,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1006,6 +1067,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1022,6 +1084,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1038,6 +1101,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -1057,6 +1121,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1073,6 +1138,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1089,6 +1155,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -1108,6 +1175,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1124,6 +1192,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1140,6 +1209,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1156,6 +1226,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1172,6 +1243,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1188,6 +1260,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1204,6 +1277,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1220,6 +1294,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1236,6 +1311,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1252,6 +1328,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1268,6 +1345,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1284,6 +1362,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1300,6 +1379,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1316,6 +1396,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1332,6 +1413,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1348,6 +1430,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -1367,6 +1450,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1383,6 +1467,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1399,6 +1484,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -1418,6 +1504,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1434,6 +1521,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1450,6 +1538,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1466,6 +1555,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1482,6 +1572,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1498,6 +1589,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1514,6 +1606,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1530,6 +1623,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1546,6 +1640,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1562,6 +1657,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1578,6 +1674,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1594,6 +1691,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1610,6 +1708,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1626,6 +1725,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1642,6 +1742,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1658,6 +1759,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -1677,6 +1779,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1693,6 +1796,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1709,6 +1813,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -1728,6 +1833,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1744,6 +1850,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1760,6 +1867,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1776,6 +1884,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1792,6 +1901,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1808,6 +1918,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1824,6 +1935,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1840,6 +1952,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1856,6 +1969,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-worker"
  },
@@ -1875,6 +1989,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -1894,6 +2009,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -1913,6 +2029,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -1932,6 +2049,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -1951,6 +2069,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -1970,6 +2089,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -1989,6 +2109,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -2011,6 +2132,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2030,6 +2152,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2049,6 +2172,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -2071,6 +2195,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2090,6 +2215,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2109,6 +2235,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2128,6 +2255,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2147,6 +2275,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2166,6 +2295,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2185,6 +2315,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2204,6 +2335,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2223,6 +2355,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2242,6 +2375,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2261,6 +2395,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2280,6 +2415,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2299,6 +2435,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2318,6 +2455,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2337,6 +2475,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2356,6 +2495,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -2378,6 +2518,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2397,6 +2538,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2416,6 +2558,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -2438,6 +2581,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2457,6 +2601,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2476,6 +2621,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2495,6 +2641,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2514,6 +2661,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2533,6 +2681,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2552,6 +2701,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2571,6 +2721,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2590,6 +2741,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2609,6 +2761,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2628,6 +2781,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2647,6 +2801,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2666,6 +2821,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2685,6 +2841,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2704,6 +2861,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2723,6 +2881,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -2745,6 +2904,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2764,6 +2924,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2783,6 +2944,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -2805,6 +2967,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2824,6 +2987,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2843,6 +3007,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2862,6 +3027,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2881,6 +3047,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2900,6 +3067,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2919,6 +3087,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2938,6 +3107,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2957,6 +3127,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2976,6 +3147,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -2995,6 +3167,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3014,6 +3187,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3033,6 +3207,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3052,6 +3227,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3071,6 +3247,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3090,6 +3267,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -3112,6 +3290,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3131,6 +3310,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3150,6 +3330,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -3172,6 +3353,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3191,6 +3373,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3210,6 +3393,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3229,6 +3413,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3248,6 +3433,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3267,6 +3453,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3286,6 +3473,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3305,6 +3493,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3324,6 +3513,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "couple-two-children"
  },
@@ -3342,6 +3532,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3360,6 +3551,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3378,6 +3570,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3396,6 +3589,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3414,6 +3608,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3432,6 +3627,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3450,6 +3646,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -3471,6 +3668,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3489,6 +3687,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3507,6 +3706,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -3528,6 +3728,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3546,6 +3747,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3564,6 +3766,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3582,6 +3785,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3600,6 +3804,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3618,6 +3823,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3636,6 +3842,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3654,6 +3861,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3672,6 +3880,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3690,6 +3899,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3708,6 +3918,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3726,6 +3937,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3744,6 +3956,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3762,6 +3975,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3780,6 +3994,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3798,6 +4013,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -3819,6 +4035,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3837,6 +4054,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3855,6 +4073,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -3876,6 +4095,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3894,6 +4114,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3912,6 +4133,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3930,6 +4152,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3948,6 +4171,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3966,6 +4190,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -3984,6 +4209,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4002,6 +4228,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4020,6 +4247,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4038,6 +4266,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4056,6 +4285,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4074,6 +4304,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4092,6 +4323,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4110,6 +4342,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4128,6 +4361,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4146,6 +4380,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -4167,6 +4402,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4185,6 +4421,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4203,6 +4440,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -4224,6 +4462,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4242,6 +4481,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4260,6 +4500,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4278,6 +4519,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4296,6 +4538,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4314,6 +4557,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4332,6 +4576,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4350,6 +4595,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4368,6 +4614,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-parent"
  },
@@ -4384,6 +4631,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4400,6 +4648,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4416,6 +4665,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4432,6 +4682,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4448,6 +4699,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4464,6 +4716,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4480,6 +4733,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -4499,6 +4753,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4515,6 +4770,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4531,6 +4787,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -4550,6 +4807,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4566,6 +4824,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4582,6 +4841,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4598,6 +4858,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4614,6 +4875,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4630,6 +4892,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4646,6 +4909,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4662,6 +4926,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4678,6 +4943,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4694,6 +4960,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4710,6 +4977,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4726,6 +4994,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4742,6 +5011,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4758,6 +5028,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4774,6 +5045,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4790,6 +5062,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -4809,6 +5082,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4825,6 +5099,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4841,6 +5116,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -4860,6 +5136,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4876,6 +5153,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4892,6 +5170,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4908,6 +5187,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4924,6 +5204,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4940,6 +5221,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4956,6 +5238,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4972,6 +5255,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -4988,6 +5272,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5004,6 +5289,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5020,6 +5306,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5036,6 +5323,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5052,6 +5340,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5068,6 +5357,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5084,6 +5374,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5100,6 +5391,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -5119,6 +5411,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5135,6 +5428,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5151,6 +5445,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -5170,6 +5465,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5186,6 +5482,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5202,6 +5499,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5218,6 +5516,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5234,6 +5533,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5250,6 +5550,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5266,6 +5567,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5282,6 +5584,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5298,6 +5601,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5314,6 +5618,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5330,6 +5635,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5346,6 +5652,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5362,6 +5669,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5378,6 +5686,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5394,6 +5703,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5410,6 +5720,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -5429,6 +5740,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5445,6 +5757,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5461,6 +5774,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -5480,6 +5794,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5496,6 +5811,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5512,6 +5828,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5528,6 +5845,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5544,6 +5862,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5560,6 +5879,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5576,6 +5896,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5592,6 +5913,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5608,6 +5930,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "retired-couple"
  },
@@ -5624,6 +5947,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5640,6 +5964,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5656,6 +5981,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5672,6 +5998,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5688,6 +6015,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5704,6 +6032,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5720,6 +6049,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -5739,6 +6069,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5755,6 +6086,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5771,6 +6103,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -5790,6 +6123,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5806,6 +6140,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5822,6 +6157,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5838,6 +6174,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5854,6 +6191,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5870,6 +6208,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5886,6 +6225,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5902,6 +6242,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5918,6 +6259,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5934,6 +6276,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5950,6 +6293,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5966,6 +6310,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5982,6 +6327,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -5998,6 +6344,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6014,6 +6361,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6030,6 +6378,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -6049,6 +6398,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6065,6 +6415,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6081,6 +6432,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -6100,6 +6452,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6116,6 +6469,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6132,6 +6486,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6148,6 +6503,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6164,6 +6520,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6180,6 +6537,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6196,6 +6554,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6212,6 +6571,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6228,6 +6588,7 @@
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "single-retiree"
  },
@@ -6244,6 +6605,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6260,6 +6622,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6276,6 +6639,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6292,6 +6656,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6308,6 +6673,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6324,6 +6690,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6340,6 +6707,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -6359,6 +6727,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6375,6 +6744,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6391,6 +6761,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -6410,6 +6781,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6426,6 +6798,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6442,6 +6815,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6458,6 +6832,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6474,6 +6849,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6490,6 +6866,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6506,6 +6883,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6522,6 +6900,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6538,6 +6917,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6554,6 +6934,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6570,6 +6951,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6586,6 +6968,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6602,6 +6985,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6618,6 +7002,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6634,6 +7019,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6650,6 +7036,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -6669,6 +7056,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6685,6 +7073,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6701,6 +7090,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -6720,6 +7110,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6736,6 +7127,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6752,6 +7144,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6768,6 +7161,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6784,6 +7178,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6800,6 +7195,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6816,6 +7212,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6832,6 +7229,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6848,6 +7246,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "investor"
  },
@@ -6864,6 +7263,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6880,6 +7280,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6896,6 +7297,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6912,6 +7314,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6928,6 +7331,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6944,6 +7348,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6960,6 +7365,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -6979,6 +7385,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -6995,6 +7402,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7011,6 +7419,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -7030,6 +7439,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7046,6 +7456,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7062,6 +7473,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7078,6 +7490,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7094,6 +7507,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7110,6 +7524,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7126,6 +7541,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7142,6 +7558,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7158,6 +7575,7 @@
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
+  "blind": 0,
   "county": null,
   "kind": "separate"
  },
@@ -7174,6 +7592,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7190,6 +7609,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7206,6 +7626,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7222,6 +7643,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7238,6 +7660,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7254,6 +7677,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7270,6 +7694,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": {
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
@@ -7289,6 +7714,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7305,6 +7731,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7321,6 +7748,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": {
    "ours": "Allegany County",
    "theirs": "ALLEGANY_COUNTY_MD"
@@ -7340,6 +7768,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7356,6 +7785,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7372,6 +7802,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7388,6 +7819,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7404,6 +7836,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7420,6 +7853,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7436,6 +7870,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7452,6 +7887,7 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
  },
@@ -7468,7 +7904,3893 @@
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 10000,
+  "blind": 0,
   "county": null,
   "kind": "muni-retiree"
+ },
+ {
+  "id": "couple-no-children-AZ-25000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-CA-25000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-CO-25000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-GA-25000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-ID-25000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-IL-25000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-IN-25000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-KY-25000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MA-25000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MD-25000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MI-25000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MS-25000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-NC-25000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-NJ-25000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-NY-25000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-OH-25000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-PA-25000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-UT-25000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-VA-25000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-AZ-75000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-CA-75000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-CO-75000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-GA-75000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-ID-75000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-IL-75000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-IN-75000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-KY-75000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MA-75000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MD-75000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MI-75000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-MS-75000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-NC-75000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-NJ-75000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-NY-75000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-OH-75000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-PA-75000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-UT-75000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-VA-75000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "mixed-dependents-AZ-40000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-CA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-CO-40000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-GA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-ID-40000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-IL-40000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-IN-40000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-KY-40000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MD-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MI-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MS-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-NC-40000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-NJ-40000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-NY-40000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-OH-40000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-PA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-UT-40000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-VA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-AZ-90000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-CA-90000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-CO-90000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-GA-90000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-ID-90000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-IL-90000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-IN-90000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-KY-90000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MA-90000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MD-90000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MI-90000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-MS-90000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-NC-90000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-NJ-90000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-NY-90000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-OH-90000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-PA-90000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-UT-90000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-VA-90000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "single-parent-teen-AZ-35000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-CA-35000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-CO-35000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-GA-35000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-ID-35000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-IL-35000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-IN-35000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-KY-35000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-MA-35000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-MD-35000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-MI-35000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-MS-35000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-NC-35000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-NJ-35000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-NY-35000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-OH-35000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-PA-35000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-UT-35000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "single-parent-teen-VA-35000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "separate-with-child-AZ-45000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-CA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-CO-45000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-GA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-ID-45000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-IL-45000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-IN-45000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-KY-45000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-MA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-MD-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-MI-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-MS-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-NC-45000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-NJ-45000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-NY-45000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-OH-45000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-PA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-UT-45000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "separate-with-child-VA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
+ },
+ {
+  "id": "surviving-spouse-AZ-45000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-CA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-CO-45000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-GA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-ID-45000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-IL-45000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-IN-45000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-KY-45000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-MA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-MD-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-MI-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-MS-45000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-NC-45000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-NJ-45000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-NY-45000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-OH-45000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-PA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-UT-45000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "surviving-spouse-VA-45000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "early-retiree-AZ-0-50000-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-CA-0-50000-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-CO-0-50000-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-GA-0-50000-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-ID-0-50000-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-IL-0-50000-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-IN-0-50000-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-KY-0-50000-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-MA-0-50000-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-MD-0-50000-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-MI-0-50000-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-MS-0-50000-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-NC-0-50000-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-NJ-0-50000-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-NY-0-50000-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-OH-0-50000-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-PA-0-50000-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-UT-0-50000-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retiree-VA-0-50000-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
+  "id": "early-retired-couple-AZ-0-70000-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-CA-0-70000-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-CO-0-70000-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-GA-0-70000-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-ID-0-70000-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-IL-0-70000-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-IN-0-70000-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-KY-0-70000-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-MA-0-70000-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-MD-0-70000-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-MI-0-70000-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-MS-0-70000-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-NC-0-70000-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-NJ-0-70000-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-NY-0-70000-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-OH-0-70000-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-PA-0-70000-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-UT-0-70000-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "early-retired-couple-VA-0-70000-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "blind-worker-AZ-40000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-CA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-CO-40000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-GA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-ID-40000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-IL-40000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-IN-40000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-KY-40000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-MA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-MD-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-MI-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-MS-40000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-NC-40000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-NJ-40000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-NY-40000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-OH-40000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-PA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-UT-40000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-worker-VA-40000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
+  "id": "blind-senior-AZ-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-CA-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-CO-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-GA-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-ID-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-IL-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-IN-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-KY-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-MA-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-MD-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-MI-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-MS-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-NC-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-NJ-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-NY-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-OH-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-PA-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-UT-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "blind-senior-VA-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
  }
 ]

@@ -889,3 +889,64 @@ test('the § 24 phase-out produces a sawtooth marginal rate', () => {
   const acrossBoundary = at(411_001).totalTax - at(410_999).totalTax;
   assert.equal(Math.round(acrossBoundary * 100) / 100, 50.48);
 });
+
+// ---------------------------------------------------------------------------
+// The one place a qualifying surviving spouse does NOT follow the joint column
+// ---------------------------------------------------------------------------
+//
+// § 2(a) applies the joint RATE SCHEDULE to a surviving spouse, and this package
+// follows the joint figure almost everywhere because of it — § 63(c)(2)(A) says
+// so for the standard deduction and § 1411(b) says so by name for the NIIT.
+//
+// § 32(b)(2)(B) does not. It increases the phaseout amount "in the case of a
+// joint return", and a surviving spouse files an individual return. The Revenue
+// Procedure prints the grouping in the row heading: "Threshold Phaseout Amount
+// (Single, Surviving Spouse, or Head of Household)".
+//
+// This package had the joint figure until Day 26, and the error runs in the
+// expensive direction: it OVERSTATES a refundable credit for someone who has
+// just lost a spouse.
+
+test('a qualifying surviving spouse takes the SINGLE earned income credit threshold', () => {
+  for (const [year, single, joint] of [
+    [2024, 22_720, 29_640],
+    [2025, 23_350, 30_470],
+    [2026, 23_890, 31_160],
+  ]) {
+    const table = earnedIncomeCreditParameters(year).table;
+    for (const children of [1, 2, 3]) {
+      const row = table[children];
+      assert.equal(row.phaseOutStart.qualifyingSurvivingSpouse, single, `${year}, ${children}`);
+      assert.equal(row.phaseOutStart.marriedFilingJointly, joint, `${year}, ${children}, joint`);
+      assert.equal(row.phaseOutStart.headOfHousehold, single, `${year}, ${children}, HoH`);
+    }
+    // And the childless row, which has its own pair of figures.
+    assert.equal(
+      table[0].phaseOutStart.qualifyingSurvivingSpouse,
+      table[0].phaseOutStart.single,
+      `${year}, childless`,
+    );
+  }
+});
+
+test('the surviving spouse credit equals the head-of-household one, not the joint one', () => {
+  const at = (filingStatus) =>
+    earnedIncomeCredit({
+      filingStatus,
+      year: 2026,
+      earnedIncome: 45_000,
+      adjustedGrossIncome: 45_000,
+      qualifyingChildren: 1,
+    }).credit;
+
+  const survivor = at('qualifyingSurvivingSpouse');
+  assert.equal(survivor, at('headOfHousehold'));
+  assert.notEqual(survivor, at('marriedFilingJointly'));
+
+  // The size of the error this replaces: the joint threshold is $7,270 higher
+  // and the one-child taper is 15.98%, so the old answer was $1,161.75 too big
+  // for every surviving spouse on the phase-out.
+  const overstatement = at('marriedFilingJointly') - survivor;
+  assert.equal(Math.round(overstatement * 100) / 100, 1_161.75);
+  assert.equal(Math.round((31_160 - 23_890) * 0.1598 * 100) / 100, 1_161.75);
+});

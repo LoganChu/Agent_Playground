@@ -181,6 +181,8 @@ const YCTC_2025 = {
 
 const SHARED_NOTES: readonly string[] = [
   'California exemptions are credits, not deductions: the personal exemption credit is worth the same dollar amount at every rate. Modelling it as a deduction from income understates the tax.',
+  'California claims an ADDITIONAL personal exemption credit for each filer at 65 (Form 540 line 9) and another for each who is blind (line 8), each worth the same $153 as the personal credit itself and each claimed PER PERSON. A couple both 65 claim four personal exemptions, not two, which is $306 of California tax — and because these are credits rather than deductions they are worth the same to a retiree at $30,000 as to one at $200,000. The two stack on one person, so a blind Californian of 65 claims three. Pass `filerAge`, `spouseAge` and `blindOrDisabled`; this package charged a retired California couple $306 too much until v0.23.0.',
+  'The AGI limitation on the exemption credits is applied to each LINE of Form 540 separately and floored at zero there, not netted across the return. It matters because the lines are different sizes: above about $315,000 of AGI a single filer\'s $153 personal credit is already gone while the $475 dependent credit is not, and subtracting one total from another would let the dead credit eat the live one. Worth up to $153 an exemption to a high-income California family.',
   'The 1% Mental Health Services Tax threshold of $1,000,000 is per return and is NOT doubled for a joint return, even though every bracket threshold is. A married couple at $1,200,000 of taxable income owes it; two single filers at $600,000 each do not.',
   'California does not conform to the federal QBI deduction, to bonus depreciation, or to the four OBBBA Schedule 1-A deductions, and it taxes health savings account contributions. Those are additions and subtractions on Schedule CA (540); this package does not enumerate them — supply them via `additions` and `subtractions`.',
   'CalEITC is not a percentage of the federal credit and cannot be approximated as one. It has no plateau: the credit peaks at a single dollar of earned income — $4,661 with no children, $9,823 with two — and falls at the same rate it climbed. Below the peak the California marginal rate is NEGATIVE (minus 34% for a two-child filer, on top of the federal minus 40%); one dollar past it the rate is plus 34%. A 68-point swing across one dollar of income, and no rate table anywhere shows it.',
@@ -222,6 +224,12 @@ export function california(year: number): StateIncomeTaxDefinition | undefined {
         name: 'Personal and dependent exemption credits',
         perFiler: byStatus({ single: 153, separate: 153, joint: 306, headOfHousehold: 153 }),
         perDependent: 475,
+        // Form 540 lines 8 and 9: one more personal exemption credit for each
+        // filer at 65, and another for each who is blind. They stack on one
+        // person, so a blind Californian of 65 claims three.
+        perSeniorFiler: 153,
+        seniorAge: 65,
+        perBlindOrDisabledFiler: 153,
         phaseOut: {
           amountPerIncrement: 6,
           increment: byStatus({

@@ -14,6 +14,7 @@
  * node tools/differential/compare.mjs --json     # the same thing as data
  * ```
  */
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -113,7 +114,44 @@ function match(rule, caseRow, metric, delta) {
   return true;
 }
 
+/**
+ * Refuse to report on answers that were given to a different grid.
+ *
+ * `out/theirs.json` is committed so CI can run the cheap half of this harness on
+ * every push — this project's side regenerates in three seconds, PolicyEngine's
+ * ten-minute pass does not. The price is that the committed answers can go stale
+ * the moment `cases.mjs` changes, and nothing noticed: every id that survives a
+ * widening still resolves, and every case whose FIGURES changed is then compared
+ * against the answer to a different question, silently and in this project's
+ * favour or against it at random.
+ *
+ * `theirs.py` now writes the SHA-256 of the exact cases file it read. If it does
+ * not match the cases file in front of us, there is no report to write.
+ */
+function requireFreshTheirs() {
+  const cases = readFileSync(join(here, 'out/cases.json'));
+  const digest = createHash('sha256').update(cases).digest('hex');
+  let recorded;
+  try {
+    recorded = readFileSync(join(here, 'out/theirs.cases.sha256'), 'utf8').trim();
+  } catch {
+    throw new Error(
+      'out/theirs.cases.sha256 is missing. Re-run theirs.py — it writes the fingerprint ' +
+        'of the cases file it answered, and without one there is no way to tell a fresh ' +
+        'out/theirs.json from a stale one.',
+    );
+  }
+  if (recorded !== digest) {
+    throw new Error(
+      `out/theirs.json answers a different grid. cases.json is ${digest.slice(0, 12)} and ` +
+        `PolicyEngine last answered ${recorded.slice(0, 12)}. Re-run the PolicyEngine pass ` +
+        '(tools/differential/README.md) and commit out/theirs.json with its sidecar.',
+    );
+  }
+}
+
 export function compare() {
+  requireFreshTheirs();
   const cases = read('out/cases.json');
   const ours = read('out/ours.json');
   const theirs = read('out/theirs.json');

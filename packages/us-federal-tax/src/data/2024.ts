@@ -278,6 +278,21 @@ export const YEAR_2024: YearParameters = {
   // with-children tables this year ($17,250 − $10,330 and $29,640 − $22,720),
   // which is the only year of the three where the two coincide. 2025 splits
   // $7,110 / $7,120 and 2026 splits $7,280 / $7,270 — opposite directions.
+  // A QUALIFYING SURVIVING SPOUSE TAKES THE SINGLE FIGURE HERE, and it is the one
+  // place in this file where that status does not follow the joint column.
+  //
+  // § 32(b)(2)(B) increases the phaseout amount "in the case of a joint return",
+  // and a surviving spouse does not file one — § 2(a) applies the joint RATE
+  // SCHEDULE to them and says nothing about this. The Revenue Procedure agrees
+  // and prints it in the row heading: "Threshold Phaseout Amount (Single,
+  // Surviving Spouse, or Head of Household)" against a separate row for married
+  // filing jointly.
+  //
+  // This package gave them the joint figure until Day 26, which OVERSTATED a
+  // refundable credit by up to the phase-out rate times the gap — $1,161.75 for
+  // a surviving spouse with one child and $45,000 of wages in 2026. A
+  // differential case with that filing status found it on the day the status
+  // was first put in the grid; twenty-five days of grids had never filed one.
   earnedIncomeCredit: {
     table: [
       // No qualifying children. Max credit $632 at $8,260 of earned income.
@@ -290,7 +305,7 @@ export const YEAR_2024: YearParameters = {
           marriedFilingJointly: 17_250,
           marriedFilingSeparately: 10_330,
           headOfHousehold: 10_330,
-          qualifyingSurvivingSpouse: 17_250,
+          qualifyingSurvivingSpouse: 10_330,
         },
       },
       // One qualifying child. Max credit $4,213 at $12,390 of earned income.
@@ -303,7 +318,7 @@ export const YEAR_2024: YearParameters = {
           marriedFilingJointly: 29_640,
           marriedFilingSeparately: 22_720,
           headOfHousehold: 22_720,
-          qualifyingSurvivingSpouse: 29_640,
+          qualifyingSurvivingSpouse: 22_720,
         },
       },
       // Two qualifying children. Max credit $6,960 at $17,400 of earned income.
@@ -316,7 +331,7 @@ export const YEAR_2024: YearParameters = {
           marriedFilingJointly: 29_640,
           marriedFilingSeparately: 22_720,
           headOfHousehold: 22_720,
-          qualifyingSurvivingSpouse: 29_640,
+          qualifyingSurvivingSpouse: 22_720,
         },
       },
       // Three or more. Same $17,400 earned income amount, 45% credit rate.
@@ -329,7 +344,7 @@ export const YEAR_2024: YearParameters = {
           marriedFilingJointly: 29_640,
           marriedFilingSeparately: 22_720,
           headOfHousehold: 22_720,
-          qualifyingSurvivingSpouse: 29_640,
+          qualifyingSurvivingSpouse: 22_720,
         },
       },
     ],

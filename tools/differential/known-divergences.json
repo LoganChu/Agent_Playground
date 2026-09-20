@@ -63,8 +63,8 @@
   {
     "metric": "state.tax",
     "state": "NC",
-    "maxAbs": 250,
-    "reason": "NOT MODELLED HERE. The North Carolina child deduction, up to $3,000 a child and phasing to zero as AGI rises (G.S. 105-153.5(a1)), named in the state's notes. North Carolina's retirement rules are now modelled: it taxes a pension in FULL and deducts military retired pay in full, which is why no retiree case is left here."
+    "maxAbs": 400,
+    "reason": "NOT MODELLED HERE. The North Carolina child deduction, up to $3,000 a child and phasing to zero as AGI rises (G.S. 105-153.5(a1)), named in the state's notes. The bound is $400 rather than $250 from Day 26, because the grid gained a household with THREE children and the deduction is per child: $9,000 at 3.99% is $359.10. North Carolina's retirement rules are now modelled: it taxes a pension in FULL and deducts military retired pay in full, which is why no retiree case is left here."
   },
   {
     "metric": "state.tax",
@@ -104,5 +104,31 @@
     "idIncludes": "-400000-",
     "maxAbs": 700,
     "reason": "HARNESS, in the state. The same fact as the two federal entries above, one level down. At $400,000 PolicyEngine's household ITEMISES federally - its only itemised deduction being the state income tax it is in the middle of computing - and two states then follow that federal election, in both directions. VIRGINIA requires a federal itemiser to itemise on the state return (Va. Code § 58.1-322.03(1)) and subtracts state income tax from the itemised total, which in this harness leaves ZERO, so PolicyEngine gives the filer no deduction at all where this package gives the $8,750 standard one: $503.13 at 5.75%. GEORGIA does the same under § 48-7-27(a)(1), allowing $21,965 of itemised deductions against this package's $15,000 standard one, and then pays $300 a taxpayer for having itemised - the eligible itemizer credit of O.C.G.A. § 48-7-27.1, which IS modelled here from v0.22.0 and which test/georgia-itemizer-credit.test.js pins. It does not fire in this grid because the harness's own federal return takes the standard deduction, so `federal.deductionKind` is `standard` on every case in it. $347.55 of deduction plus $300 of credit is the $647.55. Neither difference can be closed from this harness, which supplies no itemised deductions on purpose: feeding a state tax back into the federal return is circular. NOTE the cite: this entry said § 48-7-29.23 until Day 26, copied from PolicyEngine-US's own variable file. No such section exists - their PARAMETER file has it right."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MS",
+    "idIncludes": "early-retire",
+    "maxAbs": 1800,
+    "reason": "A DISAGREEMENT ABOUT AGE, and both models document their side. Mississippi exempts qualified retirement income under § 27-7-15(4)(k), and § 27-7-15(4)(l) leaves a PREMATURE distribution — one the federal § 72(t) penalty would reach — fully taxable. This package therefore requires 59 1/2; PolicyEngine-US models the exemption with no age test at all and says so in its own parameter file. The grid could not see the disagreement until Day 26, because every retiree in it was 67 or older. A 56-year-old drawing a $50,000 pension is charged $1,268 here and nothing there, and a couple of 57 and 55 with $70,000 is charged $1,736. This package's reading is in test/retirement-by-source.test.js and in the state's notes; it is the one place where being right costs the filer money, so it is worth restating that a distribution before 59 1/2 is what (l) is about."
+  },
+  {
+    "metric": "federal.earnedIncomeCredit",
+    "kind": "separate-with-child",
+    "maxAbs": 1100,
+    "reason": "§ 32(d), and a different reading of the ARPA amendment. A married filer who files separately gets no earned income credit under § 32(d)(1) unless § 32(d)(2) applies — which needs the filer to have lived with a qualifying child for more than half the year AND either to have had a different principal abode from the spouse for the last six months or to be legally separated and not a member of the same household. PolicyEngine-US turns a single parameter, `eligibility.separate_filer`, true from 2021 and allows the credit to EVERY separate filer. This package requires the facts: `separatedFromSpouse` plus a qualifying child, and the case grid supplies neither, so it computes zero. Neither model is reading the statute wrongly — one is assuming the exception applies and the other is assuming it does not, and nothing on a return either model was given says which. $1,053.62 for one child at $45,000 in 2026."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "separate-with-child",
+    "maxAbs": 950,
+    "reason": "FOLLOWS THE § 32(d) DIFFERENCE ABOVE. Six states in this grid set their earned income credit as a flat percentage of the federal one, so a $1,053.62 disagreement about the federal credit reaches the state return multiplied by that state's match: New Jersey 40% ($421.45), New York 30% ($316.09), Illinois 20% plus its 40%-of-that child credit ($295.01 of it), Virginia 20% ($210.72), Indiana 10% ($105.36), and Maryland most of all, because Maryland matches at 50% AND every Maryland county runs its own earned income credit at ten times the county rate. The bound is $950 for that Maryland case. Not a state disagreement at all: fix the federal reading and all six move together."
+  },
+  {
+    "metric": "state.tax",
+    "state": "GA",
+    "kind": "surviving-spouse",
+    "maxAbs": 800,
+    "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT, and this package follows the statute where PolicyEngine-US follows itself inconsistently. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000. PolicyEngine gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount, which is what makes this a reading rather than a rate: $15,000 at 4.99% is $748.50. Recorded in Georgia's notes since v0.15.0."
   }
 ]

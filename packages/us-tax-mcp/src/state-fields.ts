@@ -29,6 +29,37 @@
  * each field against a state the table excludes and requires the refusal.
  */
 import type { JsonSchema } from './schema.js';
+import {
+  SUPPORTED_STATES,
+  SUPPORTED_YEARS,
+  getStateDefinition,
+} from './state-engine/index.js';
+
+/**
+ * The states that read `blindOrDisabled`, DERIVED from the engine.
+ *
+ * It was a literal `['NJ', 'IL', 'IN']` until Day 26, and it was wrong on the
+ * day it was written: Maryland, Massachusetts and Virginia all carried a blind
+ * exemption already, and Maryland's own note tells the caller to pass this very
+ * field. The loop at the bottom of `state_income_tax` refuses a field a state
+ * is not listed for, so this server was refusing Maryland callers a figure the
+ * Maryland return needs — on the strength of a list nobody had checked since
+ * the field was added.
+ *
+ * That is this module's own header, which says two copies of a fact that must
+ * agree is a bug with a waiting period. The waiting period was five days.
+ * California, Michigan and Mississippi joined the engine on Day 26 and this
+ * list needed no edit to know it.
+ */
+const BLIND_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
+  SUPPORTED_YEARS.some((year) => {
+    const def = getStateDefinition(code, year);
+    return (
+      def?.exemption?.perBlindOrDisabledFiler !== undefined ||
+      def?.exemptionCredit?.perBlindOrDisabledFiler !== undefined
+    );
+  }),
+);
 
 export interface StateField {
   /** The argument name, as `state_income_tax` takes it. */
@@ -332,20 +363,20 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'filerAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY', 'IN'],
-    doc: 'Filer age at year end. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
+    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA'],
+    doc: 'Filer age at year end. CA: one MORE personal exemption CREDIT at 65 — $153, worth the same at every rate and every income, and claimed per person, so a couple both 65 claim four personal exemptions rather than two. MS: $1,500 of extra exemption at 65, on the same line as the dependents. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
   },
   {
     name: 'spouseAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN'],
-    doc: 'Spouse age at year end, joint returns. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
+    states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA'],
+    doc: 'Spouse age at year end, joint returns. California and Mississippi both claim their age allowance PER PERSON, so the second spouse at 65 is worth another $153 in California and another $60 of Mississippi tax. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
   },
   {
     name: 'blindOrDisabled',
     schema: integer,
-    states: ['NJ', 'IL', 'IN'],
-    doc: 'How many of filer and spouse are blind or disabled, 0-2. Indiana adds $1,000 of exemption each, stacking with the $1,000 it adds at 65, so one person can carry both. Illinois adds $1,000 of exemption for each, which stacks with the $1,000 it adds at 65 — and neither figure is indexed, where the $2,850 beside them moves with the CPI every year. Worth a $1,000 exemption each in New Jersey, on top of the age exemption a 65-year-old already has — the two are cumulative, so one person can carry both. There is no income test and no proration.',
+    states: BLIND_STATES,
+    doc: 'How many of filer and spouse are blind or disabled, 0-2. MICHIGAN\'s is the largest here: the $3,400 special exemption of MCL 206.30(3)(a), worth $144.50, and it covers deafness and total disability under 66 as well as blindness. MASSACHUSETTS allows $2,200. CALIFORNIA states it as a CREDIT rather than a deduction — $153 a person, worth the same at every rate and at every income, and it stacks with the $153 California adds at 65, so a blind Californian of 65 claims three personal exemptions. MISSISSIPPI adds $1,500, on the same line as the dependents and the $1,500 it adds at 65. Indiana and Illinois each add $1,000, stacking with the $1,000 each adds at 65 — and neither Illinois figure is indexed, where the $2,850 beside them moves with the CPI every year. New Jersey adds $1,000, cumulative with its age exemption. Maryland adds $1,000, and unlike its $3,200 personal exemption it is NOT reduced by income. Virginia adds $800 and claims it alongside the $800 it adds at 65. There is no income test and no proration anywhere.',
   },
 ];
 

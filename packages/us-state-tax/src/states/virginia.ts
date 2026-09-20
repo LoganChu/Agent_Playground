@@ -150,6 +150,7 @@ const NOTES: readonly string[] = [
   'Virginia has TWO floors and they are set by different governments, so which one bites depends on family size. The filing threshold is fixed at $11,950 / $23,900; the Credit for Low Income Individuals zeroes the tax up to the federal poverty guideline, which rises $5,500 a head. For a single filer the guideline ($15,650 in 2025) is the higher of the two, so the statutory cliff at $11,950 produces nothing at all and the real one sits $3,700 further up and costs $168.55 — nearly four times the $45.42 the filing threshold would have cost. For a childless couple the guideline ($21,150) is BELOW the joint threshold, so the filing threshold binds instead and the cliff is $106.23. For a family of four the guideline ($32,150) binds again and the cliff is $416.55, which is their entire Virginia tax.',
   'Whether that cliff exists at all depends on a FEDERAL fact. The Credit for Low Income Individuals and the 20% earned income match are alternatives, and the match is refundable: a family of four at the poverty guideline with a $4,000 federal earned income credit takes the $800 match rather than the $1,200 credit, is $383 in refund on both sides of the guideline, and faces no cliff — while the identical family that does not claim the federal credit loses $416.55 on one dollar. Two Virginia returns with the same Virginia income, and the discontinuity is in one of them only.',
   'The standard deduction of $8,750 ($17,500 joint) is TEMPORARY. It reverts by its own terms to the $3,000 and $6,000 written in § 58.1-322.03(1)(b), which for a joint filer is $11,500 of deduction and $661.25 of tax. The Appropriation Act has moved the reversion date at every budget since 2022 and legislation to make the higher amounts permanent has been introduced; treat a year beyond those this package covers as unknown rather than as a continuation.',
+  'Virginia has NO surviving-spouse filing status. Form 760 offers Single, Married Filing Jointly and two separate statuses, and the instructions send a federal head of household or qualifying surviving spouse to Filing Status 1 — SINGLE. So a Virginia widow takes the $8,750 standard deduction and one $930 exemption, not the joint figures, which is $556.60 a year and is the opposite of the federal treatment: § 2(a) gives the same filer the JOINT rate schedule. This package used the joint figures until v0.23.0.',
   'Itemizing is not a choice in Virginia. § 58.1-322.03(1)(a) compels a filer who itemized federally to itemize here too — even where the Virginia standard deduction is larger — and the Virginia itemized figure is the federal one LESS the state and local income tax inside it, which is the largest line on most schedules. This package applies the compulsion when stateItemizedDeductions is supplied and falls back to the standard deduction, with this note, when it is not.',
   'The Credit for Low Income Individuals ($300 per exemption) and the Virginia earned income credit (20% of the federal one) are ALTERNATIVES, not additions: § 58.1-339.8 allows exactly one. This package computes both and takes whichever leaves the filer better off, which turns on refundability rather than size — $300 a head is capped at the Virginia tax, the 20% match is refundable, so a family under the poverty guideline with no tax is better off with the smaller number.',
   'Since tax year 2025 Virginia\'s refundable earned income credit has been 20% of the federal credit — the same rate as the non-refundable one in § 58.1-339.8.B.2 — which leaves the non-refundable option dominated at every income and never the right election. It is still on the return. Both are scheduled at 20% for 2025 and 2026 by the Appropriation Act rather than by the Code.',
@@ -188,6 +189,19 @@ export function virginia(year: number): StateIncomeTaxDefinition | undefined {
         // coincidence rather than by rule.
         separate: 8_750,
         headOfHousehold: 8_750,
+        // Virginia has no surviving-spouse status. Form 760 offers Single,
+        // Married Filing Jointly, Married Filing Separately and Married Filing
+        // Separately On A Combined Return, and the instructions send a federal
+        // head of household OR qualifying surviving spouse to Filing Status 1,
+        // SINGLE. `byStatus` defaults this status to the joint figure because
+        // that is the near-universal rule; Virginia is the second state here
+        // where it is wrong, after Georgia, and it was wrong by $556.60 a year
+        // — $8,750 of deduction and $930 of exemption at 5.75%.
+        //
+        // The age deduction and filing thresholds below already said single.
+        // Two figures in one state disagreeing about one filing status is what
+        // a default you never have to write looks like when it is wrong.
+        qualifyingSurvivingSpouse: 8_750,
       }),
     },
     itemizedDeduction: {
@@ -204,7 +218,14 @@ export function virginia(year: number): StateIncomeTaxDefinition | undefined {
       }),
     },
     exemption: {
-      perFiler: byStatus({ single: 930, joint: 1_860, separate: 930, headOfHousehold: 930 }),
+      perFiler: byStatus({
+        single: 930,
+        joint: 1_860,
+        separate: 930,
+        headOfHousehold: 930,
+        // Single, for the same reason as the standard deduction above.
+        qualifyingSurvivingSpouse: 930,
+      }),
       perDependent: 930,
       // § 58.1-322.03(2)(b). Claimed for age AND for blindness, so a blind filer
       // of 65 claims both — which this package's one-per-condition shape cannot

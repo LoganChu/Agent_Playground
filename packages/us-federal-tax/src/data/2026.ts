@@ -360,6 +360,17 @@ export const YEAR_2026: YearParameters = {
         // Not halved. § 24(b)(2)(B) gives $200,000 to everyone who is not filing
         // jointly, which is one of the few places the code does not halve a joint
         // figure for a separate return.
+        //
+        // UNRESOLVED, and left alone deliberately: by that reading a qualifying
+        // surviving spouse should take $200,000 too, and Form 8812 says
+        // "$400,000 if married filing jointly; $200,000 all other filing
+        // statuses". The joint figure below is what PolicyEngine-US also carries
+        // from 2018, and irs.gov is blocked here, so the worksheet cannot be
+        // read first-hand. It is one figure, not an `if`, and no differential
+        // case reaches it — the grid's surviving spouse earns $45,000. Contrast
+        // the earned income credit, where the Revenue Procedure's own row
+        // heading settles the same question and this package was wrong until
+        // Day 26.
         marriedFilingSeparately: 200_000,
         headOfHousehold: 200_000,
         qualifyingSurvivingSpouse: 400_000,
@@ -397,6 +408,21 @@ export const YEAR_2026: YearParameters = {
   // The completed phase-out amounts are *derived* here rather than stored —
   // `phaseOutStart + maximumCredit / phaseOutRate` — and `test/credits.test.js`
   // pins the derived values against the published ones.
+  // A QUALIFYING SURVIVING SPOUSE TAKES THE SINGLE FIGURE HERE, and it is the one
+  // place in this file where that status does not follow the joint column.
+  //
+  // § 32(b)(2)(B) increases the phaseout amount "in the case of a joint return",
+  // and a surviving spouse does not file one — § 2(a) applies the joint RATE
+  // SCHEDULE to them and says nothing about this. The Revenue Procedure agrees
+  // and prints it in the row heading: "Threshold Phaseout Amount (Single,
+  // Surviving Spouse, or Head of Household)" against a separate row for married
+  // filing jointly.
+  //
+  // This package gave them the joint figure until Day 26, which OVERSTATED a
+  // refundable credit by up to the phase-out rate times the gap — $1,161.75 for
+  // a surviving spouse with one child and $45,000 of wages in 2026. A
+  // differential case with that filing status found it on the day the status
+  // was first put in the grid; twenty-five days of grids had never filed one.
   earnedIncomeCredit: {
     table: [
       // No qualifying children. Max credit $664 at $8,680 of earned income.
@@ -409,7 +435,7 @@ export const YEAR_2026: YearParameters = {
           marriedFilingJointly: 18_140,
           marriedFilingSeparately: 10_860,
           headOfHousehold: 10_860,
-          qualifyingSurvivingSpouse: 18_140,
+          qualifyingSurvivingSpouse: 10_860,
         },
       },
       // One qualifying child. Max credit $4,427 at $13,020 of earned income.
@@ -422,7 +448,7 @@ export const YEAR_2026: YearParameters = {
           marriedFilingJointly: 31_160,
           marriedFilingSeparately: 23_890,
           headOfHousehold: 23_890,
-          qualifyingSurvivingSpouse: 31_160,
+          qualifyingSurvivingSpouse: 23_890,
         },
       },
       // Two qualifying children. Max credit $7,316 at $18,290 of earned income.
@@ -435,7 +461,7 @@ export const YEAR_2026: YearParameters = {
           marriedFilingJointly: 31_160,
           marriedFilingSeparately: 23_890,
           headOfHousehold: 23_890,
-          qualifyingSurvivingSpouse: 31_160,
+          qualifyingSurvivingSpouse: 23_890,
         },
       },
       // Three or more. Same $18,290 earned income amount as two children, but a
@@ -449,7 +475,7 @@ export const YEAR_2026: YearParameters = {
           marriedFilingJointly: 31_160,
           marriedFilingSeparately: 23_890,
           headOfHousehold: 23_890,
-          qualifyingSurvivingSpouse: 31_160,
+          qualifyingSurvivingSpouse: 23_890,
         },
       },
     ],

@@ -1157,22 +1157,44 @@ function exemptionCredit(
   if (!rule) return 0;
   const status = input.filingStatus;
   const dependents = dependentCount(input);
-  const exemptions = filerCount(status) + dependents;
-  const full = rule.perFiler[status] + rule.perDependent * dependents;
+  // California claims an additional personal exemption for each filer at 65 and
+  // another for each who is blind, and the two stack on one person: § 17054(c)
+  // and (d) are separate subdivisions with separate boxes on Form 540. A single
+  // blind filer of 65 therefore claims THREE personal exemptions.
+  const seniors = rule.perSeniorFiler !== undefined ? seniorFilers(input, rule.seniorAge ?? 65) : 0;
+  const blind =
+    rule.perBlindOrDisabledFiler !== undefined
+      ? Math.min(nonNegative(input.blindOrDisabled, 'blindOrDisabled'), filerCount(status))
+      : 0;
   // Ohio's is switched off rather than tapered: § 5747.022 allows the $20 only
   // below $30,000 of modified AGI, so a family of four loses $80 on one dollar.
   if (rule.incomeLimit !== undefined && measured(measures, rule.incomeMeasure) >= rule.incomeLimit) {
     return 0;
   }
+  const lines: readonly (readonly [number, number])[] = [
+    [filerCount(status), rule.perFiler[status] / filerCount(status)],
+    [seniors, rule.perSeniorFiler ?? 0],
+    [blind, rule.perBlindOrDisabledFiler ?? 0],
+    [dependents, rule.perDependent],
+  ];
+  const full = lines.reduce((sum, [count, each]) => sum + count * each, 0);
   if (!rule.phaseOut) return full;
   const excess = input.federal.adjustedGrossIncome - rule.phaseOut.start[status];
   if (excess <= 0) return full;
   // "$6 for each $2,500, or fraction thereof" — a partial increment counts in
   // full, so the phase-out is a staircase and one dollar over a step costs $6
   // per exemption claimed.
-  const increments = Math.ceil(excess / rule.phaseOut.increment[status]);
-  const reduction = increments * rule.phaseOut.amountPerIncrement * exemptions;
-  return Math.max(0, full - reduction);
+  //
+  // And it is subtracted from each LINE of Form 540 separately, with that line
+  // floored at zero: the AGI Limitation Worksheet says "if zero or less, enter
+  // -0-" four times rather than once at the bottom. The difference is real
+  // because the lines are different sizes — a `$475` dependent credit survives
+  // a reduction that has already taken a `$153` personal credit to nothing, and
+  // netting the whole return in one subtraction lets the dead personal credit
+  // eat into the live dependent one.
+  const perExemption = Math.ceil(excess / rule.phaseOut.increment[status]) *
+    rule.phaseOut.amountPerIncrement;
+  return lines.reduce((sum, [count, each]) => sum + count * Math.max(0, each - perExemption), 0);
 }
 
 function taxpayerCredit(

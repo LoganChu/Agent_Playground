@@ -7,7 +7,61 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.22.0: **two credits that turn on facts no income figure carries.**
+New in 0.23.0: **two conditions a rate table cannot hold, and one filing status
+nothing had ever filed.**
+
+**A qualifying surviving spouse is ONE person.** `perPerson()` — the helper that
+builds a per-head exemption table — gave that status the joint figure, because
+that is the near-universal rule for a *statutory* amount and is right for a
+standard deduction. It is not right for a count of people: the spouse is dead,
+the return has one filer on it, and every state form asks the filer to tick a box
+for themselves and another for a spouse **if filing jointly**. Illinois, Indiana
+and Michigan were each giving a widow an exemption for a person who was not there
+— `$141.08`, `$49.70` and `$246.50` a year.
+
+**And Virginia has no surviving-spouse status at all.** Form 760 sends a federal
+head of household *or* qualifying surviving spouse to Filing Status 1, **Single**,
+so a Virginia widow takes the `$8,750` standard deduction and one `$930` exemption
+rather than the joint figures: `$556.60` a year. Virginia's own age deduction and
+filing thresholds in this package already said single; the standard deduction and
+the exemption did not. Two figures in one state disagreeing about one filing
+status is what a default you never have to write looks like when it is wrong.
+
+New in 0.23.0 as well: **two conditions a rate table cannot hold — being 65, and being blind.**
+
+Six states here already added an exemption for blindness. Four more provisions
+existed and had no rule, and all four are now computed:
+
+| | | worth |
+| --- | --- | --- |
+| **California** | one more exemption **credit** at 65, and one more for blindness — `$153` each, Form 540 lines 8 and 9 | `$306` a year to a retired couple |
+| **Michigan** | the `$3,400` special exemption, MCL 206.30(3)(a) — blindness, deafness, or total disability under 66 | `$144.50` |
+| **Mississippi** | `$1,500` at 65 and `$1,500` for blindness, § 27-7-21(f) and (g) | `$60` a box |
+
+California's are **credits**, so they are worth the same `$306` to a retired
+couple at `$30,000` and at `$250,000` — which is the whole reason California
+states its exemptions that way, and the reason an engine that models them as
+deductions is wrong in both directions. They are claimed **per person**, and
+§ 17054(c) and (d) stack on one person: a blind Californian of 65 claims three
+personal exemptions.
+
+Also fixed in California: the AGI limitation on the exemption credits is applied
+to each **line** of Form 540 and floored at zero there, not netted across the
+return. Above about `$315,000` a single filer's `$153` personal credit is already
+gone and the `$475` dependent credit is not, and one subtraction across both
+would let the dead credit eat the live one.
+
+And a defect in the MCP server that these found: `blindOrDisabled` was refused
+for every state outside a hand-written `['NJ', 'IL', 'IN']`, so a **Maryland**
+caller was refused a field Maryland's own note tells them to pass — and
+Massachusetts and Virginia the same. The list is now derived from the engine.
+
+Why it took twenty-five days: the differential grid had **no blind filer in it
+at all**, and its only 65-year-olds were retirees in states that exempt
+retirement income, where the tax is zero either way and an exemption cannot
+show. The grid gained a `blind-worker` and a `blind-senior` on the same day.
+
+Also in 0.22.0: **two credits that turn on facts no income figure carries.**
 
 **Georgia's eligible itemizer tax credit** (O.C.G.A. § 48-7-27.1) is `$300` for each
 taxpayer — `$600` on a joint return — and its only test is which box was ticked on the
@@ -130,7 +184,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.22.0/us-state-tax-0.22.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.23.0/us-state-tax-0.23.0.tgz
 ```
 
 ## The rate is the easy part

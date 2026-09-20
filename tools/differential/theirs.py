@@ -15,8 +15,12 @@ The cases file is written by `cases.mjs`, so both sides answer bytes that came
 from the same generator rather than two transcriptions of the same idea.
 """
 
+import hashlib
 import json
+import os
 import sys
+
+from importlib.metadata import version
 
 from policyengine_us import Simulation
 
@@ -25,6 +29,7 @@ STATUS = {
     "marriedFilingJointly": "JOINT",
     "marriedFilingSeparately": "SEPARATE",
     "headOfHousehold": "HEAD_OF_HOUSEHOLD",
+    "qualifyingSurvivingSpouse": "SURVIVING_SPOUSE",
 }
 
 # Every figure both models are asked for. The federal ones are state-independent
@@ -56,18 +61,40 @@ def situation(case):
         people[name] = {"age": {year: age}, **{k: {year: v} for k, v in income.items()}}
         members.append(name)
 
+    blind = case.get("blind", 0)
     add(
         "primary",
         case["primaryAge"],
         employment_income=case["wages"],
-        taxable_pension_income=case["pension"],
+        # `taxable_private_pension_income`, NOT `taxable_pension_income`.
+        #
+        # The second is a sum of the public and private variables, and setting a
+        # sum as an input does not reach the parts. New York's pension exclusion
+        # reads the PARTS — `taxable_private_pension_income` and the three
+        # account types beside it — so a case fed through the total was answered
+        # by a New York that could not see the pension at all, and the harness
+        # was asking the two models different questions for six households.
+        #
+        # It surfaced on Day 26 as a $1,120 New York disagreement that had not
+        # been there on Day 25, and the cause was an upgrade of the reference
+        # model rather than a change in either engine. Which is the lesson: a
+        # committed answer from an independent model has a VERSION, and nothing
+        # in this harness recorded it until now — see `out/theirs.meta.json`.
+        #
+        # Private is the faithful reading: `ours.mjs` puts the same dollars in
+        # `employerPlanPension`, and this package keeps a government pension in
+        # a field of its own because New York exempts that one in full.
+        taxable_private_pension_income=case["pension"],
         social_security_retirement=case["socialSecurity"],
         long_term_capital_gains=case["longTermCapitalGains"],
         tax_exempt_interest_income=case["taxExemptInterest"],
+        # A count on the case, spent on the head first and then the spouse —
+        # the same assignment `ours.mjs` makes from `blindOrDisabled`.
+        is_blind=blind >= 1,
     )
     marital_units = {}
     if case["spouseAge"] is not None:
-        add("spouse", case["spouseAge"])
+        add("spouse", case["spouseAge"], is_blind=blind >= 2)
         marital_units["primary_marital"] = {"members": ["primary", "spouse"]}
     else:
         marital_units["primary_marital"] = {"members": ["primary"]}
@@ -125,8 +152,39 @@ def run(case):
 
 
 def main():
-    with open(sys.argv[1], encoding="utf-8") as handle:
-        all_cases = json.load(handle)
+    with open(sys.argv[1], "rb") as handle:
+        raw = handle.read()
+    all_cases = json.loads(raw.decode("utf-8"))
+
+    # The fingerprint of the exact bytes this run answered.
+    #
+    # `out/theirs.json` is committed so that CI can run the cheap half of the
+    # differential on every push, and for a month nothing checked that the
+    # committed answers were answers to the CURRENT grid. Widen `cases.mjs`, and
+    # every old id still resolves while every changed case is silently compared
+    # against the answer to a different question. Day 25 named this as the loose
+    # thread; this is the knot.
+    digest = hashlib.sha256(raw).hexdigest()
+    out_dir = os.path.dirname(os.path.abspath(sys.argv[1]))
+    with open(os.path.join(out_dir, "theirs.cases.sha256"), "w", encoding="utf-8") as handle:
+        handle.write(digest + "\n")
+    # And the version of the model that answered. Day 26 spent an hour on a New
+    # York difference that neither engine had caused: PolicyEngine-US had been
+    # upgraded between one run and the next, and the committed answers carried
+    # nothing to say so. A reference model is only a reference if you can name
+    # which one.
+    with open(os.path.join(out_dir, "theirs.meta.json"), "w", encoding="utf-8") as handle:
+        json.dump(
+            {
+                "policyengine_us": version("policyengine-us"),
+                "cases_sha256": digest,
+                "cases": len(all_cases),
+            },
+            handle,
+            indent=1,
+        )
+        handle.write("\n")
+
     results = {}
     for i, case in enumerate(all_cases):
         results[case["id"]] = run(case)

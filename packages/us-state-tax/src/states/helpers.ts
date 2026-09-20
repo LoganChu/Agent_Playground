@@ -38,6 +38,22 @@ export function uniform(amount: number): ByStatus {
 /**
  * The common per-exemption pattern: one for a single filer, two on a joint return.
  * Married filing separately gets one; head of household gets one.
+ *
+ * **And ONE for a qualifying surviving spouse**, which is where this helper
+ * differs from {@link byStatus} and why it has to say so. `byStatus` defaults
+ * that status to the joint figure, because a *statutory* figure for a surviving
+ * spouse usually is the joint one — § 63(c)(2)(A) says so for the federal
+ * standard deduction and most states follow.
+ *
+ * This is not a statutory figure. It is a count of people, and a surviving
+ * spouse is one person: the spouse is dead, the return has one filer on it, and
+ * every state form that asks for this asks the filer to tick a box for
+ * themselves and another for a spouse *if filing jointly*. Taking the joint
+ * amount gives a widow an exemption for a person who is not there.
+ *
+ * It was doing exactly that until Day 26, in Illinois, Indiana and Michigan —
+ * `$141.08`, `$49.70` and `$246.50` a year — and no test saw it because no case
+ * in the differential grid had ever filed as a surviving spouse.
  */
 export function perPerson(amount: number): ByStatus {
   return byStatus({
@@ -45,6 +61,7 @@ export function perPerson(amount: number): ByStatus {
     joint: amount * 2,
     separate: amount,
     headOfHousehold: amount,
+    qualifyingSurvivingSpouse: amount,
   });
 }
 

@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.25.0/us-tax-mcp-0.25.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.26.0/us-tax-mcp-0.26.0.tgz"
       ]
     }
   }
@@ -156,7 +156,21 @@ tool says in its own output rather than only here.
 
 ## State tax: the rate is the easy part
 
-**New in 0.25.0 — two credits that turn on a fact no income figure carries.**
+**New in 0.26.0 — being 65 and being blind, in the three states that had the
+provision and no rule.** CALIFORNIA claims one more exemption CREDIT at 65 and
+one more for blindness, `$153` each and claimed per person, so a retired couple
+was charged `$306` too much every year; because they are credits they are worth
+the same at every rate and every income, and they stack on one person.
+MICHIGAN's special exemption is `$3,400` — the largest here, and it covers
+deafness and total disability under 66 as well. MISSISSIPPI adds `$1,500` for
+each, on the same line as the dependents. Pass `filerAge`, `spouseAge` and
+`blindOrDisabled` — and `blindOrDisabled` is now accepted for every state that
+reads it, which it was not: the list was a hand-written `['NJ', 'IL', 'IN']`
+that had been wrong since the day it was written, so this server refused
+MARYLAND callers a figure the Maryland return needs. It is derived from the
+engine now. `filerAge` and `spouseAge` were refused for California too.
+
+**Also in 0.25.0 — two credits that turn on a fact no income figure carries.**
 **Georgia's eligible itemizer tax credit** (O.C.G.A. § 48-7-27.1) pays `$300` a taxpayer,
 `$600` joint, for the federal itemizing election alone — no income test at any level. Pass
 `federalItemized`, which this server refused for Georgia until now, and which is worth

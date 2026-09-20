@@ -503,6 +503,7 @@ const MI_CITATIONS: readonly Citation[] = [
 ];
 
 const MI_NOTES: readonly string[] = [
+  'Michigan\'s SPECIAL exemption (MCL 206.30(3)(a), MI-1040 line 9) is $3,400 for 2025 — the largest allowance for blindness in this package, worth $144.50 of Michigan tax against Illinois\'s $49.50 and Indiana\'s $29.50. It is allowed for a filer or spouse who is blind, DEAF, hemiplegic, paraplegic, quadriplegic, or totally and permanently disabled under 66, and this package computes it from `blindOrDisabled`, which covers all of those. Two gaps: it is also allowed for a qualifying DEPENDENT, which `blindOrDisabled` counts only the filer and spouse for; and MCL 206.30(3)(b) allows a further exemption for a qualified disabled VETERAN, which this package does not model. Neither was computed before v0.23.0, and nor was the filer\'s own.',
   "Michigan's rate briefly fell to 4.05% for tax year 2023 under the MCL 206.51(1)(c) revenue trigger and returned to 4.25% for 2024. The trigger is a one-year reduction, not a permanent one, and the Michigan Supreme Court declined to make it permanent — a 2023 figure carried forward is 4.7% too low.",
   'Michigan cities levy their own income taxes on a base of their own — Detroit at 2.4% for residents and 23 other cities, all computed here: pass `city`, and `workCity` for a city the filer works in but does not live in. The city base is NOT the MI-1040\'s: the Uniform City Income Tax Ordinance excludes pensions, IRA distributions, Social Security, unemployment compensation and military pay entirely, and its personal exemption is the $600 fixed in 1964 rather than the indexed state one.',
   'Michigan\'s deduction for retirement and pension income is computed here from v0.19.0 — pass `retirement` (or `retirementIncome`) and do NOT also put the pension in `subtractions`, which is what this note said to do before. Public Act 4 of 2023 is restoring the deduction Michigan repealed in 2011 a quarter at a time: 25% for 2023, 50% for 2024, 75% for 2025 and the whole of it from 2026. A model that stores the 2026 rule and runs it on a 2025 return overstates the deduction by a third.',
@@ -552,7 +553,16 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'flat', rate: 0.0425 },
     deduction: { kind: 'none' },
-    exemption: { perFiler: perPerson(exemption), perDependent: exemption },
+    exemption: {
+      perFiler: perPerson(exemption),
+      perDependent: exemption,
+      // MCL 206.30(3)(a) — the 'special exemption', MI-1040 line 9. $3,400 for
+      // 2025, indexed, and the largest exemption for blindness in this package
+      // by a factor of three: $144.50 of Michigan tax against Illinois's and
+      // Indiana's $42.50 and $29.50. Carried forward for 2026 with the
+      // personal exemption beside it, for the same reason.
+      perBlindOrDisabledFiler: 3_400,
+    },
     earnedIncomeCredit: {
       name: 'Michigan earned income tax credit for working families',
       matchRate: 0.3,
@@ -591,7 +601,7 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the $5,800 personal exemption is the published 2025 figure carried forward. Michigan indexes it annually under MCL 206.30(2) and no 2026 amount was reachable when this was written; one published dataset carries $5,900, which would be $4.25 less tax per exemption. The 4.25% rate is set by statute and is correct, and the CITY income taxes computed alongside it are not affected either way — a city exemption is $600 by ordinance and does not index.',
+            'PROVISIONAL: the $5,800 personal exemption and the $3,400 special exemption are the published 2025 figures carried forward. Michigan indexes it annually under MCL 206.30(2) and no 2026 amount was reachable when this was written; one published dataset carries $5,900, which would be $4.25 less tax per exemption. The 4.25% rate is set by statute and is correct, and the CITY income taxes computed alongside it are not affected either way — a city exemption is $600 by ordinance and does not index.',
             ...MI_NOTES,
           ]
         : MI_NOTES,
@@ -719,6 +729,12 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
     exemption: {
       perFiler: byStatus({ single: 6000, joint: 12000, separate: 6000, headOfHousehold: 8000 }),
       perDependent: 1500,
+      // § 27-7-21(f) and (g). Form 80-105 counts them on the same line as the
+      // dependents and multiplies the lot by $1,500 — which is why an engine
+      // that reads the dependent figure off a rate table and stops misses both.
+      perSeniorFiler: 1500,
+      seniorAge: 65,
+      perBlindOrDisabledFiler: 1500,
     },
     // § 27-7-15(4)(k). Uncapped, like Illinois — and unlike Illinois, gated on
     // retirement age, because (l) leaves a premature distribution fully taxable.
@@ -730,6 +746,7 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
       },
     ],
     notes: [
+      'Mississippi allows an additional $1,500 exemption for each filer at 65 (§ 27-7-21(f)) and another $1,500 for each who is blind (§ 27-7-21(g)), and Form 80-105 counts them on the SAME line as the dependents before multiplying by $1,500 — so a table that reports Mississippi\'s exemption as $6,000/$12,000 plus $1,500 a dependent has described three of the four boxes. They stack on one person. Pass `filerAge`, `spouseAge` and `blindOrDisabled`; worth $60 a box in 2026 and $66 in 2025, and $120 to a couple both 65 with wage income. Neither was computed here before v0.23.0.',
       'The first $10,000 of Mississippi taxable income is taxed at 0%, and that bracket is per return: it is not doubled on a joint return, even though the exemption and the standard deduction both are.',
       "Mississippi's rate falls from 4.7% in 2024 to 4.4% in 2025 and 4.0% in 2026 under the Build Up Mississippi Act, with further reductions toward zero conditional on revenue triggers.",
       'Mississippi does not tax qualified retirement income — § 27-7-15(4)(k) — and from v0.19.0 this package applies that itself from `retirement` or `retirementIncome`. Social Security is subtracted separately from `taxableSocialSecurity`. DO NOT ALSO PUT THE PENSION IN `subtractions`, which is what the note here said to do before v0.19.0: doing both subtracts it twice.',

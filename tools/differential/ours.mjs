@@ -59,6 +59,8 @@ function one(c) {
     taxExemptInterest: c.taxExemptInterest,
     age: c.primaryAge,
     spouseAge65OrOlder: c.spouseAge !== null && c.spouseAge >= 65,
+    blind: c.blind >= 1,
+    spouseBlind: c.blind >= 2,
     ...counts,
   });
 
@@ -81,6 +83,7 @@ function one(c) {
     },
     filerAge: c.primaryAge,
     spouseAge: c.spouseAge ?? undefined,
+    blindOrDisabled: c.blind || undefined,
     taxableSocialSecurity: fed.socialSecurity?.taxableBenefits ?? 0,
     taxExemptInterest: c.taxExemptInterest,
     // The same dollars again, under the name Illinois's addition asks for.

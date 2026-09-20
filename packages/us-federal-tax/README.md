@@ -12,7 +12,20 @@ the IRS release it came from.
 
 **Tax years 2024, 2025 and 2026.**
 
-New in 0.9.0, and it is a **correction**: `age` and `age65OrOlder` are two fields for
+New in 0.10.0, and it is a **correction**: a **qualifying surviving spouse** was
+getting the joint earned income credit phase-out threshold. § 32(b)(2)(B) raises the
+threshold "in the case of a joint return", and a surviving spouse does not file one —
+§ 2(a) hands them the joint *rate schedule* and says nothing about § 32. The Revenue
+Procedure prints the grouping in the row heading it uses: "Threshold Phaseout Amount
+(Single, Surviving Spouse, or Head of Household)". So the threshold is the single one,
+in every year this package covers, and the error ran in the expensive direction — it
+**overstated a refundable credit** for someone who has just lost a spouse, by up to
+`$1,161.75` with one child at `$45,000` of wages in 2026.
+
+It is the one place in this package where that filing status does not follow the joint
+column, and it was found the first time a differential case used the status at all.
+
+Also in 0.9.0, and it is a **correction**: `age` and `age65OrOlder` are two fields for
 two different statutes — `age` is the § 32 earned income credit test, `age65OrOlder`
 the § 63(f) additional standard deduction and the `$6,000` Schedule 1-A senior
 deduction — and until now supplying only the first left the second false. A 67-year-old
@@ -24,7 +37,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.9.0/us-federal-tax-0.9.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.10.0/us-federal-tax-0.10.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.

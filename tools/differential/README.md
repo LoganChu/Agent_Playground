@@ -24,6 +24,7 @@ disagreement about the question:
 | `theirs.py` | runs PolicyEngine-US over the same JSON |
 | `compare.mjs` | joins the two and reports every difference over a dollar |
 | `known-divergences.json` | the differences that have a recorded reason |
+| `out/theirs.cases.sha256` | the fingerprint of the grid PolicyEngine last answered |
 
 Both runners read the **same** `out/cases.json`, so neither side can quietly
 answer a different question from the one the other was asked.
@@ -33,6 +34,34 @@ interpretation — a wage, a pension distribution, a Social Security benefit, a
 long-term gain, tax-exempt interest, and the ages of the people in the house.
 Itemised deductions, businesses and localities are left out: a disagreement
 about one of those would be a disagreement about this harness.
+
+## The grid, and why it was widened on Day 26
+
+The first grid was 23 household shapes across 19 states, 437 cases, and by
+Day 25 every difference it produced had a written reason. **That is not the same
+as the two engines agreeing** — it means the grid has stopped finding things.
+
+So Day 26 added ten shapes, each one a case an existing shape was a special case
+of: a married couple with no children (the grid had a couple only *with* them),
+dependents at three different ages in one household (every per-child credit here
+bands on age and the only children in the grid were 3 and 8), a single parent of
+a teenager, a separate return *with* a child, a **qualifying surviving spouse**
+— the fifth filing status, which no case had ever used — an early retiree and an
+early-retired couple below every age test in the package, and a blind worker and
+a blind senior, because **no case in the grid had ever been blind**.
+
+The last of those is the reason three states' aged and blind allowances went
+unmodelled for twenty-five days. California's senior and blind exemption
+*credits*, Michigan's `$3,400` special exemption and Mississippi's two `$1,500`
+exemptions were all missing, and the grid could not see any of them: it had no
+blind filer at all, and its only 65-year-olds were retirees in states that
+exempt retirement income, where the tax is zero either way and an exemption
+cannot show.
+
+**The lesson is about coverage rather than about tax.** A differential test finds
+a difference between two answers to a question somebody asked. A question nobody
+asks has no answer to differ from, and a report of zero unexplained differences
+says nothing whatever about it.
 
 ## Running it
 
@@ -52,9 +81,19 @@ node   tools/differential/ours.mjs          > tools/differential/out/ours.json
 node   tools/differential/compare.mjs       > tools/differential/REPORT.md
 ```
 
-The PolicyEngine pass is the slow one — about a second a household, so ten
+The PolicyEngine pass is the slow one — about a second a household, so eleven
 minutes for the grid. It needs no network once installed: a `Simulation` built
 from a situation dict downloads nothing.
+
+**It is also the half that can go stale, and until Day 26 nothing said so.**
+`out/theirs.json` is committed so CI can run the cheap half on every push; the
+price is that widening or editing `cases.mjs` leaves those answers attached to a
+grid that no longer exists — every surviving id still resolves and every changed
+case is then compared against the answer to a different question. `theirs.py`
+now writes the SHA-256 of the cases file it read to `out/theirs.cases.sha256`,
+and `compare.mjs` refuses to produce a report when it does not match. So the
+rule is simply: **if `cases.mjs` changed, re-run the PolicyEngine pass**, and the
+harness will tell you if you forgot.
 
 `out/` holds the two models' raw answers and is committed, so a future run can
 diff today's report against yesterday's without re-running either side.
@@ -68,7 +107,7 @@ unexplained differences are printed first and largest-first.
 An unexplained difference is not a bug in this project. It is a question, and it
 has three possible answers: this package is wrong, PolicyEngine is wrong, or the
 statute is ambiguous and the two readings are both defensible. All three have
-happened here. What the harness buys is that the question gets **asked**, on 437
+happened here. What the harness buys is that the question gets **asked**, on 646
 households at a time, instead of waiting for someone to notice.
 
 When one is resolved, it moves into `known-divergences.json` with the reason, so

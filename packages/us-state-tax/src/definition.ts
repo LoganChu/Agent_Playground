@@ -632,6 +632,26 @@ export interface ExemptionCreditRule {
   readonly perFiler: ByStatus;
   readonly perDependent: number;
   /**
+   * An **additional** credit for each filer at {@link seniorAge} — Form 540
+   * line 9, Cal. Rev. & Tax. Code § 17054(d).
+   *
+   * California's senior exemption is a *credit* like every other California
+   * exemption, which is what makes it worth the same to a retiree at `$30,000`
+   * and one at `$200,000` — and it is claimed **per person**, so a couple both
+   * 65 claim four personal exemptions rather than two. `$306` of California tax
+   * for the retired couple this package ranks states on, and it was missing
+   * here until v0.23.0.
+   */
+  readonly perSeniorFiler?: number;
+  readonly seniorAge?: number;
+  /**
+   * An additional credit for each blind filer — Form 540 line 8, § 17054(c).
+   *
+   * Stacks with {@link perSeniorFiler} on one person: a blind filer of 65
+   * claims three personal exemptions on a single return.
+   */
+  readonly perBlindOrDisabledFiler?: number;
+  /**
    * California's taper. Absent in Ohio, where the credit is not phased out at
    * all — it is simply switched off by {@link incomeLimit}.
    */

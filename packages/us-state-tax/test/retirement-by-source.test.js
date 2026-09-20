@@ -373,8 +373,16 @@ test('the four corrections are worth what the README says they are', () => {
   // is what every caller who did not read the note was doing.
   money(before('IL'), 2_588.85, 'Illinois before');
   money(before('MI'), 2_057.0, 'Michigan before');
-  money(before('MS'), 1_336.0, 'Mississippi before');
   money(before('NY'), 2_040.8, 'New York before');
+
+  // Mississippi's README figure is $1,336.00 and this engine now says
+  // $1,216.00 for the same household, and BOTH are right about their own
+  // version. v0.18.0 charged $1,336.00 because it was missing two things at
+  // once: the retirement subtraction this test is about, and Mississippi's
+  // $1,500 aged exemption for each filer at 65 (§ 27-7-21(f)), which v0.23.0
+  // added. The gap is exactly those two exemptions at the 2026 rate.
+  money(before('MS'), 1_216.0, 'Mississippi before, as this engine computes it');
+  money(1_336 - 1_216, 3_000 * 0.04, 'and the difference is the two aged exemptions at 4.0%');
 
   money(after('IL'), 0, 'Illinois after');
   money(after('MI'), 0, 'Michigan after');

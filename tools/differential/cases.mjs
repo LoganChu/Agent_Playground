@@ -93,6 +93,112 @@ const SHAPES = [
     pension: 60_000,
     taxExemptInterest: 10_000,
   },
+
+  // ---------------------------------------------------------------------
+  // Day 26: the shapes the first grid did not have.
+  //
+  // Zero unexplained differences means the grid has stopped finding things,
+  // not that the two engines agree. Every shape below is one an existing
+  // shape is a special case of — an age the grid never asked about, a
+  // dependent the grid never aged, a status the grid never filed, a
+  // condition the grid never had.
+  // ---------------------------------------------------------------------
+
+  // A married couple with no children. The grid had a couple only WITH
+  // children and a single worker only without, so no case separated the
+  // effect of the joint schedule from the effect of the dependents.
+  ...[25_000, 75_000].map((wages) => ({
+    kind: 'couple-no-children',
+    filingStatus: 'marriedFilingJointly',
+    primaryAge: 45,
+    spouseAge: 43,
+    wages,
+  })),
+
+  // Dependents at three different ages inside one household. Every
+  // per-child credit in this package bands on age — Georgia at 6, Utah at
+  // 6, Illinois at 12, New York at 4 and 17, Indiana at 19 — and a grid
+  // whose only children are 3 and 8 cannot tell a band edge from a rate.
+  ...[40_000, 90_000].map((wages) => ({
+    kind: 'mixed-dependents',
+    filingStatus: 'marriedFilingJointly',
+    primaryAge: 42,
+    spouseAge: 40,
+    childAges: [2, 7, 14],
+    wages,
+  })),
+
+  // A single parent whose child is too old for every young-child credit and
+  // still inside § 24. The grid's only single parent has a five-year-old.
+  {
+    kind: 'single-parent-teen',
+    filingStatus: 'headOfHousehold',
+    primaryAge: 44,
+    childAges: [16],
+    wages: 35_000,
+  },
+
+  // A separate return WITH a child. The grid's separate return has none, and
+  // married-filing-separately is the status states disqualify from credits
+  // rather than halve — which only shows on a return that would have had one.
+  {
+    kind: 'separate-with-child',
+    filingStatus: 'marriedFilingSeparately',
+    primaryAge: 38,
+    childAges: [6],
+    wages: 45_000,
+  },
+
+  // A qualifying surviving spouse: the fifth filing status, and the one no
+  // case in the grid had ever used. Most states give it the joint figures;
+  // Georgia gives it the single ones and this package's new itemizer credit
+  // counts it as ONE taxpayer where `filerCount()` says two.
+  {
+    kind: 'surviving-spouse',
+    filingStatus: 'qualifyingSurvivingSpouse',
+    primaryAge: 41,
+    childAges: [10],
+    wages: 45_000,
+  },
+
+  // An early retiree, below every age test in the package. Day 24 built four
+  // states' retirement subtractions and every retiree in the grid was 67 or
+  // older, so no case could tell Illinois's absence of an age test from
+  // Georgia's 62, New York's 59 1/2 or Maryland's 65.
+  {
+    kind: 'early-retiree',
+    filingStatus: 'single',
+    primaryAge: 56,
+    pension: 50_000,
+  },
+  {
+    kind: 'early-retired-couple',
+    filingStatus: 'marriedFilingJointly',
+    primaryAge: 57,
+    spouseAge: 55,
+    pension: 70_000,
+  },
+
+  // Blindness. Three states here add an exemption for it, the federal
+  // standard deduction adds to itself for it, and no case had ever set it.
+  {
+    kind: 'blind-worker',
+    filingStatus: 'single',
+    primaryAge: 40,
+    wages: 40_000,
+    blind: 1,
+  },
+  // And a blind filer who is also 65, because Indiana and Illinois stack the
+  // two exemptions on one person and a grid with neither condition in it
+  // cannot show that they stack.
+  {
+    kind: 'blind-senior',
+    filingStatus: 'single',
+    primaryAge: 70,
+    socialSecurity: 20_000,
+    pension: 25_000,
+    blind: 1,
+  },
 ];
 
 /**
@@ -137,6 +243,11 @@ export function cases(year = 2026) {
         socialSecurity: shape.socialSecurity ?? 0,
         longTermCapitalGains: shape.longTermCapitalGains ?? 0,
         taxExemptInterest: shape.taxExemptInterest ?? 0,
+        // How many of the filer and spouse are blind. Deliberately a count
+        // rather than two flags, because that is the shape both models take it
+        // in: this package's `blindOrDisabled` and PolicyEngine's per-person
+        // `is_blind` on the head and then the spouse.
+        blind: shape.blind ?? 0,
         county: COUNTY[state] ?? null,
         kind: shape.kind,
       });
