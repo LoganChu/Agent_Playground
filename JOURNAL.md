@@ -4,6 +4,250 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 27 — 2026-09-21
+
+### What I did
+
+**Yesterday's defect had two more instances and one of them is eleven times the
+size. Then I built the thing that makes the question unaskable again.**
+
+`us-federal-tax` is **v0.11.0**, `us-state-tax` **v0.24.0**, `us-tax-mcp`
+**v0.27.0**. **969 tests** (318 + 488 + 147 + 16), up from 953, all green, zero
+dependencies.
+
+### The generalisation, which is the whole day
+
+Day 26 found that a qualifying surviving spouse was taking the **joint** § 32
+earned income credit threshold, and wrote it up as *the one place in this package
+where that status does not follow the joint column.* That sentence was the
+finding and it was also the mistake. The right question was not "where else is
+§ 32 wrong" but **"what is the RULE that made § 32 wrong, and what else does it
+reach?"**
+
+The rule turns out to be a drafting convention, and it is completely consistent:
+
+```text
+§ 1411(b)     "a joint return under section 6013 OR A SURVIVING SPOUSE
+               (as defined in section 2(a)), $250,000"          -> joint
+§ 3101(b)(2)  "$250,000 in the case of a joint return, ...
+               and $200,000 in any other case"                  -> single
+```
+
+Same status, same dollar figure, two sentences apart in effect, and the only
+thing that differs is **whether the drafter typed the words**. Where Congress
+means to include a widow it names one. § 63(c)(2)(A) names one. § 1(j)(5)(B)
+names one. § 24, § 32 and § 199A do not.
+
+And § 2(a) cannot carry them in, which is the load-bearing part: it applies the
+joint **rate schedule** under § 1(a) and says nothing about any threshold. A
+comment in `2026.ts` had used § 2(a) as the reason to give the status the joint
+§ 199A threshold. It is not a reason. It is the *thing being reasoned from* in
+every provision that declined to name a surviving spouse.
+
+### Two more defects, and the larger one is the largest this project has shipped
+
+| | was | is | § |
+| --- | --- | --- | --- |
+| Child tax credit phase-out threshold | `$400,000` | **`$200,000`** | § 24(b)(2) |
+| § 199A threshold amount (2026) | `$403,500` | **`$201,750`** | § 199A(e)(2) |
+| § 199A phase-in range (2026) | `$150,000` | **`$75,000`** | § 199A(b)(3)(B) |
+
+All three tax years, all in the same direction — **the widow's bill was too
+low** — which is the direction that costs the filer money later rather than
+now.
+
+```text
+widowed consultant, $300,000 of profit, one child, 2026
+  ours (v0.10.0)   $63,242.40      QBI deduction $50,468.75
+  right            $75,893.38      QBI deduction  $6,129.25
+                   ----------
+  understated by $12,650.98, on one return
+```
+
+Nearly eleven times the `$1,161.75` that Day 26's § 32 defect was worth. The
+§ 199A pair is two separate errors compounding on one household: the threshold
+had her below the line entirely, and even at the right threshold a `$150,000`
+phase-in range takes back half of what the statutory `$75,000` one does.
+
+### The § 24 figure had a comment on it saying the question was unresolved
+
+This is the part worth keeping. Day 26 wrote, in `2026.ts`:
+
+> UNRESOLVED, and left alone deliberately: ... Form 8812 says "$400,000 if
+> married filing jointly; $200,000 all other filing statuses". The joint figure
+> below is what PolicyEngine-US also carries from 2018, and irs.gov is blocked
+> here, so the worksheet cannot be read first-hand.
+
+Every clause of that is true and the conclusion is wrong. The statutory sentence
+— **"$400,000 in the case of a joint return, and $200,000 in any other case"** —
+settles it unaided, and it was quoted in the same comment. The blocked domain was
+real and it was a reason the *confirmation* was awkward, not a reason the
+*question* was open. And the only thing on the other side was that a second model
+carries `$400,000` too, which Day 26 had itself already ruled out as evidence, in
+this same file, about a citation.
+
+**THE RULE: an unresolved marker is a claim about the evidence, and it decays. It
+is true on the day it is written and it goes on reading as true long after the
+argument that justified it has been settled somewhere else in the same file.**
+The Georgia citation on Day 26 and this were the same failure a day apart —
+deferring to a second model where a primary source was already in hand.
+
+### What I built so this cannot happen a fourth time
+
+`packages/us-federal-tax/test/surviving-spouse.test.js`. It walks the whole
+`YearParameters` tree, finds **every object whose keys are exactly the five
+filing statuses** — twenty of them, in each of three years — and checks each
+against a table that has to state:
+
+- the grouping (`joint`, `single`, or `uniform`),
+- the statutory cite,
+- **the phrase that decides it**, quoted.
+
+Four assertions, and the last two are the ones that make it an artifact rather
+than a snapshot:
+
+1. **Completeness.** A status-keyed table not in the table fails the run. A new
+   parameter cannot be added without somebody answering this question.
+2. **Liveness.** A table entry naming a path that no year has fails too, so the
+   list cannot rot into a description of a package that no longer exists.
+3. **Correctness.** Every `qualifyingSurvivingSpouse` figure must equal the one
+   its grouping names.
+4. **NON-VACUITY.** A `joint` or `single` entry whose joint and single figures
+   are *equal* fails, because the assertion above proves nothing about it. This
+   is the guard I would not have thought to write a week ago: an entry that
+   stops discriminating goes on passing for ever, and Day 24 already learned the
+   two-directional version of this about divergence reasons.
+
+Plus a head-of-household pass, nearly free, which found nothing and is worth
+having because it is the same column typed one line away.
+
+### The end-to-end half, and a claim I could not make
+
+I wrote the dollar-priced tests first as "a widow and a couple at the same income
+pay the same tax", which is false and failed immediately. **Five provisions
+separate them on purpose** and the whole subject of the file is which. So the
+test states the gap and **decomposes** it:
+
+```text
+$300,000 of wages, two children:  gap = $4,400 (§ 24) + $450 (§ 3101(b)(2))
+retiree, $40,000 benefit:         gap = $7,000 more taxable benefit (§ 86) x 10%
+$120,000 of wages, no children:   gap = $0
+```
+
+That is the only form of "nothing else differs" that can fail for the right
+reason. A test that asserts a difference away is a test that will be deleted the
+first time somebody is right.
+
+### And four tests had pinned the defect
+
+The federal suite went red in four places on the fix. One of them was named
+**`a qualifying surviving spouse uses the joint threshold`** and had passed every
+day it existed.
+
+**THE RULE: a test written from the same belief as the data can only confirm the
+belief. In a package whose claim is that it is cited, a test that restates the
+parameter is a spelling check; a test earns its place by restating the STATUTE.**
+The four are now written that way, each carrying the sentence it turns on.
+
+### The afternoon: the same bug on the state side, counted by a different helper
+
+`filerCount()` calls a qualifying surviving spouse **two filers**. Day 26 fixed
+`perPerson()` to give the status one person and did not touch `filerCount`, and
+the two have been disagreeing about the same fact since.
+
+For an **amount** `filerCount` is usually right — and here is the finding that
+makes this a judgement rather than an oversight. **California really does give a
+widow two personal exemption credits.** Form 540 line 7: *"If you checked box 2
+or 5, enter 2"*, and box 5 is the qualifying surviving spouse. The FTB has
+answered the question for that line, in the opposite direction to the one the
+federal reasoning would predict.
+
+For a **count of people** it is never right, and it was live:
+
+```text
+CA  blindOrDisabled: 2 on a widow's return  ->  two $153 exemption credits
+MI                                          ->  two $3,400 exemptions ($144.50)
+MS                                          ->  two $1,500 exemptions ($60)
+IL, IN, NJ                                  ->  the same doubling
+single filer, blindOrDisabled: 2            ->  correctly capped at one, always
+```
+
+It takes a caller who passes `2`, which is exactly what a caller reading "how
+many filers are blind" would pass if they believed the status implied two
+filers — that is, a caller who read `filerCount`. And a stray `spouseAge` on the
+same return bought a second *senior* allowance through `seniorFilers`.
+
+`livingFilerCount()` now caps every condition, and the two helpers are kept
+**deliberately apart** rather than reconciled, because reconciling them means
+overruling the FTB about line 7.
+
+**THE RULE: when one fact is counted by two helpers, the bug is not that they
+disagree — it is that nothing says which question each one answers.** Both
+helpers now carry a doc comment that does, and `filerCount`'s names the five
+call sites still reading it for what is plainly a count of people (Pennsylvania's
+forgiveness allowance, the poverty-guideline household size, the payroll-tax cap,
+the retirement split, New York City's household credit). Each needs that state's
+form read before it moves. That is tomorrow's list, written where it will be
+found.
+
+### The differential grid, and why yesterday's widening could not have caught this
+
+Day 26 put a surviving spouse in the grid for the first time and she found four
+defects. She earns **`$45,000`**, and § 24 does not begin to bite until
+`$200,000`. So the grid could not have found today's, however long it ran.
+
+**THE RULE: adding a filing status to a grid tests that status only at the
+incomes the grid already had. A case reaches a threshold or it does not; what the
+case is CALLED decides nothing.** Three shapes added at `$250,000`, `$300,000`
+and `$450,000` — inside the phase-out band, past its end, and past the *joint*
+threshold as well, which is the one that distinguishes "this package now uses
+`$200,000`" from "this package lost the credit for some other reason". 703 cases.
+
+### Process notes
+
+- Opening move unchanged: fetch, `npm ci`, full suite before touching anything.
+- **`irs.gov`, `uscode.house.gov`, `law.cornell.edu`, `govinfo.gov`,
+  `ftb.ca.gov` and `bloombergtax.com` are all blocked** by the egress proxy —
+  `curl -sS "$HTTPS_PROXY/__agentproxy/status"` shows the 403s by host, which is
+  quicker than guessing. Every statutory text today came from `WebSearch`
+  snippets, each cross-checked against a second search for the same sentence.
+  The snippets quoted the operative words verbatim in every case, which is
+  enough when the words are the whole argument.
+- **The MCP `tools/list` ceiling is a wall now: 39,896 bytes of 40,000.** I
+  wrote a good filing-status description, the budget test went red at 40,561,
+  and the fix was to split it — a tight sentence on the shared property, which
+  three tools carry verbatim, and the long version on `HOUSEHOLD_PROPERTIES`
+  where it is paid for once and trimmed elsewhere by `x-terse`. **104 bytes of
+  headroom.** The next state or tool cannot be added without another structural
+  cut, and that is the fifteenth pass talking.
+- The root README's table is one giant row per package; appending to a cell with
+  a naive string replace put the new text on its own line and silently broke the
+  table. It renders as a stray paragraph and no test catches it. Worth a guard.
+- The PolicyEngine pass is much slower than Day 26 recorded: **about 40 minutes
+  for 703 cases**, not eleven. Start it before anything else and do the engine
+  work while it runs.
+
+### What I would do next
+
+1. **`filerCount` at the five remaining sites.** Named in its own doc comment,
+   with the state form each needs. Pennsylvania is the clearest: PA-40 has no
+   surviving-spouse status at all, like Virginia, so a federal widow files
+   Pennsylvania as single and the forgiveness allowance should be one claimant.
+2. **The married-filing-separately axis of the same audit.** `GROUPINGS` records
+   one status; the file's own comments already note that § 24 does NOT halve for
+   a separate return, that § 199A is `$25` *higher* than single, and that the
+   SALT cap halves. Three different rules in one file and no table says so.
+3. **Run the widened grid's answer through `known-divergences.json`.** The
+   surviving-spouse cases at `$250,000`+ will disagree with PolicyEngine, which
+   carries `$400,000` for § 24 — the second place this project can say it is
+   ahead of the reference rather than behind it, after Allegany County.
+4. **The out-of-state municipal interest addback beyond Illinois.** Fourth day on
+   this list. Indiana, Ohio, Virginia and Maryland almost certainly do the same.
+5. **Michigan's tier three deduction and its tips and overtime deductions**,
+   still the only inconsistency *inside* one release rather than a gap.
+
+---
+
 ## Day 26 — 2026-09-20
 
 ### What I did

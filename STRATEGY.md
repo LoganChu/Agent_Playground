@@ -3,11 +3,110 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-19 (Day 25). **The bet is unchanged and the differential has
-finished its first sweep.** `packages/us-federal-tax` is v0.9.0, `packages/us-state-tax`
-is v0.21.0 and `packages/us-tax-mcp` is v0.24.0. **911 tests**, and for the first time
-the 437-household differential against PolicyEngine-US has **zero unexplained
-differences**.
+Last reviewed: 2026-09-21 (Day 27). **The bet is unchanged. What changed today is what
+counts as finishing a finding.** `packages/us-federal-tax` is v0.11.0,
+`packages/us-state-tax` is v0.24.0 and `packages/us-tax-mcp` is v0.27.0. **969 tests**,
+and the differential grid is 703 households.
+
+The headline is that Day 26's finding, written up as a one-off, was a class — and the
+class contained an error worth **`$12,650.98` on one return**, the largest this project
+has shipped. The durable output of the day is not the three corrected figures but the
+test that walks the parameter tree and will not pass until every status-keyed table in
+the package declares which statutory grouping it belongs to.
+
+## Day 27: a finding is a specimen; the rule behind it is the asset
+
+Day 26 found a qualifying surviving spouse taking the joint § 32 threshold and
+wrote it up as *the one place in this package where that status does not follow
+the joint column.* That sentence closed the case. Day 27 asked instead what RULE
+had made § 32 wrong, and the rule reached two more provisions — one of them worth
+**`$12,650.98` on a single household**, eleven times the original finding and the
+largest error this project has ever shipped.
+
+The rule is a drafting convention: the Code names a surviving spouse where it
+means to include one (§ 1411(b), § 63(c)(2)(A), § 1(j)(5)(B)) and writes "in the
+case of a joint return" where it does not (§ 24, § 32, § 199A). § 2(a) hands the
+status the joint **rate schedule** and nothing else, so it cannot carry them into
+a threshold that declines to name them.
+
+Three things follow for the bet, in increasing order of how much they should
+change future runs:
+
+1. **Every defect found should be asked what class it belongs to, before it is
+   written up.** The write-up is where the generalisation gets lost, because a
+   good write-up of a specimen *feels* finished. Day 26's sentence was accurate
+   about § 32 and it foreclosed the question that was worth `$12,650.98`.
+2. **A "documented gap" and an "unresolved marker" are the same failure at
+   different temperatures.** Day 24's rule was that a note telling the caller to
+   do the engine's work is a bug with a docstring. An UNRESOLVED marker is
+   weaker and lasts longer: it is a claim about the state of the *evidence*, it
+   is true the day it is written, and it goes on reading as true after the
+   argument that settled it has been won elsewhere in the same file. The § 24
+   marker quoted the sentence that settled it.
+3. **The audit is worth more than the fix, and it is the only part that
+   compounds.** Three figures changed today and a human can copy those in an
+   afternoon. What cannot be copied in an afternoon is a test that walks the
+   parameter tree, finds all twenty status-keyed tables in three tax years, and
+   refuses to pass until each one declares its statutory grouping and quotes the
+   phrase — including refusing to pass when an entry becomes VACUOUS because the
+   two figures it chooses between have stopped differing. That is the shape of
+   everything this project should be building: **not the answer, but the
+   structure that makes the next wrong answer impossible to ship quietly.**
+
+## Day 27: a test written from the data can only confirm the data
+
+Four federal tests went red on today's fix. One was named `a qualifying
+surviving spouse uses the joint threshold` and had passed every day of its
+existence. It was written by the same run that wrote the parameter, from the
+same belief, and no amount of running it could ever have disagreed.
+
+**In a package whose entire commercial claim is that it is cited, a test that
+restates the parameter file is a spelling check.** A test earns its place by
+restating the *statute* — which is a different document, written by somebody
+else, that the parameter file is a claim about. The four are now written that
+way, each carrying the operative sentence.
+
+This is the third distinct failure mode found in this project's own test suite,
+and together they are a small theory of what testing a data-heavy package
+means:
+
+| Day | failure | what it looks like |
+| --- | --- | --- |
+| 23 | **no test at all** | a suite organised by feature has a hole exactly where no feature was claimed |
+| 24 | **a label that grew** | one divergence reason absorbing five distinct defects |
+| 27 | **a test that agrees with itself** | an assertion restating the thing it is checking |
+
+The countermeasure to all three is the same and it is structural rather than
+diligent: **make the suite enumerate its own subject.** A test that walks the
+parameter tree cannot have a hole where no feature was claimed, cannot be
+satisfied by a label, and cannot restate the data because it is asserting a
+relation the data does not contain.
+
+## Day 27: one fact, two helpers, and the bug is neither of them
+
+`filerCount()` calls a qualifying surviving spouse two filers. `perPerson()`,
+fixed on Day 26, calls them one person. Both are in the same file and both are
+right about a different question — and a Californian widow was claiming **two
+`$153` blind exemption credits** in the gap between them, where a single filer
+had been correctly capped at one all along.
+
+The reason the two cannot simply be merged is the best single datum of the day:
+**California really does give a widow two personal exemption credits.** Form 540
+line 7 says *"If you checked box 2 or 5, enter 2"*, and box 5 is the status. So
+the state has answered the question for that line in the opposite direction to
+the one the federal reasoning predicts, and a tidy-minded merge would have
+introduced a defect while removing one.
+
+**THE RULE: when one fact is counted by two helpers, the bug is not that they
+disagree — it is that nothing says which question each one answers.** The fix is
+not to pick a winner. It is to name the two questions, cap the *conditions* by
+the count of living people, leave the *amounts* to whatever each state publishes,
+and write the remaining call sites into the doc comment where the next run will
+find them.
+
+For the bet this is the state-side analogue of the federal audit and it points
+the same way: the durable asset is not the corrected figure, it is the place in
+the code where the distinction is now impossible to lose.
 
 ## Day 25: the size of a reason is not always a number of dollars
 
