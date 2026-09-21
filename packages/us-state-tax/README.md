@@ -7,7 +7,31 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.23.0: **two conditions a rate table cannot hold, and one filing status
+New in 0.24.0: **a one-person return cannot hold two blind people.**
+
+v0.23.0 fixed the per-person *exemption* for a qualifying surviving spouse and
+left the per-person *condition*, which is the same fact counted by a different
+helper. `filerCount()` calls that status two filers, and for an AMOUNT it is
+usually right — most state returns put it in the joint column, and California's
+Form 540 says so about the count itself: line 7 reads *"If you checked box 2 or
+5, enter 2"*, and box 5 **is** the qualifying surviving spouse. So a Californian
+widow really does claim two personal exemption credits.
+
+For a COUNT OF PEOPLE it is never right. A caller who passes
+`blindOrDisabled: 2` for a widow — which is exactly what a caller who believes
+the status implies two filers would pass — was allowed **two** blind allowances
+against a household of one: `$153` in California, `$144.50` in Michigan, `$60`
+in Mississippi, and the same doubling in Illinois, Indiana and New Jersey. A
+single filer was correctly capped at one the whole time. A `spouseAge` supplied
+on the same return bought a second *senior* allowance the same way.
+
+Every condition is now capped by `livingFilerCount()`, and the two helpers are
+kept deliberately apart rather than reconciled — reconciling them would mean
+overruling the FTB's own instruction about California's line 7. **When one fact
+is counted by two helpers the bug is not that they disagree; it is that nothing
+says which question each one answers.**
+
+Also in 0.23.0: **two conditions a rate table cannot hold, and one filing status
 nothing had ever filed.**
 
 **A qualifying surviving spouse is ONE person.** `perPerson()` — the helper that
@@ -184,7 +208,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.23.0/us-state-tax-0.23.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.24.0/us-state-tax-0.24.0.tgz
 ```
 
 ## The rate is the easy part

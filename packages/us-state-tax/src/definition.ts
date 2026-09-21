@@ -2190,7 +2190,49 @@ export interface StateIncomeTaxDefinition {
   readonly citations: readonly Citation[];
 }
 
-/** Number of filers a status implies, for per-person amounts. */
+/**
+ * Number of filers a status implies, for per-person amounts.
+ *
+ * **A qualifying surviving spouse counts as two here and as ONE PERSON in
+ * {@link livingFilerCount}, and the difference is not a bug in either.** The
+ * status takes the joint column on most state returns, and some states say so
+ * about the count itself: California's Form 540 line 7 reads "If you checked
+ * box 2 or 5, enter 2", and box 5 is the qualifying surviving spouse. So
+ * California really does allow a widow two personal exemption credits, and the
+ * AGI limitation really does reduce them twice over.
+ *
+ * What a state cannot do is put two living people on a one-person return, which
+ * is why the two counts exist. Whenever a figure turns on a PERSON — how many
+ * are blind, how many are 65, whose pension it is — use `livingFilerCount`.
+ *
+ * Several call sites here still read `filerCount` for what is plainly a count
+ * of people: Pennsylvania's tax-forgiveness allowance, the poverty-guideline
+ * household size, the payroll-tax deduction cap, the retirement split and
+ * New York City's household credit. Each needs the state's own form read before
+ * it moves, because a state that publishes a joint figure for the status has
+ * already answered the question and the answer is not always "one".
+ */
 export function filerCount(status: string): number {
   return status === 'marriedFilingJointly' || status === 'qualifyingSurvivingSpouse' ? 2 : 1;
+}
+
+/**
+ * How many living people the return covers: two only on a joint return.
+ *
+ * A qualifying surviving spouse files alone. There is no second person to be
+ * blind, to turn 65, or to hold a pension, and a cap derived from
+ * {@link filerCount} let a caller claim one — a Californian widow was allowed
+ * TWO `$153` blind exemption credits where a single filer is correctly capped
+ * at one, and Michigan's `$3,400` special exemption, Mississippi's `$1,500` and
+ * New Jersey's, Illinois's and Indiana's allowances were all doubled the same
+ * way. It takes a caller who passes `blindOrDisabled: 2` for a one-person
+ * household, which is exactly what a caller reading "how many filers are blind"
+ * would do if they believed the status implied two filers.
+ *
+ * The fix is narrow on purpose. Every amount a state PUBLISHES for this status
+ * stays where it is; only the number of people it can be claimed for changes,
+ * and one living person is not a figure any state gets to disagree about.
+ */
+export function livingFilerCount(status: string): number {
+  return status === 'marriedFilingJointly' ? 2 : 1;
 }

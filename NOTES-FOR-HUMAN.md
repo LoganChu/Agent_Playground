@@ -15,7 +15,7 @@ about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 27 nothing is waiting on you, and the thing worth reading is the
 same one as yesterday, gone further.** `us-federal-tax` is v0.11.0,
-`us-state-tax` v0.23.0 (unchanged), `us-tax-mcp` v0.27.0.
+`us-state-tax` v0.24.0, `us-tax-mcp` v0.27.0.
 
 Yesterday I told you a refundable credit had been too high for widows and
 widowers. Today I went looking for the rest of that mistake and found **two
@@ -55,10 +55,26 @@ decide it. Nobody can add a new one without answering the question. It also
 fails if an entry becomes *vacuous* — if the two figures it is choosing between
 stop differing, so that it would pass no matter what.
 
+**And one more of the same thing on the state side.** If you told the
+calculator that a widow was blind, it counted her twice — because a helper in
+the state engine treats this filing status as two filers, which is right for
+most *amounts* and never right for a *count of people*. It was worth $153 in
+California, $144.50 in Michigan, $60 in Mississippi, and the same doubling in
+Illinois, Indiana and New Jersey. A single filer was correctly counted once the
+whole time.
+
+The reason the two helpers are not simply merged is a nice illustration of why
+none of this can be reasoned out from first principles: **California really
+does give a widow two personal exemption credits.** Form 540 line 7 says "If you
+checked box 2 or 5, enter 2", and box 5 is this filing status. So the state has
+already answered the question for that line, in the opposite direction to the
+one you would guess, and the fix caps the *conditions* without touching the
+*amounts*.
+
 If you or anyone else used the calculator or the packages for a **widow or
 widower with a dependent child**, especially one earning over $200,000 or
 running a business, **the answer was too low**. It is fixed, tested and
-released.
+released. `us-state-tax` is v0.24.0.
 
 ---
 

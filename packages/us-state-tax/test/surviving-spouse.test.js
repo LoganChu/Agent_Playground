@@ -136,3 +136,114 @@ test('Georgia gives a surviving spouse the SINGLE standard deduction, by statute
   money(credit('qualifyingSurvivingSpouse'), 300);
   money(credit('marriedFilingJointly'), 600);
 });
+
+// ---------------------------------------------------------------------------
+// v0.24.0: a one-person return cannot hold two blind people.
+//
+// v0.23.0 fixed the per-person EXEMPTION and left the per-person CONDITION,
+// which is the same fact counted by a different helper. `filerCount()` says a
+// qualifying surviving spouse is two filers — and for an AMOUNT that is often
+// right, because most state returns put the status in the joint column and
+// California's Form 540 goes as far as to say so about the count itself
+// ("If you checked box 2 or 5, enter 2" on line 7, box 5 being this status).
+//
+// For a COUNT OF PEOPLE it is never right. The spouse is dead: they cannot be
+// blind and they cannot turn 65. So `livingFilerCount()` now caps every
+// condition, and the two helpers are kept apart rather than reconciled,
+// because reconciling them would mean deciding California's personal exemption
+// credit against the FTB's own instruction.
+//
+// THE RULE: when one fact is counted by two helpers, the bug is not that they
+// disagree — it is that nothing says which question each one answers. Day 26
+// found the first half of this and the second half was invisible, because it
+// takes a caller who passes `blindOrDisabled: 2`, which is exactly what a
+// caller who believes the status implies two filers would pass.
+// ---------------------------------------------------------------------------
+
+/** Every state whose engine reads `blindOrDisabled`, with what one claim is worth. */
+const BLIND_ALLOWANCE_STATES = ['CA', 'MI', 'MS', 'IL', 'IN', 'NJ'];
+
+const withBlind = (state, filingStatus, blindOrDisabled) =>
+  stateIncomeTax({
+    state,
+    year: 2026,
+    filingStatus,
+    filerAge: 70,
+    federal: { adjustedGrossIncome: 60_000, taxableIncome: 45_000, socialSecurityBenefits: 0 },
+    wages: 60_000,
+    newJerseyGrossIncome: 60_000,
+    blindOrDisabled,
+  }).totalTax;
+
+test('a second blind claim is worth nothing on a surviving spouse’s return', () => {
+  for (const state of BLIND_ALLOWANCE_STATES) {
+    const one = withBlind(state, 'qualifyingSurvivingSpouse', 1);
+    const two = withBlind(state, 'qualifyingSurvivingSpouse', 2);
+    money(two, one, `${state}: a widow was allowed a second blind allowance`);
+
+    // The cap is the only thing that moved. A single filer was already capped
+    // at one and a joint return still gets two, so this is not "blindness now
+    // counts once".
+    money(
+      withBlind(state, 'single', 2),
+      withBlind(state, 'single', 1),
+      `${state}: a single filer's cap changed`,
+    );
+    assert.ok(
+      withBlind(state, 'marriedFilingJointly', 2) < withBlind(state, 'marriedFilingJointly', 1),
+      `${state}: a joint return lost its second blind allowance`,
+    );
+  }
+});
+
+test('and the first blind claim is still worth the state’s own figure', () => {
+  // California's is a CREDIT of $153, so it is worth $153 of tax at any rate.
+  // Michigan's $3,400 exemption at 4.25% is $144.50, and Mississippi's $1,500
+  // at 4.0% is $60. Asserting these is what stops the cap above being
+  // satisfied by an engine that has stopped counting blindness at all.
+  money(
+    withBlind('CA', 'qualifyingSurvivingSpouse', 0) -
+      withBlind('CA', 'qualifyingSurvivingSpouse', 1),
+    153,
+    'California exemption credit',
+  );
+  money(
+    withBlind('MI', 'qualifyingSurvivingSpouse', 0) -
+      withBlind('MI', 'qualifyingSurvivingSpouse', 1),
+    144.5,
+    'Michigan special exemption',
+  );
+  money(
+    withBlind('MS', 'qualifyingSurvivingSpouse', 0) -
+      withBlind('MS', 'qualifyingSurvivingSpouse', 1),
+    60,
+    'Mississippi exemption',
+  );
+});
+
+test('a spouseAge on a surviving spouse’s return buys no second senior allowance', () => {
+  // The same defect through the other helper: `seniorFilers` read `spouseAge`
+  // whenever the filer count was two. A caller who supplies it for this status
+  // has made a mistake — there is no spouse — and the engine was charging the
+  // state for it.
+  for (const state of ['CA', 'MS', 'IL', 'IN']) {
+    const alone = stateIncomeTax({
+      state,
+      year: 2026,
+      filingStatus: 'qualifyingSurvivingSpouse',
+      filerAge: 70,
+      federal: { adjustedGrossIncome: 60_000, taxableIncome: 45_000, socialSecurityBenefits: 0 },
+      wages: 60_000,
+    }).totalTax;
+    const withGhost = stateIncomeTax({
+      state,
+      year: 2026,
+      filingStatus: 'qualifyingSurvivingSpouse',
+      filerAge: 70,
+      spouseAge: 70,
+      federal: { adjustedGrossIncome: 60_000, taxableIncome: 45_000, socialSecurityBenefits: 0 },
+      wages: 60_000,
+    }).totalTax;
+    money(withGhost, alone, `${state}: a dead spouse's age was counted`);
+  }
+});

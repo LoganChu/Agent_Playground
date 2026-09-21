@@ -172,6 +172,15 @@ the same way, and all of it ran in one direction: the widow's bill was too low.
 two are thousands of dollars apart, and the schema now says so on every tool
 that takes a filing status.
 
+**Also new in 0.27.0, on the state side — a one-person return cannot hold two
+blind people.** `blindOrDisabled: 2` on a **qualifying surviving spouse** bought
+two allowances against a household of one: `$153` in California, `$144.50` in
+Michigan, `$60` in Mississippi, and the same doubling in Illinois, Indiana and
+New Jersey. A single filer was correctly capped at one the whole time, and a
+`filerAge`/`spouseAge` pair on the same return bought a second *senior*
+allowance the same way. Pass `blindOrDisabled: 1` for a widow; the server now
+caps it there regardless.
+
 **Also in 0.26.0 — being 65 and being blind, in the three states that had the
 provision and no rule.** CALIFORNIA claims one more exemption CREDIT at 65 and
 one more for blindness, `$153` each and claimed per person, so a retired couple

@@ -5,7 +5,7 @@
  * in {@link StateIncomeTaxDefinition} data, not in branches here, which is what
  * makes the conformity choice visible rather than buried.
  */
-import { filerCount } from './definition.js';
+import { filerCount, livingFilerCount } from './definition.js';
 import type {
   ByChildCount,
   ExemptionRule,
@@ -244,7 +244,10 @@ function stateExemptions(
   }
   if (rule.perBlindOrDisabledFiler !== undefined) {
     const claimed = nonNegative(input.blindOrDisabled, 'blindOrDisabled');
-    total += rule.perBlindOrDisabledFiler * Math.min(claimed, filerCount(input.filingStatus));
+    // Capped by the number of LIVING people, not by the filer count. A
+    // qualifying surviving spouse files alone, and a one-person return cannot
+    // have two blind people on it.
+    total += rule.perBlindOrDisabledFiler * Math.min(claimed, livingFilerCount(input.filingStatus));
   }
   if (rule.perCollegeDependent !== undefined) {
     const college = nonNegative(input.dependentsAttendingCollege, 'dependentsAttendingCollege');
@@ -446,7 +449,10 @@ function unmarriedChildless(input: StateIncomeTaxInput): boolean {
 
 /** How many of the filer and spouse are at or above an age. */
 function seniorFilers(input: StateIncomeTaxInput, age: number): number {
-  const filers = filerCount(input.filingStatus);
+  // `livingFilerCount`, so a `spouseAge` supplied on a surviving spouse's
+  // return is ignored rather than counted. The spouse is dead; an age for them
+  // is a caller error, and reading it bought a second senior exemption.
+  const filers = livingFilerCount(input.filingStatus);
   let count = 0;
   if (input.filerAge !== undefined && input.filerAge >= age) count += 1;
   if (filers === 2 && input.spouseAge !== undefined && input.spouseAge >= age) count += 1;
@@ -1164,7 +1170,7 @@ function exemptionCredit(
   const seniors = rule.perSeniorFiler !== undefined ? seniorFilers(input, rule.seniorAge ?? 65) : 0;
   const blind =
     rule.perBlindOrDisabledFiler !== undefined
-      ? Math.min(nonNegative(input.blindOrDisabled, 'blindOrDisabled'), filerCount(status))
+      ? Math.min(nonNegative(input.blindOrDisabled, 'blindOrDisabled'), livingFilerCount(status))
       : 0;
   // Ohio's is switched off rather than tapered: § 5747.022 allows the $20 only
   // below $30,000 of modified AGI, so a family of four loses $80 on one dollar.
