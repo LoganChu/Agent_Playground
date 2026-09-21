@@ -1293,3 +1293,43 @@ test("README: Georgia's itemizer credit is worth $6,012 of deduction, and Indian
   money(inRetired.taxBeforeCredits, 0, 'no Indiana tax');
   money(inRetired.tax, -140, 'and $140 paid out');
 });
+
+test('every markdown table in every README is still a table', () => {
+  // Today's failure, and it is the cheapest kind to have: the root README's
+  // package table is one enormous row per package, I appended a sentence to a
+  // cell with a string replace, and the new text landed on its own line. GitHub
+  // renders that as a stray paragraph directly under the table — the row is
+  // silently truncated and the addition reads as loose prose. Nothing caught it,
+  // because nothing here had ever looked at a README as STRUCTURE rather than as
+  // a bag of numbers and links.
+  //
+  // A table row is any line starting with `|`. A line that follows one, is not
+  // blank, does not start with `|` and is not a fenced-code delimiter is either
+  // a broken row or the end of the table; the end of a table is a blank line, so
+  // anything else is the bug.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+  const docs = [
+    'README.md',
+    'STRATEGY.md',
+    join('packages', 'us-federal-tax', 'README.md'),
+    join('packages', 'us-state-tax', 'README.md'),
+    join('packages', 'us-tax-mcp', 'README.md'),
+    join('tools', 'differential', 'README.md'),
+  ];
+  for (const doc of docs) {
+    const lines = readFileSync(join(root, doc), 'utf8').split('\n');
+    let inFence = false;
+    for (let i = 1; i < lines.length; i += 1) {
+      if (/^\s*(```|~~~)/.test(lines[i])) inFence = !inFence;
+      if (inFence) continue;
+      const previousIsRow = lines[i - 1].startsWith('|');
+      if (!previousIsRow) continue;
+      const line = lines[i];
+      if (line.trim() === '' || line.startsWith('|') || /^\s*(```|~~~)/.test(line)) continue;
+      assert.fail(
+        `${doc}:${i + 1} follows a table row but is not one and is not blank — ` +
+          `the row above it is truncated and this renders as loose prose:\n  ${line.slice(0, 120)}`,
+      );
+    }
+  }
+});
