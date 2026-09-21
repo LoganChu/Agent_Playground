@@ -53,6 +53,52 @@ change future runs:
    everything this project should be building: **not the answer, but the
    structure that makes the next wrong answer impossible to ship quietly.**
 
+## Day 27: what a differential test cannot see, stated precisely
+
+Day 23 wrote that **the cheapest audit of a model is another model**, and it has
+paid for itself four times since. Day 27 is the first day it paid nothing, and
+the way it paid nothing is worth more than another finding.
+
+The three federal defects fixed today were pushed, and the differential job went
+green with the golden report **byte-identical**. Not one of 4,522 compared
+figures moved. The reasons are structural rather than unlucky:
+
+- **§ 24** does not bite until `$200,000` and the grid's surviving spouse earns
+  `$45,000`.
+- **§ 199A** is unreachable from the grid *in principle*: a case may contain only
+  facts that map onto a PolicyEngine variable without interpretation, and a
+  business is not one of them. The harness says so in its own header.
+- **The state blind cap** needs a caller who passes `blindOrDisabled: 2`, and the
+  grid's blind cases are single filers, who were correctly capped throughout.
+- And PolicyEngine carries **`$400,000`** for § 24 as well, so even a case that
+  reached the threshold would have agreed — on the wrong answer.
+
+**THE RULE: a differential test is bounded by the vocabulary of its cases, and
+that bound is invisible from inside the report.** Day 26 said zero unexplained
+differences means the grid has stopped *finding* things. This is stronger and
+more uncomfortable: there are whole provisions the grid can never reach, and
+nothing in the report distinguishes them from provisions it reaches and agrees
+on.
+
+What this means for the bet is a correction to the Day 23 conclusion rather than
+a reversal. A second implementation disagrees about the *subject*, which is why
+it is the best tool there is for finding where two readings diverge. It is
+worthless where both readings are the same and both are wrong, and it is
+worthless where the question cannot be asked in the shared vocabulary. Those are
+exactly the cases a **parameter-versus-statute audit** covers, because it
+compares the data to a document neither model wrote.
+
+So the correctness programme now has two legs and they fail independently:
+
+| | compares | blind to |
+| --- | --- | --- |
+| **differential** | our answer against another model's | a shared misreading; anything outside the case vocabulary |
+| **parameter audit** | our data against the statutory sentence | an error in the computation rather than the data |
+
+Neither subsumes the other, and today is the proof: the differential found four
+defects on Day 26 that no audit would have, and the audit found three on Day 27
+that the differential provably could not.
+
 ## Day 27: a test written from the data can only confirm the data
 
 Four federal tests went red on today's fix. One was named `a qualifying

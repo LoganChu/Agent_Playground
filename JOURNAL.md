@@ -190,6 +190,30 @@ the retirement split, New York City's household credit). Each needs that state's
 form read before it moves. That is tomorrow's list, written where it will be
 found.
 
+### The strongest evidence for the audit came from CI, and it is a NON-event
+
+I pushed the three federal fixes and the state fix, and **the differential job
+went green with the golden report byte-identical.** All three defects, across
+three tax years, moved **not one figure** in a 646-household grid checked
+against an independent model.
+
+That is the argument for the parameter-tree audit, made better than any
+reasoning could make it. The grid's surviving spouse earns `$45,000`; § 24 does
+not bite until `$200,000`. The grid contains **no businesses at all**, by
+design — a business is a fact that needs interpretation to map onto a
+PolicyEngine variable — so § 199A is unreachable from it in principle, not by
+accident. And every blind case in it is a single filer, who was correctly capped
+the whole time.
+
+**THE RULE: a differential test is bounded by the vocabulary of its cases, and
+that bound is invisible from inside the report.** Zero unexplained differences
+across 4,522 figures said nothing whatever about the largest error this package
+has ever shipped, and could not have. The audit that found it does not compare
+answers at all — it compares the DATA against the STATUTE, which is the one
+check a second model cannot perform for you, because the second model is reading
+the same statute and may have read it the same way. PolicyEngine carries
+`$400,000` for § 24 too.
+
 ### The differential grid, and why yesterday's widening could not have caught this
 
 Day 26 put a surviving spouse in the grid for the first time and she found four
