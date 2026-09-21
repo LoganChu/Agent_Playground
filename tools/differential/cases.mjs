@@ -161,6 +161,33 @@ const SHAPES = [
     wages: 45_000,
   },
 
+  // ---------------------------------------------------------------------
+  // Day 27: the same status, ABOVE the line.
+  //
+  // Day 26 put a surviving spouse in the grid for the first time and she
+  // found four defects at $45,000. She could not have found a fifth,
+  // because § 24(b)(2) does not begin to bite until $200,000 and § 199A
+  // not until $201,750 — and the status-sensitive parameters that live up
+  // there had never been asked a question by anybody.
+  //
+  // THE RULE THIS ENCODES: adding a filing status to a grid tests the
+  // status only at the incomes the grid already had. A case reaches a
+  // threshold or it does not; what the case is CALLED decides nothing.
+  // Every status in this file should be filed at least once on each side
+  // of every threshold that names it.
+  //
+  // $250,000 is inside the § 24 phase-out band, $300,000 past its end for
+  // one child, and $450,000 past the JOINT threshold as well — which is
+  // the case that distinguishes "this package now uses $200,000" from
+  // "this package lost the credit for some other reason".
+  ...[250_000, 300_000, 450_000].map((wages) => ({
+    kind: 'surviving-spouse-high',
+    filingStatus: 'qualifyingSurvivingSpouse',
+    primaryAge: 47,
+    childAges: [10],
+    wages,
+  })),
+
   // An early retiree, below every age test in the package. Day 24 built four
   // states' retirement subtractions and every retiree in the grid was 67 or
   // older, so no case could tell Illinois's absence of an age test from

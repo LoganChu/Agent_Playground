@@ -117,7 +117,7 @@
    "earnedIncomeCredit": 347.29
   },
   "state": {
-   "tax": 531.97,
+   "tax": 528.25,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -579,7 +579,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1343.93,
+   "tax": 1340.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -1041,7 +1041,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2333.93,
+   "tax": 2330.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -1503,7 +1503,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3818.93,
+   "tax": 3815.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -1965,7 +1965,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 7283.93,
+   "tax": 7280.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -2889,7 +2889,7 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": -1127.78,
+   "tax": -1142.63,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -3351,7 +3351,7 @@
    "earnedIncomeCredit": 1242.3
   },
   "state": {
-   "tax": 2057.86,
+   "tax": 2043.01,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -3813,7 +3813,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4385.7,
+   "tax": 4370.85,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -4275,7 +4275,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 9335.7,
+   "tax": 9320.85,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -4737,7 +4737,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -830.55,
+   "tax": -837.98,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -5199,7 +5199,7 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": -234.54,
+   "tax": -241.97,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -5661,7 +5661,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1650.34,
+   "tax": 1642.91,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -8895,7 +8895,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3323.93,
+   "tax": 3320.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -9357,7 +9357,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 7283.93,
+   "tax": 7280.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -9819,7 +9819,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2828.93,
+   "tax": 2825.21,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -10277,7 +10277,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 113.85,
+   "tax": 106.43,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -10739,7 +10739,7 @@
    "earnedIncomeCredit": 139.21
   },
   "state": {
-   "tax": 927.51,
+   "tax": 920.08,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -11201,7 +11201,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3430.35,
+   "tax": 3422.93,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -11663,7 +11663,7 @@
    "earnedIncomeCredit": 6369.3
   },
   "state": {
-   "tax": -508.78,
+   "tax": -527.34,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -12125,7 +12125,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3749.63,
+   "tax": 3731.06,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -12587,7 +12587,7 @@
    "earnedIncomeCredit": 2651.62
   },
   "state": {
-   "tax": 920.03,
+   "tax": 912.6,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -13049,7 +13049,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1945.35,
+   "tax": 1937.93,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -13507,7 +13507,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1650.34,
+   "tax": 1642.91,
    "credits": [
     {
      "name": "Illinois earned income credit",
@@ -13846,6 +13846,1392 @@
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
      "amount": 210.72
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-AZ-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-AZ-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5445,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CA-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-CA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14284.96,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 781
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 0
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CO-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-CO-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 9583.2,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-GA-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-GA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11477,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-ID-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-ID-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11033.43,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-IL-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-IL-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12085.43,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-IN-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-IN-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12251.05,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-KY-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-KY-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8635.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MA-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-MA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11790,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 440
+    },
+    {
+     "name": "Limited Income Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MD-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-MD-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 19739.6,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MI-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-MI-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10132,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MS-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-MS-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8876,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NC-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-NC-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8957.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NJ-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-NJ-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11723.25,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NY-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-NY-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13744.05,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 0
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-OH-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-OH-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6386.13,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-PA-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-PA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7675,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-UT-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-UT-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11125,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-VA-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-VA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13507.43,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-AZ-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-AZ-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6695,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CA-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-CA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 18934.96,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 781
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 0
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CO-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-CO-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11783.2,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-GA-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-GA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13972,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-ID-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-ID-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13683.43,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-IL-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-IL-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14850,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-IN-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-IN-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14736.05,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-KY-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-KY-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10385.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MA-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-MA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14290,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 440
+    },
+    {
+     "name": "Limited Income Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MD-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-MD-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 24089.6,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MI-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-MI-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12257,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MS-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-MS-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10876,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NC-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-NC-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10952.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NJ-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-NJ-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14908.25,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NY-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-NY-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 16694.05,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 0
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-OH-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-OH-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7761.13,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-PA-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-PA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 9210,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-UT-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-UT-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13350,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-VA-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-VA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 16382.43,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-AZ-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-AZ-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10445,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CA-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-CA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 32884.96,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 781
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 0
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CO-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-CO-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 18383.2,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-GA-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-GA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 21457,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-ID-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-ID-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 21633.43,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-IL-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-IL-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 22275,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-IN-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-IN-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 22191.05,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-KY-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-KY-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 15635.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MA-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-MA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 21790,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 440
+    },
+    {
+     "name": "Limited Income Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MD-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-MD-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 37497.85,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MI-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-MI-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 18632,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-MS-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-MS-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 16876,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NC-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-NC-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 16937.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NJ-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-NJ-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 24463.25,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-NY-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-NY-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 29657.08,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 0
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-OH-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-OH-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11886.13,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-PA-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-PA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13815,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-UT-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-UT-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 20025,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-VA-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-VA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 25007.43,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
     }
    ]
   },
@@ -14893,7 +16279,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1789.43,
+   "tax": 1785.71,
    "credits": [
     {
      "name": "Illinois earned income credit",

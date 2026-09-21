@@ -208,7 +208,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.24.0/us-state-tax-0.24.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.25.0/us-state-tax-0.25.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1448,7 +1448,7 @@ return.
 
 ## Provisional figures are labelled
 
-Most state parameters are indexed for inflation and published late in the tax year. Seven
+Most state parameters are indexed for inflation and published late in the tax year. Eight
 of the 2026 state-years here have at least one figure carried forward from 2025 because
 the state had not released it. Every one of them says so, in the result:
 
@@ -1458,9 +1458,16 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, IL, KY, MD, MI, OH, UT**. Published: **AZ, GA, IN, MA,
-MS, NC, NJ, NY, PA** and the nine states with no income tax. Nothing is provisional for
+Provisional for 2026: **CA, CO, ID, KY, MD, MI, OH, UT**. Published: **AZ, GA, IL, IN, MA,
+MS, NC, NJ, NY, PA, VA** and the nine states with no income tax. Nothing is provisional for
 2025.
+
+**Illinois came off that list in v0.25.0, and it is the first one to.** Its 2026 exemption
+allowance is `$2,925`, from the `$2,850` of 2025 — published in Informational Bulletin
+FY 2026-15 of December 2025 and in the Comptroller's own 2026 payroll bulletin, and this
+package had been carrying 2025's figure forward and saying so. The flag is a **debt**, not
+a permanent disclaimer: it is there to be paid off by somebody going and reading the
+notice. Eight are still owed.
 
 Ohio is provisional for the two indexed figures behind an otherwise statutory schedule. HB
 96 wrote "$332.00 plus 2.75% of the amount in excess of $26,050" into § 5747.02(A)(3), but

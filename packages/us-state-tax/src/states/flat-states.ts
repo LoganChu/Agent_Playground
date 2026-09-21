@@ -262,14 +262,17 @@ const IL_NOTES: readonly string[] = [
 
 function illinois(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
-  // Indexed to CPI under 35 ILCS 5/204(d-5). $2,775 for 2024, $2,850 for 2025.
-  const exemption = 2850;
+  // Indexed to CPI under 35 ILCS 5/204(d-5). $2,775 for 2024, $2,850 for 2025,
+  // and $2,925 for 2026 — PUBLISHED, in Informational Bulletin FY 2026-15 of
+  // December 2025 and in the Comptroller's own 2026 payroll bulletin. Carried
+  // as the 2025 figure and flagged provisional here until Day 27.
+  const exemption = year === 2026 ? 2925 : 2850;
   return {
     code: 'IL',
     subtractsTaxableSocialSecurity: true,
     name: 'Illinois',
     year,
-    status: year === 2025 ? 'published' : 'provisional',
+    status: 'published',
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'flat', rate: 0.0495 },
     deduction: { kind: 'none' },
@@ -308,11 +311,24 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
       perSeniorFiler: 1_000,
       seniorAge: 65,
       perBlindOrDisabledFiler: 1_000,
+      // 35 ILCS 5/204(g). The exemption allowance is DISALLOWED ENTIRELY above
+      // the figure, not tapered — one dollar of AGI over it costs the whole
+      // allowance. The Department states the split on the face of the IL-1040
+      // instructions: "$500,000 for returns with a federal filing status of
+      // married filing jointly, or $250,000 for all other returns."
+      //
+      // A QUALIFYING SURVIVING SPOUSE IS AN OTHER RETURN, and this entry did
+      // not say so until v0.25.0 — `byStatus()` defaults that status to joint,
+      // so a widow at $300,000 kept an allowance Illinois takes away. $282.15 a
+      // year with one child. Found by the differential the day the grid first
+      // filed this status above $250,000; twenty-six days of grids had filed it
+      // only at $45,000, where the cliff cannot be reached.
       cliff: byStatus({
         single: 250_000,
         joint: 500_000,
         separate: 250_000,
         headOfHousehold: 250_000,
+        qualifyingSurvivingSpouse: 250_000,
       }),
     },
     // 35 ILCS 5/203(a)(2)(F). No cap, no age, no test on the form of the
@@ -324,13 +340,7 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
         scope: 'perPerson',
       },
     ],
-    notes:
-      year === 2026
-        ? [
-            'PROVISIONAL: the $2,850 exemption allowance is the published 2025 figure carried forward. Illinois indexes it annually to the Consumer Price Index under 35 ILCS 5/204(d-5) and had not published the 2026 amount when this was written. The 4.95% rate is fixed by statute and is correct.',
-            ...IL_NOTES,
-          ]
-        : IL_NOTES,
+    notes: IL_NOTES,
     citations: IL_CITATIONS,
   };
 }

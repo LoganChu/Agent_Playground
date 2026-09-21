@@ -63,6 +63,37 @@ a difference between two answers to a question somebody asked. A question nobody
 asks has no answer to differ from, and a report of zero unexplained differences
 says nothing whatever about it.
 
+## And why Day 27 widened it again, in the one direction that was missing
+
+Day 26's surviving spouse found four defects. She earns **`$45,000`**, and on
+Day 27 the same filing status turned out to be wrong in two more places that
+**begin at `$200,000`** — the § 24 child tax credit threshold and the § 199A
+threshold. She could not have found either, however long the grid ran.
+
+**THE RULE: adding a filing status to a grid tests that status only at the
+incomes the grid already had.** A case reaches a threshold or it does not; what
+the case is *called* decides nothing. Three shapes were added at `$250,000`,
+`$300,000` and `$450,000` — inside the § 24 phase-out band, past its end for one
+child, and past the *joint* threshold as well, which is the case that separates
+"this package now uses `$200,000`" from "this package lost the credit for some
+other reason". 703 cases.
+
+And the sharper half, which came from CI rather than from reasoning: when the
+Day 27 fixes were pushed against the **old** 646-case grid, the golden report
+came back **byte-identical**. Three defects across three tax years, and not one
+of 4,522 compared figures moved. § 199A is unreachable from this harness *in
+principle* — a case may contain only facts that map onto a PolicyEngine variable
+without interpretation, and a business is not one of them — and PolicyEngine
+carries the joint `$400,000` for § 24 as well, so even a case that reached the
+threshold would have agreed on the wrong answer.
+
+**A differential test is bounded by the vocabulary of its cases, and that bound
+is invisible from inside the report.** It is the best tool there is for finding
+where two readings diverge, and it is worth nothing where both readings are the
+same and both are wrong. That is what a parameter-versus-statute audit is for,
+and `packages/us-federal-tax/test/surviving-spouse.test.js` is the first one
+here.
+
 ## Running it
 
 ```bash
@@ -81,8 +112,11 @@ node   tools/differential/ours.mjs          > tools/differential/out/ours.json
 node   tools/differential/compare.mjs       > tools/differential/REPORT.md
 ```
 
-The PolicyEngine pass is the slow one — about a second a household, so eleven
-minutes for the grid. It needs no network once installed: a `Simulation` built
+The PolicyEngine pass is the slow one — about two and a half seconds a
+household, so roughly half an hour for the grid. (An earlier note here said "a
+second a household, so eleven minutes"; it was measured on a smaller grid and a
+faster runner, and believing it cost an afternoon of bad scheduling. Start this
+pass FIRST and do the engine work while it runs.) It needs no network once installed: a `Simulation` built
 from a situation dict downloads nothing.
 
 **It is also the half that can go stale, and until Day 26 nothing said so.**

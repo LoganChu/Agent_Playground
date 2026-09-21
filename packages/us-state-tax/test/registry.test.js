@@ -165,17 +165,25 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has nine', () => {
+test('2025 has no provisional state and 2026 has eight', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
   // not been released — plus Colorado, whose rate can still be cut retroactively.
+  //
+  // ILLINOIS came off this list in v0.25.0. Its 2026 exemption allowance is
+  // $2,925, published in Informational Bulletin FY 2026-15 of December 2025 and
+  // in the Comptroller's 2026 payroll bulletin; this package had been carrying
+  // the $2,850 of 2025 forward and saying so. **That is what the provisional
+  // flag is FOR** — it is a debt to be paid, not a permanent disclaimer, and
+  // this is the first one this project has retired. The other eight are still
+  // owed, and each one is a figure somebody has to go and look up.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 9);
+  assert.equal(count(2026), 8);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'IL', 'KY', 'MD', 'MI', 'OH', 'UT']);
+  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'KY', 'MD', 'MI', 'OH', 'UT']);
 });
 
 test('the package has no runtime dependencies', () => {

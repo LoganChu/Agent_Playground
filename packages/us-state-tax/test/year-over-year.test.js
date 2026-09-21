@@ -157,6 +157,11 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   });
   // Georgia, Indiana, Kentucky, Mississippi, North Carolina and Utah changed rate;
   // Arizona, Colorado and Idaho move because the federal deduction inside their
-  // base moved; New York cut its bottom five rates in the FY2026 budget.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IN', 'KY', 'MS', 'NC', 'NY', 'OH', 'UT']);
+  // base moved; New York cut its bottom five rates in the FY2026 budget; and
+  // ILLINOIS joined the list in v0.25.0 — not by changing anything, but because
+  // it PUBLISHED. Its exemption allowance indexes to $2,925 for 2026 from the
+  // $2,850 of 2025, and until the Department's own bulletin was found this
+  // package carried the 2025 figure forward and said so. A state moves off this
+  // list when its law changes and ONTO it when somebody reads the notice.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MS', 'NC', 'NY', 'OH', 'UT']);
 });

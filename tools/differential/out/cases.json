@@ -10478,6 +10478,1107 @@
   "kind": "surviving-spouse"
  },
  {
+  "id": "surviving-spouse-high-AZ-250000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-CA-250000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-CO-250000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-GA-250000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-ID-250000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-IL-250000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-IN-250000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-KY-250000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MA-250000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MD-250000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MI-250000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MS-250000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NC-250000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NJ-250000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NY-250000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-OH-250000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-PA-250000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-UT-250000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-VA-250000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-AZ-300000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-CA-300000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-CO-300000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-GA-300000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-ID-300000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-IL-300000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-IN-300000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-KY-300000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MA-300000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MD-300000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MI-300000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MS-300000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NC-300000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NJ-300000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NY-300000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-OH-300000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-PA-300000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-UT-300000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-VA-300000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-AZ-450000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-CA-450000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-CO-450000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-GA-450000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-ID-450000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-IL-450000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-IN-450000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-KY-450000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MA-450000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MD-450000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MI-450000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-MS-450000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NC-450000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NJ-450000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-NY-450000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-OH-450000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-PA-450000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-UT-450000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-VA-450000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "early-retiree-AZ-0-50000-0-0-0",
   "year": 2026,
   "state": "AZ",

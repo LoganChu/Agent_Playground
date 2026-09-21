@@ -542,8 +542,10 @@ the other — worth `$612.50` to Columbus and saving `$306.25` from the district
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
 Eight of the nineteen taxing states cut their rate for 2026, so an unsupported year is an
-error rather than a fallback to the nearest one — and nine of the 2026 state-years carry at
-least one indexed figure forward from 2025, which every result says out loud.
+error rather than a fallback to the nearest one — and eight of the 2026 state-years carry at
+least one indexed figure forward from 2025, which every result says out loud. Illinois came
+off that list in 0.27.0: its `$2,925` exemption allowance for 2026 is published now, and the
+provisional flag is a debt to be paid rather than a permanent disclaimer.
 
 Maryland is two income taxes rather than one. Every resident owes a **county** income tax of
 2.25% to 3.30% on the same taxable income the state taxes — a third to two fifths of the whole

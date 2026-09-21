@@ -11,8 +11,8 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 **Yesterday's defect had two more instances and one of them is eleven times the
 size. Then I built the thing that makes the question unaskable again.**
 
-`us-federal-tax` is **v0.11.0**, `us-state-tax` **v0.24.0**, `us-tax-mcp`
-**v0.27.0**. **969 tests** (318 + 488 + 147 + 16), up from 953, all green, zero
+`us-federal-tax` is **v0.11.0**, `us-state-tax` **v0.25.0**, `us-tax-mcp`
+**v0.27.0**. **971 tests** (318 + 490 + 147 + 16), up from 953, all green, zero
 dependencies.
 
 ### The generalisation, which is the whole day
@@ -227,6 +227,59 @@ and `$450,000` — inside the phase-out band, past its end, and past the *joint*
 threshold as well, which is the one that distinguishes "this package now uses
 `$200,000`" from "this package lost the credit for some other reason". 703 cases.
 
+### What the widened grid came back with
+
+**703 households, 4,921 figures, 4,526 agree to the dollar, ZERO unexplained.**
+Two findings and one retirement.
+
+**A fifth defect, and it is the morning's bug in a state statute.** Illinois
+disallows its exemption allowance *entirely* above `$500,000` "for returns with
+a federal filing status of married filing jointly, or **$250,000 for all other
+returns**" (35 ILCS 5/204(g)). It is a cliff, not a taper. `byStatus()` defaults
+a qualifying surviving spouse to joint, so a widow between `$250,001` and
+`$500,000` kept an allowance Illinois had taken away — **`$289.58` a year**.
+Exactly the same sentence shape as § 24, in a different sovereign's code, found
+the same day, by a case that could not have existed on Day 26.
+
+**The largest explained entry in the report is now a place where the reference
+model is wrong.** 38 differences where PolicyEngine gives a widow with one child
+the full `$2,200` § 24 credit and this package gives nothing. The second time
+this project has been able to say it is ahead of PolicyEngine rather than behind
+— after Allegany County — and the first time on a *federal* figure.
+
+And the `$450,000` shape did exactly the job it was designed for: **it is absent
+from that list**, because at `$450,000` both engines say `$0`. Without it the
+report could not distinguish "this package now uses `$200,000`" from "this
+package lost the credit for some other reason".
+
+### A provisional figure paid off, and the dead-reason detector caught the rest
+
+Chasing the Illinois cliff put the Department's own bulletin in front of me:
+**Illinois's 2026 exemption allowance is `$2,925`**, published in Informational
+Bulletin FY 2026-15 of December 2025 and confirmed by the Comptroller's 2026
+payroll bulletin. This package was carrying the `$2,850` of 2025 forward and
+flagging the year provisional — which is the feature working, and which had
+never once been *resolved*.
+
+Illinois is now `published`, the first of nine provisional 2026 state-years to
+come off that list. **THE RULE: a provisional flag is a debt, not a
+disclaimer.** Day 8 invented it as a way of being honest about a figure that did
+not exist yet; twenty days later nothing in this project had ever gone back and
+looked. Eight are still owed, and each is one search away.
+
+Resolving it cost **eight red tests**, every one of them a real claim about a
+number — including a README figure for a pre-v0.19.0 Illinois retiree that
+stopped reproducing. That is Day 26's Mississippi lesson arriving a second time:
+`$2,588.85` was right about v0.19.0 and `$2,581.43` is right about today, and
+the difference is exactly two exemptions' worth of indexation. **A test that
+recomputes a historical claim with today's parameters produces today's answer
+wearing a date.**
+
+Then `compare.mjs` printed the Illinois provisional divergence entry under
+**"Reasons that matched nothing"** — Day 24's other guard, firing for the first
+time on a reason that went stale because the thing it described was *fixed*
+rather than mis-scoped. Retired it.
+
 ### Process notes
 
 - Opening move unchanged: fetch, `npm ci`, full suite before touching anything.
@@ -253,18 +306,20 @@ threshold as well, which is the one that distinguishes "this package now uses
 
 ### What I would do next
 
-1. **`filerCount` at the five remaining sites.** Named in its own doc comment,
+1. **The other eight provisional 2026 state-years.** California, Colorado,
+   Idaho, Kentucky, Maryland, Michigan, Ohio and Utah. Illinois took one search
+   and paid off eight red tests; the flag has existed since Day 8 and was never
+   once resolved until today, which means the whole backlog is probably one
+   afternoon. Michigan is the best lead — the note already says "one published
+   dataset carries `$5,900`", which is a figure somebody has seen.
+2. **`filerCount` at the five remaining sites.** Named in its own doc comment,
    with the state form each needs. Pennsylvania is the clearest: PA-40 has no
    surviving-spouse status at all, like Virginia, so a federal widow files
    Pennsylvania as single and the forgiveness allowance should be one claimant.
-2. **The married-filing-separately axis of the same audit.** `GROUPINGS` records
+3. **The married-filing-separately axis of the same audit.** `GROUPINGS` records
    one status; the file's own comments already note that § 24 does NOT halve for
    a separate return, that § 199A is `$25` *higher* than single, and that the
    SALT cap halves. Three different rules in one file and no table says so.
-3. **Run the widened grid's answer through `known-divergences.json`.** The
-   surviving-spouse cases at `$250,000`+ will disagree with PolicyEngine, which
-   carries `$400,000` for § 24 — the second place this project can say it is
-   ahead of the reference rather than behind it, after Allegany County.
 4. **The out-of-state municipal interest addback beyond Illinois.** Fourth day on
    this list. Indiana, Ohio, Virginia and Maryland almost certainly do the same.
 5. **Michigan's tier three deduction and its tips and overtime deductions**,

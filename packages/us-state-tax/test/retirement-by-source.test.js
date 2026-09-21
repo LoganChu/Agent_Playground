@@ -371,7 +371,16 @@ test('the four corrections are worth what the README says they are', () => {
 
   // Before: the caller supplied a `retirement` split with nothing in it, which
   // is what every caller who did not read the note was doing.
-  money(before('IL'), 2_588.85, 'Illinois before');
+  // Illinois's README figure is $2,588.85 and this engine now says $2,581.43
+  // for the same household, and BOTH are right about their own version — the
+  // same story as Mississippi below, for a different reason. v0.19.0 computed
+  // $2,588.85 against the $2,850 exemption allowance of 2025, which this
+  // package carried into 2026 and flagged provisional; Illinois has since
+  // published $2,925, so two exemptions are $150 larger and the tax $7.42
+  // smaller. Recomputing a historical claim with today's parameters does not
+  // pin history, it produces today's answer wearing a date.
+  money(before('IL'), 2_581.43, 'Illinois before, as this engine computes it');
+  money(2_588.85 - 2_581.43, 2 * 75 * 0.0495, 'and the difference is the indexation of two exemptions');
   money(before('MI'), 2_057.0, 'Michigan before');
   money(before('NY'), 2_040.8, 'New York before');
 
@@ -459,8 +468,10 @@ test('Illinois taxes another state’s municipal bonds, and its own not at all',
   money(own.tax, 0, 'Illinois bonds, or none at all');
 
   const elsewhere = run('IL', 94_000, { ...retiree, outOfStateMunicipalInterest: 10_000 });
-  // $10,000, less two $2,850 exemptions and two $1,000 senior exemptions.
-  money(elsewhere.tax, (10_000 - 2 * 2_850 - 2 * 1_000) * 0.0495);
+  // $10,000, less two $2,925 exemptions and two $1,000 senior exemptions.
+  // The $2,925 is Illinois's published 2026 allowance; it was $2,850 here until
+  // v0.25.0, carried forward from 2025 and flagged provisional.
+  money(elsewhere.tax, (10_000 - 2 * 2_925 - 2 * 1_000) * 0.0495);
   const addition = elsewhere.addBacks.find((a) => a.name.includes('municipal'));
   money(addition.amount, 10_000);
 });

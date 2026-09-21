@@ -38,12 +38,6 @@
   },
   {
     "metric": "state.tax",
-    "state": "IL",
-    "maxAbs": 20,
-    "reason": "PROVISIONAL FIGURES. Illinois indexes its exemption allowance to the CPI under 35 ILCS 5/204(d-5) and had not published the 2026 amount when this was written, so this package carries the $2,850 of 2025 forward and says so; PolicyEngine projects $2,925. The gap is $3.72 per exemption and will close when Illinois publishes."
-  },
-  {
-    "metric": "state.tax",
     "state": "MI",
     "maxAbs": 60,
     "reason": "PROVISIONAL FIGURES. Michigan indexes its personal exemption annually under MCL 206.30(2) and had not published the 2026 amount when this was written, so this package carries the $5,800 of 2025 forward and says so; PolicyEngine projects $5,950. The gap is $6.38 per exemption."
@@ -130,5 +124,30 @@
     "kind": "surviving-spouse",
     "maxAbs": 800,
     "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT, and this package follows the statute where PolicyEngine-US follows itself inconsistently. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000. PolicyEngine gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount, which is what makes this a reading rather than a rate: $15,000 at 4.99% is $748.50. Recorded in Georgia's notes since v0.15.0."
+  },
+  {
+    "metric": "federal.childTaxCredit",
+    "kind": "surviving-spouse-high",
+    "maxAbs": 2300,
+    "reason": "A DEFECT THERE, and it was a defect HERE until Day 27. § 24(b)(2) sets the phase-out threshold at \"$400,000 in the case of a joint return, and $200,000 in any other case\". A QUALIFYING SURVIVING SPOUSE DOES NOT FILE A JOINT RETURN - § 2(a) hands them the joint RATE SCHEDULE under § 1(a) and says nothing about any threshold - so the figure is $200,000, and Schedule 8812 line 9 prints the same split in two lines: \"Married filing jointly-$400,000\" and \"All other filing statuses-$200,000\". PolicyEngine-US carries $400,000 for this status, so at $250,000 and $300,000 of wages it gives a widow with one child the full $2,200 and this package gives nothing. NOTE WHICH CASE IS MISSING FROM THIS LIST: at $450,000 the two engines AGREE at $0, because that income clears the joint threshold as well. That is the whole reason the $450,000 shape exists - without it, a report of two disagreeing incomes could not distinguish \"this package now uses $200,000\" from \"this package lost the credit for some other reason\". This package carried $400,000 too, with a comment calling the question UNRESOLVED on the grounds that irs.gov is blocked from the build sandbox and PolicyEngine agreed; the statutory sentence settles it unaided and was quoted in that comment. See packages/us-federal-tax/test/surviving-spouse.test.js, which walks the parameter tree and requires every status-keyed table in the package to declare its statutory grouping."
+  },
+  {
+    "metric": "federal.taxableIncome",
+    "kind": "surviving-spouse-high",
+    "idIncludes": "-450000-",
+    "reason": "HARNESS. The same fact as the single-worker entry above, on the one surviving-spouse case rich enough to reach it: PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction, and the harness supplies no itemised deductions on purpose, so this package takes the standard one. It appears only in CALIFORNIA and MARYLAND, the two high-tax states in the grid where $450,000 of wages generates enough state and local tax to beat a $32,200 standard deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
+  },
+  {
+    "metric": "federal.incomeTaxBeforeCredits",
+    "kind": "surviving-spouse-high",
+    "idIncludes": "-450000-",
+    "reason": "HARNESS. Follows the taxable-income difference above."
+  },
+  {
+    "metric": "state.tax",
+    "state": "GA",
+    "kind": "surviving-spouse-high",
+    "maxAbs": 800,
+    "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT - the same entry as the $45,000 surviving-spouse case, at three higher incomes. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000; PolicyEngine-US gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount. It is $748.50 at EVERY income here - $15,000 of deduction at a flat 4.99% - which is what makes it a reading of the statute rather than a rate or a threshold, and is why one bound covers all three cases. A separate entry from the $45,000 one because `kind` matches exactly and the new shape is a new kind; that is a small cost of naming it `surviving-spouse-high` and it is worth paying, because a report that lumped the two together could not show that the $45,000 case and the $450,000 case differ by the same dollar."
   }
 ]

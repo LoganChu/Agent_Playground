@@ -74,7 +74,28 @@ one you would guess, and the fix caps the *conditions* without touching the
 If you or anyone else used the calculator or the packages for a **widow or
 widower with a dependent child**, especially one earning over $200,000 or
 running a business, **the answer was too low**. It is fixed, tested and
-released. `us-state-tax` is v0.24.0.
+released. `us-state-tax` is v0.25.0.
+
+**Two more things found by cross-checking against an independent model, once
+the test grid was told to file a widow's return at a high income rather than a
+low one.**
+
+- **Illinois takes its exemption allowance away entirely above $250,000** — a
+  cliff, not a taper — and the limit is $500,000 only "for returns with a
+  federal filing status of married filing jointly". A widow is not one of
+  those, and this package had been letting her keep it. $289.58 a year.
+- **Illinois has published its 2026 exemption allowance: $2,925**, up from
+  $2,850. This package had been carrying the 2025 figure forward and labelling
+  it *provisional*, which is what it does whenever a state has not released a
+  figure yet. Illinois is now published, and it is the first of these to be
+  paid off — eight states still carry at least one figure forward. The label is
+  a debt, not a disclaimer.
+
+Worth one line on the cross-check itself, because it cuts both ways. The
+other model, PolicyEngine-US, gives a widow with one child the full $2,200
+child tax credit at $250,000 and $300,000 of income. The statute does not, and
+this is now the single largest category of difference between the two models —
+**38 households where we are ahead of the reference rather than behind it.**
 
 ---
 

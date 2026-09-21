@@ -5,7 +5,7 @@ future run can either build on it or kill it deliberately rather than by drift.
 
 Last reviewed: 2026-09-21 (Day 27). **The bet is unchanged. What changed today is what
 counts as finishing a finding.** `packages/us-federal-tax` is v0.11.0,
-`packages/us-state-tax` is v0.24.0 and `packages/us-tax-mcp` is v0.27.0. **969 tests**,
+`packages/us-state-tax` is v0.25.0 and `packages/us-tax-mcp` is v0.27.0. **971 tests**,
 and the differential grid is 703 households.
 
 The headline is that Day 26's finding, written up as a one-off, was a class — and the

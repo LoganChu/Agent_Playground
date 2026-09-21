@@ -44,7 +44,7 @@ const run = (state, filingStatus, opts = {}) =>
 
 test('a per-person exemption counts ONE for a surviving spouse', () => {
   for (const [state, amount] of [
-    ['IL', 2_850],
+    ['IL', 2_925],
     ['IN', 1_000],
     ['MI', 5_800],
   ]) {
@@ -64,14 +64,25 @@ test('the exemption a widow was getting for a dead spouse, priced', () => {
   // Same household, same income, the two statuses side by side. The surviving
   // spouse should pay the SINGLE figure's tax on the exemption line.
   for (const [state, exemption, rate] of [
-    ['IL', 2_850, 0.0495],
+    ['IL', 2_925, 0.0495],
     ['MI', 5_800, 0.0425],
   ]) {
     const survivor = run(state, 'qualifyingSurvivingSpouse').tax;
     const single = run(state, 'single').tax;
     const joint = run(state, 'marriedFilingJointly').tax;
     money(survivor, single, `${state}: a surviving spouse pays what a single filer pays`);
-    money(single - joint, exemption * rate, `${state}: and the second exemption is worth this`);
+    // Within a cent, not to the cent. The engine rounds each RETURN's tax, so a
+    // difference of two rounded figures can sit a cent away from the unrounded
+    // product: Illinois's $2,925 at 4.95% is $144.7875, and the two returns
+    // differ by $144.78. Asserting the exact cent here would be asserting the
+    // order of two roundings, which is not the claim. (Illinois's exemption
+    // became $2,925 in v0.25.0, published, from the $2,850 this package had
+    // been carrying forward from 2025.)
+    assert.ok(
+      Math.abs(single - joint - exemption * rate) <= 0.01,
+      `${state}: the second exemption should be worth ${exemption} x ${rate}, ` +
+        `and the two returns differ by ${single - joint}`,
+    );
   }
 });
 
@@ -246,4 +257,68 @@ test('a spouseAge on a surviving spouse’s return buys no second senior allowan
     }).totalTax;
     money(withGhost, alone, `${state}: a dead spouse's age was counted`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// v0.25.0: Illinois takes the exemption allowance away at $250,000, and a
+// widow is an "other return".
+//
+// 35 ILCS 5/204(g) disallows the allowance ENTIRELY — it is a cliff, not a
+// taper — above $500,000 "for returns with a federal filing status of married
+// filing jointly, or $250,000 for all other returns". `byStatus()` defaults a
+// qualifying surviving spouse to the joint figure, so this package let a widow
+// keep an allowance Illinois had taken away, from $250,001 to $500,000.
+//
+// Found by the differential the day the grid first filed the status above
+// $250,000. Day 26 put a surviving spouse in the grid and she earned $45,000,
+// where this cliff cannot be reached by any amount of running. It is the same
+// lesson as the federal § 24 threshold on the same day, in a different
+// statute: a case reaches a threshold or it does not.
+// ---------------------------------------------------------------------------
+
+const illinois = (filingStatus, agi) =>
+  stateIncomeTax({
+    state: 'IL',
+    year: 2026,
+    filingStatus,
+    federal: { adjustedGrossIncome: agi, taxableIncome: agi },
+    wages: agi,
+    dependents: 1,
+    dependentAges: [10],
+  }).totalTax;
+
+test('Illinois disallows a widow’s exemption allowance above $250,000', () => {
+  // Two exemptions at $2,925 and the 4.95% rate: $289.58, lost on one dollar.
+  money(illinois('qualifyingSurvivingSpouse', 250_000), 12_085.43);
+  money(illinois('qualifyingSurvivingSpouse', 250_001), 12_375.05);
+  money(
+    illinois('qualifyingSurvivingSpouse', 250_001) - illinois('qualifyingSurvivingSpouse', 250_000),
+    289.62,
+    'the cliff is the whole allowance plus one dollar of tax',
+  );
+
+  // And the joint return still keeps its own, twice as high.
+  money(
+    illinois('marriedFilingJointly', 300_001) - illinois('marriedFilingJointly', 300_000),
+    0.05,
+    'a joint return has no cliff at $250,000',
+  );
+  // Three exemptions at $2,925 and 4.95% is $434.36, and the joint cliff is
+  // where Illinois takes them.
+  money(
+    illinois('marriedFilingJointly', 500_001) - illinois('marriedFilingJointly', 500_000),
+    434.41,
+    'a joint return loses its allowance at $500,000',
+  );
+
+  // Above her cliff the widow pays exactly what a single filer pays, which is
+  // the whole claim: Illinois calls her an "other return" at both ends.
+  money(illinois('qualifyingSurvivingSpouse', 300_000), illinois('single', 300_000));
+  // And below it she is still one person against the joint return's two, which
+  // is v0.23.0's fix and has to survive this one.
+  money(
+    illinois('marriedFilingJointly', 100_000) - illinois('qualifyingSurvivingSpouse', 100_000),
+    -144.79,
+    'a joint return keeps one exemption more below the cliff',
+  );
 });

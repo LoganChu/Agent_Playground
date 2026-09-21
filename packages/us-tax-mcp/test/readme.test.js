@@ -470,8 +470,8 @@ test('README: the state coverage claims are the ones the engine actually holds',
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.equal(provisional.length, 9);
-  quotes('nine of the 2026 state-years carry at');
+  assert.equal(provisional.length, 8);
+  quotes('eight of the 2026 state-years carry at');
 
   // Colorado's 2026 overtime add-back, which the section names.
   const co = stateIncomeTax({
