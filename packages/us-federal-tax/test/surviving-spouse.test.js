@@ -71,7 +71,8 @@ const GROUPINGS = [
     path: 'standardDeduction',
     grouping: 'joint',
     cite: '§ 63(c)(2)(A)',
-    phrase: '"in the case of — (i) a joint return, or (ii) a surviving spouse".',
+    phrase:
+      '200 percent of the subparagraph (C) amount "in the case of a joint return or a surviving spouse (as defined in section 2(a))", against "$3,000 in any other case".',
   },
   {
     path: 'additionalStandardDeduction',
