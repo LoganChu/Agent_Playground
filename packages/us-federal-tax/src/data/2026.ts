@@ -265,13 +265,23 @@ export const YEAR_2026: YearParameters = {
       marriedFilingJointly: 403_500,
       marriedFilingSeparately: 201_775,
       headOfHousehold: 201_750,
-      // Not stated separately in the Revenue Procedure, which distinguishes only
-      // joint returns, separate returns, and "all other" filers. § 199A(e)(2)(A)
-      // doubles the amount "in the case of a joint return", and a surviving
-      // spouse does not file one — but § 1(a) applies the joint rate schedule to
-      // surviving spouses, and that is how this is treated in practice. Kept as
-      // data so the other reading is a one-line change.
-      qualifyingSurvivingSpouse: 403_500,
+      // THE SINGLE FIGURE. § 199A(e)(2): "$157,500 (200 percent of such amount
+      // in the case of a joint return)". A surviving spouse does not file one.
+      //
+      // This said $403,500 until Day 27, on the reasoning that § 1(a) applies
+      // the joint rate schedule to a surviving spouse and that this is how the
+      // provision is treated in practice. Both halves were wrong. § 1(a) is a
+      // rate schedule and reaches no threshold that does not name a surviving
+      // spouse — § 1411(b) and § 63(c)(2)(A) do name one, § 199A does not — and
+      // "in practice" turned out to mean the Revenue Procedure, which gives this
+      // provision three rows (joint, separate, all other returns) and puts a
+      // surviving spouse in the third. Form 8995 line 12 says the same thing in
+      // one sentence: "Threshold. Enter $201,750 ($403,500 if married filing
+      // jointly)."
+      //
+      // Worth up to 20% of qualified business income to a widowed business
+      // owner, in the wrong direction — see `test/surviving-spouse.test.js`.
+      qualifyingSurvivingSpouse: 201_750,
     },
 
     phaseInRange: {
@@ -280,7 +290,11 @@ export const YEAR_2026: YearParameters = {
       // $75,000, matching single — it is *not* half the joint range.
       marriedFilingSeparately: 75_000,
       headOfHousehold: 75_000,
-      qualifyingSurvivingSpouse: 150_000,
+      // § 199A(b)(3)(B)(i)(I) and (d)(3)(A), as amended by OBBBA § 70105(b):
+      // "$75,000 ($150,000 in the case of a joint return)". The amendment
+      // restated the parenthetical rather than removing it, so the grouping is
+      // the same here as it was at $50,000/$100,000.
+      qualifyingSurvivingSpouse: 75_000,
     },
 
     w2WageRate: 0.5,
@@ -357,23 +371,31 @@ export const YEAR_2026: YearParameters = {
       thresholds: {
         single: 200_000,
         marriedFilingJointly: 400_000,
-        // Not halved. § 24(b)(2)(B) gives $200,000 to everyone who is not filing
+        // Not halved. § 24(b)(2) gives $200,000 to everyone who is not filing
         // jointly, which is one of the few places the code does not halve a joint
         // figure for a separate return.
-        //
-        // UNRESOLVED, and left alone deliberately: by that reading a qualifying
-        // surviving spouse should take $200,000 too, and Form 8812 says
-        // "$400,000 if married filing jointly; $200,000 all other filing
-        // statuses". The joint figure below is what PolicyEngine-US also carries
-        // from 2018, and irs.gov is blocked here, so the worksheet cannot be
-        // read first-hand. It is one figure, not an `if`, and no differential
-        // case reaches it — the grid's surviving spouse earns $45,000. Contrast
-        // the earned income credit, where the Revenue Procedure's own row
-        // heading settles the same question and this package was wrong until
-        // Day 26.
         marriedFilingSeparately: 200_000,
         headOfHousehold: 200_000,
-        qualifyingSurvivingSpouse: 400_000,
+        // And by the same words, the SINGLE figure for a surviving spouse.
+        // § 24(b)(2): "$400,000 in the case of a joint return, and $200,000 in
+        // any other case." Schedule 8812 line 9 splits it into two printed
+        // lines — "Married filing jointly—$400,000" and "All other filing
+        // statuses—$200,000" — and its instructions enumerate qualifying
+        // surviving spouse among the latter.
+        //
+        // This said $400,000 until Day 27, and the note that stood here said the
+        // question was UNRESOLVED because irs.gov is blocked from this sandbox
+        // and the worksheet could not be read first-hand. That was a real
+        // limitation and it was not a reason to keep the wrong figure: the
+        // statutory sentence settles it on its own, it had been quoted in this
+        // very comment, and the only thing on the other side was that
+        // PolicyEngine-US carries $400,000 too. A second model agreeing is not a
+        // source — Day 26 had already found that out about a citation, in this
+        // same file.
+        //
+        // Worth up to the full credit. A surviving spouse with two children and
+        // $300,000 of wages was told $4,400; it is $0.
+        qualifyingSurvivingSpouse: 200_000,
       },
     },
 

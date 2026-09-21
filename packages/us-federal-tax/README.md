@@ -12,18 +12,44 @@ the IRS release it came from.
 
 **Tax years 2024, 2025 and 2026.**
 
-New in 0.10.0, and it is a **correction**: a **qualifying surviving spouse** was
-getting the joint earned income credit phase-out threshold. § 32(b)(2)(B) raises the
-threshold "in the case of a joint return", and a surviving spouse does not file one —
-§ 2(a) hands them the joint *rate schedule* and says nothing about § 32. The Revenue
-Procedure prints the grouping in the row heading it uses: "Threshold Phaseout Amount
-(Single, Surviving Spouse, or Head of Household)". So the threshold is the single one,
-in every year this package covers, and the error ran in the expensive direction — it
-**overstated a refundable credit** for someone who has just lost a spouse, by up to
-`$1,161.75` with one child at `$45,000` of wages in 2026.
+New in 0.11.0, and it is a **correction — the third and largest in the same place**.
 
-It is the one place in this package where that filing status does not follow the joint
-column, and it was found the first time a differential case used the status at all.
+The Internal Revenue Code splits its thresholds on the words **"in the case of a joint
+return"**, and where it means to include a widow or widower it says so by name. § 1411(b)
+names a surviving spouse and § 63(c)(2)(A) names one; § 24, § 32 and § 199A do not. A
+**qualifying surviving spouse** does not file a joint return — § 2(a) hands them the joint
+*rate schedule* and nothing else — so in those three provisions they take the SINGLE
+figure. This package gave them the joint one:
+
+| | was | is | § |
+| --- | --- | --- | --- |
+| Child tax credit phase-out | `$400,000` | **`$200,000`** | § 24(b)(2) |
+| § 199A threshold amount (2026) | `$403,500` | **`$201,750`** | § 199A(e)(2) |
+| § 199A phase-in range (2026) | `$150,000` | **`$75,000`** | § 199A(b)(3)(B) |
+| Earned income credit phase-out (0.10.0) | joint | **single** | § 32(b)(2)(B) |
+
+Every one of them ran in the same direction — **the widow's bill was too low** — and the
+§ 199A pair is the largest single-household error this package has shipped. A widowed
+consultant with `$300,000` of profit and one child was told she owed **`$63,242.40`** for
+2026. She owes **`$75,893.38`**. All three tax years were wrong the same way.
+
+The § 24 figure had been sitting in the source with a comment calling it *unresolved*,
+because irs.gov is unreachable from the sandbox this package is built in and the
+worksheet could not be read first-hand. That was a real limitation and it was not a
+reason to keep the wrong number: the statutory sentence settles it on its own and had
+been quoted in the comment. The only thing on the other side was that a second model
+carried `$400,000` too — and a second model agreeing is not a source.
+
+**What is new besides the figures is that the question is now closed for good.**
+[`test/surviving-spouse.test.js`](https://github.com/LoganChu/Agent_Playground/blob/main/packages/us-federal-tax/test/surviving-spouse.test.js)
+walks the whole parameter tree, finds every table keyed by filing status — twenty of
+them, in three tax years — and requires each to declare which grouping it is in and
+quote the phrase that decides it. A new status-keyed parameter cannot be added without
+answering the question, and an entry whose joint and single figures stop differing fails
+as **vacuous** rather than passing silently. Nothing else in the package moved: a widow
+and a married couple at `$120,000` of wages pay the same federal tax to the cent, and
+where they differ the test decomposes the gap into the provisions that caused it.
+
 
 Also in 0.9.0, and it is a **correction**: `age` and `age65OrOlder` are two fields for
 two different statutes — `age` is the § 32 earned income credit test, `age65OrOlder`
@@ -37,7 +63,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.10.0/us-federal-tax-0.10.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.11.0/us-federal-tax-0.11.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -516,7 +542,8 @@ qbiDeduction({
 }).deduction; // 20000 — 30,000 tentative, less half the 20,000 excess over the wage cap
 ```
 
-Below the threshold (`$201,750` single, `$403,500` joint for 2026) none of the
+Below the threshold (`$201,750` single, `$403,500` joint for 2026 — and `$201,750`
+for a qualifying surviving spouse, who does not file a joint return) none of the
 limitations applies. Across the phase-in range above it, the W-2 wage and property
 cap phases **in** while a specified service trade or business phases **out**. Above
 the range the cap binds in full and an SSTB is worth nothing.

@@ -13,8 +13,56 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 26 nothing is waiting on you, and one thing here is worth reading
-even if nothing else ever is.** `us-federal-tax` is v0.10.0, `us-state-tax`
+**As of Day 27 nothing is waiting on you, and the thing worth reading is the
+same one as yesterday, gone further.** `us-federal-tax` is v0.11.0,
+`us-state-tax` v0.23.0 (unchanged), `us-tax-mcp` v0.27.0.
+
+Yesterday I told you a refundable credit had been too high for widows and
+widowers. Today I went looking for the rest of that mistake and found **two
+more of it**, one of them much larger.
+
+The US tax code writes its thresholds as "$400,000 in the case of a joint
+return, and $200,000 in any other case". Someone filing as a **qualifying
+surviving spouse** — the status you use for two years after a spouse dies, if
+you have a dependent child — does **not** file a joint return. Where the law
+means to include them it says so by name, and in three places it does not:
+
+- **The child tax credit.** This package used $400,000 as the income where the
+  credit starts to disappear. It is **$200,000**. A widow with two children
+  and $300,000 of wages was told she got the full **$4,400**; she gets nothing.
+- **The small-business (QBI) deduction — the big one.** Two figures, both
+  doubled when they should not have been. **A widowed consultant with $300,000
+  of profit and one child was told she owed $63,242.40 for 2026. She owes
+  $75,893.38** — an error of **$12,650.98 on a single return**, about eleven
+  times yesterday's.
+
+Every year from 2024 was wrong the same way, and every one of these ran in the
+same direction: **the widow's bill was too low.**
+
+The § 24 figure is the part I want to flag rather than bury. It had been
+sitting in the code with a note on it saying the question was *unresolved*,
+because irs.gov is blocked from the sandbox I run in and I could not read the
+worksheet first-hand. That was true and it was not a good enough reason: the
+sentence of the statute settles it on its own, and it had been quoted in that
+very note. The only thing on the other side was that another tax model carries
+$400,000 too — and another model agreeing is not evidence.
+
+**What is new besides the numbers is that this question is now closed
+permanently.** There is a test that walks the entire parameter tree, finds all
+twenty tables that vary by filing status across three tax years, and makes each
+one declare which group a surviving spouse belongs to and quote the words that
+decide it. Nobody can add a new one without answering the question. It also
+fails if an entry becomes *vacuous* — if the two figures it is choosing between
+stop differing, so that it would pass no matter what.
+
+If you or anyone else used the calculator or the packages for a **widow or
+widower with a dependent child**, especially one earning over $200,000 or
+running a business, **the answer was too low**. It is fixed, tested and
+released.
+
+---
+
+**As of Day 26, and this is the entry it follows from.** `us-federal-tax` is v0.10.0, `us-state-tax`
 v0.23.0, `us-tax-mcp` v0.26.0.
 
 **A refundable federal credit was too high for widows and widowers, in every

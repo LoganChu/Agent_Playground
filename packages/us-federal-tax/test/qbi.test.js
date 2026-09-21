@@ -23,7 +23,10 @@ test('2026 threshold amounts, including the $25 split for a separate return', ()
   assert.equal(p.thresholdAmount.single, 201_750);
   assert.equal(p.thresholdAmount.headOfHousehold, 201_750);
   assert.equal(p.thresholdAmount.marriedFilingJointly, 403_500);
-  assert.equal(p.thresholdAmount.qualifyingSurvivingSpouse, 403_500);
+  // The single figure. § 199A(e)(2) doubles "in the case of a joint return"
+  // and a surviving spouse does not file one; Form 8995 line 12 prints the
+  // same split. See `test/surviving-spouse.test.js`.
+  assert.equal(p.thresholdAmount.qualifyingSurvivingSpouse, 201_750);
   // Not a typo: § 1(f)(7) rounds a separate return's adjustment to $25 and
   // everyone else's to $50, and 2026 lands between the two.
   assert.equal(p.thresholdAmount.marriedFilingSeparately, 201_775);
@@ -40,7 +43,9 @@ test('2026 uses the widened OBBBA phase-in range, not the old $50k/$100k', () =>
   // Separate returns get the single-filer range, not half the joint range.
   assert.equal(p.phaseInRange.marriedFilingSeparately, 75_000);
   assert.equal(p.phaseInRange.marriedFilingJointly, 150_000);
-  assert.equal(p.phaseInRange.qualifyingSurvivingSpouse, 150_000);
+  // Same parenthetical, same answer: "$75,000 ($150,000 in the case of a
+  // joint return)".
+  assert.equal(p.phaseInRange.qualifyingSurvivingSpouse, 75_000);
 });
 
 test('the § 199A(i) minimum deduction exists in 2026', () => {
@@ -225,16 +230,54 @@ test('the $25 threshold gap between single and separate is worth real money', ()
   assert.equal(separate.deduction, 20_000);
 });
 
-test('a qualifying surviving spouse uses the joint threshold', () => {
+// This test asserted the opposite until Day 27, under the name "a qualifying
+// surviving spouse uses the joint threshold", and it passed every day for as
+// long as it existed. It was written from the same belief as the parameter file
+// and therefore could only ever confirm it. THE LESSON, in a package whose whole
+// claim is that it is cited: a test that restates the data is a spelling check.
+// A test earns its place by restating the STATUTE — which is why this one now
+// carries the sentence it turns on, and why `test/surviving-spouse.test.js`
+// prices the difference in dollars instead of in parameters.
+test('a qualifying surviving spouse uses the SINGLE threshold — § 199A(e)(2)', () => {
   const r = qbiDeduction({
     filingStatus: 'qualifyingSurvivingSpouse',
     year: 2026,
     taxableIncomeBeforeQbiDeduction: 300_000,
     businesses: [business(100_000)],
   });
-  assert.equal(r.thresholdAmount, 403_500);
-  assert.equal(r.reductionRatio, 0);
-  assert.equal(r.deduction, 20_000);
+  // "$157,500 (200 percent of such amount in the case of a joint return)".
+  // A surviving spouse files a return of their own under § 6013(a)'s terms and
+  // is not "making a joint return", so the doubling does not reach them.
+  assert.equal(r.thresholdAmount, 201_750);
+  // $98,250 over, against a $75,000 phase-in range: fully phased in. With no
+  // W-2 wages and no property the wage-and-property cap is zero, so all
+  // $20,000 of the deduction is taken back — and then § 199A(i) hands $400 of
+  // it straight back, because there is $1,000 of QBI from an active business.
+  // On the old joint threshold this same filer was $103,500 BELOW the line and
+  // deducted the full $20,000: a $19,600 swing on one figure.
+  assert.equal(r.excessOverThreshold, 98_250);
+  assert.equal(r.reductionRatio, 1);
+  assert.equal(r.deduction, 400);
+});
+
+test('the surviving spouse and the joint filer part company at $201,750', () => {
+  const at = (filingStatus, taxableIncomeBeforeQbiDeduction) =>
+    qbiDeduction({
+      filingStatus,
+      year: 2026,
+      taxableIncomeBeforeQbiDeduction,
+      businesses: [business(100_000)],
+    }).deduction;
+
+  // Below the single threshold the two statuses agree, because neither is
+  // limited at all. That is what made this defect invisible: every test and
+  // every differential case sat on this side of the line.
+  assert.equal(at('qualifyingSurvivingSpouse', 201_750), 20_000);
+  assert.equal(at('marriedFilingJointly', 201_750), 20_000);
+
+  // One dollar later they do not.
+  assert.ok(at('qualifyingSurvivingSpouse', 201_751) < 20_000);
+  assert.equal(at('marriedFilingJointly', 201_751), 20_000);
 });
 
 // --------------------------------------------------------------------------

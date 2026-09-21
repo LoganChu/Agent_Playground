@@ -186,7 +186,10 @@ export const YEAR_2024: YearParameters = {
       marriedFilingJointly: 383_900,
       marriedFilingSeparately: 191_950,
       headOfHousehold: 191_950,
-      qualifyingSurvivingSpouse: 383_900,
+      // § 199A(e)(2) doubles the amount "in the case of a joint return" only.
+      // See `2026.ts` for the reasoning and the sources; it is the same in
+      // every year this package covers.
+      qualifyingSurvivingSpouse: 191_950,
     },
 
     phaseInRange: {
@@ -194,7 +197,9 @@ export const YEAR_2024: YearParameters = {
       marriedFilingJointly: 100_000,
       marriedFilingSeparately: 50_000,
       headOfHousehold: 50_000,
-      qualifyingSurvivingSpouse: 100_000,
+      // § 199A(b)(3)(B)(i)(I): "$50,000 ($100,000 in the case of a joint
+      // return)". Same parenthetical as the threshold above.
+      qualifyingSurvivingSpouse: 50_000,
     },
 
     w2WageRate: 0.5,
@@ -258,7 +263,8 @@ export const YEAR_2024: YearParameters = {
         marriedFilingJointly: 400_000,
         marriedFilingSeparately: 200_000,
         headOfHousehold: 200_000,
-        qualifyingSurvivingSpouse: 400_000,
+        // § 24(b)(2): "$200,000 in any other case". See `2026.ts`.
+        qualifyingSurvivingSpouse: 200_000,
       },
     },
 

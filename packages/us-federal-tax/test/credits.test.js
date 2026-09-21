@@ -52,7 +52,11 @@ test('2026 child tax credit parameters', () => {
 test('the § 24 phase-out threshold is $200,000 for everyone but joint filers', () => {
   const t = childTaxCreditParameters(2026).phaseOut.thresholds;
   assert.equal(t.marriedFilingJointly, 400_000);
-  assert.equal(t.qualifyingSurvivingSpouse, 400_000);
+  // "$400,000 in the case of a joint return, and $200,000 in any other case."
+  // A qualifying surviving spouse is an other case — Schedule 8812 line 9 puts
+  // it as "All other filing statuses—$200,000". This said $400,000 until
+  // Day 27. See `test/surviving-spouse.test.js`.
+  assert.equal(t.qualifyingSurvivingSpouse, 200_000);
   assert.equal(t.single, 200_000);
   assert.equal(t.headOfHousehold, 200_000);
   // Not halved to $200,000-from-$400,000 by some other route: § 24(b)(2)(B)

@@ -52,8 +52,12 @@ const count = (description: string): JsonSchema => ({
 export const FILING_STATUS_PROPERTY: JsonSchema = {
   type: 'string',
   enum: [...FILING_STATUSES],
+  // Three tools carry this text verbatim, so it says only the thing a caller
+  // can get WRONG — substituting the joint status for the widow's — and leaves
+  // the reasons to `HOUSEHOLD_PROPERTIES.filingStatus`, which is paid for once.
   description:
-    'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent child, on the joint rate schedule.',
+    'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent ' +
+    'child and is NOT interchangeable with marriedFilingJointly.',
 };
 
 export const YEAR_PROPERTY: JsonSchema = {
@@ -103,7 +107,25 @@ const QUALIFIED_BUSINESS_SCHEMA: JsonSchema = {
  * thing.
  */
 export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
-  filingStatus: FILING_STATUS_PROPERTY,
+  filingStatus: withShortForm(
+    {
+      ...FILING_STATUS_PROPERTY,
+      description:
+        'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a ' +
+        'dependent child, for the two years after a spouse dies, and it is NOT ' +
+        'marriedFilingJointly. It takes the joint rate schedule and the joint ' +
+        'standard deduction, because § 1(a) and § 63(c)(2)(A) name a surviving ' +
+        'spouse — and the SINGLE figure everywhere a statute splits on "a joint ' +
+        'return" and does not: the child tax credit threshold ($200,000, not ' +
+        '$400,000), the § 199A threshold and phase-in range, the earned income ' +
+        'credit phase-out, the Additional Medicare threshold and the § 86 base ' +
+        'amounts. Passing marriedFilingJointly instead overstates a refundable ' +
+        'credit and can hand a widowed business owner a QBI deduction worth ' +
+        'tens of thousands of dollars that the statute does not give her.',
+    },
+    'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent ' +
+      'child and is not interchangeable with marriedFilingJointly.',
+  ),
 
   w2Wages: money('Gross W-2 wages, before withholding.'),
   selfEmploymentNetProfit: money(

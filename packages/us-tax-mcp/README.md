@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.26.0/us-tax-mcp-0.26.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.27.0/us-tax-mcp-0.27.0.tgz"
       ]
     }
   }
@@ -156,7 +156,23 @@ tool says in its own output rather than only here.
 
 ## State tax: the rate is the easy part
 
-**New in 0.26.0 — being 65 and being blind, in the three states that had the
+**New in 0.27.0 — the widow's filing status, and the third correction in the
+same place.** Federal thresholds split on the phrase **"in the case of a joint
+return"**, and a **qualifying surviving spouse** does not file one: § 2(a) hands
+them the joint *rate schedule* and nothing else. Where Congress means to include
+them it says so by name — § 1411(b) and § 63(c)(2)(A) do; § 24, § 32 and § 199A
+do not. This server gave them the joint figure for the **child tax credit
+threshold** (`$400,000`, and it is `$200,000`) and for **both § 199A figures**
+(`$403,500` and `$150,000` for 2026, and they are `$201,750` and `$75,000`).
+A widowed consultant with `$300,000` of profit and one child was told she owed
+`$63,242.40` for 2026; she owes **`$75,893.38`**. All three tax years were wrong
+the same way, and all of it ran in one direction: the widow's bill was too low.
+**If you are a model calling this server, do not substitute
+`marriedFilingJointly` for `qualifyingSurvivingSpouse`** — above `$200,000` the
+two are thousands of dollars apart, and the schema now says so on every tool
+that takes a filing status.
+
+**Also in 0.26.0 — being 65 and being blind, in the three states that had the
 provision and no rule.** CALIFORNIA claims one more exemption CREDIT at 65 and
 one more for blindness, `$153` each and claimed per person, so a retired couple
 was charged `$306` too much every year; because they are credits they are worth

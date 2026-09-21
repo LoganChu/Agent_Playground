@@ -275,7 +275,10 @@ export const YEAR_2025: YearParameters = {
       marriedFilingJointly: 394_600,
       marriedFilingSeparately: 197_300,
       headOfHousehold: 197_300,
-      qualifyingSurvivingSpouse: 394_600,
+      // § 199A(e)(2) doubles the amount "in the case of a joint return" only,
+      // and Form 8995 line 12 prints it as "$197,300 ($394,600 if married
+      // filing jointly)". See `2026.ts`.
+      qualifyingSurvivingSpouse: 197_300,
     },
 
     phaseInRange: {
@@ -283,7 +286,9 @@ export const YEAR_2025: YearParameters = {
       marriedFilingJointly: 100_000,
       marriedFilingSeparately: 50_000,
       headOfHousehold: 50_000,
-      qualifyingSurvivingSpouse: 100_000,
+      // § 199A(b)(3)(B)(i)(I): "$50,000 ($100,000 in the case of a joint
+      // return)".
+      qualifyingSurvivingSpouse: 50_000,
     },
 
     w2WageRate: 0.5,
@@ -348,7 +353,8 @@ export const YEAR_2025: YearParameters = {
         marriedFilingJointly: 400_000,
         marriedFilingSeparately: 200_000,
         headOfHousehold: 200_000,
-        qualifyingSurvivingSpouse: 400_000,
+        // § 24(b)(2): "$200,000 in any other case". See `2026.ts`.
+        qualifyingSurvivingSpouse: 200_000,
       },
     },
 
