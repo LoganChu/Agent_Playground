@@ -176,9 +176,73 @@ export type ParameterStatus =
   /**
    * At least one figure is carried forward from the prior year because the state
    * has not released the indexed amount yet. The statutory rate is still correct;
-   * bracket thresholds and deductions may be understated. `notes` says which.
+   * bracket thresholds and deductions may be understated.
+   *
+   * **Which figures, and what would settle each one, is in
+   * {@link StateIncomeTaxDefinition.provisionalFigures}, not in prose.** A
+   * state-year is rarely provisional as a whole: Michigan's personal exemption
+   * is published for 2026 and its special exemption is not, and one enum on the
+   * definition cannot say that.
    */
   | 'provisional';
+
+/**
+ * Why a single figure is not final, and what would make it so.
+ *
+ * The distinction is the point. Day 27 of this project's journal called the
+ * provisional figures "a backlog, probably one afternoon", and that is true of
+ * exactly half of them:
+ *
+ * - `awaiting-publication` is a **debt**. The state will publish the number, on
+ *   a calendar, and someone has to go and read it. Kentucky's 2026 standard
+ *   deduction was one search away for nine months and nobody looked.
+ * - `determined-after-year-end` is **not a debt at all**. Colorado's rate for a
+ *   tax year is fixed by the TABOR surplus calculation *after that year closes*
+ *   — no amount of searching in 2026 can produce the 2026 figure, because it
+ *   does not exist yet in any office in Colorado. Chasing it is the error.
+ *
+ * Carrying both under one word invites a future run to treat the second as
+ * negligence and the first as weather. They are the opposite way round.
+ */
+export type ProvisionalReason =
+  /**
+   * The state has legislated or will index the figure, and a named document
+   * will carry it. {@link ProvisionalFigure.resolvedBy} names the document.
+   */
+  | 'awaiting-publication'
+  /**
+   * The law itself does not determine the figure until after the tax year ends.
+   * Nothing published during the year can settle it; the figure here is the
+   * statutory default or an upper bound, and `notes` says which direction.
+   */
+  | 'determined-after-year-end';
+
+/**
+ * One figure in a state-year that is not taken from a published source.
+ *
+ * `path` is a dot path into the {@link StateIncomeTaxDefinition} — `rate.rate`,
+ * `deduction.amounts.single`, `exemption.perBlindOrDisabledFiler`. It is
+ * checked to resolve, so the list cannot rot into a description of a package
+ * that no longer exists, and a `carriedForwardFrom` entry is checked to still
+ * *equal* the prior year's value, so a figure cannot be quietly resolved while
+ * the flag that warns about it stays up.
+ */
+export interface ProvisionalFigure {
+  /** Dot path into the definition. Must resolve to a defined value. */
+  readonly path: string;
+  readonly reason: ProvisionalReason;
+  /**
+   * The tax year this value was copied from, for an `awaiting-publication`
+   * figure that is a carry-forward. Absent where the figure is a statutory
+   * default rather than last year's number.
+   */
+  readonly carriedForwardFrom?: number;
+  /**
+   * The document that would settle it, named specifically enough to go and
+   * find — "the 2026 IT 1040 booklet", not "the state".
+   */
+  readonly resolvedBy: string;
+}
 
 /**
  * The federal figures a state return is computed from.

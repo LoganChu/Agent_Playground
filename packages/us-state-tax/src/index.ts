@@ -109,6 +109,8 @@ export type {
   LocalityCode,
   ParameterStatus,
   PersonRetirementIncome,
+  ProvisionalFigure,
+  ProvisionalReason,
   RetirementIncomeSplit,
   StateCode,
   StateDefinedBaseField,

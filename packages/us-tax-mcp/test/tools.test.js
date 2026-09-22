@@ -1811,8 +1811,16 @@ test("state_income_tax carries Kentucky's service months through to Schedule P",
     filer: { ...base, serviceMonthsBefore1998: 276, serviceMonthsAfter1997: 84 },
   });
   const late = ky({ filer: { ...base, serviceMonthsAfter1997: 360 } });
-  assert.equal(early.structured.state.totalTax, 768.37);
-  assert.equal(late.structured.state.totalTax, 2646.7);
+  // $3.15 lower than before v0.28.0 on each side: Kentucky's 2026 standard
+  // deduction is $3,360, not the $3,270 this package carried forward from 2025.
+  // The $1,878.33 the two teachers are apart is unchanged, because a deduction
+  // both of them take cancels out of the difference.
+  assert.equal(early.structured.state.totalTax, 765.22);
+  assert.equal(late.structured.state.totalTax, 2643.55);
+  assert.equal(
+    Math.round((late.structured.state.totalTax - early.structured.state.totalTax) * 100) / 100,
+    1878.33,
+  );
   assert.match(early.text, /pension income exclusion/i);
 
   // The uncapped half: pre-1998 service is exempt in full AND leaves the

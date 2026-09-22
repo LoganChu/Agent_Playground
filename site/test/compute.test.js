@@ -162,7 +162,12 @@ test('four states charge a different tax on the same household totals', () => {
   assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'MD', 'NY']);
   assert.deepEqual(moved.GA, [0, 1_247.5]);
   assert.deepEqual(moved.MD, [273.25, 2_201.75]);
-  assert.deepEqual(moved.KY, [1_907.85, 2_996.7]);
+  // $3.15 lower on both sides than before v0.28.0: Kentucky's 2026 standard
+  // deduction is $3,360, published by the Department of Revenue, against the
+  // $3,270 this package carried forward from 2025. The SWING — which is what
+  // this test is about — is $1,088.85 either way, because a deduction both
+  // versions of the household take cancels out of the difference.
+  assert.deepEqual(moved.KY, [1_904.7, 2_993.55]);
   assert.deepEqual(moved.NY, [3_120.8, 4_200.8]);
 
   // All four move the same way — concentrating the income wastes the absent

@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.27.0/us-tax-mcp-0.27.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.28.0/us-tax-mcp-0.28.0.tgz"
       ]
     }
   }
@@ -155,6 +155,25 @@ tool says in its own output rather than only here.
 ---
 
 ## State tax: the rate is the easy part
+
+**New in 0.28.0 — three carried-forward figures paid off, and one that never
+could be.** Every state-year here says whether its figures are `published` or
+`provisional`, and six of the 2026 ones are still provisional against eight
+before. **Kentucky's** 2026 standard deduction is `$3,360`, not the `$3,270`
+this server had been carrying from 2025; **Michigan's** personal exemption is
+`$5,900`, not `$5,800`; **Maryland's** `$3,350` is confirmed unchanged. All
+three were published in the states' own 2026 withholding documents and had been
+sitting there for months.
+
+What a model calling this server should take from the remaining six is that
+**they are not all the same kind of uncertainty**. Four are waiting on a form
+that does not exist until January 2027. **Colorado cannot be resolved during
+2026 at all**: its rate is fixed by a TABOR surplus calculation that runs after
+the tax year closes, so the 4.40% here is an *upper bound* and the 25% earned
+income credit match is a *floor* — a Colorado 2026 answer from this server is
+the most tax and the least credit Colorado can ask for. Do not tell a user that
+figure is pending a publication; tell them it is pending the year ending.
+`describe_state` carries the per-figure detail.
 
 **New in 0.27.0 — the widow's filing status, and the third correction in the
 same place.** Federal thresholds split on the phrase **"in the case of a joint
@@ -542,10 +561,16 @@ the other — worth `$612.50` to Columbus and saving `$306.25` from the district
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
 Eight of the nineteen taxing states cut their rate for 2026, so an unsupported year is an
-error rather than a fallback to the nearest one — and eight of the 2026 state-years carry at
+error rather than a fallback to the nearest one — and six of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud. Illinois came
-off that list in 0.27.0: its `$2,925` exemption allowance for 2026 is published now, and the
-provisional flag is a debt to be paid rather than a permanent disclaimer.
+off that list in 0.27.0, and Kentucky and Maryland in 0.28.0: Kentucky's 2026 standard
+deduction is `$3,360` and Maryland's is `$3,350` unchanged, both from the states' own 2026
+withholding documents. The provisional flag is a debt to be paid rather than a permanent
+disclaimer — except for Colorado, where it is neither. Each state-year now lists the
+individual figures at issue in `provisionalFigures`, saying which are waiting on a document
+somebody can go and read and which the law does not fix until the tax year closes. Colorado
+is the second kind: its 4.40% rate is an upper bound a TABOR surplus calculation can cut
+after the fact, so nothing published during 2026 can settle it.
 
 Maryland is two income taxes rather than one. Every resident owes a **county** income tax of
 2.25% to 3.30% on the same taxable income the state taxes — a third to two fifths of the whole

@@ -115,6 +115,16 @@ const CITATIONS: readonly Citation[] = [
     url: 'https://law.justia.com/codes/maryland/tax-general/title-10/subtitle-1/section-10-105/',
   },
   {
+    title:
+      '2026 Maryland Employer Withholding Guide — the $3,350 / $6,700 standard deduction for tax year 2026',
+    url: 'https://www.marylandcomptroller.gov/content/dam/mdcomp/tax/instructions/withholding/2026/withholding-guide.pdf',
+  },
+  {
+    title:
+      'Maryland HB 411 (2026) fiscal note — would have raised the deduction to $4,100; died in committee, and states current law as $3,350',
+    url: 'https://mgaleg.maryland.gov/2026RS/fnotes/bil_0001/hb0411.pdf',
+  },
+  {
     title: 'Md. Code, Tax-Gen. § 10-211 — exemptions, and § 10-211(c), the exemption amount chart by federal AGI',
     url: 'https://law.justia.com/codes/maryland/tax-general/title-10/subtitle-2/part-iii/section-10-211/',
   },
@@ -222,7 +232,7 @@ const JOINT_EXEMPTION_STEPS: readonly CreditStep[] = [
 ];
 
 const NOTES_2026: readonly string[] = [
-  'PROVISIONAL: the 2026 Maryland standard deduction is carried forward at $3,350 / $6,700. HB 352 replaced the old 15%-of-AGI formula with flat amounts and directed that they be indexed by the chained CPI from tax year 2026, and the sources reachable here disagree on the result — some report $3,350 unchanged and some $3,400 (with $6,800 joint, since the joint amount is exactly twice the single one). Everything else in the Maryland computation is a fixed dollar figure in statute, including every rate threshold, the exemption chart, the capital gains surtax threshold and the itemized deduction limit, so this is the only 2026 figure at risk. A $50 error in the deduction is worth about $4 of state and county tax.',
+  'The 2026 Maryland standard deduction is $3,350 / $6,700 — CONFIRMED, and unchanged from 2025. HB 352 of 2025 replaced the old 15%-of-AGI formula with flat amounts and directed that they be indexed from tax year 2026, and this package flagged the figure provisional from Day 8 because secondary sources split between $3,350 and $3,400. The Comptroller settled it: the 2026 employer withholding guide and the 2026 Form MW507 both carry $3,350, and the Department of Legislative Services fiscal note on HB 411 of 2026 — a bill to raise it to $4,100 that DIED in committee — states the current-law figure for tax year 2026 as $3,350 in the course of costing the increase. Three Maryland documents, two of them the state telling its own employers what to withhold.',
 ];
 
 const NOTES: readonly string[] = [
@@ -266,8 +276,9 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
     code: 'MD',
     name: 'Maryland',
     year,
-    // Only the standard deduction is indexed, and only from 2026 — see NOTES_2026.
-    status: year >= 2026 ? 'provisional' : 'published',
+    // Only the standard deduction is indexed, and only from 2026 — see
+    // NOTES_2026, which is now a confirmation rather than a warning.
+    status: 'published',
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'brackets', byStatus: brackets },
     deduction: {

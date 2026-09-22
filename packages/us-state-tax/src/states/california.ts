@@ -261,8 +261,22 @@ export function california(year: number): StateIncomeTaxDefinition | undefined {
       ...published,
       year,
       status: 'provisional',
+      // Whole subtrees rather than leaves, because the whole of each one is the
+      // 2025 object: the non-vacuity check then compares every bracket
+      // threshold and every CalEITC figure against 2025, which no list of
+      // individual paths this file could stand to carry would do.
+      provisionalFigures: (
+        ['rate', 'deduction', 'exemptionCredit', 'ownEarnedIncomeCredit', 'youngChildCredit'] as const
+      ).map((path) => ({
+        path,
+        reason: 'awaiting-publication' as const,
+        carriedForwardFrom: 2025,
+        resolvedBy:
+          "the Franchise Tax Board's annual 'California tax rates and exemptions' release for 2026, and the 2026 Form 540 booklet",
+      })),
       notes: [
-        'PROVISIONAL: the 2026 bracket thresholds, standard deduction, exemption credits, CalEITC amounts and Young Child Tax Credit below are the published 2025 figures carried forward. California indexes all of them by the California CPI factor, which the Franchise Tax Board publishes late in the tax year; this package could not reach ftb.ca.gov to confirm the 2026 factor. The rates themselves are statutory and are correct. Expect the computed tax to be slightly HIGH — carrying thresholds forward leaves income in higher bands than the indexed schedule would, and carrying the CalEITC ceilings forward understates the credit for a filer on the phase-in.',
+        'PROVISIONAL: the 2026 bracket thresholds, standard deduction, exemption credits, CalEITC amounts and Young Child Tax Credit below are the published 2025 figures carried forward. California indexes all of them by the California CPI factor, which the Franchise Tax Board publishes late in the tax year, and ftb.ca.gov is not reachable from this package’s build. The rates themselves are statutory and are correct. Expect the computed tax to be slightly HIGH — carrying thresholds forward leaves income in higher bands than the indexed schedule would, and carrying the CalEITC ceilings forward understates the credit for a filer on the phase-in.',
+        'Checked again on Day 28 and DELIBERATELY NOT RESOLVED. Secondary sources reporting "2026 California" figures are not usable here and the reason is worth knowing: several of them give the 2026 standard deduction as $5,706 / $11,412, which is this package’s 2025 figure, while in the same breath giving an exemption credit of $158 / $316 against 2025’s $153 / $306. California indexes both by the same CCPI factor, so a source that moves one and not the other has stitched a fresh number onto a stale one, and neither half can be trusted. The rule this package has followed since Day 1 — never commit a tax figure that only one source supports — is what keeps the flag up here.',
         ...SHARED_NOTES,
       ],
       citations: CITATIONS,

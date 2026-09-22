@@ -644,13 +644,14 @@ test('README: the Michigan commute, and the credit that is capped at the home ra
 test('README: the provisional and published lists for 2026', () => {
   const byStatus = (status) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).status === status);
-  // Illinois moved from the first list to the second in v0.25.0: its 2026
-  // exemption allowance is $2,925, published in Informational Bulletin
-  // FY 2026-15 and in the Comptroller's 2026 payroll bulletin. The provisional
-  // flag is a debt, and this is the first one paid.
-  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'KY', 'MD', 'MI', 'OH', 'UT']);
+  // Illinois moved from the first list to the second in v0.25.0, and KENTUCKY
+  // and MARYLAND in v0.26.0. Kentucky's 2026 standard deduction is $3,360,
+  // announced by the Department of Revenue; Maryland's is $3,350, unchanged,
+  // confirmed by the Comptroller's 2026 withholding guide. The provisional flag
+  // is a debt, and three have now been paid.
+  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'OH', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AZ', 'GA', 'IL', 'IN', 'MA', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
+  assert.deepEqual(published, ['AZ', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 

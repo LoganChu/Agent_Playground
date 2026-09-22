@@ -505,10 +505,17 @@ test('two counties changed for 2026 and the state schedule did not', () => {
     getStateDefinition('MD', 2026).rate.byStatus.single,
     getStateDefinition('MD', 2025).rate.byStatus.single,
   );
-  // The one 2026 figure that is indexed, and the reason the year is provisional.
-  assert.equal(getStateDefinition('MD', 2026).status, 'provisional');
-  assert.ok(getStateDefinition('MD', 2026).notes[0].startsWith('PROVISIONAL:'));
-  assert.ok(getStateDefinition('MD', 2026).notes[0].includes('standard deduction'));
+  // The one 2026 figure that is indexed, and the reason the year was flagged
+  // provisional from Day 8 to Day 28. It is now CONFIRMED at $3,350 / $6,700 by
+  // the Comptroller's 2026 withholding guide and Form MW507, and by the fiscal
+  // note on HB 411 of 2026 — a bill to raise it to $4,100 that died in
+  // committee, and that prices the rise against current law. The figure never
+  // moved; the package's confidence in it did.
+  assert.equal(getStateDefinition('MD', 2026).status, 'published');
+  assert.equal(getStateDefinition('MD', 2026).provisionalFigures, undefined);
+  assert.equal(getStateDefinition('MD', 2026).deduction.amounts.single, 3_350);
+  assert.equal(getStateDefinition('MD', 2026).deduction.amounts.marriedFilingJointly, 6_700);
+  assert.ok(getStateDefinition('MD', 2026).notes[0].includes('CONFIRMED'));
   assert.equal(getStateDefinition('MD', 2025).status, 'published');
 });
 

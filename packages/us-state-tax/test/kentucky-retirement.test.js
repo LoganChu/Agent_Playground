@@ -41,9 +41,11 @@ const excluded = (result, fragment = 'pension income exclusion') =>
     .filter((s) => s.name.toLowerCase().includes(fragment))
     .reduce((sum, s) => sum + s.amount, 0);
 
-// 2026: 3.5% flat (HB 1 of 2025), $3,270 standard deduction.
+// 2026: 3.5% flat (HB 1 of 2025), $3,360 standard deduction — KRS 141.081,
+// indexed, and announced by the Department of Revenue for 2026. This package
+// carried $3,270 forward until Day 28, which cost every Kentucky filer $3.15.
 const RATE_2026 = 0.035;
-const DEDUCTION = 3_270;
+const DEDUCTION = 3_360;
 /** What a rate table gives you: the rate on AGI less the standard deduction. */
 const rateTable = (agi) => Math.max(0, agi - DEDUCTION) * RATE_2026;
 
@@ -114,7 +116,7 @@ test('the exclusion is per person, so a couple has $62,220', () => {
   });
   money(excluded(concentrated), 31_110);
   money(concentrated.totalTax, (62_220 - 31_110 - DEDUCTION) * RATE_2026);
-  money(concentrated.totalTax - split.totalTax, 974.4, 'cost of one name');
+  money(concentrated.totalTax - split.totalTax, 971.25, 'cost of one name');
 });
 
 // ---------------------------------------------------------------------------
@@ -137,7 +139,7 @@ test('pre-1998 government service is exempt in full AND leaves the $31,110 intac
   // 276/360 = 76.666…% of $70,000 = $53,666.67, uncapped — plus the whole
   // $31,110 against the IRA and the post-1997 remainder.
   money(excluded(r), 53_666.666_67 + 31_110);
-  money(r.totalTax, 768.37);
+  money(r.totalTax, 765.22);
 
   // On a return whose published exclusion is $31,110.
   assert.ok(excluded(r) > 84_000, 'the headline figure is not the maximum');
@@ -153,8 +155,8 @@ test('two teachers with identical pensions pay $1,878.33 apart on the decade the
   const late = ky(110_000, {
     retirement: { filer: { ...base, serviceMonthsAfter1997: 360 } },
   });
-  money(early.totalTax, 768.37);
-  money(late.totalTax, 2_646.7);
+  money(early.totalTax, 765.22);
+  money(late.totalTax, 2_643.55);
   money(late.totalTax - early.totalTax, 1_878.33);
 });
 
@@ -164,8 +166,8 @@ test('a person who retired before 1998 has no post-1997 months, so the whole pen
   });
   money(excluded(r), 90_000);
   money(r.totalTax, 0);
-  // $3,035.55 of tax that a rate table charges and the Commonwealth does not.
-  money(rateTable(90_000), 3_035.55);
+  // $3,032.40 of tax that a rate table charges and the Commonwealth does not.
+  money(rateTable(90_000), 3_032.4);
 });
 
 test('the exempt DOLLARS hold as service lengthens even though the percentage falls', () => {
@@ -220,7 +222,7 @@ test('Kentucky exempts Social Security outright and does NOT charge it against t
   });
   money(excluded(r), 31_110);
   money(r.totalTax, (51_000 - 11_000 - 31_110 - DEDUCTION) * RATE_2026);
-  money(r.totalTax, 196.7);
+  money(r.totalTax, 193.55);
 });
 
 // ---------------------------------------------------------------------------
@@ -243,13 +245,13 @@ const atAge = (state, age, extra = {}) =>
   });
 
 test('at 55 Kentucky is the cheapest of the three by a factor of twenty-eight', () => {
-  money(atAge('KY', 55).totalTax, 157.85);
+  money(atAge('KY', 55).totalTax, 154.7);
   money(atAge('GA', 55).totalTax, 1_996);
   money(atAge('MD', 55, { county: 'Montgomery' }).totalTax, 4_471.05);
 });
 
 test('at 65 the ranking reverses and Kentucky is the only one that charges anything', () => {
-  money(atAge('KY', 65).totalTax, 157.85);
+  money(atAge('KY', 65).totalTax, 154.7);
   money(atAge('GA', 65).totalTax, 0);
   money(atAge('MD', 65, { county: 'Montgomery' }).totalTax, 0);
 });
@@ -292,14 +294,14 @@ test('matches PolicyEngine-US on its own Schedule P fixtures', () => {
 
 test('a Kentucky rate table overstates every retiree here', () => {
   const cases = [
-    [55_000, { employerPlanPension: 55_000 }, 721.7],
+    [55_000, { employerPlanPension: 55_000 }, 718.55],
     [31_110, { employerPlanPension: 31_110 }, 0],
     [110_000, {
       governmentPension: 70_000,
       serviceMonthsBefore1998: 276,
       serviceMonthsAfter1997: 84,
       iraDistributions: 40_000,
-    }, 768.37],
+    }, 765.22],
     [90_000, { governmentPension: 90_000, serviceMonthsBefore1998: 360 }, 0],
   ];
   for (const [agi, person, expected] of cases) {

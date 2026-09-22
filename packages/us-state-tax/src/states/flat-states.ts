@@ -451,6 +451,14 @@ const KY_CITATIONS: readonly Citation[] = [
     url: 'https://revenue.ky.gov/Forms/Pages/Individual-Income-Tax-Forms.aspx',
   },
   {
+    title: 'Kentucky DOR announces the 2026 standard deduction — $3,360',
+    url: 'https://revenue.ky.gov/News/Pages/Kentucky-DOR-Announces-2026-Standard-Deduction.aspx',
+  },
+  {
+    title: '2026 Kentucky withholding tax formula (42A003) — carries the $3,360',
+    url: 'https://revenue.ky.gov/Forms/2026%20Withholding%20Formula.pdf',
+  },
+  {
     title:
       'KRS 141.019(1) — the pension income exclusion, and the exemption for service performed before 1 January 1998',
     url: 'https://apps.legislature.ky.gov/law/statutes/statute.aspx?id=53498',
@@ -478,11 +486,14 @@ function kentucky(year: number): StateIncomeTaxDefinition | undefined {
     code: 'KY',
     name: 'Kentucky',
     year,
-    status: year === 2025 ? 'published' : 'provisional',
+    status: 'published',
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'flat', rate: year === 2025 ? 0.04 : 0.035 },
-    // Indexed annually. $3,160 for 2024, $3,270 for 2025.
-    deduction: { kind: 'table', amounts: uniform(3270) },
+    // Indexed annually under KRS 141.081. $3,160 for 2024, $3,270 for 2025,
+    // $3,360 for 2026 — the Department of Revenue announces it by press release
+    // in the autumn of the preceding year, and the 2026 figure was carried here
+    // provisionally at $3,270 from Day 8 until Day 28.
+    deduction: { kind: 'table', amounts: uniform(year === 2025 ? 3270 : 3360) },
     subtractsTaxableSocialSecurity: true,
     pensionIncomeExclusion: {
       name: 'Kentucky pension income exclusion (Schedule P)',
@@ -490,13 +501,7 @@ function kentucky(year: number): StateIncomeTaxDefinition | undefined {
       cap: 31_110,
       uncappedServiceBefore: 1998,
     },
-    notes:
-      year === 2026
-        ? [
-            'PROVISIONAL: the $3,270 standard deduction is the published 2025 figure carried forward. Kentucky indexes it annually under KRS 141.081 and had not published the 2026 amount when this was written. The 3.5% rate is set by HB 1 (2025) and is correct.',
-            ...KY_NOTES,
-          ]
-        : KY_NOTES,
+    notes: KY_NOTES,
     citations: KY_CITATIONS,
   };
 }
@@ -509,6 +514,11 @@ const MI_CITATIONS: readonly Citation[] = [
   {
     title: 'Mich. Comp. Laws § 206.30(2) — personal exemption, indexed',
     url: 'https://www.legislature.mi.gov/Laws/MCL?objectName=MCL-206-30',
+  },
+  {
+    title:
+      '2026 Michigan Income Tax Withholding Guide (Form 446, Rev. 02-26) — the $5,900 exemption',
+    url: 'https://www.michigan.gov/taxes/-/media/Project/Websites/taxes/Forms/SUW/TY2026/446_Withholding-Guide_2026.pdf',
   },
 ];
 
@@ -528,8 +538,10 @@ const MI_NOTES: readonly string[] = [
 
 function michigan(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
-  // Indexed. $5,600 for 2024, $5,800 for 2025.
-  const exemption = 5800;
+  // Indexed under MCL 206.30(2). $5,600 for 2024, $5,800 for 2025, $5,900 for
+  // 2026 — published in Michigan's 2026 withholding guide (Form 446, Rev.
+  // 02-26) and carried here provisionally at $5,800 until Day 28.
+  const exemption = year === 2025 ? 5800 : 5900;
   // MCL 206.30(1)(f). Indexed to the same figure the state publishes for
   // withholding: $65,897/$131,794 for 2025 and $67,610/$135,220 for 2026.
   // A surviving spouse takes the SINGLE amount here — one of the few places in
@@ -569,8 +581,13 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
       // MCL 206.30(3)(a) — the 'special exemption', MI-1040 line 9. $3,400 for
       // 2025, indexed, and the largest exemption for blindness in this package
       // by a factor of three: $144.50 of Michigan tax against Illinois's and
-      // Indiana's $42.50 and $29.50. Carried forward for 2026 with the
-      // personal exemption beside it, for the same reason.
+      // Indiana's $42.50 and $29.50.
+      //
+      // STILL CARRIED FORWARD for 2026, and the personal exemption beside it is
+      // not, which is the whole reason `provisionalFigures` is per figure. The
+      // withholding guide carries the personal exemption because withholding
+      // needs it; the special exemption appears on the MI-1040 and nowhere
+      // else, so it waits for the MI-1040 instructions in January.
       perBlindOrDisabledFiler: 3_400,
     },
     earnedIncomeCredit: {
@@ -608,10 +625,22 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
         militaryReducesCap: true,
       },
     ],
+    provisionalFigures:
+      year === 2026
+        ? [
+            {
+              path: 'exemption.perBlindOrDisabledFiler',
+              reason: 'awaiting-publication' as const,
+              carriedForwardFrom: 2025,
+              resolvedBy:
+                'the 2026 MI-1040 instructions (line 9), published in January 2027 — the 2026 withholding guide does not carry this figure because it is not a withholding allowance',
+            },
+          ]
+        : undefined,
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the $5,800 personal exemption and the $3,400 special exemption are the published 2025 figures carried forward. Michigan indexes it annually under MCL 206.30(2) and no 2026 amount was reachable when this was written; one published dataset carries $5,900, which would be $4.25 less tax per exemption. The 4.25% rate is set by statute and is correct, and the CITY income taxes computed alongside it are not affected either way — a city exemption is $600 by ordinance and does not index.',
+            'PROVISIONAL, one figure: the $3,400 SPECIAL exemption for a blind or disabled filer is the published 2025 figure carried forward, because it appears on the MI-1040 and on no withholding document, so nothing published during 2026 carries it. The $5,900 personal exemption beside it IS published — Michigan’s 2026 withholding guide (Form 446, Rev. 02-26) — and this package carried $5,800 until Day 28, which overstated the tax by $4.25 for every exemption on every Michigan return. The 4.25% rate is set by statute and is correct, and the CITY income taxes computed alongside it are unaffected either way: a city exemption is $600 by ordinance and does not index.',
             ...MI_NOTES,
           ]
         : MI_NOTES,

@@ -46,7 +46,7 @@ test('a per-person exemption counts ONE for a surviving spouse', () => {
   for (const [state, amount] of [
     ['IL', 2_925],
     ['IN', 1_000],
-    ['MI', 5_800],
+    ['MI', 5_900],
   ]) {
     const def = getStateDefinition(state, 2026);
     const perFiler = def.exemption.perFiler;
@@ -65,7 +65,7 @@ test('the exemption a widow was getting for a dead spouse, priced', () => {
   // spouse should pay the SINGLE figure's tax on the exemption line.
   for (const [state, exemption, rate] of [
     ['IL', 2_925, 0.0495],
-    ['MI', 5_800, 0.0425],
+    ['MI', 5_900, 0.0425],
   ]) {
     const survivor = run(state, 'qualifyingSurvivingSpouse').tax;
     const single = run(state, 'single').tax;

@@ -152,8 +152,9 @@ test('a state with no credits has a marginal rate equal to its statutory rate', 
       deductionKind: 'standard',
     },
   });
-  money(r.exemptions, 5_800 * 5);
-  money(r.taxableIncome, 120_000 - 29_000);
-  money(r.tax, 91_000 * 0.0425);
+  // $5,900 for 2026 — Michigan's 2026 withholding guide (Form 446, Rev. 02-26).
+  money(r.exemptions, 5_900 * 5);
+  money(r.taxableIncome, 120_000 - 29_500);
+  money(r.tax, 90_500 * 0.0425);
   money(r.marginalRate, 0.0425);
 });

@@ -148,8 +148,12 @@ test('every provisional state-year says so in its first note', () => {
     for (const year of SUPPORTED_YEARS) {
       const def = getStateDefinition(state, year);
       if (def.status !== 'provisional') continue;
+      // "PROVISIONAL" and not "PROVISIONAL:" — Day 28 gave four of these a
+      // count ("PROVISIONAL, one figure:") and Colorado's says "PROVISIONAL BY
+      // LAW", because a state-year is rarely provisional as a whole and the
+      // note is where a reader finds out how much of it is.
       assert.ok(
-        def.notes[0].startsWith('PROVISIONAL:'),
+        def.notes[0].startsWith('PROVISIONAL'),
         `${state} ${year} is provisional but does not lead with it`,
       );
       const r = stateIncomeTax({
@@ -165,25 +169,33 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has eight', () => {
+test('2025 has no provisional state and 2026 has six', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
   // not been released — plus Colorado, whose rate can still be cut retroactively.
   //
-  // ILLINOIS came off this list in v0.25.0. Its 2026 exemption allowance is
-  // $2,925, published in Informational Bulletin FY 2026-15 of December 2025 and
-  // in the Comptroller's 2026 payroll bulletin; this package had been carrying
-  // the $2,850 of 2025 forward and saying so. **That is what the provisional
-  // flag is FOR** — it is a debt to be paid, not a permanent disclaimer, and
-  // this is the first one this project has retired. The other eight are still
-  // owed, and each one is a figure somebody has to go and look up.
+  // ILLINOIS came off this list in v0.25.0, and KENTUCKY and MARYLAND on Day 28
+  // (v0.26.0). Kentucky's 2026 standard deduction is $3,360, announced by the
+  // Department of Revenue and carried in the 2026 withholding formula; Maryland's
+  // is $3,350, unchanged, and confirmed by the Comptroller's own 2026 withholding
+  // guide. **That is what the provisional flag is FOR** — a debt to be paid, not
+  // a permanent disclaimer.
+  //
+  // The six that remain are NOT one more afternoon's work, which is the thing
+  // Day 27 got wrong and Day 28 corrected. Four are waiting on a document that
+  // does not exist until January 2027 (Utah's TC-40 instructions, Ohio's IT 1040
+  // booklet, Michigan's MI-1040 instructions, California's FTB release), and
+  // COLORADO can never be resolved during the tax year at all: its rate is set
+  // by a TABOR surplus calculation that runs after the year closes. Which kind
+  // each figure is now lives in `provisionalFigures`, not in prose — see
+  // test/provisional.test.js.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 8);
+  assert.equal(count(2026), 6);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'KY', 'MD', 'MI', 'OH', 'UT']);
+  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'OH', 'UT']);
 });
 
 test('the package has no runtime dependencies', () => {

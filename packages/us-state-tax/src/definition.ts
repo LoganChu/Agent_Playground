@@ -12,6 +12,7 @@ import type {
   ConformityBase,
   FederalDeductionKey,
   ParameterStatus,
+  ProvisionalFigure,
   StateCode,
   StateDefinedBaseField,
   StateIncomeTaxInput,
@@ -2170,6 +2171,15 @@ export interface StateIncomeTaxDefinition {
    * the only thing left that could have moved it.
    */
   readonly addsOutOfStateMunicipalInterest?: boolean;
+  /**
+   * Every figure in this state-year that is not from a published source for
+   * this year, one entry each, with what would settle it.
+   *
+   * Required to be non-empty when {@link status} is `provisional` and absent
+   * when it is `published` — so the flag and the reason cannot drift apart, and
+   * "provisional" stops being a mood.
+   */
+  readonly provisionalFigures?: readonly ProvisionalFigure[];
   /** Facts a caller would otherwise get wrong. Surfaced in every result. */
   readonly notes: readonly string[];
   /**

@@ -80,11 +80,29 @@ function colorado(year: number): StateIncomeTaxDefinition | undefined {
       matchRate: year === 2025 ? 0.5 : 0.25,
       refundable: true,
     },
+    provisionalFigures:
+      year === 2026
+        ? [
+            {
+              path: 'rate.rate',
+              reason: 'determined-after-year-end' as const,
+              resolvedBy:
+                "Colorado's TABOR surplus calculation for fiscal 2026-27, which the state completes after the tax year closes — the DR 0104 filing guide published in late 2026 is the first document that can carry it",
+            },
+            {
+              path: 'earnedIncomeCredit.matchRate',
+              reason: 'determined-after-year-end' as const,
+              resolvedBy:
+                'the same surplus calculation, plus any act of the 2026 General Assembly raising the match as it did for 2023, 2024 and 2025',
+            },
+          ]
+        : undefined,
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the 2026 earned income tax credit match of 25% is the statutory baseline after the temporary 50% match for 2024 and 2025 expires (HB24-1134). Colorado has legislated a higher match in each of the last four years and the TABOR surplus mechanism can raise it further, so 25% is a floor.',
-            'PROVISIONAL: the 4.40% rate is the statutory figure. Colorado can reduce it for a single year under the TABOR surplus mechanism (C.R.S. § 39-22-627), which is determined after the tax year ends — it produced 4.25% for tax year 2024. Treat 2026 as an upper bound until Colorado closes its books.',
+            'PROVISIONAL BY LAW, not by neglect: both figures below are fixed only AFTER tax year 2026 closes, so no search during 2026 can settle them and nothing is owed here until Colorado publishes its DR 0104 filing guide. This is a different thing from the carried-forward figures elsewhere in this package, and the reason `provisionalFigures` records which kind each one is.',
+            'The 2026 earned income tax credit match of 25% is the statutory baseline after the temporary 50% match for 2024 and 2025 expires (HB24-1134). Colorado has legislated a higher match in each of the last four years and the TABOR surplus mechanism can raise it further, so 25% is a FLOOR — the computed credit is the smallest Colorado can pay.',
+            'The 4.40% rate is the statutory figure and is an UPPER BOUND. Colorado reduces it for a single year when there is a TABOR surplus (C.R.S. § 39-22-627), determined after the tax year ends — that produced 4.25% for tax year 2024 and again for 2025. Current forecasts project no surplus for 2026, so 4.40% is the likeliest outcome as well as the ceiling, but a Colorado return filed in 2027 should be recomputed against the published rate.',
             ...CO_NOTES,
           ]
         : CO_NOTES,
@@ -140,13 +158,25 @@ function idaho(year: number): StateIncomeTaxDefinition | undefined {
     name: 'Idaho',
     year,
     status: year === 2025 ? 'published' : 'provisional',
+    provisionalFigures:
+      year === 2026
+        ? [
+            {
+              path: 'rate.byStatus.single.0.upTo',
+              reason: 'awaiting-publication' as const,
+              carriedForwardFrom: 2025,
+              resolvedBy:
+                "the Idaho State Tax Commission's individual income tax rate schedule for 2026, published with the Form 40 instructions",
+            },
+          ]
+        : undefined,
     base: 'federalTaxableIncome',
     rate: { kind: 'brackets', byStatus: idahoBrackets(4811, 0.053) },
     deduction: { kind: 'none' },
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the $4,811 zero bracket is the published 2025 figure carried forward. Idaho indexes it annually and had not published the 2026 amount when this was written. The 5.3% rate is set by HB 40 (2025) and is correct.',
+            'PROVISIONAL, one figure: the $4,811 zero bracket is the published 2025 figure carried forward. It is not a round number because it is not a legislated one — Idaho Code § 63-3024 fixes a base of $2,500 single / $5,000 joint and directs the Tax Commission to multiply it by an annual indexing factor, so the operative amount is $2,500 x 1.9244 for 2025 and $2,500 x (a 2026 factor this package could not reach). The 5.3% rate is set by HB 40 (2025) and is correct. Carrying the 2025 figure forward taxes a little income that the indexed bracket would exempt: the error is at most 5.3% of the movement in the bracket, about $8 a filer.',
             ...ID_NOTES,
           ]
         : ID_NOTES,

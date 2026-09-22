@@ -143,8 +143,8 @@ test('hand-computed 2026 returns for North Carolina, Indiana and Kentucky', () =
   money(single100k('NC', 2025).tax, 3_708.13);
   //   IN: (100,000 - 1,000) x 2.95% = 2,920.50   (state only; the county tax is extra)
   money(single100k('IN', 2026).tax, 2_920.5);
-  //   KY: (100,000 - 3,270) x 3.50% = 3,385.55
-  money(single100k('KY', 2026).tax, 3_385.55);
+  //   KY: (100,000 - 3,360) x 3.50% = 3,382.40
+  money(single100k('KY', 2026).tax, 3_382.4);
 });
 
 test('every state produces a different answer for 2026 than a naive 2025 fallback would', () => {
@@ -163,5 +163,11 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // $2,850 of 2025, and until the Department's own bulletin was found this
   // package carried the 2025 figure forward and said so. A state moves off this
   // list when its law changes and ONTO it when somebody reads the notice.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MS', 'NC', 'NY', 'OH', 'UT']);
+  //
+  // MICHIGAN joined on Day 28 for the same reason as Illinois and nothing else:
+  // its personal exemption indexes to $5,900 for 2026 from $5,800, and that
+  // figure had been sitting in the state's own 2026 withholding guide while
+  // this package carried $5,800 forward. Kentucky's entry is now a CHANGED
+  // number rather than a changed rate alone — $3,360 against $3,270.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MS', 'NC', 'NY', 'OH', 'UT']);
 });

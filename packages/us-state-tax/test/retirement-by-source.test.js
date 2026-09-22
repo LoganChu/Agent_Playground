@@ -381,7 +381,15 @@ test('the four corrections are worth what the README says they are', () => {
   // pin history, it produces today's answer wearing a date.
   money(before('IL'), 2_581.43, 'Illinois before, as this engine computes it');
   money(2_588.85 - 2_581.43, 2 * 75 * 0.0495, 'and the difference is the indexation of two exemptions');
-  money(before('MI'), 2_057.0, 'Michigan before');
+  // And Michigan is the same story a THIRD time, on Day 28. The README's figure
+  // for this household was $2,057.00 against the $5,800 personal exemption of
+  // 2025, which this package carried into 2026 and flagged provisional;
+  // Michigan's 2026 withholding guide publishes $5,900, so two exemptions are
+  // $200 larger and the tax $8.50 smaller. Three states, three releases, one
+  // rule: a test that recomputes a historical claim with today's parameters
+  // produces today's answer wearing a date.
+  money(before('MI'), 2_048.5, 'Michigan before, as this engine computes it');
+  money(2_057.0 - 2_048.5, 2 * 100 * 0.0425, 'and the difference is the indexation of two exemptions');
   money(before('NY'), 2_040.8, 'New York before');
 
   // Mississippi's README figure is $1,336.00 and this engine now says

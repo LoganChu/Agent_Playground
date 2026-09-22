@@ -223,7 +223,8 @@ const NOTES: readonly string[] = [
 ];
 
 const NOTES_2026: readonly string[] = [
-  'PROVISIONAL: for 2026 the rate schedule below is statutory — HB 96 wrote "$332.00 plus 2.75% of the amount in excess of $26,050" into § 5747.02(A)(3) — but the $26,050 zero band and the exemption chart are indexed by the tax commissioner each August under § 5747.02(A)(5) and § 5747.025(A), and the 2026 IT 1040 booklet carrying the indexed figures is not published yet. Both have held since 2022, so the carried-forward figures are the most likely ones; if the band moves, the $332.00 constant will be restated with it, because the constant exists to keep the schedule continuous with the band below.',
+  'PROVISIONAL, one chart: the $2,400 / $2,150 / $1,900 personal exemption amounts are the 2025 figures carried forward. § 5747.025(B) indexes them off statutory bases of $2,350 / $2,100 / $1,850 by the GDP deflator, and the 2026 IT 1040 booklet that would carry the indexed result is not published until January 2027. Take care reading the statute for this: § 5747.025(A) prints the BASE amounts, which are LOWER than the figures actually in force, so a source that quotes the Revised Code as the current chart is quoting a floor from 2015.',
+  'The $26,050 zero band is NOT provisional for 2026 and was flagged as such until Day 28. HB 96 wrote "$332.00 plus 2.75% of the amount in excess of $26,050" into § 5747.02(A)(3) and the figure is confirmed in force for 2026 — which also fixes the $332.00 constant, since that constant exists only to keep the schedule continuous with the band below it. The $500,000 exemption cliff HB 96 added for 2026 is statutory too.',
 ];
 
 export function ohio(year: number): StateIncomeTaxDefinition | undefined {
@@ -235,6 +236,16 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
     name: 'Ohio',
     year,
     status: year >= 2026 ? 'provisional' : 'published',
+    provisionalFigures:
+      year >= 2026
+        ? (['0', '1', '2'] as const).map((i) => ({
+            path: `exemption.perExemptionSteps.single.${i}.amount`,
+            reason: 'awaiting-publication' as const,
+            carriedForwardFrom: 2025,
+            resolvedBy:
+              'the 2026 Ohio IT 1040 instruction booklet, published January 2027 — NOT R.C. 5747.025(A), which prints the 2015 base amounts rather than the indexed ones in force',
+          }))
+        : undefined,
     base: 'federalAdjustedGrossIncome',
     rate: {
       kind: 'baseAmountSchedule',

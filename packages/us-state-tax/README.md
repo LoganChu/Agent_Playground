@@ -208,7 +208,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.25.0/us-state-tax-0.25.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.26.0/us-state-tax-0.26.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1446,11 +1446,11 @@ The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
 Mississippi standard deduction and exemption, that bracket is **not** doubled for a joint
 return.
 
-## Provisional figures are labelled
+## Provisional figures are labelled, and now say what would settle them
 
-Most state parameters are indexed for inflation and published late in the tax year. Eight
-of the 2026 state-years here have at least one figure carried forward from 2025 because
-the state had not released it. Every one of them says so, in the result:
+Most state parameters are indexed for inflation and published late in the tax year. Six of
+the 2026 state-years here have at least one figure carried forward from 2025 because the
+state had not released it. Every one of them says so, in the result:
 
 ```js
 const ca2026 = stateIncomeTax({ state: 'CA', year: 2026, filingStatus: 'single', federal });
@@ -1458,28 +1458,76 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, KY, MD, MI, OH, UT**. Published: **AZ, GA, IL, IN, MA,
+Provisional for 2026: **CA, CO, ID, MI, OH, UT**. Published: **AZ, GA, IL, IN, KY, MA, MD,
 MS, NC, NJ, NY, PA, VA** and the nine states with no income tax. Nothing is provisional for
 2025.
 
-**Illinois came off that list in v0.25.0, and it is the first one to.** Its 2026 exemption
-allowance is `$2,925`, from the `$2,850` of 2025 — published in Informational Bulletin
-FY 2026-15 of December 2025 and in the Comptroller's own 2026 payroll bulletin, and this
-package had been carrying 2025's figure forward and saying so. The flag is a **debt**, not
-a permanent disclaimer: it is there to be paid off by somebody going and reading the
-notice. Eight are still owed.
+**Three have come off that list: Illinois in v0.25.0, Kentucky and Maryland in v0.26.0.**
+Illinois's 2026 exemption allowance is `$2,925` from the `$2,850` of 2025. Kentucky's 2026
+standard deduction is `$3,360` from `$3,270` — announced by the Department of Revenue and
+carried in the 2026 withholding formula, and worth `$3.15` a filer at the 3.5% rate.
+Maryland's is `$3,350`, **unchanged**, confirmed by the Comptroller's own 2026 withholding
+guide and Form MW507 and by the fiscal note on a 2026 bill to raise it that died in
+committee. Michigan's personal exemption went `$5,800` to `$5,900`, `$4.25` per exemption
+on every Michigan return.
 
-Ohio is provisional for the two indexed figures behind an otherwise statutory schedule. HB
-96 wrote "$332.00 plus 2.75% of the amount in excess of $26,050" into § 5747.02(A)(3), but
-the `$26,050` band and the exemption chart are re-indexed by the tax commissioner each
-August and the 2026 booklet is not out. Both have held since 2022.
+### The flag is per figure, because a state-year is rarely provisional as a whole
 
-Maryland is provisional for one figure and one only. Every threshold in its rate schedule,
-its exemption chart, its capital gains surtax and its itemized deduction limit is a fixed
-dollar amount in statute; the flat standard deduction that replaced the old 15%-of-AGI
-formula in 2025 is indexed from 2026, and the sources reachable here disagree between
-`$3,350` unchanged and `$3,400`. That disagreement is worth about `$4` of state and county
-tax, and the note says so rather than leaving the year looking settled.
+A `provisional` state-year lists exactly which figures are not from a published source, and
+what would settle each one:
+
+```js
+getStateDefinition('MI', 2026).provisionalFigures;
+// [{ path: 'exemption.perBlindOrDisabledFiler',
+//    reason: 'awaiting-publication',
+//    carriedForwardFrom: 2025,
+//    resolvedBy: 'the 2026 MI-1040 instructions (line 9), published in January 2027 ...' }]
+```
+
+Michigan is the case that forced it. Its **personal** exemption is published for 2026 — the
+state's withholding guide carries it, because withholding needs it — and its **special**
+exemption for a blind or disabled filer is not, because that one appears on the MI-1040 and
+on no withholding document. One enum on the state-year cannot say that, and the prose note
+that used to say it could not be checked by anything.
+
+Three assertions keep the list honest, in `test/provisional.test.js`: every path must
+resolve, so the list cannot rot; a figure marked `carriedForwardFrom: 2025` must still
+**equal** the 2025 value, so a figure cannot be quietly resolved while the warning about it
+stays up; and `resolvedBy` must name a document rather than a government.
+
+### Two kinds, and only one of them is a debt
+
+`reason` distinguishes them, and the distinction changes what a reader should do:
+
+| reason | meaning | what to do |
+| --- | --- | --- |
+| `awaiting-publication` | the state will publish it, on a calendar | go and read the named document |
+| `determined-after-year-end` | the **law** does not fix it until the year closes | nothing, until then |
+
+**Colorado is the second kind and nothing can move it.** Its 4.40% rate is the statutory
+figure that a TABOR surplus calculation can cut for a single year — that produced 4.25% for
+2024 — and the calculation runs *after* tax year 2026 ends. So the rate here is an **upper
+bound** and the 25% earned income credit match is a **floor**: a Colorado 2026 return
+computed by this package is the most tax and the least credit Colorado can ask for. Filing
+against it in 2027 means recomputing.
+
+The other five are debts with due dates, and four of the dates are in **January 2027** —
+Utah's TC-40 instructions, Ohio's IT 1040 booklet, Michigan's MI-1040 instructions and the
+Franchise Tax Board's 2026 release. Only Idaho's rate schedule could plausibly land sooner.
+
+Ohio is provisional for its exemption chart and **not** for its rate schedule, which was
+flagged until v0.26.0 and should not have been: HB 96 wrote "$332.00 plus 2.75% of the
+amount in excess of $26,050" into § 5747.02(A)(3), so the `$26,050` band is statutory for
+2026 and the `$332.00` constant is pinned to it. Reading the Revised Code for the exemption
+chart is a trap worth naming: § 5747.025(A) prints `$2,350 / $2,100 / $1,850`, which are
+the **2015 base amounts** the GDP-deflator indexing of § 5747.025(B) runs on, not the
+`$2,400 / $2,150 / $1,900` actually in force.
+
+California is deliberately **not** resolved. Several sources report a 2026 California
+standard deduction of `$5,706 / $11,412` — which is this package's **2025** figure — while
+giving an exemption credit of `$158 / $316` against 2025's `$153 / $306`. California indexes
+both by the same CCPI factor, so a source that moves one and not the other has stitched a
+fresh number onto a stale one. Never commit a tax figure that only one source supports.
 
 New York is published for both years because it indexes nothing: its brackets, standard
 deduction and dependent exemption are all fixed in statute. Massachusetts is published for

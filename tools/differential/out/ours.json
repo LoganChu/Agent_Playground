@@ -167,7 +167,7 @@
    "earnedIncomeCredit": 347.29
   },
   "state": {
-   "tax": 410.55,
+   "tax": 407.4,
    "credits": []
   },
   "error": null
@@ -249,7 +249,7 @@
    "earnedIncomeCredit": 347.29
   },
   "state": {
-   "tax": 286.81,
+   "tax": 282.56,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -629,7 +629,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 935.55,
+   "tax": 932.4,
    "credits": []
   },
   "error": null
@@ -711,7 +711,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1028.5,
+   "tax": 1024.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -1091,7 +1091,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1635.55,
+   "tax": 1632.4,
    "credits": []
   },
   "error": null
@@ -1173,7 +1173,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1878.5,
+   "tax": 1874.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -1553,7 +1553,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2685.55,
+   "tax": 2682.4,
    "credits": []
   },
   "error": null
@@ -1635,7 +1635,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3153.5,
+   "tax": 3149.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -2015,7 +2015,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5135.55,
+   "tax": 5132.4,
    "credits": []
   },
   "error": null
@@ -2097,7 +2097,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 6128.5,
+   "tax": 6124.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -2477,7 +2477,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 13885.55,
+   "tax": 13882.4,
    "credits": []
   },
   "error": null
@@ -2559,7 +2559,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 16753.5,
+   "tax": 16749.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -2939,7 +2939,7 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": 935.55,
+   "tax": 932.4,
    "credits": []
   },
   "error": null
@@ -3021,7 +3021,7 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": -1905.8,
+   "tax": -1922.8,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -3401,7 +3401,7 @@
    "earnedIncomeCredit": 1242.3
   },
   "state": {
-   "tax": 1985.55,
+   "tax": 1982.4,
    "credits": []
   },
   "error": null
@@ -3483,7 +3483,7 @@
    "earnedIncomeCredit": 1242.3
   },
   "state": {
-   "tax": 1191.31,
+   "tax": 1174.31,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -3863,7 +3863,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3385.55,
+   "tax": 3382.4,
    "credits": []
   },
   "error": null
@@ -3945,7 +3945,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3264,
+   "tax": 3247,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -4325,7 +4325,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 6885.55,
+   "tax": 6882.4,
    "credits": []
   },
   "error": null
@@ -4407,7 +4407,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 7514,
+   "tax": 7497,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -4787,7 +4787,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": 305.55,
+   "tax": 302.4,
    "credits": []
   },
   "error": null
@@ -4869,7 +4869,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1207,
+   "tax": -1215.5,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -5249,7 +5249,7 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": 760.55,
+   "tax": 757.4,
    "credits": []
   },
   "error": null
@@ -5331,7 +5331,7 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": -705.39,
+   "tax": -713.89,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -5711,7 +5711,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1460.55,
+   "tax": 1457.4,
    "credits": []
   },
   "error": null
@@ -5793,7 +5793,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1103.41,
+   "tax": 1094.91,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -7097,7 +7097,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 546.7,
+   "tax": 543.55,
    "credits": []
   },
   "error": null
@@ -7559,7 +7559,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1946.7,
+   "tax": 1943.55,
    "credits": []
   },
   "error": null
@@ -8483,7 +8483,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 196.7,
+   "tax": 193.55,
    "credits": []
   },
   "error": null
@@ -8945,7 +8945,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2335.55,
+   "tax": 2332.4,
    "credits": []
   },
   "error": null
@@ -9027,7 +9027,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2728.5,
+   "tax": 2724.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -9407,7 +9407,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5135.55,
+   "tax": 5132.4,
    "credits": []
   },
   "error": null
@@ -9489,7 +9489,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 6128.5,
+   "tax": 6124.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -9869,7 +9869,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1985.55,
+   "tax": 1982.4,
    "credits": []
   },
   "error": null
@@ -9947,7 +9947,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2303.5,
+   "tax": 2299.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -10327,7 +10327,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 896.7,
+   "tax": 893.55,
    "credits": []
   },
   "error": null
@@ -10789,7 +10789,7 @@
    "earnedIncomeCredit": 139.21
   },
   "state": {
-   "tax": 760.55,
+   "tax": 757.4,
    "credits": []
   },
   "error": null
@@ -10871,7 +10871,7 @@
    "earnedIncomeCredit": 139.21
   },
   "state": {
-   "tax": 527.74,
+   "tax": 519.24,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -11251,7 +11251,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2510.55,
+   "tax": 2507.4,
    "credits": []
   },
   "error": null
@@ -11333,7 +11333,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2694.5,
+   "tax": 2686,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -11713,7 +11713,7 @@
    "earnedIncomeCredit": 6369.3
   },
   "state": {
-   "tax": 1285.55,
+   "tax": 1282.4,
    "credits": []
   },
   "error": null
@@ -11795,7 +11795,7 @@
    "earnedIncomeCredit": 6369.3
   },
   "state": {
-   "tax": -1443.29,
+   "tax": -1464.54,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -12175,7 +12175,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3035.55,
+   "tax": 3032.4,
    "credits": []
   },
   "error": null
@@ -12257,7 +12257,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2592.5,
+   "tax": 2571.25,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -12637,7 +12637,7 @@
    "earnedIncomeCredit": 2651.62
   },
   "state": {
-   "tax": 1110.55,
+   "tax": 1107.4,
    "credits": []
   },
   "error": null
@@ -12719,7 +12719,7 @@
    "earnedIncomeCredit": 2651.62
   },
   "state": {
-   "tax": 199.01,
+   "tax": 190.51,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -13099,7 +13099,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1460.55,
+   "tax": 1457.4,
    "credits": []
   },
   "error": null
@@ -13177,7 +13177,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1419.5,
+   "tax": 1411,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -13557,7 +13557,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1460.55,
+   "tax": 1457.4,
    "credits": []
   },
   "error": null
@@ -13639,7 +13639,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1103.41,
+   "tax": 1094.91,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -14019,7 +14019,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 8635.55,
+   "tax": 8632.4,
    "credits": []
   },
   "error": null
@@ -14101,7 +14101,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 10132,
+   "tax": 10123.5,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -14481,7 +14481,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 10385.55,
+   "tax": 10382.4,
    "credits": []
   },
   "error": null
@@ -14563,7 +14563,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 12257,
+   "tax": 12248.5,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -14943,7 +14943,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 15635.55,
+   "tax": 15632.4,
    "credits": []
   },
   "error": null
@@ -15025,7 +15025,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 18632,
+   "tax": 18623.5,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",
@@ -15405,7 +15405,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 546.7,
+   "tax": 543.55,
    "credits": []
   },
   "error": null
@@ -15867,7 +15867,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1246.7,
+   "tax": 1243.55,
    "credits": []
   },
   "error": null
@@ -16329,7 +16329,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1285.55,
+   "tax": 1282.4,
    "credits": []
   },
   "error": null
@@ -16411,7 +16411,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1309,
+   "tax": 1304.75,
    "credits": [
     {
      "name": "Michigan earned income tax credit for working families",

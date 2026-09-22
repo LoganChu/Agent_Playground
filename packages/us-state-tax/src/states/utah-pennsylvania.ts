@@ -129,6 +129,27 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
     name: 'Utah',
     year,
     status: year === 2025 ? 'published' : 'provisional',
+    provisionalFigures:
+      year === 2026
+        ? // Canonical FilingStatus keys, not the `byStatus` shorthand the line
+          // below is written in: the helper emits `marriedFilingJointly` where
+          // its argument says `joint`, and a path is read against the built
+          // definition rather than against the source.
+          [
+            'taxpayerCredit.personalExemption',
+            'taxpayerCredit.phaseOutThreshold.single',
+            'taxpayerCredit.phaseOutThreshold.marriedFilingJointly',
+            'taxpayerCredit.phaseOutThreshold.marriedFilingSeparately',
+            'taxpayerCredit.phaseOutThreshold.headOfHousehold',
+            'taxpayerCredit.phaseOutThreshold.qualifyingSurvivingSpouse',
+          ].map((path) => ({
+            path,
+            reason: 'awaiting-publication' as const,
+            carriedForwardFrom: 2025,
+            resolvedBy:
+              'the 2026 Utah TC-40 instructions, published by the Tax Commission in January 2027',
+          }))
+        : undefined,
     base: 'federalAdjustedGrossIncome',
     rate: { kind: 'flat', rate: year === 2025 ? 0.045 : 0.0445 },
     // Utah has no deduction of its own; the federal deduction enters through the
@@ -207,7 +228,7 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
     notes:
       year === 2026
         ? [
-            'PROVISIONAL: the $2,111 per-dependent exemption amount and the $18,213/$36,426/$27,320 phase-out thresholds are the published 2025 figures carried forward. Utah indexes them annually and had not published the 2026 amounts when this was written. The 4.45% rate is set by SB 60 (2026) and is correct. The retirement-credit figures are NOT provisional and are not carried forward for the same reason: $450, 1952, $25,000/$32,000/$16,000 and $54,000/$90,000/$45,000 are all set in statute with no indexing mechanism, so 2026 equals 2025 because the law says so and not because this package guessed.',
+            'PROVISIONAL, six figures: the $2,111 per-dependent exemption amount and the $18,213/$36,426/$27,320 phase-out thresholds are the published 2025 figures carried forward. Utah indexes them annually and publishes the result with the TC-40 instructions in January AFTER the tax year, so this one cannot be resolved by searching during 2026 — it was checked again on Day 28 and the 2026 amounts do not yet exist. The 4.45% rate is set by SB 60 (2026) and is correct. The retirement-credit figures are NOT provisional and are not carried forward for the same reason: $450, 1952, $25,000/$32,000/$16,000 and $54,000/$90,000/$45,000 are all set in statute with no indexing mechanism, so 2026 equals 2025 because the law says so and not because this package guessed.',
             ...UT_NOTES,
           ]
         : UT_NOTES,
