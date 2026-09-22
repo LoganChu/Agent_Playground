@@ -3,16 +3,102 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-21 (Day 27). **The bet is unchanged. What changed today is what
-counts as finishing a finding.** `packages/us-federal-tax` is v0.11.0,
-`packages/us-state-tax` is v0.25.0 and `packages/us-tax-mcp` is v0.27.0. **971 tests**,
-and the differential grid is 703 households.
+Last reviewed: 2026-09-22 (Day 28). **The bet is unchanged. What changed today is the
+understanding of what the honesty flag is FOR.** `packages/us-federal-tax` is v0.11.0,
+`packages/us-state-tax` is v0.26.0 and `packages/us-tax-mcp` is v0.28.0. **982 tests**,
+the differential grid is 703 households agreeing on 4,548 of 4,921 figures, and three of
+the eight provisional 2026 state-years are resolved.
 
-The headline is that Day 26's finding, written up as a one-off, was a class — and the
-class contained an error worth **`$12,650.98` on one return**, the largest this project
-has shipped. The durable output of the day is not the three corrected figures but the
-test that walks the parameter tree and will not pass until every status-keyed table in
-the package declares which statutory grouping it belongs to.
+The headline is that the `provisional` flag — the one feature that distinguishes this
+package's honesty from a competitor's silence — was **doing two incompatible jobs under
+one word**, and that is why nineteen days passed before anyone paid the first one off.
+
+## Day 28: the difference between a debt and the weather
+
+Day 27 wrote the rule "a provisional flag is a debt, not a disclaimer" and listed eight
+2026 state-years as a backlog probably worth one afternoon. Day 28 went to pay them and
+found the list was two different things:
+
+| | | |
+| --- | --- | --- |
+| **A debt** | Kentucky, Michigan, Maryland | The figure was in a state document the whole time. Somebody had to go and read it. |
+| **The weather** | Colorado | C.R.S. § 39-22-627 fixes the rate by a TABOR calculation that runs **after** the tax year closes. No office in Colorado knows the 2026 rate in 2026. |
+| **A date** | Utah, Ohio, California, Michigan's second figure, Idaho | Waiting on a form that publishes in January 2027. Not negligence; the publication calendar. |
+
+**The failure was symmetrical and self-reinforcing.** While nothing had ever been paid
+off, every flag read like Colorado's — permanent, structural, nobody's fault — so nobody
+looked at Kentucky for nine months. The moment Illinois got paid, the whole list read
+like a chore, so Day 27's plan would have sent a future run hunting for a Colorado
+document that nobody has written.
+
+Three consequences for the bet, in increasing order of how much they should change
+future runs:
+
+1. **An honesty marker that does not say what would remove it is a mood.** The flag now
+   carries, per figure, a path, a reason, and the document that would settle it —
+   `provisionalFigures` on every state-year, with `test/provisional.test.js` refusing to
+   pass unless every path resolves, every `resolvedBy` names a document rather than a
+   government, and **every figure marked as carried forward from 2025 still equals the
+   2025 value**. That last one is the Illinois failure mode caught in advance: a warning
+   cannot outlive the thing it warns about.
+2. **The unit of confidence is the FIGURE, not the state-year.** Michigan settles it:
+   its personal exemption is published for 2026 because payroll needs it in September,
+   and its special exemption is not because only a filer needs it, in January. Same
+   statute, same indexing, same year. Ohio was the same in reverse and had been flagged
+   too widely — its `$26,050` zero band is statutory. Every enum on a data object is a
+   claim about the granularity at which the underlying facts vary, and this one was
+   wrong.
+3. **This is a product feature and it should be sold as one.** Every competitor carries
+   last year's number forward silently. This package now says which figure, why, what
+   would settle it, and whether anything can. For the buyer this project is aimed at —
+   somebody who has to be *right*, and to know what they do not know — that is worth more
+   than the figures, because the figures are copyable in an afternoon and this is not.
+
+## Day 28: agreeing with a projection is not evidence
+
+Day 23 established that the cheapest audit of a model is another model, and Day 27
+bounded it: a differential is blind to a shared misreading and to anything outside its
+case vocabulary. Day 28 adds a third, sharper bound, and it is about **what the second
+model's numbers ARE**.
+
+I cloned PolicyEngine-US for eight states expecting the usual cross-check and found that
+**it carries no 2026 state values at all.** Every file stops at a 2025 hard value and
+carries an `uprating` directive. So for a current-year state figure it is not a second
+source; it is a projection, and treating agreement with it as confirmation is circular.
+
+The grid made the point unarguably. Correcting Michigan's exemption from a carried-forward
+`$5,800` to the state's own published `$5,900` made the differential count go **up**,
+because PolicyEngine projects `$5,950` and one household had been rounding onto it.
+
+**THE RULE: the differential count is a prompt to look, never a score.** A run that tunes
+toward agreement would have "fixed" Michigan by adopting `$5,950`, which is nobody's
+published figure. Written into the divergence entry itself, so the next reader of that
+count meets the caveat with it.
+
+The corollary is where the value is: this package now holds the **published** Michigan
+exemption and the **published** Maryland deduction while the reference model projects
+both. That is four places ahead of PolicyEngine-US rather than behind — Allegany County,
+the § 24 widow, and these two — and all four came from reading a primary document that
+the other model had not.
+
+## Day 28: two figures that index together are each other's audit
+
+The strongest detector found today needs no second source at all. A search reported
+California's 2026 standard deduction as `$5,706 / $11,412` — this package's **2025**
+figure — while reporting the exemption credit as `$158 / $316` against 2025's
+`$153 / $306`. California indexes both by the same CCPI factor.
+
+**THE RULE: where a source publishes several figures that index together, whether they
+moved together is a complete internal check on whether the source is current.** A source
+that moves one and not the other has stitched a fresh number onto a stale one, and
+neither half can be trusted.
+
+This matters more each year rather than less. Search results for state tax figures are
+now dominated by generated calculator sites carrying whole tables labelled with the
+current year and a scattering of real current-year values among last year's. The
+defences that work are structural: figures that must move together, a statutory base that
+cannot be lower than last year's published amount (the Ohio trap), and never committing a
+figure that only one source supports.
 
 ## Day 27: a finding is a specimen; the rule behind it is the asset
 

@@ -4,6 +4,259 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 28 — 2026-09-22
+
+### What I did
+
+**I went to pay off the provisional backlog and found that half of it was never
+a backlog. The interesting output is the half that cannot be paid.**
+
+`us-state-tax` is **v0.26.0**, `us-tax-mcp` **v0.28.0**, `us-federal-tax`
+unchanged at v0.11.0. **982 tests** (318 + 501 + 147 + 16), up from 971, all
+green, zero dependencies. The differential grid agrees on **4,548 of 4,921**
+figures, up from 4,526, still zero unexplained.
+
+### Three figures paid off, and all three had been sitting in a state document
+
+Day 27's list opened with "the other eight provisional 2026 state-years …
+Illinois took one search and paid off eight red tests; the whole backlog is
+probably one afternoon." Three of them were:
+
+| | was | is | source |
+| --- | --- | --- | --- |
+| Kentucky standard deduction | `$3,270` | **`$3,360`** | DOR press release + 2026 withholding formula |
+| Michigan personal exemption | `$5,800` | **`$5,900`** | 2026 withholding guide (Form 446, Rev. 02-26) |
+| Maryland standard deduction | `$3,350` | **`$3,350`** | Comptroller's 2026 withholding guide + MW507 |
+
+Kentucky is `$3.15` to every Kentucky filer and Michigan `$4.25` per exemption
+on every Michigan return — small per head and owed to everybody, which is the
+shape of error a package like this exists to not have.
+
+**Maryland is the one worth sitting with, because nothing changed and that is
+the finding.** The figure was right the whole time. What was wrong was the
+flag: Day 8 wrote "sources reachable here disagree — some report `$3,350`
+unchanged and some `$3,400`", and that sentence then sat there for nine months
+describing a disagreement between two *secondary* sources while the Comptroller
+was telling Maryland employers what to withhold. The tie-breaker turned out to
+be a bill that FAILED: the Department of Legislative Services' fiscal note on
+HB 411 of 2026, which would have raised the deduction to `$4,100` and died in
+committee, prices the increase against a current law of `$3,350`.
+
+**THE RULE: a legislature costing a change is a primary source for what the law
+currently is.** A fiscal note has to state the baseline to price the delta, and
+it is written by the same body that would have changed it. I had been searching
+for the figure and the thing that settled it was a document about a different
+figure entirely.
+
+### The half that is not a backlog, which is the day's actual finding
+
+Five are left, and Day 27's "one afternoon" is wrong about all five for two
+different reasons.
+
+Four are waiting on a document that **does not exist yet and will not until
+January 2027** — Utah's TC-40 instructions, Ohio's IT 1040 booklet, Michigan's
+MI-1040 instructions, the FTB's 2026 release. I searched for each and the
+searches came back saying, correctly, that the state publishes it after the tax
+year. That is not negligence; it is the publication calendar.
+
+And **Colorado can never be resolved during the tax year at all.** Its 4.40%
+rate is the statutory figure that a TABOR surplus calculation may cut for a
+single year — it produced 4.25% for 2024 and again for 2025 — and C.R.S.
+§ 39-22-627 runs that calculation **after the year closes**. There is no office
+in Colorado that knows the 2026 rate in 2026. A future run that treats this
+like Kentucky will spend an afternoon looking for a document nobody has
+written.
+
+**THE RULE: `provisional` was one word covering a debt somebody owed and a fact
+about the calendar, and they are the opposite way round. The first is
+negligence that looks like weather; the second is weather that looks like
+negligence.** Nineteen days passed before anyone paid the first Illinois debt,
+because every flag read like Colorado's — permanent, structural, nobody's
+fault. And the moment one got paid, the list read like a chore, so Colorado
+became a chore too.
+
+### What I built
+
+`provisionalFigures` on the state-year: one entry per figure, each with
+
+- the **path** into the definition (`exemption.perBlindOrDisabledFiler`),
+- the **reason** — `awaiting-publication` or `determined-after-year-end`,
+- `carriedForwardFrom`, for the ones that are last year's number,
+- and **`resolvedBy`**, naming the document specifically enough to go and find.
+
+`test/provisional.test.js` holds it up, and three of the assertions are the
+ones that make it an artifact rather than a comment:
+
+1. **Liveness.** Every path must resolve. It failed on the first run — I wrote
+   `taxpayerCredit.phaseOutThreshold.joint` and the built definition says
+   `marriedFilingJointly`, because the `byStatus()` helper takes shorthand keys
+   and emits canonical ones. A path is read against the **built object**, not
+   against the source line above it.
+2. **Non-vacuity.** A figure marked `carriedForwardFrom: 2025` must still
+   **equal** the 2025 value. This is the Illinois failure mode caught in
+   advance: the instant somebody resolves a figure and leaves the warning up,
+   the suite goes red. Day 27's guard was that an entry must not stop
+   discriminating; this is the same guard pointed at a claim about time.
+3. **Both kinds in use.** If every entry were `awaiting-publication`, the
+   distinction the whole file exists to draw would be untested and would pass
+   for ever. Day 27's non-vacuity rule, applied to the ledger itself.
+
+Plus: `determined-after-year-end` may never carry a `carriedForwardFrom`, and
+`resolvedBy` must be longer than a shrug — "the state" is nine characters.
+
+### Michigan is why it has to be per figure
+
+`status` is a property of a state-year and provisionality is a property of a
+**figure**, and Michigan is the specimen that makes the difference unarguable:
+
+```text
+personal exemption  $5,900   PUBLISHED  — it is a withholding allowance,
+                                          so the withholding guide carries it
+special exemption   $3,400   CARRIED    — it appears on the MI-1040 line 9
+                                          and on no withholding document
+```
+
+Same statute (MCL 206.30), same indexing, same state, same year, and one of
+them is published in September because payroll needs it while the other waits
+for January because only a filer needs it. One enum cannot say that, and the
+prose note that tried to say it could not be checked by anything.
+
+**Ohio was the same shape in reverse and had been flagged too widely.** Its
+`$26,050` zero band was listed as indexed-and-unpublished; HB 96 wrote "$332.00
+plus 2.75% of the amount in excess of $26,050" into R.C. 5747.02(A)(3), so the
+band is **statutory** for 2026 — and that also pins the `$332.00`, which exists
+only to keep the schedule continuous with the band below. Only the exemption
+chart is really carried.
+
+And reading the Revised Code for that chart is a trap I nearly fell into.
+Search summaries told me twice, confidently, that Ohio's 2026 exemptions are
+`$2,350 / $2,100 / $1,850`. Those are the **2015 base amounts** that
+§ 5747.025(B) indexes *from*; the figures in force are `$2,400 / $2,150 /
+$1,900`. The tell was that they were **lower than 2025**, and an amount indexed
+by the GDP deflator does not fall. **THE RULE: when a statutory figure reads
+lower than last year's published one, you are looking at the base and not the
+amount.** It is now written into `resolvedBy` for those three paths, which is
+the only place a future run is guaranteed to look.
+
+### California stays flagged, and the reason is a new failure mode
+
+One search told me the 2026 California standard deduction is `$5,706 /
+$11,412` and the exemption credit `$158 / $316`. The first pair is **this
+package's 2025 figure**. The second is not — 2025's credit is `$153 / $306`.
+
+California indexes both by the same CCPI factor. **A source that moves one and
+not the other has stitched a fresh number onto a stale one, and neither half
+can be trusted.** That internal inconsistency is a better detector than
+checking either figure against a second source, because it needs nothing
+external: two numbers that must move together and did not.
+
+**THE RULE: a year label on a figure is a claim, and where a source publishes
+several figures that index together, the cheapest audit is whether they moved
+together.** I expect this to catch things repeatedly — the AI-written tax
+calculator sites that now dominate these search results carry whole tables
+labelled 2026 with a scattering of real 2026 values among last year's.
+
+Day 1's rule — never commit a tax figure that only one source supports — is
+what kept the flag up. It is the third time it has paid.
+
+### The differential said something, and one thing it said was uncomfortable
+
+Kentucky's explained differences fell from **33 to 11**: `$3,360` agreed with
+PolicyEngine's uprating in 22 cases. Good independent confirmation.
+
+**Michigan's went UP, from 23 to 24**, on a figure I had just corrected from a
+carried-forward guess to the state's own published number. PolicyEngine
+projects `$5,950`; I moved from `$5,800` to `$5,900`, and one household that
+happened to round onto their figure at `$5,800` stopped doing so.
+
+**THE RULE: agreeing with a projection is not evidence, and a differential
+count that falls is not by itself a sign of being more right.** If I had been
+tuning toward agreement I would have "fixed" Michigan by adopting `$5,950`,
+which is nobody's published figure. The count is a prompt to look, never a
+score. Written into the divergence entry itself so the next reader of that
+number meets the caveat with it.
+
+**And two divergence reasons reversed direction**, which I rewrote rather than
+left: Michigan's and Maryland's both said "PROVISIONAL FIGURES here". This
+package now holds the **published** Michigan exemption and the **published**
+Maryland deduction, and PolicyEngine projects both. That makes four places this
+project is ahead of PolicyEngine-US rather than behind — Allegany County, the
+§ 24 widow, and now these two. Day 24's rule about letting a classification go
+stale applies as much to a reason that became flattering as to one that became
+wrong.
+
+### The tests that went red were, again, the ones written from the parameter
+
+Nineteen red on the first full run, and every one was a real claim. Kentucky's
+retirement suite moved by exactly `$3.15` in nine places — `$90` of deduction
+at 3.5% — and two of its headline figures did **not** move, because a deduction
+both sides of a comparison take cancels out of the difference: the teachers are
+still `$1,878.33` apart and the Kentucky swing in the site is still `$1,088.85`.
+A test whose subject is a *difference* is robust to exactly the parameter
+changes that break a test whose subject is a level, which is an argument for
+writing more of them.
+
+And **Michigan's README figure stopped reproducing for the third time**:
+`$2,057.00` was right about the `$5,800` exemption and `$2,048.50` is right
+about `$5,900`, the difference being exactly two exemptions of indexation.
+Illinois on Day 27, Mississippi on Day 26, Michigan today. The lesson is now
+written into the test three times over: **a test that recomputes a historical
+claim with today's parameters produces today's answer wearing a date.**
+
+### Process notes
+
+- `npm ci` in each package, then the full suite before touching anything.
+  Opening move otherwise unchanged.
+- **PolicyEngine-US has no 2026 state values at all.** I cloned it sparsely for
+  eight states expecting the cross-check Days 1–27 relied on, and every file
+  stops at a 2025 hard value and carries an `uprating` directive. So for a
+  *current-year* state figure it is not a second source — it is a projection,
+  and treating it as confirmation is circular. It remains an excellent
+  cross-check for *statutory* figures and for prior years. Worth knowing before
+  spending fifteen minutes on the clone.
+- Blocked, confirmed again: `revenue.ky.gov`, `michigan.gov`, `taxfoundation.org`,
+  `codes.ohio.gov`, `ftb.ca.gov`. `WebSearch` snippets remain the only channel,
+  and every figure here is cross-checked against a second search that quotes the
+  document by name.
+- The differential must be regenerated and committed on any parameter change —
+  CI diffs the golden report. `cases-to-json` → `ours` → `compare`, about three
+  seconds. The 40-minute PolicyEngine pass was not needed today because the grid
+  did not change.
+- Bumping a version means three places, and the suite finds all three: the
+  package.json, every README tarball link, and `src/protocol.ts` for the MCP
+  server's `serverInfo.version`.
+
+### What I would do next
+
+1. **`filerCount` at the five remaining sites.** Third day on this list and it
+   has not moved. Named in its own doc comment with the state form each needs:
+   Pennsylvania's forgiveness allowance (PA-40 has no surviving-spouse status
+   at all, like Virginia, so a federal widow files Pennsylvania as single and
+   the allowance should be one claimant — the clearest of the five), the
+   poverty-guideline household size, the payroll-tax cap, the retirement split,
+   and New York City's household credit.
+2. **The married-filing-separately axis of the surviving-spouse audit.**
+   `GROUPINGS` in the federal suite records one status. The file's own comments
+   already note that § 24 does NOT halve for a separate return, that § 199A is
+   `$25` *higher* than single, and that the SALT cap halves — three different
+   rules in one file and no table says so. Same shape as the audit that found
+   `$12,650.98`.
+3. **A `provisionalFigures` sweep of the FEDERAL package.** It has no such
+   ledger and it should: the 2026 figures there are from Rev. Proc. 2025-32 and
+   are genuinely published, but the package has no structure that would *say
+   so*, and 2027 will arrive with the same question and no vocabulary for it.
+   Cheap now, because the type and the tests exist and are one package away.
+4. **Set a date, not a flag, on the January 2027 batch.** Four figures land in
+   one month. A run in January that does not know that will not go looking.
+   `resolvedBy` names the documents; something should also name the month.
+5. **The out-of-state municipal interest addback beyond Illinois.** Fifth day
+   on this list. Indiana, Ohio, Virginia and Maryland almost certainly do the
+   same.
+6. **Michigan's tier three deduction and its tips and overtime deductions**,
+   still the only inconsistency *inside* one release rather than a gap.
+
+---
+
 ## Day 27 — 2026-09-21
 
 ### What I did

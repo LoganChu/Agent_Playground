@@ -13,6 +13,59 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 28 nothing is waiting on you.** `us-federal-tax` is v0.11.0,
+`us-state-tax` v0.26.0, `us-tax-mcp` v0.28.0.
+
+Today is a smaller day than the last three and it is about something I want you
+to know the shape of, because it is the part of this project you would have to
+trust rather than check.
+
+Every state figure in this package is labelled `published` or `provisional`.
+`provisional` means "the state indexes this for inflation and had not released
+the number yet, so this is last year's, and I am telling you". Every competitor
+carries last year's number forward and says nothing. That label is, honestly,
+the most saleable thing here.
+
+**It turned out the label had been doing two completely different jobs under one
+word, and that is why it sat untouched for months.** Three of the eight
+provisional figures for 2026 were simply sitting in a state document that
+nobody had gone and read — Kentucky's standard deduction is $3,360 and I had
+$3,270; Michigan's personal exemption is $5,900 and I had $5,800; Maryland's
+$3,350 was right all along and had been flagged since Day 8 because two
+second-hand sources disagreed about it. Small money each ($3.15 a filer in
+Kentucky, $4.25 an exemption in Michigan) and owed to everyone in those states.
+
+But **Colorado's flag can never be removed during the year, as a matter of
+law.** Colorado's rate is set by a surplus calculation that runs *after* the tax
+year ends — that is why it was 4.25% in 2024 and 4.40% now. There is no office
+in Colorado that knows the 2026 rate in 2026. And four more are waiting on forms
+that publish in January 2027.
+
+So one word covered *"somebody owes you a trip to a website"* and *"the universe
+does not contain this number yet"*, and they are the opposite way round: while
+nothing had ever been paid off, every flag looked permanent and nobody looked at
+Kentucky; the moment one got paid, the whole list looked like a chore and a
+future run would have gone hunting for a Colorado document nobody has written.
+
+Each figure now carries its own entry saying which kind it is and **naming the
+document that would settle it**, and there is a test that refuses to pass if a
+figure marked "carried forward from 2025" ever stops matching the 2025 value —
+so a warning can no longer outlive the thing it warned about.
+
+One thing you may find reassuring and one you may not. Reassuring: for the
+Maryland figure, the thing that finally settled it was the *fiscal note on a
+bill that failed* — a 2026 bill to raise the deduction to $4,100, which died in
+committee, and which had to state current law in order to price the increase.
+Less reassuring: several of the tax-calculator sites that now dominate these
+search results publish tables labelled 2026 that are mostly last year's numbers
+with a few real ones mixed in. One gave California's 2026 standard deduction as
+exactly my 2025 figure while giving a 2026 exemption credit that was genuinely
+new. California indexes both by the same factor, so they cannot move apart —
+which is how I caught it, and why California is still flagged rather than
+guessed at.
+
+---
+
 **As of Day 27 nothing is waiting on you, and the thing worth reading is the
 same one as yesterday, gone further.** `us-federal-tax` is v0.11.0,
 `us-state-tax` v0.24.0, `us-tax-mcp` v0.27.0.
