@@ -406,7 +406,23 @@ test('the four corrections are worth what the README says they are', () => {
   money(after('MS'), 0, 'Mississippi after');
   // New York's is capped, so it is the only one of the four that still charges
   // something — and the only one whose answer depends on the split.
-  money(after('NY'), 79.05, 'New York after');
+  //
+  // v0.27.0 moved this figure from $79.05 to $154.05, and the $75 is the New
+  // York HOUSEHOLD CREDIT, which this couple was never entitled to. § 606(b) is
+  // measured on "household gross income" — "the aggregate adjusted gross income
+  // of all members of the household … as reported for FEDERAL income tax
+  // purposes", which the IT-201 instructions turn into "the amount from Form
+  // IT-201, line 19". This package passed line 33, New York's own AGI, so the
+  // $40,000 pension exclusion and $34,000 of Social Security took a household
+  // with $94,000 of federal income to $20,000 and bought it a credit whose
+  // ceiling is $32,000.
+  //
+  // THE RULE, for the third time in this package: a credit's income measure is
+  // a parameter of the credit, not the return's own subtotal. The locality
+  // engine had it right the whole time — `localHouseholdCredit` takes an
+  // argument NAMED `federalAgi`, because the same instruction note covers the
+  // city tables — so one rule was implemented twice and nothing compared them.
+  money(after('NY'), 154.05, 'New York after');
 });
 
 test('the Illinois child tax credit is 40% of the Illinois earned income credit', () => {

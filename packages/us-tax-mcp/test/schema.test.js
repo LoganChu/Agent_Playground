@@ -340,7 +340,24 @@ test('tools/list stays within a sane context budget', () => {
   // documented for CA and GA and is REQUIRED by Ohio's 68 earned-income school
   // districts.
   //
-  // Where the remaining 38,707 bytes are:
+  // THE FIFTEENTH PASS WAS NINE BYTES A FIELD, and it is here because the
+  // ceiling stopped a correctness fix. Pennsylvania needs two fields it did not
+  // have — there is no separate-return tax-forgiveness table, so a married
+  // claimant filing separately takes the $13,000 allowance against the JOINT
+  // eligibility income, and the spouse's figure is on no line of that return —
+  // and adding them took the payload to 40,101 against a 40,000 ceiling.
+  //
+  // A context budget that blocks a correctness fix has stopped being a budget
+  // and become a bug. The ceiling held anyway, because the alternative was
+  // available: the pointer every per-state field carries was
+  // "describe_state documents it." and is now "See describe_state.", which is
+  // nine bytes times forty fields. Two tests require the pointer to be there and
+  // both are right to — a model reading one property in isolation has to be told
+  // where the rest is — so this is not Day 21's rule again; it is the smaller
+  // observation that a sentence repeated forty times should be the shortest one
+  // that does the job.
+  //
+  // Where the remaining 39,741 bytes are:
   //
   //   estimate_federal_tax  10,359   the primary schema — load-bearing for four
   //                                  tools, so it must NOT be trimmed

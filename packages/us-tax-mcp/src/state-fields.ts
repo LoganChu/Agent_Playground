@@ -295,6 +295,18 @@ export const STATE_FIELDS: readonly StateField[] = [
     ].join('\n'),
   },
   {
+    name: 'pennsylvaniaSpouseEligibilityIncome',
+    schema: number,
+    states: ['PA'],
+    doc: 'PA only, and only on a marriedFilingSeparately return: the SPOUSE\'s own eligibility income. Pennsylvania has no separate-return forgiveness table — Schedule SP\'s three claimant boxes are unmarried, separated and married, and a married claimant who files separately is a MARRIED claimant, with a $13,000 allowance rather than $6,500 and the JOINT eligibility income of both spouses. The allowance and the income move together, so this server will not take one without the other: pass this — 0 is a real answer, and it is the answer for a spouse with no income — or the return keeps the smaller allowance, which is too much tax, and the result says what that costs.',
+  },
+  {
+    name: 'separatedFromSpouse',
+    schema: boolean,
+    states: ['PA'],
+    doc: 'PA only: living apart from a spouse at ALL times during the last six months of the year, or separated under a written agreement. Schedule SP asks this directly and the answer decides the table: a separated claimant ticks the Unmarried oval on line 19a of the PA-40 and is one claimant on their own income, whatever pennsylvaniaSpouseEligibilityIncome says. It is the same fact § 32(d)(2) turns on federally.',
+  },
+  {
     name: 'lesserSpouseIncome',
     schema: number,
     states: ['VA'],
@@ -381,12 +393,30 @@ export const STATE_FIELDS: readonly StateField[] = [
 ];
 
 /** The short pointer a per-state field carries in the input schema. */
+/**
+ * The fifteenth compression pass, and the smallest one: nine bytes a field.
+ *
+ * Day 21's move was to stop copying a field's PROSE into the schema and point at
+ * `describe_state` instead, and it saved 7,800 bytes. What survived it was the
+ * pointer, spelled out on every per-state field — "describe_state documents it."
+ * — and two tests require a pointer to be there, correctly: a model reading one
+ * property in isolation has to be told where the rest is. So this is not the
+ * pointer rule again. It is just the observation that a sentence repeated forty
+ * times should be the shortest sentence that does the job.
+ *
+ * The reason it had to be found today is the interesting part. The ceiling was
+ * 130 bytes away and two fields Pennsylvania genuinely needs would not fit.
+ * **A context budget that blocks a correctness fix has stopped being a budget
+ * and become a bug**, so the fix arrived with a pass rather than with a raised
+ * ceiling — which is the fourth time this project has chosen that way round, and
+ * the first time the alternative was shipping a known wrong answer.
+ */
 export function shortDescription(field: StateField): string {
   const required =
     field.requiredIn && field.requiredIn.length > 0
       ? ` Required in ${field.requiredIn.join(', ')}.`
       : '';
-  return `${field.states.join(', ')} only.${required} describe_state documents it.`;
+  return `${field.states.join(', ')} only.${required} See describe_state.`;
 }
 
 /** The schema fragment, pointer included, for one per-state field. */

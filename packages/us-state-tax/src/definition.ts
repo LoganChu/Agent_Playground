@@ -544,11 +544,11 @@ export interface ItemizerCreditRule {
   /**
    * Credit for each taxpayer on the return: one, or two on a joint return.
    *
-   * **A qualifying surviving spouse counts as one.** {@link filerCount} says two
+   * **A qualifying surviving spouse counts as one.** {@link claimedFilerCount} says two
    * for that status, because a surviving spouse uses the joint rate schedule
    * federally — but there is one taxpayer on the return, and Georgia already
    * treats a surviving spouse as "any other taxpayer" for its standard
-   * deduction. This rule does not use {@link filerCount} for that reason.
+   * deduction. This rule does not use {@link claimedFilerCount} for that reason.
    */
   readonly perTaxpayer: number;
 }
@@ -2201,28 +2201,28 @@ export interface StateIncomeTaxDefinition {
 }
 
 /**
- * Number of filers a status implies, for per-person amounts.
+ * How many filer exemptions the state's own form tells this status to ENTER.
  *
- * **A qualifying surviving spouse counts as two here and as ONE PERSON in
- * {@link livingFilerCount}, and the difference is not a bug in either.** The
- * status takes the joint column on most state returns, and some states say so
- * about the count itself: California's Form 540 line 7 reads "If you checked
- * box 2 or 5, enter 2", and box 5 is the qualifying surviving spouse. So
- * California really does allow a widow two personal exemption credits, and the
- * AGI limitation really does reduce them twice over.
+ * This is a claim about a line on a form, not about a room. **It is the wrong
+ * count for every question about people, and as of v0.27.0 it has exactly two
+ * callers, both of them reading a published exemption amount.** Everything else
+ * goes through {@link livingFilerCount}.
  *
- * What a state cannot do is put two living people on a one-person return, which
- * is why the two counts exist. Whenever a figure turns on a PERSON — how many
- * are blind, how many are 65, whose pension it is — use `livingFilerCount`.
+ * A qualifying surviving spouse counts as two here because California's Form
+ * 540 line 7 says so in words — "If you checked box 2 or 5, enter 2", box 5
+ * being the qualifying surviving spouse — so California really does allow a
+ * widow two personal exemption credits and really does reduce them twice over
+ * under the AGI limitation. Maryland says the opposite about its own stepped
+ * exemption and says it through `filersClaimed`, which is why the override
+ * exists rather than a second default.
  *
- * Several call sites here still read `filerCount` for what is plainly a count
- * of people: Pennsylvania's tax-forgiveness allowance, the poverty-guideline
- * household size, the payroll-tax deduction cap, the retirement split and
- * New York City's household credit. Each needs the state's own form read before
- * it moves, because a state that publishes a joint figure for the status has
- * already answered the question and the answer is not always "one".
+ * **THE RULE: a status is not a number of people. It is a row a state chose to
+ * put this filer in, and the choice is the state's to make separately for every
+ * figure on its form.** The name of this function is the only thing standing
+ * between a future call site and the fourteen bugs of v0.27.0, so it says what
+ * it counts: what the FORM claims, not who is alive.
  */
-export function filerCount(status: string): number {
+export function claimedFilerCount(status: string): number {
   return status === 'marriedFilingJointly' || status === 'qualifyingSurvivingSpouse' ? 2 : 1;
 }
 
@@ -2230,18 +2230,47 @@ export function filerCount(status: string): number {
  * How many living people the return covers: two only on a joint return.
  *
  * A qualifying surviving spouse files alone. There is no second person to be
- * blind, to turn 65, or to hold a pension, and a cap derived from
- * {@link filerCount} let a caller claim one — a Californian widow was allowed
- * TWO `$153` blind exemption credits where a single filer is correctly capped
- * at one, and Michigan's `$3,400` special exemption, Mississippi's `$1,500` and
- * New Jersey's, Illinois's and Indiana's allowances were all doubled the same
- * way. It takes a caller who passes `blindOrDisabled: 2` for a one-person
- * household, which is exactly what a caller reading "how many filers are blind"
- * would do if they believed the status implied two filers.
+ * blind, to turn 65, to hold a pension, to have paid a payroll tax, or to be
+ * counted in a household size — and a count derived from
+ * {@link claimedFilerCount} handed one to fourteen different call sites.
  *
- * The fix is narrow on purpose. Every amount a state PUBLISHES for this status
- * stays where it is; only the number of people it can be claimed for changes,
- * and one living person is not a figure any state gets to disagree about.
+ * v0.24.0 fixed the blind and elderly conditions: a Californian widow had been
+ * allowed TWO `$153` blind exemption credits where a single filer is correctly
+ * capped at one, and Michigan's `$3,400` special exemption, Mississippi's
+ * `$1,500` and New Jersey's, Illinois's and Indiana's allowances were all
+ * doubled the same way.
+ *
+ * v0.27.0 finished it, and the rest was bigger than the start:
+ *
+ * - **Massachusetts** capped the FICA deduction at `$4,000` for a one-person
+ *   return, because the cap is `$2,000` per filer and the status claimed two.
+ * - **Pennsylvania** handed a widow the `$13,000` MARRIED tax-forgiveness
+ *   allowance. PA-40 Schedule SP has no such status: "divorced or widowed and
+ *   unmarried at the end of the taxable year" is an UNMARRIED claimant, and
+ *   the allowance is `$6,500`.
+ * - **Virginia** paid `$600` of Credit for Low Income Individuals where the
+ *   statute allows `$300` an exemption and Virginia gives the status ONE — the
+ *   same one the standard deduction and the personal exemption in
+ *   `virginia.ts` already said.
+ * - **Maryland's** poverty-level credit and **Virginia's** low-income credit
+ *   both measured a household against the federal poverty guideline for a
+ *   household one person too large, which both qualifies filers who should not
+ *   qualify and raises the earned-income ceiling they are tested against.
+ * - **New York's** and **New York City's** household credits counted a dead
+ *   spouse as a household member, and **Michigan's city** exemptions gave the
+ *   city one more exemption than the ordinance allows.
+ * - And five sites read a `spouseAge` or a `retirement.spouse` that cannot
+ *   exist: the Virginia age deduction, the Utah retirement credit, the
+ *   retirement split, military retired pay, and the missing-`retirement` note.
+ *
+ * **Every one of them took a caller who supplied spouse-shaped input for this
+ * status, which is exactly what a caller who believes the status implies two
+ * filers would do.** That is why they survived twenty-six days of tests: the
+ * test suite was written by the same belief.
+ *
+ * The fix is still narrow. Every amount a state PUBLISHES for this status stays
+ * where it is; only the number of PEOPLE it can be claimed for changes, and one
+ * living person is not a figure any state gets to disagree about.
  */
 export function livingFilerCount(status: string): number {
   return status === 'marriedFilingJointly' ? 2 : 1;

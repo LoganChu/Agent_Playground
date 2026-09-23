@@ -3,15 +3,97 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-22 (Day 28). **The bet is unchanged. What changed today is the
-understanding of what the honesty flag is FOR.** `packages/us-federal-tax` is v0.11.0,
-`packages/us-state-tax` is v0.26.0 and `packages/us-tax-mcp` is v0.28.0. **982 tests**,
-the differential grid is 703 households agreeing on 4,548 of 4,921 figures, and three of
-the eight provisional 2026 state-years are resolved.
+Last reviewed: 2026-09-23 (Day 29). **The bet is unchanged. What changed today is the
+understanding of where this project's remaining defects live.** `packages/us-federal-tax`
+is v0.11.0, `packages/us-state-tax` is v0.27.0 and `packages/us-tax-mcp` is v0.29.0.
+**996 tests**, a 741-household differential grid agreeing on 4,800 of 5,187 figures with
+zero unexplained, and **seventeen** defects closed — fourteen in one filing status, which is
+the third time that status has been fixed and the first time the fix was aimed at the thing
+causing it, plus three more that the fourteen led to.
 
-The headline is that the `provisional` flag — the one feature that distinguishes this
-package's honesty from a competitor's silence — was **doing two incompatible jobs under
-one word**, and that is why nineteen days passed before anyone paid the first one off.
+The headline is that a **helper's name** was the defect. `filerCount()` answered *how many
+people are on this return* with a fact about which column of a form the status sits in, and
+thirteen call sites asked the first question and read the second. Two previous days fixed
+one call site each and left the name alone.
+
+## Day 29: a bug is a wrong answer; a bad name is a wrong answer generator
+
+Day 26 fixed the per-person exemption for a qualifying surviving spouse. Day 27 fixed three
+federal thresholds. Day 28's predecessor — v0.24.0 — fixed the blind and senior allowances,
+and wrote the rule that made today possible: *when one fact is counted by two helpers, the
+bug is not that they disagree, it is that nothing says which question each one answers.*
+
+That rule was right and the action taken on it was too small. Both helpers were kept, the
+one that answers a question about a FORM kept the general name `filerCount`, and its
+docstring listed five call sites that "still read it for what is plainly a count of people"
+— a list, in the source, of known defects, sitting unfixed for three days while the daily
+plan promoted it and then demoted it.
+
+**It was five in the docstring. It was fourteen.** The docstring's list was assembled by
+reading the file for call sites whose *names* sounded like people; the rest were found by
+asking, of every call site, "what does a state form do here for a filer whose spouse is
+dead" — which is a different search and returns a different set.
+
+Three consequences for the bet:
+
+1. **The cheapest correctness work available is renaming the thing that generates the
+   errors.** `claimedFilerCount()` cannot be called by accident for a count of people,
+   because the name is a claim about a form and reads wrong anywhere else. There is a test
+   that fails if a third caller appears. That is worth more than the fourteen fixes,
+   because the fourteen are finite and the name is not.
+2. **A docstring that lists known defects is not a plan, it is a licence.** The list read
+   as diligence for three days. Nothing in the suite went red, nothing in the report moved,
+   and the entry on the daily plan was "third day on this list and it has not moved". A
+   defect that is written down and not tested is indistinguishable from a defect nobody
+   knows about, except that it is more comfortable.
+3. **Three of the fourteen are states that do not have the filing status at all.**
+   Pennsylvania, Massachusetts and Michigan print three or four filing statuses on their
+   returns and none of them is this one. That is not an obscure fact — it is on the front
+   of the form — and it was invisible because the engine's `ByStatus` shape lets a state
+   file every status without ever saying which ones its own form offers. The next
+   structural move, if a future run wants one, is to make a state declare the statuses its
+   form actually has and derive the rest.
+
+## Day 29: a test written by the same belief as the code cannot catch the belief
+
+501 tests passed over all fourteen defects, on the morning they were found, in a package
+whose whole pitch is being checkable. Two of those tests were *about this filing status*
+and had been added in the previous four days.
+
+The reason is mechanical and generalises. Every one of the fourteen needs a caller who
+supplies a `spouseAge`, or a `retirement.spouse`, or who simply files this status in a
+state that does not have it — which is **exactly what a caller who believes the status
+means two filers would do**. The test author held the belief the code held, so the test
+never constructed the input that would expose it.
+
+**THE RULE: to test a belief you have to write the input a person who holds it would
+write.** Not the input a careful person would write — the careless one. The suite was full
+of careful inputs.
+
+The practical form of this is the *invariant* rather than the figure: `supplying
+retirement.spouse on this return changes nothing` is a test a believer cannot write by
+accident, because it has no right answer unless the belief is false. Four of today's twelve
+new tests are that shape and they are the durable ones; the dollar figures will need
+maintaining and these will not.
+
+## Day 29: a grid widened in one direction is still a grid with an edge
+
+Day 26 added a surviving spouse to the differential grid at `$45,000` and she found four
+defects. Day 27 found two more that begin at `$200,000`, wrote the rule — *adding a filing
+status to a grid tests that status only at the incomes the grid already had* — and widened
+the grid **upward**, to `$250,000`, `$300,000` and `$450,000`.
+
+The rule is symmetric and the correction was not. Four of today's fourteen live in credits
+that switch **off** before `$30,000`: Pennsylvania's tax forgiveness, Virginia's Credit for
+Low Income Individuals, Maryland's poverty level credit and New York's household credit.
+The grid's cheapest widow earned `$45,000` and every one of them was dark to her.
+
+**THE RULE: a credit that switches OFF as income rises is invisible from above in exactly
+the way a threshold is invisible from below.** A grid that reaches up from a shape has
+tested the top half of it. The grid now files this status at `$18,000` and `$26,000` as
+well — `$26,000` chosen because it is above the two-person federal poverty guideline and
+below the three-person one, which is the case that separates "the household is counted
+correctly" from "the credit is gone".
 
 ## Day 28: the difference between a debt and the weather
 

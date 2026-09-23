@@ -13,7 +13,74 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 28 nothing is waiting on you.** `us-federal-tax` is v0.11.0,
+**As of Day 29 nothing is waiting on you.** `us-federal-tax` is v0.11.0,
+`us-state-tax` v0.27.0, `us-tax-mcp` v0.29.0.
+
+Today I found fourteen wrong answers in one filing status, and I want to tell you
+about them honestly, including the part that does not flatter the project.
+
+The status is **qualifying surviving spouse** — what you file for the two years
+after a husband or wife dies, if you have a child at home. The year of the death
+itself is a joint return; this is the two years after, and there is one adult in
+the house.
+
+I have now fixed this status on three separate days. Day 26 gave her one personal
+exemption instead of two. Day 27 fixed three federal thresholds. Both times I
+wrote it up as "that exemption was wrong", and both times the actual cause was
+sitting one level down: a piece of code called `filerCount` that was being asked
+*how many people are on this return* and was answering with **which column of a
+form the state puts this status in**. Those are different questions. Thirteen
+different places in the engine asked the first one and got the second.
+
+What that was worth, per return, in 2026:
+
+- **Pennsylvania, $614** — her whole Pennsylvania tax. The state forgives the
+  entire bill below an allowance and then takes the forgiveness back ten points
+  at a time. I was giving her the married allowance, which is double, which moved
+  the whole staircase. Pennsylvania's own form has three boxes — unmarried,
+  separated, married — and none of them is hers; the Department's guide puts
+  "divorced or widowed and unmarried at the end of the taxable year" in the first.
+- **Georgia, $873.25** — two military retired-pay exclusions for one veteran.
+- **Virginia, $639.50** of a low-income credit, plus **$591.80** of an age
+  deduction for a spouse who cannot have an age. Virginia's instructions say in a
+  sentence that a widow files as Single.
+- **Maryland, $465.25** — again her whole state bill. Maryland forgives the tax
+  of a household under the federal poverty line, and I was measuring her against
+  the poverty line for a household of three when there are two of them.
+- **Massachusetts $100, New York and New York City $20 between them, Detroit
+  $14.40**, and one more in Utah.
+
+All fourteen ran the same way: her bill was too **low**. Nobody would have
+complained.
+
+**The uncomfortable part is why 501 tests did not catch any of it.** Every one of
+these bugs needs somebody to tell the engine a fact about a spouse who is dead —
+a spouse's age, a spouse's pension — or to file this status in a state that has
+never heard of it. That is exactly what a person who believes the status means
+two filers would do, and the person who wrote the tests believed it, because he
+also wrote the code. A test can only ask a question its author thought of asking.
+
+So four of today's twelve new tests are written a different way: they do not
+check a dollar figure at all, they check that *supplying a dead spouse's pension
+changes nothing*. That is a claim a believer cannot write down by accident,
+because it is only interesting if the belief is false. I think that shape is the
+more valuable half of today's work.
+
+The other structural change: the piece of code is now called
+`claimedFilerCount`, which is a name you cannot reach for by accident when you
+want a number of people, and there is a test that fails if a fourteenth call site
+appears. The name was the defect. The fourteen wrong answers were symptoms.
+
+One thing that may reassure you about the direction of all this: the engine now
+*says* when it has thrown away something you told it. If you pass a spouse's age
+on a widow's return, the result carries a note explaining that there is no living
+spouse, that the field was ignored, and where to put the figure if it is really
+hers — a survivor's annuity is the survivor's own income. I would rather the
+result argue with the caller than quietly disagree with them.
+
+---
+
+**As of Day 28 nothing was waiting on you either.** `us-federal-tax` v0.11.0,
 `us-state-tax` v0.26.0, `us-tax-mcp` v0.28.0.
 
 Today is a smaller day than the last three and it is about something I want you

@@ -9404,6 +9404,576 @@
   },
   "error": null
  },
+ "surviving-spouse-low-AZ-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-AZ-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -50.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-CA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -464.1925964355469
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CO-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-CO-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -3411.73583984375
+  },
+  "error": null
+ },
+ "surviving-spouse-low-GA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-GA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-ID-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-ID-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IL-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-IL-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -638.1350708007812
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IN-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-IN-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 277.9499816894531
+  },
+  "error": null
+ },
+ "surviving-spouse-low-KY-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-KY-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -1950.800048828125
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MD-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MD-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -1819.02490234375
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MI-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MI-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -1172.3778076171875
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MS-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MS-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NC-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-NC-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NJ-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-NJ-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -1770.800048828125
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NY-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-NY-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -1791.050048828125
+  },
+  "error": null
+ },
+ "surviving-spouse-low-OH-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-OH-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-PA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-PA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -0.620025634765625
+  },
+  "error": null
+ },
+ "surviving-spouse-low-UT-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-UT-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-VA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-VA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -645.9000244140625
+  },
+  "error": null
+ },
+ "surviving-spouse-low-AZ-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-AZ-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-CA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -214.9783935546875
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CO-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-CO-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -3158.677490234375
+  },
+  "error": null
+ },
+ "surviving-spouse-low-GA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-GA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-ID-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-ID-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IL-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-IL-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -147.72515869140625
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IN-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-IN-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 709.2677917480469
+  },
+  "error": null
+ },
+ "surviving-spouse-low-KY-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-KY-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 475.77374267578125
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -1265.378662109375
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MD-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MD-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -1287.294921875
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MI-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MI-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -627.6966552734375
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MS-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MS-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NC-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-NC-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NJ-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-NJ-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -1294.6788330078125
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NY-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-NY-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -1377.896728515625
+  },
+  "error": null
+ },
+ "surviving-spouse-low-OH-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-OH-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-PA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-PA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 389.2178039550781
+  },
+  "error": null
+ },
+ "surviving-spouse-low-UT-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-UT-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-VA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-VA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -178.46441650390625
+  },
+  "error": null
+ },
  "early-retiree-AZ-0-50000-0-0-0": {
   "id": "early-retiree-AZ-0-50000-0-0-0",
   "federal": {

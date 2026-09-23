@@ -5,7 +5,7 @@
  * in {@link StateIncomeTaxDefinition} data, not in branches here, which is what
  * makes the conformity choice visible rather than buried.
  */
-import { filerCount, livingFilerCount } from './definition.js';
+import { claimedFilerCount, livingFilerCount } from './definition.js';
 import type {
   ByChildCount,
   ExemptionRule,
@@ -148,10 +148,19 @@ function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInpu
 
   if (def.payrollTaxDeduction) {
     const paid = nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid');
-    // Per filer, so a joint return with two working spouses deducts twice as
-    // much — but only up to what was actually paid between them, which is the
-    // one figure this package cannot split.
-    total += Math.min(paid, def.payrollTaxDeduction.perFilerCap * filerCount(input.filingStatus));
+    // Per LIVING filer, so a joint return with two working spouses deducts
+    // twice as much — but only up to what was actually paid between them, which
+    // is the one figure this package cannot split.
+    //
+    // A qualifying surviving spouse is one person and the cap is $2,000, not
+    // $4,000. Massachusetts Form 1 does not offer the status at all — its four
+    // are single, married filing jointly, married filing separately and head of
+    // household — and the deduction is for what a person PAID: lines 11a and
+    // 11b of Form 1 are "you" and "your spouse", and a spouse who died before
+    // the tax year began paid nothing. The cap binds at $26,144 of wages, so
+    // this was $2,000 of deduction and $100 of tax on every widowed
+    // Massachusetts earner above that.
+    total += Math.min(paid, def.payrollTaxDeduction.perFilerCap * livingFilerCount(input.filingStatus));
   }
 
   if (def.rentDeduction) {
@@ -224,7 +233,7 @@ function stateExemptions(
   // and the step is chosen by federal AGI. So the filer's exemption and the
   // dependents' are one figure times a count, not two figures — and the staircase
   // costs a family with six exemptions six times what it costs a single filer.
-  const filers = rule.filersClaimed?.[input.filingStatus] ?? filerCount(input.filingStatus);
+  const filers = rule.filersClaimed?.[input.filingStatus] ?? claimedFilerCount(input.filingStatus);
   // Maryland reads the staircase against federal AGI; Ohio against its own
   // modified AGI, which is Ohio AGI with the business income deduction added
   // back. The two are the same figure only for a filer with no business income.
@@ -326,7 +335,12 @@ function retirementIncomeOf(input: StateIncomeTaxInput): number {
   }
   const split = input.retirement;
   if (!split) return 0;
-  const people = filerCount(input.filingStatus) === 2 ? [split.filer, split.spouse] : [split.filer];
+  // A spouse's half of the split is read only when there is a living spouse to
+  // hold it. A qualifying surviving spouse files alone in the two years AFTER
+  // the year of death — the year of death is a joint return — so a
+  // `retirement.spouse` on such a return describes nobody, and reading it put
+  // a dead person's pension on a living person's return.
+  const people = livingFilerCount(input.filingStatus) === 2 ? [split.filer, split.spouse] : [split.filer];
   let total = 0;
   for (const person of people) {
     if (!person) continue;
@@ -350,11 +364,11 @@ function retirementIncomeCredit(
   return stepAmount(rule.steps, retirementIncomeOf(input));
 }
 
-/** Military retired pay on the return, both spouses. */
+/** Military retired pay on the return, for each living person on it. */
 function militaryRetirementPay(input: StateIncomeTaxInput): number {
   const split = input.retirement;
   if (!split) return 0;
-  const filers = filerCount(input.filingStatus);
+  const filers = livingFilerCount(input.filingStatus);
   const filer = nonNegative(split.filer?.militaryRetirement, 'retirement.filer.militaryRetirement');
   const spouse =
     filers === 2
@@ -392,7 +406,10 @@ function exclusiveRetirementCredits(
   // moves these credits, and there is no second copy to fall out of step.
   const rate = def.rate.kind === 'flat' ? def.rate.rate : 0;
   const status = input.filingStatus;
-  const filers = filerCount(status);
+  // § 59-10-1019(2) gives `$450` to "the claimant" and `$450` to "the claimant's
+  // spouse", and a qualifying surviving spouse has no spouse for the statute to
+  // be talking about. Living people only.
+  const filers = livingFilerCount(status);
 
   // Code 18. The birth-year test is on the calendar year of birth, so it turns
   // over on 1 January rather than on a birthday.
@@ -479,7 +496,11 @@ function ageDeduction(
 ): number {
   const rule = def.ageDeduction;
   if (!rule) return 0;
-  const filers = filerCount(input.filingStatus);
+  // Living people, because this is an age. Virginia sends a federal qualifying
+  // surviving spouse to Filing Status 1, SINGLE — the same instruction that
+  // already set this status's standard deduction, personal exemption and
+  // threshold in `virginia.ts` — and a single return has one age on it.
+  const filers = livingFilerCount(input.filingStatus);
   let untested = 0;
   let tested = 0;
   const consider = (age: number | undefined): void => {
@@ -561,7 +582,16 @@ function povertyGuideline(
   if (input.federalPovertyGuideline !== undefined) {
     return nonNegative(input.federalPovertyGuideline, 'federalPovertyGuideline');
   }
-  const size = filerCount(input.filingStatus) + dependentCount(input);
+  // A household size is a number of PEOPLE and nothing else. Md. Code, Tax-Gen.
+  // § 10-709(a)(3) makes the unit "an individual, OR an individual and the
+  // individual's spouse IF THEY FILE A JOINT INCOME TAX RETURN" — a qualifying
+  // surviving spouse does not, and the HHS guideline it is measured against is
+  // published per person in the family.
+  //
+  // This one runs the wrong way twice over: a guideline one person too large
+  // both admits filers whose income is above the real cliff and raises the
+  // earned-income ceiling § 10-709(a)(3)(ii) tests them against.
+  const size = livingFilerCount(input.filingStatus) + dependentCount(input);
   return (
     rule.povertyGuideline.firstPerson + rule.povertyGuideline.additionalPerson * (size - 1)
   );
@@ -623,7 +653,11 @@ function lowIncomeCredit(
     if (seniors > 0 || blind > 0) return 0;
   }
   if (stateAgi > povertyGuideline(def.lowIncomeCredit, input)) return 0;
-  return rule.perExemption * (filerCount(input.filingStatus) + dependentCount(input));
+  // "$300 for each personal exemption" — and Virginia's own personal exemption,
+  // three hundred lines up in `virginia.ts`, gives this status ONE. The credit
+  // and the exemption it is defined against are the same fact counted twice,
+  // and they disagreed by $300 a return.
+  return rule.perExemption * (livingFilerCount(input.filingStatus) + dependentCount(input));
 }
 
 /**
@@ -705,7 +739,11 @@ interface RetirementPerson {
 function retirementPeople(
   input: StateIncomeTaxInput,
 ): { readonly people: readonly RetirementPerson[]; readonly assumed: boolean } {
-  const filers = filerCount(input.filingStatus);
+  // A per-person exclusion needs a person. Every state that caps one does it on
+  // the pension holder's own age, and a qualifying surviving spouse's return
+  // has one holder on it — so this is a count of the living, not of the column
+  // the state put the status in.
+  const filers = livingFilerCount(input.filingStatus);
   const split = input.retirement;
   const read = (
     part: { readonly age: number | undefined; readonly from: NonNullable<StateIncomeTaxInput['retirement']>['filer'] },
@@ -1178,7 +1216,7 @@ function exemptionCredit(
     return 0;
   }
   const lines: readonly (readonly [number, number])[] = [
-    [filerCount(status), rule.perFiler[status] / filerCount(status)],
+    [claimedFilerCount(status), rule.perFiler[status] / claimedFilerCount(status)],
     [seniors, rule.perSeniorFiler ?? 0],
     [blind, rule.perBlindOrDisabledFiler ?? 0],
     [dependents, rule.perDependent],
@@ -1287,6 +1325,62 @@ function municipalInterestAddition(
  * forgives the whole tax, and each $250 above it — or any part of $250 — forgives
  * ten percentage points less, so forgiveness runs out $2,500 later.
  */
+/**
+ * How many claimants PA-40 Schedule SP counts, and the joint eligibility income
+ * that goes with them.
+ *
+ * **Schedule SP has three claimant boxes — unmarried, separated, married — and
+ * they do not line up with filing statuses in either direction.** One helper was
+ * being asked to map five statuses onto them and got two wrong, in OPPOSITE
+ * directions, which is the clearest argument this package has for naming a
+ * helper after the question rather than the shape of its answer:
+ *
+ * - A **qualifying surviving spouse** was given the MARRIED allowance. The
+ *   Personal Income Tax Guide's own words put her in the first box: an
+ *   UNMARRIED claimant is one who is "divorced or widowed and unmarried at the
+ *   end of the taxable year". Worth `$614.00` — her whole Pennsylvania tax.
+ * - A **married claimant filing separately** was given the UNMARRIED one. There
+ *   is no separate-return table: "married claimants are not dependents of one
+ *   another for Tax Forgiveness purposes, even when one spouse does not have any
+ *   Eligibility Income. Each must use the Joint Eligibility Income and
+ *   Eligibility Income Table 2." So the allowance is `$13,000` and the income is
+ *   BOTH spouses'.
+ *
+ * The second is why this returns a pair. The allowance and the income move
+ * together and taking one without the other is worse than taking neither: a
+ * `$13,000` allowance against one spouse's income forgives a two-earner couple
+ * twice over. The spouse's eligibility income is on no figure of a separate
+ * return, so the engine will not assume it — supply
+ * `pennsylvaniaSpouseEligibilityIncome` (`0` is a real answer) and the return is
+ * computed on Table 2; leave it out and it keeps Table 1, which is too much tax
+ * and is said out loud in the notes.
+ *
+ * A *separated* claimant — living apart at all times during the last six months,
+ * or separated under a written agreement — ticks the Unmarried oval on line 19a
+ * and is genuinely one claimant on their own income. `separatedFromSpouse` says
+ * so and wins over everything above.
+ */
+function forgivenessClaimants(
+  input: StateIncomeTaxInput,
+): { readonly claimants: number; readonly spouseIncome: number; readonly assumedSingle: boolean } {
+  const status = input.filingStatus;
+  if (status === 'marriedFilingJointly') {
+    return { claimants: 2, spouseIncome: 0, assumedSingle: false };
+  }
+  if (status !== 'marriedFilingSeparately' || input.separatedFromSpouse === true) {
+    return { claimants: 1, spouseIncome: 0, assumedSingle: false };
+  }
+  const supplied = input.pennsylvaniaSpouseEligibilityIncome;
+  if (supplied === undefined) {
+    return { claimants: 1, spouseIncome: 0, assumedSingle: true };
+  }
+  return {
+    claimants: 2,
+    spouseIncome: nonNegative(supplied, 'pennsylvaniaSpouseEligibilityIncome'),
+    assumedSingle: false,
+  };
+}
+
 function forgivenessCredit(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -1294,11 +1388,18 @@ function forgivenessCredit(
 ): number {
   const rule = def.forgiveness;
   if (!rule) return 0;
-  const eligibility = nonNegative(
-    input.pennsylvaniaEligibilityIncome ?? input.pennsylvaniaTaxableIncome,
-    'pennsylvaniaEligibilityIncome',
-  );
-  const allowance = rule.base * filerCount(input.filingStatus) + rule.perDependent * dependentCount(input);
+  const { claimants, spouseIncome } = forgivenessClaimants(input);
+  const eligibility =
+    nonNegative(
+      input.pennsylvaniaEligibilityIncome ?? input.pennsylvaniaTaxableIncome,
+      'pennsylvaniaEligibilityIncome',
+    ) + spouseIncome;
+  // Pennsylvania's staircase is why the surviving-spouse half of this was the
+  // most expensive of v0.27.0's fourteen. The allowance is not a deduction; it
+  // is where a 100% forgiveness of the WHOLE tax begins to step down, ten points
+  // per $250. Handing a widow the married base moved the whole staircase $6,500
+  // to the right, so she was forgiven tax on $6,500 of income Pennsylvania taxes.
+  const allowance = rule.base * claimants + rule.perDependent * dependentCount(input);
   const excess = eligibility - allowance;
   const steps = excess <= 0 ? 0 : Math.ceil(excess / rule.increment);
   const share = Math.max(0, 1 - steps * rule.reductionPerIncrement);
@@ -1345,12 +1446,18 @@ function stepAmount(steps: readonly { upTo: number; amount: number }[], income: 
  * Household size counts the filer, the spouse on a joint return, and the
  * dependents claimed. Single filers get a flat table with no per-person addition,
  * which is why `perAdditionalPerson` is only ever reached by the other statuses.
+ *
+ * **That sentence was right and the code under it was not.** "The spouse on a
+ * joint return" excludes a qualifying surviving spouse, who does not file one —
+ * and the credit went on counting one anyway, for $5 to $15 a return. A
+ * docstring that states the rule correctly is not a check on the line below it;
+ * only a test is.
  */
 function householdCredit(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput, agi: number): number {
   const rule = def.householdCredit;
   if (!rule) return 0;
   const status = input.filingStatus;
-  const people = filerCount(status) + dependentCount(input);
+  const people = livingFilerCount(status) + dependentCount(input);
   const base = stepAmount(rule.base[status], agi);
   const additional =
     status === 'single' ? 0 : stepAmount(rule.perAdditionalPerson, agi) * (people - 1);
@@ -1997,7 +2104,27 @@ function computeOnce(
     const chosen = exclusiveRetirementCredits(def, input, utahModifiedAgi);
     if (chosen) credits.push({ ...chosen, refundable: false });
   }
-  const household = householdCredit(def, input, stateAgi);
+  // FEDERAL adjusted gross income, and not this state's. § 606(b) is measured on
+  // "household gross income", which the statute defines as "the aggregate
+  // adjusted gross income of all members of the household … as reported for
+  // FEDERAL income tax purposes", and the IT-201 instructions turn that into a
+  // line number: "For most taxpayers, federal adjusted gross income is the
+  // amount from Form IT-201, line 19." Line 19 is the federal figure; New York's
+  // own is line 33.
+  //
+  // This package passed line 33, so every New York SUBTRACTION bought a credit
+  // the statute does not allow — and the largest of them is the § 612(c)(3-a)
+  // pension exclusion, which is $20,000 a person. A single New York retiree with
+  // a $40,000 pension and $24,000 of Social Security was given $45 of household
+  // credit on a household gross income that is nowhere near the $28,000 ceiling.
+  //
+  // The tell was inside this repository. `localHouseholdCredit` takes a
+  // parameter NAMED `federalAgi`, because the same note in the same instructions
+  // covers the city tables 4 to 6 as well as the state tables 1 to 3 — so one
+  // rule was implemented twice, correctly in the locality engine and wrongly
+  // here, and nothing compared them. Found by asking why PolicyEngine-US, which
+  // reads `adjusted_gross_income` for this credit, was $45 HIGHER on a retiree.
+  const household = householdCredit(def, input, input.federal.adjustedGrossIncome);
   if (def.householdCredit) {
     credits.push({ name: def.householdCredit.name, amount: household, refundable: false });
   }
@@ -2024,8 +2151,28 @@ function computeOnce(
       : 0;
     const alternativeWorth = Math.min(alternative, Math.max(0, grossTax - spouse.amount));
     // New York pays the match less the household credit, so the two are not
-    // additive — Tax Law § 606(d)(1).
-    const paid = rule.reducedByHouseholdCredit ? Math.max(0, matched - household) : matched;
+    // additive — Tax Law § 606(d)(1). **Less the household credit the filer
+    // could actually USE**, which is not the same number and until v0.27.0 this
+    // package used the other one.
+    //
+    // Form IT-215 spells the arithmetic out in three lines: line 13 is
+    // Worksheet B line 5, line 14 is the household credit from Form IT-201 line
+    // 40, line 15 is "the SMALLER of line 13 or line 14", and line 16 is line
+    // 12 less line 15. Worksheet B line 5 is the New York tax the household
+    // credit is set against, so a filer whose tax is smaller than the credit
+    // surrenders only as much of the match as the credit actually absorbed.
+    //
+    // That filer is the whole point of both credits. A single parent of two at
+    // $12,000 has about $80 of New York tax and a $90 household credit, and was
+    // losing $90 of a REFUNDABLE match to a NON-REFUNDABLE credit that could
+    // only ever have been worth $80 — paying $75 for the privilege of being
+    // offered relief. Found by chasing a `known-divergences.json` entry that
+    // claimed PolicyEngine-US "models neither the credit nor the offset"; it
+    // models both, and this was one of the two things left over.
+    const usableHousehold = Math.min(household, Math.max(0, grossTax));
+    const paid = rule.reducedByHouseholdCredit
+      ? Math.max(0, matched - usableHousehold)
+      : matched;
     if (def.lowIncomeCredit && alternativeWorth > matched) {
       credits.push({ name: def.lowIncomeCredit.name, amount: alternative, refundable: false });
     } else {
@@ -2133,7 +2280,7 @@ function computeOnce(
   if (def.itemizerCredit) {
     // The whole rule. One `if` on the federal election, and a taxpayer count
     // that is two only on a joint return — a qualifying surviving spouse is one
-    // taxpayer, which is why `filerCount` is not used here.
+    // taxpayer, which is why `claimedFilerCount` is not used here.
     const taxpayers = input.filingStatus === 'marriedFilingJointly' ? 2 : 1;
     credits.push({
       name: def.itemizerCredit.name,
@@ -2572,6 +2719,60 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   // Notes that depend on what the caller supplied rather than on the state, so a
   // model reading the result learns that a figure it left out was load-bearing.
   const dynamic: string[] = [];
+  // A qualifying surviving spouse has no living spouse, so every spouse-shaped
+  // field on such a return describes nobody and is dropped. Saying so is the
+  // point: v0.27.0 found fourteen places that had been READING these fields,
+  // and each one took a caller who supplied them — so the caller who is about
+  // to be surprised is exactly the caller who was wrong before.
+  //
+  // Dropping them errs towards more tax in every case, which is why it is safe
+  // to do silently and still worth not doing silently.
+  if (input.filingStatus === 'qualifyingSurvivingSpouse') {
+    const supplied: string[] = [];
+    if (input.spouseAge !== undefined) supplied.push('spouseAge');
+    if (input.retirement?.spouse !== undefined) supplied.push('retirement.spouse');
+    if ((input.blindOrDisabled ?? 0) > 1) supplied.push('blindOrDisabled above 1');
+    if (supplied.length > 0) {
+      dynamic.push(
+        `Filing status is qualifyingSurvivingSpouse, which is a ONE-PERSON return: § 2(a) gives ` +
+          `the status to an unmarried filer with a dependent child in the two years AFTER the ` +
+          `year of death, and the year of death itself is a joint return. So ${supplied.join(' and ')} ` +
+          `describe${supplied.length === 1 ? 's' : ''} nobody and ${supplied.length === 1 ? 'was' : 'were'} ` +
+          `ignored here. Amounts a state PUBLISHES for the status are unaffected — ` +
+          `${def.name} still uses whichever column its own form puts this status in — but nothing ` +
+          `that counts PEOPLE can count two. If the figure belongs to the surviving filer (a ` +
+          `survivor annuity, for instance, which is the survivor's own income), pass it under ` +
+          `\`retirement.filer\`.`,
+      );
+    }
+  }
+  // Pennsylvania's separate return, which is the mirror image of the widow's
+  // and the reason `forgivenessClaimants` returns a pair. The bigger allowance
+  // is withheld until the caller supplies the income that goes with it, so the
+  // note has to say what is being withheld and what it is worth — priced by
+  // running this filer's own return again on Table 2 with a spouse of zero,
+  // which is the MOST it could be worth.
+  if (def.forgiveness && forgivenessClaimants(input).assumedSingle) {
+    const rule = def.forgiveness;
+    const best = compute(def, { ...input, pennsylvaniaSpouseEligibilityIncome: 0 });
+    const most = roundCents(here.tax - best.tax);
+    dynamic.push(
+      `${def.name} has no separate-return ${rule.name.toLowerCase()} table. PA-40 Schedule SP's ` +
+        `three claimant boxes are unmarried, separated and married, and a married claimant who ` +
+        `files separately is a MARRIED claimant: allowance ` +
+        `$${(rule.base * 2).toLocaleString('en-US')} rather than ` +
+        `$${rule.base.toLocaleString('en-US')}, against the JOINT eligibility income of both ` +
+        `spouses — "married claimants are not dependents of one another for Tax Forgiveness ` +
+        `purposes, even when one spouse does not have any Eligibility Income." The spouse's ` +
+        `figure is on no line of this return, so this result keeps the smaller allowance and ` +
+        `this filer's own income, which is the SAFE direction and is too much tax for most ` +
+        `separate filers: up to $${most.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ` +
+        `here. Supply pennsylvaniaSpouseEligibilityIncome — 0 is a real answer, and it is the ` +
+        `answer for a spouse with no income — or set separatedFromSpouse if this filer lived ` +
+        `apart from their spouse for the whole of the last six months of the year, which ticks ` +
+        `the Unmarried oval on line 19a and really is one claimant.`,
+    );
+  }
   // Indiana's child exemption is the first rule here that a caller can lose by
   // supplying the *weaker* of two fields that both describe dependents. A count
   // is accepted, so nothing fails; the exemption is simply not there.
@@ -2669,7 +2870,9 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   }
   if (def.payrollTaxDeduction && input.socialSecurityAndMedicarePaid === undefined) {
     const rule = def.payrollTaxDeduction;
-    const worth = rule.perFilerCap * filerCount(input.filingStatus);
+    // Quoted against the same count the deduction itself now uses, so the note
+    // and the line it is about cannot drift apart.
+    const worth = rule.perFilerCap * livingFilerCount(input.filingStatus);
     dynamic.push(
       `${def.name} deducts ${rule.name.toLowerCase()} up to $${rule.perFilerCap.toLocaleString('en-US')} ` +
         `per filer, and socialSecurityAndMedicarePaid was not supplied, so it was computed as ` +
@@ -2686,7 +2889,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     input.retirementIncome === undefined
   ) {
     const rule = def.retirementIncomeExclusion;
-    const ages = [input.filerAge, input.spouseAge].slice(0, filerCount(input.filingStatus));
+    const ages = [input.filerAge, input.spouseAge].slice(0, livingFilerCount(input.filingStatus));
     if (ages.some((age) => age !== undefined && age >= rule.minimumAge)) {
       // Priced by running this filer's own return again with every dollar of it
       // treated as qualifying income — the most the exclusion could be worth

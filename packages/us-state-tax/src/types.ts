@@ -615,6 +615,46 @@ export interface StateIncomeTaxInput {
    */
   readonly pennsylvaniaEligibilityIncome?: number;
   /**
+   * Pennsylvania only, and only on a **married filing separately** return: the
+   * spouse's own eligibility income, which PA-40 Schedule SP requires on a
+   * separate return and which no figure on that return contains.
+   *
+   * **Pennsylvania has no separate-return forgiveness table.** Schedule SP's
+   * three claimant boxes are *unmarried*, *separated* and *married*, and a
+   * married claimant who files separately is a MARRIED claimant: Table 2, an
+   * allowance of `$13,000` rather than `$6,500`, and a Total Eligibility Income
+   * that is the **joint** figure — "married claimants are not dependents of one
+   * another for Tax Forgiveness purposes, even when one spouse does not have any
+   * Eligibility Income."
+   *
+   * So the allowance and the income move together, and the engine will not take
+   * one without the other. Supply this — `0` is a perfectly good answer, and it
+   * is the answer for a spouse with no income — and the return is computed on
+   * Table 2. Leave it out and the return keeps the `$6,500` allowance and its
+   * own income, which is **too much tax** for most separate filers, and the
+   * result says so and prices it.
+   *
+   * A claimant who is *separated* — living apart at all times during the last
+   * six months of the year, or separated under a written agreement — is not a
+   * married claimant at all and files Table 1 on their own income. Set
+   * {@link separatedFromSpouse} and this field is ignored.
+   */
+  readonly pennsylvaniaSpouseEligibilityIncome?: number;
+  /**
+   * Living apart from a spouse at all times during the last six months of the
+   * tax year, or separated under a written separation agreement.
+   *
+   * Pennsylvania's Schedule SP asks this directly, and the answer decides which
+   * of two eligibility tables a married-filing-separately claimant uses: a
+   * separated claimant ticks the **Unmarried** oval on line 19a of the PA-40 and
+   * is one claimant on their own income; every other separate filer is a married
+   * claimant with the doubled allowance and the joint income.
+   *
+   * It is the same fact § 32(d)(2) turns on federally, where it decides whether a
+   * separate return may claim the earned income credit at all.
+   */
+  readonly separatedFromSpouse?: boolean;
+  /**
    * New Jersey only, and required there: total income as New Jersey measures it
    * — line 27 of the NJ-1040, **before** the pension and retirement income
    * exclusion and before every deduction.

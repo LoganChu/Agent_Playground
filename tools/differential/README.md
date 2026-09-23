@@ -94,6 +94,55 @@ same and both are wrong. That is what a parameter-versus-statute audit is for,
 and `packages/us-federal-tax/test/surviving-spouse.test.js` is the first one
 here.
 
+## And why Day 29 widened it DOWNWARD, which is the same rule's other edge
+
+Day 27's rule — *adding a filing status to a grid tests that status only at the incomes
+the grid already had* — was acted on by widening **upward**, to `$250,000`, `$300,000` and
+`$450,000`, because the two provisions then in hand began at `$200,000`. The rule is
+symmetric and the correction was not.
+
+v0.27.0 found fourteen more defects in that same filing status and **four of them live in
+credits that switch off before `$30,000`**: Pennsylvania's tax forgiveness, Virginia's
+Credit for Low Income Individuals, Maryland's poverty level credit and New York's household
+credit. The grid's cheapest widow earned `$45,000` and every one of them was dark to her.
+
+**THE RULE: a credit that switches OFF as income rises is invisible from above in exactly
+the way a threshold is invisible from below.** The grid now files this status at `$18,000`
+and `$26,000` as well — 741 cases — and `$26,000` was picked because it is above the
+two-person federal poverty guideline and below the three-person one, which is the case that
+separates "the household is counted correctly" from "the credit is gone".
+
+The widening earned its keep in an unexpected way. The new Georgia case is the first that
+could show that **`$748.50` is not the constant two divergence entries called it**: above
+`$30,000` the whole `$15,000` of disputed deduction is in use and the gap is `$748.50` at
+every income, and at `$26,000` it is `$299.40`, because the widow has not got `$30,000` of
+income for the larger deduction to come off. A deduction disagreement is a constant only
+above the deduction.
+
+## And why a reason has to be checked against the other model, not just against this one
+
+Day 24's rule was that a stale reason hides defects behind it. Day 29 found the shape
+underneath that: **a reason can be wrong about the OTHER model, and then it is not hiding a
+defect, it is manufacturing one.**
+
+This entry stood for days:
+
+> NOT MODELLED THERE. The New York household credit (Tax Law § 606(b)) … PolicyEngine-US
+> models neither the credit nor the offset.
+
+PolicyEngine-US models both. `ny_household_credit` has been in its non-refundable credit
+list since 2007 and `ny_eitc` subtracts it under § 606(d)(1). Reading its source to check
+that sentence found **two defects in this package**, both now fixed: the credit was measured
+on New York AGI where § 606(b) names federal AGI, and the § 606(d)(1) offset subtracted the
+whole household credit where Form IT-215 line 15 subtracts *the smaller of* the credit and
+the tax it could be used against. Closing them closed every New York difference the entry
+claimed to explain, and what is left under it is a different fact with a `$2` bound.
+
+**THE RULE: a divergence entry makes a claim about two models, and only one of them is in
+this repository.** The half that is about the other model is the half nobody re-reads, and
+it is the half that decides whether a difference is *theirs* — which is the same as deciding
+not to look.
+
 ## Running it
 
 ```bash

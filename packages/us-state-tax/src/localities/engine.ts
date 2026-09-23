@@ -8,7 +8,7 @@
  * caller's.
  */
 import { applyBrackets, dependentCount, rateForIncome, roundCents } from '../engine-core.js';
-import { filerCount } from '../definition.js';
+import { livingFilerCount } from '../definition.js';
 import type { LocalBase, LocalIncomeTaxDefinition } from './definition.js';
 import type {
   BracketDetail,
@@ -105,7 +105,11 @@ export function localExemption(
   input: StateIncomeTaxInput,
 ): number {
   if (def.exemptionAmount === undefined) return 0;
-  return def.exemptionAmount * (filerCount(input.filingStatus) + dependentCount(input));
+  // "One for a spouse on a joint return" is the ordinance's own shape, and a
+  // qualifying surviving spouse does not file one. Michigan's MI-1040 has no
+  // such status either — single, married filing jointly, married filing
+  // separately — so the city return underneath it cannot have one.
+  return def.exemptionAmount * (livingFilerCount(input.filingStatus) + dependentCount(input));
 }
 
 /** The amount of a step-function credit at a given income. */
@@ -136,7 +140,10 @@ export function localHouseholdCredit(
   if (!rule) return 0;
   const status = input.filingStatus;
   if (status === 'single') return stepAmount(rule.single, federalAgi);
-  const people = filerCount(status) + dependentCount(input);
+  // The people counted on the return, which is why a dead spouse is not one of
+  // them. This is the same $5-to-$30 error as the STATE household credit, in a
+  // second engine, found by asking the same question of both.
+  const people = livingFilerCount(status) + dependentCount(input);
   const perPerson = stepAmount(rule.perPerson, federalAgi);
   const amount =
     rule.halvedForSeparate && status === 'marriedFilingSeparately'

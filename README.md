@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.26.0/us-state-tax-0.26.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.27.0/us-state-tax-0.27.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.11.0/us-federal-tax-0.11.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.28.0/us-tax-mcp-0.28.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.29.0/us-tax-mcp-0.29.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -350,6 +350,42 @@ stored. And the credit a home city gives for tax paid to a work city is capped a
 city's *own* nonresident rate, which makes it whole for a Detroit resident commuting to Grand
 Rapids and short for a Lansing resident commuting to Detroit.
 
+### v0.27.0: a widow is one person, in fourteen more places
+
+A **qualifying surviving spouse** is an unmarried filer with a dependent child, for the two
+years *after* the year a spouse died. v0.23.0 gave her one per-person exemption; v0.24.0
+gave her one blind allowance and one senior allowance. Both were written as "the exemption
+was wrong", and the mistake was never in an exemption — it was in a helper that answered
+*how many people are on this return* with a fact about **which column of a form the status
+sits in**.
+
+```js
+const widow = { year: 2026, filingStatus: 'qualifyingSurvivingSpouse',
+                dependents: 1, dependentAges: [10] };
+
+// Pennsylvania's tax forgiveness allowance is $6,500 for an unmarried claimant and
+// $13,000 for a married one, and PA-40 Schedule SP has no surviving-spouse box:
+// "divorced or widowed and unmarried at the end of the taxable year" is unmarried.
+stateIncomeTax({ state: 'PA', ...widow, wages: 20_000,
+                 pennsylvaniaTaxableIncome: 20_000,
+                 federal: { adjustedGrossIncome: 20_000 } }).totalTax;
+// 614.00   — and it was 0.00, because the allowance is not a deduction: it is where
+//            100% forgiveness of the WHOLE tax begins stepping down, ten points per
+//            $250. Doubling it moved the entire staircase.
+```
+
+Fourteen sites, worth `$873.25` in Georgia (two military retired-pay exclusions for one
+veteran), `$639.50` in Virginia, `$614.00` in Pennsylvania, `$591.80` on Virginia's age
+deduction, `$465.25` in Maryland — whose statute settles it in words, *"an individual, or an
+individual and the individual's spouse **if they file a joint income tax return**"* — and
+`$100` in Massachusetts, `$20` across New York State and City, `$14.40` in Detroit.
+
+Every one of them needed a caller who supplied a `spouseAge` or a `retirement.spouse`, or
+who simply filed this status in a state that does not have it. The suite had no such caller
+anywhere, for twenty-six days, across two previous fixes *to this very status* — which is
+the lesson: **a test written by the same belief as the code cannot catch the belief.** A
+result now says out loud when it has dropped a spouse-shaped field.
+
 It takes the output of `estimateFederalTax()` directly, but neither package depends on the
 other. See the [package README](packages/us-state-tax/README.md) for the full list of what
 is and is not covered.
@@ -366,7 +402,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.28.0/us-tax-mcp-0.28.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.29.0/us-tax-mcp-0.29.0.tgz"
       ]
     }
   }

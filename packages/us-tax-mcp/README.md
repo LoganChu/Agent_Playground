@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.28.0/us-tax-mcp-0.28.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.29.0/us-tax-mcp-0.29.0.tgz"
       ]
     }
   }
@@ -175,8 +175,62 @@ the most tax and the least credit Colorado can ask for. Do not tell a user that
 figure is pending a publication; tell them it is pending the year ending.
 `describe_state` carries the per-figure detail.
 
-**New in 0.27.0 — the widow's filing status, and the third correction in the
-same place.** Federal thresholds split on the phrase **"in the case of a joint
+**New in 0.29.0 — the widow's filing status, on the STATE side, in fourteen more
+places, and three of them are states that do not have the status at all.**
+0.27.0 fixed the federal thresholds and 0.28.0 the blind and senior allowances.
+Both were written as "this exemption was wrong", and the mistake was never in an
+exemption: a helper was answering *how many people are on this return* with a
+fact about which **column of a form** the status sits in.
+
+**PENNSYLVANIA** gave a widow the `$13,000` MARRIED tax-forgiveness allowance.
+PA-40 Schedule SP has three claimant boxes — unmarried, separated, married — and
+the Commonwealth's own guide puts "divorced or widowed and unmarried at the end
+of the taxable year" in the first. The allowance is not a deduction: it is where
+100% forgiveness of the **whole** tax begins stepping down, ten points per `$250`
+of eligibility income, so doubling it moved the entire staircase and forgave a
+widow at `$20,000` her whole `$614.00` bill. **MASSACHUSETTS** capped her FICA
+deduction at `$4,000` where Form 1's four statuses do not include hers and the
+cap is `$2,000` per person who *paid* it. **MICHIGAN's** 24 cities gave her two
+`$600` exemptions where the MI-1040 above them has no such status either.
+
+**VIRGINIA** cost the most in one return: `$639.50` of Credit for Low Income
+Individuals (`$300` an exemption, and Form 760 sends this status to Filing
+Status 1, SINGLE — which `describe_state` had already said about the standard
+deduction and the personal exemption) plus `$591.80` of age deduction for a
+spouse who cannot have an age. **GEORGIA** excluded `$17,500` of military
+retired pay twice for one veteran — `$873.25`. **MARYLAND's** poverty level
+credit, which can forgive a whole Maryland bill, measured her against a
+three-person federal poverty guideline: `$465.25`, and the statute settles it in
+words, *"an individual, or an individual and the individual's spouse **if they
+file a joint income tax return**"*. **UTAH** paid two `$450` retirement credits
+where § 59-10-1019(2) names "the claimant" and "the claimant's spouse". **NEW
+YORK** and **NEW YORK CITY** counted a dead spouse as a household member, `$20`
+between them.
+
+**And the same helper was wrong about a second status, the other way round.**
+Schedule SP's three claimant boxes are unmarried, separated and married, and
+there is no separate-return table at all: a married claimant who files
+separately takes the `$13,000` allowance against the **joint** eligibility
+income of both spouses — "married claimants are not dependents of one another
+for Tax Forgiveness purposes, even when one spouse does not have any Eligibility
+Income." This server was giving them the `$6,500` unmarried allowance. Two new
+fields: **`pennsylvaniaSpouseEligibilityIncome`** — `0` is a real answer, and it
+is the answer for a spouse with no income — and **`separatedFromSpouse`**, for a
+claimant who lived apart for the whole of the last six months and really is one
+claimant. Until the first is supplied the return keeps the smaller allowance,
+which is too much tax, and the result prices what is being withheld. The
+allowance and the income move together and this server will not take one without
+the other.
+
+**If you are a model calling this server: `spouseAge` and the spouse half of a
+`retirement` split describe nobody on a `qualifyingSurvivingSpouse` return and
+are now ignored, and the result says so in a note.** A survivor annuity is the
+*survivor's* income — pass it under the filer. Dropping these errs towards more
+tax in every one of the fourteen, so a figure that moved up here moved towards
+the state's own answer.
+
+**In 0.27.0 — the same status, federally.** Federal thresholds split on the
+phrase **"in the case of a joint
 return"**, and a **qualifying surviving spouse** does not file one: § 2(a) hands
 them the joint *rate schedule* and nothing else. Where Congress means to include
 them it says so by name — § 1411(b) and § 63(c)(2)(A) do; § 24, § 32 and § 199A
@@ -191,7 +245,7 @@ the same way, and all of it ran in one direction: the widow's bill was too low.
 two are thousands of dollars apart, and the schema now says so on every tool
 that takes a filing status.
 
-**Also new in 0.27.0, on the state side — a one-person return cannot hold two
+**Also in 0.28.0, on the state side — a one-person return cannot hold two
 blind people.** `blindOrDisabled: 2` on a **qualifying surviving spouse** bought
 two allowances against a household of one: `$153` in California, `$144.50` in
 Michigan, `$60` in Mississippi, and the same doubling in Illinois, Indiana and

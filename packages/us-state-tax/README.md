@@ -162,7 +162,11 @@ netted out by the caller through `subtractions`, accepted a `retirement` split t
 contained everything needed to compute it, and taxed the pension anyway. A retired couple
 with a `$60,000` pension and `$40,000` of Social Security was charged `$2,588.85` in
 Illinois, `$2,057.00` in Michigan and `$1,336.00` in Mississippi, where all three of those
-states charge **nothing at all**, and `$2,040.80` in New York where the answer is `$79.05`.
+states charge **nothing at all**, and `$2,040.80` in New York where the answer is `$154.05`.
+(`$79.05` until v0.27.0, and the `$75` between them is a second correction in the same
+household: this couple was being given New York's **household credit**, a relief whose
+ceiling is `$32,000`, because the credit was measured on New York AGI after the `$40,000`
+pension exclusion rather than on the federal AGI § 606(b) actually names.)
 
 Four states, four different constructions, and every difference between them is worth
 money:
@@ -208,7 +212,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.26.0/us-state-tax-0.26.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.27.0/us-state-tax-0.27.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1445,6 +1449,108 @@ va.totalTax;       // === va.tax
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
 Mississippi standard deduction and exemption, that bracket is **not** doubled for a joint
 return.
+
+## A widow is one person, in fourteen more places (v0.27.0)
+
+A **qualifying surviving spouse** is an unmarried filer with a dependent child, for the two
+years *after* the year a spouse died — the year of death itself is a joint return. § 2(a)
+hands the status the joint **rate schedule** and nothing else.
+
+v0.23.0 gave her one per-person exemption. v0.24.0 gave her one blind allowance and one
+senior allowance. Both were written as "the exemption was wrong", and the mistake was never
+in an exemption: it was in a helper called `filerCount()` that answered *how many people are
+on this return* with a fact about **which column of a form the status sits in**. Those are
+different questions, they have different answers, and thirteen call sites were asking the
+first and reading the second. The helper is now named `claimedFilerCount()` for the question
+it can answer, it has exactly two callers left, and a test fails if a third appears.
+
+| | what it did | what it does | worth |
+| --- | --- | --- | --- |
+| **Pennsylvania** tax forgiveness | the `$13,000` MARRIED allowance | `$6,500` unmarried | **`$614.00`** — her whole PA tax |
+| **Virginia** Credit for Low Income Individuals | `$300` × 2 filers | × 1 | **`$639.50`** with the guideline below |
+| **Virginia** age deduction | `$12,000` for a dead spouse | one filer's | **`$591.80`** |
+| **Georgia** military retired pay | two `$17,500` exclusions | one | **`$873.25`** |
+| **Maryland** poverty level credit | a 3-person poverty guideline | 2-person | **`$465.25`** — her whole MD tax |
+| **Massachusetts** FICA deduction | capped at `$4,000` | `$2,000` | **`$100.00`** |
+| **Utah** retirement credit | `$450` + `$450` | `$450` | **`$450.00`** of credit |
+| **New York** + **New York City** household credits | a 2-adult household | 1 | **`$20.00`** |
+| **Michigan's** 24 cities | two `$600` exemptions | one | **`$14.40`** in Detroit |
+| the retirement split, Maryland's and Georgia's per-person exclusions | read `retirement.spouse` | ignore it | varies |
+
+Three of them are states that **do not have the status at all**. Pennsylvania's Schedule SP
+has three claimant boxes — unmarried, separated, married — and its own guide puts "divorced
+or widowed and unmarried at the end of the taxable year" in the first. Massachusetts Form 1
+offers single, married filing jointly, married filing separately and head of household.
+Michigan's MI-1040 offers the first three. Virginia's instructions say it in a sentence:
+*"Filing Status 1 (Single) should be used if you claimed one of the following federal filing
+statuses … Single, Head of Household, or Qualifying Widow(er)/Qualifying Surviving Spouse."*
+
+Pennsylvania is the largest because of the *shape* of its rule rather than the size of the
+figure. The allowance is not a deduction; it is where 100% forgiveness of the **whole** tax
+begins stepping down, ten percentage points per `$250` of eligibility income. Moving it
+`$6,500` to the right moved the entire staircase, and a widow `$4,000` past her real
+allowance was being forgiven everything.
+
+Maryland's is the one the statute settles in words. Md. Code, Tax-Gen. § 10-709(a)(3):
+*"an individual, or an individual and the individual's spouse **if they file a joint income
+tax return**"*. And a poverty guideline one person too large runs the wrong way twice — it
+admits filers whose income is above the real cliff, **and** it raises the earned-income
+ceiling § 10-709(a)(3)(ii) tests them against.
+
+Every one of the fourteen needed a caller who supplied a `spouseAge`, or a
+`retirement.spouse`, or who simply filed this status in a state that does not have it —
+which is exactly what a caller who believes the status means two filers would do. So a
+result now **says** when it has dropped one:
+
+```js
+stateIncomeTax({ state: 'VA', year: 2026, filingStatus: 'qualifyingSurvivingSpouse',
+                 federal: { adjustedGrossIncome: 40_000 }, filerAge: 70, spouseAge: 70 })
+  .notes.at(-1);
+// "Filing status is qualifyingSurvivingSpouse, which is a ONE-PERSON return … so
+//  spouseAge describes nobody and was ignored here. … If the figure belongs to the
+//  surviving filer (a survivor annuity, for instance, which is the survivor's own
+//  income), pass it under `retirement.filer`."
+```
+
+Dropping the field errs towards **more** tax in every one of the fourteen, which is why it
+is safe to do silently and still worth not doing silently.
+
+### The same helper was wrong about a second status, in the opposite direction
+
+PA-40 Schedule SP has three claimant boxes — *unmarried*, *separated*, *married* — and they
+do not line up with filing statuses in either direction. One helper was mapping five
+statuses onto three boxes and got **two** wrong, one each way:
+
+| | got | should get |
+| --- | --- | --- |
+| qualifying surviving spouse | married, `$13,000` | unmarried, `$6,500` |
+| married filing **separately** | unmarried, `$6,500` | married, `$13,000` |
+
+There is no separate-return table. Pennsylvania's guide: *"married claimants are not
+dependents of one another for Tax Forgiveness purposes, even when one spouse does not have
+any Eligibility Income. Each must use the Joint Eligibility Income and Eligibility Income
+Table 2."* So the allowance doubles **and** the income is both spouses' — and taking one
+without the other is worse than taking neither, because a `$13,000` allowance against one
+spouse's income forgives a two-earner couple twice over.
+
+The spouse's eligibility income is on no line of a separate return, so the engine asks:
+
+```js
+const separate = { state: 'PA', year: 2026, filingStatus: 'marriedFilingSeparately',
+                   wages: 20_000, pennsylvaniaTaxableIncome: 20_000, dependents: 1,
+                   dependentAges: [10], federal: { adjustedGrossIncome: 20_000 } };
+
+stateIncomeTax(separate).totalTax;                                   // 614.00
+stateIncomeTax({ ...separate, pennsylvaniaSpouseEligibilityIncome: 0 }).totalTax;      // 0.00
+stateIncomeTax({ ...separate, pennsylvaniaSpouseEligibilityIncome: 10_000 }).totalTax; // 614.00
+stateIncomeTax({ ...separate, separatedFromSpouse: true }).totalTax;                   // 614.00
+```
+
+Unanswered, the return keeps the smaller allowance — **too much tax**, which is the safe
+direction — and the result says so and prices it. `0` is a real answer and is the right one
+for a spouse with no income. And a claimant who is *separated* — living apart at all times
+during the last six months, or under a written agreement — ticks the Unmarried oval on line
+19a and genuinely is one claimant on their own income, whatever the spouse figure says.
 
 ## Provisional figures are labelled, and now say what would settle them
 

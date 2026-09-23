@@ -188,6 +188,37 @@ const SHAPES = [
     wages,
   })),
 
+  // ---------------------------------------------------------------------
+  // Day 29: the same status, BELOW the line, and the other edge of Day 27.
+  //
+  // Day 27's rule — "adding a filing status tests it only at the incomes
+  // the grid already had" — was acted on by widening UPWARD, because the
+  // two provisions then in hand began at $200,000. The rule is symmetric
+  // and the correction was not.
+  //
+  // v0.27.0 found fourteen more defects in this status and FOUR of them
+  // live in credits that switch off before $30,000: Pennsylvania's tax
+  // forgiveness (whole bill below a $6,500 allowance plus $9,500 a child),
+  // Virginia's Credit for Low Income Individuals and Maryland's poverty
+  // level credit (both cliffs at the federal poverty guideline, $15,960
+  // plus $5,680 a head), and New York's household credit (nothing above
+  // $32,000). The grid's cheapest widow earned $45,000 and every one of
+  // them was dark to her.
+  //
+  // THE RULE: a grid widened in ONE direction is still a grid with an
+  // edge, and a credit that switches OFF as income rises is invisible from
+  // above in exactly the way a threshold is invisible from below. $18,000
+  // is inside all four; $26,000 is above the two-person poverty guideline
+  // and below the three-person one, which is the case that distinguishes
+  // "the household is counted correctly" from "the credit is gone".
+  ...[18_000, 26_000].map((wages) => ({
+    kind: 'surviving-spouse-low',
+    filingStatus: 'qualifyingSurvivingSpouse',
+    primaryAge: 38,
+    childAges: [10],
+    wages,
+  })),
+
   // An early retiree, below every age test in the package. Day 24 built four
   // states' retirement subtractions and every retiree in the grid was 67 or
   // older, so no case could tell Illinois's absence of an age test from

@@ -4,6 +4,243 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 29 — 2026-09-23
+
+### What I did
+
+**I went to pay off a list of five known defects written in a docstring and found
+fourteen, plus three more that the fourteen led me to. The helper's NAME was the
+bug; the seventeen wrong answers were symptoms.**
+
+`us-state-tax` is **v0.27.0**, `us-tax-mcp` **v0.29.0**, `us-federal-tax`
+unchanged at v0.11.0. **996 tests** (318 + 515 + 147 + 16), up from 982, all
+green, zero dependencies. The differential grid is **741 households** agreeing on
+**4,800 of 5,187** figures, **zero unexplained** — and two of today's fixes are
+things the grid had been reporting as PolicyEngine's fault.
+
+### The list of five was fourteen, and the list is why
+
+Day 24 wrote the rule that made today possible: *when one fact is counted by two
+helpers, the bug is not that they disagree — it is that nothing says which
+question each one answers.* It kept both helpers, left the one that answers a
+question about a FORM with the general name `filerCount`, and wrote into its
+docstring a list of five call sites that "still read `filerCount` for what is
+plainly a count of people".
+
+That list sat in the source for three days. It read as diligence. Nothing went
+red, nothing in the report moved, and the daily plan said "third day on this list
+and it has not moved."
+
+**It was fourteen.** The five were found by reading the file for call sites whose
+NAMES sounded like people. The fourteen were found by asking, of every call site,
+*what does a state form do here for a filer whose spouse is dead* — a different
+search returning a different set.
+
+| | got | should get | worth |
+| --- | --- | --- | --- |
+| **PA** tax forgiveness | the `$13,000` MARRIED allowance | `$6,500` unmarried | **`$614.00`** — her whole PA tax |
+| **GA** military retired pay | two `$17,500` exclusions | one | **`$873.25`** |
+| **VA** Credit for Low Income Individuals | `$300` x 2 filers | x 1 | **`$639.50`** |
+| **VA** age deduction | `$12,000` for a dead spouse | one filer's | **`$591.80`** |
+| **MD** poverty level credit | a 3-person poverty guideline | 2-person | **`$465.25`** — her whole MD tax |
+| **UT** retirement credit | `$450` + `$450` | `$450` | **`$450.00`** of credit |
+| **MA** FICA deduction | capped at `$4,000` | `$2,000` | **`$100.00`** |
+| **NY** + **NYC** household credits | a 2-adult household | 1 | **`$20.00`** |
+| **MI** cities | two `$600` exemptions | one | **`$14.40`** in Detroit |
+| the retirement split, `militaryRetirementPay`, `retirementPeople`, and the missing-`retirement` note | read `retirement.spouse` | ignore it | varies |
+
+`filerCount` is now **`claimedFilerCount`** — a name that is a claim about a line
+on a form and reads wrong anywhere else. It has exactly two callers, both reading
+a published exemption amount (California's Form 540 line 7, which says "If you
+checked box 2 or 5, enter 2" in words, and the stepped exemption Maryland and
+Ohio both override through `filersClaimed`), and `test/surviving-spouse-people.test.js`
+fails if a third appears.
+
+**THE RULE: a docstring that lists known defects is not a plan, it is a licence.**
+A defect that is written down and not tested is indistinguishable from one nobody
+knows about, except that it is more comfortable.
+
+**And three of the fourteen are states that do not have the filing status at
+all.** Pennsylvania's Schedule SP has unmarried / separated / married.
+Massachusetts Form 1 has single / joint / separate / head of household.
+Michigan's MI-1040 has the first three. That is on the front of each form, and it
+was invisible because `ByStatus` lets a state file every status without ever
+saying which ones its own return offers.
+
+### 501 tests passed over all fourteen, and the reason generalises
+
+Two of those tests were *about this filing status* and had been added in the
+previous four days.
+
+Every one of the fourteen needs a caller who supplies a `spouseAge`, or a
+`retirement.spouse`, or who simply files this status in a state that does not have
+it — **which is exactly what a caller who believes the status means two filers
+would do.** The test author held the belief the code held, so the test never
+constructed the input that would expose it.
+
+**THE RULE: to test a belief you have to write the input a person who HOLDS it
+would write.** Not the input a careful person would write — the careless one. The
+suite was full of careful inputs.
+
+The practical form is the invariant rather than the figure. *Supplying
+`retirement.spouse` on this return changes nothing* is a test a believer cannot
+write by accident, because it has no right answer unless the belief is false. Four
+of today's new tests are that shape and they are the durable ones; the dollar
+figures will need maintaining and these will not.
+
+### The same helper, the other status, the opposite direction
+
+`claimedFilerCount('marriedFilingSeparately')` is 1, and Pennsylvania wants 2.
+**There is no separate-return forgiveness table.** The Commonwealth: "married
+claimants are not dependents of one another for Tax Forgiveness purposes, even
+when one spouse does not have any Eligibility Income. Each must use the Joint
+Eligibility Income and Eligibility Income Table 2."
+
+So one helper mapped five filing statuses onto three claimant boxes and got two
+wrong, **one each way** — a widow too generous, a separate filer too harsh. That
+is the clearest argument this package has for naming a helper after its question.
+
+The allowance and the income move together and taking one without the other is
+worse than taking neither: `$13,000` against one spouse's income forgives a
+two-earner couple twice over. So the engine asks — `pennsylvaniaSpouseEligibilityIncome`,
+where `0` is a real answer — and until it is answered keeps the smaller allowance,
+which is too much tax, and **prices what it is withholding** in a note. Plus
+`separatedFromSpouse`, because a claimant who lived apart for the whole of the last
+six months ticks the Unmarried oval on line 19a and genuinely is one claimant.
+
+### A divergence reason was wrong about the OTHER model, and that manufactured two defects
+
+This entry had stood in `known-divergences.json` for days:
+
+> NOT MODELLED THERE. The New York household credit (§ 606(b)) … PolicyEngine-US
+> models neither the credit nor the offset.
+
+**PolicyEngine-US models both.** `ny_household_credit` has been in its
+non-refundable credit list since 2007 and `ny_eitc` subtracts it under
+§ 606(d)(1). Reading its source to check that one sentence found **two defects
+here**:
+
+1. **§ 606(b) is measured on FEDERAL adjusted gross income.** The statute says
+   "household gross income" and defines it as the aggregate AGI of the household
+   "as reported for federal income tax purposes"; the IT-201 instructions make it
+   "the amount from Form IT-201, line 19." This package passed **line 33**, New
+   York's own AGI — so every New York subtraction bought a credit whose ceiling is
+   `$32,000`. A retired couple with `$94,000` of federal AGI were given `$75` of
+   it, because the `$20,000`-a-person pension exclusion and `$34,000` of Social
+   Security took their New York AGI to `$20,000`.
+   **The tell was inside this repository.** `localHouseholdCredit` takes a
+   parameter NAMED `federalAgi`, because the same instruction note covers the city
+   tables 4–6 as well as the state tables 1–3. One rule, implemented twice, right
+   in the locality engine and wrong in the state engine, and nothing compared them.
+2. **The § 606(d)(1) offset is capped.** Form IT-215 line 15 is "the SMALLER of
+   line 13 or line 14" — Worksheet B line 5, or the household credit — so the EIC
+   is reduced only by the household credit the filer could USE. This package
+   subtracted all of it. A single parent of two at `$12,000` has about `$80` of
+   New York tax and a `$90` household credit, and was losing `$90` of a
+   **refundable** match to a **non-refundable** credit that could only ever have
+   been worth `$80`: `$75`, for the privilege of being offered relief.
+
+Both fixes made this package agree with PolicyEngine on cases where it had not,
+which is the opposite of Day 28's Michigan lesson and does not contradict it: the
+count is still a prompt and not a score, and what settled these was the form, not
+the agreement.
+
+**THE RULE: a divergence entry makes a claim about two models and only one of them
+is in this repository.** The half about the other model is the half nobody
+re-reads, and it is the half that decides whether a difference is *theirs* — which
+is the same as deciding not to look.
+
+### The grid was widened DOWNWARD, which is Day 27's rule's other edge
+
+Day 27 wrote *adding a filing status to a grid tests that status only at the
+incomes the grid already had* and acted on it by widening **upward**, to
+`$250,000`–`$450,000`, because the provisions then in hand began at `$200,000`.
+The rule is symmetric and the correction was not. Four of today's fourteen live in
+credits that switch **off** before `$30,000`, and the grid's cheapest widow earned
+`$45,000`.
+
+**THE RULE: a credit that switches OFF as income rises is invisible from above in
+exactly the way a threshold is invisible from below.** 741 cases now, with this
+status at `$18,000` and `$26,000`; `$26,000` because it is above the two-person
+federal poverty guideline and below the three-person one, which separates "the
+household is counted correctly" from "the credit is gone".
+
+It paid immediately, and not in the way I expected. The new Georgia case is the
+first that could show **`$748.50` is not the constant two divergence entries called
+it.** Above `$30,000` the whole `$15,000` of disputed standard deduction is in use
+and the gap is `$748.50` at every income; at `$26,000` it is `$299.40`, because the
+widow has not got `$30,000` of income for the larger deduction to come off. **A
+deduction disagreement is a constant only above the deduction.**
+
+### The context budget stopped a correctness fix, and that made it a bug
+
+Pennsylvania's two new fields took `tools/list` to 40,101 bytes against a 40,000
+ceiling, and the MCP suite went red. **A context budget that blocks a correctness
+fix has stopped being a budget.**
+
+The ceiling held anyway, because a fifteenth compression pass was available and it
+is nine bytes a field: the pointer every per-state field carries was
+"describe_state documents it." and is now "See describe_state." Two tests require a
+pointer to be present and both are right to — a model reading one property in
+isolation has to be told where the rest is. 39,741.
+
+### Process notes
+
+- `npm ci` in each package, full suite before touching anything. Unchanged.
+- **The PolicyEngine pass took 11 minutes, not 30.** The README says "about two and
+  a half seconds a household, so roughly half an hour", measured on an older
+  runner; 741 cases ran in about 11 minutes here. Start it first anyway — the
+  advice is right even though the number is stale — but do not schedule an
+  afternoon around it.
+- `policyengine-us` is **2.10.0** from PyPI, which is reachable (it is in the
+  proxy's `noProxy` list) and installs in about two minutes.
+- Blocked, confirmed again: `tax.ny.gov`, `law.cornell.edu`, `taxsim.nber.org`,
+  `reedcorp.tax`. `WebSearch` snippets remain the only web channel — but **reading
+  PolicyEngine-US's SOURCE is a second channel and a better one**, because it is a
+  model's reading of the same statute with the citation attached, and it is
+  fetchable when the statute is not. Three of today's findings came out of its
+  `.py` files rather than out of a search.
+- The differential must be regenerated and committed on any parameter change, and
+  today the CASES changed too, which means the full PolicyEngine pass rather than
+  the three-second half. `theirs.cases.sha256` catches you if you forget.
+- Bumping a version is still three places: `package.json`, every README tarball
+  link, and `src/protocol.ts`.
+
+### What I would do next
+
+1. **The `$1.06`, which is the only New York difference left and may be mine.**
+   This package DERIVES the § 601(d) supplemental tax from the rate schedule;
+   PolicyEngine stores the published incremental-benefit table, `$567` for a 2026
+   single filer, cited to S3009C. Ours recaptures `$1.06` more at `$150,000`. **A
+   figure the statute WRITES DOWN is not a figure to derive** — if § 601(d-*) names
+   the dollar amount then the stored table is the law and this package's derivation
+   is wrong by a dollar on every filer in the phase-in band. Read the bill text.
+   This is the first time "derive rather than store" may have cost something.
+2. **Make a state declare which filing statuses its own FORM has.** Three of
+   today's fourteen were states with no surviving-spouse status at all, and that
+   fact is on the front of each return. `ByStatus` lets a state answer for five
+   statuses without ever saying which ones exist on its form; a `formStatuses`
+   field with a test that every `byStatus` entry outside it is derived rather than
+   asserted would have made all three impossible.
+3. **Ask the fourteen question of the FEDERAL package.** Today's search was "what
+   does a form do here for a filer whose spouse is dead". The federal engine has a
+   `GROUPINGS` audit for surviving spouses and nothing equivalent for
+   married-filing-separately, where the file's own comments already record three
+   different rules (§ 24 does not halve, § 199A is `$25` HIGHER than single, the
+   SALT cap halves) and no table says so. Day 28 listed this; it is now the oldest
+   item here.
+4. **`provisionalFigures` for the federal package**, still unbuilt, still cheap,
+   still one package away. 2027 arrives with the same question and no vocabulary.
+5. **The out-of-state municipal interest addback beyond Illinois** — Indiana, Ohio,
+   Virginia, Maryland. Sixth day on this list, and today is the argument for
+   either doing it or deleting it: a list that does not move is a licence.
+6. **Check PA's `perDependent` against `is_qualifying_child_dependent`.**
+   PolicyEngine counts only qualifying CHILD dependents for the `$9,500`; this
+   package counts every dependent. Noticed while reading their forgiveness variable
+   and not chased.
+
+---
+
 ## Day 28 — 2026-09-22
 
 ### What I did

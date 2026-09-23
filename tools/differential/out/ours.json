@@ -4947,7 +4947,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1649,
+   "tax": -1724,
    "credits": [
     {
      "name": "New York household credit",
@@ -4955,7 +4955,7 @@
     },
     {
      "name": "New York earned income credit",
-     "amount": 1149
+     "amount": 1224
     },
     {
      "name": "Empire State child credit",
@@ -6799,7 +6799,7 @@
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 105
+     "amount": 60
     },
     {
      "name": "New York earned income credit",
@@ -7257,11 +7257,11 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 519.05,
+   "tax": 544.05,
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 25
+     "amount": 0
     },
     {
      "name": "New York earned income credit",
@@ -8185,7 +8185,7 @@
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 75
+     "amount": 45
     },
     {
      "name": "New York earned income credit",
@@ -8643,11 +8643,11 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 442.75,
+   "tax": 487.75,
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 45
+     "amount": 0
     },
     {
      "name": "New York earned income credit",
@@ -15237,6 +15237,930 @@
   },
   "error": null
  },
+ "surviving-spouse-low-AZ-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-AZ-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-CA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -448.39,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 781
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 448.39
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CO-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-CO-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1106.75,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 1106.75
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-GA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-GA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-ID-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-ID-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IL-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-IL-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -638.14,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 885.4
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 354.16
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IN-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-IN-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 277.95,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 442.7
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-KY-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-KY-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 512.4,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1580.8,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 1770.8
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 440
+    },
+    {
+     "name": "Limited Income Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MD-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MD-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1811.9,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 2213.5
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 1811.9
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MI-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MI-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1064.6,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 1328.1
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MS-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-MS-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NC-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-NC-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NJ-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-NJ-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1770.8,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 1770.8
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NY-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-NY-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1791.05,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 75
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 1291.05
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 500
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-OH-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-OH-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 60
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 1328.1
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-PA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-PA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 442.08,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 110.52
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-UT-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-UT-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 2058.66
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 885.4
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-VA-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-VA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -645.9,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 885.4
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-AZ-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-AZ-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-CA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -207.66,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 781
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 207.66
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CO-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-CO-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1022.45,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 1022.46
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-GA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-GA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 299.4,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-ID-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-ID-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IL-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-IL-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -147.72,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 817.96
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 327.19
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-IN-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-IN-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 709.27,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 408.98
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-KY-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-KY-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 792.4,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1045.93,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 1635.93
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 440
+    },
+    {
+     "name": "Limited Income Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MD-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MD-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1280.17,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 2044.91
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 1280.17
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MI-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MI-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -623.45,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 1226.95
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-MS-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-MS-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NC-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-NC-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 19.95,
+   "credits": []
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NJ-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-NJ-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1294.68,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 1635.93
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-NY-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-NY-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1377.9,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 45
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 1181.95
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 500
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-OH-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-OH-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 60
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 1226.95
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-PA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-PA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 798.2,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-UT-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-UT-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 2058.66
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 817.96
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-VA-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-VA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -178.46,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 817.96
+    }
+   ]
+  },
+  "error": null
+ },
  "early-retiree-AZ-0-50000-0-0-0": {
   "id": "early-retiree-AZ-0-50000-0-0-0",
   "federal": {
@@ -16955,7 +17879,7 @@
    "credits": [
     {
      "name": "New York household credit",
-     "amount": 75
+     "amount": 0
     },
     {
      "name": "New York earned income credit",
