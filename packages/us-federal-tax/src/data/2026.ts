@@ -1,5 +1,11 @@
 import type { YearParameters } from '../types.js';
 import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
+import {
+  OVERTIME_SEPARATE_RETURN,
+  SENIOR_SEPARATE_RETURN,
+  TIPS_SEPARATE_RETURN,
+  VEHICLE_LOAN_INTEREST_SEPARATE_RETURN,
+} from './schedule-one-a.js';
 
 /**
  * Tax year 2026 federal parameters.
@@ -174,6 +180,7 @@ export const YEAR_2026: YearParameters = {
           qualifyingSurvivingSpouse: 150_000,
         },
       },
+      separateReturn: TIPS_SEPARATE_RETURN,
     },
 
     // §225. Here the cap *is* doubled on a joint return, unlike tips.
@@ -197,6 +204,7 @@ export const YEAR_2026: YearParameters = {
           qualifyingSurvivingSpouse: 150_000,
         },
       },
+      separateReturn: OVERTIME_SEPARATE_RETURN,
     },
 
     // OBBBA § 70103, amending 26 U.S.C. § 151. This is *on top of* the existing
@@ -214,9 +222,14 @@ export const YEAR_2026: YearParameters = {
         headOfHousehold: 75_000,
         qualifyingSurvivingSpouse: 75_000,
       },
+      separateReturn: SENIOR_SEPARATE_RETURN,
     },
 
-    // §163(h)(4). Note the phase-out rounds the *other* way from tips/overtime.
+    // § 163(h)(4)(C). Note the phase-out rounds the *other* way from
+    // tips/overtime — and that this is the one deduction on Schedule 1-A a
+    // separate return may claim. See `schedule-one-a.ts`: the $100,000
+    // threshold below is a live figure for `marriedFilingSeparately`, not the
+    // dead letter the other three carry.
     vehicleLoanInterest: {
       cap: 10_000,
       phaseOut: {
@@ -233,12 +246,8 @@ export const YEAR_2026: YearParameters = {
           qualifyingSurvivingSpouse: 100_000,
         },
       },
+      separateReturn: VEHICLE_LOAN_INTEREST_SEPARATE_RETURN,
     },
-
-    // The thresholds above are still listed for marriedFilingSeparately because
-    // they are what the statute says; this is the rule that actually zeroes the
-    // deduction out for that status.
-    ineligibleFilingStatuses: ['marriedFilingSeparately'],
   },
 
   // Section 199A. Two things changed for 2026 and both are easy to miss.

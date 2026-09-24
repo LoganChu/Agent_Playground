@@ -219,6 +219,47 @@ const SHAPES = [
     wages,
   })),
 
+  // ---------------------------------------------------------------------
+  // Day 30: a separate return with a SPOUSE in it.
+  //
+  // The grid has filed married-filing-separately since the first day and has
+  // never once given that return a spouse. Both of its cases are a lone
+  // person who ticks the separate box, which is the shape a grid author
+  // writes when the status is understood as "half of joint" — the half has
+  // no other half in it.
+  //
+  // THE RULE, and it is Day 27's read the other way round: widening a grid
+  // by INCOME finds what income reaches. A status also has to be widened by
+  // the FACTS it is the only status to read. Married filing separately is
+  // the one status in the Code whose answer depends on a person who is not
+  // on the return: § 63(c)(6)(A) on whether the other spouse itemizes,
+  // § 63(f)(1)(B) via § 151(b) on whether they had gross income, § 86(c)(1)(C)
+  // on whether they shared a house. A separate return with nobody else in it
+  // cannot ask any of the three.
+  //
+  // Both cases here put a 68-year-old spouse with NO income beside the filer,
+  // which is exactly the § 151(b) test, and `ours.mjs` says so — see the note
+  // on `spouseHasNoGrossIncomeAndIsNotADependent` there. $55,000 of pension
+  // keeps § 86 out of it, because the cohabitation default would otherwise
+  // decide the answer instead of § 63(f).
+  {
+    kind: 'separate-with-spouse',
+    filingStatus: 'marriedFilingSeparately',
+    primaryAge: 68,
+    spouseAge: 68,
+    pension: 55_000,
+  },
+  // The same household under 65, so the pair isolates § 63(f) exactly: the
+  // only difference between them is four years of age, and the only thing
+  // that turns on it federally is the additional standard deduction.
+  {
+    kind: 'separate-with-spouse-young',
+    filingStatus: 'marriedFilingSeparately',
+    primaryAge: 61,
+    spouseAge: 61,
+    pension: 55_000,
+  },
+
   // An early retiree, below every age test in the package. Day 24 built four
   // states' retirement subtractions and every retiree in the grid was 67 or
   // older, so no case could tell Illinois's absence of an age test from

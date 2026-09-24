@@ -125,6 +125,26 @@ export function marginalRateAt(income: number, brackets: readonly Bracket[]): nu
  * The standard deduction, including the extra amounts for filers (and spouses)
  * who are 65 or older or blind. Each condition counts separately, so a single
  * filer who is both 65+ and blind receives two additional amounts.
+ *
+ * Two rules here exist only on a **separate return**, and both were missing
+ * until v0.12.0. They run in opposite directions, which is why neither showed up
+ * as an obviously wrong total:
+ *
+ * - **§ 63(c)(6)(A)** zeroes the standard deduction outright when the other
+ *   spouse itemizes. Not a choice — a separate filer whose spouse itemizes has
+ *   no standard deduction to compare against, so they itemize or deduct nothing.
+ * - **§ 63(f)(1)(B) and (f)(2)(B)** allow the *spouse's* age and blindness
+ *   amounts on a separate return, if "an additional exemption is allowable to
+ *   the taxpayer for such spouse under section 151(b)" — which § 151(b) grants
+ *   precisely when a joint return is NOT made and the spouse has no gross income
+ *   and is not the dependent of another taxpayer. (§ 151(d)(5)(B) keeps that
+ *   cross-reference alive even though the exemption amount itself is zero: the
+ *   reduction to zero "shall not be taken into account in determining whether a
+ *   deduction is allowed or allowable".)
+ *
+ * So § 151(b) is the one place in the Code where a separate return is treated
+ * *more* generously than a joint one is by the same words — because on a joint
+ * return both spouses are the taxpayer and the clause never fires.
  */
 export function standardDeduction(options: {
   filingStatus: FilingStatus;
@@ -133,6 +153,32 @@ export function standardDeduction(options: {
   blind?: boolean;
   spouseAge65OrOlder?: boolean;
   spouseBlind?: boolean;
+  /**
+   * § 63(c)(6)(A), separate returns only: the standard deduction is **zero**
+   * where either spouse itemizes.
+   *
+   * Defaults to `false`, which is the common case. It is the one default in this
+   * package that errs in the filer's favour, because the alternative — zeroing
+   * the deduction for every separate filer whose caller stayed silent — is wrong
+   * far more often. {@link estimateFederalTax} puts the assumption in
+   * `notes` rather than leaving it silent.
+   *
+   * Note a spouse who qualifies as a head of household under § 7703(b) is not a
+   * married individual for this purpose and does not trigger the rule.
+   */
+  spouseItemizes?: boolean;
+  /**
+   * § 151(b), separate returns only: whether the spouse had **no gross income
+   * for the calendar year AND is not the dependent of another taxpayer**.
+   *
+   * Both halves, because § 151(b) requires both — and a flag named after one
+   * half is how a caller ends up asserting the other by accident. When true, the
+   * spouse's § 63(f) age and blindness amounts are allowed on this return.
+   *
+   * Defaults to `false`, which withholds them. Nothing else on the return
+   * implies this fact, so it has to be asked.
+   */
+  spouseHasNoGrossIncomeAndIsNotADependent?: boolean;
 }): number {
   const params = getYearParameters(options.year);
   const base = params.standardDeduction[options.filingStatus];
@@ -140,12 +186,23 @@ export function standardDeduction(options: {
     throw new TypeError(`Unknown filing status: ${String(options.filingStatus)}`);
   }
   const extra = params.additionalStandardDeduction[options.filingStatus];
+  const separate = options.filingStatus === 'marriedFilingSeparately';
+
+  // § 63(c)(6)(A). Zero, and the § 63(f) amounts go with it — they are additions
+  // to a standard deduction, and there is no standard deduction to add to.
+  if (separate && options.spouseItemizes) return 0;
 
   let conditions = 0;
   if (options.age65OrOlder) conditions += 1;
   if (options.blind) conditions += 1;
-  // Spouse amounts only apply on a joint return (or for a surviving spouse).
-  if (options.filingStatus === 'marriedFilingJointly') {
+  // A joint return counts the spouse because the spouse is a taxpayer on it. A
+  // separate return counts the spouse only when § 151(b) makes an exemption for
+  // them allowable. A qualifying surviving spouse counts nobody: the spouse is
+  // dead, so neither route is open, which is why this is not `!== 'single'`.
+  const countsSpouse =
+    options.filingStatus === 'marriedFilingJointly' ||
+    (separate && options.spouseHasNoGrossIncomeAndIsNotADependent === true);
+  if (countsSpouse) {
     if (options.spouseAge65OrOlder) conditions += 1;
     if (options.spouseBlind) conditions += 1;
   }

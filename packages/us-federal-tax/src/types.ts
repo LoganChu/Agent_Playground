@@ -140,11 +140,13 @@ export interface ScheduleOneAParameters {
     /** Cap per *return* — it is not doubled on a joint return. */
     readonly cap: number;
     readonly phaseOut: SteppedPhaseOut;
+    readonly separateReturn: SeparateReturnRule;
   };
   readonly overtime: {
     /** Cap per return, doubled only for married filing jointly. */
     readonly cap: Readonly<Record<FilingStatus, number>>;
     readonly phaseOut: SteppedPhaseOut;
+    readonly separateReturn: SeparateReturnRule;
   };
   readonly senior: {
     /** Amount per eligible individual — the filer, plus the spouse on a joint return. */
@@ -156,19 +158,45 @@ export interface ScheduleOneAParameters {
      */
     readonly phaseOutRate: number;
     readonly phaseOutThreshold: Readonly<Record<FilingStatus, number>>;
+    readonly separateReturn: SeparateReturnRule;
   };
   readonly vehicleLoanInterest: {
     readonly cap: number;
     readonly phaseOut: SteppedPhaseOut;
+    readonly separateReturn: SeparateReturnRule;
   };
-  /**
-   * Filing statuses barred from every one of these deductions.
-   *
-   * §224(f) and §225(e) each say the section applies to a married individual only
-   * if a joint return is filed; the senior deduction and the vehicle loan interest
-   * deduction carry the same restriction per IRS guidance.
-   */
-  readonly ineligibleFilingStatuses: readonly FilingStatus[];
+}
+
+/**
+ * Whether one Schedule 1-A deduction reaches a married individual who files a
+ * separate return.
+ *
+ * **This is per deduction and it must stay per deduction**, because the four
+ * statutes do not agree and only three of them were ever read. Until v0.12.0 the
+ * four shared a single `ineligibleFilingStatuses` list on the parent object,
+ * whose docstring said:
+ *
+ * > §224(f) and §225(e) each say the section applies to a married individual only
+ * > if a joint return is filed; the senior deduction and the vehicle loan
+ * > interest deduction carry the same restriction per IRS guidance.
+ *
+ * Two provisions named by subsection, and two waved at. § 151(d)(5)(C)(v) does
+ * carry the restriction. § 163(h)(4) does not — it has no married-individuals
+ * clause at all, and the car-loan-interest regulations say in terms that where
+ * two taxpayers file separately "the $10,000 limitation would apply separately to
+ * each taxpayer's return", which is not a sentence anybody writes about a
+ * deduction those taxpayers cannot claim.
+ *
+ * So a shared field let one unchecked claim ride along with two checked ones, and
+ * cost a separate filer up to $10,000 of deduction. `cite` is required, and
+ * `test/married-filing-separately.test.js` fails if any two of the four are equal:
+ * a citation that covers more than one provision is the shape of the defect.
+ */
+export interface SeparateReturnRule {
+  /** Whether `marriedFilingSeparately` may claim this deduction at all. */
+  readonly allowed: boolean;
+  /** The provision that settles it — or the absence that settles it. */
+  readonly cite: string;
 }
 
 /**

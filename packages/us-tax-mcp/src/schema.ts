@@ -111,17 +111,18 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
     {
       ...FILING_STATUS_PROPERTY,
       description:
-        'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a ' +
-        'dependent child, for the two years after a spouse dies, and it is NOT ' +
-        'marriedFilingJointly. It takes the joint rate schedule and the joint ' +
-        'standard deduction, because § 1(a) and § 63(c)(2)(A) name a surviving ' +
-        'spouse — and the SINGLE figure everywhere a statute splits on "a joint ' +
-        'return" and does not: the child tax credit threshold ($200,000, not ' +
-        '$400,000), the § 199A threshold and phase-in range, the earned income ' +
-        'credit phase-out, the Additional Medicare threshold and the § 86 base ' +
-        'amounts. Passing marriedFilingJointly instead overstates a refundable ' +
-        'credit and can hand a widowed business owner a QBI deduction worth ' +
-        'tens of thousands of dollars that the statute does not give her.',
+        'Filing status. Two of the five are traps. ' +
+        '"qualifyingSurvivingSpouse" (a widow(er) with a dependent child, the ' +
+        'two years AFTER a death) takes the JOINT rate schedule and standard ' +
+        'deduction, which name a surviving spouse, and the SINGLE figure ' +
+        'wherever a statute splits on "a joint return" and does not: § 24, ' +
+        '§ 199A, § 32, Additional Medicare, § 86. Sending ' +
+        'marriedFilingJointly instead can overstate a QBI deduction by tens ' +
+        'of thousands. "marriedFilingSeparately" is not half a joint return ' +
+        'either: § 224(f), § 225(e) and § 151(d)(5)(C)(v) bar tips, overtime ' +
+        'and the senior deduction, § 163(h)(4) does NOT bar car loan ' +
+        'interest, and § 63(c)(6)(A) can zero the standard deduction — see ' +
+        'spouseItemizes.',
     },
     'Filing status. "qualifyingSurvivingSpouse" is a widow(er) with a dependent ' +
       'child and is not interchangeable with marriedFilingJointly.',
@@ -205,7 +206,7 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
     'Tax-exempt municipal interest (Form 1040 line 2a). Excluded from income, added back in full by § 86(b)(2)(B).',
   ),
   livedWithSpouse: flag(
-    'Married filing separately ONLY: did the filer live with their spouse at any time during the year? § 86(c)(1)(C) then gives them a base amount of $0, so 85% of the benefit is taxable from the first dollar. Living apart all year restores the single thresholds. Defaults to true, the expensive reading. Ignored by every other filing status.',
+    'Separate returns ONLY: did the filer live with their spouse at any time in the year? § 86(c)(1)(C) then sets the § 86 base amount to $0, so 85% of the benefit is taxable from the first dollar; living apart all year restores the single thresholds. Defaults to true, the expensive reading.',
   ),
   foreignEarnedIncomeExclusion: withShortForm(
     money(
@@ -221,8 +222,14 @@ export const HOUSEHOLD_PROPERTIES: Record<string, JsonSchema> = {
   },
   age65OrOlder: flag('Filer is 65 or older. Adds the extra standard deduction and the OBBBA senior deduction.'),
   blind: flag('Filer is blind. Adds another extra standard deduction amount.'),
-  spouseAge65OrOlder: flag('Spouse is 65 or older. Only meaningful on a joint return.'),
-  spouseBlind: flag('Spouse is blind. Only meaningful on a joint return.'),
+  spouseAge65OrOlder: flag('Spouse is 65 or older. Joint returns, and separate returns only under § 151(b) — see spouseHasNoGrossIncomeAndIsNotADependent.'),
+  spouseBlind: flag('Spouse is blind. Same rule as spouseAge65OrOlder.'),
+  spouseItemizes: flag(
+    'Separate returns ONLY: does the other spouse itemize? § 63(c)(6)(A) then makes THIS return\'s standard deduction $0, so it itemizes or deducts nothing. Defaults to false, and the result says so in notes.',
+  ),
+  spouseHasNoGrossIncomeAndIsNotADependent: flag(
+    'Separate returns ONLY: had the spouse no gross income for the calendar year AND is not another taxpayer\'s dependent? Both halves are required. § 63(f)(1)(B) via § 151(b) then allows the spouse\'s age and blindness amounts here. Defaults to false.',
+  ),
 
   qualifyingChildren: count(
     'Children under 17 at year end with a social security number valid for employment (§ 24(c), § 24(h)(7)). Supplying this turns on the child tax credit.',
@@ -584,6 +591,8 @@ const FLAG_KEYS = [
   'blind',
   'spouseAge65OrOlder',
   'spouseBlind',
+  'spouseItemizes',
+  'spouseHasNoGrossIncomeAndIsNotADependent',
   'livedWithSpouse',
   'separatedFromSpouse',
   'taxpayerHasWorkAuthorizedSocialSecurityNumber',

@@ -1,6 +1,6 @@
 import { getYearParameters, nonNegative, roundCents, standardDeduction } from './core.js';
 import { childTaxCredit, earnedIncomeCredit, earnedIncomeForCredits } from './credits.js';
-import { additionalDeductions } from './obbba.js';
+import { additionalDeductions, scheduleOneAParameters } from './obbba.js';
 import { qbiDeduction } from './qbi.js';
 import { stateAndLocalTaxDeduction } from './salt.js';
 import { socialSecurityTaxability } from './socialSecurity.js';
@@ -146,6 +146,36 @@ export interface EstimateInput {
   spouseAge65OrOlder?: boolean;
   spouseBlind?: boolean;
   /**
+   * For a married filer filing separately: does the other spouse itemize?
+   *
+   * § 63(c)(6)(A) makes the standard deduction **zero** where either spouse
+   * itemizes, so this filer itemizes too or deducts nothing. Defaults to `false`;
+   * when it is left unanswered on a separate return the assumption is reported in
+   * {@link EstimateResult.notes} rather than made silently.
+   *
+   * **Open question for a consumer that keys off `deductionKind`.** When this is
+   * true the result reports `itemized` even if the itemized total is zero, on the
+   * ground that the standard regime is unavailable by operation of law rather
+   * than unchosen. A state credit conditioned on having *elected* to itemize
+   * federally — Georgia's O.C.G.A. § 48-7-27.1 is `$300` a taxpayer for the
+   * election alone — then fires for a filer who elected nothing. Whether Georgia
+   * agrees is not settled here, and `us-state-tax` reads this field.
+   *
+   * A spouse who qualifies as a head of household under § 7703(b) is not a
+   * married individual for this purpose and does not trigger the rule.
+   */
+  spouseItemizes?: boolean;
+  /**
+   * For a married filer filing separately: did the spouse have **no gross income
+   * for the calendar year and is not the dependent of another taxpayer**?
+   *
+   * The § 151(b) test, which § 63(f)(1)(B) and (f)(2)(B) make the condition for
+   * claiming the spouse's age and blindness amounts on a separate return.
+   * Defaults to `false`, which withholds them. Both halves are in the name
+   * because § 151(b) requires both.
+   */
+  spouseHasNoGrossIncomeAndIsNotADependent?: boolean;
+  /**
    * Children under 17 at the end of the year who have a social security number
    * valid for employment — § 24(c) and § 24(h)(7). Supplying this (or
    * `otherDependents`) is what turns on the child tax credit.
@@ -218,6 +248,19 @@ export interface EstimateInput {
 
 export interface EstimateResult {
   year: number;
+  /**
+   * What the engine did with something you told it and could not use.
+   *
+   * Empty on almost every return. It fills when an input was **discarded** —
+   * tips on a separate return, a spouse's age on a widow's return — or when a
+   * question the return cannot answer was answered by a default that favours the
+   * filer. The point is that a field this engine silently drops is a wrong answer
+   * with no symptom, which is the failure mode the package exists to refuse.
+   *
+   * These are advisory strings for a human or a model to read. Do not parse them;
+   * the figures behind every one of them are in the result already.
+   */
+  notes: readonly string[];
   filingStatus: FilingStatus;
   grossIncome: number;
   /**
@@ -297,6 +340,100 @@ export interface EstimateResult {
 }
 
 /**
+ * What the engine did with something the caller said and it could not use.
+ *
+ * The discipline, and the reason this is not just a list of rules: **a note is
+ * owed when an input was discarded or an unanswerable question was answered by
+ * default, not merely when a rule exists.** A caller who never mentions tips does
+ * not need to be told that § 224(f) bars them on a separate return; a caller who
+ * passes `qualifiedTips: 9000` and gets nothing back does.
+ *
+ * Every note names the provision, says what happened to the figure, and — where
+ * the figure has a home — says where it should have gone instead.
+ */
+function estimateNotes(
+  input: EstimateInput,
+  context: { seniorDeductionExists: boolean; additionalStandardDeduction: number },
+): readonly string[] {
+  const notes: string[] = [];
+  const { filingStatus } = input;
+  const separate = filingStatus === 'marriedFilingSeparately';
+  const spouseFlagsGiven = input.spouseAge65OrOlder === true || input.spouseBlind === true;
+
+  if (separate) {
+    // The one default in this package that errs in the filer's favour, so it is
+    // the one that has to say so out loud.
+    if (input.spouseItemizes === undefined) {
+      notes.push(
+        'Assumed the other spouse does not itemize. § 63(c)(6)(A) makes this ' +
+          "return's standard deduction $0 where either spouse itemizes — pass " +
+          '`spouseItemizes: true` if they do, and itemize here too.',
+      );
+    }
+    // Both branches below are a discarded input. Which SECTION discarded it
+    // decides which note is true, and pricing the § 151(b) one at $1,650 a flag
+    // when § 63(c)(6)(A) has already taken the whole standard deduction would be
+    // a note that is itself a wrong answer.
+    if (spouseFlagsGiven && input.spouseItemizes === true) {
+      notes.push(
+        'A spouse age or blindness flag was supplied and NOT counted: the ' +
+          '§ 63(f) amounts are additions to a standard deduction, and ' +
+          '§ 63(c)(6)(A) leaves this return none. Worth nothing either way here.',
+      );
+    } else if (spouseFlagsGiven && input.spouseHasNoGrossIncomeAndIsNotADependent !== true) {
+      notes.push(
+        `A spouse age or blindness flag was supplied and NOT counted: on a ` +
+          'separate return § 63(f)(1)(B) and (f)(2)(B) allow the spouse amount ' +
+          'only when § 151(b) would allow an exemption for them, which requires ' +
+          'that the spouse had no gross income for the calendar year and is not ' +
+          "the dependent of another taxpayer. If that is true, pass " +
+          '`spouseHasNoGrossIncomeAndIsNotADependent: true` and it is worth ' +
+          `$${context.additionalStandardDeduction.toLocaleString('en-US')} per flag.`,
+      );
+    }
+    if (input.qualifiedTips !== undefined && input.qualifiedTips > 0) {
+      notes.push(
+        '`qualifiedTips` was ignored: § 224(f) allows the tips deduction to a ' +
+          'married individual only on a joint return.',
+      );
+    }
+    if (
+      input.qualifiedOvertimeCompensation !== undefined &&
+      input.qualifiedOvertimeCompensation > 0
+    ) {
+      notes.push(
+        '`qualifiedOvertimeCompensation` was ignored: § 225(e) allows the ' +
+          'overtime deduction to a married individual only on a joint return.',
+      );
+    }
+    if (
+      context.seniorDeductionExists &&
+      (input.age65OrOlder === true || (input.age !== undefined && input.age >= 65))
+    ) {
+      notes.push(
+        'No $6,000 senior deduction: § 151(d)(5)(C)(v) allows it to a married ' +
+          'individual only on a joint return. The § 63(f) additional standard ' +
+          'deduction for age is unaffected and was allowed.',
+      );
+    }
+  }
+
+  // The Day 29 rule from the state engine, owed here for the same reason: a
+  // field about a spouse who does not exist is a fact the caller believes and
+  // the engine does not, and silence is how that survives.
+  if (filingStatus === 'qualifyingSurvivingSpouse' && spouseFlagsGiven) {
+    notes.push(
+      'A spouse age or blindness flag was supplied on a qualifying surviving ' +
+        'spouse return and ignored: there is no living spouse to count. § 63(f) ' +
+        'reaches a spouse only through a joint return or § 151(b), and this ' +
+        'return is neither.',
+    );
+  }
+
+  return notes;
+}
+
+/**
  * Compute a full federal tax picture for a household.
  *
  * This is deliberately a pure function over explicit inputs. It models the common
@@ -326,6 +463,9 @@ export interface EstimateResult {
  * `qualifiedTips`, `qualifiedOvertimeCompensation`, `qualifiedVehicleLoanInterest`
  * and the age flags. Note that the senior deduction applies automatically to a
  * filer who is 65 or older, since it depends on nothing beyond age and MAGI.
+ *
+ * `notes` carries whatever the engine did with an input that it could not use —
+ * see {@link EstimateResult.notes}.
  */
 export function estimateFederalTax(input: EstimateInput): EstimateResult {
   const params = getYearParameters(input.year);
@@ -380,6 +520,9 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     blind: input.blind,
     spouseAge65OrOlder: input.spouseAge65OrOlder,
     spouseBlind: input.spouseBlind,
+    spouseItemizes: input.spouseItemizes,
+    spouseHasNoGrossIncomeAndIsNotADependent:
+      input.spouseHasNoGrossIncomeAndIsNotADependent,
   });
   // Either the caller supplies a finished itemized total, or supplies the
   // components and lets the SALT cap be applied here.
@@ -400,7 +543,13 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
     salt !== null
       ? salt.deduction + nonNegative(input.otherItemizedDeductions, 'otherItemizedDeductions')
       : nonNegative(input.itemizedDeductions, 'itemizedDeductions');
-  const useItemized = itemized > standard;
+  // § 63(c)(6)(A) removes the choice rather than losing it: a separate filer
+  // whose spouse itemizes has no standard deduction to beat, so the return is an
+  // itemized one even when the itemized total is zero. Reporting `standard` for
+  // a standard deduction the statute forbids would be the wrong kind of true.
+  const separateSpouseItemizes =
+    filingStatus === 'marriedFilingSeparately' && input.spouseItemizes === true;
+  const useItemized = itemized > standard || separateSpouseItemizes;
   const deduction = roundCents(useItemized ? itemized : standard);
 
   // Schedule 1-A sits below AGI, so it is computed from the AGI above and does
@@ -566,6 +715,13 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
 
   return {
     year,
+    notes: estimateNotes(input, {
+      // Read off the schedule rather than off the year: the § 151(d)(5) senior
+      // deduction sunsets after 2028, and a note saying a separate return lost
+      // something nobody gets any more is worse than no note.
+      seniorDeductionExists: scheduleOneAParameters(year) !== null,
+      additionalStandardDeduction: params.additionalStandardDeduction[filingStatus],
+    }),
     filingStatus,
     grossIncome: roundCents(grossIncome),
     socialSecurity,

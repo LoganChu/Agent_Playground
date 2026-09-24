@@ -119,6 +119,30 @@ every income, and at `$26,000` it is `$299.40`, because the widow has not got `$
 income for the larger deduction to come off. A deduction disagreement is a constant only
 above the deduction.
 
+## And why widening by income is only half of widening (Day 30)
+
+Day 27 widened this grid upward and Day 29 downward, and both are the same move: find what
+an *income* reaches. There is a second axis and this status is the one that shows it.
+
+**The grid has filed `marriedFilingSeparately` since the first day and had never once given
+that return a spouse.** Both cases were a lone person who ticks the separate box — which is
+the shape a grid author writes when the status is understood as "half of joint", because the
+half has no other half in it.
+
+**THE RULE: a status also has to be widened by the FACTS it is the only status to read.**
+Married filing separately is the one status in the Code whose answer turns on a person who
+is not on the return: § 63(c)(6)(A) on whether the other spouse itemizes, § 63(f)(1)(B) via
+§ 151(b) on whether they had gross income, § 86(c)(1)(C) on whether they shared a house. A
+separate return with nobody else in it cannot ask any of the three, at any income.
+
+Two shapes were added — 779 cases — a separate filer at 68 with a 68-year-old spouse and no
+Social Security, and the identical household at 61 so the pair isolates § 63(f) exactly.
+`ours.mjs` passes `spouseHasNoGrossIncomeAndIsNotADependent` for any case with a spouse,
+because **the harness can answer a question the engine cannot**: it built the household and
+puts every dollar on the primary, where a tax return does not say what the other return
+holds. Leaving it off would have made the two sides answer different questions and then
+reported the difference as a divergence.
+
 ## And why a reason has to be checked against the other model, not just against this one
 
 Day 24's rule was that a stale reason hides defects behind it. Day 29 found the shape

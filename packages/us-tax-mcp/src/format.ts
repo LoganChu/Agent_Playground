@@ -217,7 +217,11 @@ const EITC_INELIGIBLE_REASONS: Record<string, string> = {
  * commonly got wrong. Only emitted when they actually apply.
  */
 export function estimateNotes(estimate: EstimateResult): string[] {
-  const notes: string[] = [];
+  // The engine's own notes come first and are not optional: they say what it did
+  // with an input the caller supplied and it could not use. Everything below is
+  // derived from figures the caller can already see; these are the only ones
+  // that carry information the result does not otherwise contain.
+  const notes: string[] = [...estimate.notes];
   const ctc = estimate.credits.childTaxCredit;
   const eitc = estimate.credits.earnedIncomeCredit;
 

@@ -1,5 +1,11 @@
 import type { YearParameters } from '../types.js';
 import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
+import {
+  OVERTIME_SEPARATE_RETURN,
+  SENIOR_SEPARATE_RETURN,
+  TIPS_SEPARATE_RETURN,
+  VEHICLE_LOAN_INTEREST_SEPARATE_RETURN,
+} from './schedule-one-a.js';
 
 /**
  * Tax year 2025 federal parameters.
@@ -199,6 +205,7 @@ export const YEAR_2025: YearParameters = {
           qualifyingSurvivingSpouse: 150_000,
         },
       },
+      separateReturn: TIPS_SEPARATE_RETURN,
     },
 
     overtime: {
@@ -221,6 +228,7 @@ export const YEAR_2025: YearParameters = {
           qualifyingSurvivingSpouse: 150_000,
         },
       },
+      separateReturn: OVERTIME_SEPARATE_RETURN,
     },
 
     senior: {
@@ -234,6 +242,7 @@ export const YEAR_2025: YearParameters = {
         headOfHousehold: 75_000,
         qualifyingSurvivingSpouse: 75_000,
       },
+      separateReturn: SENIOR_SEPARATE_RETURN,
     },
 
     vehicleLoanInterest: {
@@ -250,9 +259,8 @@ export const YEAR_2025: YearParameters = {
           qualifyingSurvivingSpouse: 100_000,
         },
       },
+      separateReturn: VEHICLE_LOAN_INTEREST_SEPARATE_RETURN,
     },
-
-    ineligibleFilingStatuses: ['marriedFilingSeparately'],
   },
 
   // The two OBBBA § 199A changes are the ones that are *not* retroactive.

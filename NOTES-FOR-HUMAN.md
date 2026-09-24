@@ -13,7 +13,114 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 29 nothing is waiting on you.** `us-federal-tax` is v0.11.0,
+**As of Day 30 nothing is waiting on you.** `us-federal-tax` is v0.12.0,
+`us-state-tax` v0.27.0, `us-tax-mcp` v0.30.0.
+
+Today I went looking in the opposite direction from the last four days, and I
+think the direction is the interesting part.
+
+Days 26 to 29 all found the same kind of error: a widow's tax bill coming out too
+**low**. Today's three are in **married filing separately** — what you file when
+you are married and send in your own return — and two of the three made the bill
+too **high**.
+
+That matters for a reason I want to be plain about. If a tax engine undercharges
+someone, the IRS eventually says so. If it *overcharges* them, nobody ever finds
+out. There is no letter, no notice, no complaint — the money is simply gone. So
+the errors that run in this direction have no natural way of being discovered,
+and a package whose whole pitch is being checkable has to go and hunt for them.
+
+The largest was worth **$2,200** on a $90,000 salary: the new deduction for
+interest on a car loan, which this package had been refusing to a separate filer
+for seventeen days. And the cause is the part worth telling you, because it
+was not a wrong number.
+
+**The bug was a citation.** Congress's big 2025 tax act created four new
+deductions — tips, overtime, a $6,000 allowance for people over 65, and car loan
+interest — and three of them say, in almost identical words, that a married
+person can only claim them on a *joint* return. The fourth does not say it. My
+code had one setting covering all four, and the note explaining that setting
+named the first two by their exact subsection, and then said the other two "carry
+the same restriction per IRS guidance."
+
+Two provisions somebody had actually read, and two waved at. One of the two
+waved at was right by luck. The other was wrong, and it was wrong precisely
+because it was travelling on the credibility of the two that had been checked.
+Nothing looked suspicious — that is the whole problem with a shared citation.
+
+There is now a test that fails if any two of those four deductions cite the same
+provision. It is a strange-looking test and I think it is one of the more
+valuable things in the repository: it does not ask whether a number is right, it
+asks whether a claim is *one* claim.
+
+The other two are in the same section of the tax code and pull opposite ways:
+
+- If your spouse itemizes their deductions on their own separate return, **your
+  standard deduction is zero** — you have to itemize too, or deduct nothing. I
+  was giving you the full amount. Worth $2,222 the wrong way on the example I
+  tested.
+- If your spouse had no income at all and nobody else claims them, **you can
+  take their over-65 and blindness allowances on your own separate return** —
+  $1,650 each. I was never giving them. This is a genuinely strange corner: it is
+  the one sentence in the tax code I have found that gives a *separate* return
+  something a *joint* one does not, and the reason is mechanical — on a joint
+  return both people are already the taxpayer, so the sentence has nothing to do.
+
+Neither of those is knowable from anything else on a return, so the engine now
+*asks*, and defaults to the answer that does not flatter the filer. And when you
+tell it something it cannot use, it now says so: send it your tips on a separate
+return and the answer comes back with a line explaining which section of the law
+threw them away. That reporting is new on the federal side today (the state side
+has had it since Day 24), and it has one rule — it only speaks when it has
+actually discarded something you said, so it stays empty on almost every return
+and is worth reading when it is not.
+
+I also listed, in the package README, the separate-return rules I *don't* model —
+the dependent-care, education and health-insurance credits a separate return is
+barred from, the IRA and rental-loss limits, the halved AMT exemption. All of
+them make a separate return worse than this library says. I would rather write
+down the six things I know are missing than let the three I fixed imply the rest
+are handled.
+
+**One more thing happened that I want to flag, because it is the best evidence
+this project has produced about whether any of this is right.**
+
+I run a nightly comparison of my answers against PolicyEngine-US — an
+independent tax model built by other people reading the same statutes — across
+779 made-up households. Today I added two new ones: a separate filer with a
+68-year-old spouse who has no income, and the same couple at 61. That shape had
+never existed in thirty days of running this, because a separate return is
+easy to imagine as one person.
+
+Both engines now agree to the cent on the federal answer for all of them. They
+would have disagreed by $1,650 yesterday. That is the first time one of my fixes
+has been confirmed by something other than my own reading, on the day I made it.
+
+The same two households also turned up **six differences on the state side**, in
+Virginia, Maryland and Indiana, all of them the same question one level down:
+does a state let a separate filer claim their spouse's exemption when the spouse
+has no income? The other model says yes; I say no; I charge more tax than it does
+in all six. **I did not change it.** I could not read those three states' own
+instructions from here, the other model might be counting a household member
+rather than reading a form, and changing three states because a second model
+disagrees is exactly the mistake I made in June and wrote down never to repeat.
+It is logged as an open question with a dollar bound, and it is the first thing
+on tomorrow's list.
+
+One thing that might amuse you, and one that might not. The amusing one: to fit
+the two new questions into the tool descriptions the AI-facing server sends, I
+had to compress something, and what I found was three tools each carrying the
+same 264-character sentence explaining *why* their fields have no descriptions —
+a justification for saving space, paid for three times, and out of date (it said
+"thirty-seven descriptions"; there are thirty-nine). The less amusing one: the
+tax-calculator sites that dominate these search results are still unreliable.
+One told me, today, that the 2025 standard deduction for a separate return is
+$15,000. It is $15,750 — the July 2025 act raised it. Another contradicted itself
+about the overtime rule inside two sentences. Nothing here is built on them.
+
+---
+
+**As of Day 29 nothing was waiting on you either.** `us-federal-tax` is v0.11.0,
 `us-state-tax` v0.27.0, `us-tax-mcp` v0.29.0.
 
 Today I found fourteen wrong answers in one filing status, and I want to tell you

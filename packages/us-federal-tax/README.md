@@ -12,7 +12,80 @@ the IRS release it came from.
 
 **Tax years 2024, 2025 and 2026.**
 
-New in 0.11.0, and it is a **correction — the third and largest in the same place**.
+New in 0.12.0, and it is a **correction in the other direction**: the last three
+releases all made a widow's bill too *low*. These make a separate filer's bill too
+*high*, which is the error nobody complains about.
+
+A **married individual filing a separate return** is not half of a joint one, and the
+Code has four different conventions about them sitting within a few sections of each
+other. Three defects lived in the gaps:
+
+| | was | is | § |
+| --- | --- | --- | --- |
+| Car loan interest deduction | barred | **allowed, up to `$10,000`** | § 163(h)(4) |
+| Spouse's age / blindness amounts | never | **allowed when § 151(b) is met** | § 63(f)(1)(B), (f)(2)(B) |
+| Standard deduction when the other spouse itemizes | full | **`$0`** | § 63(c)(6)(A) |
+
+**The first is the one worth reading about, because the bug was a shared field rather
+than a wrong number.** The four OBBBA deductions on Schedule 1-A used one
+`ineligibleFilingStatuses` list between them, and its docstring said:
+
+> § 224(f) and § 225(e) each say the section applies to a married individual only if a
+> joint return is filed; the senior deduction and the vehicle loan interest deduction
+> carry the same restriction per IRS guidance.
+
+Two provisions named by subsection, and two waved at. § 151(d)(5)(C)(v) does carry the
+restriction. **§ 163(h)(4) has no married-individuals clause at all** — (A) in general,
+(B) the definition, (C) the `$10,000` cap and the `$200`-per-`$1,000` reduction above
+"$100,000 ($200,000 in the case of a joint return)", (D) the vehicle, and nothing
+requiring a joint return — and § 1.163-16(h)(1) says from the other side that the
+`$10,000` limitation "applies per Federal tax return" — so a couple filing separately reach
+`$10,000` each where a joint return caps at `$10,000` between them, which is not a rule
+anyone writes about a deduction those returns cannot claim. So a separate filer with a car loan was overcharged **`$2,200`** on
+`$90,000` of wages, and a couple filing separately can reach `$20,000` of this deduction
+where a joint return caps at `$10,000`.
+
+Each of the four now carries **its own** rule and its own citation, and
+[`test/married-filing-separately.test.js`](https://github.com/LoganChu/Agent_Playground/blob/main/packages/us-federal-tax/test/married-filing-separately.test.js)
+**fails if any two of the citations are equal**. A shared citation is the shape of the
+defect: it launders a claim nobody checked through one somebody did.
+
+The other two are inputs, because they turn on facts a return does not contain and this
+package does not guess at them:
+
+- `spouseItemizes` — § 63(c)(6)(A) makes the standard deduction **zero** where either
+  spouse itemizes, so the filer itemizes too or deducts nothing. Defaults to `false`,
+  and that is the one default here that favours the filer, so the result *says so* in
+  the new `notes` array rather than assuming quietly.
+- `spouseHasNoGrossIncomeAndIsNotADependent` — the § 151(b) test. Both halves are in the
+  name because § 151(b) requires both, and a flag named after one half is how a caller
+  ends up asserting the other by accident. Worth `$1,650` a flag in 2026. Note the
+  asymmetry that makes this rule easy to miss: § 151(b) fires **only** on a separate
+  return, because on a joint return both spouses are the taxpayer, so this is the one
+  sentence in the Code that reaches a separate return and not a joint one.
+
+**`EstimateResult.notes` is new**, and it has a rule: a note is owed when an input was
+*discarded* or an unanswerable question was answered by a default — not merely when a
+rule exists. Pass `qualifiedTips` on a separate return and you are told § 224(f) threw
+it away; never mention tips and nothing is said. It is empty on almost every return.
+
+The companion table to
+[`test/surviving-spouse.test.js`](https://github.com/LoganChu/Agent_Playground/blob/main/packages/us-federal-tax/test/surviving-spouse.test.js)
+now covers the other hard status: every filing-status-keyed parameter in every year has
+to declare whether a separate return is halved, takes the single figure, takes the
+married figure, or gets its own — and the entry is checked against the other columns of
+the same table, so it cannot drift from the data it describes. Two findings fell out of
+writing it. **§ 1(f)(7)(B) rounds a separate return's inflation adjustment to `$25`
+rather than `$50`**, so the 15% capital-gains breakpoint is `$25` *below* half the joint
+figure in 2024 and 2025 and exactly half in 2026 — a model that derives it by halving is
+wrong in two years out of three. And four Schedule 1-A thresholds hold a separate-return
+figure the engine can never reach, while the fifth looked identical and was live: **an
+unreachable figure cannot be wrong, which is exactly why nobody checks whether it is
+reachable.**
+
+---
+
+Also in 0.11.0, and it was a **correction — the third and largest in the same place**.
 
 The Internal Revenue Code splits its thresholds on the words **"in the case of a joint
 return"**, and where it means to include a widow or widower it says so by name. § 1411(b)
@@ -63,7 +136,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.11.0/us-federal-tax-0.11.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.12.0/us-federal-tax-0.12.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -867,6 +940,17 @@ Stated plainly, because a tax library that hides its gaps is worse than useless:
   Pass `otherItemizedDeductions` already net of it.
 - **No medical-expense floor.** `otherItemizedDeductions` is taken as given, so
   subtract the 7.5%-of-AGI floor yourself.
+- **A separate return has restrictions this library does not model, and it is
+  worth listing them because v0.12.0 went through every one it *does*.** Modelled:
+  § 63(c)(6)(A) (`spouseItemizes`), § 63(f)(1)(B) via § 151(b)
+  (`spouseHasNoGrossIncomeAndIsNotADependent`), § 32(d)(2) (`separatedFromSpouse`),
+  § 86(c)(1)(C) (`livedWithSpouse`), § 224(f), § 225(e), § 151(d)(5)(C)(v), the
+  halved SALT cap and the `$75,000` § 6654 safe harbour. **Not** modelled, because
+  the provisions themselves are not: § 21 dependent care, § 25A education and
+  § 36B premium tax credits (a separate return is barred from all three),
+  § 219(g)'s `$0`–`$10,000` IRA phase-out, § 469(i)'s `$0` rental allowance,
+  § 1211(b)'s `$1,500` capital-loss limit, and the halved § 55 AMT exemption.
+  Every one of those makes a separate return **worse** than this library says.
 - **2024 through 2026 only.** 2023 and earlier are not included. Note also that
   the § 68 gap above is a 2026-only provision — 2024 and 2025 are unaffected by
   it, since the old Pease limitation was suspended through 2025.
@@ -890,13 +974,15 @@ Two structural checks run over every year, which is what makes adding a year saf
   twenty-four across the three years reproduce the published figure exactly, so
   each one is an independent test of two stored parameters rather than a second
   copy of them.
-- **Status relationships are asserted generically.** A qualifying surviving
-  spouse uses the joint rate schedule but a `$200,000` Form 8959 threshold and a
-  `$250,000` NIIT threshold; married filing separately caps the 35% band at
-  exactly half the joint figure; head of household is never above single and
-  never differs by anything other than `$0` or `$25`. These run against every
-  year in the registry, so a mistyped figure in a future year fails on the day
-  it is added.
+- **Status relationships are asserted generically, for both hard statuses.**
+  Every parameter keyed by filing status appears in two tables — one for a
+  qualifying surviving spouse and one for a separate return — and each declares
+  the relation the statute puts it in and the phrase that decides it. A new
+  status-keyed parameter cannot be added without answering both questions, an
+  entry whose candidates stop differing fails as **vacuous** rather than passing
+  for ever, and the separate-return table checks a *relation to the other columns*
+  rather than restating any figure, so it cannot agree with itself by accident.
+  Between them they have found six defects that no feature-shaped test reached.
 
 ```js
 getYearParameters(2026).sources;

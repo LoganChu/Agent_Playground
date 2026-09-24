@@ -156,5 +156,17 @@
     "kind": "surviving-spouse-high",
     "maxAbs": 800,
     "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT - the same entry as the $45,000 surviving-spouse case, at three higher incomes. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000; PolicyEngine-US gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount. It is $748.50 at EVERY income here - $15,000 of deduction at a flat 4.99% - which is what makes it a reading of the statute rather than a rate or a threshold, and is why one bound covers all three cases. A separate entry from the $45,000 one because `kind` matches exactly and the new shape is a new kind; that is a small cost of naming it `surviving-spouse-high` and it is worth paying, because a report that lumped the two together could not show that the $45,000 case and the $450,000 case differ by the same dollar."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "separate-with-spouse",
+    "maxAbs": 800,
+    "reason": "OPEN, AND IT IS ONE QUESTION IN THREE STATES. The grid gained a separate return with a SPOUSE in it on Day 30 - it had filed married-filing-separately for thirty days and never once given that return a second person - and every difference it produced is the same fact: PolicyEngine-US counts the spouse in Virginia's $930 personal exemption and $12,000 age deduction, Maryland's $3,200 exemption and its $1,000 addition at 65, and Indiana's $1,000 exemption and its $1,000 addition at 65. This package counts nobody, because `claimedFilerCount` is 1 for a separate return and no input exists that could say otherwise. Ours is higher in all six cases, which is the direction nobody complains about. WHICH IS RIGHT IS OPEN, and the harness cannot settle it: PolicyEngine's tax unit holds the spouse whatever the filing status, so its answer may be a reading of each state's form or may be a member count, and this grid cannot tell those apart. What tilts it is that the FEDERAL analogue was settled the same day and went PolicyEngine's way: SS 63(f)(1)(B) allows the spouse's age and blindness amounts on a separate return when SS 151(b) would allow an exemption for that spouse - no gross income, nobody else's dependent - which is exactly this household, and the two engines now agree on federal taxable income to the dollar on all six cases. Three of these states historically mirrored SS 151(b) in their own exemption instructions. So this is probably a defect HERE, in three states at once, and it needs each state's form read rather than a federal rule assumed - which is why it is recorded as open rather than fixed on the strength of a second model. The bound is $800: Virginia's age deduction is the largest single piece of it."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "separate-with-spouse-young",
+    "maxAbs": 400,
+    "reason": "THE SAME OPEN QUESTION AS `separate-with-spouse`, at 61 rather than 68, which is what separates the two halves of it. The pair differs only by age, so this case isolates the plain personal exemption - Virginia's $930, Maryland's $3,200, Indiana's $1,000 - from the addition each state makes at 65. Both halves move together and both are unresolved; see the entry for `separate-with-spouse` for the whole reason."
   }
 ]

@@ -59,6 +59,15 @@ function one(c) {
     taxExemptInterest: c.taxExemptInterest,
     age: c.primaryAge,
     spouseAge65OrOlder: c.spouseAge !== null && c.spouseAge >= 65,
+    // § 151(b), which § 63(f)(1)(B) makes the condition for a SEPARATE return
+    // claiming the spouse's age and blindness amounts. The engine cannot infer
+    // it, because a return does not say what the other return holds — but this
+    // harness can, because it BUILT the household: every case puts all of its
+    // income on the primary, and `theirs.py` adds the spouse with none, so a
+    // spouse in this grid always has no gross income and is nobody's dependent.
+    // Leaving it off would make the two sides answer different questions and
+    // then report the difference as a divergence.
+    spouseHasNoGrossIncomeAndIsNotADependent: c.spouseAge !== null,
     blind: c.blind >= 1,
     spouseBlind: c.blind >= 2,
     ...counts,

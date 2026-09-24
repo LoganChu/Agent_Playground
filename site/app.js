@@ -133,7 +133,11 @@ function renderFederal(model) {
   rows.append(row('Federal income tax', cents(fed.totalTax), 'total'));
   card.append(rows);
 
-  const notes = [];
+  // The engine's own notes lead, and they are the only ones here that are not
+  // derived from figures already on the page: they say what it did with
+  // something the visitor told it and it could not use. A separate filer who
+  // enters a spouse's age is told why it changed nothing.
+  const notes = [...(fed.notes ?? [])];
   if (ss && ss.tier > 0 && !ss.atMaximumInclusion) {
     notes.push(
       `You are inside the § 86 phase-in — "the tax torpedo". Each extra dollar of ordinary ` +

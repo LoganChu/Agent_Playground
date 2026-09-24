@@ -16161,6 +16161,922 @@
   },
   "error": null
  },
+ "separate-with-spouse-AZ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-AZ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 890,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-CA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-CA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1186.53,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 306
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 0
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-CO-0-55000-0-0-0": {
+  "id": "separate-with-spouse-CO-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1566.4,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-GA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-GA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-ID-0-55000-0-0-0": {
+  "id": "separate-with-spouse-ID-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1631.82,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-IL-0-55000-0-0-0": {
+  "id": "separate-with-spouse-IL-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-IN-0-55000-0-0-0": {
+  "id": "separate-with-spouse-IN-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2634.1,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-KY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-KY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 718.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-MA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2495,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-MD-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MD-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 219.2,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 1000
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-MI-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MI-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-MS-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MS-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-NC-0-55000-0-0-0": {
+  "id": "separate-with-spouse-NC-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1685.78,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-NJ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-NJ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-NY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-NY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1293,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 0
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-OH-0-55000-0-0-0": {
+  "id": "separate-with-spouse-OH-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 819,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 200
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 50
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-PA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-PA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-UT-0-55000-0-0-0": {
+  "id": "separate-with-spouse-UT-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1761.73,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 685.77
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-VA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-VA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1612.4,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-AZ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-AZ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 972.5,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-CA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-CA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1339.53,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 153
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 0
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-CO-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-CO-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1711.6,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-GA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-GA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1996,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-ID-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-ID-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1806.72,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-IL-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-IL-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-IN-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-IN-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2683.8,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-KY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-KY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 718.55,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2530,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MD-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MD-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3799.28,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MI-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MI-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MS-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MS-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-NC-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-NC-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1685.78,
+   "credits": []
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-NJ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-NJ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1491,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-NY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-NY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1293,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 0
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-OH-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-OH-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 869,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 200
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-PA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-PA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-UT-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-UT-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1959.73,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 487.77
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-VA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-VA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2348.4,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "early-retiree-AZ-0-50000-0-0-0": {
   "id": "early-retiree-AZ-0-50000-0-0-0",
   "federal": {

@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.29.0/us-tax-mcp-0.29.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.30.0/us-tax-mcp-0.30.0.tgz"
       ]
     }
   }
@@ -174,6 +174,40 @@ income credit match is a *floor* — a Colorado 2026 answer from this server is
 the most tax and the least credit Colorado can ask for. Do not tell a user that
 figure is pending a publication; tell them it is pending the year ending.
 `describe_state` carries the per-figure detail.
+
+**New in 0.30.0 — the OTHER hard filing status, on the federal side, and the
+defect was a shared citation rather than a wrong number.** A married individual
+filing a **separate** return was denied the OBBBA car loan interest deduction —
+up to `$10,000`, `$2,200` of tax on `$90,000` of wages — because one eligibility
+list answered for all four Schedule 1-A deductions at once. Its note named
+§ 224(f) and § 225(e) by subsection and then said the senior deduction and the
+vehicle loan interest deduction "carry the same restriction per IRS guidance".
+§ 151(d)(5)(C)(v) does. **§ 163(h)(4) has no married-individuals clause at all**,
+and § 1.163-16(h)(1) makes the `$10,000` limit one that "applies per Federal
+tax return", so two separate returns reach `$10,000` each — which nobody writes
+about a deduction those returns cannot claim. Each deduction now carries its own
+rule and its own citation, and a test fails if any two citations are equal.
+
+Two more, both in § 63 and both now inputs because a return does not contain the
+fact: `spouseItemizes` (§ 63(c)(6)(A) makes the standard deduction **zero** where
+either spouse itemizes) and `spouseHasNoGrossIncomeAndIsNotADependent` (the
+§ 151(b) test that § 63(f)(1)(B) makes the condition for claiming the spouse's
+age and blindness amounts on a separate return — the one sentence in the Code
+that reaches a separate return and *not* a joint one, because on a joint return
+both spouses are the taxpayer).
+
+**Every `estimate_federal_tax` result now leads its Notes with what the engine
+DISCARDED.** Send `qualifiedTips` on a separate return and it tells you § 224(f)
+threw it away; send `spouseAge65OrOlder` without the § 151(b) fact and it tells
+you what the flag was worth and which argument would have used it. The rule is
+that a note is owed when an input was discarded or an unanswerable question was
+answered by default — not merely when a rule exists.
+
+This cost a **sixteenth** compression pass on `tools/list`, and the thing that
+was compressed is worth recording: three tools carried the same 264-character
+sentence explaining why their household fields have no descriptions, and it had
+gone stale — it said "thirty-seven descriptions" when there are thirty-nine.
+39,863 bytes against the 40,000 ceiling.
 
 **New in 0.29.0 — the widow's filing status, on the STATE side, in fourteen more
 places, and three of them are states that do not have the status at all.**

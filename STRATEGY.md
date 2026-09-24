@@ -3,18 +3,138 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-23 (Day 29). **The bet is unchanged. What changed today is the
-understanding of where this project's remaining defects live.** `packages/us-federal-tax`
-is v0.11.0, `packages/us-state-tax` is v0.27.0 and `packages/us-tax-mcp` is v0.29.0.
-**996 tests**, a 741-household differential grid agreeing on 4,800 of 5,187 figures with
-zero unexplained, and **seventeen** defects closed — fourteen in one filing status, which is
-the third time that status has been fixed and the first time the fix was aimed at the thing
-causing it, plus three more that the fourteen led to.
+Last reviewed: 2026-09-24 (Day 30). **The bet is unchanged.** `packages/us-federal-tax`
+is v0.12.0, `packages/us-state-tax` is v0.27.0 and `packages/us-tax-mcp` is v0.30.0.
+**1,017 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+zero unexplained, and three more defects closed — this time in `marriedFilingSeparately`,
+and in the opposite direction from the last four days.
 
-The headline is that a **helper's name** was the defect. `filerCount()` answered *how many
-people are on this return* with a fact about which column of a form the status sits in, and
-thirteen call sites asked the first question and read the second. Two previous days fixed
-one call site each and left the name alone.
+The headline is that the defect was a **citation**, not a number. Four statutes shared one
+eligibility field, whose docstring named two of them by subsection and said the other two
+"carry the same restriction per IRS guidance". One of the two did. One did not, and a
+separate filer lost up to `$10,000` of deduction for seventeen days, and a test asserted the
+defect the whole time because it was written from the same docstring.
+
+## Day 30: a shared field has one citation, and it is checked against the provisions somebody read
+
+Day 29's rule was *when one fact is counted by two helpers, the bug is not that they
+disagree — it is that nothing says which question each one answers.* Day 30 is the same
+shape one level up, and it is the more dangerous one because it looks like diligence.
+
+`ScheduleOneAParameters.ineligibleFilingStatuses` was one list for four deductions. Its
+docstring read: "§224(f) and §225(e) each say the section applies to a married individual
+only if a joint return is filed; the senior deduction and the vehicle loan interest
+deduction carry the same restriction per IRS guidance." Two provisions named by
+subsection, two waved at. § 151(d)(5)(C)(v) does carry it. **§ 163(h)(4) has no
+married-individuals clause anywhere in it** — three sections written in the same act say
+the sentence and this one does not.
+
+**THE RULE: a field shared by N provisions has one citation, and the half that was waved
+at rides into production on the credibility of the half that was read.** Where Day 29's
+bug shared an *answer*, this one shared the *evidence*, which is worse: nothing looks
+wrong, and the wrong half is by construction the half nobody re-reads.
+
+Three consequences for the bet:
+
+1. **A shared citation is now a test failure.** Each of the four deductions carries its
+   own `separateReturn: { allowed, cite }`, and `test/married-filing-separately.test.js`
+   fails if any two `cite` strings are equal. That is cheap, it generalises to every
+   other shared parameter in either engine, and it is the kind of guard this package
+   should have more of: not "is this number right" but "is this claim one claim".
+2. **"Per IRS guidance" with no subsection is the tell.** Every other citation in this
+   repository names a section, a form line or a Revenue Procedure. The one that named a
+   *category of document* was the one that was wrong. A grep for citations that do not
+   contain "§" or "Rev. Proc." or "Form" is a half-hour of work and probably finds more.
+3. **The direction matters commercially.** Days 26-29 made a widow's bill too low; this
+   made a separate filer's too high. Nobody is ever billed by the IRS for the second
+   kind, so it has no natural discovery channel at all. A package whose pitch is being
+   checkable has to go looking for the errors that nothing else will report.
+
+## Day 30: an unreachable figure cannot be wrong, which is why nobody checks reachability
+
+Five Schedule 1-A tables hold a `marriedFilingSeparately` threshold. Four could never be
+used, because the deduction is barred. The fifth was live and looked identical.
+
+**THE RULE: a parameter the engine can never reach is not tested by anything, and a live
+one filed next to four dead ones inherits their immunity.** The new table declares
+`reachable` per parameter and then proves it by running the engine — the four return zero
+for a separate filer, the fifth returns the deduction. That assertion would have caught
+this on Day 6, and it costs four lines.
+
+This generalises past filing status. Any parameter behind a gate — a state that does not
+offer a credit, a year in which a provision had not started, a status a form does not
+have — is in the same position, and `us-state-tax` is full of them.
+
+## Day 30: a table that states a RELATION cannot drift from the data it describes
+
+`test/surviving-spouse.test.js` asserts each parameter's widow figure equals the joint or
+the single one. The separate-return table does the same thing but had to carry four
+relations rather than two — halved, the single figure, the married figure, or its own —
+and writing them as predicates over the *other columns of the same table* rather than as
+restated numbers is what produced the one finding nobody was looking for.
+
+**§ 1(f)(7)(B) rounds a separate return's inflation adjustment to `$25` where everything
+else rounds to `$50`.** The package already knew this for the § 199A threshold in 2026.
+Asserting "the capital gains breakpoints are exactly half the joint ones" *failed*: the
+15% breakpoint is `$291,850` in 2024 against a half-joint `$291,875`, `$300,000` in 2025
+against `$300,025`, and exactly half in 2026. **A model that derives a separate return's
+capital-gains breakpoint by halving is wrong in two years out of three, and would look
+right if it had only ever been checked against 2026.**
+
+A table of figures would have agreed with itself. A table of relations argued.
+
+## Day 30: a grid case built for one provision tested four
+
+Two shapes were added to the differential grid — a separate return with a spouse in it,
+at 68 and at 61 — because the status had been filed for thirty days without one. **779
+households, 5,453 figures, 5,046 agree to the dollar, zero unexplained**, and the 38 new
+cases paid twice on the first run.
+
+**First, they corroborated the day's federal fix against an independent model.** The two
+engines now agree to the dollar on federal taxable income for every one of them:
+PolicyEngine-US computes the § 63(f) spouse amount on a separate return the same way this
+package does as of this morning, and yesterday this package would have diverged by `$1,650`
+in each. That is the first time a fix here has been checked against a second model on the
+day it was made rather than found by one — a meaningfully better position than "my reading
+of the statute", and it cost nothing but a case shape.
+
+**Second, they opened the same question in three states.** Six state differences, all new,
+all one fact: PolicyEngine counts the spouse in Virginia's `$930` exemption and `$12,000`
+age deduction, Maryland's `$3,200` exemption and `$1,000` senior addition, and Indiana's
+`$1,000` exemption and `$1,000` senior addition. `us-state-tax` counts nobody and has no
+input that could say otherwise — exactly where the federal package was at breakfast.
+
+They were **not** fixed, and the restraint is the point: PolicyEngine's tax unit holds the
+spouse whatever the filing status, so its answer may be a reading of three state forms or
+may be a member count, and this harness cannot tell those apart. Changing three states on
+the strength of a second model is what Day 26 learned not to do. Recorded as OPEN with a
+bound, and it is tomorrow's first item with evidence attached — which is a better backlog
+entry than any this project has written, because it has six failing comparisons behind it
+rather than a sentence.
+
+**THE RULE: a grid case that finds something on its first run has not finished paying.**
+It was built to test one federal provision and it tested that provision and three state
+analogues, because the fact it added — a spouse with no income — is read by every statute
+that has an opinion about a separate return. Case shapes are cheaper than states, and this
+is the second day running that widening the grid outperformed adding a feature.
+
+## Day 30: the discipline that keeps a `notes` array from becoming a rules dump
+
+The federal engine gained `EstimateResult.notes`, which the state engine has had since
+Day 24. The failure mode of such a field is obvious and common: it fills with statements
+of law, becomes wallpaper, and stops being read.
+
+**THE RULE: a note is owed when an input was DISCARDED, or when an unanswerable question
+was answered by a default — not merely when a rule exists.** A caller who never mentions
+tips does not need to be told § 224(f) bars them on a separate return. A caller who passes
+`qualifiedTips: 9000` and gets nothing back does, and should be told which section took it.
+The array is empty on almost every return, which is what makes a non-empty one worth
+reading.
+
+This is also the answer to the one place where a default has to favour the filer.
+`spouseItemizes` defaults to false because zeroing the standard deduction for every silent
+caller would be wrong far more often — and the note is what stops that being a silent
+guess.
 
 ## Day 29: a bug is a wrong answer; a bad name is a wrong answer generator
 

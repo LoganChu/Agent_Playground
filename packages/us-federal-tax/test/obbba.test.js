@@ -351,15 +351,60 @@ test('vehicle loan interest: gone at $150,000 single / $250,000 joint', () => {
   );
 });
 
-test('vehicle loan interest: married filing separately is barred outright', () => {
+test('vehicle loan interest: married filing separately is the one that is NOT barred', () => {
+  // This test asserted `deduction: 0, ineligible: true` until v0.12.0, and it
+  // passed, because the code and the test were written from the same sentence:
+  // "the senior deduction and the vehicle loan interest deduction carry the same
+  // restriction per IRS guidance", in a docstring, with no subsection named.
+  // § 224(f), § 225(e) and § 151(d)(5)(C)(v) each say it. § 163(h)(4) does not.
   const r = vehicleLoanInterestDeduction({
     qualifiedInterest: 5_000,
     modifiedAdjustedGrossIncome: 50_000,
     filingStatus: 'marriedFilingSeparately',
     year: Y,
   });
-  assert.equal(r.deduction, 0);
-  assert.equal(r.ineligible, true);
+  assert.equal(r.deduction, 5_000); // v0.11.0: $0
+  assert.equal(r.ineligible, false);
+});
+
+test('vehicle loan interest: a separate filer gets the $100,000 threshold, not $200,000', () => {
+  // The threshold table has always held $100,000 here. It could not be reached,
+  // which is what made it look right: an unreachable figure cannot be wrong.
+  const at = (magi) =>
+    vehicleLoanInterestDeduction({
+      qualifiedInterest: 10_000,
+      modifiedAdjustedGrossIncome: magi,
+      filingStatus: 'marriedFilingSeparately',
+      year: Y,
+    });
+
+  assert.equal(at(100_000).deduction, 10_000);
+  // $1 over costs a full $200 — § 163(h)(4)(C)(ii) rounds the increment up.
+  assert.equal(at(100_001).deduction, 9_800);
+  // Gone by $150,000, exactly as for a single filer.
+  assert.equal(at(150_000).deduction, 0);
+});
+
+test('vehicle loan interest: the cap is per return, so separating can double it', () => {
+  // The regulations apply the $10,000 limitation "separately to each taxpayer's
+  // return". Two spouses with $10,000 of qualified interest each therefore reach
+  // $20,000 filing separately against $10,000 filing jointly — which is the
+  // clearest proof that the deduction reaches a separate return at all, because
+  // the sentence is about how the cap works on one.
+  const separate = vehicleLoanInterestDeduction({
+    qualifiedInterest: 10_000,
+    modifiedAdjustedGrossIncome: 90_000,
+    filingStatus: 'marriedFilingSeparately',
+    year: Y,
+  });
+  const joint = vehicleLoanInterestDeduction({
+    qualifiedInterest: 20_000,
+    modifiedAdjustedGrossIncome: 180_000,
+    filingStatus: 'marriedFilingJointly',
+    year: Y,
+  });
+  assert.equal(separate.deduction * 2, 20_000);
+  assert.equal(joint.deduction, 10_000);
 });
 
 // ---------------------------------------------------------------------------

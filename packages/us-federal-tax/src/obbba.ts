@@ -25,6 +25,14 @@
  * A filer $1 over the vehicle-interest threshold loses $200. A filer $999 over
  * the tips threshold loses nothing. Implementations that model both as a flat
  * percentage of the excess get both wrong.
+ *
+ * They do not agree about a separate return either, and that disagreement is
+ * worth more than the rounding. § 224(f), § 225(e) and § 151(d)(5)(C)(v) each
+ * require a married individual to file jointly; § 163(h)(4) does not, so the
+ * vehicle loan interest deduction is the one a separate filer can claim — up to
+ * $10,000 of it, on each spouse's return. This package denied it until v0.12.0,
+ * because one `ineligibleFilingStatuses` list answered for all four sections at
+ * once. See `data/schedule-one-a.ts`.
  */
 
 import { getYearParameters, nonNegative, roundCents } from './core.js';
@@ -33,6 +41,7 @@ import type {
   AdditionalDeductionsResult,
   FilingStatus,
   ScheduleOneAParameters,
+  SeparateReturnRule,
   SteppedPhaseOut,
 } from './types.js';
 
@@ -59,8 +68,15 @@ export function scheduleOneAParameters(year?: number): ScheduleOneAParameters | 
   return params.year <= schedule.finalYear ? schedule : null;
 }
 
-function isEligible(schedule: ScheduleOneAParameters, filingStatus: FilingStatus): boolean {
-  return !schedule.ineligibleFilingStatuses.includes(filingStatus);
+/**
+ * Whether a filing status may claim one of the four deductions.
+ *
+ * The rule is read off the deduction, not off the schedule. Only a separate
+ * return is ever barred, and only by a provision that says so — which three of
+ * the four have and the fourth does not. See `data/schedule-one-a.ts`.
+ */
+function isEligible(rule: SeparateReturnRule, filingStatus: FilingStatus): boolean {
+  return filingStatus !== 'marriedFilingSeparately' || rule.allowed;
 }
 
 /**
@@ -129,7 +145,9 @@ export function qualifiedTipsDeduction(options: {
   selfEmploymentIncomeLimit?: number;
 }): AdditionalDeductionPart {
   const schedule = scheduleOneAParameters(options.year);
-  if (!schedule || !isEligible(schedule, options.filingStatus)) return NO_DEDUCTION;
+  if (!schedule || !isEligible(schedule.tips.separateReturn, options.filingStatus)) {
+    return NO_DEDUCTION;
+  }
 
   const tips = nonNegative(options.qualifiedTips, 'qualifiedTips');
   const magi = nonNegative(options.modifiedAdjustedGrossIncome, 'modifiedAdjustedGrossIncome');
@@ -167,7 +185,9 @@ export function qualifiedOvertimeDeduction(options: {
   year?: number;
 }): AdditionalDeductionPart {
   const schedule = scheduleOneAParameters(options.year);
-  if (!schedule || !isEligible(schedule, options.filingStatus)) return NO_DEDUCTION;
+  if (!schedule || !isEligible(schedule.overtime.separateReturn, options.filingStatus)) {
+    return NO_DEDUCTION;
+  }
 
   const overtime = nonNegative(
     options.qualifiedOvertimeCompensation,
@@ -207,7 +227,9 @@ export function seniorDeduction(options: {
   spouseAge65OrOlder?: boolean;
 }): AdditionalDeductionPart {
   const schedule = scheduleOneAParameters(options.year);
-  if (!schedule || !isEligible(schedule, options.filingStatus)) return NO_DEDUCTION;
+  if (!schedule || !isEligible(schedule.senior.separateReturn, options.filingStatus)) {
+    return NO_DEDUCTION;
+  }
 
   let eligibleIndividuals = options.age65OrOlder ? 1 : 0;
   // Only a joint return has a second eligible individual. A qualifying surviving
@@ -248,6 +270,12 @@ export function seniorDeduction(options: {
  * Watch the phase-out: it reduces the deduction by $200 for each $1,000 of MAGI
  * excess **or portion thereof**. A single dollar over the threshold costs $200,
  * and the deduction is gone by $150,000 ($250,000 joint).
+ *
+ * **The only Schedule 1-A deduction a separate return can claim.** § 163(h)(4)
+ * has no married-individuals clause, and the regulations apply the $10,000 cap
+ * "separately to each taxpayer's return" — so a married couple filing separately
+ * can reach $20,000 between them where a joint return caps at $10,000, subject to
+ * a $100,000 threshold each rather than $200,000 together.
  */
 export function vehicleLoanInterestDeduction(options: {
   qualifiedInterest: number;
@@ -256,7 +284,12 @@ export function vehicleLoanInterestDeduction(options: {
   year?: number;
 }): AdditionalDeductionPart {
   const schedule = scheduleOneAParameters(options.year);
-  if (!schedule || !isEligible(schedule, options.filingStatus)) return NO_DEDUCTION;
+  if (
+    !schedule ||
+    !isEligible(schedule.vehicleLoanInterest.separateReturn, options.filingStatus)
+  ) {
+    return NO_DEDUCTION;
+  }
 
   const interest = nonNegative(options.qualifiedInterest, 'qualifiedInterest');
   const magi = nonNegative(options.modifiedAdjustedGrossIncome, 'modifiedAdjustedGrossIncome');

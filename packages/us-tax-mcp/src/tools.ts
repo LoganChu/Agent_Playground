@@ -241,7 +241,7 @@ const compareTool: ToolDefinition = {
     'copying 2024 forward or 2026 backward is wrong in both directions. Defaults to every supported ' +
     'year (' +
     SUPPORTED_YEARS.join(', ') +
-    '). The household fields below are listed WITHOUT descriptions on purpose: they are the same fields estimate_federal_tax takes, and its schema documents every one of them in full. Read them there. Duplicating thirty-seven descriptions here cost more context than the whole of that tool.',
+    '). Household fields here carry no descriptions: estimate_federal_tax documents every one.',
   inputSchema: householdSchema(
     {
         years: {
@@ -447,7 +447,7 @@ const marginalTool: ToolDefinition = {
     '21.06%, all of it earned-income-credit withdrawal. ' +
     'Use this for "should I take the raise", "what will this bonus cost me", "am I better off ' +
     'converting to a Roth", "what is my real marginal rate". Reports the ordinary bracket alongside ' +
-    'the real number so the difference is visible. The household fields below are listed WITHOUT descriptions on purpose: they are the same fields estimate_federal_tax takes, and its schema documents every one of them in full. Read them there. Duplicating thirty-seven descriptions here cost more context than the whole of that tool.',
+    'the real number so the difference is visible. Household fields here carry no descriptions: estimate_federal_tax documents every one.',
   inputSchema: householdSchema(
     {
       additionalIncome: {
@@ -627,7 +627,7 @@ const quarterlyTool: ToolDefinition = {
     'dates. Answers "how much should I send the IRS each quarter", "what are my 1099 estimated ' +
     'taxes", "how do I avoid an underpayment penalty". Supplying priorYearTotalTax usually lowers ' +
     'the required payment, because the safe harbor is the LESSER of 90% of this year and 100% (or ' +
-    '110% for higher earners) of last year. The household fields below are listed WITHOUT descriptions on purpose: they are the same fields estimate_federal_tax takes, and its schema documents every one of them in full. Read them there. Duplicating thirty-seven descriptions here cost more context than the whole of that tool.',
+    '110% for higher earners) of last year. Household fields here carry no descriptions: estimate_federal_tax documents every one.',
   inputSchema: householdSchema(
     {
       priorYearTotalTax: {
@@ -1646,8 +1646,7 @@ const describeStateTool: ToolDefinition = {
     'local income taxes, its own notes and its statutes. Call it before state_income_tax for any ' +
     'state you have not computed before: an omitted per-state field is usually a WRONG answer ' +
     'rather than a missing one, because the engine falls back to a federal figure the state does ' +
-    'not use. The documentation lives here and not in state_income_tax\'s schema, so that a caller ' +
-    'pays for one state rather than twenty-eight.',
+    'not use.',
   inputSchema: {
     type: 'object',
     required: ['state'],

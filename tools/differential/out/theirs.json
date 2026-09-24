@@ -9974,6 +9974,576 @@
   },
   "error": null
  },
+ "separate-with-spouse-AZ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-AZ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 928.75
+  },
+  "error": null
+ },
+ "separate-with-spouse-CA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-CA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 982.1653442382812
+  },
+  "error": null
+ },
+ "separate-with-spouse-CO-0-55000-0-0-0": {
+  "id": "separate-with-spouse-CO-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 460.3999938964844
+  },
+  "error": null
+ },
+ "separate-with-spouse-GA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-GA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-ID-0-55000-0-0-0": {
+  "id": "separate-with-spouse-ID-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1316.038330078125
+  },
+  "error": null
+ },
+ "separate-with-spouse-IL-0-55000-0-0-0": {
+  "id": "separate-with-spouse-IL-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-IN-0-55000-0-0-0": {
+  "id": "separate-with-spouse-IN-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2534.699951171875
+  },
+  "error": null
+ },
+ "separate-with-spouse-KY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-KY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 639.1062622070312
+  },
+  "error": null
+ },
+ "separate-with-spouse-MA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2460.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-MD-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MD-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 78.77999877929688
+  },
+  "error": null
+ },
+ "separate-with-spouse-MI-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MI-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-MS-0-55000-0-0-0": {
+  "id": "separate-with-spouse-MS-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-NC-0-55000-0-0-0": {
+  "id": "separate-with-spouse-NC-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1685.7750244140625
+  },
+  "error": null
+ },
+ "separate-with-spouse-NJ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-NJ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": -0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-NY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-NY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1293.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-OH-0-55000-0-0-0": {
+  "id": "separate-with-spouse-OH-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 718.9239501953125
+  },
+  "error": null
+ },
+ "separate-with-spouse-PA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-PA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-UT-0-55000-0-0-0": {
+  "id": "separate-with-spouse-UT-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1756.365234375
+  },
+  "error": null
+ },
+ "separate-with-spouse-VA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-VA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 822.9249877929688
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-AZ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-AZ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 981.25
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-CA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-CA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1295.1002197265625
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-CO-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-CO-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 781.5999755859375
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-GA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-GA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1996.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-ID-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-ID-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1490.9383544921875
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-IL-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-IL-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-IN-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-IN-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2634.0999755859375
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-KY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-KY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 719.1062622070312
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2530.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MD-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MD-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3464.06005859375
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MI-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MI-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-MS-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-MS-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-NC-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-NC-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1685.7750244140625
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-NJ-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-NJ-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1491.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-NY-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-NY-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1293.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-OH-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-OH-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 809.8770141601562
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-PA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-PA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-UT-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-UT-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1954.365234375
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-VA-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-VA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2294.925048828125
+  },
+  "error": null
+ },
  "early-retiree-AZ-0-50000-0-0-0": {
   "id": "early-retiree-AZ-0-50000-0-0-0",
   "federal": {

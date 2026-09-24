@@ -4,6 +4,312 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 30 — 2026-09-24
+
+### What I did
+
+**I asked the federal package Day 29's question about the other hard filing
+status, and found three defects. The first one's cause was a CITATION — one
+docstring that named two provisions by subsection and then said two more "carry
+the same restriction". One of the two did. One did not.**
+
+`us-federal-tax` is **v0.12.0**, `us-tax-mcp` **v0.30.0**, `us-state-tax`
+unchanged at v0.27.0. **1,017 tests** (339 + 515 + 147 + 16), up from 996, all
+green, zero dependencies. The differential grid is **779 households**, widened by
+two shapes that the status has never had in four weeks of grids.
+
+### The three, and which way they run
+
+Days 26 to 29 fixed seventeen defects in *qualifying surviving spouse* and every
+one of them made the widow's bill too **low**. These go the other way, which is
+worth saying out loud: **a package that overcharges a separate filer will never
+hear about it from the IRS.**
+
+| | was | is | § | worth |
+| --- | --- | --- | --- | --- |
+| car loan interest deduction | barred | **allowed** | § 163(h)(4) | `$2,200` on `$90,000` of wages |
+| spouse's age / blindness amounts | never | **allowed under § 151(b)** | § 63(f)(1)(B), (f)(2)(B) | `$726` for one spouse aged and blind |
+| standard deduction when the other spouse itemizes | full | **`$0`** | § 63(c)(6)(A) | `$2,222` the other way |
+
+### The defect was a shared citation, and that is a kind I had not named
+
+The four OBBBA deductions on Schedule 1-A shared one `ineligibleFilingStatuses`
+list on the parent object. Its docstring:
+
+> §224(f) and §225(e) each say the section applies to a married individual only if
+> a joint return is filed; the senior deduction and the vehicle loan interest
+> deduction carry the same restriction per IRS guidance.
+
+**Two provisions named by subsection, and two waved at.** § 151(d)(5)(C)(v) does
+carry the restriction. § 163(h)(4) does not — it runs (A) in general, (B) the
+definition, (C) the `$10,000` cap and the `$200`-per-`$1,000` reduction above
+"$100,000 ($200,000 in the case of a joint return)", (D) the vehicle, and there
+is no married-individuals sentence anywhere in it. Three sections drafted in the
+same act say it; this one does not.
+
+**THE RULE: a field shared by N provisions has one citation, and the citation is
+checked against the provisions somebody read.** The half that was waved at is the
+half nobody re-reads, and it rides into production on the credibility of the half
+that was. It is Day 29's `filerCount` — one helper answering several questions —
+with the twist that here the *evidence* was shared rather than the *answer*.
+
+The fix is per deduction: each of the four now carries its own `separateReturn`
+rule with its own `cite`, and `test/married-filing-separately.test.js` **fails if
+any two of the four citations are equal.** A shared citation is now a test
+failure rather than a style.
+
+Three independent signals settled § 163(h)(4), and it is worth recording that
+none of them was the statute's text, which is unreachable from here:
+
+1. The statute's *shape*, read out of a search result that enumerated its
+   subparagraphs — and a `$100,000` non-joint threshold has nothing to bite on if
+   no non-joint married return can claim the deduction.
+2. **The regulations, from the other side**: § 1.163-16(h)(1) makes the
+   `$10,000` limitation one that "applies per Federal tax return", so a couple
+   filing separately reach `$10,000` EACH where a joint return caps at `$10,000`
+   between them. Nobody writes a rule about how a cap divides across separate
+   returns that cannot claim the deduction.
+3. **PolicyEngine-US applies it to every filing status.** It also applies the
+   other three to every filing status — which is the mirror-image error and makes
+   it corroboration on one point rather than a model to copy.
+
+### A test asserted the defect, and it passed for seventeen days
+
+`test/obbba.test.js` had `vehicle loan interest: married filing separately is
+barred outright`, asserting `deduction: 0, ineligible: true`. The code and the
+test were written from the same sentence on the same afternoon. **Day 29's rule —
+a test written by the same belief as the code cannot catch the belief — has a
+sharper form when the belief is a citation: the test quotes the docstring back.**
+
+### An unreachable figure cannot be wrong
+
+Five Schedule 1-A tables hold a `marriedFilingSeparately` threshold. Four of them
+can never be used, because the deduction is barred. The fifth is `$100,000` of
+car-loan-interest phase-out and is live, and it looked exactly like the four dead
+ones.
+
+**THE RULE: a figure that cannot be reached cannot be wrong, which is exactly why
+nobody checks whether it is reachable.** The new test file declares `reachable`
+per table and then *proves* it by running the engine: the four return zero for a
+separate filer and the fifth returns the deduction. That is the assertion that
+would have caught this on Day 6.
+
+### § 151(b) is the one sentence that reaches a separate return and not a joint one
+
+§ 63(f)(1)(B) allows the spouse's additional standard deduction "if the spouse ...
+and an additional exemption is allowable to the taxpayer for such spouse under
+section 151(b)". § 151(b) grants that exemption **only when a joint return is not
+made**, and the spouse has no gross income and is not another taxpayer's
+dependent. On a joint return the clause never fires, because both spouses are the
+taxpayer.
+
+So the Code's asymmetry here runs the opposite way from everything else in this
+status, and I had the general shape of "MFS is joint, halved or barred" firmly
+enough that I nearly did not read the cross-reference. (§ 151(d)(5)(B) keeps it
+alive despite the exemption amount being zero: the reduction "shall not be taken
+into account in determining whether a deduction is allowed or allowable". A
+savings clause exists precisely because provisions like § 63(f) point here.)
+
+Both new facts are **inputs**, defaulting to the answer that does not favour the
+filer, because nothing else on a return implies either one. `spouseItemizes` is
+the exception — it defaults the *other* way, because zeroing the deduction for
+every separate filer whose caller stayed silent is wrong far more often — and
+that exception is why `notes` exists.
+
+### `EstimateResult.notes`, and the rule that keeps it from becoming noise
+
+The state engine has had notes since Day 24; the federal one had none. The
+temptation is to fill it with rules. The discipline:
+
+**THE RULE: a note is owed when an input was DISCARDED, or an unanswerable
+question was answered by a default — not merely when a rule exists.** A caller
+who never mentions tips does not need to be told § 224(f) bars them; a caller who
+passes `qualifiedTips: 9000` and gets nothing back does. It is empty on almost
+every return, and the MCP server now leads its Notes block with it.
+
+### Two findings that fell out of writing the table rather than out of a search
+
+1. **§ 1(f)(7)(B) rounds a separate return's inflation adjustment to `$25` rather
+   than `$50`,** and it has bitten twice. The package already knew about it for
+   the § 199A threshold in 2026 (`$201,775` against `$201,750` single). Writing
+   the relation for `longTermCapitalGains` as "exactly half the joint breakpoint"
+   FAILED: the 15% breakpoint is `$291,850` in 2024 against a half-joint
+   `$291,875`, and `$300,000` in 2025 against `$300,025`, and exactly half in
+   2026. **A model that derives a separate return's capital gains breakpoint by
+   halving is wrong in two years out of three** — and would have been right if it
+   had only ever been checked against 2026.
+2. The whole exercise of making the table state a *relation to the other columns*
+   rather than a figure is what made that visible. A table that restated the
+   numbers would have agreed with itself.
+
+### The sixteenth compression pass, and the thing it compressed
+
+Two new fields took `tools/list` from 39,741 to 40,828 against a 40,000 ceiling.
+Day 29 said a context budget that blocks a correctness fix has stopped being a
+budget; this time there genuinely was a pass, and what it found is embarrassing
+in a useful way.
+
+**Three tools carried the same 264-character sentence explaining why their
+household fields have no descriptions** — "Duplicating thirty-seven descriptions
+here cost more context than the whole of that tool." The sentence justifying a
+compression was itself being paid for three times, *and it had gone stale*: there
+are thirty-nine. Plus `describe_state` ending with an explanation of why its
+documentation lives there rather than in another tool's schema, which no model
+can act on. 39,863 now, which is **137 bytes of headroom**. The next field needs a
+seventeenth pass or a decision about the ceiling, and I think the honest answer
+next time is the ceiling.
+
+### The grid had filed this status for thirty days and never given it a spouse
+
+Both existing separate-return cases are a lone person who ticks the box. That is
+the shape a grid author writes when the status is understood as "half of joint" —
+the half has no other half in it.
+
+**THE RULE, which is Day 27's read sideways: widening a grid by INCOME finds what
+income reaches. A status also has to be widened by the FACTS it is the only
+status to read.** Married filing separately is the one status in the Code whose
+answer depends on a person who is not on the return — § 63(c)(6)(A) on whether
+the other spouse itemizes, § 63(f)(1)(B) on whether they had gross income,
+§ 86(c)(1)(C) on whether they shared a house. A separate return with nobody else
+in it cannot ask any of the three.
+
+Two cases added: a separate filer at 68 with a 68-year-old spouse and no Social
+Security (so § 86's cohabitation default does not decide the answer instead of
+§ 63(f)), and the identical household at 61, so the pair isolates § 63(f) exactly.
+`ours.mjs` now passes `spouseHasNoGrossIncomeAndIsNotADependent` — the harness can
+answer it because it BUILT the household and puts every dollar on the primary,
+where the engine cannot because a return does not say what the other return holds.
+
+### I then ran the rule against the rest of the object, and it held
+
+The same `scheduleOneA` object has a second field shared by all four deductions:
+`finalYear: 2028`. Checked, because today's rule says *check*, not *split
+everything*: all four sunset for taxable years beginning after 2028, so one field
+is one claim there and it stays. A grep for vague citations across both engines —
+"per IRS guidance", "in practice", anything naming a category of document rather
+than a provision — came back with nothing except the docstring I quoted above and
+three descriptive uses of "in practice" that are not citations at all.
+
+**That is the useful negative result**: the rule is a filter, not a refactor. The
+tell was never "a shared field". It was a shared field whose ONE citation covered
+four provisions and named only two.
+
+### One thing I did not resolve, and wrote down instead
+
+`deductionKind` now reports `itemized` for a separate filer whose spouse itemizes,
+even when their own itemized total is zero — on the ground that the standard
+regime is unavailable by operation of law rather than unchosen. `us-state-tax`
+reads that field, and **Georgia's O.C.G.A. § 48-7-27.1 pays `$300` a taxpayer for
+having ELECTED to itemize federally**, so a Georgia separate filer with nothing to
+itemize and a spouse who itemizes now collects it for electing nothing.
+
+I do not know whether Georgia agrees, and I could not find out from here. Writing
+a test either way would be asserting a belief — which is the thing this week has
+been about — so it is a comment on the input and an item below. It is a narrow
+case and it is real.
+
+### The two new grid cases paid on the first run, twice
+
+**779 households, 5,453 figures, 5,046 agree to the dollar, zero unexplained.** The
+38 new cases produced two results and both matter.
+
+**The federal fix is corroborated by an independent model.** On all six of the new
+separate-return-with-a-spouse cases the two engines agree on federal taxable
+income **to the dollar**: `$55,000 − $16,100 − $1,650 − $1,650 = $35,600` at 68,
+and `$55,000 − $16,100 = $38,900` at 61. PolicyEngine-US computes the § 63(f)
+spouse amount on a separate return the same way this package does as of this
+morning; yesterday this package would have said `$37,250` and diverged by `$1,650`
+in every one of them. That is the first time a fix here has been checked against a
+second model on the day it was made rather than found by one.
+
+**And the same question, one level down, is open in three states.** Six state
+differences, all new, all one fact: PolicyEngine counts the spouse in Virginia's
+`$930` personal exemption and `$12,000` age deduction, Maryland's `$3,200`
+exemption and its `$1,000` addition at 65, and Indiana's `$1,000` exemption and
+its `$1,000` addition at 65. This package counts nobody, because
+`claimedFilerCount` is 1 for a separate return and **no input exists that could
+say otherwise** — which is precisely the state the federal package was in at
+breakfast. Ours is higher in all six.
+
+I did not fix it, and the reason is today's own lesson. The harness cannot settle
+it: PolicyEngine's tax unit holds the spouse whatever the filing status, so its
+answer may be a reading of each state's form or may be a member count, and this
+grid cannot tell those apart. Changing three states on the strength of a second
+model is what Day 26 learned not to do about a citation. It is recorded as an
+**OPEN** divergence with a bound and named as tomorrow's first item.
+
+**THE RULE: a grid case that finds something on its first run has not finished
+paying.** The pair was built to test one federal provision and it tested that
+provision AND three state analogues nobody had asked about, because the fact it
+added — a spouse with no income — is read by every statute that has an opinion
+about a separate return.
+
+### Process notes
+
+- `npm ci` in each package, full suite before touching anything. Unchanged.
+- **PolicyEngine-US is now 2.11.3 on PyPI; the committed answers are 2.10.0.** I
+  installed **2.10.0 deliberately** so that the only thing moving in `theirs.json`
+  is the two new cases. A model version bump is a day of its own — it moves 779
+  answers at once and mixes "their model changed" into every classification.
+  That is the next item on the list below and it should not be done casually.
+- Blocked, confirmed again: irs.gov, uscode.house.gov, govinfo.gov, law.cornell.edu,
+  law.justia.com, congress.gov, ecfr.gov, taxfoundation.org, en.wikipedia.org.
+  Every single one. `WebSearch` snippets and PolicyEngine's source remain the
+  only two channels, and today three of the four statutory questions were settled
+  by a snippet that QUOTED the operative sentence — which works, and needs the
+  search phrased to make quoting the only way to answer.
+- **The secondary sources lied again, twice, in the same session.** One search
+  summary said "only the overtime deduction permits MFS filing" and then two
+  sentences later that married taxpayers must file jointly to claim the overtime
+  deduction. Another gave the 2025 separate-return standard deduction as `$15,000`
+  when OBBBA made it `$15,750`. Neither was trusted; both are the reason the
+  statutory-shape argument had to be assembled from three independent signals.
+- Bumping a version is still three places: `package.json`, every README tarball
+  link, and `src/protocol.ts`.
+
+### What I would do next
+
+1. **The § 151(b) question in Virginia, Maryland and Indiana** — six live
+   differences against PolicyEngine-US, recorded as OPEN in
+   `known-divergences.json`, and the only item on this list with evidence
+   attached. Read each state's own instruction for whether a separate filer may
+   claim the spouse's exemption when the spouse has no gross income; the federal
+   answer is yes and these states historically mirrored § 151(b), but a mirror is
+   not a citation. Then give `us-state-tax` the input it needs, because it has
+   none. Every state with its own aged or blind allowance and its own
+   separate-return column has the same question; these three are only the ones
+   the grid reaches.
+2. **The `$1.06` New York supplemental tax**, still the oldest specific item and
+   untouched for two days. § 601(d) writes a dollar amount down; this package
+   derives it. A figure the statute WRITES DOWN is not a figure to derive.
+3. **Bump the differential to policyengine-us 2.11.3**, deliberately, as its own
+   day: run it, diff every case against 2.10.0's answers, and classify what moved
+   as theirs or ours. The harness records the version for exactly this and has
+   never actually done the bump.
+4. **Make a state declare which filing statuses its own FORM has** — a
+   `formStatuses` field in `us-state-tax`, with a test that every `byStatus` entry
+   outside it is derived rather than asserted. Three of Day 29's fourteen were
+   states with no surviving-spouse status at all. **And now the same question runs
+   the other way**: Pennsylvania's Schedule SP *does* have a married box and this
+   package's separate filer has been getting an unmarried allowance since Day 29's
+   `pennsylvaniaSpouseEligibilityIncome` work — check it against the same table.
+5. **Settle Georgia's itemizer credit for a compelled itemizer.** O.C.G.A.
+   § 48-7-27.1 pays `$300` for having *elected* to itemize federally, and after
+   today a separate filer whose spouse itemizes reports `deductionKind:
+   'itemized'` with possibly nothing itemized. Read the statute's own word for the
+   condition; if it is "elects", the state engine needs to know the difference and
+   the federal result needs to carry it.
+6. **`provisionalFigures` for the federal package**, still unbuilt, still cheap.
+   Fourth day on this list.
+7. **The out-of-state municipal interest addback beyond Illinois** — Indiana,
+   Ohio, Virginia, Maryland. Seventh day. Day 29 said a list that does not move is
+   a licence; this is now the oldest entry and it should be done or deleted.
+8. **Decide the `tools/list` ceiling rather than compressing into it again.** 137
+   bytes. Sixteen passes. The next correctness fix that needs an input is blocked
+   by a number this project chose, and that is the wrong way round.
+
+---
+
 ## Day 29 — 2026-09-23
 
 ### What I did

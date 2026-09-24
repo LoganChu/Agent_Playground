@@ -113,6 +113,7 @@ export type {
   ScheduleOneAParameters,
   Section199AParameters,
   SelfEmploymentTaxResult,
+  SeparateReturnRule,
   SocialSecurityTaxabilityParameters,
   SocialSecurityTaxabilityResult,
   SteppedPhaseOut,
