@@ -1850,3 +1850,93 @@ test('state_income_tax rejects a retirement object with neither person', () => {
   assert.match(message, /must contain a filer and\/or a spouse object/);
   assert.match(message, /per person/);
 });
+
+// ---------------------------------------------------------------------------
+// The § 151(b) spouse on a separate return
+// ---------------------------------------------------------------------------
+
+test('state_income_tax carries the § 151(b) spouse through, and only in the four states', () => {
+  // The one fact a separate return cannot answer from its own contents, because
+  // the answer lives on a return this one does not contain. A plumbing test:
+  // the arithmetic is in `us-state-tax/test/separate-return-spouse.test.js`.
+  const args = (extra) => ({
+    state: 'VA',
+    filingStatus: 'marriedFilingSeparately',
+    year: 2025,
+    federalAdjustedGrossIncome: 55_000,
+    federalTaxableIncome: 38_900,
+    federalDeduction: 16_100,
+    filerAge: 68,
+    spouseAge: 68,
+    ...extra,
+  });
+  const silent = ok('state_income_tax', args({})).structured.state;
+  const told = ok(
+    'state_income_tax',
+    args({ spouseHasNoGrossIncomeAndIsNotADependent: true }),
+  ).structured.state;
+  // $930 of personal exemption and $800 of aged exemption, the second under
+  // § 58.1-322.03(2)(b)'s cross-reference to § 63(f).
+  assert.equal(told.exemptions - silent.exemptions, 930 + 800);
+  assert.ok(told.tax < silent.tax);
+
+  // And a state the field does not belong to refuses the call rather than
+  // accepting a figure it will silently ignore. Michigan has a $5,800 exemption
+  // and nobody has read MCL 206.30(2) on whose spouse it reaches, so it is not
+  // on the list — and a silently ignored field is a wrong answer with no
+  // symptom, which is the one failure mode this server is supposed to refuse.
+  const refused = err('state_income_tax', {
+    ...args({ spouseHasNoGrossIncomeAndIsNotADependent: true }),
+    state: 'MI',
+  });
+  assert.match(refused, /spouseHasNoGrossIncomeAndIsNotADependent/);
+  assert.match(refused, /IL, IN, MD, VA/);
+});
+
+test('a separate return in one of the four is told what the default cost it', () => {
+  // The discipline that keeps the notes array from becoming wallpaper: a note is
+  // owed when an input was DISCARDED or an unanswerable question was answered by
+  // a default, never merely because a rule exists. So this speaks to a caller
+  // who said nothing and goes quiet the moment they answer.
+  const args = (extra) => ({
+    state: 'MD',
+    filingStatus: 'marriedFilingSeparately',
+    year: 2025,
+    county: 'Montgomery County',
+    federalAdjustedGrossIncome: 90_000,
+    federalTaxableIncome: 74_250,
+    federalDeduction: 15_750,
+    ...extra,
+  });
+  const silent = ok('state_income_tax', args({})).structured.state;
+  const note = silent.notes.find((n) =>
+    n.includes('spouseHasNoGrossIncomeAndIsNotADependent'),
+  );
+  assert.ok(note, 'a Maryland separate return said nothing about § 151(b)');
+  assert.match(note, /worth \$\d/);
+  const told = ok(
+    'state_income_tax',
+    args({ spouseHasNoGrossIncomeAndIsNotADependent: true }),
+  ).structured.state;
+  assert.equal(
+    told.notes.filter((n) => n.includes('spouseHasNoGrossIncomeAndIsNotADependent')).length,
+    0,
+  );
+  // A joint return in the same state never hears about it at all: § 151(b) has
+  // nothing to do where both spouses are already the taxpayer.
+  const joint = ok('state_income_tax', args({ filingStatus: 'marriedFilingJointly' })).structured
+    .state;
+  assert.equal(
+    joint.notes.filter((n) => n.includes('spouseHasNoGrossIncomeAndIsNotADependent')).length,
+    0,
+  );
+});
+
+test('describe_state documents the field for a state that has it', () => {
+  const { text } = ok('describe_state', { state: 'IL', year: 2025 });
+  assert.match(text, /spouseHasNoGrossIncomeAndIsNotADependent/);
+  assert.match(text, /151\(b\)/);
+  // And not for one that does not.
+  const ohio = ok('describe_state', { state: 'OH', year: 2025 }).text;
+  assert.ok(!ohio.includes('spouseHasNoGrossIncomeAndIsNotADependent'));
+});

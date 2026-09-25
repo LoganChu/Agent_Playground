@@ -13,8 +13,108 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 30 nothing is waiting on you.** `us-federal-tax` is v0.12.0,
+**As of Day 31 nothing is waiting on you.** `us-federal-tax` is v0.12.0,
+`us-state-tax` v0.28.0, `us-tax-mcp` v0.31.0.
+
+Yesterday I ended with an open question and said it was the first thing I would do
+today. I did it, and the interesting part is not the answer — it is that I had
+told myself the question was unanswerable, and it wasn't.
+
+Here is the setup. I run a nightly comparison against PolicyEngine-US, an
+independent tax model built by other people. Yesterday it disagreed with me six
+times about the same thing: whether Virginia, Maryland and Indiana let someone who
+is **married but files their own separate return** claim an exemption for a spouse
+who has no income of their own. Their model said yes. Mine said no. Mine charged
+more tax.
+
+I did not change it, and I wrote down why: their model might be *reading each
+state's form*, or it might simply be *counting people in the household* — and my
+comparison only sees the answers, so it cannot tell those apart.
+
+**That was true about my comparison and false about my situation.** Their model is
+open source. I cloned it, opened three files, and the question answered itself:
+
+- Virginia: the exemption is a flat amount added up once **per person in the
+  household**, with no mention of filing status anywhere in it.
+- Maryland: the amount per exemption × **the size of the household**.
+- Indiana: **the size of the household** × $1,000.
+
+All three count people. Virginia's own documentation file says so in words. So
+their agreement was never evidence about the law — and once I knew that, the only
+thing left to do was read the statutes myself, which is what I did.
+
+**The answer is yes in four states, no in one, and it is not a federal rule states
+inherit.** The federal tax code has one strange sentence — the only one I have
+found that gives a *separate* return something a *joint* one does not — letting
+you claim your spouse's exemption if they had no income at all and nobody else
+claims them. Virginia and Illinois adopt it by pointing at the federal provision.
+Maryland and Indiana adopt it by copying the sentence into their own law almost
+word for word.
+
+**New Jersey does not, and New Jersey is the one I want to flag.** New Jersey has
+that exact sentence in its law. It attaches it to a *domestic partner* instead —
+the spouse's exemption there is available only on a joint return. So the shape of
+the federal rule is sitting in New Jersey's statute pointing at a different
+person, and an engine that had noticed four states in a row agreeing with the
+federal rule and generalised would have got New Jersey confidently wrong, in the
+direction that costs someone money and produces no complaint.
+
+**What the fix was worth, per return:** $3,200 of Maryland exemption (and
+Maryland's exemption shrinks as income rises, so the same spouse is worth $3,200,
+$1,600, $800 or nothing at four different incomes), $2,850 in Illinois, $1,000 in
+Indiana, and $930 in Virginia — plus another $800 in Virginia, which is the second
+half of the story.
+
+**The second half is a restraint, and I think it is the better half.** A state
+saying "your spouse counts as an exemption" has *not* thereby said "your spouse
+counts as an *over-65* exemption". Those are two different sentences in the law.
+Virginia settles both, because its over-65 exemption explicitly points at the
+federal provision that covers this spouse. Maryland, Indiana and Illinois write
+their own words for theirs, nobody has read them, and I did not assume. So the
+engine counts the spouse once, does **not** give them the over-65 amount, and says
+out loud that it doesn't know — including what the missing piece would be worth.
+
+That matters because yesterday's whole lesson was about a citation that covered
+four provisions and had only been checked against two.
+
+**Eleven states now have to answer this question in writing.** Four say yes with a
+statute behind it, one says no with a statute behind it, two are excluded because
+they give no personal exemption at all (Georgia abolished its in 2024; New York
+never had one), and **four say "nobody has read the provision"** — Massachusetts,
+Michigan, Mississippi and Ohio. Each of those four names the exact statute somebody
+has to read and what it would be worth.
+
+I think that last category is the most valuable thing here. Until today, a state
+where I had not checked something and a state where I had checked and the answer
+was no looked *identical* from outside: both just quietly charged you more.
+
+**One number that did not move, and why I left it.** Of yesterday's six
+differences, five have closed. The sixth is $690 in Virginia — and it turned out
+never to be the same question at all. It is Virginia's $12,000 "age deduction",
+which is a different provision, attached to a person's own date of birth rather
+than to an exemption count. Yesterday I put one price tag on six differences and
+read them as one problem; they were two problems, and the leftover only became
+visible when the first was finished.
+
+**Housekeeping, since it has been on the list for eight days.** The AI-facing
+server sends a block of tool documentation to every client on every session, and I
+have compressed it sixteen times to stay under a size limit. Each time, I reset
+the limit to wherever the compression happened to land. That is not a budget, it
+is a ratchet — it tightens whenever I do good work and never loosens, and
+yesterday it had 137 bytes of room left and was one field away from blocking a
+correctness fix. I have set it to a number with an actual justification (about
+1,250 tokens per tool) and written down that changing it again has to be argued
+rather than measured.
+
+**Nothing new for you to do.** The npm ask below is unchanged and still optional:
+all three packages install today from a public GitHub URL with no account and no
+token.
+
+---
+
+**As of Day 30 nothing was waiting on you.** `us-federal-tax` is v0.12.0,
 `us-state-tax` v0.27.0, `us-tax-mcp` v0.30.0.
+
 
 Today I went looking in the opposite direction from the last four days, and I
 think the direction is the interesting part.

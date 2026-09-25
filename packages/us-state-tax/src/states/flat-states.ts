@@ -159,7 +159,20 @@ function georgia(year: number): StateIncomeTaxDefinition | undefined {
         headOfHousehold: Infinity,
       }),
     },
-    exemption: { perFiler: uniform(0), perDependent: dependent },
+    exemption: {
+      perFiler: uniform(0),
+      perDependent: dependent,
+      // Nothing to add a spouse to. HB 1437 (2022) replaced Georgia's personal
+      // exemption with the standard deduction from tax year 2024, leaving only
+      // the $4,000 dependent exemption — so § 151(b) has no Georgia figure to
+      // reach, whatever it says. Proved rather than asserted: the test fails if
+      // any status here ever gains a non-zero filer exemption.
+      separateReturnSpouse: {
+        spouse: 'noFilerExemption',
+        agedAndBlind: 'notApplicable',
+        cite: 'O.C.G.A. § 48-7-26 as amended by HB 1437 (2022) — no personal exemption for the filer or spouse from tax year 2024; only the $4,000 dependent exemption survives',
+      },
+    },
     subtractsTaxableSocialSecurity: true,
     // O.C.G.A. § 48-7-27.1, for tax years from 2024. The only rule in this
     // package whose sole test is the standard-versus-itemized election.
@@ -304,6 +317,24 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
     exemption: {
       perFiler: perPerson(exemption),
       perDependent: exemption,
+      // Illinois does not count exemptions. It counts FEDERAL ones: 35 ILCS
+      // 5/204(b) allows the basic amount for the taxpayer and "an additional
+      // exemption equal to the basic amount for each exemption in excess of one
+      // allowable to that individual taxpayer for the taxable year under Section
+      // 151 of the Internal Revenue Code". A separate filer whose spouse has no
+      // gross income is allowed two under § 151 — their own under § 151(b)'s
+      // first clause and the spouse's under its second — so Illinois allows two
+      // basic amounts. $2,850 of exemption, $141.08 of tax at 4.95%.
+      separateReturnSpouse: {
+        spouse: 'claimed',
+        cite: '35 ILCS 5/204(b) — the basic amount for each exemption allowable under IRC § 151, which on a separate return includes the spouse under § 151(b)',
+        // 204(c) and (d) write their own $1,000 additions rather than pointing
+        // at § 63(f) the way Virginia does, and nobody has read whose spouse
+        // they reach. Counting nobody is today's answer and costs $49.50.
+        agedAndBlind: 'unresolved',
+        agedAndBlindCite:
+          '35 ILCS 5/204(c) and (d) — the $1,000 additions for a filer aged 65 or over and for a blind filer. Read whether either reaches a spouse claimed under (b) on a separate return; worth $49.50 of Illinois tax each.',
+      },
       // 35 ILCS 5/204(b): a further $1,000 for each filer aged 65 or over and
       // another $1,000 for each who is blind. Unlike the $2,850 it sits beside,
       // this figure is NOT indexed — it has been $1,000 since 2004 and is worth
@@ -379,6 +410,25 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
     exemption: {
       perFiler: perPerson(1000),
       perDependent: 1000,
+      // IC 6-3-1-3.5(a) copies IRC § 151(b)'s sentence into Indiana law almost
+      // word for word: the $1,000 is allowed for "the spouse of the taxpayer if
+      // a separate return is made by the taxpayer and if the spouse, for the
+      // calendar year in which the taxable year of the taxpayer begins, has no
+      // gross income and is not the dependent of another taxpayer". The IT-40
+      // instructions say the same thing mechanically — such a spouse goes on
+      // Schedule 3's dependent lines. $1,000 of exemption, $29.50 of state tax
+      // in 2026 and about $19 more in an average county.
+      separateReturnSpouse: {
+        spouse: 'claimed',
+        cite: 'Ind. Code § 6-3-1-3.5(a) — the $1,000 is allowed for the spouse "if a separate return is made by the taxpayer" and the spouse has no gross income and is not another taxpayer\'s dependent',
+        // The age-65 and blind $1,000s, and the means-tested $500, are their own
+        // subdivisions and none of them has been read on whose spouse it
+        // reaches. Indiana is one of the two states where this is live in the
+        // differential grid.
+        agedAndBlind: 'unresolved',
+        agedAndBlindCite:
+          'Ind. Code § 6-3-1-3.5(a) — the $1,000 additions at 65 and for blindness, and the $500 under $20,000 of federal AGI on a separate return. Read whether each reaches a spouse claimed on a separate return; worth $1,500 of exemption together.',
+      },
       // The four additions Schedule 3 carries under the $1,000 line, none of
       // which this package had until v0.21.0. Together they are the difference
       // between an Indiana family return and an Indiana adult return.
@@ -578,6 +628,15 @@ function michigan(year: number): StateIncomeTaxDefinition | undefined {
     exemption: {
       perFiler: perPerson(exemption),
       perDependent: exemption,
+      // UNREAD. Michigan's exemption was defined by reference to the federal one
+      // until the TCJA zeroed it; PA 38 of 2018 rewrote MCL 206.30(2) to give
+      // Michigan its own count, and nobody here has read whose spouse that count
+      // reaches. $5,800 is the second largest figure in this table.
+      separateReturnSpouse: {
+        spouse: 'unresolved',
+        agedAndBlind: 'unresolved',
+        cite: 'MCL 206.30(2) as rewritten by PA 38 of 2018 — read whether a separate filer may claim the exemption for a spouse with no gross income. Worth $5,800 of exemption, $246.50 of Michigan tax at 4.25%, plus a city exemption where the filer lives in one of the 24.',
+      },
       // MCL 206.30(3)(a) — the 'special exemption', MI-1040 line 9. $3,400 for
       // 2025, indexed, and the largest exemption for blindness in this package
       // by a factor of three: $144.50 of Michigan tax against Illinois's and
@@ -768,6 +827,17 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
     exemption: {
       perFiler: byStatus({ single: 6000, joint: 12000, separate: 6000, headOfHousehold: 8000 }),
       perDependent: 1500,
+      // UNREAD, and Mississippi is the state where the question is least likely
+      // to be § 151(b)-shaped: § 27-7-21(a) writes an amount per filing status
+      // rather than an amount per exemption, and the same subsection lets a
+      // married couple filing separately DIVIDE the $12,000 between them in any
+      // proportion they choose — a mechanism that already answers "what happens
+      // to the other spouse's half" without needing § 151(b) at all.
+      separateReturnSpouse: {
+        spouse: 'unresolved',
+        agedAndBlind: 'unresolved',
+        cite: 'Miss. Code § 27-7-21(a) — read whether the $6,000 separate-return figure is a half the couple may reallocate (the subsection says it is divisible) rather than a per-person exemption a no-income spouse could add to. Worth up to $6,000.',
+      },
       // § 27-7-21(f) and (g). Form 80-105 counts them on the same line as the
       // dependents and multiplies the lot by $1,500 — which is why an engine
       // that reads the dependent figure off a rate table and stops misses both.

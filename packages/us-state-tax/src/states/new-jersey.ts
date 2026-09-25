@@ -184,6 +184,23 @@ export function newJersey(year: number): StateIncomeTaxDefinition | undefined {
     rate: { kind: 'brackets', byStatus: RATES },
     deduction: { kind: 'none' },
     exemption: {
+      // New Jersey is the state that says NO, and it is the useful one, because
+      // it has the § 151(b)-shaped rule and attaches it to somebody else.
+      // N.J.S.A. 54A:3-1(b) gives $1,000 for the taxpayer's spouse or civil
+      // union partner only where they do not file separately — NJ-1040's line 6
+      // oval reads "Spouse/CU Partner (if filing a joint return)" — and the
+      // "only if they do not file a New Jersey return" condition belongs to the
+      // DOMESTIC PARTNER exemption instead. So the shape of the federal rule is
+      // present in New Jersey law and points at a different person, which is
+      // exactly why a state cannot inherit this answer from the Code.
+      //
+      // This package does not model domestic partners, and that gap is the real
+      // New Jersey question here rather than the spouse one.
+      separateReturnSpouse: {
+        spouse: 'notClaimed',
+        agedAndBlind: 'notApplicable',
+        cite: 'N.J.S.A. 54A:3-1(b) — the spouse/CU partner exemption is conditioned on a joint return; NJ-1040 line 6 prints "(if filing a joint return)". The "files no New Jersey return" condition attaches to the domestic partner exemption, which this package does not model.',
+      },
       perFiler: byStatus({
         single: 1_000,
         joint: 2_000,

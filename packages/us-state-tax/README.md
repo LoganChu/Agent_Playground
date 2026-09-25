@@ -212,7 +212,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.27.0/us-state-tax-0.27.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.28.0/us-state-tax-0.28.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1449,6 +1449,76 @@ va.totalTax;       // === va.tax
 The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
 Mississippi standard deduction and exemption, that bracket is **not** doubled for a joint
 return.
+
+## The spouse who is not on the return (v0.28.0)
+
+A separate return is the one filing status whose answer turns on a person it does not
+contain. **IRC § 151(b)** allows the filer an exemption for their spouse "if a separate
+return is made by the taxpayer, and if the spouse, for the calendar year in which the
+taxable year of the taxpayer begins, has no gross income and is not the dependent of another
+taxpayer". It is the one sentence in the Code that gives a separate return something a joint
+one does not, and the reason is mechanical: on a joint return both spouses are already the
+taxpayer, so the clause has nothing to do.
+
+Until v0.28.0 this package had no way to be told the fact, so it counted nobody everywhere.
+
+**Four states reach § 151(b)'s result, by two different routes, and a fifth expressly
+refuses it.**
+
+| state | what the state's own words do | worth |
+| --- | --- | --- |
+| Virginia | § 58.1-322.03(1) — `$930` for each personal exemption **allowable federally** | `$930` + `$800` |
+| Illinois | 35 ILCS 5/204(b) — the basic amount for each exemption allowable under § 151 | `$2,850` |
+| Maryland | Tax-Gen. § 10-211 — § 151(b)'s own sentence, copied | `$3,200`, stepped |
+| Indiana | IC 6-3-1-3.5(a) — § 151(b)'s own sentence, copied | `$1,000` |
+| New Jersey | N.J.S.A. 54A:3-1(b) — spouse exemption **conditioned on a joint return** | nothing |
+
+New Jersey is the useful one: it *has* the § 151(b)-shaped rule and attaches it to somebody
+else — the "files no New Jersey return" condition belongs to its **domestic partner**
+exemption. The shape of the federal rule is present in New Jersey law and points at a
+different person, which is exactly why a state cannot inherit this answer from the Code.
+
+```js
+const separate = {
+  year: 2025, filingStatus: 'marriedFilingSeparately',
+  federal: { adjustedGrossIncome: 55_000, taxableIncome: 38_900,
+             deduction: 16_100, deductionKind: 'standard' },
+  filerAge: 68, spouseAge: 68,
+};
+
+stateIncomeTax({ state: 'VA', ...separate }).exemptions;            // 1730
+stateIncomeTax({ state: 'VA', ...separate,
+  spouseHasNoGrossIncomeAndIsNotADependent: true }).exemptions;     // 3460
+```
+
+### The aged half is a second claim, and three of the four have not been read
+
+A statute that made the spouse an exemption has not thereby made the spouse an **aged**
+exemption. Virginia settles it and settles it by cross-reference — § 58.1-322.03(2)(b) gives
+the additional `$800` to "each blind or aged taxpayer **as defined under § 63(f)** of the
+Internal Revenue Code", and § 63(f)(1)(B) and (f)(2)(B) are precisely the subparagraphs that
+reach this spouse through § 151(b). Maryland's and Indiana's `$1,000` additions and
+Illinois's are their own subdivisions in their own words, nobody has read them, and the
+engine counts nobody there **and says so** to any caller who supplied a `spouseAge` it then
+discarded.
+
+### Eleven states declare an answer, and four of the answers are "nobody read it"
+
+`ExemptionRule.separateReturnSpouse` is **required** of every state with an exemption rule,
+because the alternative is a silent default and a silent default is what kept fourteen
+states counting a dead spouse for twenty-seven days. Four states are `claimed`, one is
+`notClaimed`, two are `noFilerExemption` — Georgia and New York give the filer nothing, so
+there is nothing for a spouse to be added to — and **four are `unresolved`**: Massachusetts,
+Michigan, Mississippi and Ohio. Each carries the provision somebody has to read and what it
+would be worth.
+
+The test file proves rather than trusts. No two `claimed` states may share a citation, and
+the aged claim may never reuse the exemption claim's — that is the rule this repository
+learned on 2026-09-24, when one citation covered four provisions and named two. Every
+`claimed` declaration is proved **reachable** by running the engine and watching the answer
+move; every `noFilerExemption` declaration is proved against the `perFiler` table beside it;
+and the spouse's worth is asserted against each state's own joint column rather than
+restated as a number.
 
 ## A widow is one person, in fourteen more places (v0.27.0)
 

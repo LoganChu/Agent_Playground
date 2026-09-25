@@ -218,6 +218,39 @@ function qualifyingChildCount(rule: ExemptionRule, input: StateIncomeTaxInput): 
   return byAge + Math.min(students, inBand);
 }
 
+/**
+ * The spouse IRC § 151(b) puts on a separate return — 1 or 0.
+ *
+ * Three conditions, and the third is a fact no return carries: the status is a
+ * separate one, the state has said in its own words that it counts the spouse,
+ * and the caller has answered the question. Any state that has not been read
+ * counts nobody, which is both today's behaviour and the answer that does not
+ * flatter the filer.
+ */
+function separateReturnSpouse(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+  if (input.filingStatus !== 'marriedFilingSeparately') return 0;
+  if (def.exemption?.separateReturnSpouse.spouse !== 'claimed') return 0;
+  return input.spouseHasNoGrossIncomeAndIsNotADependent === true ? 1 : 0;
+}
+
+/**
+ * The same spouse, for the state's aged and blind ADDITIONS — a second question.
+ *
+ * Only Virginia has been read on it, and Virginia answers it by cross-reference:
+ * § 58.1-322.03(2)(b) gives the `$800` to "each blind or aged taxpayer as defined
+ * under § 63(f)", and § 63(f)(1)(B) is the subparagraph that reaches this spouse.
+ * Everywhere else this returns 0 even where {@link separateReturnSpouse} returns
+ * 1, because a statute that made the spouse an exemption has not thereby made
+ * them an AGED exemption, and Day 30 is about exactly that inference.
+ */
+function separateReturnSpouseAgedAndBlind(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  if (separateReturnSpouse(def, input) === 0) return 0;
+  return def.exemption?.separateReturnSpouse.agedAndBlind === 'follows' ? 1 : 0;
+}
+
 function stateExemptions(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -229,11 +262,17 @@ function stateExemptions(
   const cliff = rule.cliff?.[input.filingStatus];
   if (cliff !== undefined && input.federal.adjustedGrossIncome > cliff) return 0;
   const dependents = dependentCount(input);
+  const spouse = separateReturnSpouse(def, input);
+  const agedSpouse = separateReturnSpouseAgedAndBlind(def, input);
   // Maryland: every exemption on the return is worth the same stepped amount,
   // and the step is chosen by federal AGI. So the filer's exemption and the
   // dependents' are one figure times a count, not two figures — and the staircase
   // costs a family with six exemptions six times what it costs a single filer.
-  const filers = rule.filersClaimed?.[input.filingStatus] ?? claimedFilerCount(input.filingStatus);
+  //
+  // Plus, in the four states that have said so in their own words, the § 151(b)
+  // spouse: a person the FORM lets this return count who is not on it.
+  const filers =
+    (rule.filersClaimed?.[input.filingStatus] ?? claimedFilerCount(input.filingStatus)) + spouse;
   // Maryland reads the staircase against federal AGI; Ohio against its own
   // modified AGI, which is Ohio AGI with the business income deduction added
   // back. The two are the same figure only for a filer with no business income.
@@ -243,20 +282,31 @@ function stateExemptions(
       : modifiedAgi;
   let total = rule.perExemptionSteps
     ? stepAmount(rule.perExemptionSteps[input.filingStatus], stepIncome) * (filers + dependents)
-    : rule.perFiler[input.filingStatus] + rule.perDependent * dependents;
+    : // The § 151(b) spouse is worth one separate filer's own exemption, which is
+      // what the separate column of `perFiler` holds. `test/separate-return-
+      // spouse.test.js` asserts for every `claimed` state that the JOINT figure
+      // is exactly twice it, so this derivation is checked against the state's
+      // own table rather than assumed from the shape of the word "spouse".
+      rule.perFiler[input.filingStatus] +
+      rule.perFiler.marriedFilingSeparately * spouse +
+      rule.perDependent * dependents;
 
   // New Jersey's per-person additions. Each is claimed by a *filer*, never by a
   // dependent: New Jersey gives nothing extra for a blind or elderly dependent.
   const seniorAge = rule.seniorAge;
   if (rule.perSeniorFiler !== undefined && seniorAge !== undefined) {
-    total += rule.perSeniorFiler * seniorFilers(input, seniorAge);
+    total += rule.perSeniorFiler * seniorFilers(input, seniorAge, agedSpouse);
   }
   if (rule.perBlindOrDisabledFiler !== undefined) {
     const claimed = nonNegative(input.blindOrDisabled, 'blindOrDisabled');
     // Capped by the number of LIVING people, not by the filer count. A
     // qualifying surviving spouse files alone, and a one-person return cannot
-    // have two blind people on it.
-    total += rule.perBlindOrDisabledFiler * Math.min(claimed, livingFilerCount(input.filingStatus));
+    // have two blind people on it — but a separate return in a state whose
+    // aged and blind additions follow § 63(f) can have two, and that is the one
+    // case where the cap is not the count of people the return covers.
+    total +=
+      rule.perBlindOrDisabledFiler *
+      Math.min(claimed, livingFilerCount(input.filingStatus) + agedSpouse);
   }
   if (rule.perCollegeDependent !== undefined) {
     const college = nonNegative(input.dependentsAttendingCollege, 'dependentsAttendingCollege');
@@ -275,7 +325,7 @@ function stateExemptions(
   if (rule.perLowIncomeSeniorFiler !== undefined && seniorAge !== undefined) {
     const limit = rule.lowIncomeSeniorThreshold?.[input.filingStatus];
     if (limit !== undefined && input.federal.adjustedGrossIncome < limit) {
-      total += rule.perLowIncomeSeniorFiler * seniorFilers(input, seniorAge);
+      total += rule.perLowIncomeSeniorFiler * seniorFilers(input, seniorAge, agedSpouse);
     }
   }
   // Maryland's second exemption for a dependent aged 65 or over — the dependent
@@ -465,11 +515,22 @@ function unmarriedChildless(input: StateIncomeTaxInput): boolean {
 }
 
 /** How many of the filer and spouse are at or above an age. */
-function seniorFilers(input: StateIncomeTaxInput, age: number): number {
+function seniorFilers(
+  input: StateIncomeTaxInput,
+  age: number,
+  /**
+   * The § 151(b) spouse, where the caller is an exemption rule whose state has
+   * said its aged addition follows them. Defaults to 0, so every OTHER senior
+   * rule in this package — Maryland's § 10-754 credit, Indiana's unified credit
+   * for the elderly, Ohio's — is untouched by this question and has to be asked
+   * it separately, which is the whole of Day 30's lesson.
+   */
+  separateSpouse = 0,
+): number {
   // `livingFilerCount`, so a `spouseAge` supplied on a surviving spouse's
   // return is ignored rather than counted. The spouse is dead; an age for them
   // is a caller error, and reading it bought a second senior exemption.
-  const filers = livingFilerCount(input.filingStatus);
+  const filers = livingFilerCount(input.filingStatus) + separateSpouse;
   let count = 0;
   if (input.filerAge !== undefined && input.filerAge >= age) count += 1;
   if (filers === 2 && input.spouseAge !== undefined && input.spouseAge >= age) count += 1;
@@ -2719,6 +2780,62 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
   // Notes that depend on what the caller supplied rather than on the state, so a
   // model reading the result learns that a figure it left out was load-bearing.
   const dynamic: string[] = [];
+  // IRC § 151(b)'s spouse, and the two ways a separate return can go wrong about
+  // one. The discipline is the federal package's: **a note is owed when an input
+  // was DISCARDED, or when an unanswerable question was answered by a default —
+  // not merely when a rule exists.** So nothing is said on a joint return, on a
+  // single return, or to a caller in a state where the answer does not turn on
+  // it, and this block is silent on every return but a separate one.
+  if (input.filingStatus === 'marriedFilingSeparately' && def.exemption) {
+    const rule = def.exemption.separateReturnSpouse;
+    const told = input.spouseHasNoGrossIncomeAndIsNotADependent;
+    if (rule.spouse === 'claimed' && told === undefined) {
+      // Priced by running this filer's own return again with the answer, which
+      // is the MOST it could be worth, rather than by quoting a table figure
+      // that Maryland's staircase would make wrong for most filers.
+      const withSpouse = compute(def, {
+        ...input,
+        spouseHasNoGrossIncomeAndIsNotADependent: true,
+      });
+      const worth = roundCents(here.tax - withSpouse.tax);
+      dynamic.push(
+        `${def.name} lets a SEPARATE return claim an exemption for the spouse where the spouse ` +
+          `had no gross income at all and is not another taxpayer's dependent — ${rule.cite}. ` +
+          `Nothing else on a return implies that fact, so it was assumed FALSE here, which is the ` +
+          `answer that does not flatter the filer. Pass ` +
+          `\`spouseHasNoGrossIncomeAndIsNotADependent: true\` if it holds; it is worth ` +
+          `$${worth.toFixed(2)} of ${def.name} tax on this return.`,
+      );
+    }
+    if (rule.spouse !== 'claimed' && told === true) {
+      dynamic.push(
+        rule.spouse === 'noFilerExemption'
+          ? `\`spouseHasNoGrossIncomeAndIsNotADependent\` was ignored: ${def.name} gives no personal ` +
+            `exemption to the filer or the spouse in any status, so there is nothing for IRC ` +
+            `§ 151(b)'s spouse to be added to — ${rule.cite}.`
+          : rule.spouse === 'notClaimed'
+            ? `\`spouseHasNoGrossIncomeAndIsNotADependent\` was ignored: ${def.name} does not allow ` +
+              `it. ${rule.cite}`
+            : `\`spouseHasNoGrossIncomeAndIsNotADependent\` was ignored, and the reason is that ` +
+              `NOBODY HAS READ THE PROVISION, not that ${def.name} says no. This package counts ` +
+              `nobody, which is the answer that does not flatter the filer and may be too much ` +
+              `tax. ${rule.cite}`,
+      );
+    }
+    // The second claim, kept separate from the first on purpose. A state that has
+    // said the spouse is an exemption has not thereby said the spouse is an AGED
+    // exemption, and three of the four have not been read on it.
+    const agedSupplied =
+      input.spouseAge !== undefined || nonNegative(input.blindOrDisabled, 'blindOrDisabled') > 1;
+    if (rule.spouse === 'claimed' && rule.agedAndBlind !== 'follows' && agedSupplied) {
+      dynamic.push(
+        `${def.name} counts the spouse for the base exemption on this return, but whether its ` +
+          `additional exemptions for age and blindness follow that spouse is a SEPARATE question ` +
+          `and it is open: ${rule.agedAndBlindCite ?? rule.cite} So \`spouseAge\` and the second ` +
+          `\`blindOrDisabled\` were not counted here, and this return may be too high.`,
+      );
+    }
+  }
   // A qualifying surviving spouse has no living spouse, so every spouse-shaped
   // field on such a return describes nobody and is dropped. Saying so is the
   // point: v0.27.0 found fourteen places that had been READING these fields,

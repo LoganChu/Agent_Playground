@@ -301,6 +301,29 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       // used: `perExemptionSteps` is what the engine reads.
       perFiler: byStatus({ single: 3_200, joint: 6_400, separate: 3_200, headOfHousehold: 3_200, qualifyingSurvivingSpouse: 3_200 }),
       perDependent: 3_200,
+      // § 10-211 carries IRC § 151(b)'s own two conditions: an exemption for the
+      // spouse of the taxpayer if (i) a joint return is not made by the taxpayer
+      // and the spouse, and (ii) the spouse, for the calendar year in which the
+      // taxable year begins, has no gross income and is not a dependent of
+      // another taxpayer. Form 502 offers such a filer the joint box instead —
+      // status 2 is "married filing joint return OR SPOUSE HAD NO INCOME" — but
+      // an alternative route is not a denial of this one, and a caller who says
+      // the status is separate gets the separate return computed.
+      //
+      // This is the most expensive of the four: the $3,200 is STEPPED by federal
+      // AGI and the step multiplies every exemption on the return, so the spouse
+      // is worth $3,200, $1,600, $800 or nothing depending on a figure that has
+      // nothing to do with them.
+      separateReturnSpouse: {
+        spouse: 'claimed',
+        cite: 'Md. Code, Tax-Gen. § 10-211 — an exemption for the spouse where a joint return is not made and the spouse has no gross income and is not another taxpayer\'s dependent',
+        // The $1,000 additions at 65 and for blindness are their own items in the
+        // same section and nobody has read whether they follow that spouse.
+        // Maryland is one of the two states where this is live in the grid.
+        agedAndBlind: 'unresolved',
+        agedAndBlindCite:
+          'Md. Code, Tax-Gen. § 10-211 — the additional $1,000s at 65 and for blindness, and Form 502\'s exemption box B, which prints a Spouse line. Read whether that line is available to a separate filer claiming the spouse under this section; worth $1,000 each, unstepped.',
+      },
       perExemptionSteps: byStatusOf<readonly CreditStep[]>({
         single: SINGLE_EXEMPTION_STEPS,
         joint: JOINT_EXEMPTION_STEPS,

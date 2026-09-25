@@ -260,6 +260,17 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
       // that generates them; `perExemptionSteps` is what the engine reads.
       perFiler: byStatus({ single: 2_400, joint: 4_800, separate: 2_400, headOfHousehold: 2_400 }),
       perDependent: 2_400,
+      // UNREAD, and Ohio is the one where the answer is most likely to be yes:
+      // R.C. 5747.02(E) writes the exemption as an amount "for the taxpayer, the
+      // taxpayer's spouse, and each dependent", and Ohio's starting point is
+      // federal AGI with a federal-conformity date, which is how these
+      // cross-references usually get in. Nobody has read it, and the IT 1040's
+      // own exemption worksheet is the thing to read.
+      separateReturnSpouse: {
+        spouse: 'unresolved',
+        agedAndBlind: 'notApplicable',
+        cite: 'O.R.C. § 5747.02(E) and the IT 1040 exemption worksheet — read whether a separate filer may count a spouse with no gross income. Worth a stepped $2,400/$2,150/$1,900 of exemption, plus the same figure again in every school district that taxes the Ohio base.',
+      },
       perExemptionSteps: byStatusOf<readonly CreditStep[]>({
         single: steps,
         joint: steps,

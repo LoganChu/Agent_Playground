@@ -61,6 +61,23 @@ const BLIND_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
   }),
 );
 
+/**
+ * The states that count a separate filer's spouse under IRC § 151(b), DERIVED
+ * from the engine's own per-state declaration.
+ *
+ * Never a literal. This module's header says two copies of a fact that must
+ * agree is a bug with a waiting period, and `BLIND_STATES` above is the entry
+ * that proved it — five days between a state gaining a blind exemption and this
+ * server agreeing to be told about it. Four states declare `claimed` today and a
+ * fifth will need no edit here.
+ */
+const SPOUSE_151B_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
+  SUPPORTED_YEARS.some(
+    (year) =>
+      getStateDefinition(code, year)?.exemption?.separateReturnSpouse.spouse === 'claimed',
+  ),
+);
+
 export interface StateField {
   /** The argument name, as `state_income_tax` takes it. */
   readonly name: string;
@@ -383,6 +400,12 @@ export const STATE_FIELDS: readonly StateField[] = [
     schema: integer,
     states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA'],
     doc: 'Spouse age at year end, joint returns. California and Mississippi both claim their age allowance PER PERSON, so the second spouse at 65 is worth another $153 in California and another $60 of Mississippi tax. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
+  },
+  {
+    name: 'spouseHasNoGrossIncomeAndIsNotADependent',
+    schema: boolean,
+    states: SPOUSE_151B_STATES,
+    doc: 'SEPARATE returns only: the spouse had NO gross income at all for the year and is not another taxpayer\'s dependent. IRC § 151(b) then allows an exemption for that spouse on a return the spouse is not on — the one sentence in the Code that gives a separate return something a joint one does not, because on a joint return both spouses are already the taxpayer. Four states reach the same result and they reach it two different ways: VIRGINIA (§ 58.1-322.03(1), $930 for each exemption allowable FEDERALLY) and ILLINOIS (35 ILCS 5/204(b), the basic amount for each exemption allowable under § 151) point at the federal provision; MARYLAND (Tax-Gen. § 10-211) and INDIANA (IC 6-3-1-3.5(a)) copy § 151(b)\'s own sentence into their statutes. NEW JERSEY expressly does not, and attaches the same condition to a DOMESTIC PARTNER instead, so this is not a federal rule a state inherits. Worth $3,200 of Maryland exemption — stepped by federal AGI like every other exemption there, so the same spouse is worth $3,200, $1,600, $800 or nothing at four different incomes — $2,850 in Illinois, $930 in Virginia and $1,000 in Indiana. Defaults to FALSE, because nothing else on a return implies it and one dollar of the spouse\'s gross income fails it outright; a separate return that leaves it out is told what it cost. Virginia also gives that spouse the $800 aged and blind exemptions, under § 58.1-322.03(2)(b)\'s cross-reference to § 63(f); whether Maryland\'s, Indiana\'s and Illinois\'s aged additions follow is OPEN and the result says so.',
   },
   {
     name: 'blindOrDisabled',

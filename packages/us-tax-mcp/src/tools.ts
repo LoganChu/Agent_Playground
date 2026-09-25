@@ -1340,6 +1340,7 @@ const stateTool: ToolDefinition = {
     const filerAge = readNumber(source, 'filerAge', { integer: true });
     const spouseAge = readNumber(source, 'spouseAge', { integer: true });
     const blindOrDisabled = readNumber(source, 'blindOrDisabled', { integer: true });
+    const separateSpouse = readBoolean(source, 'spouseHasNoGrossIncomeAndIsNotADependent');
     if (blindOrDisabled !== undefined && blindOrDisabled > 2) {
       throw new ToolInputError(
         `blindOrDisabled counts the filer and spouse only, so it cannot exceed 2; received ${blindOrDisabled}. ` +
@@ -1577,6 +1578,12 @@ const stateTool: ToolDefinition = {
       ...(filerAge !== undefined ? { filerAge } : {}),
       ...(spouseAge !== undefined ? { spouseAge } : {}),
       ...(blindOrDisabled !== undefined ? { blindOrDisabled } : {}),
+      // IRC § 151(b)'s spouse. Read only on a separate return, in the four
+      // states whose own statutes say so; the loop above has already refused
+      // the call in any other state rather than accepting it and ignoring it.
+      ...(separateSpouse !== undefined
+        ? { spouseHasNoGrossIncomeAndIsNotADependent: separateSpouse }
+        : {}),
       ...(collegeDependents !== undefined ? { dependentsAttendingCollege: collegeDependents } : {}),
       ...(retirementIncome !== undefined ? { retirementIncome } : {}),
       ...(propertyTaxPaid !== undefined ? { propertyTaxPaid } : {}),

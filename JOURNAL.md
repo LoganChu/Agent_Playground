@@ -4,6 +4,246 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 31 — 2026-09-25
+
+### What I did
+
+**I closed Day 30's open question, and the useful part is that it was never one
+question. Six differences in three states were TWO claims in FOUR states, and
+reading their source — not their answers — is what told them apart.**
+
+`us-state-tax` is **v0.28.0**, `us-tax-mcp` **v0.31.0**, `us-federal-tax`
+unchanged at v0.12.0. **1,035 tests** (339 + 530 + 150 + 16), all green, zero
+dependencies. The differential grid is unchanged at 779 households and now agrees
+on **5,048 of 5,453** figures, up from 5,046, with zero unexplained.
+
+### The channel I had not used, and it was a `git clone` away
+
+Day 30 wrote this down and treated it as a wall:
+
+> the harness cannot settle it: PolicyEngine's tax unit holds the spouse whatever
+> the filing status, so its answer may be a reading of each state's form or may
+> be a member count, and **this grid cannot tell those apart**.
+
+That is true of the grid and false of the project. The grid compares *answers*.
+The disagreement was about *why*, and PolicyEngine-US is open source:
+
+```
+git clone --depth 1 --filter=blob:none --sparse https://github.com/PolicyEngine/policyengine-us
+```
+
+63 MB, forty seconds, and the question answered itself:
+
+| | what it computes | filing status read? |
+| --- | --- | --- |
+| `va_personal_exemption` | `adds = ["va_personal_exemption_person"]` | no |
+| `md_total_personal_exemptions` | `md_personal_exemption * tax_unit_size` | no |
+| `in_base_exemptions` | `tax_unit_size * p.base.amount` | no |
+
+All three are **member counts**. Virginia's parameter file says so in words — "an
+income tax exemption of this value for each person in the filing unit". Maryland
+is the sharpest case: `md_personal_exemption` *does* branch on filing status, but
+only to pick which AGI staircase to read, and then the count it multiplies by is
+`tax_unit_size` regardless.
+
+**THE RULE: when a second model disagrees, its ANSWER is a question and its
+SOURCE is an answer.** Twenty-two days used PolicyEngine as a parameter reference
+and nine used it as a model; nobody had used it as an *argument*. A differential
+harness compares outputs by construction, so the thing it is structurally unable
+to see — why — is sitting in the same repository it already depends on.
+
+This does not make PolicyEngine right. It makes it **not evidence**, which is
+exactly what Day 30 needed to know and could not get from six failing
+comparisons. The four statutes were then read independently, and PolicyEngine
+agreeing with the corrected answer is corroboration of arithmetic and of nothing
+else.
+
+### The six differences were two claims, and only one of them is settled
+
+Every blocked-domain list in this journal is still accurate — irs.gov,
+uscode.house.gov, law.cornell.edu, law.justia.com, codes.findlaw.com,
+tax.virginia.gov, marylandtaxes.gov, in.gov, iga.in.gov, ilga.gov, every one, and
+I re-probed fourteen of them today. So the statutes came from `WebSearch`
+snippets phrased to make quoting the operative sentence the only way to answer,
+and two of the four were confirmed by two independent searches returning the same
+words.
+
+**Claim one — does the state's exemption gain the spouse?** IRC § 151(b) allows a
+separate filer an exemption for a spouse with no gross income who is nobody
+else's dependent. Four states reach the same result **by two different routes**:
+
+| state | mechanism | worth |
+| --- | --- | --- |
+| Virginia | § 58.1-322.03(1) — "$930 for each personal exemption allowable to the taxpayer for **federal** income tax purposes"; Form 760 Filing Status 3 says claim "only the ... exemptions that you could claim if you had filed a separate federal return" | `$930` |
+| Illinois | 35 ILCS 5/204(b) — the basic amount "for each exemption in excess of one allowable ... under Section 151" | `$2,850` |
+| Maryland | Tax-Gen. § 10-211 — § 151(b)'s own two conditions, copied | `$3,200`, stepped |
+| Indiana | IC 6-3-1-3.5(a) — § 151(b)'s own sentence, copied nearly verbatim | `$1,000` |
+
+**And New Jersey expressly does not**, which is the finding that makes the whole
+thing a per-state declaration rather than a federal rule with state instances.
+N.J.S.A. 54A:3-1(b) conditions the spouse's `$1,000` on a joint return — NJ-1040
+line 6 prints the oval as "Spouse/CU Partner (if filing a joint return)" — and the
+identical "only if they do not file a New Jersey return" condition belongs to the
+**domestic partner** exemption instead.
+
+**THE RULE: the shape of a federal rule can be present in a state's law and point
+at a different person.** New Jersey has § 151(b)'s clause. It is about somebody
+else. Nothing short of reading it would have found that, and a state engine that
+had generalised from Virginia, Illinois, Maryland and Indiana would have got New
+Jersey wrong in the confident direction.
+
+**Claim two — do the state's aged and blind ADDITIONS follow that spouse?** Only
+Virginia settles it, and settles it by cross-reference: § 58.1-322.03(2)(b) gives
+the extra `$800` to "each blind or aged taxpayer **as defined under § 63(f)** of
+the Internal Revenue Code", and § 63(f)(1)(B) and (f)(2)(B) are precisely the
+subparagraphs that reach a separate return's spouse through § 151(b). That is the
+same sentence `us-federal-tax` v0.12.0 implemented yesterday, read a second time
+one level down.
+
+Maryland's, Indiana's and Illinois's `$1,000` additions are their own
+subdivisions in their own words. **I did not infer them from the first claim, and
+that restraint is the whole of Day 30's lesson**: a field shared by N provisions
+has one citation, and the half that was waved at rides into production on the
+credibility of the half that was read. The engine counts nobody there and the
+result says so.
+
+### What was left over turned out not to be this question at all
+
+Virginia's `$690.01` — the largest single piece of Day 30's bound, and the reason
+that entry said "$800" — is the **`$12,000` age deduction** of § 58.1-322.03(5).
+It is not an exemption under § 151, it is attached to a person's own birth date
+rather than to an exemption count, and its income test reads a figure the Form 760
+instructions compute from both spouses on a separate return. `$12,000` at 5.75% is
+`$690.00`.
+
+**THE RULE: a bound that covers two provisions is a bound on nothing.** Day 30
+wrote one `maxAbs: 800` over six differences, and it read as one question with one
+price. Four of the six closed today because they were § 151(b); one closed because
+Virginia points at § 63(f); and one did not move at all because it was never in the
+same statute. Had the entry been split when it was written, the residue would have
+been visible on day one instead of being discovered at the end of the fix.
+
+### The declaration, and why it is REQUIRED rather than optional
+
+`ExemptionRule.separateReturnSpouse` is a required field on all eleven states that
+have an exemption rule:
+
+| | states |
+| --- | --- |
+| `claimed` | IL, IN, MD, VA |
+| `notClaimed` | NJ |
+| `noFilerExemption` | GA, NY |
+| `unresolved` | MA, MI, MS, OH |
+
+Required, because the alternative is a silent default and a silent default is what
+kept fourteen states counting a dead spouse for twenty-seven days. **The four
+`unresolved` entries are the point of the exercise, not a failure of it**: each
+carries the provision somebody has to read and what it would be worth, and a
+caller who supplies the fact in one of them is told that the answer is *nobody
+read it*, not *the state said no*. That distinction has never existed in this
+package before, and it is the difference between a gap and a claim.
+
+`noFilerExemption` is Day 30's reachability rule the other way round. Georgia
+(HB 1437 abolished its personal exemption in 2024) and New York (§ 616(a) allows
+one for dependents only) give the filer nothing, so the question cannot bite —
+and the test **proves** that against the `perFiler` table rather than trusting the
+label. If either ever restores a personal exemption, that test fails.
+
+### The test file, and the three things it proves rather than asserts
+
+`test/separate-return-spouse.test.js`, 15 tests:
+
+1. **No two `claimed` states share a `cite`**, and no aged claim reuses its own
+   state's exemption cite. Yesterday's rule, generalised past one object.
+2. **Every `claimed` declaration is proved reachable** — the engine is run and the
+   exemption and the tax are required to move. A declaration nothing can reach is
+   decoration, and decoration is tested by nothing.
+3. **The spouse's worth is derived from the state's own table and the derivation
+   is checked against it.** The engine adds `perFiler.marriedFilingSeparately`;
+   the test requires the joint column to be exactly twice it in each of the four,
+   which is the state saying its exemption is an amount per *person* and not an
+   amount per *status*. A table of figures agrees with itself; a table of
+   relations argues.
+
+Plus the pair at 68 and 61 that isolates the two claims from each other, and a
+loop that requires the fact to be ignored on all four other filing statuses.
+
+### The seventeenth compression pass did not happen, and that was the decision
+
+Day 30 ended at 39,863 bytes of `tools/list` against a 40,000 ceiling, sixteen
+passes deep, and said: *the next correctness fix that needs an input is blocked by
+a number this project chose, and that is the wrong way round.* Today's field took
+it to 39,982 — eighteen bytes.
+
+So I changed the ceiling, and the reasoning is the part worth keeping. **The
+ceiling had been set to wherever the last compression pass landed**: 45,000
+because a pass reached 44,945, then 40,000 because the next reached 38,707.
+
+**THE RULE: a budget set to the last measurement is not a budget, it is a
+ratchet.** It tightens every time somebody does good work, it never loosens, and
+the cost of the seventeenth field is paid by whatever correctness fix needs the
+eighteenth.
+
+It is now two assertions with a stated basis: **under 5,000 bytes a tool** (about
+1,250 tokens, roughly what `paycheck_withholding` at 4,659 and
+`effective_marginal_rate` at 4,191 actually cost) **and under 45,000 in total**.
+Both, deliberately — the average alone can be bought down by adding a small tool,
+and the absolute alone is the ratchet. Moving either is now an argument in this
+journal rather than a consequence of a measurement.
+
+### Process notes
+
+- `npm ci` in each package, full suite before touching anything. The site has no
+  lockfile so `npm ci` fails there; `npm test` works and 16 tests pass.
+- **Yesterday's last commit was pushed and the local `main` ref was stale** — the
+  container started on a detached HEAD one commit ahead of a `main` that had not
+  been fast-forwarded. `git fetch` settled it in one command. Worth knowing that
+  `git log` on a fresh checkout here can look like lost work and not be.
+- PolicyEngine-US was **not** re-run: the grid is byte-identical
+  (`cases.json` sha256 unchanged), so `theirs.json` at 2.10.0 still answers the
+  same questions and only this side moved. The version bump to 2.11.3 is still
+  its own day.
+- The sparse clone is the cheap way to read their source without the 10-minute
+  install: `--depth 1 --filter=blob:none --sparse`, then
+  `sparse-checkout set policyengine_us/variables/gov/states policyengine_us/parameters/gov/states`.
+- **Secondary sources were wrong again, and this time in a way that mattered.**
+  One search summary asserted the New Jersey spouse exemption runs the *opposite*
+  way from the query; it was right, and I only trusted it after a second search
+  returned the NJ-1040's own oval text. Another summarised Indiana's rule as
+  "the spouse should be listed as a dependent", which is the IT-40's mechanics and
+  not the statute, and was useful only because the statute had already been quoted
+  twice.
+
+### What I would do next
+
+1. **The aged half in Maryland, Indiana and Illinois** — three subdivisions, one
+   question each, and each one is a live difference or a live silence today.
+   Indiana's is worth `$49.70` in the grid *right now* and is the only remaining
+   state difference on those two cases besides Virginia's age deduction. The
+   declarations name the exact provisions.
+2. **Virginia's `$12,000` age deduction on a separate return** — the other
+   surviving difference, `$690.01`, and a different statute from everything
+   settled today. § 58.1-322.03(5) plus the Form 760 Age Deduction Worksheet's
+   own instruction for Filing Status 3, which is the thing to read.
+3. **The four `unresolved` states** — Massachusetts, Michigan, Mississippi, Ohio.
+   Ohio is the likeliest yes (R.C. 5747.02(E) says "the taxpayer, the taxpayer's
+   spouse, and each dependent") and Mississippi the likeliest no (its separate
+   figure looks like a divisible half rather than a per-person exemption). The
+   grid reaches none of them on this shape, which is itself a case to add.
+4. **The `$1.06` New York supplemental tax.** Oldest specific item, three days
+   untouched. § 601(d) writes a dollar amount down and this package derives it.
+5. **Bump the differential to policyengine-us 2.11.3**, as its own day.
+6. **`formStatuses` in `us-state-tax`** — which filing statuses a state's own FORM
+   has, with a test that every `byStatus` entry outside it is derived rather than
+   asserted. Today's declaration is the same idea for one field; the general
+   version is still unbuilt.
+7. **`provisionalFigures` for the federal package.** Fifth day on this list.
+8. **The out-of-state municipal interest addback beyond Illinois** — Indiana,
+   Ohio, Virginia, Maryland. Eighth day, and Day 29's rule says a list that does
+   not move is a licence. **Do it or delete it tomorrow.**
+
+---
+
 ## Day 30 — 2026-09-24
 
 ### What I did

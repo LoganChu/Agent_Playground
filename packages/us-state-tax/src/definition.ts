@@ -56,10 +56,91 @@ export type DeductionRule =
    */
   | { readonly kind: 'none' };
 
+/**
+ * What a state does with the SPOUSE of a filer who files separately, when that
+ * spouse has no gross income of their own and is nobody else's dependent.
+ *
+ * This is the one question in the Code that a separate return cannot answer from
+ * its own contents, and the one place where a separate return may be worth MORE
+ * than half a joint one. IRC § 151(b) allows the taxpayer an exemption for the
+ * spouse "if a separate return is made by the taxpayer, and if the spouse, for
+ * the calendar year in which the taxable year of the taxpayer begins, has no
+ * gross income and is not the dependent of another taxpayer" — and the clause
+ * has nothing to do on a joint return, because there both spouses are already
+ * the taxpayer. `us-federal-tax` v0.12.0 implemented it for § 63(f)'s aged and
+ * blind amounts on 2026-09-24.
+ *
+ * Every state with a personal exemption of its own faces the same question one
+ * level down, and **the answer is the state's own and runs both ways**: Virginia
+ * and Illinois count the spouse because their exemptions are defined by
+ * reference to § 151 itself; Maryland and Indiana count the spouse because they
+ * copied § 151(b)'s sentence into their own statutes; New Jersey does not,
+ * because N.J.S.A. 54A:3-1(b) conditions the spouse's exemption on a joint
+ * return and attaches the "files no return" condition to a domestic partner
+ * instead.
+ *
+ * **THE RULE, which is Day 30's read one level down: a field shared by N
+ * provisions has one citation, and the citation is checked against the
+ * provisions somebody read.** So this is a per-state declaration with a per-state
+ * cite, it is REQUIRED of every state that has an exemption rule at all, and
+ * {@link ExemptionRule.separateReturnSpouse.agedAndBlind} is a SEPARATE claim
+ * with its own cite, because a statute that says the spouse is an exemption has
+ * not thereby said the spouse is an aged exemption.
+ */
+export interface SeparateReturnSpouseExemption {
+  /**
+   * Whether the state's own filer exemption gains the spouse on a separate
+   * return.
+   *
+   * - `claimed` — it does, under the provision in {@link cite}.
+   * - `notClaimed` — the state's own statute says no, per {@link cite}.
+   * - `noFilerExemption` — the state gives the FILER no exemption at all, so
+   *   there is nothing for a spouse to be added to. Georgia (since 2024) and
+   *   New York. **This is proved rather than asserted**: `test/separate-return-
+   *   spouse.test.js` fails if any status has a non-zero `perFiler`.
+   * - `unresolved` — nobody has read the provision. The engine counts nobody,
+   *   which is today's behaviour and is the answer that does not flatter the
+   *   filer, and a caller who supplies the fact is TOLD it was discarded.
+   */
+  readonly spouse: 'claimed' | 'notClaimed' | 'noFilerExemption' | 'unresolved';
+  /**
+   * Whether the state's aged and blind ADDITIONS follow that spouse — a second
+   * claim, never the same claim.
+   *
+   * Virginia settles it in the state's own words: § 58.1-322.03(2)(b) gives the
+   * additional `$800` to "each blind or aged taxpayer as defined under § 63(f)
+   * of the Internal Revenue Code", and § 63(f)(1)(B) and (f)(2)(B) are exactly
+   * the subparagraphs that reach a separate return's spouse through § 151(b). No
+   * other state here has been read on the point, and `unresolved` says so rather
+   * than inheriting the answer from {@link spouse}.
+   *
+   * `notApplicable` where the state has no aged or blind addition to its
+   * exemption, which is provable from the rule beside it.
+   */
+  readonly agedAndBlind: 'follows' | 'doesNotFollow' | 'notApplicable' | 'unresolved';
+  /**
+   * The provision that settles {@link spouse}, or — where it is `unresolved` —
+   * the provision somebody has to read and what it would be worth.
+   *
+   * No two `claimed` states may share this string. That is the Day 30 rule as a
+   * test: a shared citation launders a claim nobody checked through one somebody
+   * did.
+   */
+  readonly cite: string;
+  /** The provision that settles {@link agedAndBlind}, where one has been read. */
+  readonly agedAndBlindCite?: string;
+}
+
 /** Exemptions subtracted from income, as distinct from exemption *credits*. */
 export interface ExemptionRule {
   /** Amount for the filer(s). Joint returns generally get two. */
   readonly perFiler: ByStatus;
+  /**
+   * What the state does with a separate filer's spouse who has no gross income.
+   * **Required**, because the alternative is a silent default, and a silent
+   * default is what kept fourteen states counting a dead spouse for 27 days.
+   */
+  readonly separateReturnSpouse: SeparateReturnSpouseExemption;
   readonly perDependent: number;
   /**
    * An additional exemption for each filer at or above {@link seniorAge}.

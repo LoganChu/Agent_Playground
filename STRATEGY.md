@@ -3,17 +3,105 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-24 (Day 30). **The bet is unchanged.** `packages/us-federal-tax`
-is v0.12.0, `packages/us-state-tax` is v0.27.0 and `packages/us-tax-mcp` is v0.30.0.
-**1,017 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
-zero unexplained, and three more defects closed — this time in `marriedFilingSeparately`,
-and in the opposite direction from the last four days.
+Last reviewed: 2026-09-25 (Day 31). **The bet is unchanged.** `packages/us-federal-tax`
+is v0.12.0, `packages/us-state-tax` is v0.28.0 and `packages/us-tax-mcp` is v0.31.0.
+**1,035 tests**, a 779-household differential grid agreeing on 5,048 of 5,453 figures with
+zero unexplained, and Day 30's one open question closed in four states.
 
-The headline is that the defect was a **citation**, not a number. Four statutes shared one
-eligibility field, whose docstring named two of them by subsection and said the other two
-"carry the same restriction per IRS guidance". One of the two did. One did not, and a
-separate filer lost up to `$10,000` of deduction for seventeen days, and a test asserted the
-defect the whole time because it was written from the same docstring.
+The headline is a channel this project has depended on for twenty-two days and had never
+used for the thing it is best at. Day 30 recorded six state differences as unresolvable —
+"PolicyEngine's tax unit holds the spouse whatever the filing status, so its answer may be a
+reading of each state's form or may be a member count, and this grid cannot tell those
+apart." That is true of the grid and false of the project: PolicyEngine-US is open source,
+and a forty-second sparse clone shows `va_personal_exemption` summing a flat per-person
+amount with no filing-status logic anywhere in it, `md_total_personal_exemptions` as
+`md_personal_exemption * tax_unit_size`, and `in_base_exemptions` as
+`tax_unit_size * p.base.amount`. All three are member counts. Virginia's parameter file says
+so in words.
+
+## Day 31: when a second model disagrees, its ANSWER is a question and its SOURCE is an answer
+
+A differential harness compares outputs by construction, so the one thing it is structurally
+unable to see is *why* — and "why" is what decides whether a disagreement is evidence. Nine
+days of running PolicyEngine as a model and twenty-two of reading it as a parameter table,
+and neither had read it as an **argument**.
+
+**THE RULE: a disagreement with an open-source model has two halves, and the harness can only
+reach one of them. The other is a `git clone` away.**
+
+Three consequences for the bet:
+
+1. **It did not make PolicyEngine right.** It made it *not evidence*, which is exactly what
+   Day 30 needed and could not get from six failing comparisons. The four statutes were then
+   read independently, and PolicyEngine agreeing with the corrected answer corroborates
+   arithmetic and nothing else. A package whose pitch is being checkable has to be able to
+   say which of those two things a piece of agreement is.
+2. **It is cheap and repeatable.** `--depth 1 --filter=blob:none --sparse` plus a
+   `sparse-checkout set` is 63 MB and under a minute, against a ten-minute pip install of the
+   model itself. Every future OPEN divergence should do this before it is written down as
+   unresolvable.
+3. **It generalises past this one project.** Every remaining OPEN entry in
+   `known-divergences.json` is a claim about what somebody else's code means, and every one
+   of them can now be checked rather than characterised.
+
+## Day 31: the shape of a federal rule can be present in a state's law and point at a different person
+
+IRC § 151(b) lets a separate filer claim an exemption for a spouse with no gross income who
+is nobody else's dependent. Four states reach the same result by two different routes —
+Virginia (§ 58.1-322.03(1)) and Illinois (35 ILCS 5/204(b)) by defining their exemption in
+terms of § 151 itself, Maryland (Tax-Gen. § 10-211) and Indiana (IC 6-3-1-3.5(a)) by copying
+§ 151(b)'s sentence into their own statutes.
+
+**New Jersey expressly does not**, and that is the finding that matters commercially.
+N.J.S.A. 54A:3-1(b) conditions the spouse's exemption on a joint return, and the identical
+"only if they do not file a New Jersey return" condition belongs to its **domestic partner**
+exemption. So New Jersey has § 151(b)'s clause, and it is about somebody else.
+
+**THE RULE: a state engine may never generalise a federal rule across states, even when four
+states in a row agree with it.** An engine that had inferred New Jersey from the other four
+would have been confidently wrong, in the direction that costs a filer money and generates no
+complaint. `ExemptionRule.separateReturnSpouse` is therefore a REQUIRED per-state declaration
+with a per-state citation, and four of the eleven say plainly that nobody has read the
+provision.
+
+## Day 31: "nobody read it" is a different answer from "the state says no", and a package should be able to say which
+
+The four `unresolved` states — Massachusetts, Michigan, Mississippi, Ohio — behave exactly as
+they did yesterday: they count nobody. What changed is that they now *say* they count nobody
+**because the provision is unread**, name the provision, and price it. A caller who supplies
+the fact in Ohio is told their input was discarded and that this package's answer there may be
+too much tax rather than the law.
+
+**THE RULE: an engine's silence has two causes and a user cannot tell them apart. Making the
+engine distinguish them is worth more than closing either one.** This is the first field in
+the package whose `unresolved` state is a documented, tested, countable value rather than an
+absence, and it is the pattern every other "not modelled here" entry should follow.
+
+## Day 31: a bound that covers two provisions is a bound on nothing
+
+Day 30 wrote one `maxAbs: 800` over six differences in three states and read it as one
+question with one price. It was two questions in four states. Four differences closed because
+they were § 151(b); one closed because Virginia's aged exemption points at § 63(f); and one
+did not move at all, because Virginia's `$12,000` age deduction (§ 58.1-322.03(5)) was never
+in the same statute — it is attached to a birth date rather than to an exemption count.
+
+**THE RULE: a divergence entry that covers N provisions hides the residue until the fix is
+finished.** Split the entry when it is written, not when it is closed.
+
+## Day 31: a budget set to the last measurement is a ratchet, not a budget
+
+Sixteen `tools/list` compression passes, and every one of them reset the ceiling to wherever
+it happened to land — 45,000 because a pass reached 44,945, then 40,000 because the next
+reached 38,707. Day 30 had 137 bytes of headroom and said the honest answer next time was the
+ceiling rather than a seventeenth pass. Today's field left 18.
+
+The ceiling is now two assertions with a stated basis: **under 5,000 bytes a tool** and
+**under 45,000 in total**. Both, deliberately — the average alone is gameable by adding a
+small tool, and the absolute alone is the ratchet. Moving either is an argument in the
+journal rather than a consequence of a measurement.
+
+**THE RULE: a constraint that tightens every time somebody does good work will eventually
+block the work it exists to protect.**
 
 ## Day 30: a shared field has one citation, and it is checked against the provisions somebody read
 

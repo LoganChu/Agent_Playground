@@ -302,10 +302,39 @@ test('tools/list stays within a sane context budget', () => {
       annotations: tool.annotations,
     })),
   );
+  // THE CEILING IS NOW A NUMBER WITH A BASIS, AND IT IS NO LONGER A RATCHET.
+  //
+  // For sixteen passes the ceiling has been set to wherever the last compression
+  // happened to land: 45,000 because a pass reached 44,945, then 40,000 because
+  // the next reached 38,707. **A budget set to the last measurement is not a
+  // budget, it is a ratchet** — it tightens every time somebody does good work
+  // and it never loosens, so the cost of the seventeenth field is paid by
+  // whatever correctness fix needs the eighteenth. Day 30 ended at 39,863 with
+  // 137 bytes of headroom and said the honest answer next time was the ceiling.
+  // This is that.
+  //
+  // The basis: **4,000 bytes a tool, which is about 1,000 tokens** — roughly
+  // what a well-documented tool with a dozen arguments costs, and about what
+  // `paycheck_withholding` (4,659) and `effective_marginal_rate` (4,191)
+  // actually cost today. Nine tools, so 36,000... and the two large ones are
+  // large for a reason that is not bloat: `estimate_federal_tax` at 11,551 is
+  // the whole federal return and `state_income_tax` at 9,191 covers 28 states
+  // after its prose was already moved into `describe_state`. So the ceiling is
+  // stated per tool and the total follows from it, rather than the other way
+  // round.
+  const perTool = Math.round(payload.length / TOOLS.length);
   assert.ok(
-    payload.length < 40_000,
+    perTool < 5_000,
+    `tools/list averages ${perTool} bytes a tool across ${TOOLS.length} tools, which is more context than a tool is worth`,
+  );
+  assert.ok(
+    payload.length < 45_000,
     `tools/list is ${payload.length} bytes, which is more context than these ${TOOLS.length} tools are worth`,
   );
+  // Both, and deliberately. The average alone can be bought down by adding a
+  // small tool, which is the one way to game it; the absolute alone is the
+  // ratchet this test just stopped being. Moving either of them is a decision
+  // to be argued in the journal, not a consequence of a measurement.
 
   // THE FOURTEENTH PASS CUT THE CEILING AGAIN — 45,000 to 40,000, at 38,707 —
   // and it did the structural fix Day 18, 19, 20 and 21 all named and all

@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.30.0/us-tax-mcp-0.30.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.31.0/us-tax-mcp-0.31.0.tgz"
       ]
     }
   }
@@ -174,6 +174,27 @@ income credit match is a *floor* — a Colorado 2026 answer from this server is
 the most tax and the least credit Colorado can ask for. Do not tell a user that
 figure is pending a publication; tell them it is pending the year ending.
 `describe_state` carries the per-figure detail.
+
+**New in 0.31.0 — the same sentence, one level down, in four states.**
+`state_income_tax` takes `spouseHasNoGrossIncomeAndIsNotADependent` on a
+**separate** return, and four states count that spouse: Virginia (`$930`, and its
+`$800` aged exemption too), Illinois (`$2,850`), Maryland (`$3,200`, stepped by
+federal AGI like every other Maryland exemption) and Indiana (`$1,000`). Two of
+them get there by defining their exemption in terms of § 151 and two by copying
+§ 151(b)'s own sentence into their statutes. **New Jersey expressly does not** —
+its spouse exemption is conditioned on a joint return, and the identical "files
+no return" condition belongs to its *domestic partner* exemption instead — so a
+state cannot inherit this answer from the Code, and every state with an exemption
+now declares its own with its own citation.
+
+The server **refuses** the field in any other state rather than accepting a figure
+it would silently ignore, and four states — Massachusetts, Michigan, Mississippi
+and Ohio — say plainly that their answer is "nobody has read the provision"
+rather than "the state says no". Whether Maryland's, Indiana's and Illinois's
+`$1,000` additions at 65 follow that spouse is a **separate** question and it is
+open; Virginia's does, because § 58.1-322.03(2)(b) gives its `$800` to "each
+blind or aged taxpayer as defined under § 63(f)". A result that discarded a
+`spouseAge` for that reason says so.
 
 **New in 0.30.0 — the OTHER hard filing status, on the federal side, and the
 defect was a shared citation rather than a wrong number.** A married individual

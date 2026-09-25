@@ -752,8 +752,35 @@ export interface StateIncomeTaxInput {
    * that cannot be computed without it.
    */
   readonly filerAge?: number;
-  /** Age of the spouse at the end of the tax year, on a joint return. */
+  /**
+   * Age of the spouse at the end of the tax year, on a joint return — or on a
+   * SEPARATE return in a state that counts the spouse under
+   * {@link spouseHasNoGrossIncomeAndIsNotADependent}.
+   */
   readonly spouseAge?: number;
+  /**
+   * On a **separate** return only: the spouse had no gross income at all for the
+   * calendar year and is not the dependent of another taxpayer.
+   *
+   * The one question a separate return cannot answer from its own contents,
+   * because the answer lives on a return this one does not contain. IRC § 151(b)
+   * gives the taxpayer an exemption for such a spouse; four states here —
+   * Virginia, Illinois, Maryland and Indiana — reach the same result, two by
+   * defining their exemption in terms of § 151 and two by copying its sentence.
+   * New Jersey expressly does not. The rest have not been read, and a caller who
+   * supplies this fact in one of those states is told it was discarded and what
+   * it would have been worth.
+   *
+   * Defaults to **false**, which is the answer that does not flatter the filer:
+   * nothing else on a return implies it, and a spouse with a single dollar of
+   * gross income fails it outright. Ignored on every other filing status, where
+   * § 151(b) has nothing to do.
+   *
+   * Worth `$3,200` of Maryland exemption, `$2,850` of Illinois, `$930` of
+   * Virginia and `$1,000` of Indiana — and in Maryland the figure is stepped by
+   * federal AGI like every other exemption on the return.
+   */
+  readonly spouseHasNoGrossIncomeAndIsNotADependent?: boolean;
   /**
    * Filer and spouse who are blind or permanently disabled — 0, 1 or 2.
    *

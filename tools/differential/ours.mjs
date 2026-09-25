@@ -92,6 +92,12 @@ function one(c) {
     },
     filerAge: c.primaryAge,
     spouseAge: c.spouseAge ?? undefined,
+    // The same fact the federal side is given above, one level down. The harness
+    // can answer it because it BUILT the household and put every dollar on the
+    // primary; the engine cannot, because a separate return does not say what
+    // the other return holds. Read only on a separate return, where IRC § 151(b)
+    // and the four state statutes that track it have something to do.
+    spouseHasNoGrossIncomeAndIsNotADependent: c.spouseAge !== null,
     blindOrDisabled: c.blind || undefined,
     taxableSocialSecurity: fed.socialSecurity?.taxableBenefits ?? 0,
     taxExemptInterest: c.taxExemptInterest,

@@ -228,7 +228,20 @@ export function newYork(year: number): StateIncomeTaxDefinition | undefined {
     },
     // § 616(a): New York kept a $1,000 dependent exemption when the federal
     // personal exemption went to zero, and gives nothing for the filer or spouse.
-    exemption: { perFiler: uniform(0), perDependent: 1_000 },
+    exemption: {
+      perFiler: uniform(0),
+      perDependent: 1_000,
+      // Nothing to add a spouse to, and New York is the cleanest case of it in
+      // the package: § 616(a) allows the $1,000 "for each individual for whom
+      // the taxpayer is entitled to an exemption as a DEPENDENT" and nothing at
+      // all for the filer or the spouse. IT-201 has no personal exemption line.
+      // Proved, not asserted — the test fails if any status here gains one.
+      separateReturnSpouse: {
+        spouse: 'noFilerExemption',
+        agedAndBlind: 'notApplicable',
+        cite: 'N.Y. Tax Law § 616(a) — the $1,000 exemption is for dependents only; New York allows none for the filer or the spouse in any status',
+      },
+    },
     recapture: {
       name: 'New York supplemental tax (tax table benefit recapture)',
       minAgi: 107_650,

@@ -191,6 +191,17 @@ export function massachusetts(year: number): StateIncomeTaxDefinition | undefine
       cap: byStatus({ single: 4_000, joint: 4_000, separate: 2_000, headOfHousehold: 4_000 }),
     },
     exemption: {
+      // UNREAD. M.G.L. c. 62 § 3(B)(a) is written as an amount PER FILING STATUS
+      // — one figure for a single person or a married person filing separately,
+      // another for a joint return — rather than as an amount per exemption, so
+      // there may be no per-person count for a § 151(b) spouse to join. That is a
+      // reading of the shape of the table above and not of the statute, which is
+      // why this is `unresolved` and not `notClaimed`.
+      separateReturnSpouse: {
+        spouse: 'unresolved',
+        agedAndBlind: 'unresolved',
+        cite: 'M.G.L. c. 62 § 3(B)(a) — read whether the $4,400 is an amount per filing status (in which case the question cannot arise) or an amount per exemption a no-income spouse could add to. Worth $4,400 of exemption, $220 of tax, plus the $700 at 65 and $2,200 for blindness.',
+      },
       perFiler: byStatus({
         single: 4_400,
         joint: 8_800,

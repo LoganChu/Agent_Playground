@@ -227,6 +227,31 @@ export function virginia(year: number): StateIncomeTaxDefinition | undefined {
         qualifyingSurvivingSpouse: 930,
       }),
       perDependent: 930,
+      // Virginia counts nothing itself. § 58.1-322.03(1) gives "$930 for each
+      // personal exemption ALLOWABLE TO THE TAXPAYER FOR FEDERAL INCOME TAX
+      // PURPOSES", and the Form 760 instructions say the same thing from the
+      // other end: a Filing Status 3 filer claims "only the personal and
+      // dependent exemptions that you could claim if you had filed a separate
+      // federal return". On a separate federal return § 151(b) allows the
+      // spouse's — the exemption AMOUNT is zero after the TCJA, but
+      // § 151(d)(5)(B) says the reduction to zero "shall not be taken into
+      // account in determining whether a deduction is allowed or allowable",
+      // which is the savings clause that keeps every state cross-reference like
+      // this one alive. $930 of exemption, $53.48 of Virginia tax.
+      //
+      // And Virginia is the only one of the four that settles the aged and blind
+      // half too, because it settles it BY CROSS-REFERENCE: the $800 goes to
+      // "each blind or aged taxpayer as defined under § 63(f)", and § 63(f)(1)(B)
+      // and (f)(2)(B) are precisely the subparagraphs that reach a separate
+      // return's spouse through § 151(b). The same sentence `us-federal-tax`
+      // v0.12.0 implemented federally, read a second time one level down.
+      separateReturnSpouse: {
+        spouse: 'claimed',
+        cite: 'Va. Code § 58.1-322.03(1) — $930 for each personal exemption allowable federally, which on a separate return includes the spouse under IRC § 151(b); Form 760 Filing Status 3 instructions say the same',
+        agedAndBlind: 'follows',
+        agedAndBlindCite:
+          'Va. Code § 58.1-322.03(2)(b) — the additional $800 for "each blind or aged taxpayer as defined under § 63(f) of the Internal Revenue Code", and § 63(f)(1)(B) and (f)(2)(B) reach this spouse',
+      },
       // § 58.1-322.03(2)(b). Claimed for age AND for blindness, so a blind filer
       // of 65 claims both — which this package's one-per-condition shape cannot
       // express; such a filer is $800 of exemption, $46 of tax, too high.
