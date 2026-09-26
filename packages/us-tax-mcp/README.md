@@ -216,6 +216,20 @@ separate filer a larger deduction than either a single or a joint return.
 `spouseClaimsAgeDeduction` applies the Form 760 worksheet's other rule: where both
 spouses claim, the joint deduction is computed once and halved.
 
+**Also in 0.32.0 — `outOfStateMunicipalInterest` now works in five states, and
+the state list is derived rather than typed.** Indiana, Ohio, Virginia and
+Maryland all legislate the addition Illinois has had since 0.20.0, and all five
+statutes reach something different: Illinois the interest gross, Virginia the
+interest less related expenses, Maryland interest AND DIVIDENDS less related
+expenses, Ohio interest and dividends gross, and Indiana only obligations the
+taxpayer **acquired after 31 December 2011**. So a bond fund's exempt-interest
+dividends belong in this figure in Ohio and Maryland and in neither Virginia nor
+Indiana, and each of the five now says in `notes` what it assumed about the number
+it was given. Call `describe_state` for the per-state sentence. The field's state
+list is computed from the engine's declarations, not written here — the literal
+`['IL']` it replaced is the same shape as the `blindOrDisabled` list that refused
+Maryland a field Maryland's own notes told the caller to pass.
+
 One more thing that fix found, and it is about this server rather than about
 Virginia. `spouseAdjustedFederalAdjustedGrossIncome` was in the field table, so the
 schema advertised it, the validator accepted it for Virginia and refused it

@@ -232,6 +232,14 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
   const steps = exemptionSteps(year);
   return {
     code: 'OH',
+    // R.C. 5747.01(A)(1), Schedule of Adjustments line 1. Interest AND
+    // dividends, like Maryland's, and gross, like Illinois's — the two axes are
+    // independent, which is the whole argument for storing them separately.
+    outOfStateMunicipalInterestAddition: {
+      cite: "O.R.C. § 5747.01(A)(1) — interest or dividends on obligations or securities of any state or of any political subdivision or authority of any state, other than this state and its subdivisions and authorities; Ohio Schedule of Adjustments line 1, 'Non-Ohio state or local government interest and dividends'",
+      measure: 'interestAndDividends',
+      netOfExpenses: false,
+    },
     subtractsTaxableSocialSecurity: true,
     name: 'Ohio',
     year,

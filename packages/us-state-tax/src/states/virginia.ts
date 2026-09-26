@@ -291,6 +291,14 @@ export function virginia(year: number): StateIncomeTaxDefinition | undefined {
           'Form 760 Age Deduction Worksheet — where both spouses claim an income-based age deduction, regardless of filing status, the joint deduction is computed first and half of it is allocated to each spouse. On a joint return the halves sum back to the same figure; on two separate returns each return carries one of them.',
       },
     },
+    // § 58.1-322.01(1). Virginia is one of the two here that adds back the
+    // interest NET of the expenses federal AGI did not deduct, so the figure is
+    // taken as already net: those expenses are on no line this package is given.
+    outOfStateMunicipalInterestAddition: {
+      cite: 'Va. Code § 58.1-322.01(1) — interest on obligations of any state other than Virginia, or of a political subdivision of such other state, unless created by a compact to which Virginia is a party, "reduced by the related expenses not deducted in computing federal adjusted gross income"',
+      measure: 'interest',
+      netOfExpenses: true,
+    },
     subtractsTaxableSocialSecurity: true,
     spouseTaxAdjustment: {
       name: 'Spouse tax adjustment',

@@ -1499,6 +1499,71 @@ export interface PropertyTaxReliefRule {
  * the table will read as the generous half of a rule whose other half is the
  * strict one.**
  */
+/**
+ * A state's addition for interest on **other** states' municipal obligations.
+ *
+ * This is the one addition in the package that makes a federal-AGI base too
+ * **low** rather than too high: the dollars never reached federal AGI at all, so
+ * a state that wants them has to legislate an addition, and an engine that starts
+ * at AGI and stops misses the whole of it. It surfaced on Day 24, when Illinois's
+ * retirement subtraction took a retiree's base to zero and this was the only
+ * thing left that could have moved it.
+ *
+ * **It was a `boolean` on Illinois alone for eight days, and that is why the
+ * other four states waited eight days.** A backlog entry reading "the out-of-state
+ * municipal interest addback beyond Illinois — Indiana, Ohio, Virginia, Maryland"
+ * sat at the bottom of eight consecutive plans and read like data entry: four
+ * booleans, one afternoon. It is not data entry, and the flag is what hid that:
+ *
+ * | state | provision | what it reaches |
+ * | --- | --- | --- |
+ * | Illinois | 35 ILCS 5/203(a)(2)(A) | the interest, gross |
+ * | Virginia | § 58.1-322.01(1) | the interest **less expenses not deducted federally** |
+ * | Maryland | Tax-Gen. § 10-204(b) | interest **and dividends**, less related expenses |
+ * | Ohio | R.C. 5747.01(A)(1) | interest **and dividends** |
+ * | Indiana | IC 6-3-1-3.5(a)(11) | only obligations the taxpayer **acquired after 31 December 2011** |
+ *
+ * **THE RULE: five states doing "the same thing" are five rules, and a flag that
+ * records the thing cannot record the differences.** Each of these changes what a
+ * caller's single number has to contain — Ohio's and Maryland's include a bond
+ * fund's dividends where Virginia's and Indiana's do not, two are net of expenses,
+ * and Indiana's turns on a **trade date** that appears nowhere on any return. A
+ * boolean would have taken all five as "add the figure", which is right in
+ * Illinois and wrong in four states in four different ways.
+ */
+export interface OutOfStateMunicipalInterestRule {
+  /** The provision. No two states may share one. */
+  readonly cite: string;
+  /**
+   * What the figure must contain: the coupon alone, or the coupon plus the
+   * exempt-interest dividends a bond fund pays. Ohio and Maryland say "interest
+   * or dividends"; Illinois, Virginia and Indiana say interest.
+   */
+  readonly measure: 'interest' | 'interestAndDividends';
+  /**
+   * True where the statute adds back the amount **less related expenses** not
+   * deducted in computing federal AGI — Virginia and Maryland. The figure is
+   * then taken as already net, because the expenses are on no line this package
+   * is given.
+   */
+  readonly netOfExpenses: boolean;
+  /**
+   * Where the addition reaches only obligations acquired after a date, the last
+   * year that escapes it. Indiana's is **2011**: IC 6-3-1-3.5(a)(11) adds back
+   * interest on an out-of-state obligation "acquired by the taxpayer after
+   * December 31, 2011", and the Department's bulletin makes acquisition the
+   * **trade date** — so an Indiana resident holding an Illinois bond bought in
+   * 2010 owes Indiana nothing on it, forever, and the same bond bought in 2012
+   * is taxable.
+   *
+   * No return carries a trade date, so a caller's figure cannot be checked
+   * against this and the engine adds back what it is given. That is an
+   * unanswerable question answered by a default, which in this package is the
+   * condition for a NOTE rather than for silence.
+   */
+  readonly acquiredAfterYear?: number;
+}
+
 export interface AgeDeductionSeparateReturnRule {
   /**
    * What the income test reads on a separate return.
@@ -2344,18 +2409,15 @@ export interface StateIncomeTaxDefinition {
    */
   readonly addBacks?: readonly FederalDeductionKey[];
   /**
-   * True where the state adds back interest on **other** states' municipal
-   * obligations while exempting its own, from
-   * {@link StateIncomeTaxInput.outOfStateMunicipalInterest}.
+   * What this state adds back of the interest on **other** states' municipal
+   * obligations, from {@link StateIncomeTaxInput.outOfStateMunicipalInterest}.
    *
-   * The only addition in this package that makes a federal-AGI base too **low**
-   * rather than too high: the dollars never reached federal AGI, so a state that
-   * wants them has to legislate for them, and an engine that starts at AGI and
-   * stops misses the whole of it. It surfaced on Day 24 the moment Illinois's
-   * retirement subtraction took a retiree's base to zero and the addition was
-   * the only thing left that could have moved it.
+   * See {@link OutOfStateMunicipalInterestRule}. It was a `boolean` set on
+   * Illinois alone for eight days, and the boolean is the reason the other four
+   * waited: **a flag can record that a state does this and cannot record that the
+   * five do it differently.**
    */
-  readonly addsOutOfStateMunicipalInterest?: boolean;
+  readonly outOfStateMunicipalInterestAddition?: OutOfStateMunicipalInterestRule;
   /**
    * Every figure in this state-year that is not from a published source for
    * this year, one entry each, with what would settle it.

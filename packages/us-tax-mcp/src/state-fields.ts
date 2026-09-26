@@ -78,6 +78,20 @@ const SPOUSE_151B_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
   ),
 );
 
+/**
+ * The states that add back interest on OTHER states' municipal obligations,
+ * DERIVED from the engine's own per-state declaration.
+ *
+ * It was the literal `['IL']` for eight days, and the hand-written list is the
+ * same bug `BLIND_STATES` proved: on the day four more states were read, this
+ * server would have refused a field their own notes told the caller to pass.
+ */
+const MUNICIPAL_ADDBACK_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
+  SUPPORTED_YEARS.some(
+    (year) => getStateDefinition(code, year)?.outOfStateMunicipalInterestAddition !== undefined,
+  ),
+);
+
 export interface StateField {
   /** The argument name, as `state_income_tax` takes it. */
   readonly name: string;
@@ -274,10 +288,10 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'outOfStateMunicipalInterest',
     schema: number,
-    states: ['IL'],
-    doc: "Interest on the obligations of OTHER states and their municipalities — the part of 1040 line 2a the filer's own state did not issue. Illinois adds it to base income (35 ILCS 5/203(a)(2)(A)) while exempting its own, so an Illinois bondholder owes tax on income the FEDERAL RETURN NEVER SAW, and an engine that starts at federal AGI and stops is too LOW. It is NOT taxExemptInterest, which is the total and would tax an Illinois resident on Illinois bonds: the split exists on no federal form. Omitted, an Illinois return with out-of-state bonds is understated by 4.95% of them. Every other state here that does the same thing takes it through stateAdditions.",
+    states: MUNICIPAL_ADDBACK_STATES,
+    doc: "Interest on the obligations of OTHER states and their municipalities — the part of 1040 line 2a the filer's own state did not issue. These dollars never reached federal AGI, so a state that wants them has to legislate an addition and an engine that starts at federal AGI and stops is too LOW. It is NOT taxExemptInterest, which is the total and would tax an Illinois resident on Illinois bonds: the split exists on no federal form. FIVE STATES READ IT AND EACH ASKS FOR A DIFFERENT NUMBER — Illinois the interest gross (35 ILCS 5/203(a)(2)(A)); VIRGINIA the interest less related expenses not deducted federally (§ 58.1-322.01(1)); MARYLAND interest AND DIVIDENDS less related expenses (Tax-Gen. § 10-204(b), Form 502 line 1b); OHIO interest AND DIVIDENDS, gross (R.C. 5747.01(A)(1), Schedule of Adjustments line 1); INDIANA only obligations the taxpayer ACQUIRED after 31 December 2011 (IC 6-3-1-3.5(a)(11), where Bulletin #19 makes acquisition the trade date). So a bond fund's exempt-interest dividends belong in this figure in Ohio and Maryland and not in Virginia or Indiana, and an Indiana resident holding an out-of-state bond bought in 2010 owes Indiana nothing on it forever. Each of the five says in notes what it assumed about the figure you gave it. Omitted, the return is understated by that state's rate on the coupon — 4.95% in Illinois, 5.75% in Virginia, up to 8.95% in Maryland with the county. PolicyEngine-US models this addition in Illinois ALONE, and models Illinois's as the whole of tax-exempt interest with no in-state carve-out.",
     refusal:
-      'Only Illinois reads it here. Every other state that adds back another state\'s municipal interest — and most of them do — takes it through stateAdditions, because this package will not assert a list of twenty-eight states it has not checked one at a time.',
+      'Five states read it: Illinois, Indiana, Ohio, Virginia and Maryland, each under its own statute. The other twenty-three that do something like it take it through stateAdditions, because this package will not assert a list of twenty-eight states it has not checked one at a time — and this list is derived from the engine, so a state that gains a declaration gains the field here with no edit.',
   },
   {
     name: 'retirement',

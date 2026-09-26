@@ -274,6 +274,15 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
   });
   return {
     code: 'MD',
+    // § 10-204(b). The widest of the five: interest OR DIVIDENDS, so a bond
+    // fund's exempt-interest dividends are inside it where Virginia's and
+    // Indiana's additions reach only the coupon — and net of related expenses,
+    // like Virginia's.
+    outOfStateMunicipalInterestAddition: {
+      cite: 'Md. Code, Tax-Gen. § 10-204(b) — interest or dividends, less related expenses, attributable to an obligation or security of another state or of a political subdivision or authority of another state, to the extent excluded from federal adjusted gross income; Form 502 line 1b',
+      measure: 'interestAndDividends',
+      netOfExpenses: true,
+    },
     name: 'Maryland',
     year,
     // Only the standard deduction is indexed, and only from 2026 — see

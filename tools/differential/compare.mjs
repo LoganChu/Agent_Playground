@@ -184,7 +184,28 @@ export function compare() {
         agreed += 1;
         continue;
       }
-      const rule = known.find((k) => match(k, c, metric, delta));
+      // EVERY match, not the first one. `known.find` is what this was for a
+      // month, and the first entry in file order won silently — so an entry with
+      // no `maxAbs` absorbed every later difference in its state, including the
+      // ones a MORE SPECIFIC entry further down the file was written for.
+      //
+      // It cost two real misstatements. Ohio's `$20`-per-exemption credit entry
+      // was carrying four differences it cannot explain: a $275 municipal-interest
+      // addition, two separate-return spouse differences that the
+      // `separate-with-spouse` entry exists for, and a $316.09 earned income
+      // credit difference belonging to an entry whose reason says "six states
+      // set their earned income credit as a flat percentage of the federal one"
+      // and names six. Ohio is the seventh, at 30%, and the report could not show
+      // it because the Ohio entry matched first.
+      //
+      // THE RULE: a divergence entry with no bound absorbs the next difference in
+      // its state, and the report that says "0 unexplained" is the last place that
+      // will tell you. So a difference that matches TWO entries is now reported as
+      // its own category — not unexplained, because a reason exists, but not
+      // quietly explained either, because two reasons competed and file order
+      // picked one.
+      const matching = known.filter((k) => match(k, c, metric, delta));
+      const rule = matching[0];
       diffs.push({
         id: c.id,
         state: c.state,
@@ -194,8 +215,9 @@ export function compare() {
         theirs: yours,
         delta,
         known: rule ? rule.reason : null,
+        shadowed: matching.length > 1 ? matching.slice(1).map((k) => k.reason) : null,
       });
-      if (rule) used.add(rule);
+      for (const k of matching) used.add(k);
     }
   }
 
@@ -264,6 +286,45 @@ function report(result) {
     out.push(table([...unknown].sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta))));
   }
   out.push('');
+
+  // A difference two entries both claim. Not unexplained — a reason exists — and
+  // not settled either, because file order chose between them and file order is
+  // not an argument. Every one of these is either an entry that needs a bound or
+  // two reasons for one fact.
+  const contested = result.diffs.filter((d) => d.shadowed !== null);
+  if (contested.length > 0) {
+    out.push('## Claimed by more than one reason');
+    out.push('');
+    out.push(
+      'Each of these differences matches two or more entries in ' +
+        '`known-divergences.json`, and the first in file order is the one the ' +
+        'counts below credit. **So those counts are not a partition, and file ' +
+        'order is doing work no reason argues for.**',
+    );
+    out.push('');
+    out.push(
+      'Two different things end up here and they need different fixes. Most are ' +
+        'genuinely multi-causal: one state figure nets several disagreements, so a ' +
+        'separate return in Arizona differs by an Arizona credit **and** by ' +
+        '§ 32(d) at once, and both entries are true of it. The rest are ' +
+        'MIS-CREDITED — an entry with no `maxAbs` absorbs every later difference ' +
+        'in its state, including ones a more specific entry was written for — and ' +
+        'the tell is an entry whose reason names a figure smaller than the ' +
+        'difference it is credited with. Ohio was the specimen: a ' +
+        '`$20`-per-exemption credit entry was carrying a `$275` municipal-interest ' +
+        'addition, two separate-return spouse differences, and a `$316.09` earned ' +
+        'income credit difference whose own entry says "six states" and names six. ' +
+        'Ohio is the seventh.',
+    );
+    out.push('');
+    out.push(table([...contested].sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta))));
+    out.push('');
+    for (const d of contested) {
+      out.push(`- \`${d.id}\` / ${d.metric} — credited to *${d.known.slice(0, 70)}…*`);
+      for (const other of d.shadowed) out.push(`  - also matches *${other.slice(0, 70)}…*`);
+    }
+    out.push('');
+  }
 
   if (result.dead.length > 0) {
     out.push('## Reasons that matched nothing');

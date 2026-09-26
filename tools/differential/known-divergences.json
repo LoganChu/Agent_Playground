@@ -1,6 +1,34 @@
 [
   {
     "metric": "state.tax",
+    "state": "MD",
+    "kind": "muni-retiree",
+    "maxAbs": 895,
+    "reason": "NOT MODELLED THERE. Maryland adds interest OR DIVIDENDS, less related expenses, attributable to an obligation of another state or of a political subdivision of another state - Md. Code, Tax-Gen. s 10-204(b), Form 502 line 1b - and PolicyEngine-US models no such addition for Maryland. Added here in us-state-tax v0.29.0. Maryland's is the widest of the five: a bond fund's exempt-interest dividends are inside it where Virginia's and Indiana's reach only the coupon. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Maryland's is 5.75% of state tax plus 3.20% in the highest county."
+  },
+  {
+    "metric": "state.tax",
+    "state": "VA",
+    "kind": "muni-retiree",
+    "maxAbs": 575,
+    "reason": "NOT MODELLED THERE. Virginia adds interest on obligations of any state other than Virginia, or of a political subdivision of such other state, reduced by the related expenses not deducted in computing federal AGI - Va. Code s 58.1-322.01(1) - and PolicyEngine-US models no such addition for Virginia. Added here in us-state-tax v0.29.0. Virginia's reaches the coupon only, and is net of expenses. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Virginia's top rate is 5.75% and it applies from $17,000 of taxable income in every filing status."
+  },
+  {
+    "metric": "state.tax",
+    "state": "IN",
+    "kind": "muni-retiree",
+    "maxAbs": 595,
+    "reason": "NOT MODELLED THERE. Indiana adds the interest excluded under IRC s 103 on an obligation of a state other than Indiana ACQUIRED BY THE TAXPAYER AFTER 31 DECEMBER 2011 - Ind. Code s 6-3-1-3.5(a)(11), and Income Tax Information Bulletin #19 makes acquisition the trade date - and PolicyEngine-US models no such addition for Indiana. Added here in us-state-tax v0.29.0. Indiana's is the only one of the five that turns on a fact about the HOLDING rather than about the coupon, so an Indiana resident holding an out-of-state bond bought in 2010 owes Indiana nothing on it permanently; no return carries a trade date, so the engine adds back what it is given and the result says so. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Indiana's is 2.95% of state tax plus a county rate that reaches the 3.00% statutory maximum in Randolph County."
+  },
+  {
+    "metric": "state.tax",
+    "state": "OH",
+    "kind": "muni-retiree",
+    "maxAbs": 400,
+    "reason": "NOT MODELLED THERE. Ohio adds interest or dividends on obligations or securities of any state other than Ohio and its subdivisions - O.R.C. s 5747.01(A)(1), Ohio Schedule of Adjustments line 1, 'Non-Ohio state or local government interest and dividends' - and PolicyEngine-US models no such addition for Ohio. Added here in us-state-tax v0.29.0. Ohio's is gross like Illinois's and wide like Maryland's, which is why the two axes are stored separately rather than as one enum of five states. THIS DIFFERENCE WAS INVISIBLE FOR ONE RUN: the unbounded Ohio entry for the $20-per-exemption credit was the first match for it and the report called it explained, which is what bounded that entry and added the shadowing section to compare.mjs. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Ohio's bound is $400 rather than 3.5% of $10,000, because its schedule charges a constant whole on the first dollar of a band and $10,000 of extra base can cross one."
+  },
+  {
+    "metric": "state.tax",
     "state": "IN",
     "idIncludes": "retired-couple-IN-0-0-40000",
     "maxAbs": 110,
@@ -83,7 +111,8 @@
   {
     "metric": "state.tax",
     "state": "OH",
-    "reason": "NOT MODELLED HERE. Ohio's $20-per-exemption credit for a filer with Ohio AGI of $30,000 or less (R.C. 5747.022)."
+    "reason": "NOT MODELLED HERE. Ohio's $20-per-exemption credit for a filer with Ohio AGI of $30,000 or less (R.C. 5747.022). BOUNDED AT $100 ON DAY 32, and the bound is the finding rather than the credit: R.C. 5747.022 is $20 an exemption and the largest household in this grid has four, so nothing this entry explains can exceed $80. Without a bound it was the FIRST match for every Ohio state.tax difference in the file and silently carried four it cannot explain - a $275 addition for other states' municipal interest, two separate-return spouse differences belonging to the `separate-with-spouse` entry, and $316.09 of Ohio earned income credit belonging to the entry that follows the federal s 32(d) disagreement. AN ENTRY WITH NO BOUND ABSORBS THE NEXT DIFFERENCE IN ITS STATE, and a report that says zero unexplained is the last place that will say so.",
+    "maxAbs": 100
   },
   {
     "metric": "state.tax",
@@ -116,7 +145,7 @@
     "metric": "state.tax",
     "kind": "separate-with-child",
     "maxAbs": 950,
-    "reason": "FOLLOWS THE § 32(d) DIFFERENCE ABOVE. Six states in this grid set their earned income credit as a flat percentage of the federal one, so a $1,053.62 disagreement about the federal credit reaches the state return multiplied by that state's match: New Jersey 40% ($421.45), New York 30% ($316.09), Illinois 20% plus its 40%-of-that child credit ($295.01 of it), Virginia 20% ($210.72), Indiana 10% ($105.36), and Maryland most of all, because Maryland matches at 50% AND every Maryland county runs its own earned income credit at ten times the county rate. The bound is $950 for that Maryland case. Not a state disagreement at all: fix the federal reading and all six move together."
+    "reason": "FOLLOWS THE § 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set their earned income credit as a flat percentage of the federal one - it read \"six\" until Day 32, and the seventh was invisible because the unbounded Ohio entry above matched its difference first, so a $1,053.62 disagreement about the federal credit reaches the state return multiplied by that state's match: New Jersey 40% ($421.45), New York 30% ($316.09), Illinois 20% plus its 40%-of-that child credit ($295.01 of it), Virginia 20% ($210.72), Indiana 10% ($105.36), OHIO 30% ($316.09, R.C. 5747.71), and Maryland most of all, because Maryland matches at 50% AND every Maryland county runs its own earned income credit at ten times the county rate. The bound is $950 for that Maryland case. Not a state disagreement at all: fix the federal reading and all six move together."
   },
   {
     "metric": "state.tax",

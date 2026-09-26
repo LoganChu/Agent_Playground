@@ -10302,7 +10302,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2783.2,
+   "tax": 3280.2,
    "credits": [
     {
      "name": "Indiana earned income credit",
@@ -10372,7 +10372,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1719.35,
+   "tax": 2514.35,
    "credits": [
     {
      "name": "Senior tax credit",
@@ -10516,7 +10516,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 897.38,
+   "tax": 1172.38,
    "credits": [
     {
      "name": "Retirement income credit",
@@ -10607,7 +10607,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 622,
+   "tax": 1182.3,
    "credits": [
     {
      "name": "Spouse tax adjustment",

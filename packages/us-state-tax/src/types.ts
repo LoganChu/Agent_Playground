@@ -583,15 +583,37 @@ export interface StateIncomeTaxInput {
    * asked for, and a caller who cannot supply it is better served by an answer
    * that is too low and says so than by one that is too high and does not.
    *
-   * Read by Illinois. Every other state here that does the same thing —
-   * and most of them do — takes it through {@link additions}, and the reason is
-   * today's: this package will not assert a list of twenty-eight states from
-   * memory. See the README.
+   * **Read by five states, and each of them asks for a slightly different
+   * number.** It was Illinois alone for eight days, behind a boolean, and the
+   * boolean is why: a flag can record that a state makes this addition and cannot
+   * record what the addition reaches.
    *
-   * PolicyEngine-US models Illinois's addition as the **whole** of tax-exempt
-   * interest, with no in-state carve-out, so the two engines disagree for an
-   * Illinois resident holding Illinois bonds, and this package is the one that
-   * follows the statute.
+   * | state | provision | what belongs in the figure |
+   * | --- | --- | --- |
+   * | Illinois | 35 ILCS 5/203(a)(2)(A) | the interest, gross |
+   * | Virginia | § 58.1-322.01(1) | the interest, **less related expenses** not deducted federally |
+   * | Maryland | Tax-Gen. § 10-204(b) | interest **and dividends**, less related expenses |
+   * | Ohio | R.C. 5747.01(A)(1) | interest **and dividends** |
+   * | Indiana | IC 6-3-1-3.5(a)(11) | interest on obligations **acquired after 31 December 2011** |
+   *
+   * So a bond fund's exempt-interest dividends belong here in Ohio and Maryland
+   * and not in Virginia or Indiana; two of the five are net of expenses; and
+   * Indiana's turns on a **trade date** that appears on no return, so an Indiana
+   * resident holding an out-of-state bond bought in 2010 owes nothing on it
+   * forever. Every state that reads this field says in the result what it assumed
+   * about the figure you gave it.
+   *
+   * The twenty-three other states here are not a claim either way: most of them
+   * make some version of this addition and none has been read, so they take it
+   * through {@link additions} and the README says so.
+   *
+   * **PolicyEngine-US models this addition in Illinois and in none of the other
+   * four**, and models Illinois's as the **whole** of tax-exempt interest with no
+   * in-state carve-out — its additions list is literally
+   * `[tax_exempt_interest_income, il_schedule_m_additions]`, and the second has no
+   * formula. So the two engines disagree about an Illinois resident holding
+   * Illinois bonds, and about an Indiana, Ohio, Virginia or Maryland resident
+   * holding anybody's, and this package follows the statute in both directions.
    */
   readonly outOfStateMunicipalInterest?: number;
   /**

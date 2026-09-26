@@ -145,6 +145,39 @@ the result says what that cost.
 After both, a 437-household differential against PolicyEngine-US has **zero unexplained
 differences** for the first time.
 
+New in 0.29.0, and it is an eight-day backlog entry that was never the four booleans it
+looked like: **the addition for other states' municipal interest now covers five states, and
+each of them asks for a different number.** Indiana, Ohio, Virginia and Maryland all
+legislate the addition Illinois has had here since 0.20.0, and it sat at the bottom of eight
+consecutive plans reading like data entry — because the field recording it was a `boolean`,
+and a flag can record that a state does this and cannot record what it reaches:
+
+| state | provision | what belongs in the figure |
+| --- | --- | --- |
+| Illinois | 35 ILCS 5/203(a)(2)(A) | the interest, gross |
+| Virginia | § 58.1-322.01(1) | the interest, **less related expenses** not deducted federally |
+| Maryland | Tax-Gen. § 10-204(b), Form 502 line 1b | interest **and dividends**, less related expenses |
+| Ohio | R.C. 5747.01(A)(1), Schedule of Adjustments line 1 | interest **and dividends**, gross |
+| Indiana | IC 6-3-1-3.5(a)(11) | interest on obligations **acquired after 31 December 2011** |
+
+**THE RULE: five states doing "the same thing" are five rules, and a flag that records the
+thing cannot record the differences.** A bond fund's exempt-interest dividends belong in this
+figure in Ohio and Maryland and in neither Virginia nor Indiana. Two of the five are net of
+expenses. And Indiana's turns on a **trade date** — Income Tax Information Bulletin #19 makes
+acquisition the trade date, so an Indiana resident holding an Illinois bond bought in 2010
+owes Indiana nothing on it *permanently*, and the same bond bought in 2012 is taxable. No
+return carries a trade date, so the engine adds back what it is given and **says so**.
+
+The two axes are independent and all four corners are occupied: Ohio is wide and gross,
+Maryland wide and net, Virginia narrow and net, Illinois narrow and gross. That is why they
+are stored as two fields rather than as one list of five state codes.
+
+**PolicyEngine-US models this addition in Illinois and in none of the other four** — its
+Illinois additions list is literally `[tax_exempt_interest_income, il_schedule_m_additions]`,
+and the second has no formula — so the differential grid gained four new divergences the day
+this landed, each with its own bound derived from the state's own top rate. An agreement count
+that falls is not by itself a sign of being less right.
+
 New in 0.20.0: **the one place this package was too LOW.** Illinois adds back interest on
 the obligations of *other* states and their municipalities — 35 ILCS 5/203(a)(2)(A) — while
 exempting its own, so an Illinois bondholder owes tax on income **the federal return never

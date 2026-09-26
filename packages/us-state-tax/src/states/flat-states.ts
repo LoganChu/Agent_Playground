@@ -294,7 +294,11 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
     // Illinois's own are exempt. The only addition in this package that makes a
     // federal-AGI base too LOW, and the only place a comparison against
     // PolicyEngine-US has found this package understating a bill.
-    addsOutOfStateMunicipalInterest: true,
+    outOfStateMunicipalInterestAddition: {
+      cite: '35 ILCS 5/203(a)(2)(A) — an amount equal to all interest excluded from gross income, less the interest on Illinois\'s own obligations, which § 203(a)(2)(N) and (Q) exempt by name',
+      measure: 'interest',
+      netOfExpenses: false,
+    },
     earnedIncomeCredit: {
       name: 'Illinois earned income credit',
       matchRate: 0.2,
@@ -405,6 +409,18 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
   return {
     code: 'IN',
     subtractsTaxableSocialSecurity: true,
+    // The only one of the five whose addition turns on a fact about the HOLDING
+    // rather than about the coupon: an out-of-state obligation the taxpayer
+    // acquired on or before 31 December 2011 is outside Indiana's tax forever,
+    // and the Department's bulletin makes acquisition the TRADE DATE. No return
+    // carries one, so the figure a caller supplies is added back as given and
+    // the result says what was assumed.
+    outOfStateMunicipalInterestAddition: {
+      cite: 'Ind. Code § 6-3-1-3.5(a)(11) — add the interest excluded from federal gross income under IRC § 103 on an obligation of a state other than Indiana, or of a political subdivision of such a state, "acquired by the taxpayer after December 31, 2011"; Income Tax Information Bulletin #19 makes the trade date the acquisition date',
+      measure: 'interest',
+      netOfExpenses: false,
+      acquiredAfterYear: 2011,
+    },
     name: 'Indiana',
     year,
     status: 'published',

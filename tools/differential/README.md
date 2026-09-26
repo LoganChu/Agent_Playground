@@ -197,6 +197,62 @@ Two things worth taking from that, and they point in opposite directions:
 The cheap discipline that makes this checkable at all is `out/theirs.meta.json`,
 which names the version that answered. It now says 2.15.3.
 
+## An entry with no bound absorbs the next difference in its state (Day 32)
+
+`compare.mjs` matched each difference with `known.find(...)` for a month: the
+first entry in file order won, and nothing said a second entry had also matched.
+That is not a bug in the matcher so much as a hole in the accounting, and Ohio is
+the specimen.
+
+The Ohio entry read *"NOT MODELLED HERE. Ohio's `$20`-per-exemption credit for a
+filer with Ohio AGI of `$30,000` or less"* and had **no `maxAbs`**, so it was the
+first match for every Ohio `state.tax` difference in the grid. It was carrying
+four it cannot explain:
+
+| difference | what it actually is |
+| --- | --- |
+| `$20.00` | the `$20`-per-exemption credit — the one the entry is about |
+| `$275.00` | Ohio's addition for other states' municipal interest, added here in v0.29.0 |
+| `$100.08` and `$59.12` | the separate-return spouse question, which has its own entry |
+| `$316.09` | Ohio's earned income credit following the federal § 32(d) disagreement |
+
+The last one is the sharpest, because it made a *written* claim false. The entry
+for the § 32(d) knock-on says "**six** states in this grid set their earned income
+credit as a flat percentage of the federal one" and names six. Ohio is the
+**seventh**, at 30% under R.C. 5747.71, and the report could not show it because
+the Ohio entry matched first. A reason was wrong in a way the harness was
+structurally unable to print.
+
+**THE RULE: a divergence entry with no bound absorbs the next difference in its
+state, and the report that says "0 unexplained" is the last place that will tell
+you.** It is Day 31's *a bound that covers two provisions is a bound on nothing*
+at the other edge: an entry with no bound covers everything.
+
+Two changes, and the second is the one that generalises:
+
+1. The Ohio entry is bounded at `$100` — `$20` an exemption and four exemptions in
+   the largest household here — and the bound is **derived from the rule rather
+   than from the measurement**, per Day 31's ratchet lesson.
+2. `compare.mjs` collects **every** matching entry, not the first, and prints a
+   new section: **Claimed by more than one reason**. Forty-six of 407 differences
+   land in it.
+
+Forty-six is not forty-six bugs, and saying so is the point. Two different things
+land there:
+
+- **Genuinely multi-causal.** One state figure nets several disagreements, so a
+  separate return in Arizona differs by an Arizona credit *and* by § 32(d) at
+  once. Both entries are true of it, and the per-reason counts below the table are
+  therefore **not a partition** — which is now stated in the report instead of
+  being assumed away.
+- **Mis-credited.** An unbounded entry sitting earlier in the file. The tell is an
+  entry whose reason names a figure smaller than the difference it is credited
+  with, which is exactly how Ohio was found.
+
+Bounding the remaining unbounded entries is the obvious next pass and was not done
+today: a bound has to come from the rule, and writing twenty of them from the
+measurements would build twenty ratchets.
+
 ## Running it
 
 ```bash

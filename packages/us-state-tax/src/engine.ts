@@ -1473,7 +1473,7 @@ function municipalInterestAddition(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
 ): { name: string; amount: number }[] {
-  if (!def.addsOutOfStateMunicipalInterest) return [];
+  if (!def.outOfStateMunicipalInterestAddition) return [];
   const amount = nonNegative(
     input.outOfStateMunicipalInterest,
     'outOfStateMunicipalInterest',
@@ -2961,6 +2961,38 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
               ? ', and that is the state\'s answer rather than this package\'s silence.'
               : ', and this return may be too high.'
           }`,
+      );
+    }
+  }
+  // The out-of-state municipal addition, where the caller's one figure cannot
+  // express what the state's own sentence asks for. Five states do "the same
+  // thing" and each asks for something slightly different of the number, so the
+  // note is per state and fires only where something was assumed.
+  if (def.outOfStateMunicipalInterestAddition) {
+    const rule = def.outOfStateMunicipalInterestAddition;
+    const supplied = nonNegative(input.outOfStateMunicipalInterest, 'outOfStateMunicipalInterest');
+    if (supplied > 0 && rule.acquiredAfterYear !== undefined) {
+      dynamic.push(
+        `${def.name} adds back this interest only on obligations the taxpayer ACQUIRED after ` +
+          `31 December ${rule.acquiredAfterYear}, and a trade date is on no line of any return — so the ` +
+          `$${supplied.toLocaleString('en-US')} supplied was added back in full. An obligation held ` +
+          `since before then is outside ${def.name}'s tax permanently, so subtract it from the figure ` +
+          `you pass. ${rule.cite}`,
+      );
+    }
+    if (supplied > 0 && rule.netOfExpenses) {
+      dynamic.push(
+        `${def.name}'s addition is the interest LESS the related expenses that federal adjusted ` +
+          `gross income did not deduct, and those expenses are on no line this package is given — so ` +
+          `the $${supplied.toLocaleString('en-US')} supplied was taken as already net. ${rule.cite}`,
+      );
+    }
+    if (supplied > 0 && rule.measure === 'interestAndDividends') {
+      dynamic.push(
+        `${def.name} reaches interest AND DIVIDENDS on other states' obligations, so a bond fund's ` +
+          `exempt-interest dividends belong in this figure. Two of the five states in this package ` +
+          `that make this addition reach only the coupon, so a figure built for one of those is too ` +
+          `low here. ${rule.cite}`,
       );
     }
   }
