@@ -167,6 +167,36 @@ this repository.** The half that is about the other model is the half nobody re-
 it is the half that decides whether a difference is *theirs* — which is the same as deciding
 not to look.
 
+## The reference side does not move (Day 32)
+
+`out/theirs.json` was answered by **policyengine-us 2.10.0** and had been for six
+days, which is a debt in exactly Day 28's sense: the reason the answers were
+trusted was that nothing had been checked. Day 31 queued the version bump as its
+own day, on the grounds that bumping it and changing this package on the same day
+would leave a report that could not say which side had moved.
+
+So it was run as a **controlled** bump: 2.15.3 against the **unchanged** grid,
+before touching anything here. Five minor versions and about a month of upstream
+development, and the output is **byte-identical** — same SHA-256, all 779
+households, all 5,453 figures.
+
+Two things worth taking from that, and they point in opposite directions:
+
+1. **A divergence that appears tomorrow is this package's news.** The reference
+   side has been stable across five releases on every figure this grid compares,
+   so a count that moves after a change here is about the change here. That is
+   what makes a one-figure improvement readable at all.
+2. **It is also a statement about the GRID, not only about PolicyEngine.**
+   Fourteen releases of a model that covers benefits, state credits, payroll and
+   fifty states cannot really have changed nothing; what is true is that nothing
+   they changed is *visible from these 779 households and five metrics*. Day 27's
+   rule one level up: a differential test is bounded by the vocabulary of its
+   cases, and a stable reference is evidence about the vocabulary as much as about
+   the reference.
+
+The cheap discipline that makes this checkable at all is `out/theirs.meta.json`,
+which names the version that answered. It now says 2.15.3.
+
 ## Running it
 
 ```bash

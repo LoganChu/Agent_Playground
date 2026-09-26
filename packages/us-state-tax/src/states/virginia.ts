@@ -267,14 +267,29 @@ export function virginia(year: number): StateIncomeTaxDefinition | undefined {
       threshold: byStatus({
         single: 50_000,
         joint: 75_000,
-        // § 58.1-322.03(5)(b) gives a separate filer the joint threshold, which
-        // is the opposite of the usual halving and the one place in Virginia
-        // where filing separately is treated more generously than filing single.
+        // § 58.1-322.03(5)(b) gives a separate filer the joint threshold — and
+        // NOT because filing separately is treated generously, which is what a
+        // comment here claimed until v0.29.0. The same sentence measures the
+        // excess on the COMBINED income of both spouses, so the separate filer
+        // gets the joint test whole: the joint figure against the joint income.
+        // See `separateReturn` below; a threshold without its measure is half a
+        // rule, and the half stored here was the generous one.
         separate: 75_000,
         headOfHousehold: 50_000,
         qualifyingSurvivingSpouse: 50_000,
       }),
       reductionRate: 1,
+      separateReturn: {
+        incomeMeasure: 'combinedWithSpouse',
+        incomeMeasureCite:
+          'Va. Code § 58.1-322.03(5)(b) — "For married taxpayers filing separately, the deduction shall be reduced by $1 for every $1 that the total combined adjusted federal adjusted gross income of both spouses exceeds $75,000"; the Form 760 Age Deduction Worksheet says the same in the Department\'s words — all married taxpayers enter the combined figure even when filing separately, which is the one line of that form where a separate return reads the other return\'s income.',
+        spouseAmount: 'ownReturnOnly',
+        spouseAmountCite:
+          'Va. Code § 58.1-322.03(5) allows the deduction to an individual who has attained 65, and the Form 760 worksheet asks each spouse for their own — the Department states that where the Spouse Tax Adjustment is used each spouse must claim his or her own age deduction. It is attached to a birth date and not to an exemption count, so IRC § 151(b) does not reach it and the exemption\'s answer cannot be borrowed for it.',
+        bothClaiming: 'halfOfJointDeduction',
+        bothClaimingCite:
+          'Form 760 Age Deduction Worksheet — where both spouses claim an income-based age deduction, regardless of filing status, the joint deduction is computed first and half of it is allocated to each spouse. On a joint return the halves sum back to the same figure; on two separate returns each return carries one of them.',
+      },
     },
     subtractsTaxableSocialSecurity: true,
     spouseTaxAdjustment: {

@@ -65,6 +65,93 @@ function sampleValue(field) {
   }
 }
 
+
+/**
+ * Households to probe a field against. One is not enough: a field that only
+ * bites on a retiree cannot be shown to be read by a wage earner, and a field
+ * that only bites in a county cannot be shown by a filer without one.
+ */
+function probesFor(state) {
+  const low = {
+    federalAdjustedGrossIncome: 18_000,
+    federalTaxableIncome: 2_250,
+    ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 18_000 } : {}),
+    ...(state === 'NJ' ? { newJerseyGrossIncome: 18_000 } : {}),
+    ...(state === 'MA' ? { massachusettsFivePercentIncome: 18_000 } : {}),
+  };
+  const high = {
+    federalAdjustedGrossIncome: 400_000,
+    federalTaxableIncome: 384_250,
+    ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 400_000 } : {}),
+    ...(state === 'NJ' ? { newJerseyGrossIncome: 400_000 } : {}),
+    ...(state === 'MA' ? { massachusettsFivePercentIncome: 400_000 } : {}),
+  };
+  return [
+    {},
+    { year: 2026, filerAge: 70, spouseAge: 70, retirementIncome: 30_000 },
+    { year: 2026, filingStatus: 'marriedFilingJointly', dependents: 2 },
+    // A two-earner joint return, for the credits that ask whether the second
+    // spouse has income of their own.
+    {
+      year: 2026,
+      filingStatus: 'marriedFilingJointly',
+      bothSpousesHaveQualifyingIncome: true,
+      ...(state === 'OH' || state === 'VA' ? {} : {}),
+    },
+    // A credit that switches OFF as income rises is invisible from above, and a
+    // threshold is invisible from below — Day 29's rule, and a probe set with one
+    // income is a grid with one income.
+    { year: 2026, ...low, earnedIncome: 18_000 },
+    { year: 2026, ...high },
+    // A retiree INSIDE a phase-out band. Utah's `taxExemptInterest` is read only
+    // here: it is added back to a modified AGI that withdraws a retirement
+    // credit, so it is invisible both to a filer with no credit and to one whose
+    // credit is already gone.
+    {
+      year: 2026,
+      filerAge: 70,
+      taxableSocialSecurity: 10_000,
+      federalAdjustedGrossIncome: 40_000,
+      federalTaxableIncome: 24_250,
+      ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 40_000 } : {}),
+      ...(state === 'NJ' ? { newJerseyGrossIncome: 40_000 } : {}),
+      ...(state === 'MA' ? { massachusettsFivePercentIncome: 40_000 } : {}),
+    },
+  ];
+}
+
+/** The tool's own answer, or undefined where this household is not a legal call. */
+function answerOf(args) {
+  try {
+    return stateTool.run(args).structured.state.totalTax;
+  } catch (error) {
+    if (error instanceof ToolInputError) return undefined;
+    throw error;
+  }
+}
+
+/**
+ * A value big enough to MOVE an answer, which `sampleValue`'s `1` deliberately
+ * is not: that helper exists to get past a type check, and a dollar of anything
+ * rounds away in most states.
+ */
+function reachableValues(field) {
+  switch (field.schema.type) {
+    case 'number':
+      return [20_000, 1];
+    case 'integer':
+      return field.name.toLowerCase().includes('age') ? [70, 40] : [2, 1];
+    case 'boolean':
+      return [true];
+    case 'array':
+      return [[10, 10]];
+    case 'object':
+      return [{ filer: { employerPlanPension: 10_000 } }];
+    default:
+      return ['x'];
+  }
+}
+
 test('every per-state field is in the schema, typed, and points at describe_state', () => {
   for (const field of STATE_FIELDS) {
     const property = stateTool.inputSchema.properties[field.name];
@@ -172,6 +259,138 @@ test('a field offered to a state the table includes is accepted', () => {
       );
     }
   }
+});
+
+test('every per-state field is READ, not merely accepted', () => {
+  // The fourth way this split can rot, and the one that went undetected until
+  // Day 32 found it by hand. `spouseAdjustedFederalAdjustedGrossIncome` was in
+  // `STATE_FIELDS`, so the schema advertised it, the validator accepted it for
+  // Virginia and refused it everywhere else, `describe_state` documented what it
+  // was worth — and `state_income_tax` never copied it into the engine input. A
+  // caller who supplied it got the refusal note telling them to supply it.
+  //
+  // THE RULE: ACCEPTING AN INPUT IS NOT READING IT. The three tests above prove
+  // the pointer, the documentation and the validator, and all three can be true
+  // of a field the tool throws away. Only running the tool twice can tell.
+  //
+  // This is Day 31's reachability rule at the server boundary: a declaration no
+  // input can reach is decoration, and a field no output can reach is worse,
+  // because the schema promises it.
+  const unread = [];
+  for (const field of STATE_FIELDS) {
+    // A jurisdiction NAME has to be a real one to reach anything, and all 1,033
+    // of them are exercised in localities.test.js. Probing with a made-up name
+    // tests the registry's error message, which is a different test.
+    if (field.schema.type === 'string') {
+      unread.push(field.name);
+      continue;
+    }
+    // A field has to be reachable in AT LEAST ONE of its states, on at least one
+    // of the probes below. Requiring every state would be requiring the field to
+    // matter to a household this test happens to describe, which is a different
+    // claim and a false one — Maryland's county fields do nothing for a filer
+    // with no county.
+    let moved = false;
+    for (const state of field.states) {
+      for (const probe of probesFor(state)) {
+        const plain = answerOf({ ...baseArgs(state), ...probe, state });
+        if (plain === undefined) continue;
+        // Two values, because ONE value can be the no-change point by accident.
+        // Virginia's spouse tax adjustment pins each half of the return at no
+        // less than the midpoint, so a `lesserSpouseIncome` near the midpoint
+        // gives exactly the even-split answer the field was supposed to replace —
+        // and a probe that tried only that value would have reported the field
+        // unread. A test that concludes "not reachable" from one input has
+        // measured its own input.
+        for (const value of reachableValues(field)) {
+          const supplied = answerOf({
+            ...baseArgs(state),
+            ...probe,
+            state,
+            [field.name]: value,
+            ...(field.name === 'stateItemizedDeductions' ? { federalItemized: true } : {}),
+          });
+          if (supplied !== undefined && supplied !== plain) {
+            moved = true;
+            break;
+          }
+        }
+        if (moved) break;
+      }
+      if (moved) break;
+    }
+    if (!moved) unread.push(field.name);
+  }
+  // Every field this test cannot move is named here WITH ITS REASON, so the list
+  // is a set of claims rather than an allowlist. A field that stops being
+  // unreachable fails this test as loudly as one that starts being.
+  const EXPLAINED = {
+    // Refused without a partner field, which the tool's own suite exercises.
+    workCityEarnings: 'refused without workCity',
+    residentCreditRate: 'refused without a work city',
+    residentCreditLimitRate: 'refused without a work city',
+    // A jurisdiction NAME needs to be a real one, and the names are exercised in
+    // localities.test.js against all 1,033 of them.
+    city: 'a city name is exercised in localities.test.js',
+    workCity: 'a city name is exercised in localities.test.js',
+    schoolDistrict: 'a four-digit district is exercised in localities.test.js',
+    county: 'a county name is exercised in localities.test.js',
+    locality: 'a locality name is exercised in localities.test.js',
+    cityIncome: 'needs a Michigan city, exercised in localities.test.js',
+    qualifyingWages: 'needs an Ohio municipality, exercised in localities.test.js',
+    // Reads a figure only in a household this probe set does not build.
+    pennsylvaniaSpouseEligibilityIncome: 'needs a married claimant inside PA tax forgiveness',
+    separatedFromSpouse: 'needs a separate return with a qualifying child',
+    spouseClaimsAgeDeduction: 'needs a separate return with a spouse of 65 or over',
+    spouseHasNoGrossIncomeAndIsNotADependent: 'needs a separate return',
+    spouseAdjustedFederalAdjustedGrossIncome: 'needs a separate return with a filer of 65 or over',
+  };
+  const surprising = unread.filter((name) => EXPLAINED[name] === undefined);
+  assert.deepEqual(
+    surprising,
+    [],
+    `these fields are accepted and never read: ${surprising.join(', ')}`,
+  );
+  // And the other direction, so the list above cannot become a graveyard: a
+  // field that IS reachable must not be sitting in it.
+  const stale = Object.keys(EXPLAINED).filter((name) => !unread.includes(name));
+  assert.deepEqual(stale, [], `these fields are reachable and still excused: ${stale.join(', ')}`);
+});
+
+test('the separate-return fields ARE read, on the return they are about', () => {
+  // The five fields the test above excuses for needing a separate return, proved
+  // reachable on one. The excuse is about the probe set, not about the field, and
+  // this is what makes that an assertion rather than a hope.
+  const va = (extra) =>
+    stateTool.run({
+      state: 'VA',
+      year: 2026,
+      filingStatus: 'marriedFilingSeparately',
+      federalAdjustedGrossIncome: 55_000,
+      federalTaxableIncome: 38_900,
+      federalDeduction: 16_100,
+      filerAge: 68,
+      spouseAge: 68,
+      ...extra,
+    }).structured.state.totalTax;
+  const refused = va({});
+  const answered = va({ spouseAdjustedFederalAdjustedGrossIncome: 0 });
+  const taperedOut = va({ spouseAdjustedFederalAdjustedGrossIncome: 40_000 });
+  const shared = va({
+    spouseAdjustedFederalAdjustedGrossIncome: 30_000,
+    spouseClaimsAgeDeduction: true,
+  });
+  const alone = va({ spouseAdjustedFederalAdjustedGrossIncome: 30_000 });
+  // $12,000 of age deduction at 5.75% is $690: the whole spread between a
+  // deduction refused for want of the other return's income and one allowed.
+  assert.equal(Number((refused - answered).toFixed(2)), 690);
+  assert.equal(refused, taperedOut); // the spouse's income takes it all back
+  assert.ok(shared < alone); // half of a joint deduction beats a whole tested one
+  assert.equal(
+    va({ spouseHasNoGrossIncomeAndIsNotADependent: true }) < refused,
+    true,
+    'the § 151(b) exemption is not reaching the engine either',
+  );
 });
 
 test('describe_state answers for every supported state', () => {

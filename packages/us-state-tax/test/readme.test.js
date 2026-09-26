@@ -1108,6 +1108,48 @@ test('README: every Virginia figure quoted above', () => {
   money(single.totalTax, single.tax);
 });
 
+test('README: the three separate-return age deduction figures, and the $690', () => {
+  // The section "A threshold is not a test" quotes three levels and one spread,
+  // and a level is the assertion that the difference-based test next door cannot
+  // make. `$690` is $12,000 of age deduction at Virginia's 5.75%.
+  const separate = {
+    state: 'VA',
+    year: 2026,
+    filingStatus: 'marriedFilingSeparately',
+    federal: {
+      adjustedGrossIncome: 55_000,
+      taxableIncome: 38_900,
+      deduction: 16_100,
+      deductionKind: 'standard',
+    },
+    filerAge: 68,
+    spouseAge: 68,
+  };
+  money(stateIncomeTax(separate).tax, 2_302.4);
+  money(stateIncomeTax({ ...separate, spouseAdjustedFederalAdjustedGrossIncome: 0 }).tax, 1_612.4);
+  money(
+    stateIncomeTax({ ...separate, spouseAdjustedFederalAdjustedGrossIncome: 40_000 }).tax,
+    2_302.4,
+  );
+  money(
+    stateIncomeTax(separate).tax -
+      stateIncomeTax({ ...separate, spouseAdjustedFederalAdjustedGrossIncome: 0 }).tax,
+    690,
+  );
+  money(12_000 * 0.0575, 690);
+  // And the four aged-spouse worths quoted in the table above it.
+  // 2025, because Illinois indexes its basic exemption and the README's table
+  // quotes the $2,850 of 2025 beside the unindexed $1,000. In 2026 it is $2,925.
+  const spouse = (state, extra = {}) =>
+    stateIncomeTax({ ...separate, state, year: 2025, ...extra }).exemptions;
+  const worth = (state) =>
+    spouse(state, { spouseHasNoGrossIncomeAndIsNotADependent: true }) - spouse(state);
+  money(worth('VA'), 1_730);
+  money(worth('IN'), 2_000);
+  money(worth('IL'), 3_850);
+  money(worth('MD'), 3_200);
+});
+
 test('README: Georgia against Maryland, and Georgia against a rate table', () => {
   const ga = (agi, opts = {}) =>
     stateIncomeTax({

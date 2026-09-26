@@ -104,12 +104,75 @@ test('the answer today: four states count the spouse, one says no, two have noth
   assert.deepEqual(by('notClaimed'), ['NJ']);
   assert.deepEqual(by('noFilerExemption'), ['GA', 'NY']);
   assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH']);
-  // And the second claim is answered in exactly one of the four, because one
-  // statute pointed at § 63(f) and three wrote their own words.
+  // And the second claim is now answered in all four, by THREE different
+  // mechanisms and in two directions. Written out for the same reason as the
+  // first list: a state moving between them is a diff.
+  const aged = (kind) => WITH_EXEMPTIONS.filter((c) => declarationOf(c).agedAndBlind === kind);
+  assert.deepEqual(aged('follows'), ['IL', 'IN', 'VA']);
+  assert.deepEqual(aged('doesNotFollow'), ['MD']);
+  assert.deepEqual(aged('unresolved'), ['MA', 'MI', 'MS']);
+  assert.deepEqual(aged('notApplicable'), ['GA', 'NJ', 'NY', 'OH']);
+  // No state is `unresolved` on the aged half while being resolved on the first:
+  // the four that are left are the four nobody has read at all. An aged claim
+  // that outlived its exemption claim would be the harder gap to see, because the
+  // exemption's citation would be sitting next to it looking like evidence.
+  for (const code of aged('unresolved')) {
+    assert.equal(declarationOf(code).spouse, 'unresolved', `${code}: half-read`);
+  }
+});
+
+test('the means-tested figure is declared where it exists, and only there', () => {
+  // Day 30's rule at its finest grain. Indiana's $500 shares a subsection, a
+  // dollar sign and an age test with two $1,000s whose answer is settled — and it
+  // references § 63(f)(1) alone, carries its own AGI test, and Indiana's own
+  // bulletin glosses it with "if filing a joint return", which it does not say of
+  // the $1,000s. One field for both would have swept it along.
+  for (const code of WITH_EXEMPTIONS) {
+    const rule = declarationOf(code);
+    const hasFigure = getStateDefinition(code, YEAR).exemption.perLowIncomeSeniorFiler !== undefined;
+    assert.equal(
+      rule.lowIncomeSenior !== undefined,
+      hasFigure,
+      `${code}: a means-tested age figure and its declaration must exist together`,
+    );
+    if (rule.lowIncomeSenior === undefined) continue;
+    assert.ok(rule.lowIncomeSeniorCite.length > 40, `${code}: a label is not a citation`);
+    assert.notEqual(rule.lowIncomeSeniorCite, rule.agedAndBlindCite);
+    assert.notEqual(rule.lowIncomeSeniorCite, rule.cite);
+  }
+  // Indiana is the only state with one, and the two claims disagree — which is
+  // the whole reason the field exists.
   assert.deepEqual(
-    WITH_EXEMPTIONS.filter((c) => declarationOf(c).agedAndBlind === 'follows'),
-    ['VA'],
+    WITH_EXEMPTIONS.filter((c) => declarationOf(c).lowIncomeSenior !== undefined),
+    ['IN'],
   );
+  assert.equal(declarationOf('IN').agedAndBlind, 'follows');
+  assert.equal(declarationOf('IN').lowIncomeSenior, 'unresolved');
+});
+
+test('the means-tested $500 does NOT follow the spouse, and the engine proves it', () => {
+  // Reachability, per rule 2 of this file: a declaration no input can reach is
+  // decoration. Indiana's threshold on a separate return is $20,000 of federal
+  // AGI, so the household this file uses is far above it — a case that could not
+  // tell the two claims apart at all. This one sits below it.
+  const poor = {
+    federal: {
+      adjustedGrossIncome: 19_000,
+      taxableIncome: 2_900,
+      deduction: 16_100,
+      deductionKind: 'standard',
+      earnedIncomeCredit: 0,
+    },
+    earnedIncome: 19_000,
+  };
+  const off = withoutSpouse('IN', poor);
+  const on = withSpouse('IN', poor);
+  // $1,000 of base exemption and $1,000 of age addition follow the spouse; the
+  // $500 does not. $2,000 and not $2,500 is the whole finding.
+  assert.equal(on.exemptions - off.exemptions, 2_000);
+  // And the filer's OWN $500 is in there, so the figure is live rather than
+  // switched off by the income test: $1,000 + $1,000 + $500 for one person.
+  assert.equal(off.exemptions, 2_500);
 });
 
 test('no two states share a citation, and the aged claim is never the exemption claim', () => {
@@ -241,15 +304,24 @@ test('Maryland: the spouse is stepped by federal AGI like every other exemption'
   assert.equal(at(160_000), 0);
 });
 
-test('Indiana and Illinois: the base exemption moves and the age additions do not', () => {
-  // Three of the four wrote their own words for the age and blindness additions
-  // rather than pointing at § 63(f), and nobody has read whose spouse those
-  // words reach. So the engine counts the spouse once and says so, and this test
-  // pins the CURRENT answer rather than a belief about the right one — if
-  // somebody reads Ind. Code § 6-3-1-3.5(a) or 35 ILCS 5/204(c) and finds that
-  // the additions follow, this fails and asks to be updated deliberately.
-  assert.equal(withSpouse('IN').exemptions - withoutSpouse('IN').exemptions, 1_000);
-  assert.equal(withSpouse('IL').exemptions - withoutSpouse('IL').exemptions, 2_850);
+test('Indiana and Illinois: the age addition follows the spouse too, by two different routes', () => {
+  // The successor to a test that asserted the opposite for five days, and the
+  // pair is worth keeping together because the two states get to the same answer
+  // from opposite drafting choices. Indiana points at § 63(f) — "each additional
+  // amount allowable under Section 63(f)" — the way Virginia does. Illinois
+  // writes the spouse's own two $1,000s out in 204(d) with § 151(b)'s conditions
+  // copied onto them. A package that had generalised from either one would have
+  // been right here and wrong in Maryland.
+  assert.equal(withSpouse('IN').exemptions - withoutSpouse('IN').exemptions, 1_000 + 1_000);
+  assert.equal(withSpouse('IL').exemptions - withoutSpouse('IL').exemptions, 2_850 + 1_000);
+  // Maryland is the state that says no, and it says no in the same shape: the
+  // $3,200 follows and the $1,000 does not.
+  assert.equal(withSpouse('MD').exemptions - withoutSpouse('MD').exemptions, 3_200);
+  // And at 61 none of the three gets an age addition for anybody, which is the
+  // pair that isolates the two claims from each other in each state.
+  const young = { filerAge: 61, spouseAge: 61 };
+  assert.equal(withSpouse('IN', young).exemptions - withoutSpouse('IN', young).exemptions, 1_000);
+  assert.equal(withSpouse('IL', young).exemptions - withoutSpouse('IL', young).exemptions, 2_850);
 });
 
 test('the fact is read on a separate return and nowhere else', () => {
@@ -312,21 +384,45 @@ test('an “unresolved” note says nobody read it, not that the state said no',
   assert.match(nothing, /no personal exemption/);
 });
 
-test('the open half of a resolved state is reported too, and only when it is load-bearing', () => {
-  // Maryland, Indiana and Illinois count the spouse and do not know whether
-  // their age and blindness additions follow. A caller who supplied `spouseAge`
-  // has told this package something it then threw away, and that is the
-  // condition for a note.
-  for (const code of ['MD', 'IN', 'IL']) {
-    const note = withSpouse(code).notes.find((n) => n.includes('SEPARATE question'));
-    assert.ok(note, `${code} discarded spouseAge without saying so`);
-    assert.match(note, /open/);
+test('a REFUSED aged half reads differently from an UNREAD one', () => {
+  // The distinction this field exists for, one level down from the exemption's.
+  // Maryland has been read and says no; a caller is entitled to know that the
+  // $1,000 is missing because Maryland wrote "the individual" and not because
+  // nobody looked.
+  const refused = withSpouse('MD').notes.find((n) => n.includes('SEPARATE question'));
+  assert.ok(refused, 'MD discarded spouseAge without saying so');
+  assert.match(refused, /THE STATE HAS BEEN READ AND THE ANSWER IS NO/);
+  assert.match(refused, /10-211\(b\)\(3\)/);
+  assert.doesNotMatch(refused, /may be too high/);
+  // The three states nobody has read say the other thing, and they are the three
+  // that do not count the spouse at all — so the note they carry is the
+  // exemption's, not this one. Proving there is no aged note here is the point:
+  // a state that has not been read on the first question cannot have a
+  // second-question note that looks like progress.
+  for (const code of ['MA', 'MI', 'MS']) {
+    assert.equal(
+      withSpouse(code).notes.filter((n) => n.includes('SEPARATE question')).length,
+      0,
+      `${code} reported a second-question gap while the first is unread`,
+    );
   }
-  // Virginia has read it, so it has nothing to report.
-  assert.equal(
-    withSpouse('VA').notes.filter((n) => n.includes('SEPARATE question')).length,
-    0,
-  );
+  // Virginia, Illinois and Indiana have read it and it follows, so none of them
+  // has anything to report.
+  for (const code of ['VA', 'IL', 'IN']) {
+    assert.equal(
+      withSpouse(code).notes.filter((n) => n.includes('SEPARATE question')).length,
+      0,
+      `${code} reported a question it has answered`,
+    );
+  }
+  // Indiana's THIRD claim is the one it still owes a caller, and only when the
+  // caller supplied a spouse age for it to discard.
+  const hasThird = (r) => r.notes.filter((n) => n.includes('a third claim with its own')).length;
+  const third = withSpouse('IN').notes.find((n) => n.includes('a third claim with its own'));
+  assert.ok(third, 'IN swept its $500 along with its $1,000s');
+  assert.match(third, /means-tested age exemption does NOT/);
+  assert.match(third, /63\(f\)\(1\)/);
+  assert.equal(hasThird(withSpouse('IN', { spouseAge: undefined })), 0);
   // And a caller who supplied no spouse age is told nothing, because nothing of
   // theirs was discarded.
   assert.equal(

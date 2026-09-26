@@ -782,6 +782,47 @@ export interface StateIncomeTaxInput {
    */
   readonly spouseHasNoGrossIncomeAndIsNotADependent?: boolean;
   /**
+   * On a **separate** return only: the spouse's own federal AGI less the Social
+   * Security benefits taxed inside it — Virginia's "adjusted federal adjusted
+   * gross income", measured on the other return.
+   *
+   * A second fact that lives on a return this one does not contain, and a
+   * different one from
+   * {@link spouseHasNoGrossIncomeAndIsNotADependent}: that field asks whether the
+   * spouse had *any* gross income, which is a yes-or-no about an exemption, and
+   * this one asks *how much*, which is an income test on a deduction.
+   *
+   * Va. Code § 58.1-322.03(5)(b) withdraws the `$12,000` age deduction against
+   * "the total combined adjusted federal adjusted gross income of both spouses"
+   * on a separate return, and the Form 760 Age Deduction Worksheet says the same
+   * in the Department's words: all married taxpayers enter the combined figure
+   * *even if filing separately*, which is the one line of that form where a
+   * separate return reads the other return's income.
+   *
+   * **Leave it out on a Virginia separate return and the income-tested deduction
+   * is refused entirely**, because the alternative is to test a joint threshold
+   * against half a household's income — which would give a separate filer a
+   * larger deduction than either a single or a joint one, and is what this
+   * package did until v0.29.0. The result says so, and the pre-1939 untested
+   * amount is unaffected.
+   */
+  readonly spouseAdjustedFederalAdjustedGrossIncome?: number;
+  /**
+   * On a **separate** return only: the spouse claims an income-tested age
+   * deduction on their own return.
+   *
+   * Where both spouses claim one, Virginia's worksheet computes a JOINT age
+   * deduction — both maxima against the one combined income test — and allocates
+   * half to each spouse. That is worth more than the filer's own amount tested
+   * alone, because the single excess is divided in two, so it is claimed only
+   * when this says so. Defaults to false.
+   *
+   * Only consulted where the filer's own amount is income-tested: a filer in
+   * Virginia's pre-1939 cohort takes `$12,000` with no test, and nothing is
+   * shared.
+   */
+  readonly spouseClaimsAgeDeduction?: boolean;
+  /**
    * Filer and spouse who are blind or permanently disabled — 0, 1 or 2.
    *
    * Worth `$1,000` each in New Jersey, N.J.S.A. 54A:3-1(b)(5)-(6). Dependents do

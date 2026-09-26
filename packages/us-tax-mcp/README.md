@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.31.0/us-tax-mcp-0.31.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.32.0/us-tax-mcp-0.32.0.tgz"
       ]
     }
   }
@@ -190,11 +190,40 @@ now declares its own with its own citation.
 The server **refuses** the field in any other state rather than accepting a figure
 it would silently ignore, and four states — Massachusetts, Michigan, Mississippi
 and Ohio — say plainly that their answer is "nobody has read the provision"
-rather than "the state says no". Whether Maryland's, Indiana's and Illinois's
-`$1,000` additions at 65 follow that spouse is a **separate** question and it is
-open; Virginia's does, because § 58.1-322.03(2)(b) gives its `$800` to "each
-blind or aged taxpayer as defined under § 63(f)". A result that discarded a
-`spouseAge` for that reason says so.
+rather than "the state says no".
+
+**New in 0.32.0 — the aged half of that question, answered three ways, and a
+Virginia deduction that was `$690` too generous.** Whether a state's aged and
+blind additions follow the § 151(b) spouse is a *separate* claim from whether its
+exemption does, and all four states are now read: Virginia and Indiana adopt
+§ 63(f) by reference, Illinois writes the spouse's own two `$1,000`s out in 35
+ILCS 5/204(d), and **Maryland says no** — § 10-211(b)(3) and (b)(4) allow `$1,000`
+"if *the individual*" is 65 or blind, where (b)(1) counts "each exemption that the
+individual may deduct under subsection (a)". So the same spouse is worth `$1,730`
+in Virginia, `$2,000` in Indiana, `$3,925` in Illinois and `$3,200` in Maryland on
+one 2026 return, and a caller whose `spouseAge` Maryland discards is told the state
+was READ rather than that nobody looked. Indiana's means-tested `$500` is a third
+claim and stays open: it references § 63(f)(1) alone and Indiana's own bulletin
+glosses it as joint-only.
+
+And two new fields, because **a threshold is not a test**: Va. Code
+§ 58.1-322.03(5)(b) gives a separate filer the joint `$75,000` and measures the
+withdrawal on "the total combined adjusted federal adjusted gross income of *both
+spouses*". This server now takes `spouseAdjustedFederalAdjustedGrossIncome`, and
+**without it the income-tested `$12,000` age deduction is refused rather than
+guessed** — testing the joint threshold against one spouse's income would give a
+separate filer a larger deduction than either a single or a joint return.
+`spouseClaimsAgeDeduction` applies the Form 760 worksheet's other rule: where both
+spouses claim, the joint deduction is computed once and halved.
+
+One more thing that fix found, and it is about this server rather than about
+Virginia. `spouseAdjustedFederalAdjustedGrossIncome` was in the field table, so the
+schema advertised it, the validator accepted it for Virginia and refused it
+everywhere else, `describe_state` documented what it was worth — and
+`state_income_tax` never copied it into the engine input. **Accepting an input is
+not reading it**, and no test said so. `test/state-fields.test.js` now runs the
+tool twice for every per-state field and requires the answer to MOVE, with a named
+reason for each field it cannot reach and a failure if a reason goes stale.
 
 **New in 0.30.0 — the OTHER hard filing status, on the federal side, and the
 defect was a shared citation rather than a wrong number.** A married individual

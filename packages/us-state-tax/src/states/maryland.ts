@@ -317,12 +317,16 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       separateReturnSpouse: {
         spouse: 'claimed',
         cite: 'Md. Code, Tax-Gen. § 10-211 — an exemption for the spouse where a joint return is not made and the spouse has no gross income and is not another taxpayer\'s dependent',
-        // The $1,000 additions at 65 and for blindness are their own items in the
-        // same section and nobody has read whether they follow that spouse.
-        // Maryland is one of the two states where this is live in the grid.
-        agedAndBlind: 'unresolved',
+        // Read, and the answer is NO — the only `doesNotFollow` in this package,
+        // and the argument is a contrast inside one subsection rather than a
+        // sentence about spouses. (b)(1) is an amount for "each exemption that
+        // the individual may deduct under subsection (a)", and (a) is where the
+        // § 151(b) spouse is; (b)(3) and (b)(4) are amounts "if THE INDIVIDUAL"
+        // is 65 or blind. A joint Maryland return has two individuals, which is
+        // why Form 502's box B prints two columns; a separate return has one.
+        agedAndBlind: 'doesNotFollow',
         agedAndBlindCite:
-          'Md. Code, Tax-Gen. § 10-211 — the additional $1,000s at 65 and for blindness, and Form 502\'s exemption box B, which prints a Spouse line. Read whether that line is available to a separate filer claiming the spouse under this section; worth $1,000 each, unstepped.',
+          'Md. Code, Tax-Gen. § 10-211(b)(3) and (b)(4) — an additional $1,000 "if the individual, on the last day of the taxable year, is at least 65 years old" and another "if the individual ... is a blind individual", where (b)(1) instead counts "each exemption that the individual may deduct under subsection (a)" and (a) is what reaches the spouse',
       },
       perExemptionSteps: byStatusOf<readonly CreditStep[]>({
         single: SINGLE_EXEMPTION_STEPS,

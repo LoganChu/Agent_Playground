@@ -107,17 +107,47 @@ export interface SeparateReturnSpouseExemption {
    * Whether the state's aged and blind ADDITIONS follow that spouse — a second
    * claim, never the same claim.
    *
-   * Virginia settles it in the state's own words: § 58.1-322.03(2)(b) gives the
-   * additional `$800` to "each blind or aged taxpayer as defined under § 63(f)
-   * of the Internal Revenue Code", and § 63(f)(1)(B) and (f)(2)(B) are exactly
-   * the subparagraphs that reach a separate return's spouse through § 151(b). No
-   * other state here has been read on the point, and `unresolved` says so rather
-   * than inheriting the answer from {@link spouse}.
+   * Four states have now been read on it and they answer it in **three different
+   * ways**, which is the reason this is a per-state field rather than an
+   * inference from {@link spouse}:
+   *
+   * | | mechanism | answer |
+   * | --- | --- | --- |
+   * | Virginia | § 58.1-322.03(2)(b) gives the `$800` to "each blind or aged taxpayer **as defined under § 63(f)**" | `follows` |
+   * | Indiana | IC 6-3-1-3.5(a) subtracts `$1,000` for "each **additional amount allowable under Section 63(f)**" | `follows` |
+   * | Illinois | 35 ILCS 5/204(d) writes the spouse's own two `$1,000`s out, with § 151(b)'s conditions copied | `follows` |
+   * | Maryland | Tax-Gen. § 10-211(b)(3) and (b)(4) allow `$1,000` "if **the individual**" is 65 or blind | `doesNotFollow` |
+   *
+   * Maryland is the one worth understanding, because the argument is a contrast
+   * **inside one subsection**: (b)(1) is "$3,200 for each exemption that the
+   * individual may deduct under subsection (a)" — a count that includes the
+   * § 151(b) spouse, which is why {@link spouse} is `claimed` — while (b)(3) and
+   * (b)(4) name *the individual* and nobody else. A drafter who meant the spouse
+   * in (3) had (1)'s phrase two lines above.
    *
    * `notApplicable` where the state has no aged or blind addition to its
-   * exemption, which is provable from the rule beside it.
+   * exemption, which is provable from the rule beside it. `unresolved` where
+   * nobody has read the provision — which is a different answer from
+   * `doesNotFollow` and the engine's notes say which.
    */
   readonly agedAndBlind: 'follows' | 'doesNotFollow' | 'notApplicable' | 'unresolved';
+  /**
+   * Whether the state's **means-tested** age addition follows that spouse — a
+   * THIRD claim, and Indiana's alone.
+   *
+   * Required exactly where {@link ExemptionRule.perLowIncomeSeniorFiler} is set,
+   * because Indiana's `$500` is not in the sentence its two `$1,000`s are in: it
+   * references **§ 63(f)(1)** only (age, never blindness), it carries its own AGI
+   * test, and Indiana's own Income Tax Information Bulletin glosses it as "the
+   * taxpayer **or the taxpayer's spouse if filing a joint return**" — a phrase
+   * that appears nowhere in the bulletin's account of the `$1,000`s.
+   *
+   * So the figure that shares a subsection, a dollar sign and an age test with a
+   * settled claim is the figure whose answer points the other way, and an
+   * `agedAndBlind: 'follows'` that swept it along would be Day 30's defect again.
+   * This package counts nobody for it and says so.
+   */
+  readonly lowIncomeSenior?: 'follows' | 'doesNotFollow' | 'unresolved';
   /**
    * The provision that settles {@link spouse}, or — where it is `unresolved` —
    * the provision somebody has to read and what it would be worth.
@@ -129,6 +159,8 @@ export interface SeparateReturnSpouseExemption {
   readonly cite: string;
   /** The provision that settles {@link agedAndBlind}, where one has been read. */
   readonly agedAndBlindCite?: string;
+  /** The provision that settles {@link lowIncomeSenior}. Required with it. */
+  readonly lowIncomeSeniorCite?: string;
 }
 
 /** Exemptions subtracted from income, as distinct from exemption *credits*. */
@@ -1447,6 +1479,72 @@ export interface PropertyTaxReliefRule {
  *    moved that date, so the untested group is closed and shrinking by mortality
  *    — a tax provision that sunsets by attrition rather than by a date.
  */
+/**
+ * What a state's age deduction does on a SEPARATE return — three claims, three
+ * provisions, and the reason they are three fields rather than one.
+ *
+ * Virginia's age deduction looked settled for a month. It is a per-person
+ * `$12,000` withdrawn against "adjusted federal adjusted gross income" above a
+ * threshold, and the threshold table gave a separate return `$75,000` — the
+ * joint figure — with a comment in `virginia.ts` calling that "the one place in
+ * Virginia where filing separately is treated more generously than filing
+ * single". **The comment was wrong, and it was wrong because a threshold is half
+ * of a test.** § 58.1-322.03(5)(b): "For married taxpayers filing separately,
+ * the deduction shall be reduced by $1 for every $1 that the **total combined**
+ * adjusted federal adjusted gross income **of both spouses** exceeds $75,000."
+ * The separate filer is not given a generous threshold; they are given the joint
+ * test, and a threshold recorded without its measure said the opposite.
+ *
+ * **THE RULE: a threshold is not a test. Store what the excess is measured on, or
+ * the table will read as the generous half of a rule whose other half is the
+ * strict one.**
+ */
+export interface AgeDeductionSeparateReturnRule {
+  /**
+   * What the income test reads on a separate return.
+   *
+   * `combinedWithSpouse` requires
+   * {@link StateIncomeTaxInput.spouseAdjustedFederalAdjustedGrossIncome}. Without
+   * it the income-tested amount is **not allowed at all** — not computed on the
+   * filer's own income, which is the answer that flatters the filer by up to the
+   * whole deduction. The untested amount (Virginia's pre-1939 cohort) has no
+   * income test to fail and is unaffected.
+   */
+  readonly incomeMeasure: 'combinedWithSpouse' | 'filerOnly';
+  /** The provision that settles {@link incomeMeasure}. */
+  readonly incomeMeasureCite: string;
+  /**
+   * Whether the filer may claim the SPOUSE's amount on their own separate
+   * return.
+   *
+   * `ownReturnOnly` in Virginia: the deduction attaches to a person's own birth
+   * date rather than to an exemption count, so it is not IRC § 151(b)'s question
+   * and cannot borrow § 151(b)'s answer. This is the field PolicyEngine-US has
+   * no equivalent of — `va_age_deduction` counts head and spouse with no
+   * filing-status test at all, and its tax unit holds the spouse whatever the
+   * status, so a separate return there deducts `$24,000` where one return may
+   * hold `$12,000`.
+   */
+  readonly spouseAmount: 'ownReturnOnly' | 'claimedByFiler';
+  /** The provision that settles {@link spouseAmount}. */
+  readonly spouseAmountCite: string;
+  /**
+   * How the deduction is divided when BOTH spouses claim an income-tested
+   * amount.
+   *
+   * `halfOfJointDeduction`: compute the deduction as though the return were
+   * joint — both maxima, one combined income test — and give this return half.
+   * It is worth more to the filer than their own amount tested alone, because
+   * the single excess is shared: `(2a − e) / 2 = a − e / 2`. So it is claimed
+   * only when the caller says the spouse claims one too
+   * ({@link StateIncomeTaxInput.spouseClaimsAgeDeduction}), and the default is
+   * the answer that does not flatter.
+   */
+  readonly bothClaiming: 'halfOfJointDeduction' | 'independent';
+  /** The provision that settles {@link bothClaiming}. */
+  readonly bothClaimingCite: string;
+}
+
 export interface AgeDeductionRule {
   readonly name: string;
   /** The most one eligible filer may deduct. */
@@ -1464,6 +1562,12 @@ export interface AgeDeductionRule {
   readonly threshold: ByStatus;
   /** Dollars of deduction lost per dollar of income over the threshold. */
   readonly reductionRate: number;
+  /**
+   * What the rule does on a separate return. **Required**, because
+   * {@link threshold} carries a `separate` figure and a figure without its
+   * measure is not a test — see {@link AgeDeductionSeparateReturnRule}.
+   */
+  readonly separateReturn: AgeDeductionSeparateReturnRule;
 }
 
 /**

@@ -212,7 +212,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.28.0/us-state-tax-0.28.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.29.0/us-state-tax-0.29.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1450,7 +1450,7 @@ The first `$10,000` of Mississippi taxable income is taxed at 0%, and unlike the
 Mississippi standard deduction and exemption, that bracket is **not** doubled for a joint
 return.
 
-## The spouse who is not on the return (v0.28.0)
+## The spouse who is not on the return (v0.28.0, extended in v0.29.0)
 
 A separate return is the one filing status whose answer turns on a person it does not
 contain. **IRC § 151(b)** allows the filer an exemption for their spouse "if a separate
@@ -1468,9 +1468,9 @@ refuses it.**
 | state | what the state's own words do | worth |
 | --- | --- | --- |
 | Virginia | § 58.1-322.03(1) — `$930` for each personal exemption **allowable federally** | `$930` + `$800` |
-| Illinois | 35 ILCS 5/204(b) — the basic amount for each exemption allowable under § 151 | `$2,850` |
-| Maryland | Tax-Gen. § 10-211 — § 151(b)'s own sentence, copied | `$3,200`, stepped |
-| Indiana | IC 6-3-1-3.5(a) — § 151(b)'s own sentence, copied | `$1,000` |
+| Illinois | 35 ILCS 5/204(b) — the basic amount for each exemption allowable under § 151 | `$2,850` + `$1,000` |
+| Maryland | Tax-Gen. § 10-211(a) — § 151(b)'s own sentence, copied | `$3,200`, stepped |
+| Indiana | IC 6-3-1-3.5(a) — § 151(b)'s own sentence, copied | `$1,000` + `$1,000` |
 | New Jersey | N.J.S.A. 54A:3-1(b) — spouse exemption **conditioned on a joint return** | nothing |
 
 New Jersey is the useful one: it *has* the § 151(b)-shaped rule and attaches it to somebody
@@ -1491,16 +1491,48 @@ stateIncomeTax({ state: 'VA', ...separate,
   spouseHasNoGrossIncomeAndIsNotADependent: true }).exemptions;     // 3460
 ```
 
-### The aged half is a second claim, and three of the four have not been read
+### The aged half is a second claim, and it is answered three different ways (v0.29.0)
 
 A statute that made the spouse an exemption has not thereby made the spouse an **aged**
-exemption. Virginia settles it and settles it by cross-reference — § 58.1-322.03(2)(b) gives
-the additional `$800` to "each blind or aged taxpayer **as defined under § 63(f)** of the
-Internal Revenue Code", and § 63(f)(1)(B) and (f)(2)(B) are precisely the subparagraphs that
-reach this spouse through § 151(b). Maryland's and Indiana's `$1,000` additions and
-Illinois's are their own subdivisions in their own words, nobody has read them, and the
-engine counts nobody there **and says so** to any caller who supplied a `spouseAge` it then
-discarded.
+exemption. All four states have now been read on it, and **they answer by three different
+mechanisms and in two directions**:
+
+| state | how its aged addition is written | the spouse |
+| --- | --- | --- |
+| Virginia | `$800` to "each blind or aged taxpayer **as defined under § 63(f)**" — § 58.1-322.03(2)(b) | **follows** |
+| Indiana | `$1,000` for "each **additional amount allowable under Section 63(f)**" — IC 6-3-1-3.5(a) | **follows** |
+| Illinois | `$1,000` for the spouse at 65 and `$1,000` if blind, with § 151(b)'s own two conditions attached — 35 ILCS 5/204(d) | **follows** |
+| Maryland | `$1,000` "if **the individual**" is 65, and again if blind — Tax-Gen. § 10-211(b)(3), (b)(4) | **does not** |
+
+Virginia and Indiana adopt § 63(f) by reference, and § 63(f)(1)(B) and (f)(2)(B) are exactly
+the subparagraphs that reach this spouse through § 151(b). Illinois never mentions § 63(f)
+and writes the spouse's two amounts out itself. **Maryland is the one worth reading twice,
+because the argument is a contrast inside a single subsection**: (b)(1) is `$3,200` for "each
+exemption that the individual may deduct under subsection (a)" — a count that includes this
+spouse, which is why the base exemption follows — while (b)(3) and (b)(4) name *the
+individual* and nobody else. A drafter who meant the spouse in (3) had (1)'s phrase two lines
+above. So the same spouse is worth `$1,730` in Virginia, `$2,000` in Indiana, `$3,850` in
+Illinois and `$3,200` in Maryland on otherwise identical 2025 returns — `$3,925` in Illinois
+for 2026, because Illinois indexes the `$2,850` and has never indexed the `$1,000` beside it.
+
+A caller who supplies a `spouseAge` Maryland then discards is told that **the state has been
+read and the answer is no** — which is a different sentence from "nobody read it", and the
+engine does not use the same one for both.
+
+### And Indiana's means-tested `$500` is a THIRD claim, pointing the other way
+
+Indiana's exemption subsection carries a further `$500` for a filer at 65 whose federal AGI
+is under `$40,000` (`$20,000` on a separate return). It shares a subsection, a dollar sign
+and an age test with the two `$1,000`s that do follow the spouse — and it is **not in their
+sentence**. It references **§ 63(f)(1)** alone, so blindness never reaches it, and Indiana's
+own Income Tax Information Bulletin describes this one as available to "the taxpayer **or the
+taxpayer's spouse if filing a joint return**", a phrase it does not use of the `$1,000`s.
+
+So `separateReturnSpouse.lowIncomeSenior` is its own field with its own citation, it is
+`unresolved`, and the engine counts nobody for it. A single field covering "the aged
+additions" would have swept the `$500` along on the credibility of the two figures somebody
+actually read, which is the defect this repository learned on 2026-09-24 and keeps finding at
+finer grain.
 
 ### Eleven states declare an answer, and four of the answers are "nobody read it"
 
@@ -1512,6 +1544,11 @@ there is nothing for a spouse to be added to — and **four are `unresolved`**: 
 Michigan, Mississippi and Ohio. Each carries the provision somebody has to read and what it
 would be worth.
 
+The aged half is declared the same way and is now read wherever the first half is: no state
+is `unresolved` about an aged spouse while being resolved about the spouse, and a test
+asserts that pairing. An aged claim that outlived its exemption claim would be the harder gap
+to see, because the exemption's citation would be sitting beside it looking like evidence.
+
 The test file proves rather than trusts. No two `claimed` states may share a citation, and
 the aged claim may never reuse the exemption claim's — that is the rule this repository
 learned on 2026-09-24, when one citation covered four provisions and named two. Every
@@ -1519,6 +1556,82 @@ learned on 2026-09-24, when one citation covered four provisions and named two. 
 move; every `noFilerExemption` declaration is proved against the `perFiler` table beside it;
 and the spouse's worth is asserted against each state's own joint column rather than
 restated as a number.
+
+## A threshold is not a test: Virginia's age deduction on a separate return (v0.29.0)
+
+Virginia gives a filer of 65 a **`$12,000` age deduction**, withdrawn a dollar a dollar above
+`$50,000` of "adjusted federal adjusted gross income" — federal AGI less the Social Security
+taxed inside it. The threshold is `$75,000` on a joint return, and the table in this package
+has carried `$75,000` for a **separate** return since the day it was written, with a comment
+calling that the one place Virginia treats filing separately more generously than filing
+single.
+
+**The comment was wrong, and it was wrong in a way a table of figures cannot express.** The
+same sentence that hands a separate filer the joint threshold says what the excess is measured
+on:
+
+> For married taxpayers filing separately, the deduction shall be reduced by \$1 for every
+> \$1 that the **total combined** adjusted federal adjusted gross income **of both spouses**
+> exceeds \$75,000.
+>
+> — Va. Code § 58.1-322.03(5)(b)
+
+The Form 760 Age Deduction Worksheet says the same in the Department's words: all married
+taxpayers enter the **combined** figure, even when filing separately. It is the one line of
+that form where a separate return reads the other return's income.
+
+So a separate filer is not treated generously. They are given the **joint test whole** — the
+joint figure against the joint income — and a package that reads the joint threshold against
+one spouse's income gives them a larger deduction than either a single or a joint return would
+allow. That is what this package did until v0.29.0: **`$690` of Virginia tax, in the filer's
+favour, on a fact that is on no line of their return.**
+
+### What changed
+
+`ageDeduction.separateReturn` is a **required** declaration with one citation per claim, and
+the income-tested deduction is **refused** rather than guessed when the figure is missing:
+
+```js
+const separate = {
+  state: 'VA', year: 2026, filingStatus: 'marriedFilingSeparately',
+  federal: { adjustedGrossIncome: 55_000, taxableIncome: 38_900,
+             deduction: 16_100, deductionKind: 'standard' },
+  filerAge: 68, spouseAge: 68,
+};
+
+stateIncomeTax(separate).tax;                                          // 2302.40 — and a note
+stateIncomeTax({ ...separate,
+  spouseAdjustedFederalAdjustedGrossIncome: 0 }).tax;                  // 1612.40
+stateIncomeTax({ ...separate,
+  spouseAdjustedFederalAdjustedGrossIncome: 40_000 }).tax;             // 2302.40 — withdrawn
+```
+
+The refusal is scoped to exactly the half that needs the number: subdivision (a)'s untested
+`$12,000`, for a filer born before 1 January 1939, has no income test to fail and is
+unaffected. Refusing the tested half and keeping the untested one is the difference between a
+gap and a guess.
+
+### And a third claim: both spouses claiming share one excess
+
+Where **both** spouses claim an income-tested deduction, the worksheet computes a *joint*
+deduction — two `$12,000`s against the one combined income test — and allocates half to each
+spouse. On a joint return the halves sum back to the same figure. On two separate returns each
+return carries one of them, and the shared excess costs this filer half of what their own
+amount tested alone would: `(2a − e) / 2 = a − e / 2`. It is worth **more** to the filer than
+their own tested amount, so it takes an explicit `spouseClaimsAgeDeduction: true` and defaults
+to the answer that does not flatter.
+
+### The case was already in the test suite
+
+This is the part worth keeping. `test/separate-return-spouse.test.js` has run a Virginia
+separate filer of 68 with `$55,000` since the day it was written — straight through the defect
+— and asserts that claiming the § 151(b) spouse is worth `$99.47`. **It is `$99.47` with the
+age deduction at `$12,000` and `$99.47` with it at `$0`**, because the deduction is a term on
+both sides of the subtraction.
+
+**THE RULE: an assertion on a DIFFERENCE is blind to every term the difference cancels.** The
+missing case was not a household; it was a *level*. `test/virginia-age-deduction.test.js` pins
+both, on the same household, and the pair is checked against each other.
 
 ## A widow is one person, in fourteen more places (v0.27.0)
 

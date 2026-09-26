@@ -98,6 +98,14 @@ function one(c) {
     // the other return holds. Read only on a separate return, where IRC § 151(b)
     // and the four state statutes that track it have something to do.
     spouseHasNoGrossIncomeAndIsNotADependent: c.spouseAge !== null,
+    // And the AMOUNT, which is a different fact from the yes-or-no above: Va.
+    // Code § 58.1-322.03(5)(b) withdraws the age deduction against the COMBINED
+    // adjusted federal AGI of both spouses on a separate return. Zero for the
+    // same reason — every dollar in this grid is on the primary — and supplying
+    // it is what makes the two sides answer the same question again. Without it
+    // this package refuses the income-tested deduction outright, which would be
+    // a divergence about the harness rather than about Virginia.
+    spouseAdjustedFederalAdjustedGrossIncome: c.spouseAge !== null ? 0 : undefined,
     blindOrDisabled: c.blind || undefined,
     taxableSocialSecurity: fed.socialSecurity?.taxableBenefits ?? 0,
     taxExemptInterest: c.taxExemptInterest,

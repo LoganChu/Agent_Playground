@@ -331,9 +331,13 @@ function illinois(year: number): StateIncomeTaxDefinition | undefined {
         // 204(c) and (d) write their own $1,000 additions rather than pointing
         // at § 63(f) the way Virginia does, and nobody has read whose spouse
         // they reach. Counting nobody is today's answer and costs $49.50.
-        agedAndBlind: 'unresolved',
+        // 204(d) does not point at § 63(f) the way Virginia and Indiana do. It
+        // writes the spouse's two $1,000s out in its own words, with § 151(b)'s
+        // own two conditions attached to them rather than inherited from (b) —
+        // which is the third mechanism this package has found for one question.
+        agedAndBlind: 'follows',
         agedAndBlindCite:
-          '35 ILCS 5/204(c) and (d) — the $1,000 additions for a filer aged 65 or over and for a blind filer. Read whether either reaches a spouse claimed under (b) on a separate return; worth $49.50 of Illinois tax each.',
+          "35 ILCS 5/204(d) — an additional $1,000 for the spouse of the taxpayer if the spouse has attained 65, plus another if the spouse is blind, and in either case (i) a joint return is not made and (ii) the spouse has no gross income and is not the dependent of another taxpayer",
       },
       // 35 ILCS 5/204(b): a further $1,000 for each filer aged 65 or over and
       // another $1,000 for each who is blind. Unlike the $2,850 it sits beside,
@@ -425,9 +429,22 @@ function indiana(year: number): StateIncomeTaxDefinition | undefined {
         // subdivisions and none of them has been read on whose spouse it
         // reaches. Indiana is one of the two states where this is live in the
         // differential grid.
-        agedAndBlind: 'unresolved',
+        // Indiana adopts § 63(f) by reference, exactly as Virginia does, and the
+        // word that decides it is "each": the additions are counted, not granted
+        // to a named person, and § 63(f)(1)(B) and (f)(2)(B) are amounts
+        // allowable for this spouse. Indiana's own Income Tax Information
+        // Bulletin reads it the same way — "an additional $1,000 exemption for
+        // each additional federal exemption allowable" — and adds that a person
+        // who is both 65 and blind claims both.
+        agedAndBlind: 'follows',
         agedAndBlindCite:
-          'Ind. Code § 6-3-1-3.5(a) — the $1,000 additions at 65 and for blindness, and the $500 under $20,000 of federal AGI on a separate return. Read whether each reaches a spouse claimed on a separate return; worth $1,500 of exemption together.',
+          'Ind. Code § 6-3-1-3.5(a) — subtract $1,000 for "each additional amount allowable under Section 63(f) of the Internal Revenue Code", which on a separate return reaches this spouse through § 63(f)(1)(B) and (f)(2)(B); Income Tax Information Bulletin #26 reads it as one $1,000 per additional federal exemption allowable',
+        // The $500 is NOT in that sentence. Its own clause references
+        // § 63(f)(1) alone — age, never blindness — and the bulletin glosses it
+        // with a condition the $1,000s do not carry.
+        lowIncomeSenior: 'unresolved',
+        lowIncomeSeniorCite:
+          'Ind. Code § 6-3-1-3.5(a) — the further $500 for "each additional amount allowable under Section 63(f)(1)" where federal AGI is under $20,000 on a separate return. Indiana\'s Income Tax Information Bulletin describes this one as available to "the taxpayer or the taxpayer\'s spouse IF FILING A JOINT RETURN", which the bulletin does not say of the $1,000s; read which governs. Worth $500 of exemption, $29.75 of state and county tax.',
       },
       // The four additions Schedule 3 carries under the $1,000 line, none of
       // which this package had until v0.21.0. Together they are the difference

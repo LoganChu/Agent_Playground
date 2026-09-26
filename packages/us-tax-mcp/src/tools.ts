@@ -1341,6 +1341,11 @@ const stateTool: ToolDefinition = {
     const spouseAge = readNumber(source, 'spouseAge', { integer: true });
     const blindOrDisabled = readNumber(source, 'blindOrDisabled', { integer: true });
     const separateSpouse = readBoolean(source, 'spouseHasNoGrossIncomeAndIsNotADependent');
+    // The other return's INCOME, which is a different fact from the other
+    // return's existence: Va. Code § 58.1-322.03(5)(b) measures the age
+    // deduction's withdrawal on both spouses' combined adjusted federal AGI.
+    const spouseAdjustedFederalAgi = readNumber(source, 'spouseAdjustedFederalAdjustedGrossIncome');
+    const spouseClaimsAgeDeduction = readBoolean(source, 'spouseClaimsAgeDeduction');
     if (blindOrDisabled !== undefined && blindOrDisabled > 2) {
       throw new ToolInputError(
         `blindOrDisabled counts the filer and spouse only, so it cannot exceed 2; received ${blindOrDisabled}. ` +
@@ -1584,6 +1589,10 @@ const stateTool: ToolDefinition = {
       ...(separateSpouse !== undefined
         ? { spouseHasNoGrossIncomeAndIsNotADependent: separateSpouse }
         : {}),
+      ...(spouseAdjustedFederalAgi !== undefined
+        ? { spouseAdjustedFederalAdjustedGrossIncome: spouseAdjustedFederalAgi }
+        : {}),
+      ...(spouseClaimsAgeDeduction !== undefined ? { spouseClaimsAgeDeduction } : {}),
       ...(collegeDependents !== undefined ? { dependentsAttendingCollege: collegeDependents } : {}),
       ...(retirementIncome !== undefined ? { retirementIncome } : {}),
       ...(propertyTaxPaid !== undefined ? { propertyTaxPaid } : {}),

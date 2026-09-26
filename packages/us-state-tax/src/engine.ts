@@ -7,6 +7,7 @@
  */
 import { claimedFilerCount, livingFilerCount } from './definition.js';
 import type {
+  AgeDeductionRule,
   ByChildCount,
   ExemptionRule,
   IncomeMeasure,
@@ -251,6 +252,26 @@ function separateReturnSpouseAgedAndBlind(
   return def.exemption?.separateReturnSpouse.agedAndBlind === 'follows' ? 1 : 0;
 }
 
+/**
+ * The same spouse again, for a MEANS-TESTED age addition — a third question, and
+ * the one where the answers diverge inside a single state.
+ *
+ * Indiana's `$1,000`s at 65 and for blindness follow this spouse because they
+ * are "each additional amount allowable under Section 63(f)". Its further `$500`
+ * is a different sentence: § 63(f)(1) alone, its own AGI test, and Indiana's own
+ * bulletin calls it the taxpayer's "or the taxpayer's spouse IF FILING A JOINT
+ * RETURN". So a rule that read {@link separateReturnSpouseAgedAndBlind} for this
+ * figure would be Day 30's defect exactly — the half that was waved at riding in
+ * on the credibility of the half that was read.
+ */
+function separateReturnSpouseLowIncomeSenior(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  if (separateReturnSpouse(def, input) === 0) return 0;
+  return def.exemption?.separateReturnSpouse.lowIncomeSenior === 'follows' ? 1 : 0;
+}
+
 function stateExemptions(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -325,7 +346,11 @@ function stateExemptions(
   if (rule.perLowIncomeSeniorFiler !== undefined && seniorAge !== undefined) {
     const limit = rule.lowIncomeSeniorThreshold?.[input.filingStatus];
     if (limit !== undefined && input.federal.adjustedGrossIncome < limit) {
-      total += rule.perLowIncomeSeniorFiler * seniorFilers(input, seniorAge, agedSpouse);
+      // `lowIncomeSeniorSpouse`, NOT `agedSpouse`: the two questions have
+      // different answers in the one state that has both.
+      total +=
+        rule.perLowIncomeSeniorFiler *
+        seniorFilers(input, seniorAge, separateReturnSpouseLowIncomeSenior(def, input));
     }
   }
   // Maryland's second exemption for a dependent aged 65 or over — the dependent
@@ -549,14 +574,21 @@ function seniorFilers(
  * The income the test reads is *adjusted* federal AGI — federal AGI less the
  * taxable Social Security and Tier 1 railroad benefits inside it — and not the
  * Virginia AGI the deduction comes off. Two different figures, one line apart.
+ *
+ * And on a SEPARATE return it reads a THIRD figure: the combined adjusted federal
+ * AGI of both spouses, per § 58.1-322.03(5)(b). See
+ * {@link AgeDeductionSeparateReturnRule} — the `separate` column of
+ * {@link AgeDeductionRule.threshold} is the joint `$75,000` because the test is
+ * the joint test, not because a separate filer is treated generously, and this
+ * package read it the generous way until v0.29.0.
  */
 function ageDeduction(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
   taxableSocialSecurity: number,
-): number {
+): { readonly amount: number; readonly refusedForMissingSpouseIncome: boolean } {
   const rule = def.ageDeduction;
-  if (!rule) return 0;
+  if (!rule) return { amount: 0, refusedForMissingSpouseIncome: false };
   // Living people, because this is an age. Virginia sends a federal qualifying
   // surviving spouse to Filing Status 1, SINGLE — the same instruction that
   // already set this status's standard deduction, personal exemption and
@@ -575,11 +607,82 @@ function ageDeduction(
   };
   consider(input.filerAge);
   if (filers === 2) consider(input.spouseAge);
-  if (untested === 0 && tested === 0) return 0;
+  if (untested === 0 && tested === 0) return { amount: 0, refusedForMissingSpouseIncome: false };
   const adjustedFederalAgi = Math.max(0, input.federal.adjustedGrossIncome - taxableSocialSecurity);
-  const excess = Math.max(0, adjustedFederalAgi - rule.threshold[input.filingStatus]);
-  const incomeTested = Math.max(0, rule.amount * tested - excess * rule.reductionRate);
-  return rule.amount * untested + incomeTested;
+  const separate = input.filingStatus === 'marriedFilingSeparately';
+  const combined = separate && rule.separateReturn.incomeMeasure === 'combinedWithSpouse';
+  const spouseIncome = input.spouseAdjustedFederalAdjustedGrossIncome;
+  // The untested amount survives a missing spouse figure because it has no
+  // income test to fail. Only the tested half is refused, and refusing exactly
+  // the half that needs the number is the difference between a gap and a guess.
+  const untestedAmount = rule.amount * untested;
+  if (combined && tested > 0 && spouseIncome === undefined) {
+    return { amount: untestedAmount, refusedForMissingSpouseIncome: true };
+  }
+  const testedIncome =
+    combined ? adjustedFederalAgi + nonNegative(spouseIncome, 'spouseAdjustedFederalAdjustedGrossIncome')
+    : adjustedFederalAgi;
+  const excess = Math.max(0, testedIncome - rule.threshold[input.filingStatus]);
+  // Both spouses claiming an income-tested amount on their own separate returns:
+  // the worksheet computes the JOINT deduction — two maxima against the one
+  // combined excess — and allocates half to each return. `(2a − e) / 2` is
+  // `a − e / 2`, so the shared excess costs this filer half of what their own
+  // amount tested alone would cost, which is why it takes an explicit input.
+  const sharing =
+    combined &&
+    tested > 0 &&
+    rule.separateReturn.bothClaiming === 'halfOfJointDeduction' &&
+    input.spouseClaimsAgeDeduction === true &&
+    spouseIsIncomeTested(rule, def.year, input);
+  const testedMaximum = rule.amount * (sharing ? tested + 1 : tested);
+  const incomeTested =
+    Math.max(0, testedMaximum - excess * rule.reductionRate) / (sharing ? 2 : 1);
+  return { amount: untestedAmount + incomeTested, refusedForMissingSpouseIncome: false };
+}
+
+/**
+ * Whether this return's age deduction is waiting on the other return's income —
+ * the one condition that turns a computed subtraction into a refused one.
+ *
+ * Kept as its own predicate so the note and the computation cannot disagree
+ * about when the figure is load-bearing. A note that fires where the engine
+ * computed anyway is noise; a computation that refuses where no note fires is
+ * the silent answer this package exists not to give.
+ */
+function ageDeductionNeedsSpouseIncome(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): boolean {
+  const rule = def.ageDeduction;
+  if (!rule) return false;
+  if (input.filingStatus !== 'marriedFilingSeparately') return false;
+  if (rule.separateReturn.incomeMeasure !== 'combinedWithSpouse') return false;
+  if (input.spouseAdjustedFederalAdjustedGrossIncome !== undefined) return false;
+  const age = input.filerAge;
+  if (age === undefined || age < rule.minimumAge) return false;
+  // Only the income-TESTED cohort. Virginia's pre-1939 filer takes the whole
+  // amount with no test, so the spouse's income decides nothing for them.
+  return def.year - age >= rule.fullAmountIfBornBefore;
+}
+
+/**
+ * Whether the spouse of a separate filer is in the state's INCOME-TESTED age
+ * group — old enough for the deduction and born too late for the untested
+ * amount.
+ *
+ * The worksheet's half-allocation is conditioned on both spouses claiming an
+ * *income-based* deduction, so a spouse in Virginia's pre-1939 cohort does not
+ * trigger it: their `$12,000` is not tested and there is no shared excess for
+ * the two to divide.
+ */
+function spouseIsIncomeTested(
+  rule: AgeDeductionRule,
+  year: number,
+  input: StateIncomeTaxInput,
+): boolean {
+  const age = input.spouseAge;
+  if (age === undefined || age < rule.minimumAge) return false;
+  return year - age >= rule.fullAmountIfBornBefore;
 }
 
 /**
@@ -1930,7 +2033,8 @@ function computeOnce(
       amount: socialSecuritySubtraction,
     });
   }
-  const ageDeductionTaken = ageDeduction(def, input, taxableSocialSecurity);
+  const age = ageDeduction(def, input, taxableSocialSecurity);
+  const ageDeductionTaken = age.amount;
   if (def.ageDeduction && ageDeductionTaken > 0) {
     computedSubtractions.push({ name: def.ageDeduction.name, amount: ageDeductionTaken });
   }
@@ -2827,12 +2931,83 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     // exemption, and three of the four have not been read on it.
     const agedSupplied =
       input.spouseAge !== undefined || nonNegative(input.blindOrDisabled, 'blindOrDisabled') > 1;
+    // Indiana's means-tested $500, which is the THIRD claim and the one that
+    // points the other way. Said only where the state's aged additions DO follow
+    // the spouse, because that is the caller who has every reason to expect this
+    // figure to follow them too.
+    if (
+      rule.agedAndBlind === 'follows' &&
+      rule.lowIncomeSenior !== undefined &&
+      rule.lowIncomeSenior !== 'follows' &&
+      input.spouseAge !== undefined
+    ) {
+      dynamic.push(
+        `${def.name}'s aged additions DO follow the § 151(b) spouse on this return, and its ` +
+          `means-tested age exemption does NOT — a third claim with its own provision, not a ` +
+          `corollary of the second. ${rule.lowIncomeSeniorCite ?? rule.agedAndBlindCite ?? rule.cite}`,
+      );
+    }
     if (rule.spouse === 'claimed' && rule.agedAndBlind !== 'follows' && agedSupplied) {
       dynamic.push(
         `${def.name} counts the spouse for the base exemption on this return, but whether its ` +
-          `additional exemptions for age and blindness follow that spouse is a SEPARATE question ` +
-          `and it is open: ${rule.agedAndBlindCite ?? rule.cite} So \`spouseAge\` and the second ` +
-          `\`blindOrDisabled\` were not counted here, and this return may be too high.`,
+          `additional exemptions for age and blindness follow that spouse is a SEPARATE question, ` +
+          `and here ${
+            rule.agedAndBlind === 'doesNotFollow'
+              ? 'THE STATE HAS BEEN READ AND THE ANSWER IS NO'
+              : 'IT IS OPEN — nobody has read the provision'
+          }: ${rule.agedAndBlindCite ?? rule.cite} So \`spouseAge\` and the second ` +
+          `\`blindOrDisabled\` were not counted here${
+            rule.agedAndBlind === 'doesNotFollow'
+              ? ', and that is the state\'s answer rather than this package\'s silence.'
+              : ', and this return may be too high.'
+          }`,
+      );
+    }
+  }
+  // The age deduction's own separate-return questions, which are NOT the § 151(b)
+  // ones above: this is a deduction attached to a person's birth date, so it
+  // cannot borrow the exemption's answer, and the figure it is missing is an
+  // AMOUNT rather than a yes or no.
+  if (def.ageDeduction) {
+    const rule = def.ageDeduction.separateReturn;
+    if (ageDeductionNeedsSpouseIncome(def, input)) {
+      // Priced at a spouse with NO income, which is the most the deduction could
+      // be worth on this return, rather than at a table figure.
+      const withSpouse = compute(def, { ...input, spouseAdjustedFederalAdjustedGrossIncome: 0 });
+      const worth = roundCents(here.tax - withSpouse.tax);
+      dynamic.push(
+        `${def.ageDeduction.name} was NOT allowed on this separate return, and the reason is a ` +
+          `figure that lives on the other return: ${rule.incomeMeasureCite} Nothing here can stand ` +
+          `in for it — testing the joint threshold against one spouse's income would give a ` +
+          `separate filer a larger deduction than either a single or a joint return, which is what ` +
+          `this package did until v0.29.0. Pass ` +
+          `\`spouseAdjustedFederalAdjustedGrossIncome\` (the spouse's federal AGI less the Social ` +
+          `Security taxed inside it); it is worth up to $${worth.toFixed(2)} of ${def.name} tax on ` +
+          `this return.`,
+      );
+    }
+    if (
+      input.spouseClaimsAgeDeduction === true &&
+      !(
+        input.filingStatus === 'marriedFilingSeparately' &&
+        rule.bothClaiming === 'halfOfJointDeduction' &&
+        spouseIsIncomeTested(def.ageDeduction, def.year, input)
+      )
+    ) {
+      dynamic.push(
+        `\`spouseClaimsAgeDeduction\` was ignored: it divides a JOINT ${def.ageDeduction.name} in ` +
+          `half between two separate returns, so it needs a separate return and a spouse in the ` +
+          `INCOME-TESTED age group. ${rule.bothClaimingCite}`,
+      );
+    }
+    if (
+      input.spouseAdjustedFederalAdjustedGrossIncome !== undefined &&
+      input.filingStatus !== 'marriedFilingSeparately'
+    ) {
+      dynamic.push(
+        `\`spouseAdjustedFederalAdjustedGrossIncome\` was ignored: ${def.ageDeduction.name} reads ` +
+          `the other return's income only on a SEPARATE return, where the two spouses' figures are ` +
+          `on two returns. A joint return already contains both. ${rule.incomeMeasureCite}`,
       );
     }
   }
