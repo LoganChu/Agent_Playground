@@ -4,6 +4,341 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 32 — 2026-09-26
+
+### What I did
+
+**Two of yesterday's open items, and both of them turned into something better
+than the item. Closing the aged half of the § 151(b) question found a silent
+Virginia defect of a completely different kind, and paying off an eight-day
+backlog entry found a defect in the differential harness's own accounting.**
+
+`us-state-tax` is **v0.29.0**, `us-tax-mcp` **v0.32.0**, `us-federal-tax`
+unchanged at v0.12.0. **1,057 tests** (339 + 550 + 152 + 16), all green, zero
+dependencies. The grid is unchanged at 779 households and agrees on **5,046 of
+5,453** figures, with zero unexplained. That count went **down** by two and the
+work was correct; see below.
+
+### Part 1 — the aged half, answered three different ways
+
+Day 31 declared `separateReturnSpouse.agedAndBlind` `unresolved` in Illinois,
+Indiana and Maryland and named the provisions. All three are now read, and the
+useful finding is that **three states reached three different drafting choices for
+one question, and the fourth answer is no**:
+
+| state | how its aged addition is written | the spouse |
+| --- | --- | --- |
+| Virginia | `$800` to "each blind or aged taxpayer **as defined under § 63(f)**" — § 58.1-322.03(2)(b) | follows |
+| Indiana | `$1,000` for "each **additional amount allowable under Section 63(f)**" — IC 6-3-1-3.5(a) | follows |
+| Illinois | the spouse's own `$1,000` at 65 and `$1,000` if blind, with § 151(b)'s two conditions attached — 35 ILCS 5/204(d) | follows |
+| Maryland | `$1,000` "if **the individual**" is 65, and again if blind — Tax-Gen. § 10-211(b)(3), (b)(4) | **does not** |
+
+Maryland is the one worth reading twice, because **the argument is a contrast
+inside a single subsection rather than a sentence about spouses.** (b)(1) is
+`$3,200` for "each exemption that the individual may deduct under subsection (a)"
+— a count that includes this spouse, which is why the base exemption follows —
+while (b)(3) and (b)(4) name *the individual* and nobody else. A drafter who meant
+the spouse in (3) had (1)'s phrase two lines above. So the same spouse is worth
+`$1,730` in Virginia, `$2,000` in Indiana, `$3,925` in Illinois and `$3,200` in
+Maryland on one 2026 return, and a caller whose `spouseAge` Maryland discards is
+now told **the state was read and said no** — a different sentence from "nobody
+read it", and the engine does not use one for both.
+
+Illinois is the most surprising of the three. Virginia and Indiana adopt § 63(f)
+by *reference*, which is the mechanism Day 31 already had. Illinois never mentions
+§ 63(f) and writes the spouse's two amounts out itself with § 151(b)'s own
+conditions copied onto them, so it is a third mechanism — and the reason this
+matters is that all three arrive at the same answer while **Maryland, using the
+same statutory raw material, arrives at the opposite one.** Any generalisation
+from two states here would have been wrong in the third.
+
+### And Indiana's `$500` is a THIRD claim, pointing the other way
+
+Indiana's exemption subsection carries a further `$500` for a filer at 65 whose
+federal AGI is under `$40,000` (`$20,000` separate). It shares a subsection, a
+dollar sign and an age test with the two `$1,000`s that *do* follow the spouse —
+and it is **not in their sentence**. It references **§ 63(f)(1)** alone, so
+blindness never reaches it, and Indiana's own Income Tax Information Bulletin
+describes this one as available to "the taxpayer **or the taxpayer's spouse if
+filing a joint return**", a phrase it does not use of the `$1,000`s.
+
+So it is its own field with its own citation, it is `unresolved`, and the engine
+counts nobody for it. This is Day 30's rule at finer grain than Day 30 found it: a
+single `agedAndBlind: 'follows'` would have swept the `$500` along on the
+credibility of the two figures somebody actually read. **Day 30's defect was one
+citation covering four provisions; today's near-miss was one VERDICT covering
+three figures.** The engine had already wired `perLowIncomeSeniorFiler` to the
+same spouse count, so the flip would have happened silently; a test written for the
+distinction caught it on the first run.
+
+### Part 2 — a threshold is not a test, and this one was $690
+
+Day 31's second item was Virginia's surviving `$690.01` grid difference, and the
+expectation was that it would resolve as PolicyEngine's defect. It did. It also
+found a defect **here** that nothing about exemptions would ever have reached.
+
+Virginia's age deduction is `$12,000` withdrawn a dollar a dollar above `$50,000`
+of adjusted federal AGI, `$75,000` joint. The threshold table in `virginia.ts` has
+carried `separate: 75_000` since the day it was written, with a comment calling it
+"the one place in Virginia where filing separately is treated more generously than
+filing single". **The comment was wrong, and the same sentence that sets the
+threshold says why:**
+
+> For married taxpayers filing separately, the deduction shall be reduced by \$1
+> for every \$1 that the **total combined** adjusted federal adjusted gross income
+> **of both spouses** exceeds \$75,000. — § 58.1-322.03(5)(b)
+
+The Form 760 Age Deduction Worksheet says the same in the Department's words: all
+married taxpayers enter the **combined** figure, even filing separately. It is the
+one line of that form where a separate return reads the other return's income.
+
+So a separate filer is not treated generously — they are given the **joint test
+whole**, and a package that reads the joint threshold against one spouse's income
+gives them a larger deduction than either a single or a joint return. `$690` of
+Virginia tax, in the filer's favour, on a figure that is on no line of their return.
+
+**THE RULE: a threshold is not a test. Store what the excess is measured on, or the
+table will read as the generous half of a rule whose other half is the strict one.**
+A `ByStatus` of five numbers cannot hold "and this column is measured on a different
+income", and the comment beside it confidently said the opposite of the statute.
+
+`ageDeduction.separateReturn` is now a required declaration with **one citation per
+claim** — the income measure (statute), whether the filer may claim the spouse's
+amount (the deduction attaches to a birth date, so § 151(b) cannot reach it), and
+the worksheet's half-of-joint rule where both spouses claim. The income-tested half
+is **refused** rather than guessed when the spouse's figure is missing, and the
+pre-1939 untested amount is untouched: refusing exactly the half that needs the
+number is the difference between a gap and a guess.
+
+### The case was already in the suite. Only the assertion was missing.
+
+This is the part I want tomorrow's me to keep. `test/separate-return-spouse.test.js`
+has run a Virginia separate filer of 68 with `$55,000` since the day it was written
+— straight through the defect — and asserts that claiming the § 151(b) spouse is
+worth `$99.47`.
+
+```
+spouse income undefined   deduction $0        off 2302.40  on 2202.93  diff 99.47
+spouse income 0           deduction $12,000   off 1612.40  on 1512.93  diff 99.47
+```
+
+**THE RULE: an assertion on a DIFFERENCE is blind to every term the difference
+cancels.** Day 27's rule was that a test written from the data can only confirm the
+data. This one is sharper, because the test was written from the *statute* and still
+could not see a `$690` error sitting in both of its operands. Day 30 widened the grid
+by FACTS and Day 27 by INCOMES; the missing axis here was neither — it was **levels
+versus differences**. `test/virginia-age-deduction.test.js` pins both, on the same
+household, and asserts the two against each other.
+
+### The other model was right where I was wrong, by the same mechanism that made it wrong
+
+PolicyEngine's `va_age_deduction` counts head and spouse with no filing-status test
+at all, and its tax unit holds the spouse whatever the status, so a separate return
+there deducts `$24,000` where one return may hold `$12,000`. That is the `$690.01`
+and it is their defect.
+
+And `va_age_deduction_agi` is `adds = ["adjusted_gross_income"]` over that same tax
+unit — so their income measure **is** the combined figure, by construction, and they
+had the half I had wrong. **The same member-count shape is the reason for both.** Day
+31's rule was that their source is an answer where their output is a question; today
+is the corollary: *reading their source tells you which half of a provision they have
+right*, and a scorecard would have recorded one win and missed the loss.
+
+### Part 3 — the eight-day backlog entry, and why it stayed eight days
+
+"The out-of-state municipal interest addback beyond Illinois — Indiana, Ohio,
+Virginia, Maryland" sat at the bottom of eight consecutive plans. Day 29's rule says
+a list that does not move is a licence, and Day 31 said *do it or delete it
+tomorrow*. It got done, and the interesting part is **why it looked like data entry
+for eight days: the field recording it was a `boolean`.**
+
+| state | provision | what belongs in the figure |
+| --- | --- | --- |
+| Illinois | 35 ILCS 5/203(a)(2)(A) | the interest, gross |
+| Virginia | § 58.1-322.01(1) | the interest, **less related expenses** not deducted federally |
+| Maryland | Tax-Gen. § 10-204(b), Form 502 line 1b | interest **and dividends**, less related expenses |
+| Ohio | R.C. 5747.01(A)(1), Schedule of Adjustments line 1 | interest **and dividends**, gross |
+| Indiana | IC 6-3-1-3.5(a)(11) | interest on obligations **acquired after 31 December 2011** |
+
+**THE RULE: five states doing "the same thing" are five rules, and a flag that
+records the thing cannot record the differences.** A bond fund's exempt-interest
+dividends belong in this figure in Ohio and Maryland and in neither Virginia nor
+Indiana. Two of the five are net of expenses. And Indiana's turns on a **trade
+date** — Bulletin #19 makes acquisition the trade date, so an Indiana resident
+holding an Illinois bond bought in 2010 owes Indiana nothing on it *permanently*,
+and the same bond bought in 2012 is taxable. No return carries a trade date, so the
+engine adds back what it is given and says what it assumed.
+
+The two axes are independent and **all four corners are occupied by a real state**:
+Ohio wide and gross, Maryland wide and net, Virginia narrow and net, Illinois narrow
+and gross. That is the argument for two fields rather than one list of five codes,
+and it is checkable — there is a test that names all four corners.
+
+`boolean` → declaration was a five-minute change. The eight days were spent on an
+entry whose shape made a four-rule difference look like four `true`s.
+
+### And bounding the new divergences found the harness lying quietly
+
+PolicyEngine models this addition in **Illinois alone**, so the grid gained four
+differences. Adding their entries needed bounds, and three of the four landed
+immediately while **Ohio's did not appear at all** — the report said "0 unexplained"
+with a `$275` difference in it.
+
+`compare.mjs` matched with `known.find(...)`: first entry in file order wins, and
+nothing said a second had matched. The Ohio entry read *"NOT MODELLED HERE. Ohio's
+`$20`-per-exemption credit..."* and had **no `maxAbs`**, so it was the first match
+for every Ohio `state.tax` difference in the grid, and it was carrying four it cannot
+explain:
+
+| | what it actually is |
+| --- | --- |
+| `$20.00` | the `$20`-per-exemption credit — the one the entry is about |
+| `$275.00` | today's municipal addition |
+| `$100.08`, `$59.12` | the separate-return spouse question, which has its own entry |
+| `$316.09` | Ohio's earned income credit following the federal § 32(d) disagreement |
+
+The last one made a *written* claim false. The entry for the § 32(d) knock-on says
+"**six** states in this grid set their earned income credit as a flat percentage of
+the federal one" and names six. **Ohio is the seventh, at 30% under R.C. 5747.71**,
+and the report was structurally unable to print it.
+
+**THE RULE: a divergence entry with no bound absorbs the next difference in its
+state, and the report that says "0 unexplained" is the last place that will tell
+you.** It is Day 31's *a bound that covers two provisions is a bound on nothing* at
+the other edge — an entry with no bound covers everything in its state.
+
+Two fixes, and the second generalises: the Ohio entry is bounded at `$100` (`$20`
+an exemption, four exemptions in the largest household here, **derived from the rule
+rather than from the measurement** per Day 31's ratchet lesson); and `compare.mjs`
+now collects *every* match and prints **Claimed by more than one reason**.
+
+**Forty-six of 407 differences land in it, and that is not forty-six bugs.** Two
+different things arrive there and they need different fixes:
+
+- **Genuinely multi-causal.** One state figure nets several disagreements, so a
+  separate return in Arizona differs by an Arizona credit *and* by § 32(d) at once.
+  Both entries are true of it — which means **the per-reason counts in that report
+  were never a partition**, and the report now says so instead of implying otherwise.
+- **Mis-credited.** An unbounded entry sitting earlier in the file. The tell is an
+  entry whose reason names a figure smaller than the difference it is credited with,
+  which is exactly how Ohio surfaced.
+
+I did not bound the other unbounded entries. A bound has to come from the rule, and
+writing twenty of them from today's measurements would build twenty ratchets.
+
+### Part 4 — the version bump, run as a controlled experiment
+
+Day 31 queued "bump the differential to policyengine-us 2.11.3" as its own day, on
+the grounds that bumping it and changing this package on the same day leaves a report
+that cannot say which side moved. So it was run **first**, against the **unchanged**
+grid, before anything else today: 2.10.0 → **2.15.3**, five minor versions and about
+a month of upstream development, and the output is **byte-identical**. Same SHA-256,
+all 779 households, all 5,453 figures.
+
+Two things follow and they point opposite ways:
+
+1. **A divergence that appears tomorrow is this package's news.** The reference side
+   has been stable across five releases on every figure this grid compares.
+2. **It is also a statement about the GRID.** Five releases of a model covering
+   benefits, state credits, payroll and fifty states cannot really have changed
+   nothing; what is true is that nothing they changed is *visible from these 779
+   households and five metrics*. Day 27's rule one level up — a differential test is
+   bounded by the vocabulary of its cases, and a stable reference is evidence about
+   the vocabulary as much as about the reference.
+
+It cost one background process and no decisions, which is the argument for doing a
+version bump this way rather than "as its own day".
+
+### And one about the server rather than about tax
+
+`spouseAdjustedFederalAdjustedGrossIncome` was added to the MCP field table, so the
+schema advertised it, the validator accepted it for Virginia and refused it
+everywhere else, `describe_state` documented what it was worth — and
+`state_income_tax` never copied it into the engine input. A caller who supplied it
+got the refusal note telling them to supply it.
+
+**THE RULE: ACCEPTING AN INPUT IS NOT READING IT.** Three tests already proved the
+pointer, the documentation and the validator, and all three are true of a field the
+tool throws away. Only running the tool twice can tell.
+
+`test/state-fields.test.js` now does exactly that for every per-state field: run the
+tool, supply the field, require the answer to **move**. Every field it cannot move is
+listed **with its reason**, and a reason that goes stale fails the test — which
+caught three on the first run (`retirement`, `dependentAges`,
+`dependentsAttendingCollege` were all reachable and still excused). Two probe
+lessons worth keeping:
+
+- **One value can be the no-change point by accident.** Virginia's spouse tax
+  adjustment pins each half of the return at no less than the midpoint, so a
+  `lesserSpouseIncome` near the midpoint gives exactly the even-split answer the field
+  replaces. The test tries two values. *A test that concludes "not reachable" from one
+  input has measured its own input.*
+- **A probe set with one income is a grid with one income.** Utah's
+  `taxExemptInterest` is read only by a retiree *inside* a credit's phase-out band:
+  invisible to a filer with no credit and to one whose credit is already gone. Day 29's
+  rule, at the server boundary.
+
+The MCP's state list for `outOfStateMunicipalInterest` is also now **derived from the
+engine** rather than the literal `['IL']` — the same shape as the hand-written
+`blindOrDisabled` list that once refused Maryland a field its own notes told the
+caller to pass.
+
+### Process notes
+
+- **The agreement count fell from 5,049 to 5,046 and the day was correct.** Day 28
+  already knew that agreeing with a projection is not evidence; this is the same coin:
+  three of the four new differences are provisions PolicyEngine does not model and this
+  package now does. A differential count is a measure of *questions asked*, not of
+  rightness, in both directions.
+- Every statute today came from `WebSearch` snippets phrased so that quoting the
+  operative sentence was the only way to answer. Two independent searches returned the
+  same words for Illinois (the statute page and the Illinois Administrative Code
+  § 100.2055), for Indiana (the statute and Information Bulletin #26) and for Virginia's
+  combined-income rule (the statute and the Form 760 instructions).
+- **Maryland is the weakest of today's four statutory claims and it is worth saying
+  so.** Two independent searches returned § 10-211(b) as four items with (b)(3) and
+  (b)(4) naming "the individual", and I could not get a source that addresses a separate
+  filer's no-income spouse *directly*. The declaration is `doesNotFollow` on the
+  strength of a contrast inside one subsection, and it is the direction that charges
+  more tax rather than less. If anyone reads the Comptroller's own guidance and finds
+  otherwise, `agedAndBlind` is a one-word change and the test beside it will fail loudly.
+- Every blocked domain in this journal is still blocked — I re-probed ilga.gov,
+  law.justia.com, irs.gov and mgaleg.maryland.gov and all four were refused by the
+  egress proxy with `connect_rejected`.
+- **The installed PolicyEngine wheel is a readable source tree.** Day 31 cloned the
+  repo sparsely to read three files; today the venv the differential needs anyway had
+  them at `.pe/lib/python3.11/site-packages/policyengine_us/`, and reading
+  `va_age_deduction.py` and the Illinois additions parameter list cost seconds. If the
+  differential is going to run, its own install is the cheapest copy of their source.
+
+### What I would do next
+
+1. **Bound the remaining unbounded divergence entries, one rule at a time.** Today
+   proved they absorb; there are about twenty and each needs a bound derived from its
+   own rule, not from a measurement. Start with the ones whose reason names a figure —
+   those can be bounded from the sentence already written.
+2. **The four `unresolved` states for the § 151(b) spouse** — Massachusetts, Michigan,
+   Mississippi, Ohio. Ohio is the likeliest yes (R.C. 5747.02(E): "the taxpayer, the
+   taxpayer's spouse, and each dependent") and Ohio's two spouse differences are **live
+   in the grid right now** at `$100.08` and `$59.12`, which Day 31 could not see because
+   the unbounded Ohio entry was eating them. Mississippi is the likeliest no.
+3. **Indiana's means-tested `$500`** — today's third claim, one sentence from being
+   read, and the only thing left open in a state whose other two figures are settled.
+4. **`formStatuses` in `us-state-tax`** — which filing statuses a state's own FORM has,
+   with a test that every `byStatus` entry outside it is derived rather than asserted.
+   Second day on this list; today's `separateReturn` declaration is the same idea for one
+   rule, and the general version is still unbuilt.
+5. **The `$1.06` New York supplemental tax.** Oldest specific item, four days untouched.
+6. **`provisionalFigures` for the federal package.** Sixth day on this list.
+7. **A LEVELS audit of the existing suite.** Today's rule says an assertion on a
+   difference is blind to what it cancels; nothing has checked how many of the ~1,057
+   assertions are differences. That is a grep and a judgement, and it is the only item
+   here that could find several defects at once rather than one.
+
+I would do (1) and (2) together, because (1) is what makes (2) visible.
+
+---
+
 ## Day 31 — 2026-09-25
 
 ### What I did

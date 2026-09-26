@@ -13,8 +13,88 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 31 nothing is waiting on you.** `us-federal-tax` is v0.12.0,
-`us-state-tax` v0.28.0, `us-tax-mcp` v0.31.0.
+**As of Day 32 nothing is waiting on you.** `us-federal-tax` is v0.12.0,
+`us-state-tax` v0.29.0, `us-tax-mcp` v0.32.0. 1,057 tests, all passing.
+
+## 2026-09-26 (Day 32)
+
+### I was charging one kind of person too little, and the reason is worth two minutes
+
+Virginia gives anyone 65 or over a **$12,000 deduction**, and takes it away a dollar
+at a time once your income passes a threshold — $50,000 if you file alone, $75,000
+for a married couple. My engine had a table with those numbers in it, and for a
+married person who files their **own separate return** the table said $75,000.
+
+That looked generous, and there was a comment next to it saying so.
+
+The law says something the table could not: for a separate return the $75,000 is
+measured against **both spouses' income added together**. Virginia's own worksheet
+spells it out — every married filer enters the combined figure, *even when filing
+separately*. It is the one line of that form where your return has to look at your
+spouse's income.
+
+So the separate filer is not being treated generously. They are being given the
+married test whole. And because my engine tested the married threshold against one
+person's income, it handed out a deduction bigger than a single filer OR a married
+couple could get: **$690 of Virginia tax, in the filer's favour, on a number that is
+on no line of their own return.**
+
+**What this means if you ever use this for a real return**: on a Virginia separate
+return the engine now asks for the spouse's income, and if you do not give it, it
+**refuses the deduction rather than guessing**. That is deliberate. The old behaviour
+was a wrong answer with no warning; the new one is a missing answer that says exactly
+what it needs. Nothing else changed — a single, joint or head-of-household return
+answers identically.
+
+### The lesson I want to keep, in plain terms
+
+The test suite already had this exact person in it. A Virginia separate filer, aged
+68, $55,000 of income — running straight through the bug for a month.
+
+The test checked a **difference**: how much a particular exemption was worth. That
+difference is $99.47 whether the deduction is $12,000 or $0, because the deduction
+sits on both sides of the subtraction and cancels.
+
+**An assertion on a difference is blind to everything the difference cancels.** It is
+the kind of blind spot that survives good intentions: the household was right, the
+law was read correctly, the test was well written, and it could not have failed. The
+suite now pins the actual tax as well as the difference, on the same household.
+
+### Three states read, and they disagree about the same question
+
+Yesterday I flagged an open question: when a separate return claims an exemption for a
+no-income spouse, does the state's extra allowance for being 65 or blind follow that
+spouse too? Illinois, Indiana and Maryland were unread.
+
+All three now are, and **they answer it three different ways** — two by pointing at
+the federal rule, one by writing its own version of it, and **Maryland by saying no**.
+Maryland's argument is a contrast inside one paragraph: one item is an amount for
+"each exemption the individual may deduct", which includes the spouse, and the next
+two are amounts "if **the individual**" is 65 or blind. The drafter had the wider
+phrase two lines above and did not use it.
+
+Worth flagging honestly: **Maryland is the weakest of the four claims.** I could not
+find a source that addresses this exact situation directly, so the answer rests on
+that contrast. It is the direction that charges *more* tax rather than less, and if
+anyone reads the Comptroller's guidance and finds otherwise it is a one-word change.
+
+### And I paid off the oldest item on my own list
+
+"Add the out-of-state municipal bond addback to four more states" had sat at the
+bottom of eight consecutive daily plans, every time looking like fifteen minutes of
+typing. It looked that way because the thing recording it was a yes/no flag.
+
+Five states tax the interest on *other* states' municipal bonds, and all five ask for
+a different number: two include a bond fund's dividends and two do not, two are net
+of expenses, and **Indiana's depends on the date you bought the bond** — an
+out-of-state bond bought in 2010 is outside Indiana's tax forever, one bought in 2012
+is not, and no tax form anywhere records that date.
+
+Nothing here needs you. I mention it because it is the most useful thing I learned
+today: when an item keeps getting deferred while looking cheap, the problem is
+usually the shape of the code, not the priority.
+
+---
 
 Yesterday I ended with an open question and said it was the first thing I would do
 today. I did it, and the interesting part is not the answer — it is that I had

@@ -19,6 +19,166 @@ amount with no filing-status logic anywhere in it, `md_total_personal_exemptions
 `tax_unit_size * p.base.amount`. All three are member counts. Virginia's parameter file says
 so in words.
 
+## Day 32: a threshold is not a test
+
+A `ByStatus` table of five thresholds is a table of five numbers, and a threshold is
+half of a rule. The other half is **what the excess is measured on**, and a table has
+nowhere to put it.
+
+Virginia's age deduction threshold has read `separate: 75_000` — the joint figure —
+since the day it was written, with a comment calling it "the one place in Virginia
+where filing separately is treated more generously than filing single". The same
+sentence that sets it says: "For married taxpayers filing separately, the deduction
+shall be reduced by \$1 for every \$1 that the **total combined** adjusted federal
+adjusted gross income **of both spouses** exceeds \$75,000" (§ 58.1-322.03(5)(b)). The
+separate filer is not treated generously. They are given the joint test **whole**.
+
+Stored as a number alone it read as the generous half of a rule whose other half is the
+strict one, and the package gave a separate filer a larger deduction than either a
+single or a joint return: `$690` of Virginia tax in the filer's favour, on a figure that
+is on no line of their return.
+
+**THE RULE: store what a threshold is measured on, beside the threshold, or the table
+will confidently say the opposite of the statute.** This generalises past thresholds to
+any parameter whose meaning depends on a basis the parameter does not carry — a cap, a
+rate band, an income test. The tell is a comment explaining what a number means: if the
+data needed a sentence, the sentence belongs in the data.
+
+## Day 32: an assertion on a DIFFERENCE is blind to every term the difference cancels
+
+The Virginia defect above had its own test case for a month. `separate-return-
+spouse.test.js` runs a Virginia separate filer of 68 with `$55,000` and asserts that
+claiming the § 151(b) spouse is worth `$99.47`. It is `$99.47` with the age deduction at
+`$12,000` and `$99.47` with it at `$0`, because the deduction is a term on **both sides**
+of the subtraction.
+
+```
+spouse income undefined   deduction $0        off 2302.40  on 2202.93  diff 99.47
+spouse income 0           deduction $12,000   off 1612.40  on 1512.93  diff 99.47
+```
+
+Day 27's rule was that a test written from the data can only confirm the data. This is
+sharper, because the test was written from the **statute** and still could not see the
+error: the household was right, the provision was right, the assertion was structurally
+incapable.
+
+**THE RULE: an assertion on a difference tests the difference and nothing else. Pin a
+LEVEL somewhere, on the same household, and assert the two against each other.**
+Differences are attractive to write — they isolate one provision, they survive rate
+changes, they read as the thing you meant to test — and every one of those properties is
+the same property: *invariance to everything else*. Which is exactly what you do not
+want from your whole suite.
+
+The practical form: for any provision worth a test, one assertion on the difference and
+one on the level. The level goes stale on a rate change, and that is the cost; a rate
+change should break a test.
+
+## Day 32: N states doing "the same thing" are N rules, and a flag cannot hold the difference
+
+"The out-of-state municipal interest addback beyond Illinois — Indiana, Ohio, Virginia,
+Maryland" sat at the bottom of **eight consecutive daily plans**, every time looking
+like data entry: four booleans, one afternoon. The field was
+`addsOutOfStateMunicipalInterest?: boolean`.
+
+Read, the five statutes reach four different things: Illinois the interest gross,
+Virginia the interest less related expenses not deducted federally, Maryland interest
+**and dividends** less related expenses, Ohio interest and dividends gross, and Indiana
+only obligations the taxpayer **acquired after 31 December 2011** — a trade date, which
+appears on no return. The two axes are independent and all four corners are occupied by
+a real state.
+
+**THE RULE: a boolean records that a state does something. What it cannot record is what
+the something is, and that is where the states differ.** So a backlog entry that reads
+like N copies of a flag is evidence about the flag, not about the work: the shape of the
+field is what made four rules look like four `true`s, and the eight days were spent on
+the shape rather than on the tax.
+
+Corollary worth acting on: **when an item has been deferred more than about three times
+while looking cheap, suspect the representation rather than the priority.** Nobody
+defers an afternoon eight times. They defer an afternoon that is not an afternoon, and
+the reason it is not is usually visible in the type.
+
+## Day 32: a divergence entry with no bound absorbs the next difference in its state
+
+Day 31's rule was that a bound covering two provisions is a bound on nothing. The other
+edge: an entry with **no** bound covers everything in its state, and the report that says
+"0 unexplained" is the last place that will tell you.
+
+`compare.mjs` matched each difference with `known.find(...)` — first entry in file order
+wins, nothing said a second had matched. The Ohio entry, *"NOT MODELLED HERE. Ohio's
+`$20`-per-exemption credit..."*, had no `maxAbs` and was carrying four differences it
+cannot explain: a `$275` municipal-interest addition, two separate-return spouse
+differences with an entry of their own, and `$316.09` of Ohio earned income credit.
+
+The last one made a **written claim false**. The § 32(d) knock-on entry says "six states
+in this grid set their earned income credit as a flat percentage of the federal one" and
+names six. Ohio is the seventh, at 30% under R.C. 5747.71, and the harness was
+structurally unable to print it.
+
+Two fixes, and the second is the transferable one:
+
+1. Bound the entry **from its rule** — `$20` an exemption, four exemptions — never from
+   the measurement, per Day 31's ratchet.
+2. Collect **every** match and report the differences that more than one entry claims.
+   Forty-six of 407 land there, and **that is not forty-six bugs**: most are genuinely
+   multi-causal, because one netted state figure can differ for two reasons at once.
+
+Which is itself the finding: **a list of reasons is not a partition of the differences,
+and a report that groups by first match implies it is.** Say so in the report rather than
+assuming it away. The mis-credited ones are identifiable — the tell is an entry whose
+reason names a figure smaller than the difference it is credited with.
+
+## Day 32: accepting an input is not reading it
+
+`spouseAdjustedFederalAdjustedGrossIncome` was added to the MCP server's field table. The
+schema advertised it. The validator accepted it for Virginia and refused it in every other
+state. `describe_state` documented what it was worth. And the tool never copied it into
+the engine input, so a caller who supplied it got back the note telling them to supply it.
+
+Three existing tests proved the pointer, the documentation and the validator. **All three
+are true of a field the tool throws away.** Only running the tool twice can tell.
+
+**THE RULE: at every boundary — a tool schema, an API, a config file — validate that a
+declared input CHANGES AN ANSWER, not merely that it is accepted.** This is Day 31's
+reachability rule (a declaration no input can reach is decoration) turned round: a field
+no output can reach is worse, because the schema promised it.
+
+The test is cheap and generalises: for every declared field, run the thing twice and
+require the answer to move. Two lessons from making it work, both about the probe rather
+than the code:
+
+- **One value can be the no-change point by accident.** Virginia's spouse tax adjustment
+  pins each half of a return at the midpoint, so a value near the midpoint reproduces the
+  default exactly. Try two. *A test that concludes "not reachable" from one input has
+  measured its own input.*
+- **A probe set with one income is a grid with one income.** Utah's `taxExemptInterest` is
+  read only by a retiree inside a credit's phase-out band. Day 29's rule at the boundary.
+
+And every field the probe cannot reach is listed **with its reason**, with a failure if a
+reason goes stale — which caught three that had become false on the first run. An
+allowlist rots; a list of claims fails.
+
+## Day 32: run a dependency bump as a controlled experiment, not as its own day
+
+Day 31 queued "bump the differential to policyengine-us 2.11.3" as a separate day's work,
+reasoning that bumping the reference model and changing this package on the same day
+leaves a report that cannot say which side moved. The reasoning is right and the
+scheduling was wrong.
+
+The controlled version costs one background process: run the **new** version against the
+**unchanged** grid, before touching anything. 2.10.0 → 2.15.3 came back **byte-identical**
+— same SHA-256, 779 households, 5,453 figures — and the day's own change was then
+measured against a reference known to have moved zero.
+
+**THE RULE: a bump and a change are only confounded if they share a run. Two runs
+de-confound them for the price of wall-clock, which a background process makes free.**
+Sequencing an experiment is almost always cheaper than postponing it.
+
+Second half, and it cuts the other way: five releases of a fifty-state model cannot
+really have changed nothing. What is true is that nothing they changed is **visible from
+this grid**, which is evidence about the grid's vocabulary as much as about the
+reference. A stable reference is a measurement of your own coverage.
+
 ## Day 31: when a second model disagrees, its ANSWER is a question and its SOURCE is an answer
 
 A differential harness compares outputs by construction, so the one thing it is structurally
