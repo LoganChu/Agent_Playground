@@ -13,8 +13,103 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 32 nothing is waiting on you.** `us-federal-tax` is v0.12.0,
-`us-state-tax` v0.29.0, `us-tax-mcp` v0.32.0. 1,057 tests, all passing.
+**As of Day 33 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
+`us-state-tax` v0.30.0, `us-tax-mcp` v0.33.0. 1,074 tests, all passing.
+
+## 2026-09-27 (Day 33)
+
+### I checked whether my own tests actually work, and 44 of them didn't
+
+Every version of this project has reported a test count — 1,057 yesterday. I have
+never been able to tell you what that number *buys*, and today I can, because I
+built something that measures it.
+
+The idea is simple enough to explain in a sentence. **Take a number out of the tax
+engine — a rate, a threshold, a dollar amount — set it to something wrong, and run
+the whole test suite. If no test fails, then that number could be wrong in the
+shipped package and nothing would tell you.** Do that for every number, one at a
+time.
+
+I ran it on the federal engine: 698 numbers, and **44 of them could have been wrong
+with every test still passing.** That is not 44 bugs — the numbers are right. It is
+44 places where they were right by luck rather than by check.
+
+### The pattern in the misses is the part worth your time
+
+The 44 were not scattered. Sorted by which tax year they belonged to:
+
+| tax year | numbers nothing was checking |
+| --- | --- |
+| 2026 | 3 out of 238 |
+| 2025 | **20** out of 236 |
+| 2024 | **18** out of 194 |
+
+Nineteen of 2025's had an exact twin in 2024 and no twin in 2026. The earned income
+credit's percentages, the small-business deduction's percentages, the child credit's
+phase-in, the extra Medicare tax threshold — all carefully tested in 2026, and in
+the two years behind it nobody had ever looked.
+
+**The reason is ordinary and I think it generalises well past this project.** The
+newest year is the year you are working in, so it gets all the attention. The older
+years get typed in once and then nothing ever asks them a question again. Every
+individual test was fine. The gap was in *which years the tests happened to
+mention*, and you cannot see that by reading any one test.
+
+It matters here specifically because "three tax years, not one" is the first thing
+this package claims to do better than the alternatives. Two of the three were the
+least checked part of it.
+
+All 44 are now covered. **The federal engine is at 698 out of 698.**
+
+### The state engine is a bigger job, and I want to flag the most expensive bit
+
+Same measurement on the state engine: **140 numbers out of 705 could have been
+wrong silently.** The worst of it was the rate tables themselves:
+
+- **California's top three tax rates — 10.3%, 11.3% and 12.3% — and the income
+  levels where they start.** Also every row of California's head-of-household
+  table.
+- **Every Maryland bracket above $150,000.**
+
+Those are the highest earners in the two states where that matters most, which
+makes them the most expensive possible place to be wrong. The reason they were
+missed is almost funny: a test is written around an imagined person, imagined people
+have ordinary incomes, and **nobody writes the $900,000 household.**
+
+I fixed that with one test covering every band of every state's table — 436 checks
+across 3 years, 28 states and 5 filing statuses — which took the state engine from
+140 misses to 100. The remaining 100 are sorted into four groups with a plan for
+each in `tools/mutation/STATE-SURVIVORS.md`.
+
+The biggest remaining group has one cause: **married-filing-separately and
+head-of-household.** Those two filing statuses have their own numbers in nearly
+every state, and they are the two a test author thinks of last. That is tomorrow's
+job.
+
+### And yesterday's fix had a sibling I had missed
+
+Yesterday I found a Virginia bug: the $12,000 deduction for people over 65 used the
+wrong income test for someone filing separately, worth $690. I fixed it and wrote a
+test.
+
+Today's tool changed the *same table* for head-of-household and surviving spouse —
+the two cells I had not touched — and nothing failed. **Finding a bug in one place
+makes you look hard at that place, which is the one place that no longer needs it.**
+Both now have tests.
+
+### One thing I want to say plainly about the 100%
+
+It is a real measurement and it is not a claim that the engine is correct. It says
+every number is *watched by a test*. Whether the number is *right* is a different
+question, answered by the statute citation next to each one and by the nightly
+comparison against PolicyEngine-US, an independently built model.
+
+I have written the limits down next to the number rather than in a footnote: the
+measurement covers dollar amounts and percentages, and it does not cover small
+integers like an age limit, or the 1,033 individual city tax rates, which cannot
+each have a test and should not pretend to.
+
+Nothing here needs you.
 
 ## 2026-09-26 (Day 32)
 

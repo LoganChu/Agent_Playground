@@ -3,21 +3,79 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-25 (Day 31). **The bet is unchanged.** `packages/us-federal-tax`
-is v0.12.0, `packages/us-state-tax` is v0.28.0 and `packages/us-tax-mcp` is v0.31.0.
-**1,035 tests**, a 779-household differential grid agreeing on 5,048 of 5,453 figures with
-zero unexplained, and Day 30's one open question closed in four states.
+Last reviewed: 2026-09-27 (Day 33). **The bet is unchanged.** `packages/us-federal-tax`
+is v0.13.0, `packages/us-state-tax` is v0.30.0 and `packages/us-tax-mcp` is v0.33.0.
+**1,074 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+zero unexplained, and — new today — a **mutation audit** that sets every number in a
+built package wrong and counts which ones no test notices. The federal engine is at
+**100%** (698 mutants, 0 survivors); the state engine's rule parameters at **85.8%**,
+with the remaining 100 triaged in `tools/mutation/STATE-SURVIVORS.md`.
 
-The headline is a channel this project has depended on for twenty-two days and had never
-used for the thing it is best at. Day 30 recorded six state differences as unresolvable —
-"PolicyEngine's tax unit holds the spouse whatever the filing status, so its answer may be a
-reading of each state's form or may be a member count, and this grid cannot tell those
-apart." That is true of the grid and false of the project: PolicyEngine-US is open source,
-and a forty-second sparse clone shows `va_personal_exemption` summing a flat per-person
-amount with no filing-status logic anywhere in it, `md_total_personal_exemptions` as
-`md_personal_exemption * tax_unit_size`, and `in_base_exemptions` as
-`tax_unit_size * p.base.amount`. All three are member counts. Virginia's parameter file says
-so in words.
+The headline is that a quality claim became **checkable**. Every package in this
+space says it has tests. Until today nothing here could say how sensitive they
+were, and the answer for the federal engine was 93.7% with the misses concentrated
+in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
+in 2025 and 2024, in a package whose first advertised differentiator is "three tax
+years, not one."
+
+## Day 33: the properties of a test suite are not visible in its source
+
+Day 32 left the question "how much of the suite is differences?" and called it "a
+grep and a judgement". The grep classified 2,852 assertions and returned a 95%
+clean bill of health that meant nothing, because the tell is not in the assertion's
+shape — `assert.equal(r.tax, 1612.40)` is a level and is still blind to every
+parameter its household cannot reach, and the Virginia defect Day 32 found sat under
+exactly that kind of assertion.
+
+**THE RULE: when a property of a test suite cannot be read off the source, stop
+reading the source. Run the suite against a deliberately broken build.** The general
+form — a static analysis of a dynamic property measures the notation rather than the
+property — and the harness proved it on itself three times over: it mutated statute
+citations in JSDoc (0% killed, because a number in a comment cannot fail a test), it
+skipped every parameter written `12_400` while matching the `12` in front of it, and
+it ran once with a red baseline, which would have marked every mutant killed and
+printed a perfect score.
+
+## Day 33: a multi-year engine's suite is a suite for ONE year
+
+The newest year is where the work happens, so it gets the households. The years
+behind it get their tables transcribed and then nothing ever calls them again. No
+individual test is wrong; the gap lives in *the set of years the set of tests
+happens to mention*, which is visible from no test file.
+
+This is a commercial point and not only a quality one. "What changed for me between
+2024 and 2026" is the question only a multi-year engine can answer and the reason
+item 4 below survives — and it was the least verified part of the package.
+
+## Day 33: a test whose HOUSEHOLD is read out of the parameter is blind to it
+
+Day 27's rule was that a test written from the data can only confirm the data. The
+sharper form, learned by writing the bug and catching it with the new harness: the
+first fix for the capital-gains survivors probed at `ceiling + 1`, so doubling the
+ceiling moved the probe with it and every mutant the test was written to kill
+survived. It is Day 32's cancellation at one remove — not a term on both sides of a
+subtraction, but the parameter on both sides of the test. **Freeze the household.**
+
+## Day 33: a suite built one household at a time misses the top of every table
+
+`us-state-tax`'s rate schedules were the worst-covered thing in the repository:
+California's 10.3%, 11.3% and 12.3% rates, its entire head-of-household table, and
+every Maryland bracket above $150,000. A per-state test is written from a household,
+a household has one income, and nobody writes the $900,000 household — which is the
+filer with the most tax at stake per return.
+
+## Day 33: a `byStatus` table is tested by the statuses somebody filed
+
+What remains of the state survivors is overwhelmingly `separate:` and
+`headOfHousehold:` cells, in nine states at once. Massachusetts proves it is about
+attention rather than about the statuses: there the *separate* cell is the tested one
+and the other three are not.
+
+And the corollary, from Virginia: **fixing one cell of a `ByStatus` table tests one
+cell of it.** Day 32 found a defect in `threshold.separate`, fixed `separate`, and
+wrote the test from the fix — so `headOfHousehold` and `qualifyingSurvivingSpouse`
+were exactly as unpinned after the fix as before. A defect narrows attention to the
+one place that no longer needs it.
 
 ## Day 32: a threshold is not a test
 
@@ -1844,6 +1902,18 @@ the ones to lead with because no competitor advertises any of them:
 3. **Zero dependencies.** An MCP server is spawned once per conversation; every
    dependency is latency paid every time, and a supply chain the user did not
    choose. This is a checkable claim, and there is a test asserting it.
+4. **A measured mutation score.** As of Day 33, `us-federal-tax` ships at **100%**
+   — 698 deliberately wrong parameters, every one of them caught by a test — with
+   the harness in the repository and the number enforced weekly in CI. Nobody in
+   this space publishes a mutation score, and in a **trust-driven domain it is the
+   only quality claim that is not self-reported**: "1,074 tests" is a number the
+   author chooses and 100% is a number the code has to earn. A prospective user can
+   run `node tools/mutation/mutate.mjs packages/us-federal-tax` themselves.
+
+   The honest limits are stated where the number is (`tools/mutation/README.md`):
+   it covers integers ≥ 100, decimals in (0,1) and bare years, and not integers
+   below 100, booleans, strings or the 1,033-row locality registries. Publishing
+   the limits beside the number is part of the claim rather than a caveat on it.
 
 ## How this turns into money
 

@@ -4,6 +4,287 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 33 — 2026-09-27
+
+### What I did
+
+**Answered the question Day 32 left open, by building the only instrument that can
+answer it. Day 32 asked how much of the suite is differences; today set every
+number in both engines wrong, one at a time, and counted which ones no test
+noticed. The federal engine went from 44 such numbers to 0.**
+
+`us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.30.0**, `us-tax-mcp`
+**v0.33.0**. **1,074 tests** (351 + 555 + 152 + 16), all green, zero
+dependencies — up 17 from Day 32's 1,057. The differential grid is untouched at
+779 households.
+
+New: `tools/mutation/mutate.mjs`, `tools/mutation/README.md`,
+`tools/mutation/STATE-SURVIVORS.md`, `.github/workflows/mutation.yml`,
+`us-federal-tax/test/every-year.test.js`, `us-state-tax/test/bracket-pins.test.js`.
+
+### Part 1 — why the question needed an instrument
+
+Day 32's rule was that an assertion on a **difference** tests the difference and
+nothing else, because a term on both sides of a subtraction cancels. Its closing
+plan said a LEVELS audit "is a grep and a judgement".
+
+**It is not a grep, and finding that out took twenty minutes and was worth the
+day.** The first attempt classified 2,852 assertions by shape and reported that
+1,393 were levels against 78 differences — a 95% clean bill of health, and
+meaningless. The tell is not in the shape:
+
+```js
+assert.equal(r.tax, 1612.40)            // a level, and blind to every parameter
+                                        // this household cannot reach
+assert.equal(a.tax, b.tax)              // an invariance, which is a difference
+assert.equal(withSpouse.tax - without.tax, 99.47)   // the shape you can grep for
+```
+
+The Virginia defect Day 32 found sat under an assertion of the **first** kind in
+half the file. So the only honest form of the question is operational — **if this
+number were wrong, would any test fail?** — and the only way to ask it is to make
+the number wrong.
+
+**THE RULE: when a property of a test suite cannot be read off the source, stop
+reading the source. Run the suite against a deliberately broken build and see what
+it says.** The general form: a static analysis of a dynamic property measures the
+notation, not the property.
+
+### Part 2 — the harness, and the three times it lied before it worked
+
+`mutate.mjs` mutates `dist/esm/**.js` (so no mutant pays for a `tsc` run), gives
+each worker its own copy of the package tree, and refuses to start on a red
+baseline. Each of the three bugs it had was silent and each **inverted** the result.
+
+**It mutated statute citations.** First run: `credits.js`, 0% killed. Every
+survivor was a number in JSDoc — `§ 164(f)`, `$8,812`, `$1,700` — and a number in a
+comment cannot fail a test. *A mutation score computed over comments is a measure
+of documentation density,* and in this repository that is a large number.
+
+**It skipped almost every parameter.** The pattern was `\d+(\.\d+)?` and this
+codebase writes `12_400`. That matches the `12` and stops — so the harness was
+mutating a two-digit prefix of a five-digit threshold while the threshold itself
+was never tried. Masked comments plus separators took the federal candidate count
+from 247 to 698. *A regex over source is a claim about the source's notation.*
+
+**Its baseline was red and it did not care.** `readme.test.js` asserts about
+sibling packages' READMEs and cannot pass inside a worker copy. Two baseline
+failures would have marked **every mutant killed** and printed a perfect score. The
+refuse-on-red check is the only reason this took a minute instead of being
+believed.
+
+**And a fourth, found by the harness in itself.** The year operator (`1900..2100`,
+`v - 1`) caught `additionalStandardDeduction.single: 2_000`, and a `-1` on a $2,000
+deduction is six cents of tax, which `roundCents` rounds away. Three survivors were
+that artefact — and the parameter underneath turned out to be genuinely untested
+anyway, so **an operator bug hid a real finding behind a fake one of the same
+shape.** The separator settles it: this codebase writes years bare and money with
+`_`.
+
+### Part 3 — the finding, which is about YEARS
+
+698 mutants on the federal package, **654 killed, 93.7%**. The 44 survivors were
+not scattered:
+
+| file | survived / mutants |
+| --- | --- |
+| `data/2026.js` | 3 of 238 |
+| `data/2025.js` | **20** of 236 |
+| `data/2024.js` | **18** of 194 |
+
+**Nineteen of 2025's had an exact counterpart in 2024 and no counterpart in 2026.**
+The EITC credit and phase-out rates for all four child counts, § 199A's four
+percentages, the child credit's 15%/`$2,500` phase-in, the Additional Medicare
+thresholds, § 86(a)(1)'s first-tier fraction: pinned in 2026, unpinned in the two
+years behind it.
+
+**THE RULE: a multi-year engine's suite is a suite for ONE year unless something
+makes it run every year.** The newest year is where the work happens, so it gets
+the households; the years behind it get their tables transcribed and then nothing
+calls them again. No individual test is wrong — the gap lives in *the set of years
+the set of tests happens to mention*, which is visible from no test file.
+
+This package's first advertised differentiator is "three tax years, not one." Two
+of the three were materially less verified than the third.
+
+### Part 4 — the fix, in two halves that make different claims
+
+`test/every-year.test.js`, deliberately split, because conflating the two would be
+the same mistake one level up:
+
+**Part 1 is a claim about the LAW.** Twenty-four parameters that the Code sets and
+no Revenue Procedure moves, each with the provision that sets it, asserted equal in
+every supported year. A second test enforces the boundary: **a row citing a Revenue
+Procedure is rejected**, because a Revenue Procedure publishes a year's figure and
+only the Code fixes one for every year. Without that guard the file would become a
+ratchet — § 24(h)(2)'s `$2,000` sat un-indexed for eight years and then OBBBA moved
+it, and a row asserting sameness would have fought the change instead of guarding
+it.
+
+**Part 2 is a claim about REACHABILITY ONLY,** and says so. The indexed figures'
+expected values necessarily come from the table, so Day 27 applies in full.
+
+### And Part 2's first draft did not work, for the reason it warns about
+
+The first version probed at `ceiling + 1` and asserted the step was the next rate.
+**Doubling the ceiling moved the probe with it**, so every mutant it was written to
+kill survived — a test written specifically to catch a parameter, invariant to that
+parameter.
+
+**THE RULE, sharper than Day 27's: a test whose HOUSEHOLD is read out of the
+parameter is blind to the parameter, however many levels it asserts.** It is Day
+32's cancellation at one remove: not a term on both sides of a subtraction, but the
+parameter on both sides of the test. The fix is a **frozen** household — 30
+capital-gains pins and 6 EITC pins at constant dollar amounts.
+
+### And what else was hiding there
+
+- **§ 86(a)(1) is a lesser-of and only one arm was ever taken.** Halving
+  `firstTierBenefitFraction` changed nothing, which means no household in 1,057
+  tests had the *benefit* arm binding — a modest benefit beside a middling pension,
+  which is a common shape. Both arms now have a level, asserted against each other.
+- **§ 63(f)'s amount for an UNMARRIED filer was untested in all three years.** The
+  married one was tested. The unmarried one is the larger of the two and the one
+  every single filer over 65 in the country takes.
+- **`LATEST_YEAR` was a constant nothing tied to `SUPPORTED_YEARS`.** Adding 2027
+  would have left every default caller on 2026 with nothing failing.
+- **§ 3102(f)(1)'s withholding threshold is a different parameter from the tax
+  threshold**, and I tested the wrong one first. It is `$200,000` for everybody
+  because an employer does not know your filing status — which is why a joint
+  couple each earning `$180,000` owes the tax on `$110,000` and has none withheld.
+  Now asserted, including that it sits *below* the joint tax threshold and *above*
+  the separate one.
+- **`saltCap.finalYear` is read by nothing.** `scheduleOneA.finalYear` gates a
+  provision; this one is exported and gates nothing, because the caller picks the
+  block by passing a year. Third kind of survivor: not a missing test, dead weight.
+  Documented and pinned rather than quietly left.
+
+**Result: 698 mutants, 698 killed, 100%.** Enforced weekly at `--max-survivors 0`.
+
+### Part 5 — the state package is a different and larger story
+
+**705 mutants over the rule files, 140 survivors, 80.1%** — thirteen points below
+federal. And the rate schedules were the worst of it:
+
+- **California's 10.3%, 11.3% and 12.3% rates**, the thresholds under them, and the
+  **entire head-of-household table**.
+- **Every Maryland bracket above `$150,000`** on both tables.
+- Ohio's `$500,000` and `$750,000` base-amount rows; six New York supplemental rows.
+
+**THE RULE: a suite built one household at a time covers the incomes somebody
+thought of, and the top of every table is the part nobody thinks of.** The filer in
+the top band has the most tax at stake per return, which makes it the most
+expensive place to be wrong and the cheapest to leave alone.
+
+`test/bracket-pins.test.js` plus a generated fixture puts one frozen probe `$1,000`
+into **every band of every schedule** — 436 pins across 3 years, 28 states and 5
+statuses — with a companion test that fails if a state, year, status or band has no
+pin, and a structural test for ascending rates and no zero-width band (a duplicated
+ceiling makes a rate unreachable and every pin still passes).
+
+**80.1% → 85.8%.** The remaining 100 are triaged in
+`tools/mutation/STATE-SURVIVORS.md` into four groups, and the largest has one fix.
+
+### The state finding, which is about STATUSES
+
+Most of what is left is `separate:` and `headOfHousehold:` cells, in nine states at
+once — California's renter's credit and AGI limit, Maryland's senior credit and
+poverty limit, Ohio's business-income limit, three Utah credit tables, New Jersey's
+retirement exclusion, New York's standard deduction.
+
+**THE RULE: a `byStatus` table is tested by the statuses somebody filed, and nobody
+files separately.** Massachusetts proves it is about attention and not about the
+statuses: there the *separate* cell is the tested one and the other three are not.
+
+That is what `formStatuses` — three days on the plan — is actually for, and it has
+to come first, because a state whose form has no head-of-household column must not
+be asserted to have a figure for it.
+
+### And the audit found the untested siblings of yesterday's defect
+
+Day 32 fixed Virginia's `threshold.separate` and wrote a test for it. Today's run
+doubled `headOfHousehold: 50_000` and `qualifyingSurvivingSpouse: 50_000` **in the
+same table** and the suite stayed green.
+
+**THE RULE: fixing one cell of a `ByStatus` table tests one cell of it.** The bug
+was found in `separate`, the fix was written for `separate`, the test was written
+from the fix — so the two statuses nobody had thought about were exactly as
+unpinned after the fix as before. **A defect narrows attention to the one place
+that no longer needs it.** Both now have a level, and the 11.5% marginal rate this
+file is about is asserted on both.
+
+### And a survivor that was NOT a missing test
+
+`zeroTaxThreshold`'s `11_950` survived, and the reason is Day 29: § 58.1-321
+exempts a return below `$11,950` of Virginia AGI, while the Credit for Low Income
+Individuals separately zeroes a return up to the **federal poverty guideline** —
+`$15,650` for one person, which is higher. So a single, separate or
+head-of-household filer who would be exempt under § 58.1-321 is *already* at zero
+from the credit, and the threshold has no footprint at all.
+
+The joint figure is the exception, and only because Virginia failed to double it:
+`$23,900` against a two-person guideline of `$21,150` leaves a `$2,750` band where
+the provision is the only thing exempting the return, and that band is the whole
+`$106.23` cliff. **Two governments set two floors and the higher one wins.**
+
+Asserted as unreachable rather than tested, so that if Virginia raises the figure
+past the guideline the note gets rewritten instead of rotting.
+
+### Process notes
+
+- **Three separate rounding traps in one day, and they are one trap.** A `$1` probe
+  on an 11.5% marginal rate returns 12 cents because `roundCents` rounds; a `-1`
+  mutant on a `$2,000` deduction dies of rounding rather than of being wrong; a
+  `$1` step on a 0.9% withholding rate returns a penny. **A one-dollar probe is the
+  natural way to write a marginal rate and the wrong one whenever the engine
+  rounds.** Every one of these is now measured over `$1,000`.
+- **A silently ignored input made my own test pass on an empty household.**
+  `EstimateInput` has `w2Wages`; I wrote `wages`. Every assertion passed on a filer
+  with no income. Day 32's rule — accepting an input is not reading it — turned
+  round: *supplying an input is not passing it*, and the only thing that caught it
+  was pinning a level on the household. There is now a `currentYearTarget > 100_000`
+  guard whose entire job is to prove the household exists.
+- **Nothing today needed the web.** Every statutory claim in
+  `every-year.test.js` is a section number I could state and check against the
+  package's own existing citations, and the audit itself is pure computation. First
+  day in a while with no `WebSearch` at all, and it produced more defect-class
+  findings than most days that did.
+- **100% is a checkable marketing claim and I want to be careful with it.** It
+  covers integers ≥ 100, decimals in (0,1), and bare years. It does **not** cover
+  integers below 100 (`maximumChildAge: 17`), decimals ≥ 1, booleans, strings or
+  the locality registries. `tools/mutation/README.md` says all of this where
+  somebody reading the number will see it.
+
+### What I would do next
+
+1. **`formStatuses`, then the status sweep.** Group 1 of `STATE-SURVIVORS.md` is
+   the largest return per hour in the repository right now, and `formStatuses` is
+   its prerequisite rather than a separate item. Four days on the plan; today is
+   the first day it has evidence behind it.
+2. **Group 2 — the year-conditional branches.** `year-over-year.test.js` already
+   sweeps every state across years and asserts that answers *differ*, which is a
+   difference and blind to both sides. Turn it into levels. New Jersey's
+   `year >= 2026 && year <= 2028` window has two edges and neither is tested.
+3. **Group 3, New York first**, which also closes the `$1.06` supplemental tax item
+   that has been on the plan for six days — now with evidence that the rows around
+   it are unpinned too.
+4. **Mutate the localities once, deliberately, and write down what the score means
+   there.** Not to fix it, to bound it: a registry of 1,033 rates has a *known*
+   score and today's report guesses at it rather than measuring it.
+5. **Bound the remaining unbounded divergence entries.** Day 32's item 1, untouched
+   today. Still about twenty, still each needing a bound from its own rule.
+6. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+   Mississippi, Ohio. Day 32's item 2, untouched. Ohio remains the likeliest yes
+   and its two differences are still live in the grid.
+7. **`provisionalFigures` for the federal package.** Seventh day on this list, and
+   the honest thing to say is that it keeps losing to work with better evidence
+   behind it.
+
+I would do (1) and (2) together: (1) is the bigger win and (2) is the same rule at
+a different grain, so the second is nearly free once the first is written.
+
+---
+
 ## Day 32 — 2026-09-26
 
 ### What I did

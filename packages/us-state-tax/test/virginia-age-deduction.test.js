@@ -250,3 +250,145 @@ test('every other filing status ignores both new facts entirely', () => {
     assert.equal(fed.totalTax, plain.totalTax, `${status} read a fact about a spouse`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Day 33 — the untested siblings of Day 32's defect
+// ---------------------------------------------------------------------------
+//
+// Day 32 fixed `threshold.separate` and wrote the test above for it. Day 33's
+// mutation audit then doubled `headOfHousehold: 50_000` and
+// `qualifyingSurvivingSpouse: 50_000` in the SAME TABLE, and the whole suite
+// stayed green — as it did for `zeroTaxThreshold`'s `11_950`, which decides
+// whether a Virginian owes anything at all.
+//
+// **THE RULE: fixing one cell of a ByStatus table tests one cell of it.** The bug
+// was found in `separate`, the fix was written for `separate`, and the test was
+// written from the fix — so the two statuses nobody had thought about were exactly
+// as unpinned after the fix as before it. A defect narrows attention to the place
+// it was found, which is the one place that no longer needs it.
+//
+// The general form is now `test/bracket-pins.test.js` for rate schedules. This is
+// the same idea for one rule, and the mechanism is the cheapest possible: assert
+// EVERY key of the table, not the one the bug was in.
+test('every status has an age deduction threshold, and every one of them is pinned', () => {
+  // § 58.1-322.03(5)(a): $50,000, or $75,000 "for married taxpayers filing
+  // jointly or separately" — one sentence covering both married columns, which is
+  // why they are equal and why the third and fourth columns are the statute's
+  // "otherwise" case rather than a rule of their own.
+  assert.deepEqual(
+    { ...RULE.threshold },
+    {
+      single: 50_000,
+      marriedFilingJointly: 75_000,
+      marriedFilingSeparately: 75_000,
+      headOfHousehold: 50_000,
+      qualifyingSurvivingSpouse: 50_000,
+    },
+    'a whole-table assertion, so a new status cannot be added without a figure for it',
+  );
+  // And a LEVEL for each of the two statuses that had none, per Day 32's rule.
+  // Both are $12,000 under the threshold and lose the deduction a dollar at a time
+  // above it, so the same person $10,000 over pays $575 more Virginia tax.
+  for (const filingStatus of ['headOfHousehold', 'qualifyingSurvivingSpouse']) {
+    const at = (adjustedGrossIncome) =>
+      stateIncomeTax({
+        state: 'VA',
+        year: YEAR,
+        filingStatus,
+        federal: {
+          adjustedGrossIncome,
+          taxableIncome: adjustedGrossIncome,
+          deduction: 0,
+          deductionKind: 'standard',
+          earnedIncomeCredit: 0,
+        },
+        filerAge: 68,
+      });
+    const deductionOf = (r) =>
+      r.computedSubtractions.find((x) => x.name === 'Age deduction')?.amount;
+    const under = at(45_000);
+    const over = at(55_000);
+    assert.equal(deductionOf(under), 12_000, `${filingStatus}: the whole deduction below $50,000`);
+    assert.equal(deductionOf(over), 7_000, `${filingStatus}: $5,000 over the threshold costs $5,000 of deduction`);
+    // The 11.5% marginal rate this file is about, on a status that had no test for
+    // it: 5.75% on the dollar plus 5.75% on the dollar of deduction it destroys.
+    //
+    // Measured over $1,000 rather than $1. At one dollar the answer is 11.5 cents,
+    // `roundCents` returns 12, and the assertion measures the rounding instead of
+    // the rule — the third time Day 33 walked into this, twice in tests and once in
+    // the mutation operator itself. A one-dollar probe is the natural way to write
+    // a marginal rate and the wrong one whenever the engine rounds.
+    const step = at(56_000).tax - over.tax;
+    assert.equal(step, 115, `${filingStatus}: $115 on $1,000 — 11.5%, twice Virginia's top rate`);
+  }
+});
+
+test('the § 58.1-321 filing threshold is pinned, and is unreachable in four statuses out of five', () => {
+  // `zeroTaxThreshold.threshold` survived Day 33's audit, and the reason is not a
+  // missing test. It is Day 29's rule: a parameter the engine can never reach is
+  // not tested by anything, and four of these five figures cannot be reached.
+  //
+  // § 58.1-321 exempts a return whose Virginia AGI is below the threshold. The
+  // Credit for Low Income Individuals separately zeroes a return up to the FEDERAL
+  // POVERTY GUIDELINE, and the guideline for one person ($15,650) is well above
+  // Virginia's $11,950 — so a single filer who would be exempt under § 58.1-321 is
+  // already at zero tax from the credit, and doubling the threshold changes
+  // nothing about them. The same is true of a separate filer and a head of
+  // household, who take the same $11,950.
+  //
+  // The JOINT figure is the exception, and only because Virginia failed to double
+  // it: $23,900 against a two-person guideline of $21,150, so there is a $2,750
+  // band where § 58.1-321 is the only thing exempting the return. That band is
+  // where the $106.23 cliff this file's header mentions lives, and it is the whole
+  // observable footprint of the provision.
+  //
+  // Two governments set two floors and the higher one wins. So the honest test is
+  // the whole table plus a level on the one status where the figure does work —
+  // and the note, which is the part a future reader needs.
+  const RULE_321 = getStateDefinition('VA', YEAR).zeroTaxThreshold;
+  assert.deepEqual(
+    { ...RULE_321.threshold },
+    {
+      single: 11_950,
+      marriedFilingJointly: 23_900,
+      marriedFilingSeparately: 11_950,
+      headOfHousehold: 11_950,
+      qualifyingSurvivingSpouse: 11_950,
+    },
+    '§ 58.1-321 — $11,950, and $23,900 for a joint return',
+  );
+
+  const at = (filingStatus, adjustedGrossIncome) =>
+    stateIncomeTax({
+      state: 'VA',
+      year: YEAR,
+      filingStatus,
+      federal: {
+        adjustedGrossIncome,
+        taxableIncome: adjustedGrossIncome,
+        deduction: 0,
+        deductionKind: 'standard',
+        earnedIncomeCredit: 0,
+      },
+      filerAge: 40,
+    });
+
+  // The joint cliff, on both sides. Zero to the whole graduated tax on one dollar.
+  assert.equal(at('marriedFilingJointly', 23_900).tax, 0, 'at the threshold the return owes nothing');
+  assert.equal(at('marriedFilingJointly', 23_901).tax, 106.23, 'and one dollar over it owes $106.23');
+
+  // And the documented unreachability, asserted rather than described — so that if
+  // Virginia ever raises $11,950 past the poverty guideline, or Congress lowers the
+  // guideline, this fails and the note above gets rewritten instead of rotting.
+  for (const filingStatus of ['single', 'marriedFilingSeparately', 'headOfHousehold']) {
+    const threshold = RULE_321.threshold[filingStatus];
+    assert.equal(at(filingStatus, threshold).tax, 0);
+    assert.equal(
+      at(filingStatus, threshold + 1).tax,
+      0,
+      `${filingStatus}: § 58.1-321 has no footprint here — the low income credit already reaches further`,
+    );
+    // The credit is what is doing it, and it reaches further than the threshold.
+    assert.ok(at(filingStatus, threshold + 2_000).tax === 0, `${filingStatus}: and it keeps reaching`);
+  }
+});

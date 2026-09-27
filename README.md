@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.29.0/us-state-tax-0.29.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.12.0/us-federal-tax-0.12.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.32.0/us-tax-mcp-0.32.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.30.0/us-state-tax-0.30.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.13.0/us-federal-tax-0.13.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.33.0/us-tax-mcp-0.33.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -35,6 +35,53 @@ at an immutable tag, built and tested from the commit it was cut from by the
 When the packages do land on npm the names shorten to `npm i us-state-tax` and the
 URLs above keep working. What npm adds is **reach** — a name that can be searched
 for — not capability.
+
+## How much of this is actually tested
+
+Every package here says it has tests. That claim is worth about as much as the
+tests are sensitive, and nothing had ever measured the sensitivity — so v0.13.0 /
+v0.30.0 ship a harness that does.
+
+[`tools/mutation/mutate.mjs`](tools/mutation) sets one number in a built package
+wrong, runs the suite, puts it back, and does it again for every number in the
+build. A **survivor** is a parameter the package could be shipped with a wrong
+value for.
+
+| package | mutants | survivors | killed |
+| --- | --- | --- | --- |
+| `us-federal-tax` | 698 | **0** | **100%** |
+| `us-state-tax` (rule parameters) | 705 | see [the worklist](tools/mutation/STATE-SURVIVORS.md) | in progress |
+
+The first run scored the federal engine at **93.7%**, and the 44 survivors were
+not scattered. Nineteen of them had an exact counterpart in a second year and no
+counterpart in a third: the EITC credit rates, the § 199A rates, the child
+credit's phase-in and the Additional Medicare threshold were all pinned in 2026
+and unpinned in 2025 and 2024.
+
+**A multi-year engine's suite is a suite for one year unless something makes it
+run every year** — and "three tax years, not one" is the first thing this package
+claims. Two of the three were materially less verified than the third, no
+individual test was wrong, and the gap was invisible from inside any test file
+because it lived in the set of years the set of tests happened to mention.
+
+`us-state-tax`'s rate schedules were worse: California's 10.3%, 11.3% and 12.3%
+rates, its entire head-of-household table, and every Maryland bracket above
+`$150,000`. Those are the filers with the most tax at stake per return, and they
+were unpinned because a per-state test is written from a household, a household
+has one income, and nobody writes the `$900,000` household.
+
+The locality registries are excluded deliberately. One of 1,033 Ohio municipal
+rates cannot have its own test, and a score that counted them would measure the
+registry's size rather than the suite's reach.
+
+**What the score is not:** a target. Driving it up by asserting the parameter
+tables back to themselves would satisfy the number and prove nothing. The
+correctness evidence is still the statute citation on each figure and
+[`tools/differential`](tools/differential), which checks 779 households against an
+independently built model. What the audit adds is that nothing can move silently.
+
+The federal number is enforced weekly by the
+[Mutation audit workflow](.github/workflows/mutation.yml) at `--max-survivors 0`.
 
 ## The calculator
 
@@ -460,7 +507,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.32.0/us-tax-mcp-0.32.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.33.0/us-tax-mcp-0.33.0.tgz"
       ]
     }
   }

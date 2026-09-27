@@ -1,0 +1,68 @@
+# The LEVELS audit, on a schedule rather than on every push.
+#
+# `tools/mutation/mutate.mjs` sets every number in a built package wrong, one at a
+# time, and runs the suite. It takes about ten minutes per package on two cores,
+# which is far too slow for a push and cheap for a week.
+#
+# ## Why it is a ratchet, and why that is defensible here
+#
+# Day 31's rule says a bound derived from a measurement is a ratchet that locks in
+# whatever was true the day it was written. `--max-survivors 0` looks exactly like
+# one. The difference is what the number means: 0 is not where the package happened
+# to land, it is the only value with an argument behind it — every parameter has a
+# test that fails when it is wrong. Any other number would need a list of which
+# parameters are exempt and why, and that list is `STATE-SURVIVORS.md` for the
+# package that still has one.
+#
+# So `us-federal-tax` runs at 0 and `us-state-tax` is reported without a limit
+# until its survivors are triaged. Raising either is a deliberate edit to this
+# file, which is the point: it cannot drift, only be changed on purpose.
+name: Mutation audit
+
+on:
+  schedule:
+    # 04:17 UTC on Mondays. Not on the hour, because everything is on the hour.
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  federal:
+    name: us-federal-tax (must stay at zero survivors)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build
+        run: cd packages/us-federal-tax && npm install && npm run build
+      - name: Audit
+        run: |
+          set -euo pipefail
+          node tools/mutation/mutate.mjs packages/us-federal-tax \
+            --workers 4 --max-survivors 0 | tee "$GITHUB_STEP_SUMMARY"
+
+  state:
+    name: us-state-tax (reported, not yet enforced)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build
+        run: cd packages/us-state-tax && npm install && npm run build
+      # The locality registries are excluded: 1,033 municipal rates cannot each
+      # have a test, so mutating them measures the registry's size rather than the
+      # suite's reach. See tools/mutation/README.md.
+      - name: Audit the rule parameters
+        run: |
+          set -euo pipefail
+          node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 \
+            --skip localities/ohio.js,localities/ohio-school-districts.js,localities/indiana.js,localities/michigan.js,localities/maryland.js,localities/new-york.js,localities/counties.js \
+            | tee "$GITHUB_STEP_SUMMARY"
