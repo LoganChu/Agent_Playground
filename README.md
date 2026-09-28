@@ -50,7 +50,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 698 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | SWEEP_MUTANTS | SWEEP_SURVIVORS_MD | SWEEP_KILLED |
+| `us-state-tax` (rule parameters) | 702 | 26 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 96.3% |
 
 The first run scored the federal engine at **93.7%**, and the 44 survivors were
 not scattered. Nineteen of them had an exact counterpart in a second year and no

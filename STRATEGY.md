@@ -8,7 +8,7 @@ is v0.13.0, `packages/us-state-tax` is v0.31.0 and `packages/us-tax-mcp` is v0.3
 **1,085 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (698
-mutants, 0 survivors); the state engine's rule parameters at **SWEEP_KILLED**, up from
+mutants, 0 survivors); the state engine's rule parameters at **96.3%**, up from
 85.8% on Day 33, with what remains triaged in `tools/mutation/STATE-SURVIVORS.md`.
 
 The headline is that a quality claim became **checkable**. Every package in this
@@ -39,6 +39,21 @@ The commercial reading: the cost of covering a state to this standard is bounded
 known before the state is written, so "one more state, fully verified" is a unit of
 work that does not grow as the package does.
 
+**And the limit, which the same day's measurement supplied: the argument covers a
+MONEY mutation and not a YEAR mutation.** A money mutant sets `P` to `2P + 1`, so any
+rung inside a 100%-wide window catches it. A year mutant swaps one table for another,
+and the two tables can be arbitrarily close — the 2025 and 2026 federal poverty
+guidelines are 2% apart, so catching that swap needs a household inside a 2%-wide
+window, which no logarithmic ladder can promise and no larger battery fixes. Fifteen
+of the 26 remaining survivors are year mutants for exactly this reason, and the file
+that predicted the sweep would close them said so before the run and was wrong.
+
+**A household battery is strongest where two values are far apart, which is the
+opposite of where a year branch lives.** Where the branches are nearly equal the right
+instrument is a direct assertion on each branch. That generalises past years: any
+parameter chosen by a *selector* rather than scaled by a *magnitude* is outside the
+ladder's guarantee.
+
 ## Day 34: a fixture of expected values is not a coverage claim
 
 4,180 pinned answers prove nothing on their own. If they all happened to be zero they
@@ -60,6 +75,24 @@ And the digest those pins watch was measured rather than chosen. Watching only t
 would have reported 13 of 498 parameters as unreachable that are reached, because a
 parameter can move a state's AGI, its exemptions or its credits inside a return
 already at zero — and a return at zero is where every low-income parameter lives.
+
+## Day 34: the notes in the result object are the one output nothing asserts
+
+Five of the 26 remaining survivors are `notes: year >= 2026 ? [...NOTES_2026, ...NOTES]
+: NOTES`. Nothing in this package pins which notes a state-year emits, so a 2026-only
+note appearing in 2025 — or vanishing from 2026 — fails no test.
+
+That is a bigger deal than five survivors, because of what the notes are *for*. "Saying
+what is not known, as a product feature" has a heading of its own in this document, and
+the whole argument is that a provisional figure's explanation belongs **in the result
+object where a language model will actually encounter it** rather than in a README.
+Every figure in that object is now pinned several ways over. The prose beside it, which
+is the part this package claims as its differentiator, has nothing behind it at all.
+
+**THE RULE: a suite that watches numbers cannot see the thing you sell if the thing you
+sell is not a number.** The sweep's digest is four figures per household and a note is
+not a figure — so the more thoroughly the numbers get pinned, the more conspicuous it
+becomes that the differentiator is unguarded.
 
 ## Day 34: a duplicate kept to be cross-checked needs something that makes the check exist
 

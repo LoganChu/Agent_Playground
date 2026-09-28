@@ -96,6 +96,48 @@ children, a retirement, because a rule about pension income is not reached by a
 wage), plus a handful of shapes that exist for one thing each: a blind filer, a
 veteran, a centenarian, a household with three young children.
 
+### The measurement, and the way it corrected me
+
+Running yesterday's audit again on today's code: **100 numbers that could have been
+wrong silently, down to 26.** The score went from 85.8% to 96.3%.
+
+I then read all 26, and they are worth reporting because they are not 26 problems.
+**Only ten of them are a missing test.** Those ten are step charts — Ohio's retirement
+credit pays a different amount in each of six income bands, and nothing checks five of
+them — and they need a different tool than today's, which I have specified rather than
+started.
+
+Of the rest: four are conditions on a tax year outside the two this package supports,
+so no question anyone can ask reaches them. One is a `0.01` used to mean "just below
+the next band", where any small number does the same job. Five are a 2% difference
+between the 2025 and 2026 federal poverty guidelines, and those are the ones that
+**corrected a claim I had made earlier the same day**, in writing, before the run.
+
+I had argued that the number of households a test suite needs is small because a
+doubling ladder catches any doubled number. That is true, and it does not cover a
+*year* condition: switching from the 2025 poverty guideline to the 2026 one does not
+double anything, it swaps `$15,650` for `$15,960`. Catching a 2% change needs a
+household inside a 2%-wide window, and no ladder can promise that. So the households
+are the wrong tool for those, however many I add, and the plan now says so.
+
+### And the one I did not expect, which is about the product
+
+The last five survivors are the *prose*. Each state's result carries notes — "this
+figure is carried forward from 2025, here is why, and here is the direction it errs
+in" — and several states emit a different set of notes for 2026 than for 2025.
+**Nothing checks which set comes out.** A 2026-only note appearing on a 2025 return,
+or disappearing from a 2026 one, would fail no test.
+
+That is a small number of survivors and, I think, the most interesting thing the run
+found. Putting the caveats in the result object rather than in a README is a
+deliberate bet this project made early: a language model reading an answer will
+encounter them there and will not go and read documentation. Every number in that
+answer is now checked several ways over. The sentences beside them — the part that is
+actually the differentiator — had nothing behind them at all.
+
+**A test suite that watches numbers cannot see the thing you sell, if the thing you
+sell is not a number.** That is tomorrow's job, alongside the step charts.
+
 ### And four real defects came out of building it
 
 **Ohio's personal exemption table gave a widow two exemptions.** A qualifying

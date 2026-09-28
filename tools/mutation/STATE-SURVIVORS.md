@@ -10,7 +10,7 @@ rather than the suite's reach.
 | Day 33, before any fix | 705 | 140 | 80.1% |
 | Day 33, after `test/bracket-pins.test.js` | 705 | 102 | 85.5% |
 | Day 33, after the Virginia sibling statuses | 705 | 100 | 85.8% |
-| **Day 34, after `test/status-sweep.test.js`** | **SWEEP_MUTANTS** | **SWEEP_SURVIVORS** | **SWEEP_KILLED** |
+| **Day 34, after `test/status-sweep.test.js`** | **702** | **26** | **96.3%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -70,61 +70,90 @@ of whoever remembered is exactly what was missing.
 
 ---
 
-## Group 2 — year-conditional branches, taken in one direction only
+## The 26 that remain, triaged exactly
 
-| file | the branch |
-| --- | --- |
-| `flat-states.js` | `year === 2025 ? 24000 : 30000`; the `year >= 2024` / `>= 2026` / `>= 2025` spreads |
-| `flat-states.js` | `minimumAge: year === 2025 ? 80 : 81` |
-| `maryland.js` | the poverty guideline, and a 2026 note block |
-| `ohio.js` | `year >= 2026 ? 500_000 : 750_000` |
-| `new-jersey.js` | `year >= 2026 && year <= 2028 ? 1.25 : 1` |
+Every survivor was read. They are not 26 problems; they are five, and only one of them
+is a missing test.
 
-Mutating the year in the condition survives, which means only one side of the branch
-is ever evaluated by a test. Same disease as Day 33's federal finding — the suite is
-a suite for one year — in a different shape.
+### A — step-chart rows (10). The only group that is straightforwardly untested.
 
-**Most of this should be closed by the sweep already**, because the sweep pins every
-state in **both** years and a year-conditional that changes a parameter changes a
-pinned answer in one of them. Check the table above before spending a day here: what
-remains will be the conditionals that change something no household reaches, which
-is a different problem and belongs with Group 3.
+| state | line | what |
+| --- | --- | --- |
+| Ohio | 93, 95, 96, 97 ×2 | the retirement income credit's steps — `$500`, `$3,000`, `$5,000`, `$8,000`, and the `$130` amount |
+| Ohio | 106 | the joint filing credit's `0.2` row |
+| Ohio | 248 | `perSpouseIncomeThreshold: 500` |
+| Maryland | 114 | the itemized-deduction limit's `$200,000`/`$800` row |
+| California | 115, 120 | CalEITC's `finalPhaseOutStartCredit: 635` and `investmentIncomeLimit: 4814` |
 
-New Jersey's is the one to read twice: `1.25` applies **only** in 2026–2028, so it is
-a window with two edges, and this package supports neither 2028 nor 2029.
+**This is the group the step-probe instrument closes**, and Ohio's retirement credit is
+the proof that households are the wrong tool: its steps sit at `$500` to `$8,000` of
+retirement income, so a household ladder would need five more rungs for one credit in
+one state. `bracket-pins.test.js` is the pattern — one frozen probe inside every band,
+generated into a fixture, with a companion test that fails if a band has no probe.
 
-## Group 3 — step charts, and the instrument they need is NOT more households
+Ohio's `0.2` is the exception inside the exception: the journal records it as
+*unreachable arithmetic*, so the right output is an assertion that it cannot be
+reached, as `virginia-age-deduction.test.js` does for § 58.1-321 — not a probe.
 
-The largest remaining category, and Day 34 learned the shape of it by trying to
-close it with households and stopping.
+### B — the year selector on a `notes:` or a `name:` (5). Not tax at all.
 
-| state | the chart |
-| --- | --- |
-| Ohio | the retirement income credit's six steps (`$500`/`$1,500`/`$3,000`/`$5,000`/`$8,000`), the exemption-credit chart, the joint filing credit's steps and cap |
-| New York | three supplemental-tax rows, and the school-tax credit's `$28,000`/`$40` |
-| New Jersey | the stepped child credit's middle steps |
-| Maryland | the itemized-deduction limit's `$175,000`/`$1,600` row, the exemption staircase's middle steps |
-| California | CalEITC's per-child-count phase-in rates, `investmentIncomeLimit`, the Young Child Tax Credit's phase-out |
-| Indiana | the unified elderly credit's three income bands, both tables |
+`ohio.js` 258, `maryland.js` 310, `flat-states.js` 205 and 670, `new-jersey.js` 229:
+`notes: year >= 2026 ? [...NOTES_2026, ...NOTES] : NOTES`, and one rule `name` that
+says "75% for 2025".
 
-Every one of these is a `CreditStep[]`-shaped array, and the household ladder is the
-wrong tool for them. Ohio's retirement credit shows why: its steps sit at `$500` to
-`$8,000` of retirement income, so catching all six needs probes at roughly `$800`,
-`$1,600`, `$3,200`, `$6,400` and `$12,800` — **five more households in the general
-battery, for one credit in one state.** Multiply by every chart in the table and the
-battery stops being logarithmic in anything.
+**Nothing in this package pins which notes a state-year emits**, so a 2026-only note
+appearing in 2025 — or vanishing from 2026 — fails no test. That is worth more than its
+share of the survivor count, because **"state limitations loudly" in the result object
+is the package's own advertised differentiator**, and it is the one output with no
+assertion behind it. The fix is not a household: it is a test that pins the note *set*
+per state-year, the way the figures are pinned.
 
-**THE RULE: a chart of steps needs a probe inside each step, not a household for
-each step.** `bracket-pins.test.js` already does exactly this for the rate
-schedules — one frozen probe `$1,000` into every band, generated into a fixture,
-with a companion test that fails if a band has no probe. The same instrument over
-every `steps` / `bands` / `amountByAge` array in the definitions closes most of this
-table in one file, and it is the next thing to build.
+### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
-Ohio's joint-filing-credit `0.2` row is worth a note: the journal records that it is
-*unreachable arithmetic*. If that is right it is Day 29's category — a documented
-unreachability rather than a missing test — and the right output is an assertion
-that it cannot be reached, as `virginia-age-deduction.test.js` does for § 58.1-321.
+`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` 157
+(`year >= 2024`) and 287 (`year >= 2025`).
+
+The package supports 2025 and 2026. Both are inside every one of these windows, so
+moving an edge changes nothing that can be asked for. These are Day 29's category — an
+unreachable figure cannot be wrong — and they become reachable only when the package
+gains a year on the far side. New Jersey's `2028` is the one to remember: **it is a real
+cliff with a real date, and it will start mattering the day 2029 is added.**
+
+### D — the federal poverty guideline (5), and the rule it corrects
+
+`virginia.js` 63–64 and `maryland.js` 286–288:
+`year >= 2026 ? { firstPerson: 15_960, ..., year: 2026 } : { firstPerson: 15_650, ...,
+year: 2025 }`.
+
+Two things are in there. The `year:` label is read by nothing numeric. The *selector*
+swaps `$15,650` for `$15,960` — and that is the finding:
+
+**THE RULE: the doubling-ladder argument covers a MONEY mutation and does not cover a
+YEAR mutation.** A money mutant sets `P` to `2P + 1`, so a household anywhere in a
+100%-wide window catches it, and a ratio-2 ladder always has one. A year mutant swaps
+one table for another, and the two tables can be arbitrarily close: the 2025 and 2026
+federal poverty guidelines differ by **2%**, so catching it needs a household inside a
+2%-wide window. **No logarithmic ladder can promise that, and no larger battery fixes
+it — the right instrument is a direct assertion on each branch, not a household.**
+
+This corrects what this file said before the run: that the sweep would probably close
+the year-conditional group because it pins every state in both years. It closed some,
+and the ones it did not are the ones where the two years' values are nearly equal.
+That is exactly backwards from where a household battery is strong.
+
+### E — an epsilon (1).
+
+`ohio.js` 87: `(year >= 2026 ? 500_000 : 750_000) - 0.01`, mutated to `- 0.005`. The
+`0.01` exists to express "just below the next band" and any small value does the same
+job, so no household can tell. **A representation detail is not a parameter**, and
+counting it as one is the harness measuring its own notation.
+
+### F — one that a household does reach (1).
+
+`flat-states.js` 664: `minimumAge: year === 2025 ? 80 : 81`. The battery's oldest
+retiree is 82 and qualifies under either, so nothing moves. Changing that household to
+**80** catches it — known, one character, and left for the next run rather than folded
+in after the score was measured.
 
 ## Group 4 — check for deadness before testing
 
@@ -149,13 +178,24 @@ that a value nothing reads is free to disagree with the value that is read.**
 
 ## How to work this list
 
-1. **The step-chart probe file** (Group 3). One instrument, most of the table, and
-   the pattern already exists in `bracket-pins.test.js`.
-2. **Re-read Group 2 against the table at the top** before doing anything: the sweep
-   may have closed it, and an entry that no longer exists is worse than no entry.
-3. **Group 2's remainder** by strengthening `year-over-year.test.js` from differences
-   to levels — Day 32's rule, because "2026 differs from 2025" is a difference and is
-   blind to both sides.
+Only two of the six groups are work, and they are different instruments:
+
+1. **The step-chart probe file** closes **A**, ten of the 26. One file, and the pattern
+   already exists in `bracket-pins.test.js`: a frozen probe inside every step of every
+   `steps` / `bands` / `amountByAge` array, generated into a fixture, with a companion
+   test that fails when a step has no probe.
+2. **A note-set pin** closes **B**, five more, and is worth doing for its own sake
+   rather than for the score: the notes in the result object are what this package
+   sells and the only output with nothing asserting it.
+3. **F** is one character in `status-households.mjs` — make the 82-year-old 80 — and
+   should ride along with whichever of the above lands first.
+4. **C, D and E are not work.** C is unreachable until the package supports a year
+   outside the windows; D needs a direct per-branch assertion rather than a household,
+   and the reason is in that section; E is a representation detail. If a future run
+   wants the number to be 0 it has to say what it did about each of these, not quietly
+   write a test that asserts the parameter back to itself — which is Day 27's rule and
+   the reason `## Reading the score` in the harness README says the score is not a
+   target.
 
 Re-run after each and update the table at the top:
 

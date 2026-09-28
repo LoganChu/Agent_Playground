@@ -17,7 +17,7 @@ caller who mistyped it.**
 
 `us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.31.0**, `us-tax-mcp`
 **v0.34.0**. **1,085 tests** (351 + 565 + 153 + 16), all green, zero dependencies —
-up 11 from Day 33's 1,074. State mutation score **85.8% → SWEEP_KILLED**.
+up 11 from Day 33's 1,074. State mutation score **85.8% → 96.3%**.
 
 New: `packages/us-state-tax/test/status-sweep.test.js`,
 `test/status-households.mjs`, `test/status-sweep.json` (4,180 rows),
@@ -255,6 +255,60 @@ array closes most of Group 3 in one file.
 That is tomorrow's job and it is specified rather than guessed, which is the difference
 between this entry and four days of `formStatuses`.
 
+### Part 7 — the score landed at 96.3%, and the survivors corrected me
+
+**702 mutants, 676 killed, 26 survived: 85.8% → 96.3%.** The sweep took 100 survivors
+to 26, which is the day's headline number.
+
+The composition is the more useful result, because **it contradicts a prediction I had
+already committed.** `STATE-SURVIVORS.md` said, before the run, that the sweep would
+probably close the year-conditional group "because the sweep pins every state in both
+years". Fifteen of the 26 are year mutants. I read all 26; they are five things and only
+one of them is a missing test.
+
+| | what | n |
+| --- | --- | --- |
+| A | step-chart rows — Ohio's retirement credit, Maryland's itemized limit, CalEITC | 10 |
+| B | the year selector on a `notes:` or a rule `name:` | 5 |
+| C | a year window with both supported years inside it | 4 |
+| D | the federal poverty guideline's year selector | 5 |
+| E | an epsilon — `- 0.01` to express "just below" | 1 |
+| F | one a household does reach, if it were 80 rather than 82 | 1 |
+
+**D is the one that corrects Part 2's rule.** The block is `year >= 2026 ? { firstPerson:
+15_960 } : { firstPerson: 15_650 }`. A money mutation sets `P` to `2P + 1` and a ladder
+of ratio 2 always has a rung inside that 100%-wide window. **A year mutation does not
+double anything — it swaps one table for another, and the two tables can be arbitrarily
+close.** The 2025 and 2026 federal poverty guidelines are 2% apart, so catching that
+swap needs a household inside a 2%-wide window, which no logarithmic ladder can promise
+and no larger battery fixes.
+
+**THE RULE: the doubling-ladder argument covers a MONEY mutation and not a YEAR
+mutation.** And the corollary is about instruments rather than batteries: where two
+branches are nearly equal, the right test is a direct assertion on each branch, not a
+household that happens to sit between them. A household battery is strongest exactly
+where the two values are far apart, which is the opposite of where year branches live.
+
+**B is the finding I did not expect and like best.** Five survivors are
+`notes: year >= 2026 ? [...NOTES_2026, ...NOTES] : NOTES`. **Nothing in this package
+pins which notes a state-year emits**, so a 2026-only note appearing in 2025, or
+vanishing from 2026, fails no test. That matters past the score: "state limitations
+loudly, in the result object" is this package's own advertised differentiator, and it is
+the one output with no assertion behind it at all. The sweep's digest watches four
+numbers and a note is not a number.
+
+**C and E are not work, and saying so is the point of the triage.** C is four window
+edges with both supported years inside them — unreachable until the package gains a year
+on the far side, and New Jersey's `2028` is a real cliff with a real date that starts
+mattering the day 2029 is added. E is `- 0.01` used to express "just below the next
+band", where any small value does the same job: **a representation detail is not a
+parameter**, and counting it as one is the harness measuring its own notation, which is
+the third time this harness has done that.
+
+F I left alone deliberately: changing the 82-year-old to 80 catches it, and folding a
+change in after the score was measured would mean publishing a number that describes
+code that no longer exists.
+
 ### Process notes
 
 - **The fast proxy is worth more than the score.** The harness takes half an hour per
@@ -280,31 +334,44 @@ between this entry and four days of `formStatuses`.
 
 ### What I would do next
 
-1. **The step-chart probe file.** Group 3, one instrument, most of the remaining
-   survivors, and the pattern already exists in `bracket-pins.test.js`. Specified in
-   `STATE-SURVIVORS.md` with the evidence attached.
-2. **Re-read Group 2 against the new score before touching it.** The sweep pins every
-   state in both years, so a year-conditional that changes a parameter should already
-   be caught; what remains will be conditionals that change something no household
-   reaches, which is Group 3's problem and not a separate day.
-3. **`formStatuses`, but only if a primary source becomes reachable** — and record in
-   the plan that the blocker is *egress*, not effort, so it stops being re-listed as
-   an afternoon's work. If a state's instructions ever become fetchable this is
-   half a day; until then the honest field is not `formStatuses` but nothing.
-4. **Bound the remaining unbounded divergence entries.** Day 32's item 1, untouched
+1. **The step-chart probe file.** Ten of the 26 survivors, one instrument, and the
+   pattern already exists in `bracket-pins.test.js` — a frozen probe inside every step
+   of every `steps` / `bands` / `amountByAge` array, with a companion test that fails
+   when a step has no probe. Ohio's retirement credit is the worked example in
+   `STATE-SURVIVORS.md` group A. Take group F along with it: one character in
+   `status-households.mjs`, 82 to 80.
+2. **Pin the note SET per state-year.** Five survivors, and the reason to do it is not
+   the five. The notes in the result object are what this package sells — "state
+   limitations loudly", in the result rather than the README, because that is where a
+   model encounters it — and they are the only output with nothing asserting them. A
+   2026-only note appearing in 2025 fails no test today. Cheap: a fixture of note
+   *counts and first lines* per state-year would catch a swapped branch without
+   freezing the prose.
+3. **Do NOT widen the battery for the year branches.** Part 7's rule: a year mutation
+   is a selector and not a magnitude, the two branches can be 2% apart, and no ladder
+   reaches that. Group D needs a direct assertion on each branch — which is what
+   `year-over-year.test.js` should have been, and it asserts differences. Turning it
+   into levels is the right shape and it is not a battery problem.
+4. **`formStatuses`, but only if a primary source becomes reachable** — and the plan
+   now records that the blocker is *egress*, not effort, so it stops being re-listed as
+   an afternoon's work. If a state's instructions ever become fetchable this is half a
+   day; until then the honest field is not `formStatuses` but nothing.
+5. **Bound the remaining unbounded divergence entries.** Day 32's item 1, untouched
    for three days. Still about twenty, each needing a bound from its own rule.
-5. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+6. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
    Ohio. Day 32's item 2, untouched. Ohio remains the likeliest yes, and today's Ohio
    work did not touch the question.
-6. **`provisionalFigures` for the federal package.** Eighth day on this list. Day 33
+7. **`provisionalFigures` for the federal package.** Eighth day on this list. Day 33
    said the honest thing is that it keeps losing to work with better evidence behind
    it, and that was true again today.
-7. **Consider the top-level input guard.** Deliberately not done today — the top-level
+8. **Consider the top-level input guard.** Deliberately not done today — the top-level
    object is the caller's own and may carry their bookkeeping — but Day 33's `w2Wages`
    bug was at a top level, so the argument is not settled, only deferred. A
    `strict: true` option that a caller opts into would settle it without breaking one.
 
-I would do (1) alone. It is the only item with an instrument already designed for it.
+I would do (1) and (2) together. (1) is the only item with an instrument already
+designed for it, and (2) is the only one that is about the product rather than the
+score — which makes the pair a better day than either alone.
 
 ---
 
