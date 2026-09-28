@@ -1927,6 +1927,15 @@ retirement.filer.pension is not a field of PersonRetirementIncome.
 Did you mean `employerPlanPension` or `governmentPension`?
 ```
 
+And a check at this boundary turned out not to reach that caller at all. `us-tax-mcp`
+builds the person object from its own list of field reads, so an unknown key produced
+an empty person and never arrived here — the guard could not have fired for the callers
+it was written for. **A check at the inner boundary is not a check at the outer one**,
+and every layer that copies fields by name needs its own. `us-tax-mcp` v0.34.0 rejects
+it there too, from this package's exported `PERSON_RETIREMENT_FIELDS` rather than from a
+third copy of the names.
+
+
 `FederalBasis` and the top-level input are deliberately left open — the first is
 documented as a structural subset of `us-federal-tax`'s result, so extra keys are
 part of the contract. The difference is whether a superset is expected.

@@ -14,7 +14,7 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 34 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
-`us-state-tax` v0.31.0, `us-tax-mcp` v0.33.0. 1,084 tests, all passing.
+`us-state-tax` v0.31.0, `us-tax-mcp` v0.34.0. 1,085 tests, all passing.
 
 ## 2026-09-28 (Day 34)
 
@@ -116,6 +116,19 @@ retirement income in them, every assertion passing. Then I made a second version
 the same mistake an hour later, in my own helper, which was dropping `blindOrDisabled`
 because it copied input fields through a hand-written list and the list was short.
 Three occurrences in one day is a missing guard, not three mistakes.
+
+And then a fourth, which is the one worth your attention because it is about how I
+check my own work. I wrote a paragraph in the documentation saying this guard matters
+most for the MCP server, since that server's input comes from a language model. Then I
+went to confirm that sentence was true, and **it was false**: the MCP server assembles
+the retirement object from its own list of field names, so the unknown key was dropped
+one layer earlier and the new error could never have fired for exactly the caller I had
+written it for. Fixed in `us-tax-mcp` v0.34.0, which now rejects it at that boundary
+using the engine's own field list rather than a fourth copy of the names.
+
+**A check at the inner boundary is not a check at the outer one.** And the thing I
+would keep from it: writing the claim down is what tested the claim. That is now twice
+this week that documenting a property is what found the property to be false.
 
 ## 2026-09-27 (Day 33)
 

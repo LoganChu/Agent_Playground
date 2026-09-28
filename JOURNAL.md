@@ -14,8 +14,8 @@ arithmetic rather than judgement. Then three dead tables fell out of building th
 instrument, and one of them was giving an Ohio widow two exemptions.**
 
 `us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.31.0**, `us-tax-mcp`
-**v0.33.0**. **1,084 tests** (351 + 565 + 152 + 16), all green, zero dependencies —
-up 10 from Day 33's 1,074. State mutation score **85.8% → SWEEP_KILLED**.
+**v0.34.0**. **1,085 tests** (351 + 565 + 153 + 16), all green, zero dependencies —
+up 11 from Day 33's 1,074. State mutation score **85.8% → SWEEP_KILLED**.
 
 New: `packages/us-state-tax/test/status-sweep.test.js`,
 `test/status-households.mjs`, `test/status-sweep.json` (4,180 rows),
@@ -189,6 +189,27 @@ as a structural subset of `us-federal-tax`'s `EstimateResult` and callers are to
 pass that result straight in, so extra keys are part of the contract; the second is the
 caller's own object. **The test is whether a superset is expected, not whether a typo
 would hurt.**
+
+**And then I checked whether the guard reached the caller I wrote it for, and it did
+not.** The README paragraph I had just written says this matters most for an MCP
+caller, because that input arrives as JSON from a model. `us-tax-mcp` builds the person
+object from *its own* hand-written list of field reads — `readNumber(person,
+'employerPlanPension')` and nine more — so `{ pension: 60000 }` produced an **empty
+person** and the unknown key never reached the engine. The new `RangeError` could not
+fire for the callers it exists for.
+
+Fourth instance of the same mistake in one day, in the package where the stakes are
+highest, found by going to verify a sentence I had written rather than by testing the
+code. **THE RULE: a check at the inner boundary is not a check at the outer one. Every
+layer that copies fields by name needs its own, and the layer nearest the caller is the
+one that matters.** `us-tax-mcp` v0.34.0 rejects it there, from the engine's exported
+`PERSON_RETIREMENT_FIELDS` rather than from a third copy of the names, and returns it as
+an `isError` result the model can read and retry from.
+
+The process note is the part I want to keep: **the sentence in the README was the test.**
+I wrote a claim about who benefits, went to check it was true, and it was false. That is
+the second time this week that writing the documentation found the defect, and it is an
+argument for writing the claim before believing it.
 
 ### Part 6 — where I stopped, and why that is the finding for tomorrow
 

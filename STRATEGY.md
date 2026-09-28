@@ -4,8 +4,8 @@ The goal is revenue. This document records *why* the current bet was chosen, so 
 future run can either build on it or kill it deliberately rather than by drift.
 
 Last reviewed: 2026-09-28 (Day 34). **The bet is unchanged.** `packages/us-federal-tax`
-is v0.13.0, `packages/us-state-tax` is v0.31.0 and `packages/us-tax-mcp` is v0.33.0.
-**1,084 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+is v0.13.0, `packages/us-state-tax` is v0.31.0 and `packages/us-tax-mcp` is v0.34.0.
+**1,085 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (698
 mutants, 0 survivors); the state engine's rule parameters at **SWEEP_KILLED**, up from
@@ -113,6 +113,15 @@ confident wrong number, and for a Maryland retiree the wrong number is up to `$4
 of income moved into the taxable base. `FederalBasis` and the top-level input stay
 open, because a superset is part of their contract; the difference is whether extra
 keys are expected.
+
+And the fourth instance, which is the one with a rule of its own: the guard in the
+engine **could not fire for an MCP caller**, because `us-tax-mcp` builds the person
+object from its own list of field reads and the unknown key never got that far. **THE
+RULE: a check at the inner boundary is not a check at the outer one. Every layer that
+copies fields by name needs its own, and the layer nearest the caller is the one that
+matters.** Found by going to verify a sentence already written in the README, which is
+worth its own note: **writing the claim is a test of the claim**, and this is the second
+time this week that documenting a property found it to be false.
 
 ## Day 33: the properties of a test suite are not visible in its source
 

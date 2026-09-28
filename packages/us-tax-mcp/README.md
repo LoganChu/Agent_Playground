@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.33.0/us-tax-mcp-0.33.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.34.0/us-tax-mcp-0.34.0.tgz"
       ]
     }
   }
@@ -238,6 +238,35 @@ everywhere else, `describe_state` documented what it was worth — and
 not reading it**, and no test said so. `test/state-fields.test.js` now runs the
 tool twice for every per-state field and requires the answer to MOVE, with a named
 reason for each field it cannot reach and a failure if a reason goes stale.
+
+**New in 0.34.0 — a field name this server did not know was silently dropped, and
+this is the layer where that matters most.** `retirement: { filer: { pension:
+60000 } }` was accepted and produced an empty person: the field is
+`employerPlanPension`, the reads here are a hand-written list, so the unknown key
+never reached the engine at all. Maryland's return then came back computed as if
+the retiree had no pension — up to `$41,200` moved into the taxable base, with a
+plausible number at the end of it.
+
+The engine raises this error too, as of `us-state-tax` v0.31.0, and **it could
+never have fired for a caller of this server**, because this layer dropped the key
+one step earlier. A check at the inner boundary is not a check at the outer one.
+
+It matters more here than in the library because **these arguments arrive as JSON
+from a language model**, so a plausible synonym for a field name — `pension` for a
+pension, `socialSecurity` for a benefit — is the single most likely input error
+this server will ever see. It now comes back as an `isError` result the model can
+read and retry from:
+
+```
+Unknown field(s) in retirement.filer: pension.
+Did you mean employerPlanPension or governmentPension?
+```
+
+Which of those two a caller meant changes the answer by thousands of dollars,
+because Maryland writes an IRA out of its exclusion by name and reads a government
+pension as an employer plan. The list of valid fields comes from the engine, which
+proves it exhaustive against the interface at compile time — a second copy here
+would be a third copy of the same names, which is the mistake the check is about.
 
 **New in 0.30.0 — the OTHER hard filing status, on the federal side, and the
 defect was a shared citation rather than a wrong number.** A married individual

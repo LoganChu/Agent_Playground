@@ -54,6 +54,7 @@ import {
 import {
   COUNTY_TAX_STATES,
   getStateDefinition,
+  PERSON_RETIREMENT_FIELDS,
   stateName,
   SUPPORTED_LOCALITIES as LOCALITY_CODES,
   SUPPORTED_STATES as STATE_CODES,
@@ -84,6 +85,43 @@ function readPersonRetirement(
   const raw = source[key];
   if (raw === undefined || raw === null) return undefined;
   const person = asRecord(raw, `retirement.${key}`);
+  // Reject a field this server does not read, BEFORE reading the ones it does.
+  //
+  // The engine raises the same error, and it would never fire here: the reads
+  // below are a hand-written list, so `retirement: { filer: { pension: 60000 } }`
+  // produced an EMPTY person and the unknown key never reached the engine at all.
+  // The retiree was then computed as having no pension, which for a Maryland
+  // filer moves up to $41,200 into the taxable base and returns a plausible
+  // number.
+  //
+  // This is the layer where it matters most and the layer that had no check.
+  // These arguments arrive as JSON from a language model, so a plausible synonym
+  // for a field name — `pension` for a pension, `socialSecurity` for a benefit —
+  // is the single most likely input error this server will ever see. `isError`
+  // goes back to the model as text it can read and retry from, which is exactly
+  // what a named field and a suggestion are for.
+  //
+  // `PERSON_RETIREMENT_FIELDS` is the engine's own list, proved against the
+  // interface at compile time. A second list here would be a third copy of the
+  // same names, which is the mistake this whole check is about.
+  const unknownFields = Object.keys(person).filter(
+    (field) => !(PERSON_RETIREMENT_FIELDS as readonly string[]).includes(field),
+  );
+  const [firstUnknown] = unknownFields;
+  if (firstUnknown !== undefined) {
+    const lower = firstUnknown.toLowerCase();
+    const near = PERSON_RETIREMENT_FIELDS.filter(
+      (field) => field.toLowerCase().includes(lower) || lower.includes(field.toLowerCase()),
+    );
+    throw new ToolInputError(
+      `Unknown field(s) in retirement.${key}: ${unknownFields.join(', ')}. ` +
+        (near.length > 0
+          ? `Did you mean ${near.join(' or ')}? `
+          : `The fields are ${PERSON_RETIREMENT_FIELDS.join(', ')}. `) +
+        `An unrecognised field would leave this person with no retirement income of ` +
+        `that kind and change the tax, so it is an error rather than a default.`,
+    );
+  }
   const pension = readNumber(person, 'employerPlanPension');
   const benefits = readNumber(person, 'socialSecurityBenefits');
   const military = readNumber(person, 'militaryRetirement');
@@ -116,6 +154,14 @@ function readRetirementSplit(
   const raw = source['retirement'];
   if (raw === undefined || raw === null) return undefined;
   const split = asRecord(raw, 'retirement');
+  const unknownKeys = Object.keys(split).filter((key) => key !== 'filer' && key !== 'spouse');
+  if (unknownKeys.length > 0) {
+    throw new ToolInputError(
+      `Unknown key(s) in retirement: ${unknownKeys.join(', ')}. It holds \`filer\` and ` +
+        `\`spouse\`, each an object of per-person retirement income. Did you mean to put ` +
+        `${unknownKeys[0]} inside one of them?`,
+    );
+  }
   const filer = readPersonRetirement(split, 'filer');
   const spouse = readPersonRetirement(split, 'spouse');
   if (filer === undefined && spouse === undefined) {

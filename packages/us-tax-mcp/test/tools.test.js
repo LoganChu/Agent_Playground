@@ -1847,8 +1847,27 @@ test('state_income_tax rejects a retirement object with neither person', () => {
   // top of `retirement` instead of under `filer` — and the message has to name
   // the shape rather than say "invalid", because the exclusion is per person and
   // there is nothing to fall back on.
-  assert.match(message, /must contain a filer and\/or a spouse object/);
-  assert.match(message, /per person/);
+  //
+  // The unknown-key check added in v0.34.0 now answers this case FIRST and names
+  // the field that is in the wrong place, which is more use than naming the shape
+  // it should have had. The old message is still what an EMPTY `retirement: {}`
+  // gets, and that is asserted below.
+  assert.match(message, /Unknown key\(s\) in retirement: employerPlanPension/);
+  assert.match(message, /Did you mean to put employerPlanPension inside one of them\?/);
+  assert.match(
+    err('state_income_tax', {
+      state: 'MD',
+      filingStatus: 'single',
+      year: 2025,
+      county: 'Montgomery County',
+      federalAdjustedGrossIncome: 90_000,
+      federalTaxableIncome: 74_250,
+      federalDeduction: 15_750,
+      filerAge: 70,
+      retirement: {},
+    }),
+    /must contain a filer and\/or a spouse object/,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -1939,4 +1958,65 @@ test('describe_state documents the field for a state that has it', () => {
   // And not for one that does not.
   const ohio = ok('describe_state', { state: 'OH', year: 2025 }).text;
   assert.ok(!ohio.includes('spouseHasNoGrossIncomeAndIsNotADependent'));
+});
+
+// ---------------------------------------------------------------------------
+// A field name the server does not know, which is the likeliest error here
+// ---------------------------------------------------------------------------
+
+test('an unknown field inside retirement is an error a model can read', () => {
+  // These arguments arrive as JSON from a language model, so a plausible synonym
+  // for a field name is the most likely input error this server will ever see —
+  // and it used to be silent. `readPersonRetirement` reads a hand-written list of
+  // fields, so `retirement: { filer: { pension: 60000 } }` produced an EMPTY
+  // person, the unknown key never reached the engine, and Maryland's return came
+  // back computed as if the retiree had no pension at all. Up to $41,200 moved
+  // into the taxable base, with a plausible number at the end of it.
+  //
+  // The engine raises the same error for a library caller. It could never fire
+  // for this one, because this layer dropped the key first — so the check has to
+  // exist at both boundaries, not at the inner one only.
+  const retiree = {
+    state: 'MD',
+    year: 2026,
+    filingStatus: 'single',
+    filerAge: 70,
+    federalAdjustedGrossIncome: 90_000,
+    federalTaxableIncome: 73_900,
+    federalDeduction: 16_100,
+    taxableSocialSecurity: 25_500,
+  };
+  const pensionTypo = err('state_income_tax', {
+    ...retiree,
+    retirement: { filer: { pension: 60_000 } },
+  });
+  assert.match(pensionTypo, /Unknown field\(s\) in retirement\.filer: pension/);
+  // The suggestion is the point: which of the two a caller meant changes the
+  // answer by thousands of dollars, because Maryland writes an IRA out of its
+  // exclusion by name and treats a government pension as an employer plan.
+  assert.match(pensionTypo, /Did you mean employerPlanPension or governmentPension\?/);
+
+  const benefitTypo = err('state_income_tax', {
+    ...retiree,
+    retirement: { filer: { employerPlanPension: 60_000, socialSecurity: 30_000 } },
+  });
+  assert.match(benefitTypo, /Did you mean socialSecurityBenefits\?/);
+
+  const splitTypo = err('state_income_tax', {
+    ...retiree,
+    retirement: { filerr: { employerPlanPension: 60_000 } },
+  });
+  assert.match(splitTypo, /Unknown key\(s\) in retirement: filerr/);
+
+  // And the real fields still work, including on the spouse column.
+  const fine = ok('state_income_tax', {
+    ...retiree,
+    filingStatus: 'marriedFilingJointly',
+    spouseAge: 68,
+    retirement: {
+      filer: { employerPlanPension: 40_000, socialSecurityBenefits: 20_000 },
+      spouse: { employerPlanPension: 20_000, socialSecurityBenefits: 10_000 },
+    },
+  });
+  assert.ok(fine.structured, 'a valid split is still accepted');
 });
