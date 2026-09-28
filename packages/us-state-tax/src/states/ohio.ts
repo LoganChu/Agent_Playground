@@ -265,8 +265,21 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
     deduction: { kind: 'none' },
     exemption: {
       // The top-step figures, kept so a test can check them against the chart
-      // that generates them; `perExemptionSteps` is what the engine reads.
-      perFiler: byStatus({ single: 2_400, joint: 4_800, separate: 2_400, headOfHousehold: 2_400 }),
+      // that generates them; `perExemptionSteps` is what the engine reads. The
+      // test is `registry.test.js`'s "a stepped exemption's stored top step
+      // agrees with the chart", which covers every state with a chart rather
+      // than only the state whose author remembered — because this table read
+      // `qualifyingSurvivingSpouse: 4_800` for 33 days on the strength of a
+      // comment claiming a test that did not exist. A widow files Ohio's IT 1040
+      // alone and claims ONE exemption, which is what `filersClaimed` says and
+      // what the engine has always done; only the unread copy disagreed.
+      perFiler: byStatus({
+        single: 2_400,
+        joint: 4_800,
+        separate: 2_400,
+        headOfHousehold: 2_400,
+        qualifyingSurvivingSpouse: 2_400,
+      }),
       perDependent: 2_400,
       // UNREAD, and Ohio is the one where the answer is most likely to be yes:
       // R.C. 5747.02(E) writes the exemption as an amount "for the taxpayer, the
@@ -316,7 +329,8 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
       minimumAge: 65,
       amount: uniform(50),
       // § 5747.05(C) allows one $50 per return however many filers are 65.
-      amountBothSpouses: uniform(50),
+      // Ohio's does not double — `onePerReturn` below — so this is the same $50.
+      amountBothSpouses: 50,
       onePerReturn: true,
       incomeLimit: uniform(100_000),
       incomeMeasure: 'stateModifiedAdjustedGrossIncomeLessExemptions',

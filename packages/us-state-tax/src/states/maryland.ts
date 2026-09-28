@@ -362,7 +362,13 @@ export function maryland(year: number): StateIncomeTaxDefinition | undefined {
       name: 'Senior tax credit',
       minimumAge: 65,
       amount: byStatus({ single: 1_000, joint: 1_000, separate: 1_000, headOfHousehold: 1_750, qualifyingSurvivingSpouse: 1_750 }),
-      amountBothSpouses: byStatus({ single: 1_000, joint: 1_750, separate: 1_000, headOfHousehold: 1_750, qualifyingSurvivingSpouse: 1_750 }),
+      // Two qualifying filers is a joint return and nothing else, so one number.
+      // § 10-754(b) gives `$1,750` to "spouses filing a joint return ... if both
+      // individuals are eligible taxpayers", and `$1,000` if only one of them
+      // is — which is the joint cell of `amount` above. The `$1,750` a surviving
+      // spouse or head of household gets is in `amount` too, because either of
+      // them has exactly one filer on the return.
+      amountBothSpouses: 1_750,
       incomeLimit: byStatus({ single: 100_000, joint: 150_000, separate: 100_000, headOfHousehold: 150_000 }),
     },
     // The taxable part of Social Security and Tier 1 railroad benefits comes

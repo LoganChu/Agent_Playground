@@ -39,6 +39,7 @@ import {
 } from './localities/counties.js';
 import { ohioSchoolDistrict } from './localities/ohio-school-districts.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
+import { PERSON_RETIREMENT_FIELDS } from './types.js';
 import type {
   Bracket,
   BracketDetail,
@@ -383,7 +384,7 @@ function seniorCredit(
   // Maryland tests federal AGI; Ohio tests its own modified AGI less exemptions.
   if (measured(measures, rule.incomeMeasure) > rule.incomeLimit[input.filingStatus]) return 0;
   const status = input.filingStatus;
-  return qualifying >= 2 ? rule.amountBothSpouses[status] : rule.amount[status];
+  return qualifying >= 2 ? rule.amountBothSpouses : rule.amount[status];
 }
 
 /**
@@ -2832,6 +2833,59 @@ function localTaxesFor(
 }
 
 /**
+ * Reject a `retirement` split carrying a field this package does not read.
+ *
+ * See {@link PERSON_RETIREMENT_FIELDS} for why this is worth a throw: an unknown
+ * key is dropped, the person is left with no retirement income, and every
+ * exclusion and credit that reads it comes back as if the retiree had none — with
+ * a plausible number at the end of it. Three separate days of this project have
+ * lost time to exactly that, most recently the status sweep, which wrote
+ * `pension` for `employerPlanPension` and built eighteen households with no
+ * retirement in them.
+ *
+ * Checked before the `rate.kind === 'none'` early return on purpose. A typo that
+ * passes in Texas and throws in Maryland is a typo the caller learns about from
+ * the wrong state, and the caller who tests against a no-income-tax state first
+ * is the one who most needs to be told.
+ */
+function assertKnownRetirementFields(split: StateIncomeTaxInput['retirement']): void {
+  if (split === undefined) return;
+  for (const key of Object.keys(split)) {
+    if (key === 'filer' || key === 'spouse') continue;
+    throw new RangeError(
+      `retirement.${key} is not a field of RetirementIncomeSplit. It holds \`filer\` and ` +
+        `\`spouse\`, each a PersonRetirementIncome. An unrecognised key would be ignored ` +
+        `silently and the return would be computed as if nobody on it had any retirement ` +
+        `income, so this is an error rather than a default.`,
+    );
+  }
+  for (const who of ['filer', 'spouse'] as const) {
+    const person = split[who];
+    if (person === undefined) continue;
+    for (const key of Object.keys(person)) {
+      if ((PERSON_RETIREMENT_FIELDS as readonly string[]).includes(key)) continue;
+      // Suggest by substring both ways, which is what a real typo looks like:
+      // `pension` is inside `employerPlanPension`, and `socialSecurity` contains
+      // less than `socialSecurityBenefits`. A full edit distance would catch a
+      // transposition too and has never been the shape of one of these.
+      const lower = key.toLowerCase();
+      const near = PERSON_RETIREMENT_FIELDS.filter(
+        (f) => f.toLowerCase().includes(lower) || lower.includes(f.toLowerCase()),
+      );
+      throw new RangeError(
+        `retirement.${who}.${key} is not a field of PersonRetirementIncome. ` +
+          (near.length > 0
+            ? `Did you mean ${near.map((f) => `\`${f}\``).join(' or ')}? `
+            : `The fields are ${PERSON_RETIREMENT_FIELDS.map((f) => `\`${f}\``).join(', ')}. `) +
+          `An unrecognised key would be ignored silently and this person would be ` +
+          `treated as having no retirement income of that kind, which changes the tax ` +
+          `rather than the shape of the answer.`,
+      );
+    }
+  }
+}
+
+/**
  * Compute a state's individual income tax.
  *
  * @throws {RangeError} when the state or the state-year is not supported. There is
@@ -2840,6 +2894,7 @@ function localTaxesFor(
  * are exactly the ones where a fallback would look right and be wrong.
  */
 export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult {
+  assertKnownRetirementFields(input.retirement);
   const def = getStateDefinition(input.state, input.year);
   const name = stateName(input.state);
 

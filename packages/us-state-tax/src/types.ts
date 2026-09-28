@@ -493,6 +493,76 @@ export interface RetirementIncomeSplit {
   readonly spouse?: PersonRetirementIncome;
 }
 
+/**
+ * Every field name {@link PersonRetirementIncome} has, checked at runtime.
+ *
+ * Exported because it is the list the error message prints, and a caller who hit
+ * the error should be able to read the list from the package rather than from a
+ * message.
+ *
+ * ## Why a runtime check for something the type already says
+ *
+ * TypeScript catches `retirement: { filer: { pension: 28_000 } }` at compile time
+ * and **nothing** catches it at run time. JavaScript callers get no check at all,
+ * and neither does anyone who assembles the object dynamically — which is every
+ * agent calling this through `us-tax-mcp`, where the input arrives as JSON.
+ *
+ * The cost of not checking is not an error. It is a **wrong tax**: the unknown key
+ * is dropped, the person is left with no pension, and every exclusion, subtraction
+ * and credit that reads a pension comes back as if the retiree had none. In
+ * Maryland that is up to `$41,200` of income moved into the taxable base with a
+ * plausible-looking number at the end of it.
+ *
+ * Day 32's rule was *accepting an input is not reading it*. Day 33's inverse was
+ * *supplying an input is not passing it* — written after a test passed against an
+ * empty household because it set `wages` where the field is `w2Wages`. Today's
+ * status sweep walked into the same trap a third time, writing
+ * `retirement.filer.pension` for `employerPlanPension` and getting a battery of
+ * eighteen households with no retirement income in them, silently, in a file whose
+ * entire job is to reach retirement rules.
+ *
+ * **THE RULE: three occurrences of one mistake is a missing guard, not three
+ * mistakes.** An engine whose fields carry this much meaning has to reject a field
+ * it does not know, because the alternative is answering the question the caller
+ * did not ask.
+ *
+ * The check is deliberately **not** applied to {@link StateIncomeTaxInput} itself
+ * or to {@link FederalBasis}. `FederalBasis` is documented as a structural subset
+ * of `us-federal-tax`'s `EstimateResult` and callers are told to pass that result
+ * straight in, so every extra key on it is expected; the top-level input is a
+ * caller's own object and may reasonably carry their bookkeeping. Those two are
+ * open by design, and this one is closed by design, and the difference is whether
+ * a superset is part of the contract.
+ */
+export const PERSON_RETIREMENT_FIELDS = [
+  'employerPlanPension',
+  'socialSecurityBenefits',
+  'militaryRetirement',
+  'iraDistributions',
+  'investmentIncome',
+  'earnedIncome',
+  'governmentPension',
+  'serviceMonthsBefore1998',
+  'serviceMonthsAfter1997',
+  'totallyDisabled',
+] as const;
+
+/**
+ * A compile-time proof that {@link PERSON_RETIREMENT_FIELDS} is exactly the key
+ * set of {@link PersonRetirementIncome} — neither short nor long.
+ *
+ * Without it the list is a second copy of the interface that drifts the day a
+ * field is added, and the drift is silent in the worst direction: a new field
+ * would be **rejected** by the runtime check while the type accepted it. This
+ * makes that a build failure instead.
+ */
+type Exactly<A, B> = [A] extends [B] ? ([B] extends [A] ? true : never) : never;
+const PERSON_RETIREMENT_FIELDS_ARE_EXHAUSTIVE: Exactly<
+  keyof PersonRetirementIncome,
+  (typeof PERSON_RETIREMENT_FIELDS)[number]
+> = true;
+void PERSON_RETIREMENT_FIELDS_ARE_EXHAUSTIVE;
+
 export interface StateIncomeTaxInput {
   readonly state: StateCode;
   readonly year: number;

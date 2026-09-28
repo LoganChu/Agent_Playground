@@ -205,3 +205,51 @@ test('the package has no runtime dependencies', () => {
   assert.equal(pkg.dependencies, undefined);
   assert.equal(pkg.peerDependencies, undefined);
 });
+
+test("a stepped exemption's stored top step agrees with the chart", () => {
+  // Maryland and Ohio state their personal exemption twice: once as a `perFiler`
+  // table and once as the `perExemptionSteps` staircase the engine actually
+  // reads. Both files' comments say the duplicate is "kept so a test can check
+  // it against the chart". Maryland's test existed. Ohio's did not, and the two
+  // copies disagreed: Ohio's unread table gave a qualifying surviving spouse the
+  // JOINT `$4,800`, two exemptions for a return with one person on it, which is
+  // the v0.27.0 defect surviving in the one place the engine cannot see it.
+  //
+  // **THE RULE: a duplicate kept to be cross-checked is only worth keeping if
+  // something makes the cross-check exist, and a comment saying a test checks
+  // this is not the test.** So the check is here, over every state that has a
+  // chart, instead of in the per-state file of whoever remembered — because the
+  // per-state file of whoever remembered is exactly what was missing.
+  let checked = 0;
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of SUPPORTED_STATES) {
+      const rule = getStateDefinition(state, year).exemption;
+      if (!rule?.perExemptionSteps) continue;
+      for (const status of FILING_STATUSES) {
+        // How many filer exemptions this status claims — `filersClaimed` where the
+        // state has said, and the form's own count otherwise. The stored figure is
+        // per RETURN and the chart is per EXEMPTION, so the count is the whole of
+        // the conversion between them, and getting it wrong is how a widow was
+        // given two.
+        const filers =
+          rule.filersClaimed?.[status] ??
+          (status === 'marriedFilingJointly' || status === 'qualifyingSurvivingSpouse' ? 2 : 1);
+        assert.equal(
+          rule.perFiler[status],
+          rule.perExemptionSteps[status][0].amount * filers,
+          `${state} ${year} ${status}: stored $${rule.perFiler[status]} against ${filers} x $${rule.perExemptionSteps[status][0].amount} from the chart`,
+        );
+        checked++;
+      }
+      assert.equal(
+        rule.perDependent,
+        rule.perExemptionSteps.single[0].amount,
+        `${state} ${year}: a dependent is one exemption at the top step`,
+      );
+    }
+  }
+  // Two states, five statuses, two years. If a third stepped state arrives it is
+  // covered without an edit; if the last one leaves, this fails rather than
+  // quietly testing nothing, which is the failure mode of every loop like it.
+  assert.equal(checked, 20, 'every stepped state-year-status is checked');
+});

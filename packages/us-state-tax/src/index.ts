@@ -91,7 +91,7 @@ export {
   CALEITC_ADJUSTMENT_FACTOR,
   CALEITC_RATES,
 } from './states/california.js';
-export { FILING_STATUSES } from './types.js';
+export { FILING_STATUSES, PERSON_RETIREMENT_FIELDS } from './types.js';
 export type {
   Bracket,
   BracketDetail,

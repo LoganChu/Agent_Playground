@@ -23,7 +23,7 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.30.0/us-state-tax-0.30.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.31.0/us-state-tax-0.31.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.13.0/us-federal-tax-0.13.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.33.0/us-tax-mcp-0.33.0.tgz
 ```

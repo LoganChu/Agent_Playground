@@ -163,9 +163,37 @@ export interface SeparateReturnSpouseExemption {
   readonly lowIncomeSeniorCite?: string;
 }
 
-/** Exemptions subtracted from income, as distinct from exemption *credits*. */
+/**
+ * Exemptions subtracted from income, as distinct from exemption *credits*.
+ *
+ * A state states its personal exemption in one of two shapes: a flat
+ * {@link perFiler} amount, or a {@link perExemptionSteps} staircase read against
+ * income. **The engine takes the staircase whenever there is one**, so in
+ * Maryland and Ohio — the two states that have one — `perFiler` is not a
+ * parameter the engine can reach. It is a stored copy of the chart's top step,
+ * and both files say in a comment that it is kept "so a test can check it
+ * against the chart".
+ *
+ * Maryland's did. Ohio's did not, for 33 days, and the two disagreed: Ohio's
+ * dead copy gave a qualifying surviving spouse the JOINT figure — two exemptions
+ * for a return with one person on it, the exact defect v0.27.0 fixed everywhere
+ * the engine could see.
+ *
+ * **THE RULE: a duplicate kept to be cross-checked is only worth keeping if
+ * something makes the cross-check exist. A comment saying a test checks this is
+ * not the test.** So the check lives in `test/registry.test.js`, over every state
+ * with a staircase, rather than in the per-state file of whoever remembered —
+ * because the per-state file of whoever remembered is exactly what was missing.
+ */
 export interface ExemptionRule {
-  /** Amount for the filer(s). Joint returns generally get two. */
+  /**
+   * Amount for the filer(s). Joint returns generally get two.
+   *
+   * In a state whose exemption is a **staircase** the engine reads
+   * {@link perExemptionSteps} and never this, so here it is a stored duplicate of
+   * the chart's top step, kept to be checked against it. See the note above for
+   * why the check is in `registry.test.js` rather than in a per-state file.
+   */
   readonly perFiler: ByStatus;
   /**
    * What the state does with a separate filer's spouse who has no gross income.
@@ -548,9 +576,29 @@ export interface CapitalGainsSurtaxRule {
 export interface SeniorCreditRule {
   readonly name: string;
   readonly minimumAge: number;
-  /** Amount where one filer qualifies, and where two do. */
+  /** Amount where one filer qualifies, by status. */
   readonly amount: ByStatus;
-  readonly amountBothSpouses: ByStatus;
+  /**
+   * Amount where TWO qualify, which is a joint return and nothing else — so a
+   * number rather than a {@link ByStatus} table.
+   *
+   * It was a `ByStatus` until v0.31.0 and four of its five cells were
+   * unreachable: two people can only both be 65 on a return that has two people
+   * on it, and `livingFilerCount` gives every other status one. The mutation
+   * sweep found them by setting each wrong and watching 20 households in 5
+   * statuses not notice — and the dead cells were not even consistent with each
+   * other, `single: 1_000` beside `headOfHousehold: 1_750`, one copied from the
+   * one-filer table and one from the joint figure.
+   *
+   * **THE RULE: a `ByStatus` table for a condition only one status can meet
+   * invites four answers to a question nobody can ask, and nothing will ever
+   * check them.** The shape has to say which statuses the rule reaches. Where
+   * the amount genuinely varies by status it belongs in {@link amount}, which is
+   * where § 10-754's `$1,750` for a surviving spouse or head of household lives:
+   * that figure is theirs with ONE qualifying filer, which is the only kind of
+   * return either status can be.
+   */
+  readonly amountBothSpouses: number;
   /** Income at or below which the credit is allowed at all. A cliff. */
   readonly incomeLimit: ByStatus;
   /** Which figure {@link incomeLimit} tests. Federal AGI unless stated. */
