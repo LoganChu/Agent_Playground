@@ -118,3 +118,38 @@ written from the data can only confirm the data.* What the score is good for is
 file, which is how Day 33's finding surfaced. The three per-year data files had
 nearly identical parameter counts and wildly different survival rates, and that
 asymmetry was the whole finding.
+
+## The fast proxy, which is where Day 34's findings came from
+
+This harness takes about half an hour per package: it runs the whole suite once per
+mutant, and the suite got slower on Day 34 precisely because of the test described
+below. Half an hour is fine for a weekly job and useless while you are working.
+
+So `packages/us-state-tax/test/status-sweep.test.js` asks the same question over a
+subset, inside the ordinary suite, in about a second. It walks the state definitions
+for every `ByStatus` table, sets a cell wrong **with the same filter this harness
+uses** — integers ≥ 100, decimals in (0, 1) — and fails unless one of 4,180 pinned
+answers moves.
+
+**THE RULE: a slow instrument that establishes a property is worth converting into a
+fast test that preserves it**, or the property decays for six days out of seven. And
+because the two use the same filter, passing the fast one *means* this one finds no
+surviving `byStatus` cell, rather than merely suggesting it.
+
+Two things to know before trusting the proxy, both learned by getting them wrong:
+
+- **It reports an upper bound on survivors, not survivors.** The walk can only see
+  whether an *answer* moves, so it is blind to every assertion made about the data
+  directly. Maryland's `exemption.perFiler` is unreachable by the engine and pinned by
+  a relation test in `registry.test.js`; the walk calls it unreached and it is not a
+  survivor.
+- **A parameter can be dead in its own column and live in another's.** New Jersey's
+  `retirementExclusion.maximum.marriedFilingJointly` can never bind as a cap for a
+  joint filer — every tier makes it a contradiction — and it is the denominator that
+  derives the other four statuses' percentages. So the perturbation has to be checked
+  against every status, not the one it belongs to.
+
+Widening the same walk from `ByStatus` tables to every numeric leaf is a planning
+tool rather than a test: it reports how many of the package's 1,281 rule parameters no
+household reaches, which is what `STATE-SURVIVORS.md` uses to decide what to build
+next.
