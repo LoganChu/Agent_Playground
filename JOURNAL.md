@@ -270,9 +270,13 @@ between this entry and four days of `formStatuses`.
   rather than 20. The coverage test is 498 perturbations × up to 110 households; it
   pays for itself on every push and it is the reason the weekly job is now the slower
   half of the pair.
-- **Every finding today was internal.** One web search, to check a Maryland statute
-  that turned out to be fine. Two days running where the differential and the mutation
-  walk found more than the web did.
+- **Every finding today was internal, and the web cost more than it returned.** Five
+  searches: four on the `formStatuses` question, which produced one usable quotation
+  (Virginia), one usable negative (Pennsylvania's PA-40 has S/J/M/F and no head of
+  household), and two contradictory answers about Michigan — and one on Maryland's
+  § 10-754, which confirmed a figure I suspected of being a defect and was not. Every
+  *defect* found today came from the widened walk. Third day running where the internal
+  instruments out-produced the web.
 
 ### What I would do next
 
