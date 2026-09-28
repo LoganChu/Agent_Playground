@@ -227,6 +227,16 @@ every numeric leaf in the definitions: **1,281 rule parameters, 258 not reached 
 battery.** Four new households — a blind filer, a veteran at 58, a centenarian, three
 young children on `$18,000` — plus the whitelist fix took it to **204**.
 
+**Read 204 as an upper bound on survivors and not as survivors.** It includes about
+forty entries that are metadata rather than tax (`year`, `provisionalFigures[].carried
+ForwardFrom`, each covered by `provisional.test.js`) and a long tail that dedicated
+per-state files already pin — Georgia's military exclusion has
+`georgia-retirement.test.js`, Indiana's elderly credit has
+`indiana-elderly-credit.test.js`. The walk can only see whether an ANSWER moves, so it
+is blind to every assertion made about the data directly, which is precisely the
+mistake I made about Maryland's `perFiler` for ten minutes. The harness is still the
+instrument of record; the walk is the one that points at where to look.
+
 Then I looked at what was left and stopped, because the next chunk is the wrong shape
 for households. Ohio's retirement income credit has steps at `$500`, `$1,500`,
 `$3,000`, `$5,000` and `$8,000` of retirement income; catching all of them needs probes
