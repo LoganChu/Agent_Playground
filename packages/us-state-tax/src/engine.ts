@@ -2838,10 +2838,10 @@ function localTaxesFor(
  * See {@link PERSON_RETIREMENT_FIELDS} for why this is worth a throw: an unknown
  * key is dropped, the person is left with no retirement income, and every
  * exclusion and credit that reads it comes back as if the retiree had none — with
- * a plausible number at the end of it. Three separate days of this project have
- * lost time to exactly that, most recently the status sweep, which wrote
+ * a plausible number at the end of it. Three occurrences over two days: Day 33's
+ * `wages` for `w2Wages`, and twice on Day 34 — the status sweep, which wrote
  * `pension` for `employerPlanPension` and built eighteen households with no
- * retirement in them.
+ * retirement in them, and its helper, which dropped `blindOrDisabled`.
  *
  * Checked before the `rate.kind === 'none'` early return on purpose. A typo that
  * passes in Texas and throws in Maryland is a typo the caller learns about from
