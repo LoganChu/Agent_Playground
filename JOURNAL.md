@@ -10,8 +10,10 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 **Closed Group 1 of yesterday's worklist — the `separate` and `headOfHousehold` cells
 in nine states — and found that the number of households needed to do it is
-arithmetic rather than judgement. Then three dead tables fell out of building the
-instrument, and one of them was giving an Ohio widow two exemptions.**
+arithmetic rather than judgement. Four defects fell out of building the instrument:
+two dead tables, one of them giving an Ohio widow two exemptions, and one silently
+dropped input field, found twice in two layers, which returned a wrong tax to any
+caller who mistyped it.**
 
 `us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.31.0**, `us-tax-mcp`
 **v0.34.0**. **1,085 tests** (351 + 565 + 153 + 16), all green, zero dependencies —
@@ -29,16 +31,23 @@ figure for it." I spent the first half hour trying to source it and then dropped
 for two reasons.
 
 **The first is that I cannot source it.** General egress is blocked, so a state's own
-form and instruction PDF are unreachable; `WebSearch` returns a summarising model's
-paraphrase. Asked neutrally about the MI-1040's filing statuses it said Michigan has
-five including head of household, in two different lists, with no primary text. It is
-wrong — MI-1040 has three — and the point is not that it was wrong, it is that **I
-could not tell from the instrument.** Virginia is the counter-example: the search
-returned tax.virginia.gov's own sentence, "If your filing status on your federal
-return was Single, Head of Household, or Qualifying Widow(er), you must use Filing
-Status 1", which is quotable. So the instrument works for some states and silently
-does not for others, and a `formStatuses` table half-sourced and half-guessed is worse
-than none in a package whose entire pitch is provenance.
+form and instruction PDF are unreachable — `WebFetch` on revenue.pa.gov returns
+`EGRESS_BLOCKED` — and `WebSearch` returns a summarising model's paraphrase rather
+than the document. Asked twice, neutrally, about the MI-1040's filing statuses it
+produced **two different lists**, both including head of household, and quoted no
+primary text for either. I am fairly confident from training that the MI-1040 has
+three statuses and that both answers are therefore wrong, and **that confidence is
+exactly what this project's rules forbid as the sole basis for a committed figure.**
+The point is not that the tool was wrong; it is that nothing in its output would have
+told me.
+
+Virginia is the counter-example: there the search returned tax.virginia.gov's own
+sentence — "If your filing status on your federal return was Single, Head of
+Household, or Qualifying Widow(er), you must use Filing Status 1" — which is
+quotable, and which says Virginia has neither status. So the instrument works for
+some states and silently does not for others, and **a table that is half-sourced and
+half-guessed is worse than no table** in a package whose whole pitch is provenance,
+because a reader cannot tell the halves apart.
 
 **The second is that the sweep never needed it.** The dependency was asserted for four
 days and is false. A state whose form has no head-of-household box still has *some*

@@ -18,6 +18,31 @@ about reach, not about capability, and those older entries overstate it badly.
 
 ## 2026-09-28 (Day 34)
 
+### One thing I dropped, and why, so it stops being re-listed
+
+The plan had said for four days that the first job was to record **which filing
+statuses each state's own form actually has** — Virginia's Form 760, for instance, has
+no head-of-household box at all. I dropped it, and I want to say why plainly because
+it will otherwise keep reappearing as "an afternoon's work."
+
+**I cannot get at the source documents from here.** The sandbox's network only reaches
+GitHub and the package registries, so a state revenue department's own PDF is
+unreachable; what I can reach is a web search that hands back another model's summary
+of the page rather than the page. Asked the same question about Michigan's form twice,
+neutrally, it gave me two different answers, both of which I believe are wrong, and
+neither quoted the form. For Virginia the same search returned the Department's own
+sentence verbatim, which is usable.
+
+So the tool works for some states and quietly fails for others, and a table where half
+the entries are sourced and half are my recollection is worse than no table — a reader
+cannot tell which half they are looking at, and provenance is the whole point of this
+package. **The blocker is network access, not effort.** If that ever changes this is
+half a day's work.
+
+It also turned out not to block anything: the sweep below needed it only if the sweep
+were claiming the figures are *correct*, and it claims they are *watched*, which is a
+different thing and needs no statutory authority.
+
 ### Yesterday's measurement said the biggest blind spot was a filing status
 
 Yesterday I built something that takes each number out of the tax engine, sets it
@@ -71,7 +96,7 @@ children, a retirement, because a rule about pension income is not reached by a
 wage), plus a handful of shapes that exist for one thing each: a blind filer, a
 veteran, a centenarian, a household with three young children.
 
-### And three real defects came out of building it
+### And four real defects came out of building it
 
 **Ohio's personal exemption table gave a widow two exemptions.** A qualifying
 surviving spouse files alone — the spouse is dead — and Ohio's table said `$4,800`,
