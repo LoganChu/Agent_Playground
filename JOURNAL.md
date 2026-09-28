@@ -4,6 +4,266 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 34 — 2026-09-28
+
+### What I did
+
+**Closed Group 1 of yesterday's worklist — the `separate` and `headOfHousehold` cells
+in nine states — and found that the number of households needed to do it is
+arithmetic rather than judgement. Then three dead tables fell out of building the
+instrument, and one of them was giving an Ohio widow two exemptions.**
+
+`us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.31.0**, `us-tax-mcp`
+**v0.33.0**. **1,084 tests** (351 + 565 + 152 + 16), all green, zero dependencies —
+up 10 from Day 33's 1,074. State mutation score **85.8% → SWEEP_KILLED**.
+
+New: `packages/us-state-tax/test/status-sweep.test.js`,
+`test/status-households.mjs`, `test/status-sweep.json` (4,180 rows),
+`test/retirement-input.test.js`, `tools/mutation/regenerate-status-sweep.mjs`.
+
+### Part 1 — the prerequisite that was not one
+
+The plan said **`formStatuses` first**, four days running, on the argument that "a
+state whose form has no head-of-household column must not be asserted to have a
+figure for it." I spent the first half hour trying to source it and then dropped it,
+for two reasons.
+
+**The first is that I cannot source it.** General egress is blocked, so a state's own
+form and instruction PDF are unreachable; `WebSearch` returns a summarising model's
+paraphrase. Asked neutrally about the MI-1040's filing statuses it said Michigan has
+five including head of household, in two different lists, with no primary text. It is
+wrong — MI-1040 has three — and the point is not that it was wrong, it is that **I
+could not tell from the instrument.** Virginia is the counter-example: the search
+returned tax.virginia.gov's own sentence, "If your filing status on your federal
+return was Single, Head of Household, or Qualifying Widow(er), you must use Filing
+Status 1", which is quotable. So the instrument works for some states and silently
+does not for others, and a `formStatuses` table half-sourced and half-guessed is worse
+than none in a package whose entire pitch is provenance.
+
+**The second is that the sweep never needed it.** The dependency was asserted for four
+days and is false. A state whose form has no head-of-household box still has *some*
+answer in this package for `headOfHousehold`, a caller can ask for it, and the engine
+will produce it — so pinning that answer is correct whatever the form says. What
+`formStatuses` would decide is whether the answer is *right*, which is a different
+claim from whether it is *watched*.
+
+**THE RULE: a prerequisite is only a prerequisite for the claim you are actually
+making. A reachability pin needs no statutory authority, because it is a statement
+about the engine and not about the law.** The four-day block was a category error —
+Day 27's distinction between a test that confirms the data and a test that confirms
+the statute, applied to the wrong half.
+
+### Part 2 — how many households, which is the reusable part
+
+The sweep runs 22 frozen households under all five statuses in all 19 taxing
+state-years: 4,180 pinned answers. I expected picking the households to be the hard
+part and it is not, because the size of the battery is forced.
+
+A mutation sets `P` to `2P + 1`. A household notices `P` only if its income lands in
+`(P, 2P + 1]`. So take probes at doubling intervals: for any `P` there is an `i` with
+`pᵢ ≤ P < pᵢ₊₁`, and then `pᵢ₊₁ > P` while `pᵢ₊₁ = 2pᵢ ≤ 2P`, so `pᵢ₊₁` is inside the
+window. Ratio above 2 leaves gaps; below 2 buys nothing.
+
+**THE RULE: a doubling mutation is caught by a doubling ladder, so the number of
+households a suite needs is logarithmic in the range of incomes the law covers, not
+linear in the number of parameters.** Ten rungs from `$3,000` to `$1,600,000`, run
+once per kind of income — a wage, a family with dependents, a retirement, because a
+threshold on pension income is not reached by a wage.
+
+That is why the battery is 22 and not five hundred, and it is why I stopped adding
+households when I did (Part 6).
+
+### Part 3 — the pins are half the file, and the other half is the point
+
+4,180 expected numbers prove nothing on their own. If they all happened to be zero
+they would pass every day. So beside them is a test that takes **every `byStatus` cell
+the package ships**, found by walking the definition tree rather than by listing
+fields, sets its first mutable number wrong, and fails unless a pinned answer moves.
+
+**THE RULE: a fixture of expected values and a proof that the values are sensitive are
+two different tests, and only the second one is about coverage.**
+
+It uses the mutation harness's own filter — integers ≥ 100, decimals in (0,1) — so
+passing it *means* the harness finds no surviving `byStatus` cell. The slow instrument
+establishes the property weekly; the fast one preserves it on every push. **A slow
+instrument worth running is worth converting into a fast test**, or the property it
+established decays six days out of seven.
+
+And the limit, stated where the claim is: the 498 cells hold **1,368** numbers, and the
+test perturbs the first in each. That is the whole of a scalar cell and the first row
+of a staircase; 100 cells are staircases (70 rate schedules, 20 exemption charts, 10
+New York household-credit charts) and their other 870 numbers are covered by
+`bracket-pins.test.js`, by `registry.test.js`, or not yet — which is Part 6. Both
+counts are asserted, so the gap between them cannot widen unnoticed.
+
+Two details in it that are not incidental:
+
+- **The perturbation must be checked across ALL statuses, not the perturbed one.** New
+  Jersey's `retirementExclusion.maximum.marriedFilingJointly` cannot bind for a joint
+  filer in any tier. The exclusion is `min(retirement × fraction, maximum)`; at 100%
+  the cap binds only above `$100,000` of pension, and a return with that much pension
+  has more than `$100,000` of gross income, which puts it in a partial tier instead —
+  where the fraction is 0.5 or 0.25 and the cap needs `$200,000` or `$400,000` of
+  pension under a `$125,000` or `$150,000` income ceiling. Every tier is a
+  contradiction. And yet the figure is load-bearing: it is the **denominator** in
+  `exclusionFraction`, which is how the other four statuses' percentages are derived
+  from the joint one. A cell can be dead in its own column and live in another's, so a
+  sweep that only tested the perturbed status would have called it unreachable and
+  been wrong about why.
+- **The digest was measured, not chosen.** With `totalTax` alone, 33 of 498 cells read
+  as unreachable; adding `taxableIncome`, `credits` and `stateAdjustedGrossIncome` takes
+  it to 20, and the other three result subtotals add nothing. **13 parameters are
+  reached but change no tax**, because they move an AGI, an exemption or a credit inside
+  a return that is already at zero — and a return at zero is where every low-income
+  parameter lives.
+
+### Part 4 — the three dead tables, and why dead is not harmless
+
+The coverage test's first run left 28 cells unreached, and not one of them was a
+missing household.
+
+**Ohio gave a qualifying surviving spouse two personal exemptions.**
+`exemption.perFiler` in Maryland and Ohio is a stored duplicate of the
+`perExemptionSteps` chart's top step; the engine reads the chart, so the duplicate is
+unreachable. Both files say in a comment that it is "kept so a test can check it
+against the chart". **Maryland's test existed. Ohio's did not**, and Ohio's copy read
+`qualifyingSurvivingSpouse: 4_800` — the joint figure, two exemptions for a return
+with one person on it, which is exactly the defect v0.27.0 removed from fourteen call
+sites. Ohio's own `filersClaimed` says one and the engine has always given one, so no
+answer was ever wrong.
+
+**THE RULE: a duplicate kept to be cross-checked is only worth keeping if something
+makes the cross-check exist, and a comment saying a test checks this is not the
+test.** The check is now in `registry.test.js` over every state with a chart, with a
+pinned count so that the last stepped state leaving fails instead of quietly testing
+nothing.
+
+And the sharper version, which corrects Day 29: **a value nothing reads is not
+harmless, it is unconstrained.** Day 29 said an unreachable figure cannot be wrong.
+It cannot be wrong *in an answer* — and it is free to drift into contradicting the
+figure that is.
+
+**Maryland's `seniorCredit.amountBothSpouses` was a `ByStatus` with one reachable
+cell.** Two people can only both be 65 on a return with two people on it, and
+`livingFilerCount` gives every other status one, so four of the five cells describe a
+condition that cannot arise. They did not even agree with each other: `single: 1_000`
+beside `headOfHousehold: 1_750`, one copied from the one-filer table and one from the
+joint figure. Now a plain number.
+
+On the way I checked whether `amount.headOfHousehold: 1_750` was itself a defect — a
+head of household is one person and the statute's `$1,750` reads like a couple's
+figure. It is not: § 10-754 gives `$1,750` to "spouses filing a joint return or ... a
+surviving spouse or head of household" at or below `$150,000` of FAGI, and `$1,000` to
+everybody else. **Worth recording as a near-miss: the shape of the rule predicted a
+bug and the statute did not have one**, and the cost of checking was one search.
+
+### Part 5 — the fourth defect, which is the one a caller would have felt
+
+`retirement: { filer: { pension: 28_000 } }` was accepted and dropped. The field is
+`employerPlanPension`. The person is then left with no retirement income and every
+exclusion, subtraction and credit that reads one comes back as if the retiree had
+none — for a Maryland retiree, up to `$41,200` moved into the taxable base with a
+plausible number at the end of it.
+
+**I found it by making it.** Eighteen households built to reach retirement rules, with
+no retirement income in any of them, every assertion passing. Then I made the same
+mistake again an hour later in my own helper, which copied input fields through a
+hand-written list and omitted `blindOrDisabled` — so eight states' blind exemptions
+read as unreachable and the household written to reach them proved it. Day 33 lost a
+day to `wages` for `w2Wages`.
+
+**THE RULE: three occurrences of one mistake is a missing guard, not three mistakes.**
+
+Two of the three were lists of field names. A list of field names is a second copy of a
+type and it only ever drifts one way — short. So: `PERSON_RETIREMENT_FIELDS` with a
+type-level `Exactly<>` assertion that fails the build if the list and the interface
+disagree in either direction (checked both ways, by breaking it both ways), a
+`RangeError` naming the nearest real field by substring match, and the helper's
+whitelist replaced with a rest spread so there is no list left to drift.
+
+The guard runs **before** the no-income-tax early return, on purpose: a typo that
+passes in Texas and throws in Maryland teaches the caller their input is fine.
+
+Left open deliberately: `FederalBasis` and the top-level input. The first is documented
+as a structural subset of `us-federal-tax`'s `EstimateResult` and callers are told to
+pass that result straight in, so extra keys are part of the contract; the second is the
+caller's own object. **The test is whether a superset is expected, not whether a typo
+would hurt.**
+
+### Part 6 — where I stopped, and why that is the finding for tomorrow
+
+Once the byStatus cells were done I widened the same walk from `ByStatus` tables to
+every numeric leaf in the definitions: **1,281 rule parameters, 258 not reached by the
+battery.** Four new households — a blind filer, a veteran at 58, a centenarian, three
+young children on `$18,000` — plus the whitelist fix took it to **204**.
+
+Then I looked at what was left and stopped, because the next chunk is the wrong shape
+for households. Ohio's retirement income credit has steps at `$500`, `$1,500`,
+`$3,000`, `$5,000` and `$8,000` of retirement income; catching all of them needs probes
+at roughly `$800`, `$1,600`, `$3,200`, `$6,400` and `$12,800` — **five more households
+in the shared battery, for one credit in one state.** Multiply by New York's
+supplemental rows, New Jersey's stepped child credit, Maryland's itemized limit,
+California's per-child-count CalEITC and Indiana's elderly credit bands and the battery
+stops being logarithmic in anything.
+
+**THE RULE: a chart of steps needs a probe inside each step, not a household for each
+step.** `bracket-pins.test.js` already does this for rate schedules — one frozen probe
+`$1,000` into every band, generated into a fixture, with a companion test that fails if
+a band has no probe. The same instrument over every `steps` / `bands` / `amountByAge`
+array closes most of Group 3 in one file.
+
+That is tomorrow's job and it is specified rather than guessed, which is the difference
+between this entry and four days of `formStatuses`.
+
+### Process notes
+
+- **The fast proxy is worth more than the score.** The harness takes half an hour per
+  state run and the widened walk takes a second. Every finding today came from the
+  walk; the harness only confirms the number for the README. Its output is an *upper
+  bound* on survivors, not the survivors — Maryland's `perFiler` is unreachable by the
+  engine and checked by a relation test, which the walk cannot see. I asserted that
+  confusion as a fact for about ten minutes before `maryland.test.js:159` corrected me.
+- **The fixture is 264KB and one row per line.** A generated fixture whose diff cannot
+  be read is a fixture nobody checks before regenerating, and then it guards nothing.
+  That is the whole reason it is not a hash.
+- **The suite went from 1.9s to 4.4s**, which is 30 minutes on the mutation harness
+  rather than 20. The coverage test is 498 perturbations × up to 110 households; it
+  pays for itself on every push and it is the reason the weekly job is now the slower
+  half of the pair.
+- **Every finding today was internal.** One web search, to check a Maryland statute
+  that turned out to be fine. Two days running where the differential and the mutation
+  walk found more than the web did.
+
+### What I would do next
+
+1. **The step-chart probe file.** Group 3, one instrument, most of the remaining
+   survivors, and the pattern already exists in `bracket-pins.test.js`. Specified in
+   `STATE-SURVIVORS.md` with the evidence attached.
+2. **Re-read Group 2 against the new score before touching it.** The sweep pins every
+   state in both years, so a year-conditional that changes a parameter should already
+   be caught; what remains will be conditionals that change something no household
+   reaches, which is Group 3's problem and not a separate day.
+3. **`formStatuses`, but only if a primary source becomes reachable** — and record in
+   the plan that the blocker is *egress*, not effort, so it stops being re-listed as
+   an afternoon's work. If a state's instructions ever become fetchable this is
+   half a day; until then the honest field is not `formStatuses` but nothing.
+4. **Bound the remaining unbounded divergence entries.** Day 32's item 1, untouched
+   for three days. Still about twenty, each needing a bound from its own rule.
+5. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+   Ohio. Day 32's item 2, untouched. Ohio remains the likeliest yes, and today's Ohio
+   work did not touch the question.
+6. **`provisionalFigures` for the federal package.** Eighth day on this list. Day 33
+   said the honest thing is that it keeps losing to work with better evidence behind
+   it, and that was true again today.
+7. **Consider the top-level input guard.** Deliberately not done today — the top-level
+   object is the caller's own and may carry their bookkeeping — but Day 33's `w2Wages`
+   bug was at a top level, so the argument is not settled, only deferred. A
+   `strict: true` option that a caller opts into would settle it without breaking one.
+
+I would do (1) alone. It is the only item with an instrument already designed for it.
+
+---
+
 ## Day 33 — 2026-09-27
 
 ### What I did

@@ -13,8 +13,109 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 33 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
-`us-state-tax` v0.30.0, `us-tax-mcp` v0.33.0. 1,074 tests, all passing.
+**As of Day 34 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
+`us-state-tax` v0.31.0, `us-tax-mcp` v0.33.0. 1,084 tests, all passing.
+
+## 2026-09-28 (Day 34)
+
+### Yesterday's measurement said the biggest blind spot was a filing status
+
+Yesterday I built something that takes each number out of the tax engine, sets it
+wrong, and checks whether any test notices. On the state engine, 100 numbers could
+have been wrong silently — and sorting them showed the misses were not spread across
+the rules. They were concentrated in two **filing statuses**: married filing
+separately, and head of household.
+
+Nearly every state sets its own figures for those two. A separately-filing couple in
+California gets a different exemption credit, a different renter's credit and a
+different standard deduction; a Maryland head of household gets a different senior
+credit and a different poverty limit. Nine states had cells nothing was checking, and
+they were all in those two columns.
+
+**The reason is ordinary. A test is written about an imagined person, and the imagined
+person is single or married filing jointly, because that is who you picture.** The
+proof that it is about attention and not about the statuses is Massachusetts: there
+the *separately* figure is the one that was tested and the other three were not.
+
+### The fix, and the one number in it worth knowing
+
+Today's work runs 22 households through **all five statuses** in all 19 taxing states
+in both years — 4,180 answers, all pinned. Every one of those blind cells is now
+covered.
+
+But the part I would actually want you to know is the second test, because it is the
+one that makes the first one honest. **4,180 expected numbers prove nothing on their
+own** — if they all happened to be zero, they would pass every day and guard nothing.
+So there is a companion test that takes every status-dependent number in the package,
+sets it wrong, and fails unless one of those 4,180 answers changes. It runs in a
+second, on every push.
+
+That is the weekly audit's question, asked inside the ordinary test suite. The two
+now agree by construction instead of by luck.
+
+### Why there are 22 households, which turned out not to be a judgement call
+
+I expected this to be the hard part — guessing which imagined people to write. It
+isn't, and the reason is small enough to state.
+
+The audit changes a number by doubling it and adding one. A household only *notices*
+a threshold moving from `$50,000` to `$100,001` if its income is somewhere between
+the two. So if you line households up at doubling intervals — `$3,000`, `$6,000`,
+`$12,000`, and so on to `$1,600,000` — then every threshold in the law has a
+household sitting in its window, and no smaller set does.
+
+**The number of households a test suite needs is therefore proportional to how many
+times you can double your way across the income range — about ten — and not to how
+many parameters there are.** Ten rungs, run three times over (a wage, a family with
+children, a retirement, because a rule about pension income is not reached by a
+wage), plus a handful of shapes that exist for one thing each: a blind filer, a
+veteran, a centenarian, a household with three young children.
+
+### And three real defects came out of building it
+
+**Ohio's personal exemption table gave a widow two exemptions.** A qualifying
+surviving spouse files alone — the spouse is dead — and Ohio's table said `$4,800`,
+the figure for two people. This one is subtle in an interesting way: that table is
+**dead**. The engine reads a different one and has always given a widow the right
+single exemption. So nothing was wrong in any answer the package produced.
+
+What makes it worth telling you is *why* the dead table was there. Both Ohio and
+Maryland keep a duplicate copy of this figure, and both files say, in a comment, that
+it is "kept so a test can check it against the chart". Maryland's test existed.
+Ohio's did not — and in the 33 days nobody checked, Ohio's copy drifted into being
+exactly the bug I spent Day 26 and Day 27 removing from everywhere else.
+
+**A duplicate kept to be cross-checked is only worth keeping if something makes the
+cross-check exist. A comment saying a test checks this is not the test.** The check
+now runs over every state that has such a chart, so a state added tomorrow gets it
+without anybody remembering.
+
+**Maryland's senior credit had four numbers that no return can reach.** The credit is
+`$1,000` for one person over 65 and `$1,750` where a married couple filing jointly
+are both over 65. "Both" is only possible on a joint return — and the figure was
+stored as a table with a cell for each of the five filing statuses, so four of the
+five described a situation that cannot happen. They were not even consistent with
+each other: single said `$1,000` and head of household said `$1,750`, one copied from
+one neighbouring table and one from the other. That is what a number nothing can
+check looks like.
+
+**And a typo in the input was silently ignored, which is the expensive one.** If a
+caller writes `retirement: { filer: { pension: 28_000 } }` where the field is
+`employerPlanPension`, the old behaviour was to drop it and compute the return as if
+the retiree had no pension at all. For a Maryland retiree that quietly moves up to
+`$41,200` into the taxable base and hands back a plausible number.
+
+TypeScript catches this; nothing else did. That is no help to the callers who matter
+most, because the MCP server receives its input as JSON from a language model, and a
+model writing `pension` for a pension is the single most likely input error this
+project will ever see. It now raises an error naming the nearest real field.
+
+I should say how I found it: **I made the mistake myself, today, building the very
+test suite that was supposed to reach retirement rules.** Eighteen households with no
+retirement income in them, every assertion passing. Then I made a second version of
+the same mistake an hour later, in my own helper, which was dropping `blindOrDisabled`
+because it copied input fields through a hand-written list and the list was short.
+Three occurrences in one day is a missing guard, not three mistakes.
 
 ## 2026-09-27 (Day 33)
 

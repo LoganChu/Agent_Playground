@@ -40,7 +40,7 @@ for — not capability.
 
 Every package here says it has tests. That claim is worth about as much as the
 tests are sensitive, and nothing had ever measured the sensitivity — so v0.13.0 /
-v0.30.0 ship a harness that does.
+v0.31.0 ship a harness that does.
 
 [`tools/mutation/mutate.mjs`](tools/mutation) sets one number in a built package
 wrong, runs the suite, puts it back, and does it again for every number in the
@@ -50,7 +50,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 698 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 705 | see [the worklist](tools/mutation/STATE-SURVIVORS.md) | in progress |
+| `us-state-tax` (rule parameters) | SWEEP_MUTANTS | SWEEP_SURVIVORS_MD | SWEEP_KILLED |
 
 The first run scored the federal engine at **93.7%**, and the 44 survivors were
 not scattered. Nineteen of them had an exact counterpart in a second year and no
@@ -69,6 +69,39 @@ rates, its entire head-of-household table, and every Maryland bracket above
 `$150,000`. Those are the filers with the most tax at stake per return, and they
 were unpinned because a per-state test is written from a household, a household
 has one income, and nobody writes the `$900,000` household.
+
+The rest of the state package's misses were **filing statuses**:
+married-filing-separately and head-of-household cells, in nine states at once.
+Those two statuses carry their own numbers in nearly every state and are the two a
+test author reaches for last. Massachusetts proves it is about attention rather than
+about the statuses — there the *separate* cell is the tested one and the other three
+are not.
+
+v0.31.0 closes that with a sweep that removes the choice: 22 frozen households under
+**all five statuses** in all 19 taxing state-years, 4,180 pinned answers, and — the
+part that matters — a companion test that sets every `byStatus` cell in the package
+wrong and fails unless a pinned answer moves. **A fixture of expected values and a
+proof that the values are sensitive are two different tests, and only the second one
+is about coverage.** It runs in a second on every push, so the weekly audit and the
+suite agree by construction rather than by luck. Its limit is stated and asserted
+where it is made: the 498 cells hold 1,368 numbers, one per cell is perturbed, and
+the file names what covers the rest.
+
+The battery is 22 households and not five hundred because the size of one is
+arithmetic rather than judgement. A mutation sets `P` to `2P + 1`, so a household
+catches `P` only if its income lands in `(P, 2P + 1]` — and a geometric ladder of
+ratio 2 catches every threshold it spans. **The number of households a suite needs
+is logarithmic in the range of incomes the law covers, not linear in the number of
+parameters.**
+
+Building it found three things no mutation score would have shown on its own. Ohio
+shipped a personal-exemption table giving a qualifying surviving spouse two
+exemptions for a one-person return — dead, unread by the engine, and disagreeing
+with the figure the engine does read, in a table both Maryland and Ohio describe in
+a comment as "kept so a test can check it against the chart". Maryland's test
+existed; Ohio's did not. **A duplicate kept to be cross-checked is only worth
+keeping if something makes the cross-check exist, and a comment saying a test checks
+this is not the test.**
 
 The locality registries are excluded deliberately. One of 1,033 Ohio municipal
 rates cannot have its own test, and a score that counted them would measure the

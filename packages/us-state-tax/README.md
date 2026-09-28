@@ -1861,12 +1861,75 @@ the `$24,600` the threshold moved — and it is owed by nobody below a million d
 
 ## No fallback to a neighbouring year
 
-Eight of the eighteen taxing states cut their rate between 2025 and 2026 — New York's
+Eight of the nineteen taxing states cut their rate between 2025 and 2026 — New York's
 bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
 North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%, and Ohio, which abolished its 3.125%
 bracket outright and re-based the constant beneath it from `$342.00` to `$332.00`. Asking
 for an unsupported year throws rather than answering with the nearest one.
+
+## Every filing status, priced, and a proof that the pins are load-bearing (v0.31.0)
+
+The package's own mutation audit — `tools/mutation/mutate.mjs`, which sets one number
+in the build wrong and runs the suite — reported that its largest blind spot was a
+**filing status** and not a rule. `separate` and `headOfHousehold` cells, in nine
+states at once: California's exemption credit and renter's credit, Maryland's senior
+credit and poverty limit, Ohio's business-income limit, three Utah credit tables, New
+Jersey's retirement exclusion, New York's standard deduction.
+
+Those two statuses carry their own numbers in nearly every state here, and they are
+the two a test author reaches for last. Massachusetts proves it is about attention
+rather than about the statuses: there the *separate* cell is the tested one and the
+other three are not.
+
+`test/status-sweep.test.js` removes the choice. 22 frozen households run under **all
+five statuses** in all 19 taxing state-years, and 4,180 answers are pinned. Beside it
+is the test that makes those pins mean something: it takes every `byStatus` table the
+package ships, sets a cell wrong, and fails unless a pinned answer moves.
+
+**A fixture of expected values and a proof that the values are sensitive are two
+different tests, and only the second one is about coverage.** 4,180 rows that all
+happened to be zero would pass every day and guard nothing.
+
+What that buys a caller is narrow and worth stating exactly: **no parameter that
+differs by filing status can change in this package without a test failing.** It is
+not a claim that the parameters are right — the statute citation on each figure and
+the 779-household differential against an independently built model are what speak to
+that, and neither is affected by this file.
+
+### Why 22 households and not five hundred
+
+Because the size of the battery is arithmetic. A mutation sets a parameter `P` to
+`2P + 1`, so a household only notices `P` if its income lands in `(P, 2P + 1]`. A
+geometric ladder with ratio 2 catches every threshold it spans: if `pᵢ ≤ P < pᵢ₊₁`
+then `pᵢ₊₁ > P` and `pᵢ₊₁ = 2pᵢ ≤ 2P`. **The number of households a suite needs is
+logarithmic in the range of incomes the law covers, not linear in the number of
+parameters** — ten rungs from `$3,000` to `$1,600,000`, run separately in wages, in a
+family with dependents and in a retirement, because a threshold on pension income is
+not reached by a wage.
+
+### An unknown `retirement` field is now an error
+
+Building the battery found a fourth kind of defect, and the worst of the four for a
+caller. `retirement: { filer: { pension: 28_000 } }` type-checks as an error and did
+nothing at run time: the key was dropped, the person was left with no retirement
+income, and every exclusion and credit that reads one came back as if the retiree had
+none. For a Maryland retiree that moves up to `$41,200` into the taxable base and
+returns a plausible number.
+
+TypeScript catches it and nothing else did, which is no help to the callers who
+matter most — an MCP server receives its input as JSON from a language model, and a
+model writing `pension` for a pension is the most likely input error this package
+will ever see. It is now a `RangeError` that names the nearest real field:
+
+```
+retirement.filer.pension is not a field of PersonRetirementIncome.
+Did you mean `employerPlanPension` or `governmentPension`?
+```
+
+`FederalBasis` and the top-level input are deliberately left open — the first is
+documented as a structural subset of `us-federal-tax`'s result, so extra keys are
+part of the contract. The difference is whether a superset is expected.
 
 ## Coverage
 
@@ -1889,7 +1952,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.13.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.31.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 28 states.** No Minnesota, Wisconsin,

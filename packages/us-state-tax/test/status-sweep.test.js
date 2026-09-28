@@ -76,7 +76,7 @@ const parse = (row) => {
 
 test('every pinned household still owes what it owed', () => {
   assert.equal(PINS.columns.length, 4 + DIGEST_COLUMNS.length);
-  assert.ok(PINS.rows.length > 3_000, 'the fixture is present and not truncated');
+  assert.ok(PINS.rows.length > 4_000, 'the fixture is present and not truncated');
   for (const row of PINS.rows) {
     const { year, state, filingStatus, name, expected } = parse(row);
     const actual = digest(stateIncomeTax(household(name, state, year, filingStatus)));
@@ -176,7 +176,30 @@ const mutable = (v) =>
   Number.isFinite(v) &&
   (Math.abs(v) >= 100 || (Math.abs(v) > 0 && Math.abs(v) < 1));
 
-/** The first mutable number inside a cell, which may be an array of steps. */
+/**
+ * The first mutable number inside a cell, which may be an array of steps.
+ *
+ * **The first, and this is the honest limit of the test below.** The 498 cells hold
+ * **1,368** mutable numbers between them, and 100 of the cells hold more than one:
+ *
+ *   | path | cells with several numbers | what covers the rest |
+ *   | --- | --- | --- |
+ *   | `rate.byStatus` | 70 | `bracket-pins.test.js`, one probe inside every band |
+ *   | `exemption.perExemptionSteps` | 20 | `registry.test.js` for the top step; the middle steps are Group 3 |
+ *   | `householdCredit.base` | 10 | the low rungs of the battery; the middle rows are Group 3 |
+ *
+ * So the claim this file makes is exactly: **one number per table per status, which
+ * is the whole of a scalar cell and the first row of a staircase.** A staircase needs
+ * a probe inside each of its steps, which is a different instrument — the one
+ * `bracket-pins.test.js` already is for rate schedules — and building it over every
+ * `steps` / `bands` / `amountByAge` array is the next thing on
+ * `tools/mutation/STATE-SURVIVORS.md`.
+ *
+ * Perturbing all 1,368 here instead would be the wrong trade twice over: it would
+ * cost about 7 seconds on every push, and it would need a long allow-list for the
+ * rows a general household battery cannot reach — which would be this test quietly
+ * turning into the thing it exists to prevent.
+ */
 function firstMutableLeaf(value, path = '') {
   if (mutable(value)) return { path, value };
   if (value === null || typeof value !== 'object') return undefined;
@@ -274,5 +297,18 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // clean sweep over nothing. That is the failure mode the mutation harness had on
   // its first run, and it printed 100%.
   assert.equal(checked, 498, 'byStatus cells with a parameter the harness would mutate');
+  // And the number those cells CONTAIN, pinned beside the number probed so the gap
+  // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
+  let inside = 0;
+  const countLeaves = (v) =>
+    mutable(v) ? 1 : v === null || typeof v !== 'object' ? 0 : Object.values(v).reduce((a, b) => a + countLeaves(b), 0);
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of TAXING) {
+      for (const { table } of byStatusTables(getStateDefinition(state, year), '', [], new WeakSet())) {
+        for (const status of FILING_STATUSES) inside += countLeaves(table[status]);
+      }
+    }
+  }
+  assert.equal(inside, 1_368, 'numbers inside those cells — 870 of them in 100 staircases');
   assert.equal(exempt.length, 20, 'cells the engine cannot reach, all of them documented');
 });

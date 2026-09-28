@@ -76,6 +76,23 @@
 //   business420k  above Ohio's business-income deduction cap. It has to be ABOVE
 //                 it: at exactly the cap the deduction is the whole of the income
 //                 either way, so a household AT a cap cannot see the cap.
+//   blind34k      a blind filer and a dependent at college. Two DIMENSIONS the
+//                 first draft had none of, worth eight states' blind exemptions
+//                 between them.
+//   veteran58     military retired pay, a government pension, and service on both
+//                 sides of 1 January 1998. 58 because that is over 55 for
+//                 Maryland's larger military cap and UNDER 62 for Georgia's
+//                 military exclusion, which is a cliff on a birthday.
+//   centenarian   100, a parameter in exactly one state and unreachable by every
+//                 household under it.
+//   family18k     three young children on a low earned income, and rent small
+//                 enough that a percentage of it binds before a cap does. The
+//                 refundable credits live here and have all run out by $38,000.
+//
+// Adding those four took the parameters no household reaches from 258 to 204 of
+// 1,281 — and the largest single jump came from none of them. It came from finding
+// that `blindOrDisabled` was being DROPPED on the way in, by the list of field
+// names this file used to copy; see `household()`.
 //
 // ## The federal figures are inputs, not claims
 //
@@ -337,6 +354,80 @@ const SHAPES = {
     lesserSpouseIncome: 400_000,
     bothSpousesHaveQualifyingIncome: true,
   },
+  // A blind filer, and a dependent at college. Two whole dimensions the first
+  // draft of this battery had none of: `blindOrDisabled` and
+  // `dependentsAttendingCollege` are read by five states between them and by no
+  // household that does not set them. Two claimed on a one-person return, so the
+  // `livingFilerCount` cap is exercised rather than assumed.
+  blind34k: {
+    income: 34_000,
+    earnedIncome: 34_000,
+    filerAge: 47,
+    spouseAge: 46,
+    blindOrDisabled: 2,
+    dependentAges: [19],
+    dependentsAttendingCollege: 1,
+    rentPaid: 6_000,
+    socialSecurityAndMedicarePaid: 2_601,
+  },
+  // 58, with military retired pay, a government pension and service on both sides
+  // of 1 January 1998. The age is the one that makes the most rules bind at once:
+  // over 55 for Maryland's larger military cap, UNDER 62 for Georgia's military
+  // exclusion — which is a cliff on the birthday every guide calls the one where
+  // Georgia's exclusion begins — and Kentucky asks no age question at all.
+  veteran58: {
+    income: 95_000,
+    earnedIncome: 25_000,
+    filerAge: 58,
+    spouseAge: 57,
+    retirement: {
+      filer: {
+        militaryRetirement: 40_000,
+        governmentPension: 30_000,
+        serviceMonthsBefore1998: 240,
+        serviceMonthsAfter1997: 120,
+        earnedIncome: 25_000,
+      },
+      spouse: {},
+    },
+    retirementIncome: 70_000,
+    socialSecurityAndMedicarePaid: 1_913,
+  },
+  // 100, which is a parameter in exactly one state and unreachable by every
+  // household under it. Maryland's centenarian subtraction takes $100,000 off
+  // whatever the income is, so the household has to have more than that for the
+  // figure to bind rather than be clamped at zero.
+  centenarian: {
+    income: 150_000,
+    earnedIncome: 0,
+    filerAge: 100,
+    spouseAge: 100,
+    retirement: {
+      filer: { employerPlanPension: 120_000, socialSecurityBenefits: 34_000 },
+      spouse: {},
+    },
+    retirementIncome: 120_000,
+    taxableSocialSecurity: 30_000,
+    propertyTaxPaid: 4_200,
+  },
+  // Three young children on a low earned income, and rent small enough that a
+  // percentage of it binds before a cap does. This is where the refundable credits
+  // live — CalEITC's phase-in rates by child count, the Young Child Tax Credit,
+  // Maryland's poverty-level credit — and none of them is reachable by a family at
+  // $38,000, because every one of them has run out by then.
+  family18k: {
+    income: 18_000,
+    earnedIncome: 18_000,
+    filerAge: 30,
+    spouseAge: 29,
+    dependentAges: [2, 4, 7],
+    federalEarnedIncomeCredit: 6_000,
+    investmentIncome: 400,
+    rentPaid: 6_000,
+    socialSecurityAndMedicarePaid: 1_377,
+    lesserSpouseIncome: 5_000,
+    bothSpousesHaveQualifyingIncome: true,
+  },
   business420k: {
     income: 460_000,
     earnedIncome: 60_000,
@@ -352,66 +443,52 @@ const SHAPES = {
 /** The battery's keys, in the order the fixture stores them. */
 export const HOUSEHOLDS = Object.keys(SHAPES);
 
-/**
- * Build one battery input.
- *
- * The three state-specific income measures are mirrored from `income` because a
- * state that defines its own base has nowhere else to read one from, and a sweep
- * that left them undefined would answer zero for Pennsylvania, New Jersey and
- * Massachusetts on every row — which is the shape of a test that passes by not
- * reaching anything.
- */
-export function household(household, state, year, filingStatus) {
-  const shape = SHAPES[household];
-  if (shape === undefined) throw new RangeError(`Unknown household ${household}`);
-  const deduction = shape.deduction ?? FEDERAL_STANDARD_DEDUCTION[year][filingStatus];
-  const input = {
+/** Build one battery input. */
+export function household(name, state, year, filingStatus) {
+  const shape = SHAPES[name];
+  if (shape === undefined) throw new RangeError(`Unknown household ${name}`);
+  // Everything the shape declares goes through, EXCEPT the four keys that are
+  // about building the federal basis rather than about the state return.
+  //
+  // Written as a rest spread on purpose. The first version listed the fields to
+  // copy, and the list was short: `blindOrDisabled` and
+  // `dependentsAttendingCollege` were set on a household built to reach them and
+  // silently dropped on the way in, so eight states' blind exemptions read as
+  // unreachable and the household that was supposed to reach them proved it.
+  //
+  // **THE RULE: a hand-maintained list of field names is a second copy of the
+  // type, and a second copy drifts towards being short.** That is the same bug as
+  // `retirement.filer.pension` one layer down and `wages` for `w2Wages` one layer
+  // up — three times in one day, in three different files, and the two that were
+  // lists were both wrong.
+  const { income, deduction, deductionKind, federalEarnedIncomeCredit, ...rest } = shape;
+  const federalDeduction = deduction ?? FEDERAL_STANDARD_DEDUCTION[year][filingStatus];
+  return {
     state,
     year,
     filingStatus,
     federal: {
-      adjustedGrossIncome: shape.income,
-      taxableIncome: Math.max(0, shape.income - deduction),
-      deduction,
-      deductionKind: shape.deductionKind ?? 'standard',
-      ...(shape.federalEarnedIncomeCredit === undefined
+      adjustedGrossIncome: income,
+      taxableIncome: Math.max(0, income - federalDeduction),
+      deduction: federalDeduction,
+      deductionKind: deductionKind ?? 'standard',
+      ...(federalEarnedIncomeCredit === undefined
         ? {}
-        : { earnedIncomeCredit: shape.federalEarnedIncomeCredit }),
+        : { earnedIncomeCredit: federalEarnedIncomeCredit }),
     },
-    pennsylvaniaTaxableIncome: shape.income,
-    pennsylvaniaEligibilityIncome: shape.income,
-    newJerseyGrossIncome: shape.income,
+    // The three state-specific income measures, mirrored from `income` because a
+    // state that defines its own base has nowhere else to read one from. A sweep
+    // that left them undefined would answer zero for Pennsylvania, New Jersey and
+    // Massachusetts on every row — the shape of a test that passes by not reaching
+    // anything.
+    pennsylvaniaTaxableIncome: income,
+    pennsylvaniaEligibilityIncome: income,
+    newJerseyGrossIncome: income,
     massachusettsFivePercentIncome:
-      shape.income - (shape.shortTermCapitalGains ?? 0) - (shape.collectiblesGains ?? 0),
+      income - (shape.shortTermCapitalGains ?? 0) - (shape.collectiblesGains ?? 0),
     qualifyingWages: shape.earnedIncome,
+    ...rest,
   };
-  for (const key of [
-    'earnedIncome',
-    'filerAge',
-    'spouseAge',
-    'dependentAges',
-    'investmentIncome',
-    'netCapitalGain',
-    'shortTermCapitalGains',
-    'collectiblesGains',
-    'outOfStateMunicipalInterest',
-    'socialSecurityAndMedicarePaid',
-    'propertyTaxPaid',
-    'rentPaid',
-    'retirement',
-    'retirementIncome',
-    'taxableSocialSecurity',
-    'taxExemptInterest',
-    'businessIncome',
-    'bothSpousesHaveQualifyingIncome',
-    'lesserSpouseIncome',
-    'stateItemizedDeductions',
-    'spouseHasNoGrossIncomeAndIsNotADependent',
-    'spouseAdjustedFederalAdjustedGrossIncome',
-  ]) {
-    if (shape[key] !== undefined) input[key] = shape[key];
-  }
-  return input;
 }
 
 /**
