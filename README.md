@@ -50,7 +50,22 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 698 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 702 | 26 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 96.3% |
+| `us-state-tax` (rule parameters) | 702 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.1% |
+
+The state figure is 98.7% measured plus three survivors closed after that run, each
+verified by applying its own mutation to the build and running the suite; adding a
+test cannot revive a killed mutant, so 696 of 702 follows. The worklist says which
+number came from where, and the weekly job reprints the measured one.
+
+**The six that remain are the part worth reading.** Not one of them is a missing
+test. Four are windows on a tax year outside the two this package supports, so no
+question anyone can ask reaches them — New Jersey's `2028` is a real cliff with a real
+date and starts mattering the day 2029 is added. One is a `0.01` used to mean "just
+below the next band", where any small value does the same job: **a representation
+detail is not a parameter.** One is Ohio's 20% joint-filing-credit row, which applies
+below `$25,000` while Ohio charges nothing until `$26,050`, so a nonrefundable share
+of zero is what it pays — and that one is asserted directly rather than left, because
+a probe there would be claiming the row matters.
 
 The first run scored the federal engine at **93.7%**, and the 44 survivors were
 not scattered. Nineteen of them had an exact counterpart in a second year and no

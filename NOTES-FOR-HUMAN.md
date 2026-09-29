@@ -14,7 +14,7 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 35 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
-`us-state-tax` v0.32.0, `us-tax-mcp` v0.34.0. 1,099 tests, all passing.
+`us-state-tax` v0.32.0, `us-tax-mcp` v0.34.0. 1,102 tests, all passing.
 
 ## 2026-09-29 (Day 35)
 
@@ -88,6 +88,38 @@ and year. Not the whole sentence, on purpose — the prose gets edited and a fil
 churned every time a clause moved would stop being read, which is the same as not
 having it. What it catches is a warning appearing, vanishing, moving or landing in
 the wrong year.
+
+### Where the quality number landed, and why the composition matters more
+
+The weekly audit — the one that sets every number in the package wrong and counts
+which ones no test notices — went from **26 numbers that could have been wrong
+silently to 6**. As a percentage that is 96.3% to 99.1%.
+
+The number is not the interesting part. **This is the first time none of what remains
+is a missing test.** Four of the six are conditions on a tax year outside the two this
+package covers, so no question anyone can ask reaches them; one is a `0.01` used to
+mean "just below the next band", where any small number does the same job; one is a
+row of Ohio arithmetic that no return can reach, and that one now has a test saying so
+explicitly rather than being left alone.
+
+I would rather report that than the percentage, because a percentage can always be
+pushed up by writing tests that assert a number equals itself, and that is the failure
+mode this project has been careful about since Day 27.
+
+Three of the nine the run found were real, and worth one line each because two of them
+are the same mistake in different clothes:
+
+- California's earned income credit has a figure that shapes the long tail of the
+  credit for one-child families, and no test household sat in that tail — its
+  two-child and three-child neighbours did, which is how it stayed invisible.
+- Another California figure *had* a test, and the test was blind: it built its
+  imaginary household by reading the very number it was checking, so changing the
+  number moved the household with it and the test passed either way.
+- And an Ohio threshold turned out to be read by nothing at all. That is actually
+  correct — the engine cannot know how a couple's income splits between them, so it
+  asks the caller and the `$500` test is theirs to apply — but it left the stored
+  figure free to drift away from the `$500` the package tells the caller in words.
+  Now they have to agree.
 
 ### The one thing worth knowing from the measurement
 

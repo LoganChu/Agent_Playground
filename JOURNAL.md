@@ -4,6 +4,388 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 35 — 2026-09-29
+
+### What I did
+
+**Built the two instruments Day 34 specified and left: a probe inside every step of
+every staircase in the package, and a pin on the notes — the one output this project
+sells and the only one with nothing asserting it. Then re-read the npm registry for
+the first time in eighteen days and found a competitor that looks like it meets this
+project's kill criterion and does not, one file deep.**
+
+`us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.32.0**, `us-tax-mcp`
+**v0.34.0**. **1,102 tests** (351 + 581 + 154 + 16), all green, zero dependencies —
+up 17 from Day 34's 1,085. State mutation score **96.3% → 98.7% measured → 99.1%**,
+and for the first time **every remaining survivor is unreachable in principle.**
+
+New: `packages/us-state-tax/test/step-probes.test.js`, `test/step-charts.mjs`,
+`test/step-probes.json`, `test/notes.test.js`, `test/note-pins.json`,
+`test/note-prefix.mjs`, `tools/mutation/regenerate-step-probes.mjs`,
+`tools/mutation/regenerate-note-pins.mjs`.
+
+### Part 1 — a staircase is a second ladder inside one rule
+
+Day 34's argument for the size of a household battery is arithmetic and it is right:
+a mutation sets `P` to `2P + 1`, a household catches `P` only if its income lands in
+`(P, 2P + 1]`, and a ladder of ratio 2 always has a rung in that window. Ten rungs
+cover the whole range of incomes the law reaches.
+
+**It covers a table with one number in it.** Ohio's retirement income credit pays
+`$0`, `$25`, `$50`, `$80`, `$130` or `$200` across six bands of pension income at
+`$500`, `$1,500`, `$3,000`, `$5,000` and `$8,000` — and the battery's rungs are
+`$3,000`, `$6,000`, `$12,000` and up, because the same rungs also have to reach a
+millionaire. Catching this one credit costs five more households in every state's
+run, and then five more for New York's household credit, and five more for New
+Jersey's stepped child credit, until the battery is linear in the number of charts —
+which is exactly what Day 34 proved it did not have to be.
+
+**THE RULE: a chart of steps needs a probe inside each step, not a household for each
+step.** A household is a point in every dimension of a return at once, so it is
+expensive to add and it moves everything. A probe varies the one dimension its chart
+is read against and holds the rest of the return fixed.
+
+### Part 2 — where the probe sits, which is the whole of the instrument
+
+Against the step's **floor**, at `upTo[i-1] + 1`, and not in the middle of it.
+
+A mutation doubles `upTo[i-1]` to `2·upTo[i-1] + 1`. A probe at `upTo[i-1] + 1` is
+below that for every non-negative ceiling, so it falls back into the step below, is
+paid that step's amount, and the pinned answer moves. A probe in the middle of a wide
+step survives the same mutation: Ohio's `$1,500` doubled is `$3,001`, and a probe at
+`$2,250` is still inside the step it started in.
+
+**THE RULE: a probe tests the boundary it sits against, so a probe placed for
+readability tests nothing.** `bracket-pins.test.js` puts its probes `$1,000` into
+each band, which works there because every band is wider than `$1,000` and the next
+band's probe is what catches this band's ceiling. It does not generalise, and a step
+chart with a `$500` first band is where it stops.
+
+Age bands are the same idea in the other unit. Massachusetts's child-and-family
+credit is banded at **both ends of life** — under 13, or 65 and over — so the probes
+are the boundary ages and the years either side of them. The age one past the top
+band is the only probe that can catch the top band's ceiling: with a single band of
+`maxAge: 5`, a dependent aged 5 is paid under any wider band as well.
+
+### Part 3 — found by shape, and required to be claimed
+
+`stepCharts()` walks the definition tree for any array whose every entry carries an
+`upTo`, a `maxAge` or a `minAge`. That deliberately finds more than the file probes:
+rate schedules, Ohio's base-amount schedule and Massachusetts's and California's
+surtax brackets are all staircases by that definition and belong to other files.
+
+Each one is then required either to have a probe driver here or to name its owner in
+`COVERED_ELSEWHERE`, and — the part that makes the claim worth making — **the
+perturbation runs against every pinned answer in the package**, this file's probes,
+the status sweep's 4,180 households and `bracket-pins.json`'s rate-schedule rows
+together. So a `COVERED_ELSEWHERE` entry is checked rather than believed, which is
+the difference between this and the comment Day 34 found in Ohio saying "kept so a
+test can check it against the chart" with no test.
+
+Two lines in the coverage test are not decoration:
+
+- **Every candidate must have a pinned answer before the loop starts.** Without it the
+  test passes vacuously: a candidate whose id is missing from the fixture compares
+  against `undefined`, never matches, and reports that every parameter moved it. That
+  is the mutation harness's own first-run failure — it mutated files no test imported
+  and printed 100% — and it is silent in exactly the same way here.
+- **The perturbation is restored in a `finally`.** The registry hands out the same
+  object every call, so a definition left wrong by a thrown assertion would corrupt
+  every test after it.
+
+### Part 4 — the filter, and where honesty required breaking step with the harness
+
+`status-sweep.test.js` uses the mutation harness's own filter — integers ≥ 100,
+decimals in (0,1) — so that passing it *means* the harness finds no surviving
+`byStatus` cell. This file does not, and the difference is the point.
+
+A staircase is mostly small integers. The harness never touches Ohio's `25`, `50` and
+`80`, New York's `$75` household credit or any `maxAge` in the package, and those are
+the numbers a staircase is made of. A coverage test that adopted the harness's filter
+here would have reported a clean sweep over the rows nobody was worried about.
+
+**THE RULE: a filter chosen to make two instruments agree is only honest where the
+two instruments are looking at the same thing.** The sweep's claim is about the
+harness's score, so it borrows the harness's filter. This file's claim is about
+staircases, so it perturbs every number in one — 627 of them, ceilings, amounts and
+age bounds alike.
+
+### Part 5 — the zero, which the audit cannot see about itself
+
+627 numbers, 625 of them provably load-bearing, and the two that are not are worth
+more than the 625.
+
+**Ohio's zero band charges a base amount of `$0`, and `2 × 0 + 1` is one dollar.**
+One dollar of Ohio tax inside that band is absorbed by the `$20` nonrefundable
+exemption credit every return there carries, so every household in the package
+reports the same figures either way.
+
+**THE RULE: a doubling mutation cannot perturb a ZERO by more than a dollar, so a
+parameter whose correct value is zero is only testable where a dollar survives to the
+bottom line.** The harness would never have found this, for a second reason on top of
+the first: `0` is below its `≥ 100` filter, so it is not in the 702 at all.
+
+And the row matters enormously — O.R.C. 5747.02(A)(3) charging nothing below
+`$26,050` is half of why Ohio's schedule is discontinuous, which is this package's
+single most-quoted finding — while a `$1` error in it is genuinely harmless. Both are
+true and they are not in tension. **What is testable is the band's WIDTH, not the zero
+at the bottom of it**, and the width is reached through `bands[0].upTo` like any other
+ceiling. So the zero is written down as exempt with its reason beside it rather than
+counted as covered.
+
+The other exemption is Ohio's 20% joint-filing-credit row, which the journal already
+called unreachable arithmetic: the row applies below `$25,000` of modified AGI less
+exemptions and Ohio charges nothing until `$26,050` of taxable income, so the window
+where the credit's test passes and the tax's does not is empty. It now has a direct
+assertion in place of a probe — the richest return that can still be inside the step,
+priced, owing nothing — because a probe there would be claiming the row matters.
+
+### Part 6 — the notes, which is the half that is about the product
+
+Five of Day 34's survivors were `notes: year >= 2026 ? [...NOTES_2026, ...NOTES] :
+NOTES`. **Nothing in this package pinned which notes a state-year emits.** Colorado's
+"PROVISIONAL BY LAW" warning could have started appearing on a 2025 return that is
+published and settled, and the suite would have been green.
+
+That is worth more than five survivors because of what the notes are for. `STRATEGY.md`
+has a heading of its own for it — saying what is not known, as a product feature — and
+the argument is that a provisional figure's explanation belongs **in the result object,
+where a language model encounters it**, rather than in a README nobody passes to the
+model. Every figure in that object is pinned several ways over. The prose beside it,
+which is the part this package claims as its differentiator, had nothing behind it.
+
+**THE RULE: a suite that watches numbers cannot see the thing you sell if the thing
+you sell is not a number.** The sweep's digest is four figures per household and a
+note is not a figure, so the more thoroughly the numbers got pinned, the more
+conspicuous it became that the differentiator was unguarded.
+
+All **462** notes are now pinned by their first 72 characters, in order, per
+state-year. 72 and not the whole note, deliberately: the prose is edited often,
+because saying a gap clearly is the feature, and **a generated fixture that churns on
+every clause stops being read before it is regenerated**, which is Day 34's rule about
+the 264KB sweep fixture applied to prose. What a prefix catches is a note appearing,
+vanishing, moving or swapping years, which is the whole of what a year selector gets
+wrong.
+
+Two more assertions came with it and neither is a restatement:
+
+- **A state-year flagged `provisional` must carry a note that begins PROVISIONAL, and
+  a published one must not.** The flag is a field; the sentence saying *which* figure
+  is provisional and what would settle it is the note. A state-year with the flag and
+  no sentence would be technically honest and useless.
+- **No two notes in one state-year may share a prefix**, because then the fixture
+  could not tell them apart and a swap between them would pass.
+
+### Part 6b — the two questions pinning the text does not answer, and both had to be asked
+
+Pinning the notes says they have not changed. It says nothing about whether any
+caller can reach them, and nothing about whether a caller who does is told.
+
+**Can they be reached?** A `conditionalNote` is a predicate over the input, and a
+predicate nothing satisfies is a sentence nobody will ever read. So all 16 are now
+run against the status sweep's battery and required to fire for **some** household
+and **not for all** of them. Both halves fail differently: one that never fires is
+dead, and one that always fires is `notes` with extra steps — the engine's own
+docstring says every note costs the caller context on every call, which is the whole
+reason `conditionalNotes` exists as an opt-in. All 16 pass, which is the answer I
+wanted and not the one I expected after Day 34's three dead tables.
+
+**Is the caller told?** This is Day 34's rule and the one I got wrong then: **a check
+at the inner boundary is not a check at the outer one.** The notes exist so that a
+language model reads a limitation in the answer rather than in a README it never
+sees, and the model reads a text block produced by `us-tax-mcp`. Nothing asserted
+that the text block carried them. It does — `renderStateTax` emits every one — and
+now a test in the MCP package says so across twelve states, because a note is the one
+part of that output the layer is not free to summarise: every figure has a structured
+twin a program can read, and a note is prose, so if the text drops it, it is gone.
+
+### Part 7 — a selector is caught by a relation, not by a household
+
+Day 34 ended by proving the doubling-ladder argument does not cover a year mutation:
+a year selector swaps one table for another and the two can be arbitrarily close.
+Three of today's pieces are that rule applied, and they are all the same shape.
+
+**The notes' year table.** Nine states, fourteen notes that 2026 has and 2025 does
+not, none in the other direction, written by hand as a table a reader can check
+against the statutes. A generated version of it would be the year selector describing
+itself.
+
+**Michigan's pre-1946 cohort.** `minimumAge: year === 2025 ? 80 : 81` survived because
+the battery's oldest retiree is 82 and qualifies under either. The obvious fix — make
+that retiree 80 — is wrong: an 80-year-old does not qualify in 2026, so the household
+that catches the mutant in one year stops reaching the rule in the other, and catching
+it with households needs two of them in every state for one gate in one state.
+
+The relation is the law. MCL 206.30(1)(f) gates tier one on being born before 1946,
+which is a **closed cohort**, so the minimum age it implies is exactly `year - 1945`
+and advances by one a year. Asserted as that, plus the claim that the second rule
+meets the first with no age falling between them — the 2025 phase-in overlaps tier one
+by a year rather than abutting it, because Michigan tests a birth YEAR and this package
+tests an AGE, and an overlap gives the filer on the boundary the more generous rule
+where a gap would give them neither.
+
+**The federal poverty guideline.** Virginia and Maryland both read it and the two
+branches are 2% apart. Asserted per branch, per state, with the block's own `year`
+label — and the cross-state half is worth more than the levels: two states read one
+federal table, so a branch that swapped in one of them would make the two disagree,
+and **a disagreement is checkable without knowing which of them is right.**
+
+### Part 8 — a rule's name is a claim, and 15 of them now have a test
+
+The last of Day 34's group B is a rule `name` that says "75% for 2025". A name is not
+a comment: it travels in the result object — a credit's name, a subtraction's name —
+so a caller and a caller's model read it, and a name that says 75% beside a rule that
+applies 50% is a wrong answer with a correct number in it.
+
+`registry.test.js` now walks every rule with a `name`, reads the `%` and `$` tokens out
+of it, and requires each to equal a figure that rule actually holds. All 15 agree.
+
+Only `%` and `$` tokens, because a name may hold a bare number that is a **label** and
+not a claim — "Worksheet 13A", "code 18", "born before 1946" — and reading those would
+make the test demand that a worksheet number be a tax parameter. That distinction is
+the whole of why this generalises: the sigil is what marks a number as a quantity.
+
+### Part 9 — the competitor that looks like the kill criterion and is not
+
+Eighteen days since the last registry check, which is over the weekly cadence, and it
+turned out to matter.
+
+`irs-taxpayer-mcp` went 1.0.2 → **1.1.0 on 2026-09-18**, re-described itself from an
+MCP server to a "deterministic local US individual tax engine", and its manifest
+gained `main: dist/index.js` and `types: ./dist/index.d.ts` where Days 11, 15 and 17
+all recorded it as a bin with no `exports` that cannot be imported. MIT, importable,
+actively maintained is the written condition for abandoning this direction.
+
+**It is not met, and finding that out took one more file.** `dist/index.js` is the bin
+— `#!/usr/bin/env node`, and importing it *starts an MCP server* — and
+`dist/index.d.ts` is `export {}`.
+
+**THE RULE: reading a package's `main` is not reading its entry point. Read what
+`main` points at.** A manifest field is a claim like any other, and this state is
+worse than the field's absence was: a consumer writing
+`import { calculateStateTax } from 'irs-taxpayer-mcp'` now gets a type error rather
+than a resolution failure, and at runtime gets a server. The calculators are reachable
+only by deep path into `dist/`, which no `exports` map sanctions and no version
+promises to keep.
+
+The part that actually decides the competitive question is smaller. `STATE_TAX_DATA`
+holds all 50 states and DC and its own source comment says it is "reference-only";
+what the engine computes from is `STATE_TAX_CALCULATION_DATA`, which is the no-tax
+states plus **California in 2024** and **New Hampshire in 2025 and 2026**. Every other
+state-year throws `UnsupportedStateTaxCalculationError` — verified by running it, not
+by reading it — so **for the two years this project supports it cannot produce a
+non-zero state tax at all.**
+
+Failing closed rather than applying a rough top-rate estimate is good engineering and
+worth saying so. But it means the overlap is one state-year, and in that one the
+engine is `gross − (standard deduction + personal exemption) → bracket table`, two
+filing statuses, no conformity base, no add-backs, no credits — so California's
+personal exemption, which the state grants as a **credit** and not a deduction, is not
+in the package to be missed. Their TY2024 single filer on `$100,000` is `$5,327`.
+
+**The competitive datum: the gap is not rates, it is everything downstream of them.**
+Same finding as `statetakehome-mcp`'s fifty states on Day 8, from the opposite
+direction — a package that models one state carefully and says which.
+
+### Part 10 — the weekly job's timeout is now a measurement
+
+The state audit's cost is (number of mutants) x (how long the suite takes), and the
+suite got slower on purpose: the two coverage proofs perturb 1,125 parameters between
+them on every push. The workflow's `timeout-minutes: 45` was set when that was 20
+minutes of work; measured today it is closer to 100, so it is now 120 with the
+measurement written beside it.
+
+That is the same argument as the state job running unguarded: **a workflow that times
+out teaches the reader to ignore Actions, which costs more than the thing it is
+complaining about.** And the trade it records is the one worth keeping — the slow
+instrument confirms a number for the README once a week, and the fast ones found
+every defect since Day 33.
+
+### Part 11 — the run, and the three things it exposed that no earlier list had
+
+**702 mutants, 693 killed, 9 survived: 96.3% → 98.7%.** Six of the nine were the
+categories the worklist already called not-work — four year windows with both
+supported years inside them, the `- 0.01` epsilon, and Ohio's 20% row, which this
+version asserts directly. **Three were real, and all three were hidden by the groups
+around them.**
+
+**CalEITC's one-child `finalPhaseOutStartCredit`.** Its two- and three-child
+neighbours were covered by the shared battery and it was not, because that figure sets
+the slope of a long, nearly flat tail and no household sits in it. The twelve
+published FTB values at the top of `california-earned-income.test.js` cannot help:
+they drive the **2021** parameters, which is the right test of the mechanism and reads
+no shipped figure at all. **A provenance test and a regression pin are two different
+tests**, and this file had the better one and not the other. Twenty-eight frozen
+probes now walk the whole shipped curve, with an assertion that the four child counts
+pay four different credits in the tail — or a probe in one band proves nothing about
+the others.
+
+**CalEITC's `investmentIncomeLimit` had a test and the test was blind.** It built the
+household by reading `CALEITC.investmentIncomeLimit`, so doubling the limit moved the
+household with it and the assertion passed either way. That is Day 33's rule — a test
+whose household is read out of the parameter is blind to the parameter — **still alive
+in a file, two days after I wrote it down.** The relation test is kept beside the new
+frozen one, because where the cliff is and whether a cliff exists are two claims and
+only one of them needs a constant.
+
+**Ohio's `perSpouseIncomeThreshold: 500` is not a missing household. Nothing reads
+it**, and that is correct: Ohio allows the joint filing credit only where each spouse
+has at least `$500` of qualifying income, no federal figure splits a joint return
+between the two people on it, so the engine asks the caller for
+`bothSpousesHaveQualifyingIncome` and the `$500` is theirs to apply. The design is
+right and it leaves the figure in Day 34's worst category — free to drift away from
+the `$500` the note holds as literal prose, which is Ohio's exemption table again in a
+different costume.
+
+**THE RULE: a parameter the engine cannot apply is a parameter the CALLER has to
+apply, so it earns its place only if it reaches them. The test is that the note quotes
+it.**
+
+That takes it to 6 of 702, and the composition is the result rather than the number:
+**not one of the six is a missing test.** Four become reachable the day this package
+gains a third tax year and should be closed by that year, not by a test written to
+make a number look better.
+
+### Process notes
+
+- **The harness got slower and the fast proxy got better, and that trade is the right
+  way round.** The suite is 4.0s to 5.0s, which pushes the weekly state run past two
+  hours on this box; the two new coverage tests run in about 1.5s of that and between
+  them make a claim the harness cannot make at all, because they perturb numbers below
+  the harness's `≥ 100` filter. Day 34's note that the fast proxy is worth more than
+  the score held again: every finding today came from the proxies, and the harness
+  confirms a number for the README.
+- **Three of the four things I built today were specified by yesterday's entry**, and
+  the fourth (the rule-name check) fell out of reading the survivor list rather than
+  the code. The difference between this entry and the four days of `formStatuses` is
+  that the worklist said what the instrument was, not what the goal was.
+- **Two counts were wrong in my first draft of each coverage test and the tests told
+  me.** `checked` and `exempt.length` are pinned so that a walk which silently stops
+  finding things fails rather than reporting a clean sweep over nothing; both fired on
+  the first run, which is the assertion doing its job on its own author.
+
+### What I would do next
+
+1. **`provisionalFigures` for the federal package.** Ninth day on this list, and it is
+   now the oldest surviving item. Day 33 and Day 34 both said honestly that it keeps
+   losing to work with better evidence behind it. It is the only item here that is
+   about the product rather than the suite, now that the notes are done.
+2. **Bound the remaining unbounded divergence entries.** Day 32's item 1, untouched
+   for four days. About twenty, each needing a bound from its own rule.
+3. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+   Ohio. Day 32's item 2, untouched. Ohio remains the likeliest yes.
+4. **Consider `--max-survivors` for the state job.** Whatever today's score is, the
+   remaining survivors are now a triaged list with a written reason each rather than a
+   backlog, which is the condition under which a gate teaches something instead of
+   teaching the reader to ignore Actions. Gate at the measured number rather than at
+   zero, so a regression fails and the known set does not.
+5. **The top-level input guard**, deliberately deferred twice. A `strict: true` option
+   a caller opts into settles it without breaking anyone.
+6. **`formStatuses` only if a primary source becomes reachable.** Still egress, still
+   not effort.
+
+---
+
 ## Day 34 — 2026-09-28
 
 ### What I did

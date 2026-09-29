@@ -10,103 +10,165 @@ rather than the suite's reach.
 | Day 33, before any fix | 705 | 140 | 80.1% |
 | Day 33, after `test/bracket-pins.test.js` | 705 | 102 | 85.5% |
 | Day 33, after the Virginia sibling statuses | 705 | 100 | 85.8% |
-| **Day 34, after `test/status-sweep.test.js`** | **702** | **26** | **96.3%** |
+| Day 34, after `test/status-sweep.test.js` | 702 | 26 | 96.3% |
+| **Day 35, after `test/step-probes.test.js` and `test/notes.test.js`** | **702** | **9** | **98.7%** |
+| Day 35, after the three the run then exposed | 702 | 6 | 99.1% |
 
 Each survivor is a number the package could ship with a wrong value for.
 
----
-
-## Day 34 closed Group 1, and the instrument is the reusable part
-
-Group 1 was `separate` and `headOfHousehold` cells in nine states at once — the two
-statuses a test author reaches for last. It is closed, and not by writing nine
-tests.
-
-`test/status-sweep.test.js` runs 22 frozen households under **all five statuses** in
-all 19 taxing state-years and pins 4,180 answers. Beside it is the part that makes
-those pins mean something: a second test that takes **every `byStatus` cell the
-package ships**, sets it wrong, and fails unless a pinned answer moves.
-
-**THE RULE: a fixture of expected values and a proof that the values are sensitive
-are two different tests, and only the second one is about coverage.** 4,180 rows
-that all happened to be zero would pass every day and guard nothing.
-
-That second test is this harness's question asked inside the suite, so the two agree
-by construction rather than by luck. It runs in a second on every push; if it passes
-then no `byStatus` cell can survive here, because a survivor is exactly a cell no
-assertion notices.
-
-### How big a battery has to be, which turned out to be arithmetic
-
-A mutation sets `P` to `2P + 1`, so a household catches `P` only if its income lands
-in `(P, 2P + 1]`. A geometric ladder of probes with ratio `r` catches every `P` it
-spans when `r ≤ 2`: if `pᵢ ≤ P < pᵢ₊₁` then `pᵢ₊₁ > P` and `pᵢ₊₁ = 2pᵢ ≤ 2P`, so
-`pᵢ₊₁` lands in the window. Above 2 leaves gaps; below 2 buys nothing.
-
-**THE RULE: a doubling mutation is caught by a doubling ladder, so the number of
-households a suite needs is logarithmic in the range of incomes the law covers, not
-linear in the number of parameters.** Ten rungs from $3,000 to $1,600,000 is the
-whole of it, run separately in wages, in a family with dependents and in a
-retirement — because a threshold on pension income is not reached by a wage.
-
-### What the cells that remained turned out to be
-
-Twenty, and every one of them is `exemption.perFiler` in Maryland or Ohio — which
-the engine **cannot reach at all**. Both states' exemption is a `perExemptionSteps`
-staircase, the engine reads the staircase, and `perFiler` is a stored duplicate of
-its top step. Both files say in a comment that the duplicate is "kept so a test can
-check it against the chart."
-
-Maryland's test existed. Ohio's did not, and the two copies disagreed: Ohio's unread
-table gave a qualifying surviving spouse the JOINT `$4,800` — two exemptions for a
-return with one person on it, the v0.27.0 defect surviving in the one place the
-engine cannot see it.
-
-**THE RULE: a duplicate kept to be cross-checked is only worth keeping if something
-makes the cross-check exist, and a comment saying a test checks this is not the
-test.** The check now lives in `registry.test.js` over every state with a chart,
-rather than in the per-state file of whoever remembered — because the per-state file
-of whoever remembered is exactly what was missing.
+**The last row is arithmetic, not a second run.** The 98.7% run named nine
+survivors; three of them were closed afterwards and each was verified by applying
+that exact mutation to the build and running the suite. Adding a test cannot revive
+a killed mutant, so 693 + 3 = 696 of 702 follows — but the figure the weekly job
+prints is the one to quote once it has printed it.
 
 ---
 
-## The 26 that remain, triaged exactly
+## Where it stands: every remaining survivor is unreachable in principle
 
-Every survivor was read. They are not 26 problems; they are five, and only one of them
-is a missing test.
+This is the first run where that sentence is true, and it is the reason to read the
+list below rather than the number above. **Six survivors, and not one of them is a
+missing test.** Four are windows on a tax year outside the two this package
+supports; one is an epsilon used as notation; one is arithmetic no return can reach
+and has a direct assertion saying so.
 
-### A — step-chart rows (10). The only group that is straightforwardly untested.
+The consequence for the weekly job is in `## How to work this list`.
 
-| state | line | what |
-| --- | --- | --- |
-| Ohio | 93, 95, 96, 97 ×2 | the retirement income credit's steps — `$500`, `$3,000`, `$5,000`, `$8,000`, and the `$130` amount |
-| Ohio | 106 | the joint filing credit's `0.2` row |
-| Ohio | 248 | `perSpouseIncomeThreshold: 500` |
-| Maryland | 114 | the itemized-deduction limit's `$200,000`/`$800` row |
-| California | 115, 120 | CalEITC's `finalPhaseOutStartCredit: 635` and `investmentIncomeLimit: 4814` |
+## Day 35 closed Group A, and the instrument generalises
 
-**This is the group the step-probe instrument closes**, and Ohio's retirement credit is
-the proof that households are the wrong tool: its steps sit at `$500` to `$8,000` of
-retirement income, so a household ladder would need five more rungs for one credit in
-one state. `bracket-pins.test.js` is the pattern — one frozen probe inside every band,
-generated into a fixture, with a companion test that fails if a band has no probe.
+Group A was ten rows of a **staircase** — Ohio's retirement income credit, Maryland's
+itemized limit, CalEITC — and no larger household battery would have reached them.
 
-Ohio's `0.2` is the exception inside the exception: the journal records it as
-*unreachable arithmetic*, so the right output is an assertion that it cannot be
-reached, as `virginia-age-deduction.test.js` does for § 58.1-321 — not a probe.
+**A battery of households is a ladder in one dimension of a return, and a staircase
+is a second ladder inside one rule.** Ohio's steps sit between `$500` and `$8,000` of
+pension income; the shared battery's rungs are `$3,000`, `$6,000`, `$12,000` and up,
+because they also have to reach a millionaire. Catching that one credit costs five
+more households in every state's run, and then five more for New York's household
+credit, until the battery is linear in the number of charts — which is exactly what
+Day 34 proved it did not have to be.
 
-### B — the year selector on a `notes:` or a `name:` (5). Not tax at all.
+**THE RULE: a chart of steps needs a probe inside each step, not a household for each
+step.**
 
-`ohio.js` 258, `maryland.js` 310, `flat-states.js` 205 and 670, `new-jersey.js` 229:
-`notes: year >= 2026 ? [...NOTES_2026, ...NOTES] : NOTES`, and one rule `name` that
-says "75% for 2025".
+`test/step-probes.test.js` finds every staircase in the package **by shape** — any
+array whose entries carry an `upTo`, a `maxAge` or a `minAge` — and requires each
+either to have a probe driver or to name the file that owns it. It then perturbs
+**every number in every one of them**, 627 in all, against every pinned answer in the
+package: its own probes, the status sweep's 4,180 households and `bracket-pins.json`.
+So a claim that another file covers a chart is checked rather than believed.
 
-**Nothing in this package pins which notes a state-year emits**, so a 2026-only note
-appearing in 2025 — or vanishing from 2026 — fails no test. That is worth more than its
-share of the survivor count, because **"state limitations loudly" in the result object
-is the package's own advertised differentiator**, and it is the one output with no
-assertion behind it. The fix is not a household: it is a test that pins the note *set*
-per state-year, the way the figures are pinned.
+### Where the probe sits, which is the whole instrument
+
+Against the step's **floor**, at `upTo[i-1] + 1`. A mutation doubles the ceiling
+below, and a probe just above that ceiling falls back into the step below it, is paid
+that step's amount, and the pinned answer moves. A probe in the MIDDLE of a wide step
+survives the same mutation: Ohio's `$1,500` doubled is `$3,001`, and a probe at
+`$2,250` is still inside the step it started in.
+
+**THE RULE: a probe tests the boundary it sits against, so a probe placed for
+readability tests nothing.**
+
+Age bands are the same in the other unit, and Massachusetts's is banded at both ends
+of life — under 13, or 65 and over — so the probes are the boundary ages and the
+years either side. The age one past the top band is the only probe that can catch the
+top band's ceiling: with a single band of `maxAge: 5`, a dependent aged 5 is paid
+under any wider band as well.
+
+### And the filter is deliberately not the harness's
+
+`status-sweep.test.js` borrows this harness's filter — integers `>= 100`, decimals in
+(0,1) — so that passing it MEANS no `byStatus` cell survives here. `step-probes`
+does not, because a staircase is mostly small integers: this harness never touches
+Ohio's `25`, `50` and `80`, New York's `$75` household credit or any `maxAge` in the
+package, and those are the numbers a staircase is made of.
+
+**THE RULE: a filter chosen to make two instruments agree is only honest where the
+two instruments are looking at the same thing.**
+
+## Day 35 closed Group B by pinning the notes, and that is the part about the product
+
+Five survivors were `notes: year >= 2026 ? [...NOTES_2026, ...NOTES] : NOTES` and one
+was a rule `name` reading "75% for 2025".
+
+All **462** notes every state-year can emit are now pinned by their first 72
+characters, in order (`test/notes.test.js`, `test/note-pins.json`). 72 and not the
+whole note: the prose is edited often, and **a generated fixture that churns on every
+clause stops being read before it is regenerated.**
+
+Three more claims came with it, and none is a restatement:
+
+- **The year table.** Nine states, fourteen notes that 2026 has and 2025 does not,
+  none the other way, written by hand as a table a reader can check against the
+  statutes — because a generated version would be the year selector describing itself.
+- **Reachability.** A `conditionalNote` is a predicate, and all 16 are now required to
+  fire for SOME household in the battery and NOT for all of them. One that never fires
+  is dead; one that always fires is `notes` with extra steps, and every note costs the
+  caller context on every call.
+- **The outer boundary.** The notes exist so a model reads a limitation in the ANSWER
+  rather than in a README it never sees, and the model reads a text block built by
+  `us-tax-mcp`. Nothing asserted the text block carried them. It does, and a test in
+  that package now says so across twelve states.
+
+And a rule `name` travels in the result object, so a `%` or `$` figure printed in one
+is a claim: all 15 are now required to equal a figure the rule actually holds. Only
+`%` and `$` tokens are read, because a name may carry a bare number that is a LABEL —
+"Worksheet 13A", "code 18", "born before 1946" — and **the sigil is what marks a
+number as a quantity rather than a name.**
+
+## Day 35 closed Group D with a relation, as Group D itself predicted
+
+Day 34's finding was that a household battery catches a MONEY mutation and not a YEAR
+mutation, because a year selector swaps one table for another and the two can be
+arbitrarily close. Both instances are now direct assertions on the branches:
+
+- **The federal poverty guideline** (Virginia and Maryland, 2% apart) is asserted per
+  branch, per state, with the block's own `year` label. The cross-state half is worth
+  more than the levels: two states read one federal table, so a branch that swapped in
+  one of them would make the two disagree, and **a disagreement is checkable without
+  knowing which of them is right.**
+- **Michigan's pre-1946 cohort.** `minimumAge: year === 2025 ? 80 : 81` survived because
+  the battery's oldest retiree is 82. Making that retiree 80 is the obvious fix and is
+  wrong — an 80-year-old does not qualify in 2026, so the household that catches the
+  mutant in one year stops reaching the rule in the other. MCL 206.30(1)(f) gates the
+  deduction on being born before 1946, a **closed cohort**, so the minimum age is
+  exactly `year - 1945` and is asserted as that relation.
+
+## The three the 98.7% run then exposed, which were not on any earlier list
+
+Closing 17 survivors left nine, and three of them were real gaps that the larger
+groups had been hiding.
+
+**CalEITC's one-child `finalPhaseOutStartCredit`.** The two- and three-child bands
+were covered by the shared battery and the one-child band was not, because the figure
+sets the slope of the long tail and no household sits in it. The twelve published FTB
+values at the top of `california-earned-income.test.js` cannot help: they drive the
+**2021** parameters, which is the right test of the mechanism and reads no shipped
+figure at all. Twenty-eight frozen probes now walk the whole shipped curve in both
+years, with an assertion that the four child counts pay four different credits in the
+tail — or a probe in one band proves nothing about the others.
+
+**CalEITC's `investmentIncomeLimit` had a test and the test was blind.** It built the
+household by reading `CALEITC.investmentIncomeLimit`, so doubling the limit moved the
+household with it. That is Day 33's rule — **a test whose household is read out of the
+parameter is blind to the parameter** — still live in a file written after it. A
+frozen `$6,000` catches it, and the relation test stays beside it because where the
+cliff is and whether a cliff exists are two different claims.
+
+**Ohio's `perSpouseIncomeThreshold: 500` is not a missing household. Nothing reads
+it.** Ohio allows the joint filing credit only where each spouse has at least `$500`
+of qualifying income, and no federal figure splits a joint return between the two
+people on it — so the engine asks the caller for `bothSpousesHaveQualifyingIncome` and
+the `$500` is theirs to apply. That is the right design, and it leaves the figure in
+Day 34's worst category: a value nothing reads is free to drift away from the number
+the caller is actually told, which is the `$500` the note holds as literal prose.
+
+**THE RULE: a parameter the engine cannot apply is a parameter the CALLER has to
+apply, so it earns its place only if it reaches them. The test is that the note quotes
+it.**
+
+---
+
+## The 6 that remain, and why each is not work
 
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
@@ -114,32 +176,11 @@ per state-year, the way the figures are pinned.
 (`year >= 2024`) and 287 (`year >= 2025`).
 
 The package supports 2025 and 2026. Both are inside every one of these windows, so
-moving an edge changes nothing that can be asked for. These are Day 29's category — an
-unreachable figure cannot be wrong — and they become reachable only when the package
-gains a year on the far side. New Jersey's `2028` is the one to remember: **it is a real
-cliff with a real date, and it will start mattering the day 2029 is added.**
-
-### D — the federal poverty guideline (5), and the rule it corrects
-
-`virginia.js` 63–64 and `maryland.js` 286–288:
-`year >= 2026 ? { firstPerson: 15_960, ..., year: 2026 } : { firstPerson: 15_650, ...,
-year: 2025 }`.
-
-Two things are in there. The `year:` label is read by nothing numeric. The *selector*
-swaps `$15,650` for `$15,960` — and that is the finding:
-
-**THE RULE: the doubling-ladder argument covers a MONEY mutation and does not cover a
-YEAR mutation.** A money mutant sets `P` to `2P + 1`, so a household anywhere in a
-100%-wide window catches it, and a ratio-2 ladder always has one. A year mutant swaps
-one table for another, and the two tables can be arbitrarily close: the 2025 and 2026
-federal poverty guidelines differ by **2%**, so catching it needs a household inside a
-2%-wide window. **No logarithmic ladder can promise that, and no larger battery fixes
-it — the right instrument is a direct assertion on each branch, not a household.**
-
-This corrects what this file said before the run: that the sweep would probably close
-the year-conditional group because it pins every state in both years. It closed some,
-and the ones it did not are the ones where the two years' values are nearly equal.
-That is exactly backwards from where a household battery is strong.
+moving an edge changes nothing that can be asked for. These are Day 29's category —
+an unreachable figure cannot be wrong — and they become reachable only when the
+package gains a year on the far side. **New Jersey's `2028` is the one to remember:
+it is a real cliff with a real date, and it will start mattering the day 2029 is
+added.**
 
 ### E — an epsilon (1).
 
@@ -148,71 +189,73 @@ That is exactly backwards from where a household battery is strong.
 job, so no household can tell. **A representation detail is not a parameter**, and
 counting it as one is the harness measuring its own notation.
 
-### F — one that a household does reach (1).
+### F — arithmetic no return can reach (1), now asserted rather than left.
 
-`flat-states.js` 664: `minimumAge: year === 2025 ? 80 : 81`. The battery's oldest
-retiree is 82 and qualifies under either, so nothing moves. Changing that household to
-**80** catches it — known, one character, and left for the next run rather than folded
-in after the score was measured.
+`ohio.js` 106: the joint filing credit's `0.2` row. It applies below `$25,000` of
+modified AGI less exemptions, and O.R.C. 5747.02(A)(3) charges an Ohio return nothing
+at all until `$26,050` of taxable income — the exemption is subtracted from the
+credit's income figure and not from the tax's, so the window where the first test
+passes and the second does not is empty. A nonrefundable share of zero is zero at
+every rate.
 
-## Group 4 — check for deadness before testing
+`step-probes.test.js` carries the direct assertion, priced on the richest return that
+can still be inside the step, in the shape `virginia-age-deduction.test.js` uses for
+§ 58.1-321. **Asserting it is the right output, because a probe there would be
+claiming the row matters.**
 
-Closed as a category on Day 34, and it produced three findings rather than the
-"check reachability first" it was written as:
+### The one the harness cannot see about itself
 
-- **Maryland's `seniorCredit.amountBothSpouses`** was a `ByStatus` table with one
-  reachable cell. Two people can only both be 65 on a return that has two people on
-  it. The four dead cells were not even consistent with each other — `single: 1_000`
-  beside `headOfHousehold: 1_750`, one copied from the one-filer table and one from
-  the joint figure, which is what a cell nothing can check looks like. Now a number.
-- **Ohio's `exemption.perFiler`**, above.
-- **`retirement` accepted an unknown key and dropped it.** Not a parameter at all,
-  and the most expensive of the three: for a Maryland retiree it moves up to
-  `$41,200` into the taxable base and returns a plausible number. Now a `RangeError`.
+Not in the six, because it is not among the 702: **Ohio's zero band charges a base
+amount of `$0`, and `2 x 0 + 1` is one dollar.** One dollar of Ohio tax inside that
+band is absorbed by the `$20` nonrefundable exemption credit every return there
+carries, so no household in the package can see it move — and `0` is below this
+harness's `>= 100` filter, so it is never mutated either. `step-probes.test.js` finds
+it because it perturbs every number in a staircase, and records it as unreachable with
+the reason.
 
-**THE RULE: repetition across statuses with no test anywhere is the shape of a
-parameter nothing reads — and the reason to look is not that it is untested, it is
-that a value nothing reads is free to disagree with the value that is read.**
+**THE RULE: a doubling mutation cannot perturb a ZERO by more than a dollar, so a
+parameter whose correct value is zero is only testable where a dollar survives to the
+bottom line.**
+
+The row matters enormously — charging nothing below `$26,050` is half of why Ohio's
+schedule is discontinuous — and a `$1` error in it is genuinely harmless. Both are
+true. **What is testable there is the band's WIDTH, not the zero at the bottom of it.**
 
 ---
 
 ## How to work this list
 
-Only two of the six groups are work, and they are different instruments:
-
-1. **The step-chart probe file** closes **A**, ten of the 26. One file, and the pattern
-   already exists in `bracket-pins.test.js`: a frozen probe inside every step of every
-   `steps` / `bands` / `amountByAge` array, generated into a fixture, with a companion
-   test that fails when a step has no probe.
-2. **A note-set pin** closes **B**, five more, and is worth doing for its own sake
-   rather than for the score: the notes in the result object are what this package
-   sells and the only output with nothing asserting it.
-3. **F** is one character in `status-households.mjs` — make the 82-year-old 80 — and
-   should ride along with whichever of the above lands first.
-4. **C, D and E are not work.** C is unreachable until the package supports a year
-   outside the windows; D needs a direct per-branch assertion rather than a household,
-   and the reason is in that section; E is a representation detail. If a future run
-   wants the number to be 0 it has to say what it did about each of these, not quietly
-   write a test that asserts the parameter back to itself — which is Day 27's rule and
-   the reason `## Reading the score` in the harness README says the score is not a
-   target.
-
-Re-run after each and update the table at the top:
+There is no work on it. Every entry above is unreachable in principle and says why,
+which changes what the weekly job should do.
 
 ```sh
 node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 \
   --skip localities/ohio.js,localities/ohio-school-districts.js,localities/indiana.js,localities/michigan.js,localities/maryland.js,localities/new-york.js,localities/counties.js
 ```
 
-There is now a much faster proxy for planning, which is what Day 34 used to find the
-gaps above. `test/status-sweep.test.js`'s coverage test is the same question over
-`byStatus` cells and runs in a second; widening its walk from `byStatus` tables to
-every numeric leaf reports which of the package's 1,281 rule parameters no household
-reaches. That number went 258 → 204 on Day 34 and it is an upper bound on the
-survivors, not the survivors themselves: a parameter the engine cannot reach may
-still be checked by a relation test, which is exactly what Maryland's `perFiler` is.
+**Gate at the measured number, not at zero.** `us-federal-tax` runs at
+`--max-survivors 0` because 0 is the only value with an argument behind it there. The
+state package's argument is different and now just as complete: six survivors, each
+with a written reason, none of them reachable by any question a caller can ask. A gate
+at 6 fails on a regression and passes on the known set, which is what a gate is for —
+and raising it would be a deliberate edit to `.github/workflows/mutation.yml`, which
+is the point.
 
-When the count reaches zero, add `--max-survivors 0` to the `state` job in
-`.github/workflows/mutation.yml`, as `us-federal-tax` already has. Until then that
-job reports and does not gate — a permanently red workflow teaches the reader to
-ignore Actions, which costs more than the thing it complains about.
+Do **not** drive the number to zero by asserting the remaining parameters back to
+themselves. That is Day 27's rule and the reason `## Reading the score` in the harness
+README says the score is not a target. Four of the six become reachable the day this
+package gains a third tax year, and on that day they should be closed by the year that
+reaches them, not by a test written to make a number look better.
+
+### The fast proxies are the instrument of record now
+
+The harness takes about an hour and three quarters; the two coverage proofs in
+`status-sweep.test.js` and `step-probes.test.js` perturb 1,125 parameters between them
+and run in about a second and a half, on every push. **Every defect found since Day 33
+came from a proxy, and the harness confirms a number for the README.** That trade is
+why the weekly job's timeout went from 45 minutes to 120 rather than the suite getting
+faster.
+
+The proxies' own limits are stated where they are made: `status-sweep` perturbs one
+number per `byStatus` cell and says what covers the rest; `step-probes` covers
+staircases and names the file that owns every chart it does not drive.
