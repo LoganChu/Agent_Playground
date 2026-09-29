@@ -12,15 +12,16 @@ rather than the suite's reach.
 | Day 33, after the Virginia sibling statuses | 705 | 100 | 85.8% |
 | Day 34, after `test/status-sweep.test.js` | 702 | 26 | 96.3% |
 | **Day 35, after `test/step-probes.test.js` and `test/notes.test.js`** | **702** | **9** | **98.7%** |
-| Day 35, after the three the run then exposed | 702 | 6 | 99.1% |
+| **Day 35, after the three that run then exposed** | **702** | **6** | **99.1%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
-**The last row is arithmetic, not a second run.** The 98.7% run named nine
-survivors; three of them were closed afterwards and each was verified by applying
-that exact mutation to the build and running the suite. Adding a test cannot revive
-a killed mutant, so 693 + 3 = 696 of 702 follows — but the figure the weekly job
-prints is the one to quote once it has printed it.
+Both Day 35 rows are measured, by two full runs. The first read 98.7% and named nine
+survivors; three were closed, and the second run read 99.1% with exactly the six
+below. The intermediate 693 + 3 = 696 was predicted before the second run and is what
+it found, which is the outcome that makes the prediction worth nothing and the run
+worth the hour and three quarters — **a score inferred from a fix is a score nobody
+measured**, and this package's whole pitch is that its quality claim is checkable.
 
 ---
 
@@ -169,6 +170,20 @@ it.**
 ---
 
 ## The 6 that remain, and why each is not work
+
+The second run's own listing, unedited:
+
+```
+### states/flat-states.js — 2 of 150 survived
+  line  157  year   2024 -> 2023
+  line  287  year   2025 -> 2024
+### states/new-jersey.js — 2 of 71 survived
+  line  104  year   2028 -> 2027
+  line  229  year   2028 -> 2027
+### states/ohio.js — 2 of 64 survived
+  line   87  rate   0.01 -> 0.005
+  line  106  rate   0.2 -> 0.1
+```
 
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 

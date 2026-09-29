@@ -52,10 +52,9 @@ value for.
 | `us-federal-tax` | 698 | **0** | **100%** |
 | `us-state-tax` (rule parameters) | 702 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.1% |
 
-The state figure is 98.7% measured plus three survivors closed after that run, each
-verified by applying its own mutation to the build and running the suite; adding a
-test cannot revive a killed mutant, so 696 of 702 follows. The worklist says which
-number came from where, and the weekly job reprints the measured one.
+Both figures are measured. The state package took two runs today: the first read
+98.7% and named nine survivors, three of which were real; the second, after closing
+them, read 99.1% with exactly the six below.
 
 **The six that remain are the part worth reading.** Not one of them is a missing
 test. Four are windows on a tax year outside the two this package supports, so no

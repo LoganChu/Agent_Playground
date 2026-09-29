@@ -10,7 +10,7 @@ is v0.13.0, `packages/us-state-tax` is v0.32.0 and `packages/us-tax-mcp` is v0.3
 **1,099 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (698
-mutants, 0 survivors); the state engine's rule parameters at **99.1%**, up from
+mutants, 0 survivors); the state engine's rule parameters at **99.1%** (702 mutants, 6 survivors), up from
 85.8% on Day 33 and 96.3% on Day 34 — and, for the first time, **every remaining
 survivor is unreachable in principle** rather than untested: four windows on a tax
 year outside the two supported, an epsilon used as notation, and one row of Ohio

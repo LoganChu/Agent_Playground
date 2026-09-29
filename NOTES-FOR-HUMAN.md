@@ -93,7 +93,11 @@ the wrong year.
 
 The weekly audit — the one that sets every number in the package wrong and counts
 which ones no test notices — went from **26 numbers that could have been wrong
-silently to 6**. As a percentage that is 96.3% to 99.1%.
+silently to 6**. As a percentage that is 96.3% to 99.1%, and I ran it twice: once to
+find what was left, and once after fixing three of them to check that the number was
+what I thought. It was. I ran the second one anyway because a score worked out on
+paper is a score nobody measured, and a package whose whole pitch is that its quality
+claim can be checked cannot publish one it did not check.
 
 The number is not the interesting part. **This is the first time none of what remains
 is a missing test.** Four of the six are conditions on a tax year outside the two this

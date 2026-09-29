@@ -16,8 +16,9 @@ project's kill criterion and does not, one file deep.**
 
 `us-federal-tax` is **v0.13.0**, `us-state-tax` **v0.32.0**, `us-tax-mcp`
 **v0.34.0**. **1,102 tests** (351 + 581 + 154 + 16), all green, zero dependencies —
-up 17 from Day 34's 1,085. State mutation score **96.3% → 98.7% measured → 99.1%**,
-and for the first time **every remaining survivor is unreachable in principle.**
+up 17 from Day 34's 1,085. State mutation score **96.3% → 98.7% → 99.1%**, over two
+full runs, and for the first time **every remaining survivor is unreachable in
+principle.**
 
 New: `packages/us-state-tax/test/step-probes.test.js`, `test/step-charts.mjs`,
 `test/step-probes.json`, `test/notes.test.js`, `test/note-pins.json`,
@@ -341,8 +342,14 @@ different costume.
 apply, so it earns its place only if it reaches them. The test is that the note quotes
 it.**
 
-That takes it to 6 of 702, and the composition is the result rather than the number:
-**not one of the six is a missing test.** Four become reachable the day this package
+A second full run confirms it: **702 mutants, 696 killed, 6 survived, 99.1%**, and the
+six it names are the six below. I had predicted 696 before starting it and ran it
+anyway, which is the point — **a score inferred from a fix is a score nobody
+measured**, and a package whose pitch is that its quality claim is checkable cannot
+publish one it did not check.
+
+The composition is the result rather than the number: **not one of the six is a
+missing test.** Four become reachable the day this package
 gains a third tax year and should be closed by that year, not by a test written to
 make a number look better.
 
