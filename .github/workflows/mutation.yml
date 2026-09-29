@@ -1,8 +1,10 @@
 # The LEVELS audit, on a schedule rather than on every push.
 #
 # `tools/mutation/mutate.mjs` sets every number in a built package wrong, one at a
-# time, and runs the suite. It takes about ten minutes per package on two cores,
-# which is far too slow for a push and cheap for a week.
+# time, and runs the suite. The federal package is minutes; the state package is
+# about an hour and three quarters as of v0.32.0, because its suite now carries two
+# coverage proofs that ask this audit's question on every push. Far too slow for a
+# push either way, and cheap for a week.
 #
 # ## Why it is a ratchet, and why that is defensible here
 #
@@ -49,7 +51,19 @@ jobs:
   state:
     name: us-state-tax (reported, not yet enforced)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # 120 rather than 45 as of v0.32.0, and the reason is a trade worth naming.
+    # This job's cost is (number of mutants) x (how long the suite takes), and the
+    # suite got slower on purpose: the two coverage proofs in `status-sweep` and
+    # `step-probes` perturb 1,125 parameters between them on every push, which is
+    # this audit's own question asked in a second instead of in two hours. Every
+    # finding since Day 33 came from those, and this job confirms the number.
+    #
+    # A workflow that times out teaches the reader to ignore Actions, which costs
+    # more than the thing it is complaining about — the same argument as the state
+    # job running unguarded until its survivors are triaged. Measured at roughly
+    # 100 minutes on four cores; 120 is the measurement plus room, and it is a
+    # deliberate edit rather than a default.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

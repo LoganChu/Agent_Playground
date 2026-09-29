@@ -47,8 +47,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { SUPPORTED_STATES, SUPPORTED_YEARS, getStateDefinition } from '../dist/esm/index.js';
+import {
+  FILING_STATUSES,
+  SUPPORTED_STATES,
+  SUPPORTED_YEARS,
+  getStateDefinition,
+} from '../dist/esm/index.js';
 import { notePrefix } from './note-prefix.mjs';
+import { HOUSEHOLDS, household } from './status-households.mjs';
 
 const PINS = JSON.parse(readFileSync(new URL('./note-pins.json', import.meta.url), 'utf8'));
 
@@ -187,4 +193,46 @@ test('no note is empty, duplicated within its state-year, or unable to survive t
       }
     }
   }
+});
+
+test('every conditional note fires for some return and not for others', () => {
+  // A `conditionalNote` is a predicate, and a predicate nothing satisfies is a
+  // sentence no caller will ever read. Day 34's rule about dead parameters — a
+  // value nothing reads is not harmless, it is unconstrained — applies to prose in
+  // exactly the same way, and worse: a note is written once, read by nobody, and
+  // goes on describing a version of the rule that has moved.
+  //
+  // The two halves are both needed and they fail differently. A note that never
+  // fires is dead. A note that ALWAYS fires is `notes` with extra steps, and the
+  // engine's own docstring says why that is wrong: every note costs the caller
+  // context on every call, so `conditionalNotes` is the opt-in for the ones that
+  // are not always true.
+  //
+  // The battery is the status sweep's, unchanged, because it already exists and is
+  // already argued for. A note that needs a household outside it is a note whose
+  // condition is narrower than every shape in this package, which is worth being
+  // told about.
+  const inputs = [];
+  for (const filingStatus of FILING_STATUSES) {
+    for (const name of HOUSEHOLDS) inputs.push({ filingStatus, name });
+  }
+  let checked = 0;
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of SUPPORTED_STATES) {
+      const def = getStateDefinition(state, year);
+      for (const [i, note] of (def.conditionalNotes ?? []).entries()) {
+        const fired = inputs.filter(({ filingStatus, name }) =>
+          note.relevantWhen(household(name, state, year, filingStatus)),
+        ).length;
+        const where = `${state} ${year} conditionalNotes[${i}]: ${notePrefix(note.text)}`;
+        assert.ok(fired > 0, `${where} fires for no household in the battery — it is a note nobody can read`);
+        assert.ok(
+          fired < inputs.length,
+          `${where} fires for every household in the battery — if it is always true it belongs in \`notes\`, which costs the caller nothing extra to decide`,
+        );
+        checked++;
+      }
+    }
+  }
+  assert.equal(checked, 16, 'conditional notes in the package');
 });

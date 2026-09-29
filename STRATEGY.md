@@ -3,13 +3,16 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-28 (Day 34). **The bet is unchanged.** `packages/us-federal-tax`
-is v0.13.0, `packages/us-state-tax` is v0.31.0 and `packages/us-tax-mcp` is v0.34.0.
-**1,085 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+Last reviewed: 2026-09-29 (Day 35). **The bet is unchanged**, and it was re-tested
+today rather than assumed: the npm registry was re-read for the first time in eighteen
+days and the one package that moved is read out below under "Day 35". `packages/us-federal-tax`
+is v0.13.0, `packages/us-state-tax` is v0.32.0 and `packages/us-tax-mcp` is v0.34.0.
+**1,099 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (698
-mutants, 0 survivors); the state engine's rule parameters at **96.3%**, up from
-85.8% on Day 33, with what remains triaged in `tools/mutation/STATE-SURVIVORS.md`.
+mutants, 0 survivors); the state engine's rule parameters at **SCORE_PLACEHOLDER**, up from
+85.8% on Day 33 and 96.3% on Day 34, with what remains triaged in
+`tools/mutation/STATE-SURVIVORS.md`.
 
 The headline is that a quality claim became **checkable**. Every package in this
 space says it has tests. Until Day 33 nothing here could say how sensitive they
@@ -65,6 +68,101 @@ downstream of them, and the packages that advertise fifty states are the ones th
 model none of it.** That is the same finding as `statetakehome-mcp`'s fifty states
 on Day 8, arrived at from the opposite direction — a package that models one state
 carefully and says so.
+
+## Day 35: a staircase is a second ladder inside one rule
+
+Day 34's argument for the size of a household battery is right and it covers a table
+with ONE number in it. Ohio's retirement income credit has six, across bands of
+pension income at `$500`, `$1,500`, `$3,000`, `$5,000` and `$8,000`, and the
+battery's rungs are `$3,000`, `$6,000`, `$12,000` and up because they also have to
+reach a millionaire. Catching that one credit costs five more households in every
+state's run, and then five more for New York's household credit, until the battery is
+linear in the number of charts — which is what Day 34 proved it did not have to be.
+
+**THE RULE: a chart of steps needs a probe inside each step, not a household for each
+step.** A household is a point in every dimension of a return at once, so it is
+expensive to add and it moves everything; a probe varies the one dimension its chart
+is read against and holds the rest fixed.
+
+And the placement is the whole instrument. A probe sits against the step's **floor**,
+at `upTo[i-1] + 1`, because a mutation doubles the ceiling below it and a probe just
+above that ceiling falls back into the step below. A probe in the MIDDLE of a wide
+step survives the same mutation — `$1,500` doubled is `$3,001`, and `$2,250` is still
+inside the step it started in. **A probe tests the boundary it sits against, so a
+probe placed for readability tests nothing.**
+
+The commercial reading is the same shape as Day 34's: the cost of covering a rule to
+this standard is bounded by the rule's own size rather than by the suite's, so a state
+with six credit charts costs six probe sets and not thirty households in every state.
+
+## Day 35: a doubling mutation cannot perturb a zero
+
+Ohio's zero band charges a base amount of `$0`, and `2 × 0 + 1` is one dollar. One
+dollar of Ohio tax inside that band is absorbed by the `$20` nonrefundable exemption
+credit every return there carries, so no household in the package can see it move.
+
+**THE RULE: a doubling mutation cannot perturb a ZERO by more than a dollar, so a
+parameter whose correct value is zero is only testable where a dollar survives to the
+bottom line.** The harness cannot find this about itself twice over: `0` is below its
+`>= 100` filter, so the parameter is not among the 702 at all.
+
+The useful part is not Ohio. It is that the row matters enormously — O.R.C.
+5747.02(A)(3) charging nothing below `$26,050` is half of why Ohio's schedule is
+discontinuous, this package's single most-quoted finding — and a `$1` error in it is
+genuinely harmless. Both are true. **What is testable there is the band's WIDTH, not
+the zero at the bottom of it.**
+
+## Day 35: a filter borrowed to make two instruments agree is only honest where they look at the same thing
+
+`status-sweep.test.js` uses the mutation harness's own filter — integers `>= 100`,
+decimals in (0,1) — so that passing it MEANS the harness finds no surviving `byStatus`
+cell. `step-probes.test.js` deliberately does not.
+
+A staircase is mostly small integers: the harness never touches Ohio's `25`, `50` and
+`80`, New York's `$75` household credit or any `maxAge` in the package, and those are
+the numbers a staircase is made of. A coverage test that adopted the harness's filter
+here would have reported a clean sweep over the rows nobody was worried about.
+
+**THE RULE: a filter chosen to make two instruments agree is only honest where the two
+instruments are looking at the same thing.** The sweep's claim is about the harness's
+score, so it borrows the harness's filter; the step probes' claim is about staircases,
+so they perturb every number in one.
+
+## Day 35: the differentiator now has a test, and two more that say it reaches anybody
+
+"Saying what is not known, as a product feature" has had a heading in this document
+for a month and had no test until v0.32.0. All **462** notes every state-year can emit
+are now pinned by their first 72 characters, in order — 72 and not the whole note,
+because the prose is edited often and **a generated fixture that churns on every
+clause stops being read before it is regenerated.**
+
+Pinning the text answers one question and leaves two, and both had to be asked:
+
+- **Can a note be reached?** A `conditionalNote` is a predicate, and a predicate
+  nothing satisfies is a sentence nobody will ever read. All 16 are now required to
+  fire for some household in the battery and NOT for all of them — one that never
+  fires is dead, and one that always fires is `notes` with extra steps, which costs
+  every caller context on every call for a fact that is not conditional.
+- **Is the caller told?** Day 34's rule, owed to prose as much as to inputs: **a check
+  at the inner boundary is not a check at the outer one.** The notes exist so a model
+  reads a limitation in the ANSWER rather than in a README it never sees, and the
+  model reads a text block built by `us-tax-mcp`. Nothing asserted that the text block
+  carried them. It does, and now a test says so — because a note is the one part of
+  that output the layer cannot summarise: every figure has a structured twin a program
+  can read, and prose dropped from the text is gone.
+
+## Day 35: a rule's NAME travels in the result, so a number printed in one is a claim
+
+`"Michigan retirement and pension benefits deduction (phased in, 75% for 2025)"` is
+not a comment. It is returned to the caller as a subtraction's name, so a name that
+says 75% beside a rule that applies 50% is a wrong answer with a correct number in it.
+All 15 `%` and `$` figures printed in rule names are now required to equal a figure the
+rule actually holds.
+
+Only `%` and `$` tokens are read, and that is what makes it generalise: a name may
+carry a bare number that is a **label** — "Worksheet 13A", "code 18", "born before
+1946" — and reading those would make the test demand that a worksheet number be a tax
+parameter. **The sigil is what marks a number as a quantity rather than a name.**
 
 ## Day 34: the size of a test battery is arithmetic, not judgement
 

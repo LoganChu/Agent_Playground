@@ -14,7 +14,7 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 35 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
-`us-state-tax` v0.32.0, `us-tax-mcp` v0.34.0. 1,097 tests, all passing.
+`us-state-tax` v0.32.0, `us-tax-mcp` v0.34.0. 1,099 tests, all passing.
 
 ## 2026-09-29 (Day 35)
 

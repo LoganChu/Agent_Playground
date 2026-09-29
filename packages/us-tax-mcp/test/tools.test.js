@@ -2020,3 +2020,50 @@ test('an unknown field inside retirement is an error a model can read', () => {
   });
   assert.ok(fine.structured, 'a valid split is still accepted');
 });
+
+test('every note the state engine emits reaches the model, in every state', () => {
+  // Day 34's rule, owed to the notes as much as to the inputs: **a check at the
+  // inner boundary is not a check at the outer one.** `us-state-tax` v0.32.0 pins
+  // all 462 notes every state-year can emit, which establishes that the engine
+  // says what it does not know. It establishes nothing about whether the caller
+  // hears it, and the caller that matters here is a language model reading a text
+  // block — the whole argument for putting a limitation in the result object
+  // rather than in a README.
+  //
+  // The engine's notes are the one part of the output this layer is not free to
+  // summarise. Every other figure has a structured twin a program can read; a note
+  // is prose, so if the text block drops it, it is gone. `structuredContent`
+  // carrying it is not enough: a model reads the text.
+  const federal = {
+    agi: 90_000,
+    taxableIncome: 74_000,
+    deduction: 16_100,
+  };
+  // Three states define their own base and refuse a federal figure, so the probe
+  // has to supply it — which is itself the engine refusing to answer rather than
+  // guessing, and is tested elsewhere.
+  const ownBase = {
+    NJ: { newJerseyGrossIncome: federal.agi },
+    PA: { pennsylvaniaTaxableIncome: federal.agi },
+    MA: { massachusettsFivePercentIncome: federal.agi },
+  };
+  for (const state of ['CA', 'MD', 'NY', 'OH', 'VA', 'NJ', 'MI', 'GA', 'UT', 'PA', 'MA', 'TX']) {
+    const { text, structured } = ok('state_income_tax', {
+      state,
+      year: 2026,
+      filingStatus: 'single',
+      federalAdjustedGrossIncome: federal.agi,
+      federalTaxableIncome: federal.taxableIncome,
+      federalDeduction: federal.deduction,
+      ...(ownBase[state] ?? {}),
+    });
+    const notes = structured.state.notes;
+    assert.ok(notes.length > 0, `${state} returned no notes at all`);
+    for (const note of notes) {
+      assert.ok(
+        text.includes(note),
+        `${state}: a note is in the result and not in the text a model reads:\n  ${note.slice(0, 120)}`,
+      );
+    }
+  }
+});
