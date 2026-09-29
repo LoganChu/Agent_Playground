@@ -320,3 +320,62 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
   // behind a function — fails instead of reporting a clean sweep over nothing.
   assert.equal(checked, 15, 'rates and thresholds printed in rule names');
 });
+
+test("a threshold the engine cannot apply is quoted in the note that asks the caller to apply it", () => {
+  // Day 35's audit left `jointFilingCredit.perSpouseIncomeThreshold: 500` alive,
+  // and the reason is not a missing household. **Nothing reads it.**
+  //
+  // Ohio allows the joint filing credit only where EACH spouse has at least $500
+  // of qualifying income — Ohio AGI less interest, dividends, capital gains and
+  // rent, per spouse — and no federal figure splits a joint return between the two
+  // people on it. So the engine cannot decide the question and does not pretend
+  // to: it asks the caller for `bothSpousesHaveQualifyingIncome` and computes zero
+  // when it is absent. The `$500` is the caller's test to apply, not the engine's.
+  //
+  // That is the right design and it leaves the figure in Day 34's worst category:
+  // **a value nothing reads is not harmless, it is unconstrained.** It is free to
+  // drift away from the number the caller is actually told, which is the one in the
+  // note — and the note holds `$500` as literal prose, so the two can disagree in
+  // silence exactly as Ohio's exemption table did.
+  //
+  // **THE RULE: a parameter the engine cannot apply is a parameter the CALLER has
+  // to apply, so it earns its place only if it reaches them. The test is that the
+  // note quotes it.** If a future engine learns to read this field, delete the
+  // entry — the check will have become a household's job.
+  const CALLER_APPLIES = [
+    {
+      read: (def) => def.jointFilingCredit?.perSpouseIncomeThreshold,
+      states: ['OH'],
+      what: 'the per-spouse qualifying income the joint filing credit requires',
+      asks: 'bothSpousesHaveQualifyingIncome',
+    },
+  ];
+  let checked = 0;
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of SUPPORTED_STATES) {
+      const def = getStateDefinition(state, year);
+      for (const entry of CALLER_APPLIES) {
+        const value = entry.read(def);
+        if (value === undefined) {
+          assert.ok(
+            !entry.states.includes(state),
+            `${state} ${year} is listed as carrying ${entry.what} and no longer does`,
+          );
+          continue;
+        }
+        assert.ok(entry.states.includes(state), `${state} ${year} carries ${entry.what} and is not listed`);
+        const quoted = `$${value.toLocaleString('en-US')}`;
+        const notes = [...(def.notes ?? []), ...(def.conditionalNotes ?? []).map((n) => n.text)];
+        const carrier = notes.find((n) => n.includes(entry.asks));
+        assert.ok(carrier, `${state} ${year}: no note tells the caller to pass ${entry.asks}`);
+        assert.ok(
+          carrier.includes(quoted),
+          `${state} ${year}: ${entry.what} is ${quoted} and the note that asks for ${entry.asks} does not say so — ` +
+            'the figure the caller applies and the figure the package stores have drifted apart',
+        );
+        checked++;
+      }
+    }
+  }
+  assert.equal(checked, 2, 'thresholds the caller applies, both years');
+});

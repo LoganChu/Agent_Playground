@@ -453,3 +453,88 @@ test('no other state has an own-schedule earned income credit', () => {
   assert.ok(getStateDefinition('CA', 2025).ownEarnedIncomeCredit);
   assert.equal(getStateDefinition('NY', 2025).ownEarnedIncomeCredit, undefined);
 });
+
+// ---------------------------------------------------------------------------
+// The shipped table, pinned — which the 2021 provenance test above does not do
+// ---------------------------------------------------------------------------
+
+/**
+ * Twenty-eight probes across the whole of the shipped CalEITC curve, at incomes
+ * that are constants.
+ *
+ * ## Why this is separate from the twelve FTB values at the top of the file
+ *
+ * That test drives the *mechanism* with 2021 parameters, because 2021 is the last
+ * year California published a lookup table this package can check against. It is
+ * the better test and it is the reason the mechanism can be trusted. What it
+ * cannot do is notice a shipped 2025 figure moving, because it does not read one.
+ *
+ * Day 35's mutation audit proved that in the most specific way available: setting
+ * `finalPhaseOutStartCredit` for the ONE-CHILD band to 1,271 broke nothing. The
+ * two- and three-child bands were caught by the shared household battery; the
+ * one-child band has no household in the final phase-out tail, and the tail is
+ * where that figure lives.
+ *
+ * So these are a REGRESSION GUARD in the sense `bracket-pins.test.js` sets out:
+ * every expected figure was computed by this package, so they cannot say the curve
+ * is right. The twelve FTB values say that. These say it has not moved.
+ *
+ * ## Why the incomes are constants and not `band.earnedIncomeAmount`
+ *
+ * Day 33's rule, and the file already had one instance of what it warns against:
+ * the investment-cliff test below reads `CALEITC.investmentIncomeLimit` to build
+ * the household it then asserts about, so doubling the limit moves the household
+ * with it and the assertion passes either way. **A test whose household is read
+ * out of the parameter is blind to the parameter.** Both are now fixed by freezing
+ * the income, and the relation test is kept beside it because the two claims are
+ * different: one says where the cliff is, the other says a cliff exists at all.
+ *
+ * `$3,000` and `$7,000` are on the phase-in and the steep descent; `$12,000` to
+ * `$31,000` walk the long, nearly flat tail that runs to `$32,901`, which is the
+ * stretch `finalPhaseOutStartCredit` sets the slope of.
+ */
+const CALEITC_CURVE = [
+  [0, 3_000, 195.08], [0, 7_000, 236.93], [0, 12_000, 191.19], [0, 16_000, 154.6],
+  [0, 20_000, 118.01], [0, 26_000, 63.13], [0, 31_000, 17.39],
+  [1, 3_000, 867], [1, 7_000, 2_021.84], [1, 12_000, 628.94], [1, 16_000, 508.58],
+  [1, 20_000, 388.21], [1, 26_000, 207.66], [1, 31_000, 57.2],
+  [2, 3_000, 1_020], [2, 7_000, 2_380], [2, 12_000, 2_599.64], [2, 16_000, 1_239.64],
+  [2, 20_000, 541.71], [2, 26_000, 289.77], [2, 31_000, 79.82],
+  [3, 3_000, 1_147.5], [3, 7_000, 2_677.5], [3, 12_000, 2_924.6], [3, 16_000, 1_394.6],
+  [3, 20_000, 549.25], [3, 26_000, 293.8], [3, 31_000, 80.93],
+];
+
+test('every point of the shipped CalEITC curve, in both years', () => {
+  for (const year of [2025, 2026]) {
+    const rule = getStateDefinition('CA', year).ownEarnedIncomeCredit;
+    for (const [children, income, expected] of CALEITC_CURVE) {
+      const band = childCountBand(rule, children);
+      money(
+        Math.round(ownEarnedIncomeCreditAt(rule, band, income) * 100) / 100,
+        expected,
+        `${year}, ${children} children at $${income.toLocaleString('en-US')}`,
+      );
+    }
+  }
+  // The four bands must not all agree, or a probe in one proves nothing about the
+  // others — which is how the one-child figure went unwatched while its two
+  // neighbours were covered.
+  const distinct = new Set(CALEITC_CURVE.filter(([, income]) => income === 20_000).map(([, , c]) => c));
+  assert.equal(distinct.size, 4, 'the four child counts pay four different credits in the tail');
+});
+
+test('the investment income limit is $4,814, and a frozen household above it gets nothing', () => {
+  // The frozen half of the cliff. The relation test above says a cliff exists
+  // wherever the limit is; this says where it is, with an income that does not
+  // move when the limit does. $6,000 is above $4,814 and below twice it, which is
+  // the window a doubling has to be caught in.
+  for (const year of [2025, 2026]) {
+    const rule = getStateDefinition('CA', year).ownEarnedIncomeCredit;
+    assert.equal(rule.investmentIncomeLimit, 4_814, `${year}: FTB 2025 Form 3514 line 19`);
+  }
+  const blocked = ca(9_823, { dependentAges: [3, 7], investmentIncome: 6_000 });
+  assert.equal(creditNamed(blocked, 'CalEITC').amount, 0, '$6,000 of investment income');
+  assert.equal(creditNamed(blocked, 'Young Child').amount, 0, 'and the credit gated on it');
+  const allowed = ca(9_823, { dependentAges: [3, 7], investmentIncome: 4_000 });
+  money(creditNamed(allowed, 'CalEITC').amount, 3_339.82, '$4,000 of investment income');
+});
