@@ -253,3 +253,70 @@ test("a stepped exemption's stored top step agrees with the chart", () => {
   // quietly testing nothing, which is the failure mode of every loop like it.
   assert.equal(checked, 20, 'every stepped state-year-status is checked');
 });
+
+test('a rate or a threshold printed in a rule NAME is a figure that rule actually holds', () => {
+  // A rule's `name` is not a comment. It travels in the result object — a credit's
+  // name, a subtraction's name — so a caller and a caller's model read it, and a
+  // name that says "75% for 2025" beside a rule that applies 50% is a wrong answer
+  // with a correct number in it.
+  //
+  // Day 8's operating rule is that a number in a code comment is a claim and needs
+  // the same test a README number needs. `readme.test.js` enforces that for the
+  // documentation; this is the same rule for the one piece of prose that reaches
+  // the caller. It also closes the rule-name half of Day 34's group B: the Michigan
+  // phase-in's name is the only place in the package where a percentage is written
+  // out in words beside the parameter that sets it, and nothing checked the two
+  // against each other.
+  //
+  // Only `%` and `$` tokens are read. A name may hold a bare number that is a LABEL
+  // and not a claim — "Worksheet 13A", "code 18", "born before 1946" — and reading
+  // those would make this test demand that a worksheet number be a tax parameter.
+  const numbersIn = (rule) => {
+    const out = new Set();
+    const walk = (node, seen) => {
+      if (node === null || typeof node !== 'object' || seen.has(node)) return;
+      seen.add(node);
+      for (const value of Object.values(node)) {
+        if (typeof value === 'number' && Number.isFinite(value)) out.add(value);
+        else walk(value, seen);
+      }
+    };
+    walk(rule, new WeakSet());
+    return out;
+  };
+
+  let checked = 0;
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of SUPPORTED_STATES) {
+      const walk = (node, path, seen) => {
+        if (node === null || typeof node !== 'object' || seen.has(node)) return;
+        seen.add(node);
+        if (!Array.isArray(node) && typeof node.name === 'string') {
+          const where = `${state} ${year} ${path}: "${node.name}"`;
+          const held = numbersIn(node);
+          for (const [, percent] of node.name.matchAll(/(\d+(?:\.\d+)?)%/g)) {
+            checked++;
+            const rate = Number(percent) / 100;
+            assert.ok(
+              [...held].some((v) => Math.abs(v - rate) < 1e-9),
+              `${where} prints ${percent}% and the rule holds no rate of ${rate}`,
+            );
+          }
+          for (const [, dollars] of node.name.matchAll(/\$([\d,]+)/g)) {
+            checked++;
+            const figure = Number(dollars.replace(/,/g, ''));
+            assert.ok(
+              held.has(figure),
+              `${where} prints $${dollars} and the rule holds no figure of ${figure}`,
+            );
+          }
+        }
+        for (const [key, value] of Object.entries(node)) walk(value, path ? `${path}.${key}` : key, seen);
+      };
+      walk(getStateDefinition(state, year), '', new WeakSet());
+    }
+  }
+  // Pinned so that a walk which stops finding names — a renamed field, a rule moved
+  // behind a function — fails instead of reporting a clean sweep over nothing.
+  assert.equal(checked, 15, 'rates and thresholds printed in rule names');
+});

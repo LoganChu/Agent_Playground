@@ -23,7 +23,7 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.31.0/us-state-tax-0.31.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.32.0/us-state-tax-0.32.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.13.0/us-federal-tax-0.13.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.34.0/us-tax-mcp-0.34.0.tgz
 ```
@@ -102,6 +102,40 @@ a comment as "kept so a test can check it against the chart". Maryland's test
 existed; Ohio's did not. **A duplicate kept to be cross-checked is only worth
 keeping if something makes the cross-check exist, and a comment saying a test checks
 this is not the test.**
+
+v0.32.0 closes what that sweep could not reach, which was **staircases**. Ten of the
+26 remaining survivors were rows of a step chart — Ohio's retirement income credit
+pays a different amount in each of six bands of pension income and five of the six
+were untested — and no larger battery of households would have found them. A
+household is a point in every dimension of a return at once, so its cost is fixed and
+its rungs are a factor of two apart; Ohio's steps sit between `$500` and `$8,000`.
+
+**A chart of steps needs a probe inside each step, not a household for each step.**
+`test/step-probes.test.js` finds every staircase in the package by shape, puts one
+frozen probe against the floor of every step — at `upTo[i-1] + 1`, which is the only
+placement a doubled ceiling can reach — and pins the return each probe produces.
+Beside it, the same companion the sweep has: **every number in every staircase**, 627
+of them, set wrong one at a time, failing unless a pinned answer moves. Two rows are
+exempt and each says why in writing.
+
+One of the two is a finding the audit could not have made about itself. A mutation
+sets `P` to `2P + 1`, so **it cannot perturb a zero by more than a dollar** — and a
+dollar of Ohio tax inside the zero band is absorbed by the `$20` nonrefundable
+exemption credit every return there carries. The row matters enormously and a `$1`
+error in it is genuinely harmless; both are true, and what is testable is the band's
+width rather than its base.
+
+And the notes are now pinned, which matters past the score. "State limitations
+loudly" is this project's own claim and the notes in the result object are where it
+is made — in the object a model reads rather than in a README it never sees — and
+until v0.32.0 **nothing asserted them at all.** A note written for 2026 could have
+appeared on a 2025 return and the suite would have been green. All 462 are pinned by
+prefix and in order, with a hand-written table of exactly which notes 2026 has that
+2025 does not, because **a year branch is a selector and a selector is caught by an
+assertion on the relation between its branches, not by a household sitting between
+them.** The same rule closed Michigan's pre-1946 cohort (its minimum age is
+`year - 1945`, a closed cohort ageing a year a year) and the federal poverty
+guideline that Virginia and Maryland both read.
 
 The locality registries are excluded deliberately. One of 1,033 Ohio municipal
 rates cannot have its own test, and a score that counted them would measure the

@@ -245,7 +245,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.31.0/us-state-tax-0.31.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.32.0/us-state-tax-0.32.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1940,6 +1940,74 @@ third copy of the names.
 documented as a structural subset of `us-federal-tax`'s result, so extra keys are
 part of the contract. The difference is whether a superset is expected.
 
+## Every step of every staircase, probed (v0.32.0)
+
+The sweep above closed the `byStatus` cells and left ten numbers the audit could
+still have shipped wrong. All ten were rows of a **staircase** — Ohio's retirement
+income credit pays a different amount in each of six bands of pension income, and
+five of the six were untested — and no bigger battery of households would have
+reached them.
+
+**A battery of households is a ladder in one dimension of a return; a staircase is a
+second ladder inside one rule.** Ohio's steps sit between `$500` and `$8,000` of
+pension, and the shared battery's rungs are `$3,000`, `$6,000`, `$12,000` and up,
+because they also have to reach a millionaire. Catching this one credit with
+households costs five more of them in every state's run, and then five more for New
+York's household credit, and five more for New Jersey's child credit.
+
+**THE RULE: a chart of steps needs a probe inside each step, not a household for
+each step.** `test/step-probes.test.js` is that instrument. It finds every staircase
+in the package by SHAPE rather than by a list of field names, puts one frozen probe
+inside every step of every one, and pins the return each probe produces.
+
+The probes sit against each step's FLOOR, at `upTo[i-1] + 1`, and the placement is
+the point: a mutation doubles a ceiling, so a probe just above the old ceiling falls
+back into the step below it and the pinned answer moves. A probe in the middle of a
+wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a probe at
+`$2,250` is still inside the step it started in.
+
+Beside it is the same companion the sweep has. It takes **every number in every
+staircase the package ships** — 627 of them, ceilings, amounts and age bounds alike
+— sets each one wrong, and fails unless a pinned answer moves. Two rows are exempt,
+each with a written reason and a direct assertion in their place:
+
+- Ohio's 20% joint-filing-credit row, which is arithmetic no return can reach: it
+  applies below `$25,000` and Ohio charges nothing until `$26,050`, so 20% of the
+  remaining tax is 20% of zero.
+- Ohio's zero band's base amount, because **a doubling mutation cannot perturb a zero
+  by more than a dollar**, and a dollar of Ohio tax is absorbed by the `$20`
+  nonrefundable exemption credit every return inside the band carries.
+
+### The notes are pinned too, and they are what this package sells
+
+"State limitations loudly" is this package's own claim, and the notes in the result
+object are where it is made — in the object a language model reads, rather than in a
+README it never sees. **Nothing asserted them.** A note written for 2026 could have
+appeared on a 2025 return, or vanished from 2026, and the suite would have been
+green.
+
+`test/notes.test.js` pins the first 72 characters of all **462** notes every
+state-year emits, in order. Not the whole note, because the prose is edited and a
+fixture that churned would stop being read; what the prefix catches is a note
+appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
+exactly which notes 2026 has that 2025 does not — nine states, fourteen notes, each
+a statement about the law a reader can check — because **a year branch is a selector,
+and a selector is caught by an assertion on the relation between its branches, not by
+a household sitting between them.**
+
+The same rule closed two more of the audit's survivors. Michigan's tier-one
+retirement deduction is gated on being born before 1946, which is a closed cohort, so
+its minimum age is exactly `year - 1945` and is asserted as that relation rather than
+as two numbers. The federal poverty guideline that Virginia and Maryland both read is
+asserted per branch, per state, with its own `year` label — the two states read one
+federal table, so a branch that swapped in one of them would make the two disagree,
+and a disagreement is checkable without knowing which is right.
+
+And a rule's `name` is now checked against the rule. A name travels in the result
+object — `"Michigan retirement and pension benefits deduction (phased in, 75% for
+2025)"` — so a percentage or a dollar figure printed in one is a claim a caller
+reads, and all 15 of them are now required to equal a figure the rule actually holds.
+
 ## Coverage
 
 **Graduated:** California, Maryland, Mississippi, New Jersey, New York, Virginia — though
@@ -1961,7 +2029,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.31.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.32.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 28 states.** No Minnesota, Wisconsin,

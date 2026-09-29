@@ -171,3 +171,96 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // number rather than a changed rate alone — $3,360 against $3,270.
   assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MS', 'NC', 'NY', 'OH', 'UT']);
 });
+
+test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {
+  // Day 34's last surviving mutant that a household could have caught, and the
+  // reason it is asserted here instead.
+  //
+  // `minimumAge: year === 2025 ? 80 : 81` survived the mutation audit because the
+  // battery's oldest retiree is 82 and qualifies under either figure. The obvious
+  // fix is to make that retiree 80 — and it is wrong, because an 80-year-old does
+  // NOT qualify in 2026, so the household that catches the mutant in one year stops
+  // reaching the rule in the other. Catching it with households needs two of them,
+  // in every state, for one gate in one state.
+  //
+  // **THE RULE: a year branch is a SELECTOR, and a selector is caught by an
+  // assertion on the relation between its branches — not by a household sitting
+  // between them.** That is Day 34's conclusion about the federal poverty
+  // guidelines, whose two branches are 2% apart, and it applies here for the
+  // opposite reason: these two branches are one year apart and both of them are
+  // right.
+  //
+  // The relation is the law. MCL 206.30(1)(f) gates tier one on being born before
+  // 1946, which is a FIXED COHORT — so the minimum age it implies advances by one
+  // every year and is exactly `year - 1945`. A package that carried 80 forward into
+  // 2026 would be admitting a cohort born in 1946 that the statute excludes.
+  const tierOne = (year) => getStateDefinition('MI', year).retirementIncomeSubtractions[0];
+  for (const year of [2025, 2026]) {
+    assert.equal(
+      tierOne(year).minimumAge,
+      year - 1945,
+      `Michigan tier one in ${year}: born before 1946 is ${year - 1945} or over at the end of the year`,
+    );
+  }
+  assert.equal(tierOne(2026).minimumAge - tierOne(2025).minimumAge, 1, 'a closed cohort ages one year per year');
+
+  // And the second rule has to meet the first with no age falling between them.
+  // The 2025 phase-in is written to overlap tier one by a year rather than to abut
+  // it, because Michigan tests a birth YEAR and this package tests an AGE, so a
+  // filer whose birthday falls late in the year sits one year either side of the
+  // boundary. An overlap gives that filer the more generous rule, which is listed
+  // first; a gap would give them neither.
+  const phaseIn2025 = getStateDefinition('MI', 2025).retirementIncomeSubtractions[1];
+  assert.ok(
+    phaseIn2025.maximumAge >= tierOne(2025).minimumAge,
+    `the 2025 phase-in stops at ${phaseIn2025.maximumAge} and tier one starts at ${tierOne(2025).minimumAge} — an age between them qualifies for neither`,
+  );
+  // From 2026 the upper bound is gone entirely, so there is nothing to meet.
+  assert.equal(getStateDefinition('MI', 2026).retirementIncomeSubtractions[1].maximumAge, undefined);
+});
+
+test('the federal poverty guideline is the one published for the tax year, in both states that carry it', () => {
+  // Day 34's group D: five surviving mutants, all of them the SELECTOR on this one
+  // block, and the finding that corrected the day's own rule.
+  //
+  // A household battery catches a money mutation because a doubled parameter leaves
+  // a 100%-wide window for a probe to sit in. It cannot catch this: a year mutant
+  // swaps one table for another, and the 2025 and 2026 guidelines are **2% apart**.
+  // Catching that with a household needs one inside a 2%-wide window, in a ladder
+  // whose rungs are a factor of two apart, which no battery can promise and no
+  // larger battery fixes.
+  //
+  // **THE RULE: a household battery is strongest where two values are far apart,
+  // which is the opposite of where a year branch lives.** So this is an assertion
+  // on each branch, which is what a selector needs.
+  //
+  // The figures are HHS's, published each January for the contiguous states, and
+  // they are not Virginia's or Maryland's to set — which is what makes the
+  // cross-state half of this test worth more than the levels. Two states read one
+  // federal table; if a branch swapped in one of them the two would disagree, and a
+  // disagreement is checkable without knowing which is right.
+  const PUBLISHED = {
+    2025: { firstPerson: 15_650, additionalPerson: 5_500 },
+    2026: { firstPerson: 15_960, additionalPerson: 5_680 },
+  };
+  const carriers = {
+    VA: (def) => def.lowIncomeCredit.povertyGuideline,
+    MD: (def) => def.povertyLevelCredit.povertyGuideline,
+  };
+  for (const [year, expected] of Object.entries(PUBLISHED)) {
+    for (const [state, read] of Object.entries(carriers)) {
+      const guideline = read(getStateDefinition(state, Number(year)));
+      assert.equal(guideline.firstPerson, expected.firstPerson, `${state} ${year} first person`);
+      assert.equal(guideline.additionalPerson, expected.additionalPerson, `${state} ${year} additional person`);
+      // The label is the part the selector gets wrong, and the only field in the
+      // block that says which year's table this is. A table carried into the wrong
+      // year is caught here even where the two tables happen to agree.
+      assert.equal(guideline.year, Number(year), `${state} ${year} carries the ${guideline.year} guideline`);
+    }
+  }
+  // A guideline that never moves is a guideline nobody updated: HHS has raised both
+  // figures every year since 1983, so a year where neither moved is a carry-forward
+  // that was never flagged as one.
+  assert.ok(PUBLISHED[2026].firstPerson > PUBLISHED[2025].firstPerson);
+  assert.ok(PUBLISHED[2026].additionalPerson > PUBLISHED[2025].additionalPerson);
+});

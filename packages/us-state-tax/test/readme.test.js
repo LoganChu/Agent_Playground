@@ -1380,3 +1380,58 @@ test('every markdown table in every README is still a table', () => {
     }
   }
 });
+
+test('README: every count in the step-probe and notes sections', () => {
+  // Day 8's operating rule — never let the docs contain an unverified number —
+  // applied to the counts the v0.32.0 section quotes. Each of these is asserted in
+  // the test file that produces it; what this checks is that the README and that
+  // file still agree, which is the direction the drift always goes.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = readFileSync(join(root, 'README.md'), 'utf8');
+  const section = readme.slice(readme.indexOf('## Every step of every staircase'));
+  assert.ok(section.length > 1_000, 'the section is present');
+
+  const stepProbes = readFileSync(join(root, 'test', 'step-probes.test.js'), 'utf8');
+  const notes = readFileSync(join(root, 'test', 'notes.test.js'), 'utf8');
+  const notePins = JSON.parse(readFileSync(join(root, 'test', 'note-pins.json'), 'utf8'));
+  const notePrefix = readFileSync(join(root, 'test', 'note-prefix.mjs'), 'utf8');
+  const registry = readFileSync(join(root, 'test', 'registry.test.js'), 'utf8');
+
+  const quoted = (pattern) => {
+    const hit = section.match(pattern);
+    assert.ok(hit, `the README section no longer quotes ${pattern}`);
+    return Number(hit[1].replace(/,/g, ''));
+  };
+
+  // 627 numbers in the staircases, and the same figure pinned in the test.
+  assert.ok(stepProbes.includes(`assert.equal(checked, ${quoted(/— (\d{3}) of them/)},`));
+  // 462 notes, against the fixture itself rather than against another comment.
+  assert.equal(notePins.rows.length, quoted(/all \*\*(\d{3})\*\* notes/));
+  // 72 characters of each.
+  assert.ok(notePrefix.includes(`PREFIX_LENGTH = ${quoted(/first (\d+) characters/)};`));
+  // 15 rates and thresholds printed in rule names.
+  assert.ok(registry.includes(`assert.equal(checked, ${quoted(/all (\d+) of them are now required/)},`));
+  // Nine states and fourteen year-specific notes.
+  const yearOnly = notes.slice(notes.indexOf('const YEAR_ONLY_NOTES'), notes.indexOf('};', notes.indexOf('const YEAR_ONLY_NOTES')));
+  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 9, 'nine states in the README and in the table');
+  assert.equal(
+    [...yearOnly.matchAll(/2026: (\d+)/g)].reduce((sum, [, n]) => sum + Number(n), 0),
+    14,
+    'fourteen 2026-only notes in the README and in the table',
+  );
+
+  // And the Ohio figures the section names, read out of the definition rather than
+  // repeated: the credit chart it is the worked example for, and the two rows it
+  // calls unreachable.
+  const ohio = getStateDefinition('OH', 2026);
+  const steps = ohio.retirementIncomeCredit.steps;
+  assert.equal(steps[0].upTo, 500);
+  assert.equal(steps[4].upTo, 8_000);
+  assert.equal(steps.length, 6, 'six bands of pension income');
+  assert.equal(ohio.jointFilingCredit.steps[0].upTo, 25_000);
+  assert.equal(ohio.jointFilingCredit.steps[0].amount, 0.2);
+  assert.equal(ohio.rate.bands[0].upTo, 26_050);
+  assert.equal(ohio.exemptionCredit.perFiler.single, 20);
+  // Michigan's cohort relation, quoted as `year - 1945`.
+  assert.equal(getStateDefinition('MI', 2026).retirementIncomeSubtractions[0].minimumAge, 2026 - 1945);
+});

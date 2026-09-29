@@ -18,6 +18,54 @@ in a way that mattered commercially: nineteen parameters pinned in 2026 and unpi
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
 
+## Day 35: the competitor's manifest grew the fields that advertise importability, and they point at the executable
+
+`irs-taxpayer-mcp` went 1.0.2 → **1.1.0 on 2026-09-18**, its description changed from
+an MCP server to "Deterministic local US individual tax engine", and its manifest
+gained `main: dist/index.js` and `types: ./dist/index.d.ts` where Day 11, Day 15 and
+Day 17 all recorded it as "a bin with no `exports`, so it cannot be imported."
+
+Read only to that depth, the kill criterion looks met: MIT, importable, actively
+maintained. **It is not, and finding that out took one more file.** `dist/index.js`
+is the bin — `#!/usr/bin/env node`, and importing it *starts an MCP server* — and
+`dist/index.d.ts` is `export {}`. So `main` and `types` now both resolve, and what
+they resolve to exports nothing and has a side effect.
+
+**THE RULE: reading a package's `main` is not reading its entry point. Read what
+`main` points at.** A manifest field is a claim like any other, and this one is
+worse than its own absence was: a consumer who writes
+`import { calculateStateTax } from 'irs-taxpayer-mcp'` now gets a type error rather
+than a resolution failure, and at runtime gets a server. The calculators are
+reachable only by reaching into `dist/` by path, which no `exports` map sanctions
+and no version promises to keep.
+
+### And the state engine is one state in one year
+
+The part that decides the competitive read is not the packaging. `STATE_TAX_DATA`
+holds all 50 states and DC and is labelled in its own source comment as
+"reference-only"; the numbers the engine computes from live in
+`STATE_TAX_CALCULATION_DATA`, which is:
+
+    2024: no-tax states + CA
+    2025: no-tax states + NH
+    2026: no-tax states + NH
+
+**For tax years 2025 and 2026 it cannot compute a single state income tax that is
+not zero.** Every other state throws `UnsupportedStateTaxCalculationError`, verified
+by running it. That is honest — failing closed beats a rough top-rate estimate, and
+this package should say so — but it means the overlap with `us-state-tax` is one
+state-year, and that one applies a standard deduction and a personal exemption to
+gross income and walks a bracket table: no conformity base, no add-backs, no
+credits, two filing statuses, and no exemption CREDIT, which is how California
+grants its personal exemption. Their California TY2024 single filer on `$100,000`
+is `$5,327`, and the `$144` exemption credit is not in the package to be missed.
+
+**The competitive datum to carry forward: the gap is not rates, it is everything
+downstream of them, and the packages that advertise fifty states are the ones that
+model none of it.** That is the same finding as `statetakehome-mcp`'s fifty states
+on Day 8, arrived at from the opposite direction — a package that models one state
+carefully and says so.
+
 ## Day 34: the size of a test battery is arithmetic, not judgement
 
 The state engine's largest blind spot was a **filing status**, not a rule: `separate`
@@ -2138,6 +2186,21 @@ Abandon or pivot this bet if any of these become true:
   not model. Its Maryland 2026 exclusion figure is right and carries an
   `uprating` tag that would have taken it the wrong way; reading the *encoding*
   rather than the data is what caught that, per Day 16.
+  **Day 35:** re-checked, eighteen days after Day 17 and the first check since.
+  Nothing new qualifies, and the one package that moved moved in a way that
+  looks like it qualifies and does not. `irs-taxpayer-mcp` **1.1.0**
+  (2026-09-18) is MIT, re-describes itself as a "deterministic local US
+  individual tax engine", and now has `main` and `types` in its manifest — but
+  `main` is the bin, which starts an MCP server when imported, and `types`
+  resolves to `export {}`. Read the file `main` points at, not the field. Its
+  state engine computes exactly **CA TY2024** and the no-tax states; every other
+  state-year throws, verified by running it, so for 2025 and 2026 it cannot
+  produce a non-zero state tax at all. Full read above under "Day 35". Nothing
+  else in the niche moved: `calcuris-mcp` is still v0.1.1 of 2026-07-13,
+  `@nannykeeper/mcp-server` 1.10.2 is household-employer payroll and not an
+  individual return, `ato-mcp` is Australian. One adjacent newcomer worth
+  knowing about and not a competitor: `us-tax-advantaged-params` 0.5.0
+  (2026-09-15), retirement-account limits as data, no engine.
   **Day 17:** re-checked. Nothing new qualifies. Registry searches for
   `virginia tax`, `state income tax mcp`, `us tax mcp` and
   `occupational license tax` return the same set as July; `irs-taxpayer-mcp`

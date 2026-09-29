@@ -13,8 +13,97 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 34 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
-`us-state-tax` v0.31.0, `us-tax-mcp` v0.34.0. 1,085 tests, all passing.
+**As of Day 35 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
+`us-state-tax` v0.32.0, `us-tax-mcp` v0.34.0. 1,097 tests, all passing.
+
+## 2026-09-29 (Day 35)
+
+### A competitor moved, and the move is worth knowing about
+
+`irs-taxpayer-mcp` — the closest thing on npm to what this project builds — released
+1.1.0 on 18 September and re-described itself from "MCP server" to "deterministic
+local US individual tax engine". Its package manifest now carries the two fields that
+say a package can be used as a library.
+
+I checked, because that combination (MIT licence, importable, actively maintained) is
+the written condition under which this project should stop and do something else.
+
+**It does not hold, and the reason is one file deep.** The field that says "here is
+the library" points at the program that starts the server. Importing it does not give
+you a tax engine; it launches an MCP server. The types file beside it declares that
+the package exports nothing. So the manifest now advertises something the code does
+not do, which is worse for a would-be user than the old version, where the attempt
+simply failed.
+
+The part that actually decides the competitive question is smaller and less arguable.
+Their package ships a table of all fifty states — and its own source comment says
+that table is reference only. The states it can actually compute a tax for are:
+
+- **2024**: California, and the nine states with no income tax
+- **2025**: the no-tax states
+- **2026**: the no-tax states
+
+So **for the two years this project supports, it cannot produce a non-zero state tax
+for any state.** Everything else raises an error rather than guessing, which is good
+engineering and I want to say so plainly — it is the same instinct as this project's
+"state limitations loudly". But it means the overlap between the two packages is one
+state in one year, and in that one their California return applies a deduction and an
+exemption to gross income and walks a bracket table, with no credits at all: the
+`$144` personal exemption credit that California grants as a credit rather than a
+deduction is simply not in the package.
+
+I verified all of this by running their code, not by reading their README.
+
+**Nothing for you to do about it.** I am recording it because "a well-tested,
+importable, permissively licensed US tax engine appears on npm" is the written
+condition for abandoning this direction, and somebody skimming the registry could
+reasonably think it had just happened.
+
+### What I built today
+
+Two instruments, and the second one is the one I would point at.
+
+**The first** finishes the measurement work of the last three days. The weekly audit
+that sets every number in the package wrong had ten numbers left that no test would
+have noticed, and all ten were rows of a *step chart* — Ohio pays a retirement credit
+of `$25`, `$50`, `$80`, `$130` or `$200` depending on which of six bands your pension
+income falls in, and five of the six bands had nothing checking them.
+
+The fix is a small idea. Rather than inventing more imaginary households and hoping
+one of them lands in each band, the test now puts **one probe inside every step of
+every step chart in the package**, automatically, by finding the charts themselves.
+It then takes every number in every one of those charts — 627 of them — sets each one
+wrong, and fails unless an answer changes. Two of the 627 are exempt and each carries
+a written reason.
+
+**The second is about the product rather than the score.** This package's pitch is
+that it says what it does not know, *in the answer* — a language model reading the
+result sees the caveat, where it would never see a README. Those sentences were the
+only output in the package with nothing asserting them at all. A warning written for
+2026 could have appeared on a 2025 return, or disappeared from 2026, and every test
+would still have passed.
+
+All 462 of them are now pinned: the first 72 characters of each, in order, per state
+and year. Not the whole sentence, on purpose — the prose gets edited and a file that
+churned every time a clause moved would stop being read, which is the same as not
+having it. What it catches is a warning appearing, vanishing, moving or landing in
+the wrong year.
+
+### The one thing worth knowing from the measurement
+
+I found a case the audit cannot see about itself, and it is small and pleasing.
+
+The audit works by doubling a number and adding one. So a number whose correct value
+is **zero** can only be made wrong by one dollar — and one dollar of Ohio tax, inside
+the band where Ohio charges nothing, is swallowed by the `$20` credit every return
+there already has. The row is unreachable in that sense and it is also one of the most
+consequential numbers in the state: it is why an Ohio filer at `$26,050` owes nothing
+and one at `$26,050.01` owes `$342`.
+
+Both things are true at once, and the useful conclusion is not about Ohio. It is that
+what is testable there is the *width* of the band, not the zero at the bottom of it —
+so that is what the probes check, and the zero is written down as exempt with the
+reason beside it rather than quietly counted as covered.
 
 ## 2026-09-28 (Day 34)
 
