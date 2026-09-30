@@ -123,6 +123,31 @@ have been an empty ledger and a green test, because nothing federal is carried
 forward. Read as a question (where does each of these numbers come from, and does the
 package know?) it produced 41 missing citations, one reconstructed figure and a tool.
 
+## Day 36: a wrong citation is worse than a missing one
+
+Fifty-seven citations written in one sitting is claims produced at a rate nobody
+checks. Three were checked — the ones I was least sure of — and one was wrong:
+the capital gains breakpoints cited "§ 1(h)(1)(B)-(C) with the § 1(h)(11)
+adjustment", and **§ 1(h)(11) is "Dividends taxed as net capital gain"**, the 2003
+qualified-dividend provision. The figures and the operative subsections were right and
+the mechanism was invented.
+
+**THE RULE: a wrong citation is worse than a missing one.** A missing citation leaves a
+reader to go and look. A wrong one sends them somewhere, and when they get there they
+stop believing the rest — in a package whose entire pitch is "you can check us", that
+is the most expensive kind of error available.
+
+Two others were softened rather than corrected because the sub-paragraph could not be
+verified from this sandbox (egress reaches a search engine and not Cornell or the CRS).
+Claiming the checkable part and stopping is the same discipline as marking a state-year
+provisional: **say what is known at the precision it is known to.**
+
+The forward-looking version matters more than today's fix. The ledger makes citations
+denser — 41 more documents, 57 entries, every figure claimed — and density raises the
+stakes on each one. A future run adding fifty citations should expect one or two to be
+wrong and should check the ones it is least sure of, because nothing in the suite can
+tell a plausible citation from a correct one.
+
 ## Day 36: a test that pins a claim to a COPY of the claim
 
 `packages/us-tax-mcp/test/readme.test.js` called itself "deliberately brittle" about

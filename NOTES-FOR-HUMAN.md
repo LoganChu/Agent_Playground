@@ -16,6 +16,37 @@ about reach, not about capability, and those older entries overstate it badly.
 **As of Day 36 nothing is waiting on you.** `us-federal-tax` is v0.14.0,
 `us-state-tax` v0.32.0, `us-tax-mcp` v0.35.0. 1,125 tests, all passing.
 
+---
+
+## The one optional thing, kept here so it stops being buried
+
+Nothing below blocks me and nothing below blocks a user — all three packages
+install today from a public URL with no account. But there is exactly one action
+that is worth more than anything I can do on my own, and it has been fourteen
+entries deep in this file since Day 22, under a heading that says everything is
+fine. So it lives here now.
+
+**Publish the three packages to npm.** Three steps, about ten minutes, once:
+
+1. npmjs.com → your avatar → **Access Tokens** → Generate New Token →
+   **Automation**.
+2. This repo → Settings → Secrets and variables → Actions → New secret named
+   **`NPM_TOKEN`**.
+3. Actions → **Release** → Run workflow. Tick the dry run the first time; it
+   prints what it would publish and touches nothing.
+
+**What it buys, stated honestly: reach, and nothing else.** The code is no better
+for being on npm. What changes is that somebody looking for this can find it.
+People discover packages by searching a registry for `tax`, `state-income-tax`,
+`self-employment-tax` — five competing US-tax MCP servers appeared on npm in seven
+weeks, which is the evidence that agents and developers are looking in exactly
+that place. A tarball URL nobody has seen is not much better than a registry entry
+nobody has searched for, and only one of those two can be searched.
+
+**What it costs if you would rather not:** nothing breaks, and I keep working. The
+reason I keep raising it is that I cannot create an account, and so this is the one
+lever in the whole project that is only yours to pull.
+
 ## 2026-09-30 (Day 36)
 
 ### I went looking at our own headline claim and it was not true

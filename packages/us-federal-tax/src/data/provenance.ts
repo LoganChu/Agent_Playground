@@ -143,7 +143,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
     kind: 'indexed',
     document: 'Rev. Proc.',
     provision: '§ 1(j)',
-    cite: '§ 1(j)(3) with the § 1(f)(3) adjustment — the rate tables the Revenue Procedure prints',
+    cite: '§ 1(j)(2) rate tables, adjusted under § 1(j)(3) — the bracket ceilings the Revenue Procedure prints',
     constant: false,
   },
   {
@@ -158,7 +158,7 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
     kind: 'indexed',
     document: 'Rev. Proc.',
     provision: '§ 1(h)',
-    cite: '§ 1(h)(1)(B)-(C) with the § 1(h)(11) adjustment — the maximum-zero and maximum-15% amounts',
+    cite: '§ 1(h)(1)(B)-(C) — the maximum zero rate amount and the maximum 15-percent rate amount, adjusted for inflation and printed in the Revenue Procedure',
     constant: false,
   },
 
@@ -450,10 +450,10 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
     kind: 'indexed',
     document: 'Rev. Proc.',
     provision: '§ 24',
-    cite: '§ 24(h)(5) with the § 24(h)(5)(B) adjustment — the refundable portion, rounded to a multiple of $100',
+    cite: '§ 24 as amended by Pub. L. 119-21 § 70104 — the maximum refundable portion, indexed and rounded down to a multiple of $100',
     constant: true,
     why:
-      '$1,700 in all three years, and NOT a carry-forward: § 24(h)(5)(B) rounds DOWN to a multiple of $100, so the figure holds until the unrounded amount clears $1,800. Each year’s value was read from that year’s Revenue Procedure, which is the only thing that distinguishes this from the failure it looks like.',
+      '$1,700 in all three years, and NOT a carry-forward: the adjustment is rounded DOWN to a multiple of $100, so the figure holds until the unrounded amount clears $1,800. Each year’s value was read from that year’s Revenue Procedure, which is the only thing that distinguishes this from the failure it looks like.',
   },
   {
     path: 'childTaxCredit.refundable.phaseInRate',

@@ -274,6 +274,32 @@ figure_provenance { year: 2025, figure: "withholding.standardDeduction.singleOrM
 Two right answers to "what is the 2025 standard deduction", differing by $750, and
 nothing about either number says which question it answers. That is a thing to sell.
 
+### Part 11 — one of my own citations was wrong, and the ledger is what exposed it
+
+A citation is a claim, and writing 57 of them in one sitting produces claims at a
+rate nobody checks. So I checked the three I was least sure of, and one was wrong:
+
+`longTermCapitalGains.*.*.upTo` cited "§ 1(h)(1)(B)-(C) **with the § 1(h)(11)
+adjustment**". **§ 1(h)(11) is "Dividends taxed as net capital gain"** — the 2003
+provision that puts qualified dividends on the capital gains rates. It has nothing to
+do with indexing the breakpoints. The figure and the operative subsections were right
+and the mechanism was invented.
+
+Two more were softened rather than corrected, because the sub-paragraph could not be
+verified from here: the bracket ceilings now read "§ 1(j)(2) rate tables, adjusted
+under § 1(j)(3)", and the refundable child credit cap cites § 24 as amended by
+Pub. L. 119-21 § 70104 with the rounding described and no sub-paragraph named. Egress
+reaches a search engine and neither Cornell nor the CRS, so **the honest move is to
+claim the part that is checkable and stop.** A citation that names a subsection I
+have not read is the same defect as a note that says a figure is provisional without
+saying which figure.
+
+**THE RULE: a wrong citation is worse than a missing one.** A missing one leaves a
+reader to go and look; a wrong one sends them somewhere and then loses their trust
+when they get there — and this package's whole claim is that a reader can check it. So
+the ledger has made the citations denser and that raises the stakes on each of them,
+which is worth writing down before a future run adds fifty more.
+
 ### Process notes
 
 - **The instrument found its defect while being built, not when being run**, which is
@@ -286,6 +312,12 @@ nothing about either number says which question it answers. That is a thing to s
   token for the Schedule 1-A guidance page had the clause order wrong, and the
   `standardDeduction.singl` case failed the way it should. The pinned totals (796
   figures, 91 citations) were right first time, which is luck rather than care.
+- **The audit ran twice and the second run is the one quoted.** The first finished
+  before three citation STRINGS were corrected, and a string is not a mutant — but the
+  harness copies `dist` into its workers once at start, so a score from a tree that no
+  longer exists is a score of nothing in particular. Day 35's rule about not inferring
+  a score applies to not inheriting one either: 711 mutants, 711 killed, over exactly
+  the build that is committed.
 - **The ninth-day item was worth more read as a question than as a specification.**
   "Build `provisionalFigures` for the federal package" would have produced an empty
   ledger and a green test. "Where does each of these numbers come from, and does the
