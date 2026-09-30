@@ -348,16 +348,15 @@ anything I can write.
   token for the Schedule 1-A guidance page had the clause order wrong, and the
   `standardDeduction.singl` case failed the way it should. The pinned totals (796
   figures, 91 citations) were right first time, which is luck rather than care.
-- **The audit that produced 711/711 ran against a build three strings away from the
-  committed one.** A string is not a mutant — the three corrected citations and one
-  corrected note change no number, and the mutant count is identical — but the harness
-  copies `dist` into its workers once at start, so a score is a score of the tree it
-  ran on. Day 35's rule about not inferring a score applies to not inheriting one
-  either, so a confirming run over the exact committed build was started; if it comes
-  back anything other than 711 killed, tomorrow's entry says so and this one is wrong.
-  Twice today I invalidated a run in flight by editing a string, which is worth
-  remembering as a sequencing rule: **finish the shipped source before starting the
-  audit, or the audit is measuring history.**
+- **The audit ran to completion twice, and both read 711 killed of 711.** The first
+  finished against a build three citation strings and one note away from the committed
+  one. A string is not a mutant and the count was identical, but the harness copies
+  `dist` into its workers once at start, so a score is a score of the tree it ran on —
+  Day 35's rule about not inferring a score applies to not inheriting one either. The
+  second ran over exactly the build that is committed and agreed. Twice today I
+  invalidated a run in flight by editing a string, which leaves a sequencing rule:
+  **finish the shipped source before starting the audit, or the audit is measuring
+  history.**
 - **One known looseness, written down rather than fixed at the end of a day.**
   `documentsBehindFigures()` counts a document as "behind a figure" if any entry
   applying to that year names it, including an entry that WINS nothing there — 2025's
