@@ -1,5 +1,6 @@
 import type { YearParameters } from '../types.js';
 import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
+import { CODE_SOURCES, SCHEDULE_ONE_A_CODE_SOURCES } from './sources.js';
 import {
   OVERTIME_SEPARATE_RETURN,
   SENIOR_SEPARATE_RETURN,
@@ -508,6 +509,11 @@ export const YEAR_2025: YearParameters = {
   },
 
   sources: [
+    // The Code, shared by every year: see `sources.ts`.
+    ...CODE_SOURCES,
+    // The four Schedule 1-A provisions, which 2024 does not carry because they
+    // have nothing to say about a 2024 return.
+    ...SCHEDULE_ONE_A_CODE_SOURCES,
     {
       title: 'IRS Publication 15-T (2025) — Federal Income Tax Withholding Methods',
       url: 'https://www.irs.gov/pub/irs-prior/p15t--2025.pdf',
@@ -540,16 +546,17 @@ export const YEAR_2025: YearParameters = {
       url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
     },
     {
+      title:
+        'Pub. L. 119-21 §§ 70201, 70202, 70103 and 70203 — the four Schedule 1-A deductions, for 2025 through 2028',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
+    },
+    {
       title: 'SSA — 2025 Social Security wage base ($176,100)',
       url: 'https://www.ssa.gov/oact/cola/cbb.html',
     },
     {
       title: 'IRS — 2025 earned income tax credit income limits and maximum credit amounts',
       url: 'https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit/earned-income-tax-credit-income-limits-and-maximum-credit-amounts',
-    },
-    {
-      title: '26 U.S.C. § 1(j) — tax rate tables',
-      url: 'https://www.law.cornell.edu/uscode/text/26/1',
     },
   ],
 };

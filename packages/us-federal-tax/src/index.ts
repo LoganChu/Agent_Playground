@@ -79,6 +79,15 @@ export type {
   WithholdingPlanInput,
 } from './withholding.js';
 
+export {
+  FEDERAL_FIGURE_PROVENANCE,
+  documentsBehindFigures,
+  figureProvenance,
+  figureProvenanceMatches,
+} from './data/provenance.js';
+export type { FigureSource, FigureSourceKind } from './data/provenance.js';
+export { CODE_SOURCES, SCHEDULE_ONE_A_CODE_SOURCES } from './data/sources.js';
+
 export { YEAR_2024 } from './data/2024.js';
 export { YEAR_2025 } from './data/2025.js';
 export { YEAR_2026 } from './data/2026.js';

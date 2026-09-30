@@ -1,5 +1,6 @@
 import type { YearParameters } from '../types.js';
 import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
+import { CODE_SOURCES, SCHEDULE_ONE_A_CODE_SOURCES } from './sources.js';
 import {
   OVERTIME_SEPARATE_RETURN,
   SENIOR_SEPARATE_RETURN,
@@ -561,6 +562,9 @@ export const YEAR_2026: YearParameters = {
   },
 
   sources: [
+    // The Code, shared by every year: see `sources.ts`.
+    ...CODE_SOURCES,
+    ...SCHEDULE_ONE_A_CODE_SOURCES,
     {
       title: 'IRS Publication 15-T — Federal Income Tax Withholding Methods',
       url: 'https://www.irs.gov/forms-pubs/about-publication-15-t',
@@ -568,6 +572,11 @@ export const YEAR_2026: YearParameters = {
     {
       title: 'IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026',
       url: 'https://www.irs.gov/pub/irs-drop/rp-25-32.pdf',
+    },
+    {
+      title:
+        'IRS Rev. Proc. 2025-32 as reissued 2025-10-17 — corrects the EITC completed phase-out for a joint return with three or more children to $70,244',
+      url: 'https://www.irs.gov/irb/2025-45_IRB',
     },
     {
       title: 'IRS newsroom — 2026 inflation adjustments, including OBBBA amendments',
@@ -578,43 +587,30 @@ export const YEAR_2026: YearParameters = {
       url: 'https://www.ssa.gov/oact/cola/cbb.html',
     },
     {
-      title: '26 U.S.C. § 1(j) — tax rate tables',
-      url: 'https://www.law.cornell.edu/uscode/text/26/1',
-    },
-    {
-      title: '26 U.S.C. § 1411 — net investment income tax',
-      url: 'https://www.law.cornell.edu/uscode/text/26/1411',
-    },
-    {
-      title: '26 U.S.C. § 224 — qualified tips deduction',
-      url: 'https://www.law.cornell.edu/uscode/text/26/224',
-    },
-    {
-      title: '26 U.S.C. § 225 — qualified overtime compensation deduction',
-      url: 'https://www.law.cornell.edu/uscode/text/26/225',
-    },
-    {
-      title: '26 U.S.C. § 163(h)(4) — qualified passenger vehicle loan interest',
-      url: 'https://www.law.cornell.edu/uscode/text/26/163',
-    },
-    {
       title: 'IRS Schedule 1-A (Form 1040) — Additional Deductions',
       url: 'https://www.irs.gov/pub/irs-pdf/f1040s1a.pdf',
     },
     {
       title: 'IRS — Schedule 1-A, Additional Deductions: what to know about the new form',
-      url: 'https://www.irs.gov/newsroom/schedule-1-a-additional-deductions-what-to-know-about-the-new-form',
+      url: 'https://www.irs.gov/newsroom/what-to-know-about-the-new-schedule-1-a-additional-deductions',
     },
     {
-      title: '26 U.S.C. § 199A — qualified business income',
-      url: 'https://www.law.cornell.edu/uscode/text/26/199A',
+      title:
+        'Pub. L. 119-21 § 70105 — § 199A made permanent, wider phase-in range, § 199A(i) minimum deduction',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
     },
     {
-      title: '26 U.S.C. § 1(f)(7) — rounding of inflation adjustments ($50, or $25 on a separate return)',
-      url: 'https://www.law.cornell.edu/uscode/text/26/1',
+      title: 'Pub. L. 119-21 § 70120 — the raised SALT cap for 2025-2029 and its phase-down',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
     },
     {
-      title: 'Pub. L. 119-21 § 70105 — § 199A made permanent, wider phase-in range, § 199A(i) minimum deduction',
+      title:
+        'Pub. L. 119-21 § 70104 — § 24 made permanent at $2,200, indexed, with the new taxpayer SSN requirement',
+      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
+    },
+    {
+      title:
+        'Pub. L. 119-21 §§ 70201, 70202, 70103 and 70203 — the four Schedule 1-A deductions, for 2025 through 2028',
       url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
     },
     {
@@ -635,35 +631,8 @@ export const YEAR_2026: YearParameters = {
       url: 'https://www.law.cornell.edu/cfr/text/26/1.199A-1',
     },
     {
-      title:
-        '26 U.S.C. § 164(b)(6) — state and local tax cap, its phase-down, and the modified AGI definition',
-      url: 'https://www.law.cornell.edu/uscode/text/26/164',
-    },
-    {
-      title: 'Pub. L. 119-21 § 70120 — the raised SALT cap for 2025-2029 and its phase-down',
-      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
-    },
-    {
-      title: '26 U.S.C. § 24 — child tax credit, the $50-per-$1,000 phase-out, and § 24(d) refundability',
-      url: 'https://www.law.cornell.edu/uscode/text/26/24',
-    },
-    {
-      title:
-        'Pub. L. 119-21 § 70104 — § 24 made permanent at $2,200, indexed, with the new taxpayer SSN requirement',
-      url: 'https://www.congress.gov/bill/119th-congress/house-bill/1/text',
-    },
-    {
       title: 'IRS Schedule 8812 (Form 1040) — credits for qualifying children and other dependents',
       url: 'https://www.irs.gov/pub/irs-pdf/f1040s8.pdf',
-    },
-    {
-      title: '26 U.S.C. § 32 — earned income credit, including § 32(c)(2) earned income and the § 32(i) investment income limit',
-      url: 'https://www.law.cornell.edu/uscode/text/26/32',
-    },
-    {
-      title:
-        'IRS Rev. Proc. 2025-32 as reissued 2025-10-17 — corrects the EITC completed phase-out for a joint return with three or more children to $70,244',
-      url: 'https://www.irs.gov/irb/2025-45_IRB',
     },
   ],
 };

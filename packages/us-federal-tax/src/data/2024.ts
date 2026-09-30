@@ -1,5 +1,6 @@
 import type { YearParameters } from '../types.js';
 import { SOCIAL_SECURITY_TAXABILITY } from './social-security.js';
+import { CODE_SOURCES } from './sources.js';
 
 /**
  * Tax year 2024 federal parameters.
@@ -394,6 +395,9 @@ export const YEAR_2024: YearParameters = {
   },
 
   sources: [
+    // The Code, shared by every year: see `sources.ts` for why a per-year list is
+    // the wrong shape for a statute, and what shipping one cost this year.
+    ...CODE_SOURCES,
     {
       title: 'IRS Publication 15-T (2024) — Federal Income Tax Withholding Methods',
       url: 'https://www.irs.gov/pub/irs-prior/p15t--2024.pdf',
@@ -416,15 +420,8 @@ export const YEAR_2024: YearParameters = {
       url: 'https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit/earned-income-tax-credit-income-limits-and-maximum-credit-amounts',
     },
     {
-      title: '26 U.S.C. § 1(j) — tax rate tables',
-      url: 'https://www.law.cornell.edu/uscode/text/26/1',
-    },
-    {
-      title: '26 U.S.C. § 164(b)(6) — the $10,000 state and local tax cap before OBBBA',
-      url: 'https://www.law.cornell.edu/uscode/text/26/164',
-    },
-    {
-      title: '26 U.S.C. § 24(h) — the TCJA child tax credit at $2,000',
+      title:
+        '26 U.S.C. § 24(h) — the TCJA child tax credit at $2,000, which is the figure 2024 uses and the one OBBBA replaced',
       url: 'https://www.law.cornell.edu/uscode/text/26/24',
     },
   ],

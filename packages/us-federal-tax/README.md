@@ -136,7 +136,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.13.0/us-federal-tax-0.13.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.14.0/us-federal-tax-0.14.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -988,6 +988,89 @@ Two structural checks run over every year, which is what makes adding a year saf
 getYearParameters(2026).sources;
 // [{ title: 'IRS Rev. Proc. 2025-32 ...', url: 'https://www.irs.gov/pub/irs-drop/rp-25-32.pdf' }, ...]
 ```
+
+### Which document each figure came from
+
+A list of sources beside a list of figures is not provenance. **The mapping is the
+provenance**, and until v0.14.0 this package did not have one: `getYearParameters(2024)`
+returned 240 numbers and 8 documents with nothing connecting the two.
+
+That gap hid a real defect, and the numbers are worth stating plainly. Measured
+against the figures each year actually reads:
+
+| tax year | citations it shipped | documents its figures come from | missing |
+| --- | --- | --- | --- |
+| 2024 | 8 | 19 | **13** |
+| 2025 | 10 | 24 | **17** |
+| 2026 | 25 | 24 | **11** |
+
+The missing ones are not obscure. § 3101 and § 3111 set the FICA rates, § 1401 and
+§ 1402 the self-employment tax, § 86 the four Social Security thresholds this
+package's description leads with — and no year cited any of them. **The figures
+nobody doubts are the figures nobody cites**, which is the reason a per-year
+citation list drifts: the newest year is the only one anybody edits, and the oldest
+numbers in the package are the ones that never come up.
+
+`FEDERAL_FIGURE_PROVENANCE` closes it. Every one of the **796 numbers** across the
+three years is claimed by exactly one entry, and each entry says what kind of
+authority publishes the figure — which is the same thing as saying **what a new tax
+year costs**:
+
+| kind | a new tax year requires |
+| --- | --- |
+| `indexed` | reading that year's IRS Revenue Procedure |
+| `statute` | nothing; a change here is an amendment, and news |
+| `statute-scheduled` | reading the statute's own schedule for the new year |
+| `agency` | reading the SSA release — the IRS does not publish it |
+| `withholding-methods` | reading that year's Publication 15-T |
+| `reconstructed` | **reading the document.** This figure was never in one. |
+
+```js
+import { figureProvenance } from 'us-federal-tax';
+
+figureProvenance('standardDeduction.single', 2025).document;
+// 'Pub. L. 119-21 § 70102'   <- not the 2025 Revenue Procedure
+figureProvenance('standardDeduction.single', 2026).document;
+// 'Rev. Proc.'
+figureProvenance('socialSecurityWageBase', 2026).kind;
+// 'agency'                   <- the IRS does not publish the wage base
+figureProvenance('standardDeduction.singl', 2026);
+// undefined                  <- a path that is not a figure has no provenance
+```
+
+A figure's source is a property of the figure **and the year**. The 2025 standard
+deduction is the one place where a statute overrode that year's own Revenue
+Procedure — OBBBA raised it in July 2025, nine months after Rev. Proc. 2024-40 was
+published — so a ledger keyed on the figure alone would have to be wrong for a year,
+and the per-year `sources` list cannot say which of the year's documents a figure
+came from.
+
+`reconstructed` has exactly one member, and it is the honest half: the 2026
+withholding amounts were computed from Rev. Proc. 2025-32 by the identity that
+reproduces the 2024 and 2025 tables exactly, because Publication 15-T for 2026 could
+not be read. "Nobody read it" is a different answer from "the document says no", and
+the ledger says which — with the worksheet line that would settle it.
+
+Five of the assertions in `test/provenance.test.js` are what make this an artifact
+rather than a comment:
+
+- **Coverage.** Every number in every year must be claimed. A number nobody claims
+  is a number with no stated source.
+- **Both directions on constancy.** An entry claiming its figures never move fails
+  if one moves; an entry claiming they move fails if none does. An indexed figure
+  that has sat still for three years is the exact shape of a silent carry-forward,
+  so it may not pass without a written reason — `childTaxCredit.refundable.maximumPerChild`
+  is $1,700 in all three years because § 24(h)(5)(B) rounds down to a multiple of
+  $100, and that sentence is in the data.
+- **The document is in the year.** Every entry's document must appear in the
+  `sources` of every year it covers, which is the assertion the table above
+  violated 41 times.
+- **Two documents for an indexed figure.** The Revenue Procedure says what the
+  number is this year and nothing about what it is for; the provision says what it
+  is for and nothing about this year. Both are required.
+- **No dead citation.** A citation no figure comes from must say what it is instead
+  — a form, a correction, a cross-check — so a citation left behind when its figure
+  went cannot go on looking like evidence.
 
 If you find a number that disagrees with the IRS, that is a bug — please open an
 issue with the citation.

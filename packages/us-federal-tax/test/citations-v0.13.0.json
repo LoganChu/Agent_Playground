@@ -1,0 +1,51 @@
+{
+  "2024": [
+    "IRS Publication 15-T (2024) — Federal Income Tax Withholding Methods",
+    "IRS Rev. Proc. 2023-34 — inflation adjustments for tax year 2024",
+    "IRS — correction to the tax rate schedules in the 2024 Instructions for Form 1040 (married filing separately over $365,600: $98,334.75, not $99,334.75)",
+    "SSA — 2024 Social Security wage base ($168,600)",
+    "IRS — 2024 earned income tax credit income limits and maximum credit amounts",
+    "26 U.S.C. § 1(j) — tax rate tables",
+    "26 U.S.C. § 164(b)(6) — the $10,000 state and local tax cap before OBBBA",
+    "26 U.S.C. § 24(h) — the TCJA child tax credit at $2,000"
+  ],
+  "2025": [
+    "IRS Publication 15-T (2025) — Federal Income Tax Withholding Methods",
+    "IRS — no change to 2025 withholding tables or Form W-4 for the OBBBA deductions",
+    "IRS Rev. Proc. 2024-40 — inflation adjustments for tax year 2025",
+    "Pub. L. 119-21 § 70102 — standard deduction raised to $15,750 / $31,500 / $23,625 retroactively for 2025",
+    "Pub. L. 119-21 § 70105(b) — § 199A phase-in range widened to $75,000 / $150,000 only for years beginning after 2025",
+    "Pub. L. 119-21 § 70120 — SALT cap $40,000 for 2025 with a 30% phase-down above $500,000",
+    "Pub. L. 119-21 § 70104 — child tax credit raised to $2,200 for 2025",
+    "SSA — 2025 Social Security wage base ($176,100)",
+    "IRS — 2025 earned income tax credit income limits and maximum credit amounts",
+    "26 U.S.C. § 1(j) — tax rate tables"
+  ],
+  "2026": [
+    "IRS Publication 15-T — Federal Income Tax Withholding Methods",
+    "IRS Rev. Proc. 2025-32 — inflation adjustments for tax year 2026",
+    "IRS newsroom — 2026 inflation adjustments, including OBBBA amendments",
+    "SSA — 2026 Social Security wage base ($184,500)",
+    "26 U.S.C. § 1(j) — tax rate tables",
+    "26 U.S.C. § 1411 — net investment income tax",
+    "26 U.S.C. § 224 — qualified tips deduction",
+    "26 U.S.C. § 225 — qualified overtime compensation deduction",
+    "26 U.S.C. § 163(h)(4) — qualified passenger vehicle loan interest",
+    "IRS Schedule 1-A (Form 1040) — Additional Deductions",
+    "IRS — Schedule 1-A, Additional Deductions: what to know about the new form",
+    "26 U.S.C. § 199A — qualified business income",
+    "26 U.S.C. § 1(f)(7) — rounding of inflation adjustments ($50, or $25 on a separate return)",
+    "Pub. L. 119-21 § 70105 — § 199A made permanent, wider phase-in range, § 199A(i) minimum deduction",
+    "IRS Form 8995 — qualified business income deduction, simplified computation",
+    "IRS Form 8995-A and Schedule A — QBI deduction with the wage/UBIA cap and the SSTB phase-out",
+    "IRS — corrections to the 2025 Form 8995-A instructions: taxable income before the QBI deduction is Form 1040 line 11a less lines 12e and 13b",
+    "26 C.F.R. § 1.199A-1(d)(2)(iii) — netting negative QBI and the loss carryforward",
+    "26 U.S.C. § 164(b)(6) — state and local tax cap, its phase-down, and the modified AGI definition",
+    "Pub. L. 119-21 § 70120 — the raised SALT cap for 2025-2029 and its phase-down",
+    "26 U.S.C. § 24 — child tax credit, the $50-per-$1,000 phase-out, and § 24(d) refundability",
+    "Pub. L. 119-21 § 70104 — § 24 made permanent at $2,200, indexed, with the new taxpayer SSN requirement",
+    "IRS Schedule 8812 (Form 1040) — credits for qualifying children and other dependents",
+    "26 U.S.C. § 32 — earned income credit, including § 32(c)(2) earned income and the § 32(i) investment income limit",
+    "IRS Rev. Proc. 2025-32 as reissued 2025-10-17 — corrects the EITC completed phase-out for a joint return with three or more children to $70,244"
+  ]
+}
