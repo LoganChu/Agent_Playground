@@ -1047,9 +1047,11 @@ came from.
 
 `reconstructed` has exactly one member, and it is the honest half: the 2026
 withholding amounts were computed from Rev. Proc. 2025-32 by the identity that
-reproduces the 2024 and 2025 tables exactly, because Publication 15-T for 2026 could
-not be read. "Nobody read it" is a different answer from "the document says no", and
-the ledger says which — with the worksheet line that would settle it.
+reproduces the 2024 and 2025 tables exactly, because Publication 15-T for 2026 has not
+been read here. It **is** published — `https://www.irs.gov/pub/irs-pdf/p15t.pdf` — and
+that is a third state worth naming, distinct from both "not published yet" and "read
+and disagrees". "Nobody read it" is a different answer from "the document says no", and
+the ledger says which, with the worksheet line that would settle it.
 
 Five of the assertions in `test/provenance.test.js` are what make this an artifact
 rather than a comment:

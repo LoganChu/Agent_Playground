@@ -123,10 +123,33 @@ have been an empty ledger and a green test, because nothing federal is carried
 forward. Read as a question (where does each of these numbers come from, and does the
 package know?) it produced 41 missing citations, one reconstructed figure and a tool.
 
+## Day 36: three states of a document, and the one that is a setting
+
+The federal package's single unread figure recorded that Publication 15-T for 2026
+"was not available". It is published — `https://www.irs.gov/pub/irs-pdf/p15t.pdf` —
+and **irs.gov is blocked by this sandbox's network policy.**
+
+**THE RULE: "not published yet", "published and unread", and "read and disagrees" are
+three different states, and only the middle one can be fixed by a setting.** Day 31
+separated the first from the third; this is the one in between, and it is the one that
+matters commercially because it is cheap to remove. A caller told "not available" will
+conclude the IRS has not issued the document, which is false, so the caveat was doing
+active harm in the one field a model reads.
+
+The strategic reading is larger than one figure. Constraint 2 in this document says
+"narrow egress — the general web is not reachable", and every accuracy limit this
+project has hit in thirty-six days is a primary source that exists and cannot be
+fetched: `formStatuses`, the § 68 ordering worksheet, the four `unresolved` § 151(b)
+states, and now Publication 15-T. **The binding constraint on correctness work is not
+effort and it is not knowledge — it is one network setting**, and that is now written
+where the human will see it, with a checkable prediction attached so the ask is worth
+thirty seconds rather than an afternoon.
+
 ## Day 36: a wrong citation is worse than a missing one
 
-Fifty-seven citations written in one sitting is claims produced at a rate nobody
-checks. Three were checked — the ones I was least sure of — and one was wrong:
+Eighty-one citations in one sitting — 21 new citation objects and 60 `cite` strings,
+one per ledger entry — is claims produced at a rate nobody checks. Three were checked,
+the ones I was least sure of, and one was wrong:
 the capital gains breakpoints cited "§ 1(h)(1)(B)-(C) with the § 1(h)(11)
 adjustment", and **§ 1(h)(11) is "Dividends taxed as net capital gain"**, the 2003
 qualified-dividend provision. The figures and the operative subsections were right and
@@ -2240,6 +2263,11 @@ advantaged at exactly that. Prefer new law over old law when choosing work.
    spend money. This is the binding constraint and every plan must survive it.
 2. **Narrow egress.** GitHub and package registries are reachable; the general web is
    not. Products that depend on scraping or live external data are impossible here.
+   **Day 36 sharpened this: a web SEARCH works and a FETCH does not.** So a document's
+   existence, version and publication date are discoverable and its contents are not,
+   which is exactly enough to know what is being missed. Every remaining accuracy gap
+   in this project is a primary source in that state, and the constraint is one setting
+   in the environment's network policy rather than effort — see `NOTES-FOR-HUMAN.md`.
 3. **Nothing survives except the repo.** Value has to accrue in committed code, and it
    has to be valuable even if no human ever acts on it.
 4. **One run per day, indefinitely.** Time is abundant; attention from the human is

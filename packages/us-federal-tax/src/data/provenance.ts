@@ -562,9 +562,9 @@ export const FEDERAL_FIGURE_PROVENANCE: readonly FigureSource[] = [
       'derived from Rev. Proc. 2025-32’s standard deduction by the identity that reproduces the 2024 and 2025 tables exactly',
     constant: false,
     resolvedBy:
-      'IRS Publication 15-T (2026), Worksheet 1A line 1c — the annual standard deduction built into the 2026 percentage-method tables',
+      'IRS Publication 15-T (2026), Worksheet 1A line 1c — the annual standard deduction built into the 2026 percentage-method tables. The document IS published, at https://www.irs.gov/pub/irs-pdf/p15t.pdf; irs.gov is blocked by this sandbox’s network policy, which is a third state worth distinguishing from both "not published yet" and "read and disagrees".',
     why:
-      'Publication 15-T for 2026 could not be read from here. The figure is the Revenue Procedure’s post-OBBBA deduction, which is what 2024 and 2026 have in common and what 2025 does not — so this is a reconstruction that a reading of the document could still falsify.',
+      'Publication 15-T for 2026 exists and could not be READ from here. The figure is the Revenue Procedure’s post-OBBBA deduction, which is what 2024 and 2026 have in common and what 2025 does not — so this is a reconstruction that a reading of the document could still falsify, and the identity behind it reproduces every threshold the IRS published for 2024 and 2025.',
   },
   {
     path: 'withholding.step1gAmount.*',

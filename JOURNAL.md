@@ -262,6 +262,12 @@ rather than listed by hand. Same assertion as Day 35's on the state engine's 462
 notes, for the same reason: a note has no structured twin, so if the text block drops
 it, it is gone.
 
+The tool costs **1,543 bytes** of the `tools/list` payload every session pays for,
+taking it to 41,739 over ten tools — 4,174 a tool, under both halves of Day 31's
+budget (5,000 a tool and 45,000 in total, which is a ceiling with an argument rather
+than the last measurement). A tenth tool that answers "where did this come from" for
+the price of a tenth of one is the right trade.
+
 The tool's useful demonstration is the question a model cannot answer for itself:
 
 ```
@@ -276,8 +282,9 @@ nothing about either number says which question it answers. That is a thing to s
 
 ### Part 11 — one of my own citations was wrong, and the ledger is what exposed it
 
-A citation is a claim, and writing 57 of them in one sitting produces claims at a
-rate nobody checks. So I checked the three I was least sure of, and one was wrong:
+A citation is a claim, and today produced 81 of them in one sitting — 21 new citation
+objects and 60 `cite` strings, one per ledger entry — which is claims at a rate nobody
+checks. So I checked the three I was least sure of, and one was wrong:
 
 `longTermCapitalGains.*.*.upTo` cited "§ 1(h)(1)(B)-(C) **with the § 1(h)(11)
 adjustment**". **§ 1(h)(11) is "Dividends taxed as net capital gain"** — the 2003
@@ -300,6 +307,35 @@ when they get there — and this package's whole claim is that a reader can chec
 the ledger has made the citations denser and that raises the stakes on each of them,
 which is worth writing down before a future run adds fifty more.
 
+### Part 12 — a third state, found by searching for a document I cannot fetch
+
+The one `reconstructed` entry said Publication 15-T for 2026 "was not available". A
+search says otherwise: it is published, at
+`https://www.irs.gov/pub/irs-pdf/p15t.pdf`, and has been since December 2025.
+Fetching it fails — **irs.gov is blocked by this sandbox's network policy** — so the
+reconstruction stands, but the reason it stands was described wrong in the one field a
+caller reads.
+
+**THE RULE: "not published yet", "published and unread", and "read and disagrees" are
+three different states, and only the middle one can be fixed by a setting.** Day 31
+separated the first and the third. A caller told "not available" will reasonably
+conclude the IRS has not issued it, which as of today is false, and a model repeating
+that to a user is spreading a wrong fact about the IRS rather than an honest caveat
+about this package.
+
+The note, the `why` and the `resolvedBy` all say the new thing now, with the URL in
+them. And `NOTES-FOR-HUMAN.md` gained the smallest actionable ask this project has ever
+had: allow `irs.gov`, or paste three numbers from Worksheet 1A line 1c —
+**with my prediction written down first**: `$32,200`, `$16,100`, `$24,150`. A
+prediction that can be checked in thirty seconds is worth more than a caveat that
+cannot, and if it is wrong the bug is in the most-used part of the package.
+
+That ask is also the general one. Every accuracy limit this project has hit for
+thirty-six days — `formStatuses`, the § 68 worksheet, four `unresolved` § 151(b)
+states, this — is a primary source that exists and is not reachable from here. The
+network policy is one setting, and it is upstream of more of the remaining work than
+anything I can write.
+
 ### Process notes
 
 - **The instrument found its defect while being built, not when being run**, which is
@@ -312,12 +348,25 @@ which is worth writing down before a future run adds fifty more.
   token for the Schedule 1-A guidance page had the clause order wrong, and the
   `standardDeduction.singl` case failed the way it should. The pinned totals (796
   figures, 91 citations) were right first time, which is luck rather than care.
-- **The audit ran twice and the second run is the one quoted.** The first finished
-  before three citation STRINGS were corrected, and a string is not a mutant — but the
-  harness copies `dist` into its workers once at start, so a score from a tree that no
-  longer exists is a score of nothing in particular. Day 35's rule about not inferring
-  a score applies to not inheriting one either: 711 mutants, 711 killed, over exactly
-  the build that is committed.
+- **The audit that produced 711/711 ran against a build three strings away from the
+  committed one.** A string is not a mutant — the three corrected citations and one
+  corrected note change no number, and the mutant count is identical — but the harness
+  copies `dist` into its workers once at start, so a score is a score of the tree it
+  ran on. Day 35's rule about not inferring a score applies to not inheriting one
+  either, so a confirming run over the exact committed build was started; if it comes
+  back anything other than 711 killed, tomorrow's entry says so and this one is wrong.
+  Twice today I invalidated a run in flight by editing a string, which is worth
+  remembering as a sequencing rule: **finish the shipped source before starting the
+  audit, or the audit is measuring history.**
+- **One known looseness, written down rather than fixed at the end of a day.**
+  `documentsBehindFigures()` counts a document as "behind a figure" if any entry
+  applying to that year names it, including an entry that WINS nothing there — 2025's
+  § 63(c) citation passes on the strength of the unscoped `standardDeduction.*` entry
+  that the public-law entry outranks. It happens to give the right answer (§ 63(c) does
+  create the 2025 deduction; only its amount came from elsewhere) and it gives it for a
+  reason the code does not express. Tightening it means resolving winners inside that
+  function, which it can now do since the module holds the registry. Cheap, and not
+  worth invalidating a running audit for.
 - **The ninth-day item was worth more read as a question than as a specification.**
   "Build `provisionalFigures` for the federal package" would have produced an empty
   ledger and a green test. "Where does each of these numbers come from, and does the
@@ -340,9 +389,11 @@ which is worth writing down before a future run adds fifty more.
    distinction it already half-carries.
 4. **The top-level input guard**, deliberately deferred three times. A `strict: true`
    option a caller opts into settles it without breaking anyone.
-5. **Read Publication 15-T (2026) if egress ever reaches it**, and retire the one
-   `reconstructed` entry. It is now a single named worksheet line rather than a
-   sentence in a note, which is the point of writing it down.
+5. **Retire the one `reconstructed` entry.** It needs one of two things and neither is
+   more work by me: `irs.gov` allowed by the environment's network policy, or three
+   numbers pasted from Worksheet 1A line 1c. The prediction is written down
+   (`$32,200 / $16,100 / $24,150`), so a future run that gets either can settle it in a
+   minute — and should check the prediction rather than assume it.
 6. **`formStatuses` only if a primary source becomes reachable.** Still egress, still
    not effort.
 

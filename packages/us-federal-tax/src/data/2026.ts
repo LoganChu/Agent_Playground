@@ -554,8 +554,12 @@ export const YEAR_2026: YearParameters = {
     additionalMedicareWithholdingThreshold: 200_000,
     notes: [
       'The 2026 schedules are derived from the published rate schedules and standard ' +
-        'deduction by the identity that reproduces 2024 and 2025 exactly; Publication ' +
-        '15-T for 2026 was not available to check them against directly.',
+        'deduction by the identity that reproduces 2024 and 2025 exactly. Publication ' +
+        '15-T for 2026 IS published, at https://www.irs.gov/pub/irs-pdf/p15t.pdf; it has ' +
+        'not been read here, so these figures are a reconstruction rather than a ' +
+        'transcription. That is a weaker claim than the rest of this package makes, and ' +
+        'it is the only one of its kind: see figureProvenance() for the worksheet line ' +
+        'that would settle it.',
       'No withholding table accounts for the Schedule 1-A deductions (tips, overtime, ' +
         'senior, car loan interest). Claim them on Form W-4 Step 4(b), not in April.',
     ],

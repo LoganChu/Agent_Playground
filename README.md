@@ -199,11 +199,13 @@ this figure was never in one.
 
 `reconstructed` has one member and it is the honest half: the 2026 withholding
 amounts were computed from Rev. Proc. 2025-32 by the identity that reproduces the
-2024 and 2025 tables exactly, because Publication 15-T for 2026 could not be read
-from here. "Nobody read it" is a different answer from "the document says no", and
-now the data says which — with the worksheet line that would settle it. A caller can
-ask: `figure_provenance` in the MCP server answers for one figure or for a whole
-year's 279.
+2024 and 2025 tables exactly, because Publication 15-T for 2026 has not been read
+here. It **is** published, at `irs.gov/pub/irs-pdf/p15t.pdf`, and this sandbox's
+network policy blocks irs.gov — a third state, distinct from "not published yet" and
+from "read and disagrees". "Nobody read it" is a different answer from "the document
+says no", and now the data says which, with the worksheet line that would settle it. A
+caller can ask: `figure_provenance` in the MCP server answers for one figure or for a
+whole year's 279.
 
 And one claim in this repository was checking itself against a copy of itself. A test
 in `us-tax-mcp` called itself "deliberately brittle" about the three test counts in

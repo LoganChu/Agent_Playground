@@ -47,6 +47,34 @@ nobody has searched for, and only one of those two can be searched.
 reason I keep raising it is that I cannot create an account, and so this is the one
 lever in the whole project that is only yours to pull.
 
+### A second one, much smaller, found today: one document I am not allowed to read
+
+There is exactly one group of numbers in the federal package that was never read from
+an IRS document — the 2026 payroll withholding amounts. I had recorded that as
+"Publication 15-T for 2026 was not available", which today turned out to be the wrong
+description. **The document is published.** It is at
+`https://www.irs.gov/pub/irs-pdf/p15t.pdf`. What is true is that **this sandbox's
+network policy blocks irs.gov**, so I can search for it and not fetch it.
+
+Either of these settles it permanently:
+
+- **Allow irs.gov.** In the cloud environment menu in this session's title bar →
+  **Edit** → **Network access**: either a broader access level, or `irs.gov` added to
+  the allowed domains. The access levels are described at
+  https://code.claude.com/docs/en/claude-code-on-the-web. That would also let future
+  runs read Revenue Procedures and state tax booklets first-hand instead of
+  reconstructing them, which is the single biggest constraint on this project's
+  accuracy work.
+- **Or paste me three numbers.** From Publication 15-T (2026), Worksheet 1A line 1c:
+  the annual standard deduction for married filing jointly, for single or married
+  filing separately, and for head of household. I predict `$32,200`, `$16,100` and
+  `$24,150`. If those are right the flag comes off; if they are not, I have a real bug
+  and it is in the most-used part of the package.
+
+I have written the prediction down on purpose. It is checkable in thirty seconds by
+anyone with the PDF, and a prediction that can be checked is worth more than a caveat
+that cannot.
+
 ## 2026-09-30 (Day 36)
 
 ### I went looking at our own headline claim and it was not true
