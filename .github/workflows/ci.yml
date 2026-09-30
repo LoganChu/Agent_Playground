@@ -71,3 +71,21 @@ jobs:
             exit 1
           fi
           echo "Differential report matches. $(grep -o '\*\*[0-9,]* agree to the dollar\*\*' tools/differential/REPORT.md)"
+
+  # The test counts the README advertises, checked against the runner.
+  #
+  # Day 36: `packages/us-tax-mcp/test/readme.test.js` claimed to be "deliberately
+  # brittle" about three counts in the README and was comparing them to three
+  # literals copied out of the README. It had never fired; the suites had grown
+  # from 283/51/97 to 369/581/159 underneath it. A suite cannot count itself, so
+  # the measurement runs here, where the runners can be invoked.
+  counts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: (cd packages/us-tax-mcp && npm install)
+      - name: Measure every suite and check the README and the committed record
+        run: node tools/test-counts.mjs --check
