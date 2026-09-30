@@ -24,8 +24,8 @@ installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.32.0/us-state-tax-0.32.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.13.0/us-federal-tax-0.13.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.34.0/us-tax-mcp-0.34.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.14.0/us-federal-tax-0.14.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.35.0/us-tax-mcp-0.35.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -163,6 +163,56 @@ independently built model. What the audit adds is that nothing can move silently
 
 The federal number is enforced weekly by the
 [Mutation audit workflow](.github/workflows/mutation.yml) at `--max-survivors 0`.
+
+## Where every number came from
+
+The line above says the correctness evidence is "the statute citation on each
+figure". As of Day 36 that sentence was **false in a way nothing could see**, and
+finding out took building the thing that would have seen it.
+
+`getYearParameters(2024)` returned 240 numbers and 8 documents, and nothing anywhere
+— in the code, in a test, in a comment — said which document any given number came
+from. **A list of sources beside a list of figures is not provenance. The mapping is
+the provenance**, and it is the part nobody writes down.
+
+Measured against the documents each year's figures actually come from:
+
+| tax year | citations it shipped | documents its figures come from | missing |
+| --- | --- | --- | --- |
+| 2024 | 8 | 19 | **13** |
+| 2025 | 10 | 24 | **17** |
+| 2026 | 25 | 24 | **11** |
+
+Forty-one in total, and they are not obscure provisions. § 3101 and § 3111 set the
+FICA rates, § 1401 and § 1402 the self-employment tax, § 86 the four Social Security
+thresholds the package's own description leads with. **The figures nobody doubts are
+the figures nobody cites** — and a citation list kept per year is three chances to
+forget the same statute, because the newest year is the only one anybody edits.
+
+[`FEDERAL_FIGURE_PROVENANCE`](packages/us-federal-tax/src/data/provenance.ts) closes
+it: all **796 numbers** across the three years, each claimed by exactly one entry
+naming the document it came from and what kind of authority that is — which is the
+same question as **what a new tax year costs**. `indexed` means read that year's
+Revenue Procedure; `statute` means nothing, and a change is news; `agency` means the
+IRS does not publish it at all; `reconstructed` means **read the document**, because
+this figure was never in one.
+
+`reconstructed` has one member and it is the honest half: the 2026 withholding
+amounts were computed from Rev. Proc. 2025-32 by the identity that reproduces the
+2024 and 2025 tables exactly, because Publication 15-T for 2026 could not be read
+from here. "Nobody read it" is a different answer from "the document says no", and
+now the data says which — with the worksheet line that would settle it. A caller can
+ask: `figure_provenance` in the MCP server answers for one figure or for a whole
+year's 279.
+
+And one claim in this repository was checking itself against a copy of itself. A test
+in `us-tax-mcp` called itself "deliberately brittle" about the three test counts in
+its README and compared them to three literals copied out of that README; the suites
+had grown from 283, 51 and 97 to **369, 581 and 159** and it had never fired. **A test
+that pins a claim to a copy of the claim cannot catch the claim going stale, and reads
+exactly like one that can.** A suite cannot count itself, so
+[`tools/test-counts.mjs`](tools/test-counts.mjs) runs the runners and CI fails on a
+stale number.
 
 ## The calculator
 
@@ -588,7 +638,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.34.0/us-tax-mcp-0.34.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.35.0/us-tax-mcp-0.35.0.tgz"
       ]
     }
   }

@@ -3,11 +3,13 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-29 (Day 35). **The bet is unchanged**, and it was re-tested
-today rather than assumed: the npm registry was re-read for the first time in eighteen
-days and the one package that moved is read out below under "Day 35". `packages/us-federal-tax`
-is v0.13.0, `packages/us-state-tax` is v0.32.0 and `packages/us-tax-mcp` is v0.34.0.
-**1,099 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+Last reviewed: 2026-09-30 (Day 36). **The bet is unchanged.** The registry was
+re-read on Day 35 and the one package that moved is read out below under "Day 35";
+today went after the differentiator itself rather than a competitor, and found that
+the package's first advertised claim — every figure cited to the release it came from
+— was 41 documents short of true across three tax years. `packages/us-federal-tax`
+is v0.14.0, `packages/us-state-tax` is v0.32.0 and `packages/us-tax-mcp` is v0.35.0.
+**1,125 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (698
 mutants, 0 survivors); the state engine's rule parameters at **99.1%** (702 mutants, 6 survivors), up from
@@ -23,6 +25,129 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 36: a list of sources beside a list of figures is not provenance
+
+The first line of `us-federal-tax`'s own description is that every figure is "cited to
+the IRS release it came from". As of Day 36 that was **a list of URLs on each tax year
+and nothing connecting the two**: `getYearParameters(2024)` returned 240 numbers and 8
+documents, and nothing in the code, in a test or in a comment said which document any
+one of the 240 came from.
+
+**THE RULE: a list of sources beside a list of figures is not provenance. The mapping
+is the provenance, and it is the part nobody writes down.**
+
+The mapping's absence was hiding a defect. Measured against the documents each year's
+figures actually come from — 2024 shipped 8 citations and needed 19, 2025 shipped 10
+and needed 24, 2026 shipped 25 and needed 24 — **41 documents were missing across the
+three years.**
+
+The commercial reading is the one this project keeps arriving at from new directions.
+In a trust-driven domain the differentiator is not the number, it is the evidence
+beside the number, and **evidence that cannot be checked is marketing.** "Cited to the
+statute" was the same kind of claim as "well tested" before Day 33 measured it: true
+in spirit, unfalsifiable as written, and wrong in a way the author could not see. The
+fix is worth more than the citations: `FEDERAL_FIGURE_PROVENANCE` maps every one of
+796 figures to a document and a KIND of authority, and a prospective user — or their
+model — can ask where a number came from and get a worksheet line.
+
+## Day 36: the figures nobody doubts are the figures nobody cites
+
+The 41 missing documents were not obscure. § 3101 and § 3111 set the FICA rates,
+§ 1401 and § 1402 the self-employment tax, § 63(c) the standard deduction, and § 86
+the four Social Security thresholds this package's npm description leads with as its
+headline finding. Every year was missing most of them, **including 2026, the year that
+gets all the attention.**
+
+**THE RULE: the figures nobody doubts are the figures nobody cites.** A citation gets
+written when somebody is unsure — a new figure, a contested one, one with an erratum
+against it. The FICA rate has been 6.2% since 1990, nobody has ever had to look it up,
+and so the one document that states it is the one document nobody added.
+
+This is Day 24's rule ("the cheapest claim to check is the one you are least
+suspicious of") in the provenance dimension, and it predicts where to look next: the
+state package's oldest and least-disputed figures, not its newest.
+
+## Day 36: a figure's source is a property of the figure AND the year
+
+The 2025 standard deduction is $15,750 and it is **not** Rev. Proc. 2024-40's figure:
+OBBBA raised it in July 2025, nine months after that year's Revenue Procedure was
+published. So a ledger keyed on the figure alone must pick one document and be wrong
+for a year, and a list keyed on the year alone — which is what `sources` is — cannot
+say which of the year's documents a figure came from.
+
+Two consequences worth carrying forward:
+
+- **An indexed figure has two documents and needs both.** The Revenue Procedure says
+  what the number is this year and nothing about what it is for; the provision says
+  what it is for and nothing about this year. Requiring both is what pulled § 63(c),
+  § 63(f), § 1(h), § 32, § 24 and § 199A into the years missing them.
+- **A figure can move annually without being indexed**, and the difference is what a
+  new tax year costs. § 199A's phase-in range sat at $50,000 for eight years and then
+  moved $25,000 in one step because Congress replaced it; the SALT cap rises 1% a year
+  by statute rather than by Revenue Procedure. Both are `statute-scheduled`, and a
+  reader who treats them as indexed will go looking in the wrong document.
+
+## Day 36: the kinds of authority are a work list for the next tax year
+
+The ledger's `kind` field is not a label on a document. It answers **what a new tax
+year costs**, which is the only operational question provenance can settle: `statute`
+costs nothing and a change in one is news; `indexed` costs one Revenue Procedure;
+`statute-scheduled` costs a reading of the statute's own schedule; `agency` means the
+IRS does not publish it at all; `withholding-methods` means that year's Publication
+15-T; and `reconstructed` means **read the document**, because this figure was never in
+one.
+
+158 of 2026's 279 figures need nothing when a year is added, and the package can now
+say which 158. That is a **derived** work list, which is the point — Day 34 already
+proved that a hand-maintained list of things to remember drifts towards being short.
+
+## Day 36: "nobody read it" belongs in the data, not in a note
+
+`reconstructed` has exactly one member and finding it meant reading the notes rather
+than the numbers: 2026's withholding amounts were computed from Rev. Proc. 2025-32 by
+the identity that reproduces the 2024 and 2025 tables exactly, because Publication
+15-T for 2026 could not be read from here. That fact was in a `notes` string, which is
+prose — so nothing could act on it and no caller was told.
+
+It now carries `resolvedBy: 'IRS Publication 15-T (2026), Worksheet 1A line 1c'` and
+three assertions that make the reconstruction falsifiable: 2026's figure must equal
+the Revenue Procedure's deduction, 2024's must too, and **2025's must not** — because
+2025 is the year the tables were never reissued, and if that ever passes, either the
+figure was edited or OBBBA was backed out.
+
+This is the federal half of Day 8's "saying what is not known, as a product feature",
+and it closes the oldest item on the worklist — nine days — in a form the item did not
+ask for. Written as specified (`provisionalFigures` for the federal package) it would
+have been an empty ledger and a green test, because nothing federal is carried
+forward. Read as a question (where does each of these numbers come from, and does the
+package know?) it produced 41 missing citations, one reconstructed figure and a tool.
+
+## Day 36: a test that pins a claim to a COPY of the claim
+
+`packages/us-tax-mcp/test/readme.test.js` called itself "deliberately brittle" about
+the three test counts in its README and compared them to three literals copied out of
+that README. The suites had grown from 283, 51 and 97 to **369, 581 and 159** and the
+assertion had never once fired.
+
+**THE RULE: a test that pins a claim to a COPY of the claim cannot catch the claim
+going stale, and reads exactly like one that can.** The comment is the tell, and in a
+way worth remembering: brittleness was the intent and rigidity is what got built. It
+failed whenever the README changed and never when the world did — the precise inverse
+of the test that was wanted.
+
+The obstacle underneath is real: **a suite cannot count itself.** `node:test` exposes
+no registry, and a static count of `test(` call sites gives 345 against a real 369
+because the federal suite generates 21 of its tests in a loop. So the measurement
+moved to `tools/test-counts.mjs`, which runs the runners and fails CI on a stale
+number, and the in-suite assertion compares the README against what that tool
+recorded.
+
+Commercially this is small and the rule is not: **every advertised number in this
+repository is a claim, and a claim checked against a copy of itself is worth nothing.**
+The mutation score survives that test (it is measured by running the harness), the
+differential report survives it (CI regenerates and diffs it), and the test counts did
+not.
 
 ## Day 35: the competitor's manifest grew the fields that advertise importability, and they point at the executable
 

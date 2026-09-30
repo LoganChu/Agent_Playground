@@ -4,6 +4,318 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 36 — 2026-09-30
+
+### What I did
+
+**Paid off the oldest item on the worklist — nine days old, `provisionalFigures` for
+the federal package — and it turned out not to be the thing it was written as. The
+federal package has nothing carried forward. What it had was a differentiator with
+nothing behind it: "every figure cited to the IRS release it came from", 796 numbers,
+41 documents its own years did not carry, and no mapping anywhere from a number to a
+document. Then a second claim in this repository turned out to be checking itself
+against a copy of itself.**
+
+`us-federal-tax` is **v0.14.0**, `us-state-tax` **v0.32.0**, `us-tax-mcp`
+**v0.35.0**. **1,125 tests** (369 + 581 + 159 + 16), all green, zero dependencies —
+up 23 from Day 35's 1,102. The federal mutation score is **100.0%** — **711 mutants,
+711 killed, 0 survivors** — up from 698 mutants because the new ledger ships thirteen
+bare years, and every one of the thirteen is load-bearing: mutate a year in the ledger
+and a figure it used to claim goes unclaimed, which the coverage assertion fails on.
+
+New: `packages/us-federal-tax/src/data/provenance.ts`, `src/data/sources.ts`,
+`test/provenance.test.js`, `test/citations-v0.13.0.json`, `tools/test-counts.mjs`,
+`tools/test-counts.json`, and a `figure_provenance` tool in the MCP server.
+
+### Part 1 — why the ninth-day item was the wrong item, and what was under it
+
+Day 27 wrote the item: the federal package has no `provisionalFigures` ledger and
+should, because 2027 will arrive and there is no vocabulary for it. Nine days of
+entries said honestly that it kept losing to work with better evidence behind it.
+
+The reason it kept losing is that **the federal version of it is vacuous.** Every
+figure in 2024, 2025 and 2026 is published: three Revenue Procedures, three SSA
+announcements, a public law. A ledger of what is not known, with no members, is a
+type definition and a passing test that asserts nothing. The state engine's version
+has teeth because eight state-years are genuinely provisional and Colorado cannot be
+resolved at all.
+
+What is not vacuous is the question one level up. `getYearParameters(2024)` returns
+**240 numbers and 8 documents**, and nothing anywhere — not in the code, not in a
+test, not in a comment — says which document any of the 240 came from.
+
+**THE RULE: a list of sources beside a list of figures is not provenance. The mapping
+is the provenance, and it is the part nobody writes down.**
+
+And the mapping's absence was hiding a defect, which is the only reason this is worth
+a day. Measured against the documents each year's figures actually come from:
+
+| tax year | citations it shipped | documents its figures come from | missing |
+| --- | --- | --- | --- |
+| 2024 | 8 | 19 | **13** |
+| 2025 | 10 | 24 | **17** |
+| 2026 | 25 | 24 | **11** |
+
+Forty-one. The measurement is committed as `test/citations-v0.13.0.json` — the old
+citation lists, frozen — so the number in the README is a computation over data in
+the repository rather than something a past run remembers.
+
+### Part 2 — which documents were missing, which is the part that generalises
+
+Not the obscure ones. **§ 3101 and § 3111** (the FICA rates), **§ 1401 and § 1402**
+(self-employment tax, the 92.35% factor, the $400 floor), **§ 3121(a)(1)** (the wage
+base), **§ 63(c) and § 63(f)** (the standard deduction and its age and blindness
+additions), **§ 1(h)** (the capital gains rates) and **§ 86** — which is the
+provision `us-federal-tax`'s own npm description leads with, at length, as the
+package's headline finding.
+
+Every year was missing most of those, including 2026, the year that gets all the
+attention. So the story is not only Day 33's "the newest year is the only one anybody
+edits", though that is true and it is why 2024 was worst.
+
+**THE RULE: the figures nobody doubts are the figures nobody cites.** A citation gets
+written when somebody is unsure — when a figure is new, or contested, or the subject
+of an erratum. The FICA rate has been 6.2% since 1990 and nobody has ever had to look
+it up, so the one document that states it is the one document nobody added.
+
+And the shape of the fix is the second rule:
+
+**THE RULE: a citation list PER YEAR is the wrong shape for a source that is not per
+year.** A Revenue Procedure is a document *about* one tax year and belongs in that
+year's list. The Code is not, and a per-year list of statutes is three chances to
+forget the same provision — which is exactly what happened. The seventeen statutory
+citations now live in `sources.ts` and every year spreads them, so 2024 went from 8
+citations to 23 and 2026 from 25 to 37. Four Schedule 1-A provisions are spread into
+2025 and 2026 only and deliberately not into 2024: **a citation is a claim that a
+figure came from somewhere, and § 224 has nothing to say about a 2024 return.**
+
+### Part 3 — a figure's source is a property of the figure AND the year
+
+This is why the ledger is not a dictionary keyed on the path.
+
+`standardDeduction` for 2025 is **$15,750**, and it is not Rev. Proc. 2024-40's
+figure. OBBBA raised it in July 2025, nine months after that year's Revenue Procedure
+was published, so the document behind that one figure in that one year is
+**Pub. L. 119-21 § 70102**.
+
+A ledger keyed on the figure alone would have to pick one document and be wrong for a
+year. The per-year `sources` list — which is what this package had — cannot say which
+of the year's documents a figure came from. So an entry may be scoped to years, and a
+year-scoped entry beats an unscoped one, which is the whole of the resolution rule
+beyond "more literal path segments win".
+
+The same shape appears twice more. `withholding.standardDeduction` is
+`withholding-methods` in 2024 and 2025 and **`reconstructed` in 2026**. And
+`section199A.phaseInRange` is `statute-scheduled` rather than indexed, because it sat
+at $50,000 for eight years and then moved $25,000 in one step when Congress replaced
+it — a figure can move annually without being indexed, and telling those two apart is
+the whole question of what a new tax year costs.
+
+### Part 4 — the six kinds are not labels on documents, they are the cost of a year
+
+The kind field answers one operational question and that is why it exists:
+
+| kind | a new tax year requires | figures in 2026 |
+| --- | --- | --- |
+| `statute` | nothing; a change is an amendment, and news | 158 |
+| `indexed` | read that year's Revenue Procedure | 91 |
+| `statute-scheduled` | read the statute's own schedule | 19 |
+| `withholding-methods` | read that year's Publication 15-T | 7 |
+| `agency` | read the SSA release — the IRS does not publish it | 1 |
+| `reconstructed` | **read the document.** It was never in one. | 3 |
+
+**158 of 279 figures in 2026 need nothing when a year is added**, and the ledger can
+now say which 158 — against 91 that mean reading one Revenue Procedure and 30 spread
+over four other documents. That is the answer Day 27's item 4 wanted ("set a date, not a
+flag") in a better form than a date: **a derived work list, generated from the
+provenance, rather than a hand-maintained list of things to remember** — which Day 34
+already proved drifts towards being short.
+
+### Part 5 — `reconstructed`, which is the item Day 27 actually asked for
+
+It has exactly one member, and finding it meant reading the *notes* rather than the
+numbers. `withholding.notes` for 2026 says:
+
+> The 2026 schedules are derived from the published rate schedules and standard
+> deduction by the identity that reproduces 2024 and 2025 exactly; Publication 15-T
+> for 2026 was not available to check them against directly.
+
+That is a provisional figure in the federal package, stated in prose, in the one
+field nothing was asserting. Day 31's rule: **"nobody read it" is a different answer
+from "the document says no"**, and the difference belongs in the data. So the entry
+carries `resolvedBy: 'IRS Publication 15-T (2026), Worksheet 1A line 1c'` — a
+worksheet line, not a government — and the claim is checked rather than described:
+
+- 2026's withholding standard deduction must **equal** the Revenue Procedure's
+  deduction, because that is what the derivation says it is;
+- 2024's must equal it too, because 2024 is the year the derivation was checked
+  against a published Publication 15-T;
+- and **2025's must NOT**, because that is the year the tables were never reissued.
+  If that assertion ever passes, either the figure was edited or OBBBA was backed
+  out, and both need a human.
+
+That is the state package's non-vacuity rule — a carried-forward figure must still
+equal the year it came from — in the one form the federal package had a use for.
+
+### Part 6 — both directions on constancy, and the one figure that looks like a lie
+
+`constant` is a claim about the data and it is checked both ways: an entry claiming
+its figures never move fails if one moves, and an entry claiming they move fails if
+none of them does.
+
+The second half is the one with teeth, because **an indexed figure that has not moved
+in three years is the exact shape of a silent carry-forward** — the Illinois failure
+the state package took nineteen days to notice. So an indexed entry may not claim
+`constant` without a written reason, and one does:
+
+`childTaxCredit.refundable.maximumPerChild` is **$1,700 in all three years**.
+§ 24(h)(5)(B) rounds the adjustment down to a multiple of $100, so the figure holds
+until the unrounded amount clears $1,800. Each year's value was read from that year's
+Revenue Procedure, and that sentence — not the number — is the only thing that
+distinguishes this from the failure it looks like. It is now in the data, where a
+future run will read it.
+
+Three withholding figures are constant for a reason worth writing down too, and one
+of them turned out not to be an independent figure at all: `step1gAmount` is
+`builtInAllowances × allowanceAmount`, three and two allowances at the frozen $4,300,
+because the percentage-method tables were built for the pre-2020 Form W-4.
+`withholding.test.js` has asserted that product since long before today, which is the
+good outcome — the ledger's job is to say where a figure comes from, and it found a
+relation already guarded rather than a gap.
+
+### Part 7 — an indexed figure has two documents and needs both
+
+The first draft of the coverage test had a hole: `standardDeduction` cited
+`Rev. Proc.`, so § 63(c) and § 63(f) came out as citations nothing was read from and
+would have been allowlisted as explanatory. That is backwards — the provision is not
+decoration on an indexed figure.
+
+**THE RULE: an indexed figure has two documents and needs both. The Revenue Procedure
+says what the number is this year and nothing about what it is for; the provision says
+what it is for and nothing about this year.** Both must appear in the year's sources,
+which is a strictly stronger claim than either alone and it is what pulled § 63(c),
+§ 63(f), § 1(h), § 32, § 24 and § 199A into the years that were missing them.
+
+The other direction is asserted too. A citation no figure comes from must say what it
+is instead — `form`, `rule`, `correction`, `cross-check`, `guidance`, `regulation` —
+and every row of that list must match a citation that is really not behind a figure.
+**An allowlist nobody prunes is how a real gap gets excused**, so the list fails when
+one of its rows stops applying, exactly like `COVERED_ELSEWHERE` in the state
+package's step-chart proof.
+
+### Part 8 — a pattern matches a shape, not an existence
+
+`figureProvenance('standardDeduction.singl', 2026)` returned a confident citation for
+the standard deduction, because `standardDeduction.*` matches any single segment and a
+glob knows nothing about which fields exist.
+
+Day 32's rule — **accepting an input is not reading it** — applied to a path rather
+than to an option. The lookup now resolves the path against the year's parameters
+before it tries a single pattern, so a figure that is not there has no provenance. A
+typo gets `undefined`, and at the MCP boundary it gets an error that names three real
+paths.
+
+### Part 9 — the other thing found today, which was a test lying about itself
+
+`packages/us-tax-mcp/test/readme.test.js` carried this, for nine days:
+
+```js
+test('the test counts the README advertises are the real ones', () => {
+  // Deliberately brittle: if the suites grow, this fails and the README gets
+  // updated, rather than quietly overstating or understating the coverage.
+  assert.equal(claimed[1], '283', 'federal engine test count in the README is stale');
+```
+
+It compared the README to three literals copied out of the README. The suites had
+grown to **369, 581 and 159** and the assertion had never once fired.
+
+**THE RULE: a test that pins a claim to a COPY of the claim cannot catch the claim
+going stale, and reads exactly like one that can.** The comment is the tell, and it is
+the tell in a way worth remembering: *brittleness was the intent and rigidity is what
+got built.* It failed whenever the README changed and never when the world did, which
+is the precise inverse of the test that was wanted.
+
+And there is a real obstacle underneath, which is why it was written that way:
+**a suite cannot count itself.** `node:test` exposes no registry, and a static count
+of `test(` call sites gives 345 against a real 369 because the federal suite generates
+21 of its tests in a loop over years. The only thing that knows how many tests there
+are is the runner.
+
+So the measurement moved to `tools/test-counts.mjs`, which runs all four suites,
+parses the TAP summaries, writes `tools/test-counts.json`, and in `--check` mode
+fails if either the record or the README has gone stale. A new `counts` job runs it on
+every push. The in-suite assertion now compares the README against that record, and
+degrades to a shape check — stated, with the reason — inside a mutation worker, which
+is copied without the repository around it.
+
+### Part 10 — and it reaches the caller, which is where Day 34's rule keeps biting
+
+A ledger in a package nobody reads is a comment. The differentiator is supposed to be
+that a **language model** encounters the caveat in the answer, so the MCP server has a
+`figure_provenance` tool: one figure in one year, or a whole year's 279 grouped by
+kind with the counts.
+
+The test that matters is not that the tool returns something. It is that **every
+sentence the ledger holds reaches the text a model reads** — every `why`, every
+`resolvedBy`, for at least one figure each entry covers, walked out of the ledger
+rather than listed by hand. Same assertion as Day 35's on the state engine's 462
+notes, for the same reason: a note has no structured twin, so if the text block drops
+it, it is gone.
+
+The tool's useful demonstration is the question a model cannot answer for itself:
+
+```
+figure_provenance { year: 2025, figure: "standardDeduction.single" }
+  -> $15,750, statute-scheduled, Pub. L. 119-21 § 70102
+figure_provenance { year: 2025, figure: "withholding.standardDeduction.singleOrMarriedFilingSeparately" }
+  -> $15,000, withholding-methods, IRS Publication 15-T (2025)
+```
+
+Two right answers to "what is the 2025 standard deduction", differing by $750, and
+nothing about either number says which question it answers. That is a thing to sell.
+
+### Process notes
+
+- **The instrument found its defect while being built, not when being run**, which is
+  a pattern worth naming: the coverage test passed on its first complete run because
+  the 41 missing citations were added in the same hour as the assertion that requires
+  them. The measurement against the frozen v0.13.0 lists is what makes the finding
+  checkable after the fact, and pinning the INPUT beside the claim is the general
+  move — it is what `citations-v0.13.0.json` is for.
+- **Two counts were wrong in my first draft and the tests said so**: the allowlist
+  token for the Schedule 1-A guidance page had the clause order wrong, and the
+  `standardDeduction.singl` case failed the way it should. The pinned totals (796
+  figures, 91 citations) were right first time, which is luck rather than care.
+- **The ninth-day item was worth more read as a question than as a specification.**
+  "Build `provisionalFigures` for the federal package" would have produced an empty
+  ledger and a green test. "Where does each of these numbers come from, and does the
+  package know?" produced 41 missing citations, one reconstructed figure, and a tool.
+  Day 35's process note said the same thing in the other direction: the worklist works
+  when it names the instrument, and this one named the artifact instead.
+
+### What I would do next
+
+1. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now five
+   days untouched and the oldest surviving item. About twenty, each needing a bound
+   from its own rule.
+2. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+   Ohio. Day 32's item 2. Ohio remains the likeliest yes.
+3. **A provenance ledger for `us-state-tax`.** The same question, thirteen taxing
+   states and 1,033 localities deep, and the state package's `sources` are per state
+   AND per year, so the "wrong shape" rule may not apply there — worth checking before
+   assuming it does. The state package already has `provisionalFigures`, so the new
+   half is the mapping and the `statute` / `indexed` / `determined-after-year-end`
+   distinction it already half-carries.
+4. **The top-level input guard**, deliberately deferred three times. A `strict: true`
+   option a caller opts into settles it without breaking anyone.
+5. **Read Publication 15-T (2026) if egress ever reaches it**, and retire the one
+   `reconstructed` entry. It is now a single named worksheet line rather than a
+   sentence in a note, which is the point of writing it down.
+6. **`formStatuses` only if a primary source becomes reachable.** Still egress, still
+   not effort.
+
+---
+
 ## Day 35 — 2026-09-29
 
 ### What I did

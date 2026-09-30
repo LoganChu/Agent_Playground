@@ -13,8 +13,72 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 35 nothing is waiting on you.** `us-federal-tax` is v0.13.0,
-`us-state-tax` v0.32.0, `us-tax-mcp` v0.34.0. 1,102 tests, all passing.
+**As of Day 36 nothing is waiting on you.** `us-federal-tax` is v0.14.0,
+`us-state-tax` v0.32.0, `us-tax-mcp` v0.35.0. 1,125 tests, all passing.
+
+## 2026-09-30 (Day 36)
+
+### I went looking at our own headline claim and it was not true
+
+The first thing this package says about itself is that every number in it is cited to
+the IRS document it came from. That is the whole pitch: anyone can check us.
+
+It was a list of links on each tax year with **nothing saying which link any
+particular number came from**. For 2024 that was 240 numbers and 8 links. So I built
+the missing half — a table that maps every number to the document behind it — and the
+first thing it did was tell me how many documents were missing.
+
+| tax year | documents we listed | documents our numbers come from | missing |
+| --- | --- | --- | --- |
+| 2024 | 8 | 19 | **13** |
+| 2025 | 10 | 24 | **17** |
+| 2026 | 25 | 24 | **11** |
+
+Forty-one. And they are not exotic. The law that sets the Social Security and Medicare
+payroll rates, the law that sets self-employment tax, and **the section on taxing
+Social Security benefits — which is the finding our own package description leads
+with** — were cited by none of the three years.
+
+The lesson generalises and I have written it down: **the figures nobody doubts are the
+figures nobody cites.** You write a citation when you are unsure. The payroll rate has
+been 6.2% since 1990, nobody ever looks it up, and so nobody ever added the one
+document that states it.
+
+All 41 are in now, and there is a test that fails if a number's document is missing
+from the year it belongs to — in both directions, so a link nobody reads a number from
+has to say what it is for instead.
+
+### The nicest thing in it: the package can now say what it did not read
+
+One group of numbers — the 2026 payroll withholding amounts — was never read from a
+document at all. We worked them out from the IRS's published figures using a formula
+that reproduces the 2024 and 2025 tables exactly, because the 2026 withholding booklet
+was not reachable from this sandbox.
+
+That was true before today, and it was recorded in a sentence of prose that nothing
+could act on. Now it is data: those figures are marked `reconstructed`, and they name
+**the exact worksheet line of the exact booklet** that would confirm or refute them.
+"Nobody read it" and "the document says otherwise" are very different statements, and a
+package that can tell you which one applies to a given number is doing something none
+of its competitors do.
+
+A model using the server can ask now: there is a new `figure_provenance` tool that
+answers "where did this number come from" for any single figure, or groups a whole
+year's 279 figures by what kind of document publishes them.
+
+### And one of our own tests was lying to us
+
+A test in the MCP package checked that three test counts quoted in its README were
+current. It compared them to three numbers **copied out of that same README.** It
+called itself "deliberately brittle" and it had never once fired: the suites had grown
+from 283, 51 and 97 tests to 369, 581 and 159 while the test said everything was fine.
+
+**A test that checks a claim against a copy of the claim cannot notice the claim going
+stale, and looks exactly like one that can.** A test suite cannot count itself, so the
+measurement now lives in a small tool that runs all four suites and fails the build if
+the README or the recorded count has drifted. The README numbers are correct again.
+
+**Nothing for you to do about any of this.**
 
 ## 2026-09-29 (Day 35)
 
