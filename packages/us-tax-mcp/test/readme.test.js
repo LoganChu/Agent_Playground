@@ -237,14 +237,46 @@ test('the § 68 bound quoted in the coverage section matches the 37% thresholds'
   quotes('above $640,600 ($768,700 joint)');
 });
 
-test('the test counts the README advertises are the real ones', () => {
-  // Deliberately brittle: if the suites grow, this fails and the README gets
-  // updated, rather than quietly overstating or understating the coverage.
-  const claimed = /\*\*(\d+) tests\*\*[\s\S]*?\*\*(\d+) tests\*\*[\s\S]*?\*\*(\d+) more\*\*/.exec(README);
+test('the test counts the README advertises are the measured ones', () => {
+  // This assertion used to compare the README against three literals copied out
+  // of the README — 283, 51 and 97 — and called itself "deliberately brittle".
+  // It was rigid instead: it fired when the README changed and never when the
+  // suites did, and by Day 36 the real counts were 369, 581 and 159.
+  //
+  // **A test that pins a claim to a COPY of the claim cannot catch the claim
+  // going stale, and reads exactly like one that can.** A suite cannot count
+  // itself — `node:test` exposes no registry and a static count of `test(` call
+  // sites misses the 21 the federal suite generates in a loop — so the
+  // measurement lives in `tools/test-counts.mjs`, which runs the runners, and
+  // this compares the README against what that tool recorded.
+  const claimed = /\*\*([\d,]+) tests\*\*[\s\S]*?\*\*([\d,]+) tests\*\*[\s\S]*?\*\*([\d,]+) more\*\*/.exec(README);
   assert.ok(claimed, 'README no longer states all three test counts in the expected shape');
-  assert.equal(claimed[1], '283', 'federal engine test count in the README is stale');
-  assert.equal(claimed[2], '51', 'state engine test count in the README is stale');
-  assert.equal(claimed[3], '97', 'this package\'s test count in the README is stale');
+  const numbers = claimed.slice(1, 4).map((text) => Number(text.replace(/,/g, '')));
+  let record;
+  try {
+    record = JSON.parse(
+      readFileSync(new URL('../../../tools/test-counts.json', import.meta.url), 'utf8'),
+    );
+  } catch {
+    // The mutation harness copies `dist`, `test`, `package.json` and `README.md`
+    // into a worker and nothing else, so the record is genuinely absent there.
+    // Degrading to the shape check is deliberate and stated; the numbers are
+    // checked against a live run by `node tools/test-counts.mjs --check` in CI.
+    assert.ok(
+      numbers.every((n) => Number.isInteger(n) && n > 0),
+      'the three counts must be positive integers',
+    );
+    return;
+  }
+  assert.deepEqual(
+    numbers,
+    [
+      record.packages['packages/us-federal-tax'],
+      record.packages['packages/us-state-tax'],
+      record.packages['packages/us-tax-mcp'],
+    ],
+    'the README\'s test counts and tools/test-counts.json disagree — run `node tools/test-counts.mjs --write`',
+  );
 });
 
 test('the client configuration in the README is the one that actually works', () => {

@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.34.0/us-tax-mcp-0.34.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.35.0/us-tax-mcp-0.35.0.tgz"
       ]
     }
   }
@@ -797,9 +797,36 @@ adjustment as "up to `$259`"; `$257.50` is the most its own worksheet can produc
 | `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 28 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `describe_state` | "What does Ohio need?" "What does Utah do that a rate table doesn't?" The fields `state_income_tax` reads for ONE state — required ones first, each with the form line it comes off and what its absence costs — plus that state's conformity base, its own notes and its statutes. Call it before computing a state you have not computed before: an omitted per-state field is usually a wrong answer rather than a missing one, because the engine falls back to a federal figure the state does not use. It is also where the per-state documentation lives, so that `state_income_tax`'s schema costs every session one state's worth of context rather than twenty-eight. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
+| `figure_provenance` | "Where does this number come from?" "Is this figure current?" Which document publishes one federal figure in one year — the Revenue Procedure that indexes it, the section of the Code that fixes it, the SSA release that sets it, the Publication 15-T table it is read from — and what a new tax year would require for it. One group of figures answers `reconstructed`: not read from any document, with the worksheet line that would settle it. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
 human-readable text block and machine-readable `structuredContent`.
+
+### Why there is a tool for where a number came from
+
+Because a model cannot tell two figures apart when they look like the same figure.
+Ask for the 2025 standard deduction and the honest answers are **$15,750** and
+**$15,000**: the first is what the return uses, the second is what the withholding
+tables use, and the difference is that OBBBA raised the deduction in July 2025 and
+Publication 15-T for 2025 had been printed the previous December. Neither number is
+an error, and nothing about either number says so.
+
+```
+figure_provenance { year: 2025, figure: "standardDeduction.single" }
+  -> statute-scheduled, Pub. L. 119-21 § 70102
+figure_provenance { year: 2025, figure: "withholding.standardDeduction.singleOrMarriedFilingSeparately" }
+  -> withholding-methods, IRS Publication 15-T (2025)
+figure_provenance { year: 2026, figure: "withholding.standardDeduction.singleOrMarriedFilingSeparately" }
+  -> reconstructed. NOT read from a published document.
+     What would settle it: Publication 15-T (2026), Worksheet 1A line 1c.
+```
+
+The last one is the point of the tool. Every other package in this space would
+return the number; this one says the document behind it could not be read, what it
+computed instead, and which line of which document would prove it right or wrong.
+`figure_provenance` with no `figure` groups all 279 of a year's figures the same
+way, so a model can ask "what in here is not from a published source" and get an
+answer rather than a shrug.
 
 ### What it looks like
 
@@ -845,10 +872,14 @@ EITC withdrawal at the § 32 phase-out rate.
 
 ## Correctness
 
-The engines underneath live in the same repository. `packages/us-federal-tax`: **283 tests**
+The engines underneath live in the same repository. `packages/us-federal-tax`: **369 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **51 tests**, every state figure cited to its statute.
-This package adds **97 more** covering the protocol and the tool layer.
+sources. `packages/us-state-tax`: **581 tests**, every state figure cited to its statute.
+This package adds **159 more** covering the protocol and the tool layer. Those three
+numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
+CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
+assertion that was supposed to keep them honest turned out to be comparing the README
+against a copy of itself.
 
 Some things it gets right that comparable implementations do not:
 

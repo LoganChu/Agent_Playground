@@ -12,9 +12,13 @@ import { strict as assert } from 'node:assert';
 import test from 'node:test';
 
 import {
+  FEDERAL_FIGURE_PROVENANCE,
+  SUPPORTED_YEARS,
   TOOLS,
   estimateFederalTax,
+  figureProvenance,
   findTool,
+  getYearParameters,
   handleMessage,
   stateIncomeTax,
 } from '../dist/index.js';
@@ -2066,4 +2070,141 @@ test('every note the state engine emits reaches the model, in every state', () =
       );
     }
   }
+});
+
+// ---------------------------------------------------------------------------
+// figure_provenance — the differentiator at the outer boundary
+// ---------------------------------------------------------------------------
+
+/** Every numeric leaf of a year's parameters, as a dot path. */
+function figurePaths(year) {
+  const out = [];
+  const walk = (node, prefix) => {
+    if (node === null || node === undefined) return;
+    if (typeof node === 'number') return void out.push(prefix);
+    if (typeof node !== 'object') return;
+    if (Array.isArray(node)) return void node.forEach((v, i) => walk(v, `${prefix}.${i}`));
+    for (const [key, value] of Object.entries(node)) {
+      if (prefix === '' && (key === 'sources' || key === 'year')) continue;
+      walk(value, prefix === '' ? key : `${prefix}.${key}`);
+    }
+  };
+  walk(getYearParameters(year), '');
+  return out;
+}
+
+test('figure_provenance answers for one figure, in the text and not only in structuredContent', () => {
+  const { text, structured } = ok('figure_provenance', {
+    year: 2026,
+    figure: 'socialSecurityWageBase',
+  });
+  assert.equal(structured.kind, 'agency');
+  assert.equal(structured.value, 184_500);
+  // The claim a model needs is not the URL, it is that the IRS does not publish
+  // this one. That sentence has to be in the prose.
+  assert.match(text, /SSA/);
+  assert.match(text, /agency/);
+  assert.ok(
+    structured.documents.some((d) => d.title.includes('SSA') && d.url.includes('ssa.gov')),
+    'the SSA release must be among the documents',
+  );
+  assert.ok(
+    structured.documents.some((d) => d.title.includes('§ 3121(a)(1)')),
+    'and so must the provision that creates the figure: an indexed or agency figure has two documents',
+  );
+});
+
+test('figure_provenance tells a model why two figures that look identical differ', () => {
+  // The question this tool exists for. A model asked "what is the 2025 standard
+  // deduction" can get $15,750 or $15,000 depending on which figure it reads,
+  // and both are right — for different purposes, from different documents.
+  const onTheReturn = ok('figure_provenance', { year: 2025, figure: 'standardDeduction.single' });
+  const inWithholding = ok('figure_provenance', {
+    year: 2025,
+    figure: 'withholding.standardDeduction.singleOrMarriedFilingSeparately',
+  });
+  assert.equal(onTheReturn.structured.value, 15_750);
+  assert.equal(inWithholding.structured.value, 15_000);
+  assert.equal(onTheReturn.structured.kind, 'statute-scheduled');
+  assert.equal(inWithholding.structured.kind, 'withholding-methods');
+  assert.match(onTheReturn.text, /Pub\. L\. 119-21/);
+  assert.match(inWithholding.text, /Publication 15-T/);
+  // And 2026 is a third answer: reconstructed, because the document was not read.
+  const reconstructed = ok('figure_provenance', {
+    year: 2026,
+    figure: 'withholding.standardDeduction.singleOrMarriedFilingSeparately',
+  });
+  assert.equal(reconstructed.structured.kind, 'reconstructed');
+  assert.equal(reconstructed.structured.readFromAPublishedDocument, false);
+  assert.match(reconstructed.text, /NOT read from a published document/);
+});
+
+test('every sentence in the provenance ledger reaches the text a model reads', () => {
+  // Day 34's rule, and the reason this tool exists at all: **a check at the inner
+  // boundary is not a check at the outer one.** `us-federal-tax` asserts that an
+  // indexed figure which has not moved carries a `why`, and that a reconstructed
+  // one names what would settle it. Neither assertion says a caller is ever told.
+  //
+  // Every `why` and every `resolvedBy` in the ledger is prose, so — exactly as
+  // with the state engine's notes — if the text block drops it, it is gone.
+  const firstPathFor = new Map();
+  for (const year of SUPPORTED_YEARS) {
+    for (const path of figurePaths(year)) {
+      const entry = figureProvenance(path, year);
+      if (entry === undefined) continue;
+      if (!firstPathFor.has(entry)) firstPathFor.set(entry, { year, path });
+    }
+  }
+  let checked = 0;
+  for (const entry of FEDERAL_FIGURE_PROVENANCE) {
+    const where = firstPathFor.get(entry);
+    assert.notEqual(where, undefined, `no figure reaches the entry for ${entry.path}`);
+    const { text } = ok('figure_provenance', { year: where.year, figure: where.path });
+    assert.ok(text.includes(entry.cite), `${where.path}: the citation is not in the text`);
+    for (const sentence of [entry.why, entry.resolvedBy]) {
+      if (sentence === undefined) continue;
+      assert.ok(
+        text.includes(sentence),
+        `${where.path}: a sentence the ledger holds never reaches the model:\n  ${sentence.slice(0, 120)}`,
+      );
+      checked += 1;
+    }
+  }
+  assert.ok(checked >= 8, `only ${checked} ledger sentences were checked at the boundary`);
+});
+
+test('the whole-ledger view accounts for every figure of the year it is asked about', () => {
+  for (const year of SUPPORTED_YEARS) {
+    const { text, structured } = ok('figure_provenance', { year });
+    assert.equal(structured.figures, figurePaths(year).length);
+    const grouped = structured.groups.reduce((total, group) => total + group.figures, 0);
+    assert.equal(
+      grouped,
+      structured.figures,
+      `${year}: the groups account for ${grouped} of ${structured.figures} figures`,
+    );
+    // A year with nothing reconstructed must say so rather than stay silent,
+    // because silence reads as "everything is fine" either way.
+    const reconstructed = structured.groups.find((group) => group.kind === 'reconstructed');
+    if (reconstructed === undefined) {
+      assert.match(text, /Every figure in this year was read from a published document/);
+    } else {
+      assert.match(text, /were NOT read from a published document/);
+      for (const entry of reconstructed.entries) assert.ok(text.includes(entry.resolvedBy));
+    }
+  }
+});
+
+test('figure_provenance refuses a path it does not have, and says how to find one', () => {
+  // Day 32's rule at the boundary: accepting an input is not reading it. A dot
+  // path is exactly the argument a model gets slightly wrong, and a ledger that
+  // matched on shape alone would answer confidently for `standardDeduction.singl`.
+  const wrong = err('figure_provenance', { year: 2026, figure: 'standardDeduction.singl' });
+  assert.match(wrong, /no figure at/);
+  assert.match(wrong, /standardDeduction\.single/);
+  // A figure that exists in one year and not another is refused for the year it
+  // does not exist in, rather than answered from a neighbouring year.
+  assert.match(err('figure_provenance', { year: 2024, figure: 'scheduleOneA.tips.cap' }), /no figure at/);
+  assert.equal(ok('figure_provenance', { year: 2025, figure: 'scheduleOneA.tips.cap' }).structured.value, 25_000);
+  assert.match(err('figure_provenance', { figure: 'standardDeduction.single', filingStatus: 'single' }), /Unknown argument/);
 });
