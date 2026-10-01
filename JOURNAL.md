@@ -10,9 +10,9 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 **Pointed Day 36's question at `us-state-tax` and got a different answer than Day 36
 predicted. The state package's citation LISTS were one document short, not forty-one.
-What was missing was something larger: 949 figures are identical in 2025 and 2026, and
-nothing anywhere said whether that was because the law fixes them or because nobody
-read the 2026 document. Building the ledger that can tell those apart found both
+What was missing was something larger: 949 figures are identical in 2025 and 2026, 801
+of them explained by nothing at all, and nothing anywhere said whether that was because
+the law fixes them or because nobody read the 2026 document. Building the ledger that can tell those apart found both
 halves of the same defect in the provisional flag — a flag that under-reported by four
 fifths in two states and over-reported by 60 figures in a third.**
 
@@ -28,12 +28,13 @@ New: `packages/us-state-tax/src/data/provenance.ts`, `test/provenance.test.js`,
 ```text
 figures across 56 state-years                              2,293
 citations across 56 state-years                              276
-figures identical in tax year 2025 and tax year 2026         949
-  of those, flagged as carried forward                       169
-  of those, explained by nothing at all                      846
+numeric figures over 56 state-years                        2,293
+figures identical in 2025 and 2026, unbounded excluded       949
+  of those, flagged as carried forward                       148
+  of those, explained by nothing at all                      801
 ```
 
-Each of those 846 is one of two completely unrelated things. Either the law fixes the
+Each of those 801 is one of two completely unrelated things. Either the law fixes the
 figure — New Jersey's brackets have stood since 2020, Virginia's rate schedule since
 1990, New York indexes nothing at all — in which case 2026 equals 2025 *because the
 statute says so*, and that is a fact worth selling. Or nobody read the 2026 document,
@@ -42,7 +43,15 @@ nineteen days to notice.
 
 **THE RULE: a figure that did not move is a claim, and "it did not move" is not the
 evidence for it.** A package that cannot tell the two apart is carrying the Illinois
-bug in 846 places and cannot know which.
+bug in 801 places and cannot know which.
+
+Those are the figures as Day 36 left them, measured against commit `c85e8aa` rather
+than remembered. Today they resolve to **103 carried forward and 846 fixed by a statute
+or derived from one**, and 103 + 846 is the same 949 — so the day's arithmetic closes,
+which the first draft of this entry did not: it had 169 and 846 against a total of 949
+and I did not add them up. **A table of three numbers where two are supposed to sum to
+the third is a check, and printing one without doing it is how an unverified number gets
+into a document that has a rule against unverified numbers.**
 
 This is the sharper question the state package has and the federal one does not,
 because the federal package ships no carried-forward figure at all. Day 36 found that
@@ -304,8 +313,21 @@ npm. Pages is still off.
   every `.amount` is money, which Ohio's joint filing credit is not. The second is the
   more interesting miss: **an assertion written from the field's NAME rather than from
   the data was wrong about the data.**
-- **Sequencing, per Day 36's rule.** Every source edit was finished and committed-ready
-  before the mutation audit started, so the score below is a score of the tree that ships.
+- **Sequencing, per Day 36's rule — and this time the rule was satisfied by measurement
+  rather than by claiming it.** Day 36's version was "finish the shipped source before
+  starting the audit, or the audit is measuring history", and it was violated twice in
+  one day there. Today it was violated once: the citation-precision audit in Part 13
+  landed after the run had started, and then correcting the arithmetic above touched a
+  doc comment in the ledger and one in its test.
+  So rather than restate the rule, I checked it. The harness mutates
+  `dist/esm/**/*.js` and nothing else. A `find`-and-`md5sum` fingerprint of every one
+  of those files, built from the commit the audit started on and from the tree that
+  ships, is the same string — `308ad99e...` — because `tsc` puts a module's doc comment
+  in the `.d.ts` and not in the `.js`. And a `diff -r` of the whole `test/` directory
+  shows exactly one difference: four lines inside a `/** */` block. **"A string is not a
+  mutant" was reasoning when Day 36 said it and is a measurement now**, which is the
+  difference between inheriting a score and establishing one. (I did restart the run
+  once, over the Part 13 fix, before finding that this was checkable.)
 - **The mutation audit is in flight as this is committed.** 740 mutants over 23 files,
   up from Day 35's 702, because the ledger ships bare years — and every one of those
   should be load-bearing: mutate a year in a `years: [...]` scope and the entry stops

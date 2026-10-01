@@ -10,7 +10,7 @@ Day 36 found the federal package's first advertised claim — every figure cited
 the release it came from — 41 documents short of true. Day 37 pointed the same audit
 at the state package and found its citation lists one document short, not forty-one,
 and a larger hole underneath: 949 figures identical across the two tax years, of
-which only 169 were flagged, and nothing saying whether the other 846 were fixed by
+which only 148 were flagged, and nothing saying whether the other 801 were fixed by
 law or simply unread. `packages/us-federal-tax` is v0.14.0,
 `packages/us-state-tax` is v0.33.0 and `packages/us-tax-mcp` is v0.36.0.
 **1,143 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
@@ -59,8 +59,9 @@ visible to every visitor.
 
 ## Day 37: a figure that did not move is a claim
 
-The state engine's two tax years agree on **949 numbers**, and only 169 of them were
-flagged as carried forward. Each of the other 846 was one of two unrelated things:
+The state engine's two tax years agree on **949 numbers** (excluding unbounded bracket
+ceilings), and only 148 of them were flagged as carried forward. Each of the other 801
+was one of two unrelated things:
 a figure the law fixes, or a figure nobody read. Nothing in the package said which.
 
 **THE RULE: a figure that did not move is a claim, and "it did not move" is not the
@@ -69,8 +70,8 @@ evidence for it.**
 The commercial reading is the one this project keeps arriving at from new directions,
 and this time it is the project's *own headline* that was at risk. "Every competitor
 carries the previous year forward silently; this one says so" has been the cheapest
-differentiator in `STRATEGY.md` since Day 8. It was true of 169 figures and untested
-of 846, and the difference is not a nuance: a buyer who finds one silent
+differentiator in `STRATEGY.md` since Day 8. It was true of 148 figures and untested
+of 801, and the difference is not a nuance: a buyer who finds one silent
 carry-forward in a package whose pitch is that it does not have any has learned
 something much worse than a wrong number.
 

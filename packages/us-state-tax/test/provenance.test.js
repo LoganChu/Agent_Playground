@@ -4,9 +4,10 @@
  * Day 37 walked every numeric parameter of every state-year and compared the
  * two years this package ships:
  *
- *   figures identical in 2025 and 2026            1,016
- *     flagged as carried forward                     169
- *     explained by nothing at all                    847
+ *   numeric figures over 56 state-years           2,293
+ *   figures identical in 2025 and 2026 (unbounded aside)  949
+ *     flagged as carried forward                     148
+ *     explained by nothing at all                     801
  *
  * Each of those 847 is one of two unrelated things — a figure the law fixes, or
  * a figure nobody read — and nothing in the package said which. `src/data/

@@ -127,8 +127,8 @@ guidelines behind Maryland's poverty level credit, which Virginia — with the s
 provision — had cited all along.
 
 The worse news was somewhere I had not been looking. Our two tax years agree on **949
-numbers**, and only 169 of them were flagged as "carried forward from last year". The
-other 846 were identical for one of two completely different reasons:
+numbers**, and only 148 of them were flagged as "carried forward from last year". The
+other 801 were identical for one of two completely different reasons:
 
 - **the law fixes them** — New Jersey's brackets have not moved since 2020, Virginia's
   rate schedule since 1990, New York indexes nothing at all — or

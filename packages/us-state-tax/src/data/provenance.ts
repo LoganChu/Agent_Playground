@@ -15,9 +15,10 @@
  * not, and the measurement found it first:
  *
  * ```text
- * figures identical in 2025 and 2026                 1,016
- *   of those, flagged as carried forward                169
- *   of those, explained by nothing at all               847
+ * numeric figures over 56 state-years                2,293
+ * figures identical in 2025 and 2026 (unbounded aside)   949
+ *   of those, flagged as carried forward                 148
+ *   of those, explained by nothing at all                801
  * ```
  *
  * Every one of those 847 is one of two completely different things. Either the

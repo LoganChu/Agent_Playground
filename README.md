@@ -230,9 +230,10 @@ apply.
 The state package's hole was somewhere else, and it was bigger:
 
 ```text
-figures identical in tax year 2025 and tax year 2026        949
-  flagged as carried forward (and the flag is wrong, below) 169
-  explained by nothing at all                               846
+numeric figures over 56 state-years                      2,293
+figures identical in 2025 and 2026, unbounded excluded     949
+  flagged as carried forward (and the flag is wrong, below) 148
+  explained by nothing at all                               801
 ```
 
 Every one of those is one of two completely unrelated things. Either the law fixes
@@ -245,7 +246,8 @@ wrong.
 
 **THE RULE: a figure that did not move is a claim, and "it did not move" is not the
 evidence for it.** A package that cannot tell those two apart is carrying the
-Illinois bug in 846 places and cannot know it.
+Illinois bug in 801 places and cannot know it. Today those 949 resolve to **103
+carried forward and 846 fixed by a statute or derived from one.**
 
 [`STATE_FIGURE_PROVENANCE`](packages/us-state-tax/src/data/provenance.ts) now maps
 all **2,293 figures across 56 state-years** to a document and a kind of authority,

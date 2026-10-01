@@ -1785,7 +1785,7 @@ MS, NC, NJ, NY, PA, VA** and the nine states with no income tax. Nothing is prov
 2025.
 
 **The counts changed in v0.33.0 and the states did not.** 103 figures are carried forward
-across those six state-years, against 153 before: Idaho gained four and Ohio twelve, where
+across those six state-years, against 148 before: Idaho gained four and Ohio twelve, where
 the flag had named one filing status of five, and California lost 60, where it had named
 five subtrees and swept the statutory rates in with the indexed thresholds. See *Where
 every figure came from* below for both halves of that.
@@ -2026,12 +2026,13 @@ The mapping's absence was hiding a bigger question than a missing citation. Comp
 the two tax years this package ships:
 
 ```text
-figures identical in 2025 and 2026                          949
-  flagged as carried forward                                169
-  explained by nothing at all                                846
+numeric figures over 56 state-years                       2,293
+figures identical in 2025 and 2026, unbounded excluded      949
+  flagged as carried forward                                148
+  explained by nothing at all                                801
 ```
 
-Each of those 846 is one of two unrelated things. Either the law fixes the figure — New
+Each of those 801 is one of two unrelated things. Either the law fixes the figure — New
 Jersey's brackets have stood since 2020, Virginia's rate schedule since 1990, New York
 indexes nothing at all — in which case 2026 equals 2025 *because the statute says so*.
 Or nobody read the 2026 document, in which case it is a silent carry-forward: the exact
