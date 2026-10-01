@@ -527,6 +527,79 @@ than paper over it with a URL I have not opened. **There is no test for "this do
 is about this figure", and I do not think there can be one** — which is why Part 3's
 "necessary and not sufficient" is the most load-bearing sentence in the module.
 
+### Part 14 — the last advertised number here that a human copied by hand
+
+Part 11's CI finding was about an instrument nobody watched. Looking for others of
+the same shape, I checked the mutation scores against the journal and found one:
+`README.md` and `STRATEGY.md` advertised `us-federal-tax` at **698 mutants** for a
+full day after Day 36 measured, committed and journalled **711**. Day 36's own commit
+message is titled *"Confirm 711 of 711 over the build that is actually committed"*,
+and the table three files away still said 698.
+
+That is the same hole Day 36 closed for the test counts, sitting directly beside it,
+missed because the test counts were that day's subject. **The mutation numbers were
+the last advertised measurements in this repository a human had to copy.**
+
+And there is a second, deeper version of it, which is the one worth building for. Day
+35 left the rule that a score may not be **inferred**; Day 36 added that it may not be
+**inherited**; and today Part 13 and the arithmetic correction each landed while a run
+was in flight, so three times in one day I had to answer "is the running audit still
+measuring what will ship?" by hand. Three days of rules, all enforced by remembering.
+
+**THE RULE: a measurement is only ever a measurement OF something, and the something
+has to be recorded beside it.** A score with no fingerprint cannot be told from a stale
+score by reading it — and being distinguishable from a stale number is the whole of
+what makes a measured score worth more than "well tested".
+
+So `mutate.mjs --record` now writes `tools/mutation/scores.json`: per package, the
+score **and two fingerprints**. `fingerprint.mjs` hashes the paths and bytes of exactly
+what the harness mutates (`dist/esm/**.js`) and, separately, of the suite that does the
+killing (`test/`) — kept apart because *the parameters changed* and *the suite changed*
+are different news wanting different fixes. `check-scores.mjs --check` rebuilds,
+recomputes both, and compares the record to the documents and to the build.
+
+The split is the useful part: the audits take hours and stay weekly, and the cheap half
+— do the docs match the record, and was the record measured over THIS build? — runs on
+every push for the price of a build. **"The audit was re-run after that edit" stops
+being a sentence in a journal and becomes a check.**
+
+Two things fell out that I did not plan.
+
+**A reworded doc comment does not invalidate a score, and that is now a computation
+rather than an argument.** `tsc` puts a module's documentation in the `.d.ts`, so the
+mutant fingerprint does not move. Day 36 reasoned its way to "a string is not a
+mutant"; it is a `sha256` now, and it is what let me keep today's run after editing the
+ledger's own header.
+
+**And reusing yesterday's score became a check rather than a judgement**, on its first
+real use. Nothing in `us-federal-tax` changed today, so instead of copying 711 across I
+built Day 36's commit and the shipping tree and compared: `ab241588dec1ef83` and
+`787dd4e58fd1047d`, the same pair both times. That is what licenses the record to say
+`"measured": "2026-09-30"` with today's build behind it — the one case where inheriting
+a score is correct, and now the only way to establish it is to measure.
+
+Verified by breaking it, both ways: putting `698` back makes the checker print
+`README says 698 mutants, the record says 711`, and corrupting the recorded fingerprint
+makes it print `the PARAMETERS changed, so the score is of a package that no longer
+exists`. A `--limit` run is refused by `--record` outright, because a row reading "3
+mutants, 100%" would be worse than no row — it reads exactly like a real one.
+
+**And the mechanism's first act was to take a number out of the README.** Day 35
+measured the state engine at 99.1% over 702 mutants with six survivors. Today's ledger
+ships bare years, so the audit is 740 mutants — which by the rule above makes 99.1% a
+score of a build that no longer exists. So the state row is **withdrawn from the table
+rather than carried**, with the old figure, the reason and the link to the triaged
+survivors in prose beside it. Quoting it would have been precisely the defect the
+fingerprint was built to catch, on the day it was built, which is the most persuasive
+test it could have had.
+
+The re-measurement is running as this is committed, with `--record` this time. Two
+earlier runs today were discarded on purpose: the first because Part 13's fix landed
+mid-flight, the second because recording its score would have meant writing a
+fingerprint for a suite it had not run against — four lines of comment different.
+**Three hours of compute to avoid one unmeasured hash is the right trade**, because the
+whole value of the file is that no row in it was ever copied from somewhere else.
+
 ### What I would do next
 
 1. **The three narrow citations named in Part 13** — Indiana's earned income credit,

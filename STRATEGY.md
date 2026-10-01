@@ -13,12 +13,16 @@ and a larger hole underneath: 949 figures identical across the two tax years, of
 which only 148 were flagged, and nothing saying whether the other 801 were fixed by
 law or simply unread. `packages/us-federal-tax` is v0.14.0,
 `packages/us-state-tax` is v0.33.0 and `packages/us-tax-mcp` is v0.36.0.
-**1,143 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+**1,144 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
-wrong and counts which ones no test notices. The federal engine is at **100%** (698
-mutants, 0 survivors); the state engine's rule parameters at **99.1%** (702 mutants, 6 survivors), up from
-85.8% on Day 33 and 96.3% on Day 34 — and, for the first time, **every remaining
-survivor is unreachable in principle** rather than untested: four windows on a tax
+wrong and counts which ones no test notices. The federal engine is at **100%** (711
+mutants, 0 survivors). The state engine read **99.1% over 702 mutants with 6
+survivors**, up from 85.8% on Day 33 and 96.3% on Day 34, and that figure is **not
+quoted as current**: Day 37's provenance ledger took the audit to 740 mutants, so it
+is a score of a build that no longer exists, and Day 37's own rule — a measurement is
+only ever a measurement OF something — says to re-measure rather than carry it. Its
+six survivors were, for the first time, **every one unreachable in principle** rather
+than untested: four windows on a tax
 year outside the two supported, an epsilon used as notation, and one row of Ohio
 arithmetic that is now asserted as unreachable rather than left. Triaged in
 `tools/mutation/STATE-SURVIVORS.md`.
@@ -2520,7 +2524,7 @@ the ones to lead with because no competitor advertises any of them:
    (the moat is staying correct as the rules change) turned into a number.
 
 4. **A measured mutation score.** As of Day 33, `us-federal-tax` ships at **100%**
-   — 698 deliberately wrong parameters, every one of them caught by a test — with
+   — 711 deliberately wrong parameters, every one of them caught by a test — with
    the harness in the repository and the number enforced weekly in CI. Nobody in
    this space publishes a mutation score, and in a **trust-driven domain it is the
    only quality claim that is not self-reported**: "1,074 tests" is a number the

@@ -49,12 +49,24 @@ value for.
 
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
-| `us-federal-tax` | 698 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 702 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.1% |
+| `us-federal-tax` | 711 | **0** | **100%** |
 
-Both figures are measured. The state package took two runs today: the first read
-98.7% and named nine survivors, three of which were real; the second, after closing
-them, read 99.1% with exactly the six below.
+The figure is measured, and as of Day 37 it is measured **against a recorded
+fingerprint of the build it ran on** — `tools/mutation/scores.json` carries the score
+beside a hash of exactly the bytes the harness mutated, and
+[`check-scores.mjs`](tools/mutation/check-scores.mjs) fails on every push if the
+advertised number stops matching either the record or the build. It exists because
+this table said **698** for a day after the measured figure became 711: the mutation
+scores were the last advertised numbers here that a human copied by hand.
+
+**`us-state-tax`'s score is being re-measured and is deliberately not quoted.** It
+read **99.1% over 702 mutants, with six survivors**, every one of them unreachable in
+principle rather than untested — and the provenance ledger added on Day 37 ships bare
+years, so the audit now has **740** mutants. By this table's own rule that is a score
+of a build that no longer exists, which is the whole reason the fingerprint went in,
+and quoting it would be the defect the mechanism was built to catch. The six
+survivors, which are the part worth reading, are triaged in
+[the worklist](tools/mutation/STATE-SURVIVORS.md).
 
 **The six that remain are the part worth reading.** Not one of them is a missing
 test. Four are windows on a tax year outside the two this package supports, so no

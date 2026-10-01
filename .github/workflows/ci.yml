@@ -120,3 +120,34 @@ jobs:
           done
       - name: Measure every suite and check the README and the committed record
         run: node tools/test-counts.mjs --check
+
+  # Is the mutation score this repository advertises a score of this repository?
+  #
+  # Day 33 made "how sensitive are the tests" a measured number. Day 35 said a
+  # score may not be inferred, Day 36 said it may not be inherited — and all
+  # three left the enforcement to a future run remembering. Day 37 found the
+  # bill: README.md advertised the federal package at 698 mutants for a day
+  # after the committed, measured figure became 711, because the mutation
+  # numbers were the last advertised measurements here that a human copied by
+  # hand.
+  #
+  # Running the audits takes hours and stays weekly (mutation.yml), writing
+  # tools/mutation/scores.json with --record. This job costs a build and answers
+  # the cheap half on every push: do the documents agree with the record, and
+  # was the record measured over THIS build? The second is new — it makes "the
+  # audit was re-run after that edit" a check rather than a sentence in a
+  # journal.
+  mutation-claims:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the packages the record covers
+        run: |
+          for dir in packages/us-federal-tax packages/us-state-tax; do
+            (cd "$dir" && npm install)
+          done
+      - name: Check every advertised mutation score against the record and this build
+        run: node tools/mutation/check-scores.mjs --check

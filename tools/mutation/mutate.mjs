@@ -68,9 +68,9 @@
  * Usage:
  *   node tools/mutation/mutate.mjs <packageDir> [--workers N] [--skip a,b]
  *                                  [--only substr] [--limit N] [--json out.json]
- *                                  [--max-survivors N]
+ *                                  [--max-survivors N] [--record FILE]
  */
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { execFileSync, execSync } from 'node:child_process';
 import os from 'node:os';
@@ -96,6 +96,8 @@ const SHARD = flag('shard', null); // "i/n"
 // the number the package actually reaches with every gap closed, not from a
 // number chosen to pass, and raising it is a deliberate edit with a reason.
 const MAX_SURVIVORS = flag('max-survivors', null);
+// Where to record the score and the fingerprint of what produced it.
+const RECORD_OUT = flag('record', null);
 
 /**
  * Mask comments and string/template literals with spaces, keeping every byte
@@ -269,6 +271,54 @@ for (const [f, list] of Object.entries(byFile).sort((a, b) => b[1].length - a[1]
   console.log();
 }
 if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify({ pkgDir, results }, null, 1));
+
+// ---- the record, so the score stops being hand-maintained ----
+//
+// Day 37: `README.md` advertised the federal package at 698 mutants for a day
+// after the committed, measured figure became 711. The mutation scores were the
+// only advertised measurements left in this repository that a human had to copy
+// by hand — the same hole Day 36 closed for the test counts, sitting right
+// beside it. So the runner writes them, as `tools/test-counts.mjs` does.
+//
+// And it writes the FINGERPRINT of what it mutated, which the test counts do not
+// need and a score does: Day 35 said a score may not be inferred and Day 36 said
+// it may not be inherited, and both left it to a future run to remember. A
+// fingerprint makes "the audit was re-run after that edit" checkable instead of
+// asserted. See `fingerprint.mjs`.
+if (RECORD_OUT && Number.isFinite(LIMIT)) {
+  // `--limit` exists for checking the harness, not the package — its own flag
+  // table says so — and a record saying "3 mutants, 100%" is worse than no
+  // record, because it reads exactly like a real one. Refused rather than
+  // annotated: the whole value of the file is that every row in it is a score
+  // of a whole package.
+  console.error(
+    `\n[mutate] REFUSED to record: --limit ${LIMIT} measures the harness and not the package, ` +
+      'and a partial count in the record would read exactly like a full one.',
+  );
+  process.exit(1);
+}
+if (RECORD_OUT) {
+  const { mutantFingerprint, suiteFingerprint } = await import('./fingerprint.mjs');
+  const name = pkgDir.replace(/^.*packages\//, '');
+  const existing = existsSync(RECORD_OUT) ? JSON.parse(readFileSync(RECORD_OUT, 'utf8')) : { packages: {} };
+  existing.packages[name] = {
+    measured: new Date().toISOString().slice(0, 10),
+    mutants: results.length,
+    killed: results.length - survivors.length,
+    survivors: survivors.length,
+    score: Number((((results.length - survivors.length) / results.length) * 100).toFixed(1)),
+    // The two reasons a score can move, recorded apart because they want
+    // different fixes: the parameters changed, or the suite that kills them did.
+    mutantFingerprint: mutantFingerprint(pkgDir),
+    suiteFingerprint: suiteFingerprint(pkgDir),
+    // What the run covered, so a score measured over a subset cannot be read as
+    // one measured over the package.
+    skipped: SKIP.length === 0 ? undefined : SKIP,
+    only: ONLY === null ? undefined : String(ONLY),
+  };
+  writeFileSync(RECORD_OUT, `${JSON.stringify(existing, null, 2)}\n`);
+  console.log(`\n[mutate] recorded ${name} in ${RECORD_OUT}`);
+}
 
 if (MAX_SURVIVORS !== null && survivors.length > Number(MAX_SURVIVORS)) {
   console.error(

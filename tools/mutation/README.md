@@ -119,6 +119,62 @@ file, which is how Day 33's finding surfaced. The three per-year data files had
 nearly identical parameter counts and wildly different survival rates, and that
 asymmetry was the whole finding.
 
+## A score is a score OF something, and the something is recorded beside it
+
+Day 35 left the rule that a score may not be **inferred**. Day 36 added that it
+may not be **inherited** either, having twice invalidated a run in flight by
+editing a string: the harness copies `dist` into its workers once at start, so a
+score belongs to the tree it ran on.
+
+All three days stated the rule and left the enforcement to a future run
+remembering. Day 37 found what that costs. `README.md` advertised
+`us-federal-tax` at **698 mutants** for a full day after the committed, measured
+figure became **711** — the mutation numbers were the last advertised
+measurements in this repository that a human had to copy by hand, which is
+exactly the hole Day 36 closed for the test counts and missed sitting beside it.
+
+**THE RULE: a measurement is only ever a measurement OF something, and the
+something has to be recorded beside it.** A score with no fingerprint cannot be
+told from a stale score by reading it — and being distinguishable from a stale
+number is the only property that makes a measured score worth more than "well
+tested".
+
+So:
+
+```sh
+# the audits, weekly, write the record
+node tools/mutation/mutate.mjs packages/us-federal-tax --record tools/mutation/scores.json
+
+# the cheap half, on every push: do the docs match the record, and was the
+# record measured over THIS build?
+node tools/mutation/check-scores.mjs --check
+```
+
+`scores.json` carries, per package, the score **and two fingerprints** —
+`fingerprint.mjs` hashes the paths and bytes of exactly what the harness mutates
+(`dist/esm/**.js`) and, separately, of the suite that does the killing (`test/`).
+They are kept apart because they fail for different reasons and want different
+fixes: *the parameters changed* and *the suite changed* are not the same news.
+
+Two consequences worth having.
+
+**A reworded doc comment does not invalidate a score, and that is now a
+computation.** `tsc` puts a module's documentation in the `.d.ts` and not in the
+`.js`, so the mutant fingerprint does not move. Day 36's "a string is not a
+mutant" was an argument; it is a `sha256` now.
+
+**And reusing yesterday's score is a check rather than a judgement.** The first
+real use of this was the federal entry in `scores.json`: Day 36 measured 711 of
+711 and nothing in `us-federal-tax` changed on Day 37, so rather than copy the
+number across, both fingerprints were computed from a build of Day 36's commit
+and from the shipping tree — `ab241588dec1ef83` and `787dd4e58fd1047d`, the same
+pair — which is what licenses the record to say `"measured": "2026-09-30"` with
+today's build behind it.
+
+`--limit` runs are **refused** by `--record`. The flag exists to check the
+harness, not the package, and a row reading "3 mutants, 100%" would be worse
+than no row because it reads exactly like a real one.
+
 ## The fast proxy, which is where Day 34's findings came from
 
 This harness takes about half an hour per package: it runs the whole suite once per

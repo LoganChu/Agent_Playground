@@ -53,7 +53,29 @@ jobs:
         run: |
           set -euo pipefail
           node tools/mutation/mutate.mjs packages/us-federal-tax \
-            --workers 4 --max-survivors 0 | tee "$GITHUB_STEP_SUMMARY"
+            --workers 4 --max-survivors 0 --record "$RUNNER_TEMP/scores.json" | tee "$GITHUB_STEP_SUMMARY"
+      # The fresh record, printed so a run that MOVED the score says what the
+      # committed `tools/mutation/scores.json` should become. Not committed from
+      # here: a changed score means survivors to re-triage or a package that
+      # changed shape, and both want a human or an agent reading the survivor
+      # list rather than a bot rewriting a number. `ci.yml`'s `mutation-claims`
+      # job is what fails, on every push, if the committed record stops matching
+      # the build — so a stale record cannot sit here unnoticed for a week.
+      - name: Print the fresh record
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/scores.json" ]; then
+            {
+              echo
+              echo '### The record this run measured'
+              echo
+              echo 'If this differs from `tools/mutation/scores.json`, that file is what needs updating.'
+              echo
+              echo '```json'
+              cat "$RUNNER_TEMP/scores.json"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   state:
     name: us-state-tax (must stay at six triaged survivors)
@@ -85,6 +107,28 @@ jobs:
         run: |
           set -euo pipefail
           node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 \
-            --max-survivors 6 \
+            --max-survivors 6 --record "$RUNNER_TEMP/scores.json" \
             --skip localities/ohio.js,localities/ohio-school-districts.js,localities/indiana.js,localities/michigan.js,localities/maryland.js,localities/new-york.js,localities/counties.js \
             | tee "$GITHUB_STEP_SUMMARY"
+      # The fresh record, printed so a run that MOVED the score says what the
+      # committed `tools/mutation/scores.json` should become. Not committed from
+      # here: a changed score means survivors to re-triage or a package that
+      # changed shape, and both want a human or an agent reading the survivor
+      # list rather than a bot rewriting a number. `ci.yml`'s `mutation-claims`
+      # job is what fails, on every push, if the committed record stops matching
+      # the build — so a stale record cannot sit here unnoticed for a week.
+      - name: Print the fresh record
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/scores.json" ]; then
+            {
+              echo
+              echo '### The record this run measured'
+              echo
+              echo 'If this differs from `tools/mutation/scores.json`, that file is what needs updating.'
+              echo
+              echo '```json'
+              cat "$RUNNER_TEMP/scores.json"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
