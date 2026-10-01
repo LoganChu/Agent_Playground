@@ -25,6 +25,7 @@
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
 import { byStatusOf } from './helpers.js';
+import { FILING_STATUSES } from '../types.js';
 import type { Bracket, Citation } from '../types.js';
 
 const CO_CITATIONS: readonly Citation[] = [
@@ -161,13 +162,24 @@ function idaho(year: number): StateIncomeTaxDefinition | undefined {
     provisionalFigures:
       year === 2026
         ? [
-            {
-              path: 'rate.byStatus.single.0.upTo',
+            // One indexed figure, FIVE paths. Until Day 37 this entry named
+            // `single` alone, and the other four filing statuses carried the
+            // same unread 2026 amount with nothing saying so — $4,811 again
+            // under `marriedFilingSeparately`, and twice it under the three
+            // doubled statuses.
+            //
+            // **THE RULE: a `byStatus` table holds one figure per status, so a
+            // provisional entry written for one status flags one fifth of the
+            // carry-forward.** `provisional-coverage.test.js` now fails on a
+            // flag that stops at one status, so this list cannot shrink back to
+            // the figure its author happened to be looking at.
+            ...FILING_STATUSES.map((status) => ({
+              path: `rate.byStatus.${status}.0.upTo`,
               reason: 'awaiting-publication' as const,
               carriedForwardFrom: 2025,
               resolvedBy:
                 "the Idaho State Tax Commission's individual income tax rate schedule for 2026, published with the Form 40 instructions",
-            },
+            })),
           ]
         : undefined,
     base: 'federalTaxableIncome',

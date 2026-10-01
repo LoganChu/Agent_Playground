@@ -52,12 +52,15 @@ import {
   renderPaycheck,
   renderQuarterly,
   renderStateTax,
+  figureValue,
   statusLabel,
 } from './format.js';
 import {
   COUNTY_TAX_STATES,
   getStateDefinition,
+  isSentinelFigure,
   PERSON_RETIREMENT_FIELDS,
+  stateFigureProvenance,
   stateName,
   SUPPORTED_LOCALITIES as LOCALITY_CODES,
   SUPPORTED_STATES as STATE_CODES,
@@ -70,6 +73,8 @@ import type {
   PersonRetirementIncome,
   RetirementIncomeSplit,
   StateCode,
+  StateFigureKind,
+  StateFigureSource,
 } from './state-engine/index.js';
 
 /**
@@ -1847,6 +1852,48 @@ const WHAT_A_NEW_YEAR_COSTS: Readonly<Record<FigureSource['kind'], string>> = {
   reconstructed: 'READ THE DOCUMENT — this figure was never in one',
 };
 
+/**
+ * The state engine's answer to the same question. Eight kinds rather than six,
+ * because a state can set a figure by ordinance, derive it from another figure,
+ * leave it undetermined until the year closes, or simply not have read it yet —
+ * and the last of those is the one a caller most needs told.
+ */
+const WHAT_A_NEW_STATE_YEAR_COSTS: Readonly<Record<StateFigureKind, string>> = {
+  statute: 'nothing — a change here is an amendment to the state code, and news',
+  'statute-scheduled': 'read the statute’s own schedule for the new year; no indexing release carries it',
+  indexed: 'read that tax year’s state release',
+  'federal-conformity': 'nothing from the state — the figure IS the federal one, adopted by reference',
+  agency: 'read the other agency’s release — the state does not publish this figure',
+  derived: 'nothing beyond the figure it is computed from',
+  'carried-forward': 'READ THE DOCUMENT — this year’s figure was not read, and last year’s stands in',
+  'determined-after-year-end': 'wait — the law does not fix this figure until the tax year has closed',
+  sentinel: 'nothing — this value encodes the absence of a limit rather than a published figure',
+  unestablished: 'establish which of the above it is; nothing in this package says yet',
+};
+
+/** Every numeric leaf of a state definition, as a dot path. */
+function stateFigurePathsOf(definition: unknown): readonly string[] {
+  const out: string[] = [];
+  const walk = (node: unknown, prefix: string): void => {
+    if (node === null || node === undefined) return;
+    if (typeof node === 'number') {
+      out.push(prefix);
+      return;
+    }
+    if (typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      node.forEach((value, index) => walk(value, `${prefix}.${index}`));
+      return;
+    }
+    for (const [key, value] of Object.entries(node)) {
+      if (prefix === '' && (key === 'citations' || key === 'provisionalFigures' || key === 'year')) continue;
+      walk(value, prefix === '' ? key : `${prefix}.${key}`);
+    }
+  };
+  walk(definition, '');
+  return out;
+}
+
 /** Every numeric leaf of a year's parameters, as a dot path. */
 function figurePathsOf(params: YearParameters): readonly string[] {
   const out: string[] = [];
@@ -1871,6 +1918,178 @@ function figurePathsOf(params: YearParameters): readonly string[] {
 }
 
 /**
+ * The state half of `figure_provenance`.
+ *
+ * Folded into the same tool rather than given one of its own because
+ * `tools/list` is paid for on every session and "where did this number come
+ * from" is one question whether the number is federal or a state's. An eleventh
+ * tool would have cost every caller about 1,500 bytes to ask it twice.
+ *
+ * The answer a state can give that the federal engine cannot is
+ * `carried-forward`: 103 of the 2,293 figures in this package were not read for
+ * their year, and a caller is told which — including the one case that matters
+ * most, where the RATE is statutory and certain while the thresholds it applies
+ * to are last year's.
+ */
+function stateProvenance(
+  rawState: string,
+  rawYear: number | undefined,
+  figure: string | null,
+): ToolResult {
+  const state = rawState.toUpperCase() as StateCode;
+  if (!(STATE_CODES as readonly string[]).includes(state)) {
+    throw new ToolInputError(
+      `Unsupported state ${JSON.stringify(rawState)}. Supported: ${STATE_CODES.join(', ')}.`,
+    );
+  }
+  const year = rawYear ?? Math.max(...STATE_YEARS);
+  const definition = getStateDefinition(state, year);
+  if (definition === undefined) {
+    throw new ToolInputError(
+      `${state} is not supported for tax year ${year}. Supported years: ${STATE_YEARS.join(', ')}.`,
+    );
+  }
+  const documentsFor = (entry: StateFigureSource) =>
+    entry.document === undefined
+      ? []
+      : definition.citations.filter((citation) => citation.title.includes(entry.document as string));
+
+  if (figure !== null) {
+    const value = figure
+      .split('.')
+      .reduce<unknown>(
+        (node, key) =>
+          node === null || typeof node !== 'object' ? undefined : (node as Record<string, unknown>)[key],
+        definition,
+      );
+    const entry = stateFigureProvenance(definition, state, year, figure);
+    if (entry === undefined) {
+      const examples = stateFigurePathsOf(definition).slice(0, 3);
+      throw new ToolInputError(
+        `${state} ${year} has no figure at ${JSON.stringify(figure)}. Paths are dot paths into the ` +
+          `state's parameters — for example ${examples.map((path) => JSON.stringify(path)).join(', ')}. ` +
+          'Call figure_provenance with a state and no figure to see every group for that state.',
+      );
+    }
+    const numeric = typeof value === 'number' ? value : null;
+    const rows = [
+      `${state} ${year}: ${figure} is ${numeric === null ? String(value) : figureValue(figure, numeric)}.`,
+      '',
+      `Kind: ${entry.kind} — a new tax year: ${WHAT_A_NEW_STATE_YEAR_COSTS[entry.kind]}.`,
+      `Source: ${entry.cite}`,
+    ];
+    // Not said for a carry-forward: "unchanged across the years" is true of one
+    // and is the wrong emphasis, because the sentence below says the figure was
+    // not read at all. Two true sentences, and only one of them is the warning.
+    if (entry.constant && entry.carriedForwardFrom === undefined) {
+      rows.push('Unchanged across the tax years this package covers, for the reason above.');
+    }
+    if (entry.why !== undefined) rows.push('', entry.why);
+    if (entry.carriedForwardFrom !== undefined) {
+      rows.push('', `NOT read for ${year}: this is the ${entry.carriedForwardFrom} figure standing in.`);
+    }
+    if (entry.resolvedBy !== undefined) rows.push(`What would settle it: ${entry.resolvedBy}`);
+    const documents = documentsFor(entry);
+    if (documents.length > 0) {
+      rows.push('', 'Documents:');
+      for (const citation of documents) rows.push(`- ${citation.title} — ${citation.url}`);
+    }
+    return {
+      text: rows.join('\n'),
+      structured: {
+        state,
+        year,
+        figure,
+        value: numeric,
+        kind: entry.kind,
+        cite: entry.cite,
+        constantAcrossYears: entry.constant,
+        readForThisYear: entry.kind !== 'carried-forward',
+        ...(entry.why === undefined ? {} : { note: entry.why }),
+        ...(entry.carriedForwardFrom === undefined ? {} : { carriedForwardFrom: entry.carriedForwardFrom }),
+        ...(entry.resolvedBy === undefined ? {} : { resolvedBy: entry.resolvedBy }),
+        whatANewTaxYearRequires: WHAT_A_NEW_STATE_YEAR_COSTS[entry.kind],
+        documents: documents.map((citation) => ({ title: citation.title, url: citation.url })),
+      },
+    };
+  }
+
+  const paths = stateFigurePathsOf(definition);
+  const counted = new Map<StateFigureSource, number>();
+  let sentinels = 0;
+  for (const path of paths) {
+    const current = path
+      .split('.')
+      .reduce<unknown>(
+        (node, key) =>
+          node === null || typeof node !== 'object' ? undefined : (node as Record<string, unknown>)[key],
+        definition,
+      );
+    if (typeof current === 'number' && isSentinelFigure(current)) {
+      sentinels += 1;
+      continue;
+    }
+    const entry = stateFigureProvenance(definition, state, year, path);
+    if (entry === undefined) continue;
+    counted.set(entry, (counted.get(entry) ?? 0) + 1);
+  }
+  const kinds = [...new Set([...counted.keys()].map((entry) => entry.kind))];
+  const figuresOfKind = (kind: StateFigureKind) =>
+    [...counted.keys()]
+      .filter((entry) => entry.kind === kind)
+      .reduce((total, entry) => total + (counted.get(entry) ?? 0), 0);
+  const needsADocument = (['indexed', 'agency', 'carried-forward', 'determined-after-year-end'] as const)
+    .map(figuresOfKind)
+    .reduce((a, b) => a + b, 0);
+  const needsTheSchedule = figuresOfKind('statute-scheduled');
+  const rows = [
+    `Where ${definition.name}'s ${paths.length - sentinels} figures for tax year ${year} come from.`,
+    '',
+    `For a NEW tax year: ${needsADocument} need a release read, ${needsTheSchedule} need the ` +
+      `statute's own schedule read, and ${paths.length - sentinels - needsADocument - needsTheSchedule} ` +
+      'need nothing at all.',
+    '',
+  ];
+  const groups: Record<string, unknown>[] = [];
+  for (const kind of kinds) {
+    const entries = [...counted.keys()].filter((entry) => entry.kind === kind);
+    rows.push(`## ${kind} — ${figuresOfKind(kind)} figures. A new tax year: ${WHAT_A_NEW_STATE_YEAR_COSTS[kind]}.`);
+    for (const entry of entries) {
+      rows.push(`- ${entry.path} (${counted.get(entry)}) — ${entry.cite}`);
+      if (entry.resolvedBy !== undefined) rows.push(`    would be settled by: ${entry.resolvedBy}`);
+    }
+    rows.push('');
+    groups.push({
+      kind,
+      figures: figuresOfKind(kind),
+      whatANewTaxYearRequires: WHAT_A_NEW_STATE_YEAR_COSTS[kind],
+      entries: entries.map((entry) => ({
+        path: entry.path,
+        figures: counted.get(entry) ?? 0,
+        cite: entry.cite,
+        constantAcrossYears: entry.constant,
+        ...(entry.carriedForwardFrom === undefined ? {} : { carriedForwardFrom: entry.carriedForwardFrom }),
+        ...(entry.resolvedBy === undefined ? {} : { resolvedBy: entry.resolvedBy }),
+      })),
+    });
+  }
+  return {
+    text: rows.join('\n'),
+    structured: {
+      state,
+      year,
+      figures: paths.length - sentinels,
+      forANewTaxYear: {
+        needsAReleaseRead: needsADocument,
+        needsTheStatutesOwnSchedule: needsTheSchedule,
+        needsNothing: paths.length - sentinels - needsADocument - needsTheSchedule,
+      },
+      groups,
+    },
+  };
+}
+
+/**
  * Where a number came from — the one question a model asking about tax figures
  * cannot answer for itself, and the one this package advertises an answer to.
  *
@@ -1883,25 +2102,34 @@ const provenanceTool: ToolDefinition = {
   name: 'figure_provenance',
   title: 'Where a tax figure came from',
   description:
-    'Say which document publishes a particular federal tax figure in a particular year, and what ' +
-    'a new tax year would require for it: the IRS Revenue Procedure that indexes it, the section ' +
-    'of the Code that fixes it, the SSA release that sets it, the Publication 15-T table it is ' +
-    'read from — or, for one group of figures, the document that could NOT be read and what this ' +
-    'package computed instead. Call this when asked whether a figure is current, where it comes ' +
-    'from, or why two figures that look like the same thing differ: the 2025 standard deduction ' +
-    'is $15,750 on a return and $15,000 in the withholding tables, and the reason is a document ' +
-    'date rather than an error. Pass `figure` as a dot path into the parameter object — ' +
-    '"standardDeduction.single", "socialSecurityWageBase" — or omit it for the whole ledger.',
+    'Say which document publishes a particular tax figure in a particular year, and what a new ' +
+    'tax year would require for it: the Revenue Procedure or state release that indexes it, the ' +
+    'section of the Code or of the state code that fixes it, the worksheet line it is read from — ' +
+    'or that it was NOT read for this year and last year’s figure is standing in. Call this when ' +
+    'asked whether a figure is current, where it comes from, or why two figures that look like ' +
+    'the same thing differ: the 2025 federal standard deduction is $15,750 on a return and ' +
+    '$15,000 in the withholding tables, and the reason is a document date rather than an error. ' +
+    'Pass `state` for a state figure and omit it for a federal one. `figure` is a dot path — ' +
+    '"standardDeduction.single" federally, "rate.byStatus.single.0.upTo" for a state — and ' +
+    'omitting it gives the whole ledger, which for a state says how many of its figures a new ' +
+    'tax year needs a document for and how many it does not.',
   inputSchema: {
     type: 'object',
     properties: {
       year: YEAR_PROPERTY,
+      state: {
+        type: 'string',
+        enum: [...STATE_CODES],
+        description:
+          'Two-letter state code, for a figure in the state engine rather than the federal one. ' +
+          'Omit for a federal figure.',
+      },
       figure: {
         type: 'string',
         description:
-          'Dot path into the parameter object returned by get_tax_parameters, e.g. ' +
-          '"standardDeduction.marriedFilingJointly", "ordinaryBrackets.single.3.upTo", ' +
-          '"niit.thresholds.single". Omit to get every group in the ledger instead.',
+          'Dot path into the object get_tax_parameters (federal) or describe_state (state) ' +
+          'returns — "standardDeduction.marriedFilingJointly", "rate.byStatus.single.0.upTo", ' +
+          '"exemption.perDependent". Omit to get every group in that ledger instead.',
       },
     },
     additionalProperties: false,
@@ -1909,14 +2137,17 @@ const provenanceTool: ToolDefinition = {
   annotations: { ...READ_ONLY, title: 'Where a tax figure came from' },
   run(args) {
     const source = asRecord(args, 'arguments');
-    const known = ['year', 'figure'];
+    const known = ['year', 'figure', 'state'];
     const unknownOptions = Object.keys(source).filter((key) => !known.includes(key));
     if (unknownOptions.length > 0) {
       throw new ToolInputError(`Unknown argument(s): ${unknownOptions.join(', ')}. Accepted: ${known.join(', ')}.`);
     }
+    const figure = source['figure'] === undefined || source['figure'] === null ? null : String(source['figure']);
+    if (source['state'] !== undefined && source['state'] !== null) {
+      return stateProvenance(String(source['state']), readNumber(source, 'year', { integer: true }), figure);
+    }
     const year = readNumber(source, 'year', { integer: true }) ?? LATEST_YEAR;
     const params = getYearParameters(year);
-    const figure = source['figure'] === undefined || source['figure'] === null ? null : String(source['figure']);
 
     /** The citations in this year's sources that the entry names. */
     const documentsFor = (entry: FigureSource) =>
@@ -1942,7 +2173,7 @@ const provenanceTool: ToolDefinition = {
           params,
         );
       const rows = [
-        `${figure} for tax year ${year} is ${typeof value === 'number' ? money(value) : String(value)}.`,
+        `${figure} for tax year ${year} is ${typeof value === 'number' ? figureValue(figure, value) : String(value)}.`,
         '',
         `Kind: ${entry.kind} — ${WHAT_A_NEW_YEAR_COSTS[entry.kind]}.`,
         `Source: ${entry.cite}`,

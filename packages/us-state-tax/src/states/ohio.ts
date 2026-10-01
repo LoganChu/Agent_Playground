@@ -86,6 +86,7 @@
 import type { CreditStep, StateIncomeTaxDefinition } from '../definition.js';
 import type { BaseAmountBand } from '../definition.js';
 import { byStatus, byStatusOf, uniform } from './helpers.js';
+import { FILING_STATUSES } from '../types.js';
 import type { Citation } from '../types.js';
 
 const CITATIONS: readonly Citation[] = [
@@ -246,13 +247,25 @@ export function ohio(year: number): StateIncomeTaxDefinition | undefined {
     status: year >= 2026 ? 'provisional' : 'published',
     provisionalFigures:
       year >= 2026
-        ? (['0', '1', '2'] as const).map((i) => ({
-            path: `exemption.perExemptionSteps.single.${i}.amount`,
-            reason: 'awaiting-publication' as const,
-            carriedForwardFrom: 2025,
-            resolvedBy:
-              'the 2026 Ohio IT 1040 instruction booklet, published January 2027 — NOT R.C. 5747.025(A), which prints the 2015 base amounts rather than the indexed ones in force',
-          }))
+        ? // Three indexed amounts, FIFTEEN paths. Until Day 37 this named the
+          // `single` column alone, and the same three unread figures sat under
+          // four more filing statuses with nothing saying so — Ohio's
+          // exemption does not vary by status, so every column is the same
+          // carry-forward.
+          //
+          // **THE RULE: a `byStatus` table holds one figure per status, so a
+          // provisional entry written for one status flags one fifth of the
+          // carry-forward.** Generated from `FILING_STATUSES` rather than
+          // listed, so a sixth status would be covered the day it is added.
+          FILING_STATUSES.flatMap((status) =>
+            (['0', '1', '2'] as const).map((i) => ({
+              path: `exemption.perExemptionSteps.${status}.${i}.amount`,
+              reason: 'awaiting-publication' as const,
+              carriedForwardFrom: 2025,
+              resolvedBy:
+                'the 2026 Ohio IT 1040 instruction booklet, published January 2027 — NOT R.C. 5747.025(A), which prints the 2015 base amounts rather than the indexed ones in force',
+            })),
+          )
         : undefined,
     base: 'federalAdjustedGrossIncome',
     rate: {

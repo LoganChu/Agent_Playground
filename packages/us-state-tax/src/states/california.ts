@@ -193,6 +193,90 @@ const SHARED_NOTES: readonly string[] = [
   'NOT MODELLED — the renter credit, the California AMT, and the itemized deduction limitation for high incomes.',
 ];
 
+/**
+ * The figures California carries into 2026, as leaves rather than as subtrees.
+ *
+ * Until Day 37 this was five subtree paths — `rate`, `deduction`,
+ * `exemptionCredit`, `ownEarnedIncomeCredit`, `youngChildCredit` — chosen so
+ * that `provisional.test.js`'s non-vacuity check would compare every leaf
+ * underneath against the 2025 object. It did. It also told every caller that
+ * California's **45 statutory rates were provisional**, which they are not:
+ * § 17041 prints them, no indexing provision moves them, and this file's own
+ * note says so in the next sentence ("The rates themselves are statutory and
+ * are correct").
+ *
+ * **THE RULE: a provisional entry written as a SUBTREE over-reports by
+ * everything in the subtree the state did publish, exactly as one written as a
+ * LEAF under-reports by every sibling.** Day 37 found both halves on one day:
+ * Idaho and Ohio flagged one filing status of five and were four fifths short;
+ * California flagged five subtrees and was 60 figures long. The two errors look
+ * nothing like each other and have the same cause — a path written by hand from
+ * the figure the author was looking at — and the same fix, which is to generate
+ * the list from the shape of the data.
+ *
+ * Over-reporting is not the harmless direction. The rate is the one figure a
+ * California caller can rely on completely, and a flag saying otherwise spends
+ * the credibility that makes the other 100 flags worth reading.
+ */
+function carriedForwardLeaves(definition: StateIncomeTaxDefinition): readonly string[] {
+  const out: string[] = [];
+  const walk = (node: unknown, path: string): void => {
+    if (typeof node === 'number') {
+      // A bracket with no ceiling is `Infinity`, which is not a figure anybody
+      // publishes and so cannot be awaiting publication.
+      if (Number.isFinite(node) && !publishedForEveryYear(path)) out.push(path);
+      return;
+    }
+    if (Array.isArray(node)) {
+      node.forEach((value, index) => walk(value, `${path}.${index}`));
+      return;
+    }
+    if (node !== null && typeof node === 'object') {
+      for (const [key, value] of Object.entries(node)) walk(value, path === '' ? key : `${path}.${key}`);
+    }
+  };
+  for (const subtree of ['rate', 'deduction', 'exemptionCredit', 'ownEarnedIncomeCredit', 'youngChildCredit'] as const) {
+    walk((definition as unknown as Record<string, unknown>)[subtree], subtree);
+  }
+  return out;
+}
+
+/**
+ * Figures inside those five subtrees that stand on their own authority in any
+ * year, so carrying the 2025 object forward does not make them unread.
+ *
+ * Each one is a figure a document OTHER than the Franchise Tax Board's annual
+ * release establishes — the Revenue and Taxation Code, the Internal Revenue
+ * Code it adopts by reference, or an arithmetic identity. The list is matched
+ * against paths rather than written as paths so that a new bracket or a new
+ * child-count band is covered the day it is added.
+ */
+function publishedForEveryYear(path: string): boolean {
+  // § 17041(a)(1) and (b) print the nine rates. The thresholds they apply to
+  // are indexed; the rates have never moved.
+  if (/^rate\.byStatus\.[A-Za-z]+\.\d+\.rate$/.test(path)) return true;
+  // An age, not an amount. § 17054(a)'s additional credit is for an individual
+  // who has attained 65.
+  if (path === 'exemptionCredit.seniorAge') return true;
+  // § 17052 adopts the federal § 32 structure as it stood in 2015: the
+  // qualifying-child bands and the credit percentages are the Internal Revenue
+  // Code's, and only the ceilings they apply to are indexed.
+  if (/^ownEarnedIncomeCredit\.byChildCount\.\d+\.(children|phaseInRate)$/.test(path)) return true;
+  // § 17052(a)(2)(B) — set by the annual Budget Act, 85% in every year since
+  // 2015, and not a figure the FTB's indexing release carries.
+  if (path === 'ownEarnedIncomeCredit.adjustmentFactor') return true;
+  // § 17052(i) sets 18 where § 32 sets 25; § 32(c)(3) sets the child's age.
+  if (path === 'ownEarnedIncomeCredit.minimumAgeWithoutChildren') return true;
+  if (path === 'ownEarnedIncomeCredit.qualifyingChildMaxAge') return true;
+  // § 17052.1(a) — a qualifying child younger than six.
+  if (path === 'youngChildCredit.ineligibleAge') return true;
+  // The credit falls per $100 of earned income, and the amount per $100 is
+  // computed from the amount and the phase-out window rather than transcribed.
+  if (path === 'youngChildCredit.phaseOut.increment') return true;
+  if (path === 'youngChildCredit.phaseOut.amountPerIncrement') return true;
+  return false;
+}
+
 export function california(year: number): StateIncomeTaxDefinition | undefined {
   if (year === 2025) {
     return {
@@ -261,13 +345,7 @@ export function california(year: number): StateIncomeTaxDefinition | undefined {
       ...published,
       year,
       status: 'provisional',
-      // Whole subtrees rather than leaves, because the whole of each one is the
-      // 2025 object: the non-vacuity check then compares every bracket
-      // threshold and every CalEITC figure against 2025, which no list of
-      // individual paths this file could stand to carry would do.
-      provisionalFigures: (
-        ['rate', 'deduction', 'exemptionCredit', 'ownEarnedIncomeCredit', 'youngChildCredit'] as const
-      ).map((path) => ({
+      provisionalFigures: carriedForwardLeaves(published).map((path) => ({
         path,
         reason: 'awaiting-publication' as const,
         carriedForwardFrom: 2025,

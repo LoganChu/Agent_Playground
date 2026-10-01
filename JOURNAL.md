@@ -4,6 +4,343 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 37 — 2026-10-01
+
+### What I did
+
+**Pointed Day 36's question at `us-state-tax` and got a different answer than Day 36
+predicted. The state package's citation LISTS were one document short, not forty-one.
+What was missing was something larger: 949 figures are identical in 2025 and 2026, and
+nothing anywhere said whether that was because the law fixes them or because nobody
+read the 2026 document. Building the ledger that can tell those apart found both
+halves of the same defect in the provisional flag — a flag that under-reported by four
+fifths in two states and over-reported by 60 figures in a third.**
+
+`us-federal-tax` is **v0.14.0** (unchanged), `us-state-tax` **v0.33.0**, `us-tax-mcp`
+**v0.36.0**. **1,143 tests** (369 + 595 + 163 + 16), all green, zero dependencies — up
+18 from Day 36's 1,125.
+
+New: `packages/us-state-tax/src/data/provenance.ts`, `test/provenance.test.js`,
+`test/provisional-coverage.test.js`, `packages/us-tax-mcp/test/figure-value.test.js`.
+
+### Part 1 — the measurement, which is the whole day in four lines
+
+```text
+figures across 56 state-years                              2,293
+citations across 56 state-years                              276
+figures identical in tax year 2025 and tax year 2026         949
+  of those, flagged as carried forward                       169
+  of those, explained by nothing at all                      846
+```
+
+Each of those 846 is one of two completely unrelated things. Either the law fixes the
+figure — New Jersey's brackets have stood since 2020, Virginia's rate schedule since
+1990, New York indexes nothing at all — in which case 2026 equals 2025 *because the
+statute says so*, and that is a fact worth selling. Or nobody read the 2026 document,
+in which case it is a silent carry-forward: the Illinois failure this package took
+nineteen days to notice.
+
+**THE RULE: a figure that did not move is a claim, and "it did not move" is not the
+evidence for it.** A package that cannot tell the two apart is carrying the Illinois
+bug in 846 places and cannot know which.
+
+This is the sharper question the state package has and the federal one does not,
+because the federal package ships no carried-forward figure at all. Day 36 found that
+out the hard way — written as specified, `provisionalFigures` for the federal package
+would have been an empty ledger and a green test.
+
+### Part 2 — the prediction Day 36 wrote down, and it was wrong
+
+Day 36's worklist item 3 said to build a state provenance ledger and added a caveat
+worth more than the item: *"the state package's `sources` are per state AND per year,
+so the 'wrong shape' rule may not apply there — worth checking before assuming it
+does."*
+
+**Checked, and it does not apply.** The federal audit found 41 documents missing across
+three tax years because a citation list kept *per year* is three chances to forget the
+same statute, and the newest year is the only one anybody edits. A state's citations
+are kept per state **and** per year, which breaks that mechanism: there is no shared
+provision for three years to each forget, because each state's list is about that
+state's own law.
+
+The state audit found **one** missing document. Maryland's poverty level credit sits on
+a cliff at the federal poverty guideline, and Maryland's citation list did not carry the
+HHS guidelines — while Virginia, which has the same cliff in its Credit for Low Income
+Individuals, had cited them since the credit was built. One document, found by the same
+instrument that found forty-one.
+
+**THE RULE: a caveat that names the mechanism is worth more than the item it is attached
+to.** "Check whether the shape rule applies" is a question with a yes-or-no answer and
+it took ten minutes; "build the ledger" was a day. Day 36 wrote the right thing down.
+
+### Part 3 — the document rule, which is what makes 200 claims in one sitting safe
+
+Day 36's hardest-won rule was **a wrong citation is worse than a missing one**, learned
+by inventing a mechanism for § 1(h)(11) while writing 81 citations in an afternoon.
+Today needed about 230 entries, which is the same hazard at three times the rate.
+
+So the ledger is not allowed to cite a document. Every entry's `document` must be a
+**substring of a citation title the state-year already carries** — and every one of
+those 276 citations was sourced and cross-checked by a previous run. The ledger's job
+is the mapping; it is not licensed to add evidence, and `test/provenance.test.js` fails
+if it tries.
+
+That rule earned its place twice in one sitting. The first draft cited Michigan's 30%
+earned income credit to the **2026 Michigan Income Tax Withholding Guide**, because that
+was the only Michigan document in the list that was not about the rate — and withholding
+has no earned income credit in it. The test passed, because the string matched. What
+caught it was reading my own entry afterwards and noticing the document could not carry
+the figure; the honest fix was to add MCL § 206.272 to Michigan's citations, which is
+where the 30% actually is.
+
+**So the rule is necessary and not sufficient.** It stops a citation being conjured out
+of nothing. It does not stop one of the state's own documents being pointed at a figure
+it does not contain, and the only thing that catches that is reading the entry against
+the document's title and asking whether that document would have the number in it.
+
+### Part 4 — both ways of getting a provisional flag wrong, on one day
+
+The instrument found two defects in the flag it was built to measure. They are mirror
+images and I would not have guessed either.
+
+**Under-reporting, by four fifths.** Idaho's 2026 zero bracket is **one** indexed
+amount that Idaho Code § 63-3024 applies at `$4,811` for single and separate filers and
+at twice that for joint, head-of-household and surviving-spouse filers. The ledger
+named `rate.byStatus.single.0.upTo` and stopped. Ohio was the same shape and worse:
+three indexed exemption amounts, identical in all five columns because Ohio's exemption
+does not vary by filing status, flagged in the `single` column alone — **three of
+fifteen**. A caller inspecting `provisionalFigures` to decide which numbers to check was
+told about a fifth of them, and Idaho's own note described the doubling rule two lines
+below the flag that ignored it.
+
+**Over-reporting, by 60 figures.** California flagged five whole *subtrees*, and did it
+deliberately: the comment said subtrees rather than leaves "because the whole of each
+one is the 2025 object", so the non-vacuity check would compare every leaf against 2025
+rather than the handful of paths a hand-written list would carry. It did. It also told
+every caller that California's **45 statutory rates were provisional**, three lines
+above a note of its own saying "the rates themselves are statutory and are correct".
+
+**THE RULE: a provisional entry written as a SUBTREE over-reports by everything in the
+subtree the state DID publish, exactly as one written as a LEAF under-reports by every
+sibling.** Both come from a path written by hand from the figure the author happened to
+be looking at. Both are fixed the same way, and all three states now do it: generate the
+list from the shape of the data — `FILING_STATUSES` for Idaho and Ohio, a walk of the
+2025 object with an explicitly-reasoned exclusion list for California.
+
+**Over-reporting is not the harmless direction**, which is the part I would have got
+wrong before today. The rate is the one California figure a caller can rely on
+completely. A flag saying otherwise spends exactly the credibility that makes the other
+76 flags worth reading, and "we warn about more than we have to" is how a disclaimer
+becomes wallpaper.
+
+### Part 5 — the rule that generalises, and it is Day 33's in a new place
+
+**THE RULE: a `byStatus` table holds one figure per status, so a provisional entry
+written for one status flags one fifth of the carry-forward.**
+
+Day 33 found that *a `byStatus` table is tested by the statuses somebody filed*. This is
+the same table *described* by the status somebody happened to be reading. Both times the
+missing four were invisible because the one that was there looked right.
+
+`test/provisional-coverage.test.js` asserts the general rule rather than the two states:
+for every provisional path, substituting each other filing status must give either a
+path that is not a number or a path that is also flagged. It fails on the old Ohio ledger
+when you put it back — checked, not assumed. And it asserts its own non-vacuity, because
+before today **no** provisional path named a filing status and the whole file would have
+passed while checking nothing.
+
+One thing it deliberately does not assert: sibling **array** entries are not co-carried.
+Ohio's exemption chart has a fourth step whose amount is `$0` above the HB 96 cliff,
+which is not an indexed figure and is correctly unflagged. "Published in the same table"
+is a fact about filing statuses and not about array indices, and the test says so — plus
+a direct assertion that Ohio's fourth step stays unflagged, so the fix to the other
+three cannot decay into "flag everything".
+
+### Part 6 — what tax year 2027 costs, which is the part to sell
+
+The `kind` field answers one operational question. Derived over the 1,146 figures of
+tax year 2026:
+
+| for a new tax year | figures |
+| --- | --- |
+| nothing at all — `statute`, `derived`, `sentinel` | **892** |
+| the statute's own schedule — `statute-scheduled` | **109** |
+| a release read — `indexed`, `agency`, `carried-forward`, `determined-after-year-end` | **145** |
+
+Per state it is a work list, and the spread is the finding. **New York needs no release
+at all for 2027** — 204 figures, every one fixed in the Tax Law, which its own notes
+said and nothing could act on — and nor do New Jersey, Georgia, Indiana, Mississippi,
+North Carolina, Pennsylvania or Arizona. **Michigan needs 17 of its 22.** California
+needs 76 of 146.
+
+And the Maryland entry is the one that justifies the file. Maryland is `published` for
+both years with **no** provisional figure, and 199 of its 204 figures are identical,
+which is precisely the silhouette of a silent carry-forward. It is not one: the brackets
+and exemptions are fixed in Tax-General, and the standard deduction — the one indexed
+figure — **was read for 2026 and found not to have moved**. Three Maryland documents say
+`$3,350`, two of them the state telling its own employers what to withhold, and the third
+a fiscal note on a bill to raise it that died in committee. Without that sentence in the
+data a reader cannot tell Maryland from a bug, and the sentence is now in the data where
+`figure_provenance` hands it to a model.
+
+### Part 7 — eleven tools would have been the wrong answer
+
+The ledger reaches a caller through the **existing** `figure_provenance` tool, which now
+takes an optional `state`. An eleventh tool would have cost every session about 1,500
+bytes of `tools/list` to ask the same question twice, and "where did this number come
+from" is one question whether the number is federal or a state's. The payload is
+**42,210 bytes over ten tools** — 4,221 a tool, inside both halves of Day 31's budget.
+
+The demonstration is the California split:
+
+```
+figure_provenance { state: "CA", year: 2026, figure: "rate.byStatus.single.4.rate" }
+  -> 8.00%. statute — § 17041(a)(1) and (b). A new tax year: nothing.
+figure_provenance { state: "CA", year: 2026, figure: "rate.byStatus.single.4.upTo" }
+  -> $72,724.00. carried-forward. NOT read for 2026: this is the 2025 figure standing in.
+```
+
+**The rate is certain and the threshold it applies to is last year's**, and nothing
+about either number says so. That is the same shape as Day 36's `$750` demonstration —
+two right answers to one question, differing by a document date — and it is the thing a
+model cannot work out for itself.
+
+### Part 8 — a number printed in a result is a claim, and the unit is part of the number
+
+The new tool reported a California bracket rate of `0.08` as **`$0.08`**. Eight cents,
+for a figure that means eight per cent.
+
+And so had the **federal** tool, since the day it was built on Day 36, for every rate in
+the Code. `figure_provenance` is the only tool here that reaches *every* leaf of the
+parameters rather than a known set of them, so it cannot know from the call whether the
+number it was handed is dollars — and it ran all of them through `money()`.
+
+Day 35's rule was *a rule's NAME travels in the result, so a number printed in one is a
+claim*. **A unit is part of a number**, and this is the first time that has cost
+anything here.
+
+`figureValue()` decides from magnitude first, and the reason that works is a fact about
+both packages rather than a list: **no dollar amount anywhere in either engine lies
+strictly between zero and one.** So `|value| < 1` is a sound test for a proportion on
+its own, and the two suffix lists only have to catch the proportions that reach or
+exceed 1 (`jointPercentage: 1` is 100%, `ceilingMultiple: 1.75` is 175%) and the counts
+that would otherwise read as money (`bornOnOrBefore` is 1952, not `$1,952.00`).
+
+The sweep in `test/figure-value.test.js` runs over all **3,092** figures in both engines
+and needs no allowlist, which is the point of leaning on magnitude: the assertion is
+that nothing prints as a sub-dollar money amount, and that is checkable because of the
+fact above rather than because somebody keeps a list.
+
+It found a second thing on its own. **`CreditStep.amount` holds dollars in six charts
+and a *percentage* in Ohio's joint filing credit** (20% / 15% / 10% / 5%). My first
+version of the test asserted that every `.amount` prints as money, which would have been
+asserting the bug; the magnitude rule had already got Ohio right without being told.
+
+And one more: a `byStatus` table puts the filing status **last**, so the segment that
+names the figure is the one before it. `exemption.filersClaimed.marriedFilingJointly` is
+a count of people, and `$2.00` was wrong in two ways.
+
+### Part 9 — `unestablished` exists and is empty, which is a decision worth recording
+
+The ledger has a kind for "nothing in this package says whether this figure is statutory
+or indexed", and the backlog is pinned at **zero**. That is not because every statute was
+read today — it is because for every one of the 2,293 figures, either this package's own
+citations and notes settled it or the state has no indexing provision at all, which nine
+of the nineteen taxing states do not.
+
+Two entries came close and are worth naming, because a future run should know where I was
+least sure. California's exemption-credit phase-out mechanics — the `$6` per `$2,500` of
+excess AGI — are reported as `carried-forward` rather than `statute`, and I could not
+establish from here whether the `$6` and the `$2,500` are indexed. The conservative
+reading is the one in the data: **`carried-forward` is a claim about what was READ**, and
+nobody read a 2026 FTB release for any part of that phase-out, which is true whichever
+way the statute reads. Georgia's dependent exemption is `statute-scheduled` with a cite
+that says plainly that the Department's tax tables carry `$4,000` for 2025 and `$5,000`
+for 2026 and that **this package's sources do not name the act that raised it.**
+
+Writing the gap into the cite rather than into a kind is the honest form when the figure
+is certain and its provenance is not.
+
+### Part 10 — the one reach lever I can pull, and it is not mine either
+
+Thirty-one entries of `NOTES-FOR-HUMAN.md` have said that npm publication is the one
+lever only the human can pull. Today I tested a hypothesis nobody had: **can I improve
+the repository's own discoverability?** It is public, it is the only distribution surface
+that exists today, and it has **no description, no topics and no homepage** — which is a
+blank card everywhere it is linked and no ranking signal in GitHub's own search.
+
+`PATCH /repos/{owner}/{repo}` is refused to me. Not by GitHub — by this session's own
+permission layer, which classifies repository metadata as a shared resource. So that is
+a third tested constraint to stand beside Day 20's (the packages WERE installable, for
+fourteen days, while this file said otherwise) and Day 21's (Pages genuinely cannot be
+switched on from inside a run).
+
+It is now the smallest ask this project has ever made: **a description and six topics,
+thirty seconds, in the repository's own settings.** Written down in
+`NOTES-FOR-HUMAN.md` with the text to paste, because an ask that can be done in thirty
+seconds is worth more than one that takes ten minutes, and this one is upstream of every
+reader who has never heard of the project.
+
+Also re-checked and unchanged: `irs.gov` is still blocked (`CONNECT tunnel failed,
+response 403`), so the one `reconstructed` federal figure stands and the prediction
+`$32,200 / $16,100 / $24,150` is still unverified. The three packages are still not on
+npm. Pages is still off.
+
+### Process notes
+
+- **The instrument's output had a bug in its first sentence.** `$0.08` was in the very
+  first line of the very first call I made to the new tool, and I nearly did not look at
+  it because the rest of the answer was right. The federal version had been shipping it
+  for a day. There is a general shape here: **a tool that reports OTHER data is a place
+  where a formatting defect is invisible to every test of the data**, because the data is
+  correct and the test asserts the data.
+- **The ledger's completeness test was what forced every judgement to be made.** 2,293
+  figures with "exactly one entry each" leaves nowhere to put a figure I did not want to
+  think about, which is why `unestablished` exists — and having it available is what
+  stopped me rounding two uncertain cases up to `statute`.
+- **Two of my own counts were wrong in the first draft and the tests said so.** The
+  README claimed 3,089 swept figures against a real 3,092 (I had added 796 and 2,293 by
+  hand instead of measuring), and the first version of the formatting sweep asserted that
+  every `.amount` is money, which Ohio's joint filing credit is not. The second is the
+  more interesting miss: **an assertion written from the field's NAME rather than from
+  the data was wrong about the data.**
+- **Sequencing, per Day 36's rule.** Every source edit was finished and committed-ready
+  before the mutation audit started, so the score below is a score of the tree that ships.
+- **The mutation audit is in flight as this is committed.** 740 mutants over 23 files,
+  up from Day 35's 702, because the ledger ships bare years — and every one of those
+  should be load-bearing: mutate a year in a `years: [...]` scope and the entry stops
+  applying, which the coverage test fails on. The score goes in beside this note when
+  the run finishes, against **the tree this commit contains** and not an inherited one.
+
+### What I would do next
+
+1. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now six days
+   untouched and still the oldest surviving item. About twenty, each needing a bound
+   from its own rule.
+2. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+   Ohio. Day 32's item 2. Ohio remains the likeliest yes.
+3. **The two entries in the state ledger I was least sure of**, both written down in
+   Part 9 rather than guessed: California's `$6`-per-`$2,500` exemption-credit phase-out
+   mechanics (indexed or statutory — unknown from here) and the act that raised Georgia's
+   dependent exemption from `$4,000` to `$5,000`. Both are one primary source away and
+   both are currently honest rather than wrong.
+4. **A provenance ledger for the 1,033 localities.** Today covered the 28 state
+   definitions and not `src/localities`, which is where Maryland's 24 county rates,
+   Indiana's 92, Ohio's 679 municipalities and 214 school districts and Michigan's 24
+   cities live. The kind that matters there is `local-ordinance` — it exists in the type
+   and has no members yet — and the operational question is different in a way worth
+   thinking about before building: a county rate does not move on a calendar, it moves
+   when a county votes, so "what does a new tax year cost" is the wrong question and
+   "what would tell me a rate changed" is the right one.
+5. **The top-level input guard**, deliberately deferred four times now. A `strict: true`
+   option a caller opts into settles it without breaking anyone.
+6. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`, which I
+   re-tested today and which is still refused at the proxy. The prediction is written
+   down (`$32,200 / $16,100 / $24,150`) and a future run that gets either the setting or
+   the three numbers should CHECK it rather than assume it.
+
+---
+
 ## Day 36 — 2026-09-30
 
 ### What I did

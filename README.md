@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.32.0/us-state-tax-0.32.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.33.0/us-state-tax-0.33.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.14.0/us-federal-tax-0.14.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.35.0/us-tax-mcp-0.35.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.36.0/us-tax-mcp-0.36.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -215,6 +215,105 @@ that pins a claim to a copy of the claim cannot catch the claim going stale, and
 exactly like one that can.** A suite cannot count itself, so
 [`tools/test-counts.mjs`](tools/test-counts.mjs) runs the runners and CI fails on a
 stale number.
+
+## A figure that did not move is a claim
+
+Day 37 pointed the same question at `us-state-tax`, which is three times the size,
+and the answer was not the one Day 36 predicted. The federal package's hole was its
+citation LISTS — 41 documents missing across three years. The state package's lists
+turned out to be **one document short, not forty-one**, and for a structural reason
+worth keeping: a state's citations are per state *and* per year, so the "a per-year
+list is three chances to forget the same statute" failure cannot happen there. Day
+36 wrote that down as a question to check before assuming; checked, and it does not
+apply.
+
+The state package's hole was somewhere else, and it was bigger:
+
+```text
+figures identical in tax year 2025 and tax year 2026        949
+  flagged as carried forward (and the flag is wrong, below) 169
+  explained by nothing at all                               846
+```
+
+Every one of those is one of two completely unrelated things. Either the law fixes
+the figure — New Jersey's brackets have stood since 2020, Virginia's rate schedule
+since 1990 — in which case 2026 equals 2025 **because the statute says so**, and
+that is a fact worth selling. Or nobody read the 2026 document, in which case it is
+a silent carry-forward: the exact failure this package took nineteen days to notice
+in Illinois, and the one thing it says about itself that every competitor gets
+wrong.
+
+**THE RULE: a figure that did not move is a claim, and "it did not move" is not the
+evidence for it.** A package that cannot tell those two apart is carrying the
+Illinois bug in 846 places and cannot know it.
+
+[`STATE_FIGURE_PROVENANCE`](packages/us-state-tax/src/data/provenance.ts) now maps
+all **2,293 figures across 56 state-years** to a document and a kind of authority,
+and `test/provenance.test.js` checks the claims rather than the figures: an entry
+claiming constancy fails if one of its figures moves, an entry claiming movement
+fails if none does, and **an entry's document must be a substring of a citation the
+state-year already carries** — so the ledger maps figures to evidence this package
+already has and is not licensed to invent evidence.
+
+### What tax year 2027 costs, derived rather than remembered
+
+The `kind` field answers one operational question, which is the only one provenance
+can settle. Over the 1,146 figures of tax year 2026:
+
+| for a new tax year | figures | what it means |
+| --- | --- | --- |
+| nothing at all | **892** | a fixed amount in the state's code, or derived from one |
+| the statute's own schedule | **109** | legislated to change, so read the act — not an indexing release |
+| a release read | **145** | indexed, agency-published, unread, or not yet determined |
+
+Per state, that is a work list no competitor publishes. **New York needs no release
+at all for 2027** — 204 figures, every one fixed in the Tax Law — and so do New
+Jersey, Georgia, Indiana, Mississippi, North Carolina, Pennsylvania and Arizona.
+Michigan needs 17 of its 22. California needs 76 of 146, and the split inside
+California is the thing to look at: § 17041 prints the nine rates and no indexing
+provision moves them, so **a California caller can rely on the rate completely while
+the thresholds it applies to are last year's.** `figure_provenance` says which, per
+figure, for either engine.
+
+### Both ways of getting a provisional flag wrong, found on one day
+
+Building the instrument found two defects in the flag it was measuring, and they are
+mirror images.
+
+**Under-reporting, by four fifths.** Idaho's 2026 zero bracket is one indexed amount
+that applies at `$4,811` for single and separate filers and twice that for the three
+doubled statuses. The ledger named `rate.byStatus.single.0.upTo` and stopped — one
+of five. Ohio was the same shape and worse: three indexed exemption amounts,
+identical in all five columns because Ohio's exemption does not vary by status,
+flagged in the `single` column alone. Three of fifteen.
+
+**Over-reporting, by 60 figures.** California flagged five whole *subtrees*,
+deliberately, so the non-vacuity check would reach every leaf — and in doing so told
+every caller that California's 45 statutory rates were provisional, three lines above
+a note saying "the rates themselves are statutory and are correct". Over-reporting is
+not the harmless direction: the rate is the one figure a California caller can rely
+on completely, and a flag saying otherwise spends the credibility that makes the
+other 76 flags worth reading.
+
+**THE RULE: a provisional entry written as a SUBTREE over-reports by everything in
+the subtree the state did publish, exactly as one written as a LEAF under-reports by
+every sibling.** Both come from a path written by hand from the figure the author was
+looking at, and both are fixed the same way — generate the list from the shape of the
+data. `test/provisional-coverage.test.js` now fails on a flag that stops at one
+filing status, and it fails on the old Ohio ledger when you put it back.
+
+### And a number printed in a result is a claim
+
+The new tool reported a California bracket rate of `0.08` as **`$0.08`** — eight
+cents, for a figure that means eight per cent — and so had the federal tool since the
+day it was built, for every rate in the Code. `figure_provenance` is the one tool
+that reaches *every* leaf of the parameters rather than a known set of them, so it
+cannot know from the call whether the number it was handed is dollars.
+`figureValue()` decides from magnitude first — **no dollar amount in either engine
+lies strictly between zero and one** — which makes the sweep over all 3,092 figures
+in `test/figure-value.test.js` need no allowlist to maintain. It also found that
+`CreditStep.amount` holds dollars in six charts and a *percentage* in Ohio's joint
+filing credit, which the magnitude rule gets right without being told.
 
 ## The calculator
 
@@ -640,7 +739,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.35.0/us-tax-mcp-0.35.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.36.0/us-tax-mcp-0.36.0.tgz"
       ]
     }
   }

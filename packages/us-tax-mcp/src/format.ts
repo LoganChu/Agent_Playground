@@ -67,6 +67,52 @@ export function statusLabel(status: string): string {
   return STATUS_LABELS[status] ?? status;
 }
 
+/**
+ * The last segment of a figure's dot path names a PROPORTION rather than an
+ * amount: a rate, a share, a percentage, a multiplier.
+ *
+ * These are formatted as percentages whatever their magnitude, because a
+ * proportion of 1 is 100% and a `ceilingMultiple` of 1.75 is 175%. Printing
+ * either as `$1.00` or `$1.75` is not a rounding nicety, it is a wrong number
+ * in a result — and Day 35's rule applies to a provenance answer as much as to
+ * a tax computation: a number printed in a result is a claim.
+ */
+const PROPORTION_SUFFIX = /(rate|share|percentage|fraction|factor|multiplier|multiple)$/i;
+
+/**
+ * The last segment names a COUNT, an AGE or a YEAR, none of which is money.
+ * `bornOnOrBefore` is 1952 and not $1,952.00; `filersClaimed` is 2 people.
+ */
+const COUNT_SUFFIX = /(age|year|before|children|claimed|divisor)$/i;
+
+/**
+ * Format one figure of a parameter object for a human, given its dot path.
+ *
+ * Needed because `figure_provenance` is the one tool that reaches EVERY leaf of
+ * the parameters rather than a known set of them, so it cannot know whether the
+ * number it was handed is dollars. The first version printed a bracket rate of
+ * 0.08 as `$0.08` — eight cents, for a figure that means eight per cent — in
+ * both the federal and the state branch.
+ *
+ * The rule is deliberately mostly magnitude rather than mostly naming: no
+ * dollar amount anywhere in either package lies strictly between zero and one,
+ * so `|value| < 1` is a sound test for a proportion on its own, and the suffix
+ * lists only have to catch the proportions that reach or exceed 1 and the
+ * counts that would otherwise read as money.
+ */
+export function figureValue(path: string, value: number): string {
+  // A `byStatus` table puts the filing status LAST, so the segment that names
+  // the figure is the one before it: `exemption.filersClaimed.marriedFilingJointly`
+  // is a count of people and `$2.00` is the wrong answer in two ways.
+  const segments = path.split('.').filter((segment) => !(segment in STATUS_LABELS));
+  const last = segments[segments.length - 1] ?? '';
+  if (PROPORTION_SUFFIX.test(last)) return percent(value, value * 100 === Math.round(value * 100) ? 2 : 3);
+  if (value !== 0 && Math.abs(value) < 1) return percent(value, 2);
+  if (COUNT_SUFFIX.test(last)) return String(value);
+  if (!Number.isFinite(value)) return 'unbounded';
+  return money(value);
+}
+
 function line(label: string, value: string): string {
   return `${label.padEnd(34)}${value.padStart(16)}`;
 }

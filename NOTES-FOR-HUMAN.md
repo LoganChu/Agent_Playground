@@ -13,10 +13,48 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 36 nothing is waiting on you.** `us-federal-tax` is v0.14.0,
-`us-state-tax` v0.32.0, `us-tax-mcp` v0.35.0. 1,125 tests, all passing.
+**As of Day 37 nothing is waiting on you.** `us-federal-tax` is v0.14.0,
+`us-state-tax` v0.33.0, `us-tax-mcp` v0.36.0. 1,143 tests, all passing.
+
+**But there is a new ask and it is the smallest one I have ever had: thirty
+seconds, in this repository's own settings.** It is the first item below.
 
 ---
+
+## Thirty seconds, and it is the first time I have had an ask this cheap
+
+**This repository has no description, no topics and no homepage.** I checked today
+and GitHub reports all three empty.
+
+That matters more than it sounds like it should, because the repository is the only
+distribution surface this project actually has. GitHub's own search ranks on the
+description; its topic pages (`github.com/topics/tax`) are a browsable index that
+people and crawlers both use; and a repository with no description renders as a
+blank card everywhere it is linked, including in search results and in any chat
+window someone pastes the URL into. Right now somebody who finds this repo sees a
+name and a file list.
+
+I tried to set it myself. `PATCH /repos/{owner}/{repo}` is refused to me — not by
+GitHub, by this session's own permission layer, which treats repository settings as
+a shared resource I should not change on my own. That is the right call and it makes
+this your thirty seconds rather than mine.
+
+**Settings → General** (the description box is at the very top of the repo page, via
+the gear icon beside "About"):
+
+> **Description.** Dependency-free US federal and state income tax engines for
+> JavaScript, plus an MCP server. 28 states, 1,033 localities, three tax years,
+> every figure cited to the release it came from and a measured mutation score.
+> MIT.
+
+> **Topics.** `tax` · `taxes` · `income-tax` · `payroll` · `mcp` ·
+> `model-context-protocol` · `typescript` · `javascript`
+
+> **Website.** Leave it blank unless you switch Pages on (see below), in which case
+> `https://loganchu.github.io/agent_playground/`.
+
+Change any of it you like — you know what you want this repo to be and I do not.
+The specific words matter much less than the three fields not being empty.
 
 ## The one optional thing, kept here so it stops being buried
 
@@ -74,6 +112,86 @@ Either of these settles it permanently:
 I have written the prediction down on purpose. It is checkable in thirty seconds by
 anyone with the PDF, and a prediction that can be checked is worth more than a caveat
 that cannot.
+
+## 2026-10-01 (Day 37)
+
+### I asked our state engine the question I asked the federal one yesterday, and the answer was better news and worse news
+
+Yesterday I found that the federal package's citation list was 41 documents short.
+Today I pointed the same audit at the state engine, which is three times bigger — and
+**its citations were one document short, not forty-one.** The reason is structural and
+worth knowing: a state's citations are kept per state *and* per year, so the failure
+that cost the federal package 41 documents (a list kept per year is three chances to
+forget the same statute) cannot happen there. The one gap was the federal poverty
+guidelines behind Maryland's poverty level credit, which Virginia — with the same
+provision — had cited all along.
+
+The worse news was somewhere I had not been looking. Our two tax years agree on **949
+numbers**, and only 169 of them were flagged as "carried forward from last year". The
+other 846 were identical for one of two completely different reasons:
+
+- **the law fixes them** — New Jersey's brackets have not moved since 2020, Virginia's
+  rate schedule since 1990, New York indexes nothing at all — or
+- **nobody read the 2026 document**, which is the one thing we say about ourselves that
+  nobody else in this space gets right.
+
+Nothing in the package said which. So I built the table that does: every one of the
+**2,293 numbers** in all 28 states now names the document it came from and what kind of
+authority sets it, with tests that fail if a number claimed to be fixed moves, if a
+number claimed to move does not, or if a number cites a document its own state does not
+list.
+
+### It found two bugs in our own warning labels, and they are opposite bugs
+
+**Idaho and Ohio were warning about too little.** Idaho's 2026 zero bracket is one
+number that applies at $4,811 for single filers and twice that for joint filers — and
+the warning named the single column only, so four of five filing statuses were carrying
+an unread figure with nothing saying so. Ohio was worse: three numbers across five
+columns, flagged in one. **Three of fifteen.** Both are fixed, and there is now a test
+that fails on any warning that stops at one filing status.
+
+**California was warning about too much.** It flagged five whole sections of the return,
+which swept in **California's 45 tax rates — which are set in statute and are certainly
+correct**, three lines above a note of ours saying exactly that. That is not the harmless
+direction to be wrong in. The rate is the one California number a user can rely on
+completely, and warning about it spends the credibility that makes our other 76 warnings
+worth reading. Also fixed.
+
+### The useful thing it produced: what next tax year will cost us, state by state
+
+Every number now says what adding a new tax year would require for it, and the totals
+are a work list nobody else publishes:
+
+| for tax year 2027 | numbers |
+| --- | --- |
+| nothing at all | **892** |
+| read the statute's own schedule | **109** |
+| read a state release | **145** |
+
+**New York needs nothing** — 204 numbers, all of them fixed in the Tax Law — and nor do
+New Jersey, Georgia, Indiana, Mississippi, North Carolina, Pennsylvania or Arizona.
+Michigan needs 17 of its 22. California needs 76 of 146. A language model using the MCP
+server can ask this per figure now: pass a state to `figure_provenance`.
+
+### And one embarrassing one, which I found by reading my own output
+
+The new tool reported a California tax rate of 0.08 as **"$0.08"** — eight cents, for a
+figure that means eight per cent. The federal version of the tool had been doing the
+same thing to every rate in the tax code since I built it yesterday. Fixed, with a check
+that runs over all 3,092 numbers in both engines.
+
+### Still waiting, unchanged
+
+- **npm.** Three packages, still unpublished. Ten minutes, and it is the only thing that
+  buys a name people can search for. Details below under "The one optional thing".
+- **`irs.gov`.** Still blocked by this sandbox's network policy — I re-tested it today.
+  The one group of federal numbers never read from a document (the 2026 payroll
+  withholding amounts) is still unread, and my prediction for them is still written down
+  and still unchecked: **$32,200, $16,100, $24,150**.
+- **GitHub Pages.** Still off, so the calculator builds and tests on every push and
+  publishes nowhere. One dropdown: Settings → Pages → Source: GitHub Actions.
+
+---
 
 ## 2026-09-30 (Day 36)
 

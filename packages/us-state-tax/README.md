@@ -245,7 +245,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.32.0/us-state-tax-0.32.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.33.0/us-state-tax-0.33.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1784,6 +1784,12 @@ Provisional for 2026: **CA, CO, ID, MI, OH, UT**. Published: **AZ, GA, IL, IN, K
 MS, NC, NJ, NY, PA, VA** and the nine states with no income tax. Nothing is provisional for
 2025.
 
+**The counts changed in v0.33.0 and the states did not.** 103 figures are carried forward
+across those six state-years, against 153 before: Idaho gained four and Ohio twelve, where
+the flag had named one filing status of five, and California lost 60, where it had named
+five subtrees and swept the statutory rates in with the indexed thresholds. See *Where
+every figure came from* below for both halves of that.
+
 **Three have come off that list: Illinois in v0.25.0, Kentucky and Maryland in v0.26.0.**
 Illinois's 2026 exemption allowance is `$2,925` from the `$2,850` of 2025. Kentucky's 2026
 standard deduction is `$3,360` from `$3,270` — announced by the Department of Revenue and
@@ -2008,6 +2014,111 @@ object — `"Michigan retirement and pension benefits deduction (phased in, 75% 
 2025)"` — so a percentage or a dollar figure printed in one is a claim a caller
 reads, and all 15 of them are now required to equal a figure the rule actually holds.
 
+## Where every figure came from, and why it did not move (v0.33.0)
+
+Every figure here was already cited to a statute or a state release. What nothing said
+was **which document any one figure came from** — 2,293 numbers across 56 state-years,
+276 citations, and no mapping between them. **A list of sources beside a list of figures
+is not provenance. The mapping is the provenance, and it is the part nobody writes
+down.**
+
+The mapping's absence was hiding a bigger question than a missing citation. Comparing
+the two tax years this package ships:
+
+```text
+figures identical in 2025 and 2026                          949
+  flagged as carried forward                                169
+  explained by nothing at all                                846
+```
+
+Each of those 846 is one of two unrelated things. Either the law fixes the figure — New
+Jersey's brackets have stood since 2020, Virginia's rate schedule since 1990, New York
+indexes nothing at all — in which case 2026 equals 2025 *because the statute says so*.
+Or nobody read the 2026 document, in which case it is a silent carry-forward: the exact
+failure this package took nineteen days to notice in Illinois.
+
+**THE RULE: a figure that did not move is a claim, and "it did not move" is not the
+evidence for it.**
+
+`STATE_FIGURE_PROVENANCE` maps every figure to a document and a kind of authority, and
+`test/provenance.test.js` checks the *claims* rather than the figures:
+
+| assertion | what it catches |
+| --- | --- |
+| coverage, both ways | a figure no entry claims, and an entry no figure needs |
+| `constant`, both ways | an entry claiming constancy whose figures moved, **and one claiming movement whose figures did not** — which is the shape of a silent carry-forward |
+| an `indexed` figure that has not moved | must carry a written reason. Six do |
+| `document` | must be a substring of a citation the state-year **already carries**. The ledger maps figures to evidence this package has; it may not invent evidence |
+| `carried-forward` | must agree with `provisionalFigures`, in both directions |
+
+The one Maryland entry is why the whole file is worth having. Maryland is `published`
+for both years with no provisional figure, and 199 of its 204 figures are identical —
+which is precisely what a silent carry-forward looks like. It is not one. The brackets
+and exemptions are fixed in Tax-General, and the one indexed figure, the standard
+deduction, **was read for 2026 and found not to have moved**: three Maryland documents
+say `$3,350`, two of them the state telling its own employers what to withhold. Without
+that sentence in the data, a reader cannot tell Maryland from a defect.
+
+### What a new tax year costs, derived rather than remembered
+
+The `kind` field answers one operational question. Over the 1,146 figures of tax year
+2026:
+
+| for a new tax year | figures |
+| --- | --- |
+| nothing at all (`statute`, `derived`, `sentinel`) | **892** |
+| the statute's own schedule (`statute-scheduled`) | **109** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **145** |
+
+```js
+import { newYearCost, stateFigureProvenance, getStateDefinition } from 'us-state-tax';
+
+const ca = getStateDefinition('CA', 2026);
+stateFigureProvenance(ca, 'CA', 2026, 'rate.byStatus.single.4.rate').kind;
+// 'statute'          — § 17041 prints it; no indexing provision moves it
+stateFigureProvenance(ca, 'CA', 2026, 'rate.byStatus.single.4.upTo').kind;
+// 'carried-forward'  — the 2025 threshold, standing in
+```
+
+That is the split worth knowing about California: **the rate is certain and the
+threshold it applies to is last year's.** New York needs no release at all for 2027 —
+204 figures, every one fixed in the Tax Law — and nor do New Jersey, Georgia, Indiana,
+Mississippi, North Carolina, Pennsylvania or Arizona. Michigan needs 17 of its 22.
+
+### Both ways of getting a provisional flag wrong
+
+Building the ledger found two defects in the flag it was measuring, and they are mirror
+images of each other.
+
+**Idaho and Ohio under-reported, by four fifths.** Idaho's 2026 zero bracket is one
+indexed amount applied at `$4,811` for single and separate filers and twice that for the
+three doubled statuses. The ledger named `rate.byStatus.single.0.upTo` and stopped. Ohio
+was worse: three indexed exemption amounts, identical in all five columns because Ohio's
+exemption does not vary by filing status, flagged in the `single` column alone — three of
+fifteen. A caller inspecting `provisionalFigures` to decide which numbers to check was
+told about a fifth of them.
+
+**California over-reported, by 60 figures.** It flagged five whole *subtrees* —
+deliberately, so the non-vacuity check would reach every leaf — and in doing so told
+every caller that California's 45 statutory rates were provisional, three lines above a
+note saying the rates "are statutory and are correct". Over-reporting is not the harmless
+direction: the rate is the one California figure a caller can rely on completely, and a
+flag saying otherwise spends the credibility that makes the other 76 worth reading.
+
+**THE RULE: a provisional entry written as a SUBTREE over-reports by everything in the
+subtree the state did publish, exactly as one written as a LEAF under-reports by every
+sibling.** Both come from a path written by hand from the figure the author happened to
+be looking at. Both are fixed by generating the list from the shape of the data, which
+all three states now do — and `test/provisional-coverage.test.js` fails on a flag that
+stops at one filing status, so the class cannot come back.
+
+The one missing citation the ledger found is worth stating for its size: **one, not
+forty-one.** The federal package's equivalent audit found 41 documents missing across
+three tax years, because a citation list kept *per year* is three chances to forget the
+same statute. A state's citations are kept per state **and** per year, so that failure
+cannot happen here, and the only gap was the HHS poverty guidelines behind Maryland's
+poverty level credit — which Virginia, with the same cliff, had cited all along.
+
 ## Coverage
 
 **Graduated:** California, Maryland, Mississippi, New Jersey, New York, Virginia — though
@@ -2029,7 +2140,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.32.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.33.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 28 states.** No Minnesota, Wisconsin,

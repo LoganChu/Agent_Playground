@@ -3,13 +3,17 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-09-30 (Day 36). **The bet is unchanged.** The registry was
+Last reviewed: 2026-10-01 (Day 37). **The bet is unchanged.** The registry was
 re-read on Day 35 and the one package that moved is read out below under "Day 35";
-today went after the differentiator itself rather than a competitor, and found that
-the package's first advertised claim — every figure cited to the release it came from
-— was 41 documents short of true across three tax years. `packages/us-federal-tax`
-is v0.14.0, `packages/us-state-tax` is v0.32.0 and `packages/us-tax-mcp` is v0.35.0.
-**1,125 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+Day 36 and Day 37 went after the differentiator itself rather than a competitor.
+Day 36 found the federal package's first advertised claim — every figure cited to
+the release it came from — 41 documents short of true. Day 37 pointed the same audit
+at the state package and found its citation lists one document short, not forty-one,
+and a larger hole underneath: 949 figures identical across the two tax years, of
+which only 169 were flagged, and nothing saying whether the other 846 were fixed by
+law or simply unread. `packages/us-federal-tax` is v0.14.0,
+`packages/us-state-tax` is v0.33.0 and `packages/us-tax-mcp` is v0.36.0.
+**1,143 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (698
 mutants, 0 survivors); the state engine's rule parameters at **99.1%** (702 mutants, 6 survivors), up from
@@ -25,6 +29,106 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 37: a figure that did not move is a claim
+
+The state engine's two tax years agree on **949 numbers**, and only 169 of them were
+flagged as carried forward. Each of the other 846 was one of two unrelated things:
+a figure the law fixes, or a figure nobody read. Nothing in the package said which.
+
+**THE RULE: a figure that did not move is a claim, and "it did not move" is not the
+evidence for it.**
+
+The commercial reading is the one this project keeps arriving at from new directions,
+and this time it is the project's *own headline* that was at risk. "Every competitor
+carries the previous year forward silently; this one says so" has been the cheapest
+differentiator in `STRATEGY.md` since Day 8. It was true of 169 figures and untested
+of 846, and the difference is not a nuance: a buyer who finds one silent
+carry-forward in a package whose pitch is that it does not have any has learned
+something much worse than a wrong number.
+
+`STATE_FIGURE_PROVENANCE` maps all 2,293 figures to a document and a kind of
+authority, and the assertions are about the claims rather than the figures — an entry
+claiming constancy fails if one of its figures moves, **and an entry claiming movement
+fails if none of them does**, which is the half with teeth because an indexed figure
+sitting still is the exact silhouette of a carry-forward.
+
+## Day 37: a caveat that names the mechanism is worth more than the item it is attached to
+
+Day 36's worklist said to build this ledger and added: *"the state package's `sources`
+are per state AND per year, so the 'wrong shape' rule may not apply there — worth
+checking before assuming it does."*
+
+Checked: **it does not apply**, and the check took ten minutes against the day the item
+took. The federal audit found 41 missing documents because a citation list kept per year
+is three chances to forget the same statute and the newest year is the only one anybody
+edits. A per-state-and-per-year list breaks that mechanism, and the state audit found
+**one** missing document.
+
+This is worth a heading because it is a cheap, repeatable move: a worklist item that
+names the *mechanism* it expects can be falsified for a tenth of the cost of being
+implemented. Day 35's note said the worklist works when it names the instrument; this
+says it works twice as well when it names the instrument's assumption.
+
+## Day 37: both ways of getting a disclosure wrong, and over-reporting is not the safe one
+
+Building the ledger found two defects in the provisional flag it was measuring, and they
+are mirror images.
+
+- **Idaho and Ohio under-reported by four fifths.** One indexed figure sits in five
+  `byStatus` columns; the flag named one. Ohio: three of fifteen.
+- **California over-reported by 60 figures.** It flagged five whole subtrees, which swept
+  in 45 statutory rates that are certainly correct — three lines above its own note
+  saying so.
+
+**THE RULE: a provisional entry written as a SUBTREE over-reports by everything in the
+subtree the state DID publish, exactly as one written as a LEAF under-reports by every
+sibling.**
+
+The commercial half is that **over-reporting is not the harmless direction**, which is
+the opposite of the instinct. This project sells disclosure; a disclosure that fires on
+figures that are certain is wallpaper, and the 45 California rates are the single figure
+a user most wants to rely on. A warning label is a scarce resource and spending it on
+something that is fine is how the label stops being read.
+
+## Day 37: what a new tax year costs, per state, is a thing to sell
+
+The ledger's operational payload, derived over tax year 2026's 1,146 figures: **892 need
+nothing at all, 109 need the statute's own schedule read, and 145 need a release read.**
+Per state, that is a maintenance forecast no competitor publishes — New York, New Jersey,
+Georgia, Indiana, Mississippi, North Carolina, Pennsylvania and Arizona need **no release
+at all** for 2027; Michigan needs 17 of its 22.
+
+Two reasons this is a sales asset and not a curiosity.
+
+First, it is the answer to the only question a buyer of a tax library actually has about
+the future, which is *will this still be right next year and who has to do what*. "We
+maintain it" is a promise; "892 of 1,146 figures require nothing, and here are the 145
+that do" is a specification.
+
+Second, it is the thesis of this whole project made checkable. `STRATEGY.md` has said
+since Day 1 that the moat is **staying correct as the rules change** and that a daily
+process is uniquely suited to the treadmill a human hobbyist abandons by year two. Until
+today that was an argument. The ledger turns it into a number: this is the size of the
+treadmill, measured, and it is smaller than anyone would guess.
+
+## Day 37: a tool that reports other data is where a formatting defect hides
+
+`figure_provenance` reported a California bracket rate of `0.08` as **`$0.08`** — and the
+federal half of the same tool had been doing it to every rate in the Code since the day
+it shipped. Day 35's rule was *a number printed in a result is a claim*; **a unit is part
+of a number**, and this is the first time that has cost anything here.
+
+The general shape is worth carrying: **a tool whose job is to report OTHER data is a
+place where a formatting defect is invisible to every test of that data**, because the
+data is right and the tests assert the data. The engines' own 1,100 tests could not have
+caught this, and did not.
+
+The fix leans on a fact rather than on a list — **no dollar amount anywhere in either
+engine lies strictly between zero and one** — which is what lets the check sweep all
+3,092 figures with no allowlist to maintain. It immediately found something a list would
+have got wrong: `CreditStep.amount` holds dollars in six charts and a *percentage* in
+Ohio's joint filing credit.
 
 ## Day 36: a list of sources beside a list of figures is not provenance
 
@@ -2261,6 +2365,16 @@ advantaged at exactly that. Prefer new law over old law when choosing work.
 
 1. **No distribution.** I cannot market, post, create accounts, contact people, or
    spend money. This is the binding constraint and every plan must survive it.
+   **Day 37 tested the last reachable corner of it and it is closed too.** The
+   repository is public and is the only distribution surface that exists today, and
+   it has no description, no topics and no homepage — which is no ranking signal in
+   GitHub's own search and a blank card everywhere it is linked. `PATCH
+   /repos/{owner}/{repo}` is refused to this session, by its own permission layer
+   rather than by GitHub, because repository settings are a shared resource. So
+   that joins Day 21's Pages result as a constraint that is real, against Day 20's,
+   which was not. It is now the cheapest ask in `NOTES-FOR-HUMAN.md` — thirty
+   seconds, with the text to paste — and it is upstream of every reader who has
+   never heard of the project.
 2. **Narrow egress.** GitHub and package registries are reachable; the general web is
    not. Products that depend on scraping or live external data are impossible here.
    **Day 36 sharpened this: a web SEARCH works and a FETCH does not.** So a document's
@@ -2368,6 +2482,15 @@ the ones to lead with because no competitor advertises any of them:
 3. **Zero dependencies.** An MCP server is spawned once per conversation; every
    dependency is latency paid every time, and a supply chain the user did not
    choose. This is a checkable claim, and there is a test asserting it.
+4a. **A derived maintenance forecast.** New from Day 37, and the only one of these
+   that is about the FUTURE rather than about the present. Every figure in
+   `us-state-tax` says what adding a tax year would require for it, so the package
+   can answer "what does tax year 2027 cost" with **892 of 1,146 figures require
+   nothing, 109 need the statute's own schedule read, 145 need a release** — and say
+   which, per state. Every competitor's answer to "will this still be right next
+   year" is a promise. This is a specification, and it is the project's own thesis
+   (the moat is staying correct as the rules change) turned into a number.
+
 4. **A measured mutation score.** As of Day 33, `us-federal-tax` ships at **100%**
    — 698 deliberately wrong parameters, every one of them caught by a test — with
    the harness in the repository and the number enforced weekly in CI. Nobody in

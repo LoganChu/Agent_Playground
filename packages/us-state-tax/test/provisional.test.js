@@ -35,6 +35,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  FILING_STATUSES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
@@ -226,14 +227,21 @@ test("Ohio's zero band is settled and only its exemption chart is not", () => {
     { upTo: 26_050, base: 0, rate: 0 },
     { upTo: Infinity, base: 332, rate: 0.0275 },
   ]);
+  // Day 37: fifteen paths, not three. The three indexed amounts sit in all five
+  // filing-status columns — Ohio's exemption does not vary by status — and the
+  // list named the `single` column alone, so a caller reading it was told about
+  // three of fifteen. `provisional-coverage.test.js` now fails on a flag that
+  // stops at one status; this assertion is the specimen, written from the
+  // structure so it cannot be satisfied by a list of the right length.
   assert.deepEqual(
-    ohio.provisionalFigures.map((f) => f.path),
-    [
-      'exemption.perExemptionSteps.single.0.amount',
-      'exemption.perExemptionSteps.single.1.amount',
-      'exemption.perExemptionSteps.single.2.amount',
-    ],
+    ohio.provisionalFigures.map((f) => f.path).sort(),
+    FILING_STATUSES.flatMap((status) =>
+      [0, 1, 2].map((step) => `exemption.perExemptionSteps.${status}.${step}.amount`),
+    ).sort(),
   );
+  // And NOT the fourth step, which is $0 above the HB 96 cliff and is not an
+  // indexed figure — otherwise the correction above is just "flag everything".
+  assert.ok(!ohio.provisionalFigures.some((f) => f.path.endsWith('.3.amount')));
 });
 
 test('Colorado is provisional in a way no amount of looking can fix', () => {

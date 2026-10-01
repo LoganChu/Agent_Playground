@@ -165,6 +165,17 @@ const CITATIONS: readonly Citation[] = [
     url: 'https://www.marylandcomptroller.gov/content/dam/mdcomp/tax/legal-publications/alerts/tax-alert-changes-to-standard-and-itemized-deductions-and-to-state-and-local-income-tax-rates-from-the-2025-legislative-session.pdf',
   },
   {
+    // The poverty level credit of § 10-709 is a CLIFF at the federal poverty
+    // guideline, so the guideline is a parameter of the Maryland return and not
+    // background. Added on Day 37: the provenance ledger asked which document
+    // every figure came from, and this was the only state figure in the package
+    // whose document its own citation list did not carry. Virginia, which has
+    // the same cliff in its Credit for Low Income Individuals, has cited it
+    // since the credit was built.
+    title: 'HHS poverty guidelines — the cliff the Maryland poverty level credit sits on',
+    url: 'https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines',
+  },
+  {
     title: 'Maryland 2025 Resident Tax Forms and Instructions — Form 502, the exemption chart, the local rate chart and the credit worksheets',
     url: 'https://www.marylandcomptroller.gov/content/dam/mdcomp/tax/instructions/2025/resident-booklet.pdf',
   },

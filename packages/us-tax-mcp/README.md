@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.35.0/us-tax-mcp-0.35.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.36.0/us-tax-mcp-0.36.0.tgz"
       ]
     }
   }
@@ -797,7 +797,7 @@ adjustment as "up to `$259`"; `$257.50` is the most its own worksheet can produc
 | `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 28 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `describe_state` | "What does Ohio need?" "What does Utah do that a rate table doesn't?" The fields `state_income_tax` reads for ONE state — required ones first, each with the form line it comes off and what its absence costs — plus that state's conformity base, its own notes and its statutes. Call it before computing a state you have not computed before: an omitted per-state field is usually a wrong answer rather than a missing one, because the engine falls back to a federal figure the state does not use. It is also where the per-state documentation lives, so that `state_income_tax`'s schema costs every session one state's worth of context rather than twenty-eight. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
-| `figure_provenance` | "Where does this number come from?" "Is this figure current?" Which document publishes one federal figure in one year — the Revenue Procedure that indexes it, the section of the Code that fixes it, the SSA release that sets it, the Publication 15-T table it is read from — and what a new tax year would require for it. One group of figures answers `reconstructed`: not read from any document, with the worksheet line that would settle it. |
+| `figure_provenance` | "Where does this number come from?" "Is this figure current?" Which document publishes one figure in one year — the Revenue Procedure or state release that indexes it, the section of the Code or of the state code that fixes it, the worksheet line it is read from — and what a new tax year would require for it. **Pass `state` for a state figure** and omit it for a federal one. Some figures answer `reconstructed` or `carried-forward`: not read for that year, with the document that would settle it. |
 
 Every tool is read-only, touches nothing outside the process, and returns both a
 human-readable text block and machine-readable `structuredContent`.
@@ -827,6 +827,30 @@ computed instead, and which line of which document would prove it right or wrong
 `figure_provenance` with no `figure` groups all 279 of a year's figures the same
 way, so a model can ask "what in here is not from a published source" and get an
 answer rather than a shrug.
+
+**New in 0.36.0 — the same question for all 28 states.** Pass `state` and the tool
+answers from `us-state-tax`'s own ledger: 2,293 figures across 56 state-years, each
+mapped to a document and a kind of authority. The case it exists for is California:
+
+```
+figure_provenance { state: "CA", year: 2026, figure: "rate.byStatus.single.4.rate" }
+  -> 8.00%. statute — Cal. Rev. & Tax. Code § 17041(a)(1) and (b).
+     A new tax year: nothing. A change here is an amendment, and news.
+figure_provenance { state: "CA", year: 2026, figure: "rate.byStatus.single.4.upTo" }
+  -> $72,724.00. carried-forward. NOT read for 2026: this is the 2025 figure standing in.
+     What would settle it: the FTB's annual 'California tax rates and exemptions'
+     release for 2026, and the 2026 Form 540 booklet.
+```
+
+**The rate is certain and the threshold it applies to is last year's**, and nothing
+about either number says so. With no `figure`, the tool reports what tax year 2027
+costs that state: for New York, `0 need a release read, 47 need the statute's own
+schedule read, and 145 need nothing at all`.
+
+It is the *same* tool rather than an eleventh one, because `tools/list` is paid for
+on every session and "where did this number come from" is one question whether the
+number is federal or a state's. A separate tool would have cost every caller about
+1,500 bytes to ask it twice.
 
 ### What it looks like
 
@@ -874,8 +898,8 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **369 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **581 tests**, every state figure cited to its statute.
-This package adds **159 more** covering the protocol and the tool layer. Those three
+sources. `packages/us-state-tax`: **595 tests**, every state figure cited to its statute.
+This package adds **163 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

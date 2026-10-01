@@ -599,6 +599,15 @@ const MI_CITATIONS: readonly Citation[] = [
     url: 'https://www.legislature.mi.gov/Laws/MCL?objectName=MCL-206-30',
   },
   {
+    // Added on Day 37. The 30% match was cited to the withholding guide by the
+    // first draft of the provenance ledger, which is a document that does not
+    // carry it: withholding has no earned income credit in it. The ledger's
+    // rule is that a figure's document must be one its state-year already
+    // lists, and the honest way to satisfy it was to list the right one.
+    title: 'Mich. Comp. Laws § 206.272 — the Michigan earned income tax credit for working families, 30% of the federal credit',
+    url: 'https://www.legislature.mi.gov/Laws/MCL?objectName=MCL-206-272',
+  },
+  {
     title:
       '2026 Michigan Income Tax Withholding Guide (Form 446, Rev. 02-26) — the $5,900 exemption',
     url: 'https://www.michigan.gov/taxes/-/media/Project/Websites/taxes/Forms/SUW/TY2026/446_Withholding-Guide_2026.pdf',

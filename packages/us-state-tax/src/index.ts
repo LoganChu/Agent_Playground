@@ -91,6 +91,14 @@ export {
   CALEITC_ADJUSTMENT_FACTOR,
   CALEITC_RATES,
 } from './states/california.js';
+export {
+  STATE_FIGURE_PROVENANCE,
+  documentsBehindFigures,
+  isSentinelFigure,
+  newYearCost,
+  stateFigureProvenance,
+} from './data/provenance.js';
+export type { StateFigureKind, StateFigureSource } from './data/provenance.js';
 export { FILING_STATUSES, PERSON_RETIREMENT_FIELDS } from './types.js';
 export type {
   Bracket,
