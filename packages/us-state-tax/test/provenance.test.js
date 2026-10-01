@@ -246,6 +246,41 @@ test("an entry's document is a citation the state-year already carries", () => {
   );
 });
 
+test("an entry's document identifies ONE citation, not merely matches one", () => {
+  // Day 37 wrote the `document` rule to stop the ledger inventing evidence, and
+  // then found the looseness underneath it. `'§ 17052'` is a substring of
+  // `'§ 17052.1 — Young Child Tax Credit'`, so every CalEITC figure named the
+  // Young Child Tax Credit's section as well as its own. `'§ 5747.02'` is a
+  // substring of `'§ 5747.025'` AND `'§ 5747.022'`, so Ohio's rate schedule
+  // named three documents, two of them about exemptions. 25 entry-years.
+  //
+  // **A token that MATCHES a citation is not the same claim as one that
+  // IDENTIFIES it, and a prefix of a statute number is a prefix of every
+  // subsection of it.** This is the stronger assertion, and it is the one the
+  // field was supposed to be making all along.
+  const ambiguous = [];
+  for (const entry of STATE_FIGURE_PROVENANCE) {
+    if (entry.document === undefined) continue;
+    for (const year of entry.years ?? SUPPORTED_YEARS) {
+      const definition = getStateDefinition(entry.state, year);
+      if (definition === undefined) continue;
+      const hits = definition.citations.filter((citation) => citation.title.includes(entry.document));
+      if (hits.length > 1) {
+        ambiguous.push(
+          `${entry.state} ${year} ${entry.path}: '${entry.document}' matches ${hits.length} — ` +
+            hits.map((citation) => citation.title.slice(0, 48)).join(' | '),
+        );
+      }
+    }
+  }
+  assert.deepEqual(
+    ambiguous.slice(0, 10),
+    [],
+    `${ambiguous.length} entry-years name a document token that matches more than one citation. ` +
+      'End the token where the number ends — every title has an em dash after it.',
+  );
+});
+
 test('every kind that asserts a document has one, and the two that cannot do not', () => {
   for (const entry of STATE_FIGURE_PROVENANCE) {
     const needsDocument = !['sentinel', 'unestablished', 'derived'].includes(entry.kind);

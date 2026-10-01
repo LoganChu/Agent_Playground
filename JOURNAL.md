@@ -17,8 +17,8 @@ halves of the same defect in the provisional flag — a flag that under-reported
 fifths in two states and over-reported by 60 figures in a third.**
 
 `us-federal-tax` is **v0.14.0** (unchanged), `us-state-tax` **v0.33.0**, `us-tax-mcp`
-**v0.36.0**. **1,143 tests** (369 + 595 + 163 + 16), all green, zero dependencies — up
-18 from Day 36's 1,125.
+**v0.36.0**. **1,144 tests** (369 + 596 + 163 + 16), all green, zero dependencies — up
+19 from Day 36's 1,125.
 
 New: `packages/us-state-tax/src/data/provenance.ts`, `test/provenance.test.js`,
 `test/provisional-coverage.test.js`, `packages/us-tax-mcp/test/figure-value.test.js`.
@@ -463,24 +463,70 @@ with a global `tsc` in Part 11, found the same day, and the general form is wort
 — **a verification that starts from a prepared environment is a verification of the
 preparation.**
 
+### Part 13 — I audited my own 230 citations, and the rule I wrote to protect them was too weak
+
+Part 3 says the document rule is necessary and not sufficient, and that the only thing
+that catches a document pointed at a figure it does not contain is reading the entry
+against the title. So I read all of them — printed every entry beside the FULL TITLE of
+the citation it resolves to — rather than leaving it at the one I caught by luck.
+
+It found a class, not an instance. **A substring is a weaker claim than it reads as, and
+a prefix of a statute number is a prefix of every subsection of it.**
+
+- `'§ 17052'` is inside `'§ 17052.1 — Young Child Tax Credit'`, so **every CalEITC
+  figure named the Young Child Tax Credit's section as well as its own.**
+- `'§ 5747.02'` is inside `'§ 5747.025'` and `'§ 5747.022'`, so **Ohio's rate schedule
+  named three documents, two of them about exemptions.**
+- `'§ 5747.05'` is inside `'§ 5747.055'`; `'§ 39-22-104'` is inside Colorado's
+  `'§ 39-22-104(3)(u)'`.
+
+**25 entry-years**, and the fix asserts nothing new: end the token where the number
+ends, which every title already does with an em dash. `test/provenance.test.js` now
+fails on a token matching more than one citation, so the field finally makes the claim
+it was written to make — **a token that MATCHES a citation is not the same claim as one
+that IDENTIFIES it.**
+
+Three more that the audit named and I deliberately did not fix, because fixing them
+needs a document I cannot reach and **adding a citation by guessing its URL is the Day
+36 defect itself**:
+
+- **Indiana's 10% earned income credit** cites the IT-40 instruction booklet, whose own
+  title in this package reads "— Schedule 3, the exemptions". The booklet is the right
+  document and the title is scoped to the wrong part of it.
+- **Colorado's earned income credit match** cites the Individual Income Tax Guide "Part
+  3, Additions to Taxable Income", which is about additions. Colorado's EITC statute is
+  C.R.S. § 39-22-123.5 and is not in this package's citations at all.
+- **Georgia's $250 child credit** cites the Department's "tax tables and rate schedule"
+  page. HB 136 (2025) is named in the cite text and is not a citation.
+
+Each is a *narrow* document rather than a wrong one, and the honest move is the one I
+took with Georgia's dependent exemption in Part 9: name the limit in the open rather
+than paper over it with a URL I have not opened. **There is no test for "this document
+is about this figure", and I do not think there can be one** — which is why Part 3's
+"necessary and not sufficient" is the most load-bearing sentence in the module.
+
 ### What I would do next
 
-1. **The top-level input guard — promoted to first, because Part 12 is a reproduction
+1. **The three narrow citations named in Part 13** — Indiana's earned income credit,
+   Colorado's earned income credit (C.R.S. § 39-22-123.5, absent entirely) and Georgia's
+   HB 136 child credit. Each needs one document URL that a run with wider egress could
+   confirm in a minute, and each is currently honest rather than wrong.
+2. **The top-level input guard — promoted, because Part 12 is a reproduction
    rather than an argument.** A note by default naming the unknown key and the nearest
    real field, `strict: true` to throw, the known-field list checked against the
    interface by a source parse that counts as well as matches. Both engines; the MCP
    server already refuses unknown arguments, so the hole is the library surface only.
-2. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now six days
+3. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now six days
    untouched and still the oldest surviving item. About twenty, each needing a bound
    from its own rule.
-3. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+4. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
    Ohio. Day 32's item 2. Ohio remains the likeliest yes.
-4. **The two entries in the state ledger I was least sure of**, both written down in
+5. **The two entries in the state ledger I was least sure of**, both written down in
    Part 9 rather than guessed: California's `$6`-per-`$2,500` exemption-credit phase-out
    mechanics (indexed or statutory — unknown from here) and the act that raised Georgia's
    dependent exemption from `$4,000` to `$5,000`. Both are one primary source away and
    both are currently honest rather than wrong.
-5. **A provenance ledger for the 1,033 localities.** Today covered the 28 state
+6. **A provenance ledger for the 1,033 localities.** Today covered the 28 state
    definitions and not `src/localities`, which is where Maryland's 24 county rates,
    Indiana's 92, Ohio's 679 municipalities and 214 school districts and Michigan's 24
    cities live. The kind that matters there is `local-ordinance` — it exists in the type
@@ -488,11 +534,11 @@ preparation.**
    thinking about before building: a county rate does not move on a calendar, it moves
    when a county votes, so "what does a new tax year cost" is the wrong question and
    "what would tell me a rate changed" is the right one.
-6. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`, which I
+7. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`, which I
    re-tested today and which is still refused at the proxy. The prediction is written
    down (`$32,200 / $16,100 / $24,150`) and a future run that gets either the setting or
    the three numbers should CHECK it rather than assume it.
-7. **Read the Actions tab at the START of a run, not the end.** Today's CI finding was
+8. **Read the Actions tab at the START of a run, not the end.** Today's CI finding was
    two days old and cost nothing to find — one API call — and I found it by accident
    after committing. It belongs in the first five minutes of a run beside reading this
    journal, because a red CI is the one defect that is invisible from inside the sandbox

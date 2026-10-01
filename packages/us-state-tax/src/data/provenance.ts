@@ -141,9 +141,24 @@ export interface StateFigureSource {
   readonly kind: StateFigureKind;
   /**
    * A substring of the title of a citation this state-year already carries.
-   * Required except for `sentinel` and `unestablished`, and checked to appear
-   * in every year the entry covers — so a figure cannot cite a document the
-   * state-year does not list.
+   * Required except for `sentinel`, `unestablished` and `derived`, and checked
+   * to appear in every year the entry covers — so a figure cannot cite a
+   * document the state-year does not list.
+   *
+   * **It must match EXACTLY ONE citation.** Day 37 wrote this field to stop the
+   * ledger inventing evidence and then found the looseness underneath: a
+   * substring is a weaker claim than it reads as. `'§ 17052'` is inside
+   * `'§ 17052.1 — Young Child Tax Credit'`, so every CalEITC figure named the
+   * Young Child Tax Credit's section as well as its own; `'§ 5747.02'` is
+   * inside `'§ 5747.025'` and `'§ 5747.022'`, so Ohio's rate schedule named
+   * three documents, two of them about exemptions. 25 entry-years were
+   * ambiguous.
+   *
+   * **THE RULE: a token that matches a citation is not the same claim as a
+   * token that identifies one, and a prefix of a statute number is a prefix of
+   * every subsection of it.** `test/provenance.test.js` now fails on a token
+   * matching two citations, which is why these read `'§ 17052 —'`: the em dash
+   * is already in every title and ends the number.
    */
   readonly document?: string;
   /** The provision, table or worksheet line the figure is read from. */
@@ -314,7 +329,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'CA',
     path: 'ownEarnedIncomeCredit.byChildCount.*.children',
     kind: 'statute',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'Cal. Rev. & Tax. Code § 17052(b)(1) — the three qualifying-child bands the credit is tabled against; a count, not an amount',
     constant: true,
   },
@@ -322,7 +337,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'CA',
     path: 'ownEarnedIncomeCredit.byChildCount.*.phaseInRate',
     kind: 'statute',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'Cal. Rev. & Tax. Code § 17052(b) — the credit percentages of IRC § 32(b) as adopted by reference: 7.65%, 34%, 40% and 45%',
     constant: true,
   },
@@ -330,7 +345,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'CA',
     path: 'ownEarnedIncomeCredit.adjustmentFactor',
     kind: 'statute-scheduled',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'Cal. Rev. & Tax. Code § 17052(a)(2)(B) — the adjustment factor set by the annual Budget Act; 85% in every year since 2015',
     constant: true,
   },
@@ -338,7 +353,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'CA',
     path: 'ownEarnedIncomeCredit.minimumAgeWithoutChildren',
     kind: 'statute',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'Cal. Rev. & Tax. Code § 17052(i) — 18, where IRC § 32 sets 25; an age, not an indexed amount',
     constant: true,
   },
@@ -346,7 +361,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'CA',
     path: 'ownEarnedIncomeCredit.qualifyingChildMaxAge',
     kind: 'statute',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'IRC § 32(c)(3) as adopted by Cal. Rev. & Tax. Code § 17052 — a qualifying child is under 19, or under 24 as a student',
     constant: true,
   },
@@ -364,7 +379,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'ownEarnedIncomeCredit.**',
     years: [2025],
     kind: 'indexed',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'Cal. Rev. & Tax. Code § 17052(b)(1) and (f) — the 2015 phase-in ceilings carried forward by the California CPI; the 2015 bases are exported as CALEITC_2015_STATUTORY_AMOUNTS and one factor reproduces all three',
     constant: true,
   },
@@ -373,7 +388,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'ownEarnedIncomeCredit.**',
     years: [2026],
     kind: 'carried-forward',
-    document: '§ 17052',
+    document: '§ 17052 —',
     cite: 'the published 2025 CalEITC amounts, carried forward',
     constant: true,
     carriedForwardFrom: 2025,
@@ -461,7 +476,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.rate',
     years: [2026],
     kind: 'determined-after-year-end',
-    document: '§ 39-22-104',
+    document: '§ 39-22-104 —',
     cite: 'the statutory 4.40%, standing in for a rate the TABOR surplus calculation fixes after the year closes; this is therefore the MOST tax Colorado can charge for 2026',
     constant: true,
     resolvedBy:
@@ -1404,7 +1419,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'OH',
     path: 'rate.bands.*.rate',
     kind: 'statute-scheduled',
-    document: '§ 5747.02',
+    document: '§ 5747.02 —',
     cite: 'O.R.C. § 5747.02(A)(3) — 0% to $26,050 and 2.75% above it, plus a third band at 3.125% over $100,000 that applies to 2025 only; Am. Sub. H.B. 96 made the schedule flat above the zero band from 2026',
     constant: true,
     why:
@@ -1416,7 +1431,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'OH',
     path: 'rate.bands.*.base',
     kind: 'statute-scheduled',
-    document: '§ 5747.02',
+    document: '§ 5747.02 —',
     cite: 'O.R.C. § 5747.02(A)(3) charges a flat constant the moment taxable nonbusiness income clears the zero band — $342.00 for 2025 and $332.00 from 2026 — so a filer at $26,050 owes nothing and one at $26,050.01 owes the whole constant. HB 96 lowered this one and left the $100,000 constant at $2,394.32, which is what $360.69 chained to, so crossing $100,000 in 2025 costs a further $18.69 on one cent',
     constant: false,
   },
@@ -1424,7 +1439,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'OH',
     path: 'rate.bands.*.upTo',
     kind: 'statute',
-    document: '§ 5747.02',
+    document: '§ 5747.02 —',
     cite: 'O.R.C. § 5747.02(A)(3) — the $26,050 zero band, written into the statute by HB 96 and confirmed in force for 2026, and the $100,000 step that applies to 2025 only',
     constant: true,
   },
@@ -1507,7 +1522,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'OH',
     path: 'jointFilingCredit.**',
     kind: 'statute',
-    document: '§ 5747.05',
+    document: '§ 5747.05 —',
     cite: 'O.R.C. § 5747.05(E)(1) — 20% / 15% / 10% / 5% of the tax after every other non-refundable credit, capped at $650, and allowed only where EACH spouse has at least $500 of qualifying income. The 20% row is unreachable: it needs modified AGI less exemptions at or below $25,000, which is below the zero band',
     constant: true,
   },
@@ -1515,7 +1530,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'OH',
     path: 'seniorCredit.**',
     kind: 'statute',
-    document: '§ 5747.05',
+    document: '§ 5747.05 —',
     cite: 'O.R.C. § 5747.05(B) — the senior citizen credit, a fixed dollar amount with an income limit and no indexing provision',
     constant: true,
   },
@@ -1531,7 +1546,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     state: 'OH',
     path: 'businessIncome.**',
     kind: 'statute',
-    document: '§ 5747.02',
+    document: '§ 5747.02 —',
     cite: 'O.R.C. § 5747.01(A)(31) deducts the first $250,000 ($125,000 married filing separately) of Ohio business income and § 5747.02(A)(4) taxes the excess at a flat 3% — so a filer with $250,000 of business income owes no Ohio income tax where a wage earner on the same income owes $7,022.45',
     constant: true,
   },
