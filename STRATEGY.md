@@ -16,13 +16,13 @@ law or simply unread. `packages/us-federal-tax` is v0.14.0,
 **1,144 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors). The state engine read **99.1% over 702 mutants with 6
-survivors**, up from 85.8% on Day 33 and 96.3% on Day 34, and that figure is **not
-quoted as current**: Day 37's provenance ledger took the audit to 740 mutants, so it
-is a score of a build that no longer exists, and Day 37's own rule — a measurement is
-only ever a measurement OF something — says to re-measure rather than carry it. Its
-six survivors were, for the first time, **every one unreachable in principle** rather
-than untested: four windows on a tax
+mutants, 0 survivors) and the state engine's rule parameters at **99.2%** (740
+mutants, 6 survivors), up from 85.8% on Day 33 and 96.3% on Day 34. Day 37's ledger
+took the audit from 702 mutants to 740 and **all 38 of the new ones were killed**,
+with the same six survivors as before — and both figures now carry a fingerprint of
+the build they were measured on, so a stale score can be told from a current one by
+something other than trust. Every remaining survivor is **unreachable in principle**
+rather than untested: four windows on a tax
 year outside the two supported, an epsilon used as notation, and one row of Ohio
 arithmetic that is now asserted as unreachable rather than left. Triaged in
 `tools/mutation/STATE-SURVIVORS.md`.

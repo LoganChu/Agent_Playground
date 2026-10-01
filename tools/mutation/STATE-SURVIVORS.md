@@ -13,8 +13,27 @@ rather than the suite's reach.
 | Day 34, after `test/status-sweep.test.js` | 702 | 26 | 96.3% |
 | **Day 35, after `test/step-probes.test.js` and `test/notes.test.js`** | **702** | **9** | **98.7%** |
 | **Day 35, after the three that run then exposed** | **702** | **6** | **99.1%** |
+| **Day 37, after the provenance ledger** | **740** | **6** | **99.2%** |
 
 Each survivor is a number the package could ship with a wrong value for.
+
+**Day 37's row is the interesting one for what did NOT change.** The provenance ledger
+added 38 mutants — it ships bare years, in the `years: [...]` scope on an entry and in
+`carriedForwardFrom` — and **all 38 were killed.** The journal predicted that before
+the run on the mechanism rather than the count: mutate a year in an entry's scope and
+the entry stops applying to that year, so a figure it used to claim goes unclaimed and
+the coverage assertion in `test/provenance.test.js` fails; mutate a
+`carriedForwardFrom` and it stops agreeing with the one in `provisionalFigures`, which
+is cross-checked in both directions. The prediction naming the mechanism is why this
+was worth saying in advance; the run is what makes it true.
+
+The survivors are the *same six*, which is the other half of the result. Nothing the
+ledger added is a new blind spot, and nothing it added covered an old one — the six
+below were unreachable in principle on Day 35 and are unreachable in principle now.
+
+This row and the 99.2% are recorded in `scores.json` beside a fingerprint of the build
+they were measured on, which is new today — see *A score is a score OF something* in
+`README.md` beside this file.
 
 Both Day 35 rows are measured, by two full runs. The first read 98.7% and named nine
 survivors; three were closed, and the second run read 99.1% with exactly the six

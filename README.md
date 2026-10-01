@@ -50,23 +50,24 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
+| `us-state-tax` (rule parameters) | 740 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.2% |
 
-The figure is measured, and as of Day 37 it is measured **against a recorded
+Both figures are measured, and as of Day 37 each is measured **against a recorded
 fingerprint of the build it ran on** — `tools/mutation/scores.json` carries the score
 beside a hash of exactly the bytes the harness mutated, and
-[`check-scores.mjs`](tools/mutation/check-scores.mjs) fails on every push if the
+[`check-scores.mjs`](tools/mutation/check-scores.mjs) fails on every push if an
 advertised number stops matching either the record or the build. It exists because
-this table said **698** for a day after the measured figure became 711: the mutation
+this table said **698** for a day after the federal figure became 711: the mutation
 scores were the last advertised numbers here that a human copied by hand.
 
-**`us-state-tax`'s score is being re-measured and is deliberately not quoted.** It
-read **99.1% over 702 mutants, with six survivors**, every one of them unreachable in
-principle rather than untested — and the provenance ledger added on Day 37 ships bare
-years, so the audit now has **740** mutants. By this table's own rule that is a score
-of a build that no longer exists, which is the whole reason the fingerprint went in,
-and quoting it would be the defect the mechanism was built to catch. The six
-survivors, which are the part worth reading, are triaged in
-[the worklist](tools/mutation/STATE-SURVIVORS.md).
+Its first act was to take the state row **out** of this table. Day 35 measured 99.1%
+over 702 mutants; the provenance ledger ships bare years and took the audit to 740, so
+99.1% had become a score of a build that no longer exists. Re-measured over the
+committed build: **740 mutants, 734 killed, 6 survivors.** All 38 of the ledger's new
+mutants were killed, which was predicted beforehand on the mechanism — mutate a year
+in an entry's scope and a figure it used to claim goes unclaimed, which the coverage
+assertion fails on — and **the six survivors are the same six**, so nothing the ledger
+added is a new blind spot.
 
 **The six that remain are the part worth reading.** Not one of them is a missing
 test. Four are windows on a tax year outside the two this package supports, so no
