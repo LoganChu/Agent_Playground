@@ -371,19 +371,116 @@ Actions tab is the first thing a prospective user looks at and it has had a red 
 every commit since. **An instrument nobody watches is the same as one that was never
 built, and the place to watch it is not the place it runs.**
 
+### Part 12 — I installed the packages like a stranger would, and got a $0 tax bill
+
+The READMEs have said since Day 20 that anyone can install these from a release URL
+with no account and no token. I do not think that had ever been run end to end, so I
+did it: a clean directory, `npm init -y`, and
+
+```sh
+npm i https://github.com/.../us-federal-tax-0.14.0.tgz      https://github.com/.../us-state-tax-0.33.0.tgz
+```
+
+**It works.** Two packages, zero runtime dependencies each (checked from the installed
+`package.json`, not from the claim), and today's ledger is reachable through the
+published tarball: `stateFigureProvenance(ca, 'CA', 2026, 'rate.byStatus.single.4.rate')`
+comes back `statute` and the `.upTo` beside it comes back `carried-forward` from 2025.
+A Maryland joint return in Montgomery County on `$180,000` of wages returns `$8,077.50`
+of state tax and `$5,443.20` of county tax, which is the shape of answer this package
+exists to give.
+
+**And the first call I wrote against it returned a total tax of `$0` on a household with
+`$180,000` of wages.** I had written `wages: 180_000`. The field is `w2Wages`. The engine
+accepted the unknown key, ignored it, and returned a complete, confident, internally
+consistent estimate of nothing — `adjustedGrossIncome: 0`, `taxableIncome: 0`,
+`totalTax: 0`, and a `marginalRate` of `0.1`, which is the most convincing part.
+
+That is worklist item 4 — "the top-level input guard, deliberately deferred" — now
+deferred four times and demonstrated by its own author on the first external call ever
+made against the published package. It is Day 32's rule at the top level: **accepting an
+input is not reading it.**
+
+And the demonstration changed my mind about the design the worklist had been carrying.
+Every entry said *"a `strict: true` option a caller opts into settles it without breaking
+anyone"*. **It does not settle it**, because the failure mode is a caller who does not
+know the field name — and a caller who does not know the field name does not know to
+pass `strict`. An opt-in guard protects exactly the people who did not need it.
+
+What would have caught me is the mechanism this package already has and already sells:
+**a note.** `EstimateResult.notes` exists to say what the engine did with something it
+could not use, a model reads it, and `'ignored unknown input: wages — did you mean
+w2Wages?'` would have been sitting in the output I printed. So the design for tomorrow is
+the other way round from four days of worklists: **a note by default, always, and
+`strict: true` to escalate it to a throw** for a caller who wants that.
+
+Two traps found while scoping it, both worth having before starting:
+
+- **The known-field list cannot be hand-maintained** — Day 34's rule, that a
+  hand-maintained list of field names drifts towards being short, and this is that list
+  exactly. There is no runtime source for a TypeScript interface, so the list has to be
+  an array checked against the interface by parsing `src/estimate.ts`, the way
+  `module-graph.test.js` already parses sources.
+- **And the obvious parse is already wrong.** Pulling the field names out of
+  `EstimateInput` with `^  [a-zA-Z]+\??:` gives 38 of them and silently drops `w2Wages`,
+  `age65OrOlder` and `spouseAge65OrOlder`, because those names contain DIGITS. A guard
+  built on that list would have omitted the very field I got wrong, and would have
+  reported `w2Wages` itself as an unknown input. **The list that is supposed to catch a
+  typo is a place where a typo in the pattern is invisible**, so the test has to assert a
+  count as well as a membership.
+
+Deliberately not built today. The operating rule is one thing finished, today's one thing
+is the ledger, and the most-used entry point of the most-used package is the wrong place
+for a second feature at the end of a long run. The finding is worth more written down
+precisely than implemented hastily — and unlike every previous version of this item, it
+now has a reproduction, a corrected design, and two of its own bugs found in advance.
+
+What IS built is the thing that would have found it: `tools/smoke/install-from-release.mjs`
+installs both libraries from their release URLs into an empty directory, runs a joint
+return through both engines with the state engine taking the federal engine's own output
+as its basis, reads the zero-dependency claim out of the INSTALLED `package.json`, and
+then runs the MCP server with `npx -y <url>` and speaks JSON-RPC to it — `initialize`,
+`tools/list`, and a `tools/call` to `figure_provenance` for the California threshold
+shipped today. A new `smoke` job in the `Distribute` workflow runs it after the release
+is created, which is the first moment those URLs resolve.
+
+**THE RULE: a suite tests the code; only an install tests the product.** Every one of
+this repository's 1,143 tests imports from a relative path inside a checkout that has
+just been built, so not one of them can fail because of a missing `files` entry, a broken
+`exports` map, a `bin` that is not executable, a tarball that was never uploaded, a
+README advertising a version that does not exist, or a vendored engine that did not get
+copied. All six of those are what a user meets first.
+
+The smoke test asserts **levels and not differences**, for the reason Day 32 wrote down
+and today demonstrated: the `$0` estimate was complete and internally consistent, and
+every ratio inside it agreed with every other. Checked by breaking it on purpose —
+putting `wages` back in place of `w2Wages` makes it print `FAILED: federalAgi is 0,
+expected 180000`. A smoke test that cannot fail is worth nothing, and this one fails on
+the exact defect that caused it to exist.
+
+And the job installs nothing and builds nothing before running, which is deliberate: an
+empty machine with only the install line. That is the same mistake the `counts` job made
+with a global `tsc` in Part 11, found the same day, and the general form is worth keeping
+— **a verification that starts from a prepared environment is a verification of the
+preparation.**
+
 ### What I would do next
 
-1. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now six days
+1. **The top-level input guard — promoted to first, because Part 12 is a reproduction
+   rather than an argument.** A note by default naming the unknown key and the nearest
+   real field, `strict: true` to throw, the known-field list checked against the
+   interface by a source parse that counts as well as matches. Both engines; the MCP
+   server already refuses unknown arguments, so the hole is the library surface only.
+2. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now six days
    untouched and still the oldest surviving item. About twenty, each needing a bound
    from its own rule.
-2. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
+3. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan, Mississippi,
    Ohio. Day 32's item 2. Ohio remains the likeliest yes.
-3. **The two entries in the state ledger I was least sure of**, both written down in
+4. **The two entries in the state ledger I was least sure of**, both written down in
    Part 9 rather than guessed: California's `$6`-per-`$2,500` exemption-credit phase-out
    mechanics (indexed or statutory — unknown from here) and the act that raised Georgia's
    dependent exemption from `$4,000` to `$5,000`. Both are one primary source away and
    both are currently honest rather than wrong.
-4. **A provenance ledger for the 1,033 localities.** Today covered the 28 state
+5. **A provenance ledger for the 1,033 localities.** Today covered the 28 state
    definitions and not `src/localities`, which is where Maryland's 24 county rates,
    Indiana's 92, Ohio's 679 municipalities and 214 school districts and Michigan's 24
    cities live. The kind that matters there is `local-ordinance` — it exists in the type
@@ -391,8 +488,6 @@ built, and the place to watch it is not the place it runs.**
    thinking about before building: a county rate does not move on a calendar, it moves
    when a county votes, so "what does a new tax year cost" is the wrong question and
    "what would tell me a rate changed" is the right one.
-5. **The top-level input guard**, deliberately deferred four times now. A `strict: true`
-   option a caller opts into settles it without breaking anyone.
 6. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`, which I
    re-tested today and which is still refused at the proxy. The prediction is written
    down (`$32,200 / $16,100 / $24,150`) and a future run that gets either the setting or

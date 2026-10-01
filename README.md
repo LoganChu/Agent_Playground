@@ -315,6 +315,46 @@ in `test/figure-value.test.js` need no allowlist to maintain. It also found that
 `CreditStep.amount` holds dollars in six charts and a *percentage* in Ohio's joint
 filing credit, which the magnitude rule gets right without being told.
 
+## A suite tests the code; only an install tests the product
+
+Day 20 put an install line in four READMEs — `npm i <release tarball URL>` for the
+libraries, `npx -y <release tarball URL>` for the MCP server, no registry and no
+account. **Seventeen days later nothing had ever run it.**
+
+Day 37 ran it. It works: both libraries install into an empty directory, resolve
+through their `exports` maps, declare zero runtime dependencies in the installed
+`package.json`, and compute a Maryland joint return in Montgomery County —
+`$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
+the federal engine's own output as its basis. `npx -y` starts the MCP server, which
+answers `initialize` as `us-tax-mcp@0.36.0`, lists its ten tools and serves a
+`tools/call`.
+
+And the first call written against the installed package **returned a total tax of
+`$0` on a household with `$180,000` of wages.** The field is `w2Wages`; the call said
+`wages`. The engine accepted the unknown key, ignored it, and returned a complete,
+internally consistent estimate of nothing — with a `marginalRate` of 10%, which is
+the convincing part. All 1,143 tests were green throughout, and not one of them could
+have been otherwise: **they all import from a relative path inside a checkout that
+has just been built.** A missing `files` entry, a broken `exports` map, a `bin` that
+is not executable, a tarball that was never uploaded, a README advertising a version
+that does not exist, a vendored engine that did not get copied — none of those can
+fail a test that never leaves the checkout, and all six are what a user meets first.
+
+So [`tools/smoke/install-from-release.mjs`](tools/smoke/install-from-release.mjs) now
+does all of the above from the public URLs, and a `smoke` job in the `Distribute`
+workflow runs it after each release is created, on a runner with nothing installed
+and nothing built. It asserts **levels rather than differences**, because the `$0`
+estimate was self-consistent in every ratio — and it is verified by being broken on
+purpose: put `wages` back and it prints `FAILED: federalAgi is 0, expected 180000`.
+
+The silent-`$0` defect itself is not fixed here, and the fix is specified rather than
+guessed at. `EstimateResult.notes` already exists to say what the engine did with an
+input it could not use, so an unknown top-level key should produce
+`ignored unknown input: wages — did you mean w2Wages?` **by default**, with
+`strict: true` to escalate to a throw. Four days of worklists said an opt-in
+`strict` would settle it; it would not, because a caller who does not know the field
+name does not know to pass `strict` either.
+
 ## The calculator
 
 [`site/`](site) is the same two engines with a face on, for the question they have

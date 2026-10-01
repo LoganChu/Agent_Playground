@@ -174,3 +174,44 @@ jobs:
               --notes-file "$RUNNER_TEMP/notes-calculator.md"
             echo "created the calculator release"
           fi
+
+  # Install the packages the way a stranger would, from the URLs the READMEs
+  # advertise, and check that they work.
+  #
+  # ## Why this is a separate job and not a test
+  #
+  # Day 20 put an install line in four READMEs. **Seventeen days later nothing
+  # had ever run it.** Day 37 ran it by hand: it worked, and the first call
+  # written against the installed package returned a total tax of $0 on a
+  # household with $180,000 of wages, because the field is `w2Wages` and the
+  # call said `wages`. Every one of this repository's 1,143 tests was green
+  # throughout, and none of them could have been otherwise: they all import from
+  # a relative path inside a checkout that has just been built.
+  #
+  # **A suite tests the code; only an install tests the product.** A missing
+  # `files` entry, a broken `exports` map, a `bin` that is not executable, a
+  # tarball that was never uploaded, a README advertising a version that does
+  # not exist, a vendored engine that did not get copied — none of those can
+  # fail a test that never leaves the checkout, and every one of them is what a
+  # user meets first.
+  #
+  # It runs AFTER `distribute`, because the release URLs it fetches are the ones
+  # that job just created. It needs the network, which is why it is not part of
+  # any package's `npm test`.
+  smoke:
+    needs: distribute
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # Deliberately NO `npm install` and NO build. The point is an empty
+      # machine with the install line, so anything the packages need and do not
+      # declare fails here rather than passing on a developer's full checkout —
+      # which is the same mistake the `counts` job in ci.yml made with a global
+      # `tsc`, found on the same day.
+      - name: Install from the release URLs and exercise all three packages
+        env:
+          SMOKE_REPO: ${{ github.repository }}
+        run: node tools/smoke/install-from-release.mjs
