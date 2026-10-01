@@ -21,7 +21,20 @@ fifths in two states and over-reported by 60 figures in a third.**
 19 from Day 36's 1,125.
 
 New: `packages/us-state-tax/src/data/provenance.ts`, `test/provenance.test.js`,
-`test/provisional-coverage.test.js`, `packages/us-tax-mcp/test/figure-value.test.js`.
+`test/provisional-coverage.test.js`, `packages/us-tax-mcp/test/figure-value.test.js`,
+`tools/smoke/install-from-release.mjs`, `tools/mutation/fingerprint.mjs`,
+`tools/mutation/check-scores.mjs`, `tools/mutation/scores.json`.
+
+The state mutation audit, re-run over the committed build with `--record`: **740
+mutants, 734 killed, 6 survivors, 99.2%**, against 702 and 6 on Day 35. **All 38 of
+the mutants the ledger added were killed**, and the six survivors are the same six — so
+nothing it added is a new blind spot and nothing it added covered an old one. The 38
+were predicted to die before the run, on the mechanism rather than the count: mutate a
+year inside an entry's `years` scope and the entry stops applying there, so a figure it
+used to claim goes unclaimed and the coverage assertion fails; mutate a
+`carriedForwardFrom` and it stops agreeing with the one in `provisionalFigures`, which
+is cross-checked both ways. Score and build fingerprint in
+`tools/mutation/scores.json`.
 
 ### Part 1 — the measurement, which is the whole day in four lines
 
@@ -328,11 +341,14 @@ npm. Pages is still off.
   mutant" was reasoning when Day 36 said it and is a measurement now**, which is the
   difference between inheriting a score and establishing one. (I did restart the run
   once, over the Part 13 fix, before finding that this was checkable.)
-- **The mutation audit is in flight as this is committed.** 740 mutants over 23 files,
-  up from Day 35's 702, because the ledger ships bare years — and every one of those
-  should be load-bearing: mutate a year in a `years: [...]` scope and the entry stops
-  applying, which the coverage test fails on. The score goes in beside this note when
-  the run finishes, against **the tree this commit contains** and not an inherited one.
+- **The audit's prediction held, and the prediction was the point.** 740 mutants over 23
+  files, up from Day 35's 702 because the ledger ships bare years, and every one of the
+  38 new ones turned out load-bearing: **734 killed, the same 6 survivors, 99.2%.**
+  Day 35's rule is that a score inferred from a fix is a score nobody measured, and the
+  useful shape is the one it left — **predict on the MECHANISM, then measure.** "These
+  mutants will die because an entry whose year is wrong stops claiming a figure the
+  coverage test requires" is falsifiable before the run; "the score will hold up" is
+  not. Measured over the tree this entry describes, with the fingerprint recorded.
 
 ### Part 11 — CI has been red on every push for two days, and the reason was not in the repository
 
