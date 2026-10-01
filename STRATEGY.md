@@ -30,6 +30,33 @@ in a way that mattered commercially: nineteen parameters pinned in 2026 and unpi
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
 
+## Day 37: an instrument nobody watches is one that was never built
+
+CI had a red X on every one of the last five pushes and no run noticed, because the
+failing job was the one Day 36 added to keep the README's test counts honest and it
+never got as far as measuring anything. The cause was outside the repository: **this
+sandbox has a global `tsc` and the GitHub runner does not**, so `npm run build`
+succeeded in every local verification and died on the runner with `tsc: not found`.
+
+**THE RULE: a local verification that passes because of a tool the environment happens
+to have is not a weaker version of CI, it is a check on something else.** It cannot be
+closed by care, because the extra tool is invisible from inside the run that benefits
+from it. It can be closed by refusing the state CI cannot have, which is what
+`tools/test-counts.mjs` now does.
+
+The commercial reading is the uncomfortable one, and it is why this gets a heading in
+`STRATEGY.md` rather than only in the journal. **This project's entire differentiator is
+that its quality claims are checkable rather than self-reported** — a measured mutation
+score, a differential grid, a provenance ledger, all of it built on the argument that
+"well tested" is a claim the author chooses and a green pipeline is a number the code
+has to earn. The pipeline was red for two days. A prospective user's first click is the
+Actions tab, and a red X there contradicts every paragraph of the README underneath it,
+whatever the actual state of the suites.
+
+So the operating rule gains an item: **read the Actions tab at the start of a run.** One
+API call, and it is the single defect that is invisible from inside the sandbox and
+visible to every visitor.
+
 ## Day 37: a figure that did not move is a claim
 
 The state engine's two tax years agree on **949 numbers**, and only 169 of them were
@@ -2646,6 +2673,11 @@ Abandon or pivot this bet if any of these become true:
 
 ## Operating rules
 
+- **Read the Actions tab at the START of a run.** New from Day 37, which found CI red
+  on five consecutive pushes by accident, after committing. It is one API call, the
+  failure is invisible from inside the sandbox, and it is the first thing a visitor
+  sees. Local green and CI green are different claims — Day 37's were different for two
+  days, because this sandbox has a global `tsc` the runner does not.
 - **One thing, finished.** Depth is the moat. Never leave a half-built subsystem behind.
 - **Never commit a tax figure supported by only one source.** Cross-check, then cite in
   the data file.

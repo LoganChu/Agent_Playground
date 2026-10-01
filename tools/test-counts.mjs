@@ -35,7 +35,7 @@
  *     node tools/test-counts.mjs --check     # fail if the committed numbers are stale
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -64,7 +64,30 @@ const measure = (relative) => {
     return matches.length === 0 ? null : Number(matches.at(-1)[1]);
   };
   const tests = read('tests');
-  if (tests === null) throw new Error(`${relative}: no TAP summary in the output of \`npm test\``);
+  if (tests === null) {
+    // Day 37: this used to throw "no TAP summary" and discard the output, and
+    // that is what five red CI runs looked like from the outside. The cause was
+    // one directory with no `node_modules`, so `npm run build` died with
+    // `tsc: not found` and there was nothing to summarise — a fact the error
+    // had in its hand and threw away.
+    //
+    // **An error that reports the ABSENCE of the thing it wanted, when it is
+    // holding the reason, costs the next reader the whole investigation.**
+    // Day 15's rule was never to redirect a build to /dev/null when the next
+    // command reads its output; this is the same rule for a build whose output
+    // was captured and then dropped.
+    const installed = existsSync(join(ROOT, relative, 'node_modules'));
+    const tail = output.trim().split('\n').slice(-12).join('\n      ');
+    throw new Error(
+      `${relative}: no TAP summary in the output of \`npm test\`.\n` +
+        (installed
+          ? ''
+          : `    ${relative}/node_modules does not exist, so \`npm run build\` had no \`tsc\`. ` +
+            `Run \`npm install\` there — in CI, add it to the \`counts\` job in ` +
+            `.github/workflows/ci.yml, which has to install every directory in PACKAGES.\n`) +
+        `    The last of what \`npm test\` printed:\n      ${tail}`,
+    );
+  }
   return { tests, pass: read('pass'), fail: read('fail') };
 };
 
@@ -73,6 +96,49 @@ const mode = process.argv.includes('--write')
   : process.argv.includes('--check')
     ? 'check'
     : 'print';
+
+/**
+ * Refuse to measure anything until every directory has its own dependencies.
+ *
+ * Day 37: this tool was green on every local run for two days and red on every
+ * CI run for the same two days, and the reason was not in the repository. **This
+ * sandbox has a global `tsc` at `/opt/node22/bin/tsc`; the GitHub runner does
+ * not.** So `npm run build` worked here without `npm install` and died there
+ * with `tsc: not found`, and "I ran it locally and it is green" — which this
+ * project has leaned on for thirty-seven days — was checking a different thing
+ * from CI.
+ *
+ * **THE RULE: a local verification that passes because of a tool the
+ * environment happens to have is not a weaker version of CI, it is a check on
+ * something else.** The gap cannot be closed by being careful, because the extra
+ * tool is invisible from inside the run that benefits from it. It can be closed
+ * by refusing the state CI cannot have.
+ *
+ * So this is a precondition rather than a diagnosis: if a measured directory has
+ * no `node_modules`, stop here with the list, whatever is on PATH. A local run
+ * and a CI run now fail for the same reason at the same point.
+ */
+const declaresDependencies = (relative) => {
+  const manifest = JSON.parse(readFileSync(join(ROOT, relative, 'package.json'), 'utf8'));
+  return Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).length > 0;
+};
+// `site` declares none — it builds with `node` alone — so requiring a
+// `node_modules` there would be requiring a directory npm has no reason to
+// create. The precondition is about declared dependencies being present, not
+// about a folder existing.
+const uninstalled = PACKAGES.filter(
+  (relative) => declaresDependencies(relative) && !existsSync(join(ROOT, relative, 'node_modules')),
+);
+if (uninstalled.length > 0) {
+  process.stderr.write(
+    `[test-counts] ${uninstalled.length} directory/ies declare dependencies and have no node_modules:\n` +
+      uninstalled.map((relative) => `  ${relative}\n`).join('') +
+      '[test-counts] Run `npm install` in each. This is refused rather than attempted because a\n' +
+      '[test-counts] global `tsc` on PATH would let the build succeed here and fail in CI, which is\n' +
+      '[test-counts] exactly what happened for the two days after this tool was written.\n',
+  );
+  process.exit(1);
+}
 
 const measured = {};
 for (const relative of PACKAGES) {

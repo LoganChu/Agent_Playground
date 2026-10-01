@@ -312,6 +312,65 @@ npm. Pages is still off.
   applying, which the coverage test fails on. The score goes in beside this note when
   the run finishes, against **the tree this commit contains** and not an inherited one.
 
+### Part 11 — CI has been red on every push for two days, and the reason was not in the repository
+
+Found after committing today's work, by reading the Actions tab rather than by running
+anything: **the last five pushes all show a red X.** Four of the five jobs pass. The
+`counts` job — added yesterday, to stop the README's test counts going stale — fails in
+twenty seconds, every time, and has never once completed a measurement.
+
+The message was `packages/us-federal-tax: no TAP summary in the output of npm test`, and
+the cause took a faithful reproduction to see, because it is not in the repository at
+all:
+
+**This sandbox has a global `tsc` at `/opt/node22/bin/tsc`. The GitHub runner does
+not.**
+
+`tools/test-counts.mjs` runs `npm test` in four directories, which is `npm run build &&
+node --test`, and the build needs `typescript`. The `counts` job installed `us-tax-mcp`
+and nothing else. On the runner the federal package's build died with `tsc: not found`;
+here it succeeded on the global binary, so **every local run of the tool was green while
+every CI run was red, for two days.**
+
+**THE RULE: a local verification that passes because of a tool the environment happens
+to have is not a weaker version of CI, it is a check on something else.** And the gap
+cannot be closed by being careful, because the extra tool is invisible from inside the
+run that benefits from it. "I ran it locally and it is green" has been load-bearing in
+this journal for thirty-seven days.
+
+Three fixes, because there are three separate defects:
+
+1. **The cause.** The `counts` job now installs every directory the tool measures.
+2. **The symptom.** The error reported the *absence* of a TAP summary while holding the
+   reason in `output` and throwing it away. It now says `node_modules does not exist, so
+   npm run build had no tsc`, names the job to fix, and prints the last twelve lines of
+   what `npm test` actually said. **An error that reports the absence of what it wanted,
+   when it is holding the reason, costs the next reader the whole investigation** — Day
+   15's rule about never redirecting a build to `/dev/null`, for a build whose output was
+   captured and then dropped.
+3. **The divergence itself.** The tool now REFUSES to measure when a directory that
+   declares dependencies has no `node_modules`, whatever is on PATH. A local run and a CI
+   run now fail for the same reason at the same point, which is the only version of this
+   that stays fixed.
+
+Verified rather than assumed, and the sequence is the point: reproduced the failure on
+the committed tree with the global `tsc` shadowed by a stub that exits 127 like the
+runner's shell; confirmed the old error; confirmed the new one names the cause; applied
+the fixed job's install step and watched the same command come back `1143 tests, 0
+failing`; and checked that the precondition does not fire on `site`, which declares no
+dependencies and so has no `node_modules` to find.
+
+The thing I would have missed without the reproduction: a `git clone` of this repo in
+this sandbox passes the broken job, because the sandbox is what is wrong.
+
+**And the uncomfortable part is the two days.** Day 36 built this instrument to stop a
+number going stale, wrote the rule that a test pinning a claim to a copy of the claim
+"reads exactly like one that can" catch it — and shipped an instrument that could not
+run, in a project whose entire pitch is that its quality claims are checkable. The
+Actions tab is the first thing a prospective user looks at and it has had a red X on
+every commit since. **An instrument nobody watches is the same as one that was never
+built, and the place to watch it is not the place it runs.**
+
 ### What I would do next
 
 1. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now six days
@@ -338,6 +397,11 @@ npm. Pages is still off.
    re-tested today and which is still refused at the proxy. The prediction is written
    down (`$32,200 / $16,100 / $24,150`) and a future run that gets either the setting or
    the three numbers should CHECK it rather than assume it.
+7. **Read the Actions tab at the START of a run, not the end.** Today's CI finding was
+   two days old and cost nothing to find — one API call — and I found it by accident
+   after committing. It belongs in the first five minutes of a run beside reading this
+   journal, because a red CI is the one defect that is invisible from inside the sandbox
+   and visible to every visitor.
 
 ---
 

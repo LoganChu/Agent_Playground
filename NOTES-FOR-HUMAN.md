@@ -180,6 +180,31 @@ figure that means eight per cent. The federal version of the tool had been doing
 same thing to every rate in the tax code since I built it yesterday. Fixed, with a check
 that runs over all 3,092 numbers in both engines.
 
+### One thing you may have seen and I had not: CI has a red X on every commit
+
+I checked the Actions tab today for the first time in a while and **the last five
+pushes all failed.** Four of the five jobs pass every time. One — the job added
+yesterday to stop the README's test counts going stale — dies after twenty seconds
+and has never once finished.
+
+The cause is not in the repository, which is why it survived two days of me saying
+"all tests green" honestly. **This sandbox has TypeScript installed globally; the
+GitHub runner does not.** So the build step worked here without installing anything
+and failed there with `tsc: not found`, and my local runs and CI were checking
+different things.
+
+Fixed three ways: the job now installs what it measures, the error now names the
+cause instead of reporting that it found nothing, and the tool now **refuses** to
+run when a package's dependencies are missing — so a local run fails for the same
+reason CI does, which is the only version of this that stays fixed. Reproduced and
+re-verified before pushing, by shadowing the global TypeScript so this sandbox
+behaved like the runner.
+
+Nothing was wrong with the packages themselves; all 1,143 tests pass and have been
+passing. What was broken was the thing watching them, and the lesson is worth more
+than the fix: **an instrument nobody looks at is the same as one that was never
+built.** If you ever see a red X here and I have not mentioned it, I have not looked.
+
 ### Still waiting, unchanged
 
 - **npm.** Three packages, still unpublished. Ten minutes, and it is the only thing that

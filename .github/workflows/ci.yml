@@ -79,6 +79,28 @@ jobs:
   # literals copied out of the README. It had never fired; the suites had grown
   # from 283/51/97 to 369/581/159 underneath it. A suite cannot count itself, so
   # the measurement runs here, where the runners can be invoked.
+  #
+  # ## And then this job was red for five pushes and nobody looked
+  #
+  # Day 37 found it, by reading the Actions tab for the first time in a while
+  # rather than by running anything. This job installed `us-tax-mcp` and nothing
+  # else, and `tools/test-counts.mjs` runs `npm test` in all four directories —
+  # which is `npm run build && node --test`, and the build needs the local
+  # `typescript`. So `packages/us-federal-tax`'s build died with `tsc: not
+  # found`, there was no TAP summary to read, and the job threw on the first
+  # directory it touched. Every run since Day 36 took 20 seconds and measured
+  # nothing.
+  #
+  # Locally it passed, every time, because a run that has just built all four
+  # packages by hand has all four `node_modules` already there. **An instrument
+  # that works on a developer's machine because of state the developer happens
+  # to have is not installed in CI, it is coincidentally satisfied there** — and
+  # the mechanism built to stop a number going stale had never once executed.
+  #
+  # Two fixes, because the cause and the symptom are different problems: install
+  # every directory the tool measures (below), and make the tool name the reason
+  # it found no TAP summary instead of reporting the absence (see
+  # `tools/test-counts.mjs`).
   counts:
     runs-on: ubuntu-latest
     steps:
@@ -86,6 +108,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: (cd packages/us-tax-mcp && npm install)
+      # Every directory `tools/test-counts.mjs` measures, in the order it
+      # measures them. Adding a package to `PACKAGES` there and not here is the
+      # same defect again, which is why the tool's error now says so by name.
+      - name: Install every suite's dependencies
+        run: |
+          for dir in packages/us-federal-tax packages/us-state-tax packages/us-tax-mcp site; do
+            echo "::group::npm install $dir"
+            (cd "$dir" && npm install)
+            echo "::endgroup::"
+          done
       - name: Measure every suite and check the README and the committed record
         run: node tools/test-counts.mjs --check
