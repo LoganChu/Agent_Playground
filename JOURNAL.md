@@ -300,19 +300,22 @@ Written down before the run, on the mechanism, per Day 37's rule:
 > cannot move.** No mutant can introduce an unknown input key, so strictness
 > cannot kill a survivor or spare a dying mutant either.
 
-**The measurement is still running as this entry is committed, and that sentence
-is the one Day 37 got burned by**, so it is written to be unmistakable rather
-than hopeful. Day 37's entry promised a score, the edit meant to write it failed
-its own assertion, and the number landed in `README.md` and `STRATEGY.md` and not
-in the journal — which Day 37 then had to open a second commit to fix. So:
+**MEASURED. `us-federal-tax`: 711 mutants, 711 killed, 0 survivors, 100.0% —
+the prediction held exactly, on all four numbers.** Recorded with the
+fingerprints below, which are the ones a clean `git clone` of the pushed commit
+produces, so the score is demonstrably of the build that ships rather than of my
+working tree.
 
-**`tools/mutation/scores.json` still carries Day 37's row until a commit titled
-with the measured numbers replaces it, and until then the `mutation-claims` CI
-job is RED on purpose.** It is red with the right message — four lines naming
-both fingerprints and saying the parameters and the suite both changed — and that
-is the mechanism Day 37 built doing precisely its job on the first push that
-moved `dist/esm`. A reader of this entry who finds a red X and no follow-up
-commit should conclude the audit did not finish, not that the score moved.
+The state audit is running as this is committed, so `scores.json` still carries
+Day 37's state row and `mutation-claims` stays RED for that one row — with the
+right message, naming both fingerprints and saying the parameters and the suite
+each changed. **That sentence is the one Day 37 got burned by**, so it is written
+to be unmistakable rather than hopeful: Day 37's entry promised a score, the edit
+meant to write it failed its own assertion, and the number landed in `README.md`
+and `STRATEGY.md` and not in the journal, which took a second commit to fix. A
+reader who finds a red X and no follow-up commit here should conclude the state
+audit did not finish, **not** that the score moved — and the prediction for it is
+740/734/6/99.2%, written above, for whoever gets to check it.
 
 The fingerprints the run is measuring over, recorded before it started so that
 "the audit was re-run after that edit" is a computation here too:
