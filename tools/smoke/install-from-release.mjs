@@ -104,6 +104,19 @@ const maryland = stateIncomeTax({
   },
 });
 const california = getStateDefinition('CA', 2026);
+
+// The exact call that caused the guard to exist, through the published tarball.
+// It was made from a directory like this one, with a clean install and no test
+// harness, and it came back $0 with nothing in the result saying why — so the
+// install is the right place to assert that it no longer does.
+const typo = estimateFederalTax({ filingStatus: 'marriedFilingJointly', wages: 180_000 });
+let strictThrew = false;
+try {
+  estimateFederalTax({ filingStatus: 'single', wages: 1 }, { strict: true });
+} catch (error) {
+  strictThrew = error instanceof RangeError && error.message.includes('w2Wages');
+}
+
 console.log(JSON.stringify({
   federalAgi: federal.adjustedGrossIncome,
   federalTotalTax: federal.totalTax,
@@ -111,6 +124,12 @@ console.log(JSON.stringify({
   marylandLocal: maryland.localTaxes.reduce((sum, row) => sum + row.tax, 0),
   caRateKind: stateFigureProvenance(california, 'CA', 2026, 'rate.byStatus.single.4.rate').kind,
   caThresholdKind: stateFigureProvenance(california, 'CA', 2026, 'rate.byStatus.single.4.upTo').kind,
+  // The $0 is still $0 — the guard reports, it does not repair — and the note
+  // beside it is what a caller now has to work from.
+  typoTotalTax: typo.totalTax,
+  typoNote: typo.notes[0] ?? null,
+  cleanNotes: federal.notes.filter((note) => note.startsWith('Ignored unknown input:')).length,
+  strictThrew,
 }));
 `,
 );
@@ -127,9 +146,20 @@ try {
 // engine that returns a complete, internally consistent estimate of nothing.
 // `$0` was what Day 37's first external call got back, and every ratio in it
 // was self-consistent.
-const expected = { federalAgi: 180_000, caRateKind: 'statute', caThresholdKind: 'carried-forward' };
+const expected = {
+  federalAgi: 180_000,
+  caRateKind: 'statute',
+  caThresholdKind: 'carried-forward',
+  // The guard, as a published caller meets it.
+  typoTotalTax: 0,
+  cleanNotes: 0,
+  strictThrew: true,
+};
 for (const [key, want] of Object.entries(expected)) {
   if (computed[key] !== want) fail(`${key} is ${JSON.stringify(computed[key])}, expected ${JSON.stringify(want)}`);
+}
+if (typeof computed.typoNote !== 'string' || !computed.typoNote.includes('`w2Wages`')) {
+  fail(`the $0 estimate carried no note naming w2Wages: ${JSON.stringify(computed.typoNote)}`);
 }
 for (const key of ['federalTotalTax', 'marylandTax', 'marylandLocal']) {
   if (!(computed[key] > 0)) fail(`${key} is ${computed[key]} on a $180,000 household`);
@@ -138,7 +168,8 @@ process.stdout.write(
   `[smoke] computed: federal $${computed.federalTotalTax}, Maryland $${computed.marylandTax}, ` +
     `Montgomery County $${computed.marylandLocal}\n` +
     `[smoke] ledger through the published package: rate=${computed.caRateKind}, ` +
-    `threshold=${computed.caThresholdKind}\n`,
+    `threshold=${computed.caThresholdKind}\n` +
+    `[smoke] the \`wages\` typo still returns $0 and now says so: ${computed.typoNote}\n`,
 );
 
 // ---------------------------------------------------------------------------

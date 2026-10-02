@@ -136,7 +136,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.14.0/us-federal-tax-0.14.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -864,6 +864,73 @@ single or the joint column; the result says so in `notes`.
   the 2026 inputs, but Publication 15-T for 2026 was not available to compare
   against. `getYearParameters(2026).withholding.notes` repeats this at runtime.
 
+## A field this engine does not read now says so (v0.15.0)
+
+The first call ever made against the published package, from a clean `npm i` of
+the release tarball, was this:
+
+```js
+estimateFederalTax({ filingStatus: 'marriedFilingJointly', wages: 180_000 });
+```
+
+The field is `w2Wages`. The engine took the unknown key, dropped it, and returned
+a complete, confident, internally consistent estimate of **nothing** — and the
+consistency is the problem:
+
+```js
+{ adjustedGrossIncome: 0, taxableIncome: 0, totalTax: 0, marginalRate: 0.1, ... }
+```
+
+Every ratio inside that result agreed with every other one. A `marginalRate` of
+10% is exactly right for a household with no income. There is no symptom to
+notice, no field out of place, and nothing anywhere saying that a figure the
+caller supplied is not in the answer.
+
+The same call now carries its own explanation:
+
+```js
+estimateFederalTax({ filingStatus: 'marriedFilingJointly', wages: 180_000 }).notes[0];
+// 'Ignored unknown input: `wages` is not a field of EstimateInput. An
+//  unrecognised key is dropped, so every figure in the result is computed as if
+//  it had not been supplied. Did you mean `w2Wages` or `age`?'
+```
+
+**It is a note and not a throw, and that is the whole design.** This was specified
+for four days as an opt-in `strict: true`, and an opt-in guard protects exactly
+the people who did not need it: the caller who gets this wrong is the caller who
+does not know the field name, and they do not know to ask for strict either. So
+the note is unconditional — `notes` exists for precisely this, "what the engine
+did with something you told it and could not use", and a model reads it — and
+`strict` only changes how loud it is:
+
+```js
+estimateFederalTax({ filingStatus: 'single', wages: 1 }, { strict: true });
+// RangeError: `wages` is not a field of EstimateInput. ... Did you mean `w2Wages`?
+```
+
+Pass `strict: true` from a test suite, where a typo should stop the run. This
+package's own suite does, from every one of its **396 tests**.
+
+Three details that are decisions rather than accidents:
+
+- **A key holding `undefined` is not reported.** `undefined` means absent
+  everywhere in this engine, so an unrecognised key holding it has dropped no
+  figure. `null` *is* reported: a JSON caller can really send it, and it really
+  is discarded.
+- **The suggestion is ranked by how much of the name is shared**, not by how close
+  the lengths are. Rank by length and `wages` is answered with `age` — because
+  `wages` happens to contain it — putting a coincidence ahead of the field the
+  caller wanted.
+- **A missing or swapped letter is caught too.** Substring matching is blind to
+  `w2Wges`, because deleting a character from the middle of a name breaks
+  containment in both directions at once, so a bounded edit distance runs when the
+  substring rule finds nothing. A transposition costs one edit, not two.
+
+`KNOWN_ESTIMATE_INPUT_FIELDS` is the field list the message points at, and the
+compiler proves it is exactly `keyof EstimateInput` — a field added to the
+interface and not to the list is a build failure, because the alternative is this
+guard telling a caller that a field the engine reads is a field it ignores.
+
 ## API
 
 | Function | Purpose |
@@ -898,6 +965,9 @@ single or the joint column; the result says so in `notes`.
 | `PAY_PERIODS_PER_YEAR` | The eight pay periods and their divisors |
 | `getYearParameters(year)` | Raw parameters and their citations |
 | `SUPPORTED_YEARS` | `[2024, 2025, 2026]`, ascending |
+| `KNOWN_ESTIMATE_INPUT_FIELDS` | Every field name `EstimateInput` has, proved against the interface by the compiler |
+| `nearestFields(key, known)` | The field names an unrecognised key most likely meant |
+| `unknownInputKeys(input, known)` | Every unrecognised own key of an input, for a caller who wants the check early |
 
 Filing statuses are `'single'`, `'marriedFilingJointly'`, `'marriedFilingSeparately'`,
 `'headOfHousehold'`, and `'qualifyingSurvivingSpouse'`.

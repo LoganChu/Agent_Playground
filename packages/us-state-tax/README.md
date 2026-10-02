@@ -245,7 +245,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.33.0/us-state-tax-0.33.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.34.0/us-state-tax-0.34.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2141,7 +2141,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.33.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.34.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 28 states.** No Minnesota, Wisconsin,
@@ -2221,11 +2221,66 @@ hides its gaps is worse than useless:
   a paycheck. Those are different questions with different answers.
 - **No part-year or non-resident apportionment.**
 
+## Three contracts, three answers to an unknown key (v0.34.0)
+
+`StateIncomeTaxInput` has 52 fields and several of them are the difference between
+a right answer and a plausible one. Until v0.34.0 a key this engine did not
+recognise was dropped in silence — which is how `wages` for `w2Wages` produced a
+$0 federal tax bill on the first call ever made against the companion package, and
+how `stateSubtractions` for `subtractions` lived inside this package's own test
+suite long enough to turn a regression test into one that could not fail on the
+bug it guards.
+
+An unrecognised key now says so, and the engine gives three different answers
+because the three places have three different contracts:
+
+```js
+stateIncomeTax({ state: 'OH', year: 2026, filingStatus: 'single',
+                 federal: { adjustedGrossIncome: 60_000 },
+                 subtractons: 40_000 }).notes[0];
+// 'Ignored unknown input: `subtractons` is not a field of StateIncomeTaxInput. An
+//  unrecognised key is dropped, so every figure in the result is computed as if
+//  it had not been supplied. Did you mean `subtractions`?'
+```
+
+| where | answer | why |
+| --- | --- | --- |
+| **the top level** | a note in `result.notes` | a caller's own object may reasonably carry their bookkeeping, so a throw would break an upgrade — but a dropped figure must not be silent |
+| **`input.retirement`** | a `RangeError`, always | its field names are documented as exhaustive, and an unknown key there leaves a retiree with no pension and every exclusion computed as if they had none |
+| **`input.federal`** | nothing at all | it is documented as a structural subset of `estimateFederalTax()`'s whole result, so every extra key on it is expected |
+
+The note is unconditional and `strict: true` escalates it to a throw:
+
+```js
+stateIncomeTax(input, { strict: true }); // RangeError: `subtractons` is not a field of …
+```
+
+That default is a correction rather than a preference. Four days of worklists
+specified this as opt-in strictness, and an opt-in guard protects exactly the
+people who did not need it: the caller who gets a field name wrong is the caller
+who does not know the field name, and they do not know to ask for strict either.
+
+A test suite is the one caller that does know, and this one asks for the throw
+from all **618 tests**. Turning it on is what measured the cost of not having
+it: **109 tests were passing a key this engine does not read**, through fourteen
+household helpers that each spread their own option bag into the input. None of
+them changed an answer — they were all helper options with no field to land on —
+but two real defects were living in the pattern, and one of them was a regression
+test that had stopped being able to fail.
+
+Also exported: `KNOWN_STATE_INPUT_FIELDS` (every field name, proved against the
+interface by the compiler), `nearestFields(key, known)` and
+`unknownInputKeys(input, known)`.
+
 ## API
 
 ```ts
-stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
+stateIncomeTax(input: StateIncomeTaxInput, options?: StateIncomeTaxOptions): StateIncomeTaxResult
 ```
+
+`options.strict` throws on an input key this engine does not read instead of
+reporting it in `result.notes` — see **Three contracts, three answers to an
+unknown key** above. It defaults to off.
 
 `input.federal` is a structural subset of `us-federal-tax`'s `EstimateResult`, so the
 output of `estimateFederalTax()` can be passed straight in.

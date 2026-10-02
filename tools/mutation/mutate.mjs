@@ -195,9 +195,37 @@ console.error(`[mutate] ${pkgDir}: ${selected.length} mutants over ${files.lengt
 // no mutant can kill contributes nothing to the score in either direction, and
 // leaving them in makes the BASELINE red, which would mark every mutant killed.
 const SKIP_TESTS = String(flag('skip-tests', 'readme.test.js')).split(',').filter(Boolean);
+
+/**
+ * A test file that reads a SIBLING package cannot run inside a worker copy, and
+ * the list above is the wrong way to know which ones do.
+ *
+ * Day 38 found that out by being refused. Two new test files cross-check one
+ * package's guard module against the other's, byte for byte — two independent
+ * zero-dependency packages cannot share a module, so there are two copies, and
+ * two copies of a fact that must agree is a bug with a waiting period. Both
+ * assertions reach `../../<other-package>/src/`, both are green in the
+ * repository, and both made the baseline red in here. The harness was right to
+ * refuse and the diagnosis cost nothing, because it printed the three failures.
+ *
+ * So the criterion is DERIVED instead of listed: a file that resolves a path out
+ * of its own package is a repository assertion, no parameter mutation can make
+ * it fail, and it cannot be satisfied from a copy of one package. Added to the
+ * name list rather than replacing it — un-skipping `readme.test.js` would change
+ * what the score is a score of, which is not a change to make in passing — and
+ * every skip is PRINTED, because a measurement tool that silently drops tests is
+ * the defect this whole file exists to find.
+ */
+const ESCAPES_PACKAGE = /\.\.['"]\s*,\s*['"]\.\.|\.\.\/\.\./;
+const escaping = readdirSync(join(pkgDir, 'test'))
+  .filter((f) => f.endsWith('.test.js'))
+  .filter((f) => !SKIP_TESTS.includes(f))
+  .filter((f) => ESCAPES_PACKAGE.test(readFileSync(join(pkgDir, 'test', f), 'utf8')));
 const TEST_FILES = readdirSync(join(pkgDir, 'test'))
   .filter((f) => f.endsWith('.test.js'))
-  .filter((f) => !SKIP_TESTS.includes(f));
+  .filter((f) => !SKIP_TESTS.includes(f) && !escaping.includes(f));
+for (const f of SKIP_TESTS) console.error(`[mutate] not run: test/${f} (named in --skip-tests)`);
+for (const f of escaping) console.error(`[mutate] not run: test/${f} (reads outside the package)`);
 const TESTCMD = ['--test', ...TEST_FILES.map((f) => `test/${f}`)];
 function runSuite(dir) {
   try {
@@ -218,6 +246,13 @@ for (let i = 0; i < WORKERS; i++) {
   mkdirSync(d, { recursive: true });
   cpSync(join(pkgDir, 'dist'), join(d, 'dist'), { recursive: true });
   cpSync(join(pkgDir, 'test'), join(d, 'test'), { recursive: true });
+  // `src` too, since Day 38. Two tests parse the TypeScript interface out of the
+  // source and compare it to the field list the built package exports — a check
+  // on the compiler's own exhaustiveness proof, independent of the compiler. No
+  // mutant can kill them (the harness doubles numbers and a field name is not a
+  // number), so they cost the score nothing; what they cost without this line is
+  // a red baseline, which costs the whole run.
+  cpSync(join(pkgDir, 'src'), join(d, 'src'), { recursive: true });
   cpSync(join(pkgDir, 'package.json'), join(d, 'package.json'));
   if (statSync(join(pkgDir, 'README.md'), { throwIfNoEntry: false })) cpSync(join(pkgDir, 'README.md'), join(d, 'README.md'));
   workerDirs.push(d);

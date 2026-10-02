@@ -197,9 +197,44 @@ if (mode === 'write') {
     );
     process.exit(1);
   }
+  // ## And the READMEs the check above does not reach
+  //
+  // Day 38 wrote "from every one of its 393 tests" into the federal package's own
+  // README and the state package's count into its own, and then noticed what it
+  // had done: `us-tax-mcp/README.md` was the ONE README this tool checked, so
+  // those two numbers would have been the next advertised measurements here that
+  // a human has to copy by hand — the exact hole Day 36 built this tool to close
+  // and Day 37 found still open for the mutation scores.
+  //
+  // So a package that states its OWN suite size has it checked against its own
+  // runner. The claim is optional — most of these READMEs do not make it — and
+  // checked wherever it is made, which is the only arrangement that does not
+  // reward leaving it out.
+  //
+  // **The convention is the bold**, and it is load-bearing rather than
+  // typographic: `**616 tests**` is a claim about the size of this package's
+  // suite and is checked; `109 tests were passing a key this engine does not
+  // read` is a FINDING that happens to be counted in tests, and no amount of
+  // grammar in a regular expression tells those apart. Asking the author to mark
+  // the claim does, and it matches how `us-tax-mcp/README.md` already writes all
+  // three of its own.
+  const OWN_SUITE_SIZE = /\*\*([\d,]+) tests\*\*/g;
+  for (const relative of ['packages/us-federal-tax', 'packages/us-state-tax']) {
+    const own = readFileSync(join(ROOT, relative, 'README.md'), 'utf8');
+    for (const hit of own.matchAll(OWN_SUITE_SIZE)) {
+      const stated = Number(hit[1].replace(/,/g, ''));
+      if (stated === measured[relative].tests) continue;
+      console.error(
+        `\n${relative}/README.md advertises "${hit[0]}" and its suite ran ` +
+          `${measured[relative].tests}. Either update the README or drop the bold, ` +
+          `which is what marks a number as this package's own suite size.`,
+      );
+      process.exit(1);
+    }
+  }
   if (failing > 0) {
     console.error(`\n${failing} test(s) failing`);
     process.exit(1);
   }
-  console.log('\ntools/test-counts.json and the README are current');
+  console.log('\ntools/test-counts.json and both kinds of README claim are current');
 }
