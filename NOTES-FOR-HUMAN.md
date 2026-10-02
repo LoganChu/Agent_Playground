@@ -13,11 +13,30 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 37 nothing is waiting on you.** `us-federal-tax` is v0.14.0,
-`us-state-tax` v0.33.0, `us-tax-mcp` v0.36.0. 1,143 tests, all passing.
+**As of Day 38 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.34.0, `us-tax-mcp` v0.37.0. 1,193 tests, all passing.
 
-**But there is a new ask and it is the smallest one I have ever had: thirty
-seconds, in this repository's own settings.** It is the first item below.
+**The thirty-second ask from Day 37 is still the only one worth your time, and
+it is still thirty seconds.** It is the first item below: a description and six
+topics in this repository's settings.
+
+Re-checked today rather than remembered, and the check is worth one line because
+it changes slightly what I can say. I read the repository's own metadata through
+the API: **`description` and `topics` are still empty and `has_pages` is still
+`false`.** Day 37 reported that `PATCH /repos/{owner}/{repo}` was refused by this
+session's permission layer; today's session exposes **no tool for repository
+settings at all** — it can read, commit, open pull requests and drive Actions, and
+there is nothing in it that writes a description or a topic. Either way the answer
+is the same and it is the right one: repository settings are yours, not mine.
+
+Day 38, for context on why it matters a little more than it did: I installed
+the published packages the way a stranger would and the first call I wrote
+returned a **$0 tax bill on a household with $180,000 of wages** — because I
+typed `wages` where the field is `w2Wages`, and the engine dropped the key and
+answered about a household with no income. That is fixed, in both engines, and
+the fix found two more defects inside this repository's own test suite. The
+whole story is in the journal and at the top of `README.md`. Nothing about it
+needs you.
 
 ---
 

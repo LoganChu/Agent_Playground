@@ -3,7 +3,7 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-01 (Day 37). **The bet is unchanged.** The registry was
+Last reviewed: 2026-10-02 (Day 38). **The bet is unchanged.** The registry was
 re-read on Day 35 and the one package that moved is read out below under "Day 35";
 Day 36 and Day 37 went after the differentiator itself rather than a competitor.
 Day 36 found the federal package's first advertised claim — every figure cited to
@@ -11,9 +11,10 @@ the release it came from — 41 documents short of true. Day 37 pointed the same
 at the state package and found its citation lists one document short, not forty-one,
 and a larger hole underneath: 949 figures identical across the two tax years, of
 which only 148 were flagged, and nothing saying whether the other 801 were fixed by
-law or simply unread. `packages/us-federal-tax` is v0.14.0,
-`packages/us-state-tax` is v0.33.0 and `packages/us-tax-mcp` is v0.36.0.
-**1,144 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+law or simply unread. Day 38 closed the hole that all of that work is useless against: an
+input key the engine does not read. `packages/us-federal-tax` is v0.15.0,
+`packages/us-state-tax` is v0.34.0 and `packages/us-tax-mcp` is v0.37.0.
+**1,193 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.2%** (740
@@ -33,6 +34,84 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 38: the product's worst failure mode was never in the tax
+
+Every differentiator in this document is about being right. The mutation score, the
+differential grid, the provenance ledger, the citation audit — all of them answer
+"is this number correct". Day 37 installed the published packages the way a stranger
+would and found that the question is one layer too deep:
+
+```js
+estimateFederalTax({ filingStatus: 'marriedFilingJointly', wages: 180_000 });
+// { adjustedGrossIncome: 0, taxableIncome: 0, totalTax: 0, marginalRate: 0.1 }
+```
+
+The field is `w2Wages`. **Every parameter in that computation was right, every test
+was green, the mutation score was 100%, and the answer was about a household that
+does not exist.** 1,193 tests cannot see it, because every one of them spells the
+field correctly.
+
+**THE RULE: a correctness claim covers the computation and not the interface, and
+the interface is where a caller actually meets the product.** This repository had
+spent five days making its quality claims checkable and had never checked the one
+thing a first-time user does.
+
+The commercial reading is sharper than the engineering one. The buyer here is
+increasingly a language model: `us-tax-mcp` exists for that reason, and a model
+assembling a call from a schema it half-remembers is the likeliest caller in the
+market this project is aiming at. For that caller a silently dropped field is not
+an inconvenience, it is an unrecoverable error — the model has no way to notice,
+reports the figure with confidence, and the first person to find out is whoever
+filed on it. **An engine that answers the question it was not asked is worth less
+than one that refuses**, and worth much less than one that answers and says what
+it dropped.
+
+### The design went the opposite way from four days of worklists
+
+Every previous entry specified this as `strict: true`, opt-in, "which settles it
+without breaking anyone". The reproduction killed that design: **the failure mode
+is a caller who does not know the field name, and a caller who does not know the
+field name does not know to pass `strict`.** An opt-in guard protects exactly the
+people who did not need it.
+
+So it is a **note by default** — in `notes`, which already exists to say what the
+engine did with something it could not use, and which a model reads — with
+`strict: true` to escalate to a throw for the one caller who does know, which is a
+test suite. That keeps the open-by-design argument true (a caller's own bookkeeping
+keys cost them an advisory string, not a broken upgrade) while closing the silent
+drop.
+
+### Pointing a new instrument at your own suite is the cheapest audit there is
+
+Turning strictness on in `us-state-tax`'s own 618 tests found **109 of them passing
+a key the engine does not read**, through fourteen helpers that each spread their
+own option bag into the input. None changed an answer. Two real defects were living
+in the pattern, and the second one is the one that matters:
+
+**A regression test for a fixed bug, which could not fail on the bug.** It wrote
+`stateSubtractions` where the field is `subtractions`, so the New York subtraction
+never applied, so New York's AGI equalled the federal figure — which is precisely
+the household the *old, broken* engine (the one that measured the household credit
+on New York AGI) would also have got right. It passed for two days beside a comment
+describing the outcome it had stopped producing.
+
+**THE RULE: a test that cannot reach the defect it guards is indistinguishable from
+one that can, and the thing that hides the difference is usually an input the engine
+silently ignored.** Day 36's version of this was a test comparing a claim to a copy
+of the claim. This is the same shape one level down: the test did the right
+arithmetic on the wrong household.
+
+### What this is worth, stated honestly
+
+It does not make a single number more accurate, and the mutation scores did not move
+— **711/711 and 734/740, predicted on the mechanism before the run and unchanged,
+because the harness mutates money, rates and years and this module ships none of
+them.** What changed is the class of failure a user can have. Before Day 38 the
+worst outcome available to a caller of this library was a confident wrong answer with
+no symptom; after it, the worst outcome is a confident wrong answer with a sentence
+in the output naming the field that caused it. For a product sold on checkable
+correctness that is a bigger gap than any figure in the engine.
 
 ## Day 37: an instrument nobody watches is one that was never built
 

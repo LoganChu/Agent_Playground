@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.33.0/us-state-tax-0.33.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.14.0/us-federal-tax-0.14.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.36.0/us-tax-mcp-0.36.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.34.0/us-state-tax-0.34.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.37.0/us-tax-mcp-0.37.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -35,6 +35,76 @@ at an immutable tag, built and tested from the commit it was cut from by the
 When the packages do land on npm the names shorten to `npm i us-state-tax` and the
 URLs above keep working. What npm adds is **reach** — a name that can be searched
 for — not capability.
+
+## The $0 tax bill that was complete, consistent, and about nobody
+
+The first call ever made against these packages from a clean install — not a test,
+not a fixture, an `npm i` of the release tarball and one line — was this:
+
+```js
+estimateFederalTax({ filingStatus: 'marriedFilingJointly', wages: 180_000 });
+```
+
+The field is `w2Wages`. The engine took the unknown key, dropped it, and returned
+
+```js
+{ adjustedGrossIncome: 0, taxableIncome: 0, totalTax: 0, marginalRate: 0.1, ... }
+```
+
+**Every figure in there is correct for a household with no income, and the
+marginal rate is the most convincing part.** There is no field out of place, no
+ratio that disagrees with another, and nothing anywhere saying that the one number
+the caller supplied is not in the answer. A suite of 1,193 tests cannot catch it,
+because every one of them passes the right field name.
+
+As of v0.15.0 / v0.34.0 an unknown input key says so, in `result.notes` — which
+exists for exactly this, "what the engine did with something you told it and could
+not use", and which a model reads:
+
+```
+Ignored unknown input: `wages` is not a field of EstimateInput. An unrecognised key
+is dropped, so every figure in the result is computed as if it had not been
+supplied. Did you mean `w2Wages` or `age`?
+```
+
+**A note, not a throw, and that is a correction rather than a preference.** This
+was specified for four days as an opt-in `strict: true`, and an opt-in guard
+protects exactly the people who did not need it: the caller who gets a field name
+wrong is the caller who does not know the field name, and they do not know to ask
+for strict either. `strict: true` still exists and still throws — for the one
+caller who does know, which is a test suite.
+
+### And then the guard was pointed at this repository's own suite
+
+Turning it on in `us-state-tax`'s 618 tests is what measured the cost of not
+having had it. **109 of them were passing a key the engine does not read**, through
+fourteen household helpers all shaped the same way:
+
+```js
+const oh = (opts = {}) => stateIncomeTax({
+  state: 'OH', year: opts.year ?? 2025, federal: federal(opts.agi ?? 60_000),
+  ...opts,                                  // <- `agi` goes to the engine too
+});
+```
+
+`...opts` is what lets one helper pass any real field through, and it is also what
+spreads the helper's own options straight into the engine. None of the 109 changed
+an answer — they were all helper options with no field to land on — but two real
+defects were living in the pattern:
+
+- **`wages: 60_000`, written thirteen times**, in a package that has no such
+  field. Dead in every one of them.
+- **`stateSubtractions` where the field is `subtractions`**, inside a test whose
+  whole job is to prove that New York measures its household credit on federal AGI
+  and not on New York's. With the key dropped the two were equal, so the household
+  it built was one the OLD, BROKEN engine would also have got right. **A regression
+  test for a fixed bug, unable to fail on the bug**, passing beside a message
+  describing the outcome it had stopped producing.
+
+Fixing fourteen helpers is not the fix, because the reason a typo survives is that
+nothing fails on it. Both suites now reach their engine through a
+[one-file wrapper](packages/us-state-tax/test/strict.mjs) that defaults
+`strict: true`, which costs one import line per file and nothing at any call site.
 
 ## How much of this is actually tested
 
@@ -341,7 +411,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.36.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.37.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -794,7 +864,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.36.0/us-tax-mcp-0.36.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.37.0/us-tax-mcp-0.37.0.tgz"
       ]
     }
   }
