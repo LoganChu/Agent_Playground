@@ -14,7 +14,7 @@ which only 148 were flagged, and nothing saying whether the other 801 were fixed
 law or simply unread. Day 38 closed the hole that all of that work is useless against: an
 input key the engine does not read. `packages/us-federal-tax` is v0.15.0,
 `packages/us-state-tax` is v0.34.0 and `packages/us-tax-mcp` is v0.37.0.
-**1,193 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+**1,197 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.2%** (740
@@ -49,7 +49,7 @@ estimateFederalTax({ filingStatus: 'marriedFilingJointly', wages: 180_000 });
 
 The field is `w2Wages`. **Every parameter in that computation was right, every test
 was green, the mutation score was 100%, and the answer was about a household that
-does not exist.** 1,193 tests cannot see it, because every one of them spells the
+does not exist.** 1,197 tests cannot see it, because every one of them spells the
 field correctly.
 
 **THE RULE: a correctness claim covers the computation and not the interface, and
