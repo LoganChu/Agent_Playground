@@ -12,7 +12,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { stateIncomeTax } from '../dist/esm/index.js';
+import { stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -32,14 +32,18 @@ const MARION = 0.0202;
 const STATE_2026 = 0.0295;
 const COMBINED = STATE_2026 + MARION;
 
-const indiana = (opts = {}) =>
+const indiana = ({ agi, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state: 'IN',
-    year: opts.year ?? 2026,
-    filingStatus: opts.filingStatus ?? 'single',
-    county: opts.county ?? 'Marion',
-    federal: federal(opts.agi ?? 60_000),
-    ...opts,
+    year: 2026,
+    filingStatus: 'single',
+    county: 'Marion',
+    ...fields,
+    federal: federal(agi ?? 60_000),
   });
 
 test('a dependent child is worth $2,500 of exemption and a dependent parent $1,000', () => {

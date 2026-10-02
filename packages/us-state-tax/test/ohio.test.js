@@ -28,7 +28,7 @@ import {
   ohioSchoolDistricts,
   ohioSchoolDistrictTaxesEarnedIncomeOnly,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -43,13 +43,17 @@ const federal = (agi) => ({
   deductionKind: 'standard',
 });
 
-const oh = (opts = {}) =>
+const oh = ({ agi, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state: 'OH',
-    year: opts.year ?? 2025,
-    filingStatus: opts.filingStatus ?? 'single',
-    federal: federal(opts.agi ?? 60_000),
-    ...opts,
+    year: 2025,
+    filingStatus: 'single',
+    ...fields,
+    federal: federal(agi ?? 60_000),
   });
 
 test('the $342 constant is charged whole on one cent of income', () => {

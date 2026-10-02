@@ -10,7 +10,7 @@ import {
   seniorDeduction,
   standardDeduction,
   vehicleLoanInterestDeduction,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 // ---------------------------------------------------------------------------
 // Where a married individual filing a separate return sits, parameter by

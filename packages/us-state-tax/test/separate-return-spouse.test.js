@@ -25,7 +25,7 @@
 //     than restated as a number.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stateIncomeTax, getStateDefinition, SUPPORTED_STATES, FILING_STATUSES } from '../dist/esm/index.js';
+import { stateIncomeTax, getStateDefinition, SUPPORTED_STATES, FILING_STATUSES } from './strict.mjs';
 
 const YEAR = 2025;
 

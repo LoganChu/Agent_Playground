@@ -53,7 +53,7 @@ import {
   figureProvenance,
   figureProvenanceMatches,
   getYearParameters,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 /** Every numeric leaf of a year's parameters, as a dot path. `sources` and `year` are not figures. */
 const figurePaths = (year) => {

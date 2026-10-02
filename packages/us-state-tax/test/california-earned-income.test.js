@@ -19,7 +19,7 @@ import {
   getStateDefinition,
   ownEarnedIncomeCreditAt,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(

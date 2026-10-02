@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { FILING_STATUSES, YEARS, estimateFederalTax } from '../dist/esm/index.js';
+import { FILING_STATUSES, YEARS, estimateFederalTax } from './strict.mjs';
 
 // ---------------------------------------------------------------------------
 // Where a qualifying surviving spouse sits, parameter by parameter.

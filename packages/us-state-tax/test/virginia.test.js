@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -21,13 +21,17 @@ const federal = (agi, extra = {}) => ({
   ...extra,
 });
 
-const va = (agi, opts = {}) =>
+const va = (agi, { fed, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state: 'VA',
-    year: opts.year ?? 2025,
-    filingStatus: opts.filingStatus ?? 'single',
-    federal: federal(agi, opts.fed ?? {}),
-    ...opts,
+    year: 2025,
+    filingStatus: 'single',
+    ...fields,
+    federal: federal(agi, fed ?? {}),
   });
 
 const creditNamed = (result, fragment) =>

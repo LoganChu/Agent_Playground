@@ -62,7 +62,7 @@ import {
   SUPPORTED_YEARS,
   getStateDefinition,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 import { DIGEST_COLUMNS, HOUSEHOLDS, digest, household } from './status-households.mjs';
 
 const PINS = JSON.parse(readFileSync(new URL('./status-sweep.json', import.meta.url), 'utf8'));

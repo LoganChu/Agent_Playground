@@ -6,6 +6,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// The unknown-key section quotes the DEFAULT behaviour — a note, never a throw —
+// so that one example needs the real entry point rather than the strict wrapper
+// every other test here uses.
+import { stateIncomeTax as lenientStateIncomeTax } from '../dist/esm/index.js';
 
 import {
   MICHIGAN_CITIES,
@@ -22,7 +26,7 @@ import {
   michiganCities,
   nycRate,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -423,19 +427,21 @@ test('README: the Maryland quick-start and county figures', () => {
 });
 
 test('README: every Maryland retirement figure quoted above', () => {
-  const mdRetiree = (opts) =>
+  // `agi` is this helper's own option and is kept out of the engine input: an
+  // unrecognised key is spread straight in and silently ignored.
+  const mdRetiree = ({ agi, ...fields }) =>
     stateIncomeTax({
       state: 'MD',
-      year: opts.year ?? 2025,
-      filingStatus: opts.filingStatus ?? 'single',
+      year: 2025,
+      filingStatus: 'single',
       county: 'Montgomery County',
+      ...fields,
       federal: {
-        adjustedGrossIncome: opts.agi,
-        taxableIncome: Math.max(0, opts.agi - (opts.filingStatus ? 31_500 : 15_750)),
-        deduction: opts.filingStatus ? 31_500 : 15_750,
+        adjustedGrossIncome: agi,
+        taxableIncome: Math.max(0, agi - (fields.filingStatus ? 31_500 : 15_750)),
+        deduction: fields.filingStatus ? 31_500 : 15_750,
         deductionKind: 'standard',
       },
-      ...opts,
     });
 
   // "Maryland taxes Social Security and exempts pensions" — the quick-start
@@ -1434,4 +1440,42 @@ test('README: every count in the step-probe and notes sections', () => {
   assert.equal(ohio.exemptionCredit.perFiler.single, 20);
   // Michigan's cohort relation, quoted as `year - 1945`.
   assert.equal(getStateDefinition('MI', 2026).retirementIncomeSubtractions[0].minimumAge, 2026 - 1945);
+});
+
+test('README: the unknown-key note, quoted, and the three contracts beside it', () => {
+  const input = {
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    federal: { adjustedGrossIncome: 60_000 },
+    subtractons: 40_000,
+  };
+  const r = lenientStateIncomeTax(input);
+
+  const readme = readFileSync(
+    resolve(dirname(fileURLToPath(import.meta.url)), '..', 'README.md'),
+    'utf8',
+  );
+  const quoted = /\/\/ 'Ignored unknown input:([\s\S]*?)'\n/.exec(readme);
+  assert.ok(quoted, 'README should quote the note');
+  const flattened = `Ignored unknown input:${quoted[1]}`.replace(/\n\s*\/\/\s*/g, ' ').trim();
+  assert.equal(r.notes[0], flattened);
+
+  // The table's three rows, each asserted rather than described.
+  assert.equal(r.notes.filter((n) => n.startsWith('Ignored unknown input:')).length, 1);
+  assert.throws(
+    () => lenientStateIncomeTax({ ...input, subtractons: undefined, retirement: { filer: { pension: 1 } } }),
+    /is not a field of PersonRetirementIncome/,
+  );
+  const withWholeFederalResult = lenientStateIncomeTax({
+    ...input,
+    subtractons: undefined,
+    federal: { adjustedGrossIncome: 60_000, totalTax: 1, balanceDue: 2, notes: [] },
+  });
+  assert.deepEqual(
+    withWholeFederalResult.notes.filter((n) => n.startsWith('Ignored unknown input:')),
+    [],
+    '`federal` is a documented superset and is not checked',
+  );
+  assert.throws(() => lenientStateIncomeTax(input, { strict: true }), { name: 'RangeError' });
 });

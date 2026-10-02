@@ -24,7 +24,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { stateIncomeTax } from '../dist/esm/index.js';
+import { stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(

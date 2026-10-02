@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { estimateFederalTax, quarterlyEstimatedPayments } from '../dist/esm/index.js';
+import { estimateFederalTax, quarterlyEstimatedPayments } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(

@@ -9,7 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 import { recaptureLadder } from '../dist/esm/engine.js';
 
 const money = (actual, expected, msg) =>

@@ -17,7 +17,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -25,16 +25,20 @@ const money = (actual, expected, msg) =>
     `${msg ?? 'amount'}: expected ${expected}, got ${actual}`,
   );
 
-const ga = (agi, opts = {}) =>
+const ga = (agi, { itemizes, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state: 'GA',
-    year: opts.year ?? 2026,
-    filingStatus: opts.filingStatus ?? 'single',
+    year: 2026,
+    filingStatus: 'single',
+    ...fields,
     federal: {
       adjustedGrossIncome: agi,
-      deductionKind: opts.itemizes ? 'itemized' : 'standard',
+      deductionKind: itemizes ? 'itemized' : 'standard',
     },
-    ...opts,
   });
 
 const itemizerCredit = (result) =>

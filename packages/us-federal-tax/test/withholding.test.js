@@ -14,7 +14,7 @@ import {
   withholdingMarginalRateAt,
   withholdingPlan,
   withholdingRateSchedule,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const thresholds = (column, year, multipleJobsCheckbox = false) =>
   withholdingRateSchedule({ column, year, multipleJobsCheckbox })

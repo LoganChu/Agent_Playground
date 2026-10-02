@@ -10,7 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -26,17 +26,21 @@ const federal = (agi, deduction) => ({
 });
 
 /** A Montgomery County return — 3.20%, the county the README's figures use. */
-const md = (opts) => {
+const md = ({ agi, ...fields }) => {
   const joint =
-    opts.filingStatus === 'marriedFilingJointly' ||
-    opts.filingStatus === 'qualifyingSurvivingSpouse';
+    fields.filingStatus === 'marriedFilingJointly' ||
+    fields.filingStatus === 'qualifyingSurvivingSpouse';
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   return stateIncomeTax({
     state: 'MD',
-    year: opts.year ?? 2025,
-    filingStatus: opts.filingStatus ?? 'single',
+    year: 2025,
+    filingStatus: 'single',
     county: 'Montgomery County',
-    federal: federal(opts.agi, joint ? 31_500 : 15_750),
-    ...opts,
+    ...fields,
+    federal: federal(agi, joint ? 31_500 : 15_750),
   });
 };
 

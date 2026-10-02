@@ -25,7 +25,7 @@ import {
   MI_CITY_EXEMPTION_FLOOR,
   MI_CITY_ORDINARY_RATE_CEILING,
   MI_PUBLISHED_NONRESIDENT_RATES,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const federal = (agi, deduction = 15750) => ({
   adjustedGrossIncome: agi,

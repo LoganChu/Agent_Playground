@@ -14,7 +14,7 @@ import {
   marylandCounties,
   marylandCounty,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -39,13 +39,17 @@ const federal = (agi, opts = {}) => ({
     : { earnedIncomeCredit: opts.earnedIncomeCredit }),
 });
 
-const md = (opts = {}) =>
+const md = ({ agi, deduction, deductionKind, earnedIncomeCredit, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state: 'MD',
-    year: opts.year ?? 2025,
-    filingStatus: opts.filingStatus ?? 'single',
-    federal: federal(opts.agi ?? 100_000, opts),
-    ...opts,
+    year: 2025,
+    filingStatus: 'single',
+    ...fields,
+    federal: federal(agi ?? 100_000, { deduction, deductionKind, earnedIncomeCredit }),
   });
 
 const localOf = (result) => result.localTaxes[0];

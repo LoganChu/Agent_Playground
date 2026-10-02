@@ -20,7 +20,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -28,14 +28,18 @@ const money = (actual, expected, msg) =>
     `${msg ?? 'amount'}: expected ${expected}, got ${actual}`,
   );
 
-const run = (state, filingStatus, opts = {}) =>
+const run = (state, filingStatus, { agi, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state,
     year: 2026,
     filingStatus,
-    federal: { adjustedGrossIncome: opts.agi ?? 45_000 },
-    earnedIncome: opts.agi ?? 45_000,
-    ...opts,
+    earnedIncome: agi ?? 45_000,
+    ...fields,
+    federal: { adjustedGrossIncome: agi ?? 45_000 },
   });
 
 // ---------------------------------------------------------------------------
@@ -181,7 +185,6 @@ const withBlind = (state, filingStatus, blindOrDisabled) =>
     filingStatus,
     filerAge: 70,
     federal: { adjustedGrossIncome: 60_000, taxableIncome: 45_000, socialSecurityBenefits: 0 },
-    wages: 60_000,
     newJerseyGrossIncome: 60_000,
     blindOrDisabled,
   }).totalTax;
@@ -244,7 +247,6 @@ test('a spouseAge on a surviving spouse’s return buys no second senior allowan
       filingStatus: 'qualifyingSurvivingSpouse',
       filerAge: 70,
       federal: { adjustedGrossIncome: 60_000, taxableIncome: 45_000, socialSecurityBenefits: 0 },
-      wages: 60_000,
     }).totalTax;
     const withGhost = stateIncomeTax({
       state,
@@ -253,7 +255,6 @@ test('a spouseAge on a surviving spouse’s return buys no second senior allowan
       filerAge: 70,
       spouseAge: 70,
       federal: { adjustedGrossIncome: 60_000, taxableIncome: 45_000, socialSecurityBenefits: 0 },
-      wages: 60_000,
     }).totalTax;
     money(withGhost, alone, `${state}: a dead spouse's age was counted`);
   }
@@ -282,7 +283,6 @@ const illinois = (filingStatus, agi) =>
     year: 2026,
     filingStatus,
     federal: { adjustedGrossIncome: agi, taxableIncome: agi },
-    wages: agi,
     dependents: 1,
     dependentAges: [10],
   }).totalTax;

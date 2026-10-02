@@ -25,7 +25,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { stateIncomeTax } from '../dist/esm/index.js';
+import { stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -53,7 +53,6 @@ const massachusetts = (filingStatus, paid = 4_590) =>
     filingStatus,
     federal: { adjustedGrossIncome: 60_000 },
     massachusettsFivePercentIncome: 60_000,
-    wages: 60_000,
     socialSecurityAndMedicarePaid: paid,
     dependents: 1,
     dependentAges: [10],
@@ -107,7 +106,6 @@ const pennsylvania = (filingStatus, eligibilityIncome) =>
     year: 2026,
     filingStatus,
     federal: { adjustedGrossIncome: eligibilityIncome },
-    wages: eligibilityIncome,
     pennsylvaniaTaxableIncome: eligibilityIncome,
     dependents: 1,
     dependentAges: [10],
@@ -155,7 +153,6 @@ const virginia = (filingStatus, agi, extra = {}) =>
     year: 2026,
     filingStatus,
     federal: { adjustedGrossIncome: agi },
-    wages: agi,
     dependents: 1,
     dependentAges: [10],
     ...extra,
@@ -224,7 +221,6 @@ const maryland = (filingStatus, earned) =>
     year: 2026,
     filingStatus,
     federal: { adjustedGrossIncome: earned },
-    wages: earned,
     earnedIncome: earned,
     dependents: 1,
     dependentAges: [10],
@@ -261,7 +257,6 @@ test('New York and New York City count a widow’s household as one adult', () =
       filingStatus,
       locality,
       federal: { adjustedGrossIncome: 22_000, taxableIncome: 12_000 },
-      wages: 22_000,
       dependents: 1,
       dependentAges: [20],
     });
@@ -296,7 +291,6 @@ test('Detroit does not give a widow a second $600 exemption', () => {
       filingStatus,
       city: 'DETROIT',
       federal: { adjustedGrossIncome: 60_000 },
-      wages: 60_000,
       dependents: 1,
       dependentAges: [10],
     }).localTaxes[0].tax;
@@ -501,7 +495,6 @@ test('Pennsylvania has no separate-return forgiveness table', () => {
       year: 2026,
       filingStatus: 'marriedFilingSeparately',
       federal: { adjustedGrossIncome: 20_000 },
-      wages: 20_000,
       pennsylvaniaTaxableIncome: 20_000,
       dependents: 1,
       dependentAges: [10],
@@ -589,12 +582,26 @@ test('the New York household credit is measured on FEDERAL adjusted gross income
     year: 2026,
     filingStatus: 'marriedFilingJointly',
     federal: { adjustedGrossIncome: 20_000, taxableIncome: 4_000 },
-    wages: 20_000,
   });
   money(credit(low, 'New York household'), 75, 'two people at $60 base plus $15');
 
   // The two engines now agree about the same household, which is the property
   // that was missing rather than either number on its own.
+  //
+  // ## This block asserted the right thing and could not fail on the wrong one
+  //
+  // Day 38: the subtraction was written `stateSubtractions`, and the field is
+  // `subtractions`. The key was dropped, so New York's AGI equalled the federal
+  // figure in every case here — which is exactly the household an engine
+  // measuring the credit on NEW YORK AGI would have got right. **A regression
+  // test for a fixed bug that cannot fail on the bug**, passing for two days
+  // beside a message describing the outcome it was no longer producing: "a
+  // $40,000 New York subtraction bought a state credit the city refused" is
+  // `[true, false]`, and the assertion below has always read `[false, false]`.
+  //
+  // With the real field the subtraction applies, New York's AGI falls to
+  // `$20,000` against a federal `$60,000`, and both credits still refuse —
+  // which is the claim, and now it is the claim this household can disprove.
   const both = (federalAgi) => {
     const r = stateIncomeTax({
       state: 'NY',
@@ -602,9 +609,13 @@ test('the New York household credit is measured on FEDERAL adjusted gross income
       locality: 'NYC',
       filingStatus: 'marriedFilingJointly',
       federal: { adjustedGrossIncome: federalAgi, taxableIncome: 4_000 },
-      wages: federalAgi,
-      stateSubtractions: Math.max(0, federalAgi - 20_000),
+      subtractions: Math.max(0, federalAgi - 20_000),
     });
+    assert.equal(
+      r.stateAdjustedGrossIncome,
+      20_000,
+      'the subtraction has to REACH the engine, or neither answer below is about the measure',
+    );
     return [
       credit(r, 'New York household') > 0,
       r.localTaxes[0].credits.some((c) => c.name.startsWith('New York City household') && c.amount > 0),
@@ -614,6 +625,6 @@ test('the New York household credit is measured on FEDERAL adjusted gross income
   assert.deepEqual(
     both(60_000),
     [false, false],
-    'a $40,000 New York subtraction bought a state credit the city refused',
+    'and a New York AGI of $20,000 buys neither credit, because both read line 19',
   );
 });

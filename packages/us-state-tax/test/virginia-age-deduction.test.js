@@ -29,7 +29,7 @@
 //  3. `bothClaiming` — the Form 760 worksheet's half-of-joint allocation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stateIncomeTax, getStateDefinition } from '../dist/esm/index.js';
+import { stateIncomeTax, getStateDefinition } from './strict.mjs';
 
 const YEAR = 2026;
 const RULE = getStateDefinition('VA', YEAR).ageDeduction;

@@ -8,7 +8,7 @@ import {
   YEAR_2026,
   estimateFederalTax,
   socialSecurityTaxability,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const ss = (over) =>
   socialSecurityTaxability({

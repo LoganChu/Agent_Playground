@@ -75,7 +75,7 @@ import {
   socialSecurityTaxability,
   standardDeduction,
   computePaycheck,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 /** Walk a dotted path, so a declaration can name a parameter rather than fetch it. */
 const at = (obj, path) =>

@@ -14,7 +14,7 @@ import {
   scheduleOneAParameters,
   selfEmploymentTax,
   stateAndLocalTaxDeduction,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 // ---------------------------------------------------------------------------
 // Structural invariants, applied to every year the package ships.

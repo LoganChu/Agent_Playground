@@ -12,7 +12,7 @@ import {
   stateIncomeTax,
   stateName,
   supportedYears,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
   adjustedGrossIncome: agi,

@@ -25,7 +25,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PERSON_RETIREMENT_FIELDS, stateIncomeTax } from '../dist/esm/index.js';
+import { PERSON_RETIREMENT_FIELDS, stateIncomeTax } from './strict.mjs';
 
 const retiree = (retirement) => ({
   state: 'MD',
@@ -49,8 +49,14 @@ test('a field of PersonRetirementIncome that does not exist is rejected', () => 
   // The suggestion is the point of the message: the two fields that contain the
   // word are the two a caller could have meant, and which one they meant changes
   // the answer by thousands of dollars in Maryland and Kentucky.
+  //
+  // Day 38 moved this rule into `nearestFields`, shared with the top-level
+  // guard, and the order changed with it: both fields share the same seven
+  // characters with `pension`, so the tie goes to the one closest in length.
+  // Declaration order was what put `employerPlanPension` first before, which is
+  // not a reason for anything.
   assert.throws(() => stateIncomeTax(retiree({ filer: { pension: 50_000 } })), {
-    message: /Did you mean `employerPlanPension` or `governmentPension`\?/,
+    message: /Did you mean `governmentPension` or `employerPlanPension`\?/,
   });
   assert.throws(() => stateIncomeTax(retiree({ spouse: { socialSecurity: 20_000 } })), {
     message: /Did you mean `socialSecurityBenefits`\?/,

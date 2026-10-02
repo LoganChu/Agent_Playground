@@ -41,7 +41,7 @@ import {
   SUPPORTED_YEARS,
   getStateDefinition,
   supportedYears,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 import {
   STATE_FIGURE_PROVENANCE,
   documentsBehindFigures,

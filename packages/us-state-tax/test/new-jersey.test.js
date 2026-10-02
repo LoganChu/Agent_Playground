@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -21,13 +21,20 @@ const FEDERAL = {
   deductionKind: 'standard',
 };
 
-const nj = (opts = {}) =>
+// `federal` is destructured out for a second reason, and it is a defect this
+// helper carried until Day 38: `...opts` came AFTER the merge, so a caller who
+// passed `federal: { earnedIncomeCredit: 3_500 }` had the merge overwritten by
+// the bare object and reached the engine with no AGI, no taxable income and no
+// deduction kind at all. New Jersey reads none of them, so every answer stayed
+// right and the merge on the line above was dead. The spread that leaks a
+// helper's own options is the same spread that defeats its own merge.
+const nj = ({ federal, ...fields } = {}) =>
   stateIncomeTax({
     state: 'NJ',
-    year: opts.year ?? 2025,
-    filingStatus: opts.filingStatus ?? 'single',
-    federal: { ...FEDERAL, ...(opts.federal ?? {}) },
-    ...opts,
+    year: 2025,
+    filingStatus: 'single',
+    ...fields,
+    federal: { ...FEDERAL, ...(federal ?? {}) },
   });
 
 const creditNamed = (result, fragment) =>
@@ -225,13 +232,13 @@ test('a qualifying surviving spouse is one person for exemptions and two for the
 // The retirement income exclusion, and the largest cliff in this package
 // ---------------------------------------------------------------------------
 
-const retiree = (totalIncome, opts = {}) =>
+const retiree = (totalIncome, { pension, age, ...fields } = {}) =>
   nj({
     newJerseyGrossIncome: totalIncome,
-    filingStatus: opts.filingStatus ?? 'marriedFilingJointly',
-    retirementIncome: opts.pension ?? 100_000,
-    filerAge: opts.age ?? 70,
-    ...opts,
+    filingStatus: 'marriedFilingJointly',
+    ...fields,
+    retirementIncome: pension ?? 100_000,
+    filerAge: age ?? 70,
   });
 
 test('the exclusion tiers are 100%, 50% and 25% of the pension, capped at the maximum', () => {

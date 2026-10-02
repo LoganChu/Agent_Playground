@@ -10,7 +10,7 @@ import {
   earnedIncomeForCredits,
   estimateFederalTax,
   selfEmploymentTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const ctc = (over) =>
   childTaxCredit({

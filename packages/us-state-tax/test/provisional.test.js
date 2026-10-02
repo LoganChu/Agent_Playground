@@ -39,7 +39,7 @@ import {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 /** Walk a dot path, treating numeric segments as array indices. */
 const resolve = (root, path) => {

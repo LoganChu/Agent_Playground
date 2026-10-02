@@ -3,6 +3,13 @@
 // number quoted in README.md so it cannot drift silently.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+// The unknown-input section quotes the DEFAULT behaviour — a note, never a throw
+// — so that one example needs the real entry point rather than the strict
+// wrapper every other test here uses.
+import { estimateFederalTax as lenientEstimate } from '../dist/esm/index.js';
 
 import {
   SUPPORTED_YEARS,
@@ -30,7 +37,7 @@ import {
   stateAndLocalTaxDeduction,
   seniorDeduction,
   vehicleLoanInterestDeduction,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 test('README: quick start figures', () => {
   const estimate = estimateFederalTax({
@@ -701,4 +708,35 @@ test('README: $10,000 of exempt interest pulls $8,500 of benefit in', () => {
     }).taxableBenefits;
   assert.equal(at(10_000, 20_000) - at(0, 20_000), 8_500);
   assert.equal(at(10_000, 20_000), at(0, 30_000));
+});
+
+test('README: the $0 estimate, and the note the README quotes for it', () => {
+  // The README's opening claim for the guard is that the OLD answer was complete
+  // and internally consistent, which is why it had no symptom. Both halves are
+  // asserted: the figures, and the note that now accompanies them.
+  const r = lenientEstimate({ filingStatus: 'marriedFilingJointly', wages: 180_000 });
+  assert.equal(r.adjustedGrossIncome, 0);
+  assert.equal(r.taxableIncome, 0);
+  assert.equal(r.totalTax, 0);
+  assert.equal(r.marginalRate, 0.1);
+
+  const readme = readFileSync(
+    resolve(dirname(fileURLToPath(import.meta.url)), '..', 'README.md'),
+    'utf8',
+  );
+  // The note is quoted in the README inside a `//` comment block, wrapped. Pull
+  // it back out and compare it to the engine, so the documentation cannot drift
+  // from the string the engine actually emits.
+  const quoted = /\/\/ 'Ignored unknown input:([\s\S]*?)'\n/.exec(readme);
+  assert.ok(quoted, 'README should quote the note');
+  const flattened = `Ignored unknown input:${quoted[1]}`.replace(/\n\s*\/\/\s*/g, ' ').trim();
+  assert.equal(r.notes[0], flattened);
+  assert.match(r.notes[0], /Did you mean `w2Wages` or `age`\?$/);
+});
+
+test('README: `strict: true` really throws for the example beside it', () => {
+  assert.throws(
+    () => lenientEstimate({ filingStatus: 'single', wages: 1 }, { strict: true }),
+    /RangeError|`wages` is not a field of EstimateInput/,
+  );
 });

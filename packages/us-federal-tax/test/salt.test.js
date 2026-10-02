@@ -5,7 +5,7 @@ import {
   estimateFederalTax,
   saltCapParameters,
   stateAndLocalTaxDeduction,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const salt = (over) =>
   stateAndLocalTaxDeduction({

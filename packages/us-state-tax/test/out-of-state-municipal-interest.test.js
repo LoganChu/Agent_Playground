@@ -29,7 +29,7 @@ import {
   getStateDefinition,
   SUPPORTED_STATES,
   FILING_STATUSES,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const YEAR = 2026;
 const COUPON = 20_000;

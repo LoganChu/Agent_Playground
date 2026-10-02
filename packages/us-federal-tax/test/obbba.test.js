@@ -14,7 +14,7 @@ import {
   scheduleOneAParameters,
   seniorDeduction,
   vehicleLoanInterestDeduction,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const Y = 2026;
 

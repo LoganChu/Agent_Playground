@@ -12,7 +12,7 @@ import {
   selfEmploymentTax,
   standardDeduction,
   UnsupportedYearError,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 /** Assert two dollar amounts agree to the cent. */
 const money = (actual, expected, msg) =>

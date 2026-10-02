@@ -17,7 +17,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { stateIncomeTax, nycRate, NYC_ADDITIONAL_TAX_RATE } from '../dist/esm/index.js';
+import { stateIncomeTax, nycRate, NYC_ADDITIONAL_TAX_RATE } from './strict.mjs';
 import { newYorkCity } from '../dist/esm/localities/new-york.js';
 import {
   localHouseholdCredit,

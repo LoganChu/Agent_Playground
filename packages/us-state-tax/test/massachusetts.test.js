@@ -11,7 +11,7 @@ import {
   getStateDefinition,
   massachusettsSurtaxThreshold,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -24,20 +24,24 @@ const money = (actual, expected, msg) =>
  * it — Massachusetts reads nothing from it except the federal earned income
  * credit, which is the point of the state having no federal starting line.
  */
-const ma = (opts = {}) => {
-  const income = opts.massachusettsFivePercentIncome ?? 0;
+const ma = ({ earnedIncomeCredit, ...fields } = {}) => {
+  const income = fields.massachusettsFivePercentIncome ?? 0;
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   return stateIncomeTax({
     state: 'MA',
-    year: opts.year ?? 2025,
-    filingStatus: opts.filingStatus ?? 'single',
+    year: 2025,
+    filingStatus: 'single',
+    ...fields,
     federal: {
       adjustedGrossIncome: income,
       taxableIncome: income,
       deduction: 0,
       deductionKind: 'standard',
-      earnedIncomeCredit: opts.earnedIncomeCredit,
+      earnedIncomeCredit,
     },
-    ...opts,
   });
 };
 

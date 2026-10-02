@@ -71,7 +71,7 @@ import {
   applyBrackets,
   getStateDefinition,
   stateIncomeTax,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 import {
   DIGEST_COLUMNS,
   DRIVERS,

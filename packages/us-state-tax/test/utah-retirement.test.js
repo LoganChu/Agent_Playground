@@ -22,7 +22,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from '../dist/esm/index.js';
+import { getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -40,17 +40,21 @@ const RATE = { 2025: 0.045, 2026: 0.0445 };
  * second from the first in the site and in the MCP server; here they are given
  * directly so a failure names a Utah rule rather than a federal one.
  */
-const ut = (agi, opts = {}) =>
+const ut = (agi, { federalDeduction, ...fields } = {}) =>
+  // `...fields` is what lets one helper pass any real engine field through. The
+  // helper's OWN options are destructured out of it first, because a key that is
+  // not an engine field is spread straight in and silently ignored — which is the
+  // mistake this helper would otherwise be a machine for making.
   stateIncomeTax({
     state: 'UT',
-    year: opts.year ?? 2026,
-    filingStatus: opts.filingStatus ?? 'marriedFilingJointly',
+    year: 2026,
+    filingStatus: 'marriedFilingJointly',
+    ...fields,
     federal: {
       adjustedGrossIncome: agi,
-      deduction: opts.federalDeduction ?? 0,
+      deduction: federalDeduction ?? 0,
       deductionKind: 'standard',
     },
-    ...opts,
   });
 
 const creditNamed = (result, fragment) =>

@@ -54,7 +54,7 @@ import {
   getStateDefinition,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 const PINS = JSON.parse(readFileSync(new URL('./bracket-pins.json', import.meta.url), 'utf8'));
 

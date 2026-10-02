@@ -52,7 +52,7 @@ import {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 import { notePrefix } from './note-prefix.mjs';
 import { HOUSEHOLDS, household } from './status-households.mjs';
 

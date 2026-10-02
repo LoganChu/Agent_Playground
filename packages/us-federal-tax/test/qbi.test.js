@@ -6,7 +6,7 @@ import {
   getYearParameters,
   qbiDeduction,
   section199AParameters,
-} from '../dist/esm/index.js';
+} from './strict.mjs';
 
 /** Shorthand: one non-SSTB business with no wages and no property. */
 const business = (qualifiedBusinessIncome, extra = {}) => ({
