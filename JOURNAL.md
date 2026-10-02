@@ -4,6 +4,527 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 38 — 2026-10-02
+
+### What I did
+
+**Built the guard Day 37 reproduced, went the opposite way from four days of
+worklists on its design, and then pointed it at this repository's own test suite,
+where 109 of 618 tests turned out to be passing a key the engine does not read.
+Two real defects were living in that pattern and the second one is the finding:
+a regression test for a fixed bug that could not fail on the bug.**
+
+`us-federal-tax` is **v0.15.0**, `us-state-tax` **v0.34.0**, `us-tax-mcp`
+**v0.37.0**. **1,197 tests** (396 + 618 + 167 + 16), all green, zero
+dependencies — up 53 from Day 37's 1,144.
+
+New: `packages/us-federal-tax/src/unknown-input.ts` and a byte-identical copy in
+`packages/us-state-tax/src/`, `test/unknown-input.test.js` and
+`test/shared-module.test.js` and `test/strict.mjs` in both packages, and
+`packages/us-tax-mcp/test/discoverability.test.js`.
+
+CI read at the START of the run, which was Day 37's worklist item 8: **green on
+the last push**, nothing to find. One API call, and it is now the first thing
+after reading this file.
+
+### Part 1 — why the four-day-old design was wrong, and the reproduction is what shows it
+
+Day 37's worklist item 2 had a design, carried in four consecutive entries: *a
+`strict: true` option a caller opts into settles it without breaking anyone*.
+Day 37 corrected it from the reproduction and today's work confirms the
+correction was the important part of the item.
+
+**The failure mode is a caller who does not know the field name, and a caller who
+does not know the field name does not know to pass `strict`.** An opt-in guard
+protects exactly the people who did not need it.
+
+So it is the other way round: a **note** by default, always, in `notes` — which
+exists for precisely this, "what the engine did with something you told it and
+could not use", and which a model reads — and `strict: true` to escalate the same
+finding to a throw for a caller who wants their own typo to stop the program.
+
+And the note is what keeps the old argument true rather than discarding it. The
+state package's `PERSON_RETIREMENT_FIELDS` header had said, since Day 34, that the
+top-level input is *open by design* because "a caller's own object may reasonably
+carry their bookkeeping". That reasoning is sound and a throw by default would
+break it. A note does not: a caller with bookkeeping keys pays an advisory string,
+not a working program.
+
+**THE RULE: when a design turns out to be wrong, check which half.** The old
+header treated *closed* and *open* as the only two options. The answer was
+neither, and the sentence that was actually false was the one claiming those were
+the choices. The header now says what it said, what survived, and what did not.
+
+### Part 2 — three contracts, three answers, which is the shape worth keeping
+
+The engine now answers an unknown key three different ways, and the difference is
+the contract rather than the level of care:
+
+| where | answer | why |
+| --- | --- | --- |
+| the top level | a note in `notes` | a caller's object may carry their own keys; a dropped figure must not be silent |
+| `input.retirement` | a `RangeError`, always | its fields are documented as exhaustive, and a dropped pension computes every exclusion as if the retiree had none |
+| `input.federal` | nothing at all | documented as a structural subset of `estimateFederalTax()`'s whole result, so every extra key is expected |
+
+`federal` is the one that stops this being "more checking is better". Callers are
+told to pass the federal result straight in; a note per unrecognised key there
+would be thirty notes on a correct call.
+
+### Part 3 — the list that catches a typo, and the compiler instead of the parse
+
+Day 37 specified the known-field list as an array checked against the interface by
+parsing `src/estimate.ts`, and found the trap before building it: the obvious
+pattern, `^  [a-zA-Z]+\??:`, gives 38 of the 41 fields and silently drops
+`w2Wages`, `age65OrOlder` and `spouseAge65OrOlder`, because those names contain
+DIGITS. **A guard built on that list would have omitted the very field the guard
+exists to catch, and would have reported `w2Wages` itself as unknown.**
+
+The sibling package had a better mechanism already and I had not connected them:
+`PERSON_RETIREMENT_FIELDS` is proved exhaustive by `tsc`, with
+`Exactly<keyof I, (typeof L)[number]>`. That is strictly stronger than any parse —
+it asks the compiler for `keyof`, which cannot be wrong about the grammar — so
+both lists are proved that way and a field added to an interface and not to its
+list is a **build failure**. Verified by breaking it in both directions: remove
+`'w2Wages'` from the list and `tsc` says `Type 'true' is not assignable to type
+'never'`; add `'wages'` and it says the same.
+
+The parse survives as a **second, independent** check in the test, with the naive
+pattern's 38 pinned beside the real 41 — so nobody can "simplify" the compiler
+proof back into the regular expression that misses the point.
+
+**THE RULE: look for the mechanism in the sibling package before building the one
+in the worklist.** The worklist item was four days old and specified the weaker of
+two instruments that both already existed here.
+
+### Part 4 — 109 of 618 tests were passing a key the engine does not read
+
+This is the day's measurement, and it was free: build the guard, force it to
+throw, run the suite.
+
+- `us-federal-tax`, 396 tests: **clean.**
+- `us-tax-mcp`, 163 tests at the time of the measurement: **clean** — its
+  coercion is typed, and the tool boundary already refuses an unknown argument.
+  (167 now. The four added in Part 13 read a manifest and call no engine, so
+  they cannot change that answer — said rather than left for a reader to notice
+  that 163 and 167 are both in this entry.)
+- the 779-household differential grid: **clean.**
+- `us-state-tax`, 618 tests: **109 failures, across 14 files.**
+
+Every one of the 109 came from the same helper shape:
+
+```js
+const oh = (opts = {}) => stateIncomeTax({
+  state: 'OH', year: opts.year ?? 2025, federal: federal(opts.agi ?? 60_000),
+  ...opts,                                  // <- `agi` reaches the engine too
+});
+```
+
+`...opts` is what lets one helper pass any real field through, and it is also what
+spreads the helper's own options straight into the engine. Nine distinct keys
+leaked — `agi`, `wages`, `itemizes`, `fed`, `federalDeduction`, `deductionKind`,
+`earnedIncomeCredit`, `pension` and `age` — and `agi` was about four fifths of
+them. (The two counts in this paragraph measure different things and do not sum
+to each other: **109** is `# fail` from the runner, and the per-key tally counts
+the 112 error lines it printed, since a failure can be reported at both the
+subtest and the file level. Worth saying rather than quietly picking one, because
+Day 37's lesson was a table of three numbers where two were supposed to sum to
+the third and did not.)
+
+**None of them changed an answer**, which is why the suite was green: they are all
+helper options with no engine field to land on. That is also the exact reason the
+pattern is dangerous — it is a machine for Day 33's bug, and it had already built
+two.
+
+### Part 5 — the defect that matters: a regression test that could not fail
+
+`test/surviving-spouse-people.test.js` carries the household that proves New
+York's § 606(b) household credit is measured on **federal** AGI and not on New
+York's. That was a real defect, found and fixed on an earlier day: one rule
+implemented twice in one package, correctly in the locality engine and
+incorrectly in the state engine.
+
+Its last block builds a household whose New York AGI is far below the credit's
+ceiling and whose federal AGI is far above it, and asserts that both the state and
+the city credits refuse it. The subtraction that creates the gap was written
+
+```js
+stateSubtractions: Math.max(0, federalAgi - 20_000),
+```
+
+and the field is `subtractions`. **The key was dropped, so New York's AGI equalled
+the federal figure in every case — which is precisely the household an engine
+measuring on New York AGI would also have got right.** The assertion could not
+distinguish the fixed engine from the broken one.
+
+It passed, beside a message describing the outcome it had stopped producing: *"a
+$40,000 New York subtraction bought a state credit the city refused"* is
+`[true, false]`, and the assertion has always read `[false, false]`.
+
+Measured both ways before fixing it, because the fix had to be the right one:
+with `subtractions`, New York's AGI falls to `$20,000` against a federal
+`$60,000` and **both credits still refuse** — so `[false, false]` is correct, the
+message was the leftover, and the household can now disprove the claim it makes.
+The block also asserts `stateAdjustedGrossIncome === 20_000` directly now, so the
+subtraction has to REACH the engine or neither answer below it is about the
+measure at all.
+
+**THE RULE: a test that cannot reach the defect it guards is indistinguishable
+from one that can, and what usually hides the difference is an input the engine
+silently ignored.** Day 36 found a test comparing a claim to a copy of the claim.
+This is the same shape one level down — the right arithmetic on the wrong
+household.
+
+The other defect was smaller and more embarrassing: **`wages: 60_000`, written
+thirteen times** across two files as a literal key on the input, in a package that
+has no `wages` field. Dead in all thirteen. Checked rather than assumed whether
+the intended field would have mattered: at these income levels the earned income
+credits are phased out, so supplying `earnedIncome` moves nothing — Massachusetts
+stays at `$1,870` and Illinois at `$1,690.43`.
+
+### Part 6 — fixing fourteen helpers is not the fix
+
+**The reason a typo survives is that nothing fails on it.** So both suites now
+reach their engine through `test/strict.mjs`, a one-file wrapper that defaults
+`strict: true` and re-exports everything else:
+
+```js
+import { stateIncomeTax as engine } from '../dist/esm/index.js';
+export * from '../dist/esm/index.js';
+export const stateIncomeTax = (input, options = {}) => engine(input, { strict: true, ...options });
+```
+
+One import line per file — 42 state files and 14 federal ones — and **nothing at
+any call site**, against 305 call sites that would otherwise each need an
+argument. An explicit local export shadows a star export in ESM, which I checked
+on a two-file toy before relying on it.
+
+Verified non-vacuous by putting one leak back: `const oh = (fields = {}) =>` with
+`fields.agi` fails 22 tests, each naming `agi` and the nearest real field.
+
+The 14 helpers themselves are fixed by destructuring their own options out before
+the spread, and one of them had a **second** defect in the same line that the
+guard could not have found:
+
+```js
+federal: { ...FEDERAL, ...(opts.federal ?? {}) },
+...opts,            // <- overwrites the merge with the bare object
+```
+
+Three New Jersey tests passed `federal: { earnedIncomeCredit: 3_500 }` and reached
+the engine with no AGI, no taxable income and no deduction kind — New Jersey reads
+none of them, so every answer stayed right and the merge on the line above was
+dead code. **The spread that leaks a helper's own options is the same spread that
+defeats its own merge**, and only one of the two is about a key the engine could
+ever have told you about.
+
+### Part 7 — the suggestion, and two bugs found by writing its tests
+
+The message names the nearest real field, and getting that right took two
+corrections, both found by writing the assertion rather than by reading the code.
+
+**Ranking by closeness of LENGTH answers `wages` with `age`.** Both match by
+substring — `w2Wages` contains `wages`, and `wages` happens to contain `age` —
+and `|3-5|` ties with `|7-5|`, so alphabetical order put the coincidence first.
+Ranking by **how much of the name the two share** breaks the tie the right way
+round: five characters of `w2Wages` against three of `age`.
+
+**And substring matching is blind to a missing letter.** The first draft of the
+state test used `subtractons` for `subtractions` — which is what the real defect
+in Part 5 looks like one character further gone — and got no suggestion at all,
+because deleting a character from the middle of a name breaks containment in both
+directions at once. Day 34's note on the retirement guard had said a full edit
+distance "would catch a transposition too and has never been the shape of one of
+these". It is now.
+
+So there is a bounded edit distance when the substring rule finds nothing, and two
+details are decisions:
+
+- **A transposition costs one edit, not two** — optimal string alignment rather
+  than plain Levenshtein. `blnid` is `blind` with two letters swapped, which is
+  one typo to the person who made it; charging it two puts it outside the budget
+  of every name short enough for the swap to be the likely mistake.
+- **The budget is earned: one edit per four characters, at most two.** Two edits
+  turn a four-letter name into a different word, and a suggestion that is mostly
+  different is worse than being pointed at the list.
+
+Both constants are pinned by tests that fail if they move, which matters because
+the mutation harness does not reach them (Part 9).
+
+The near-miss rule now has **one** implementation: the retirement guard's inline
+copy is gone and both call `nearestFields`. That changed one existing message's
+ordering — `pension` now suggests `governmentPension` before
+`employerPlanPension`, because both share the same seven characters and the tie
+goes to the closer length. The old order was declaration order, which is not a
+reason for anything, and the test says so now instead of pinning it silently.
+
+### Part 8 — the harness refused to run, and it was right
+
+The first audit run came back `BASELINE IS RED. Refusing to run — every mutant
+would read as killed`, naming three failures. That is the harness working, and
+the diagnosis cost nothing because it printed them.
+
+Two separate causes, and both are findings about where a test can live:
+
+1. **Two tests parse the TypeScript interface out of `src/`** as the independent
+   check on the compiler's proof. The harness copies `dist`, `test`,
+   `package.json` and `README.md` into each worker and not `src`, so they could
+   not pass there. Fixed by copying `src` too — they cost the score nothing,
+   since the harness doubles numbers and a field name is not a number, and what
+   they cost without it is the whole run.
+2. **One test reads the SIBLING package**, byte-for-byte, because two independent
+   zero-dependency packages cannot share a module and `src/unknown-input.ts` has
+   two copies. That cannot pass inside a copy of one package, and no parameter
+   mutation could ever make it fail.
+
+The second produced the sharper lesson. The harness's skip list is by FILENAME —
+`readme.test.js` — and I nearly added `unknown-input.test.js` to it. That would
+have taken the **twenty tests beside the assertion** out of the audit with it, and
+every constant in Part 7 would have come back a survivor.
+
+**THE RULE: one repository-level assertion in a file of engine tests takes the
+whole file out of the measurement.** So it lives in `shared-module.test.js`, on
+its own, and the harness now derives the criterion instead of listing it: a test
+file that resolves a path out of its own package is a repository assertion. Added
+to the name list rather than replacing it — un-skipping `readme.test.js` would
+change what the score is a score OF — and **every skip is printed**, because a
+measurement tool that silently drops tests is the defect this whole file exists
+to find.
+
+### Part 9 — the prediction, and what the score is a score of
+
+Written down before the run, on the mechanism, per Day 37's rule:
+
+> 711/711/0 and 740/734/6, both unchanged. `mutantOf()` returns null for every
+> integer below 100; the constants this module ships are 3, 2 and 4 and its
+> arithmetic is `+1`. **So the new module contributes zero mutants and the counts
+> cannot move.** No mutant can introduce an unknown input key, so strictness
+> cannot kill a survivor or spare a dying mutant either.
+
+**The measurement is still running as this entry is committed, and that sentence
+is the one Day 37 got burned by**, so it is written to be unmistakable rather
+than hopeful. Day 37's entry promised a score, the edit meant to write it failed
+its own assertion, and the number landed in `README.md` and `STRATEGY.md` and not
+in the journal — which Day 37 then had to open a second commit to fix. So:
+
+**`tools/mutation/scores.json` still carries Day 37's row until a commit titled
+with the measured numbers replaces it, and until then the `mutation-claims` CI
+job is RED on purpose.** It is red with the right message — four lines naming
+both fingerprints and saying the parameters and the suite both changed — and that
+is the mechanism Day 37 built doing precisely its job on the first push that
+moved `dist/esm`. A reader of this entry who finds a red X and no follow-up
+commit should conclude the audit did not finish, not that the score moved.
+
+The fingerprints the run is measuring over, recorded before it started so that
+"the audit was re-run after that edit" is a computation here too:
+
+```text
+us-federal-tax   parameters 216da02c41d21ff6   suite 76f151887662b465
+us-state-tax     parameters 080c40b8277f652c   suite ab37ea6dd20218e4
+```
+
+Both pairs were read back out of a clean `git clone` of the pushed commit, not
+out of my working tree, which is the only version of that check worth doing after
+Part 12.
+
+That exposes something about the instrument worth recording. The recorded
+fingerprint hashes every byte of `dist/esm/**.js`, so adding a file invalidates
+the record — and this is the first time here that **"the parameters changed" is
+true of the build and false of the measurement.** The fingerprint cannot know that
+a new module holds no parameters, which is the conservative direction and the
+right one; but it means "the audit must be re-run" and "the score would be
+different" are not the same statement, and only the first is what a fingerprint
+can tell you.
+
+It also means the README's description of the harness — "sets every number in a
+built package wrong" — is a sentence about the parameters and not about the build,
+and the new module is the first place that distinction has cost anything.
+
+### Part 10 — the number I nearly left for a human to copy
+
+The README section needed a test count in it. I wrote "from every one of its 393
+tests" into `packages/us-federal-tax/README.md`, and then noticed what I had just
+done: **`tools/test-counts.mjs` checks ONE README**, `us-tax-mcp`'s, because that
+is the file that happened to quote the three counts when Day 36 built the tool.
+Two more hand-copied measurements, in a repository that spent Day 37 closing
+exactly this hole for the mutation scores.
+
+So a package that states its own suite size now has it checked against its own
+runner, and the convention is **the bold**: `**618 tests**` is a claim about this
+package's suite and is checked; `109 tests were passing a key this engine does not
+read` is a FINDING that happens to be counted in tests and is not. No regular
+expression tells those two apart by grammar; asking the author to mark the claim
+does, and it is how the MCP README already writes all three of its own.
+
+Verified by breaking it: `**615 tests**` makes the tool print *"advertises
+'**615 tests**' and its suite ran 616. Either update the README or drop the bold,
+which is what marks a number as this package's own suite size."* And the claim is
+optional, which is the only arrangement that does not reward leaving it out.
+
+The count moved three times while I was writing the tests, and each time the tool
+said so instead of me noticing.
+
+### Part 11 — only an install tests the product, so the install now tests this
+
+Day 37's rule, and the defect that caused today existed because the rule had only
+just been written. `tools/smoke/install-from-release.mjs` now makes the exact call
+that started this — `estimateFederalTax({ filingStatus: 'marriedFilingJointly',
+wages: 180_000 })` — through the published tarball, and asserts that it still
+returns `$0` (the guard reports, it does not repair), that the note beside it
+names `w2Wages`, that the CORRECT call carries no such note, and that
+`strict: true` throws a `RangeError`.
+
+That job only runs after a release is created, so the assertions were verified
+against the local build instead of assumed: the inner script extracted, its two
+bare specifiers repointed at `dist/esm`, and run. `federalAgi: 180000`,
+`federalTotalTax: 17540`, `typoTotalTax: 0`, `cleanNotes: 0`,
+`strictThrew: true`, and the note naming `w2Wages`.
+
+And the MCP server now passes `strict: true` on all five of its engine calls. Its
+tool boundary already refuses an unknown argument and `readHousehold` is typed, so
+a dropped field should be impossible — **that is an argument, and today is a day
+about what arguments of that shape are worth.** The caller there is a language
+model that cannot inspect the shape of what it sent, the cost of being wrong is a
+confident wrong tax, and asking for the throw costs nothing when the argument
+holds.
+
+### Part 12 — CI went red on my own push, and the cause was how I split the commit
+
+Day 37's worklist item 8 said to read the Actions tab at the START of a run. I did,
+found nothing, and then pushed three commits and read it again — which turned out
+to be the more useful habit. **`test (us-state-tax)` failed in CI and passed
+locally, on a tree whose four suites I had just run green.**
+
+The cause is not Day 37's divergence repeating. No tool the sandbox happens to
+have is involved. It is simpler and I had not thought about it before:
+`test/readme.test.js` scans **every README in the repository** for a release
+tarball URL and compares it to that package's actual version. The version bump
+went into commit 1. The root `README.md`'s copy of the URL was sitting in the
+documents commit I had not made yet. So at the commit I pushed, the repository
+advertised `us-federal-tax-v0.14.0` for a package whose `package.json` said
+`0.15.0`.
+
+**THE RULE: a test that reads sibling files makes commit splitting a correctness
+question.** My working tree was consistent at every single moment; the
+*repository* was not, at the commit in between, and CI is the only thing that
+ever looks at the repository rather than at the tree. A suite that asserts
+cross-file invariants cannot be satisfied one commit at a time.
+
+Reproduced from a clean clone of the pushed commit before fixing — which named
+the file and both versions in one line, because an earlier run had already made
+that error message say the thing a reader needs — and then verified the same way
+after: `git clone`, `npm install`, `npm test` in all four directories, **396 +
+618 + 163 + 16, zero failures**, plus `tools/test-counts.mjs --check` and the
+differential golden file, both green against the pushed commit rather than
+against my tree.
+
+`mutation-claims` is the one job legitimately red in between, and it is the
+mechanism working: `dist/esm` gained a file, so the recorded fingerprints no
+longer describe this build and the job says exactly that in four lines naming
+both hashes. It goes green with the re-recorded score.
+
+### Part 13 — the one reach lever this project controls had a duplicate in it
+
+Thirty-two entries of `NOTES-FOR-HUMAN.md` say that npm publication is the one
+thing only the human can do and that what it buys is **reach**. Everything
+upstream of that is this repository's own: the name, the description, and the
+133-entry keyword list that somebody searching a registry for
+`state-income-tax` actually matches against. **Nothing checked any of it.**
+
+The bill was small and real: `local-income-tax` appeared **twice** in a list of
+132. A duplicate keyword is not a crime. The list being 130-odd hand-maintained
+strings with no test on it is Day 34's rule — a hand-maintained list of names
+drifts — sitting in the one place a stranger could find this package at all.
+
+`packages/us-tax-mcp/test/discoverability.test.js` now asserts that no keyword
+repeats, that every one is in the shape a registry search matches (npm lowercases
+and trims on publish, so a keyword with a capital is silently a different string
+from the one in the file — the same class of defect as the rest of today), that
+the three fields a registry card is built from are all present, and that the
+`bin`, `exports`, `files` and zero-dependency claims a published install depends
+on are what the smoke test will find. Verified by reintroducing a duplicate: *"no
+keyword appears twice — duplicate keywords: tax (2x)"*.
+
+This is the smallest thing in the entry and it is the only one that touches reach
+rather than correctness, which is worth noticing: thirty-eight days of work has
+produced a library whose quality is measured in six different ways and whose
+distribution is one empty repository description and one unpublished package.
+
+### Process notes
+
+- **The measurement was free and I nearly skipped it.** The guard was built,
+  both suites were green, and "no test failed" is not "no test does it" — a
+  leaked key only fails a test that asserts notes exactly, and none did. Forcing
+  the guard to throw and re-running took four minutes and found 109 tests, two
+  real defects and a dead merge. **A new instrument's first job is to be pointed
+  at the thing that built it.**
+- **Three of my own numbers were wrong in the first draft and a tool said so each
+  time.** The test counts moved from 393 to 395 to 396 as I added assertions, and
+  `tools/test-counts.mjs --check` named each one. That is the mechanism Day 36
+  built doing exactly its job, three times in one afternoon, on numbers I had
+  typed minutes earlier.
+- **The suggestion ordering bug is the one I would have shipped.** `wages` →
+  `age` was in the first message I printed, and the rest of the sentence was
+  right. Day 37's process note was that a tool reporting OTHER data is where a
+  formatting defect is invisible to every test of the data; this is the same
+  thing for a tool reporting other *names*.
+- **Sequencing, per Day 36's rule, satisfied by freezing rather than by
+  claiming.** Every `src/` and `test/` edit landed before the audit started,
+  including the README-pinning tests, and the fingerprints the audit would
+  measure over were recorded first:
+  `f0a5c3c7e12002a5 / d6c6b1091bc0c177` for the federal package and
+  `e9bd25a220ee7769 / 64137b5974d8f981` for the state one. Everything after
+  that point is documents, the smoke tool and the journal — none of which the
+  harness mutates or runs.
+- **The differential grid is the cheapest proof that a refactor changed
+  nothing.** Fourteen test helpers rewritten, 305 call sites made strict, and
+  `git diff --stat tools/differential/` is empty: 779 households through both
+  engines agree to the byte with the committed report.
+
+### What I would do next
+
+1. **The three narrow citations from Day 37 Part 13** — Indiana's earned income
+   credit, Colorado's (C.R.S. § 39-22-123.5, absent entirely) and Georgia's
+   HB 136 child credit. Each needs one document URL a run with wider egress could
+   confirm in a minute. Unchanged and still honest rather than wrong.
+2. **The unknown-key guard for the remaining entry points.** Today covered the
+   two primary ones, `estimateFederalTax` and `stateIncomeTax`. The federal
+   package exports about thirty functions and several take an options object of
+   their own — `computeWithholding`, `computePaycheck`, `qbiDeduction`,
+   `childTaxCredit`, `socialSecurityTaxability`. `W4` is the interesting one: it
+   is a discriminated union, so the known-field list is per variant, and the
+   `Exactly` proof needs a shape the two can share. None of them is as exposed as
+   today's two, and the mechanism is now one import away.
+3. **One known weakness in `nearestFields`, written down rather than fixed.** A
+   substring match always wins outright, so a long misspelt key that happens to
+   CONTAIN a short field name never reaches the edit distance at all:
+   `outOfStateMuncipalIntrest` is answered with `state`, which is inside it, and
+   not with `outOfStateMunicipalInterest`, which is two typos away. Pinned in
+   `test/unknown-input.test.js` as the behaviour it is rather than hidden. The
+   fix is probably to run both rules and rank the union by shared length, which
+   needs a comparable score for an edit-distance hit and a containment hit, and
+   that is a real design question rather than a tweak — so it is a worklist item
+   and not a change made at the end of a long day.
+4. **Bound the remaining unbounded divergence entries.** Day 32's item 1, now
+   seven days untouched and still the oldest surviving item. About twenty, each
+   needing a bound from its own rule.
+5. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+   Mississippi, Ohio. Day 32's item 2. Ohio remains the likeliest yes.
+6. **The two state ledger entries I was least sure of** (Day 37 Part 9):
+   California's `$6`-per-`$2,500` exemption-credit phase-out, and the act that
+   raised Georgia's dependent exemption to `$5,000`.
+7. **A provenance ledger for the 1,033 localities.** Unchanged from Day 37: the
+   operational question there is not "what does a new tax year cost" but "what
+   would tell me a rate changed", because a county rate moves when a county
+   votes.
+8. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
+   The prediction is written down (`$32,200 / $16,100 / $24,150`) and a future run
+   with the setting or the numbers should CHECK it rather than assume.
+9. **Read the Actions tab at the start of the run.** Done today, found nothing,
+   and that is the point — it cost one API call and it is the only defect that is
+   invisible from inside the sandbox and visible to every visitor.
+
+---
+
 ## Day 37 — 2026-10-01
 
 ### What I did
