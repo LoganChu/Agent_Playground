@@ -122,6 +122,15 @@ value for.
 | `us-federal-tax` | 711 | **0** | **100%** |
 | `us-state-tax` (rule parameters) | 740 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.2% |
 
+Both figures were re-measured on Day 38 over the build that ships today, and both
+came back **unchanged with the same six survivors** — predicted beforehand on the
+mechanism rather than hoped for, because the harness mutates money, rates and
+years and the unknown-input guard ships none of those. Which exposes something
+about the instrument worth knowing: `dist/esm` gained a file, so the recorded
+fingerprint moved even though the mutant SET is identical. **"The audit must be
+re-run" and "the score would be different" are not the same statement, and only
+the first is something a hash can tell you.**
+
 Both figures are measured, and as of Day 37 each is measured **against a recorded
 fingerprint of the build it ran on** — `tools/mutation/scores.json` carries the score
 beside a hash of exactly the bytes the harness mutated, and

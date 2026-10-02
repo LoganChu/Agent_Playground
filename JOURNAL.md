@@ -300,22 +300,50 @@ Written down before the run, on the mechanism, per Day 37's rule:
 > cannot move.** No mutant can introduce an unknown input key, so strictness
 > cannot kill a survivor or spare a dying mutant either.
 
-**MEASURED. `us-federal-tax`: 711 mutants, 711 killed, 0 survivors, 100.0% —
-the prediction held exactly, on all four numbers.** Recorded with the
-fingerprints below, which are the ones a clean `git clone` of the pushed commit
-produces, so the score is demonstrably of the build that ships rather than of my
-working tree.
+**MEASURED, both of them, and the prediction held exactly — all eight numbers.**
 
-The state audit is running as this is committed, so `scores.json` still carries
-Day 37's state row and `mutation-claims` stays RED for that one row — with the
-right message, naming both fingerprints and saying the parameters and the suite
-each changed. **That sentence is the one Day 37 got burned by**, so it is written
-to be unmistakable rather than hopeful: Day 37's entry promised a score, the edit
-meant to write it failed its own assertion, and the number landed in `README.md`
-and `STRATEGY.md` and not in the journal, which took a second commit to fix. A
-reader who finds a red X and no follow-up commit here should conclude the state
-audit did not finish, **not** that the score moved — and the prediction for it is
-740/734/6/99.2%, written above, for whoever gets to check it.
+```text
+us-federal-tax   711 mutants   711 killed   0 survivors   100.0%
+us-state-tax     740 mutants   734 killed   6 survivors    99.2%
+```
+
+And the six are the same six, named rather than counted, which is the part that
+says nothing new went blind:
+
+```text
+states/flat-states.js   line 157   year  2024 -> 2023
+states/flat-states.js   line 287   year  2025 -> 2024
+states/new-jersey.js    line 104   year  2028 -> 2027
+states/new-jersey.js    line 229   year  2028 -> 2027
+states/ohio.js          line  88   rate  0.01 -> 0.005
+states/ohio.js          line 107   rate  0.2  -> 0.1
+```
+
+Four windows on a tax year outside the two this package supports, the `0.01`
+used to mean "just below the next band", and the 20% row of Ohio's joint filing
+credit that no return can reach. Exactly the set `STATE-SURVIVORS.md` triages,
+with no additions and no subtractions.
+
+So the day's whole engine-side change — a new module, 109 rewritten test
+households, 305 call sites made strict, two defects fixed — moved **zero**
+mutants and **zero** kills. That is the right outcome and it was falsifiable in
+advance, which is the only reason saying it is worth anything.
+
+Both rows carry the fingerprints recorded before the run started, and those were
+read back out of a clean `git clone` of the pushed commit rather than out of my
+working tree — which after Part 12 is the only version of that check worth
+doing. `check-scores.mjs --check` now exits 0: *"Every advertised mutation score
+matches the record, and the record matches this build."*
+
+**One process note on how this nearly went wrong**, because it is Day 37's trap
+and I walked up to the edge of it. The federal row landed while the state audit
+was still running, and the honest way to commit that is one complete measurement
+per commit with the pending half named — including that `mutation-claims` was
+red *on purpose*, for one row, with the right message. Day 37 promised a score in
+its entry, the edit meant to write it failed its own assertion, and the number
+went into two documents and not the journal, costing a second commit the next
+day. **A pending measurement is only safe in a journal if the entry also says
+what a reader should conclude from its absence.**
 
 The fingerprints the run is measuring over, recorded before it started so that
 "the audit was re-run after that edit" is a computation here too:
