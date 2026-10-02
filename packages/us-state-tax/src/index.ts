@@ -99,7 +99,14 @@ export {
   stateFigureProvenance,
 } from './data/provenance.js';
 export type { StateFigureKind, StateFigureSource } from './data/provenance.js';
-export { FILING_STATUSES, PERSON_RETIREMENT_FIELDS } from './types.js';
+export {
+  FILING_STATUSES,
+  KNOWN_STATE_INPUT_FIELDS,
+  PERSON_RETIREMENT_FIELDS,
+} from './types.js';
+
+/** The unknown-input guard's own parts, for a caller who wants to run it early. */
+export { nearestFields, unknownInputKeys } from './unknown-input.js';
 export type {
   Bracket,
   BracketDetail,
@@ -123,6 +130,7 @@ export type {
   StateCode,
   StateDefinedBaseField,
   StateIncomeTaxInput,
+  StateIncomeTaxOptions,
   StateIncomeTaxResult,
   SurtaxDetail,
 } from './types.js';

@@ -526,13 +526,31 @@ export interface RetirementIncomeSplit {
  * it does not know, because the alternative is answering the question the caller
  * did not ask.
  *
- * The check is deliberately **not** applied to {@link StateIncomeTaxInput} itself
- * or to {@link FederalBasis}. `FederalBasis` is documented as a structural subset
- * of `us-federal-tax`'s `EstimateResult` and callers are told to pass that result
- * straight in, so every extra key on it is expected; the top-level input is a
- * caller's own object and may reasonably carry their bookkeeping. Those two are
- * open by design, and this one is closed by design, and the difference is whether
- * a superset is part of the contract.
+ * ## What this header said until Day 38, and what was wrong with it
+ *
+ * It said the check was deliberately **not** applied to
+ * {@link StateIncomeTaxInput} itself or to {@link FederalBasis}, because
+ * `FederalBasis` is documented as a structural subset of `us-federal-tax`'s
+ * `EstimateResult` and callers are told to pass that result straight in, so every
+ * extra key on it is expected — while the top-level input is a caller's own
+ * object and may reasonably carry their bookkeeping. "Those two are open by
+ * design, and this one is closed by design, and the difference is whether a
+ * superset is part of the contract."
+ *
+ * **Half of that survives and half of it was falsified by its own author.** The
+ * `FederalBasis` half is right and still holds: a documented superset cannot be
+ * checked, so it is not. The top-level half was reasoning about a caller's
+ * bookkeeping, and the thing that actually happened was Day 37 writing `wages`
+ * for `w2Wages` on the first call ever made against the published library and
+ * getting a $0 tax bill with no symptom in it.
+ *
+ * What was wrong was treating *closed* and *open* as the only two options. The
+ * top-level input is now **neither**: an unrecognised key there is reported in
+ * the result's notes and not refused, which costs a caller with bookkeeping keys
+ * an advisory string rather than a working program. See
+ * {@link KNOWN_STATE_INPUT_FIELDS} and `src/unknown-input.ts`. This split —
+ * `retirement` throws, the top level notes, `federal` is silent — is three
+ * different answers because the three have three different contracts.
  */
 export const PERSON_RETIREMENT_FIELDS = [
   'employerPlanPension',
@@ -1331,6 +1349,105 @@ export interface StateIncomeTaxInput {
    * cannot, and a district that levies nothing is simply not in the table.
    */
   readonly schoolDistrict?: string;
+}
+
+/**
+ * Every field name {@link StateIncomeTaxInput} has, checked at run time.
+ *
+ * Exported for the same reason {@link PERSON_RETIREMENT_FIELDS} is: it is the
+ * list the message points at, and a caller who got no useful suggestion should be
+ * able to read the field names out of the package rather than out of a string.
+ *
+ * Unlike that list, an unrecognised key here is **reported and not refused** —
+ * see that header for why those are different answers, and `src/unknown-input.ts`
+ * for the reproduction that made the top level worth checking at all.
+ */
+export const KNOWN_STATE_INPUT_FIELDS = [
+  'state',
+  'year',
+  'filingStatus',
+  'federal',
+  'dependents',
+  'dependentAges',
+  'earnedIncome',
+  'investmentIncome',
+  'additions',
+  'outOfStateMunicipalInterest',
+  'subtractions',
+  'pennsylvaniaTaxableIncome',
+  'pennsylvaniaEligibilityIncome',
+  'pennsylvaniaSpouseEligibilityIncome',
+  'separatedFromSpouse',
+  'newJerseyGrossIncome',
+  'massachusettsFivePercentIncome',
+  'shortTermCapitalGains',
+  'collectiblesGains',
+  'socialSecurityAndMedicarePaid',
+  'filerAge',
+  'spouseAge',
+  'spouseHasNoGrossIncomeAndIsNotADependent',
+  'spouseAdjustedFederalAdjustedGrossIncome',
+  'spouseClaimsAgeDeduction',
+  'blindOrDisabled',
+  'dependentsAttendingCollege',
+  'retirementIncome',
+  'taxableSocialSecurity',
+  'taxExemptInterest',
+  'retirement',
+  'federalPovertyGuideline',
+  'lesserSpouseIncome',
+  'propertyTaxPaid',
+  'rentPaid',
+  'federalDeductions',
+  'federalOneDollarHigher',
+  'locality',
+  'county',
+  'stateItemizedDeductions',
+  'netCapitalGain',
+  'yonkersNonresidentEarnings',
+  'city',
+  'cityIncome',
+  'workCity',
+  'workCityEarnings',
+  'qualifyingWages',
+  'businessIncome',
+  'bothSpousesHaveQualifyingIncome',
+  'residentCreditRate',
+  'residentCreditLimitRate',
+  'schoolDistrict',
+] as const;
+
+/**
+ * The compiler's proof that the list above is exactly
+ * {@link StateIncomeTaxInput}'s key set — neither short nor long.
+ *
+ * Same mechanism as {@link PERSON_RETIREMENT_FIELDS}'s, and the same reason: a
+ * field added to the interface and not to the list would be reported as unknown
+ * by the guard that exists to find unknown fields, so the engine would tell a
+ * caller that a figure it reads is a figure it ignores. That is a build failure
+ * instead.
+ */
+const STATE_INPUT_FIELDS_ARE_EXHAUSTIVE: Exactly<
+  keyof StateIncomeTaxInput,
+  (typeof KNOWN_STATE_INPUT_FIELDS)[number]
+> = true;
+void STATE_INPUT_FIELDS_ARE_EXHAUSTIVE;
+
+/** How {@link stateIncomeTax} should behave, as distinct from what it is given. */
+export interface StateIncomeTaxOptions {
+  /**
+   * Throw on an input key this engine does not read, instead of reporting it in
+   * the result's `notes`.
+   *
+   * Off by default, and the default is the point: the caller who needs this is
+   * the one who does not know the field name, and they do not know to ask for it
+   * either. The note is therefore unconditional and this only changes how loud it
+   * is. Turn it on in a test suite, where a typo should stop the run.
+   *
+   * It does not reach {@link StateIncomeTaxInput.federal}, which is a documented
+   * superset, or {@link StateIncomeTaxInput.retirement}, which throws either way.
+   */
+  readonly strict?: boolean;
 }
 
 export interface CreditDetail {

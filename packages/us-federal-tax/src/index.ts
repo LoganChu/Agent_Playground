@@ -60,8 +60,20 @@ export type { SocialSecurityTaxabilityOptions } from './socialSecurity.js';
 export { SOCIAL_SECURITY_TAXABILITY } from './data/social-security.js';
 export type { SaltDeductionInput } from './salt.js';
 
-export { estimateFederalTax, quarterlyEstimatedPayments } from './estimate.js';
-export type { EstimateInput, EstimateResult, QuarterlyPlan } from './estimate.js';
+export {
+  KNOWN_ESTIMATE_INPUT_FIELDS,
+  estimateFederalTax,
+  quarterlyEstimatedPayments,
+} from './estimate.js';
+export type {
+  EstimateInput,
+  EstimateOptions,
+  EstimateResult,
+  QuarterlyPlan,
+} from './estimate.js';
+
+/** The unknown-input guard's own parts, for a caller who wants to run it early. */
+export { nearestFields, unknownInputKeys } from './unknown-input.js';
 
 export {
   PAY_PERIODS,

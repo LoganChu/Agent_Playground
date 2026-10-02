@@ -39,7 +39,9 @@ import {
 } from './localities/counties.js';
 import { ohioSchoolDistrict } from './localities/ohio-school-districts.js';
 import { getStateDefinition, isSupported, stateName, supportedYears } from './states/index.js';
-import { PERSON_RETIREMENT_FIELDS } from './types.js';
+import { KNOWN_STATE_INPUT_FIELDS, PERSON_RETIREMENT_FIELDS } from './types.js';
+import { nearestFields, unknownInputNotes } from './unknown-input.js';
+import type { UnknownKeyOptions } from './unknown-input.js';
 import type {
   Bracket,
   BracketDetail,
@@ -49,6 +51,7 @@ import type {
   LocalIncomeTaxResult,
   StateCode,
   StateIncomeTaxInput,
+  StateIncomeTaxOptions,
   StateIncomeTaxResult,
   SurtaxDetail,
 } from './types.js';
@@ -2833,6 +2836,24 @@ function localTaxesFor(
 }
 
 /**
+ * What `unknownInputNotes` needs to describe an unrecognised key at the top
+ * level — the interface it was supposed to satisfy, the field names it has, and
+ * the name they are exported under so a caller can read the list from the
+ * package rather than from a string.
+ *
+ * `federal` is in that list, and the check does not descend into it: it is
+ * documented as a structural subset of `estimateFederalTax()`'s whole result, so
+ * every extra key on it is expected rather than dropped. See
+ * {@link PERSON_RETIREMENT_FIELDS} for the three contracts and why they get
+ * three different answers.
+ */
+const STATE_INCOME_TAX_INPUT: UnknownKeyOptions = {
+  interfaceName: 'StateIncomeTaxInput',
+  knownFields: KNOWN_STATE_INPUT_FIELDS,
+  listExport: 'KNOWN_STATE_INPUT_FIELDS',
+};
+
+/**
  * Reject a `retirement` split carrying a field this package does not read.
  *
  * See {@link PERSON_RETIREMENT_FIELDS} for why this is worth a throw: an unknown
@@ -2864,14 +2885,14 @@ function assertKnownRetirementFields(split: StateIncomeTaxInput['retirement']): 
     if (person === undefined) continue;
     for (const key of Object.keys(person)) {
       if ((PERSON_RETIREMENT_FIELDS as readonly string[]).includes(key)) continue;
-      // Suggest by substring both ways, which is what a real typo looks like:
-      // `pension` is inside `employerPlanPension`, and `socialSecurity` contains
-      // less than `socialSecurityBenefits`. A full edit distance would catch a
-      // transposition too and has never been the shape of one of these.
-      const lower = key.toLowerCase();
-      const near = PERSON_RETIREMENT_FIELDS.filter(
-        (f) => f.toLowerCase().includes(lower) || lower.includes(f.toLowerCase()),
-      );
+      // Day 34 suggested by substring both ways here, and noted that a full edit
+      // distance "would catch a transposition too and has never been the shape
+      // of one of these". Day 38 found one — `subtractons` for `subtractions`,
+      // which shares no substring with it in either direction — so the one
+      // implementation of this now lives in `nearestFields` and both guards use
+      // it. Two copies of a fact that must agree is a bug with a waiting period,
+      // and a near-miss rule is such a fact.
+      const near = nearestFields(key, PERSON_RETIREMENT_FIELDS);
       throw new RangeError(
         `retirement.${who}.${key} is not a field of PersonRetirementIncome. ` +
           (near.length > 0
@@ -2893,7 +2914,17 @@ function assertKnownRetirementFields(split: StateIncomeTaxInput['retirement']): 
  * 2026 — Georgia, Indiana, Kentucky, Mississippi, North Carolina and Utah all did —
  * are exactly the ones where a fallback would look right and be wrong.
  */
-export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult {
+export function stateIncomeTax(
+  input: StateIncomeTaxInput,
+  options: StateIncomeTaxOptions = {},
+): StateIncomeTaxResult {
+  // Before `getStateDefinition`, which throws on an unsupported state or year,
+  // and before the retirement guard: a key the engine does not read is the one
+  // finding that explains every figure below it, and a typo reported from the
+  // wrong complaint — or from the wrong state, which is the reason the retirement
+  // guard runs ahead of the `rate.kind === 'none'` return — is a typo the caller
+  // has to work backwards from.
+  const inputNotes = unknownInputNotes(input, STATE_INCOME_TAX_INPUT, options.strict === true);
   assertKnownRetirementFields(input.retirement);
   const def = getStateDefinition(input.state, input.year);
   const name = stateName(input.state);
@@ -2926,7 +2957,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
       totalTax: 0,
       totalMarginalRate: 0,
       provisional: def.status === 'provisional',
-      notes: relevantNotes(def, input),
+      notes: [...inputNotes, ...relevantNotes(def, input)],
       citations: def.citations,
     };
   }
@@ -3518,7 +3549,7 @@ export function stateIncomeTax(input: StateIncomeTaxInput): StateIncomeTaxResult
     totalTax: roundCents(roundCents(here.tax) + localTax),
     totalMarginalRate: rate(stateMarginal + localMarginal),
     provisional: def.status === 'provisional',
-    notes: dynamic.length > 0 ? [...dynamic, ...relevantNotes(def, input)] : relevantNotes(def, input),
+    notes: [...inputNotes, ...dynamic, ...relevantNotes(def, input)],
     citations: def.citations,
   };
 }

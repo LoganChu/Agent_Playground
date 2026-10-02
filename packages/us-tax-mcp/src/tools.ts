@@ -262,7 +262,17 @@ const estimateTool: ToolDefinition = {
   annotations: { ...READ_ONLY, title: 'Estimate US federal tax' },
   run(args) {
     const input = readHousehold(args);
-    const estimate = estimateFederalTax(input);
+    // `strict: true` on every engine call from this server.
+    //
+    // This surface already refuses an unknown ARGUMENT at the tool boundary, and
+    // `readHousehold` is typed, so TypeScript should make a dropped field
+    // impossible. That is an argument, and Day 38 is a day about what arguments
+    // of that shape are worth: an unknown key costs a WRONG TAX with no symptom,
+    // the caller here is a language model that cannot inspect the shape of what
+    // it sent, and asking for the throw costs nothing when the argument holds.
+    // If this ever fires, this server has a bug and the agent hears about it
+    // instead of quoting a confident figure computed from less than it was given.
+    const estimate = estimateFederalTax(input, { strict: true });
     const params = getYearParameters(estimate.year);
     return {
       text: renderEstimate(estimate) + citationText([estimate.year]),
@@ -339,7 +349,7 @@ const compareTool: ToolDefinition = {
     }
 
     const estimates = years.map((year) =>
-      estimateFederalTax(readHousehold({ ...household, year }) as EstimateInput),
+      estimateFederalTax(readHousehold({ ...household, year }) as EstimateInput, { strict: true }),
     );
 
     const rows: string[] = [];
@@ -533,7 +543,7 @@ const marginalTool: ToolDefinition = {
     const delta = readNumber(options, 'additionalIncome') ?? 1000;
     if (delta <= 0) throw new ToolInputError('additionalIncome must be greater than zero.');
 
-    const base = estimateFederalTax(readHousehold(household));
+    const base = estimateFederalTax(readHousehold(household), { strict: true });
 
     let incomeType: MarginalIncomeType;
     const requested = options['incomeType'];
@@ -560,6 +570,7 @@ const marginalTool: ToolDefinition = {
         ...household,
         [field]: (readNumber(household, field) ?? 0) + delta,
       }),
+      { strict: true },
     );
 
     // `balanceDue` is `totalTax - withholding - refundable credits`, and
@@ -710,7 +721,7 @@ const quarterlyTool: ToolDefinition = {
       throw new ToolInputError(`Unknown argument(s): ${unknownOptions.join(', ')}.`);
     }
 
-    const estimate = estimateFederalTax(readHousehold(household));
+    const estimate = estimateFederalTax(readHousehold(household), { strict: true });
     const planOptions: { priorYearTotalTax?: number; priorYearAdjustedGrossIncome?: number } = {};
     const priorTax = readNumber(options, 'priorYearTotalTax');
     if (priorTax !== undefined) planOptions.priorYearTotalTax = priorTax;
@@ -1683,7 +1694,9 @@ const stateTool: ToolDefinition = {
             },
           }
         : {}),
-    });
+    },
+    // See the note on the first `estimateFederalTax` call in this file.
+    { strict: true });
 
     // A locality's citations are the statutes behind a tax that can exceed the
     // state's, so they belong in Sources alongside it — de-duplicated, because

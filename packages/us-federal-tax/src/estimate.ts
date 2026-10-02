@@ -11,6 +11,8 @@ import {
   netInvestmentIncomeTax,
   selfEmploymentTax,
 } from './taxes.js';
+import { unknownInputNotes } from './unknown-input.js';
+import type { ExactlyKeys, UnknownKeyOptions } from './unknown-input.js';
 import type {
   AdditionalDeductionsResult,
   CreditsResult,
@@ -246,6 +248,100 @@ export interface EstimateInput {
   priorYearAdjustedGrossIncome?: number;
 }
 
+/**
+ * Every field name {@link EstimateInput} has, checked at run time.
+ *
+ * Exported because it is the list the message points at: a caller who got no
+ * useful suggestion should be able to read the field names out of the package
+ * rather than out of a string. See `src/unknown-input.ts` for why an unknown key
+ * is reported at all, and `ESTIMATE_INPUT_FIELDS_ARE_EXHAUSTIVE` below for what
+ * stops this list going stale.
+ *
+ * Three of these names contain a digit — `w2Wages`, `age65OrOlder` and
+ * `spouseAge65OrOlder` — and that is not a detail. It is why the list is proved
+ * against `keyof EstimateInput` by the compiler instead of parsed out of this
+ * file: the obvious pattern for a field declaration, `^  [a-zA-Z]+\??:`, silently
+ * drops all three, and `w2Wages` is the field the guard exists to catch.
+ */
+export const KNOWN_ESTIMATE_INPUT_FIELDS = [
+  'filingStatus',
+  'year',
+  'w2Wages',
+  'selfEmploymentNetProfit',
+  'otherOrdinaryIncome',
+  'longTermCapitalGains',
+  'netInvestmentIncome',
+  'itemizedDeductions',
+  'stateAndLocalTaxesPaid',
+  'otherItemizedDeductions',
+  'qualifiedBusinessIncomeDeduction',
+  'qualifiedBusinesses',
+  'qualifiedReitDividends',
+  'qualifiedPtpIncome',
+  'qualifiedBusinessNetLossCarryforward',
+  'reitPtpLossCarryforward',
+  'qualifiedTips',
+  'qualifiedTipsBusinessIncomeLimit',
+  'qualifiedOvertimeCompensation',
+  'qualifiedVehicleLoanInterest',
+  'socialSecurityBenefits',
+  'taxExemptInterest',
+  'livedWithSpouse',
+  'foreignEarnedIncomeExclusion',
+  'age65OrOlder',
+  'blind',
+  'spouseAge65OrOlder',
+  'spouseBlind',
+  'spouseItemizes',
+  'spouseHasNoGrossIncomeAndIsNotADependent',
+  'qualifyingChildren',
+  'otherDependents',
+  'eitcQualifyingChildren',
+  'age',
+  'disqualifiedInvestmentIncome',
+  'separatedFromSpouse',
+  'taxpayerHasWorkAuthorizedSocialSecurityNumber',
+  'employeeSocialSecurityAndMedicareTax',
+  'federalWithholding',
+  'priorYearTotalTax',
+  'priorYearAdjustedGrossIncome',
+] as const;
+
+/**
+ * The compiler's proof that the list above is exactly {@link EstimateInput}'s key
+ * set. A field added to the interface and not to the list is a build failure, not
+ * a caller being told that a field this engine reads is a field it does not.
+ */
+const ESTIMATE_INPUT_FIELDS_ARE_EXHAUSTIVE: ExactlyKeys<
+  keyof EstimateInput,
+  (typeof KNOWN_ESTIMATE_INPUT_FIELDS)[number]
+> = true;
+void ESTIMATE_INPUT_FIELDS_ARE_EXHAUSTIVE;
+
+/** What {@link unknownInputNotes} needs to describe an unrecognised key here. */
+const ESTIMATE_INPUT: UnknownKeyOptions = {
+  interfaceName: 'EstimateInput',
+  knownFields: KNOWN_ESTIMATE_INPUT_FIELDS,
+  listExport: 'KNOWN_ESTIMATE_INPUT_FIELDS',
+};
+
+/** How {@link estimateFederalTax} should behave, as distinct from what it is given. */
+export interface EstimateOptions {
+  /**
+   * Throw on an input key this engine does not read, instead of reporting it in
+   * {@link EstimateResult.notes}.
+   *
+   * Off by default, and the default is the point: the caller who needs this is
+   * the one who does not know the field name, and they do not know to ask for it
+   * either. The note is therefore unconditional and this only changes how loud it
+   * is. Turn it on in a test suite, where a typo should stop the run.
+   *
+   * It is a second argument rather than a field on {@link EstimateInput} so that
+   * every key of the input stays a fact about the tax return.
+   */
+  readonly strict?: boolean;
+}
+
 export interface EstimateResult {
   year: number;
   /**
@@ -353,9 +449,18 @@ export interface EstimateResult {
  */
 function estimateNotes(
   input: EstimateInput,
-  context: { seniorDeductionExists: boolean; additionalStandardDeduction: number },
+  context: {
+    seniorDeductionExists: boolean;
+    additionalStandardDeduction: number;
+    strict: boolean;
+  },
 ): readonly string[] {
-  const notes: string[] = [];
+  // First, and before anything that reads a field: a note about a key that was
+  // DROPPED outranks every note about a key that was read, because it is the one
+  // that says a figure the caller supplied is not in the answer at all.
+  const notes: string[] = [
+    ...unknownInputNotes(input, ESTIMATE_INPUT, context.strict),
+  ];
   const { filingStatus } = input;
   const separate = filingStatus === 'marriedFilingSeparately';
   const spouseFlagsGiven = input.spouseAge65OrOlder === true || input.spouseBlind === true;
@@ -467,7 +572,17 @@ function estimateNotes(
  * `notes` carries whatever the engine did with an input that it could not use —
  * see {@link EstimateResult.notes}.
  */
-export function estimateFederalTax(input: EstimateInput): EstimateResult {
+export function estimateFederalTax(
+  input: EstimateInput,
+  options: EstimateOptions = {},
+): EstimateResult {
+  // Checked before `getYearParameters`, which throws on an unsupported year. A
+  // typo that is reported in 2026 and swallowed by an UnsupportedYearError in
+  // 2027 is a typo the caller learns about from the wrong complaint.
+  const strict = options.strict === true;
+  if (strict) {
+    unknownInputNotes(input, ESTIMATE_INPUT, true);
+  }
   const params = getYearParameters(input.year);
   const year = params.year;
   const { filingStatus } = input;
@@ -721,6 +836,7 @@ export function estimateFederalTax(input: EstimateInput): EstimateResult {
       // something nobody gets any more is worse than no note.
       seniorDeductionExists: scheduleOneAParameters(year) !== null,
       additionalStandardDeduction: params.additionalStandardDeduction[filingStatus],
+      strict,
     }),
     filingStatus,
     grossIncome: roundCents(grossIncome),
