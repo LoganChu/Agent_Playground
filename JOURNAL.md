@@ -374,20 +374,40 @@ here that looks at the built bytes rather than at the shape of the data**, and
 this is the first finding in the state package that none of the others could have
 made.
 
-Re-run after the fix, and the prediction this time: **1,086 mutants** — four
+Re-run after the fix, and the prediction this time was **1,086 mutants** — four
 fewer, because the duplicate is gone — **1,080 killed, 6 survivors, 99.4%**, and
-the six are the same six.
+the six the same six. **All four numbers held, and the six are named rather than
+counted:**
 
-### What is NOT in this entry yet
+```
+states/flat-states.js  line 157  year  2024 -> 2023
+states/flat-states.js  line 287  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
 
-Two measurements were still running when this was committed, and both are named
-rather than left for a reader to infer:
+Four windows on a tax year outside the two this package supports, the `0.01`
+used to mean "just below the next band", and the 20% row of Ohio's joint filing
+credit that no return can reach — exactly the set `STATE-SURVIVORS.md` triages,
+with no additions and no subtractions. So **Connecticut contributed 350 mutants,
+a third of the package, and not one blind spot.**
 
-- **The mutation audit.** Run once (Part 12), which found the duplicated
-  threshold; re-running after the fix as this is committed, so `scores.json`
-  still carries Day 38's state row and `check-scores.mjs --check` says so in four
-  lines naming both fingerprints, and the `mutation-claims` job is red on
-  purpose. The prediction, written before the
+It is also the first row in `STATE-SURVIVORS.md` recording a survivor that was
+**fixed** rather than triaged. Every one before it was unreachable in principle.
+
+### The two measurements, which were still running when this entry was first committed
+
+Both are in now, and both are named rather than left for a reader to infer. The
+entry was committed before they finished, with the predictions written down, so
+that a reader finding no follow-up commit would conclude the runs did not finish
+rather than that the numbers did not move:
+
+- **The mutation audit.** Landed, in Part 12: 1,086 mutants, 1,080 killed, 6
+  survivors, 99.4%, recorded in `scores.json` with the fingerprints of the build
+  and the suite it ran on. `mutation-claims` is green again. Nothing in this
+  entry is now pending. The prediction, written before the
   run: the state package goes from **740 mutants to roughly 1,090**, because
   Connecticut contributes about 350 and `mutantOf()` takes money over `$100`,
   rates strictly between 0 and 1, and years. **The six survivors should still be
@@ -409,8 +429,11 @@ rather than left for a reader to infer:
   Table E boundary, so that disagreement is invisible to this grid, and the thing it
   did find was a credit I did not know existed.
 
-A reader who finds no follow-up commit should conclude the runs did not finish,
-not that the numbers did not move.
+Both follow-up commits exist. Of the predictions, **five of six numbers held and
+one did not**: the mutant counts and the final score were right, the differential
+came back with zero unexplained as hoped, and the survivor count was wrong by
+four — which is the one that was worth making, because being wrong about it is
+how the duplicated threshold was found.
 
 ### Process notes
 

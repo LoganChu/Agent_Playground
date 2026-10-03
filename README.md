@@ -120,12 +120,28 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 740 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.2% |
+| `us-state-tax` (rule parameters) | 1086 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.4% |
 
-Both figures were re-measured on Day 38 over the build that ships today, and both
-came back **unchanged with the same six survivors** — predicted beforehand on the
-mechanism rather than hoped for, because the harness mutates money, rates and
-years and the unknown-input guard ships none of those. Which exposes something
+The state figure was re-measured on Day 39 over the build that ships today, and
+Connecticut took the audit from 740 mutants to **1,086** — a third of the whole
+package arriving in one state. Four of its numbers survived the first run and
+**the prediction that the same six would survive was wrong**, which is the
+result worth having: all four were one figure, Connecticut's Social Security
+threshold, written **twice** because a conditional note's predicate is handed
+the caller's input and cannot reach the definition it belongs to. Setting the
+note's copy wrong moves no answer. Hoisted to one copy, re-run, and the four
+numbers predicted before that run — 1,086 mutants, 1,080 killed, 6 survivors,
+99.4% — all held.
+
+That finding is the case for this instrument over the others. The status sweep
+probes the same cell and reported it covered, correctly, because it probes the
+cell the ENGINE reads; the duplicate lives inside a predicate, and no walk over
+the shape of the data reaches inside a function. **The mutation audit is the
+only instrument here that looks at the built bytes.**
+
+Day 38's re-measurement came back unchanged with the same six survivors —
+predicted beforehand on the mechanism rather than hoped for, because the harness
+mutates money, rates and years and the unknown-input guard ships none of those. Which exposes something
 about the instrument worth knowing: `dist/esm` gained a file, so the recorded
 fingerprint moved even though the mutant SET is identical. **"The audit must be
 re-run" and "the score would be different" are not the same statement, and only

@@ -14,6 +14,8 @@ rather than the suite's reach.
 | **Day 35, after `test/step-probes.test.js` and `test/notes.test.js`** | **702** | **9** | **98.7%** |
 | **Day 35, after the three that run then exposed** | **702** | **6** | **99.1%** |
 | **Day 37, after the provenance ledger** | **740** | **6** | **99.2%** |
+| Day 39, Connecticut's first run | 1,090 | 10 | 99.1% |
+| **Day 39, after the duplicated threshold was hoisted** | **1,086** | **6** | **99.4%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -34,6 +36,24 @@ below were unreachable in principle on Day 35 and are unreachable in principle n
 This row and the 99.2% are recorded in `scores.json` beside a fingerprint of the build
 they were measured on, which is new today — see *A score is a score OF something* in
 `README.md` beside this file.
+
+**Day 39's two rows are the first time this file has recorded a survivor that was
+FIXED rather than triaged.** Connecticut took the audit from 740 mutants to 1,090 —
+a third of the package arriving in one state — and four of them survived. All four
+were one figure: Connecticut's Social Security threshold, present in the build
+**twice**, because a `ConditionalNote` predicate is handed the caller's input and
+cannot reach the definition it belongs to, so the cheap way to write "above the
+threshold" is to write the threshold again. Setting the note's copy wrong moves no
+answer, so two copies of one figure sat there with nothing comparing them.
+
+The lesson generalises past Connecticut: **a predicate that cannot see the data it
+is a predicate about will be written with a copy of the data in it.** Every
+`conditionalNotes` entry in this package is a candidate, and this is the instrument
+that finds them — the status sweep probes the same cell and reports it covered,
+correctly, because it probes the cell the engine reads.
+
+Hoisted to one copy; the re-run's four numbers were predicted before it started and
+all four held.
 
 Both Day 35 rows are measured, by two full runs. The first read 98.7% and named nine
 survivors; three were closed, and the second run read 99.1% with exactly the six
