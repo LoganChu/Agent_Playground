@@ -452,3 +452,79 @@ test('Utah is the state this split was forced by, and it is fully described', ()
   assert.match(text, /code AH/);
   assert.match(text, /2\.5%/);
 });
+
+test('a state ADDED to a field list is read there, not merely accepted beside the state that was', () => {
+  // The hole in the test above, which Connecticut walked straight into and which
+  // nothing would have caught.
+  //
+  // That test requires a field to be reachable in AT LEAST ONE of its states,
+  // and it says why: requiring every state would require the field to matter to
+  // whatever household the test happens to describe, and Maryland's county
+  // fields do nothing for a filer with no county. The reasoning is right and the
+  // consequence is that **adding a state to an existing field's list is
+  // unchecked**, because the field was already reachable in the state it was
+  // written for.
+  //
+  // Three of Connecticut's fields are of that shape — `taxableSocialSecurity`,
+  // `taxExemptInterest` and `retirement` all existed for other states — so the
+  // whole of Connecticut's retiree computation could have been refused at this
+  // boundary with the generic test green. (`taxExemptInterest` was, until today:
+  // the validator had `state !== 'UT'` written out beside a table that said
+  // otherwise.)
+  //
+  // THE RULE: a test that quantifies over "at least one" cannot see an addition.
+  // What it can see is a removal, which is the other direction and the one that
+  // was being worried about.
+  //
+  // So: one household per claim, written out, in the branch where the field is
+  // load-bearing. A joint Connecticut return at $100,000 of federal AGI, above
+  // the Social Security threshold, with $60,000 of gross benefits — the shape
+  // where § 86's combined income excess is SMALLER than the benefit and is
+  // therefore what Connecticut charges 25% of.
+  const base = {
+    state: 'CT',
+    filingStatus: 'marriedFilingJointly',
+    federalAdjustedGrossIncome: 100_000,
+    federalTaxableIncome: 68_500,
+    federalDeduction: 31_500,
+  };
+  const taxOf = (args) => stateTool.run({ ...base, ...args }).structured.state.totalTax;
+
+  const benefits = {
+    taxableSocialSecurity: 51_000,
+    retirement: {
+      filer: { socialSecurityBenefits: 30_000 },
+      spouse: { socialSecurityBenefits: 30_000 },
+    },
+  };
+  // `taxableSocialSecurity` is what Connecticut subtracts, so it has to move the
+  // answer by itself.
+  assert.notEqual(taxOf(benefits), taxOf({}), 'CT reads taxableSocialSecurity');
+  // `retirement` carries the GROSS benefit, which is the cap on what Connecticut
+  // charges — so dropping it while keeping the taxable part changes the answer
+  // in the other direction.
+  assert.notEqual(
+    taxOf(benefits),
+    taxOf({ taxableSocialSecurity: benefits.taxableSocialSecurity }),
+    'CT reads retirement.socialSecurityBenefits',
+  );
+  // And `taxExemptInterest` belongs in provisional income, so it raises the
+  // excess and therefore the tax — only in this branch, which is why the
+  // household is this one.
+  assert.ok(
+    taxOf({ ...benefits, taxExemptInterest: 10_000 }) > taxOf(benefits),
+    'CT reads taxExemptInterest, and it raises the tax',
+  );
+  // The pension subtraction is the fourth, and it is the one with a date on it:
+  // the IRA share is 75% in 2025 and 100% in 2026.
+  const retiree = (year) =>
+    stateTool.run({
+      ...base,
+      year,
+      federalAdjustedGrossIncome: 60_000,
+      federalTaxableIncome: 28_500,
+      retirement: { filer: { employerPlanPension: 20_000, iraDistributions: 20_000 } },
+    }).structured.state;
+  assert.equal(retiree(2026).stateAdjustedGrossIncome, 20_000);
+  assert.equal(retiree(2025).stateAdjustedGrossIncome, 25_000);
+});

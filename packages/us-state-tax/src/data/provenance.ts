@@ -1374,6 +1374,23 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
   {
     state: 'CT',
+    path: 'earnedIncomeCreditChildBonus.amount',
+    kind: 'statute-scheduled',
+    document: '\u00a7 12-704e \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-704e as amended for tax years from 2025 \u2014 a flat $250 on top of the 40% match for a filer eligible for the credit with at least one qualifying child, once per return. CT-1040 line 20a and Schedule CT-EITC; the DRS 2025 income tax developments page announces it',
+    constant: true,
+    why: 'new for tax year 2025, so it is the same in both years this package covers and will not move again without an amendment \u2014 but it is scheduled rather than statutory in the sense that 2024 did not have it, and a run adding tax year 2024 must not carry it back',
+  },
+  {
+    state: 'CT',
+    path: 'earnedIncomeCreditChildBonus.maxChildAge',
+    kind: 'federal-conformity',
+    document: '\u00a7 12-704e \u2014',
+    cite: 'IRC \u00a7 152(c)(3), adopted by reference: a qualifying child for federal purposes. The 18 here is the age limb alone \u2014 the student and permanent-disability limbs need facts this package is not given, and the notes say the figure is understated by $250 for a household that qualifies only under those',
+    constant: true,
+  },
+  {
+    state: 'CT',
     path: 'earnedIncomeCredit.matchRate',
     kind: 'statute',
     document: '\u00a7 12-704e \u2014',

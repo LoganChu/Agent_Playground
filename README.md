@@ -25,7 +25,7 @@ installs a tarball from an https URL without a registry, an account or a token:
 ```bash
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.35.0/us-state-tax-0.35.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.37.0/us-tax-mcp-0.37.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.38.0/us-tax-mcp-0.38.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -873,7 +873,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.37.0/us-tax-mcp-0.37.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.38.0/us-tax-mcp-0.38.0.tgz"
       ]
     }
   }

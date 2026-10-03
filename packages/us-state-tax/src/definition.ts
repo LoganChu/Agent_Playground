@@ -2114,8 +2114,25 @@ export interface PensionIncomeExclusionRule {
  */
 export interface EarnedIncomeCreditChildBonusRule {
   readonly name: string;
-  /** Of the state earned income credit actually paid. Illinois's is 40%. */
-  readonly rate: number;
+  /**
+   * Of the state earned income credit actually paid. Illinois's is 40%.
+   *
+   * Exactly one of {@link rate} and {@link amount} is given, and the difference
+   * is not cosmetic. A bonus defined as a PERCENTAGE inherits § 32's whole
+   * taper and is withdrawn with it; a FLAT bonus is a cliff at the point the
+   * state credit reaches zero, and is worth the same to a parent at $20,000 of
+   * earnings and one at $55,000. Connecticut's `$250` is the flat kind and
+   * Illinois's 40% is the other, and no table of state child credits
+   * distinguishes them.
+   */
+  readonly rate?: number;
+  /**
+   * A flat amount, paid once per return however many children there are.
+   * Connecticut's, new for tax year 2025: `$250` on top of the 40% match, for a
+   * filer eligible for the Connecticut credit with at least one qualifying
+   * child.
+   */
+  readonly amount?: number;
   /** A qualifying child must be at most this age. Illinois: under 12. */
   readonly maxChildAge: number;
   readonly refundable: boolean;

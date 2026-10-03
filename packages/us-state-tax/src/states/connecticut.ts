@@ -232,6 +232,7 @@ const NOTES: readonly string[] = [
   'The Social Security benefit adjustment is a cliff and remains one. Below $75,000 of federal AGI ($100,000 for a joint return or a qualifying surviving spouse) Connecticut subtracts the whole federally taxable benefit, so Social Security is untaxed. At the threshold the subtraction is replaced, not tapered, by: taxable benefit less 25% of the lesser of gross benefits and the § 86 combined income excess.',
   'Connecticut has no local income tax of any kind: no county, city, town or school district levies one. A Connecticut return is the whole of a Connecticut resident\'s income tax.',
   'Not modelled: the property tax credit (up to $300 against Connecticut tax for a filer 65 or older or claiming dependants, itself on an income staircase), the Connecticut alternative minimum tax, the teachers\' retirement 50% subtraction (an alternative to the pension and annuity subtraction rather than an addition to it), the 100% military retirement subtraction, the credit for income taxes paid to other jurisdictions, the student loan payment and child tax rebates, the 20% refundable farm and corporation investment tax credit and the $500 family childcare home credit added for 2026, and the Connecticut higher education trust contribution subtraction. Pass any of these through `subtractions`.',
+  'New for tax year 2025: a filer eligible for the Connecticut earned income tax credit with at least one qualifying child gets a FLAT $250 on top of the 40% match, once per return however many children there are (CT-1040 line 20a, Schedule CT-EITC). It is not a percentage, so it does not taper with the federal credit: it is a cliff at the income where the Connecticut credit reaches zero, and it is worth the same to a parent at $20,000 of earnings and one at $55,000. This package tests the qualifying child by AGE alone, at 18 or under, because that is what it is given; a household whose only qualifying child is a full-time student under 24 or permanently disabled at any age also qualifies federally and is understated here by $250.',
   'The Connecticut earned income tax credit is 40% of the federal credit and refundable — the joint largest state match in this package alongside New Jersey\'s. It is measured on the federal credit actually allowed, so pass federal.earnedIncomeCredit; omitting it returns no Connecticut credit for a filer who has one.',
 ];
 
@@ -373,6 +374,23 @@ export function connecticut(year: number): StateIncomeTaxDefinition | undefined 
     earnedIncomeCredit: {
       name: 'Connecticut earned income tax credit',
       matchRate: 0.4,
+      refundable: true,
+    },
+    // New for tax year 2025, and found by the differential grid rather than by
+    // reading: ten Connecticut households with children came back exactly $250
+    // apart from PolicyEngine-US on the first run of the harness against this
+    // state. It is a FLAT amount once per return, not a percentage and not per
+    // child, so it is a cliff at the point the Connecticut credit reaches zero
+    // rather than something that tapers with § 32.
+    earnedIncomeCreditChildBonus: {
+      name: 'Connecticut earned income tax credit child bonus',
+      amount: 250,
+      // A qualifying child for federal purposes, which is under 19, or under 24
+      // and a student, or permanently disabled at any age. This package has
+      // only ages, so it counts the first of the three and says so in a note:
+      // the figure is understated for a household whose only qualifying child
+      // is a student or disabled.
+      maxChildAge: 18,
       refundable: true,
     },
     notes: NOTES,

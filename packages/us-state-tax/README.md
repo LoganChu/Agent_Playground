@@ -45,8 +45,15 @@ with the comment above it.
 One more, with a date on it: Connecticut's IRA subtraction is phasing in over four tax
 years — 25%, 50%, 75%, 100% — so **2026 is the first year a Connecticut retiree's
 traditional IRA is treated the same as their pension**, and the two years this package
-covers sit on either side of that line. It is the only Connecticut figure that moves
-between them.
+covers sit on either side of that line.
+
+And one that is not in the statute I read. Connecticut's earned income tax credit
+gained a **flat `$250`** for a filer with at least one qualifying child, new for tax
+year 2025 and printed on CT-1040 line 20a. It was found by the differential harness —
+ten Connecticut households with children came back exactly `$250` apart from
+PolicyEngine-US on the first run against this state — and it is flat rather than a
+percentage, so one child and three are worth the same and it does not taper with
+§ 32: it is a **cliff** at the income where the Connecticut credit reaches zero.
 
 New in 0.24.0: **a one-person return cannot hold two blind people.**
 
@@ -2057,7 +2064,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **486** notes every
+`test/notes.test.js` pins the first 72 characters of all **488** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2082,7 +2089,7 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 3,407 numeric
+was **which document any one figure came from**. Today the ledger covers 3,411 numeric
 figures over 58 state-years, against 298 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
@@ -2129,15 +2136,15 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 1,703 figures of tax year
+The `kind` field answers one operational question. Over the 1,705 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
 | nothing at all (`statute`, `derived`, `sentinel`) | **1,443** |
-| the statute's own schedule (`statute-scheduled`) | **110** |
+| the statute's own schedule (`statute-scheduled`) | **111** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **145** |
-| nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **5** |
+| nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **6** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
 Adding Connecticut falsified every live number in this section at once, and nothing
@@ -2343,7 +2350,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **637 tests**. Turning it on, when there were 618 of them, is what
+from all **638 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

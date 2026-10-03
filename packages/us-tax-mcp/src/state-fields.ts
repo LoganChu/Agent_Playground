@@ -276,14 +276,14 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'taxExemptInterest',
     schema: number,
-    states: ['UT'],
-    doc: 'Tax-exempt interest, 1040 line 2a. Utah adds it back into the modified AGI its retirement credits are withdrawn against (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income: $10,000 of it costs a retired couple exactly $250.00 of Utah tax and $0.00 of federal tax. Leave it out and a bondholding Utah retiree comes back too low.',
+    states: ['UT', 'CT'],
+    doc: 'Tax-exempt interest, 1040 line 2a. Utah adds it back into the modified AGI its retirement credits are withdrawn against (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income: $10,000 of it costs a retired couple exactly $250.00 of Utah tax and $0.00 of federal tax. Leave it out and a bondholding Utah retiree comes back too low. CONNECTICUT reads it for a different reason and only above its Social Security threshold: tax-exempt interest belongs in \u00a7 86 provisional income, which sets the combined income excess Connecticut charges 25% of, so omitting it understates the excess and understates Connecticut tax. Below $75,000 of federal AGI ($100,000 joint) Connecticut does not read it at all.',
   },
   {
     name: 'taxableSocialSecurity',
     schema: number,
-    states: ['VA', 'MD', 'GA', 'KY', 'UT'],
-    doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement.',
+    states: ['VA', 'MD', 'GA', 'KY', 'UT', 'CT'],
+    doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement. CONNECTICUT subtracts the WHOLE of it below $75,000 of federal AGI ($100,000 joint and for a qualifying surviving spouse) and at the threshold replaces that subtraction rather than tapering it \u2014 one dollar of income can cost a couple with $40,000 of benefits $405 \u2014 so a Connecticut retiree without this figure comes back far too high. Connecticut needs the GROSS benefit as well, in retirement.socialSecurityBenefits.',
   },
   {
     name: 'outOfStateMunicipalInterest',
@@ -303,7 +303,7 @@ export const STATE_FIELDS: readonly StateField[] = [
       },
       additionalProperties: false,
     },
-    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC'],
+    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT'],
     doc: [
       'Retirement income PER PERSON, because these states do not read it off a federal AGI and four of them cap an exclusion per person — so a return\'s totals do not determine its tax. Omit it and everything lands on one spouse, which is the worst of the cases, and the result says so in the name of the subtraction.',
       'NINE states read this. Four of them — IL, MS, MI, NY — exempt most or all of a pension and BEFORE v0.19.0 taxed it unless the caller netted it out through stateSubtractions. They no longer do, so a caller who is still passing both now subtracts twice: take it out of stateSubtractions.',

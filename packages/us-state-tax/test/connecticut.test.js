@@ -417,6 +417,37 @@ test('the Connecticut earned income credit is 40% of the federal one and refunda
   assert.ok(r.tax < 0, 'the credit is refundable and the return is a refund');
 });
 
+test('the $250 earned income credit child bonus, which the differential grid found', () => {
+  // Not in the first draft of this file, and not in the statute I read: new for
+  // tax year 2025, announced on the DRS developments page and printed on
+  // CT-1040 line 20a. Ten Connecticut households with children came back
+  // exactly $250 apart from PolicyEngine-US on the first run of the
+  // differential harness against this state, which is what that harness is for.
+  //
+  // It is FLAT and once per return. One child and three children are worth the
+  // same, and it does not taper with § 32 — so it is a cliff at the income
+  // where the Connecticut credit reaches zero rather than a tapering credit.
+  const parent = (children, eitc) =>
+    ct({
+      agi: 45_000,
+      filingStatus: 'headOfHousehold',
+      dependentAges: children,
+      federal: federal(45_000, { earnedIncomeCredit: eitc }),
+    });
+  const one = parent([8], 2_000);
+  const three = parent([4, 8, 12], 2_000);
+  money(creditNamed(one, 'child bonus'), 250, 'one child');
+  money(creditNamed(three, 'child bonus'), 250, 'three children are worth the same');
+  money(creditNamed(one, 'earned income tax credit'), 800, '40% of $2,000');
+  // No qualifying child, no bonus — and the age test is the federal one's age
+  // limb, so a nineteen-year-old dependent does not switch it on.
+  money(creditNamed(parent([19], 2_000), 'child bonus'), 0, 'a dependent of 19 is not a qualifying child');
+  money(creditNamed(ct({ agi: 45_000, federal: federal(45_000, { earnedIncomeCredit: 2_000 }) }), 'child bonus'), 0, 'no children');
+  // And it is gated on the Connecticut credit being paid, not merely on having
+  // a child: a household with no federal credit gets neither.
+  money(creditNamed(parent([8], 0), 'child bonus'), 0, 'no federal credit, no bonus');
+});
+
 test('Connecticut has no local income tax at all', () => {
   const r = ct({ agi: 120_000 });
   assert.deepEqual(r.localTaxes, []);

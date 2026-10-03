@@ -14,7 +14,7 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 39 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.35.0, `us-tax-mcp` v0.37.0. 1,216 tests, all passing.
+`us-state-tax` v0.35.0, `us-tax-mcp` v0.38.0. 1,218 tests, all passing.
 
 Day 39 added **Connecticut**, the twentieth taxing state and the first new state
 in eleven days. It is the clearest demonstration this package has of what it is

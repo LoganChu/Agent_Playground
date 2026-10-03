@@ -15,7 +15,7 @@ law or simply unread. Day 38 closed the hole that all of that work is useless ag
 input key the engine does not read. Day 39 added the twentieth taxing state.
 `packages/us-federal-tax` is v0.15.0,
 `packages/us-state-tax` is v0.35.0 and `packages/us-tax-mcp` is v0.37.0.
-**1,216 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+**1,218 tests**, an 820-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.2%** (740

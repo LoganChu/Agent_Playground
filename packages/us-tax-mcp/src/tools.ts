@@ -1550,10 +1550,17 @@ const stateTool: ToolDefinition = {
           `takes it through stateAdditions.`,
       );
     }
-    if (taxExemptInterest !== undefined && state !== 'UT') {
+    // Two states and two different reasons, read off the table rather than
+    // restated — the first version of this was `state !== 'UT'` with a message
+    // naming Utah as the only one, and Connecticut arriving made it a refusal
+    // of a field Connecticut reads.
+    const TAX_EXEMPT_STATES = statesFor('taxExemptInterest');
+    if (taxExemptInterest !== undefined && !TAX_EXEMPT_STATES.includes(state)) {
       throw new ToolInputError(
-        `taxExemptInterest only applies to UT, and ${state} was requested. Utah is the only ` +
-          `supported state that adds tax-exempt interest back into an income test of its own.`,
+        `taxExemptInterest only applies to ${TAX_EXEMPT_STATES.join(', ')}, and ${state} was ` +
+          `requested. Utah adds it back into the modified AGI its retirement credits are ` +
+          `withdrawn against; Connecticut puts it in § 86 provisional income, which sets the ` +
+          `combined income excess it charges 25% of above its Social Security threshold.`,
       );
     }
     // Refused rather than ignored, for the same reason stateItemizedDeductions is:

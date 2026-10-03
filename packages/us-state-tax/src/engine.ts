@@ -2574,9 +2574,15 @@ function computeOnce(
         // of is the earned income credit and not the family.
         const eligible =
           ages !== undefined && ages.some((age) => age <= bonus.maxChildAge);
+        // A flat bonus is gated on the state credit being PAID rather than
+        // computed from it: Connecticut's $250 goes to a filer "eligible for
+        // the Connecticut earned income tax credit" with at least one
+        // qualifying child, so a household with no federal credit gets neither.
+        // The rate form gates itself, because a percentage of zero is zero.
+        const worth = bonus.amount !== undefined ? (paid > 0 ? bonus.amount : 0) : paid * (bonus.rate ?? 0);
         credits.push({
           name: bonus.name,
-          amount: eligible ? paid * bonus.rate : 0,
+          amount: eligible ? worth : 0,
           refundable: bonus.refundable,
         });
       }

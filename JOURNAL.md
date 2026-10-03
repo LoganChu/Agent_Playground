@@ -263,6 +263,61 @@ joint) Connecticut subtracts the whole federally taxable benefit, and at the
 threshold that is REPLACED rather than tapered. For a couple with `$40,000` of
 benefits at `$100,000` of AGI, one dollar of income costs **`$405`**.
 
+### Part 10 — the differential harness earned its keep in one run
+
+Connecticut went into `tools/differential/cases.mjs`, which took the grid from 779
+households to 820, and the first comparison came back with **ten unexplained
+Connecticut differences, every one of them exactly `$250`, and every one of them a
+household with children.**
+
+It is a **flat `$250` added to the Connecticut earned income tax credit for a filer
+with at least one qualifying child**, new for tax year 2025, printed on CT-1040 line
+20a and announced on the DRS developments page. It is in no version of § 12-704e I
+could reach — PolicyEngine's own citation says "not updated yet" beside the statute
+link — so reading the statute, which is what the rest of this state was built from,
+could not have found it. Confirmed independently by search before it went in.
+
+**THE RULE: a statute is a lower bound on a state's tax law, and the gap is where
+this year's legislation lives.** A differential against an independently maintained
+model is the only instrument here that can see into that gap, and it found this on
+the first run against a new state.
+
+It is also a shape the package did not have. Illinois's child bonus is 40% **of the
+state credit**, so it inherits § 32's taper; Connecticut's is a flat amount once per
+return, so one child and three children are worth the same and it does not taper at
+all — a cliff at the income where the Connecticut credit reaches zero. The rule type
+now carries either, and says in its own doc comment that the difference is not
+cosmetic. With it in, Connecticut agrees with PolicyEngine-US on all 41 households.
+
+### Part 11 — and the reference model moved underneath the harness
+
+The committed answers were produced by **PolicyEngine-US 2.15.3**. `pip install
+policyengine-us` installs **2.23.3**, and under it every one of the grid's 29
+Maryland households disagreed by thousands of dollars — `$12,695.68` on a single
+worker at `$400,000`, where the recorded divergence for that case was `$678.70`.
+
+Nothing was wrong with Maryland. **PolicyEngine moved the Maryland county income tax
+out of `state_income_tax`**, the way Indiana's county tax has always been outside it.
+`theirs.py` has a map of exactly that case, `LOCAL_OUTSIDE_STATE_TAX`, with a comment
+saying PolicyEngine "draws the line between state and local in two different places
+for two taxes of the same kind" — and Maryland has now joined Indiana on the other
+side of the line. Verified rather than guessed: in 2.23.3,
+`md_local_income_tax_before_refundable_credits` is `$2,224.02` for a household whose
+`state_income_tax` fell by about that much.
+
+So the run was done against **2.15.3, pinned**, because a report in which both the
+grid and the reference changed cannot say which change caused what — which is this
+harness's own founding rule, that a disagreement must never be a disagreement about
+the question.
+
+**THE RULE: a differential test has two inputs and the harness only guards one of
+them.** `out/theirs.cases.sha256` makes `compare.mjs` refuse a report whose cases
+have changed. `out/theirs.meta.json` has recorded the PolicyEngine version since Day
+26 and **nothing reads it**, so the reference can move by eight minor versions and
+the only symptom is a wall of unexplained differences in one state. Upgrading
+properly — adding Maryland to `LOCAL_OUTSIDE_STATE_TAX` and re-reading the explained
+list under the new version — is a worklist item with the diagnosis already done.
+
 ### What is NOT in this entry yet
 
 Two measurements were still running when this was committed, and both are named
@@ -280,11 +335,13 @@ rather than left for a reader to infer:
   `connecticut.test.js`. If Connecticut adds survivors, they are most likely in
   the personal credit's `qualifyingSurvivingSpouse` column, which shares its array
   object with the joint one.
-- **The differential grid.** `cases.mjs` now includes `CT`, which takes the grid
-  from 779 households to **820**, and the PolicyEngine-US pass was running as this
-  was written. It is the only independent check available on 41 Connecticut
-  households, and I expect it to disagree on the Table E boundary convention
-  (Part 4) and nowhere else that is not already a known divergence.
+- **The differential grid.** Done, and it is Parts 10 and 11 above: 820 households,
+  Connecticut agreeing on all 41 of them once the `$250` bonus was in, and the
+  report re-run against a pinned 2.15.3. My prediction — that it would disagree on
+  the Table E boundary convention and nowhere else — was **wrong in both
+  directions**: no household lands exactly on a Table E boundary, so that
+  disagreement is invisible to this grid, and the thing it did find was a credit I
+  did not know existed.
 
 A reader who finds no follow-up commit should conclude the runs did not finish,
 not that the numbers did not move.
