@@ -65,6 +65,35 @@
   },
   "error": null
  },
+ "single-worker-CT-15000-0-0-0-0": {
+  "id": "single-worker-CT-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": -138.92,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 138.92
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-GA-15000-0-0-0-0": {
   "id": "single-worker-GA-15000-0-0-0-0",
   "federal": {
@@ -521,6 +550,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-CT-30000-0-0-0-0": {
+  "id": "single-worker-CT-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 361.25,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 63.75
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -989,6 +1047,35 @@
   },
   "error": null
  },
+ "single-worker-CT-50000-0-0-0-0": {
+  "id": "single-worker-CT-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1800,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 200
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-GA-50000-0-0-0-0": {
   "id": "single-worker-GA-50000-0-0-0-0",
   "federal": {
@@ -1445,6 +1532,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-CT-80000-0-0-0-0": {
+  "id": "single-worker-CT-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3775,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -1913,6 +2029,35 @@
   },
   "error": null
  },
+ "single-worker-CT-150000-0-0-0-0": {
+  "id": "single-worker-CT-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8225,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-GA-150000-0-0-0-0": {
   "id": "single-worker-GA-150000-0-0-0-0",
   "federal": {
@@ -2369,6 +2514,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-CT-400000-0-0-0-0": {
+  "id": "single-worker-CT-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 27550,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -2837,6 +3011,35 @@
   },
   "error": null
  },
+ "couple-two-children-CT-30000-0-0-0-0": {
+  "id": "couple-two-children-CT-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": -3146.4,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 90
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 2926.4
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-GA-30000-0-0-0-0": {
   "id": "couple-two-children-GA-30000-0-0-0-0",
   "federal": {
@@ -3299,6 +3502,35 @@
   },
   "error": null
  },
+ "couple-two-children-CT-60000-0-0-0-0": {
+  "id": "couple-two-children-CT-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 747.08,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 166
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 496.92
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-GA-60000-0-0-0-0": {
   "id": "couple-two-children-GA-60000-0-0-0-0",
   "federal": {
@@ -3755,6 +3987,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-two-children-CT-100000-0-0-0-0": {
+  "id": "couple-two-children-CT-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3920,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 80
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -4223,6 +4484,35 @@
   },
   "error": null
  },
+ "couple-two-children-CT-200000-0-0-0-0": {
+  "id": "couple-two-children-CT-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10000,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-GA-200000-0-0-0-0": {
   "id": "couple-two-children-GA-200000-0-0-0-0",
   "federal": {
@@ -4680,6 +4970,35 @@
     {
      "name": "Colorado earned income tax credit",
      "amount": 1020
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-CT-12000-0-0-0-0": {
+  "id": "single-parent-CT-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -1882,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 1632
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
     }
    ]
   },
@@ -5147,6 +5466,35 @@
   },
   "error": null
  },
+ "single-parent-CT-25000-0-0-0-0": {
+  "id": "single-parent-CT-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": -1907.85,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 78
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 1699.85
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-GA-25000-0-0-0-0": {
   "id": "single-parent-GA-25000-0-0-0-0",
   "federal": {
@@ -5609,6 +5957,35 @@
   },
   "error": null
  },
+ "single-parent-CT-45000-0-0-0-0": {
+  "id": "single-parent-CT-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 272.5,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 141.05
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 421.45
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-GA-45000-0-0-0-0": {
   "id": "single-parent-GA-45000-0-0-0-0",
   "federal": {
@@ -6065,6 +6442,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-CT-0-0-40000-0-0": {
+  "id": "retired-couple-CT-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -6533,6 +6939,35 @@
   },
   "error": null
  },
+ "retired-couple-CT-0-20000-40000-0-0": {
+  "id": "retired-couple-CT-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-GA-0-20000-40000-0-0": {
   "id": "retired-couple-GA-0-20000-40000-0-0",
   "federal": {
@@ -6989,6 +7424,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-CT-0-50000-40000-0-0": {
+  "id": "retired-couple-CT-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -7457,6 +7921,35 @@
   },
   "error": null
  },
+ "retired-couple-CT-0-90000-40000-0-0": {
+  "id": "retired-couple-CT-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2688.75,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 298.75
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-GA-0-90000-40000-0-0": {
   "id": "retired-couple-GA-0-90000-40000-0-0",
   "federal": {
@@ -7913,6 +8406,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-retiree-CT-0-10000-24000-0-0": {
+  "id": "single-retiree-CT-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -8381,6 +8903,35 @@
   },
   "error": null
  },
+ "single-retiree-CT-0-40000-24000-0-0": {
+  "id": "single-retiree-CT-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-retiree-GA-0-40000-24000-0-0": {
   "id": "single-retiree-GA-0-40000-24000-0-0",
   "federal": {
@@ -8837,6 +9388,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "investor-CT-50000-0-0-20000-0": {
+  "id": "investor-CT-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3175,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -9305,6 +9885,35 @@
   },
   "error": null
  },
+ "investor-CT-50000-0-0-100000-0": {
+  "id": "investor-CT-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8225,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "investor-GA-50000-0-0-100000-0": {
   "id": "investor-GA-50000-0-0-100000-0",
   "federal": {
@@ -9767,6 +10376,35 @@
   },
   "error": null
  },
+ "separate-CT-60000-0-0-0-0": {
+  "id": "separate-CT-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2650,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-GA-60000-0-0-0-0": {
   "id": "separate-GA-60000-0-0-0-0",
   "federal": {
@@ -10219,6 +10857,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "muni-retiree-CT-0-60000-40000-0-10000": {
+  "id": "muni-retiree-CT-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -10687,6 +11354,35 @@
   },
   "error": null
  },
+ "couple-no-children-CT-25000-0-0-0-0": {
+  "id": "couple-no-children-CT-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": -50.68,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 15
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 55.68
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-no-children-GA-25000-0-0-0-0": {
   "id": "couple-no-children-GA-25000-0-0-0-0",
   "federal": {
@@ -11143,6 +11839,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-no-children-CT-75000-0-0-0-0": {
+  "id": "couple-no-children-CT-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2587.5,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 287.5
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -11611,6 +12336,35 @@
   },
   "error": null
  },
+ "mixed-dependents-CT-40000-0-0-0-0": {
+  "id": "mixed-dependents-CT-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": -2589.72,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 112
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 2547.72
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "mixed-dependents-GA-40000-0-0-0-0": {
   "id": "mixed-dependents-GA-40000-0-0-0-0",
   "federal": {
@@ -12067,6 +12821,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "mixed-dependents-CT-90000-0-0-0-0": {
+  "id": "mixed-dependents-CT-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3195,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 355
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -12535,6 +13318,35 @@
   },
   "error": null
  },
+ "single-parent-teen-CT-35000-0-0-0-0": {
+  "id": "single-parent-teen-CT-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": -1070.65,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 80
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 1060.65
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-teen-GA-35000-0-0-0-0": {
   "id": "single-parent-teen-GA-35000-0-0-0-0",
   "federal": {
@@ -12991,6 +13803,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-child-CT-45000-0-0-0-0": {
+  "id": "separate-with-child-CT-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1597.5,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 177.5
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -13455,6 +14296,35 @@
   },
   "error": null
  },
+ "surviving-spouse-CT-45000-0-0-0-0": {
+  "id": "surviving-spouse-CT-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": -293.2,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 66.75
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 421.45
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-GA-45000-0-0-0-0": {
   "id": "surviving-spouse-GA-45000-0-0-0-0",
   "federal": {
@@ -13911,6 +14781,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CT-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-CT-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 13200,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -14379,6 +15278,35 @@
   },
   "error": null
  },
+ "surviving-spouse-high-CT-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-CT-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 16450,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-high-GA-300000-0-0-0-0": {
   "id": "surviving-spouse-high-GA-300000-0-0-0-0",
   "federal": {
@@ -14835,6 +15763,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-CT-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-CT-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 26650,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -15303,6 +16260,35 @@
   },
   "error": null
  },
+ "surviving-spouse-low-CT-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-CT-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -2020.8,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 1770.8
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-low-GA-18000-0-0-0-0": {
   "id": "surviving-spouse-low-GA-18000-0-0-0-0",
   "federal": {
@@ -15760,6 +16746,35 @@
     {
      "name": "Colorado earned income tax credit",
      "amount": 1022.46
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-CT-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-CT-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1875.93,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 30
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 1635.93
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 250
     }
    ]
   },
@@ -16227,6 +17242,35 @@
   },
   "error": null
  },
+ "separate-with-spouse-CT-0-55000-0-0-0": {
+  "id": "separate-with-spouse-CT-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-with-spouse-GA-0-55000-0-0-0": {
   "id": "separate-with-spouse-GA-0-55000-0-0-0",
   "federal": {
@@ -16685,6 +17729,35 @@
   },
   "error": null
  },
+ "separate-with-spouse-young-CT-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-CT-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-with-spouse-young-GA-0-55000-0-0-0": {
   "id": "separate-with-spouse-young-GA-0-55000-0-0-0",
   "federal": {
@@ -17137,6 +18210,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "early-retiree-CT-0-50000-0-0-0": {
+  "id": "early-retiree-CT-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]
@@ -17605,6 +18707,35 @@
   },
   "error": null
  },
+ "early-retired-couple-CT-0-70000-0-0-0": {
+  "id": "early-retired-couple-CT-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "early-retired-couple-GA-0-70000-0-0-0": {
   "id": "early-retired-couple-GA-0-70000-0-0-0",
   "federal": {
@@ -18067,6 +19198,35 @@
   },
   "error": null
  },
+ "blind-worker-CT-40000-0-0-0-0": {
+  "id": "blind-worker-CT-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1192.5,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 132.5
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "blind-worker-GA-40000-0-0-0-0": {
   "id": "blind-worker-GA-40000-0-0-0-0",
   "federal": {
@@ -18523,6 +19683,35 @@
    "credits": [
     {
      "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "blind-senior-CT-0-25000-20000-0-0": {
+  "id": "blind-senior-CT-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
      "amount": 0
     }
    ]

@@ -347,14 +347,12 @@ rather than left for a reader to infer:
   `connecticut.test.js`. If Connecticut adds survivors, they are most likely in
   the personal credit's `qualifyingSurvivingSpouse` column, which shares its array
   object with the joint one.
-- **The differential grid.** Measured, and it is Parts 10 and 11 above — but the
-  OUTPUTS are not in this commit. The 820-case PolicyEngine pass is a 34-minute
-  single-threaded run and it was still going when this landed, so `cases.mjs`,
-  `out/` and `REPORT.md` stay at the committed 779-household grid rather than go in
-  half-written. The findings are real and were measured on a complete run: 820
-  households, ten Connecticut differences of exactly `$250`, zero Connecticut
-  differences once the bonus was in. What the follow-up commit carries is the
-  committed report re-run against a pinned 2.15.3.
+- **The differential grid.** Landed, in the follow-up commit this section said to
+  look for: **820 households, 5,740 figures, 5,327 agreeing to the dollar, 413
+  differences explained and ZERO unexplained**, against a pinned PolicyEngine-US
+  2.15.3. Connecticut agrees on all 41 of its households and needed **no new entry
+  in `known-divergences.json`** — which is the outcome worth naming, because a new
+  state arriving with its own column of excuses would be the other kind of result.
 
   My prediction — that it would disagree on the Table E boundary convention and
   nowhere else — was **wrong in both directions**: no household lands exactly on a

@@ -17,7 +17,7 @@
 
 /** Every state in `us-state-tax` that charges an income tax. */
 export const STATES = [
-  'AZ', 'CA', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
+  'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
   'MI', 'MS', 'NC', 'NJ', 'NY', 'OH', 'PA', 'UT', 'VA',
 ];
 

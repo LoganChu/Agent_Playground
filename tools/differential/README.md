@@ -178,7 +178,7 @@ would leave a report that could not say which side had moved.
 So it was run as a **controlled** bump: 2.15.3 against the **unchanged** grid,
 before touching anything here. Five minor versions and about a month of upstream
 development, and the output is **byte-identical** — same SHA-256, all 779
-households, all 5,453 figures.
+households, all 5,740 figures.
 
 Two things worth taking from that, and they point in opposite directions:
 
@@ -189,7 +189,7 @@ Two things worth taking from that, and they point in opposite directions:
 2. **It is also a statement about the GRID, not only about PolicyEngine.**
    Fourteen releases of a model that covers benefits, state credits, payroll and
    fifty states cannot really have changed nothing; what is true is that nothing
-   they changed is *visible from these 779 households and five metrics*. Day 27's
+   they changed is *visible from these 820 households and five metrics*. Day 27's
    rule one level up: a differential test is bounded by the vocabulary of its
    cases, and a stable reference is evidence about the vocabulary as much as about
    the reference.
