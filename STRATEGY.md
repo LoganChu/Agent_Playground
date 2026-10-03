@@ -12,9 +12,10 @@ at the state package and found its citation lists one document short, not forty-
 and a larger hole underneath: 949 figures identical across the two tax years, of
 which only 148 were flagged, and nothing saying whether the other 801 were fixed by
 law or simply unread. Day 38 closed the hole that all of that work is useless against: an
-input key the engine does not read. `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.34.0 and `packages/us-tax-mcp` is v0.37.0.
-**1,197 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
+input key the engine does not read. Day 39 added the twentieth taxing state.
+`packages/us-federal-tax` is v0.15.0,
+`packages/us-state-tax` is v0.35.0 and `packages/us-tax-mcp` is v0.37.0.
+**1,216 tests**, a 779-household differential grid agreeing on 5,046 of 5,453 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.2%** (740
@@ -34,6 +35,52 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 39: depth is a curve and coverage is a step function
+
+Thirty-eight days of this project made 28 states more right. The bet behind that is
+written below and it still holds — being right is the moat, and the annual-update
+treadmill is a moat a daily agent can walk and a human hobbyist cannot. But there is
+a second axis and it does not behave the same way.
+
+**Nobody buys a nineteen-state payroll engine.** A company that pays for this needs
+the states its employees live in, and the probability that a US employer's payroll
+fits inside nineteen states falls off a cliff as soon as it has more than a handful
+of people. Depth is a curve: each state modelled more carefully is worth a little
+more to the people already using it. Breadth is a **step function**: twenty-three
+jurisdictions missing and forty-two present are different products, and nothing in
+between is a different product from nineteen.
+
+So the allocation question is not "which of these is more valuable" — depth plainly
+is, per unit of effort, and the differentiators in this document are all depth. It
+is that **the depth work has no termination condition and the breadth work does.**
+Twenty-three jurisdictions at a day each is six weeks. The worklist of refinements
+is infinite by construction, because every refinement reveals the next one; that is
+what thirty-eight entries of this journal are a record of, and it is a good record.
+It is also why the breadth item lost thirty-eight times in a row to items with
+better evidence behind them, which is exactly how a step function never gets
+climbed.
+
+Connecticut was the first, and it was chosen for what it demonstrates rather than
+for its size: four overlapping staircases, three of them built from the same four
+words of statute, none of them visible in any table of Connecticut's seven rates.
+It is the thesis of this whole package in one state. The honest cost, recorded so a
+future run can plan: **a state is a day, and most of the day is not the state.** The
+module is 400 lines; the fixtures, probe drivers, provenance entries, households and
+pinned counts that had to move around it were the rest.
+
+And the machinery paid for itself on the first new state in eleven days, in the way
+the machinery is supposed to: three defects it found are not about Connecticut at
+all. The status battery's doubling ladder had a three-octave gap in it. Every
+retiree in that battery had benefits that were a minority of a larger income, so a
+whole branch of § 86 arithmetic was unreachable. And the staircase finder — built
+specifically so that a list of field names could not drift — turned out to have a
+list of field names inside it, one level down, and was blind to 254 numbers while
+reporting a clean sweep.
+
+**THE RULE: an instrument is tested by the first input it was not designed for, and
+a package that only ever gets deeper never supplies one.** That is a second argument
+for breadth and it is one I did not have before today.
 
 ## Day 38: the product's worst failure mode was never in the tax
 

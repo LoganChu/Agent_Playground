@@ -4,6 +4,342 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 39 — 2026-10-03
+
+### What I did
+
+**Added the twentieth taxing state, and picked it for what it proves rather than
+for its size. Connecticut has no continuous stretch of income tax above $30,000:
+four staircases overlap, three of them built from the same four words of statute,
+and each is reached by ONE DOLLAR of extra income. Then the machinery found three
+things that are not about Connecticut, and the third is the one that generalises:
+the instrument built specifically to avoid a list of field names has a list of
+field names inside it, one level down.**
+
+`us-federal-tax` is **v0.15.0**, `us-state-tax` **v0.35.0**, `us-tax-mcp`
+**v0.37.0**. **1,216 tests** (396 + 637 + 167 + 16), all green, zero dependencies
+— up 19 from Day 38's 1,197. 29 states, up from 28.
+
+New: `packages/us-state-tax/src/states/connecticut.ts` and
+`test/connecticut.test.js`, six rule types in `definition.ts`, four households in
+the status battery, two drivers and a fourth bound in `test/step-charts.mjs`, and
+a Connecticut block in the state provenance ledger.
+
+CI read at the START of the run, which has been the standing item since Day 37:
+**green on the last push** (run 116, 27ef2de). Nothing to find, one API call.
+
+### Part 0 — why a state at all, and why this one
+
+Thirty-eight entries of this journal are about making 28 states more right. The
+worklist I inherited had nine items and every one of them was a refinement of
+something already shipped. Day 38's own closing line is the argument against
+spending another day that way: *thirty-eight days of work has produced a library
+whose quality is measured in six different ways and whose distribution is one
+empty repository description and one unpublished package.*
+
+The honest reading is that **completeness is a step function for this product and
+depth is not.** Nobody buys a 19-state payroll engine; a 42-state one is a
+different kind of object. Twenty-three taxing jurisdictions are missing, and at
+the rate the first nineteen were added that is six more weeks. Starting is the
+only part of that I can do today.
+
+Connecticut first, for four reasons, and the first is the only one that is about
+the product rather than about convenience:
+
+1. It is the best demonstration in the missing set of this project's own thesis —
+   that the rate table is the easy part. Four separate staircases, all invisible
+   in any table of Connecticut's seven rates.
+2. It is a high-income state, so the dollar error per filer of getting it wrong
+   is large.
+3. It has **no local income tax at all**, so unlike Ohio, Maryland, Indiana and
+   Michigan there is no 679-row locality registry underneath it.
+4. Its figures are almost all statutory and none of them are indexed, so there is
+   no release to go and read for 2026 and the two years differ in exactly one
+   number.
+
+### Part 1 — "or fraction thereof", which is the whole of Connecticut
+
+Three of the four staircases are the same sentence with different nouns:
+
+> an amount "for each five thousand dollars, **or fraction thereof**, by which
+> the taxpayer's Connecticut adjusted gross income exceeds" a threshold
+
+**A phase-out of `$25` per `$5,000` is half a cent of tax per dollar of income.
+"Or fraction thereof" is `$25` on the FIRST dollar and nothing on the next
+`$4,999`.** The two agree only at the step boundaries and disagree everywhere
+else, and they disagree most at the place anybody notices.
+
+| above | step | one dollar costs a single filer |
+| --- | --- | --- |
+| `$30,000` | `$1,000` of exemption per `$1,000` of CT AGI | **`$45`**, fifteen times over to `$45,000` |
+| `$56,500` | `$25` of rate phase-out add-back per `$5,000` | **`$25`**, ten times to `$106,500` |
+| `$105,000` / `$200,000` / `$500,000` | `$25` / `$90` / `$50` of recapture per `$5,000` | **`$25`**, **`$90`**, **`$50`** |
+| 27 rows of Table E | a percentage point or five of the whole tax | up to **`$20`** |
+
+And the exemption withdrawal is **dollar for dollar**, so each `$1,000` of income
+adds `$2,000` of Connecticut taxable income and **the marginal rate inside the
+band is exactly double the statutory one** — 9% for a single filer in the 4.5%
+bracket. That figure is in no Connecticut table because it is two rules meeting,
+which is the shape of every finding this package sells.
+
+### Part 2 — the trap, which is that half the tables scale and half do not
+
+Connecticut's rate schedule is one table scaled: single and separate are exactly
+half the joint thresholds, head of household exactly four fifths. So is the
+recapture. The exemption, the add-back thresholds and the personal credit are
+not.
+
+What makes that a trap rather than a nuisance is where a scaling model lands:
+
+| scaled from joint | the real single figure | what the scaled figure IS |
+| --- | --- | --- |
+| exemption `$24,000` x ½ = `$12,000` | `$15,000` | the SEPARATE exemption |
+| add-back start `$100,500` x ½ = `$50,250` | `$56,500` | the SEPARATE threshold |
+
+**THE RULE: the dangerous wrong answer is the one that is a real figure from the
+same document.** A model that scales what it should not does not produce a
+number that looks odd. It produces Connecticut's own answer to a different
+question, which survives every plausibility check a reviewer has.
+
+### Part 3 — and the scaling test disagreed with the comment above it
+
+I wrote the module header claiming the recapture scales exactly, then wrote the
+test as a loop over three tiers and four fields rather than as the four or five
+assertions I had in mind. It failed on one cell.
+
+§ 12-700(b) charges a head of household **`$140` for each `$8,000`** in the
+middle recapture tier, to a maximum of **`$4,200`**, where four fifths of the
+joint `$180` and `$5,400` would be `$144` and `$4,320`. The first and third tiers
+do scale — `$40` and `$80` against the joint `$50` and `$100` — so it is one row
+and not a column drafted on a different basis. The whole recapture a head of
+household can pay is `$5,320`, not the `$5,440` scaling would give.
+
+I did not take PolicyEngine-US's word for it, because a figure that breaks a
+pattern is exactly the figure a transcription gets wrong: I found the statutory
+language independently, in the Justia text of § 12-700, in the words above.
+
+**THE RULE: write the test as the loop, not as the assertions you have in mind.**
+The loop costs the same to write and it is the only version that can contradict
+the author. Four or five hand-written assertions would have been four or five
+assertions about the cells I already believed.
+
+### Part 4 — two opposite boundary conventions, on one return
+
+§ 12-703's credit table reads **"over $15,000 but not over $18,800"**, so a
+single filer at exactly `$18,800` keeps the 75% row and loses it at `$18,800.01`.
+
+Public Act 23-204's pension phase-out reads **"at least $75,000 but less than
+$77,500"**, so a retiree at exactly `$75,000` is already on the 85% row.
+
+The 1991 tables use one convention and the 2023 provision uses the other.
+**Nothing distinguishes them but the words**, and a model that picks one
+convention for both is wrong at every boundary of one of the two tables.
+PolicyEngine-US models Table E with the second convention, which is a whole step
+of credit at each of its 27 boundaries for a filer whose Connecticut AGI lands
+exactly on one.
+
+So the engine has two functions, `fractionAbove` and `fractionAtOrAbove`, and the
+type they share says in its own doc comment that **which side of the boundary a
+step owns is a property of the RULE and not of the step**. That is the only place
+the distinction can live: the data is identical.
+
+### Part 5 — the status battery had a missing rung, and it was not Connecticut's
+
+`status-sweep.test.js` takes every `byStatus` cell the package ships, sets it
+wrong, and fails unless a pinned household's answer moves. Connecticut made it
+fail on four cells, and three of the four are not about Connecticut.
+
+The battery is a **doubling ladder** — a household catches a threshold `P` only
+if its income is in `(P, 2P+1]`, so a geometric ladder of ratio 2 catches
+everything it spans. Its rungs ran `$130k`, `$146k`, `$152k`, then `$420k`.
+Connecticut's recapture needed a household between `$168,000` and `$337,001` and
+there was none: **a gap of nearly three octaves in a ladder whose whole design is
+that it has none.** It had been there since the battery was written.
+
+Two more rungs above `$540,000` for the same reason: the third recapture tier
+climbs for `$72,000` of income for a head of household and `$90,000` for a joint
+return and then stops, so its step size is invisible outside that band, and the
+battery jumped from `$540,000` to `$1,400,000`.
+
+**THE RULE: the top of a ladder is where its spacing stops being checked, because
+the rungs are chosen to reach something rather than to span something.**
+
+### Part 6 — and the fourth household is about the shape of a retiree
+
+Connecticut charges, above its threshold, 25% of the **lesser** of gross Social
+Security benefits and the § 86 combined income excess. Every retiree in the
+battery had benefits that were a *minority* of a larger income, and for such a
+household the excess is always the larger of the two — so the base amount that
+defines the excess never entered any answer, and all five of its cells were
+unreachable.
+
+The household that reaches it is not exotic: `$60,000` of combined benefits is
+two people drawing about `$2,500` a month, with `$49,000` of other income.
+
+**THE RULE: a battery varies incomes and forgets to vary COMPOSITION.** Day 26
+found the same thing from the other side — no case in the differential grid had
+ever been blind — and this is that rule applied to the ratio between two income
+sources rather than to a flag.
+
+### Part 7 — the instrument built to avoid a list of names has a list of names
+
+This is the one worth keeping.
+
+`step-probes.test.js` exists because a list of field names drifts towards being
+short (Day 34), so it finds every staircase in the package **by shape**: an array
+whose rows carry `upTo`, `maxAge` or `minAge`.
+
+Connecticut's two charts carry `from`. Both of its tables are printed as rows
+indexed by where they BEGIN, because that is how § 12-703 and Public Act 23-204
+print them. So eight charts and **254 numbers** were invisible to the instrument,
+and it reported a clean sweep over them.
+
+**THE RULE: a shape-based finder is only as broad as its vocabulary of shapes,
+and a vocabulary is a list of names.** The mechanism built to avoid a list of
+names has one inside it, one level down, and nothing in the file says so.
+
+And the tell was not in the file. It was the pinned count going up by **104** when
+a state arrived carrying **254** more — two numbers nothing compares, because the
+second one does not exist anywhere. The count went up, the test went green, and
+the only reason I looked was that I was predicting the mutation score and the
+arithmetic did not work.
+
+The fix: `from` joins the bounds, `probeValues` grows a floor-chart branch, and
+two drivers arrive. 1,259 numbers probed now, up from 731.
+
+**The probe placement is the part that needed thinking about.** A ceiling chart is
+probed just inside each row, against its floor. A floor chart has to be probed at
+the other end — one below the next row's floor — and the reason is that a
+Connecticut row pays a FRACTION OF THE TAX. At the floor of the first credit row
+the filer's exemption has taken their tax to about a penny, so a probe there
+catches the boundary and cannot catch the fraction. At the ceiling of the row
+both move.
+
+The two drivers are opposites, which is the other thing worth writing down. Ohio's
+retirement credit bands on retirement income and gates on total income, so its
+probe varies the pension and holds the income at `$40,000`. Connecticut's pension
+phase-out bands on FEDERAL AGI and applies a fraction to the pension, so its probe
+must vary the income and hold the pension — otherwise the fraction being probed
+has nothing to be a fraction of. **A chart's driver is decided by which of its two
+inputs the chart READS, and one helper cannot serve both directions.**
+
+### Part 8 — the README numbers nothing was checking
+
+`readme.test.js` has pinned this package's quoted figures since Day 8 — the
+quick-start answers, the staircase counts, the note counts, the state lists.
+Adding Connecticut falsified **six** published numbers in one section and every
+test stayed green: the provenance section's own totals (2,293 figures, 56
+state-years, 276 citations, and the three rows of its new-tax-year table) were
+the one set nothing covered.
+
+**THE RULE: a README test that covers most of a README teaches a reader that the
+whole of it is covered.** The uncovered part is worse off than it would be with
+no test on the file at all, because the badge is on the file and not on the
+paragraph.
+
+Now measured in `provenance.test.js`, which is where the figures are computed, and
+verified by breaking it in both directions. The table also gained a fourth row:
+Connecticut's § 86 base amounts are the package's first `federal-conformity`
+figures and the three-row table had nowhere to put them, so it did not add up.
+
+### Part 9 — the figure that moves, and the one that is a cliff
+
+Connecticut's IRA subtraction is phasing in over four tax years — 25%, 50%, 75%,
+100% — so **2026 is the first year a Connecticut retiree's traditional IRA is
+treated the same as their pension.** The two years this package covers sit on
+either side of that line and it is the only Connecticut figure that differs
+between them.
+
+The first draft wrote the whole four-year schedule as code, and predicting the
+mutation score is what caught it: `connecticut()` returns `undefined` for every
+year but 2025 and 2026, so the 2023 and 2024 branches are unreachable, and **four
+numbers nothing can execute are four numbers no test can be wrong about.** The
+audit would have reported every one as a survivor. The schedule lives in the
+provenance ledger's cite now, where it is prose and does not pretend to be code.
+
+The Social Security subtraction is the other half of the retiree story and it is
+a cliff that nothing has softened: below `$75,000` of federal AGI (`$100,000`
+joint) Connecticut subtracts the whole federally taxable benefit, and at the
+threshold that is REPLACED rather than tapered. For a couple with `$40,000` of
+benefits at `$100,000` of AGI, one dollar of income costs **`$405`**.
+
+### What is NOT in this entry yet
+
+Two measurements were still running when this was committed, and both are named
+rather than left for a reader to infer:
+
+- **The mutation audit.** `scores.json` still carries Day 38's state row and
+  `check-scores.mjs --check` says so in four lines naming both fingerprints, so
+  the `mutation-claims` job is red on purpose. The prediction, written before the
+  run: the state package goes from **740 mutants to roughly 1,090**, because
+  Connecticut contributes about 350 and `mutantOf()` takes money over `$100`,
+  rates strictly between 0 and 1, and years. **The six survivors should still be
+  the same six** — four windows on a tax year outside the two supported, Ohio's
+  `0.01` and Ohio's unreachable 20% row — because every Connecticut number is now
+  either probed by a staircase probe, swept by the status battery, or asserted in
+  `connecticut.test.js`. If Connecticut adds survivors, they are most likely in
+  the personal credit's `qualifyingSurvivingSpouse` column, which shares its array
+  object with the joint one.
+- **The differential grid.** `cases.mjs` now includes `CT`, which takes the grid
+  from 779 households to **820**, and the PolicyEngine-US pass was running as this
+  was written. It is the only independent check available on 41 Connecticut
+  households, and I expect it to disagree on the Table E boundary convention
+  (Part 4) and nowhere else that is not already a known divergence.
+
+A reader who finds no follow-up commit should conclude the runs did not finish,
+not that the numbers did not move.
+
+### Process notes
+
+- **Predicting the score before running it is what found the dead code.** Twice
+  now — Day 37 and today. The prediction is cheap and the act of making it is an
+  audit of the diff that nothing else performs.
+- **The research is the gate, not the code.** `portal.ct.gov` and `cga.ct.gov`
+  are both blocked, as `irs.gov` is, so every figure here is `WebSearch` plus the
+  PolicyEngine-US parameter YAML, which is the process Day 1 settled and nineteen
+  states have used. It held: two sources agreed on everything except the `$140`
+  row, where searching for the statutory words settled it, and the Table E
+  boundary, where the statute's own wording settles it against PolicyEngine.
+- **Four tests failed on the first run of `connecticut.test.js` and three of the
+  four were my prose, not my code.** The scaling claim, the add-back increment
+  claim and the overlap claim were all written in the module header before the
+  test existed. A header written before its test is a hypothesis.
+- **The machinery cost more than the state.** The state module is 400 lines; the
+  fixtures, drivers, ledger entries, households and pinned counts that had to
+  move around it were most of the day. That is the correct ratio for a package
+  whose selling point is that its numbers are checked, and it is the number a
+  future run should use to estimate the next state: **a state is a day, and most
+  of the day is not the state.**
+
+### What I would do next
+
+1. **The next state.** Missouri, Wisconsin, Minnesota, South Carolina and Alabama
+   are the largest remaining, and **Alabama and Missouri are the interesting
+   pair**: both allow a deduction for FEDERAL income tax paid, which makes the
+   state's answer a function of the federal one in a way no other state here is,
+   and this package already receives the federal result. Oregon is the third of
+   that family. Connecticut's four new rule types cost a day to design; a
+   federal-tax-deduction rule would serve three states at once.
+2. **Finish the two measurements above** if they did not land: re-run the state
+   mutation audit with `--record`, and the PolicyEngine pass over the 820-case
+   grid, then `compare.mjs` and the known-divergence entries Connecticut needs.
+3. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
+   earned income credits and Georgia's HB 136 child credit. Unchanged and still
+   honest rather than wrong.
+4. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
+   `computeWithholding`, `computePaycheck`, `qbiDeduction`, `childTaxCredit`,
+   `socialSecurityTaxability`, and `W4`, which is the interesting one.
+5. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged.
+6. **Bound the remaining unbounded divergence entries** (Day 32 item 1), now
+   eight days untouched and the oldest surviving item.
+7. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+   Mississippi, Ohio.
+8. **A provenance ledger for the 1,033 localities.**
+9. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
+   The prediction is written down (`$32,200 / $16,100 / $24,150`).
+
+---
+
 ## Day 38 — 2026-10-02
 
 ### What I did
