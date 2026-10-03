@@ -148,6 +148,57 @@ function requireFreshTheirs() {
         '(tools/differential/README.md) and commit out/theirs.json with its sidecar.',
     );
   }
+  requireExpectedReference();
+}
+
+/**
+ * The second input, which went unguarded for thirteen days.
+ *
+ * A differential test has TWO inputs — the question and the model being compared
+ * against — and the check above guards only the question. Day 39 ran
+ * `pip install policyengine-us` and got **2.23.3** where every committed answer
+ * had come from **2.15.3**, and all 29 Maryland households disagreed by thousands
+ * of dollars: `$12,695.68` on a single worker at `$400,000`, where that case's
+ * recorded divergence is `$678.70`.
+ *
+ * Nothing was wrong with Maryland. PolicyEngine had moved the Maryland county
+ * income tax out of `state_income_tax`, the way Indiana's county tax has always
+ * been outside it — `theirs.py`'s `LOCAL_OUTSIDE_STATE_TAX` is a map of exactly
+ * that case and Maryland has now joined Indiana on the other side of the line.
+ *
+ * **THE RULE: a test whose reference is a dependency has a version in its
+ * question, and a version nobody asserts is a question nobody fixed.** The
+ * version has been recorded in `out/theirs.meta.json` since Day 26 and nothing
+ * read it, so a reference that moved by eight minor versions presented as a wall
+ * of unexplained differences in one state rather than as "the reference moved".
+ *
+ * Deliberately a hard failure and not a warning. A report produced against a
+ * different model is not a worse report, it is a report about something else.
+ */
+const EXPECTED_POLICYENGINE = '2.15.3';
+
+function requireExpectedReference() {
+  let meta;
+  try {
+    meta = JSON.parse(readFileSync(join(here, 'out/theirs.meta.json'), 'utf8'));
+  } catch {
+    throw new Error(
+      'out/theirs.meta.json is missing. theirs.py writes it, and without it there is no ' +
+        'way to tell which PolicyEngine-US produced out/theirs.json.',
+    );
+  }
+  if (meta.policyengine_us !== EXPECTED_POLICYENGINE) {
+    throw new Error(
+      `out/theirs.json came from policyengine-us ${meta.policyengine_us} and this harness ` +
+        `expects ${EXPECTED_POLICYENGINE}. Upgrading the reference is a deliberate act: every ` +
+        'entry in known-divergences.json is a statement about a particular version of a model ' +
+        'that is still being developed, and a version bump re-opens all of them. Install ' +
+        `\`policyengine-us==${EXPECTED_POLICYENGINE}\` and re-run, or change ` +
+        'EXPECTED_POLICYENGINE here and re-read the whole report. Known at 2.23.3: Maryland\'s ' +
+        'county income tax left `state_income_tax`, so theirs.py needs MD in ' +
+        'LOCAL_OUTSIDE_STATE_TAX before that version can be compared like with like.',
+    );
+  }
 }
 
 export function compare() {

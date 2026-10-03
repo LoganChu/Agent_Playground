@@ -313,10 +313,22 @@ the question.
 **THE RULE: a differential test has two inputs and the harness only guards one of
 them.** `out/theirs.cases.sha256` makes `compare.mjs` refuse a report whose cases
 have changed. `out/theirs.meta.json` has recorded the PolicyEngine version since Day
-26 and **nothing reads it**, so the reference can move by eight minor versions and
-the only symptom is a wall of unexplained differences in one state. Upgrading
-properly — adding Maryland to `LOCAL_OUTSIDE_STATE_TAX` and re-reading the explained
-list under the new version — is a worklist item with the diagnosis already done.
+26 and **nothing read it**, so the reference could move by eight minor versions and
+the only symptom was a wall of unexplained differences in one state.
+
+It does now. `compare.mjs` refuses a report from any version but the pinned one, in
+a message that names the version it got, the version it wants, and the Maryland
+diagnosis — so the next run that hits this starts from the answer rather than from
+the symptom. Verified by setting the recorded version wrong and watching it fire.
+A hard failure rather than a warning, because **a report produced against a
+different model is not a worse report, it is a report about something else.**
+
+And the pin is a debt rather than a resting place, which the README now says: every
+entry in `known-divergences.json` is a statement about a particular version of a
+model that is still being developed, so a version bump re-opens all of them. What
+the upgrade takes is written down — add Maryland to `LOCAL_OUTSIDE_STATE_TAX`, raise
+the expected version, re-run both passes, and re-read the EXPLAINED list rather than
+only the unexplained one, because that is where a moved figure goes to hide.
 
 ### What is NOT in this entry yet
 
@@ -335,13 +347,19 @@ rather than left for a reader to infer:
   `connecticut.test.js`. If Connecticut adds survivors, they are most likely in
   the personal credit's `qualifyingSurvivingSpouse` column, which shares its array
   object with the joint one.
-- **The differential grid.** Done, and it is Parts 10 and 11 above: 820 households,
-  Connecticut agreeing on all 41 of them once the `$250` bonus was in, and the
-  report re-run against a pinned 2.15.3. My prediction — that it would disagree on
-  the Table E boundary convention and nowhere else — was **wrong in both
-  directions**: no household lands exactly on a Table E boundary, so that
-  disagreement is invisible to this grid, and the thing it did find was a credit I
-  did not know existed.
+- **The differential grid.** Measured, and it is Parts 10 and 11 above — but the
+  OUTPUTS are not in this commit. The 820-case PolicyEngine pass is a 34-minute
+  single-threaded run and it was still going when this landed, so `cases.mjs`,
+  `out/` and `REPORT.md` stay at the committed 779-household grid rather than go in
+  half-written. The findings are real and were measured on a complete run: 820
+  households, ten Connecticut differences of exactly `$250`, zero Connecticut
+  differences once the bonus was in. What the follow-up commit carries is the
+  committed report re-run against a pinned 2.15.3.
+
+  My prediction — that it would disagree on the Table E boundary convention and
+  nowhere else — was **wrong in both directions**: no household lands exactly on a
+  Table E boundary, so that disagreement is invisible to this grid, and the thing it
+  did find was a credit I did not know existed.
 
 A reader who finds no follow-up commit should conclude the runs did not finish,
 not that the numbers did not move.

@@ -260,7 +260,7 @@ measurements would build twenty ratchets.
 (cd packages/us-federal-tax && npm ci && npm run build)
 (cd packages/us-state-tax   && npm ci && npm run build)
 
-python3 -m venv .pe && .pe/bin/pip install policyengine-us   # ~2 minutes, offline after
+python3 -m venv .pe && .pe/bin/pip install policyengine-us==2.15.3   # ~2 min, offline after
 #   (.pe/ and .venv/ are both gitignored; a `git add -A` over an unignored venv
 #    stages three thousand files of numpy, which is how that line got written)
 
@@ -277,6 +277,33 @@ second a household, so eleven minutes"; it was measured on a smaller grid and a
 faster runner, and believing it cost an afternoon of bad scheduling. Start this
 pass FIRST and do the engine work while it runs.) It needs no network once installed: a `Simulation` built
 from a situation dict downloads nothing.
+
+## The version is pinned, and that is not caution
+
+`compare.mjs` refuses a report produced by any PolicyEngine-US but **2.15.3**, and
+the pin is in the `pip install` line above for the same reason.
+
+Day 39 installed the harness fresh and got **2.23.3**, eight minor versions on. Every
+one of the grid's 29 Maryland households then disagreed by thousands of dollars —
+`$12,695.68` on a single worker at `$400,000`, where that case's recorded divergence
+is `$678.70`. Nothing was wrong with Maryland. **PolicyEngine had moved the Maryland
+county income tax out of `state_income_tax`**, the way Indiana's county tax has
+always been outside it; `LOCAL_OUTSIDE_STATE_TAX` in `theirs.py` is a map of exactly
+that case, and Maryland has now joined Indiana on the other side of the line.
+
+**THE RULE: a differential test has TWO inputs — the question and the model being
+compared against — and this harness guarded only the question.** The cases
+fingerprint has refused a stale grid since Day 26. The PolicyEngine version has been
+*recorded* in `out/theirs.meta.json` since the same day and nothing read it, so a
+reference that moved underneath presented as a wall of unexplained differences in one
+state rather than as "the reference moved".
+
+Upgrading is a deliberate act and not a chore, because **every entry in
+`known-divergences.json` is a statement about a particular version of a model that is
+still being developed**, and a version bump re-opens all of them. What it takes, with
+the diagnosis already done: add `"MD": ("md_local_income_tax_before_refundable_credits",)`
+to `LOCAL_OUTSIDE_STATE_TAX`, raise `EXPECTED_POLICYENGINE`, re-run both passes, and
+re-read the whole explained list rather than only the unexplained one.
 
 **It is also the half that can go stale, and until Day 26 nothing said so.**
 `out/theirs.json` is committed so CI can run the cheap half on every push; the
