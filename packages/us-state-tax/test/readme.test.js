@@ -1409,8 +1409,9 @@ test('README: every count in the step-probe and notes sections', () => {
     return Number(hit[1].replace(/,/g, ''));
   };
 
-  // 627 numbers in the staircases, and the same figure pinned in the test.
-  assert.ok(stepProbes.includes(`assert.equal(checked, ${quoted(/— (\d{3}) of them/)},`));
+  // 1,259 numbers in the staircases, and the same figure pinned in the test —
+  // read through the underscore separator the test file writes them with.
+  assert.ok(stepProbes.includes(`assert.equal(checked, ${String(quoted(/— ([\d,]{3,6}) of them/)).replace(/\B(?=(\d{3})+(?!\d))/g, "_")},`));
   // 462 notes, against the fixture itself rather than against another comment.
   assert.equal(notePins.rows.length, quoted(/all \*\*(\d{3})\*\* notes/));
   // 72 characters of each.

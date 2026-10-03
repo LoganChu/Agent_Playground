@@ -2024,9 +2024,10 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 731 of them, ceilings, amounts and age bounds alike
-— sets each one wrong, and fails unless a pinned answer moves. Two rows are exempt,
-each with a written reason and a direct assertion in their place:
+staircase the package ships** — 1,259 of them, ceilings, floors, amounts, fractions
+and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
+Three rows are exempt, each with a written reason and a direct assertion in their
+place:
 
 - Ohio's 20% joint-filing-credit row, which is arithmetic no return can reach: it
   applies below `$25,000` and Ohio charges nothing until `$26,050`, so 20% of the
@@ -2034,6 +2035,19 @@ each with a written reason and a direct assertion in their place:
 - Ohio's zero band's base amount, because **a doubling mutation cannot perturb a zero
   by more than a dollar**, and a dollar of Ohio tax is absorbed by the `$20`
   nonrefundable exemption credit every return inside the band carries.
+- The first row of Connecticut's pension phase-out, which is the same arithmetic
+  from the other direction: the row begins at `$0`, and the only return a mutation
+  to `$1` could move is one with under a dollar of federal AGI.
+
+And the instrument's own vocabulary was the thing Connecticut found. A staircase was
+an array whose rows carry `upTo`, `maxAge` or `minAge` — **ceilings only** — and
+Connecticut writes both of its charts as floors, because § 12-703 and Public Act
+23-204 both print "the row that begins here". So eight charts and 254 numbers were
+neither probed nor claimed, and this file reported a clean sweep over them.
+**A shape-based finder is only as broad as its vocabulary of shapes, and a
+vocabulary is a list of names** — Day 34's rule, in the one place the package had
+built a mechanism specifically to avoid it. The tell was not in this file: it was a
+count that went up by 104 when a state arrived carrying 254 more.
 
 ### The notes are pinned too, and they are what this package sells
 

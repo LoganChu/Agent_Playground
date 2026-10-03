@@ -93,7 +93,23 @@ export function stepCharts(definition) {
   return out;
 }
 
-const BOUNDS = ['upTo', 'maxAge', 'minAge'];
+// `from` is the fourth, and it is a FLOOR rather than a ceiling: Connecticut's
+// personal tax credit and its pension phase-out are both written as "the row
+// that begins here", which is how both § 12-703 and Public Act 23-204 print
+// them. Adding it to this list is what made those two tables visible to this
+// instrument at all — until Day 39 the vocabulary was ceilings only, and 254
+// numbers across eight charts were neither probed nor claimed while the file
+// reported a clean sweep.
+//
+// **THE RULE: a shape-based finder is only as broad as its vocabulary of
+// shapes, and a vocabulary is a list of names, which is the thing Day 34 says
+// drifts towards being short.** The tell was not in this file: it was a
+// `checked` count that went up by 104 when a state arrived carrying 254 more.
+const BOUNDS = ['upTo', 'maxAge', 'minAge', 'from'];
+
+/** Whether a chart is indexed by the floor of each row rather than its ceiling. */
+export const isFloorChart = (steps) =>
+  steps.length > 0 && steps.every((s) => typeof s.from === 'number');
 
 function isStaircase(node) {
   if (!Array.isArray(node) || node.length === 0) return false;
@@ -143,6 +159,24 @@ export function probeValues(steps) {
     }
     ages.add(0);
     return [...ages].sort((a, b) => a - b);
+  }
+  // A floor chart is probed against each row's CEILING, which is one less than
+  // the next row's floor — the mirror of the ceiling chart's "just inside,
+  // against the floor".
+  //
+  // The placement has to do two jobs and only this end of the row does both. A
+  // mutation doubles `from[i]`, and a probe anywhere inside row `i` is below
+  // `2·from[i] + 1` and so falls into row `i-1`, which moves the answer. But
+  // the PAYLOAD of a Connecticut row is a fraction of the tax, and at the floor
+  // of the first credit row the filer's exemption has taken their tax to about
+  // a penny — so a probe there catches the boundary and cannot catch the
+  // fraction. At the ceiling of the row both move.
+  //
+  // The last row has no next floor, so it is probed one dollar above its own.
+  if (isFloorChart(steps)) {
+    return steps.map((step, i) =>
+      i + 1 < steps.length ? Math.floor(steps[i + 1].from) - 1 : Math.floor(step.from) + 1,
+    );
   }
   const values = [];
   for (let i = 0; i < steps.length; i++) {
@@ -259,7 +293,43 @@ const STATUS_KEYS = [
   'qualifyingSurvivingSpouse',
 ];
 
+/**
+ * A retiree of 67 whose FEDERAL AGI is the probe value and whose pension is held
+ * at `$30,000`.
+ *
+ * The mirror of {@link retiree}, and Connecticut is why both exist. Ohio's
+ * retirement credit bands on the retirement income and gates on the total, so
+ * its probe varies the pension and holds the income. Connecticut's pension
+ * phase-out bands on FEDERAL AGI and applies a fraction to the pension, so its
+ * probe has to do the opposite — vary the income and hold the pension — or the
+ * fraction being probed would have nothing to be a fraction of.
+ */
+const pensionerAtAgi = (value, state, year, filingStatus) =>
+  probeReturn(state, year, filingStatus, {
+    income: value,
+    earnedIncome: Math.max(0, value - 30_000),
+    filerAge: 67,
+    spouseAge: 67,
+    retirement: { filer: { employerPlanPension: 30_000 }, spouse: {} },
+    retirementIncome: 30_000,
+    socialSecurityAndMedicarePaid: Math.round(Math.max(0, value - 30_000) * 0.0765 * 100) / 100,
+  });
+
 export const DRIVERS = {
+  // Connecticut's personal tax credit, Conn. Gen. Stat. § 12-703 — 27 non-zero
+  // rows per status, read against Connecticut AGI, which for a wage earner is
+  // federal AGI.
+  'personalTaxCredit.steps.<status>': {
+    perStatus: true,
+    input: (value, state, year, status) => wages(value, state, year, status),
+  },
+  // Connecticut's pension, annuity and IRA phase-out, Public Act 23-204 § 93 —
+  // read against FEDERAL AGI, so the probe varies the income and holds the
+  // pension. See `pensionerAtAgi`.
+  'retirementSubtractionSchedule.schedule.<status>': {
+    perStatus: true,
+    input: (value, state, year, status) => pensionerAtAgi(value, state, year, status),
+  },
   // Maryland's and Ohio's personal exemption staircases. Maryland reads federal
   // AGI, Ohio its own modified AGI; a wage return makes the two the same number,
   // so one driver serves both and the difference is `stepsMeasuredOn`'s business.

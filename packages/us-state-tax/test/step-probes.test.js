@@ -180,6 +180,16 @@ const COVERED_ELSEWHERE = {
  * audit starts lying.
  */
 const UNREACHABLE = {
+  'CT|retirementSubtractionSchedule.schedule.<status>|0.from': {
+    // The same arithmetic as Ohio's zero band below, arriving from the other
+    // direction. The row says "from $0", meaning every filer under the
+    // threshold subtracts 100% of their pension, and a doubling mutation turns
+    // a zero into a one — so the only return whose answer could move is one
+    // with under a dollar of federal AGI, which has no pension to subtract and
+    // no tax to subtract it from.
+    why: 'the first row of a floor-indexed chart begins at zero, and 2×0+1 is one dollar of federal AGI — below every filer the chart can reach',
+    coveredBy: "connecticut.test.js — \"the pension schedule uses the OPPOSITE boundary convention\", which asserts the 100% row at $74,999 and the 85% row at $75,000",
+  },
   'OH|jointFilingCredit.steps|0.amount': {
     why: 'the 20% row applies below $25,000 of modified AGI less exemptions, and an Ohio return with two earners under that figure owes no tax for a nonrefundable credit to take a share of — the journal records it as unreachable arithmetic',
     coveredBy: 'asserted directly below, as virginia-age-deduction.test.js asserts § 58.1-321',
@@ -328,8 +338,8 @@ test('every number in every staircase moves a pinned answer', () => {
   // rule moved behind a function — fails instead of reporting a clean sweep over
   // nothing. That is the failure mode the mutation harness had on its first run,
   // and it printed 100%.
-  assert.equal(checked, 731, 'numbers inside the staircases this package ships');
-  assert.equal(exempt.length, 4, 'staircase rows nothing can reach — two rows, both years, all documented');
+  assert.equal(checked, 1_259, 'numbers inside the staircases this package ships');
+  assert.equal(exempt.length, 8, 'staircase rows nothing can reach — three rows, both years, and the Connecticut one in two columns, all documented');
 });
 
 test("Ohio's 20% joint filing credit row is arithmetic no return can reach", () => {

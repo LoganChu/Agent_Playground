@@ -205,13 +205,20 @@ const PENSION_JOINT = creditSteps([
   [120_000, 0.25], [125_000, 0.1], [130_000, 0.05], [140_000, 0.025], [150_000, 0],
 ]);
 
-/** 25% in 2023, 50% in 2024, 75% in 2025, 100% from 2026. */
+/**
+ * The statutory phase-in: 25% for 2023, 50% for 2024, 75% for 2025 and 100%
+ * from 2026.
+ *
+ * Written as the two years this package supports and not as the whole schedule,
+ * which the first draft was. The 2023 and 2024 branches are unreachable —
+ * `connecticut()` returns `undefined` for every year but 2025 and 2026 — and
+ * four numbers nothing can execute are four numbers no test can be wrong about:
+ * the mutation audit would have reported every one of them as a survivor, which
+ * is exactly what a survivor is for. The full schedule is in the provenance
+ * ledger's cite, where it is prose and does not pretend to be code.
+ */
 function iraPhaseInShare(year: number): number {
-  if (year <= 2022) return 0;
-  if (year === 2023) return 0.25;
-  if (year === 2024) return 0.5;
-  if (year === 2025) return 0.75;
-  return 1;
+  return year >= 2026 ? 1 : 0.75;
 }
 
 const NOTES: readonly string[] = [
