@@ -36,6 +36,7 @@ export type StateCode =
   | 'AZ'
   | 'CA'
   | 'CO'
+  | 'CT'
   | 'FL'
   | 'GA'
   | 'ID'

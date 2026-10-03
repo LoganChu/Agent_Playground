@@ -205,7 +205,7 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
-    'AK', 'AZ', 'CA', 'CO', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD', 'MI', 'MS',
+    'AK', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD', 'MI', 'MS',
     'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
   ] as const
 ).map((state) => ({
@@ -1231,6 +1231,153 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'retirementIncomeSubtractions.*.cap',
     kind: 'sentinel',
     cite: 'zero, which together with `militaryReducesCap` exempts military retired pay in full and leaves nothing else in the pool. It encodes "North Carolina taxes every other pension in full" rather than being a figure read from a document',
+    constant: true,
+  },
+
+  // =========================================================================
+  // CONNECTICUT — four staircases and one moving figure. Nothing in Connecticut
+  // is indexed: the rate schedule has stood since the 2024 cut to the two
+  // lowest rates, the exemption and the personal credit table since 2016 and
+  // the recapture's middle and top tiers since 2015. The ONE figure that
+  // differs between 2025 and 2026 is the IRA phase-in share, and it differs
+  // because § 12-701(a)(20)(B) schedules it to. A new tax year costs
+  // Connecticut no release at all — it costs one reading of that schedule,
+  // which is what `statute-scheduled` means and why it is not `indexed`.
+  // =========================================================================
+  {
+    state: 'CT',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '\u00a7 12-700 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-700(a)(10) \u2014 2%, 4.5%, 5.5%, 6%, 6.5%, 6.9% and 6.99%, the two lowest cut from 3% and 5% for tax years from 2024 and unchanged since',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'statute',
+    document: '\u00a7 12-700 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-700(a)(10) \u2014 the bracket ceilings as dollar amounts, every one of them the joint figure times one half (single and separate) or four fifths (head of household). Connecticut has no indexing provision',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '\u00a7 12-702 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-702(a)(1) \u2014 $15,000 single, $24,000 joint, $19,000 head of household, $12,000 separate, unchanged since 2016. These do NOT scale the way the rate schedule does: half of joint is $12,000, which is the separate figure, not the single one',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'exemption.perDependent',
+    kind: 'statute',
+    document: '\u00a7 12-702 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-702 grants no exemption for a dependant. The zero is the statute\u2019s answer rather than a figure nobody read',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'exemption.stepPhaseOut.*',
+    kind: 'statute',
+    document: '\u00a7 12-702 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-702(a)(1) \u2014 the exemption is reduced by $1,000 for each $1,000, or fraction thereof, of Connecticut AGI above $30,000 single / $48,000 joint / $38,000 head of household / $24,000 separate. Dollar for dollar, so the marginal rate inside the band is double the statutory one',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'exemption.stepPhaseOut.start.*',
+    kind: 'statute',
+    document: '\u00a7 12-702 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-702(a)(1) \u2014 the Connecticut AGI at which the withdrawal begins, by filing status; Form CT-1040 TCS Table A prints the resulting staircase',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'phaseOutAddBack.staircase.**',
+    kind: 'statute',
+    document: 'Tables A to E',
+    cite: 'Form CT-1040 TCS Table C, under Conn. Gen. Stat. \u00a7 12-700(a)(10) \u2014 $25 per $5,000 or fraction thereof above $56,500 (single), to a maximum of $250. The head of household column steps by $4,000 and the separate one by $2,500, so the increments do not scale with the rate schedule either',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'steppedRecapture.tiers.*.**',
+    kind: 'statute',
+    document: 'Tables A to E',
+    cite: 'Form CT-1040 TCS Table D, under Conn. Gen. Stat. \u00a7 12-700(b) \u2014 three tiers with flat stretches between them: $25 per $5,000 from $105,000, $90 per $5,000 from $200,000 and $50 per $5,000 from $500,000 for a single filer, maxima $250, $2,700 and $450, totalling $3,400. Unlike the exemption and the add-back thresholds, the recapture scales \u2014 single and separate half the joint figures, head of household four fifths \u2014 with ONE exception: the middle tier charges a head of household $140 per $8,000 to a maximum of $4,200, where four fifths would be $144 and $4,320',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'personalTaxCredit.steps.*.*.fraction',
+    kind: 'statute',
+    document: '\u00a7 12-703 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-703(a) \u2014 the decimal credit, 75% falling to 1% over 27 steps, applied to the tax AFTER the add-back and the recapture',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'personalTaxCredit.steps.*.*.from',
+    kind: 'statute',
+    document: '\u00a7 12-703 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-703(a) \u2014 the Connecticut AGI each step begins above. The rows read "over $15,000 but not over $18,800", so the boundary belongs to the step BELOW it \u2014 the opposite convention from the pension phase-out on the same return',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'socialSecurityBenefitAdjustment.fullSubtractionBelow.*',
+    kind: 'statute',
+    document: '\u00a7 12-701 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-701(a)(20)(B)(x) \u2014 federal AGI below $75,000, or $100,000 on a joint return or for a qualifying surviving spouse, subtracts the whole federally taxable benefit. A cliff, not a taper, and the largest one Connecticut has',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'socialSecurityBenefitAdjustment.rate',
+    kind: 'statute',
+    document: '\u00a7 12-701 \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-701(a)(20)(B)(x) \u2014 above the threshold Connecticut charges 25% of the lesser of gross benefits and the \u00a7 86 combined income excess, so Connecticut taxable benefits can never exceed 25% of the gross',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'socialSecurityBenefitAdjustment.combinedIncomeBase.*',
+    kind: 'federal-conformity',
+    document: '\u00a7 12-701 \u2014',
+    cite: 'IRC \u00a7 86(c)(1) base amounts, adopted by reference through the Connecticut Social Security Benefit Adjustment Worksheet: $25,000, or $32,000 on a joint return. A separate filer who lived with their spouse has a federal base of zero, which this package does not ask about',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'retirementSubtractionSchedule.schedule.*.*.fraction',
+    kind: 'statute',
+    document: 'Public Act 23-204',
+    cite: 'Public Act 23-204 \u00a7 93 \u2014 100% below the threshold, then 85%, 70%, 55%, 40%, 25%, 10%, 5%, 2.5% and nothing, replacing a cliff at the same threshold for tax years from 2024',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'retirementSubtractionSchedule.schedule.*.*.from',
+    kind: 'statute',
+    document: 'Public Act 23-204',
+    cite: 'Public Act 23-204 \u00a7 93 \u2014 the federal AGI each step begins at: $75,000 to $100,000 in $2,500 steps for a non-joint filer, $100,000 to $150,000 in steps of $5,000 and then $10,000 for a joint one. The bands read "at least X but less than Y", so the boundary belongs to the step ABOVE it',
+    constant: true,
+  },
+  {
+    state: 'CT',
+    path: 'retirementSubtractionSchedule.iraPhaseInShare',
+    kind: 'statute-scheduled',
+    document: 'OLR Report 2025-R-0152',
+    cite: 'Conn. Gen. Stat. \u00a7 12-701(a)(20)(B)(xxvii)-(xxx) \u2014 25% for 2023, 50% for 2024, 75% for 2025 and 100% from 2026. The only Connecticut figure that differs between the two years this package covers, and the reason 2026 is the first year a Connecticut retiree\u2019s IRA and pension are treated alike',
+    constant: false,
+  },
+  {
+    state: 'CT',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: '\u00a7 12-704e \u2014',
+    cite: 'Conn. Gen. Stat. \u00a7 12-704e \u2014 40% of the federal credit, refundable, raised from 30.5% for tax years from 2023',
     constant: true,
   },
 

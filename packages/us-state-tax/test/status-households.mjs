@@ -209,6 +209,77 @@ const SHAPES = {
     lesserSpouseIncome: 45_000,
     bothSpousesHaveQualifyingIncome: true,
   },
+  // The rung the ladder was missing between $151,750 and $420,000 of state AGI,
+  // and Connecticut is what found it. Connecticut's tax recapture has three
+  // tiers whose starts are $105,000/$200,000/$500,000 for a single filer and
+  // four fifths of the joint figures for a head of household — so the head of
+  // household's first tier ($168,000) and the single filer's second ($200,000)
+  // both need a household in a band the battery did not have. $250,000 covers
+  // both: it is inside ($168,000, $337,001] and inside ($200,000, $400,001].
+  //
+  // Nothing about it is Connecticut-specific. The gap was a doubling ladder with
+  // a missing rung, and it had been there since the battery was written.
+  wage250k: {
+    income: 250_000,
+    earnedIncome: 250_000,
+    filerAge: 49,
+    spouseAge: 47,
+    socialSecurityAndMedicarePaid: 13_200,
+    lesserSpouseIncome: 95_000,
+    bothSpousesHaveQualifyingIncome: true,
+  },
+  // The two rungs above $540,000, which exist for one Connecticut parameter each
+  // and are the clearest case in the battery of Day 29's point that the top of a
+  // table is the part nobody writes a household for.
+  //
+  // Connecticut's third recapture tier climbs $50 per $5,000 from $500,000 for a
+  // single filer, $80 per $8,000 from $800,000 for a head of household and $100
+  // per $10,000 from $1,000,000 on a joint return, and each stops after nine
+  // steps. So the tier's increment and step amount are only visible inside a
+  // $45,000, $72,000 or $90,000 band — above it the tier is at its maximum and
+  // the two parameters cancel out of the answer entirely. `wage540k` happens to
+  // sit in the single filer's band; nothing sat in the other two.
+  wage850k: {
+    income: 850_000,
+    earnedIncome: 850_000,
+    filerAge: 52,
+    spouseAge: 50,
+    socialSecurityAndMedicarePaid: 22_000,
+    lesserSpouseIncome: 300_000,
+    bothSpousesHaveQualifyingIncome: true,
+  },
+  wage1m05: {
+    income: 1_050_000,
+    earnedIncome: 1_050_000,
+    filerAge: 57,
+    spouseAge: 56,
+    socialSecurityAndMedicarePaid: 26_000,
+    lesserSpouseIncome: 420_000,
+    bothSpousesHaveQualifyingIncome: true,
+  },
+  // A retired couple for whom Social Security is the MAJORITY of the income, at
+  // an income above the threshold at which a state stops exempting it. Every
+  // other retiree in this battery has benefits that are a minority of a larger
+  // income, and that one-sided shape hides a whole branch: Connecticut charges
+  // 25% of the LESSER of gross benefits and the § 86 combined income excess, and
+  // for a retiree whose other income is large the excess is always the larger of
+  // the two — so the base amount that defines the excess never enters the
+  // answer. Here it does. $60,000 of combined benefits is two people drawing
+  // about $2,500 a month, which is an ordinary couple rather than an extreme
+  // one.
+  retiredBenefitHeavy: {
+    income: 100_000,
+    earnedIncome: 0,
+    filerAge: 69,
+    spouseAge: 68,
+    retirement: {
+      filer: { socialSecurityBenefits: 30_000 },
+      spouse: { socialSecurityBenefits: 30_000 },
+    },
+    taxableSocialSecurity: 51_000,
+    propertyTaxPaid: 5_200,
+    spouseAdjustedFederalAdjustedGrossIncome: 0,
+  },
   retired70: {
     income: 40_000,
     earnedIncome: 0,

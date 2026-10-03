@@ -35,6 +35,9 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
   SUPPORTED_STATES,
@@ -446,4 +449,69 @@ test('the documents behind a state-year are a subset of its citations', () => {
     }
   }
   assert.ok(found > 60, `only ${found} documents are behind a figure`);
+});
+
+test('the README section quotes the numbers this file measures', () => {
+  // The gap Connecticut exposed. `readme.test.js` has pinned the quick-start
+  // figures, the staircase counts and the note counts since Day 8, and nothing
+  // covered the provenance section's own totals — so adding a state falsified
+  // six published numbers at once and every test stayed green.
+  //
+  // **THE RULE: a README test that covers most of a README teaches a reader
+  // that the whole of it is covered.** The uncovered part is worse off than it
+  // would be with no test at all, because the badge is on the file.
+  //
+  // Counted here rather than in `readme.test.js` because the figures are this
+  // file's own and a count copied into a second file is the Day 38 defect.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = readFileSync(join(root, 'README.md'), 'utf8');
+  const section = readme.slice(readme.indexOf('## Where every figure came from'));
+  assert.ok(section.length > 1_000, 'the section is present');
+  const quoted = (pattern) => {
+    const hit = section.match(pattern);
+    assert.ok(hit, `the README section no longer quotes ${pattern}`);
+    return Number(hit[1].replace(/,/g, ''));
+  };
+
+  // Every numeric leaf, sentinels included — which is what the section counts,
+  // because an unbounded bracket ceiling is a figure the ledger has to classify
+  // even though no document states it.
+  let figures = 0;
+  let citations = 0;
+  let stateYears = 0;
+  let figures2026 = 0;
+  const cost = new Map();
+  for (const { state, year, definition } of everyStateYear()) {
+    const paths = figurePaths(definition, '', []);
+    stateYears += 1;
+    figures += paths.length;
+    citations += definition.citations.length;
+    if (year !== 2026) continue;
+    figures2026 += paths.length;
+    for (const [kind, count] of newYearCost(definition, state, year, paths)) {
+      cost.set(kind, (cost.get(kind) ?? 0) + count);
+    }
+  }
+  const of = (...kinds) => kinds.reduce((sum, kind) => sum + (cost.get(kind) ?? 0), 0);
+
+  assert.equal(figures, quoted(/covers ([\d,]+) numeric/), 'numeric figures');
+  assert.equal(stateYears, quoted(/over ([\d,]+) state-years/), 'state-years');
+  assert.equal(citations, quoted(/against ([\d,]+) citations/), 'citations');
+  assert.equal(figures2026, quoted(/Over the ([\d,]+) figures of tax year/), 'figures in 2026');
+  assert.equal(of('statute', 'derived', 'sentinel'), quoted(/`sentinel`\) \| \*\*([\d,]+)\*\*/), 'costing nothing');
+  assert.equal(of('statute-scheduled'), quoted(/`statute-scheduled`\) \| \*\*([\d,]+)\*\*/), 'on a schedule');
+  assert.equal(
+    of('indexed', 'agency', 'carried-forward', 'determined-after-year-end'),
+    quoted(/`determined-after-year-end`\) \| \*\*([\d,]+)\*\*/),
+    'needing a release read',
+  );
+  assert.equal(of('federal-conformity'), quoted(/`federal-conformity`\) \| \*\*([\d,]+)\*\*/), 'federal');
+  // The four rows must account for every figure, or a kind has been added and
+  // the table has quietly stopped describing the package.
+  assert.equal(
+    of('statute', 'derived', 'sentinel', 'statute-scheduled', 'indexed', 'agency',
+       'carried-forward', 'determined-after-year-end', 'federal-conformity', 'unestablished'),
+    figures2026,
+    'every 2026 figure is in exactly one row of the table',
+  );
 });

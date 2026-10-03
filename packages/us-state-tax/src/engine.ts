@@ -10,10 +10,12 @@ import type {
   AgeDeductionRule,
   ByChildCount,
   ExemptionRule,
+  FractionThereofStaircase,
   IncomeMeasure,
   OwnEarnedIncomeCreditRule,
   RetirementIncomeSubtractionRule,
   StateIncomeTaxDefinition,
+  TaxFractionStep,
 } from './definition.js';
 import {
   applyBaseAmountSchedule,
@@ -363,6 +365,23 @@ function stateExemptions(
   if (rule.perSeniorDependent !== undefined && seniorAge !== undefined) {
     const aged = (input.dependentAges ?? []).filter((age) => age >= seniorAge).length;
     total += rule.perSeniorDependent * aged;
+  }
+  // Connecticut's Table A. Measured on CONNECTICUT adjusted gross income, which
+  // is what `modifiedAgi` is here — Connecticut has no business income
+  // deduction, so the two figures are the same number and the one that is
+  // right is the state's. Reading the federal figure instead would hand a
+  // retiree their Social Security subtraction and then withdraw their
+  // exemption as though they had never had it.
+  //
+  // `ceil` rather than `floor` is the whole rule: § 12-702(a)(1) withdraws
+  // $1,000 "for each one thousand dollars, OR FRACTION THEREOF", so the first
+  // dollar over the threshold costs the whole first step.
+  const step = rule.stepPhaseOut;
+  if (step !== undefined) {
+    const over = Math.max(0, modifiedAgi - step.start[input.filingStatus]);
+    if (over > 0) {
+      total = Math.max(0, total - step.reduction * Math.ceil(over / step.increment));
+    }
   }
   return total;
 }
@@ -1864,6 +1883,140 @@ function recapture(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput, ag
 }
 
 /**
+ * Connecticut's Social Security benefit adjustment — CT-1040 Schedule 1 line 41.
+ *
+ * Below the threshold the whole federally taxable benefit comes out, so the
+ * benefit is untaxed. At the threshold that is replaced — not tapered — by a
+ * computation that leaves at most `rate` of the *gross* benefit in the base.
+ *
+ * The § 86 combined income excess has to be reconstructed here, because this
+ * package's input is federal AGI rather than the federal Social Security
+ * Benefits Worksheet: provisional income is AGI with the taxable benefit taken
+ * out, half the gross benefit put back, and tax-exempt interest added. The one
+ * term it can be short of is tax-exempt interest the caller did not supply, and
+ * being short understates the excess, the `min`, and therefore Connecticut tax.
+ * The returned `reconstructed` flag is what puts that in the caller's notes,
+ * and only for the filers it can reach: below the threshold the figure is not
+ * used at all.
+ */
+function connecticutSocialSecurity(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  grossBenefits: number,
+): { readonly amount: number; readonly reconstructed: boolean } {
+  const rule = def.socialSecurityBenefitAdjustment;
+  const taxable = nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity');
+  if (!rule || taxable <= 0) return { amount: 0, reconstructed: false };
+  const federalAgi = input.federal.adjustedGrossIncome;
+  if (federalAgi < rule.fullSubtractionBelow[input.filingStatus]) {
+    return { amount: taxable, reconstructed: false };
+  }
+  const provisional =
+    Math.max(0, federalAgi - taxable) +
+    grossBenefits / 2 +
+    nonNegative(input.taxExemptInterest, 'taxExemptInterest');
+  const excess = Math.max(0, provisional - rule.combinedIncomeBase[input.filingStatus]);
+  const charged = rule.rate * Math.min(grossBenefits, excess);
+  return { amount: Math.max(0, taxable - charged), reconstructed: true };
+}
+
+/**
+ * Connecticut's pension, annuity and IRA subtraction — Schedule 1 lines 48a
+ * and 48b.
+ *
+ * Two percentages, and only one of them is on the income staircase. The IRA
+ * phase-in share is a function of the tax year alone and applies to IRA
+ * distributions only; the staircase is a function of federal AGI and applies to
+ * the pension and the phased-in IRA amount together.
+ */
+function connecticutRetirementSubtraction(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  people: readonly RetirementPerson[],
+): number {
+  const rule = def.retirementSubtractionSchedule;
+  if (!rule) return 0;
+  const fraction = fractionAtOrAbove(
+    rule.schedule[input.filingStatus],
+    input.federal.adjustedGrossIncome,
+  );
+  if (fraction <= 0) return 0;
+  const qualifying = people.reduce(
+    (sum, person) => sum + person.pension + person.ira * rule.iraPhaseInShare,
+    0,
+  );
+  return qualifying * fraction;
+}
+
+/**
+ * One Connecticut "or fraction thereof" staircase, in dollars.
+ *
+ * `min(maximum, amount x ceil(max(0, agi - start) / increment))`.
+ *
+ * The `ceil` is the mechanism and the `>` is its boundary: at exactly `start`
+ * the excess is zero and no fraction of a step has been exceeded, so the result
+ * is zero. One cent above it the whole first step applies. Connecticut writes
+ * the same four words into § 12-700's recapture, § 12-700's rate phase-out and
+ * § 12-702's exemption withdrawal, and this function is all three of them.
+ */
+export function fractionThereofAmount(
+  staircase: FractionThereofStaircase,
+  status: FilingStatus,
+  agi: number,
+): number {
+  const over = agi - staircase.start[status];
+  if (over <= 0) return 0;
+  const steps = Math.ceil(over / staircase.increment[status]);
+  return Math.min(staircase.maximum[status], staircase.amount[status] * steps);
+}
+
+/**
+ * The fraction on a staircase whose boundary belongs to the step ABOVE —
+ * Connecticut's pension, annuity and IRA phase-out, whose bands reach a filer
+ * with federal AGI "at least $75,000 but less than $77,500".
+ *
+ * A retiree at exactly `$75,000` is on the 85% row, not the 100% one.
+ */
+export function fractionAtOrAbove(
+  steps: readonly TaxFractionStep[],
+  income: number,
+): number {
+  let fraction = 0;
+  for (const step of steps) {
+    if (income < step.from) break;
+    fraction = step.fraction;
+  }
+  return fraction;
+}
+
+/**
+ * The fraction on a staircase whose boundary belongs to the step BELOW —
+ * Connecticut's personal tax credit, whose § 12-703 rows read "over $15,000 but
+ * not over $18,800".
+ *
+ * A single filer at exactly `$18,800` keeps the 75% row and loses it at
+ * `$18,800.01`. This is the opposite of {@link fractionAtOrAbove} and the two
+ * are both right, for different tables on the same Connecticut return — see
+ * {@link TaxFractionStep}. PolicyEngine-US models Table E with the other
+ * convention, which is a whole step of credit at each of the 27 boundaries for
+ * a filer whose Connecticut AGI lands exactly on one.
+ *
+ * Below the first step's `from` there is no credit at all, which costs nothing:
+ * that filer's exemption has already taken their Connecticut tax to zero.
+ */
+export function fractionAbove(
+  steps: readonly TaxFractionStep[],
+  income: number,
+): number {
+  let fraction = 0;
+  for (const step of steps) {
+    if (income <= step.from) break;
+    fraction = step.fraction;
+  }
+  return fraction;
+}
+
+/**
  * The income a state taxes at a rate of its own, with any exemption the main
  * schedule could not use cascaded through it.
  *
@@ -2037,6 +2190,31 @@ function computeOnce(
       amount: socialSecuritySubtraction,
     });
   }
+  // Connecticut's two retirement subtractions. They read FEDERAL AGI, not
+  // Connecticut AGI, so neither depends on the other and neither depends on
+  // itself: Schedule 1 is computed from the figure the federal return already
+  // produced, and only then does Connecticut AGI exist.
+  let connecticutSubtractions = 0;
+  if (def.socialSecurityBenefitAdjustment || def.retirementSubtractionSchedule) {
+    const { people } = retirementPeople(input);
+    const grossBenefits = people.reduce((sum, person) => sum + person.benefits, 0);
+    const adjustment = connecticutSocialSecurity(def, input, grossBenefits);
+    if (adjustment.amount > 0) {
+      computedSubtractions.push({
+        name: def.socialSecurityBenefitAdjustment?.name ?? 'Social Security benefit adjustment',
+        amount: adjustment.amount,
+      });
+      connecticutSubtractions += adjustment.amount;
+    }
+    const retirementSubtraction = connecticutRetirementSubtraction(def, input, people);
+    if (retirementSubtraction > 0) {
+      computedSubtractions.push({
+        name: def.retirementSubtractionSchedule?.name ?? 'Pension, annuity and IRA subtraction',
+        amount: retirementSubtraction,
+      });
+      connecticutSubtractions += retirementSubtraction;
+    }
+  }
   const age = ageDeduction(def, input, taxableSocialSecurity);
   const ageDeductionTaken = age.amount;
   if (def.ageDeduction && ageDeductionTaken > 0) {
@@ -2072,6 +2250,7 @@ function computeOnce(
     exclusion +
     businessDeduction +
     socialSecuritySubtraction +
+    connecticutSubtractions +
     ageDeductionTaken +
     retirement.total +
     compensationExcluded;
@@ -2171,6 +2350,29 @@ function computeOnce(
     const amount = recapture(def, input, stateAgi);
     if (amount > 0) surtaxes.push({ name: def.recapture.name, amount });
   }
+  // Connecticut's Table C and Table D, in the order the Tax Calculation Schedule
+  // puts them: line 5 is the add-back and line 6 the recapture, and line 7 adds
+  // both to the tax before the Table E credit is applied to the sum.
+  //
+  // Both are measured on CONNECTICUT adjusted gross income — `stateAgi` — and
+  // not on taxable income and not on the federal figure. A retiree whose
+  // Social Security and pension subtractions took them under $105,000 of
+  // Connecticut AGI owes no recapture, however large their federal AGI.
+  if (def.phaseOutAddBack && !belowThreshold) {
+    const amount = fractionThereofAmount(
+      def.phaseOutAddBack.staircase,
+      input.filingStatus,
+      stateAgi,
+    );
+    if (amount > 0) surtaxes.push({ name: def.phaseOutAddBack.name, amount });
+  }
+  if (def.steppedRecapture && !belowThreshold) {
+    const amount = def.steppedRecapture.tiers.reduce(
+      (sum, tier) => sum + fractionThereofAmount(tier, input.filingStatus, stateAgi),
+      0,
+    );
+    if (amount > 0) surtaxes.push({ name: def.steppedRecapture.name, amount });
+  }
   if (def.capitalGainsSurtax && !belowThreshold) {
     // Maryland's, and it asks two questions of two different figures: is FEDERAL
     // AGI over the threshold, and how much of the state's taxable income was
@@ -2195,6 +2397,19 @@ function computeOnce(
   const grossTax = taxBeforeCredits + surtaxes.reduce((s, x) => s + x.amount, 0);
 
   const credits: CreditDetail[] = [];
+  // Connecticut's Table E, first because the form puts it first: line 8 is the
+  // decimal, line 9 is line 7 times it, line 10 is line 7 less line 9. `grossTax`
+  // is line 7 — the tax with the add-back and the recapture already in it —
+  // which is the whole of why the add-back is discounted for the single filers
+  // whose credit has not yet run out.
+  if (def.personalTaxCredit && !belowThreshold) {
+    const fraction = fractionAbove(def.personalTaxCredit.steps[input.filingStatus], stateAgi);
+    credits.push({
+      name: def.personalTaxCredit.name,
+      amount: grossTax * fraction,
+      refundable: false,
+    });
+  }
   // Virginia's Form 760 subtracts the spouse tax adjustment on line 17, before
   // every credit, and the Credit for Low Income Individuals is capped at what is
   // left — so this one is genuinely first rather than merely listed first.

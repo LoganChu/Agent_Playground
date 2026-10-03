@@ -326,6 +326,38 @@ export interface ExemptionRule {
    * $2,850 exemption. 35 IL Comp. Stat. 5/204(g).
    */
   readonly cliff?: ByStatus;
+  /**
+   * The exemption withdrawn in whole steps as income rises — Connecticut, whose
+   * Table A reduces the personal exemption by `$1,000` "for each one thousand
+   * dollars, **or fraction thereof**" of Connecticut AGI above a threshold.
+   *
+   * Two things make this different from both {@link cliff} and an ordinary
+   * phase-out rate, and they compound.
+   *
+   * **The withdrawal is dollar for dollar.** Each `$1,000` of income above the
+   * threshold removes `$1,000` of exemption, so it adds `$2,000` of Connecticut
+   * taxable income: the marginal rate in the withdrawal band is exactly DOUBLE
+   * the statutory rate. A single filer between `$30,000` and `$45,000` of
+   * Connecticut AGI is in the 4.5% bracket and pays 9% on the margin.
+   *
+   * **And it is a step, not a slope.** One dollar above the threshold costs the
+   * whole first `$1,000` of exemption. For that single filer the first dollar
+   * over `$30,000` is worth `$45` of tax, and it happens again at every
+   * thousand up to `$45,000` — fifteen `$45` cliffs in a `$15,000` stretch of
+   * income.
+   *
+   * `exemption = max(0, perFiler - reduction x ceil(max(0, agi - start) / increment))`
+   */
+  readonly stepPhaseOut?: {
+    /** State AGI above which the exemption begins to be withdrawn. */
+    readonly start: ByStatus;
+    /** The width of one step of income. */
+    readonly increment: number;
+    /** The exemption removed by one step. */
+    readonly reduction: number;
+    /** The provision that says so, including the "or fraction thereof" clause. */
+    readonly cite: string;
+  };
 }
 
 /** The rate structure applied to state taxable income. */
@@ -2305,6 +2337,194 @@ export interface ConditionalNote {
   readonly relevantWhen: NoteRelevance;
 }
 
+/**
+ * A staircase keyed on state AGI, in which each step is a flat dollar amount and
+ * the step boundary is reached by *any* excess, however small.
+ *
+ * Connecticut writes three of its four income-tax adjustments this way, in the
+ * same words every time: an amount "for each five thousand dollars, **or
+ * fraction thereof**, by which the taxpayer's Connecticut adjusted gross income
+ * exceeds" a threshold, up to a maximum.
+ *
+ * **The phrase "or fraction thereof" is the whole mechanism**, and it is the
+ * reason this is a separate shape rather than a phase-out rate. A phase-out of
+ * `$25` per `$5,000` is `$0.005` of tax per dollar of income; "or fraction
+ * thereof" is `$25` on the *first* dollar and nothing on the next `$4,999`. The
+ * two agree only at the step boundaries and disagree everywhere else, and they
+ * disagree most where it is noticed: one dollar.
+ *
+ * `steps(agi) = min(maximum, amount x ceil(max(0, agi - start) / increment))`
+ *
+ * At exactly `start` the excess is zero, no fraction has been exceeded, and the
+ * amount is zero. At `start + 0.01` it is the whole first step.
+ */
+export interface FractionThereofStaircase {
+  /** Connecticut AGI above which the staircase applies at all, by filing status. */
+  readonly start: ByStatus;
+  /** The width of each step, by filing status. */
+  readonly increment: ByStatus;
+  /** What one step is worth, by filing status. */
+  readonly amount: ByStatus;
+  /** The most the staircase can ever reach, by filing status. */
+  readonly maximum: ByStatus;
+}
+
+/**
+ * Connecticut's 2% tax rate phase-out add-back — Table C of Form CT-1040 TCS.
+ *
+ * Connecticut does not narrow its bottom bracket for higher earners. It charges
+ * the bracket to everyone and then **adds a flat dollar amount back**, which is
+ * the same thing arithmetically for a filer at the top of the staircase and a
+ * different thing for everybody on it.
+ *
+ * Note what the add-back is NOT: it is not a function of how much of the filer's
+ * income actually fell in the 2% band. A filer with `$56,501` of Connecticut AGI
+ * and `$56,501` of exemptions owes no Connecticut tax at all and still has an
+ * add-back of `$25` computed for them — which the form then has nothing to apply
+ * it to, because the add-back is a line on the tax and the tax is zero.
+ */
+export interface PhaseOutAddBackRule {
+  readonly name: string;
+  readonly staircase: FractionThereofStaircase;
+}
+
+/**
+ * Connecticut's tax recapture — Table D of Form CT-1040 TCS.
+ *
+ * Three staircases, not one, and they do not abut: a single filer climbs the
+ * first from `$105,000` to `$150,000`, sits flat at `$250` until `$200,000`,
+ * climbs the second to `$345,000`, sits flat at `$2,950` until `$500,000`, and
+ * climbs the third to `$540,000` and `$3,400`.
+ *
+ * The flat stretches are why this is a list of tiers rather than one staircase
+ * with a bigger table: between `$150,000` and `$200,000` a single filer's
+ * recapture does not move at all, and no single `(start, increment, amount,
+ * maximum)` can express a staircase that stops and then starts again at a
+ * different step size.
+ *
+ * The tiers are summed. {@link RecaptureRule} is a different mechanism — New
+ * York's, which claws back the benefit of the graduated rates as a proportion —
+ * and the two are not variants of each other.
+ */
+export interface SteppedRecaptureRule {
+  readonly name: string;
+  /** Summed, in the order given. */
+  readonly tiers: readonly FractionThereofStaircase[];
+}
+
+/**
+ * One step of a staircase whose value is a fraction.
+ *
+ * **Which side of `from` the boundary falls on is a property of the RULE, not
+ * of the step**, and Connecticut is the reason: the two staircases of this
+ * shape on a Connecticut return are written in opposite conventions, and the
+ * difference is a whole step of credit for a filer standing on a round number.
+ *
+ * - § 12-703's personal tax credit table reads "**Over** $15,000 but **not
+ *   over** $18,800 ... .75", so a single filer at exactly `$18,800` is on the
+ *   75% row. {@link PersonalTaxCreditRule}.
+ * - Public Act 23-204's pension and annuity phase-out reads "**at least**
+ *   $75,000 but **less than** $77,500", so a retiree at exactly `$75,000` is
+ *   already on the 85% row. {@link RetirementSubtractionScheduleRule}.
+ *
+ * The 1991 tables use the first convention and the 2023 phase-out uses the
+ * second. Nothing distinguishes them but the words, and a model that picks one
+ * convention for both is wrong at every boundary of one of the two tables.
+ */
+export interface TaxFractionStep {
+  /** The income at which the step begins; the rule says whether inclusively. */
+  readonly from: number;
+  /** The fraction this step is worth. */
+  readonly fraction: number;
+}
+
+/**
+ * Connecticut's personal tax credit — Table E of Form CT-1040 TCS.
+ *
+ * A percentage **of the tax**, not of income and not a fixed dollar amount, on a
+ * staircase of Connecticut AGI with 27 non-zero steps per filing status and
+ * three different step widths inside each one.
+ *
+ * The credit is applied to the tax **after** the add-back and the recapture —
+ * CT-1040 Tax Calculation Schedule line 7 is "add lines 4, 5 and 6", and line 8
+ * is the Table E decimal applied to it. For the recapture that ordering is
+ * unobservable, because a filer with any recapture at all is far above the
+ * income at which this credit reaches zero. For the add-back it is observable
+ * and it matters: the two overlap for a single filer between `$56,500` and
+ * `$64,500` of Connecticut AGI, and for a separate filer between `$50,250` and
+ * `$52,500`. They do not overlap at all for a joint filer or a head of
+ * household, whose add-back begins at exactly the income where their credit
+ * ends.
+ */
+export interface PersonalTaxCreditRule {
+  readonly name: string;
+  /**
+   * Ascending by `from`, and the boundary belongs to the step BELOW: § 12-703
+   * says "over $15,000 but not over $18,800", so a filer at exactly `$18,800`
+   * keeps the 75% row. Below the first step there is no credit, which costs
+   * nothing because the exemption has already taken that filer's tax to zero.
+   */
+  readonly steps: ByStatus<readonly TaxFractionStep[]>;
+}
+
+/**
+ * Connecticut's Social Security benefit adjustment — CT-1040 Schedule 1, line 41.
+ *
+ * Below a threshold of **federal** AGI, Connecticut subtracts the whole of the
+ * federally taxable benefit, so Social Security is untaxed. At the threshold the
+ * subtraction does not taper: it is replaced by a different and much smaller
+ * computation, which is the largest single-dollar cliff Connecticut has.
+ *
+ * Above the threshold Connecticut subtracts
+ *
+ *     taxable benefit - rate x min(gross benefit, combined income excess)
+ *
+ * where the combined income excess is § 86's provisional income less § 86's
+ * first base amount. The `min` is doing real work for a couple with large
+ * benefits and little other income: it is not always the gross benefit.
+ */
+export interface SocialSecurityBenefitAdjustmentRule {
+  readonly name: string;
+  /** Federal AGI **below** which the whole taxable benefit is subtracted. */
+  readonly fullSubtractionBelow: ByStatus;
+  /** Applied to the lesser of gross benefits and the combined income excess. */
+  readonly rate: number;
+  /** § 86(c)(1) base amount, by filing status — the combined income excess floor. */
+  readonly combinedIncomeBase: ByStatus;
+}
+
+/**
+ * A subtraction of a **percentage** of retirement income, where the percentage
+ * is a staircase of federal AGI — Connecticut's pension and annuity subtraction
+ * and its IRA subtraction, CT-1040 Schedule 1 lines 48a and 48b.
+ *
+ * Two independent percentages multiply here and only one of them is on the
+ * staircase:
+ *
+ * - the **statutory phase-in** share of IRA distributions, which is a function
+ *   of the tax year alone — 25% in 2023, 50% in 2024, 75% in 2025 and 100% from
+ *   2026 — and which does not touch pension and annuity income at all; and
+ * - the **income staircase**, which applies to both and which Public Act 23-204
+ *   added for 2024, replacing a cliff at the same thresholds.
+ *
+ * So 2026 is the first year in which a Connecticut retiree's IRA and pension are
+ * treated identically, and the two years this package covers sit on either side
+ * of that.
+ */
+export interface RetirementSubtractionScheduleRule {
+  readonly name: string;
+  /**
+   * Ascending by `from`, and the boundary belongs to the step ABOVE: the
+   * phase-out reaches filers with federal AGI "at least $75,000 but less than
+   * $100,000", so a retiree at exactly `$75,000` is already on the 85% row.
+   * The opposite convention from {@link PersonalTaxCreditRule.steps}, on the
+   * same return.
+   */
+  readonly schedule: ByStatus<readonly TaxFractionStep[]>;
+  /** The share of IRA distributions that is qualifying income this year. */
+  readonly iraPhaseInShare: number;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -2373,6 +2593,19 @@ export interface StateIncomeTaxDefinition {
    */
   readonly agedCredit?: AgedCreditRule;
   readonly recapture?: RecaptureRule;
+  /**
+   * Connecticut's three-tier tax recapture. A different mechanism from
+   * {@link recapture}, which is New York's; see {@link SteppedRecaptureRule}.
+   */
+  readonly steppedRecapture?: SteppedRecaptureRule;
+  /** Connecticut's 2% rate phase-out add-back. */
+  readonly phaseOutAddBack?: PhaseOutAddBackRule;
+  /** Connecticut's personal tax credit — a fraction of the tax, on a staircase. */
+  readonly personalTaxCredit?: PersonalTaxCreditRule;
+  /** Connecticut's Social Security benefit adjustment. */
+  readonly socialSecurityBenefitAdjustment?: SocialSecurityBenefitAdjustmentRule;
+  /** Connecticut's pension, annuity and IRA subtraction. */
+  readonly retirementSubtractionSchedule?: RetirementSubtractionScheduleRule;
   readonly zeroTaxThreshold?: ZeroTaxThresholdRule;
   readonly retirementExclusion?: RetirementExclusionRule;
   /**

@@ -328,7 +328,7 @@ test('every number in every staircase moves a pinned answer', () => {
   // rule moved behind a function — fails instead of reporting a clean sweep over
   // nothing. That is the failure mode the mutation harness had on its first run,
   // and it printed 100%.
-  assert.equal(checked, 627, 'numbers inside the staircases this package ships');
+  assert.equal(checked, 731, 'numbers inside the staircases this package ships');
   assert.equal(exempt.length, 4, 'staircase rows nothing can reach — two rows, both years, all documented');
 });
 

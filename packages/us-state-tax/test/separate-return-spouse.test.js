@@ -78,9 +78,9 @@ const withoutSpouse = (state, extra = {}) => stateIncomeTax(household(state, ext
 test('every state with an exemption declares what it does with a separate filer’s spouse', () => {
   // The point of making the field required rather than optional. A silent
   // default is what kept fourteen states counting a dead spouse for 27 days,
-  // and the default here would have been "counts nobody" in all eleven — which
-  // is right in seven of them and wrong in four.
-  assert.equal(WITH_EXEMPTIONS.length, 11);
+  // and the default here would have been "counts nobody" in all twelve — which
+  // is right in eight of them and wrong in four.
+  assert.equal(WITH_EXEMPTIONS.length, 12);
   for (const code of WITH_EXEMPTIONS) {
     const rule = declarationOf(code);
     assert.ok(rule, `${code} has an exemption rule and must declare separateReturnSpouse`);
@@ -96,12 +96,12 @@ test('every state with an exemption declares what it does with a separate filer�
   }
 });
 
-test('the answer today: four states count the spouse, one says no, two have nothing to count', () => {
+test('the answer today: four states count the spouse, two say no, two have nothing to count', () => {
   // Written out so that a state MOVING between these lists is a diff rather than
-  // a silent change of behaviour in eleven states at once.
+  // a silent change of behaviour in twelve states at once.
   const by = (kind) => WITH_EXEMPTIONS.filter((c) => declarationOf(c).spouse === kind);
   assert.deepEqual(by('claimed'), ['IL', 'IN', 'MD', 'VA']);
-  assert.deepEqual(by('notClaimed'), ['NJ']);
+  assert.deepEqual(by('notClaimed'), ['CT', 'NJ']);
   assert.deepEqual(by('noFilerExemption'), ['GA', 'NY']);
   assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH']);
   // And the second claim is now answered in all four, by THREE different
@@ -111,7 +111,7 @@ test('the answer today: four states count the spouse, one says no, two have noth
   assert.deepEqual(aged('follows'), ['IL', 'IN', 'VA']);
   assert.deepEqual(aged('doesNotFollow'), ['MD']);
   assert.deepEqual(aged('unresolved'), ['MA', 'MI', 'MS']);
-  assert.deepEqual(aged('notApplicable'), ['GA', 'NJ', 'NY', 'OH']);
+  assert.deepEqual(aged('notApplicable'), ['CT', 'GA', 'NJ', 'NY', 'OH']);
   // No state is `unresolved` on the aged half while being resolved on the first:
   // the four that are left are the four nobody has read at all. An aged claim
   // that outlived its exemption claim would be the harder gap to see, because the

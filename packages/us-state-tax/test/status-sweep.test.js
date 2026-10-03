@@ -296,7 +296,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // renamed field, a rule moved behind a function — fails instead of reporting a
   // clean sweep over nothing. That is the failure mode the mutation harness had on
   // its first run, and it printed 100%.
-  assert.equal(checked, 498, 'byStatus cells with a parameter the harness would mutate');
+  assert.equal(checked, 698, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -309,6 +309,6 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
       }
     }
   }
-  assert.equal(inside, 1_368, 'numbers inside those cells — 870 of them in 100 staircases');
+  assert.equal(inside, 2_388, 'numbers inside those cells — 1,820 of them in 130 staircases');
   assert.equal(exempt.length, 20, 'cells the engine cannot reach, all of them documented');
 });

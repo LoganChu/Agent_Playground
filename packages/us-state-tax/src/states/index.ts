@@ -7,6 +7,7 @@
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
 import { california } from './california.js';
+import { connecticut } from './connecticut.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
 import { flatStates } from './flat-states.js';
 import { maryland } from './maryland.js';
@@ -28,6 +29,7 @@ export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
 
 function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const ca = california(year);
+  const ct = connecticut(year);
   const ma = massachusetts(year);
   const md = maryland(year);
   const nj = newJersey(year);
@@ -40,6 +42,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...federalTaxableBaseStates(year),
     ...utahAndPennsylvania(year),
     ...(ca ? [ca] : []),
+    ...(ct ? [ct] : []),
     ...(ma ? [ma] : []),
     ...(md ? [md] : []),
     ...(nj ? [nj] : []),

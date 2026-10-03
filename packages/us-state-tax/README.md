@@ -1,11 +1,52 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **28
-states** including **New York**, **New Jersey**, **Massachusetts**, **Maryland**, **Ohio**
-and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
+US **state and local** individual income tax for tax years **2025 and 2026**, across **29
+states** including **New York**, **New Jersey**, **Connecticut**, **Massachusetts**,
+**Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.35.0: **Connecticut, where there is no continuous stretch of income tax
+above $30,000.**
+
+Every state's rate table leaves something out. Connecticut's leaves out four
+staircases, three of them built from the same four words of statute — **"or fraction
+thereof"** — and each of them reached by *one dollar* of extra income rather than by a
+proportion of it:
+
+| above | step | one dollar costs a single filer |
+| --- | --- | --- |
+| `$30,000` | `$1,000` of personal exemption per `$1,000` of Connecticut AGI | **`$45`**, fifteen times over to `$45,000` |
+| `$56,500` | `$25` of rate phase-out add-back per `$5,000` | **`$25`**, ten times over to `$106,500` |
+| `$105,000` / `$200,000` / `$500,000` | `$25` / `$90` / `$50` of tax recapture per `$5,000` | **`$25`**, **`$90`**, **`$50`** |
+| 27 rows of Table E | a percentage point or five of the whole tax | up to **`$20`** |
+
+And the exemption withdrawal is **dollar for dollar**, so each `$1,000` of income adds
+`$2,000` of Connecticut taxable income: a single filer between `$30,000` and `$45,000`
+is in the 4.5% bracket and pays **9%** on the next dollar, which is a figure that
+appears in no Connecticut table because it is two rules meeting.
+
+The trap underneath is that **half of Connecticut's tables scale between filing
+statuses and half do not, and the two halves look identical.** The rate schedule is
+one table scaled — single and separate are exactly half the joint figures, head of
+household exactly four fifths — and the recapture scales too, except for one row:
+§ 12-700(b) charges a head of household `$140` per `$8,000` in the middle tier to a
+maximum of `$4,200`, where four fifths of the joint figures would be `$144` and
+`$4,320`. The exemption, the add-back thresholds and the personal credit do not scale
+at all. Half of a joint exemption is `$12,000` and half of a joint
+add-back threshold is `$50,250`, and both of those are **real Connecticut numbers
+belonging to a separate filer** — so a model that scales what it should not lands on a
+plausible figure for the wrong status and never looks wrong. `test/connecticut.test.js`
+asserts the scaling where it holds and the exact disagreement where it does not — and
+that one `$140` row is there because the test, written from the statute, disagreed
+with the comment above it.
+
+One more, with a date on it: Connecticut's IRA subtraction is phasing in over four tax
+years — 25%, 50%, 75%, 100% — so **2026 is the first year a Connecticut retiree's
+traditional IRA is treated the same as their pension**, and the two years this package
+covers sit on either side of that line. It is the only Connecticut figure that moves
+between them.
 
 New in 0.24.0: **a one-person return cannot hold two blind people.**
 
@@ -245,7 +286,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.34.0/us-state-tax-0.34.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.35.0/us-state-tax-0.35.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1867,7 +1908,7 @@ the `$24,600` the threshold moved — and it is owed by nobody below a million d
 
 ## No fallback to a neighbouring year
 
-Eight of the nineteen taxing states cut their rate between 2025 and 2026 — New York's
+Eight of the twenty taxing states cut their rate between 2025 and 2026 — New York's
 bottom five brackets (FY2026 enacted budget), Georgia
 5.19% → 4.99%, Indiana 3.00% → 2.95%, Kentucky 4.00% → 3.50%, Mississippi 4.4% → 4.0%,
 North Carolina 4.25% → 3.99%, Utah 4.5% → 4.45%, and Ohio, which abolished its 3.125%
@@ -1888,14 +1929,24 @@ the two a test author reaches for last. Massachusetts proves it is about attenti
 rather than about the statuses: there the *separate* cell is the tested one and the
 other three are not.
 
-`test/status-sweep.test.js` removes the choice. 22 frozen households run under **all
-five statuses** in all 19 taxing state-years, and 4,180 answers are pinned. Beside it
+`test/status-sweep.test.js` removes the choice. 26 frozen households run under **all
+five statuses** in all 20 taxing state-years, and 5,200 answers are pinned. Beside it
 is the test that makes those pins mean something: it takes every `byStatus` table the
 package ships, sets a cell wrong, and fails unless a pinned answer moves.
 
 **A fixture of expected values and a proof that the values are sensitive are two
-different tests, and only the second one is about coverage.** 4,180 rows that all
+different tests, and only the second one is about coverage.** 5,200 rows that all
 happened to be zero would pass every day and guard nothing.
+
+Connecticut added four of the twenty-six households, and three of the four are not
+about Connecticut. Its recapture's top tier climbs `$80` per `$8,000` from `$800,000`
+for a head of household and stops after nine steps, so the tier's step size is only
+visible inside a `$72,000` band — and the battery's doubling ladder jumped from
+`$540,000` to `$1,400,000` with nothing in between. **The gap was a missing rung, not
+a missing state**, and it had been there since the battery was written. The fourth is
+a retired couple for whom Social Security is the *majority* of the income: every other
+retiree in the battery has benefits that are a minority of a larger income, and that
+one-sided shape hid a whole branch of Connecticut's § 86 arithmetic.
 
 What that buys a caller is narrow and worth stating exactly: **no parameter that
 differs by filing status can change in this package without a test failing.** It is
@@ -1973,7 +2024,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 627 of them, ceilings, amounts and age bounds alike
+staircase the package ships** — 731 of them, ceilings, amounts and age bounds alike
 — sets each one wrong, and fails unless a pinned answer moves. Two rows are exempt,
 each with a written reason and a direct assertion in their place:
 
@@ -1992,7 +2043,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **462** notes every
+`test/notes.test.js` pins the first 72 characters of all **486** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2017,8 +2068,9 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from** — 2,293 numbers across 56 state-years,
-276 citations, and no mapping between them. **A list of sources beside a list of figures
+was **which document any one figure came from**. Today the ledger covers 3,407 numeric
+figures over 58 state-years, against 298 citations; when it was written there was no
+mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
 
@@ -2026,6 +2078,7 @@ The mapping's absence was hiding a bigger question than a missing citation. Comp
 the two tax years this package ships:
 
 ```text
+measured over commit c85e8aa, which is 28 states and the tree before the ledger
 numeric figures over 56 state-years                       2,293
 figures identical in 2025 and 2026, unbounded excluded      949
   flagged as carried forward                                148
@@ -2062,14 +2115,22 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 1,146 figures of tax year
+The `kind` field answers one operational question. Over the 1,703 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **892** |
-| the statute's own schedule (`statute-scheduled`) | **109** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,443** |
+| the statute's own schedule (`statute-scheduled`) | **110** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **145** |
+| nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **5** |
+
+Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
+Adding Connecticut falsified every live number in this section at once, and nothing
+failed: `readme.test.js` has pinned the quick-start figures, the staircase counts and
+the note counts since Day 8, and the provenance section's own totals were the set it
+never covered. **A README test that covers most of a README teaches a reader that the
+whole of it is covered.**
 
 ```js
 import { newYearCost, stateFigureProvenance, getStateDefinition } from 'us-state-tax';
@@ -2141,12 +2202,19 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.34.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.35.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 28 states.** No Minnesota, Wisconsin,
-  Oregon, South Carolina, Missouri, Alabama, Connecticut, or the District of Columbia.
+- **Only 29 states.** No Minnesota, Wisconsin,
+  Oregon, South Carolina, Missouri, Alabama, or the District of Columbia.
   Asking for one throws rather than returning zero.
+- **Connecticut's property tax credit, alternative minimum tax, teachers' retirement
+  subtraction, military retirement subtraction and credit for taxes paid to other
+  jurisdictions are not modelled**, and nor are the 2026 farm investment credit and
+  family childcare home credit. The notes say so. Above the Social Security threshold
+  the § 86 combined income excess is reconstructed from federal AGI and the benefit
+  figures, which cannot see federally tax-exempt interest the caller did not pass —
+  a conditional note says so on exactly the returns it can reach.
 - **Virginia's four smaller subtractions are not modelled** — the military benefits
   subtraction, the disability income subtraction, the `$15,000` state/federal employee
   subtraction and National Guard pay. Pass them through `subtractions`; the notes say so,
@@ -2261,7 +2329,8 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **618 tests**. Turning it on is what measured the cost of not having
+from all **637 tests**. Turning it on, when there were 618 of them, is what
+measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of
 them changed an answer — they were all helper options with no field to land on —
