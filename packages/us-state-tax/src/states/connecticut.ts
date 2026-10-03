@@ -67,7 +67,11 @@
  * Connecticut has no local income tax of any kind, so unlike Ohio, Maryland,
  * Indiana, Michigan and New York there is nothing below the state here.
  */
-import type { StateIncomeTaxDefinition, TaxFractionStep } from '../definition.js';
+import type {
+  SocialSecurityBenefitAdjustmentRule,
+  StateIncomeTaxDefinition,
+  TaxFractionStep,
+} from '../definition.js';
 import { byStatus, byStatusOf } from './helpers.js';
 import type { ConditionalNote } from '../definition.js';
 import type { Bracket, ByStatus, Citation } from '../types.js';
@@ -237,25 +241,52 @@ const NOTES: readonly string[] = [
 ];
 
 /**
- * The caveat that applies only above the Social Security threshold.
+ * Connecticut's Social Security benefit adjustment, as a named constant rather
+ * than inline in the definition — because the conditional note below has to
+ * read the same threshold, and the first draft wrote it out twice.
  *
- * Below it the whole taxable benefit comes out and nothing in the computation
- * reads the combined income excess, so the reconstruction cannot be wrong for
- * those filers and the note would be noise on the majority of returns. The
- * predicate is the same comparison the engine makes.
+ * **The mutation audit found the duplicate on its first run over this state.**
+ * Four survivors, one per filing status: setting the note's copy of the
+ * threshold wrong moved no pinned answer, because the note's copy is not what
+ * the engine reads. Two copies of one figure and nothing comparing them — so if
+ * the threshold ever moved and only one copy followed, the caveat would appear
+ * on the wrong returns and every test would stay green.
+ *
+ * The duplicate existed for a reason worth recording: a {@link ConditionalNote}
+ * predicate is handed the caller's INPUT and nothing else, so it has no way to
+ * reach the definition it belongs to. The cheap answer is to restate the
+ * figure; the right one is to hoist the rule and let both read it.
+ *
+ * **THE RULE: a predicate that cannot see the data it is a predicate about will
+ * be written with a copy of the data in it.**
  */
-const SOCIAL_SECURITY_THRESHOLD: ByStatus = byStatus({
-  single: 75_000,
-  joint: 100_000,
-  separate: 75_000,
-  headOfHousehold: 75_000,
-});
+const SOCIAL_SECURITY: SocialSecurityBenefitAdjustmentRule = {
+  name: 'Social Security benefit adjustment',
+  fullSubtractionBelow: byStatus({
+    single: 75_000,
+    joint: 100_000,
+    separate: 75_000,
+    headOfHousehold: 75_000,
+  }),
+  rate: 0.25,
+  // § 86(c)(1). A separate filer who lived with their spouse at any time in the
+  // year has a base amount of zero federally, which this package does not ask
+  // about and therefore does not apply; the $25,000 here is the lived-apart
+  // figure and it understates Connecticut tax for the other case, by at most
+  // 25% of $25,000 of benefits.
+  combinedIncomeBase: byStatus({
+    single: 25_000,
+    joint: 32_000,
+    separate: 25_000,
+    headOfHousehold: 25_000,
+  }),
+};
 
 const CONDITIONAL_NOTES: readonly ConditionalNote[] = [
   {
     relevantWhen: (input) =>
       (input.taxableSocialSecurity ?? 0) > 0 &&
-      input.federal.adjustedGrossIncome >= SOCIAL_SECURITY_THRESHOLD[input.filingStatus],
+      input.federal.adjustedGrossIncome >= SOCIAL_SECURITY.fullSubtractionBelow[input.filingStatus],
     text:
       'Above the Social Security threshold Connecticut charges 25% of the lesser of gross benefits and the \u00a7 86 combined income excess. This package reconstructs that excess from federal AGI, the taxable benefit, the gross benefit and any taxExemptInterest supplied \u2014 it cannot see federally tax-exempt interest the caller did not pass, which belongs in provisional income. Omitting it understates the excess, so it understates Connecticut tax, by at most 25% of the interest. Below the threshold the figure is not read at all.',
   },
@@ -340,27 +371,7 @@ export function connecticut(year: number): StateIncomeTaxDefinition | undefined 
         headOfHousehold: CREDIT_HEAD_OF_HOUSEHOLD,
       }),
     },
-    socialSecurityBenefitAdjustment: {
-      name: 'Social Security benefit adjustment',
-      fullSubtractionBelow: byStatus({
-        single: 75_000,
-        joint: 100_000,
-        separate: 75_000,
-        headOfHousehold: 75_000,
-      }),
-      rate: 0.25,
-      // § 86(c)(1). A separate filer who lived with their spouse at any time in
-      // the year has a base amount of zero federally, which this package does
-      // not ask about and therefore does not apply; the $25,000 here is the
-      // lived-apart figure and it understates Connecticut tax for the other
-      // case, by at most 25% of $25,000 of benefits.
-      combinedIncomeBase: byStatus({
-        single: 25_000,
-        joint: 32_000,
-        separate: 25_000,
-        headOfHousehold: 25_000,
-      }),
-    },
+    socialSecurityBenefitAdjustment: SOCIAL_SECURITY,
     retirementSubtractionSchedule: {
       name: 'Pension, annuity and IRA subtraction',
       schedule: byStatusOf<readonly TaxFractionStep[]>({

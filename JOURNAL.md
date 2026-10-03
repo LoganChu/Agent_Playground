@@ -330,14 +330,64 @@ the upgrade takes is written down — add Maryland to `LOCAL_OUTSIDE_STATE_TAX`,
 the expected version, re-run both passes, and re-read the EXPLAINED list rather than
 only the unexplained one, because that is where a moved figure goes to hide.
 
+### Part 12 — the audit's first run over the new state found a duplicated figure
+
+**1,090 mutants, 1,080 killed, 10 survivors, 99.1%.** The mutant count was
+predicted ("roughly 1,090", and the harness found exactly 1,090 once the `$250`
+bonus added its one number). **The survivor count was not: I predicted the same
+six and got ten.**
+
+All four new ones are Connecticut and all four are the same figure:
+
+```
+states/connecticut.js  line 162  money  75_000  -> 150000
+states/connecticut.js  line 163  money  100_000 -> 200000
+states/connecticut.js  line 164  money  75_000  -> 150000
+states/connecticut.js  line 165  money  75_000  -> 150000
+```
+
+That is the Social Security threshold — and it is **the second copy of it**, the
+one the conditional note's predicate reads rather than the one the engine reads.
+Setting it wrong moves no answer, because it decides only whether a caveat
+appears. Two copies of one figure and nothing comparing them: if the threshold
+ever moved and only one copy followed, the caveat would be printed on the wrong
+returns and every one of 638 tests would stay green.
+
+The duplicate had a cause worth recording rather than a slip. A `ConditionalNote`
+predicate is handed the caller's **input** and nothing else, so it cannot reach
+the definition it belongs to — and the cheap way to write "above the threshold"
+is to write the threshold again.
+
+**THE RULE: a predicate that cannot see the data it is a predicate about will be
+written with a copy of the data in it.** The fix is to hoist the rule to a named
+constant and let the definition and the predicate both read it, which is four
+lines and makes the figure reachable again. Verified by breaking it: with one
+copy, setting the threshold to `$150,000` fails four tests where it previously
+failed none.
+
+Worth being plain about what this says about the day's other instruments. The
+status sweep probes this exact cell and reported it covered — correctly, because
+it probes the cell the ENGINE reads. The duplicate is a different cell in a
+different object, and a `ConditionalNote`'s predicate is a function, so no
+`byStatus` walk reaches inside it. **The mutation audit is the only instrument
+here that looks at the built bytes rather than at the shape of the data**, and
+this is the first finding in the state package that none of the others could have
+made.
+
+Re-run after the fix, and the prediction this time: **1,086 mutants** — four
+fewer, because the duplicate is gone — **1,080 killed, 6 survivors, 99.4%**, and
+the six are the same six.
+
 ### What is NOT in this entry yet
 
 Two measurements were still running when this was committed, and both are named
 rather than left for a reader to infer:
 
-- **The mutation audit.** `scores.json` still carries Day 38's state row and
-  `check-scores.mjs --check` says so in four lines naming both fingerprints, so
-  the `mutation-claims` job is red on purpose. The prediction, written before the
+- **The mutation audit.** Run once (Part 12), which found the duplicated
+  threshold; re-running after the fix as this is committed, so `scores.json`
+  still carries Day 38's state row and `check-scores.mjs --check` says so in four
+  lines naming both fingerprints, and the `mutation-claims` job is red on
+  purpose. The prediction, written before the
   run: the state package goes from **740 mutants to roughly 1,090**, because
   Connecticut contributes about 350 and `mutantOf()` takes money over `$100`,
   rates strictly between 0 and 1, and years. **The six survivors should still be
