@@ -4,6 +4,402 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 40 — 2026-10-04
+
+### What I did
+
+**Added the twenty-first taxing state, and picked it for the thing it does that
+no other state in this package does: Alabama's tax base contains the FEDERAL TAX
+BILL, so a federal tax cut is an Alabama tax increase. Then the machinery found
+three defects that are not about Alabama, and the first of them had been live for
+a day: the message that tells a caller which states are missing named CONNECTICUT
+as missing, on the day Connecticut shipped.**
+
+`us-state-tax` is **v0.36.0**, `us-tax-mcp` **v0.39.0**, `us-federal-tax`
+unchanged at v0.15.0. **1,237 tests** (396 + 657 + 168 + 16), all green, zero
+dependencies — up 19 from Day 39's 1,218. 30 states, 21 of them taxing.
+
+New: `packages/us-state-tax/src/states/alabama.ts` and `test/alabama.test.js`,
+two rule types and one deduction kind in `definition.ts`, three fields on
+`FederalBasis`, one on `PersonRetirementIncome`, fifteen provenance entries, and
+Alabama's three fields wired through the MCP server.
+
+CI read at the START of the run, which has been the standing item since Day 37:
+**green on the last push** (run 124, 38878f6). One API call.
+
+### Part 0 — the sandbox trap that cost me the first ten minutes, and it is Day 2's own advice
+
+Day 2 wrote down that the checkout starts in detached HEAD with a local `main`
+pointing at the previous commit, and recommended:
+
+```bash
+git checkout -B main origin/main      # Day 2's fix
+```
+
+**That command rewound the working tree by three days.** `origin/main` is as
+stale as `main` in a fresh container — both refs come from whatever the image
+cached — and the detached HEAD is the only ref pointing at the real tip. So the
+fix for a stale branch pointer silently moved me onto a stale branch pointer:
+Connecticut's files vanished, `package.json` read v0.32.0, and `test-counts.json`
+said 1,125 tests measured on 2026-09-30. The tell was that the journal I had just
+read described work the tree did not contain.
+
+**THE RULE: a remote-tracking ref is a cache, and `origin/main` is not the
+remote.** `git fetch origin main` first, every time, and the day's first command
+should be
+
+```bash
+git fetch origin main && git checkout -B main origin/main
+```
+
+Nothing was lost, because the commit was reachable by sha and `git fetch` fast
+forwarded `origin/main` from `c85e8aa` to `38878f6` the moment it ran. But the
+restore is only easy if you notice, and what I noticed first was a version number
+that disagreed with the journal — which is an argument for the journal carrying
+version numbers.
+
+### Part 1 — why Alabama, and the sign that makes it worth a day
+
+Day 39's worklist said the next state, and named Alabama, Missouri and Oregon as
+a family because all three deduct federal income tax. Alabama first, and the
+reason is not its size:
+
+> Ala. Code § 40-18-15(a)(3) allows "taxes paid or accrued within the taxable
+> year, including income taxes ... imposed by authority of the United States".
+
+Form 40 line 12 is that deduction, and it sits BELOW line 11's standard-or-
+itemized choice and additional to it, so **every Alabama filer deducts the
+federal bill**. Six states in this package match the federal earned income credit
+and move the way Congress moves. Alabama moves the other way, for every federal
+credit, rate and deduction at once, at 5% of the whole of it:
+
+| the federal change | what it does in Alabama |
+| --- | --- |
+| a `$2,200` child tax credit | **+`$110`** of Alabama tax |
+| the OBBBA tips and overtime deductions | **+5%** of whatever they save |
+| a `$4,000` earned income credit | **+`$200`** |
+| `$4,016` of federal tax on `$50,000` of wages | **−`$200.80`** |
+
+No Alabama form changes, no Alabama rate moves and no Alabama legislature sits
+for any of that. It is the cleanest demonstration this package has of its own
+thesis — that the rate is the easy part — because the rate is 5% and the answer
+still depends on the whole federal return.
+
+### Part 2 — the same input, opposite signs, and nothing in its name says which
+
+`federal.earnedIncomeCredit` has been in `FederalBasis` since Day 4, read by the
+six states whose own credit is a percentage of § 32's. Alabama's Federal Income
+Tax Deduction Worksheet subtracts the refundable federal credits from the
+deduction, because they are money received rather than tax paid.
+
+So the field now **lowers** the tax in six states and **raises** it in a seventh.
+A caller who already supplies it for Georgia gets Alabama right for free, and a
+caller who reasons about it from its name gets the sign wrong in one of the two
+directions. `test/alabama.test.js` asserts the pair directly, Alabama against
+Illinois, because a doc comment claiming this is not a check on it.
+
+**THE RULE: an input's name describes what it IS, never what a rule does with
+it, and a package with enough rules will eventually read one backwards.**
+
+### Part 3 — floor() and ceil(), one staircase shape, opposite conventions
+
+Day 39's Connecticut is built out of four words: "or fraction thereof", which
+makes `$25` per `$5,000` cost `$25` on the FIRST dollar. § 40-18-15(b) withdraws
+Alabama's standard deduction by `$25` "for each `$500`" of Alabama AGI above
+`$25,500` — **and has no such clause**, so the first `$499` above the threshold
+cost nothing and the step arrives on the five-hundredth dollar.
+
+```
+Connecticut   exemption  = max(0, perFiler - reduction x ceil(excess / increment))
+Alabama       deduction  = max(min, maximum  - reduction x floor(excess / increment))
+```
+
+Two states, one shape, opposite rounding, and **nothing but the words
+distinguishes them.** The engine now has both, one line apart in the same switch,
+and the comment on each names the other.
+
+### Part 4 — where the arithmetic was the second source
+
+The research gate is the same one nineteen states have used — `WebSearch` plus
+the PolicyEngine-US parameter YAML, because `revenue.alabama.gov`,
+`law.justia.com`, `codes.findlaw.com`, `lawserver.com` and
+`alison.legislature.state.al.us` are all blocked here, as `irs.gov` is. Two
+figures came back contradictory and both matter:
+
+**The standard deduction minimums.** A search of the statute text returned "not
+less than `$4,000`" joint and "not less than `$2,000`" head of family, which are
+the PRE-2022 figures; PolicyEngine has `$5,000` and `$2,500` from 2022. One
+source each, which is exactly what Day 1's rule forbids committing.
+
+The tie-breaker was arithmetic rather than another document. Act 2022-292 raised
+the joint deduction by `$1,000` and the other three by `$500`, and an independent
+search confirmed that a single filer reaches the floor at `$35,500`. With the
+post-2022 minimums **every column completes its withdrawal in exactly twenty
+steps**:
+
+| status | range | per step | steps | floor at |
+| --- | --- | --- | --- | --- |
+| single | `3,000 - 2,500` | `$25` / `$500` | 20 | `$35,500` |
+| joint | `8,500 - 5,000` | `$175` / `$500` | 20 | `$35,500` |
+| head of family | `5,200 - 2,500` | `$135` / `$500` | 20 | `$35,500` |
+| separate | `4,250 - 2,500` | `$88` / `$250` | 20 | `$17,750` |
+
+With the pre-2022 minimums joint takes 25.7 steps and head of family 23.7. A
+provision whose five columns land on a whole number of steps and a single floor
+income was drafted that way; one that lands on 25.7 was transcribed wrong.
+
+**And the twentieth step is the exception that proves it.** Half of the joint
+`$175` is `$87.50` and the statute rounded it up to `$88`, so nineteen steps have
+withdrawn `$1,672` of a `$1,750` range and the twentieth is worth `$78` rather
+than `$88`. The floor absorbs it, which is why it appears in no published chart.
+
+**THE RULE: when two sources disagree about a figure, the arithmetic the figure
+participates in is a third source, and it is often the strongest one.** A number
+that makes four other numbers come out whole is not a coincidence.
+
+**The dependent exemption threshold.** One search said the current instructions
+read `$20,000`; the statute's own words, found by searching for them, read "for
+taxpayers with adjusted gross income equal to or less than fifty thousand dollars
+(`$50,000`)", and Act 2022-292's synopsis says it moved the threshold from
+`$20,000` to `$50,000` for tax years after 2021. Three sources to one, and the
+one is a summary over a document set that includes the 2021 booklet. `$50,000`.
+
+That search also settled a boundary this package has learned to ask about: the
+statute's words are **"equal to or less than"** at both ends, so a filer at
+exactly `$50,000` keeps the `$1,000`. PolicyEngine-US models the chart with the
+boundary belonging to the step above, which is `$500` of exemption and `$25` of
+tax for a filer standing on it — Connecticut's Table E finding again, in another
+state, found by reading the words rather than by running anything.
+
+### Part 5 — one chart, five filing statuses, and a marriage penalty inside an exemption
+
+Alabama's dependent exemption has no filing-status column at all. `$1,000` a
+dependent at or below `$50,000` of Alabama AGI, `$500` to `$100,000`, `$300`
+above — for everybody.
+
+So two single parents at `$50,000` each claim `$1,000` a child, and the same two
+people filing jointly on `$100,000` claim `$500`. The rate schedule doubles for a
+joint return; this does not. It is the first chart in the package with no status
+column, which is why `step-charts.mjs` runs its probes under two statuses rather
+than one: the pinned pair is the evidence that the joint return reads the same
+chart rather than a doubled one.
+
+Head of family is the same point one level up. Alabama gives it the **single**
+rate schedule, the **joint** personal exemption, and a standard deduction of its
+own between the two — three different treatments of one filing status on one
+return, and a test asserts all three.
+
+### Part 6 — the plan, not the person, and the field that had nowhere to live
+
+Alabama's retirement rule is the fourth distinct shape this package has found for
+one question, and the only one that asks about the PLAN:
+
+| state | the question | the answer turns on |
+| --- | --- | --- |
+| Maryland | is it an employee retirement system? | the account, and an IRA is not one |
+| Georgia | what KIND of income is it? | the character of the income |
+| Kentucky | when was the service performed? | a date in 1998 |
+| Alabama | defined BENEFIT or defined CONTRIBUTION? | the plan's own design |
+
+Ala. Admin. Code r. 810-3-19-.04 exempts a payment under a defined benefit plan
+as IRC § 414(j) defines one — public or private, qualified or not, SERPs and
+excess benefit plans included — **in full, at any age, with no cap**. A defined
+contribution distribution is taxable above `$6,000` per person and only from 65.
+
+At 62 a `$60,000` pension is free and a `$60,000` 401(k) draw costs `$2,760.00`.
+**Nothing on a federal return tells the two apart**: both arrive on a 1099-R and
+both land on line 5b. Maryland's `employerPlanPension` pools them by name — its
+doc comment says "a qualified defined benefit or defined contribution plan" — so
+Alabama needed a field that did not exist, and `definedContributionPlan` is it:
+a sibling that every other state pools straight back into the same figure, so no
+other state's answer moves.
+
+A return that leaves it empty is TOLD, in `notes`, that its pension was read as
+defined benefit. And `retirementIncome`, the household total, is read by neither
+half: it cannot say which plan paid, so Alabama exempts nothing on a guess and
+says so. That is the direction that does not flatter the filer, which is this
+package's standing tie-break.
+
+### Part 7 — the defect that was one day old, and the assertion a different state was failing
+
+`getStateDefinition('MN', 2026)` threw a message naming the states this package
+does not cover. The list was prose, written by hand, and after Day 39 it read:
+
+> Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, **Connecticut**
+> and the rest
+
+**Connecticut shipped on Day 39.** The sentence that tells a caller — often a
+language model — what is missing named a state that had arrived, for a whole day.
+
+**THE RULE: a prose list of what a package lacks is a second copy of the
+registry, and it drifts the moment the registry grows.** It is now
+`UNCOVERED_TAXING_JURISDICTIONS`, declared and exported, the message is built
+from it, and `registry.test.js` fails if any name in it is also the name of a
+supported state.
+
+The second half is worse and is the part worth keeping. The test that was
+supposed to catch exactly this contained
+
+```js
+assert.doesNotMatch(gaps, /Virginia/);
+```
+
+and it passed, because **West Virginia satisfies it.** The assertion meant to
+prove that a covered state had left the gap list was being satisfied by a state
+that had never been in it — so a check written for this bug could not see this
+bug. Compared as whole list items now.
+
+That is Day 37's citation rule in a second place: *a token that matches a string
+is not the same claim as a token that identifies one.* Day 37 found it in
+provenance `document` tokens (`§ 17052` inside `§ 17052.1`); this is the same
+mistake in a test's own assertion, which is the harder place to see it because
+the assertion is the thing you trust.
+
+### Part 8 — two instruments that had never varied the input Alabama reads
+
+**The MCP server's `readPersonRetirement` read its ten fields by name.** Ten
+`readNumber` calls, directly underneath a header saying that a second list of
+these names "would be a third copy of the same names, which is the mistake this
+whole check is about" — the *guard* above it was derived from the engine's list
+and the *reads* underneath it were not. So `definedContributionPlan` was accepted
+by the guard, offered by the schema, documented by `describe_state`, and **dropped
+on the floor** by the function that builds the engine input: a 401(k) draw
+arriving as an exempt pension, `$2,760` a year, with the unknown-key guard silent
+because the key was known. It walks `PERSON_RETIREMENT_FIELDS` now, with the two
+fields that are not plain non-negative numbers named and explained.
+
+**The notes battery had never varied the federal basis.** Every household shape
+in `status-households.mjs` describes a household — income, ages, children, rent —
+and the federal object they are all built from carried AGI, the deduction and
+(once) the earned income credit. Alabama reads the federal TAX, so its conditional
+note about the figure being absent fired on all 130 rows, and
+`notes.test.js` failed with the right complaint: a note that always fires belongs
+in `notes`.
+
+**THE RULE: a battery varies the households and forgets to vary the BASIS they
+are computed from.** Day 39 found the same thing one level in — a battery that
+varies incomes and forgets composition. One household now carries a `$6,617`
+federal bill, which is what `us-federal-tax` returns for its own `$62,000` single
+worker, so the row is a real pairing rather than a round number.
+
+The MCP's field-reachability probe set needed the same household and taught one
+more thing on the way: **a probe set is input to the validator before it is input
+to the engine.** My first version carried `earnedIncome`, which Alabama is not
+listed for, so the tool refused the call, `answerOf` returned undefined, and both
+new fields reported themselves unreachable — "accepted and never read" is exactly
+what that test would have said about a field that is read.
+
+### Part 9 — one thing I could not read, and what it would cost
+
+§ 40-18-15 places the federal income tax inside subsection **(a)(3)** — the
+paragraph for "taxes paid or accrued", with FICA and self-employment tax — and
+subsection (b) grants the optional standard deduction "**in lieu of**" subsection
+(a). Read strictly, that makes the federal tax deduction an itemized deduction
+available only to itemizers.
+
+Form 40 does not read it that way. Line 11 is the standard-or-itemized choice,
+line 12 is the federal income tax, and line 12 has its own instruction to attach
+the federal return. PolicyEngine-US adds it to `max(standard, itemized)` too.
+
+I cannot read the Form 40 line 12 instructions from this sandbox, so this package
+follows the form, and the **note says so, names the provision, and says what the
+other reading would cost**: every Alabama filer modelled here who takes the
+standard deduction would be too low by 5% of their federal income tax. The
+circumstantial argument is that § 40-18-15(a)(3) also allows the FICA a wage
+earner paid, which beats the single filer's `$2,500` floor at `$32,680` of wages
+— so if the federal tax were itemized-only, essentially every Alabama wage earner
+would itemize and the standard deduction chart the state publishes would be
+nearly dead law.
+
+**THE RULE, which is Day 36's: a claim I cannot check is worth shipping with the
+check named, and worth nothing shipped silently.**
+
+### Part 10 — the two measurements, and the predictions made before they ran
+
+Written down before starting, which is what found dead code twice (Day 37, Day
+39):
+
+- **The mutation audit.** Alabama's module holds about **43 mutable literals** —
+  six rates, four bracket ceilings, eighteen standard deduction figures (the
+  `$25` and `$88` reductions are below the harness's `$100` money floor and are
+  therefore NOT audited), ten exemption figures, the `$6,000` cap, the `$1,000`
+  overtime cap and three year literals — so the state package should go from
+  **1,086 mutants to roughly 1,129**, and the survivors should still be **the
+  same six**: four windows on a tax year outside the two supported, Ohio's `0.01`
+  and Ohio's unreachable 20% row. Every Alabama figure is either swept by the
+  status battery, probed by the dependent chart's driver, or asserted in
+  `alabama.test.js`. If Alabama adds survivors, the likeliest are the two
+  reduction figures the money floor skips — which would be a finding about the
+  HARNESS rather than about Alabama, and a reason to lower that floor.
+- **The differential grid.** Not run today, and the reason is written here rather
+  than left to be inferred: the committed grid is pinned to PolicyEngine-US
+  **2.15.3** (Day 39's finding, after 2.23.3 moved Maryland's county tax out of
+  `state_income_tax`), the pass is 34 minutes over 820 households, and Alabama
+  needs cases of its own — including, for the first time, cases that stand
+  EXACTLY on a boundary, because Day 39 learned that a boundary convention is
+  invisible to a grid unless a case stands on it. Alabama's `$50,000` and
+  `$100,000` dependent boundaries are the first disagreement with PolicyEngine
+  this package has predicted in advance, and a household at exactly `$50,000`
+  with one dependent is the case that would prove it. That is tomorrow's first
+  job and it is written into the worklist below.
+
+### Process notes
+
+- **Four test failures on the first run of `alabama.test.js`, and three were my
+  own arithmetic.** I wrote that the graduated schedule is "worth `$110`" against
+  a flat 5%; `$110` is the tax ON the first `$3,000` and the SAVING is `$40`. I
+  wrote `$2,870` for the 401(k) draw where it is `$2,760`, twice, in two files
+  and the README. A header written before its test is a hypothesis — Day 39's
+  rule, and the second day running that it has cost me three claims.
+- **The loop found nothing this time, and that is still the right way to write
+  it.** The twenty-step claim about the five standard deduction columns was
+  written as a loop over the columns rather than as the two assertions I had in
+  mind, and it held in all five. A loop that confirms is worth the same as a loop
+  that contradicts; only the one that was never written is worth nothing.
+- **The state module is 420 lines and the day was mostly not the state.** Day
+  39's estimate — a state is a day, and most of the day is the machinery around
+  it — held exactly: fixtures, drivers, provenance, the MCP schema, the site's
+  ranking and three defects in instruments.
+
+### What I would do next
+
+1. **The differential grid with Alabama in it, including boundary cases.** Add
+   Alabama households to `tools/differential/cases.mjs`, and add the first cases
+   that stand exactly on a chart boundary — `$50,000` and `$100,000` of AGI with
+   a dependent — then run both passes against the pinned PolicyEngine-US 2.15.3
+   and read the EXPLAINED list as well as the unexplained one. The dependent
+   boundary divergence is predicted in advance; the retirement treatment is the
+   other thing to watch, because PolicyEngine caps a private defined benefit
+   pension at `$6,000` and gates it at 65 where the regulation exempts it in full
+   at any age, which is thousands of dollars on a retiree.
+2. **Missouri and Oregon**, the other two states that deduct federal income tax.
+   The rule type now exists, so they are mostly data — and Missouri's deduction
+   is a PERCENTAGE of the federal bill rather than the whole of it, which is the
+   next shape of the same idea.
+3. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
+   2%, about two dozen more, on gross wages with no deductions. The locality
+   registry already holds 1,033 of these; Alabama's are the simplest kind in it.
+4. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
+   has two figures below it (`$25` and `$88`) and the `$88` is the one this
+   state's own README calls out as the figure no chart shows.
+5. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
+   earned income credits and Georgia's HB 136 child credit. Unchanged.
+6. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
+   Today added `KNOWN_FEDERAL_BASIS_FIELDS` and then deliberately did NOT guard
+   `federal`, because that object is documented as a structural subset of
+   `estimateFederalTax()`'s whole result and a guard would report twenty
+   legitimate keys. The gap it leaves is real and is covered by a conditional
+   note on the one state that reads the figure; `computeWithholding`,
+   `computePaycheck`, `qbiDeduction`, `childTaxCredit` and `W4` are still open.
+7. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
+   gave it a second instance: `/Virginia/` matching West Virginia in a test.
+8. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
+9. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+   Mississippi, Ohio.
+10. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
+
+---
+
 ## Day 39 — 2026-10-03
 
 ### What I did

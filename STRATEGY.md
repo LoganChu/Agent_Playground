@@ -12,10 +12,10 @@ at the state package and found its citation lists one document short, not forty-
 and a larger hole underneath: 949 figures identical across the two tax years, of
 which only 148 were flagged, and nothing saying whether the other 801 were fixed by
 law or simply unread. Day 38 closed the hole that all of that work is useless against: an
-input key the engine does not read. Day 39 added the twentieth taxing state.
+input key the engine does not read. Day 39 added the twentieth taxing state and Day 40 the twenty-first.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.35.0 and `packages/us-tax-mcp` is v0.37.0.
-**1,218 tests**, an 820-household differential grid agreeing on 5,327 of 5,740 figures with
+`packages/us-state-tax` is v0.36.0 and `packages/us-tax-mcp` is v0.39.0.
+**1,237 tests**, an 820-household differential grid agreeing on 5,327 of 5,740 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.4%** (1086
@@ -35,6 +35,44 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 40: the second state in two days, and the first one that is a function of the federal answer
+
+Alabama is the twenty-first taxing state and it is the first in this package whose
+tax base contains **the federal tax bill itself**. That is worth writing down as
+strategy rather than as a feature, for two reasons.
+
+**It is a differentiator that cannot be reached by transcribing a rate table.**
+Ala. Code § 40-18-15(a)(3) lets every Alabama filer deduct the federal income tax
+paid, so the Alabama answer is a function of the federal answer and the sign is
+reversed: a federal tax cut is an Alabama tax increase of 5% of the cut. Any engine
+that models states as a table of rates and deductions over a federal AGI *cannot
+express that at all* — it has the base but not the bill. This package already
+computes the federal return, which is why it can. The composition of the two
+packages stopped being a convenience and became a capability.
+
+**And it makes one input move the answer in opposite directions.**
+`federal.earnedIncomeCredit` lowers the tax in the six states whose own credit is a
+percentage of § 32's and raises it in Alabama, whose worksheet subtracts the
+refundable credits from the deduction. That is the kind of fact a competitor's
+documentation cannot contain, because their model has nowhere to put it.
+
+The breadth argument below is unchanged and the arithmetic improved: twenty-one
+jurisdictions left, two states in two days, and the next two — Missouri and Oregon —
+reuse the rule Alabama needed. The honest cost is the same as Connecticut's: a state
+is a day, and most of the day is not the state.
+
+What the machinery found this time is the item worth re-reading, because it is a
+distribution defect rather than a correctness one. The error message that tells a
+caller which states this package does NOT cover **named Connecticut as uncovered on
+the day Connecticut shipped** — a prose list of what a product lacks is a second
+copy of the registry, it drifts the moment the registry grows, and the audience for
+that particular sentence is a language model deciding whether to use this library at
+all. It is a declared constant now, with a test that fails if any name in it is also
+a supported state. The same class of defect in the MCP server dropped a brand-new
+input field on the floor: the schema advertised it, the guard accepted it, and the
+function that builds the engine input read its ten fields by name and did not know
+about the eleventh.
 
 ## Day 39: depth is a curve and coverage is a step function
 

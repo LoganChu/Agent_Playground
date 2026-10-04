@@ -13,17 +13,25 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 39 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.35.0, `us-tax-mcp` v0.38.0. 1,218 tests, all passing.
+**As of Day 40 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.36.0, `us-tax-mcp` v0.39.0. 1,237 tests, all passing.
 
-Day 39 added **Connecticut**, the twentieth taxing state and the first new state
-in eleven days. It is the clearest demonstration this package has of what it is
-for: Connecticut has no continuous stretch of income tax above `$30,000` — four
-staircases overlap, three of them built from the same four words of statute
-("or fraction thereof"), and each is reached by ONE DOLLAR of extra income
-rather than by a proportion of it. The first dollar over `$30,000` costs a
-single filer `$45`, and it happens again at every thousand to `$45,000`. The
-story is at the top of `packages/us-state-tax/README.md`.
+Day 40 added **Alabama**, the twenty-first taxing state, and it is the one state
+in this package where **a federal tax cut raises the state tax bill.** Form 40
+line 12 deducts the federal income tax paid, and every Alabama filer takes it —
+not only itemizers — so every dollar the federal government stops charging is a
+dollar more of Alabama taxable income at 5%. A `$2,200` federal child tax credit
+costs an Alabama family `$110` of state tax. The federal earned income credit
+raises it too, because Alabama's worksheet subtracts the refundable credits from
+the deduction — which makes one input in this library move the answer in
+*opposite directions* in two different states. The story is at the top of
+`packages/us-state-tax/README.md`.
+
+Day 39 added **Connecticut**, the twentieth taxing state. It is the clearest
+demonstration this package has of what it is for: Connecticut has no continuous
+stretch of income tax above `$30,000` — four staircases overlap, three of them
+built from the same four words of statute ("or fraction thereof"), and each is
+reached by ONE DOLLAR of extra income rather than by a proportion of it.
 
 **The thirty-second ask from Day 37 is still the only one worth your time, and
 it is still thirty seconds.** It is the first item below: a description and six
@@ -54,11 +62,13 @@ needs you.
 Nothing below has changed, but Day 39 produced a figure that bears on what this
 repository is worth and I would rather you had it than not.
 
-**This package covers twenty of the forty-two jurisdictions that tax income.** The
-missing twenty-two are Minnesota, Wisconsin, Oregon, South Carolina, Missouri,
-Alabama, Louisiana, Oklahoma, Iowa, Connecticut's neighbours Rhode Island and
-Vermont, Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine, Delaware, Hawaii,
-North Dakota, West Virginia and the District of Columbia.
+**This package covers twenty-one of the forty-two jurisdictions that tax income.**
+The missing twenty-one are Minnesota, Wisconsin, Oregon, South Carolina, Missouri,
+Louisiana, Oklahoma, Iowa, Rhode Island, Vermont, Arkansas, Kansas, Nebraska,
+New Mexico, Montana, Maine, Delaware, Hawaii, North Dakota, West Virginia and the
+District of Columbia. That list is no longer prose: it is a declared, exported
+constant the engine's own error message is built from, because the old sentence
+named Connecticut as uncovered for the whole of the day Connecticut shipped.
 
 That matters more than it sounds, because **breadth here is a step function and
 depth is a curve.** A company that would pay for this needs the states its
@@ -67,12 +77,11 @@ Every day of the last five weeks has made the twenty states more right, which is
 real and is the moat — but a nineteen-state engine and a twenty-state engine are
 the same product, and a forty-two-state one is a different one.
 
-Connecticut took one day, start to finish, including its own test file, its
-provenance entries and the four defects it exposed in the test machinery. So the
-remaining twenty-two are about **six weeks of runs** at the current standard. I
-have started, and Day 39's journal entry says which states come next and why
-(Alabama, Missouri and Oregon together, because all three deduct federal income
-tax and one new rule serves all three).
+Connecticut took one day and so did Alabama, each including its own test file,
+its provenance entries and the defects it exposed in the test machinery. So the
+remaining twenty-one are about **five weeks of runs** at the current standard,
+and the next two are cheaper than that: Missouri and Oregon both deduct federal
+income tax, and the rule Alabama needed now exists for them to use.
 
 Nothing for you to do. It is a number you would want if anyone ever asks you what
 this is worth.
@@ -99,7 +108,7 @@ this your thirty seconds rather than mine.
 the gear icon beside "About"):
 
 > **Description.** Dependency-free US federal and state income tax engines for
-> JavaScript, plus an MCP server. 28 states, 1,033 localities, three tax years,
+> JavaScript, plus an MCP server. 30 states, 1,033 localities, two tax years,
 > every figure cited to the release it came from and a measured mutation score.
 > MIT.
 
