@@ -31,6 +31,17 @@ is handed to** — nothing in its name says which.
 
 Three more things no Alabama rate table shows:
 
+- **Alabama's marginal rate is 5% minus 5% of the federal one, and it FALLS as
+  income rises.** One more dollar of wages adds 5 cents of Alabama tax — and adds
+  the federal marginal rate to the federal bill, which line 12 deducts, giving
+  part of the 5 cents back. In the 12% federal bracket the next dollar costs
+  **4.4%** in Alabama; in the 22% bracket **3.9%**; in the 37% bracket **3.15%**,
+  which is less than a filer on a quarter of the income pays. The state's own
+  schedule is flat above `$3,000` and its marginal rate is **regressive**, and
+  the figure is in no Alabama table because it is two governments meeting. Pass
+  `federalOneDollarHigher` and this engine reports it exactly; without it the
+  engine reports the schedule's 5% and says so in a note.
+
 - **The 5% top rate starts at `$3,000`** of taxable income (`$6,000` joint) and has
   since 1935. The tax on that first `$3,000` is `$110` whatever the filer earns, and
   measured against a flat 5% the whole graduated schedule is worth `$40` — `$80` on a
@@ -2124,7 +2135,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **518** notes every
+`test/notes.test.js` pins the first 72 characters of all **520** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of

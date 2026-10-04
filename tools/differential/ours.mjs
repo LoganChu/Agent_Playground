@@ -89,6 +89,21 @@ function one(c) {
       deduction: fed.deduction,
       deductionKind: fed.deductionKind,
       earnedIncomeCredit: fed.credits.earnedIncomeCredit?.credit ?? 0,
+      // Alabama deducts the FEDERAL BILL on Form 40 line 12 and every filer
+      // takes it, so without these two every Alabama household in this grid
+      // would be too high by 5% of its federal tax and the report would open
+      // with 43 unexplained differences about this harness rather than about
+      // Alabama.
+      //
+      // The worksheet's own composition: the § 26(a) regular tax after
+      // non-refundable credits, plus the net investment income tax, less the
+      // refundable credits that are money received rather than tax paid. Self
+      // employment tax and the Additional Medicare Tax are Schedule 2 "other
+      // taxes", below Form 1040 line 22, and are not in it.
+      incomeTaxBeforeRefundableCredits:
+        Math.max(0, fed.incomeTaxBeforeCredits - fed.credits.totalNonRefundable) +
+        fed.netInvestmentIncomeTax,
+      additionalChildTaxCredit: fed.credits.childTaxCredit?.refundableCredit ?? 0,
     },
     filerAge: c.primaryAge,
     spouseAge: c.spouseAge ?? undefined,

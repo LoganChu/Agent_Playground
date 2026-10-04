@@ -17,7 +17,7 @@
 
 /** Every state in `us-state-tax` that charges an income tax. */
 export const STATES = [
-  'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
+  'AL', 'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
   'MI', 'MS', 'NC', 'NJ', 'NY', 'OH', 'PA', 'UT', 'VA',
 ];
 
@@ -298,6 +298,34 @@ const SHAPES = [
     pension: 25_000,
     blind: 1,
   },
+
+  // ---------------------------------------------------------------------
+  // Day 40: a case standing EXACTLY on a boundary.
+  //
+  // Day 39 predicted that this grid would disagree with PolicyEngine-US
+  // about which step of Connecticut's Table E owns its boundary, and the
+  // grid said nothing at all — because no household in it lands exactly on
+  // one. A boundary convention is a question only a case standing on the
+  // boundary can ask, and in 779 households nobody was standing on one.
+  //
+  // THE RULE: every household in a grid chosen for a BAND is inside the
+  // band, and the figures that decide which band own the edges.
+  //
+  // $50,000 and $100,000 are round numbers on purpose: they are where
+  // Alabama's dependent exemption chart steps (§ 40-18-19(a)(9), whose
+  // words are "equal to or less than", so the lower step owns both edges
+  // and PolicyEngine-US reads them the other way), where Maryland's
+  // exemption staircase steps at $100,000, and where Virginia's age
+  // deduction begins at $50,000. One dependent, because the Alabama chart
+  // is per dependent and a count of one makes the step the whole of the
+  // difference.
+  ...[50_000, 100_000].map((wages) => ({
+    kind: 'on-the-boundary',
+    filingStatus: 'single',
+    primaryAge: 40,
+    childAges: [10],
+    wages,
+  })),
 ];
 
 /**

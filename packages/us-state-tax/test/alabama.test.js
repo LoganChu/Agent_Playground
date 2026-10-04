@@ -229,6 +229,43 @@ test('a return with no federal tax supplied is told what it cost', () => {
   assert.ok(!told.notes.some((n) => n.startsWith('NO FEDERAL INCOME TAX WAS SUPPLIED')));
 });
 
+test('the next dollar of Alabama tax depends on the next dollar of FEDERAL tax', () => {
+  // The only state in this package whose MARGINAL rate is not a property of its
+  // own schedule. One more dollar of wages adds 5 cents of Alabama tax and also
+  // adds the federal marginal rate to the federal bill, which Form 40 line 12
+  // deducts — so part of the 5 cents comes straight back, and the Alabama rate
+  // FALLS as the federal bracket rises.
+  //
+  // The federal figures here are written out rather than computed, because this
+  // file may not import the federal package: a test that reaches outside its own
+  // package is skipped by the mutation harness, and skipping this one would take
+  // every Alabama figure out of the audit with it.
+  const at = (agi, fedTax, fedTaxHigher) =>
+    al({
+      agi,
+      federal: federal(agi, { incomeTaxBeforeRefundableCredits: fedTax }),
+      federalOneDollarHigher: federal(agi + 1, {
+        incomeTaxBeforeRefundableCredits: fedTaxHigher,
+      }),
+    }).marginalRate;
+  // $50,000 of wages is inside the 12% federal bracket for 2026: 5% - 5% x 12%.
+  money(at(50_000, 3_820, 3_820.12), 0.044, 'the 12% bracket');
+  // $120,000 is inside the 22% bracket: 5% - 5% x 22%.
+  money(at(120_000, 17_570, 17_570.22), 0.039, 'the 22% bracket');
+  // And in the top federal bracket the next Alabama dollar costs 3.15%, which is
+  // less than the 4.4% a filer on a quarter of the income pays: Alabama's
+  // marginal rate is REGRESSIVE, and it is regressive because of a federal
+  // schedule that is not.
+  money(at(700_000, 211_000, 211_000.37), 0.0315, 'the 37% bracket');
+  // Without the second basis the engine reports the schedule's own 5% — too
+  // high, and the note says so rather than leaving it to be noticed.
+  money(
+    al({ agi: 120_000, federal: federal(120_000, { incomeTaxBeforeRefundableCredits: 17_570 }) })
+      .marginalRate,
+    0.05,
+  );
+});
+
 // ---------------------------------------------------------------------------
 // § 40-18-19(a)(9): one dependent chart for five filing statuses
 // ---------------------------------------------------------------------------
