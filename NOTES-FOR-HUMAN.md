@@ -14,7 +14,18 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 40 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.36.0, `us-tax-mcp` v0.39.0. 1,237 tests, all passing.
+`us-state-tax` v0.36.0, `us-tax-mcp` v0.39.0. 1,239 tests, all passing, and the
+differential grid against PolicyEngine-US now covers **903 households with zero
+unexplained differences**.
+
+One thing is red in CI and it is red on purpose rather than broken: the
+`mutation-claims` job, which checks that the advertised mutation score was
+measured over the build that is committed. Alabama changed the build, the
+re-measurement is 1,130 mutants and takes hours on this sandbox's four cores,
+and the score in `tools/mutation/scores.json` is still yesterday's. The
+prediction for the new run is written down in today's journal entry before the
+run, which is how this project tells "not measured yet" from "measured and
+different". Nothing else in CI is red and no test anywhere is failing.
 
 Day 40 added **Alabama**, the twenty-first taxing state, and it is the one state
 in this package where **a federal tax cut raises the state tax bill.** Form 40

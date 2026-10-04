@@ -16,7 +16,7 @@ a day: the message that tells a caller which states are missing named CONNECTICU
 as missing, on the day Connecticut shipped.**
 
 `us-state-tax` is **v0.36.0**, `us-tax-mcp` **v0.39.0**, `us-federal-tax`
-unchanged at v0.15.0. **1,237 tests** (396 + 657 + 168 + 16), all green, zero
+unchanged at v0.15.0. **1,239 tests** (396 + 657 + 168 + 16), all green, zero
 dependencies — up 19 from Day 39's 1,218. 30 states, 21 of them taxing.
 
 New: `packages/us-state-tax/src/states/alabama.ts` and `test/alabama.test.js`,
@@ -331,17 +331,149 @@ Written down before starting, which is what found dead code twice (Day 37, Day
   `alabama.test.js`. If Alabama adds survivors, the likeliest are the two
   reduction figures the money floor skips — which would be a finding about the
   HARNESS rather than about Alabama, and a reason to lower that floor.
-- **The differential grid.** Not run today, and the reason is written here rather
-  than left to be inferred: the committed grid is pinned to PolicyEngine-US
-  **2.15.3** (Day 39's finding, after 2.23.3 moved Maryland's county tax out of
-  `state_income_tax`), the pass is 34 minutes over 820 households, and Alabama
-  needs cases of its own — including, for the first time, cases that stand
-  EXACTLY on a boundary, because Day 39 learned that a boundary convention is
-  invisible to a grid unless a case stands on it. Alabama's `$50,000` and
-  `$100,000` dependent boundaries are the first disagreement with PolicyEngine
-  this package has predicted in advance, and a household at exactly `$50,000`
-  with one dependent is the case that would prove it. That is tomorrow's first
-  job and it is written into the worklist below.
+- **The differential grid.** RUN, and it is in Parts 11 to 14 below. **903
+  households, 6,321 figures, 5,884 agreeing to the dollar, 437 differences
+  explained and ZERO unexplained**, against a pinned PolicyEngine-US 2.15.3.
+  Alabama needed twelve entries in `known-divergences.json`, which is the
+  opposite of Connecticut's result yesterday — and that is the right outcome
+  rather than a worse one, because eleven of the twelve were predicted before the
+  run and the twelfth was a defect here.
+
+### Part 11 — the sharpest version of the whole state, found after it was built
+
+Alabama's marginal rate is **5% minus 5% of the FEDERAL marginal rate, and it
+FALLS as income rises.**
+
+One more dollar of wages adds 5 cents of Alabama tax — and adds the federal
+marginal rate to the federal bill, which Form 40 line 12 deducts, giving part of
+the 5 cents straight back:
+
+| federal bracket | the next Alabama dollar |
+| --- | --- |
+| 12% | **4.40%** |
+| 22% | **3.90%** |
+| 37% | **3.15%** |
+
+So a filer at `$700,000` pays less on their next dollar than one at `$50,000`.
+**Alabama's marginal rate is regressive, and it is regressive because of a
+federal schedule that is not.**
+
+Two things about this are worth keeping. The first is that I did not think to ask
+the question until the state was finished — the sign reversal was in the module
+header from the first draft and its consequence for the MARGIN was not, which is
+the same shape as every other finding in this journal: the second rule is where
+the money is.
+
+The second is that **this engine could already answer it.**
+`federalOneDollarHigher` has existed since v0.20.0 for a caller who can run the
+federal engine twice, and because Alabama reads the federal TAX rather than only
+the federal base, that input now moves the reported marginal rate rather than
+only the rules keyed to AGI. Alabama is the first state where it does. Without
+it the engine reports the schedule's own 5%, which is too high, and a note says
+so.
+
+The test writes the federal figures out by hand rather than importing the federal
+package, and the reason is the mutation harness: a test file that resolves a path
+out of its own package is skipped, and skipping this one would have taken every
+Alabama figure out of the audit with it.
+
+### Part 12 — a case standing exactly on a boundary, which worked on the first run
+
+Day 39's closing scorecard says the Connecticut boundary prediction was wrong in
+a particular way: *no household lands exactly on a Table E boundary, so that
+disagreement is invisible to this grid.* Today's grid has a shape for it.
+
+`on-the-boundary` is a single filer with one dependent at exactly `$50,000` and
+exactly `$100,000` of wages. Every state gets it, so the grid went from 820
+households to 903 — 43 Alabama and 42 of these.
+
+It found the Alabama convention immediately, and it is **the first divergence in
+this harness that was predicted before it was measured**: `$25` of tax at
+`$50,000` and `$10` at `$100,000`, exactly the step of the dependent chart whose
+boundary § 40-18-19(a)(9) gives to the LOWER step in its own words and
+PolicyEngine-US gives to the upper one.
+
+**And it found that a household already in the grid had been standing on the same
+boundary for 39 days.** `couple-two-children` at exactly `$100,000` of wages is
+worth `$20` of the same disagreement. A convention nobody could see was inside a
+case the grid had had all along, because nobody had asked which side of
+`$100,000` that household was on.
+
+**THE RULE: every household in a grid chosen for a BAND is inside the band, and
+the figures that decide which band own the edges.** The round numbers in a
+state's statute are exactly the incomes a case author does not pick.
+
+### Part 13 — Alabama magnifies the federal column into the state one
+
+Two of the fifteen unexplained differences were `$110.00` on a qualifying
+surviving spouse at `$250,000` and `$300,000`, and the cause is not in Alabama at
+all. It is § 24(b)(2), which this file has recorded as a FEDERAL divergence since
+Day 27: PolicyEngine-US gives a widow with one child the whole `$2,200` child tax
+credit at those incomes and the statute does not.
+
+Their federal bill is therefore `$2,200` lower, their Alabama deduction `$2,200`
+smaller, and their Alabama tax `$110` higher. 5% of `$2,200`, to the cent.
+
+**THE RULE: a state that deducts the federal tax turns every federal
+disagreement into a state disagreement at its own rate.** One consequence is
+pleasant: the federal side of this grid is now checked from two directions,
+because an error in the federal engine moves an Alabama answer. One is a
+warning: no future Alabama column can be right while the federal one is wrong,
+which makes the 42 federal differences in this report load-bearing for a state
+as well.
+
+### Part 14 — the harness asked for a figure and the engine was wrong to need it
+
+The nine largest Alabama differences were the defined benefit pension, predicted
+and entered. The one I did not predict was systematic and small: **every Alabama
+wage earner.**
+
+§ 40-18-15(a)(3) allows the FICA a filer paid as an itemised deduction — the
+same paragraph as the federal income tax — and PolicyEngine INFERS it from the
+wage it was given. This package required `stateItemizedDeductions` and the
+harness supplies none, deliberately, because an itemised deduction added to a
+case would make a difference about this harness.
+
+**But this one is not added to the case. It is derived from a fact both models
+already have.** So the fix is in the engine rather than in the excuse column:
+`payrollTaxIsItemized` makes `socialSecurityAndMedicarePaid` the Alabama
+Schedule A when the caller supplies no total of their own — and a supplied total
+REPLACES it rather than adding to it, because a filer who has already put their
+FICA on their Schedule A would otherwise deduct it twice, and a double count is
+a worse error than the one the flag fixes.
+
+An Alabama wage earner who passes the one figure Massachusetts filers already
+pass now gets `$3,825` of deduction instead of the `$2,500` floor at `$50,000` of
+wages. That is `$66.25` of tax that this package was overcharging every Alabama
+wage earner by default, and the differential found it on the first run of a new
+state — which is the second time in two days the harness has paid for itself in
+the way it was built to.
+
+88 rows of the status sweep moved and **all 88 are Alabama**, which is the cheap
+proof that a change to a shared code path changed one state.
+
+### Part 15 — three things found and NOT fixed, written down so they are not rediscovered
+
+1. **HB 527's placement.** Every description of Alabama's new overtime relief
+   says a deduction "from their state taxable income", where the 2023 act it
+   replaces excluded overtime from GROSS income — a distinction Alabama's own
+   drafters made. This package subtracts it from Alabama gross income, which
+   also moves the standard deduction staircase and the dependent exemption
+   chart. The two placements differ only for a filer whose `$1,000` crosses a
+   boundary: at most `$25` of dependent exemption or `$17.50` of standard
+   deduction. The bill text would settle it and I could not reach it.
+2. **The mutation harness's `$100` money floor.** `mutantOf()` mutates money
+   over `$100`, rates strictly between 0 and 1, and years — so Alabama's `$25`
+   and `$88` standard deduction reductions are NOT audited, and the `$88` is the
+   figure this state's own README calls out as the one no chart shows.
+3. **`git add -A` in the middle of a long measurement.** The Day 40 journal
+   commit swept up `tools/differential/cases.mjs` and `ours.mjs` while the
+   PolicyEngine pass was still running, so for half an hour the repository
+   claimed a 903-case grid and committed an 820-case report, and CI's
+   differential job was red for exactly that reason. **Day 38's rule about
+   splitting a commit, one level up: a commit that lands the QUESTION without
+   the ANSWER is a commit that makes CI tell the truth about a state that will
+   not exist in ten minutes.** The report landed in the commit after it.
 
 ### Process notes
 
@@ -356,6 +488,15 @@ Written down before starting, which is what found dead code twice (Day 37, Day
   written as a loop over the columns rather than as the two assertions I had in
   mind, and it held in all five. A loop that confirms is worth the same as a loop
   that contradicts; only the one that was never written is worth nothing.
+- **The `43` was predicted exactly.** Before running the audit I counted the
+  mutable literals in `alabama.ts` by hand — six rates, four bracket ceilings,
+  eighteen standard deduction figures, ten exemption figures, two caps and three
+  year literals — and said "about 43". The harness found 43.
+- **`pkill -f` matched my own watchers.** Killing the audit with
+  `pkill -f "only alabama"` also killed the four background shells whose command
+  strings contained the same phrase, which is the small version of the same
+  lesson as everything else today: a pattern that identifies a process by its
+  text identifies every process that mentions it.
 - **The state module is 420 lines and the day was mostly not the state.** Day
   39's estimate — a state is a day, and most of the day is the machinery around
   it — held exactly: fixtures, drivers, provenance, the MCP schema, the site's
@@ -363,40 +504,42 @@ Written down before starting, which is what found dead code twice (Day 37, Day
 
 ### What I would do next
 
-1. **The differential grid with Alabama in it, including boundary cases.** Add
-   Alabama households to `tools/differential/cases.mjs`, and add the first cases
-   that stand exactly on a chart boundary — `$50,000` and `$100,000` of AGI with
-   a dependent — then run both passes against the pinned PolicyEngine-US 2.15.3
-   and read the EXPLAINED list as well as the unexplained one. The dependent
-   boundary divergence is predicted in advance; the retirement treatment is the
-   other thing to watch, because PolicyEngine caps a private defined benefit
-   pension at `$6,000` and gates it at 65 where the regulation exempts it in full
-   at any age, which is thousands of dollars on a retiree.
-2. **Missouri and Oregon**, the other two states that deduct federal income tax.
+1. **Missouri and Oregon**, the other two states that deduct federal income tax.
    The rule type now exists, so they are mostly data — and Missouri's deduction
    is a PERCENTAGE of the federal bill rather than the whole of it, which is the
    next shape of the same idea.
-3. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
+2. **Finish the state mutation audit with `--record`** if the run started today
+   did not land. It is 1,130 mutants and the box runs about four a minute with
+   four workers, because `node --test` spawns a process per test file and 1,130
+   of those is hours rather than minutes. The prediction is in Part 10 and the
+   Alabama-only run already confirmed the mutant count; what is outstanding is
+   the whole-package score and therefore `scores.json`, which is why CI's
+   `mutation-claims` job is red. **A faster harness would be worth a day**: one
+   worker per CORE rather than per suite, or `--test-concurrency 1` inside each
+   worker, would stop 1,130 suites oversubscribing four cores.
+3. **Read HB 527's text** and settle whether Alabama's overtime deduction comes
+   off gross income or taxable income (Part 15, item 1).
+4. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
    2%, about two dozen more, on gross wages with no deductions. The locality
    registry already holds 1,033 of these; Alabama's are the simplest kind in it.
-4. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
+5. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
    has two figures below it (`$25` and `$88`) and the `$88` is the one this
    state's own README calls out as the figure no chart shows.
-5. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
+6. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
    earned income credits and Georgia's HB 136 child credit. Unchanged.
-6. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
+7. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
    Today added `KNOWN_FEDERAL_BASIS_FIELDS` and then deliberately did NOT guard
    `federal`, because that object is documented as a structural subset of
    `estimateFederalTax()`'s whole result and a guard would report twenty
    legitimate keys. The gap it leaves is real and is covered by a conditional
    note on the one state that reads the figure; `computeWithholding`,
    `computePaycheck`, `qbiDeduction`, `childTaxCredit` and `W4` are still open.
-7. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
+8. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
    gave it a second instance: `/Virginia/` matching West Virginia in a test.
-8. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
-9. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+9. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
+10. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
    Mississippi, Ohio.
-10. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
+11. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
 
 ---
 
