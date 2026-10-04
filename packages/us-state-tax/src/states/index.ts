@@ -6,6 +6,7 @@
  * unsupported year is an error rather than a silent fallback to the nearest one.
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
+import { alabama } from './alabama.js';
 import { california } from './california.js';
 import { connecticut } from './connecticut.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
@@ -28,6 +29,7 @@ import type { StateCode } from '../types.js';
 export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
 
 function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
+  const al = alabama(year);
   const ca = california(year);
   const ct = connecticut(year);
   const ma = massachusetts(year);
@@ -41,6 +43,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...flatStates(year),
     ...federalTaxableBaseStates(year),
     ...utahAndPennsylvania(year),
+    ...(al ? [al] : []),
     ...(ca ? [ca] : []),
     ...(ct ? [ct] : []),
     ...(ma ? [ma] : []),
@@ -71,6 +74,45 @@ export const SUPPORTED_STATES: readonly StateCode[] = [...new Set([...NAMES.keys
 
 export { NO_INCOME_TAX_STATES, NO_INCOME_TAX_NAMES };
 
+/**
+ * The jurisdictions that tax individual income and that this package does not
+ * cover, by name.
+ *
+ * It is a declared list rather than a sentence inside an error message, and the
+ * reason is a defect that sat in this file for a day: the message that tells a
+ * caller which states are missing **named Connecticut as missing on the day
+ * Connecticut shipped**, because a prose list of what a package lacks is a
+ * second copy of the registry and drifts the moment the registry grows.
+ *
+ * `test/registry.test.js` now fails if any name here is also the name of a
+ * supported state, so the two cannot disagree. Forty-two jurisdictions tax
+ * income; this package covers twenty-one of them, which is why this list has
+ * twenty-one entries.
+ */
+export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
+  'Minnesota',
+  'Wisconsin',
+  'Oregon',
+  'South Carolina',
+  'Missouri',
+  'Louisiana',
+  'Oklahoma',
+  'Iowa',
+  'Arkansas',
+  'Kansas',
+  'Nebraska',
+  'New Mexico',
+  'Montana',
+  'Maine',
+  'Rhode Island',
+  'Vermont',
+  'Delaware',
+  'Hawaii',
+  'North Dakota',
+  'West Virginia',
+  'the District of Columbia',
+];
+
 export function stateName(state: StateCode): string {
   const name = NAMES.get(state);
   if (name === undefined) throw new RangeError(`Unknown state ${state}`);
@@ -92,11 +134,9 @@ export function getStateDefinition(state: StateCode, year: number): StateIncomeT
   if (!NAMES.has(state)) {
     throw new RangeError(
       `${state} is not supported. This package covers ${SUPPORTED_STATES.join(', ')}. ` +
-        `The states it does NOT cover include every graduated-rate state other than ` +
-        `California, Maryland, New Jersey, New York, Ohio, Virginia and Mississippi — ` +
-        `Minnesota, Wisconsin, Oregon, South Carolina, Missouri, Alabama, Connecticut ` +
-        `and the rest — and the District of Columbia. Returning zero for those would be ` +
-        `a wrong answer rather than a missing one.`,
+        `The jurisdictions that tax income and are NOT covered — ` +
+        `${UNCOVERED_TAXING_JURISDICTIONS.join(', ')}. Returning zero for one of those ` +
+        `would be a wrong answer rather than a missing one.`,
     );
   }
   throw new RangeError(

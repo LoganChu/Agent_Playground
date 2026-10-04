@@ -117,6 +117,30 @@ function probesFor(state) {
       ...(state === 'NJ' ? { newJerseyGrossIncome: 40_000 } : {}),
       ...(state === 'MA' ? { massachusettsFivePercentIncome: 40_000 } : {}),
     },
+    // A household carrying a FEDERAL TAX BILL, which until Alabama no probe here
+    // had any reason to. Alabama's two refundable-credit fields are subtracted
+    // from the federal tax deduction and the deduction is floored at zero, so on
+    // a household with no federal tax they move nothing — and "accepted and never
+    // read" is exactly what this test would have reported about a field that is
+    // read, on the strength of a probe set in which it could not bite.
+    //
+    // The same shape as the retiree probe above it: a field that only matters
+    // inside a band needs a probe inside the band, and a federal credit only
+    // matters where there is federal tax for it to come off.
+    {
+      year: 2026,
+      federalIncomeTax: 6_617,
+      federalAdjustedGrossIncome: 62_000,
+      federalTaxableIncome: 46_250,
+      // No `earnedIncome` here, and the reason is this file's own mechanism: the
+      // tool REFUSES a field the state is not listed for, so a probe carrying one
+      // is not a household at all — `answerOf` returns undefined and every field
+      // measured on that probe reports itself unreachable. A probe set is input
+      // to the validator before it is input to the engine.
+      ...(state === 'PA' ? { pennsylvaniaTaxableIncome: 62_000 } : {}),
+      ...(state === 'NJ' ? { newJerseyGrossIncome: 62_000 } : {}),
+      ...(state === 'MA' ? { massachusettsFivePercentIncome: 62_000 } : {}),
+    },
   ];
 }
 

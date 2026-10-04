@@ -54,7 +54,58 @@ export type DeductionRule =
    * Colorado and Idaho give none *of their own* because the federal one is already
    * inside their starting point.
    */
-  | { readonly kind: 'none' };
+  | { readonly kind: 'none' }
+  /**
+   * A deduction that is **withdrawn in whole steps** as the state's own AGI
+   * rises, from a maximum down to a floor it never falls below — Alabama's
+   * optional standard deduction, Ala. Code § 40-18-15(b).
+   *
+   * ```
+   * deduction = max(min, maximum - reduction x floor(max(0, stateAgi - threshold) / increment))
+   * ```
+   *
+   * **The `floor()` is the whole of it, and it is the opposite of
+   * Connecticut's.** § 12-702 reduces a Connecticut exemption "for each one
+   * thousand dollars, **or fraction thereof**", so one dollar over the
+   * threshold costs a whole step. § 40-18-15(b) has no such clause: it reduces
+   * the deduction by `$25` "for each `$500`" of AGI above the threshold, so the
+   * first `$499` above it cost an Alabama filer **nothing**, and the step
+   * arrives on the five-hundredth dollar. Two states, one staircase shape,
+   * opposite rounding — and the difference is a step of deduction at every
+   * boundary of both charts.
+   *
+   * Both this chart and Alabama's dependent exemption chart are read against
+   * the state's own AGI — Form 40 line 10 — and not against any federal
+   * figure, which is why neither carries an {@link IncomeMeasure}: there is
+   * nothing to choose. It matters, because Alabama's AGI is the one place its
+   * exclusions land: a `$60,000` defined benefit pension is not in it, so it
+   * moves neither chart, and the retiree keeps the maximum standard deduction
+   * and the `$1,000` dependent exemption that a wage earner on the same money
+   * has lost.
+   *
+   * The five columns are not a scaled table. The separate column's threshold
+   * and increment are exactly half the joint ones, but its reduction is `$88`
+   * where half of `$175` is `$87.50`: the statute rounded a half-cent-per-dollar
+   * rate up, so after nineteen steps it has withdrawn `$1,672` of a `$1,750`
+   * range and the twentieth step is worth `$78` rather than `$88`. {@link min}
+   * absorbs the difference, which is why the discrepancy is invisible in the
+   * published chart.
+   */
+  | {
+      readonly kind: 'phaseOutStaircase';
+      /** The deduction below {@link threshold}. */
+      readonly maximum: ByStatus;
+      /** The floor it never falls below, however high income goes. */
+      readonly min: ByStatus;
+      /** State AGI above which the withdrawal begins. */
+      readonly threshold: ByStatus;
+      /** The width of one step of income. */
+      readonly increment: ByStatus;
+      /** The deduction removed by one whole step. */
+      readonly reduction: ByStatus;
+      /** The provision, including the absence of an "or fraction thereof" clause. */
+      readonly cite: string;
+    };
 
 /**
  * What a state does with the SPOUSE of a filer who files separately, when that
@@ -307,6 +358,34 @@ export interface ExemptionRule {
    * in Maryland; Ohio's modified AGI in Ohio — see {@link IncomeMeasure}.
    */
   readonly stepsMeasuredOn?: IncomeMeasure;
+  /**
+   * What each **dependent** is worth, as a step function of income, where the
+   * filer's own exemption is a flat amount — Alabama's, Ala. Code
+   * § 40-18-19(a)(9).
+   *
+   * Maryland's {@link perExemptionSteps} puts the filer and the dependents on
+   * one chart. Alabama puts the filer on a flat `$1,500`/`$3,000` and the
+   * dependents on a chart of their own: `$1,000` each at or below `$50,000` of
+   * Alabama AGI, `$500` above that and at or below `$100,000`, `$300` above
+   * `$100,000`. So it replaces {@link perDependent} and leaves
+   * {@link perFiler} alone, and `perDependent` holds the chart's top step to be
+   * checked against it.
+   *
+   * **There is one chart for all five filing statuses**, which is a marriage
+   * penalty hiding in an exemption: two single parents at `$50,000` each claim
+   * `$1,000` a child, and the same two people filing jointly on `$100,000`
+   * claim `$500`. Alabama's rate schedule doubles for a joint return and this
+   * does not.
+   *
+   * The statute's boundaries are **inclusive**, in both directions: "equal to
+   * or less than fifty thousand dollars" takes the `$1,000`, and "in excess of
+   * fifty thousand dollars and equal to or less than one hundred thousand
+   * dollars" takes the `$500`. A filer at exactly `$50,000` with one dependent
+   * is therefore `$500` of exemption — `$25` of tax — away from a model that
+   * reads the boundary the other way, and PolicyEngine-US reads it the other
+   * way.
+   */
+  readonly perDependentSteps?: readonly CreditStep[];
   /**
    * How many personal exemptions the filer or filers themselves claim, where it
    * is not the number of people on the return.
@@ -2542,6 +2621,82 @@ export interface RetirementSubtractionScheduleRule {
   readonly iraPhaseInShare: number;
 }
 
+/**
+ * A deduction for the **federal income tax itself** — Alabama's, Ala. Code
+ * § 40-18-15(a)(2), Form 40 line 12.
+ *
+ * This is the only rule in this package that makes a state's answer a function
+ * of the federal answer rather than of the federal *base*, and the sign is the
+ * part that matters: **in Alabama a federal tax cut is a state tax increase.**
+ * Six states here match the federal earned income credit and move the same way
+ * Congress does; Alabama moves the other way, for every federal credit, rate
+ * and deduction at once, at 5% of the whole of it.
+ *
+ * Three things about it are easy to get wrong and all three are modelled here:
+ *
+ * 1. **It is not an itemized deduction.** Form 40 line 11 is the standard-or-
+ *    itemized choice and line 12 is this, below it — so an Alabama filer takes
+ *    the federal tax deduction whether they itemize or not. The deduction is
+ *    therefore ADDED to {@link StateIncomeTaxDefinition.deduction} rather than
+ *    compared with it.
+ * 2. **Refundable credits come back off it.** The worksheet subtracts the
+ *    earned income credit, the refundable child tax credit and the refundable
+ *    part of the American Opportunity credit, because those are money received
+ *    rather than tax paid. So the federal EITC — the one figure in
+ *    {@link FederalBasis} that six other states use to CUT their tax — raises
+ *    Alabama's. The same input moves the answer in opposite directions in two
+ *    states, and nothing in its name says which.
+ * 3. **It is floored at zero**, so a filer whose refundable credits exceed
+ *    their tax gets no negative deduction out of it.
+ */
+export interface FederalIncomeTaxDeductionRule {
+  /** What the deduction is called on the state's own form. */
+  readonly name: string;
+  /** The provision that allows it, and the form line it appears on. */
+  readonly cite: string;
+  /** The worksheet that subtracts the refundable credits, and which ones. */
+  readonly refundableCreditsCite: string;
+}
+
+/**
+ * A retirement exemption decided by the **type of plan** rather than by the
+ * amount, the age or the character of the income — Alabama's, and the fourth
+ * distinct shape this package has found for one question.
+ *
+ * | state | the question it asks | the answer turns on |
+ * | --- | --- | --- |
+ * | Maryland | is it an employee retirement system? | the account, and an IRA is not one |
+ * | Georgia | what KIND of income is it? | the character: interest, rents, pensions all qualify |
+ * | Kentucky | when was the service performed? | a date in 1998 |
+ * | Alabama | is the plan defined BENEFIT or defined CONTRIBUTION? | the plan's own design |
+ *
+ * Alabama exempts a defined benefit payment **in full, at any age, with no
+ * cap** — Ala. Admin. Code r. 810-3-19-.04 reads IRC § 414(j) and includes
+ * non-qualified plans, SERPs and excess benefit plans — and taxes a defined
+ * contribution distribution above a per-person cap that needs an age.
+ *
+ * So the same `$60,000` of retirement income is either wholly exempt or almost
+ * wholly taxed, and **no federal figure tells the two apart**: a 1099-R from a
+ * pension plan and one from a 401(k) land on the same line of the same form.
+ * It is also the one state here where an early retiree is better off than a
+ * late one in kind rather than in degree: there is no age test on the exempt
+ * half at all.
+ */
+export interface PlanTypeRetirementRule {
+  /** The subtraction's name, for the defined benefit half. */
+  readonly name: string;
+  /** The provision exempting a defined benefit payment in full. */
+  readonly definedBenefitCite: string;
+  /** The name of the capped defined contribution exclusion. */
+  readonly definedContributionName: string;
+  /** The cap on the defined contribution exclusion, **per person**. */
+  readonly definedContributionCap: number;
+  /** The age a person must reach for the capped exclusion. */
+  readonly definedContributionAge: number;
+  /** The provision allowing the capped exclusion. */
+  readonly definedContributionCite: string;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   readonly name: string;
@@ -2560,6 +2715,17 @@ export interface StateIncomeTaxDefinition {
    * worth more. Maryland only — see {@link ItemizedDeductionRule}.
    */
   readonly itemizedDeduction?: ItemizedDeductionRule;
+  /**
+   * A deduction for the federal income tax, ADDED to {@link deduction} rather
+   * than compared with it. Alabama only — see
+   * {@link FederalIncomeTaxDeductionRule}.
+   */
+  readonly federalIncomeTaxDeduction?: FederalIncomeTaxDeductionRule;
+  /**
+   * A retirement exemption decided by the type of the plan. Alabama only — see
+   * {@link PlanTypeRetirementRule}.
+   */
+  readonly planTypeRetirement?: PlanTypeRetirementRule;
   readonly rentDeduction?: RentDeductionRule;
   readonly payrollTaxDeduction?: PayrollTaxDeductionRule;
   readonly exemption?: ExemptionRule;

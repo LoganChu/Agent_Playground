@@ -16,6 +16,7 @@ export {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   NO_INCOME_TAX_STATES,
+  UNCOVERED_TAXING_JURISDICTIONS,
   getStateDefinition,
   isSupported,
   stateName,
@@ -101,6 +102,7 @@ export {
 export type { StateFigureKind, StateFigureSource } from './data/provenance.js';
 export {
   FILING_STATUSES,
+  KNOWN_FEDERAL_BASIS_FIELDS,
   KNOWN_STATE_INPUT_FIELDS,
   PERSON_RETIREMENT_FIELDS,
 } from './types.js';

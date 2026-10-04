@@ -205,7 +205,7 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
-    'AK', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD', 'MI', 'MS',
+    'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD', 'MI', 'MS',
     'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
   ] as const
 ).map((state) => ({
@@ -1235,6 +1235,138 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
 
   // =========================================================================
+  // =========================================================================
+  // ALABAMA — the state whose figures have not moved because nothing in Alabama
+  // is indexed and almost nothing in it has been amended. The rate schedule is
+  // from 1935; the personal exemption, the standard deduction and the dependent
+  // exemption chart are where Act 2022-292 left them in 2022; the defined
+  // benefit exemption is a regulation reading a federal definition. A new tax
+  // year costs Alabama no release at all, which is what `statute` means here
+  // and why none of these is `carried-forward`.
+  //
+  // The ONE difference between 2025 and 2026 is the overtime provision, and it
+  // differs because one act expired in the middle of 2025 and another was
+  // signed in April 2026.
+  // =========================================================================
+  {
+    state: 'AL',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '§ 40-18-5 —',
+    cite: 'Ala. Code § 40-18-5 — 2% on the first bracket, 4% on the second and 5% above, unchanged since 1935. The 5% rate is reached at $3,000 of taxable income, so the graduated part of the schedule is worth $40 against a flat 5% and $80 on a joint return',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'statute',
+    document: '§ 40-18-5 —',
+    cite: 'Ala. Code § 40-18-5 — $500 and $3,000 for a single, separate or head-of-family return and exactly twice each for a joint one. Alabama has no indexing provision and these have not moved since 1935',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'deduction.maximum.*',
+    kind: 'statute',
+    document: '§ 40-18-15 —',
+    cite: 'Ala. Code § 40-18-15(b) — the optional standard deduction below the threshold: $3,000 single, $8,500 joint, $5,200 head of family, $4,250 separate. Act 2022-292 raised the joint figure by $1,000 and the other three by $500 in 2022 and nothing has moved since',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'deduction.min.*',
+    kind: 'statute',
+    document: '§ 40-18-15 —',
+    cite: 'Ala. Code § 40-18-15(b) — the figure the deduction may not fall below: $5,000 joint and $2,500 for every other status. Act 2022-292 raised these by the same amounts as the maxima, which is what makes every column complete its withdrawal in exactly twenty steps',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'deduction.threshold.*',
+    kind: 'statute',
+    document: '§ 40-18-15 —',
+    cite: 'Ala. Code § 40-18-15(b) — the adjusted gross income at which the withdrawal begins: $25,500, and exactly half of it, $12,750, on a separate return',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'deduction.increment.*',
+    kind: 'statute',
+    document: '§ 40-18-15 —',
+    cite: 'Ala. Code § 40-18-15(b) — the step of income the reduction is charged "for each" of: $500, and $250 on a separate return. There is no "or fraction thereof" clause, so the step is taken whole and the first $499 above the threshold cost nothing',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'deduction.reduction.*',
+    kind: 'statute',
+    document: '§ 40-18-15 —',
+    cite: 'Ala. Code § 40-18-15(b) — the deduction removed by one step: $25 single, $175 joint, $135 head of family, $88 separate. The separate figure is the only one that does not scale: half of $175 is $87.50 and the statute rounded it up, so the twentieth step is worth $78 rather than $88 and the floor absorbs the difference',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'itemizedDeduction.phaseOutRate',
+    kind: 'sentinel',
+    cite: 'Zero because Alabama puts no limit on its itemized deductions — nothing in § 40-18-15(a) reduces them as income rises, so this is the absence of a Maryland-style limitation rather than a rate read from anywhere',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '§ 40-18-19 —',
+    cite: 'Ala. Code § 40-18-19(a)(8) — $1,500 single or separate and $3,000 joint or head of family, confirmed figure for figure by the Department of Revenue’s own Form 40 rejection codes, which reject a return whose line 13 is anything else. Head of family takes the JOINT exemption and the SINGLE rate schedule',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'exemption.perDependent',
+    kind: 'derived',
+    cite: 'The top step of `exemption.perDependentSteps`, kept so that something can be checked against the chart rather than read from it: the engine reads the chart and never this. `test/registry.test.js` fails if the two disagree, which is the check Ohio’s dead copy of its exemption went without for 33 days',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'exemption.perDependentSteps.*.amount',
+    kind: 'statute',
+    document: '§ 40-18-19 —',
+    cite: 'Ala. Code § 40-18-19(a)(9) — $1,000 a dependent at or below $50,000 of adjusted gross income, $500 above it and at or below $100,000, $300 above $100,000. One chart for all five filing statuses',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'exemption.perDependentSteps.*.upTo',
+    kind: 'statute',
+    document: '§ 40-18-19 —',
+    cite: 'Ala. Code § 40-18-19(a)(9) — the chart’s boundaries, both of them INCLUSIVE in the statute’s own words ("equal to or less than fifty thousand dollars", "in excess of fifty thousand dollars and equal to or less than one hundred thousand dollars"). Act 2022-292 raised the first from $20,000 to $50,000 for tax years after 2021',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'planTypeRetirement.definedContributionCap',
+    kind: 'statute',
+    document: '§ 40-18-19 —',
+    cite: 'Ala. Code § 40-18-19(a)(13), claimed on Schedule RS — $6,000 per person of otherwise taxable defined contribution distributions, from tax year 2023 and not indexed. The defined benefit exemption beside it has no figure at all, which is why it appears in no entry here: it is the whole of the payment',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'planTypeRetirement.definedContributionAge',
+    kind: 'statute',
+    document: '§ 40-18-19 —',
+    cite: 'Ala. Code § 40-18-19(a)(13) — age 65. It is the only age test in the Alabama return: the defined benefit exemption has none, so an Alabama retiree at 50 with a pension is treated exactly as one at 80',
+    constant: true,
+  },
+  {
+    state: 'AL',
+    path: 'compensationExclusions.*.cap',
+    kind: 'statute',
+    document: 'HB 527 (2026)',
+    cite: 'Alabama HB 527, signed in April 2026 — up to $1,000 of qualified overtime compensation for tax years beginning after 31 December 2025 and through 2028, on the federal definition of overtime above the regular rate. The predecessor it replaces was uncapped and covered the whole overtime wage, and it expired on 30 June 2025',
+    years: [2026],
+    constant: true,
+  },
   // CONNECTICUT — four staircases and one moving figure. Nothing in Connecticut
   // is indexed: the rate schedule has stood since the 2024 cut to the two
   // lowest rates, the exemption and the personal credit table since 2016 and

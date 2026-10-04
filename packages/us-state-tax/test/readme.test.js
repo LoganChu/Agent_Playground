@@ -51,8 +51,8 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 29 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 29);
+test('README: 30 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 30);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
   // Eight graduated, eleven flat, one on a schedule of its own, nine with none.
@@ -66,18 +66,19 @@ test('README: 29 states, 2025 and 2026, nine with no income tax', () => {
   const baseAmount = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'baseAmountSchedule',
   );
-  assert.deepEqual(graduated, ['CA', 'CT', 'ID', 'MD', 'MS', 'NJ', 'NY', 'VA']);
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MS', 'NJ', 'NY', 'VA']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    29,
+    30,
   );
-  // Twenty taxing states — nineteen of them when the README says seven cut their
-  // rate for 2026, because Connecticut's last cut was for 2024.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 20);
+  // Twenty-one taxing states — nineteen of them when the README says seven cut
+  // their rate for 2026, because Connecticut's last cut was for 2024 and
+  // Alabama's rate schedule is from 1935.
+  assert.equal(graduated.length + flat.length + baseAmount.length, 21);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -657,7 +658,7 @@ test('README: the provisional and published lists for 2026', () => {
   // is a debt, and three have now been paid.
   assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'OH', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -673,7 +674,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['MN', 'WI', 'OR', 'SC', 'MO', 'AL', 'DC']) {
+  for (const state of ['MN', 'WI', 'OR', 'SC', 'MO', 'LA', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,

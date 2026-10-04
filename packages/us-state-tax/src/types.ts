@@ -33,6 +33,7 @@ export const FILING_STATUSES: readonly FilingStatus[] = [
 /** Two-letter postal code for a state this package knows something about. */
 export type StateCode =
   | 'AK'
+  | 'AL'
   | 'AZ'
   | 'CA'
   | 'CO'
@@ -277,7 +278,83 @@ export interface FederalBasis {
    * credit.
    */
   readonly earnedIncomeCredit?: number;
+  /**
+   * The federal income tax **after** non-refundable credits — Form 1040 line 22
+   * — plus the Form 8960 net investment income tax.
+   *
+   * It is here for Alabama, which is the only state in this package whose tax
+   * base contains the federal bill: Ala. Code § 40-18-15(a)(2) allows a
+   * deduction for federal income tax paid or accrued, on Form 40 line 12, and
+   * it is allowed to EVERY Alabama filer rather than only to itemizers.
+   *
+   * So in Alabama a federal tax cut is a state tax increase. Every dollar the
+   * federal government stops charging is a dollar more of Alabama taxable
+   * income, at 5% for anybody above $3,000 of it, and no Alabama form, rate
+   * table or legislature is involved. A $2,000 federal child tax credit costs
+   * an Alabama family $100 of state tax; the OBBBA tips and overtime deductions
+   * cost 5% of whatever they save.
+   *
+   * Omitting it is treated as "no federal tax", which makes an Alabama answer
+   * TOO HIGH — by 5% of the whole federal bill, which is the largest silent
+   * error any single omission can cause in this package.
+   * {@link StateIncomeTaxResult.notes} says so on every Alabama return that
+   * does not carry it.
+   *
+   * From `us-federal-tax` this is `totalTax` less the self-employment and FICA
+   * components — `incomeTax` plus `netInvestmentIncomeTax` — and not `totalTax`
+   * itself: Alabama's worksheet deducts the income tax, and Schedule SE's
+   * self-employment tax is deducted separately on Alabama Schedule A as a tax
+   * paid.
+   */
+  readonly incomeTaxBeforeRefundableCredits?: number;
+  /**
+   * The **refundable** child tax credit — Schedule 8812's additional child tax
+   * credit, Form 1040 line 28.
+   *
+   * Alabama's Federal Income Tax Deduction Worksheet subtracts the refundable
+   * federal credits from the deduction, because they are money the filer
+   * received rather than tax they paid. So a refundable credit raises Alabama
+   * tax twice over: once because it is not federal tax paid, and once because
+   * it is subtracted again here.
+   */
+  readonly additionalChildTaxCredit?: number;
+  /**
+   * The **refundable** part of the American Opportunity credit — Form 8863
+   * line 8, Form 1040 line 29. The non-refundable part is already inside
+   * {@link incomeTaxBeforeRefundableCredits} and must not be counted twice.
+   */
+  readonly refundableAmericanOpportunityCredit?: number;
 }
+
+/**
+ * The published key set of {@link FederalBasis} — every figure this package
+ * reads off the federal return.
+ *
+ * **The engine does not reject an unknown key on `federal`, and that is on
+ * purpose.** The object is documented as a structural subset of
+ * `estimateFederalTax()`'s whole result, so a caller who spreads that result in
+ * is handing over twenty keys this package does not read, and every one of them
+ * is expected rather than dropped. A guard here would report them all. See
+ * `STATE_INCOME_TAX_INPUT` in `engine.ts` for the three contracts and why they
+ * get three different answers.
+ *
+ * What that leaves is a real gap, and Alabama is where it bites: a caller who
+ * writes `incomeTax` for `incomeTaxBeforeRefundableCredits` loses 5% of the
+ * federal bill off an Alabama return and is told nothing. So the warning lives
+ * on the return instead — Alabama carries a conditional note that fires whenever
+ * the figure is absent or zero — and this list is exported so a caller can check
+ * their own object against it rather than against a string in a document.
+ */
+export const KNOWN_FEDERAL_BASIS_FIELDS = [
+  'adjustedGrossIncome',
+  'taxableIncome',
+  'deduction',
+  'deductionKind',
+  'earnedIncomeCredit',
+  'incomeTaxBeforeRefundableCredits',
+  'additionalChildTaxCredit',
+  'refundableAmericanOpportunityCredit',
+] as const;
 
 /**
  * Federal deductions taken *below* AGI, which a state starting from federal
@@ -340,8 +417,38 @@ export interface PersonRetirementIncome {
    *
    * Do not include Social Security, railroad retirement or military retired pay
    * here; each has its own field.
+   *
+   * **In Alabama this field means a DEFINED BENEFIT pension and nothing else.**
+   * Ala. Admin. Code r. 810-3-19-.04 exempts a payment under a defined benefit
+   * plan as IRC § 414(j) defines one — public or private, qualified or not, a
+   * SERP or an excess benefit plan included — in full, with no cap and no age
+   * test, while a distribution from a defined contribution plan is taxed above
+   * a `$6,000` exclusion that needs age 65. Maryland's definition pools the two
+   * and Alabama's whole answer is the difference between them, so the defined
+   * contribution half has a field of its own:
+   * {@link definedContributionPlan}. A return that leaves it empty is told, in
+   * `notes`, that this figure was read as defined benefit.
    */
   readonly employerPlanPension?: number;
+  /**
+   * Taxable distributions from an employer **defined contribution** plan — a
+   * `401(k)`, `403(b)` or `457(b)` — as distinct from the defined benefit
+   * pension in {@link employerPlanPension}.
+   *
+   * The distinction exists for Alabama, where it decides the whole answer: a
+   * defined benefit pension is exempt in full at any age, and the same dollars
+   * from a 401(k) are taxable above `$6,000` and only at 65. A 62-year-old with
+   * a `$60,000` pension pays Alabama nothing; the same `$60,000` drawn from a
+   * 401(k) costs `$2,760.00`. **Nothing on a federal return distinguishes
+   * them** — both arrive on Form 1099-R and both land on line 5b — which is why
+   * it has to be asked for.
+   *
+   * Every other state in this package pools defined benefit and defined
+   * contribution income, so this field adds to the same pools
+   * {@link employerPlanPension} feeds and changes no other state's answer. Do
+   * not put the same dollars in both.
+   */
+  readonly definedContributionPlan?: number;
   /**
    * **Total** Social Security and railroad retirement benefits this person
    * received in the year — Tier I *and* Tier II, and whether or not any part of
@@ -555,6 +662,7 @@ export interface RetirementIncomeSplit {
  */
 export const PERSON_RETIREMENT_FIELDS = [
   'employerPlanPension',
+  'definedContributionPlan',
   'socialSecurityBenefits',
   'militaryRetirement',
   'iraDistributions',
@@ -1433,6 +1541,13 @@ const STATE_INPUT_FIELDS_ARE_EXHAUSTIVE: Exactly<
   (typeof KNOWN_STATE_INPUT_FIELDS)[number]
 > = true;
 void STATE_INPUT_FIELDS_ARE_EXHAUSTIVE;
+
+/** The same proof for {@link KNOWN_FEDERAL_BASIS_FIELDS}. */
+const FEDERAL_BASIS_FIELDS_ARE_EXHAUSTIVE: Exactly<
+  keyof FederalBasis,
+  (typeof KNOWN_FEDERAL_BASIS_FIELDS)[number]
+> = true;
+void FEDERAL_BASIS_FIELDS_ARE_EXHAUSTIVE;
 
 /** How {@link stateIncomeTax} should behave, as distinct from what it is given. */
 export interface StateIncomeTaxOptions {

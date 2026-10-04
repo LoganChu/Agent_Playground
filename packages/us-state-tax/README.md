@@ -1,11 +1,71 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **29
-states** including **New York**, **New Jersey**, **Connecticut**, **Massachusetts**,
-**Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
+US **state and local** individual income tax for tax years **2025 and 2026**, across **30
+states** including **New York**, **New Jersey**, **Connecticut**, **Alabama**,
+**Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.36.0: **Alabama, where a federal tax cut raises the state tax bill.**
+
+Alabama is the only state here whose tax base contains the **federal tax bill
+itself**. Form 40 line 12 deducts the federal income tax paid — Ala. Code
+§ 40-18-15(a)(3) allows "taxes paid or accrued within the taxable year, including
+income taxes ... imposed by authority of the United States" — and it is deducted by
+**every** filer, not only by itemizers. So every dollar the federal government stops
+charging is a dollar more of Alabama taxable income:
+
+| the federal change | what it does in Alabama |
+| --- | --- |
+| a `$2,200` child tax credit | **+`$110`** of Alabama tax |
+| the OBBBA tips and overtime deductions | **+5%** of whatever they save federally |
+| a `$4,000` earned income credit | **+`$200`**, because the worksheet subtracts the refundable credits too |
+| `$4,016` of federal tax on `$50,000` of wages | **−`$200.80`** |
+
+Six states in this package match the federal earned income credit and move the way
+Congress moves. Alabama moves the other way, for every federal credit, rate and
+deduction at once. `federal.earnedIncomeCredit` is read by both kinds of state, and
+**the same input moves the answer in opposite directions depending on which state it
+is handed to** — nothing in its name says which.
+
+Three more things no Alabama rate table shows:
+
+- **The 5% top rate starts at `$3,000`** of taxable income (`$6,000` joint) and has
+  since 1935. The tax on that first `$3,000` is `$110` whatever the filer earns, and
+  measured against a flat 5% the whole graduated schedule is worth `$40` — `$80` on a
+  joint return. Alabama is a flat 5% state with a `$40` discount.
+- **The standard deduction is a staircase that rounds the opposite way from
+  Connecticut's.** § 40-18-15(b) withdraws `$25` per `$500` of Alabama AGI above
+  `$25,500` for a single filer (`$175` joint, `$135` head of family, `$88` per `$250`
+  separate) down to a floor. There is **no "or fraction thereof"**, so the first
+  `$499` above the threshold cost nothing — where Connecticut's § 12-702, which has
+  the clause, charges the whole step on the first dollar. Every column reaches its
+  floor at `$35,500` in exactly twenty steps, and the separate column proves it: its
+  `$88` is `$87.50` rounded up, so its twentieth step is worth `$78` and the floor
+  absorbs the difference.
+- **Retirement turns on the TYPE OF PLAN, which no federal figure records.** A
+  defined benefit payment is exempt in full, at any age, with no cap — Ala. Admin.
+  Code r. 810-3-19-.04 reads IRC § 414(j) and reaches non-qualified plans, SERPs and
+  excess benefit plans — while a defined contribution distribution is taxable above
+  `$6,000` and only from 65. At 62 a `$60,000` pension is free and a `$60,000` 401(k)
+  draw costs **`$2,760.00`**. Both arrive on a 1099-R; both land on line 5b.
+
+And the dependent exemption is **one chart for all five filing statuses** — `$1,000`
+each at or below `$50,000` of Alabama AGI, `$500` to `$100,000`, `$300` above — so two
+single parents at `$50,000` each claim `$1,000` a child and the same two people filing
+jointly on `$100,000` claim `$500`. The statute's boundaries are inclusive in its own
+words ("equal to or less than fifty thousand dollars"), so a filer at exactly `$50,000`
+keeps the `$1,000`; PolicyEngine-US reads that boundary the other way, which is `$25`
+of tax for a filer standing on it.
+
+Alabama also exempted overtime before Congress did and stopped the month Congress
+started: Act 2023-421 excluded the **whole** overtime wage from gross income, uncapped,
+for overtime paid before 30 June 2025, and HB 527 — signed in April 2026 — deducts the
+**premium only**, capped at `$1,000`, for 2026 through 2028. The same ten hours of
+overtime at `$30` against a `$20` regular rate are `$300` of Alabama exclusion in the
+first half of 2025 and `$100` of Alabama deduction in 2026, against a federal § 225 cap
+of `$12,500` on that same `$100`.
 
 New in 0.35.0: **Connecticut, where there is no continuous stretch of income tax
 above $30,000.**
@@ -293,7 +353,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.35.0/us-state-tax-0.35.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.36.0/us-state-tax-0.36.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2031,7 +2091,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,259 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,289 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Three rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2064,7 +2124,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **488** notes every
+`test/notes.test.js` pins the first 72 characters of all **518** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2089,8 +2149,8 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 3,411 numeric
-figures over 58 state-years, against 298 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 3,564 numeric
+figures over 60 state-years, against 316 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2136,12 +2196,12 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 1,705 figures of tax year
+The `kind` field answers one operational question. Over the 1,782 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,443** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,520** |
 | the statute's own schedule (`statute-scheduled`) | **111** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **145** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **6** |
@@ -2223,12 +2283,22 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.35.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.36.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 29 states.** No Minnesota, Wisconsin,
-  Oregon, South Carolina, Missouri, Alabama, or the District of Columbia.
-  Asking for one throws rather than returning zero.
+- **Only 30 states.** No Minnesota, Wisconsin,
+  Oregon, South Carolina, Missouri, Louisiana, or the District of Columbia.
+  Asking for one throws rather than returning zero, and the message is built from a
+  declared list of the uncovered jurisdictions rather than from a sentence — because
+  the sentence named Connecticut as uncovered on the day Connecticut shipped.
+- **Alabama's municipal occupational licence taxes are not modelled.** Birmingham
+  charges 1% of gross wages, Gadsden 2%, and about two dozen more something between —
+  on gross compensation, with no deduction and no reference to the return. They are
+  not in the locality registry yet, so an Alabama city worker is too low by the whole
+  of it.
+- **Alabama's 2025 half-year overtime exclusion is not modelled**, because the figure
+  it needs — overtime paid before 30 June 2025 — is in the payroll records and not on
+  the return. Supply it through `subtractions`; the note says so.
 - **Connecticut's property tax credit, alternative minimum tax, teachers' retirement
   subtraction, military retirement subtraction and credit for taxes paid to other
   jurisdictions are not modelled**, and nor are the 2026 farm investment credit and

@@ -96,7 +96,11 @@ function conformityAmount(def: StateIncomeTaxDefinition, input: StateIncomeTaxIn
   }
 }
 
-function standardDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+function standardDeduction(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  stateAgi: number,
+): number {
   switch (def.deduction.kind) {
     case 'none':
       return 0;
@@ -104,7 +108,53 @@ function standardDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxI
       return input.federal.deduction;
     case 'table':
       return def.deduction.amounts[input.filingStatus];
+    case 'phaseOutStaircase': {
+      const rule = def.deduction;
+      const status = input.filingStatus;
+      // floor(), not ceil(). § 40-18-15(b) reduces the deduction "for each $500"
+      // of AGI above the threshold and says nothing about a fraction of one, so
+      // the first $499 above the threshold cost nothing — the exact opposite of
+      // Connecticut's "or fraction thereof", where the first dollar costs a whole
+      // step. The two conventions are a step of deduction apart at every
+      // boundary of both charts and nothing but the words distinguishes them.
+      const steps = Math.floor(
+        Math.max(0, stateAgi - rule.threshold[status]) / rule.increment[status],
+      );
+      return Math.max(
+        rule.min[status],
+        rule.maximum[status] - steps * rule.reduction[status],
+      );
+    }
   }
+}
+
+/**
+ * The deduction for the federal income tax itself — Alabama's Form 40 line 12.
+ *
+ * It is the federal bill after non-refundable credits, less the refundable
+ * credits that are money received rather than tax paid, floored at zero. The
+ * floor is load-bearing rather than defensive: a family whose earned income
+ * credit exceeds their federal tax has a NEGATIVE federal bill, and without the
+ * floor Alabama would add it to their taxable income.
+ */
+function federalIncomeTaxDeduction(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  if (!def.federalIncomeTaxDeduction) return 0;
+  const federal = input.federal;
+  const tax = nonNegative(
+    federal.incomeTaxBeforeRefundableCredits,
+    'federal.incomeTaxBeforeRefundableCredits',
+  );
+  const refundable =
+    nonNegative(federal.earnedIncomeCredit, 'federal.earnedIncomeCredit') +
+    nonNegative(federal.additionalChildTaxCredit, 'federal.additionalChildTaxCredit') +
+    nonNegative(
+      federal.refundableAmericanOpportunityCredit,
+      'federal.refundableAmericanOpportunityCredit',
+    );
+  return Math.max(0, tax - refundable);
 }
 
 /**
@@ -138,7 +188,11 @@ function itemizedDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxI
  * two-earner renting couple — but a model with no way to represent them is
  * silently wrong for every Massachusetts tenant, which is a third of the state.
  */
-function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
+function stateDeduction(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  stateAgi: number,
+): number {
   // A filer takes the larger of the two, which is also what a state that forces
   // the standard deduction when the itemized figure falls below it produces —
   // the Maryland instructions say so in as many words, and it is the same
@@ -151,7 +205,13 @@ function stateDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxInpu
     def.itemizedDeduction?.forcedWhenFederalItemizing === true &&
     input.federal.deductionKind === 'itemized' &&
     (input.stateItemizedDeductions ?? 0) > 0;
-  let total = forced ? itemized : Math.max(standardDeduction(def, input), itemized);
+  let total = forced ? itemized : Math.max(standardDeduction(def, input, stateAgi), itemized);
+
+  // Alabama's federal income tax deduction is NOT part of that max(). Form 40
+  // line 11 is the standard-or-itemized choice and line 12 is the federal tax,
+  // below it and additional to it, so every Alabama filer deducts the federal
+  // bill whether they itemize or not.
+  total += federalIncomeTaxDeduction(def, input);
 
   if (def.payrollTaxDeduction) {
     const paid = nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid');
@@ -283,6 +343,8 @@ function stateExemptions(
   input: StateIncomeTaxInput,
   /** Ohio's modified AGI; ignored by every other state. */
   modifiedAgi: number,
+  /** The state's own AGI — Alabama's Form 40 line 10, which its dependent chart reads. */
+  stateAgi: number,
 ): number {
   const rule = def.exemption;
   if (!rule) return 0;
@@ -316,7 +378,19 @@ function stateExemptions(
       // own table rather than assumed from the shape of the word "spouse".
       rule.perFiler[input.filingStatus] +
       rule.perFiler.marriedFilingSeparately * spouse +
-      rule.perDependent * dependents;
+      // Alabama puts the filer on a flat amount and the dependents on a chart of
+      // their own, read against ALABAMA AGI rather than federal AGI — which is
+      // the difference between the two that a retiree feels: a defined benefit
+      // pension is not in Alabama's AGI, so it does not move this chart.
+      //
+      // One chart serves all five filing statuses, so two single parents at
+      // $50,000 each claim $1,000 a child and the same two people jointly on
+      // $100,000 claim $500. The rate schedule doubles for a joint return; this
+      // does not.
+      (rule.perDependentSteps
+        ? stepAmount(rule.perDependentSteps, stateAgi)
+        : rule.perDependent) *
+        dependents;
 
   // New Jersey's per-person additions. Each is claimed by a *filer*, never by a
   // dependent: New Jersey gives nothing extra for a blind or elderly dependent.
@@ -444,6 +518,7 @@ function retirementIncomeOf(input: StateIncomeTaxInput): number {
     if (!person) continue;
     total +=
       nonNegative(person.employerPlanPension, 'retirement.employerPlanPension') +
+      nonNegative(person.definedContributionPlan, 'retirement.definedContributionPlan') +
       nonNegative(person.iraDistributions, 'retirement.iraDistributions') +
       nonNegative(person.governmentPension, 'retirement.governmentPension') +
       nonNegative(person.militaryRetirement, 'retirement.militaryRetirement');
@@ -899,7 +974,15 @@ function retirementExclusion(
  */
 interface RetirementPerson {
   readonly age: number | undefined;
+  /**
+   * Employer plan pension, defined benefit and defined contribution POOLED —
+   * which is what every state here but Alabama asks for.
+   */
   readonly pension: number;
+  /** The defined BENEFIT half of {@link pension}. Alabama exempts it in full. */
+  readonly definedBenefit: number;
+  /** The defined CONTRIBUTION half of {@link pension}. Alabama caps it. */
+  readonly definedContribution: number;
   readonly benefits: number;
   readonly military: number;
   readonly ira: number;
@@ -936,7 +1019,14 @@ function retirementPeople(
     part: { readonly age: number | undefined; readonly from: NonNullable<StateIncomeTaxInput['retirement']>['filer'] },
   ): RetirementPerson => ({
     age: part.age,
-    pension: nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension'),
+    pension:
+      nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension') +
+      nonNegative(part.from?.definedContributionPlan, 'retirement.definedContributionPlan'),
+    definedBenefit: nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension'),
+    definedContribution: nonNegative(
+      part.from?.definedContributionPlan,
+      'retirement.definedContributionPlan',
+    ),
     benefits: nonNegative(part.from?.socialSecurityBenefits, 'retirement.socialSecurityBenefits'),
     military: nonNegative(part.from?.militaryRetirement, 'retirement.militaryRetirement'),
     ira: nonNegative(part.from?.iraDistributions, 'retirement.iraDistributions'),
@@ -970,6 +1060,11 @@ function retirementPeople(
   const sole: RetirementPerson = {
     age: input.filerAge,
     pension: nonNegative(input.retirementIncome, 'retirementIncome'),
+    // `retirementIncome` is a household total that says nothing about the plan
+    // it came from, so Alabama's rule reads NEITHER half of it and the return
+    // says so in `notes`. Guessing would be guessing in units of $2,760 a year.
+    definedBenefit: 0,
+    definedContribution: 0,
     benefits: nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity'),
     military: 0,
     ira: 0,
@@ -985,6 +1080,8 @@ function retirementPeople(
     people.push({
       age: input.spouseAge,
       pension: 0,
+      definedBenefit: 0,
+      definedContribution: 0,
       benefits: 0,
       military: 0,
       ira: 0,
@@ -1929,6 +2026,55 @@ function connecticutSocialSecurity(
  * distributions only; the staircase is a function of federal AGI and applies to
  * the pension and the phased-in IRA amount together.
  */
+/**
+ * Alabama's two retirement subtractions, which are one question asked about the
+ * PLAN rather than about the person or the money.
+ *
+ * A defined benefit payment is exempt in full — no cap, no age test, and
+ * Ala. Admin. Code r. 810-3-19-.04 reaches non-qualified plans, SERPs and
+ * excess benefit plans as well as qualified ones. A defined contribution
+ * distribution is taxable above `$6,000` per person, and only for a person who
+ * has reached 65.
+ *
+ * So the ordering of a retirement, not its size, decides the Alabama bill: at
+ * 62 a `$60,000` pension is free and a `$60,000` 401(k) draw costs `$2,760.00`;
+ * at 65 the same draw costs `$2,460.00`. The `$6,000` is the only part of this
+ * that any table prints.
+ *
+ * The cap is per PERSON, like Maryland's exclusion and unlike Alabama's own
+ * standard deduction, so which spouse the draw comes from changes the answer on
+ * a joint return by up to `$300`.
+ */
+function planTypeRetirement(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): { readonly total: number; readonly details: readonly { name: string; amount: number }[] } {
+  const rule = def.planTypeRetirement;
+  if (!rule) return { total: 0, details: [] };
+  const { people } = retirementPeople(input);
+  let definedBenefit = 0;
+  let definedContribution = 0;
+  for (const person of people) {
+    // Government retired pay and military retired pay are defined benefit
+    // payments, which is why they are in this half rather than beside it: the
+    // regulation asks what kind of plan paid, and a state pension plan and a
+    // corporate one answer the same way.
+    definedBenefit += person.definedBenefit + person.governmentPension + person.military;
+    if (person.age !== undefined && person.age >= rule.definedContributionAge) {
+      definedContribution += Math.min(
+        person.definedContribution + person.ira,
+        rule.definedContributionCap,
+      );
+    }
+  }
+  const details: { name: string; amount: number }[] = [];
+  if (definedBenefit > 0) details.push({ name: rule.name, amount: definedBenefit });
+  if (definedContribution > 0) {
+    details.push({ name: rule.definedContributionName, amount: definedContribution });
+  }
+  return { total: definedBenefit + definedContribution, details };
+}
+
 function connecticutRetirementSubtraction(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -2215,6 +2361,12 @@ function computeOnce(
       connecticutSubtractions += retirementSubtraction;
     }
   }
+  // Alabama's plan-type retirement subtractions. They come after the Social
+  // Security subtraction because they are independent of it: Alabama does not
+  // charge the benefit against either half, the way Maryland charges it against
+  // its pension exclusion.
+  const planType = planTypeRetirement(def, input);
+  for (const detail of planType.details) computedSubtractions.push(detail);
   const age = ageDeduction(def, input, taxableSocialSecurity);
   const ageDeductionTaken = age.amount;
   if (def.ageDeduction && ageDeductionTaken > 0) {
@@ -2251,6 +2403,7 @@ function computeOnce(
     businessDeduction +
     socialSecuritySubtraction +
     connecticutSubtractions +
+    planType.total +
     ageDeductionTaken +
     retirement.total +
     compensationExcluded;
@@ -2259,8 +2412,8 @@ function computeOnce(
 
   const propertyTax = qualifyingPropertyTax(def, input);
   const propertyTaxDeduction = propertyTaxRoute === 'deduction' ? propertyTax : 0;
-  const deduction = stateDeduction(def, input) + propertyTaxDeduction;
-  const exemptions = stateExemptions(def, input, modifiedAgi);
+  const deduction = stateDeduction(def, input, stateAgi) + propertyTaxDeduction;
+  const exemptions = stateExemptions(def, input, modifiedAgi, stateAgi);
   const measures: IncomeMeasures = {
     federalAdjustedGrossIncome: input.federal.adjustedGrossIncome,
     stateModifiedAdjustedGrossIncome: modifiedAgi,

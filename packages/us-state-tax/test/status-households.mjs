@@ -146,11 +146,31 @@ const SHAPES = {
     socialSecurityAndMedicarePaid: 1_530,
     rentPaid: 10_800,
   },
+  // The one household in the battery that carries a FEDERAL TAX BILL, and the
+  // reason it does is Alabama.
+  //
+  // Every shape here describes a household — its income, its ages, its children,
+  // its rent — and until Alabama arrived the federal basis they were all built
+  // from carried only AGI, the deduction and (once) the earned income credit.
+  // Alabama deducts the federal income tax itself, so the battery had a whole
+  // INPUT it never varied rather than a household it never had, and the symptom
+  // was that Alabama's conditional note about the missing figure fired on all
+  // 130 rows — which is how a note that is genuinely conditional looks exactly
+  // like a note that should have been unconditional.
+  //
+  // THE RULE, which is Day 39's about composition one level up: a battery varies
+  // the households and forgets to vary the BASIS they are computed from.
+  //
+  // $6,617 is the 2026 federal income tax on $62,000 of wages for a single filer
+  // after the standard deduction — the figure `us-federal-tax` returns — so the
+  // row is a real pairing rather than a round number, and it is worth $330.85 of
+  // Alabama deduction.
   wage62k: {
     income: 62_000,
     earnedIncome: 62_000,
     filerAge: 41,
     spouseAge: 39,
+    federalIncomeTax: 6_617,
     socialSecurityAndMedicarePaid: 4_743,
     lesserSpouseIncome: 24_000,
     bothSpousesHaveQualifyingIncome: true,
@@ -532,7 +552,8 @@ export function household(name, state, year, filingStatus) {
   // `retirement.filer.pension` one layer down and `wages` for `w2Wages` one layer
   // up — three times in one day, in three different files, and the two that were
   // lists were both wrong.
-  const { income, deduction, deductionKind, federalEarnedIncomeCredit, ...rest } = shape;
+  const { income, deduction, deductionKind, federalEarnedIncomeCredit, federalIncomeTax, ...rest } =
+    shape;
   const federalDeduction = deduction ?? FEDERAL_STANDARD_DEDUCTION[year][filingStatus];
   return {
     state,
@@ -546,6 +567,9 @@ export function household(name, state, year, filingStatus) {
       ...(federalEarnedIncomeCredit === undefined
         ? {}
         : { earnedIncomeCredit: federalEarnedIncomeCredit }),
+      ...(federalIncomeTax === undefined
+        ? {}
+        : { incomeTaxBeforeRefundableCredits: federalIncomeTax }),
     },
     // The three state-specific income measures, mirrored from `income` because a
     // state that defines its own base has nowhere else to read one from. A sweep

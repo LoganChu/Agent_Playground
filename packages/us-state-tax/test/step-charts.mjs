@@ -339,6 +339,23 @@ export const DRIVERS = {
     perStatus: true,
     input: (value, state, year, status) => wages(value, state, year, status, { dependentAges: [10] }),
   },
+  // Alabama's dependent exemption chart, Ala. Code § 40-18-19(a)(9), read against
+  // ALABAMA AGI — which for a wage earner is federal AGI, so the same `wages`
+  // driver serves it.
+  //
+  // It is the first chart in this package with **no status column at all**: one
+  // table serves all five filing statuses, which is why two single parents at
+  // $50,000 each claim $1,000 a child and the same two people jointly on
+  // $100,000 claim $500. So the probes run under two statuses rather than one,
+  // and the pinned pair is the evidence that the joint return reads the same
+  // chart rather than a doubled one.
+  //
+  // One dependent, so the chart's amount is the whole of the difference and the
+  // count is not multiplying it.
+  'exemption.perDependentSteps': {
+    statuses: ['single', 'marriedFilingJointly'],
+    input: (value, state, year, status) => wages(value, state, year, status, { dependentAges: [10] }),
+  },
   // Ohio's retirement income credit, O.R.C. 5747.055 — the chart that is the
   // worked example for why this file exists.
   'retirementIncomeCredit.steps': {

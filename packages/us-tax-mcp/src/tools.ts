@@ -130,30 +130,37 @@ function readPersonRetirement(
         `that kind and change the tax, so it is an error rather than a default.`,
     );
   }
-  const pension = readNumber(person, 'employerPlanPension');
-  const benefits = readNumber(person, 'socialSecurityBenefits');
-  const military = readNumber(person, 'militaryRetirement');
-  const ira = readNumber(person, 'iraDistributions');
-  // Signed: Georgia's worksheet floors the non-earned sources as a block, so a
-  // net loss here is a zero rather than an error.
-  const investment = readNumber(person, 'investmentIncome', { allowNegative: true });
-  const earned = readNumber(person, 'earnedIncome');
-  const disabled = readBoolean(person, 'totallyDisabled');
-  const govPension = readNumber(person, 'governmentPension');
-  const monthsBefore = readNumber(person, 'serviceMonthsBefore1998');
-  const monthsAfter = readNumber(person, 'serviceMonthsAfter1997');
-  return {
-    ...(pension !== undefined ? { employerPlanPension: pension } : {}),
-    ...(benefits !== undefined ? { socialSecurityBenefits: benefits } : {}),
-    ...(military !== undefined ? { militaryRetirement: military } : {}),
-    ...(ira !== undefined ? { iraDistributions: ira } : {}),
-    ...(investment !== undefined ? { investmentIncome: investment } : {}),
-    ...(earned !== undefined ? { earnedIncome: earned } : {}),
-    ...(disabled !== undefined ? { totallyDisabled: disabled } : {}),
-    ...(govPension !== undefined ? { governmentPension: govPension } : {}),
-    ...(monthsBefore !== undefined ? { serviceMonthsBefore1998: monthsBefore } : {}),
-    ...(monthsAfter !== undefined ? { serviceMonthsAfter1997: monthsAfter } : {}),
-  };
+  // Read by walking the engine's own field list rather than by naming the fields
+  // again. The ten reads this replaces were the THIRD copy of these names — the
+  // header above says a second list here "would be a third copy of the same
+  // names, which is the mistake this whole check is about", and the check it
+  // describes was derived while the reads underneath it were not.
+  //
+  // Alabama is what found it: `definedContributionPlan` joined
+  // `PERSON_RETIREMENT_FIELDS`, so the guard above accepted it, the schema
+  // offered it, and this function dropped it on the floor — a 401(k) draw
+  // arriving as a defined benefit pension, worth $2,760 a year on $60,000, with
+  // the unknown-key guard reporting nothing because the key was known.
+  //
+  // Two fields are not plain non-negative numbers and both say why here:
+  // `totallyDisabled` is a boolean, and `investmentIncome` is SIGNED because
+  // Georgia's worksheet floors the non-earned sources as a block, so a net loss
+  // is a zero rather than an error.
+  const out: Record<string, number | boolean> = {};
+  for (const field of PERSON_RETIREMENT_FIELDS) {
+    if (field === 'totallyDisabled') {
+      const flag = readBoolean(person, field);
+      if (flag !== undefined) out[field] = flag;
+      continue;
+    }
+    const value = readNumber(
+      person,
+      field,
+      field === 'investmentIncome' ? { allowNegative: true } : {},
+    );
+    if (value !== undefined) out[field] = value;
+  }
+  return out as PersonRetirementIncome;
 }
 
 function readRetirementSplit(
@@ -1178,14 +1185,19 @@ const stateTool: ToolDefinition = {
   name: 'state_income_tax',
   title: 'State income tax',
   description:
-    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 28 states plus NEW YORK ' +
+    'Compute a US STATE and LOCAL individual income tax return for 2025 or 2026 — 30 states plus NEW YORK ' +
     'CITY, YONKERS, all 24 MARYLAND jurisdictions, 92 INDIANA counties, 24 MICHIGAN cities, 679 OHIO ' +
     'municipalities and 214 taxing OHIO school districts. Call estimate_federal_tax FIRST and pass its ' +
     'adjustedGrossIncome, taxableIncome, deduction and earned income credit: which federal figure a ' +
     'state starts from decides the answer. Ten states need more. NY: locality. MD and IN: county, plus ' +
     'netCapitalGain and stateItemizedDeductions in MD, and filerAge and spouseAge in IN — its unified ' +
     'tax credit for the elderly is REFUNDABLE and is the whole return for a retiree on Social ' +
-    'Security. MD, GA and KY: retirement for a retiree — all ' +
+    'Security. AL: federalIncomeTax, because Alabama DEDUCTS THE FEDERAL BILL on Form 40 line 12 and '
+    + 'every filer takes it — a federal tax cut is an Alabama tax increase, and omitting the figure '
+    + 'makes Alabama too high by 5% of the whole federal bill. A retiree there needs retirement with '
+    + 'the plan type: a DEFINED BENEFIT pension is exempt in full at any age and a definedContributionPlan '
+    + 'draw is taxed above $6,000 and only at 65. '
+    + 'MD, GA and KY: retirement for a retiree — all ' +
     'three exclusions are PER PERSON, GA excludes nothing without it, and KY has NO CEILING for ' +
     'pre-1998 government service. GA also takes federalItemized: $300 a taxpayer for the ' +
     'election alone, with no income test. UT: filerAge, spouseAge, taxableSocialSecurity, taxExemptInterest ' +
@@ -1309,6 +1321,13 @@ const stateTool: ToolDefinition = {
     const overtime = readNumber(source, 'federalOvertimeDeduction');
     const tips = readNumber(source, 'federalTipsDeduction');
     const federalEitc = readNumber(source, 'federalEarnedIncomeCredit');
+    // Alabama's three: the federal bill it deducts, and the two refundable
+    // credits its worksheet takes back off that deduction. The loop at the end of
+    // this handler refuses them for any other state, because no other state here
+    // has the federal tax inside its base.
+    const federalIncomeTax = readNumber(source, 'federalIncomeTax');
+    const federalActc = readNumber(source, 'federalAdditionalChildTaxCredit');
+    const federalAoc = readNumber(source, 'federalRefundableAmericanOpportunityCredit');
     const additions = readNumber(source, 'stateAdditions');
     const subtractions = readNumber(source, 'stateSubtractions');
     const dependents = readNumber(source, 'dependents', { integer: true });
@@ -1637,6 +1656,11 @@ const stateTool: ToolDefinition = {
         deduction,
         deductionKind: federalItemized === true ? 'itemized' : 'standard',
         ...(federalEitc !== undefined ? { earnedIncomeCredit: federalEitc } : {}),
+        ...(federalIncomeTax !== undefined
+          ? { incomeTaxBeforeRefundableCredits: federalIncomeTax }
+          : {}),
+        ...(federalActc !== undefined ? { additionalChildTaxCredit: federalActc } : {}),
+        ...(federalAoc !== undefined ? { refundableAmericanOpportunityCredit: federalAoc } : {}),
       },
       // Ages are authoritative when both are given; the engine refuses a pair that
       // disagrees rather than silently changing a family's credit.

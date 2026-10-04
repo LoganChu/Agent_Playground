@@ -282,6 +282,21 @@ export function forState(state, input, fed) {
       deduction: fed.deduction,
       deductionKind: fed.deductionKind,
       earnedIncomeCredit: fed.credits.earnedIncomeCredit?.credit ?? 0,
+      // Alabama deducts the FEDERAL BILL itself on Form 40 line 12, and every
+      // Alabama filer takes it — so without these three the Alabama row would be
+      // too high by 5% of the whole federal tax, which on this page's own
+      // $62,000 single worker is $264.65 of a $1,923 answer.
+      //
+      // The worksheet's own composition: the § 26(a) regular tax after
+      // non-refundable credits, plus the net investment income tax, less the
+      // refundable credits that are money received rather than tax paid. Self
+      // employment tax and the Additional Medicare Tax are NOT in it: they are
+      // Schedule 2 "other taxes", below Form 1040 line 22, and Alabama deducts
+      // the self-employment tax separately as a tax paid on its Schedule A.
+      incomeTaxBeforeRefundableCredits:
+        Math.max(0, fed.incomeTaxBeforeCredits - fed.credits.totalNonRefundable) +
+        fed.netInvestmentIncomeTax,
+      additionalChildTaxCredit: fed.credits.childTaxCredit?.refundableCredit ?? 0,
     },
     filerAge: input.filerAge || undefined,
     spouseAge: input.joint ? input.spouseAge || undefined : undefined,

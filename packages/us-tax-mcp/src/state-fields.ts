@@ -131,6 +131,7 @@ const PERSON_RETIREMENT: JsonSchema = {
   type: 'object',
   properties: {
     employerPlanPension: number,
+    definedContributionPlan: number,
     iraDistributions: number,
     investmentIncome: number,
     earnedIncome: number,
@@ -294,6 +295,30 @@ export const STATE_FIELDS: readonly StateField[] = [
       'Five states read it: Illinois, Indiana, Ohio, Virginia and Maryland, each under its own statute. The other twenty-three that do something like it take it through stateAdditions, because this package will not assert a list of twenty-eight states it has not checked one at a time — and this list is derived from the engine, so a state that gains a declaration gains the field here with no edit.',
   },
   {
+    name: 'federalIncomeTax',
+    schema: number,
+    states: ['AL'],
+    doc: 'Form 1040 line 22 — the federal income tax AFTER non-refundable credits — plus the Form 8960 net investment income tax. ALABAMA DEDUCTS THE FEDERAL BILL on Form 40 line 12, and every filer takes it, not only itemizers, so a federal tax cut is an Alabama tax INCREASE of 5% of the cut. Omit it and the Alabama answer is too high by 5% of the whole federal bill — $200.80 on a $4,016 bill — and the result says so in a note.',
+    refusal:
+      'Alabama alone deducts the federal income tax itself (Ala. Code § 40-18-15(a)(3), Form 40 line 12). No other state in this package has the federal bill inside its base, so there is nothing for the figure to do.',
+  },
+  {
+    name: 'federalAdditionalChildTaxCredit',
+    schema: number,
+    states: ['AL'],
+    doc: "Schedule 8812's refundable child tax credit, Form 1040 line 28. Alabama's Federal Income Tax Deduction Worksheet subtracts the refundable federal credits from the deduction, because they are money received rather than tax paid — so a refundable credit RAISES Alabama tax by 5% of itself.",
+    refusal:
+      'Only Alabama subtracts the refundable federal credits, and only because it deducts the federal tax they reduce.',
+  },
+  {
+    name: 'federalRefundableAmericanOpportunityCredit',
+    schema: number,
+    states: ['AL'],
+    doc: 'Form 8863 line 8, Form 1040 line 29 — the REFUNDABLE part of the American Opportunity credit only. The non-refundable part has already reduced federalIncomeTax and must not be counted twice.',
+    refusal:
+      'Only Alabama subtracts the refundable federal credits, and only because it deducts the federal tax they reduce.',
+  },
+  {
     name: 'retirement',
     schema: {
       type: 'object',
@@ -303,7 +328,7 @@ export const STATE_FIELDS: readonly StateField[] = [
       },
       additionalProperties: false,
     },
-    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT'],
+    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL'],
     doc: [
       'Retirement income PER PERSON, because these states do not read it off a federal AGI and four of them cap an exclusion per person — so a return\'s totals do not determine its tax. Omit it and everything lands on one spouse, which is the worst of the cases, and the result says so in the name of the subtraction.',
       'NINE states read this. Four of them — IL, MS, MI, NY — exempt most or all of a pension and BEFORE v0.19.0 taxed it unless the caller netted it out through stateSubtractions. They no longer do, so a caller who is still passing both now subtracts twice: take it out of stateSubtractions.',
@@ -312,8 +337,10 @@ export const STATE_FIELDS: readonly StateField[] = [
       '  MI — ONE cap for the RETURN, keyed to the OLDER spouse: $67,610 single / $135,220 joint for 2026, and 75% of the 2025 figures for 2025. Military pay is exempt in full and comes OFF that cap.',
       '  NY — $20,000 PER PERSON at 59½, unused room lost, AND a federal, NY State or NY local government pension exempt in full at ANY age. Put a government pension in governmentPension, not employerPlanPension: the two differ by the whole of the tax.',
       '  NC — taxes every pension in FULL and deducts military retired pay in full. It is in every list of retiree-friendly states and does not belong there.',
+      '  AL — the TYPE OF PLAN decides the whole answer and no federal figure records it. A DEFINED BENEFIT payment is exempt in full at ANY age with no cap (Ala. Admin. Code r. 810-3-19-.04, reading IRC § 414(j), and reaching non-qualified plans and SERPs); a DEFINED CONTRIBUTION distribution is taxable above $6,000 per person and only from 65. At 62 a $60,000 pension is free and a $60,000 401(k) draw costs $2,760.00.',
       'Fields, on filer and spouse alike:',
-      '  employerPlanPension — taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b). NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes by name and GA counts in full.',
+      '  employerPlanPension — taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b). NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes by name and GA counts in full. IN ALABAMA this field means a DEFINED BENEFIT pension only.',
+      '  definedContributionPlan — a 401(k), 403(b) or 457(b) DISTRIBUTION, as against the defined benefit pension above. Alabama is the only state here where the difference decides the answer; every other state pools the two, so passing it costs them nothing. Do not put the same dollars in both.',
       '  iraDistributions — taxable IRA and Roth-conversion income, 1040 line 4b. GA-qualifying, MD-disqualifying: the rollover every adviser recommends costs $0.00 in Georgia and $3,428.03 a year in Maryland.',
       '  investmentIncome — interest, dividends, net capital gain, rents, royalties, alimony. GA only, and may be negative. It is in Georgia\'s pool, which makes the "retirement income exclusion" also a capital gains allowance.',
       '  earnedIncome — wages plus partnership and S corp income. GA counts at most $5,000 of it per person, and doubles the military exclusion above $17,500.',

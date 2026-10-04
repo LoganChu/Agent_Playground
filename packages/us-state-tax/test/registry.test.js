@@ -7,6 +7,7 @@ import {
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  UNCOVERED_TAXING_JURISDICTIONS,
   getStateDefinition,
   isSupported,
   stateIncomeTax,
@@ -22,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 29);
+  assert.equal(SUPPORTED_STATES.length, 30);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -75,9 +76,39 @@ test('an unsupported state names what is missing rather than returning zero', ()
   // move as the gap closes, and it has now moved twice.
   const gaps = getMissingStatesMessage().split('—')[1] ?? '';
   assert.match(gaps, /Minnesota/);
-  assert.doesNotMatch(gaps, /Maryland/);
-  assert.doesNotMatch(gaps, /Ohio/);
-  assert.doesNotMatch(gaps, /Virginia/);
+  // Compared as whole list ITEMS and not as substrings, which is the Day 37
+  // citation rule in a second place: `/Virginia/` matched this message for a
+  // covered state the day West Virginia joined the gap list, and the assertion
+  // that was meant to prove Virginia had left the list was being failed by a
+  // state that had never been in it.
+  const named = gaps
+    .replace(/\. Returning zero[\s\S]*$/, '')
+    .split(',')
+    .map((s) => s.trim());
+  for (const covered of ['Maryland', 'Ohio', 'Virginia', 'Connecticut', 'Alabama']) {
+    assert.ok(!named.includes(covered), `the gap list names ${covered}, which is covered`);
+  }
+  assert.ok(named.includes('West Virginia'));
+});
+
+test('the list of uncovered jurisdictions cannot name a state this package covers', () => {
+  // The message above named CONNECTICUT as a state this package does not cover,
+  // for the whole of the day Connecticut shipped, because the sentence was a
+  // second copy of the registry. This is the check that makes that impossible:
+  // the list is declared, the message is built from it, and a name that is also
+  // a supported state's name fails here.
+  const covered = new Set(SUPPORTED_STATES.map((s) => stateName(s)));
+  for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
+    assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
+  }
+  // Forty-two jurisdictions tax individual income. This package covers
+  // twenty-one of them — thirty supported states less the nine with no income
+  // tax at all — so the uncovered list has the other twenty-one.
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 21);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 21);
+  for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
+    assert.match(getMissingStatesMessage(), new RegExp(name));
+  }
 });
 
 test('every state computes for every filing status without throwing', () => {

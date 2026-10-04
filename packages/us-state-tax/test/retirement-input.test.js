@@ -63,7 +63,7 @@ test('a field of PersonRetirementIncome that does not exist is rejected', () => 
   });
   // No near match: list them all rather than guess.
   assert.throws(() => stateIncomeTax(retiree({ filer: { w2Wages: 1_000 } })), {
-    message: /The fields are `employerPlanPension`, `socialSecurityBenefits`/,
+    message: /The fields are `employerPlanPension`, `definedContributionPlan`, `socialSecurityBenefits`/,
   });
 });
 
@@ -91,6 +91,7 @@ test('every documented field is accepted, and an empty split is fine', () => {
   // list exhaustive at compile time; this proves the engine agrees at run time.
   const everyField = {
     employerPlanPension: 1_000,
+    definedContributionPlan: 1_500,
     socialSecurityBenefits: 2_000,
     militaryRetirement: 3_000,
     iraDistributions: 4_000,

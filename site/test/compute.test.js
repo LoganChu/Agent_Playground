@@ -241,22 +241,30 @@ test('a separate filer living with their spouse loses the § 86 thresholds', () 
 });
 
 test('the ranking moved under Utah again, and Utah still has not moved', () => {
-  // The site's whole claim is that it ranks twenty-nine states against each
+  // The site's whole claim is that it ranks thirty states against each
   // other, and a ranking is only as good as its worst-modelled member.
   //
   // Utah's own figure has not changed since v0.17.0 — $1,388.46, down from
-  // $2,801.46 before its retirement credits existed. It has now fallen three
+  // $2,801.46 before its retirement credits existed. It has now fallen four
   // times without moving: 16th to 22nd on v0.18.0, when ten states stopped
   // taxing Social Security they exempt; 22nd to 25th on v0.19.0, when Illinois,
-  // Michigan and New York stopped taxing pensions they exempt; and 25th to 26th
-  // on v0.35.0, when Connecticut arrived and charged this couple nothing at all
-  // — $60,000 of pension and $40,000 of benefits are both below its thresholds,
-  // so the whole of both comes out of Connecticut AGI.
+  // Michigan and New York stopped taxing pensions they exempt; 25th to 26th on
+  // v0.35.0, when Connecticut arrived and charged this couple nothing at all;
+  // and 26th to 27th on v0.36.0, when Alabama did the same.
   //
-  // TEN states have passed Utah and not one of them by changing its own law.
-  // The first nine were rows that were wrong; the tenth is a row that did not
+  // ELEVEN states have passed Utah and not one of them by changing its own law.
+  // The first nine were rows that were wrong; the last two are rows that did not
   // exist, which is the same fact about a ranking from the other side: it is
   // only ever a ranking of what somebody has modelled.
+  //
+  // Alabama's zero is worth one more line, because it is the one row on this
+  // page whose answer depends on a question the page does not ask. Alabama
+  // exempts a DEFINED BENEFIT pension in full at any age and taxes a DEFINED
+  // CONTRIBUTION draw above $6,000 from 65. This page's field is called
+  // "pension" and is passed as `employerPlanPension`, which the engine reads as
+  // defined benefit — so the $0 is the right answer for a couple with a pension
+  // and the wrong one for a couple drawing down a 401(k), and the engine's own
+  // note says so on the row.
   //
   // That is the argument for the differential harness in one line: a wrong row
   // is not a wrong row, it is a wrong TABLE, and the only way to find out which
@@ -273,11 +281,12 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  assert.equal(place, 26, `Utah ranks ${place}`);
-  // The ten that passed it, all of them by being modelled rather than by
-  // changing: six on v0.18.0, three on v0.19.0 and Connecticut today.
+  assert.equal(place, 27, `Utah ranks ${place}`);
+  // The eleven that passed it, all of them by being modelled rather than by
+  // changing: six on v0.18.0, three on v0.19.0, Connecticut on v0.35.0 and
+  // Alabama today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // Three of them now charge this couple NOTHING AT ALL, which is the size of
