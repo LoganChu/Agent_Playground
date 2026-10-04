@@ -1,4 +1,19 @@
 {
+ "single-worker-AL-15000-0-0-0-0": {
+  "id": "single-worker-AL-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 347.2900085449219
+  },
+  "state": {
+   "tax": 485.0
+  },
+  "error": null
+ },
  "single-worker-AZ-15000-0-0-0-0": {
   "id": "single-worker-AZ-15000-0-0-0-0",
   "federal": {
@@ -296,6 +311,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "single-worker-AL-30000-0-0-0-0": {
+  "id": "single-worker-AL-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 13900.0,
+   "incomeTaxBeforeCredits": 1420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1175.25
   },
   "error": null
  },
@@ -599,6 +629,21 @@
   },
   "error": null
  },
+ "single-worker-AL-50000-0-0-0-0": {
+  "id": "single-worker-AL-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2002.75
+  },
+  "error": null
+ },
  "single-worker-AZ-50000-0-0-0-0": {
   "id": "single-worker-AZ-50000-0-0-0-0",
   "federal": {
@@ -896,6 +941,21 @@
   },
   "state": {
    "tax": 2060.89990234375
+  },
+  "error": null
+ },
+ "single-worker-AL-80000-0-0-0-0": {
+  "id": "single-worker-AL-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 63900.0,
+   "incomeTaxBeforeCredits": 8770.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3140.5
   },
   "error": null
  },
@@ -1199,6 +1259,21 @@
   },
   "error": null
  },
+ "single-worker-AL-150000-0-0-0-0": {
+  "id": "single-worker-AL-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 24734.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5574.5498046875
+  },
+  "error": null
+ },
  "single-worker-AZ-150000-0-0-0-0": {
   "id": "single-worker-AZ-150000-0-0-0-0",
   "federal": {
@@ -1496,6 +1571,21 @@
   },
   "state": {
    "tax": 7810.89990234375
+  },
+  "error": null
+ },
+ "single-worker-AL-400000-0-0-0-0": {
+  "id": "single-worker-AL-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 380190.0,
+   "incomeTaxBeforeCredits": 101835.75,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 13841.2626953125
   },
   "error": null
  },
@@ -1799,6 +1889,21 @@
   },
   "error": null
  },
+ "couple-two-children-AL-30000-0-0-0-0": {
+  "id": "couple-two-children-AL-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7316.0
+  },
+  "state": {
+   "tax": 823.75
+  },
+  "error": null
+ },
  "couple-two-children-AZ-30000-0-0-0-0": {
   "id": "couple-two-children-AZ-30000-0-0-0-0",
   "federal": {
@@ -2096,6 +2201,21 @@
   },
   "state": {
    "tax": -1154.2000732421875
+  },
+  "error": null
+ },
+ "couple-two-children-AL-60000-0-0-0-0": {
+  "id": "couple-two-children-AL-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 27800.0,
+   "incomeTaxBeforeCredits": 2840.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 1242.2958984375
+  },
+  "state": {
+   "tax": 2470.0
   },
   "error": null
  },
@@ -2399,6 +2519,21 @@
   },
   "error": null
  },
+ "couple-two-children-AL-100000-0-0-0-0": {
+  "id": "couple-two-children-AL-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 67800.0,
+   "incomeTaxBeforeCredits": 7640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4195.5
+  },
+  "error": null
+ },
  "couple-two-children-AZ-100000-0-0-0-0": {
   "id": "couple-two-children-AZ-100000-0-0-0-0",
   "federal": {
@@ -2696,6 +2831,21 @@
   },
   "state": {
    "tax": 4272.35009765625
+  },
+  "error": null
+ },
+ "couple-two-children-AL-200000-0-0-0-0": {
+  "id": "couple-two-children-AL-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 167800.0,
+   "incomeTaxBeforeCredits": 26340.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7926.0498046875
   },
   "error": null
  },
@@ -2999,6 +3149,21 @@
   },
   "error": null
  },
+ "single-parent-AL-12000-0-0-0-0": {
+  "id": "single-parent-AL-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": 102.0
+  },
+  "error": null
+ },
  "single-parent-AZ-12000-0-0-0-0": {
   "id": "single-parent-AZ-12000-0-0-0-0",
   "federal": {
@@ -3296,6 +3461,21 @@
   },
   "state": {
    "tax": -788.2000122070312
+  },
+  "error": null
+ },
+ "single-parent-AL-25000-0-0-0-0": {
+  "id": "single-parent-AL-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 850.0,
+   "incomeTaxBeforeCredits": 85.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1785.0,
+   "earnedIncomeCredit": 4249.6220703125
+  },
+  "state": {
+   "tax": 750.0
   },
   "error": null
  },
@@ -3599,6 +3779,21 @@
   },
   "error": null
  },
+ "single-parent-AL-45000-0-0-0-0": {
+  "id": "single-parent-AL-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 20850.0,
+   "incomeTaxBeforeCredits": 2148.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 1837.875
+  },
+  "error": null
+ },
  "single-parent-AZ-45000-0-0-0-0": {
   "id": "single-parent-AZ-45000-0-0-0-0",
   "federal": {
@@ -3896,6 +4091,21 @@
   },
   "state": {
    "tax": 1509.20068359375
+  },
+  "error": null
+ },
+ "retired-couple-AL-0-0-40000-0-0": {
+  "id": "retired-couple-AL-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
   },
   "error": null
  },
@@ -4199,6 +4409,21 @@
   },
   "error": null
  },
+ "retired-couple-AL-0-20000-40000-0-0": {
+  "id": "retired-couple-AL-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 80.0
+  },
+  "error": null
+ },
  "retired-couple-AZ-0-20000-40000-0-0": {
   "id": "retired-couple-AZ-0-20000-40000-0-0",
   "federal": {
@@ -4496,6 +4721,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "retired-couple-AL-0-50000-40000-0-0": {
+  "id": "retired-couple-AL-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 30600.0,
+   "incomeTaxBeforeCredits": 3176.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1561.199951171875
   },
   "error": null
  },
@@ -4799,6 +5039,21 @@
   },
   "error": null
  },
+ "retired-couple-AL-0-90000-40000-0-0": {
+  "id": "retired-couple-AL-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 76500.0,
+   "incomeTaxBeforeCredits": 8684.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3285.800048828125
+  },
+  "error": null
+ },
  "retired-couple-AZ-0-90000-40000-0-0": {
   "id": "retired-couple-AZ-0-90000-40000-0-0",
   "federal": {
@@ -5096,6 +5351,21 @@
   },
   "state": {
    "tax": 3194.800048828125
+  },
+  "error": null
+ },
+ "single-retiree-AL-0-10000-24000-0-0": {
+  "id": "single-retiree-AL-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
   },
   "error": null
  },
@@ -5399,6 +5669,21 @@
   },
   "error": null
  },
+ "single-retiree-AL-0-40000-24000-0-0": {
+  "id": "single-retiree-AL-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 35650.0,
+   "incomeTaxBeforeCredits": 4030.0,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1254.75
+  },
+  "error": null
+ },
  "single-retiree-AZ-0-40000-24000-0-0": {
   "id": "single-retiree-AZ-0-40000-24000-0-0",
   "federal": {
@@ -5696,6 +5981,21 @@
   },
   "state": {
    "tax": 749.9000244140625
+  },
+  "error": null
+ },
+ "investor-AL-50000-0-0-20000-0": {
+  "id": "investor-AL-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 53900.0,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2969.375
   },
   "error": null
  },
@@ -5999,6 +6299,21 @@
   },
   "error": null
  },
+ "investor-AL-50000-0-0-100000-0": {
+  "id": "investor-AL-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6369.375
+  },
+  "error": null
+ },
  "investor-AZ-50000-0-0-100000-0": {
   "id": "investor-AZ-50000-0-0-100000-0",
   "federal": {
@@ -6296,6 +6611,21 @@
   },
   "state": {
    "tax": 7810.89990234375
+  },
+  "error": null
+ },
+ "separate-AL-60000-0-0-0-0": {
+  "id": "separate-AL-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 43900.0,
+   "incomeTaxBeforeCredits": 5020.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2404.5
   },
   "error": null
  },
@@ -6599,6 +6929,21 @@
   },
   "error": null
  },
+ "muni-retiree-AL-0-60000-40000-0-10000": {
+  "id": "muni-retiree-AL-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 46500.0,
+   "incomeTaxBeforeCredits": 5084.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2465.800048828125
+  },
+  "error": null
+ },
  "muni-retiree-AZ-0-60000-40000-0-10000": {
   "id": "muni-retiree-AZ-0-60000-40000-0-10000",
   "federal": {
@@ -6896,6 +7241,21 @@
   },
   "state": {
    "tax": 622.0
+  },
+  "error": null
+ },
+ "couple-no-children-AL-25000-0-0-0-0": {
+  "id": "couple-no-children-AL-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 139.21002197265625
+  },
+  "state": {
+   "tax": 595.0
   },
   "error": null
  },
@@ -7199,6 +7559,21 @@
   },
   "error": null
  },
+ "couple-no-children-AL-75000-0-0-0-0": {
+  "id": "couple-no-children-AL-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 42800.0,
+   "incomeTaxBeforeCredits": 4640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3001.125
+  },
+  "error": null
+ },
  "couple-no-children-AZ-75000-0-0-0-0": {
   "id": "couple-no-children-AZ-75000-0-0-0-0",
   "federal": {
@@ -7496,6 +7871,21 @@
   },
   "state": {
    "tax": 2941.800048828125
+  },
+  "error": null
+ },
+ "mixed-dependents-AL-40000-0-0-0-0": {
+  "id": "mixed-dependents-AL-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 7800.0,
+   "incomeTaxBeforeCredits": 780.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5880.0,
+   "earnedIncomeCredit": 6369.2958984375
+  },
+  "state": {
+   "tax": 1370.0
   },
   "error": null
  },
@@ -7799,6 +8189,21 @@
   },
   "error": null
  },
+ "mixed-dependents-AL-90000-0-0-0-0": {
+  "id": "mixed-dependents-AL-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 57800.0,
+   "incomeTaxBeforeCredits": 6440.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3850.75
+  },
+  "error": null
+ },
  "mixed-dependents-AZ-90000-0-0-0-0": {
   "id": "mixed-dependents-AZ-90000-0-0-0-0",
   "federal": {
@@ -8096,6 +8501,21 @@
   },
   "state": {
    "tax": 3643.875
+  },
+  "error": null
+ },
+ "single-parent-teen-AL-35000-0-0-0-0": {
+  "id": "single-parent-teen-AL-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 10850.0,
+   "incomeTaxBeforeCredits": 1085.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2651.6220703125
+  },
+  "state": {
+   "tax": 1376.125
   },
   "error": null
  },
@@ -8399,6 +8819,21 @@
   },
   "error": null
  },
+ "separate-with-child-AL-45000-0-0-0-0": {
+  "id": "separate-with-child-AL-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 28900.0,
+   "incomeTaxBeforeCredits": 3220.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 1912.875
+  },
+  "error": null
+ },
  "separate-with-child-AZ-45000-0-0-0-0": {
   "id": "separate-with-child-AZ-45000-0-0-0-0",
   "federal": {
@@ -8696,6 +9131,21 @@
   },
   "state": {
    "tax": 1509.20068359375
+  },
+  "error": null
+ },
+ "surviving-spouse-AL-45000-0-0-0-0": {
+  "id": "surviving-spouse-AL-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 12800.0,
+   "incomeTaxBeforeCredits": 1280.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 1720.0
   },
   "error": null
  },
@@ -8999,6 +9449,21 @@
   },
   "error": null
  },
+ "surviving-spouse-high-AL-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-AL-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 217800.0,
+   "incomeTaxBeforeCredits": 37468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 9715.900390625
+  },
+  "error": null
+ },
  "surviving-spouse-high-AZ-250000-0-0-0-0": {
   "id": "surviving-spouse-high-AZ-250000-0-0-0-0",
   "federal": {
@@ -9296,6 +9761,21 @@
   },
   "state": {
    "tax": 13507.4248046875
+  },
+  "error": null
+ },
+ "surviving-spouse-high-AL-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-AL-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 267800.0,
+   "incomeTaxBeforeCredits": 49468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 11557.150390625
   },
   "error": null
  },
@@ -9599,6 +10079,21 @@
   },
   "error": null
  },
+ "surviving-spouse-high-AL-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-AL-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 417800.0,
+   "incomeTaxBeforeCredits": 86608.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 16913.900390625
+  },
+  "error": null
+ },
  "surviving-spouse-high-AZ-450000-0-0-0-0": {
   "id": "surviving-spouse-high-AZ-450000-0-0-0-0",
   "federal": {
@@ -9896,6 +10391,21 @@
   },
   "state": {
    "tax": 25007.42578125
+  },
+  "error": null
+ },
+ "surviving-spouse-low-AL-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-AL-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 200.0
   },
   "error": null
  },
@@ -10199,6 +10709,21 @@
   },
   "error": null
  },
+ "surviving-spouse-low-AL-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-AL-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 603.75
+  },
+  "error": null
+ },
  "surviving-spouse-low-AZ-26000-0-0-0-0": {
   "id": "surviving-spouse-low-AZ-26000-0-0-0-0",
   "federal": {
@@ -10496,6 +11021,21 @@
   },
   "state": {
    "tax": -178.46441650390625
+  },
+  "error": null
+ },
+ "separate-with-spouse-AL-0-55000-0-0-0": {
+  "id": "separate-with-spouse-AL-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1988.3199462890625
   },
   "error": null
  },
@@ -10799,6 +11339,21 @@
   },
   "error": null
  },
+ "separate-with-spouse-young-AL-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-AL-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2289.0
+  },
+  "error": null
+ },
  "separate-with-spouse-young-AZ-0-55000-0-0-0": {
   "id": "separate-with-spouse-young-AZ-0-55000-0-0-0",
   "federal": {
@@ -11096,6 +11651,21 @@
   },
   "state": {
    "tax": 2294.925048828125
+  },
+  "error": null
+ },
+ "early-retiree-AL-0-50000-0-0-0": {
+  "id": "early-retiree-AL-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2069.0
   },
   "error": null
  },
@@ -11399,6 +11969,21 @@
   },
   "error": null
  },
+ "early-retired-couple-AL-0-70000-0-0-0": {
+  "id": "early-retired-couple-AL-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 37800.0,
+   "incomeTaxBeforeCredits": 4040.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2818.0
+  },
+  "error": null
+ },
  "early-retired-couple-AZ-0-70000-0-0-0": {
   "id": "early-retired-couple-AZ-0-70000-0-0-0",
   "federal": {
@@ -11696,6 +12281,21 @@
   },
   "state": {
    "tax": 2654.300048828125
+  },
+  "error": null
+ },
+ "blind-worker-AL-40000-0-0-0-0": {
+  "id": "blind-worker-AL-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 21850.0,
+   "incomeTaxBeforeCredits": 2374.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1613.300048828125
   },
   "error": null
  },
@@ -11999,6 +12599,21 @@
   },
   "error": null
  },
+ "blind-senior-AL-0-25000-20000-0-0": {
+  "id": "blind-senior-AL-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4150.0,
+   "incomeTaxBeforeCredits": 415.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 664.25
+  },
+  "error": null
+ },
  "blind-senior-AZ-0-25000-20000-0-0": {
   "id": "blind-senior-AZ-0-25000-20000-0-0",
   "federal": {
@@ -12296,6 +12911,636 @@
   },
   "state": {
    "tax": 34.400001525878906
+  },
+  "error": null
+ },
+ "on-the-boundary-AL-50000-0-0-0-0": {
+  "id": "on-the-boundary-AL-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 2100.48095703125
+  },
+  "error": null
+ },
+ "on-the-boundary-AZ-50000-0-0-0-0": {
+  "id": "on-the-boundary-AZ-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 731.25
+  },
+  "error": null
+ },
+ "on-the-boundary-CA-50000-0-0-0-0": {
+  "id": "on-the-boundary-CA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 509.3353271484375
+  },
+  "error": null
+ },
+ "on-the-boundary-CO-50000-0-0-0-0": {
+  "id": "on-the-boundary-CO-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 135.5428466796875
+  },
+  "error": null
+ },
+ "on-the-boundary-CT-50000-0-0-0-0": {
+  "id": "on-the-boundary-CT-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1448.151123046875
+  },
+  "error": null
+ },
+ "on-the-boundary-GA-50000-0-0-0-0": {
+  "id": "on-the-boundary-GA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1497.0
+  },
+  "error": null
+ },
+ "on-the-boundary-ID-50000-0-0-0-0": {
+  "id": "on-the-boundary-ID-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1225.9383544921875
+  },
+  "error": null
+ },
+ "on-the-boundary-IL-50000-0-0-0-0": {
+  "id": "on-the-boundary-IL-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 2114.130859375
+  },
+  "error": null
+ },
+ "on-the-boundary-IN-50000-0-0-0-0": {
+  "id": "on-the-boundary-IN-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 2285.5878295898438
+  },
+  "error": null
+ },
+ "on-the-boundary-KY-50000-0-0-0-0": {
+  "id": "on-the-boundary-KY-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1632.9561767578125
+  },
+  "error": null
+ },
+ "on-the-boundary-MA-50000-0-0-0-0": {
+  "id": "on-the-boundary-MA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1588.151123046875
+  },
+  "error": null
+ },
+ "on-the-boundary-MD-50000-0-0-0-0": {
+  "id": "on-the-boundary-MD-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 2870.5986328125
+  },
+  "error": null
+ },
+ "on-the-boundary-MI-50000-0-0-0-0": {
+  "id": "on-the-boundary-MI-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1542.8634033203125
+  },
+  "error": null
+ },
+ "on-the-boundary-MS-50000-0-0-0-0": {
+  "id": "on-the-boundary-MS-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1208.0
+  },
+  "error": null
+ },
+ "on-the-boundary-NC-50000-0-0-0-0": {
+  "id": "on-the-boundary-NC-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1426.425048828125
+  },
+  "error": null
+ },
+ "on-the-boundary-NJ-50000-0-0-0-0": {
+  "id": "on-the-boundary-NJ-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1030.026123046875
+  },
+  "error": null
+ },
+ "on-the-boundary-NY-50000-0-0-0-0": {
+  "id": "on-the-boundary-NY-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1472.6134033203125
+  },
+  "error": null
+ },
+ "on-the-boundary-OH-50000-0-0-0-0": {
+  "id": "on-the-boundary-OH-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 795.9903564453125
+  },
+  "error": null
+ },
+ "on-the-boundary-PA-50000-0-0-0-0": {
+  "id": "on-the-boundary-PA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1509.537841796875
+  },
+  "error": null
+ },
+ "on-the-boundary-UT-50000-0-0-0-0": {
+  "id": "on-the-boundary-UT-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1486.41015625
+  },
+  "error": null
+ },
+ "on-the-boundary-VA-50000-0-0-0-0": {
+  "id": "on-the-boundary-VA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1956.5006103515625
+  },
+  "error": null
+ },
+ "on-the-boundary-AL-100000-0-0-0-0": {
+  "id": "on-the-boundary-AL-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3939.0
+  },
+  "error": null
+ },
+ "on-the-boundary-AZ-100000-0-0-0-0": {
+  "id": "on-the-boundary-AZ-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1981.25
+  },
+  "error": null
+ },
+ "on-the-boundary-CA-100000-0-0-0-0": {
+  "id": "on-the-boundary-CA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4473.0107421875
+  },
+  "error": null
+ },
+ "on-the-boundary-CO-100000-0-0-0-0": {
+  "id": "on-the-boundary-CO-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3666.60009765625
+  },
+  "error": null
+ },
+ "on-the-boundary-CT-100000-0-0-0-0": {
+  "id": "on-the-boundary-CT-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4975.0
+  },
+  "error": null
+ },
+ "on-the-boundary-GA-100000-0-0-0-0": {
+  "id": "on-the-boundary-GA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3992.0
+  },
+  "error": null
+ },
+ "on-the-boundary-ID-100000-0-0-0-0": {
+  "id": "on-the-boundary-ID-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3875.9384765625
+  },
+  "error": null
+ },
+ "on-the-boundary-IL-100000-0-0-0-0": {
+  "id": "on-the-boundary-IL-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4660.4248046875
+  },
+  "error": null
+ },
+ "on-the-boundary-IN-100000-0-0-0-0": {
+  "id": "on-the-boundary-IN-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4796.050048828125
+  },
+  "error": null
+ },
+ "on-the-boundary-KY-100000-0-0-0-0": {
+  "id": "on-the-boundary-KY-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3382.956298828125
+  },
+  "error": null
+ },
+ "on-the-boundary-MA-100000-0-0-0-0": {
+  "id": "on-the-boundary-MA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4190.0
+  },
+  "error": null
+ },
+ "on-the-boundary-MD-100000-0-0-0-0": {
+  "id": "on-the-boundary-MD-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6965.06005859375
+  },
+  "error": null
+ },
+ "on-the-boundary-MI-100000-0-0-0-0": {
+  "id": "on-the-boundary-MI-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3744.25
+  },
+  "error": null
+ },
+ "on-the-boundary-MS-100000-0-0-0-0": {
+  "id": "on-the-boundary-MS-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3208.0
+  },
+  "error": null
+ },
+ "on-the-boundary-NC-100000-0-0-0-0": {
+  "id": "on-the-boundary-NC-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3481.275146484375
+  },
+  "error": null
+ },
+ "on-the-boundary-NJ-100000-0-0-0-0": {
+  "id": "on-the-boundary-NJ-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4084.5
+  },
+  "error": null
+ },
+ "on-the-boundary-NY-100000-0-0-0-0": {
+  "id": "on-the-boundary-NY-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4713.25
+  },
+  "error": null
+ },
+ "on-the-boundary-OH-100000-0-0-0-0": {
+  "id": "on-the-boundary-OH-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2261.126953125
+  },
+  "error": null
+ },
+ "on-the-boundary-PA-100000-0-0-0-0": {
+  "id": "on-the-boundary-PA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3070.0
+  },
+  "error": null
+ },
+ "on-the-boundary-UT-100000-0-0-0-0": {
+  "id": "on-the-boundary-UT-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4412.33447265625
+  },
+  "error": null
+ },
+ "on-the-boundary-VA-100000-0-0-0-0": {
+  "id": "on-the-boundary-VA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4882.4248046875
   },
   "error": null
  }

@@ -161,6 +161,27 @@ test('the itemized deduction does not require itemizing federally, and FICA beat
   assert.equal(r.deduction > al({ agi: 50_000 }).deduction, true);
 });
 
+test('the payroll tax paid IS an Alabama Schedule A, and a supplied total replaces it', () => {
+  // The default this fixes: a wage earner who supplies no Schedule A was given
+  // the $2,500 floor, which is $1,325 of deduction and $66.25 of tax below the
+  // FICA they had already paid — and `socialSecurityAndMedicarePaid` is a figure
+  // this package already asks Massachusetts filers for.
+  money(al({ agi: 50_000, socialSecurityAndMedicarePaid: 3_825 }).deduction, 3_825);
+  money(al({ agi: 50_000 }).deduction, 2_500, 'without it, the floor');
+  // A caller's own total REPLACES it rather than adding to it: a filer who has
+  // already put their FICA on their Schedule A would otherwise deduct it twice,
+  // and a double count is a worse error than the one the flag fixes.
+  money(
+    al({ agi: 50_000, socialSecurityAndMedicarePaid: 3_825, stateItemizedDeductions: 9_000 })
+      .deduction,
+    9_000,
+  );
+  // And the standard deduction still wins where it is larger, which is what
+  // makes this the larger of the two rather than a third deduction: $1,000 of
+  // payroll tax is below every column's floor.
+  money(al({ agi: 50_000, socialSecurityAndMedicarePaid: 1_000 }).deduction, 2_500);
+});
+
 // ---------------------------------------------------------------------------
 // Form 40 line 12: the federal bill, inside the state base
 // ---------------------------------------------------------------------------

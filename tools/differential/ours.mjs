@@ -7,7 +7,7 @@
  * node tools/differential/ours.mjs > tools/differential/out/ours.json
  * ```
  */
-import { estimateFederalTax } from '../../packages/us-federal-tax/dist/esm/index.js';
+import { estimateFederalTax, ficaTax } from '../../packages/us-federal-tax/dist/esm/index.js';
 import { stateIncomeTax } from '../../packages/us-state-tax/dist/esm/index.js';
 import { cases } from './cases.mjs';
 
@@ -122,6 +122,22 @@ function one(c) {
     // a divergence about the harness rather than about Virginia.
     spouseAdjustedFederalAdjustedGrossIncome: c.spouseAge !== null ? 0 : undefined,
     blindOrDisabled: c.blind || undefined,
+    // The payroll tax the household actually paid, which is a FACT ABOUT THE
+    // HOUSEHOLD THIS HARNESS BUILT rather than an itemised deduction added to
+    // the case — Social Security, Medicare and the Additional Medicare Tax on
+    // the wages both models were given, which is exactly PolicyEngine's own
+    // `employee_payroll_tax`.
+    //
+    // It is here for Alabama, where § 40-18-15(a)(3) makes it an itemised
+    // deduction and PolicyEngine INFERS it from the wage. Without it the two
+    // sides would differ on every Alabama wage earner — $66.25 at $50,000, more
+    // above — and the difference would be about this harness rather than about
+    // Alabama. Massachusetts reads the same figure for its own $2,000 deduction,
+    // which it had never been given either.
+    socialSecurityAndMedicarePaid:
+      c.wages > 0
+        ? ficaTax({ year: c.year, wages: c.wages, filingStatus: c.filingStatus }).employee.total
+        : undefined,
     taxableSocialSecurity: fed.socialSecurity?.taxableBenefits ?? 0,
     taxExemptInterest: c.taxExemptInterest,
     // The same dollars again, under the name Illinois's addition asks for.

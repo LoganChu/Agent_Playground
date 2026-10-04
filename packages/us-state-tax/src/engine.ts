@@ -172,7 +172,15 @@ function itemizedDeduction(def: StateIncomeTaxDefinition, input: StateIncomeTaxI
   const rule = def.itemizedDeduction;
   if (!rule) return 0;
   if (rule.requiresFederalItemizing && input.federal.deductionKind !== 'itemized') return 0;
-  const claimed = nonNegative(input.stateItemizedDeductions, 'stateItemizedDeductions');
+  // Alabama allows the FICA and self-employment taxes paid as a tax paid on its
+  // own Schedule A — § 40-18-15(a)(3) — which is why nearly every Alabama wage
+  // earner should itemize. The caller's own Schedule A total wins when they
+  // supply one; it is not added to the payroll figure, because a filer who had
+  // already put their FICA on their Schedule A would otherwise deduct it twice.
+  const claimed =
+    input.stateItemizedDeductions === undefined && rule.payrollTaxIsItemized === true
+      ? nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid')
+      : nonNegative(input.stateItemizedDeductions, 'stateItemizedDeductions');
   if (claimed <= 0) return 0;
   const excess = input.federal.adjustedGrossIncome - rule.phaseOutThreshold[input.filingStatus];
   const reduction = excess > 0 ? rule.phaseOutRate * excess : 0;

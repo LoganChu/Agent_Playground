@@ -189,7 +189,7 @@ Two things worth taking from that, and they point in opposite directions:
 2. **It is also a statement about the GRID, not only about PolicyEngine.**
    Fourteen releases of a model that covers benefits, state credits, payroll and
    fifty states cannot really have changed nothing; what is true is that nothing
-   they changed is *visible from these 820 households and five metrics*. Day 27's
+   they changed is *visible from these 903 households and five metrics*. Day 27's
    rule one level up: a differential test is bounded by the vocabulary of its
    cases, and a stable reference is evidence about the vocabulary as much as about
    the reference.
@@ -252,6 +252,55 @@ land there:
 Bounding the remaining unbounded entries is the obvious next pass and was not done
 today: a bound has to come from the rule, and writing twenty of them from the
 measurements would build twenty ratchets.
+
+## Day 40: a case standing exactly on a boundary, and a state that magnifies the federal column
+
+Alabama took the grid from 820 households to 903 — 43 of its own, and 42 from a
+new shape every state now gets.
+
+**The new shape is one case standing EXACTLY on a round number.** Day 39
+predicted that this grid would disagree with PolicyEngine-US about which step of
+Connecticut's Table E owns its boundary, ran, and found nothing: in 779
+households nobody was standing on a boundary. `on-the-boundary` is a single
+filer with one dependent at exactly `$50,000` and exactly `$100,000` of wages,
+which are the two steps of Alabama's dependent exemption chart, Maryland's
+`$100,000` exemption step and Virginia's `$50,000` age-deduction threshold.
+
+It found the Alabama convention immediately, and it is **the first divergence in
+this harness that was predicted before it was measured**: § 40-18-19(a)(9) reads
+"equal to or less than fifty thousand dollars", so the lower step owns both
+edges, and PolicyEngine-US stores the chart as thresholds read the other way.
+`$25` of tax at `$50,000`, `$10` at `$100,000`.
+
+It also found that a household already in the grid had been standing on the same
+boundary for 39 days: `couple-two-children` at exactly `$100,000`. A convention
+nobody could see was inside a case nobody had asked that question of.
+
+**And Alabama magnifies the federal column into the state one.** Form 40 line 12
+deducts the federal income tax, so a disagreement about the FEDERAL bill becomes
+a disagreement about the STATE bill at 5% of itself. The § 24(b)(2) child credit
+threshold for a qualifying surviving spouse — a federal divergence this file has
+recorded since Day 27, worth `$2,200` — now shows up a second time as `$110` of
+Alabama tax on the same two households.
+
+**THE RULE: a state that deducts the federal tax turns every federal
+disagreement into a state disagreement at its own rate.** One consequence is
+pleasant and one is a warning. The federal side of this grid is now checked from
+two directions, because an error in the federal engine moves an Alabama answer.
+And no future Alabama column can be right while the federal one is wrong, which
+makes the 42 federal differences in this report load-bearing for a state.
+
+One harness change went with it, and it is the kind this file exists to avoid
+needing. Ala. Code § 40-18-15(a)(3) makes the FICA a filer paid an ITEMISED
+DEDUCTION of Alabama — PolicyEngine infers it from the wage it was given — so
+until the harness passed `socialSecurityAndMedicarePaid`, the two sides differed
+on every Alabama wage earner by 5% of their payroll tax and the difference would
+have been about this harness. It is a fact about the household the harness BUILT,
+not an itemised deduction added to a case, and it is computed with `ficaTax()`
+from the federal package so that it is exactly PolicyEngine's own
+`employee_payroll_tax`: Social Security, Medicare and the Additional Medicare
+Tax. Massachusetts reads the same figure for its own `$2,000` deduction and had
+never been given it either.
 
 ## Running it
 

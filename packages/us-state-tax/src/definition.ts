@@ -642,6 +642,28 @@ export interface ItemizedDeductionRule {
   /** Share of federal AGI above the threshold subtracted from the deduction. */
   readonly phaseOutRate: number;
   readonly phaseOutThreshold: ByStatus;
+  /**
+   * True where the **payroll taxes the filer paid are themselves an itemized
+   * deduction** of this state — Alabama, Ala. Code § 40-18-15(a)(3), which
+   * allows "taxes paid or accrued within the taxable year, including income
+   * taxes, Federal Insurance Contribution Act taxes, taxes on self-employment
+   * income".
+   *
+   * It is the reason Alabama's standard deduction chart is nearly dead law for
+   * anybody with wages: Social Security and Medicare on `$32,680` of wages is
+   * `$2,500`, which is the single filer's standard deduction FLOOR, so above
+   * roughly that wage the Alabama Schedule A beats the standard deduction on
+   * payroll tax alone — before any mortgage interest, property tax or charity.
+   *
+   * When it is set and the caller supplies no
+   * {@link StateIncomeTaxInput.stateItemizedDeductions}, the engine reads
+   * {@link StateIncomeTaxInput.socialSecurityAndMedicarePaid} as the Schedule A
+   * total. **The caller's own total wins when they supply one**, rather than
+   * being added to it: a filer who has already put their FICA on their
+   * Schedule A would otherwise deduct it twice, and a double count is a worse
+   * error than the one this flag fixes.
+   */
+  readonly payrollTaxIsItemized?: boolean;
 }
 
 /**

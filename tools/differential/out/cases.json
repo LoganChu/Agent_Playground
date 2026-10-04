@@ -1,5 +1,22 @@
 [
  {
+  "id": "single-worker-AL-15000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 15000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "single-worker-AZ-15000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -337,6 +354,23 @@
   "spouseAge": null,
   "childAges": [],
   "wages": 15000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "single-worker-AL-30000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 30000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -692,6 +726,23 @@
   "kind": "single-worker"
  },
  {
+  "id": "single-worker-AL-50000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "single-worker-AZ-50000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -1029,6 +1080,23 @@
   "spouseAge": null,
   "childAges": [],
   "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "single-worker-AL-80000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 80000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -1384,6 +1452,23 @@
   "kind": "single-worker"
  },
  {
+  "id": "single-worker-AL-150000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 150000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "single-worker-AZ-150000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -1721,6 +1806,23 @@
   "spouseAge": null,
   "childAges": [],
   "wages": 150000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "single-worker-AL-400000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 400000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -2074,6 +2176,26 @@
   "blind": 0,
   "county": null,
   "kind": "single-worker"
+ },
+ {
+  "id": "couple-two-children-AL-30000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 30000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-two-children"
  },
  {
   "id": "couple-two-children-AZ-30000-0-0-0-0",
@@ -2473,6 +2595,26 @@
    8
   ],
   "wages": 30000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-two-children"
+ },
+ {
+  "id": "couple-two-children-AL-60000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 60000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -2888,6 +3030,26 @@
   "kind": "couple-two-children"
  },
  {
+  "id": "couple-two-children-AL-100000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-two-children"
+ },
+ {
   "id": "couple-two-children-AZ-100000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -3285,6 +3447,26 @@
    8
   ],
   "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-two-children"
+ },
+ {
+  "id": "couple-two-children-AL-200000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 200000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -3700,6 +3882,25 @@
   "kind": "couple-two-children"
  },
  {
+  "id": "single-parent-AL-12000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 12000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent"
+ },
+ {
   "id": "single-parent-AZ-12000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -4077,6 +4278,25 @@
    5
   ],
   "wages": 12000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent"
+ },
+ {
+  "id": "single-parent-AL-25000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 25000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -4472,6 +4692,25 @@
   "kind": "single-parent"
  },
  {
+  "id": "single-parent-AL-45000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent"
+ },
+ {
   "id": "single-parent-AZ-45000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -4858,6 +5097,23 @@
   "kind": "single-parent"
  },
  {
+  "id": "retired-couple-AL-0-0-40000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 0,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "retired-couple"
+ },
+ {
   "id": "retired-couple-AZ-0-0-40000-0-0",
   "year": 2026,
   "state": "AZ",
@@ -5196,6 +5452,23 @@
   "childAges": [],
   "wages": 0,
   "pension": 0,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "retired-couple"
+ },
+ {
+  "id": "retired-couple-AL-0-20000-40000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 20000,
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
@@ -5550,6 +5823,23 @@
   "kind": "retired-couple"
  },
  {
+  "id": "retired-couple-AL-0-50000-40000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "retired-couple"
+ },
+ {
   "id": "retired-couple-AZ-0-50000-40000-0-0",
   "year": 2026,
   "state": "AZ",
@@ -5888,6 +6178,23 @@
   "childAges": [],
   "wages": 0,
   "pension": 50000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "retired-couple"
+ },
+ {
+  "id": "retired-couple-AL-0-90000-40000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 90000,
   "socialSecurity": 40000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
@@ -6242,6 +6549,23 @@
   "kind": "retired-couple"
  },
  {
+  "id": "single-retiree-AL-0-10000-24000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 67,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 10000,
+  "socialSecurity": 24000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-retiree"
+ },
+ {
   "id": "single-retiree-AZ-0-10000-24000-0-0",
   "year": 2026,
   "state": "AZ",
@@ -6580,6 +6904,23 @@
   "childAges": [],
   "wages": 0,
   "pension": 10000,
+  "socialSecurity": 24000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-retiree"
+ },
+ {
+  "id": "single-retiree-AL-0-40000-24000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 67,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 40000,
   "socialSecurity": 24000,
   "longTermCapitalGains": 0,
   "taxExemptInterest": 0,
@@ -6934,6 +7275,23 @@
   "kind": "single-retiree"
  },
  {
+  "id": "investor-AL-50000-0-0-20000-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 45,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 20000,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "investor"
+ },
+ {
   "id": "investor-AZ-50000-0-0-20000-0",
   "year": 2026,
   "state": "AZ",
@@ -7274,6 +7632,23 @@
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 20000,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "investor"
+ },
+ {
+  "id": "investor-AL-50000-0-0-100000-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 45,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 100000,
   "taxExemptInterest": 0,
   "blind": 0,
   "county": null,
@@ -7626,6 +8001,23 @@
   "kind": "investor"
  },
  {
+  "id": "separate-AL-60000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 42,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 60000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate"
+ },
+ {
   "id": "separate-AZ-60000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -7970,6 +8362,23 @@
   "blind": 0,
   "county": null,
   "kind": "separate"
+ },
+ {
+  "id": "muni-retiree-AL-0-60000-40000-0-10000",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 60000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 10000,
+  "blind": 0,
+  "county": null,
+  "kind": "muni-retiree"
  },
  {
   "id": "muni-retiree-AZ-0-60000-40000-0-10000",
@@ -8318,6 +8727,23 @@
   "kind": "muni-retiree"
  },
  {
+  "id": "couple-no-children-AL-25000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
   "id": "couple-no-children-AZ-25000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -8655,6 +9081,23 @@
   "spouseAge": 43,
   "childAges": [],
   "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "couple-no-children-AL-75000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -9008,6 +9451,27 @@
   "blind": 0,
   "county": null,
   "kind": "couple-no-children"
+ },
+ {
+  "id": "mixed-dependents-AL-40000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
  },
  {
   "id": "mixed-dependents-AZ-40000-0-0-0-0",
@@ -9427,6 +9891,27 @@
    14
   ],
   "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "mixed-dependents-AL-90000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -9862,6 +10347,25 @@
   "kind": "mixed-dependents"
  },
  {
+  "id": "single-parent-teen-AL-35000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "single-parent-teen"
+ },
+ {
   "id": "single-parent-teen-AZ-35000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -10246,6 +10750,25 @@
   "blind": 0,
   "county": null,
   "kind": "single-parent-teen"
+ },
+ {
+  "id": "separate-with-child-AL-45000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-child"
  },
  {
   "id": "separate-with-child-AZ-45000-0-0-0-0",
@@ -10634,6 +11157,25 @@
   "kind": "separate-with-child"
  },
  {
+  "id": "surviving-spouse-AL-45000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse"
+ },
+ {
   "id": "surviving-spouse-AZ-45000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -11020,6 +11562,25 @@
   "kind": "surviving-spouse"
  },
  {
+  "id": "surviving-spouse-high-AL-250000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "surviving-spouse-high-AZ-250000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -11397,6 +11958,25 @@
    10
   ],
   "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "surviving-spouse-high-AL-300000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -11792,6 +12372,25 @@
   "kind": "surviving-spouse-high"
  },
  {
+  "id": "surviving-spouse-high-AL-450000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "surviving-spouse-high-AZ-450000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -12178,6 +12777,25 @@
   "kind": "surviving-spouse-high"
  },
  {
+  "id": "surviving-spouse-low-AL-18000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 18000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-low"
+ },
+ {
   "id": "surviving-spouse-low-AZ-18000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -12555,6 +13173,25 @@
    10
   ],
   "wages": 18000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "surviving-spouse-low"
+ },
+ {
+  "id": "surviving-spouse-low-AL-26000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 26000,
   "pension": 0,
   "socialSecurity": 0,
   "longTermCapitalGains": 0,
@@ -12950,6 +13587,23 @@
   "kind": "surviving-spouse-low"
  },
  {
+  "id": "separate-with-spouse-AL-0-55000-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 68,
+  "spouseAge": 68,
+  "childAges": [],
+  "wages": 0,
+  "pension": 55000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-spouse"
+ },
+ {
   "id": "separate-with-spouse-AZ-0-55000-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -13294,6 +13948,23 @@
   "blind": 0,
   "county": null,
   "kind": "separate-with-spouse"
+ },
+ {
+  "id": "separate-with-spouse-young-AL-0-55000-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 61,
+  "spouseAge": 61,
+  "childAges": [],
+  "wages": 0,
+  "pension": 55000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "separate-with-spouse-young"
  },
  {
   "id": "separate-with-spouse-young-AZ-0-55000-0-0-0",
@@ -13642,6 +14313,23 @@
   "kind": "separate-with-spouse-young"
  },
  {
+  "id": "early-retiree-AL-0-50000-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retiree"
+ },
+ {
   "id": "early-retiree-AZ-0-50000-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -13986,6 +14674,23 @@
   "blind": 0,
   "county": null,
   "kind": "early-retiree"
+ },
+ {
+  "id": "early-retired-couple-AL-0-70000-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "early-retired-couple"
  },
  {
   "id": "early-retired-couple-AZ-0-70000-0-0-0",
@@ -14334,6 +15039,23 @@
   "kind": "early-retired-couple"
  },
  {
+  "id": "blind-worker-AL-40000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-worker"
+ },
+ {
   "id": "blind-worker-AZ-40000-0-0-0-0",
   "year": 2026,
   "state": "AZ",
@@ -14680,6 +15402,23 @@
   "kind": "blind-worker"
  },
  {
+  "id": "blind-senior-AL-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "kind": "blind-senior"
+ },
+ {
   "id": "blind-senior-AZ-0-25000-20000-0-0",
   "year": 2026,
   "state": "AZ",
@@ -15024,5 +15763,815 @@
   "blind": 1,
   "county": null,
   "kind": "blind-senior"
+ },
+ {
+  "id": "on-the-boundary-AL-50000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-AZ-50000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-CA-50000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-CO-50000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-CT-50000-0-0-0-0",
+  "year": 2026,
+  "state": "CT",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-GA-50000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-ID-50000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-IL-50000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-IN-50000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-KY-50000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MA-50000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MD-50000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MI-50000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MS-50000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-NC-50000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-NJ-50000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-NY-50000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-OH-50000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-PA-50000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-UT-50000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-VA-50000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-AL-100000-0-0-0-0",
+  "year": 2026,
+  "state": "AL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-AZ-100000-0-0-0-0",
+  "year": 2026,
+  "state": "AZ",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-CA-100000-0-0-0-0",
+  "year": 2026,
+  "state": "CA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-CO-100000-0-0-0-0",
+  "year": 2026,
+  "state": "CO",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-CT-100000-0-0-0-0",
+  "year": 2026,
+  "state": "CT",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-GA-100000-0-0-0-0",
+  "year": 2026,
+  "state": "GA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-ID-100000-0-0-0-0",
+  "year": 2026,
+  "state": "ID",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-IL-100000-0-0-0-0",
+  "year": 2026,
+  "state": "IL",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-IN-100000-0-0-0-0",
+  "year": 2026,
+  "state": "IN",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Marion County",
+   "theirs": "MARION_COUNTY_IN"
+  },
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-KY-100000-0-0-0-0",
+  "year": 2026,
+  "state": "KY",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MA-100000-0-0-0-0",
+  "year": 2026,
+  "state": "MA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MD-100000-0-0-0-0",
+  "year": 2026,
+  "state": "MD",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": {
+   "ours": "Allegany County",
+   "theirs": "ALLEGANY_COUNTY_MD"
+  },
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MI-100000-0-0-0-0",
+  "year": 2026,
+  "state": "MI",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-MS-100000-0-0-0-0",
+  "year": 2026,
+  "state": "MS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-NC-100000-0-0-0-0",
+  "year": 2026,
+  "state": "NC",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-NJ-100000-0-0-0-0",
+  "year": 2026,
+  "state": "NJ",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-NY-100000-0-0-0-0",
+  "year": 2026,
+  "state": "NY",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-OH-100000-0-0-0-0",
+  "year": 2026,
+  "state": "OH",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-PA-100000-0-0-0-0",
+  "year": 2026,
+  "state": "PA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-UT-100000-0-0-0-0",
+  "year": 2026,
+  "state": "UT",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "on-the-boundary-VA-100000-0-0-0-0",
+  "year": 2026,
+  "state": "VA",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "kind": "on-the-boundary"
  }
 ]
