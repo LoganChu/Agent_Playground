@@ -298,7 +298,7 @@ export const STATE_FIELDS: readonly StateField[] = [
     name: 'federalIncomeTax',
     schema: number,
     states: ['AL'],
-    doc: 'Form 1040 line 22 — the federal income tax AFTER non-refundable credits — plus the Form 8960 net investment income tax. ALABAMA DEDUCTS THE FEDERAL BILL on Form 40 line 12, and every filer takes it, not only itemizers, so a federal tax cut is an Alabama tax INCREASE of 5% of the cut. Omit it and the Alabama answer is too high by 5% of the whole federal bill — $200.80 on a $4,016 bill — and the result says so in a note.',
+    doc: 'Form 1040 line 22 — the federal income tax AFTER non-refundable credits — plus the Form 8960 net investment income tax. ALABAMA DEDUCTS THE FEDERAL BILL on Form 40 line 12, and every filer takes it, not only itemizers, so a federal tax cut is an Alabama tax INCREASE of 5% of the cut. Omit it and the Alabama answer is too high by 5% of the whole federal bill — $191.00 on the $3,820 a single filer owes on $50,000 of wages — and the result says so in a note.',
     refusal:
       'Alabama alone deducts the federal income tax itself (Ala. Code § 40-18-15(a)(3), Form 40 line 12). No other state in this package has the federal bill inside its base, so there is nothing for the figure to do.',
   },

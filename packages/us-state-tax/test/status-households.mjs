@@ -161,16 +161,23 @@ const SHAPES = {
   // THE RULE, which is Day 39's about composition one level up: a battery varies
   // the households and forgets to vary the BASIS they are computed from.
   //
-  // $6,617 is the 2026 federal income tax on $62,000 of wages for a single filer
-  // after the standard deduction — the figure `us-federal-tax` returns — so the
-  // row is a real pairing rather than a round number, and it is worth $330.85 of
-  // Alabama deduction.
+  // $5,260 is what `us-federal-tax` returns for $62,000 of wages and a single
+  // filer in 2026 — $16,100 of standard deduction, $45,900 of taxable income —
+  // so the row is a real pairing rather than a round number, and it is worth
+  // $263.00 of Alabama deduction. The battery then runs this one household under
+  // all five filing statuses, so the figure is a single filer's bill in all five
+  // rows; that is a property of the battery's shape and not a claim about a
+  // joint return.
+  //
+  // The first version of this comment said $6,617, which is not the federal tax
+  // on anything: I wrote a plausible number beside a sentence claiming it was
+  // the one this repository's own engine returns. Measured now.
   wage62k: {
     income: 62_000,
     earnedIncome: 62_000,
     filerAge: 41,
     spouseAge: 39,
-    federalIncomeTax: 6_617,
+    federalIncomeTax: 5_260,
     socialSecurityAndMedicarePaid: 4_743,
     lesserSpouseIncome: 24_000,
     bothSpousesHaveQualifyingIncome: true,

@@ -429,17 +429,31 @@ test('HB 527 deducts the overtime premium in 2026, capped at $1,000, and 2025 ha
 // ---------------------------------------------------------------------------
 
 test('a single filer on $50,000 of wages, end to end', () => {
+  // $3,820 is the 2026 federal income tax on $50,000 of wages for a single
+  // filer — `us-federal-tax`'s own figure, not a plausible one — and $3,825 is
+  // the Social Security and Medicare tax on the same wages.
   const r = al({
     agi: 50_000,
     earnedIncome: 50_000,
-    federal: federal(50_000, { incomeTaxBeforeRefundableCredits: 4_016 }),
+    federal: federal(50_000, { incomeTaxBeforeRefundableCredits: 3_820 }),
   });
   // Alabama AGI $50,000; standard deduction floored at $2,500 (the staircase is
-  // 49 steps past its threshold, so the floor binds); federal income tax $4,016;
-  // personal exemption $1,500; taxable income $41,984; tax $110 + 5% of $38,984.
-  money(r.stateTaxableIncome ?? r.taxableIncome, 41_984);
-  money(r.tax, 110 + 0.05 * 38_984);
-  money(r.tax, 2_059.2);
-  // And the effective rate on the whole AGI, which is the number a filer feels.
-  money(r.tax / 50_000, 0.0411840);
+  // 49 steps past its threshold, so the floor binds); federal income tax $3,820;
+  // personal exemption $1,500; taxable income $42,180; tax $110 + 5% of $39,180.
+  money(r.taxableIncome, 42_180);
+  money(r.tax, 110 + 0.05 * 39_180);
+  money(r.tax, 2_069);
+  // The effective rate on the whole AGI, which is the number a filer feels.
+  money(r.tax / 50_000, 0.04138);
+  // And the same filer with their Schedule A, which is what they should file:
+  // the FICA replaces the $2,500 floor and the bill falls by $66.25.
+  const itemizing = al({
+    agi: 50_000,
+    earnedIncome: 50_000,
+    socialSecurityAndMedicarePaid: 3_825,
+    federal: federal(50_000, { incomeTaxBeforeRefundableCredits: 3_820 }),
+  });
+  money(itemizing.taxableIncome, 40_855);
+  money(itemizing.tax, 2_002.75);
+  money(r.tax - itemizing.tax, 66.25);
 });

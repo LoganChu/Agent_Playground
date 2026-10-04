@@ -21,7 +21,7 @@ charging is a dollar more of Alabama taxable income:
 | a `$2,200` child tax credit | **+`$110`** of Alabama tax |
 | the OBBBA tips and overtime deductions | **+5%** of whatever they save federally |
 | a `$4,000` earned income credit | **+`$200`**, because the worksheet subtracts the refundable credits too |
-| `$4,016` of federal tax on `$50,000` of wages | **−`$200.80`** |
+| the `$3,820` a single filer owes on `$50,000` of wages | **−`$191.00`** |
 
 Six states in this package match the federal earned income credit and move the way
 Congress moves. Alabama moves the other way, for every federal credit, rate and

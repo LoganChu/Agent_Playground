@@ -189,7 +189,7 @@ const CONDITIONAL_NOTES: readonly ConditionalNote[] = [
   {
     relevantWhen: (input) => (input.federal.incomeTaxBeforeRefundableCredits ?? 0) <= 0,
     text:
-      'NO FEDERAL INCOME TAX WAS SUPPLIED, so Form 40 line 12 was taken as zero and this Alabama figure is TOO HIGH by 5% of the federal income tax this household owes — $200.80 on a $4,016 federal bill. Pass `federal.incomeTaxBeforeRefundableCredits`: Form 1040 line 22, the tax after non-refundable credits, plus the Form 8960 net investment income tax. A filer who genuinely owes no federal tax can ignore this note; there is no way for the engine to tell the two apart, which is why it is printed whenever the figure is absent or zero.',
+      'NO FEDERAL INCOME TAX WAS SUPPLIED, so Form 40 line 12 was taken as zero and this Alabama figure is TOO HIGH by 5% of the federal income tax this household owes — $191.00 on the $3,820 a single filer owes on $50,000 of wages. Pass `federal.incomeTaxBeforeRefundableCredits`: Form 1040 line 22, the tax after non-refundable credits, plus the Form 8960 net investment income tax. A filer who genuinely owes no federal tax can ignore this note; there is no way for the engine to tell the two apart, which is why it is printed whenever the figure is absent or zero.',
   },
   {
     relevantWhen: (input) =>
