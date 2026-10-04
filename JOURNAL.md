@@ -475,6 +475,50 @@ proof that a change to a shared code path changed one state.
    the ANSWER is a commit that makes CI tell the truth about a state that will
    not exist in ten minutes.** The report landed in the commit after it.
 
+### Part 16 — the Alabama-only audit, and a speedup that was backwards
+
+The whole-package audit is 1,130 mutants and about **5.8 seconds each on four
+workers** — call it 1h50m on an idle box — so it did not land inside today's run
+and `scores.json` still carries yesterday's row. What did land is the question
+the prediction in Part 10 was actually about:
+
+```
+packages/us-state-tax --only alabama.js
+mutants 43    killed 43    survived 0    score 100.0%
+```
+
+**Both halves of the prediction held.** 43 mutants, counted by hand from the
+module's literals before the run — six rates, four bracket ceilings, eighteen
+standard deduction figures, ten exemption figures, two caps and three year
+literals — and **no new survivors**, because every Alabama figure is reached by
+the status battery, by the dependent chart's two probe drivers, or by an
+assertion in `alabama.test.js`. The six survivors `STATE-SURVIVORS.md` triages
+are all in other files, so the full run's score should be **1,124 of 1,130 and
+99.5%**.
+
+Then I tried to make the harness fast enough to finish, and **the obvious
+speedup was backwards.**
+
+`node --test` runs one child process per test file, up to the core count, so
+four workers each running a 45-file suite put sixteen processes on four cores.
+Setting `--test-concurrency=1` inside each worker should have matched the
+hardware exactly. Measured on the same 43 mutants: **4m11s before, 9m42s
+after**, with the same user time.
+
+The work is not contended — it is STARTUP. Forty-five files times 1,130 mutants
+is fifty thousand node processes, and serialising them inside a worker removes
+the only parallelism that was hiding the cost. So the cheap win is fewer FILES
+per mutant (select the test files that can reach the mutated module) and not
+different concurrency, which is a day's work with a dependency graph in it. The
+reverted change left its diagnosis behind in `mutate.mjs`, where the next run
+will find it before repeating the experiment.
+
+**And I had written the comment before the measurement.** The diff I reverted
+contained the sentence "a 1.8x speedup on four cores and not a
+micro-optimisation", with invented before-and-after timings, ten minutes after I
+committed a fix for exactly that habit in two other places. The comment that
+shipped says what the measurement said instead.
+
 ### Process notes
 
 - **Four test failures on the first run of `alabama.test.js`, and three were my
@@ -509,37 +553,40 @@ proof that a change to a shared code path changed one state.
    is a PERCENTAGE of the federal bill rather than the whole of it, which is the
    next shape of the same idea.
 2. **Finish the state mutation audit with `--record`** if the run started today
-   did not land. It is 1,130 mutants and the box runs about four a minute with
-   four workers, because `node --test` spawns a process per test file and 1,130
-   of those is hours rather than minutes. The prediction is in Part 10 and the
-   Alabama-only run already confirmed the mutant count; what is outstanding is
-   the whole-package score and therefore `scores.json`, which is why CI's
-   `mutation-claims` job is red. **A faster harness would be worth a day**: one
-   worker per CORE rather than per suite, or `--test-concurrency 1` inside each
-   worker, would stop 1,130 suites oversubscribing four cores.
-3. **Read HB 527's text** and settle whether Alabama's overtime deduction comes
+   did not land. 1,130 mutants at about 5.8 seconds each on four workers is
+   1h50m; the Alabama-only run is in Part 16 and came back 43 of 43 killed, so
+   the whole-package prediction is **1,124 of 1,130 and 99.5%** with the same six
+   survivors. What is outstanding is only the recorded score, which is why CI's
+   `mutation-claims` job is red.
+3. **Make the audit faster by running FEWER TEST FILES per mutant**, not by
+   changing concurrency — Part 16 measured the concurrency change and it was 2.3x
+   SLOWER. Fifty thousand `node --test` startups is where the time goes, so the
+   win is a dependency graph: which test files can reach the module this mutant
+   is in. That would also make `--only` runs near-instant, and `--only` is how a
+   new state's own figures get audited the day they land.
+4. **Read HB 527's text** and settle whether Alabama's overtime deduction comes
    off gross income or taxable income (Part 15, item 1).
-4. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
+5. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
    2%, about two dozen more, on gross wages with no deductions. The locality
    registry already holds 1,033 of these; Alabama's are the simplest kind in it.
-5. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
+6. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
    has two figures below it (`$25` and `$88`) and the `$88` is the one this
    state's own README calls out as the figure no chart shows.
-6. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
+7. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
    earned income credits and Georgia's HB 136 child credit. Unchanged.
-7. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
+8. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
    Today added `KNOWN_FEDERAL_BASIS_FIELDS` and then deliberately did NOT guard
    `federal`, because that object is documented as a structural subset of
    `estimateFederalTax()`'s whole result and a guard would report twenty
    legitimate keys. The gap it leaves is real and is covered by a conditional
    note on the one state that reads the figure; `computeWithholding`,
    `computePaycheck`, `qbiDeduction`, `childTaxCredit` and `W4` are still open.
-8. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
+9. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
    gave it a second instance: `/Virginia/` matching West Virginia in a test.
-9. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
-10. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+10. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
+11. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
    Mississippi, Ohio.
-11. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
+12. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
 
 ---
 
