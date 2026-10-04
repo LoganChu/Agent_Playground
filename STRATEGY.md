@@ -18,7 +18,7 @@ input key the engine does not read. Day 39 added the twentieth taxing state and 
 **1,237 tests**, a 903-household differential grid agreeing on 5,884 of 6,321 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors) and the state engine's rule parameters at **99.4%** (1086
+mutants, 0 survivors) and the state engine's rule parameters at **99.5%** (1130
 mutants, 6 survivors), up from 85.8% on Day 33 and 96.3% on Day 34. Day 37's ledger
 took the audit from 702 mutants to 740 and **all 38 of the new ones were killed**,
 with the same six survivors as before — and both figures now carry a fingerprint of

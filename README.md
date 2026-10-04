@@ -120,11 +120,19 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1086 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.4% |
+| `us-state-tax` (rule parameters) | 1130 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.5% |
 
-The state figure was re-measured on Day 39 over the build that ships today, and
-Connecticut took the audit from 740 mutants to **1,086** — a third of the whole
-package arriving in one state. Four of its numbers survived the first run and
+The state figure was re-measured on **Day 40** over the build that ships today:
+Alabama took the audit from 1,086 mutants to **1,130** and **all 44 of the new
+ones were killed**, so the six survivors are the same six and the score moved
+from 99.4% to 99.5%. All four numbers were predicted before the run — the 43
+mutable literals in `alabama.ts` were counted by hand from the module, and an
+`--only alabama.js` run came back 43 of 43 killed before the whole-package run
+started.
+
+Day 39 is the row underneath it, and it is the one that earns this instrument
+its place. Connecticut took the audit from 740 mutants to **1,086** — a third of
+the whole package arriving in one state. Four of its numbers survived the first run and
 **the prediction that the same six would survive was wrong**, which is the
 result worth having: all four were one figure, Connecticut's Social Security
 threshold, written **twice** because a conditional note's predicate is handed

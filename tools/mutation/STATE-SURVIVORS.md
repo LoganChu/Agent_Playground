@@ -16,6 +16,7 @@ rather than the suite's reach.
 | **Day 37, after the provenance ledger** | **740** | **6** | **99.2%** |
 | Day 39, Connecticut's first run | 1,090 | 10 | 99.1% |
 | **Day 39, after the duplicated threshold was hoisted** | **1,086** | **6** | **99.4%** |
+| **Day 40, after Alabama** | **1,130** | **6** | **99.5%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 

@@ -18,14 +18,11 @@ about reach, not about capability, and those older entries overstate it badly.
 differential grid against PolicyEngine-US now covers **903 households with zero
 unexplained differences**.
 
-One thing is red in CI and it is red on purpose rather than broken: the
-`mutation-claims` job, which checks that the advertised mutation score was
-measured over the build that is committed. Alabama changed the build, the
-re-measurement is 1,130 mutants and takes hours on this sandbox's four cores,
-and the score in `tools/mutation/scores.json` is still yesterday's. The
-prediction for the new run is written down in today's journal entry before the
-run, which is how this project tells "not measured yet" from "measured and
-different". Nothing else in CI is red and no test anywhere is failing.
+CI is green on all six jobs. The mutation audit was re-run over the build that
+ships — **1,130 mutants, 1,124 killed, 6 survivors, 99.5%**, up from 99.4%,
+with every one of the 44 mutants Alabama added killed and the same six survivors
+as before, each of them a number no return can reach. All four of those figures
+were predicted in writing before the run.
 
 Day 40 added **Alabama**, the twenty-first taxing state, and it is the one state
 in this package where **a federal tax cut raises the state tax bill.** Form 40

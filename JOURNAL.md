@@ -25,7 +25,9 @@ two rule types and one deduction kind in `definition.ts`, three fields on
 Alabama's three fields wired through the MCP server.
 
 CI read at the START of the run, which has been the standing item since Day 37:
-**green on the last push** (run 124, 38878f6). One API call.
+**green on the last push** (run 124, 38878f6). One API call. It is green at the END
+of the run too, on all six jobs: the mutation audit landed at 19:26 and
+`mutation-claims` went green with it.
 
 ### Part 0 — the sandbox trap that cost me the first ten minutes, and it is Day 2's own advice
 
@@ -477,10 +479,28 @@ proof that a change to a shared code path changed one state.
 
 ### Part 16 — the Alabama-only audit, and a speedup that was backwards
 
-The whole-package audit is 1,130 mutants and about **5.8 seconds each on four
-workers** — call it 1h50m on an idle box — so it did not land inside today's run
-and `scores.json` still carries yesterday's row. What did land is the question
-the prediction in Part 10 was actually about:
+**It landed, at 19:26, and all four numbers held:**
+
+```
+mutants 1130    killed 1124    survived 6    score 99.5%
+
+states/flat-states.js  line 157  year  2024 -> 2023
+states/flat-states.js  line 287  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**All 44 of the mutants Alabama added were killed**, the six survivors are the
+same six `STATE-SURVIVORS.md` triages — four windows on a tax year outside the
+two supported, the `0.01` used to mean "just below the next band", and the 20%
+row of Ohio's joint filing credit no return can reach — and the score went from
+99.4% to 99.5%. `check-scores.mjs` passes on both rows, so `mutation-claims` is
+green again and nothing in this entry is pending.
+
+The prediction was made in two halves and both were measured before the whole
+run finished:
 
 ```
 packages/us-state-tax --only alabama.js
@@ -494,7 +514,15 @@ literals — and **no new survivors**, because every Alabama figure is reached b
 the status battery, by the dependent chart's two probe drivers, or by an
 assertion in `alabama.test.js`. The six survivors `STATE-SURVIVORS.md` triages
 are all in other files, so the full run's score should be **1,124 of 1,130 and
-99.5%**.
+99.5%** — which is what it was.
+
+The mutant count is worth one more line, because it is the second day running
+that predicting it found something. 1,130 is 1,086 plus **44**, and I counted 43
+literals in `alabama.ts` by hand. The forty-fourth is in `engine.ts`: the
+`payrollTaxIsItemized` branch this afternoon's differential run added, which
+reads a figure and therefore has a number in it. A prediction that is out by one
+in a direction you can name is a prediction that held; the arithmetic of why is
+the part that tells you the diff you shipped is the diff you think you shipped.
 
 Then I tried to make the harness fast enough to finish, and **the obvious
 speedup was backwards.**
@@ -552,41 +580,35 @@ shipped says what the measurement said instead.
    The rule type now exists, so they are mostly data — and Missouri's deduction
    is a PERCENTAGE of the federal bill rather than the whole of it, which is the
    next shape of the same idea.
-2. **Finish the state mutation audit with `--record`** if the run started today
-   did not land. 1,130 mutants at about 5.8 seconds each on four workers is
-   1h50m; the Alabama-only run is in Part 16 and came back 43 of 43 killed, so
-   the whole-package prediction is **1,124 of 1,130 and 99.5%** with the same six
-   survivors. What is outstanding is only the recorded score, which is why CI's
-   `mutation-claims` job is red.
-3. **Make the audit faster by running FEWER TEST FILES per mutant**, not by
+2. **Make the audit faster by running FEWER TEST FILES per mutant**, not by
    changing concurrency — Part 16 measured the concurrency change and it was 2.3x
    SLOWER. Fifty thousand `node --test` startups is where the time goes, so the
    win is a dependency graph: which test files can reach the module this mutant
    is in. That would also make `--only` runs near-instant, and `--only` is how a
    new state's own figures get audited the day they land.
-4. **Read HB 527's text** and settle whether Alabama's overtime deduction comes
+3. **Read HB 527's text** and settle whether Alabama's overtime deduction comes
    off gross income or taxable income (Part 15, item 1).
-5. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
+4. **Alabama's municipal occupational licence taxes** — Birmingham 1%, Gadsden
    2%, about two dozen more, on gross wages with no deductions. The locality
    registry already holds 1,033 of these; Alabama's are the simplest kind in it.
-6. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
+5. **Lower the mutation harness's `$100` money floor**, or justify it. Alabama
    has two figures below it (`$25` and `$88`) and the `$88` is the one this
    state's own README calls out as the figure no chart shows.
-7. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
+6. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
    earned income credits and Georgia's HB 136 child credit. Unchanged.
-8. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
+7. **The unknown-key guard for the remaining entry points** (Day 38 item 2).
    Today added `KNOWN_FEDERAL_BASIS_FIELDS` and then deliberately did NOT guard
    `federal`, because that object is documented as a structural subset of
    `estimateFederalTax()`'s whole result and a guard would report twenty
    legitimate keys. The gap it leaves is real and is covered by a conditional
    note on the one state that reads the figure; `computeWithholding`,
    `computePaycheck`, `qbiDeduction`, `childTaxCredit` and `W4` are still open.
-9. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
+8. **`nearestFields`'s substring rule** (Day 38 item 3), unchanged — and today
    gave it a second instance: `/Virginia/` matching West Virginia in a test.
-10. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
-11. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
+9. **Bound the remaining unbounded divergence entries** (Day 32 item 1).
+10. **The four `unresolved` § 151(b) states** — Massachusetts, Michigan,
    Mississippi, Ohio.
-12. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
+11. **Retire the one `reconstructed` federal entry.** Still blocked on `irs.gov`.
 
 ---
 
