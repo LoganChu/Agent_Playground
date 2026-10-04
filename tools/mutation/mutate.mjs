@@ -226,6 +226,21 @@ const TEST_FILES = readdirSync(join(pkgDir, 'test'))
   .filter((f) => !SKIP_TESTS.includes(f) && !escaping.includes(f));
 for (const f of SKIP_TESTS) console.error(`[mutate] not run: test/${f} (named in --skip-tests)`);
 for (const f of escaping) console.error(`[mutate] not run: test/${f} (reads outside the package)`);
+// One `node --test` per mutant, every file in the suite.
+//
+// Day 40 measured the obvious speedup and it was BACKWARDS. `node --test`
+// defaults to one child process per test file, up to the core count, so N
+// workers each running a 45-file suite put 4N processes on 4 cores — and
+// `--test-concurrency=1` inside each worker, which should have matched the
+// hardware, took 43 Alabama mutants from 4m11s to 9m42s with the same user
+// time. The work is not contended, it is STARTUP: 45 files x 1,130 mutants is
+// 50,000 node processes, and serialising them inside a worker removes the only
+// parallelism that was hiding the cost.
+//
+// So the cheap win is fewer FILES per mutant, not different concurrency —
+// selecting the test files that can reach the mutated module — and that is a
+// day's work with a dependency graph in it. Written down here rather than in a
+// journal nobody greps for.
 const TESTCMD = ['--test', ...TEST_FILES.map((f) => `test/${f}`)];
 function runSuite(dir) {
   try {
