@@ -2814,7 +2814,18 @@ function computeOnce(
     // credit at 50%, which is the opposite way round from every intuition about
     // state earned income credits.
     const childless = rule.childlessMatchRate !== undefined && unmarriedChildless(input);
-    const matched = (childless ? rule.childlessMatchRate! : rule.matchRate) * federalCredit;
+    // Two gates Missouri's § 143.177 has and nobody else here does, both of
+    // them all-or-nothing. The investment income one is a CONFORMITY DATE
+    // rather than a figure the state chose: § 143.177.3(1) reads § 32 as it
+    // stood on 1 January 2021, so the limit is the pre-ARPA one and a filer
+    // can keep the whole federal credit while losing the whole state one.
+    const barred =
+      (rule.ineligibleFilingStatuses?.includes(input.filingStatus) ?? false) ||
+      (rule.investmentIncomeLimit !== undefined &&
+        nonNegative(input.investmentIncome, 'investmentIncome') > rule.investmentIncomeLimit);
+    const matched = barred
+      ? 0
+      : (childless ? rule.childlessMatchRate! : rule.matchRate) * federalCredit;
     // Virginia offers a flat per-exemption credit as an ALTERNATIVE to the
     // match, not in addition to it, and the filer takes whichever leaves them
     // better off. Which one that is turns on refundability rather than on size:

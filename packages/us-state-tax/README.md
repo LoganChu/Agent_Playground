@@ -45,6 +45,21 @@ federal tax deduction could not bind on any ordinary return between 2019 and 202
 wages now sits in the 35% step with a federal bill near `$900,000`, and the cap is
 the only thing between them and `$315,000` of deduction.
 
+**And the number this is all worth, measured rather than asserted.** Asked what
+Missouri charges a single filer on `$75,000` of 2025 salary, the answer at the
+top of a search engine today is **`$3,525`** — which is 4.7% of `$75,000` to the
+cent. This package says **`$2,552.77`**, and the `$972.23` between them
+decomposes exactly:
+
+| | |
+| --- | --- |
+| the standard deduction and the federal tax deduction, at 4.7% | `$796.29` |
+| the graduated schedule — the zero band and the six lower rates | `$175.94` |
+| **total** | **`$972.23`** |
+
+The competition for "what does Missouri charge" is not another engine. It is a
+rate table multiplied by a salary, and it is 38% high.
+
 Three more things no Missouri rate table shows:
 
 - **The eight brackets are one number.** § 143.011.5 indexes the schedule as a block,
@@ -63,6 +78,18 @@ Three more things no Missouri rate table shows:
   of it. And the **private** pension deduction on the same form disagrees: its income
   test takes the benefit back *out* of Missouri AGI, so the dollar that destroyed one
   exemption protects the other.
+- **The working family tax credit is 20% of the federal earned income credit,
+  and it zeroes most low-income Missouri returns.** § 143.177, Form MO-WFTC,
+  non-refundable: a head of household with one teenager on `$35,000` of wages
+  owes `$264.22` before it and nothing after. It is lost ENTIRELY above `$4,400`
+  of investment income — a limit that is a **conformity date** rather than a
+  figure Missouri chose, because § 143.177.3(1) reads § 32 as it stood on
+  1 January 2021 and the pre-ARPA disqualified-income ceiling is several times
+  lower than today's. A Missouri filer with `$5,000` of investment income keeps
+  the whole federal credit and loses the whole state one. So Missouri reads the
+  federal earned income credit **twice, in opposite directions** — the MO-1040
+  line 9 worksheet subtracts it from the federal tax deduction and § 143.177
+  matches a fifth of it — and it is the only state here that does.
 - **The two states here that deduct the federal tax do not subtract the same
   refundable credits.** Alabama's worksheet takes the refundable child tax credit;
   Missouri's starts from Form 1040 **line 22**, which line 28 never reduced, so it
@@ -2199,7 +2226,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **569** notes every
+`test/notes.test.js` pins the first 72 characters of all **575** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2224,8 +2251,8 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 3,800 numeric
-figures over 62 state-years, against 342 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 3,804 numeric
+figures over 62 state-years, against 346 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2271,14 +2298,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 1,900 figures of tax year
+The `kind` field answers one operational question. Over the 1,902 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,601** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,602** |
 | the statute's own schedule (`statute-scheduled`) | **111** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **181** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **182** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.

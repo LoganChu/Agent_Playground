@@ -1,6 +1,12 @@
 [
   {
     "metric": "state.tax",
+    "state": "MO",
+    "maxAbs": 100,
+    "reason": "THE BOUNDARY BELONGS TO THE STEP BELOW IT, and the statute says so in its own table. Mo. Rev. Stat. 143.171.2 sets the share of the federal income tax a Missouri filer may deduct with five rows: \"$25,000 or less - 35 percent; From $25,001 to $50,000 - 25 percent; From $50,001 to $100,000 - 15 percent; From $100,001 to $125,000 - 5 percent; $125,001 or more - 0 percent\". A filer standing EXACTLY on $50,000 or $100,000 of Missouri adjusted gross income is therefore in the LOWER row and keeps the HIGHER share. PolicyEngine-US stores the chart as a `single_amount` bracket whose thresholds are `>=`, which puts the boundary in the row above and gives that filer the smaller share - 15% at $50,000 where the statute gives 25%, and 5% at $100,000 where it gives 15%. Every case here is a household whose Missouri AGI lands exactly on one of the two figures, which is why the differences are all one sign: this package deducts MORE of the federal bill and charges less. It is the same convention question Connecticut's Table E raised and Alabama's dependent chart raised after it, in a third state, found by the `on-the-boundary` household the Day 40 grid added for exactly this - and here it reaches ordinary households too, because $50,000 and $100,000 of wages are round numbers a case author picks for other reasons. The size is the ten points of share times the federal bill times 4.7%, so it grows with the federal bill rather than with the Missouri one: $18.66 for a wage earner at $50,000 and $78.19 for one with a $100,000 capital gain behind the same wage."
+  },
+  {
+    "metric": "state.tax",
     "state": "MD",
     "kind": "muni-retiree",
     "maxAbs": 895,

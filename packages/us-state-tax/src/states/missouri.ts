@@ -164,6 +164,26 @@ const MAX_SOCIAL_SECURITY_BENEFIT: Readonly<Record<number, number>> = {
   2026: 47_633,
 };
 
+/**
+ * The investment income ceiling on the working family tax credit, Form
+ * MO-WFTC's own line 3.
+ *
+ * It is the figure in this package with the strangest provenance. § 143.177.3(1)
+ * computes the credit under § 32 "as such credit existed under 26 U.S.C.
+ * Section 32 as of January 1, 2021", so the limit is the PRE-ARPA disqualified
+ * income amount, indexed — and the IRS stopped publishing that series when ARPA
+ * replaced it. There is no federal source to read and no dollar amount in the
+ * Missouri statute: the Department of Revenue computes it each year and prints
+ * it on the form and nowhere else.
+ *
+ * So 2026's does not exist until Form MO-WFTC 2026 is published in January
+ * 2027, and it is carried forward and flagged like the pension ceiling.
+ */
+const INVESTMENT_INCOME_LIMIT: Readonly<Record<number, number>> = {
+  2025: 4_400,
+  2026: 4_400,
+};
+
 const CITATIONS: readonly Citation[] = [
   {
     title:
@@ -211,6 +231,16 @@ const CITATIONS: readonly Citation[] = [
     url: 'https://www.revisor.mo.gov/main/OneSection.aspx?section=143.161',
   },
   {
+    title:
+      'Mo. Rev. Stat. § 143.177 — the Missouri working family tax credit: 20% of the federal earned income credit from tax year 2024, non-refundable, barred to a separate return, and computed under § 32 as it stood on 1 January 2021, which is what makes its investment income limit a pre-ARPA figure the Department of Revenue prints on Form MO-WFTC and nowhere else',
+    url: 'https://revisor.mo.gov/main/OneSection.aspx?section=143.177',
+  },
+  {
+    title:
+      'Missouri Department of Revenue — Working Family Tax Credit FAQ: the match, the qualifications and the investment income limit, $4,400 for 2025',
+    url: 'https://dor.mo.gov/faq/taxation/individual/missouri-working-family-tax-credit.html',
+  },
+  {
     title: 'Mo. Rev. Stat. § 143.022 — the business income deduction, 20% from 2023',
     url: 'https://revisor.mo.gov/main/OneSection.aspx?section=143.022',
   },
@@ -242,6 +272,9 @@ const PROVISIONAL_NOTE_2026 =
 const NOTES: readonly string[] = [
   'MISSOURI DEDUCTS A SHARE OF THE FEDERAL BILL AND THE CHART IS A CLIFF. § 143.171.2 gives 35% of the federal income tax at $25,000 or less of MISSOURI adjusted gross income, 25% to $50,000, 15% to $100,000, 5% to $125,000 and nothing above — one percentage for the whole bill, chosen by one number. So one dollar of income at a boundary moves the entire deduction down a step: at $100,000 the deduction falls by 10% of a federal bill of about $13,000, which is $61.94 OF MISSOURI TAX ON ONE DOLLAR. Pass `federal.incomeTaxBeforeRefundableCredits` — Form 1040 line 22 plus the Form 8960 net investment income tax. Omitting it makes the Missouri answer too HIGH by the whole deduction.',
   'AND THE FEDERAL REFUNDABLE CREDITS COME BACK OFF IT, as they do in Alabama. The MO-1040 line 9 worksheet starts from the federal tax and subtracts the earned income credit, the refundable American Opportunity credit and the net premium tax credit, floored at zero. So `federal.earnedIncomeCredit` RAISES Missouri tax — by the credit times the step times the Missouri rate, which is at most about 1.6 cents in the dollar against Alabama’s 5 — where the six states here that match the federal credit read the same field to lower theirs.',
+  'ONE THING I COULD NOT READ, AND WHAT IT WOULD COST. \u00a7 143.171.2\u2019s own table says "If the Missouri GROSS income on the return is", and chapter 143 defines Missouri ADJUSTED gross income (\u00a7 143.121) and never defines Missouri gross income. The Form MO-1040 line 13 worksheet and its instructions read the chart against Missouri adjusted gross income, and PolicyEngine-US does the same; this package follows the form. The two figures differ only where a Missouri modification is large, which from 2025 means a capital gain: a single filer with $90,000 of wages and $60,000 of gain is in the 15% step on Missouri AGI of $90,000 and would be in the 0% step on a gross figure of $150,000, so the other reading would cost them $2,995.50 of deduction and $140.79 of tax. The worksheet lines would settle it and I could not reach them.',
+  'THE WORKING FAMILY TAX CREDIT IS 20% OF THE FEDERAL EARNED INCOME CREDIT AND IT ZEROES MOST LOW-INCOME MISSOURI RETURNS. \u00a7 143.177, Form MO-WFTC, non-refundable and capped at the Missouri tax: a head of household with one teenager on $35,000 of wages owes $264.22 before it and nothing after. It is barred to a separate return, barred to a filer claimed as a dependent elsewhere, and lost ENTIRELY above $4,400 of investment income \u2014 which is a conformity date rather than a figure Missouri chose, because \u00a7 143.177.3(1) reads \u00a7 32 as it stood on 1 January 2021 and the pre-ARPA disqualified income limit is several times lower than today\u2019s. A Missouri filer with $5,000 of investment income keeps the whole federal credit and loses the whole state one, and the figure that does it appears in no statute: the Department of Revenue indexes it and prints it on the form.',
+  'SO THE FEDERAL EARNED INCOME CREDIT IS READ TWICE, IN OPPOSITE DIRECTIONS, AND MISSOURI IS THE ONLY STATE HERE THAT DOES THAT. The MO-1040 line 9 worksheet subtracts it from the federal income tax deduction, which raises Missouri tax by the share times 4.7%; \u00a7 143.177 then matches 20% of the same credit, which lowers it by four or five times as much. The net is a cut. A model that found only the first half would have the sign right and the size wrong by a factor of five.',
   'THE BOUNDARY BELONGS TO THE STEP BELOW IT. § 143.171.2 reads "twenty-five thousand dollars or less" and then "in excess of twenty-five thousand dollars", so a filer standing exactly on $25,000, $50,000, $100,000 or $125,000 of Missouri AGI keeps the HIGHER share. That is Connecticut’s § 12-703 convention and the opposite of the one Connecticut’s own pension phase-out uses on the same return; this package reads the words rather than the chart in both states.',
   'THE CAP WAS DEAD LAW UNTIL 2025 AND THE CAPITAL GAINS EXEMPTION REVIVED IT. The deduction may not exceed $5,000 on a single taxpayer’s return or $10,000 on a combined one, and the chart above had made that unreachable: 35% of a federal bill is $5,000 only when the bill is $14,286, which no filer with $25,000 or less of Missouri AGI pays, and the other steps need $40,000, $66,667 or $200,000 of federal tax against lower Missouri income still. HB 594 then took capital gains out of MISSOURI AGI — the very figure the chart reads — so a filer with $4,000,000 of gain and $20,000 of wages now sits in the 35% step with a federal bill near $900,000. The cap is the only thing between them and $315,000 of deduction.',
   'MISSOURI IS THE FIRST STATE TO EXEMPT CAPITAL GAINS OUTRIGHT, AND IT REACHES SHORT-TERM GAIN. § 143.121.3(14), added by HB 594 and retroactive to 1 January 2025, subtracts "one hundred percent of all income reported as a capital gain for federal income tax purposes". Pass the whole of Form 1040 line 7 as `netCapitalGain`, short-term included — the same field Maryland reads for its 2% surtax, where the classes that state exempts have to be removed first. A $1,000,000 long-term gain costs a Missouri resident $0 of state tax and a Massachusetts resident $50,000.',
@@ -256,7 +289,7 @@ const NOTES: readonly string[] = [
   'MILITARY RETIRED PAY IS EXEMPT IN FULL, at any age, with no cap, and OUTSIDE the public pension ceiling that federal, state and local retired pay share. § 143.124.9. Pass it as `retirement.filer.militaryRetirement` and not as `governmentPension`, which would cap it at $47,633 and charge Social Security against it.',
   'A FIFTH OF BUSINESS INCOME COMES OFF. § 143.022 deducts 20% of the income from a sole proprietorship or a share of a partnership or S corporation, at every income, with no cap — which is the opposite shape from Ohio’s, where the first $250,000 is deducted in full and the excess is charged a flat 3%. $250,000 of Schedule C profit deducts $50,000 in Missouri and all of it in Ohio. Pass it as `businessIncome`.',
   'NOT MODELLED: the Kansas City and St. Louis earnings taxes, 1% each. Both cities charge 1% of gross earnings — of every resident wherever they work, and of every non-resident for work performed inside the city — with no deduction, no exemption and no reference to this return. For a Kansas City resident earning $60,000 that is $600 a year against about $2,050 of Missouri tax, so a model that omits it is low by nearly a quarter of the total. They are not in this package’s locality registry yet.',
-  'NOT MODELLED: the Missouri property tax credit (§ 135.010), the working family tax credit (§ 143.177, 10% of the federal earned income credit and non-refundable), the long-term care insurance deduction, the health care sharing ministry deduction, the qualified health insurance premium subtraction and the $8,000 MOST 529 subtraction. The first two are the largest: the property tax credit is worth up to $1,100 to an elderly or disabled filer and the working family credit up to about $800 to a family with three children. Supply the credits yourself; the 529 and health premium figures go in `subtractions`.',
+  'NOT MODELLED: the Missouri property tax credit (§ 135.010), the long-term care insurance deduction, the health care sharing ministry deduction, the qualified health insurance premium subtraction and the $8,000 MOST 529 subtraction. The property tax credit is the largest and is worth up to $1,100 to an elderly or disabled filer; supply it yourself, and put the 529 and health premium figures in `subtractions`. Also not modelled: the NET PREMIUM TAX CREDIT, which the MO-1040 line 9 worksheet subtracts from the federal tax alongside the earned income credit and the refundable American Opportunity credit — a filer with marketplace coverage who received more premium tax credit than they were entitled to is too LOW here by the share times that excess.',
   'THE ZERO BRACKET AND § 143.021 ARE TWO COPIES OF ONE THRESHOLD. § 143.021 says there is no tax where taxable income falls below the first bracket, and § 143.011 taxes that first bracket at 0% — so the statute states the same rule twice and this engine implements the bracket, which is the one that also produces the right answer one dollar above it. The two cannot disagree while the first rate is zero, and if a future General Assembly makes it positive they will.',
   'THE TOP RATE IS 4.7% FOR BOTH YEARS AND IT WAS NOT A FORECAST. § 143.011.4 allows up to ten further 0.1-point reductions, one a year, each conditioned on general revenue growth of $175,000,000 over the highest of the three preceding fiscal years. The condition was not met for 2026: the Department of Revenue’s 2026 withholding formula, published 1 November 2025, carries 4.7%. A flat-tax replacement for the whole schedule has been introduced repeatedly and, as of this package’s publication, has not been enacted — the live proposal is a constitutional amendment for the ballot rather than a statute.',
   'THIS PACKAGE STARTS MISSOURI FROM FEDERAL AGI, which is what MO-1040 line 1 asks for. Missouri’s own additions and subtractions live on Form MO-A Part 1 — out-of-state municipal bond interest and state tax refunds up, United States obligation interest and the items listed above down. Supply the ones this package does not compute through `additions` and `subtractions`.',
@@ -317,6 +350,13 @@ export function missouri(year: number): StateIncomeTaxDefinition | undefined {
     provisionalFigures:
       year >= 2026
         ? [
+            {
+              path: 'earnedIncomeCredit.investmentIncomeLimit',
+              reason: 'awaiting-publication' as const,
+              carriedForwardFrom: 2025,
+              resolvedBy:
+                'Form MO-WFTC for 2026, line 3, published January 2027 \u2014 and ONLY that form: the limit is the pre-ARPA \u00a7 32(i) disqualified income amount, which the IRS stopped publishing when ARPA replaced it, so no federal release can settle it',
+            },
             {
               path: 'stateRetirementDeduction.publicPensionCap',
               reason: 'awaiting-publication' as const,
@@ -379,15 +419,15 @@ export function missouri(year: number): StateIncomeTaxDefinition | undefined {
       rateStepsCite:
         'Mo. Rev. Stat. § 143.171.2 — 35% where Missouri adjusted gross income is "twenty-five thousand dollars or less", 25% "in excess of twenty-five thousand dollars but not in excess of fifty thousand dollars", 15% to $100,000, 5% to $125,000 and none above. One percentage applies to the WHOLE bill, and the boundary belongs to the lower step.',
       cap: byStatus({
-        // "...not to exceed five thousand dollars on a single taxpayer's
-        // return or ten thousand dollars on a combined return." A combined
-        // return is Missouri's joint one; a separate return, a head of
-        // household return and a qualifying surviving spouse return each have
-        // one taxpayer on them. PolicyEngine-US reads the first figure as
-        // belonging only to the SINGLE status and gives $10,000 to the other
-        // three, which is the opposite reading of the same sentence — it is
-        // recorded as a known divergence rather than silently followed, and it
-        // can only matter on a return where the cap binds at all.
+        // The statute says "not to exceed five thousand dollars on a single
+        // taxpayer's return or ten thousand dollars on a combined return",
+        // and the MO-1040 line 13 instructions remove every doubt about what
+        // that means: "If you selected any filing status other than married
+        // filing combined on the MO-1040, your federal tax deduction may not
+        // exceed $5,000. If you selected married filing combined, your federal
+        // tax cannot exceed $10,000." PolicyEngine-US gives $10,000 to single,
+        // head of household and qualifying surviving spouse as well, which the
+        // instruction sentence rules out.
         single: 5_000,
         joint: 10_000,
         separate: 5_000,
@@ -432,6 +472,22 @@ export function missouri(year: number): StateIncomeTaxDefinition | undefined {
       militaryRetirementName: 'Military pension deduction',
       militaryRetirementCite:
         'Mo. Rev. Stat. § 143.124.9 — military retired pay is deducted in full, at any age, with no cap, and outside the ceiling that federal, state and local civilian retired pay shares.',
+    },
+    // § 143.177, the Missouri working family tax credit, claimed on Form
+    // MO-WFTC. 20% of the federal earned income credit from tax year 2024 —
+    // the statute's own maximum, reached after one year at 10% — and
+    // NON-REFUNDABLE, so a family whose Missouri tax is smaller than the
+    // credit keeps only the tax. It is the largest thing on a low-income
+    // Missouri return and it zeroes most of them.
+    earnedIncomeCredit: {
+      name: 'Working family tax credit',
+      matchRate: 0.2,
+      refundable: false,
+      // § 143.177.2 lists single, head of household, widowed and married
+      // filing combined. A separate return gets nothing, and Form MO-WFTC's
+      // qualification checklist stops it on line 1.
+      ineligibleFilingStatuses: ['marriedFilingSeparately'],
+      investmentIncomeLimit: INVESTMENT_INCOME_LIMIT[year] as number,
     },
     businessIncomeDeduction: {
       name: 'Business income deduction',

@@ -16,7 +16,7 @@ input key the engine does not read. Day 39 added the twentieth taxing state, Day
 twenty-first and Day 41 the twenty-second.
 `packages/us-federal-tax` is v0.15.0,
 `packages/us-state-tax` is v0.37.0 and `packages/us-tax-mcp` is v0.40.0.
-**1,237 tests**, a 903-household differential grid agreeing on 5,884 of 6,321 figures with
+**1,264 tests**, a 946-household differential grid agreeing on 6,172 of 6,622 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.5%** (1130

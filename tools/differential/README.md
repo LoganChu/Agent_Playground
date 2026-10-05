@@ -189,7 +189,7 @@ Two things worth taking from that, and they point in opposite directions:
 2. **It is also a statement about the GRID, not only about PolicyEngine.**
    Fourteen releases of a model that covers benefits, state credits, payroll and
    fifty states cannot really have changed nothing; what is true is that nothing
-   they changed is *visible from these 903 households and five metrics*. Day 27's
+   they changed is *visible from these 946 households and five metrics*. Day 27's
    rule one level up: a differential test is bounded by the vocabulary of its
    cases, and a stable reference is evidence about the vocabulary as much as about
    the reference.

@@ -239,21 +239,61 @@ test('the engine reports a marginal rate of 6,194% at $100,000, and says so', ()
   money(at(50_000, 2025), 18.2431, 'the 2025 cliff at $50,000');
 });
 
-test('the refundable federal credits come back off the deduction, so they RAISE Missouri tax', () => {
-  // The MO-1040 line 9 worksheet subtracts them, which is Alabama's rule at a
-  // fraction of Alabama's rate: the same input lowers the tax in the six
-  // states that match the federal credit and raises it here.
+test('the federal earned income credit comes off the deduction AND funds a credit', () => {
+  // Missouri reads the federal earned income credit TWICE, in opposite
+  // directions, and this is the only state in the package that does.
+  //
+  // The MO-1040 line 9 worksheet subtracts it from the federal income tax
+  // deduction, which RAISES Missouri tax — Alabama's rule at a fraction of
+  // Alabama's rate. And § 143.177 then matches 20% of the same credit as the
+  // working family tax credit, which LOWERS it by four times as much. So the
+  // net is a cut, and a model that found only the first half would have the
+  // sign right and the size wrong by a factor of five.
+  //
+  // A SEPARATE return isolates the first half, because § 143.177.2 bars it
+  // from the credit and leaves the worksheet alone.
   const base = wageFederal(30_000);
   const withCredit = { ...base, earnedIncomeCredit: 1_000 };
-  const plain = mo({ federal: base });
-  const credited = mo({ federal: withCredit });
-  assert.ok(credited.tax > plain.tax, 'the earned income credit raises Missouri tax');
+  const plain = mo({ filingStatus: 'marriedFilingSeparately', federal: base });
+  const credited = mo({ filingStatus: 'marriedFilingSeparately', federal: withCredit });
+  assert.ok(credited.tax > plain.tax, 'on a separate return the credit raises Missouri tax');
   // $30,000 of Missouri AGI is the 25% step, so $1,000 of credit is $250 of
   // deduction. Missouri taxable income is $13,545 — above the $9,436 where the
   // top rate begins — so the $250 is charged 4.7%, not one of the seven lower
   // band rates the household's first $9,436 was charged.
   money(credited.deduction, plain.deduction - 250, 'the deduction falls by 25% of the credit');
   money(credited.tax - plain.tax, 11.75, 'the credit costs 25% x 4.7%');
+
+  // And the other half, on a single return where both apply. 20% of $1,000 is
+  // $200 of credit against $11.75 of extra tax — so the same input is worth
+  // $188.25 net, and the engine reports the two separately rather than netting
+  // them, because they are two provisions.
+  const single = mo({ federal: withCredit });
+  const singlePlain = mo({ federal: base });
+  const wftc = single.credits.find((c) => c.name === 'Working family tax credit');
+  money(wftc.amount, 200, '20% of the federal credit');
+  assert.equal(wftc.refundable, false, 'and it is not refundable');
+  money(singlePlain.tax - single.tax, 200 - 11.75, 'the net is a cut of $188.25');
+});
+
+test('the working family tax credit is barred to a separate return and to an investor', () => {
+  // Two all-or-nothing gates, and the second is a CONFORMITY DATE rather than
+  // a figure Missouri chose. § 143.177.3(1) reads § 32 as it stood on
+  // 1 January 2021, so the disqualifying investment income is the pre-ARPA
+  // limit the Department of Revenue indexes and prints on Form MO-WFTC —
+  // $4,400 for 2025. A filer with $5,000 of investment income keeps the whole
+  // FEDERAL credit and loses the whole Missouri one.
+  const federal = { ...wageFederal(30_000), earnedIncomeCredit: 1_000 };
+  const named = (r) => r.credits.find((c) => c.name === 'Working family tax credit')?.amount ?? 0;
+  money(named(mo({ federal })), 200, 'a single filer gets it');
+  money(named(mo({ filingStatus: 'marriedFilingSeparately', federal })), 0, 'a separate return does not');
+  money(named(mo({ federal, investmentIncome: 4_400 })), 200, 'exactly at the limit keeps it');
+  money(named(mo({ federal, investmentIncome: 4_401 })), 0, 'one dollar over loses all of it');
+  // $200 of credit on one dollar of investment income, which is the sharpest
+  // cliff on a low-income Missouri return and is invisible federally.
+  const atLimit = mo({ federal, investmentIncome: 4_400 });
+  const over = mo({ federal, investmentIncome: 4_401 });
+  assert.ok(over.tax > atLimit.tax, 'and it costs real tax');
 });
 
 test('the refundable CHILD tax credit raises Alabama tax and leaves Missouri alone', () => {
@@ -651,6 +691,38 @@ test('a fifth of business income comes off, at every income', () => {
   money(large.deduction - plain.deduction, 50_000, 'and 20% of $250,000, with no cap');
 });
 
+test('a $75,000 salary is $2,552.77 and not 4.7% of the gross', () => {
+  // The whole package in one assertion.
+  //
+  // Asked what Missouri charges a single filer on $75,000 of 2025 salary, the
+  // answer at the top of a search engine today is $3,525 — which is 4.7% of
+  // $75,000 to the cent, the rate times the gross, with neither the standard
+  // deduction Missouri adopts from § 63(c) nor the federal income tax
+  // deduction § 143.171.2 grants.
+  //
+  // This test pins OUR figure and derives theirs rather than quoting it,
+  // because a third party's number can change tomorrow and the arithmetic
+  // cannot. What it asserts is that the gap is exactly the two provisions.
+  const federal = wageFederal2025(75_000);
+  money(federal.incomeTaxBeforeRefundableCredits, 7_949, 'the 2025 federal bill');
+  const r = mo({ year: 2025, federal });
+  money(r.deduction, 15_750 + 1_192.35, 'the standard deduction plus 15% of $7,949');
+  money(r.taxableIncome, 58_057.65, 'Missouri taxable income');
+  money(r.tax, 2_552.77, 'Missouri tax');
+
+  // And the two halves of the $972.23, each priced at the rate that applies to
+  // it. Both are above $9,436 of taxable income, so both are at 4.7%.
+  const flat = 75_000 * TOP_RATE;
+  money(flat, 3_525, 'the rate times the gross');
+  money(flat - r.tax, 972.23, 'what the two provisions are worth together');
+  money((15_750 + 1_192.35) * TOP_RATE, 796.29, 'the deductions at 4.7%');
+  // The remaining $175.94 is the graduated schedule itself — the discount the
+  // zero band and the six lower rates are worth, which this file measures
+  // independently above. A figure that is NOT the deductions is the third
+  // thing a flat-rate model misses, and it is the same figure at every income.
+  money(flat - r.tax - (15_750 + 1_192.35) * TOP_RATE, 175.94, 'and the schedule');
+});
+
 // ---------------------------------------------------------------------------
 // What the return says about itself
 // ---------------------------------------------------------------------------
@@ -674,12 +746,17 @@ test('a return with no federal bill on it is TOLD what that cost', () => {
   money(silent.tax - told.tax, 1_975.5 * TOP_RATE, 'what the missing figure cost');
 });
 
-test('2026 is provisional for exactly one figure, and it is the pension ceiling', () => {
+test('2026 is provisional for exactly two figures, and both are on forms not yet printed', () => {
+  // Both are figures that exist ONLY on a Missouri form. The pension ceiling
+  // is the maximum Social Security benefit on MO-A Part 3 Section A line 7;
+  // the investment income limit is the pre-ARPA § 32(i) amount on Form
+  // MO-WFTC line 3, which the IRS stopped publishing when ARPA replaced it, so
+  // not even a federal release can settle that one.
   const def = getStateDefinition('MO', 2026);
   assert.equal(def.status, 'provisional');
   assert.deepEqual(
-    def.provisionalFigures.map((f) => f.path),
-    ['stateRetirementDeduction.publicPensionCap'],
+    def.provisionalFigures.map((f) => f.path).sort(),
+    ['earnedIncomeCredit.investmentIncomeLimit', 'stateRetirementDeduction.publicPensionCap'],
   );
   assert.equal(getStateDefinition('MO', 2025).status, 'published');
   // Everything else about 2026 was read: the rate, the bracket width and the

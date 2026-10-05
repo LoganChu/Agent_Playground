@@ -14,7 +14,19 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 41 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.37.0, `us-tax-mcp` v0.40.0. 1,262 tests, all passing.
+`us-state-tax` v0.37.0, `us-tax-mcp` v0.40.0. 1,264 tests, all passing, and the
+differential grid against PolicyEngine-US now covers **946 households, 6,622
+figures, 6,172 agreeing to the dollar and ZERO unexplained differences**.
+
+The grid earned its keep again on the first run of a new state. It found a
+Missouri credit this package did not have — the **working family tax credit**,
+20% of the federal earned income credit and non-refundable, which zeroes most
+low-income Missouri returns outright: a head of household with one teenager on
+`$35,000` of wages owes `$264.22` before it and nothing after. Five of the
+grid's thirteen Missouri differences were that one missing credit. It also
+found the reverse: the seven that remained are all one disagreement in which
+**this package is the one following the statute**, about which side of
+`$50,000` and `$100,000` of income a filer standing exactly on it falls.
 
 CI is green on all six jobs. The mutation audit was re-run over the build that
 ships — **1,130 mutants, 1,124 killed, 6 survivors, 99.5%**, up from 99.4%,

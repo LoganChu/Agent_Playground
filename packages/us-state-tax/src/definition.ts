@@ -11,6 +11,7 @@ import type {
   Citation,
   ConformityBase,
   FederalDeductionKey,
+  FilingStatus,
   ParameterStatus,
   ProvisionalFigure,
   StateCode,
@@ -1079,6 +1080,28 @@ export interface EarnedIncomeCreditRule {
    * {@link FederalBasis.earnedIncomeCredit} — the state's notes say so.
    */
   readonly childlessMatchRate?: number;
+  /**
+   * Filing statuses the credit is not available to at all — Missouri's
+   * § 143.177.2 lists "single, head of household, widowed, or married filing
+   * combined" and leaves married filing separately out, which Form MO-WFTC's
+   * own qualification checklist stops on its first line.
+   */
+  readonly ineligibleFilingStatuses?: readonly FilingStatus[];
+  /**
+   * Investment income above which the credit is lost outright, where the state
+   * sets its OWN limit rather than inheriting § 32(i)'s.
+   *
+   * Missouri's is the sharpest example of a conformity date doing work.
+   * § 143.177.3(1) computes the credit under § 32 "as such credit existed under
+   * 26 U.S.C. Section 32 as of January 1, 2021" — PRE-ARPA law, whose
+   * disqualified-income limit was `$3,650` and which ARPA replaced with a limit
+   * several times higher. So a Missouri filer with `$5,000` of investment income
+   * keeps the whole federal credit and loses the whole Missouri one, and the
+   * figure that does it appears in no statute: the Department of Revenue
+   * computes the indexed pre-ARPA amount each year and prints it only on Form
+   * MO-WFTC.
+   */
+  readonly investmentIncomeLimit?: number;
 }
 
 /** One step of a step-function credit: the amount for income at or below `upTo`. */

@@ -41,6 +41,22 @@ const run = (state, opts = {}) =>
     massachusettsFivePercentIncome: opts.agi ?? 30_000,
   });
 
+/**
+ * The credit the state's own rule named, found BY that name.
+ *
+ * It used to search for "earned income" in the credit's title, which is a
+ * second copy of the name the rule already declares — and Missouri broke it on
+ * the day Missouri arrived, because § 143.177 calls its 20% match the WORKING
+ * FAMILY TAX CREDIT and the words "earned income" appear nowhere in it. The
+ * test reported a match rate of zero for a credit the engine had paid in full.
+ *
+ * THE RULE, which this file is now the fourth place to meet: a test that
+ * identifies a thing by re-describing it is testing its own description.
+ */
+const creditNamed = (result, name) =>
+  result.credits.find((c) => c.name === name)?.amount ?? 0;
+
+/** The remaining call sites, all of them in states whose credit IS so named. */
 const eitcOf = (result) =>
   result.credits.find((c) => c.name.toLowerCase().includes('earned income'))?.amount ?? 0;
 
@@ -61,11 +77,11 @@ test('every state whose definition carries an earned income credit pays its matc
       // itself; whether the filer keeps all of it is the netting question, and
       // Maryland's refundable half — which is what makes that netting visible —
       // is asserted in test/maryland.test.js.
-      money(eitcOf(r), rule.matchRate * 4_000, `${state} ${year}`);
+      money(creditNamed(r, rule.name), rule.matchRate * 4_000, `${state} ${year}`);
     }
   }
   assert.deepEqual(withCredit.sort(), [
-    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'NJ', 'NY', 'OH', 'UT', 'VA',
+    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'UT', 'VA',
   ]);
 });
 

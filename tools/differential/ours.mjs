@@ -154,6 +154,19 @@ function one(c) {
     dependentAges: c.childAges.length ? c.childAges : undefined,
     earnedIncome: c.wages,
     investmentIncome: c.longTermCapitalGains,
+    // The same dollars a third time, under the name Missouri's subtraction asks
+    // for. § 143.121.3(14) takes "one hundred percent of all income reported as
+    // a capital gain for federal income tax purposes" out of Missouri AGI, and
+    // PolicyEngine reads its own `net_capital_gains` for the same subtraction —
+    // so this is a fact about the household both models already have, and
+    // withholding it would make every Missouri case with a gain a disagreement
+    // about this harness rather than about Missouri. The same argument as the
+    // Alabama payroll tax above.
+    //
+    // Maryland reads this field too, for its 2% surtax, and the grid's gains
+    // are all long-term stock gains with none of the classes Maryland exempts —
+    // so one value serves both and neither is being told something untrue.
+    netCapitalGain: c.longTermCapitalGains || undefined,
     retirement: { filer: person },
     ...(c.county ? { county: c.county.ours } : {}),
     ...stateDefinedBase(c.state, c),
