@@ -3,7 +3,7 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-02 (Day 38). **The bet is unchanged.** The registry was
+Last reviewed: 2026-10-05 (Day 41). **The bet is unchanged.** The registry was
 re-read on Day 35 and the one package that moved is read out below under "Day 35";
 Day 36 and Day 37 went after the differentiator itself rather than a competitor.
 Day 36 found the federal package's first advertised claim — every figure cited to
@@ -12,9 +12,10 @@ at the state package and found its citation lists one document short, not forty-
 and a larger hole underneath: 949 figures identical across the two tax years, of
 which only 148 were flagged, and nothing saying whether the other 801 were fixed by
 law or simply unread. Day 38 closed the hole that all of that work is useless against: an
-input key the engine does not read. Day 39 added the twentieth taxing state and Day 40 the twenty-first.
+input key the engine does not read. Day 39 added the twentieth taxing state, Day 40 the
+twenty-first and Day 41 the twenty-second.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.36.0 and `packages/us-tax-mcp` is v0.39.0.
+`packages/us-state-tax` is v0.37.0 and `packages/us-tax-mcp` is v0.40.0.
 **1,237 tests**, a 903-household differential grid agreeing on 5,884 of 6,321 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
@@ -35,6 +36,59 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 41: the second state in a row whose answer is a function of the federal one, and the first where that makes "rate" meaningless
+
+Missouri is the twenty-second taxing state and it is the strongest case this
+package has made for its own thesis, because the thesis is no longer "the rate
+table leaves things out" — it is **the rate table cannot contain the answer.**
+
+**One dollar of income costs `$61.94`.** § 143.171.2 deducts a SHARE of the
+federal income tax chosen by a chart of five steps, and the chart is a cliff:
+one percentage applies to the whole bill, so crossing `$100,000` of Missouri AGI
+moves the deduction from 15% of a `$13,000` federal bill to 5% of it. The
+engine's `marginalRate` field reports **61.946** there, and 0.047 a thousand
+dollars either side. No table of Missouri's rates can carry that figure, because
+the number falling off the cliff belongs to a different government — and no
+competitor whose state model is a rate schedule over a federal AGI can express
+it at all, because their model has the base and not the bill.
+
+**And Missouri is the first state in the United States to exempt capital gains
+outright.** HB 594 (2025), 100% of all income reported as a capital gain for
+federal income tax purposes, short-term included. That is a headline a buyer
+searches for. The part that is worth more commercially is the part no summary
+carries: the subtraction lands in Missouri AGI, which is the figure the cliff
+chart above is read against, so it takes the gain out of the base AND moves the
+filer down a step — worth `$2,960.79` on a `$60,000` gain where 4.7% of the gain
+is `$2,820`. Two provisions composing is exactly what a parameter table cannot
+hold and exactly what this package is.
+
+Three strategic notes, in descending order of how long they will matter.
+
+**The second instance is what separates a rule from a state.** The engine had
+Alabama's three refundable credits as a constant inside one function, because
+there was one state with the rule. Missouri's worksheet subtracts two of the
+three. Nothing was wrong before today and nothing would have failed if I had
+left it — Missouri would simply have been `$80` wrong on a credit no test
+carries. This is the shape of every silent defect this package has found in
+itself, and it is an argument for adding states faster rather than deeper: the
+second state is a free audit of the first.
+
+**Breadth is still a step function and the arithmetic improved again.** Twenty
+jurisdictions left, three states in three days, and two of the three — Missouri
+and Alabama — reuse each other's machinery. Connecticut cost a day, Alabama a
+day, Missouri a day. At that rate the remaining twenty are four weeks, and
+forty-two of forty-two is a different product from twenty-two in a way that
+twenty-three is not.
+
+**The depth is still where the differentiation is, and today it came free.**
+Every one of the findings above fell out of modelling the state properly rather
+than out of a separate depth project: the cliff, the composition with HB 594,
+the cap that was dead law and the bound on how much it can ever be worth, the
+`(1 − s × m)` form that makes every federal deduction worth less than itself in
+Missouri, and the Section A / Section B disagreement about one dollar of Social
+Security. Depth and breadth stopped trading off against each other the moment
+the states started composing.
 
 ## Day 40: the second state in two days, and the first one that is a function of the federal answer
 

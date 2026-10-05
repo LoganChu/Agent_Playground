@@ -13,16 +13,32 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 40 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.36.0, `us-tax-mcp` v0.39.0. 1,239 tests, all passing, and the
-differential grid against PolicyEngine-US now covers **903 households with zero
-unexplained differences**.
+**As of Day 41 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.37.0, `us-tax-mcp` v0.40.0. 1,262 tests, all passing.
 
 CI is green on all six jobs. The mutation audit was re-run over the build that
 ships — **1,130 mutants, 1,124 killed, 6 survivors, 99.5%**, up from 99.4%,
 with every one of the 44 mutants Alabama added killed and the same six survivors
 as before, each of them a number no return can reach. All four of those figures
 were predicted in writing before the run.
+
+Day 41 added **Missouri**, the twenty-second taxing state, and it is the one
+where the word "rate" stops meaning anything. Missouri deducts a SHARE of the
+federal income tax, and § 143.171.2 writes the share as a cliff rather than a
+phase-out: 35% of the federal bill at `$25,000` or less of Missouri adjusted
+gross income, 25% to `$50,000`, 15% to `$100,000`, 5% to `$125,000`, nothing
+above. One percentage applies to the whole bill, so **one dollar of income at
+`$100,000` costs `$61.94`** — the engine's own marginal-rate field reports
+`61.946` there and `0.047` a thousand dollars either side.
+
+Missouri is also **the first state in the United States to exempt capital gains
+outright** (HB 594, signed 10 July 2025, retroactive to 1 January, short-term
+gains included). The two provisions are really one: the exemption is a
+subtraction in arriving at Missouri AGI, which is the figure the cliff chart is
+read against — so it takes the gain out of the base AND moves the filer down a
+step, which on `$90,000` of wages and a `$60,000` gain is worth `$2,960.79`
+where 4.7% of the gain alone is `$2,820`. The story is at the top of
+`packages/us-state-tax/README.md`.
 
 Day 40 added **Alabama**, the twenty-first taxing state, and it is the one state
 in this package where **a federal tax cut raises the state tax bill.** Form 40
@@ -70,8 +86,8 @@ needs you.
 Nothing below has changed, but Day 39 produced a figure that bears on what this
 repository is worth and I would rather you had it than not.
 
-**This package covers twenty-one of the forty-two jurisdictions that tax income.**
-The missing twenty-one are Minnesota, Wisconsin, Oregon, South Carolina, Missouri,
+**This package covers twenty-two of the forty-two jurisdictions that tax income.**
+The missing twenty are Minnesota, Wisconsin, Oregon, South Carolina,
 Louisiana, Oklahoma, Iowa, Rhode Island, Vermont, Arkansas, Kansas, Nebraska,
 New Mexico, Montana, Maine, Delaware, Hawaii, North Dakota, West Virginia and the
 District of Columbia. That list is no longer prose: it is a declared, exported

@@ -39,6 +39,29 @@ const federalSingleTax = (taxable) => {
   return 1_240 + 4_560 + 12_166 + (taxable - 105_700) * 0.24;
 };
 
+/**
+ * Federal tax on a single filer's TAXABLE income, 2025 — a different schedule
+ * and a different standard deduction, written out because the 2025 Missouri
+ * answer is a function of the 2025 FEDERAL answer and reusing the 2026 one
+ * would quietly measure a household that does not exist.
+ */
+const federalSingleTax2025 = (taxable) => {
+  if (taxable <= 11_925) return taxable * 0.1;
+  if (taxable <= 48_475) return 1_192.5 + (taxable - 11_925) * 0.12;
+  return 1_192.5 + 4_386 + (taxable - 48_475) * 0.22;
+};
+
+const wageFederal2025 = (wages) => {
+  const taxable = Math.max(0, wages - 15_750);
+  return {
+    adjustedGrossIncome: wages,
+    taxableIncome: taxable,
+    deduction: 15_750,
+    deductionKind: 'standard',
+    incomeTaxBeforeRefundableCredits: federalSingleTax2025(taxable),
+  };
+};
+
 /** A single filer on wages alone, 2026: the federal basis Missouri reads. */
 const wageFederal = (wages, deduction = STD_2026.single) => {
   const taxable = Math.max(0, wages - deduction);
@@ -195,6 +218,27 @@ test('one dollar at $100,000 costs $61.94, and it is the largest of the four cli
   assert.equal(Math.max(...jumps), jumps[2], '$100,000 is the largest cliff');
 });
 
+test('the engine reports a marginal rate of 6,194% at $100,000, and says so', () => {
+  // `marginalRate` is the tax on ONE MORE DOLLAR of income, which is exactly
+  // what a cliff makes absurd and exactly what a caller needs to see. The
+  // figure is not a bug in the report: it is the report doing its job on a
+  // provision where the usual word "rate" has stopped meaning anything.
+  const at = (wages, year = 2026) =>
+    mo({ year, federal: year === 2026 ? wageFederal(wages) : wageFederal2025(wages) })
+      .marginalRate;
+  // Four places, because the engine rounds the CENT of tax on one dollar and
+  // then reports the rate, so the fourth place is real.
+  money(at(100_000), 61.946, 'one dollar at $100,000');
+  money(at(125_000), 44.0735, 'one dollar at $125,000');
+  // And one dollar either side of it is an ordinary 4.7% state again, which is
+  // the half of the claim that makes the first half worth printing.
+  money(at(99_000), 0.047, 'a thousand dollars below');
+  money(at(101_000), 0.047, 'a thousand dollars above');
+  // 2025, where the schedule is $1,313 wide and the cliff is in the same place
+  // because § 143.171.2's thresholds are not indexed at all.
+  money(at(50_000, 2025), 18.2431, 'the 2025 cliff at $50,000');
+});
+
 test('the refundable federal credits come back off the deduction, so they RAISE Missouri tax', () => {
   // The MO-1040 line 9 worksheet subtracts them, which is Alabama's rule at a
   // fraction of Alabama's rate: the same input lowers the tax in the six
@@ -326,6 +370,60 @@ test('the $5,000 cap could not bind before 2025 and binds now, for at most $181.
   money(joint.tax, 0, 'a couple in the 35% step owes nothing with or without the cap');
 });
 
+test('the cap binds in the 25% step, under every filing status', () => {
+  // Written BEFORE the mutation audit rather than after it, because the
+  // prediction was that four of the five cap cells would survive: the test
+  // above reaches the $5,000 single figure and the joint one only through a
+  // return that owes nothing either way, and a figure no answer moves is a
+  // figure no test is checking.
+  //
+  // The 25% step is where every status can reach it. Missouri AGI of $50,000
+  // is above every standard deduction here, and a federal bill of $200,000 —
+  // a filer with a very large capital gain and $50,000 of wages — puts 25% at
+  // $50,000 against caps of $5,000 and $10,000.
+  const federalTax = 200_000;
+  const caps = {
+    single: 5_000,
+    marriedFilingJointly: 10_000,
+    marriedFilingSeparately: 5_000,
+    headOfHousehold: 5_000,
+    qualifyingSurvivingSpouse: 5_000,
+  };
+  const deductions = {
+    single: STD_2026.single,
+    marriedFilingJointly: STD_2026.joint,
+    marriedFilingSeparately: STD_2026.single,
+    headOfHousehold: STD_2026.headOfHousehold,
+    qualifyingSurvivingSpouse: STD_2026.joint,
+  };
+  for (const status of FILING_STATUSES) {
+    const deduction = deductions[status];
+    const r = mo({
+      filingStatus: status,
+      federal: {
+        adjustedGrossIncome: 2_050_000,
+        taxableIncome: 2_050_000 - deduction,
+        deduction,
+        deductionKind: 'standard',
+        incomeTaxBeforeRefundableCredits: federalTax,
+      },
+      netCapitalGain: 2_000_000,
+    });
+    money(r.stateAdjustedGrossIncome, 50_000, `${status}: Missouri AGI is the wages alone`);
+    money(r.deduction, deduction + caps[status], `${status}: the cap, not 25% of $200,000`);
+    // Less the $1,400 § 143.161.2 addition, which only two of the five have.
+    const exemption = status === 'headOfHousehold' || status === 'qualifyingSurvivingSpouse' ? 1_400 : 0;
+    money(
+      r.taxableIncome,
+      Math.max(0, 50_000 - deduction - caps[status] - exemption),
+      `${status}: taxable income`,
+    );
+    // And it really is the cap doing it: a quarter of $200,000 is $50,000,
+    // five times the largest of the caps and ten times the other four.
+    assert.ok(federalTax * 0.25 >= caps[status] * 5, `${status}: the uncapped share is far larger`);
+  }
+});
+
 // ---------------------------------------------------------------------------
 // § 143.124 and § 143.125: the retirement sections that disagree with each other
 // ---------------------------------------------------------------------------
@@ -367,6 +465,23 @@ test("Social Security EATS the public pension exemption: $7,633 on identical inc
     'what receiving Social Security costs this retiree',
   );
   assert.ok(split.tax > allPension.tax, 'and the one with the benefit pays more');
+
+  // The 2025 ceiling is the same $47,633 and is a SEPARATE figure: the 2026
+  // one is that number carried forward because Form MO-A is published in
+  // January. Asserted in both years, so that the carry-forward is a claim
+  // something checks rather than two copies nobody compares.
+  const in2025 = mo({
+    year: 2025,
+    federal: { ...retiredFederal, deduction: 15_750, taxableIncome: 70_000 - 15_750 },
+    filerAge: 65,
+    retirement: { filer: { governmentPension: 70_000 } },
+  });
+  money(in2025.deduction - 15_750 - 750, 47_633, 'the 2025 ceiling is the same figure');
+  assert.equal(
+    getStateDefinition('MO', 2026).provisionalFigures[0].carriedForwardFrom,
+    2025,
+    'and 2026 says which year it was carried from',
+  );
 });
 
 test('military retired pay is outside the ceiling and the offset both', () => {
