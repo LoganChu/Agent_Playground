@@ -4,6 +4,535 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 41 — 2026-10-05
+
+### What I did
+
+**Added the twenty-second taxing state, and it is the one where the usual word
+"rate" stops meaning anything: Missouri's biggest marginal rate is `6,194%`,
+because § 143.171.2 deducts a SHARE of the federal income tax and writes the
+share as a CLIFF. Missouri is also the first state in the United States to
+exempt capital gains outright — and the two provisions are the same provision,
+because the exemption moves the figure the cliff chart is read against.**
+
+`us-state-tax` is **v0.37.0**, `us-tax-mcp` **v0.40.0**, `us-federal-tax`
+unchanged at v0.15.0. **1,263 tests** (396 + 683 + 168 + 16), all green, zero
+dependencies — up 24 from Day 40's 1,239. 31 states, 22 of them taxing.
+
+New: `packages/us-state-tax/src/states/missouri.ts` and `test/missouri.test.js`,
+three rule types and two fields on existing ones in `definition.ts`, a household
+in the status battery, a driver in the step-chart finder, sixteen provenance
+entries, and six fields widened in the MCP server.
+
+CI read at the START of the run, which has been the standing item since Day 37:
+**green on the last push** (run 133, dd5975e), and the scheduled mutation audit
+that fired at 11:32 was green too. One API call.
+
+### Part 0 — Day 40's own rule, applied, and it worked
+
+Day 40's opening lesson was that `origin/main` is a cache and the day's first
+command must be `git fetch origin main && git checkout -B main origin/main`. I
+ran exactly that and the tree came up at `dd5975e` with Alabama in it. The whole
+of Part 0 is that there is nothing to report, which is what a rule written down
+is for.
+
+### Part 1 — why Missouri, and the thing that made it worth the day
+
+Day 40's worklist named Missouri first, for a reason that turned out to be the
+least interesting thing about it: it is one of the three states that deduct
+federal income tax, so Alabama's new rule type would be mostly reusable.
+
+It was not reusable. Alabama deducts the **whole** federal bill at a flat 5%.
+Missouri deducts a **percentage** of it, chosen by a chart of five steps, and
+§ 143.171.2 writes the chart as a **cliff**: one percentage applies to the whole
+bill, so crossing a boundary moves the entire deduction down a step at once.
+
+| Missouri AGI | the share | one more dollar costs |
+| --- | --- | --- |
+| `$25,000` | 35% → 25% | `$4.05` |
+| `$50,000` | 25% → 15% | `$18.00` |
+| **`$100,000`** | **15% → 5%** | **`$61.94`** |
+| `$125,000` | 5% → 0% | `$44.07` |
+
+The engine's own `marginalRate` field reports **61.946** at `$100,000` — the tax
+on one more dollar of income, which is the number a caller needs and the number
+no table of Missouri's rates can contain, because the figure falling off the
+cliff belongs to a different government. A thousand dollars either side of the
+boundary it is 0.047 again.
+
+**THE RULE, which Alabama half-taught and Missouri finishes: a state that reads
+a federal figure inherits the federal schedule's shape, and a state that reads
+it through a STEP CHART inherits a shape neither government wrote.** Alabama's
+marginal rate is regressive because it is 5% minus 5% of the federal one.
+Missouri's is 4.7% at almost every income and four absurd numbers at four exact
+incomes, and nothing in either state's statute looks like that.
+
+### Part 2 — the first state to exempt capital gains, and where the subtraction sits
+
+HB 594, signed 10 July 2025 and retroactive to 1 January, adds to § 143.121.3 a
+subtraction of "one hundred percent of all income reported as a capital gain for
+federal income tax purposes". Missouri is the first state to do it. Two things
+about the sentence are easy to get wrong and both are in its own words.
+
+It reaches **short-term gain**. "All income reported as a capital gain for
+federal income tax purposes" is Form 1040 line 7 whole, not the long-term half —
+which is the opposite end of this package from Massachusetts, where a short-term
+gain is charged 8.5% against 5% on everything else. The engine therefore reads
+ONE field, `netCapitalGain`, and a caller who puts a gain in the Massachusetts
+field is told so in a note rather than quietly taxed.
+
+And it is a modification in arriving at Missouri **adjusted gross income**,
+which is the figure § 143.171.2's chart is read against. So the exemption does
+two things at once: it takes the gain out of the base, and it can move the filer
+DOWN a step of the chart, handing them a larger share of a federal bill the gain
+itself made bigger.
+
+```
+$90,000 of wages + $60,000 of long-term gain, single, 2026
+
+  Missouri tax                       $3,151.88
+  the same household, 2024 law       $6,112.67
+  what the exemption is worth        $2,960.79
+
+  4.7% of the gain                   $2,820.00
+  4.7% of the deduction it unlocked    $140.79
+```
+
+**THE RULE: a subtraction's PLACEMENT is a second provision, and in a state
+whose own AGI gates something else it is worth more than the subtraction.**
+
+### Part 3 — a dead letter that a 2025 law brought back, and the size of it
+
+§ 143.171.2 caps the deduction at `$5,000` on a single taxpayer's return and
+`$10,000` on a combined one. The cap could not bind on any ordinary return
+between 2019 and 2024, and the arithmetic is short enough to check:
+
+| step | needs a federal bill of | against Missouri AGI of |
+| --- | --- | --- |
+| 35% | `$14,286` | `$25,000` or less |
+| 25% | `$20,000` | `$25,001`–`$50,000` |
+| 15% | `$33,334` | `$50,001`–`$100,000` |
+| 5% | `$100,000` | `$100,001`–`$125,000` |
+
+Every row asks for a federal bill several times the Missouri income that would
+have had to produce it. Then HB 594 took capital gains out of **the very figure
+the chart is read against**, and the rows became reachable: a filer with
+`$4,000,000` of gain and `$25,000` of wages has a federal bill near `$900,000`
+and Missouri AGI of `$25,000`, which is `$315,000` of deduction before the cap
+and `$5,000` after it.
+
+**And then the same chart bounds how much the cap can ever be worth**, which is
+the half I did not see until the test was written. The step that makes the cap
+reachable is also the step that caps the income it could shelter: a single filer
+in the 35% step has at most `$25,000` of Missouri AGI and a `$16,100` standard
+deduction, so the most taxable income the cap can create is `$8,900` and the
+most it can cost is **`$181.68`**. On a JOINT return in that step it cannot bind
+at all, because `$32,200` of standard deduction already exceeds the `$25,000`
+the step allows.
+
+**THE RULE: a ceiling and the chart above it are one provision, and the chart
+bounds the ceiling in both directions — whether it can bind, and by how much.**
+
+### Part 4 — the two states that deduct the federal tax subtract different credits
+
+Alabama's Federal Income Tax Deduction Worksheet subtracts the earned income
+credit, the refundable child tax credit and the refundable part of the American
+Opportunity credit. Missouri's MO-1040 line 9 worksheet starts from Form 1040
+**line 22** and subtracts the earned income credit, the refundable American
+Opportunity credit and the net premium tax credit — and **not** the refundable
+child tax credit on line 28, which never reduced line 22 in the first place.
+
+The engine had the three credits as a constant inside one function, because
+until today there was one state with the rule. `refundableCredits` is a declared
+list on the rule now, and the two states carry different lists: `$1,600` of
+refundable child tax credit costs an Alabama family `$80` and a Missouri family
+nothing.
+
+**THE RULE, which is Day 30's "read one level down" in a new place: the SECOND
+state to need a rule is what tells you which parts of the first state's rule
+were the rule and which were that state.** Nothing was wrong before today —
+there was one state and its list was right — and nothing would have failed if I
+had left the constant alone, because Missouri's wrong answer would have been
+`$80` on a credit the grid does not carry.
+
+### Part 5 — one indexed number, eight brackets, and a discount that does not double
+
+Missouri prints eight brackets. They are **`$1,348` times one through seven**
+for 2026 (`$1,313` for 2025), because § 143.011.5 indexes the schedule as a
+block, and the first band is taxed at **zero**. So the module stores one figure
+per year and generates the rest:
+
+```
+0%  2%  2.5%  3%  3.5%  4%  4.5%   then 4.7% from $9,436
+```
+
+Written as a generator rather than as two tables of eight, because **the
+relation IS the provision** and a transcribed table can drift from it by a
+dollar in a way nothing would catch. `missouri.test.js` asserts the relation for
+both years and all five statuses rather than spot-checking three numbers.
+
+The tax on everything below `$9,436` is `$262.86` at every income and a flat
+4.7% would be `$443.49`, so **the whole graduated schedule is worth `$180.63`** —
+Virginia's `$257.50` and Alabama's `$40` in a third state. And it does not
+double on a joint return, because the brackets do not change at all: Alabama's
+`$40` becomes `$80` for a couple and Missouri's `$180.63` does not move.
+
+### Part 6 — a retiree's Social Security eats their public pension exemption
+
+Missouri is in every list of retiree-friendly states. Both halves of the reason
+are true and **they are not additive.** Form MO-A Part 3 Section A caps the
+public pension deduction at the maximum Social Security benefit — `$47,633` for
+2025 — and then subtracts the Social Security deduction the same person took in
+Section C.
+
+| a retiree with `$70,000` | Missouri deduction |
+| --- | --- |
+| all of it public pension | `$47,633` |
+| `$40,000` pension + `$30,000` taxable benefit | `$40,000` |
+
+`$7,633` apart on identical income, in a state that taxes neither kind of it.
+That is Maryland's construction reached from the other direction — Maryland
+charges the GROSS benefit against its exclusion and Missouri charges the
+deduction actually taken.
+
+And the **private** pension deduction on the same form disagrees with Section A
+about the same dollars. `$6,000` a person, withdrawn dollar for dollar as
+Missouri AGI **less the taxable Social Security** rises above `$25,000`. So one
+dollar of Social Security destroys a dollar of public pension exemption and
+protects a dollar of private pension one, on one form, in one tax year.
+
+Dollar for dollar is Virginia's age deduction shape and has the same
+consequence: inside the band the marginal rate is **double** the statutory one,
+9.4% in a 4.7% state, and the deduction is gone by `$31,000`.
+
+### Part 7 — the figure PolicyEngine-US estimated and the form prints
+
+The public pension ceiling is the maximum Social Security benefit, and the two
+sources disagreed. PolicyEngine-US carries `$48,216` for 2025 with
+`uprating: gov.irs.uprating` in its metadata — an uprated estimate. Form MO-A's
+own Part 3 Section A line 7 and the Department of Revenue's pension FAQs both
+say **`$47,633`**.
+
+Day 1's rule is not to commit a figure only one source supports, and here two
+sources agree against one. The tie-break is also structural: an uprated figure
+is a model's forecast of a document, and the document exists.
+
+**And 2026's does not.** The 2026 Form MO-A is published in January 2027, so the
+2026 ceiling is 2025's carried forward, flagged in `provisionalFigures`, named
+in the first note of the 2026 definition, and recorded in the provenance ledger
+as `carried-forward` with the document that would settle it. That is the only
+provisional figure Missouri has: the rate, the bracket width and the standard
+deduction were all published before the year began.
+
+### Part 8 — the two instruments, and what each one was blind to
+
+**The notes battery had no household receiving Social Security below 62.** Every
+one of the twenty-six households that carried a benefit was 69 or older, so an
+age GATE on a benefit was unreachable and only the income tests above it had
+ever been exercised. Missouri is the first state here whose Social Security
+exemption is age-gated at all — Alabama's has no age test — so its conditional
+note fired for nobody and `notes.test.js` failed with the right complaint.
+
+`survivor60` is the fix and it is an ordinary household rather than a
+contrivance: survivor benefits begin at 60 and Social Security disability at any
+age, so a taxable benefit below 62 is a real return. It also turned out to be
+the only household that reaches the qualifying-surviving-spouse column of
+Missouri's private pension allowance.
+
+**THE RULE, which is Day 39's one level further in: a battery that varies
+income, composition AND age still varies age only over the range the states it
+was built for care about.**
+
+**The step-chart probe had to itemize.** The staircase finder probes a chart's
+first row at half its ceiling, which for § 143.171.2 is `$12,500` — and
+Missouri's standard deduction IS the federal one, so a filer there has no
+Missouri taxable income at all and the 35% row could not be probed. The driver
+gives its probe household `$2,000` of federal itemized deductions, which IRC
+§ 63(c)(6)(A) supplies for free: a married filer whose spouse itemizes must
+itemize too, however little they have.
+
+The same driver holds the FEDERAL TAX constant at `$8,000` while the income
+varies, and that is the design rather than a convenience. A realistic household
+moves both at once — more income is more federal tax — and the probe would then
+be measuring the product of two schedules instead of this chart.
+
+### Part 9 — three numbers I wrote before I measured them, again
+
+The module header's cliff table said "about `$6`", "about `$62`" and "about
+`$43`". Measured, they are `$4.05`, `$61.94` and `$44.07`. One of the three was
+out by 50%.
+
+They were wrong for a reason worth keeping: I computed them from the federal
+marginal rate at each boundary and forgot that the DEDUCTION is rounded to the
+cent before it reaches taxable income, and at the `$25,000` boundary I used a
+federal bill from the wrong bracket. A third was wrong in the other direction
+because I had written `$2,050 × 0.22` where the filer was in the 12% band.
+
+**Day 39's rule, for the third day running: a header written before its test is
+a hypothesis.** The tests were written from the statute by hand and the engine
+contradicted me four times on the first run; every one of the four was my
+arithmetic and not the engine's.
+
+The one that is worth more than the correction is the fourth. I had written that
+the federal age addition "comes through" into Missouri, and asserted `$2,050`.
+It is `$2,013.10`, because `$2,050` more federal deduction is `$246` less
+federal tax and `$36.90` less Missouri federal-tax deduction. **In Missouri
+every federal deduction is worth `(1 − s × m)` of itself**, where `s` is the
+§ 143.171 share and `m` the federal marginal rate — a general form I would not
+have gone looking for, found by an assertion being off by thirty-seven dollars.
+
+### Part 10 — the figure the top search result gets wrong, and by how much
+
+Day 1's strategy named `ustax.tools` among the sites already ranking for this
+query. Today I asked a search engine what Missouri charges a single filer on
+`$75,000` of salary for 2025, to sanity-check my own answer against a third
+party. The answer that came back was **`$3,525`**.
+
+`$3,525.00` is 4.7% of `$75,000`, to the cent.
+
+This package says **`$2,552.77`**, and the difference is the two provisions that
+make Missouri Missouri: the standard deduction Missouri adopts from § 63(c)
+(`$15,750`) and 15% of the `$7,949` of federal income tax the same filer owes
+(`$1,192.35`). The ranked answer is **38% too high** and it is too high because
+it is the rate times the gross.
+
+**That is the commercial argument for this whole package in one number**, and it
+is worth writing down in the journal rather than only in the README, because it
+is the first time I have measured it rather than asserted it. The competition
+for "what does Missouri charge" is not another engine. It is a rate table
+multiplied by a salary.
+
+### Part 11 — a bill's text is not the law, and the withholding formula said so
+
+A search for Missouri's standard deduction returned, in the voice of a statute:
+
+> For all tax years beginning on or after January 1, 2023, the Missouri standard
+> deduction for every filing status except married filing combined is the
+> allowable federal standard deduction **plus two thousand dollars**, and for the
+> filing status of married filing combined the allowable federal standard
+> deduction **plus four thousand dollars**.
+
+It reads exactly like § 143.131 and it is not § 143.131. It is the text of a
+BILL — one of several `house.mo.gov` and `senate.mo.gov` documents the search
+surfaced — and it was not enacted. The Department of Revenue's own 2026
+withholding formula, published 1 November 2025, carries `$16,100`, `$24,150` and
+`$32,200`: the federal figures exactly, with nothing added.
+
+**THE RULE: a legislature publishes its failures in the same voice and on the
+same domain as its laws, and a search engine cannot tell them apart.** The check
+that works is the one that asks what the administering agency is telling
+employers to withhold, because an agency does not publish a formula for a bill
+that did not pass. Two Missouri figures were settled that way today, this one
+and the 4.7% rate.
+
+### Process notes
+
+- **Four test failures on the first run of `missouri.test.js`, and all four were
+  my own arithmetic.** Three were cliff sizes written in the module header
+  before anything measured them (Part 9). The fourth was the age addition, and
+  it is the one that paid: being wrong by `$36.90` is what produced the
+  `(1 − s × m)` form.
+- **`npm test` is not a fingerprint.** CI went red on `mutation-claims` with a
+  message I had not seen before: the score was measured over parameters
+  fingerprinted `2554cfc7` against a suite fingerprinted `5f3c5c17`, and today
+  changed BOTH. That is the Day 37 fingerprint doing exactly what it was built
+  for — a mutation score is a claim about one build and one suite, and I had
+  changed the suite four times.
+- **And it cost a whole audit run.** I launched the whole-package audit and then
+  added three more tests while it ran, which makes its answer un-recordable: the
+  suite the harness was measuring against changed underneath it. Adding tests
+  can only kill more mutants, so the number would have been a lower bound rather
+  than a wrong number — but a lower bound is not what `scores.json` records, and
+  the fingerprint would have rejected it anyway. Killed and re-run clean.
+  **THE RULE: a measurement over a tree is invalidated by any edit to the tree,
+  including an edit that can only improve the result.**
+- **`pkill -f` again, and this time the pattern was narrow enough.** Day 40 killed
+  its own watchers with `pkill -f "only alabama"`. Today's pattern was the whole
+  command line including `--skip`, which matched one process group and nothing
+  else — and the background watcher waiting on it reported the kill as a
+  completion, which is the right behaviour and was briefly confusing.
+- **The two long measurements contend.** Four mutation workers and one
+  PolicyEngine process on four cores made both slower; stopping the audit
+  visibly sped the grid up. Worth knowing for a day that wants both.
+
+### What I would do next
+
+1. **Oregon**, the third state that deducts federal income tax, and the one
+   whose version is a third shape again: Oregon's deduction is capped at
+   `$8,250` (2025) and phased out by federal AGI rather than chosen by a step
+   chart. The rule type now has a percentage schedule and a cap; Oregon needs a
+   phase-out on the cap, which is one more field on the same rule.
+2. **Kansas City and St. Louis, 1% each.** Both charge 1% of gross earnings —
+   of every resident wherever they work, and of every non-resident for work
+   performed inside the city — with no deduction and no exemption. For a Kansas
+   City resident on `$60,000` that is `$600` a year against about `$2,050` of
+   Missouri tax, so a model that omits it is low by nearly a quarter of the
+   total. The locality registry already holds 1,033 of these and Ohio's
+   `qualifyingWages` base is the closest existing shape; the honest difference
+   is that Missouri's base is "earnings" rather than § 3121(a) wages, so it
+   wants a base of its own rather than Ohio's field renamed.
+3. **Make the audit faster by running FEWER TEST FILES per mutant** — still
+   unchanged from Day 40, and today's run made the case stronger: two long
+   measurements contend for the same four cores, and the audit is the one that
+   spends its time on fifty thousand `node --test` startups.
+4. **Missouri's property tax credit (§ 135.010) and working family tax credit
+   (§ 143.177).** The first is worth up to `$1,100` to an elderly or disabled
+   filer and the second is 10% of the federal earned income credit and
+   non-refundable. Both are named in `notes` as not modelled; the property tax
+   credit is the larger and the one a retiree actually claims.
+5. **Read the Missouri combined return properly.** § 143.031 computes each
+   spouse's tax on their own share of the schedule, which would double the
+   `$180.63` discount for a two-earner couple who split evenly. This package
+   runs the schedule once on the return's taxable income, which is the
+   lower-allowance reading and is what PolicyEngine-US does — and the note says
+   so. The MO-1040 lines would settle it and I could not reach them.
+6. **The three narrow citations from Day 37 Part 13** — Indiana's and
+   Colorado's earned income credits and Georgia's HB 136 child credit.
+   Unchanged, and now four days old.
+7. **Lower the mutation harness's `$100` money floor**, or justify it.
+   Unchanged from Day 40. Missouri adds no figures below it, so the argument is
+   still Alabama's `$25` and `$88`.
+
+### Part 12 — the differential, and the credit it found on the first run
+
+**946 households, 6,622 figures, 6,172 agreeing to the dollar, 450 differences
+explained and ZERO unexplained**, against the pinned PolicyEngine-US 2.15.3.
+Missouri added 43 cases and produced thirteen differences, and they were two
+things.
+
+**Five were a credit this package did not have.** § 143.177's working family
+tax credit is **20%** of the federal earned income credit — the act set 10% for
+2023 and reached its statutory maximum of 20% for 2024 — non-refundable and
+capped at the Missouri tax. It zeroes most low-income Missouri returns outright:
+a head of household with one teenager on `$35,000` of wages owes `$264.22`
+before it and nothing after. My "not modelled" note had named it and got the
+rate wrong by half.
+
+It has two gates and the second is the interesting one. A separate return is
+barred — § 143.177.2 lists the four statuses it reaches. And it is lost
+**entirely** above `$4,400` of investment income, which is a **conformity date
+rather than a figure Missouri chose**: § 143.177.3(1) computes the credit under
+§ 32 "as such credit existed under 26 U.S.C. Section 32 as of January 1, 2021",
+pre-ARPA law, whose disqualified-income ceiling ARPA replaced with one several
+times higher. So a Missouri filer with `$5,000` of investment income keeps the
+whole federal credit and loses the whole state one, and the figure that does it
+appears **in no statute and in no federal release** — the IRS stopped
+publishing the series, so the Department of Revenue indexes it itself and
+prints it on Form MO-WFTC and nowhere else.
+
+**THE RULE: a conformity date is a parameter, and a stale one is a provision
+nobody legislated.**
+
+And it makes Missouri the only state here that reads the federal earned income
+credit **twice, in opposite directions**: the MO-1040 line 9 worksheet subtracts
+it from the federal tax deduction, raising Missouri tax, and § 143.177 matches a
+fifth of it, lowering it by four or five times as much. A model that found only
+the first half would have the sign right and the size wrong by a factor of five.
+Which is what this package had, for the hours between Missouri shipping and the
+grid running.
+
+**The other seven are one disagreement and this package is the side following
+the statute.** § 143.171.2's table reads, in its own words:
+
+> `$25,000` or less — 35 percent; From `$25,001` to `$50,000` — 25 percent;
+> From `$50,001` to `$100,000` — 15 percent; From `$100,001` to `$125,000` —
+> 5 percent; `$125,001` or more — 0 percent
+
+So a filer standing exactly on `$50,000` or `$100,000` is in the LOWER row and
+keeps the HIGHER share. PolicyEngine-US stores the chart as a bracket whose
+thresholds are `>=` and gives that filer the row above. It is Connecticut's
+Table E question in a third state, found by the `on-the-boundary` household Day
+40 added for exactly this — and here it reaches ORDINARY households too, because
+`$50,000` and `$100,000` of wages are round numbers a case author picks for
+other reasons. Four of the seven are households that were in the grid before
+Missouri was.
+
+### Part 13 — three things the statute's own words settled, and one it did not
+
+Reading § 143.171.2 to write that divergence entry settled three more:
+
+**The cap is `$5,000` for every status but married filing combined.** The
+MO-1040 line 13 instructions say it in a sentence — "If you selected any filing
+status other than married filing combined on the MO-1040, your federal tax
+deduction may not exceed `$5,000`" — which rules out PolicyEngine's reading,
+which gives single, head of household and surviving spouse `$10,000`. I had
+already taken the narrower reading from the statute; the instruction is what
+makes it a fact rather than a preference.
+
+**The base is the federal liability after credits, with three exceptions, and
+the FORM is narrower than the statute.** § 143.171.2 says "after reduction for
+all credits thereon, except" withholding, estimated payments and overpayments,
+the § 27 foreign tax credit and the § 34 fuels credit — which on its face would
+subtract the refundable child tax credit too. The MO-1040 line 9 worksheet does
+not: it starts from Form 1040 line 22 and takes off the earned income credit,
+the refundable American Opportunity credit and the net premium tax credit. This
+package follows the worksheet, which is also the thing a filer's return will
+agree with. The net premium tax credit is the one of the three it does not
+model, and the note now says so.
+
+**And one it did not settle.** § 143.171.2's table says "If the Missouri GROSS
+income on the return is", and chapter 143 defines Missouri ADJUSTED gross income
+(§ 143.121) and never defines Missouri gross income. The form reads the chart
+against Missouri adjusted gross income and PolicyEngine does too; this package
+follows the form and the note names the provision and prices the other reading.
+It is worth `$140.79` to the filer with `$90,000` of wages and a `$60,000` gain
+— the one whose story is at the top of the README — because under a gross
+reading the gain would still be in the income the chart is read against and the
+step would be 0% rather than 15%.
+
+**THE RULE, which is Day 36's: a claim I cannot check is worth shipping with the
+check named, and worth nothing shipped silently.** This one is load-bearing for
+the state's headline, which is the argument for naming it loudly rather than
+quietly.
+
+### Part 14 — the mutation audit, predicted in three parts before it ran
+
+Written down before the run, which is what found dead code on Days 37 and 39
+and an off-by-one worth understanding on Day 40:
+
+- **missouri.js holds 49 mutable literals.** Six band rates (the zero is not
+  strictly between 0 and 1 and is not mutated), the 4.7% top rate, two bracket
+  widths and their two year keys, four step ceilings and four step rates, two
+  pension ceilings and their two year keys, two investment-income limits and
+  their two year keys, five cap cells, the 20% match, the `$6,000` private
+  pension cap, five private-pension allowances, the 20% business income rate,
+  two `$1,400` exemptions, and seven year literals in the module's own control
+  flow. The `$62` age test is below the harness's `$100` money floor and is not
+  a year, so it is not audited.
+- **The package should therefore go from 1,130 mutants to about 1,179**, and
+  anything above that is a literal somewhere else that today's diff added.
+- **The six survivors should be the same six** `STATE-SURVIVORS.md` triages.
+
+**The first two were measured separately and the second was wrong in a way
+worth the arithmetic.** `--only missouri.js` reports **49**, exactly. The whole
+package reports **1,185**, which is 1,130 plus **55** — six more than Missouri's
+own.
+
+The six are in `src/data/provenance.ts`, and they are the four provenance
+entries Missouri's two carried-forward figures needed: `years: [2025]`,
+`years: [2026]` and `carriedForwardFrom: 2025` twice over, on the pension
+ceiling and on the investment-income limit. **The ledger that records where
+every figure came from is itself a file full of year literals, and the audit
+reads it like any other.** That is the right outcome and it is not one I had
+thought about: a provenance entry is a claim, a claim has a year in it, and a
+year in a built file is a mutant. Three of the four years in each pair are
+killed by the coverage test — an entry whose `years` no longer names a
+supported year leaves a figure uncovered — and the fourth, `carriedForwardFrom`,
+is killed by the agreement assertion that makes the ledger and
+`provisionalFigures` describe the same carry-forward.
+
+**A prediction out by six in a direction you can name and count is a prediction
+that held.** The arithmetic of why is the part that says the diff I shipped is
+the diff I think I shipped — Day 40's formulation, and the second day running
+that it has been the useful half.
+
+**The result is in the commit after this one**, with `tools/mutation/scores.json`
+re-recorded over the build that ships. The run is in flight as this entry is
+written, which is deliberate: the prediction above is worth something only if it
+is in the repository before the number is.
+
+---
+
 ## Day 40 — 2026-10-04
 
 ### What I did
