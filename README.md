@@ -120,17 +120,30 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1130 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.5% |
+| `us-state-tax` (rule parameters) | 1185 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.5% |
 
-The state figure was re-measured on **Day 40** over the build that ships today:
-Alabama took the audit from 1,086 mutants to **1,130** and **all 44 of the new
-ones were killed**, so the six survivors are the same six and the score moved
-from 99.4% to 99.5%. All four numbers were predicted before the run — the 43
-mutable literals in `alabama.ts` were counted by hand from the module, and an
-`--only alabama.js` run came back 43 of 43 killed before the whole-package run
-started.
+The state figure was re-measured on **Day 41** over the build that ships today:
+Missouri took the audit from 1,130 mutants to **1,185** and **all 55 of the new
+ones were killed**, so the six survivors are the same six and the score held at
+99.5%. All four numbers were predicted before the run.
 
-Day 39 is the row underneath it, and it is the one that earns this instrument
+**And the prediction was out by six in a direction worth the arithmetic.** The
+49 mutable literals in `missouri.ts` were counted by hand from the module and
+an `--only missouri.js` run confirmed exactly 49 — but the package gained 55.
+The other six are in `src/data/provenance.ts`: the four ledger entries
+Missouri's two carried-forward figures needed carry `years: [2025]`,
+`years: [2026]` and `carriedForwardFrom: 2025` twice over. **The file that
+records where every figure came from is itself full of year literals, and the
+audit reads it like any other.** Three of each pair are killed by the coverage
+assertion — an entry whose `years` no longer names a supported year leaves a
+figure uncovered — and the fourth by the assertion that makes the ledger and
+`provisionalFigures` describe the same carry-forward.
+
+Day 40 is the row underneath: Alabama took the audit from 1,086 to 1,130 and
+all 44 of its mutants were killed, with the same six survivors and the score
+moving from 99.4% to 99.5%.
+
+Day 39 is two rows underneath, and it is the one that earns this instrument
 its place. Connecticut took the audit from 740 mutants to **1,086** — a third of
 the whole package arriving in one state. Four of its numbers survived the first run and
 **the prediction that the same six would survive was wrong**, which is the

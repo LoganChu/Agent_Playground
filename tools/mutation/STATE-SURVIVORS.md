@@ -17,8 +17,18 @@ rather than the suite's reach.
 | Day 39, Connecticut's first run | 1,090 | 10 | 99.1% |
 | **Day 39, after the duplicated threshold was hoisted** | **1,086** | **6** | **99.4%** |
 | **Day 40, after Alabama** | **1,130** | **6** | **99.5%** |
+| **Day 41, after Missouri** | **1,185** | **6** | **99.5%** |
 
 Each survivor is a number the package could ship with a wrong value for.
+
+**Day 41's row is Day 37's twice over, and the second time was a surprise.** Missouri
+added 55 mutants and only 49 of them are in `missouri.ts`; the other six are the
+`years: [2025]`, `years: [2026]` and `carriedForwardFrom: 2025` on the four provenance
+entries its two carried-forward figures needed. **The ledger that says where every
+figure came from is a file full of year literals and the audit reads it like any
+other** — which was predicted for Day 37 and forgotten by Day 41, so the package's
+mutant count came in six above a hand count that was itself exactly right. All 55
+were killed.
 
 **Day 37's row is the interesting one for what did NOT change.** The provenance ledger
 added 38 mutants — it ships bare years, in the `years: [...]` scope on an entry and in

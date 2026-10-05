@@ -29,10 +29,13 @@ found the reverse: the seven that remained are all one disagreement in which
 `$50,000` and `$100,000` of income a filer standing exactly on it falls.
 
 CI is green on all six jobs. The mutation audit was re-run over the build that
-ships — **1,130 mutants, 1,124 killed, 6 survivors, 99.5%**, up from 99.4%,
-with every one of the 44 mutants Alabama added killed and the same six survivors
-as before, each of them a number no return can reach. All four of those figures
-were predicted in writing before the run.
+ships — **1,185 mutants, 1,179 killed, 6 survivors, 99.5%**, with every one of
+the 55 mutants Missouri added killed and the same six survivors as before, each
+of them a number no return can reach. All four of those figures were predicted
+in writing before the run, and the one that was not — where the 55 came from —
+is worth a line: 49 are in Missouri's own module, counted by hand and confirmed
+exactly, and the other six are in the provenance ledger, which is a file full
+of year literals and gets audited like any other.
 
 Day 41 added **Missouri**, the twenty-second taxing state, and it is the one
 where the word "rate" stops meaning anything. Missouri deducts a SHARE of the

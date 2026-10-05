@@ -526,10 +526,28 @@ that held.** The arithmetic of why is the part that says the diff I shipped is
 the diff I think I shipped — Day 40's formulation, and the second day running
 that it has been the useful half.
 
-**The result is in the commit after this one**, with `tools/mutation/scores.json`
-re-recorded over the build that ships. The run is in flight as this entry is
-written, which is deliberate: the prediction above is worth something only if it
-is in the repository before the number is.
+**It landed and all four numbers held:**
+
+```
+mutants 1185    killed 1179    survived 6    score 99.5%
+
+states/flat-states.js  line 157  year  2024 -> 2023
+states/flat-states.js  line 287  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**All 55 of the mutants Missouri added were killed** — the 49 in its own module
+and the six in the provenance ledger — and the six survivors are the same six
+`STATE-SURVIVORS.md` has triaged since Day 35: four windows on a tax year
+outside the two supported, Ohio's `0.01` used as notation for "just below the
+next band", and the 20% row of Ohio's joint filing credit no return can reach.
+The score held at 99.5%.
+
+The prediction above was written in the repository before the run, which is the
+only arrangement under which it means anything.
 
 ---
 
