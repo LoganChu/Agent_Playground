@@ -127,6 +127,14 @@ const boolean: JsonSchema = { type: 'boolean' };
  * shape to build a legal object — and loses the 1,400-character description of
  * what each one means, which is now in {@link STATE_FIELDS} under `retirement`.
  */
+/**
+ * The states that read `retirement`, declared once so that the field's own
+ * documentation can count them instead of saying a number.
+ */
+const RETIREMENT_STATES = [
+  'MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL', 'MO',
+] as const;
+
 const PERSON_RETIREMENT: JsonSchema = {
   type: 'object',
   properties: {
@@ -328,15 +336,22 @@ export const STATE_FIELDS: readonly StateField[] = [
       },
       additionalProperties: false,
     },
-    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL', 'MO'],
+    states: RETIREMENT_STATES,
     doc: [
       'Retirement income PER PERSON, because these states do not read it off a federal AGI and four of them cap an exclusion per person — so a return\'s totals do not determine its tax. Omit it and everything lands on one spouse, which is the worst of the cases, and the result says so in the name of the subtraction.',
-      'NINE states read this. Four of them — IL, MS, MI, NY — exempt most or all of a pension and BEFORE v0.19.0 taxed it unless the caller netted it out through stateSubtractions. They no longer do, so a caller who is still passing both now subtracts twice: take it out of stateSubtractions.',
+      // The count used to be written here as a word — "NINE states read this" —
+      // and the list beside it had grown to ELEVEN before anybody noticed, then
+      // twelve when Missouri arrived. A prose count of a list that is declared
+      // three lines above is a second copy of that list, and it drifts the
+      // moment the list grows. It is derived now, and `test/state-fields.test.js`
+      // fails if the sentence and the array disagree.
+      `${RETIREMENT_STATES.length} states read this. Four of them — IL, MS, MI, NY — exempt most or all of a pension and BEFORE v0.19.0 taxed it unless the caller netted it out through stateSubtractions. They no longer do, so a caller who is still passing both now subtracts twice: take it out of stateSubtractions.`,
       '  IL — everything, no cap, NO AGE TEST. A 40-year-old drawing a pension owes Illinois nothing on it.',
       '  MS — everything, no cap, at 59½. An early distribution is taxable (§ 27-7-15(4)(l)).',
       '  MI — ONE cap for the RETURN, keyed to the OLDER spouse: $67,610 single / $135,220 joint for 2026, and 75% of the 2025 figures for 2025. Military pay is exempt in full and comes OFF that cap.',
       '  NY — $20,000 PER PERSON at 59½, unused room lost, AND a federal, NY State or NY local government pension exempt in full at ANY age. Put a government pension in governmentPension, not employerPlanPension: the two differ by the whole of the tax.',
       '  NC — taxes every pension in FULL and deducts military retired pay in full. It is in every list of retiree-friendly states and does not belong there.',
+      '  MO — the public pension deduction is capped at the maximum Social Security benefit ($47,633) and then REDUCED BY the Social Security deduction the same person took, so a benefit consumes a pension exemption rather than adding to it; the private pension deduction beside it is $6,000 per person withdrawn dollar for dollar above $25,000 ($32,000 combined) of Missouri AGI LESS that same benefit, so one dollar of Social Security destroys one exemption and protects the other. Military retired pay is exempt in full at any age, outside both. Put government retired pay in governmentPension, not employerPlanPension.',
       '  AL — the TYPE OF PLAN decides the whole answer and no federal figure records it. A DEFINED BENEFIT payment is exempt in full at ANY age with no cap (Ala. Admin. Code r. 810-3-19-.04, reading IRC § 414(j), and reaching non-qualified plans and SERPs); a DEFINED CONTRIBUTION distribution is taxable above $6,000 per person and only from 65. At 62 a $60,000 pension is free and a $60,000 401(k) draw costs $2,760.00.',
       'Fields, on filer and spouse alike:',
       '  employerPlanPension — taxable pension from a qualified plan, 401(a), 401(k), 403(b) or 457(b). NOT an IRA, Roth, ROLLOVER IRA, SEP or 457(f), which MD § 10-209(a) excludes by name and GA counts in full. IN ALABAMA this field means a DEFINED BENEFIT pension only.',

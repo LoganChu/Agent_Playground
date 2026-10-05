@@ -176,6 +176,35 @@ function reachableValues(field) {
   }
 }
 
+test('a field whose doc counts its own states counts the array beside it', () => {
+  // Day 40's rule and the Day 41 instance: a prose count of a list declared
+  // three lines above is a SECOND COPY of that list, and it drifts the moment
+  // the list grows. `retirement` said "NINE states read this" while its own
+  // array held eleven, and nothing failed — the sentence had been wrong for
+  // two states before Missouri made it wrong for a third.
+  //
+  // Generalised rather than pinned to one field: any doc line that opens with
+  // a number followed by " states read this" must agree with that field's own
+  // `states` array. A field that grows one tomorrow is covered.
+  let checked = 0;
+  for (const field of STATE_FIELDS) {
+    // `doc` is an array in the source and a joined string by the time it
+    // reaches here, which is itself worth knowing: a test that iterated the
+    // array would have passed over a string and checked nothing.
+    for (const line of String(field.doc).split('\n')) {
+      const hit = /^(\d+) states read this/.exec(line);
+      if (!hit) continue;
+      checked += 1;
+      assert.equal(
+        Number(hit[1]),
+        field.states.length,
+        `${field.name}: the doc says ${hit[1]} states and the array has ${field.states.length}`,
+      );
+    }
+  }
+  assert.equal(checked, 1, 'one field counts its own states in prose');
+});
+
 test('every per-state field is in the schema, typed, and points at describe_state', () => {
   for (const field of STATE_FIELDS) {
     const property = stateTool.inputSchema.properties[field.name];
