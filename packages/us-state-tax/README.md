@@ -1,13 +1,77 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **30
-states** including **New York**, **New Jersey**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **31
+states** including **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.36.0: **Alabama, where a federal tax cut raises the state tax bill.**
+New in 0.37.0: **Missouri, where one dollar of income costs `$61.94`.**
+
+Missouri deducts a **share** of the federal income tax, and § 143.171.2 writes the
+share as a **cliff chart rather than a phase-out**: 35% of the federal bill at
+`$25,000` or less of Missouri adjusted gross income, 25% to `$50,000`, 15% to
+`$100,000`, 5% to `$125,000`, nothing above. One percentage applies to the *whole*
+bill, so one dollar of income at a boundary moves the entire deduction down a step.
+
+| Missouri AGI | the share | one more dollar costs |
+| --- | --- | --- |
+| `$25,000` | 35% → 25% | `$4.05` |
+| `$50,000` | 25% → 15% | `$18.00` |
+| **`$100,000`** | **15% → 5%** | **`$61.94`** |
+| `$125,000` | 5% → 0% | `$44.07` |
+
+No table of Missouri's rates can show that, because the figure falling off the cliff
+belongs to a different government. It is the largest single-dollar jump in this
+package outside Maryland's capital gains surtax, and unlike that one it is reached by
+an ordinary wage earner with no gain and no planning.
+
+**And Missouri is the first state in the United States to exempt capital gains
+outright.** HB 594, signed 10 July 2025 and retroactive to 1 January, subtracts "one
+hundred percent of all income reported as a capital gain for federal income tax
+purposes" — **short-term included**, where Massachusetts at the other end of this
+package charges short-term gain 8.5%. The part no summary carries is *where* the
+subtraction sits: it is a modification in arriving at **Missouri AGI**, which is the
+figure the cliff chart above is read against. So the exemption takes the gain out of
+the base *and* moves the filer down a step, handing them a share of a federal bill
+the gain itself made bigger. On `$90,000` of wages and `$60,000` of long-term gain it
+is worth **`$2,960.79`**, where 4.7% of the gain is `$2,820`.
+
+It also brought a dead letter back to life. The `$5,000` / `$10,000` cap on the
+federal tax deduction could not bind on any ordinary return between 2019 and 2024 —
+35% of a bill reaches `$5,000` only at `$14,286` of federal tax, which nobody with
+`$25,000` of Missouri AGI pays. A filer with `$4,000,000` of gain and `$25,000` of
+wages now sits in the 35% step with a federal bill near `$900,000`, and the cap is
+the only thing between them and `$315,000` of deduction.
+
+Three more things no Missouri rate table shows:
+
+- **The eight brackets are one number.** § 143.011.5 indexes the schedule as a block,
+  so the bands are the first one's width times one through seven — `$1,348` for 2026,
+  `$1,313` for 2025 — the first band is taxed at **zero**, and 4.7% begins at
+  `$9,436`. The tax on everything below that is `$262.86` at every income, where a
+  flat 4.7% would be `$443.49`: **the whole graduated schedule is worth `$180.63`**.
+  And it does not double on a joint return, because the brackets do not change at all
+  — Alabama's `$40` becomes `$80` for a couple and Missouri's `$180.63` does not move.
+- **A retiree's Social Security eats their public pension exemption.** Form MO-A
+  Part 3 Section A caps the public pension deduction at the maximum Social Security
+  benefit (`$47,633` for 2025) and then **subtracts the Social Security deduction the
+  same person just took**. `$70,000` of public pension alone deducts `$47,633`; the
+  same `$70,000` as `$40,000` of pension plus `$30,000` of taxable benefit deducts
+  `$40,000`. `$7,633` apart, on identical income, in a state that taxes neither kind
+  of it. And the **private** pension deduction on the same form disagrees: its income
+  test takes the benefit back *out* of Missouri AGI, so the dollar that destroyed one
+  exemption protects the other.
+- **The two states here that deduct the federal tax do not subtract the same
+  refundable credits.** Alabama's worksheet takes the refundable child tax credit;
+  Missouri's starts from Form 1040 **line 22**, which line 28 never reduced, so it
+  does not. `$1,600` of refundable child credit costs an Alabama family `$80` and a
+  Missouri family nothing.
+
+---
+
+Also in 0.36.0: **Alabama, where a federal tax cut raises the state tax bill.**
 
 Alabama is the only state here whose tax base contains the **federal tax bill
 itself**. Form 40 line 12 deducts the federal income tax paid — Ala. Code
@@ -364,7 +428,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.36.0/us-state-tax-0.36.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.37.0/us-state-tax-0.37.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1899,7 +1963,7 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, MI, OH, UT**. Published: **AZ, GA, IL, IN, KY, MA, MD,
+Provisional for 2026: **CA, CO, ID, MI, MO, OH, UT**. Published: **AZ, GA, IL, IN, KY, MA, MD,
 MS, NC, NJ, NY, PA, VA** and the nine states with no income tax. Nothing is provisional for
 2025.
 
@@ -2102,7 +2166,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,289 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,337 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Three rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2135,11 +2199,11 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **520** notes every
+`test/notes.test.js` pins the first 72 characters of all **569** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
-exactly which notes 2026 has that 2025 does not — nine states, fourteen notes, each
+exactly which notes 2026 has that 2025 does not — ten states, fifteen notes, each
 a statement about the law a reader can check — because **a year branch is a selector,
 and a selector is caught by an assertion on the relation between its branches, not by
 a household sitting between them.**
@@ -2160,8 +2224,8 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 3,564 numeric
-figures over 60 state-years, against 316 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 3,800 numeric
+figures over 62 state-years, against 342 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2207,15 +2271,15 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 1,782 figures of tax year
+The `kind` field answers one operational question. Over the 1,900 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,520** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,601** |
 | the statute's own schedule (`statute-scheduled`) | **111** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **145** |
-| nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **6** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **181** |
+| nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
 Adding Connecticut falsified every live number in this section at once, and nothing
@@ -2294,11 +2358,11 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.36.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.37.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 30 states.** No Minnesota, Wisconsin,
-  Oregon, South Carolina, Missouri, Louisiana, or the District of Columbia.
+- **Only 31 states.** No Minnesota, Wisconsin,
+  Oregon, South Carolina, Louisiana, Oklahoma, or the District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a
   declared list of the uncovered jurisdictions rather than from a sentence — because
   the sentence named Connecticut as uncovered on the day Connecticut shipped.

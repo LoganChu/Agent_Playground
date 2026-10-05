@@ -51,11 +51,11 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 30 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 30);
+test('README: 31 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 31);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Eight graduated, eleven flat, one on a schedule of its own, nine with none.
+  // Ten graduated, eleven flat, one on a schedule of its own, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
@@ -66,19 +66,20 @@ test('README: 30 states, 2025 and 2026, nine with no income tax', () => {
   const baseAmount = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'baseAmountSchedule',
   );
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MS', 'NJ', 'NY', 'VA']);
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MO', 'MS', 'NJ', 'NY', 'VA']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    30,
+    31,
   );
-  // Twenty-one taxing states — nineteen of them when the README says seven cut
-  // their rate for 2026, because Connecticut's last cut was for 2024 and
-  // Alabama's rate schedule is from 1935.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 21);
+  // Twenty-two taxing states — nineteen of them when the README says seven cut
+  // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
+  // rate schedule is from 1935, and Missouri's 4.7% was reached in 2025 and did
+  // not fall again: the revenue condition in § 143.011.4 was not met.
+  assert.equal(graduated.length + flat.length + baseAmount.length, 22);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -656,7 +657,7 @@ test('README: the provisional and published lists for 2026', () => {
   // announced by the Department of Revenue; Maryland's is $3,350, unchanged,
   // confirmed by the Comptroller's 2026 withholding guide. The provisional flag
   // is a debt, and three have now been paid.
-  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'OH', 'UT']);
+  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'UT']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
@@ -674,7 +675,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['MN', 'WI', 'OR', 'SC', 'MO', 'LA', 'DC']) {
+  for (const state of ['MN', 'WI', 'OR', 'SC', 'LA', 'OK', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -1419,13 +1420,13 @@ test('README: every count in the step-probe and notes sections', () => {
   assert.ok(notePrefix.includes(`PREFIX_LENGTH = ${quoted(/first (\d+) characters/)};`));
   // 15 rates and thresholds printed in rule names.
   assert.ok(registry.includes(`assert.equal(checked, ${quoted(/all (\d+) of them are now required/)},`));
-  // Nine states and fourteen year-specific notes.
+  // Ten states and fifteen year-specific notes.
   const yearOnly = notes.slice(notes.indexOf('const YEAR_ONLY_NOTES'), notes.indexOf('};', notes.indexOf('const YEAR_ONLY_NOTES')));
-  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 9, 'nine states in the README and in the table');
+  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 10, 'ten states in the README and in the table');
   assert.equal(
     [...yearOnly.matchAll(/2026: (\d+)/g)].reduce((sum, [, n]) => sum + Number(n), 0),
-    14,
-    'fourteen 2026-only notes in the README and in the table',
+    15,
+    'fifteen 2026-only notes in the README and in the table',
   );
 
   // And the Ohio figures the section names, read out of the definition rather than

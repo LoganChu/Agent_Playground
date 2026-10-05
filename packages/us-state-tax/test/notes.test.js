@@ -103,6 +103,8 @@ test('every state-year still emits the notes it emitted, in order', () => {
  *   ID  the 2026 zero bracket is the 2025 figure carried forward
  *   MD  the 2026 standard deduction is confirmed at $3,350 / $6,700
  *   MI  the 2026 special exemption for a blind or disabled filer is carried
+ *   MO  the 2026 public pension ceiling is the 2025 maximum Social Security
+ *       benefit carried forward, because Form MO-A is published in January
  *   NJ  the child credit is 25% higher for 2026 through 2028
  *   OH  the 2026 exemption chart is carried; the $26,050 zero band is NOT
  *   UT  six 2026 figures are carried
@@ -118,6 +120,7 @@ const YEAR_ONLY_NOTES = {
   ID: { 2026: 1, 2025: 0 },
   MD: { 2026: 1, 2025: 0 },
   MI: { 2026: 1, 2025: 0 },
+  MO: { 2026: 1, 2025: 0 },
   NJ: { 2026: 1, 2025: 0 },
   OH: { 2026: 2, 2025: 0 },
   UT: { 2026: 1, 2025: 0 },
@@ -147,7 +150,7 @@ test('the notes that differ between 2025 and 2026 are exactly the ones named her
   for (const state of Object.keys(YEAR_ONLY_NOTES)) {
     assert.ok(SUPPORTED_STATES.includes(state), `${state} is in the table and is not a supported state`);
   }
-  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 9, 'states whose notes depend on the year');
+  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 10, 'states whose notes depend on the year');
 });
 
 test('a provisional state-year says so in a note, and a published one does not', () => {
@@ -234,5 +237,5 @@ test('every conditional note fires for some return and not for others', () => {
       }
     }
   }
-  assert.equal(checked, 22, 'conditional notes in the package');
+  assert.equal(checked, 30, 'conditional notes in the package');
 });

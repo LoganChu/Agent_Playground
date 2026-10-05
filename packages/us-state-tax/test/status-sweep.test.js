@@ -234,6 +234,25 @@ const NOT_REACHABLE_BY_ANY_HOUSEHOLD = {
     why: 'a stored duplicate of the `perExemptionSteps` chart top step, which is what the engine reads',
     coveredBy: "registry.test.js — \"a stepped exemption's stored top step agrees with the chart\"",
   },
+  // Missouri's $5,000 / $10,000 ceiling on the federal income tax deduction,
+  // and the reason it is here is the most interesting thing about it: the
+  // percentage chart ABOVE it makes it unreachable by any ordinary return.
+  // 35% of a federal bill reaches $5,000 only at $14,286 of federal tax, which
+  // nobody with $25,000 or less of Missouri AGI pays, and the three steps
+  // below it need $40,000, $66,667 and $200,000 of federal tax against
+  // Missouri AGI that is lower still.
+  //
+  // It became reachable in 2025, when HB 594 took capital gains out of the
+  // very figure the chart is read against — so the household that reaches it
+  // has an enormous gain and almost no other income, which is a tax-planning
+  // case rather than a household this battery is for. `missouri.test.js`
+  // builds it directly and also measures the most the cap can ever be worth.
+  '.federalIncomeTaxDeduction.cap': {
+    states: ['MO'],
+    why: 'unreachable without a capital gain large enough to put a six-figure federal bill behind a five-figure Missouri AGI — the step chart above the cap bounds the income that could use it',
+    coveredBy:
+      'missouri.test.js — "the $5,000 cap could not bind before 2025 and binds now, for at most $181.68"',
+  },
 };
 
 test('every byStatus cell the package ships moves a pinned answer', () => {
@@ -296,7 +315,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // renamed field, a rule moved behind a function — fails instead of reporting a
   // clean sweep over nothing. That is the failure mode the mutation harness had on
   // its first run, and it printed 100%.
-  assert.equal(checked, 764, 'byStatus cells with a parameter the harness would mutate');
+  assert.equal(checked, 798, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -313,6 +332,6 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // staircases" — was a figure nothing here computes, so Alabama's arrival could
   // not falsify it and it would have gone on being quoted while it drifted. The
   // two numbers now are both measured by the two assertions above and below.
-  assert.equal(inside, 2_494, 'numbers inside those cells, 106 of them Alabama\'s');
-  assert.equal(exempt.length, 20, 'cells the engine cannot reach, all of them documented');
+  assert.equal(inside, 2_658, 'numbers inside those cells, 164 of them Missouri\'s');
+  assert.equal(exempt.length, 30, 'cells the engine cannot reach, all of them documented');
 });

@@ -217,7 +217,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'businessIncome',
     schema: number,
-    states: ['OH'],
+    states: ['OH', 'MO'],
     doc: 'Schedule IT BUS line 10, before the deduction. Ohio deducts the first $250,000 ($125,000 separate) and taxes the excess at a FLAT 3%, so $250,000 of Schedule C profit costs $0 where $250,000 of wages costs $7,022.45. Omitted, the tax runs high. A TRADITIONAL school district adds the deduction straight back.',
   },
   {
@@ -259,19 +259,19 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'stateItemizedDeductions',
     schema: number,
-    states: ['MD', 'VA', 'GA'],
+    states: ['MD', 'VA', 'GA', 'MO'],
     doc: 'Federal Schedule A less the state and local INCOME taxes inside it. Needs federalItemized. Maryland reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate); Virginia and Georgia COMPEL it, so a federal itemizer may not take the state standard deduction even when it is larger. Georgia does NOT require the state income tax to come out — its adjustment is for taxes paid to other states and investment interest on exempt income — so pass the Georgia figure as the IT-511 worksheet computes it.',
   },
   {
     name: 'federalItemized',
     schema: boolean,
-    states: ['MD', 'VA', 'GA'],
+    states: ['MD', 'VA', 'GA', 'MO'],
     doc: 'Whether the filer itemized federally. Maryland allows state itemizing only if they did, so the OBBBA standard deduction ended it for many; Virginia and Georgia go further and REQUIRE itemizing on the state return if they did. In GEORGIA this flag is worth money by itself: the eligible itemizer tax credit of O.C.G.A. § 48-7-27.1 pays $300 a taxpayer ($600 joint) for the election alone, with no income test at any level and no state itemized figure needed. At 4.99% that is $6,012 of deduction, so a Georgia filer whose itemized deductions fall that far SHORT of the standard deduction still comes out ahead.',
   },
   {
     name: 'netCapitalGain',
     schema: number,
-    states: ['MD'],
+    states: ['MD', 'MO'],
     doc: 'Net capital gain inside Maryland taxable income, surtaxed 2% when federal AGI exceeds $350,000. The threshold is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08. Exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains.',
   },
   {
@@ -283,7 +283,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'taxableSocialSecurity',
     schema: number,
-    states: ['VA', 'MD', 'GA', 'KY', 'UT', 'CT'],
+    states: ['VA', 'MD', 'GA', 'KY', 'UT', 'CT', 'MO'],
     doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement. CONNECTICUT subtracts the WHOLE of it below $75,000 of federal AGI ($100,000 joint and for a qualifying surviving spouse) and at the threshold replaces that subtraction rather than tapering it \u2014 one dollar of income can cost a couple with $40,000 of benefits $405 \u2014 so a Connecticut retiree without this figure comes back far too high. Connecticut needs the GROSS benefit as well, in retirement.socialSecurityBenefits.',
   },
   {
@@ -297,7 +297,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'federalIncomeTax',
     schema: number,
-    states: ['AL'],
+    states: ['AL', 'MO'],
     doc: 'Form 1040 line 22 — the federal income tax AFTER non-refundable credits — plus the Form 8960 net investment income tax. ALABAMA DEDUCTS THE FEDERAL BILL on Form 40 line 12, and every filer takes it, not only itemizers, so a federal tax cut is an Alabama tax INCREASE of 5% of the cut. Omit it and the Alabama answer is too high by 5% of the whole federal bill — $191.00 on the $3,820 a single filer owes on $50,000 of wages — and the result says so in a note.',
     refusal:
       'Alabama alone deducts the federal income tax itself (Ala. Code § 40-18-15(a)(3), Form 40 line 12). No other state in this package has the federal bill inside its base, so there is nothing for the figure to do.',
@@ -313,7 +313,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'federalRefundableAmericanOpportunityCredit',
     schema: number,
-    states: ['AL'],
+    states: ['AL', 'MO'],
     doc: 'Form 8863 line 8, Form 1040 line 29 — the REFUNDABLE part of the American Opportunity credit only. The non-refundable part has already reduced federalIncomeTax and must not be counted twice.',
     refusal:
       'Only Alabama subtracts the refundable federal credits, and only because it deducts the federal tax they reduce.',
@@ -328,7 +328,7 @@ export const STATE_FIELDS: readonly StateField[] = [
       },
       additionalProperties: false,
     },
-    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL'],
+    states: ['MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL', 'MO'],
     doc: [
       'Retirement income PER PERSON, because these states do not read it off a federal AGI and four of them cap an exclusion per person — so a return\'s totals do not determine its tax. Omit it and everything lands on one spouse, which is the worst of the cases, and the result says so in the name of the subtraction.',
       'NINE states read this. Four of them — IL, MS, MI, NY — exempt most or all of a pension and BEFORE v0.19.0 taxed it unless the caller netted it out through stateSubtractions. They no longer do, so a caller who is still passing both now subtracts twice: take it out of stateSubtractions.',

@@ -206,7 +206,7 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
     'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD', 'MI', 'MS',
-    'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
+    'MO', 'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
   ] as const
 ).map((state) => ({
   state,
@@ -1365,6 +1365,150 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     document: 'HB 527 (2026)',
     cite: 'Alabama HB 527, signed in April 2026 — up to $1,000 of qualified overtime compensation for tax years beginning after 31 December 2025 and through 2028, on the federal definition of overtime above the regular rate. The predecessor it replaces was uncapped and covered the whole overtime wage, and it expired on 30 June 2025',
     years: [2026],
+    constant: true,
+  },
+  // MISSOURI — one indexed figure, one rate that was allowed to fall and did
+  // not, and a chart of percentages that has not moved since 2019.
+  //
+  // The whole rate schedule is generated from the first bracket's width, which
+  // § 143.011.5 indexes as a block — so there is ONE indexed figure in Missouri
+  // and it appears eight times per filing status. The rates above it are
+  // statutory: § 143.011.3 cut the top one to 4.8% for 2024 and 4.7% for 2025,
+  // and § 143.011.4 allows a further 0.1 point a year on a revenue condition
+  // that was NOT met for 2026. A rate that could have moved and did not is a
+  // statutory figure with a schedule attached, which is why the entry says so
+  // in its cite rather than claiming the statute fixed it.
+  //
+  // Everything else — the five percentage steps, the two caps, the $6,000, the
+  // three allowances, the $1,400 and the 20% — is a dollar figure or a rate
+  // printed in the Revised Statutes and not indexed by anything. The ONE
+  // exception is the maximum Social Security benefit, which is the ceiling on
+  // the public pension deduction and is reprinted on Form MO-A every January:
+  // 2026's does not exist yet, so it is carried forward and flagged.
+  // =========================================================================
+  {
+    state: 'MO',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '§ 143.011 —',
+    cite: 'Mo. Rev. Stat. § 143.011.1 — 0%, 2%, 2.5%, 3%, 3.5%, 4%, 4.5% and a top rate of 4.7%, the same schedule for every filing status. § 143.011.3 cut the top rate from 4.95% to 4.8% for 2024 and § 143.011.4 to 4.7% for 2025; the further 0.1-point reduction subsection 4 allows for 2026 required general revenue growth of $175,000,000 over the highest of the three preceding fiscal years and the condition was not met, which the Department of Revenue confirmed by publishing a 2026 withholding formula at 4.7%',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'indexed',
+    document: '§ 143.011 —',
+    cite: 'Mo. Rev. Stat. § 143.011.5 indexes the bracket as a block by the percentage increase in the consumer price index, and the eight ceilings are the first bracket’s width times one through seven: $1,313 for 2025 and $1,348 for 2026. One indexed figure generates the whole schedule, which is why a transcribed table of eight numbers can drift from the provision and this one cannot',
+    constant: false,
+  },
+  {
+    state: 'MO',
+    path: 'itemizedDeduction.phaseOutRate',
+    kind: 'sentinel',
+    cite: 'Zero because Missouri puts no income limit on its itemized deductions — § 143.141 builds the Missouri figure from the federal Schedule A by removing the state and local income taxes and adding the payroll taxes, and nothing in it falls away as income rises',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'federalIncomeTaxDeduction.rateSteps.*.rate',
+    kind: 'statute',
+    document: '§ 143.171 —',
+    cite: 'Mo. Rev. Stat. § 143.171.2 — 35%, 25%, 15%, 5% and 0% of the federal income tax liability, one of them applying to the WHOLE bill. The five percentages have stood since the 2018 act that replaced the flat $5,000 deduction with them, for tax years beginning on or after 1 January 2019',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'federalIncomeTaxDeduction.rateSteps.*.upTo',
+    kind: 'statute',
+    document: '§ 143.171 —',
+    cite: 'Mo. Rev. Stat. § 143.171.2 — $25,000, $50,000, $100,000 and $125,000 of Missouri adjusted gross income, every boundary INCLUSIVE in the statute’s own words ("twenty-five thousand dollars or less", then "in excess of twenty-five thousand dollars"). Not indexed: these are the same four figures the 2018 act wrote',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'federalIncomeTaxDeduction.cap.*',
+    kind: 'statute',
+    document: '§ 143.171 —',
+    cite: 'Mo. Rev. Stat. § 143.171.2 — "not to exceed five thousand dollars on a single taxpayer’s return or ten thousand dollars on a combined return", unchanged since 1994 and not indexed. PolicyEngine-US reads the first figure as belonging to the SINGLE filing status alone and gives $10,000 to a separate, head-of-household or surviving-spouse return; this package reads "a single taxpayer’s return" as a return with one taxpayer on it',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: 'Missouri HB 594 (2025), signed',
+    cite: 'Mo. Rev. Stat. § 143.121.3(14), added by HB 594 (2025) — "one hundred percent of all income reported as a capital gain for federal income tax purposes", retroactive to tax years beginning on or after 1 January 2025 and with no sunset',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'stateRetirementDeduction.socialSecurityMinimumAge',
+    kind: 'statute',
+    document: '§ 143.125 —',
+    cite: 'Mo. Rev. Stat. § 143.125.2 — 62 years of age by 31 December. SB 190 (2023) removed the income test from this deduction for tax year 2024 and left the age alone',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'stateRetirementDeduction.publicPensionCap',
+    kind: 'indexed',
+    document: 'Pension FAQs',
+    cite: 'The maximum Social Security benefit, reprinted on Form MO-A Part 3 Section A line 7 each year and confirmed by the Department of Revenue’s pension FAQs: $47,633 for 2025. It moves with the Social Security Administration’s own figure rather than with any Missouri index, which is why a Missouri retiree’s pension ceiling is set in Baltimore',
+    years: [2025],
+    constant: true,
+    why: 'one year of a figure that moves annually: the 2026 value is a separate carried-forward entry, so this one has nothing to compare against',
+  },
+  {
+    state: 'MO',
+    path: 'stateRetirementDeduction.publicPensionCap',
+    kind: 'carried-forward',
+    document: 'Pension FAQs',
+    cite: '2025’s $47,633, standing in. The 2026 Form MO-A is published in January 2027 and the maximum Social Security benefit it will print does not exist yet, so this figure is last year’s — and because the figure has risen every year, carrying it forward understates the deduction rather than overstating it',
+    years: [2026],
+    carriedForwardFrom: 2025,
+    constant: true,
+    why: 'a carried-forward figure is equal to the year it was carried from by construction',
+    resolvedBy: 'the 2026 Form MO-A, Part 3 Section A line 7, published January 2027',
+  },
+  {
+    state: 'MO',
+    path: 'stateRetirementDeduction.privatePensionPerPersonCap',
+    kind: 'statute',
+    document: '§ 143.124 —',
+    cite: 'Mo. Rev. Stat. § 143.124.2 — $6,000 per person of private pension, annuity, IRA, 401(k), 403(b), SEP or Keogh income. The figure has stood since 2007 and is not indexed, so inflation has halved it',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'stateRetirementDeduction.privatePensionAllowance.*',
+    kind: 'statute',
+    document: '§ 143.124 —',
+    cite: 'Mo. Rev. Stat. § 143.124.2 — $25,000 for a single, head-of-household or qualifying surviving spouse return, $32,000 for a combined return and $16,000 for a separate one. The $6,000 is withdrawn dollar for dollar as Missouri adjusted gross income LESS the taxable Social Security exceeds these, so a single filer with one pension has nothing left at $31,000',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'businessIncomeDeduction.rate',
+    kind: 'statute',
+    document: '§ 143.022 —',
+    cite: 'Mo. Rev. Stat. § 143.022.2 — 20% of business income, the statutory maximum, reached in 2023 after rising five points a year from 2018. The schedule has run out, so this is a fixed figure rather than a scheduled one',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '§ 143.161 —',
+    cite: 'Mo. Rev. Stat. § 143.161.2 — $1,400 for a head of household or a qualifying surviving spouse, and nothing for anybody else. The general exemption in subsection 1 is defined by reference to the federal one, which IRC § 151(d)(5) has set to zero since 2018 and the OBBBA made permanent, so the zeros here are a federal figure and the $1,400 is not',
+    constant: true,
+  },
+  {
+    state: 'MO',
+    path: 'exemption.perDependent',
+    kind: 'federal-conformity',
+    document: '§ 143.161 —',
+    cite: 'Zero, and it is a FEDERAL zero: Mo. Rev. Stat. § 143.161.1 grants an exemption "for each exemption to which the taxpayer is entitled for federal income tax purposes", and IRC § 151(d)(5) set that to zero. Missouri did not repeal its dependent exemption — Congress did, and Missouri’s statute followed without being amended, which is the same mechanism that makes the Missouri standard deduction move when Congress moves the federal one',
     constant: true,
   },
   // CONNECTICUT — four staircases and one moving figure. Nothing in Connecticut

@@ -13,6 +13,7 @@ import { federalTaxableBaseStates } from './federal-taxable-base.js';
 import { flatStates } from './flat-states.js';
 import { maryland } from './maryland.js';
 import { massachusetts } from './massachusetts.js';
+import { missouri } from './missouri.js';
 import { newJersey } from './new-jersey.js';
 import { newYork } from './new-york.js';
 import { ohio } from './ohio.js';
@@ -34,6 +35,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const ct = connecticut(year);
   const ma = massachusetts(year);
   const md = maryland(year);
+  const mo = missouri(year);
   const nj = newJersey(year);
   const ny = newYork(year);
   const oh = ohio(year);
@@ -48,6 +50,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(ct ? [ct] : []),
     ...(ma ? [ma] : []),
     ...(md ? [md] : []),
+    ...(mo ? [mo] : []),
     ...(nj ? [nj] : []),
     ...(ny ? [ny] : []),
     ...(oh ? [oh] : []),
@@ -86,15 +89,14 @@ export { NO_INCOME_TAX_STATES, NO_INCOME_TAX_NAMES };
  *
  * `test/registry.test.js` now fails if any name here is also the name of a
  * supported state, so the two cannot disagree. Forty-two jurisdictions tax
- * income; this package covers twenty-one of them, which is why this list has
- * twenty-one entries.
+ * income; this package covers twenty-two of them, which is why this list has
+ * twenty entries.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
   'Minnesota',
   'Wisconsin',
   'Oregon',
   'South Carolina',
-  'Missouri',
   'Louisiana',
   'Oklahoma',
   'Iowa',

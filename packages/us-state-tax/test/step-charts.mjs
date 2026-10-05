@@ -223,7 +223,8 @@ const FEDERAL_STANDARD_DEDUCTION = {
  * the rule unreachable.
  */
 function probeReturn(state, year, filingStatus, shape) {
-  const { income, deduction, deductionKind, federalEarnedIncomeCredit, ...rest } = shape;
+  const { income, deduction, deductionKind, federalEarnedIncomeCredit, federalIncomeTax, ...rest } =
+    shape;
   const federalDeduction = deduction ?? FEDERAL_STANDARD_DEDUCTION[year][filingStatus];
   return {
     state,
@@ -235,6 +236,9 @@ function probeReturn(state, year, filingStatus, shape) {
       deduction: federalDeduction,
       deductionKind: deductionKind ?? 'standard',
       ...(federalEarnedIncomeCredit === undefined ? {} : { earnedIncomeCredit: federalEarnedIncomeCredit }),
+      ...(federalIncomeTax === undefined
+        ? {}
+        : { incomeTaxBeforeRefundableCredits: federalIncomeTax }),
     },
     pennsylvaniaTaxableIncome: income,
     pennsylvaniaEligibilityIncome: income,
@@ -355,6 +359,38 @@ export const DRIVERS = {
   'exemption.perDependentSteps': {
     statuses: ['single', 'marriedFilingJointly'],
     input: (value, state, year, status) => wages(value, state, year, status, { dependentAges: [10] }),
+  },
+  // Missouri's federal income tax deduction chart, § 143.171.2 — the only
+  // staircase in this package whose STEP is a percentage of a figure from
+  // another government's return, and the only one that is a cliff rather than
+  // a phase-out: one percentage applies to the whole federal bill and the
+  // boundary belongs to the step below it.
+  //
+  // The federal tax is HELD CONSTANT at $8,000 while the income varies, which
+  // is the whole design of this probe. A realistic household would move both
+  // at once — more income is more federal tax — and the probe would then be
+  // measuring the product of two schedules instead of this chart. $8,000 is
+  // large enough that 5% of it is visible and small enough that the $5,000 cap
+  // never binds, so what the probe sees is the percentage and nothing else.
+  // And the probe household ITEMIZES, with $2,000 of federal deductions. That
+  // is not decoration either. The chart's first row is probed at half its
+  // ceiling — $12,500 — and Missouri's standard deduction IS the federal one,
+  // so a $16,100 standard deduction leaves a filer there with no Missouri
+  // taxable income at all and the 35% row could not be probed. IRC
+  // § 63(c)(6)(A) supplies the household: a married filer whose spouse
+  // itemizes must itemize too, however little they have.
+  'federalIncomeTaxDeduction.rateSteps': {
+    statuses: ['single', 'marriedFilingSeparately'],
+    input: (value, state, year, status) =>
+      probeReturn(state, year, status, {
+        income: value,
+        earnedIncome: value,
+        filerAge: 45,
+        spouseAge: 44,
+        deduction: 2_000,
+        deductionKind: 'itemized',
+        federalIncomeTax: 8_000,
+      }),
   },
   // Ohio's retirement income credit, O.R.C. 5747.055 — the chart that is the
   // worked example for why this file exists.

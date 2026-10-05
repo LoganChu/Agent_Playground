@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 30);
+  assert.equal(SUPPORTED_STATES.length, 31);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -102,10 +102,10 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // twenty-one of them — thirty supported states less the nine with no income
-  // tax at all — so the uncovered list has the other twenty-one.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 21);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 21);
+  // twenty-two of them — thirty-one supported states less the nine with no
+  // income tax at all — so the uncovered list has the other twenty.
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 20);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 22);
   for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
     assert.match(getMissingStatesMessage(), new RegExp(name));
   }
@@ -200,7 +200,7 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has six', () => {
+test('2025 has no provisional state and 2026 has seven', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
@@ -213,20 +213,22 @@ test('2025 has no provisional state and 2026 has six', () => {
   // guide. **That is what the provisional flag is FOR** — a debt to be paid, not
   // a permanent disclaimer.
   //
-  // The six that remain are NOT one more afternoon's work, which is the thing
-  // Day 27 got wrong and Day 28 corrected. Four are waiting on a document that
+  // The seven that remain are NOT one more afternoon's work, which is the thing
+  // Day 27 got wrong and Day 28 corrected. Five are waiting on a document that
   // does not exist until January 2027 (Utah's TC-40 instructions, Ohio's IT 1040
-  // booklet, Michigan's MI-1040 instructions, California's FTB release), and
+  // booklet, Michigan's MI-1040 instructions, California's FTB release and
+  // MISSOURI's Form MO-A, whose Part 3 Section A line 7 carries the maximum
+  // Social Security benefit), and
   // COLORADO can never be resolved during the tax year at all: its rate is set
   // by a TABOR surplus calculation that runs after the year closes. Which kind
   // each figure is now lives in `provisionalFigures`, not in prose — see
   // test/provisional.test.js.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 6);
+  assert.equal(count(2026), 7);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'OH', 'UT']);
+  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'UT']);
 });
 
 test('the package has no runtime dependencies', () => {

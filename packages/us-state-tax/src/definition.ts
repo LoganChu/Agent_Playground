@@ -2671,6 +2671,12 @@ export interface RetirementSubtractionScheduleRule {
  * 3. **It is floored at zero**, so a filer whose refundable credits exceed
  *    their tax gets no negative deduction out of it.
  */
+/** A refundable federal credit a state's federal-tax-deduction worksheet may subtract. */
+export type RefundableFederalCredit =
+  | 'earnedIncomeCredit'
+  | 'additionalChildTaxCredit'
+  | 'refundableAmericanOpportunityCredit';
+
 export interface FederalIncomeTaxDeductionRule {
   /** What the deduction is called on the state's own form. */
   readonly name: string;
@@ -2678,6 +2684,182 @@ export interface FederalIncomeTaxDeductionRule {
   readonly cite: string;
   /** The worksheet that subtracts the refundable credits, and which ones. */
   readonly refundableCreditsCite: string;
+  /**
+   * WHICH refundable federal credits the state's worksheet subtracts, and the
+   * reason this is a list rather than a constant: **the two states that deduct
+   * the federal tax do not subtract the same credits.**
+   *
+   * Alabama's Federal Income Tax Deduction Worksheet takes the earned income
+   * credit, the refundable child tax credit and the refundable part of the
+   * American Opportunity credit. Missouri's MO-1040 line 9 worksheet starts
+   * from Form 1040 line 22 and subtracts the earned income credit (line 27),
+   * the refundable American Opportunity credit (line 29) and the net premium
+   * tax credit — and **not** the refundable child tax credit on line 28, which
+   * never reduced line 22 in the first place.
+   *
+   * So the same `$1,600` of refundable child tax credit raises an Alabama
+   * family's tax and leaves a Missouri family's alone, and a shared constant
+   * here would have charged Missouri for it.
+   */
+  readonly refundableCredits: readonly RefundableFederalCredit[];
+  /**
+   * The SHARE of the federal bill that is deductible, chosen by the state's own
+   * AGI. Absent means the whole of it — Alabama, which deducts 100% at every
+   * income.
+   *
+   * Missouri's § 143.171.2 is the other shape, and it is a **cliff chart rather
+   * than a phase-out**: 35% of the federal bill at `$25,000` or less of Missouri
+   * AGI, 25% to `$50,000`, 15% to `$100,000`, 5% to `$125,000` and nothing above
+   * it. One dollar of income at a boundary moves the WHOLE deduction down a
+   * step, so the largest marginal rate in Missouri belongs to a filer standing
+   * on `$100,000`: their deduction falls by 10% of a federal bill of about
+   * `$13,000`, which is `$1,310` of Missouri taxable income and **`$61.94` of
+   * tax on one dollar**.
+   *
+   * Each step's {@link upTo} is INCLUSIVE, because the statute's own words are
+   * "twenty-five thousand dollars or less" for the first step and "in excess of
+   * twenty-five thousand dollars but not in excess of fifty thousand dollars"
+   * for the second — the boundary belongs to the step BELOW it, which is the
+   * convention Connecticut's § 12-703 uses and the opposite of the one its own
+   * pension phase-out uses on the same return.
+   */
+  readonly rateSteps?: readonly { readonly upTo: number; readonly rate: number }[];
+  /** The provision behind {@link rateSteps}, and which side of a boundary wins. */
+  readonly rateStepsCite?: string;
+  /**
+   * The ceiling on the deduction AFTER {@link rateSteps} has been applied.
+   * Absent means uncapped — Alabama.
+   *
+   * Missouri's is `$5,000` on a single taxpayer's return and `$10,000` on a
+   * combined return, and it is the figure in this package with the strangest
+   * history: **the rate chart above had made it unreachable, and a 2025 law
+   * brought it back to life.** 35% of a federal bill is `$5,000` only when the
+   * bill is `$14,286`, which no filer with `$25,000` or less of Missouri AGI
+   * has; the same arithmetic at every other step needs a federal bill of
+   * `$40,000`, `$66,667` or `$200,000` against Missouri AGI that is lower
+   * still. So between 2019 and 2024 the cap could not bind on any ordinary
+   * return.
+   *
+   * Then HB 594 took 100% of capital gains out of Missouri AGI from 2025 —
+   * **out of the very figure the rate chart is read against** — and the two
+   * halves of the return came apart. A filer with `$4,000,000` of gain and
+   * `$20,000` of wages has a federal bill near `$900,000` and Missouri AGI of
+   * `$20,000`, which is the 35% step: `$315,000` of deduction before the cap
+   * and `$5,000` after it. The cap is the only thing standing there.
+   */
+  readonly cap?: ByStatus;
+  /** The provision behind {@link cap}, including which return is "single". */
+  readonly capCite?: string;
+}
+
+/**
+ * A subtraction of the whole of a filer's net capital gain from the state's own
+ * adjusted gross income — Missouri's § 143.121.3(14), HB 594 (2025), which made
+ * Missouri **the first state to exempt capital gains from its income tax
+ * outright**.
+ *
+ * Two things about it are easy to get wrong and both are in the statute's own
+ * words. It is "one hundred percent of all income reported as a capital gain
+ * for federal income tax purposes", which reaches **short-term gain as well as
+ * long-term** — where Massachusetts, the state at the other end of this
+ * package, charges short-term gain 8.5% and long-term 5%. And it is a
+ * subtraction in arriving at Missouri ADJUSTED GROSS INCOME rather than a
+ * deduction from it, which matters because Missouri AGI is the figure the
+ * federal income tax deduction's rate chart is read against: the subtraction
+ * removes the gain from the base AND can move the filer down a step of
+ * {@link FederalIncomeTaxDeductionRule.rateSteps}, unlocking a deduction for
+ * the federal tax ON the gain it just exempted.
+ */
+export interface CapitalGainsSubtractionRule {
+  readonly name: string;
+  /** The share subtracted — 1 for Missouri. */
+  readonly share: number;
+  /** Whether short-term gain is included. True for Missouri. */
+  readonly includesShortTerm: boolean;
+  readonly cite: string;
+}
+
+/**
+ * Missouri's Form MO-A Part 3 — the three retirement sections that are read in
+ * the order C, A, B because each one needs the answer to the last.
+ *
+ * It is a DEDUCTION block rather than a set of AGI subtractions, and in Missouri
+ * that distinction is worth money rather than being a matter of form order:
+ * Missouri AGI is what {@link FederalIncomeTaxDeductionRule.rateSteps} is read
+ * against, so a retirement exemption that sat in AGI would move the federal
+ * income tax deduction and one that sits below it does not.
+ *
+ * **Section C, Social Security.** The whole taxable benefit, for a person who
+ * has reached {@link socialSecurityMinimumAge} by 31 December — or at any age
+ * where the benefit is Social Security disability. SB 190 removed the income
+ * test from tax year 2024, so there is no longer anything to phase out.
+ *
+ * **Section A, public pensions, and this is the part no summary of Missouri
+ * carries.** Retired pay from any federal, state or local government is
+ * deductible up to {@link publicPensionCap} — the maximum Social Security
+ * benefit, `$47,633` for 2025 — **less the Social Security deduction the same
+ * person just took in Section C.** So a retiree's Social Security EATS their
+ * public pension exemption dollar for dollar, in a state whose own Department of
+ * Revenue describes both as exempt. A retired teacher with `$70,000` of pension
+ * and no Social Security deducts `$47,633`; the same `$70,000` split `$40,000`
+ * pension and `$30,000` taxable benefit deducts `$40,000`. The second retiree is
+ * `$7,633` worse off on identical income, and nothing on either return says why.
+ *
+ * It is Maryland's construction — a state that charges the benefit against the
+ * pension exclusion while saying it does not tax the benefit — arrived at from
+ * the opposite direction, because Maryland's offset is the GROSS benefit and
+ * Missouri's is the deduction actually taken.
+ *
+ * **Section B, private pensions.** `$6,000` a person, withdrawn DOLLAR FOR
+ * DOLLAR as Missouri AGI less taxable Social Security rises above
+ * {@link privatePensionAllowance}. Dollar for dollar is the Virginia age
+ * deduction's shape and it has the same consequence: inside the band the
+ * marginal rate is DOUBLE the statutory one, so a single retiree between
+ * `$25,000` and `$31,000` pays 9.4% on their next dollar in a 4.7% state.
+ *
+ * And the two halves disagree about Social Security on one form. Section A
+ * charges the benefit against the exemption; Section B's income test takes the
+ * benefit back OUT of Missouri AGI before measuring it. The same dollar of
+ * Social Security destroys a public pension exemption and protects a private
+ * one.
+ */
+export interface StateRetirementDeductionRule {
+  readonly socialSecurityName: string;
+  /** 62, by 31 December. Disability benefits have no age test. */
+  readonly socialSecurityMinimumAge: number;
+  readonly socialSecurityCite: string;
+  readonly publicPensionName: string;
+  /** The maximum Social Security benefit, per person. */
+  readonly publicPensionCap: number;
+  readonly publicPensionCite: string;
+  readonly privatePensionName: string;
+  /** `$6,000`, per person. */
+  readonly privatePensionPerPersonCap: number;
+  /** The income the withdrawal starts at, by filing status. */
+  readonly privatePensionAllowance: ByStatus;
+  readonly privatePensionCite: string;
+  readonly militaryRetirementName: string;
+  readonly militaryRetirementCite: string;
+}
+
+/**
+ * A deduction of a flat share of business income — Missouri's § 143.022, 20% of
+ * the income from a sole proprietorship or a share of a partnership or S
+ * corporation, claimed on MO-1040 line 17.
+ *
+ * Ohio's {@link BusinessIncomeRule} is the other shape and the two are worth
+ * holding side by side: Ohio deducts the FIRST `$250,000` in full and charges a
+ * flat 3% above it, so business income below the cap is free and the rate
+ * structure changes above it. Missouri deducts a FIFTH of every dollar at every
+ * income and never changes the rate. A Missouri filer with `$250,000` of
+ * Schedule C profit deducts `$50,000`; an Ohio filer with the same profit
+ * deducts all of it.
+ */
+export interface BusinessIncomeDeductionRule {
+  readonly name: string;
+  /** 0.20 — § 143.022.2, phased in 5 points a year and at its statutory maximum. */
+  readonly rate: number;
+  readonly cite: string;
 }
 
 /**
@@ -2739,10 +2921,27 @@ export interface StateIncomeTaxDefinition {
   readonly itemizedDeduction?: ItemizedDeductionRule;
   /**
    * A deduction for the federal income tax, ADDED to {@link deduction} rather
-   * than compared with it. Alabama only — see
-   * {@link FederalIncomeTaxDeductionRule}.
+   * than compared with it. Alabama and Missouri — see
+   * {@link FederalIncomeTaxDeductionRule}. Alabama deducts the whole bill;
+   * Missouri deducts a share of it chosen by a cliff chart, under a cap.
    */
   readonly federalIncomeTaxDeduction?: FederalIncomeTaxDeductionRule;
+  /**
+   * The whole net capital gain, out of the state's own AGI. Missouri only —
+   * see {@link CapitalGainsSubtractionRule}.
+   */
+  readonly capitalGainsSubtraction?: CapitalGainsSubtractionRule;
+  /**
+   * Missouri's Form MO-A Part 3 retirement deductions, which sit BELOW state
+   * AGI rather than inside it — see {@link StateRetirementDeductionRule}.
+   */
+  readonly stateRetirementDeduction?: StateRetirementDeductionRule;
+  /**
+   * A flat share of business income, deducted below state AGI. Missouri only —
+   * see {@link BusinessIncomeDeductionRule}. Not to be confused with
+   * {@link businessIncome}, which is Ohio's cap-and-flat-rate construction.
+   */
+  readonly businessIncomeDeduction?: BusinessIncomeDeductionRule;
   /**
    * A retirement exemption decided by the type of the plan. Alabama only — see
    * {@link PlanTypeRetirementRule}.

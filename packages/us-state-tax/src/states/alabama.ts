@@ -268,6 +268,11 @@ export function alabama(year: number): StateIncomeTaxDefinition | undefined {
     federalIncomeTaxDeduction: {
       name: 'Federal income tax deduction',
       cite: 'Ala. Code § 40-18-15(a)(3) allows "taxes paid or accrued within the taxable year, including income taxes ... imposed by authority of the United States", and Form 40 line 12 prints it below the line 11 standard-or-itemized choice and additional to it.',
+      refundableCredits: [
+        'earnedIncomeCredit',
+        'additionalChildTaxCredit',
+        'refundableAmericanOpportunityCredit',
+      ],
       refundableCreditsCite:
         "Alabama's Federal Income Tax Deduction Worksheet subtracts the refundable federal credits from the federal tax — the earned income credit, the refundable child tax credit and the refundable part of the American Opportunity credit — and floors the result at zero.",
     },

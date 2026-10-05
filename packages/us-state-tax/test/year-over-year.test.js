@@ -169,7 +169,13 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // figure had been sitting in the state's own 2026 withholding guide while
   // this package carried $5,800 forward. Kentucky's entry is now a CHANGED
   // number rather than a changed rate alone — $3,360 against $3,270.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MS', 'NC', 'NY', 'OH', 'UT']);
+  //
+  // MISSOURI joins for a third reason, which is neither a rate change nor a
+  // reading: § 143.011.5 indexes the whole bracket schedule as a block, so the
+  // first band's width moves from $1,313 to $1,348 and the other seven move
+  // with it. Every Missouri filer's answer differs between the two years and
+  // not one Missouri figure was amended.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MO', 'MS', 'NC', 'NY', 'OH', 'UT']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

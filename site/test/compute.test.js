@@ -250,12 +250,24 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // taxing Social Security they exempt; 22nd to 25th on v0.19.0, when Illinois,
   // Michigan and New York stopped taxing pensions they exempt; 25th to 26th on
   // v0.35.0, when Connecticut arrived and charged this couple nothing at all;
-  // and 26th to 27th on v0.36.0, when Alabama did the same.
+  // 26th to 27th on v0.36.0, when Alabama did the same; and 27th to 28th on
+  // v0.37.0, when MISSOURI arrived and charged this couple $935.03 — which is
+  // not a zero and still beats Utah by $453.43.
   //
-  // ELEVEN states have passed Utah and not one of them by changing its own law.
-  // The first nine were rows that were wrong; the last two are rows that did not
-  // exist, which is the same fact about a ranking from the other side: it is
-  // only ever a ranking of what somebody has modelled.
+  // TWELVE states have passed Utah and not one of them by changing its own law.
+  // The first nine were rows that were wrong; the last three are rows that did
+  // not exist, which is the same fact about a ranking from the other side: it
+  // is only ever a ranking of what somebody has modelled.
+  //
+  // Missouri is the most interesting of the three, because it is the first new
+  // row to pass Utah WITHOUT exempting this couple. Missouri is in every list
+  // of retiree-friendly states and this couple pays it $935.03, for a reason
+  // the page cannot show: their $60,000 is passed as a PRIVATE pension, whose
+  // Missouri deduction is $6,000 a person withdrawn dollar for dollar above
+  // $32,000 and therefore zero here. The same $60,000 as a PUBLIC pension —
+  // a teacher, a police officer, a federal employee — would be deducted up to
+  // $47,633, less the $34,000 of Social Security already deducted. One field,
+  // two answers, and the page has one box labelled "pension".
   //
   // Alabama's zero is worth one more line, because it is the one row on this
   // page whose answer depends on a question the page does not ask. Alabama
@@ -281,12 +293,12 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  assert.equal(place, 27, `Utah ranks ${place}`);
-  // The eleven that passed it, all of them by being modelled rather than by
-  // changing: six on v0.18.0, three on v0.19.0, Connecticut on v0.35.0 and
-  // Alabama today.
+  assert.equal(place, 28, `Utah ranks ${place}`);
+  // The twelve that passed it, all of them by being modelled rather than by
+  // changing: six on v0.18.0, three on v0.19.0, Connecticut on v0.35.0,
+  // Alabama on v0.36.0 and Missouri today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // Three of them now charge this couple NOTHING AT ALL, which is the size of

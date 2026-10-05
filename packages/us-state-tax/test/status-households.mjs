@@ -307,6 +307,29 @@ const SHAPES = {
     propertyTaxPaid: 5_200,
     spouseAdjustedFederalAdjustedGrossIncome: 0,
   },
+  // A SURVIVOR AT 60, which is the one retirement shape this battery had none
+  // of until Missouri arrived: every household here receiving Social Security
+  // was 69 or older, so an age GATE on a benefit was unreachable and only the
+  // income tests above it were ever exercised. Survivor benefits begin at 60
+  // and Social Security disability at any age, so a taxable benefit below 62
+  // is an ordinary household rather than a contrived one — and Missouri taxes
+  // this one in full where it exempts every other retiree here.
+  //
+  // THE RULE, which is Day 39's one level further in: a battery that varies
+  // income, composition and AGE still varies age only over the range the
+  // states it was built for care about.
+  survivor60: {
+    income: 58_000,
+    earnedIncome: 0,
+    filerAge: 60,
+    retirement: {
+      filer: { employerPlanPension: 34_000, socialSecurityBenefits: 24_000 },
+      spouse: {},
+    },
+    retirementIncome: 34_000,
+    taxableSocialSecurity: 20_400,
+    propertyTaxPaid: 3_100,
+  },
   retired70: {
     income: 40_000,
     earnedIncome: 0,

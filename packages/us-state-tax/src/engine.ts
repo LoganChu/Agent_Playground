@@ -140,21 +140,109 @@ function standardDeduction(
 function federalIncomeTaxDeduction(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
+  stateAgi: number,
 ): number {
-  if (!def.federalIncomeTaxDeduction) return 0;
+  const rule = def.federalIncomeTaxDeduction;
+  if (!rule) return 0;
   const federal = input.federal;
   const tax = nonNegative(
     federal.incomeTaxBeforeRefundableCredits,
     'federal.incomeTaxBeforeRefundableCredits',
   );
-  const refundable =
-    nonNegative(federal.earnedIncomeCredit, 'federal.earnedIncomeCredit') +
-    nonNegative(federal.additionalChildTaxCredit, 'federal.additionalChildTaxCredit') +
-    nonNegative(
-      federal.refundableAmericanOpportunityCredit,
-      'federal.refundableAmericanOpportunityCredit',
-    );
-  return Math.max(0, tax - refundable);
+  // The LIST, not a constant: Alabama's worksheet subtracts the refundable
+  // child tax credit and Missouri's does not, because Missouri starts from
+  // Form 1040 line 22 and line 28 never reduced it. The same $1,600 of
+  // refundable credit therefore raises an Alabama family's tax and leaves a
+  // Missouri family's alone.
+  const refundable = rule.refundableCredits.reduce(
+    (sum, credit) => sum + nonNegative(federal[credit], `federal.${credit}`),
+    0,
+  );
+  const net = Math.max(0, tax - refundable);
+  // Alabama has neither of the two below: 100% of the bill, uncapped.
+  if (!rule.rateSteps) return net;
+  // A CLIFF, not a phase-out. § 143.171.2 picks ONE percentage for the whole
+  // bill out of a chart of five, and `upTo` is inclusive because the statute
+  // says "twenty-five thousand dollars or less" and then "in excess of
+  // twenty-five thousand dollars". So the filer standing exactly on a boundary
+  // keeps the higher share — and the filer one dollar above them loses the
+  // whole step at once. At $100,000 that one dollar is worth $61.57.
+  const step = rule.rateSteps.find((s) => stateAgi <= s.upTo);
+  const shared = net * (step?.rate ?? 0);
+  return rule.cap ? Math.min(shared, rule.cap[input.filingStatus]) : shared;
+}
+
+/**
+ * Missouri's Form MO-A Part 3 — Social Security, public pensions and private
+ * pensions, read in the order C, A, B because each section needs the last one's
+ * answer.
+ *
+ * The whole of the interest is in what Section A does with what Section C just
+ * produced: the public pension exemption is the lesser of the pension and the
+ * maximum Social Security benefit, **less the Social Security deduction already
+ * taken.** A retiree's benefit eats their pension exemption dollar for dollar,
+ * in the state that says it exempts both.
+ */
+function stateRetirementDeduction(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  stateAgi: number,
+): number {
+  const rule = def.stateRetirementDeduction;
+  if (!rule) return 0;
+  const { people } = retirementPeople(input);
+  const taxableSocialSecurity = nonNegative(
+    input.taxableSocialSecurity,
+    'taxableSocialSecurity',
+  );
+
+  // Section C. The age test is on the PERSON, and the household's taxable
+  // benefit is one figure — so where the two people differ in age the taxable
+  // part is split in proportion to the gross benefits each of them received,
+  // which is the only split a return carries. A household that supplies no
+  // split is treated as one person's benefit and a note says so.
+  const grossBenefits = people.reduce((sum, p) => sum + p.benefits, 0);
+  let socialSecurity = 0;
+  if (taxableSocialSecurity > 0) {
+    if (grossBenefits > 0) {
+      for (const person of people) {
+        if ((person.age ?? 0) >= rule.socialSecurityMinimumAge || person.disabled) {
+          socialSecurity += taxableSocialSecurity * (person.benefits / grossBenefits);
+        }
+      }
+    } else if (people.some((p) => (p.age ?? 0) >= rule.socialSecurityMinimumAge || p.disabled)) {
+      socialSecurity = taxableSocialSecurity;
+    }
+  }
+
+  // Section A, per person, and the subtraction of the Section C figure is the
+  // provision rather than a rounding of it.
+  let publicPension = 0;
+  for (const person of people) {
+    const pension = Math.min(person.governmentPension, rule.publicPensionCap);
+    const ownSocialSecurity =
+      grossBenefits > 0 ? socialSecurity * (person.benefits / grossBenefits) : socialSecurity;
+    publicPension += Math.max(0, pension - ownSocialSecurity);
+  }
+
+  // Military retired pay, exempt in full and outside both caps.
+  const military = people.reduce((sum, p) => sum + p.military, 0);
+
+  // Section B. The cap is per person and the withdrawal is on the RETURN, so
+  // two people with $6,000 each lose $12,000 over the same $12,000 of income —
+  // and the income it is measured on takes the taxable Social Security back
+  // out, which is the opposite of what Section A did with the same dollars.
+  const perPerson = people.reduce(
+    (sum, p) => sum + Math.min(p.pension + p.ira, rule.privatePensionPerPersonCap),
+    0,
+  );
+  const excess = Math.max(
+    0,
+    stateAgi - taxableSocialSecurity - rule.privatePensionAllowance[input.filingStatus],
+  );
+  const privatePension = Math.max(0, perPerson - excess);
+
+  return socialSecurity + publicPension + military + privatePension;
 }
 
 /**
@@ -218,8 +306,25 @@ function stateDeduction(
   // Alabama's federal income tax deduction is NOT part of that max(). Form 40
   // line 11 is the standard-or-itemized choice and line 12 is the federal tax,
   // below it and additional to it, so every Alabama filer deducts the federal
-  // bill whether they itemize or not.
-  total += federalIncomeTaxDeduction(def, input);
+  // bill whether they itemize or not. Missouri's MO-1040 line 13 sits in the
+  // same place below the same choice, for a share of the same bill.
+  total += federalIncomeTaxDeduction(def, input, stateAgi);
+
+  // Missouri's MO-A Part 3. A deduction and not an AGI subtraction, which in
+  // Missouri is worth money rather than being a matter of form order: the line
+  // above reads state AGI, so a retirement exemption that sat inside AGI would
+  // move the federal income tax deduction's rate chart and one that sits below
+  // it does not.
+  total += stateRetirementDeduction(def, input, stateAgi);
+
+  // Missouri's § 143.022 — a fifth of business income, at every income, with no
+  // cap and no change of rate above one. Ohio's rule of the same name is the
+  // other shape entirely and lives in the AGI block, because Ohio's deduction
+  // moves Ohio AGI and this one does not move Missouri's.
+  if (def.businessIncomeDeduction) {
+    total +=
+      def.businessIncomeDeduction.rate * nonNegative(input.businessIncome, 'businessIncome');
+  }
 
   if (def.payrollTaxDeduction) {
     const paid = nonNegative(input.socialSecurityAndMedicarePaid, 'socialSecurityAndMedicarePaid');
@@ -2328,6 +2433,30 @@ function computeOnce(
       computedSubtractions.push({ name: 'Business income deduction', amount: businessDeduction });
     }
   }
+  // Missouri's § 143.121.3(14), HB 594 (2025) — the whole net capital gain,
+  // short-term included, out of MISSOURI AGI rather than out of taxable income.
+  // That placement is the provision's second half: Missouri AGI is the figure
+  // the federal income tax deduction's rate chart is read against, so the
+  // subtraction removes the gain from the base AND can move the filer down a
+  // step of the chart, unlocking a deduction for the federal tax on the gain it
+  // just exempted.
+  let capitalGainsSubtraction = 0;
+  if (def.capitalGainsSubtraction) {
+    // ONE field, deliberately. `netCapitalGain` is Form 1040 line 7, which
+    // already nets short-term against long-term, and
+    // `includesShortTerm` records that Missouri wants the whole of that line
+    // rather than its long-term half — adding `shortTermCapitalGains`, which
+    // Massachusetts reads, would count the same dollars twice for a caller who
+    // supplies both.
+    capitalGainsSubtraction =
+      nonNegative(input.netCapitalGain, 'netCapitalGain') * def.capitalGainsSubtraction.share;
+    if (capitalGainsSubtraction > 0) {
+      computedSubtractions.push({
+        name: def.capitalGainsSubtraction.name,
+        amount: capitalGainsSubtraction,
+      });
+    }
+  }
   // Virginia takes the taxable Social Security inside federal AGI straight back
   // out, and needs the same figure again for the age deduction's income test —
   // which is why it is an input here rather than something the caller nets into
@@ -2409,6 +2538,7 @@ function computeOnce(
     given +
     exclusion +
     businessDeduction +
+    capitalGainsSubtraction +
     socialSecuritySubtraction +
     connecticutSubtractions +
     planType.total +

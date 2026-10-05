@@ -1383,14 +1383,14 @@ const stateTool: ToolDefinition = {
       throw new ToolInputError('federalItemized must be true or false.');
     }
     for (const [field, value, states] of [
-      ['stateItemizedDeductions', itemized, ['MD', 'VA', 'GA']],
-      ['netCapitalGain', capitalGain, ['MD']],
+      ['stateItemizedDeductions', itemized, ['MD', 'VA', 'GA', 'MO']],
+      ['netCapitalGain', capitalGain, ['MD', 'MO']],
       // Georgia joined on Day 26 and it is the one state where `federalItemized`
       // is worth money on its own: the eligible itemizer credit of
       // § 48-7-27.1 is $300 a taxpayer for the election alone, with no state
       // itemized figure needed. A refusal list that left Georgia off would make
       // that credit unreachable through this server.
-      ['federalItemized', federalItemized, ['MD', 'VA', 'GA']],
+      ['federalItemized', federalItemized, ['MD', 'VA', 'GA', 'MO']],
     ] as const) {
       if (value !== undefined && !(states as readonly string[]).includes(state)) {
         throw new ToolInputError(
@@ -1472,7 +1472,7 @@ const stateTool: ToolDefinition = {
       ['workCityEarnings', workCityEarnings, ['MI', 'OH']],
       ['cityIncome', cityIncome, ['MI']],
       ['qualifyingWages', qualifyingWages, ['OH']],
-      ['businessIncome', businessIncome, ['OH']],
+      ['businessIncome', businessIncome, ['OH', 'MO']],
       ['residentCreditRate', residentCreditRate, ['OH']],
       ['residentCreditLimitRate', residentCreditLimitRate, ['OH']],
       ['schoolDistrict', schoolDistrict, ['OH']],
