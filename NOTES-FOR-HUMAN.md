@@ -13,10 +13,46 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 41 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.37.0, `us-tax-mcp` v0.40.0. 1,265 tests, all passing, and the
-differential grid against PolicyEngine-US now covers **946 households, 6,622
-figures, 6,172 agreeing to the dollar and ZERO unexplained differences**.
+**As of Day 42 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.38.0, `us-tax-mcp` v0.41.0. 1,302 tests, all passing, and the
+differential grid against PolicyEngine-US now covers **989 households, 6,923
+figures, 6,425 agreeing to the dollar and ZERO unexplained differences**.
+
+Day 42 added **Oregon**, the twenty-third taxing state. The headline is a
+composition rather than a figure: **Oregon's top 9.9% rate nominally begins at
+`$125,000` and does not reach a single filer until `$133,161` of federal AGI**,
+because Oregon lets every filer subtract their federal income tax — up to
+`$8,750` — and that subtraction is what holds their Oregon taxable income below
+the threshold. The two steepest things in the Oregon schedule are aimed at the
+same dollar and never meet there.
+
+Oregon is the third state here that deducts the federal income tax, and the
+three do it three incompatible ways: Alabama the whole bill uncapped, Missouri a
+*share* of it chosen by a chart on Missouri AGI, Oregon the whole of it up to a
+*ceiling* chosen by a chart on **federal** AGI. No two of the three subtract the
+same federal credits from it either — Oregon leaves the earned income credit in,
+which is the one credit both others take out — so the single input
+`federal.earnedIncomeCredit` now moves this library's answer in three different
+directions depending on the state.
+
+**The grid earned its keep on the first run of a new state, for the second day
+running, and this time the defect was mine.** A married Oregon filer on a
+separate return claims **two** exemption credits — the Form OR-40 instructions
+let a filer "filing separately but your spouse has no income" check the spouse's
+exemption box — and this package claimed one, `$263` a return. The gap was not
+Oregon's: the package has modelled that § 151(b) spouse for four states since
+Day 30, but on its *exemption* rule, and the *exemption credit* rule had never
+been asked the question because the two states that had one before Oregon could
+not show it. Fixed, with the spouse deliberately left unclaimed for Ohio and
+California because neither has been read on it.
+
+**And the other 37 differences are one fact, with this package on the right
+side.** Every one is tax year 2026 and none is 2025. PolicyEngine carries
+Oregon's 2026 figures as its 2025 figures *uprated*; this package carries the
+ones the Department of Revenue **published** in its 2026 withholding formula on
+31 December 2025. The tell is the exemption credit: PolicyEngine computes
+`$261.80170566232823` where Oregon prints `$263`. A tax credit that is not a
+whole number of dollars is a figure nothing published.
 
 The grid earned its keep again on the first run of a new state. It found a
 Missouri credit this package did not have — the **working family tax credit**,
@@ -76,14 +112,22 @@ reached by ONE DOLLAR of extra income rather than by a proportion of it.
 it is still thirty seconds.** It is the first item below: a description and six
 topics in this repository's settings.
 
-Re-checked today rather than remembered, and the check is worth one line because
-it changes slightly what I can say. I read the repository's own metadata through
-the API: **`description` and `topics` are still empty and `has_pages` is still
-`false`.** Day 37 reported that `PATCH /repos/{owner}/{repo}` was refused by this
-session's permission layer; today's session exposes **no tool for repository
-settings at all** — it can read, commit, open pull requests and drive Actions, and
-there is nothing in it that writes a description or a topic. Either way the answer
-is the same and it is the right one: repository settings are yours, not mine.
+Re-checked again on Day 42 rather than remembered. I read the repository's own
+metadata through the API: **`description` and `topics` are still empty and
+`has_pages` is still `false`**, and the record now says the same thing on six
+separate days. Day 37 reported that `PATCH /repos/{owner}/{repo}` was refused by
+that session's permission layer; today's session reports `admin: true` on the
+repository and still exposes **no tool that writes repository metadata** — it can
+read, commit, open pull requests, drive Actions and manage releases, and there is
+nothing in it for a description or a topic. Either way the answer is the same and
+it is the right one: repository settings are yours, not mine.
+
+The one line worth adding after six days of the same answer: **this is the only
+item in this file that has never moved, and it is also the cheapest.** Everything
+else I listed as blocked turned out either to be something I could do myself
+(Day 20: the packages install from a public URL with no account) or something
+that stopped mattering. This one is thirty seconds of yours and I cannot do it at
+all.
 
 Day 38, for context on why it matters a little more than it did: I installed
 the published packages the way a stranger would and the first call I wrote
@@ -101,8 +145,8 @@ needs you.
 Nothing below has changed, but Day 39 produced a figure that bears on what this
 repository is worth and I would rather you had it than not.
 
-**This package covers twenty-two of the forty-two jurisdictions that tax income.**
-The missing twenty are Minnesota, Wisconsin, Oregon, South Carolina,
+**This package covers twenty-three of the forty-two jurisdictions that tax income.**
+The missing nineteen are Minnesota, Wisconsin, South Carolina,
 Louisiana, Oklahoma, Iowa, Rhode Island, Vermont, Arkansas, Kansas, Nebraska,
 New Mexico, Montana, Maine, Delaware, Hawaii, North Dakota, West Virginia and the
 District of Columbia. That list is no longer prose: it is a declared, exported
@@ -116,11 +160,18 @@ Every day of the last five weeks has made the twenty states more right, which is
 real and is the moat — but a nineteen-state engine and a twenty-state engine are
 the same product, and a forty-two-state one is a different one.
 
-Connecticut took one day and so did Alabama, each including its own test file,
-its provenance entries and the defects it exposed in the test machinery. So the
-remaining twenty-one are about **five weeks of runs** at the current standard,
-and the next two are cheaper than that: Missouri and Oregon both deduct federal
-income tax, and the rule Alabama needed now exists for them to use.
+Connecticut, Alabama, Missouri and Oregon each took one day, including their own
+test file, their provenance entries and the defects they exposed in the test
+machinery. Four states in four days. So the remaining nineteen are **under four
+weeks of runs** at the current standard — and the estimate has got *better* every
+time it has been restated, which is the opposite of how these usually go.
+
+The reason it keeps improving is worth one line, because it is the thing that
+would decide whether to keep going: the states have started composing. Alabama
+needed a new rule for the federal tax deduction, Missouri needed one more field
+on it, and Oregon needed two — the machinery is being extended rather than
+rebuilt, and each new state audits the ones before it. Oregon found a defect in
+the exemption-credit rule that had been there since Day 30.
 
 Nothing for you to do. It is a number you would want if anyone ever asks you what
 this is worth.

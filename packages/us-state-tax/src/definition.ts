@@ -580,8 +580,10 @@ export interface RetirementIncomeCreditRule {
  * larger than the whole single base — so a retiree receiving an ordinary
  * benefit has no credit at all, whatever their pension. What is left is aimed,
  * by arithmetic rather than by words, at retirees with **little or no Social
- * Security**: in Oregon that is a recognisable group rather than an edge case,
- * because PERS members in service before 1996 were not all covered by it.
+ * Security** — and the group that reaches it is set by the credit's own age
+ * test: it opens at 62, full retirement age is 67, and a deferred benefit grows
+ * until 70, so the filers who can claim it are mostly those drawing a pension
+ * and not yet claiming a benefit. It closes on the day they claim.
  *
  * **And the two reductions read different definitions of the same dollars.**
  * Line 6 subtracts the benefit GROSS; line 7's household income subtracts the

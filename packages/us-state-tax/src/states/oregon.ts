@@ -122,8 +122,15 @@
  * the base is reduced **dollar for dollar by the GROSS Social Security
  * benefit**. The average benefit is larger than the whole single base, so the
  * usual answer is zero. What is left is aimed, by arithmetic rather than by
- * words, at retirees with little or no Social Security, who in Oregon are a
- * recognisable group: PERS members in service before 1996 were not all covered.
+ * words, at retirees with little or no Social Security — and the group that
+ * reaches it is defined by the credit's own age test rather than by anything
+ * about Oregon. The credit opens at 62; full retirement age is 67 and a deferred
+ * benefit grows until 70. So the filers it reaches are mostly those **drawing a
+ * pension and not yet claiming Social Security**, and it closes for them on the
+ * day they claim. (An earlier draft of this comment said Oregon PERS members
+ * were often outside Social Security. That is wrong — the GAO puts participation
+ * among Oregon state and local employees at 97% — and it was an invented fact
+ * rather than a read one. The age window is the real answer and it is checkable.)
  *
  * The second reduction reads the same benefit differently — household income is
  * federal AGI plus tax-exempt interest LESS the TAXABLE part of the benefit — so

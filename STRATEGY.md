@@ -13,10 +13,10 @@ and a larger hole underneath: 949 figures identical across the two tax years, of
 which only 148 were flagged, and nothing saying whether the other 801 were fixed by
 law or simply unread. Day 38 closed the hole that all of that work is useless against: an
 input key the engine does not read. Day 39 added the twentieth taxing state, Day 40 the
-twenty-first and Day 41 the twenty-second.
+twenty-first, Day 41 the twenty-second and Day 42 the twenty-third.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.37.0 and `packages/us-tax-mcp` is v0.40.0.
-**1,265 tests**, a 946-household differential grid agreeing on 6,172 of 6,622 figures with
+`packages/us-state-tax` is v0.38.0 and `packages/us-tax-mcp` is v0.41.0.
+**1,302 tests**, a 989-household differential grid agreeing on 6,425 of 6,923 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.5%** (1185

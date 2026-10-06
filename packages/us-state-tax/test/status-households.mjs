@@ -371,10 +371,13 @@ const SHAPES = {
   // indexed since 2018 and the benefit that cancels it has, so the credit is now
   // unreachable for an ordinary retiree and survives only here.
   //
-  // And the household is ordinary rather than a contrivance. Oregon PERS members
-  // in service before 1996 were not all covered by Social Security, so a state
-  // retiree on a pension and nothing else is a real Oregon return — which is the
-  // same reason `survivor60` is a real return rather than a probe.
+  // And the household is ordinary rather than a contrivance, for a reason that is
+  // structural rather than local: the credit opens at 62, full retirement age is
+  // 67, and a deferred Social Security benefit grows until 70 — so a retiree
+  // drawing a pension and not yet claiming a benefit is the ordinary case in
+  // exactly the age window the credit covers, and the credit closes for them on
+  // the day they claim. 67 with a pension and no benefit is a real return, which
+  // is the same reason `survivor60` is a real return rather than a probe.
   pensionNoSocialSecurity: {
     income: 19_000,
     earnedIncome: 0,

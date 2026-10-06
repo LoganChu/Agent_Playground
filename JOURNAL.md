@@ -286,8 +286,25 @@ Two more households, each for a dimension the battery did not have:
   rung in that figure too.**
 - **`pensionNoSocialSecurity`** — a retiree with a pension and NO Social
   Security, which is the only household that can reach Oregon's retirement
-  credit at all (Part 11). Ordinary rather than contrived: Oregon PERS members
-  in service before 1996 were not all covered.
+  credit at all (Part 11). Ordinary rather than contrived, and the reason is
+  structural: the credit opens at 62, full retirement age is 67, and a deferred
+  benefit grows until 70, so a retiree drawing a pension and not yet claiming is
+  the ordinary case in exactly the window the credit covers.
+
+**And the justification I first wrote for that household was an invented fact**,
+which is worth more as a process note than the household is. I wrote that Oregon
+PERS members were often outside Social Security, in the module header, the type
+documentation, the test battery, this journal and STRATEGY.md — five places, from
+one unsourced sentence, in the state whose own rule is that a figure needs two
+sources. Checked afterwards because it was the only claim of the day I could not
+name a document for: the GAO puts Social Security participation among Oregon
+state and local employees at **97%**. The claim was false and it was mine.
+
+**THE RULE: the claims that need checking are the ones that explain WHY, because
+the engine checks every claim about WHAT and nothing checks those.** Every tax
+figure today was cross-checked against an agency document or the differential
+grid. The one sentence nothing could test is the one that was wrong, and it was
+wrong in the direction that made the story better.
 
 ### Part 11 — a retirement credit that arithmetic has repealed
 
