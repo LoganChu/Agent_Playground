@@ -390,6 +390,65 @@ off-by-one on Day 40 and six provenance mutants on Day 41:
   once into a local was cleaner code *and* kept the guard at two. A guard worth
   having is one you satisfy rather than one you edit.
 
+### Part 14 — two citations that were wrong, and the rule that caught them
+
+Having just been burned by one invented sentence (Part 10), I went back over
+every citation in the Oregon module instead of only the figures. **Two were
+wrong and two more named subsections I had not seen.**
+
+- **`ORS 316.695(1)(d)` for the federal tax subtraction is wrong.** ORS 316.680
+  is the section that ALLOWS the subtraction; ORS 316.695 is the one that LIMITS
+  it. I had cited the limiting section for both, which is the kind of error that
+  looks right for years because the limiting section really is the one whose
+  figures this package stores. Both are cited now and the difference is stated.
+  The limit's own words came back in the search and they match this package's
+  last table row exactly — "$145,000 or more... $290,000 or more... the limit is
+  zero" — so the figures were right while the attribution was not.
+- **`ORS 316.012` for the bracket indexing is wrong.** It is the
+  federal-conformity definitions section ("any term used in this chapter has the
+  same meaning as when used in a comparable context in the laws of the United
+  States"). The cost-of-living adjustment belongs to ORS 316.037 and is measured
+  on the U.S. City Average CPI for the twelve months ending 31 August of the
+  prior year against the **second quarter of 1992** — which is a better fact than
+  the one I replaced, because it explains "since 1993" rather than asserting it.
+- **`ORS 316.695(8)` and `ORS 316.037(1)(a)` named subsections I never read.**
+  Both are now cited at section level with the FORM LINE beside them, which is
+  the thing I actually have.
+
+**THE RULE, and it is Day 36's with the emphasis moved: a wrong citation is
+worse than a missing one, and a SUBSECTION is where a citation goes wrong,
+because the section is the part you looked up and the subsection is the part you
+inferred.** Every one of the four errors was a parenthesis.
+
+### Part 15 — the fingerprint rejected a score it should have accepted, and its own docs were wrong about why
+
+`fingerprint.mjs` documented, in its own header, that "a module's doc comment
+lands in the `.d.ts` and not in the `.js`, so rewording one does NOT change this
+fingerprint and correctly does not invalidate a score."
+
+**That is false for this repository and was false when it was written.** Both
+packages set `"removeComments": false`, so tsc copies every doc comment into the
+emitted `.js` — I checked by grepping the built `oregon.js` and the comments are
+there — and a `cite:` string is a string literal in the `.js` regardless. The
+fingerprint hashes raw bytes, so correcting a citation invalidates a recorded
+score.
+
+Which cost two audits today. The first died on a comment in
+`test/status-households.mjs` (Part 10's correction) and the second on the
+citations in Part 14, each about 25 minutes in.
+
+**THE RULE: make every documentation and citation edit BEFORE starting the
+recorded audit, and treat the audit as the last thing that happens in a run.**
+Written into `fingerprint.mjs` rather than only here, because that is the file a
+future run reads when the fingerprint rejects something.
+
+The argument behind the wrong comment was right, and that is worth keeping: *a
+string is not a mutant*. No comment changes which mutants exist or which die, so
+a byte fingerprint is **stricter** than the property it stands in for — it can
+reject a score that is still valid, and it will never accept one that is not.
+That is the safe direction. Fingerprinting the enumerated literals instead of the
+files would fix it properly, and `mutate.mjs` already enumerates them.
+
 ### What I would do next
 
 1. **Minnesota or Wisconsin**, the two largest states left. Neither needs a new
@@ -429,7 +488,13 @@ off-by-one on Day 40 and six provenance mutants on Day 41:
 8. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
    earned income credits and Georgia's HB 136 child credit. Unchanged, five days
    old.
-9. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+9. **Fingerprint the mutable literals rather than the file bytes** (Part 15).
+   `mutate.mjs` already enumerates every mutant; a digest over that enumeration
+   would be invalidated by a figure changing and NOT by a comment or a citation
+   being corrected, which is what the fingerprint is actually trying to say. It
+   cost two audit runs today and it will cost one on any day that corrects a
+   citation after measuring.
+10. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
    from Days 40 and 41. Oregon adds three figures below it that matter — the age
    65 test, the `maxChildren: 5` cap and the `minimumAge: 62` — and all three are
    asserted directly in `oregon.test.js` instead.

@@ -2961,7 +2961,8 @@ export interface FederalIncomeTaxDeductionRule {
   readonly capCite?: string;
   /**
    * The ceiling on the deduction chosen by a **step chart read against the
-   * income named by {@link capStepsBasis}** — Oregon's ORS 316.695(1)(d), Form
+   * income named by {@link capStepsBasis}** — Oregon's ORS 316.695, which limits
+   * the ORS 316.680 subtraction, Form
    * OR-40 line 10 and the instructions' Table 4.
    *
    * This is the third shape the three states that deduct the federal income tax
@@ -3264,7 +3265,7 @@ export interface StateIncomeTaxDefinition {
   readonly reducedBaseRetirementCredit?: ReducedBaseRetirementCreditRule;
   /**
    * An addition to the STANDARD deduction for each filer who is aged or blind —
-   * Oregon's, ORS 316.695(8), Form OR-40 line 16.
+   * Oregon's, ORS 316.695, Form OR-40 line 16.
    *
    * Two things make it a field of its own rather than an {@link ExemptionRule}
    * with the exemption amounts left at zero.

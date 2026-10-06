@@ -2339,7 +2339,7 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 
 Every figure here was already cited to a statute or a state release. What nothing said
 was **which document any one figure came from**. Today the ledger covers 4,110 numeric
-figures over 64 state-years, against 370 citations; when it was written there was no
+figures over 64 state-years, against 372 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2609,7 +2609,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **684 tests**. Turning it on, when there were 618 of them, is what
+from all **721 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

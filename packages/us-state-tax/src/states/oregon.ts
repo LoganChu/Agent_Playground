@@ -144,7 +144,7 @@ import { byStatus, byStatusOf, perPerson } from './helpers.js';
 import type { Bracket, Citation } from '../types.js';
 
 /**
- * ORS 316.037(1)(a) — four rates, and only the first three boundaries move.
+ * ORS 316.037 — four rates, and only the first three boundaries move.
  *
  * **The 9.9% threshold has been `$125,000` since 1993** and is the one figure in
  * the Oregon schedule the statute does not index. Thirty-three years of
@@ -228,12 +228,17 @@ function capSteps(year: number) {
 const CITATIONS: readonly Citation[] = [
   {
     title:
-      'ORS 316.037 — the rate schedule: 4.75%, 6.75%, 8.75% and 9.9%. The first three boundaries are indexed under ORS 316.012; the 9.9% threshold is $125,000 ($250,000 joint) and has not moved since 1993',
+      'ORS 316.037 — imposition and rate of tax: 4.75%, 6.75%, 8.75% and 9.9%. The first three boundaries carry a cost-of-living adjustment against the second quarter of 1992, measured on the U.S. City Average CPI for the twelve months ending 31 August of the prior year; the 9.9% threshold is $125,000 ($250,000 joint), is not indexed, and has not moved since 1993',
     url: 'https://oregon.public.law/statutes/ors_316.037',
   },
   {
     title:
-      'ORS 316.695 — Oregon additional modifications: subsection (1)(d) is the federal income tax subtraction and subsection (8) the aged-or-blind addition to the standard deduction',
+      'ORS 316.680 — the subtractions from federal taxable income, the federal income tax among them. This is the section that ALLOWS the subtraction; ORS 316.695 is the one that limits it, and an earlier draft of this module cited the limiting section for both',
+    url: 'https://oregon.public.law/statutes/ors_316.680',
+  },
+  {
+    title:
+      'ORS 316.695 — Oregon additional modifications: the standard deduction and its addition for age and blindness, and the LIMIT on the ORS 316.680 federal income tax subtraction, whose own words set the limit to zero above $145,000 of federal adjusted gross income ($290,000 on a joint return)',
     url: 'https://oregon.public.law/statutes/ors_316.695',
   },
   {
@@ -323,7 +328,7 @@ const NOTES: readonly string[] = [
   'Publication OR-17 takes the subtraction from the federal income tax "before other taxes", which excludes the Form 8960 net investment income tax that `federal.incomeTaxBeforeRefundableCredits` includes. The difference cannot reach a SINGLE filer at all — the subtraction is already zero above $145,000 of AGI and the net investment income tax begins at $200,000 — and elsewhere it is bounded by 9.9% of that tax and needs itemized deductions large enough to push the federal income tax below the ceiling. A joint filer at $255,000 of AGI with $200,000 of charitable deductions and $55,000 of investment income is about $19 too low here. Named rather than hidden.',
   'The Oregon Kids Credit is withdrawn against OREGON adjusted gross income, which this engine computes with the federal tax subtraction already taken out of it — the placement Schedule OR-ASC uses. That is why the subtraction is an income subtraction here and a deduction in Alabama and Missouri: in Oregon the federal tax a family paid can buy back part of a credit, and in the other two it cannot.',
   'THE RETIREMENT CREDIT NEEDS THE GROSS SOCIAL SECURITY BENEFIT, not the taxable part. ORS 316.157 reduces its $7,500 base by the GROSS benefit while the household-income test on the same worksheet subtracts only the TAXABLE part, so the two halves read one benefit two ways. A return that supplies `taxableSocialSecurity` and no `retirement.filer.socialSecurityBenefits` gives the engine the smaller figure, which reduces the base too little and makes this credit TOO LARGE — up to 9% of the difference, or $675 where the whole base survives that should have been cancelled. This is a static note rather than a conditional one because no household in the package\'s own battery can reach the fallback, so nothing here would warn a caller who hit it.',
-  'Oregon has no personal exemption that reduces income: ORS 316.085 makes it a CREDIT, so it is worth the same $263 to a filer in the 4.75% band and one in the 9.9% band. The aged-or-blind amount is the other way round — ORS 316.695(8) puts it inside the STANDARD DEDUCTION, so it is worth more to a higher-rate filer and nothing at all to one who itemizes.',
+  'Oregon has no personal exemption that reduces income: ORS 316.085 makes it a CREDIT, so it is worth the same $263 to a filer in the 4.75% band and one in the 9.9% band. The aged-or-blind amount is the other way round — ORS 316.695 puts it inside the STANDARD DEDUCTION, so it is worth more to a higher-rate filer and nothing at all to one who itemizes.',
 ];
 
 const CONDITIONAL_NOTES: readonly ConditionalNote[] = [
@@ -395,7 +400,7 @@ export function oregon(year: number): StateIncomeTaxDefinition | undefined {
       byStatus: byStatusOf<readonly Bracket[]>({
         single: bands.single,
         joint: bands.joint,
-        // ORS 316.037(1)(b)–(c): a separate return uses the single schedule and
+        // ORS 316.037: a separate return uses the single schedule and
         // head of household the joint one. The reverse of most of this package.
         separate: bands.single,
         headOfHousehold: bands.joint,
@@ -417,11 +422,11 @@ export function oregon(year: number): StateIncomeTaxDefinition | undefined {
       // $2,000. Not indexed; these are the 2021 figures.
       amount: byStatus({ single: 1_200, joint: 1_000, separate: 1_000, headOfHousehold: 1_200 }),
       age: 65,
-      cite: 'ORS 316.695(8) — an addition to the standard deduction of $1,200 for a single or head of household filer and $1,000 each on a joint, separate or surviving spouse return, for each filer who has reached 65 and again for each who is blind. It is inside the standard deduction, so a filer who itemizes loses it.',
+      cite: 'ORS 316.695, Form OR-40 line 16 — an addition to the standard deduction of $1,200 for a single or head of household filer and $1,000 each on a joint, separate or surviving spouse return, for each filer who has reached 65 and again for each who is blind. It is inside the standard deduction, so a filer who itemizes loses it.',
     },
     itemizedDeduction: {
       name: 'Oregon itemized deductions (Schedule OR-A)',
-      // ORS 316.695(1) lets an Oregon filer itemize whether or not they did
+      // ORS 316.695 lets an Oregon filer itemize whether or not they did
       // federally, and the common case is a filer who took the federal standard
       // deduction and still has Oregon itemized deductions worth more than
       // $2,910.
@@ -437,7 +442,7 @@ export function oregon(year: number): StateIncomeTaxDefinition | undefined {
     },
     federalIncomeTaxDeduction: {
       name: 'Federal tax liability subtraction',
-      cite: 'ORS 316.695(1)(d), Form OR-40 line 10 — a subtraction for the federal income tax liability, limited to the ceiling in the instructions\' Table 4 and taken as an INCOME subtraction on Schedule OR-ASC rather than as a deduction.',
+      cite: 'ORS 316.680 allows the subtraction for federal income tax and ORS 316.695 LIMITS it — the limiting section\'s own words put the limit at zero where federal adjusted gross income is $145,000 or more, or $290,000 or more on a joint return, which is the last row of the instructions\' Table 4. Form OR-40 line 10, taken as an INCOME subtraction on Schedule OR-ASC rather than as a deduction.',
       // The carve-out that makes this a list rather than a constant, for the
       // third time and with a third answer. Oregon leaves the earned income
       // credit IN the federal tax, which is the one credit Alabama and Missouri

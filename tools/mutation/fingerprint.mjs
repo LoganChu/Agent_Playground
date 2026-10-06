@@ -30,10 +30,33 @@
  * ## What it covers, and what it deliberately does not
  *
  * Only `dist/esm/**` + `.js`, because that is precisely the set `mutate.mjs`
- * walks. A module's doc comment lands in the `.d.ts` and not in the `.js`, so
- * rewording one does NOT change this fingerprint and correctly does not
- * invalidate a score. That is the Day 36 observation "a string is not a mutant"
- * turned from an argument into a computation.
+ * walks.
+ *
+ * **This comment used to claim that rewording a doc comment does NOT change the
+ * fingerprint, because the comment "lands in the `.d.ts` and not in the `.js`".
+ * That is false for this repository and was false when it was written.** Both
+ * packages set `"removeComments": false`, so tsc copies every doc comment into
+ * the emitted `.js`, and a `cite:` string is a string literal in the `.js`
+ * whatever the compiler does with comments. The fingerprint is a hash of raw
+ * bytes, so **rewording a comment or correcting a citation invalidates a
+ * recorded score**, and Day 42 found this out by editing one Oregon citation
+ * while a 1,267-mutant audit was 25 minutes in.
+ *
+ * The claim is worth keeping as a correction rather than deleting, because the
+ * argument behind it was right and only the mechanism was wrong. "A string is
+ * not a mutant" is true — no comment changes which mutants exist or which die —
+ * so a byte fingerprint is STRICTER than the thing it is standing in for. That
+ * is the safe direction to be wrong in, and it means the fingerprint can reject
+ * a score that is in fact still valid. The cost is real: every comment edit
+ * after an audit costs another audit.
+ *
+ * **What to do about it, for a future run: make every documentation and citation
+ * edit BEFORE starting the recorded audit, and treat the audit as the last thing
+ * that happens in a run.** Day 42 paid for that rule twice in one day.
+ *
+ * Fingerprinting the mutable literals rather than the bytes would fix it
+ * properly — `mutate.mjs` already enumerates them, so the digest could be over
+ * the enumeration instead of the files — and that is on the worklist.
  *
  * The test files are not in it. A change to a test can absolutely change a
  * score — it is the thing doing the killing — so `check-scores.mjs` fingerprints

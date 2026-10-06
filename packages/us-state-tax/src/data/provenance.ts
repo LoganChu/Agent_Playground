@@ -1571,7 +1571,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.*.rate',
     kind: 'statute',
     document: 'ORS 316.037 \u2014',
-    cite: 'ORS 316.037(1) \u2014 4.75%, 6.75%, 8.75% and 9.9%. The three lower rates were cut from 5%, 7% and 9% for tax years beginning on or after 1 January 2020 and none of the four has moved since',
+    cite: 'ORS 316.037 \u2014 4.75%, 6.75%, 8.75% and 9.9%. The three lower rates were cut from 5%, 7% and 9% for tax years beginning on or after 1 January 2020 and none of the four has moved since',
     constant: true,
   },
   {
@@ -1579,7 +1579,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.2.upTo',
     kind: 'statute',
     document: 'ORS 316.037 \u2014',
-    cite: 'ORS 316.037(1) \u2014 the 9.9% rate begins at $125,000 of taxable income ($250,000 on the joint schedule, which head of household and qualifying surviving spouse also use) and THE FIGURE HAS NOT MOVED SINCE 1993. It is the one boundary in the Oregon schedule ORS 316.012 does not index, so thirty-three years of inflation have walked the top bracket down the income distribution with no Oregon legislature involved',
+    cite: 'ORS 316.037 \u2014 the 9.9% rate begins at $125,000 of taxable income ($250,000 on the joint schedule, which head of household and qualifying surviving spouse also use) and THE FIGURE HAS NOT MOVED SINCE 1993. It is the one boundary in the Oregon schedule the cost-of-living adjustment does not reach, so thirty-three years of inflation have walked the top bracket down the income distribution with no Oregon legislature involved',
     constant: true,
   },
   {
@@ -1587,7 +1587,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.0.upTo',
     kind: 'indexed',
     document: 'Oregon Withholding Tax Formulas, 150-206-436',
-    cite: 'ORS 316.012 indexes the first two boundaries by the U.S. city average CPI. $4,400 for 2025 and $4,550 for 2026 on the single schedule, doubled on the joint one \u2014 and the joint column is generated from the single one in this package rather than transcribed, because the doubling IS the provision. The 2026 figures are from the Department of Revenue\u2019s 2026 withholding formula, published 31 December 2025, which is the only document carrying them until the 2026 Form OR-40 instructions appear in January 2027',
+    cite: 'ORS 316.037 carries a cost-of-living adjustment on the first two boundaries, measured on the U.S. City Average CPI for the twelve months ending 31 August of the prior year against the second quarter of 1992. $4,400 for 2025 and $4,550 for 2026 on the single schedule, doubled on the joint one \u2014 and the joint column is generated from the single one in this package rather than transcribed, because the doubling IS the provision. The 2026 figures are from the Department of Revenue\u2019s 2026 withholding formula, published 31 December 2025, which is the only document carrying them until the 2026 Form OR-40 instructions appear in January 2027',
     constant: false,
   },
   {
@@ -1595,7 +1595,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.1.upTo',
     kind: 'indexed',
     document: 'Oregon Withholding Tax Formulas, 150-206-436',
-    cite: 'ORS 316.012 \u2014 $11,100 for 2025 and $11,400 for 2026 on the single schedule, doubled on the joint one. Same indexing provision and same 2026 document as the first boundary',
+    cite: 'ORS 316.037 \u2014 $11,100 for 2025 and $11,400 for 2026 on the single schedule, doubled on the joint one. Same cost-of-living adjustment and same 2026 document as the first boundary',
     constant: false,
   },
   {
@@ -1603,7 +1603,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'deduction.amounts.*',
     kind: 'indexed',
     document: 'Oregon Withholding Tax Formulas, 150-206-436',
-    cite: 'ORS 316.695(3) and the indexing in ORS 316.012 \u2014 $2,835 single and separate, $4,560 head of household and $5,670 joint and surviving spouse for 2025; $2,910, $4,685 and $5,820 for 2026. The single and joint 2026 figures and the $263 allowance are printed in the 2026 withholding formula; the head of household figure is carried by the 2026 Combined Payroll Tax Report Instructions, 150-211-155-2, and is the only one of the three this package has not read in the document itself \u2014 it is also the only value consistent with the published $2,910, since the indexing factor that produces $2,910 from $2,835 cannot produce the $4,650 some secondary sources give',
+    cite: 'ORS 316.695 and its cost-of-living adjustment \u2014 $2,835 single and separate, $4,560 head of household and $5,670 joint and surviving spouse for 2025; $2,910, $4,685 and $5,820 for 2026. The single and joint 2026 figures and the $263 allowance are printed in the 2026 withholding formula; the head of household figure is carried by the 2026 Combined Payroll Tax Report Instructions, 150-211-155-2, and is the only one of the three this package has not read in the document itself \u2014 it is also the only value consistent with the published $2,910, since the indexing factor that produces $2,910 from $2,835 cannot produce the $4,650 some secondary sources give',
     constant: false,
   },
   {
@@ -1611,7 +1611,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'standardDeductionAgedOrBlindAddition.amount.*',
     kind: 'statute',
     document: 'ORS 316.695 \u2014',
-    cite: 'ORS 316.695(8) \u2014 $1,200 for a single or head of household filer and $1,000 each on a joint, separate or surviving spouse return, per person, for age 65 and again for blindness. Not indexed and unchanged since 2021. It is the only figure in this package where a SINGLE filer\u2019s allowance exceeds a joint filer\u2019s per person, so two single 65-year-olds deduct $2,400 between them and the same two people married deduct $2,000',
+    cite: 'ORS 316.695, Form OR-40 line 16 \u2014 $1,200 for a single or head of household filer and $1,000 each on a joint, separate or surviving spouse return, per person, for age 65 and again for blindness. Not indexed and unchanged since 2021. It is the only figure in this package where a SINGLE filer\u2019s allowance exceeds a joint filer\u2019s per person, so two single 65-year-olds deduct $2,400 between them and the same two people married deduct $2,000',
     constant: true,
   },
   {
@@ -1619,7 +1619,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'standardDeductionAgedOrBlindAddition.age',
     kind: 'statute',
     document: 'ORS 316.695 \u2014',
-    cite: 'ORS 316.695(8) \u2014 65, and it has never moved',
+    cite: 'ORS 316.695, Form OR-40 line 16 \u2014 65, and it has never moved',
     constant: true,
   },
   {
@@ -1634,7 +1634,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'federalIncomeTaxDeduction.capSteps.*.*.amount',
     kind: 'indexed',
     document: 'Oregon Withholding Tax Formulas, 150-206-436',
-    cite: 'ORS 316.695(1)(d) and Table 4 of the Form OR-40 instructions \u2014 $8,500 / $6,800 / $5,100 / $3,400 / $1,700 / nothing for 2025 and $8,750 / $7,000 / $5,250 / $3,500 / $1,750 / nothing for 2026, halved for a separate return. THE FIVE ROWS ARE NOT FIFTHS OF THE MAXIMUM AS A MATTER OF LAW \u2014 each is indexed on its own and rounded, and in 2023 and 2024 they came out unequal to the fifths \u2014 so they are stored and not generated, while the halving for a separate return IS a relation and is generated. The 2026 table comes whole from the 2026 withholding formula; an uprated estimate of the maximum would have given $8,700',
+    cite: 'ORS 316.695, which limits the ORS 316.680 subtraction, and Table 4 of the Form OR-40 instructions \u2014 $8,500 / $6,800 / $5,100 / $3,400 / $1,700 / nothing for 2025 and $8,750 / $7,000 / $5,250 / $3,500 / $1,750 / nothing for 2026, halved for a separate return. THE FIVE ROWS ARE NOT FIFTHS OF THE MAXIMUM AS A MATTER OF LAW \u2014 each is indexed on its own and rounded, and in 2023 and 2024 they came out unequal to the fifths \u2014 so they are stored and not generated, while the halving for a separate return IS a relation and is generated. The 2026 table comes whole from the 2026 withholding formula; an uprated estimate of the maximum would have given $8,700',
     constant: false,
   },
   {
