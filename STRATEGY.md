@@ -19,7 +19,7 @@ twenty-first, Day 41 the twenty-second and Day 42 the twenty-third.
 **1,302 tests**, a 989-household differential grid agreeing on 6,425 of 6,923 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors) and the state engine's rule parameters at **99.5%** (1185
+mutants, 0 survivors) and the state engine's rule parameters at **99.5%** (1267
 mutants, 6 survivors), up from 85.8% on Day 33 and 96.3% on Day 34. Day 37's ledger
 took the audit from 702 mutants to 740 and **all 38 of the new ones were killed**,
 with the same six survivors as before — and both figures now carry a fingerprint of

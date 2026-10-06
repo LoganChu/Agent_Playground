@@ -18,6 +18,7 @@ rather than the suite's reach.
 | **Day 39, after the duplicated threshold was hoisted** | **1,086** | **6** | **99.4%** |
 | **Day 40, after Alabama** | **1,130** | **6** | **99.5%** |
 | **Day 41, after Missouri** | **1,185** | **6** | **99.5%** |
+| **Day 42, after Oregon** | **1,267** | **6** | **99.5%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 

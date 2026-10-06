@@ -64,14 +64,25 @@ found the reverse: the seven that remained are all one disagreement in which
 **this package is the one following the statute**, about which side of
 `$50,000` and `$100,000` of income a filer standing exactly on it falls.
 
-CI is green on all six jobs. The mutation audit was re-run over the build that
-ships — **1,185 mutants, 1,179 killed, 6 survivors, 99.5%**, with every one of
-the 55 mutants Missouri added killed and the same six survivors as before, each
-of them a number no return can reach. All four of those figures were predicted
-in writing before the run, and the one that was not — where the 55 came from —
-is worth a line: 49 are in Missouri's own module, counted by hand and confirmed
-exactly, and the other six are in the provenance ledger, which is a file full
-of year literals and gets audited like any other.
+The mutation audit was re-run over the build that ships — **1,267 mutants,
+1,261 killed, 6 survivors, 99.5%** — with every one of the 82 mutants Oregon
+added killed and the same six survivors as before, each of them a number no
+return can reach. All four figures were predicted in writing before the run, and
+this time so was the count: 76 literals counted by hand in Oregon's own module
+and confirmed at exactly 76, plus six in the provenance ledger, which is a file
+full of year literals and gets audited like any other.
+
+**One thing cost three runs of that audit and is worth your knowing only because
+it is now fixed.** `--record` takes a file path, I passed it as a bare flag, and
+the harness read the missing value as "do not record" — so a 105-minute
+measurement printed a correct report and wrote nothing, with no error and exit
+code 0. The flag now defaults sensibly, errors when a value is genuinely
+required, and **announces where it will write at start-up instead of on
+success**, so a long measurement can no longer decline to record in silence.
+Two earlier runs died on the same underlying rule, which is also now written
+down: make every documentation edit before starting the audit, because the
+fingerprint that proves a score is current is a hash of raw bytes and a
+corrected citation changes them.
 
 Day 41 added **Missouri**, the twenty-second taxing state, and it is the one
 where the word "rate" stops meaning anything. Missouri deducts a SHARE of the

@@ -120,24 +120,33 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1185 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.5% |
+| `us-state-tax` (rule parameters) | 1267 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.5% |
 
-The state figure was re-measured on **Day 41** over the build that ships today:
-Missouri took the audit from 1,130 mutants to **1,185** and **all 55 of the new
+The state figure was re-measured on **Day 42** over the build that ships today:
+Oregon took the audit from 1,185 mutants to **1,267** and **all 82 of the new
 ones were killed**, so the six survivors are the same six and the score held at
-99.5%. All four numbers were predicted before the run.
+99.5%. All four numbers were predicted in writing before the run, and this time
+the count was predicted exactly: **76 mutable literals were counted by hand in
+`oregon.ts` from the harness's own three operators** — a decimal in (0,1) is a
+rate, an integer between 1900 and 2100 without a separator is a year, an integer
+of 100 or more is money, and nothing else is mutated — and an `--only oregon.js`
+run came back with exactly 76, all 76 killed.
 
-**And the prediction was out by six in a direction worth the arithmetic.** The
-49 mutable literals in `missouri.ts` were counted by hand from the module and
-an `--only missouri.js` run confirmed exactly 49 — but the package gained 55.
-The other six are in `src/data/provenance.ts`: the four ledger entries
-Missouri's two carried-forward figures needed carry `years: [2025]`,
-`years: [2026]` and `carriedForwardFrom: 2025` twice over. **The file that
-records where every figure came from is itself full of year literals, and the
-audit reads it like any other.** Three of each pair are killed by the coverage
-assertion — an entry whose `years` no longer names a supported year leaves a
-figure uncovered — and the fourth by the assertion that makes the ledger and
-`provisionalFigures` describe the same carry-forward.
+**The remaining six were predicted too, because Day 41 had already found
+them.** 1,185 plus Oregon's 76 is 1,261 and the package reports 1,267. The other
+six are in `src/data/provenance.ts`, and they are the same shape Missouri's were:
+the two carried-forward Oregon Kids Credit figures needed four `years:` arrays
+and two `carriedForwardFrom: 2025`. **The file that records where every figure
+came from is itself full of year literals, and the audit reads it like any other
+file in the build.** Three of each pair are killed by the coverage assertion — an
+entry whose `years` no longer names a supported year leaves a figure uncovered —
+and the fourth by the assertion that makes the ledger and `provisionalFigures`
+describe the same carry-forward.
+
+Day 41 is the row underneath: Missouri took the audit from 1,130 to 1,185 with
+all 55 of its mutants killed, where 49 were counted by hand in `missouri.ts` and
+six were the ledger entries above — which is why Day 42 could predict its own
+six instead of discovering them.
 
 Day 40 is the row underneath: Alabama took the audit from 1,086 to 1,130 and
 all 44 of its mutants were killed, with the same six survivors and the score
