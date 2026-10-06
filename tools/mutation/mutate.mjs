@@ -68,7 +68,7 @@
  * Usage:
  *   node tools/mutation/mutate.mjs <packageDir> [--workers N] [--skip a,b]
  *                                  [--only substr] [--limit N] [--json out.json]
- *                                  [--max-survivors N] [--record FILE]
+ *                                  [--max-survivors N] [--record [FILE]]
  */
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -81,9 +81,34 @@ if (!pkgDir) {
   console.error('usage: mutate.mjs <packageDir> [--workers N] [--skip a,b] [--only s] [--limit N] [--json f]');
   process.exit(2);
 }
-const flag = (name, dflt) => {
+/**
+ * Read `--name value`, or `dflt` when the flag is absent.
+ *
+ * **`presentWithoutValue` is the whole of Day 42's lesson in this file.** The
+ * old version returned `argv[i + 1]` unconditionally, so `--record` written as
+ * the LAST argument — with no path after it — returned `undefined`, which is
+ * falsy, which made the record block below do nothing at all. A 1,267-mutant
+ * audit ran for 105 minutes, printed a correct report, and recorded nothing,
+ * and there was no way to tell until `check-scores.mjs` still called the score
+ * stale afterwards.
+ *
+ * THE RULE: a flag that is PRESENT and does nothing is worse than a flag that
+ * is missing, because the command line says the thing was asked for. So a flag
+ * given without a value now takes `presentWithoutValue` where that makes sense
+ * and throws where it does not, and `--record` announces its destination at
+ * START-UP rather than on success — a long measurement must not be able to
+ * decline to record silently.
+ */
+const flag = (name, dflt, presentWithoutValue) => {
   const i = argv.indexOf(`--${name}`);
-  return i === -1 ? dflt : argv[i + 1];
+  if (i === -1) return dflt;
+  const value = argv[i + 1];
+  if (value === undefined || value.startsWith('--')) {
+    if (presentWithoutValue !== undefined) return presentWithoutValue;
+    console.error(`[mutate] --${name} needs a value`);
+    process.exit(2);
+  }
+  return value;
 };
 const WORKERS = Number(flag('workers', Math.max(2, Math.min(8, os.cpus().length))));
 const SKIP = String(flag('skip', '')).split(',').filter(Boolean);
@@ -97,7 +122,9 @@ const SHARD = flag('shard', null); // "i/n"
 // number chosen to pass, and raising it is a deliberate edit with a reason.
 const MAX_SURVIVORS = flag('max-survivors', null);
 // Where to record the score and the fingerprint of what produced it.
-const RECORD_OUT = flag('record', null);
+// Bare `--record` writes the repository's own score file, which is what every
+// caller has ever wanted and what the usage line above now says.
+const RECORD_OUT = flag('record', null, 'tools/mutation/scores.json');
 
 /**
  * Mask comments and string/template literals with spaces, keeping every byte
@@ -281,6 +308,13 @@ if (!base.green) {
   process.exit(1);
 }
 console.error('[mutate] baseline green');
+// Said at the START, because a measurement this long must not be able to
+// decline to record without saying so. Day 42 lost 105 minutes to exactly that.
+console.error(
+  RECORD_OUT
+    ? `[mutate] will record the score in ${RECORD_OUT} when the run completes`
+    : '[mutate] NOT recording (pass --record to write tools/mutation/scores.json)',
+);
 
 // ---- run ----
 const originals = new Map();

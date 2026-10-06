@@ -449,6 +449,57 @@ reject a score that is still valid, and it will never accept one that is not.
 That is the safe direction. Fingerprinting the enumerated literals instead of the
 files would fix it properly, and `mutate.mjs` already enumerates them.
 
+### Part 16 — a 105-minute measurement that recorded nothing, and the flag that let it
+
+The whole-package audit ran to completion, printed the right report —
+
+```
+mutants 1267    killed 1261    survived 6    score 99.5%
+```
+
+— **and wrote nothing**, because `--record` takes a FILE and I passed it as a
+bare flag at the end of the command line. `flag()` is
+`argv.indexOf('--record')` then `argv[i + 1]`, which for the last argument is
+`undefined`, which is falsy, which made `if (RECORD_OUT)` skip the whole record
+block. No error, no warning, exit 0, a correct report on stdout, and
+`check-scores.mjs` still calling the score stale afterwards.
+
+All four numbers were as predicted — 1,267 against 1,185 + 76 + 6, six
+survivors, 99.5%, and the six are the same six `STATE-SURVIVORS.md` has triaged
+since Day 35, so **all 82 of Oregon's mutants were killed.** The measurement was
+fine. The recording was the thing that failed.
+
+**THE RULE: a flag that is PRESENT and does nothing is worse than a flag that is
+missing, because the command line says the thing was asked for.** Two fixes in
+`mutate.mjs`, and the second matters more than the first:
+
+1. `flag()` takes a `presentWithoutValue` argument. A flag given without a value
+   now takes that default where one makes sense — bare `--record` writes
+   `tools/mutation/scores.json`, which is what every caller has ever wanted —
+   and exits 2 where it does not, instead of silently reading the next flag or
+   `undefined` as a value.
+2. **The record destination is announced at START-UP**, not on success:
+   `[mutate] will record the score in ... when the run completes`, or
+   `[mutate] NOT recording` when it will not. A measurement that takes 105
+   minutes must not be able to decline to record without saying so, and the only
+   place that message is useful is before the wait rather than after it.
+
+This is the same shape as Part 15 and Part 12 and it is worth naming as one
+thing. **Three times today a silence was the defect: a prose claim nobody
+compared to its list, a fingerprint that rejected without saying what it
+covered, and a flag that did nothing without saying so.** None of them produced
+a wrong number. All three produced a wrong BELIEF about a number, which is
+harder to notice and cost more.
+
+And the arithmetic of the day's cost is worth recording, because it is the
+argument for worklist item 7: **three audit runs, about 160 minutes of wall
+clock, for one recorded score.** The first died on a test comment (Part 10), the
+second on four citations (Parts 14 and 15), and the third on this flag. Two of
+the three were avoidable by the rule Part 15 already states — make every
+documentation edit before starting the audit — and the third by a flag that
+spoke up. Fingerprinting the enumerated literals rather than the file bytes would
+have saved the first two outright.
+
 ### What I would do next
 
 1. **Minnesota or Wisconsin**, the two largest states left. Neither needs a new
