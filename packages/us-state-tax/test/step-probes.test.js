@@ -180,6 +180,16 @@ const COVERED_ELSEWHERE = {
  * audit starts lying.
  */
 const UNREACHABLE = {
+  'OR|federalIncomeTaxDeduction.capSteps.<status>|0.from': {
+    // The same zero-at-the-bottom-of-a-chart case as Connecticut's below, in a
+    // chart that reads the other government's AGI. Table 4's first row is "from
+    // $0", meaning every filer below $125,000 takes the whole ceiling, and a
+    // doubling mutation turns that zero into one dollar — so the only return
+    // whose answer could move is one with under a dollar of FEDERAL adjusted
+    // gross income, which has no federal income tax to subtract.
+    why: 'the first row of the ceiling chart begins at zero federal AGI, and 2×0+1 is one dollar of it — below every filer who has a federal bill for the subtraction to be the lesser of',
+    coveredBy: 'oregon.test.js — "the ceiling is read against FEDERAL AGI and binds above it", which pins the $8,750 row at $124,999 and the $7,000 row at $125,000',
+  },
   'CT|retirementSubtractionSchedule.schedule.<status>|0.from': {
     // The same arithmetic as Ohio's zero band below, arriving from the other
     // direction. The row says "from $0", meaning every filer under the
@@ -338,8 +348,8 @@ test('every number in every staircase moves a pinned answer', () => {
   // rule moved behind a function — fails instead of reporting a clean sweep over
   // nothing. That is the failure mode the mutation harness had on its first run,
   // and it printed 100%.
-  assert.equal(checked, 1_337, 'numbers inside the staircases this package ships');
-  assert.equal(exempt.length, 8, 'staircase rows nothing can reach — three rows, both years, and the Connecticut one in two columns, all documented');
+  assert.equal(checked, 1_441, 'numbers inside the staircases this package ships');
+  assert.equal(exempt.length, 14, 'staircase rows nothing can reach — four rows, both years, Connecticut\'s in two columns and Oregon\'s in three, all documented');
 });
 
 test("Ohio's 20% joint filing credit row is arithmetic no return can reach", () => {

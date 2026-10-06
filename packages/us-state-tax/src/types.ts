@@ -55,6 +55,7 @@ export type StateCode =
   | 'NV'
   | 'NY'
   | 'OH'
+  | 'OR'
   | 'PA'
   | 'SD'
   | 'TN'

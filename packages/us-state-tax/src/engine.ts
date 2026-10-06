@@ -96,11 +96,44 @@ function conformityAmount(def: StateIncomeTaxDefinition, input: StateIncomeTaxIn
   }
 }
 
+/**
+ * Oregon's ORS 316.695(8) addition — `$1,200` a person on a single or head of
+ * household return and `$1,000` a person on a joint, separate or surviving
+ * spouse one, for each filer who has reached 65 and again for each who is
+ * blind.
+ *
+ * It is inside the STANDARD deduction rather than beside it, which is the half
+ * that costs money: the figure it is part of is the one compared with the
+ * itemized total, so an Oregon filer who itemizes loses their age addition too.
+ * Every aged *exemption* in this package survives itemizing; this does not.
+ */
+function agedOrBlindDeductionAddition(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  const rule = def.standardDeductionAgedOrBlindAddition;
+  if (!rule) return 0;
+  const per = rule.amount[input.filingStatus];
+  // The two conditions stack on one person — a blind filer of 65 claims both —
+  // so these are added rather than max()ed. Blindness is capped at the number of
+  // living filers because `blindOrDisabled` counts filers and not dependents.
+  const aged = seniorFilers(input, rule.age);
+  const blind = Math.min(
+    nonNegative(input.blindOrDisabled, 'blindOrDisabled'),
+    livingFilerCount(input.filingStatus),
+  );
+  return per * (aged + blind);
+}
+
 function standardDeduction(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
   stateAgi: number,
 ): number {
+  const agedOrBlind = agedOrBlindDeductionAddition(def, input);
+  if (agedOrBlind > 0 && def.deduction.kind === 'table') {
+    return def.deduction.amounts[input.filingStatus] + agedOrBlind;
+  }
   switch (def.deduction.kind) {
     case 'none':
       return 0;
@@ -129,6 +162,30 @@ function standardDeduction(
 }
 
 /**
+ * The invariant that keeps the two placements of the federal income tax
+ * deduction from being circular.
+ *
+ * A state whose deduction comes off its own AGI — Oregon — is computed BEFORE
+ * state AGI exists, so it is called with no state AGI to read. That is safe
+ * only because Oregon's chart reads FEDERAL AGI. A state that both reduced its
+ * own AGI by this deduction and read its own AGI to size it would be asking for
+ * a figure that does not exist yet, and this says so loudly rather than
+ * answering with a zero that would look like a small deduction.
+ *
+ * `registry.test.js` rules the combination out at the definition level, so this
+ * is the second line of defence and not the first.
+ */
+function requireStateAgi(stateAgi: number | undefined): number {
+  if (stateAgi === undefined) {
+    throw new Error(
+      'internal: a federal income tax deduction that reduces state AGI cannot also be ' +
+        'sized from state AGI — set capStepsBasis to federalAdjustedGrossIncome',
+    );
+  }
+  return stateAgi;
+}
+
+/**
  * The deduction for the federal income tax itself — Alabama's Form 40 line 12.
  *
  * It is the federal bill after non-refundable credits, less the refundable
@@ -140,7 +197,7 @@ function standardDeduction(
 function federalIncomeTaxDeduction(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
-  stateAgi: number,
+  stateAgi: number | undefined,
 ): number {
   const rule = def.federalIncomeTaxDeduction;
   if (!rule) return 0;
@@ -159,6 +216,26 @@ function federalIncomeTaxDeduction(
     0,
   );
   const net = Math.max(0, tax - refundable);
+  // Oregon. A chart that picks the CEILING rather than the share, read against
+  // FEDERAL AGI rather than the state's own — so nothing Oregon does to its
+  // base can move the step, which is the opposite of Missouri, where the
+  // capital-gains subtraction walks a filer down the chart. `from` is the
+  // step's inclusive lower bound: the Department of Revenue's 2026 withholding
+  // formula writes the row as "greater than or equal to $125,000 and less than
+  // $130,000", so the filer standing exactly on a boundary takes the SMALLER
+  // ceiling — the opposite convention from Missouri's statute, on the same
+  // question, in the same rule.
+  if (rule.capSteps) {
+    const basis =
+      rule.capStepsBasis === 'stateAdjustedGrossIncome'
+        ? requireStateAgi(stateAgi)
+        : nonNegative(federal.adjustedGrossIncome, 'federal.adjustedGrossIncome');
+    let cap = 0;
+    for (const step of rule.capSteps[input.filingStatus]) {
+      if (basis >= step.from) cap = step.amount;
+    }
+    return Math.min(net, cap);
+  }
   // Alabama has neither of the two below: 100% of the bill, uncapped.
   if (!rule.rateSteps) return net;
   // A CLIFF, not a phase-out. § 143.171.2 picks ONE percentage for the whole
@@ -167,7 +244,7 @@ function federalIncomeTaxDeduction(
   // twenty-five thousand dollars". So the filer standing exactly on a boundary
   // keeps the higher share — and the filer one dollar above them loses the
   // whole step at once. At $100,000 that one dollar is worth $61.57.
-  const step = rule.rateSteps.find((s) => stateAgi <= s.upTo);
+  const step = rule.rateSteps.find((s) => requireStateAgi(stateAgi) <= s.upTo);
   const shared = net * (step?.rate ?? 0);
   return rule.cap ? Math.min(shared, rule.cap[input.filingStatus]) : shared;
 }
@@ -308,7 +385,12 @@ function stateDeduction(
   // below it and additional to it, so every Alabama filer deducts the federal
   // bill whether they itemize or not. Missouri's MO-1040 line 13 sits in the
   // same place below the same choice, for a share of the same bill.
-  total += federalIncomeTaxDeduction(def, input, stateAgi);
+  // Oregon's is an INCOME subtraction instead — Schedule OR-ASC, inside Oregon
+  // adjusted gross income — so it has already come off the base by the time
+  // this runs and adding it here would take it twice.
+  if (def.federalIncomeTaxDeduction?.reducesStateAdjustedGrossIncome !== true) {
+    total += federalIncomeTaxDeduction(def, input, stateAgi);
+  }
 
   // Missouri's MO-A Part 3. A deduction and not an AGI subtraction, which in
   // Missouri is worth money rather than being a matter of form order: the line
@@ -648,6 +730,58 @@ function retirementIncomeCredit(
   if (!rule) return 0;
   if (measures.stateModifiedAdjustedGrossIncomeLessExemptions >= rule.incomeLimit) return 0;
   return stepAmount(rule.steps, retirementIncomeOf(input));
+}
+
+/**
+ * Oregon's ORS 316.157 retirement credit — the twelve-line worksheet on page
+ * 108 of Publication OR-17, in the order the worksheet runs.
+ *
+ * The two reductions are the whole of it, and they read different definitions of
+ * one benefit: line 6 takes the base down by the GROSS Social Security benefit,
+ * and line 7's household income subtracts only the TAXABLE part from AGI. So a
+ * dollar of benefit costs a dollar of base once, and is kept out of the income
+ * that would cost it a second dollar.
+ *
+ * Because the base is `$7,500` on a single return and an ordinary benefit is
+ * larger than that, the usual answer is zero — the credit survives only for a
+ * retiree with little or no Social Security.
+ */
+function reducedBaseRetirementCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  const rule = def.reducedBaseRetirementCredit;
+  if (!rule) return 0;
+  const { people } = retirementPeople(input);
+  // Line 1. The age test is on the PERSON and reaches only the filer and the
+  // spouse — a dependent's pension on the same return does not qualify, which
+  // `retirementPeople` already respects because it reads the filers.
+  const pension = people.reduce(
+    (sum, p) => sum + (p.age !== undefined && p.age >= rule.minimumAge ? p.pension : 0),
+    0,
+  );
+  if (pension <= 0) return 0;
+  // Line 6. The GROSS benefit, not the taxable part. On a return that supplies
+  // only `taxableSocialSecurity` this figure is too SMALL, so the credit comes
+  // out too LARGE — stated in the state's notes rather than silently netted,
+  // because it is the one direction that flatters the filer.
+  const reducedBase = Math.max(
+    0,
+    rule.base[input.filingStatus] - people.reduce((sum, p) => sum + p.benefits, 0),
+  );
+  // Lines 7 to 9. Household income is federal AGI plus tax-exempt interest less
+  // the taxable benefit, so municipal interest reduces this credit in a state
+  // that does not tax it.
+  const householdIncome =
+    nonNegative(input.federal.adjustedGrossIncome, 'federal.adjustedGrossIncome') +
+    nonNegative(input.taxExemptInterest, 'taxExemptInterest') -
+    nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity');
+  const excess = Math.max(
+    0,
+    householdIncome - rule.householdIncomeThreshold[input.filingStatus],
+  );
+  // Lines 10 and 11.
+  return rule.rate * Math.min(pension, Math.max(0, reducedBase - excess));
 }
 
 /** Military retired pay on the return, for each living person on it. */
@@ -1609,11 +1743,38 @@ function exemptionCredit(
       : 0;
   // Ohio's is switched off rather than tapered: § 5747.022 allows the $20 only
   // below $30,000 of modified AGI, so a family of four loses $80 on one dollar.
-  if (rule.incomeLimit !== undefined && measured(measures, rule.incomeMeasure) >= rule.incomeLimit) {
-    return 0;
+  //
+  // Oregon's ORS 316.085(5) is the same cliff with the boundary the other way
+  // round — the credit goes to a filer whose federal AGI "does not exceed"
+  // $100,000 or $200,000 — so the filer standing exactly on the figure keeps it
+  // there and loses it in Ohio. One word of statute, $1,024 to an Oregon family
+  // of four at exactly $200,000.
+  const limit = rule.incomeLimitByStatus?.[status] ?? rule.incomeLimit;
+  if (limit !== undefined) {
+    const income = measured(measures, rule.incomeMeasure);
+    if (rule.incomeLimitIsInclusive === true ? income > limit : income >= limit) return 0;
   }
+  // The § 151(b) spouse, for a CREDIT rather than an exemption. Oregon's
+  // instructions let a separate filer whose spouse has no income and is nobody
+  // else's dependent check the spouse's Regular exemption box, which is a second
+  // $263 — and this package was missing it until the differential grid put a
+  // separate Oregon return beside PolicyEngine's and found them $251.91 apart.
+  //
+  // Not defaulted on: Ohio and California have the same field absent, because
+  // neither has been read on the question and a default would answer it for them.
+  const separateSpouse =
+    status === 'marriedFilingSeparately' &&
+    rule.separateReturnSpouse?.spouse === 'claimed' &&
+    input.spouseHasNoGrossIncomeAndIsNotADependent === true
+      ? 1
+      : 0;
+  // One call, read once: `perFiler` is the TOTAL the form tells this status to
+  // enter, so the per-person figure is that total divided by the same count the
+  // form claims — and the separate-return spouse is added to the COUNT without
+  // changing the divisor.
+  const claimed = claimedFilerCount(status);
   const lines: readonly (readonly [number, number])[] = [
-    [claimedFilerCount(status), rule.perFiler[status] / claimedFilerCount(status)],
+    [claimed + separateSpouse, rule.perFiler[status] / claimed],
     [seniors, rule.perSeniorFiler ?? 0],
     [blind, rule.perBlindOrDisabledFiler ?? 0],
     [dependents, rule.perDependent],
@@ -1879,13 +2040,14 @@ function childCredit(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
   stateTaxableIncome: number,
+  stateAgi: number,
 ): number {
   const rule = def.childCredit;
   if (!rule) return 0;
   const ages = input.dependentAges;
   if (ages === undefined || ages.length === 0) return 0;
 
-  let credit = 0;
+  const perChild: number[] = [];
   for (const age of ages) {
     if (!Number.isFinite(age) || age < 0) {
       throw new RangeError(`dependentAges must be non-negative finite numbers, received ${age}`);
@@ -1896,11 +2058,22 @@ function childCredit(
       // "under 13, or 65 and over" — a credit banded at both ends of life.
       if ((band.maxAge === undefined || age <= band.maxAge) &&
           (band.minAge === undefined || age >= band.minAge)) {
-        credit += band.amount;
+        if (band.amount > 0) perChild.push(band.amount);
         break;
       }
     }
   }
+  // Oregon caps the credit at FIVE qualifying children — HB 3235 § 2(1) — and
+  // the cap is a count rather than a ceiling in dollars, so the five kept are
+  // the five worth most. Oregon pays one amount per child so the order cannot
+  // matter there; it is sorted anyway, because a banded credit with a count
+  // limit is the shape where a sixth child could otherwise displace a dearer
+  // one.
+  const counted =
+    rule.maxChildren === undefined
+      ? perChild
+      : [...perChild].sort((a, b) => b - a).slice(0, rule.maxChildren);
+  const credit = counted.reduce((sum, amount) => sum + amount, 0);
   if (credit <= 0) return 0;
   // Massachusetts's has no phase-out at all, which is the whole of what makes it
   // unusual: it is worth the same $440 per dependent at $400,000 of income as at
@@ -1913,11 +2086,21 @@ function childCredit(
   const income =
     rule.phaseOut.income === 'stateTaxableIncomePlusTaxExemptInterest'
       ? stateTaxableIncome + nonNegative(input.taxExemptInterest, 'taxExemptInterest')
-      : input.federal.adjustedGrossIncome;
+      : rule.phaseOut.income === 'stateAdjustedGrossIncome'
+        ? stateAgi
+        : input.federal.adjustedGrossIncome;
   const excess = income - rule.phaseOut.threshold[input.filingStatus];
   if (excess <= 0) return credit;
   if (rule.phaseOut.kind === 'rate') {
     return Math.max(0, credit - excess * rule.phaseOut.rate);
+  }
+  // Oregon's: the whole credit over a fixed WIDTH, so the implied marginal rate
+  // is credit/width and therefore grows with the family. At five children under
+  // six it is 105% — $5,250 of credit withdrawn across $5,000 of income — and
+  // the family is strictly worse off at the top of the band than the bottom.
+  if (rule.phaseOut.kind === 'overWidth') {
+    const withdrawn = Math.min(excess / rule.phaseOut.width, 1);
+    return credit * (1 - withdrawn);
   }
   const increments = Math.ceil(excess / rule.phaseOut.increment);
   return Math.max(0, credit - increments * rule.phaseOut.amountPerIncrement);
@@ -2534,6 +2717,17 @@ function computeOnce(
       }
     }
   }
+  // Oregon's federal tax subtraction is an INCOME subtraction and the others'
+  // are deductions, which is a difference of form order that costs money in
+  // exactly one place: Oregon AGI is what the Oregon Kids Credit is phased out
+  // against, so up to $8,750 of subtraction can buy back as much as $1,050 a
+  // child. Computed with no state AGI to read, which is sound only because
+  // Oregon's cap chart reads FEDERAL AGI — `requireStateAgi` and
+  // `registry.test.js` between them make that a rule rather than a hope.
+  const federalTaxAgiSubtraction =
+    def.federalIncomeTaxDeduction?.reducesStateAdjustedGrossIncome === true
+      ? federalIncomeTaxDeduction(def, input, undefined)
+      : 0;
   const subtractions =
     given +
     exclusion +
@@ -2544,7 +2738,8 @@ function computeOnce(
     planType.total +
     ageDeductionTaken +
     retirement.total +
-    compensationExcluded;
+    compensationExcluded +
+    federalTaxAgiSubtraction;
   const stateAgi = Math.max(0, base + additions - subtractions);
   const modifiedAgi = stateAgi + businessDeduction;
 
@@ -2727,6 +2922,13 @@ function computeOnce(
       refundable: false,
     });
   }
+  if (def.reducedBaseRetirementCredit) {
+    credits.push({
+      name: def.reducedBaseRetirementCredit.name,
+      amount: reducedBaseRetirementCredit(def, input),
+      refundable: false,
+    });
+  }
   if (def.seniorCredit) {
     credits.push({
       name: def.seniorCredit.name,
@@ -2823,9 +3025,23 @@ function computeOnce(
       (rule.ineligibleFilingStatuses?.includes(input.filingStatus) ?? false) ||
       (rule.investmentIncomeLimit !== undefined &&
         nonNegative(input.investmentIncome, 'investmentIncome') > rule.investmentIncomeLimit);
+    // Oregon writes the credit as TWO percentages — 9% and 12% for 2025, 14%
+    // and 17% from SB 1507 — rather than as a credit plus a bonus, so the
+    // young-child case changes the rate and not the total. A switch and not a
+    // multiplier: one toddler and three are worth the same. A return that
+    // supplies only a COUNT of dependents cannot reach it, and takes the lower
+    // rate rather than the flattering one.
+    const youngChild =
+      rule.youngChildMatchRate !== undefined &&
+      rule.youngChildMaxAge !== undefined &&
+      (input.dependentAges?.some((age) => age <= rule.youngChildMaxAge!) ?? false);
     const matched = barred
       ? 0
-      : (childless ? rule.childlessMatchRate! : rule.matchRate) * federalCredit;
+      : (childless
+          ? rule.childlessMatchRate!
+          : youngChild
+            ? rule.youngChildMatchRate!
+            : rule.matchRate) * federalCredit;
     // Virginia offers a flat per-exemption credit as an ALTERNATIVE to the
     // match, not in addition to it, and the filer takes whichever leaves them
     // better off. Which one that is turns on refundability rather than on size:
@@ -2939,7 +3155,7 @@ function computeOnce(
     // caller indexing credits[0] should not break when a credit is added.
     credits.push({
       name: def.childCredit.name,
-      amount: childCredit(def, input, taxableIncome),
+      amount: childCredit(def, input, taxableIncome, stateAgi),
       refundable: def.childCredit.refundable,
     });
   }

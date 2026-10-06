@@ -1541,6 +1541,252 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     cite: 'Zero, and it is a FEDERAL zero: Mo. Rev. Stat. § 143.161.1 grants an exemption "for each exemption to which the taxpayer is entitled for federal income tax purposes", and IRC § 151(d)(5) set that to zero. Missouri did not repeal its dependent exemption — Congress did, and Missouri’s statute followed without being amended, which is the same mechanism that makes the Missouri standard deduction move when Congress moves the federal one',
     constant: true,
   },
+  // OREGON — the third state that deducts the federal income tax, and the
+  // state where the AGENCY'S OWN WITHHOLDING FORMULA is the primary document
+  // for most of 2026. The 2026 Form OR-40 instructions do not exist until
+  // January 2027, but 150-206-436 (Rev. 12-31-25) was published on 31 December
+  // 2025 and carries the standard deduction, the federal tax subtraction
+  // ceiling AND its whole phase-out table, the allowance value and the bracket
+  // boundaries. An agency does not publish a withholding formula for a figure
+  // it has not settled, which is why these are `indexed` and read rather than
+  // carried forward — and why Oregon's 2026 has only two provisional figures
+  // where Missouri's and California's have more.
+  //
+  // The three unindexed groups are worth naming because two of them are odd.
+  // The 9.9% bracket threshold has been $125,000 since 1993. The aged-or-blind
+  // addition has stood at $1,200/$1,000 since 2021. And every figure of the
+  // retirement income credit has stood since 2018 — which is why the credit is
+  // now arithmetically unreachable for an ordinary retiree: the base did not
+  // move and the Social Security benefit that cancels it did.
+  // =========================================================================
+  {
+    state: 'OR',
+    path: 'year',
+    kind: 'sentinel',
+    cite: 'The tax year the definition answers for, not a figure read from anywhere',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: 'ORS 316.037 \u2014',
+    cite: 'ORS 316.037(1) \u2014 4.75%, 6.75%, 8.75% and 9.9%. The three lower rates were cut from 5%, 7% and 9% for tax years beginning on or after 1 January 2020 and none of the four has moved since',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'rate.byStatus.*.2.upTo',
+    kind: 'statute',
+    document: 'ORS 316.037 \u2014',
+    cite: 'ORS 316.037(1) \u2014 the 9.9% rate begins at $125,000 of taxable income ($250,000 on the joint schedule, which head of household and qualifying surviving spouse also use) and THE FIGURE HAS NOT MOVED SINCE 1993. It is the one boundary in the Oregon schedule ORS 316.012 does not index, so thirty-three years of inflation have walked the top bracket down the income distribution with no Oregon legislature involved',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'rate.byStatus.*.0.upTo',
+    kind: 'indexed',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'ORS 316.012 indexes the first two boundaries by the U.S. city average CPI. $4,400 for 2025 and $4,550 for 2026 on the single schedule, doubled on the joint one \u2014 and the joint column is generated from the single one in this package rather than transcribed, because the doubling IS the provision. The 2026 figures are from the Department of Revenue\u2019s 2026 withholding formula, published 31 December 2025, which is the only document carrying them until the 2026 Form OR-40 instructions appear in January 2027',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'rate.byStatus.*.1.upTo',
+    kind: 'indexed',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'ORS 316.012 \u2014 $11,100 for 2025 and $11,400 for 2026 on the single schedule, doubled on the joint one. Same indexing provision and same 2026 document as the first boundary',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'deduction.amounts.*',
+    kind: 'indexed',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'ORS 316.695(3) and the indexing in ORS 316.012 \u2014 $2,835 single and separate, $4,560 head of household and $5,670 joint and surviving spouse for 2025; $2,910, $4,685 and $5,820 for 2026. The single and joint 2026 figures and the $263 allowance are printed in the 2026 withholding formula; the head of household figure is carried by the 2026 Combined Payroll Tax Report Instructions, 150-211-155-2, and is the only one of the three this package has not read in the document itself \u2014 it is also the only value consistent with the published $2,910, since the indexing factor that produces $2,910 from $2,835 cannot produce the $4,650 some secondary sources give',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'standardDeductionAgedOrBlindAddition.amount.*',
+    kind: 'statute',
+    document: 'ORS 316.695 \u2014',
+    cite: 'ORS 316.695(8) \u2014 $1,200 for a single or head of household filer and $1,000 each on a joint, separate or surviving spouse return, per person, for age 65 and again for blindness. Not indexed and unchanged since 2021. It is the only figure in this package where a SINGLE filer\u2019s allowance exceeds a joint filer\u2019s per person, so two single 65-year-olds deduct $2,400 between them and the same two people married deduct $2,000',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'standardDeductionAgedOrBlindAddition.age',
+    kind: 'statute',
+    document: 'ORS 316.695 \u2014',
+    cite: 'ORS 316.695(8) \u2014 65, and it has never moved',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'itemizedDeduction.phaseOutRate',
+    kind: 'sentinel',
+    cite: 'Zero because Oregon puts no income limit on its itemized deductions \u2014 Schedule OR-A follows the federal Schedule A with the state income tax removed, and nothing in it falls away as income rises',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'federalIncomeTaxDeduction.capSteps.*.*.amount',
+    kind: 'indexed',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'ORS 316.695(1)(d) and Table 4 of the Form OR-40 instructions \u2014 $8,500 / $6,800 / $5,100 / $3,400 / $1,700 / nothing for 2025 and $8,750 / $7,000 / $5,250 / $3,500 / $1,750 / nothing for 2026, halved for a separate return. THE FIVE ROWS ARE NOT FIFTHS OF THE MAXIMUM AS A MATTER OF LAW \u2014 each is indexed on its own and rounded, and in 2023 and 2024 they came out unequal to the fifths \u2014 so they are stored and not generated, while the halving for a separate return IS a relation and is generated. The 2026 table comes whole from the 2026 withholding formula; an uprated estimate of the maximum would have given $8,700',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'federalIncomeTaxDeduction.capSteps.*.*.from',
+    kind: 'statute',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'Table 4 \u2014 $125,000, $130,000, $135,000, $140,000 and $145,000 of FEDERAL adjusted gross income, doubled on the joint schedule and NOT halved for a separate return, which is what makes the chart exactly marriage-neutral. Not indexed: the same five figures since 2021. Each is the step\u2019s INCLUSIVE LOWER bound \u2014 Table 4 prints the rows as "$125,000\u2013$130,000", which is ambiguous at both ends, and the 2026 withholding formula writes the same row as "greater than or equal to $125,000 and less than $130,000", which settles it the opposite way from Missouri\u2019s \u00a7 143.171.2',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'exemptionCredit.perFiler.*',
+    kind: 'indexed',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'ORS 316.085 \u2014 $256 a person for 2025 and $263 for 2026, two on a joint return and one on every other. The 2026 figure is the "value of a state allowance" the 2026 withholding formula publishes, which is the same number: the withholding allowance IS the exemption credit',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'exemptionCredit.perDependent',
+    kind: 'indexed',
+    document: 'Oregon Withholding Tax Formulas, 150-206-436',
+    cite: 'ORS 316.085 \u2014 the same $256 and $263 a dependent as a filer. A CREDIT and not an exemption, so it is worth the same to a filer in the 4.75% band and one in the 9.9% band',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'exemptionCredit.incomeLimitByStatus.*',
+    kind: 'statute',
+    document: 'ORS 316.085 \u2014',
+    cite: 'ORS 316.085(5) \u2014 $100,000 of federal adjusted gross income on a single or separate return and $200,000 on a joint, head of household or surviving spouse one. Not indexed and unchanged since 1986, and the statute\u2019s word is "exceed", so the filer standing EXACTLY on the figure keeps the credit \u2014 the opposite of Ohio\u2019s \u00a7 5747.022, which allows its credit only below the figure',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute-scheduled',
+    document: 'SB 1507 (2026) \u2014',
+    cite: 'ORS 315.266(1)(a) \u2014 9% of the federal credit for 2025 and 14% from 2026, raised by SB 1507 (2026) for tax years beginning on or after 1 January 2026. Scheduled rather than indexed: the figure moved because a bill moved it, and the two years this package covers sit on either side of it',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'earnedIncomeCredit.youngChildMatchRate',
+    kind: 'statute-scheduled',
+    document: 'SB 1507 (2026) \u2014',
+    cite: 'ORS 315.266(1)(b) \u2014 12% of the federal credit for 2025 and 17% from 2026, for a taxpayer with a dependent under the age of three. Raised by the same section of SB 1507 as the base rate, and by the same five points',
+    constant: false,
+  },
+  {
+    state: 'OR',
+    path: 'earnedIncomeCredit.youngChildMaxAge',
+    kind: 'statute',
+    document: 'ORS 315.266 \u2014',
+    cite: 'ORS 315.266(1)(b) reads "under the age of three"; 2 is that age stored inclusively, which is the form a list of dependent ages is compared against',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.amountByAge.*.maxAge',
+    kind: 'statute',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2 reaches a dependent "who has not attained six years of age"; 5 is that age stored inclusively',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.maxChildren',
+    kind: 'statute',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2(1) caps the Oregon Kids Credit at five qualifying children. A count and not a ceiling in dollars, so a sixth child adds nothing and takes nothing away',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.phaseOut.width',
+    kind: 'statute',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2 withdraws the WHOLE credit across $5,000 of Oregon adjusted gross income above the threshold. A width and not a rate, which is why the implied marginal rate is proportional to the family: 21% with one child under six and 105% with the statutory maximum of five, at which point the family is strictly worse off at the top of the band than the bottom. The $5,000 is not indexed and has not moved since 2023',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.amountByAge.*.amount',
+    years: [2025],
+    kind: 'indexed',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2 sets $1,000 and indexes it. $1,050 for 2025, from the Department of Revenue\u2019s Oregon Kids Credit guidance for tax year 2025',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.amountByAge.*.amount',
+    years: [2026],
+    kind: 'carried-forward',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2 sets $1,000 and indexes it: $1,000 for 2023 and 2024 and $1,050 for 2025. The 2026 figure is NOT PUBLISHED \u2014 the Department of Revenue issues its Oregon Kids Credit guidance for a year in the January after it \u2014 so 2025\u2019s is carried forward, which understates the credit rather than overstating it',
+    constant: true,
+    carriedForwardFrom: 2025,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.phaseOut.threshold.*',
+    years: [2025],
+    kind: 'indexed',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2 \u2014 $26,550 of Oregon adjusted gross income for 2025, the same figure for every filing status, from the Department of Revenue\u2019s Oregon Kids Credit guidance for tax year 2025',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'childCredit.phaseOut.threshold.*',
+    years: [2026],
+    kind: 'carried-forward',
+    document: 'HB 3235 (2023) \u2014',
+    cite: 'HB 3235 (2023) \u00a7 2 \u2014 $25,000 for 2023, $25,750 for 2024 and $26,550 for 2025 of Oregon adjusted gross income, the same figure for every filing status, which is unusual enough to state: a single parent and a couple lose the credit at the same income. The 2026 figure is NOT PUBLISHED and 2025\u2019s is carried forward, which withdraws the credit EARLIER than the indexed figure would \u2014 so the error is against the filer',
+    constant: true,
+    carriedForwardFrom: 2025,
+  },
+  {
+    state: 'OR',
+    path: 'reducedBaseRetirementCredit.rate',
+    kind: 'statute',
+    document: 'ORS 316.157 \u2014',
+    cite: 'ORS 316.157(1) \u2014 9% of the qualifying amount, unchanged since 2018 and below both of Oregon\u2019s top two rates, so even an unreduced credit does not exempt the pension it is computed on',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'reducedBaseRetirementCredit.base.*',
+    kind: 'statute',
+    document: 'ORS 316.157 \u2014',
+    cite: 'ORS 316.157 \u2014 $7,500, doubled to $15,000 on a joint return, and NOT INDEXED SINCE 2018. That is the whole reason the credit is now arithmetically unreachable for an ordinary retiree: the base stood still and the Social Security benefit that cancels it dollar for dollar did not, and the average benefit is several times $7,500',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'reducedBaseRetirementCredit.householdIncomeThreshold.*',
+    kind: 'statute',
+    document: 'ORS 316.157 \u2014',
+    cite: 'ORS 316.157 \u2014 $15,000, doubled to $30,000 on a joint return, above which the base falls dollar for dollar. Not indexed since 2018. Household income is federal AGI plus tax-exempt interest less the TAXABLE part of the Social Security benefit, while the reduction above reads the GROSS benefit \u2014 two definitions of one benefit on one worksheet',
+    constant: true,
+  },
+  {
+    state: 'OR',
+    path: 'reducedBaseRetirementCredit.minimumAge',
+    kind: 'statute',
+    document: 'ORS 316.157 \u2014',
+    cite: 'ORS 316.157 \u2014 62, reached by a schedule that raised it one year at a time from 58 in 1991 and stopped in 1999. The test is on the PERSON and reaches only the filer and the spouse',
+    constant: true,
+  },
   // CONNECTICUT — four staircases and one moving figure. Nothing in Connecticut
   // is indexed: the rate schedule has stood since the 2024 cut to the two
   // lowest rates, the exemption and the personal credit table since 2016 and

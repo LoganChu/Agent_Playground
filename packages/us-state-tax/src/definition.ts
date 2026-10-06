@@ -559,6 +559,60 @@ export interface RetirementIncomeCreditRule {
 }
 
 /**
+ * A retirement credit that is a percentage of the **lesser of** the filer's
+ * pension and a base reduced TWICE over — Oregon's, ORS 316.157, the twelve-line
+ * worksheet on page 108 of Publication OR-17.
+ *
+ * Oregon is in every list of states with a retirement income credit and the
+ * credit is, for most retirees, arithmetically unreachable. That is not a
+ * criticism of the state and it is not written anywhere; it falls out of which
+ * figure each reduction reads.
+ *
+ * ```text
+ * base            $7,500 single / $15,000 joint    (unmoved since 2018)
+ *  less  the GROSS Social Security benefit         (line 6)
+ *  less  household income above $15,000/$30,000    (line 10)
+ *  then  take the lesser of that and the pension, times 9%
+ * ```
+ *
+ * **The first reduction is the one that kills it.** The base is reduced by the
+ * gross benefit, dollar for dollar, and the average Social Security benefit is
+ * larger than the whole single base — so a retiree receiving an ordinary
+ * benefit has no credit at all, whatever their pension. What is left is aimed,
+ * by arithmetic rather than by words, at retirees with **little or no Social
+ * Security**: in Oregon that is a recognisable group rather than an edge case,
+ * because PERS members in service before 1996 were not all covered by it.
+ *
+ * **And the two reductions read different definitions of the same dollars.**
+ * Line 6 subtracts the benefit GROSS; line 7's household income subtracts the
+ * benefit's TAXABLE part from AGI. So a dollar of Social Security costs a dollar
+ * of base and is then taken back out of the income that reduces the base again
+ * — the same gross-against-the-exemption construction Maryland uses on its
+ * pension exclusion and Missouri on its public pension deduction, reached here
+ * from a third direction.
+ *
+ * The 9% is also below both of Oregon's top two rates, so even an unreduced
+ * credit does not exempt the pension it is computed on.
+ */
+export interface ReducedBaseRetirementCreditRule {
+  readonly name: string;
+  /** The share of the qualifying amount the credit is worth — Oregon's 9%. */
+  readonly rate: number;
+  /** The starting base, before either reduction. */
+  readonly base: ByStatus;
+  /**
+   * Household income above which the base falls dollar for dollar — Oregon's
+   * `$15,000` and `$30,000`. Household income is federal AGI plus tax-exempt
+   * interest LESS the taxable Social Security, which is why a benefit reduces
+   * the base once and not twice.
+   */
+  readonly householdIncomeThreshold: ByStatus;
+  /** The age the filer or spouse must have reached for their pension to count. */
+  readonly minimumAge: number;
+  readonly cite: string;
+}
+
+/**
  * Ohio's joint filing credit — O.R.C. § 5747.05(E).
  *
  * A percentage of the tax **after every other non-refundable credit**, capped at
@@ -966,6 +1020,53 @@ export interface ExemptionCreditRule {
    * more than the 2.75% rate charges on the next `$2,900`.
    */
   readonly incomeLimit?: number;
+  /**
+   * The same cliff, but **by filing status** — Oregon's `$100,000` for a single
+   * or separate return and `$200,000` for a joint, head of household or
+   * surviving spouse one, ORS 316.085(5). Takes precedence over
+   * {@link incomeLimit} where both are present, and no state here sets both.
+   */
+  readonly incomeLimitByStatus?: ByStatus;
+  /**
+   * Whether a married filer on a SEPARATE return may claim the credit for a
+   * spouse who is not on it — the § 151(b) spouse, and the question the
+   * differential grid found this package answering wrong for Oregon.
+   *
+   * `exemptionCredit` had no answer to it at all until Day 42, because the two
+   * states that had one before Oregon were never asked: Ohio's credit is a flat
+   * `$20` switched off above `$30,000` and California's AGI limitation taper had
+   * no case in the grid that could show it. Oregon's instructions settle it in a
+   * sentence — a filer "filing separately but your spouse has no income", whose
+   * spouse "can't be claimed as a dependent on someone else's return", checks
+   * the spouse's Regular exemption box — and the credit is `$263`, so the
+   * package was `$263` too high for every such Oregon return.
+   *
+   * It needs {@link StateIncomeTaxInput.spouseHasNoGrossIncomeAndIsNotADependent},
+   * which is the same input {@link ExemptionRule.separateReturnSpouse} reads.
+   * A return that does not supply it gets no spouse, which is the answer that
+   * does not flatter the filer.
+   *
+   * **This is deliberately NOT set for California or Ohio.** Day 30's rule is
+   * that a provision read for one state is not evidence about another, and a
+   * field that defaulted to `'claimed'` would have changed two states nobody
+   * has read on the question.
+   */
+  readonly separateReturnSpouse?: {
+    readonly spouse: 'claimed' | 'notClaimed';
+    readonly cite: string;
+  };
+  /**
+   * Whether a filer standing EXACTLY on the limit keeps the credit, and the two
+   * states with a cliff here answer it differently because their statutes do.
+   *
+   * Ohio's § 5747.022 allows the credit only where modified AGI is "less than"
+   * `$30,000`, so the filer on the boundary loses it — the default, `false`.
+   * Oregon's ORS 316.085(5) grants it where federal AGI "does not exceed" the
+   * figure, so the filer on the boundary keeps it. `$256` of Oregon credit per
+   * exemption turns on that one word, and a family of four at exactly
+   * `$200,000` of federal AGI is `$1,024` apart under the two readings.
+   */
+  readonly incomeLimitIsInclusive?: boolean;
   /** Which figure {@link incomeLimit} tests. Federal AGI unless stated. */
   readonly incomeMeasure?: IncomeMeasure;
 }
@@ -1081,6 +1182,38 @@ export interface EarnedIncomeCreditRule {
    */
   readonly childlessMatchRate?: number;
   /**
+   * A **higher match where a dependent is young enough** — Oregon's, ORS
+   * 315.266(1)(b).
+   *
+   * Oregon writes the credit as two percentages rather than as a credit plus a
+   * bonus: 9% of the federal credit, "or 12 percent in the case of taxpayers
+   * with a dependent under the age of three", and SB 1507 (2026) raised both to
+   * 14% and 17% for tax years beginning on or after 1 January 2026. So it is a
+   * different RATE and not an addition, which is why it is a field here rather
+   * than an {@link EarnedIncomeCreditChildBonusRule} like Connecticut's flat
+   * `$250`.
+   *
+   * It is a switch and not a multiplier — one toddler and three are worth the
+   * same, because what the percentage multiplies is the federal credit and not
+   * the family — and the three-point spread is worth more than it looks on a
+   * credit this size: a single parent with the `$4,328` federal credit for one
+   * child keeps `$129.84` more in 2025 and `$129.84` more in 2026 for having a
+   * two-year-old rather than a four-year-old.
+   *
+   * It needs {@link StateIncomeTaxInput.dependentAges}. A return that supplies
+   * only a COUNT cannot say whether any dependent is under three, so the engine
+   * takes {@link matchRate} — the answer that does not flatter the filer — and
+   * the state's notes say what that cost.
+   */
+  readonly youngChildMatchRate?: number;
+  /**
+   * The oldest age that still earns {@link youngChildMatchRate}. Oregon's is
+   * **2**: ORS 315.266(1)(b) reads "under the age of three", and this package
+   * stores the inclusive age because that is what a list of ages is compared
+   * against — the same convention as Indiana's `qualifyingChildMaxAge`.
+   */
+  readonly youngChildMaxAge?: number;
+  /**
    * Filing statuses the credit is not available to at all — Missouri's
    * § 143.177.2 lists "single, head of household, widowed, or married filing
    * combined" and leaves married filing separately out, which Form MO-WFTC's
@@ -1186,6 +1319,18 @@ export interface ChildCreditRule {
    */
   readonly phaseOut?: ChildCreditPhaseOut;
   readonly refundable: boolean;
+  /**
+   * The most qualifying dependents the credit may be claimed for — Oregon's
+   * **five**, HB 3235 (2023) § 2(1). Absent means no limit, which is every
+   * other state here.
+   *
+   * It is applied to the credit as a COUNT and not as a ceiling in dollars, so
+   * where a credit is banded by age the limit takes the dependents the bands
+   * value most — the only reading under which a sixth child never reduces what
+   * the first five are worth. Oregon pays one amount for every qualifying
+   * child, so the distinction does not bite there and is written down anyway.
+   */
+  readonly maxChildren?: number;
 }
 
 /**
@@ -1216,6 +1361,38 @@ export type ChildCreditPhaseOut =
       readonly threshold: ByStatus;
       readonly rate: number;
       readonly income?: ChildCreditPhaseOutIncome;
+    }
+  /**
+   * Oregon's: the whole credit is withdrawn **over a fixed income WIDTH**
+   * rather than at a fixed rate per dollar — `$5,000` of Oregon AGI above the
+   * threshold takes the credit from all of it to none of it, HB 3235 (2023)
+   * § 2.
+   *
+   * That is not the same shape as a rate and the difference is the most
+   * striking number in this state. A rate is a constant; a width makes the
+   * implied marginal rate **proportional to the size of the credit**, so it
+   * rises with the number of children:
+   *
+   * | children under 6 | credit withdrawn | over | implied rate |
+   * | --- | --- | --- | --- |
+   * | 1 | `$1,050` | `$5,000` | 21% |
+   * | 3 | `$3,150` | `$5,000` | 63% |
+   * | 4 | `$4,200` | `$5,000` | 84% |
+   * | **5** | **`$5,250`** | **`$5,000`** | **105%** |
+   *
+   * At the statutory maximum of five qualifying children the withdrawal is
+   * **steeper than the income that triggers it**: a family with five children
+   * under six is strictly worse off earning `$31,550` than `$26,550`, before
+   * Oregon's own 6.75% rate and before anything federal. A phase-out defined by
+   * a width cannot be expressed as a rate for more than one family size at a
+   * time, which is why this is a variant rather than a computed `rate`.
+   */
+  | {
+      readonly kind: 'overWidth';
+      readonly threshold: ByStatus;
+      /** The income range the whole credit is withdrawn across. */
+      readonly width: number;
+      readonly income?: ChildCreditPhaseOutIncome;
     };
 
 /**
@@ -1232,7 +1409,14 @@ export type ChildCreditPhaseOut =
  */
 export type ChildCreditPhaseOutIncome =
   | 'federalAdjustedGrossIncome'
-  | 'stateTaxableIncomePlusTaxExemptInterest';
+  | 'stateTaxableIncomePlusTaxExemptInterest'
+  /**
+   * The state's own adjusted gross income — Oregon's, and the reason the
+   * federal tax subtraction's PLACEMENT is load-bearing there. Oregon AGI is
+   * federal AGI less the Oregon subtractions, the federal income tax among
+   * them, so a family's Kids Credit rises with the federal tax they paid.
+   */
+  | 'stateAdjustedGrossIncome';
 
 /** One age band of a per-dependent credit. Bounds are inclusive. */
 export interface AgeBand {
@@ -2773,6 +2957,92 @@ export interface FederalIncomeTaxDeductionRule {
   readonly cap?: ByStatus;
   /** The provision behind {@link cap}, including which return is "single". */
   readonly capCite?: string;
+  /**
+   * The ceiling on the deduction chosen by a **step chart read against the
+   * income named by {@link capStepsBasis}** — Oregon's ORS 316.695(1)(d), Form
+   * OR-40 line 10 and the instructions' Table 4.
+   *
+   * This is the third shape the three states that deduct the federal income tax
+   * take, and the three are pairwise different in a way worth stating as the
+   * rule rather than as three facts:
+   *
+   * | state | what the chart varies | what income reads the chart |
+   * | --- | --- | --- |
+   * | Alabama | nothing — 100%, uncapped | — |
+   * | Missouri | the **share** of the bill ({@link rateSteps}) | **Missouri** AGI |
+   * | Oregon | the **cap** on the bill (this field) | **federal** AGI |
+   *
+   * So Missouri and Oregon both write a cliff chart and neither one's chart
+   * could be used for the other: Missouri's picks a percentage and Oregon's
+   * picks a dollar ceiling, and they read different returns to do it. Oregon's
+   * is the one a caller can reach without the state engine, because federal AGI
+   * is already on {@link FederalBasis}.
+   *
+   * **`from` is the step's INCLUSIVE LOWER bound, and the name is the
+   * convention.** Missouri's {@link rateSteps} carry `upTo` because § 143.171.2
+   * says "twenty-five thousand dollars or less"; Oregon's carry `from` because
+   * the Department of Revenue's own 2026 withholding formula writes the same
+   * table as "wages greater than or equal to $125,000 and less than $130,000".
+   * Form OR-40's Table 4 prints the rows as "$125,000–$130,000", which is
+   * ambiguous at both endpoints and is the third time this package has met that
+   * question on a state's own table — Connecticut's Table E and Missouri's
+   * § 143.171.2 chart being the first two. The withholding formula settles it,
+   * and it settles it the opposite way from Missouri's statute: a filer standing
+   * exactly on `$125,000` is on the LOWER step and keeps the SMALLER ceiling.
+   *
+   * Each step down is a cliff of the whole difference, which for a 2026 single
+   * filer is `$1,750` of lost subtraction — `$1,750` more Oregon taxable income,
+   * five times over at `$125,000`, `$130,000`, `$135,000`, `$140,000` and
+   * `$145,000`.
+   *
+   * **The five do not cost the same, and the subtraction is the reason.** The
+   * lost `$1,750` is charged at whatever Oregon rate the filer is on, and the
+   * subtraction holds them below the `$125,000` where 9.9% starts: the first two
+   * steps cost `$153.22` of tax on one dollar and the last three `$173.35`. The
+   * same arithmetic means Oregon's top rate, nominally starting at `$125,000`,
+   * does not reach a single filer until `$133,161` of federal AGI.
+   */
+  readonly capSteps?: ByStatus<readonly { readonly from: number; readonly amount: number }[]>;
+  /**
+   * WHICH income reads {@link capSteps}. Required where `capSteps` is present,
+   * because the two states with a chart read different returns and a default
+   * would silently pick one of them.
+   *
+   * Oregon's Table 4 is read against **federal** adjusted gross income — the
+   * figure on Form 1040 line 11, before any Oregon addition or subtraction. So
+   * Oregon's chart, unlike Missouri's, is not moved by anything Oregon does to
+   * the base: an Oregon subtraction cannot walk a filer down a step the way
+   * Missouri's capital-gains exemption can.
+   */
+  readonly capStepsBasis?: 'federalAdjustedGrossIncome' | 'stateAdjustedGrossIncome';
+  /** The provision behind {@link capSteps}, and which side of a boundary wins. */
+  readonly capStepsCite?: string;
+  /**
+   * Whether the deduction comes off the state's **own adjusted gross income**
+   * rather than sitting on the deduction line below it.
+   *
+   * It makes no difference to the tax by itself — taxable income is AGI less
+   * deductions either way — and it is Day 41's rule that **a subtraction's
+   * PLACEMENT is a second provision**: it matters exactly as much as the other
+   * things that read state AGI.
+   *
+   * Alabama's Form 40 line 12 and Missouri's MO-1040 line 13 both sit BELOW the
+   * standard-or-itemized choice, so the flag is absent for both — and in
+   * Missouri that is worth money in the other direction, because Missouri AGI is
+   * what its own rate chart is read against and a subtraction inside it would
+   * move the chart.
+   *
+   * Oregon's is an **income subtraction** on Schedule OR-ASC, inside Oregon
+   * adjusted gross income, and Oregon AGI is the figure the Oregon Kids Credit
+   * is phased out against. So up to `$8,750` of federal tax subtraction can
+   * raise a family's Kids Credit by as much as `$1,050` a child — a credit
+   * reaching a family because of the tax a different government charged them.
+   *
+   * **A state that sets this may not read its own AGI to compute the
+   * deduction**, or the two would be circular. Oregon does not:
+   * {@link capStepsBasis} is federal AGI. `registry.test.js` enforces it.
+   */
+  readonly reducesStateAdjustedGrossIncome?: boolean;
 }
 
 /**
@@ -2984,6 +3254,40 @@ export interface StateIncomeTaxDefinition {
   readonly businessIncome?: BusinessIncomeRule;
   readonly seniorCredit?: SeniorCreditRule;
   readonly retirementIncomeCredit?: RetirementIncomeCreditRule;
+  /**
+   * Oregon's ORS 316.157 retirement credit — a percentage of the lesser of the
+   * pension and a base reduced by the gross Social Security benefit and again
+   * by household income. Non-refundable.
+   */
+  readonly reducedBaseRetirementCredit?: ReducedBaseRetirementCreditRule;
+  /**
+   * An addition to the STANDARD deduction for each filer who is aged or blind —
+   * Oregon's, ORS 316.695(8), Form OR-40 line 16.
+   *
+   * Two things make it a field of its own rather than an {@link ExemptionRule}
+   * with the exemption amounts left at zero.
+   *
+   * **It is part of the standard deduction, so an itemizer does not get it.**
+   * The addition is inside the figure that is compared with the itemized total,
+   * which means a filer whose Schedule OR-A beats the standard deduction loses
+   * the age addition as well — and that is the opposite of how every aged
+   * EXEMPTION in this package behaves, all of which survive itemizing.
+   *
+   * **And in Oregon a single filer's is LARGER than a joint filer's**, which no
+   * other figure in this package does: `$1,200` for single or head of household
+   * against `$1,000` each on a joint, separate or surviving-spouse return. So
+   * two single 65-year-olds deduct `$2,400` between them and the same two people
+   * married deduct `$2,000`. It is claimed PER PERSON and the two conditions
+   * stack, so one blind filer of 65 on a single return adds `$2,400` and a
+   * couple both blind and both 65 add `$4,000`.
+   */
+  readonly standardDeductionAgedOrBlindAddition?: {
+    /** Per qualifying person, by the status of the return they are on. */
+    readonly amount: ByStatus;
+    /** The age that qualifies — Oregon's 65. */
+    readonly age: number;
+    readonly cite: string;
+  };
   readonly jointFilingCredit?: JointFilingCreditRule;
   readonly exemptionCredit?: ExemptionCreditRule;
   readonly taxpayerCredit?: TaxpayerCreditRule;

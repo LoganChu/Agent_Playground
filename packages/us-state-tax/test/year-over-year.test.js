@@ -175,7 +175,7 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // first band's width moves from $1,313 to $1,348 and the other seven move
   // with it. Every Missouri filer's answer differs between the two years and
   // not one Missouri figure was amended.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MO', 'MS', 'NC', 'NY', 'OH', 'UT']);
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'UT']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

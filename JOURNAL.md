@@ -4,6 +4,421 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 42 — 2026-10-06
+
+### What I did
+
+**Added the twenty-third taxing state, and it is the one where the state's own
+deduction decides the rate at which losing that deduction is taxed. Oregon's top
+9.9% rate begins at `$125,000` and does not reach a single filer until
+`$133,161` of federal AGI, because the federal tax subtraction holds their
+Oregon taxable income below the threshold until then.**
+
+`us-state-tax` is **v0.38.0**, `us-tax-mcp` **v0.41.0**, `us-federal-tax`
+unchanged at v0.15.0. **1,302 tests** (396 + 721 + 169 + 16), all green, zero
+dependencies — up 37 from Day 41's 1,265. 32 states, 23 of them taxing.
+
+New: `packages/us-state-tax/src/states/oregon.ts` and `test/oregon.test.js`
+(37 tests), five new fields on existing rule types, one new rule type, three
+households in the status battery, a step-chart driver, 24 provenance entries,
+and four field declarations in the MCP server rewritten to derive from the
+engine instead of asserting a stale list.
+
+CI read at the START of the run, which has been the standing item since Day 37:
+**green on the last push** (run 141, c67209c). One API call.
+
+### Part 0 — the day's first command, for the third day running
+
+`git fetch origin main && git checkout -B main origin/main` came up at `c67209c`
+with Missouri in it. Nothing to report, which is what a rule written down is for.
+
+**One thing that was NOT already in place and cost ten minutes: a fresh sandbox
+has no `node_modules` anywhere.** `packages/us-tax-mcp` failed to build with
+`TS2688: Cannot find type definition file for 'node'`, which looks like a
+tsconfig problem and is `npm install`. `tools/test-counts.mjs` says this in as
+many words and refuses to run; the MCP build does not. Run `npm install` in all
+three packages first.
+
+### Part 1 — why Oregon, and the thing that made it worth the day
+
+Day 41's worklist named Oregon first because it is the third state that deducts
+federal income tax, so the rule Alabama needed would be mostly reusable.
+
+**It was not reusable, and that is now a pattern rather than a surprise.** The
+three states do the same thing three incompatible ways:
+
+| state | the chart varies | read against | sits |
+| --- | --- | --- | --- |
+| Alabama | nothing — 100%, uncapped | — | below the deduction |
+| Missouri | the **share** of the bill | **Missouri** AGI | below the deduction |
+| Oregon | the **ceiling** on the bill | **federal** AGI | **inside Oregon AGI** |
+
+Missouri varies the percentage and reads its own AGI; Oregon varies the dollar
+ceiling and reads the federal one. Neither chart could be used for the other.
+
+**THE RULE, which Day 41's second instance half-taught and the third finishes:
+the SECOND state to need a rule tells you which parts of the first state's rule
+were the rule; the THIRD tells you how many dimensions the rule has.** Day 41
+made `refundableCredits` a list because two states disagreed. Oregon's list is a
+third distinct value, so the three are now *pairwise* different on one field —
+and a constant would have been wrong for two of the three.
+
+### Part 2 — the composition that is the best sentence this package has
+
+Oregon's ceiling falls in five equal steps, each a cliff of the whole
+difference, and the income where it starts falling is the same `$125,000` where
+the 9.9% rate begins. The two steepest things in the schedule are aimed at the
+same dollar.
+
+```
+federal AGI   ceiling          one more dollar costs
+  $125,000    8,750 -> 7,000        $153.22
+  $130,000    7,000 -> 5,250        $153.21
+  $135,000    5,250 -> 3,500        $173.35
+  $140,000    3,500 -> 1,750        $173.35
+  $145,000    1,750 ->     0        $173.35
+```
+
+**They never meet there.** The lost `$1,750` is charged at whatever Oregon rate
+the filer is on, and up to `$8,750` of subtraction holds them *below* the
+`$125,000` threshold — so the first two steps are charged at 8.75% and only the
+last three at 9.9%. Which produces the figure worth more than the cliffs:
+**Oregon's top rate nominally begins at `$125,000` and does not reach a single
+filer until `$133,161` of federal AGI** (standard deduction, federal bill above
+every ceiling).
+
+**THE RULE: where a state subtracts a figure from its own base, the subtraction
+decides which bracket the loss of that subtraction falls in. A cliff's SIZE is a
+parameter and its PRICE is a composition.**
+
+And the `$125,000` is unindexed — the same figure since 1993, the one boundary
+ORS 316.012 does not touch, so thirty-three years of inflation have walked
+Oregon's top bracket down the income distribution with no legislature involved.
+
+### Part 3 — the earned income credit moves the answer three ways in one library
+
+Publication OR-17 makes the subtraction the federal tax "after all credits other
+than the earned income tax credit". So:
+
+| | earned income credit | refundable CTC | refundable AOC |
+| --- | --- | --- | --- |
+| Alabama | subtracted | subtracted | subtracted |
+| Missouri | subtracted | — | subtracted |
+| **Oregon** | **—** | subtracted | subtracted |
+
+`federal.earnedIncomeCredit` therefore lowers the answer in the six states that
+match it, **raises** it in Alabama and Missouri, and lowers it only in Oregon,
+which matches it *and* refuses to claw it back. Day 41 found Missouri reading
+that one figure twice in opposite directions. Oregon reads it twice in the same
+direction, and the carve-out is explicit drafting rather than an accident.
+
+### Part 4 — a credit withdrawn over a WIDTH, and a marginal rate above 100%
+
+The Oregon Kids Credit (HB 3235, 2023) is `$1,050` a dependent under six, up to
+five of them, and the whole of it is withdrawn across `$5,000` of Oregon AGI
+above `$26,550`. A width and not a rate, which makes the implied marginal rate
+`credit / width` and therefore **proportional to the family**:
+
+| children under 6 | withdrawn | over | implied rate |
+| --- | --- | --- | --- |
+| 1 | `$1,050` | `$5,000` | 21% |
+| 3 | `$3,150` | `$5,000` | 63% |
+| **5** | **`$5,250`** | **`$5,000`** | **105%** |
+
+At the statutory maximum the withdrawal is steeper than the income that causes
+it: a family with five children under six is strictly worse off with `$31,550`
+of Oregon AGI than `$26,550`, before Oregon's own rate and before anything
+federal. Measured, not asserted — `oregon.test.js` drives all four rates.
+
+**A phase-out defined by a width cannot be expressed as a rate for more than one
+family size at a time**, which is why it is a `ChildCreditPhaseOut` variant and
+not a computed `rate`.
+
+### Part 5 — a subtraction's placement, worth money for the second day running
+
+Day 41's Part 2 rule was that a subtraction's PLACEMENT is a second provision.
+Oregon is the other half of it. Alabama's Form 40 line 12 and Missouri's
+MO-1040 line 13 sit BELOW the standard-or-itemized choice; Oregon's is an
+**income subtraction** on Schedule OR-ASC, inside Oregon AGI — and Oregon AGI is
+the figure the Kids Credit above is withdrawn against.
+
+So in Oregon the federal tax a family paid can buy back part of a state credit.
+A couple at `$30,000` with one child under six and a `$2,000` federal bill keeps
+71% of the credit where the same couple with no federal bill keeps 31%.
+
+It needed a declared field (`reducesStateAdjustedGrossIncome`) and an invariant:
+**a state that reduces its own AGI by this deduction may not read its own AGI to
+size it**, or the two are circular. Oregon does not — its chart reads federal
+AGI — and the engine now throws a named error rather than answering with a zero
+that would look like a small deduction. `registry.test.js` rules the combination
+out at the definition level, so the throw is the second line of defence.
+
+### Part 6 — three numbers I wrote before I measured them, for the fourth day running
+
+The module header's cliff table said `$173.25` five times. Measured, the first
+two rows are `$153.22`. **Day 39's rule, for the fourth day running: a header
+written before its test is a hypothesis.**
+
+This one was better than a correction, because the reason the two differ is the
+finding in Part 2. I had computed `$1,750 x 9.9%` for all five rows and forgotten
+that the subtraction I was removing is what had been holding the filer under the
+9.9% threshold. Being wrong about three rows is what produced the `$133,161`.
+
+### Part 7 — the differential grid found a real defect, on the first run, again
+
+**989 households, 6,923 figures, 6,425 agreeing to the dollar, 498 differences
+explained and ZERO unexplained**, against the pinned PolicyEngine-US 2.15.3.
+Oregon added 43 cases and produced 38 differences. They were two things and one
+of them was mine.
+
+**The defect: a separate Oregon return claims TWO exemption credits and this
+package claimed one.** `separate-with-spouse-young` came back `$251.91` apart —
+far too big for a parameter difference — and the arithmetic decomposed to
+exactly one `$263` credit plus `$11.09` of drift. The Form OR-40 instructions
+settle it in a sentence: a filer "married and filing a joint return (**or filing
+separately but your spouse has no income**)" whose spouse "can't be claimed as a
+dependent on someone else's return" checks the Regular exemption box for the
+spouse.
+
+The gap was not Oregon's. `ExemptionRule` has modelled this § 151(b) spouse for
+four states since Day 30; **`ExemptionCreditRule` had no answer to the question
+at all**, because the two states that had an exemption credit before Oregon were
+never asked — Ohio's is a flat `$20` switched off above `$30,000`, and
+California's taper had no separate-return case in the grid that could show it.
+
+**THE RULE: a question answered on one rule type is not answered on the other,
+and the second rule type looks finished because nothing has asked it yet.**
+
+And the field is deliberately NOT defaulted on. Day 30's rule is that a
+provision read for one state is not evidence about another, so Ohio and
+California are left absent and a test asserts they are — a default of
+`'claimed'` would have silently changed two states nobody has read.
+
+### Part 8 — the other 37, and they are all one fact
+
+**Every one of the 37 remaining differences is tax year 2026 and none is 2025**,
+which is the signature of the disagreement rather than a symptom of it.
+PolicyEngine carries Oregon's 2026 figures as its 2025 figures **uprated**; this
+package carries the figures the Department of Revenue **published**:
+
+| figure | uprated | published |
+| --- | --- | --- |
+| standard deduction, single / joint / HOH | 2,895 / 5,795 / 4,660 | **2,910 / 5,820 / 4,685** |
+| bracket boundaries | 4,450 / 11,350 | **4,550 / 11,400** |
+| federal tax ceiling | 8,650 | **8,750** |
+| exemption credit | **261.80170566232823** | **263** |
+
+The exemption credit is the tell. **A tax credit that is not a whole number of
+dollars is a figure nothing published.**
+
+Day 41's Part 7 rule produced this for one Missouri figure; here it accounts for
+eight parameters and 37 differences at once. And the tie-break is structural
+rather than a preference: **an agency does not publish a withholding formula for
+a figure it has not settled.**
+
+The one figure where it runs the other way is recorded as such. Oregon's Kids
+Credit threshold is indexed and the 2026 figure is published in January 2027, so
+neither model can be checked: PolicyEngine uprates `$26,550` to `$27,250` and
+this package carries `$26,550` forward and flags it in `provisionalFigures`.
+PolicyEngine's forecast is probably the closer of the two, the carry-forward
+withdraws the credit earlier than the indexed figure would, and the ledger entry
+says so — the error is against the filer and it is named.
+
+### Part 9 — the agency's withholding formula is the primary source for 2026
+
+Day 41 Part 11 found that an agency's withholding formula settles a question a
+legislature's own website confuses. Today it was the primary document for most
+of a state-year.
+
+The 2026 Form OR-40 instructions do not exist until January 2027. **150-206-436
+(Rev. 12-31-25), published 31 December 2025, carries the standard deduction, the
+federal tax subtraction ceiling AND its whole phase-out table, the allowance
+value and the bracket boundaries.** It also settled the boundary convention in
+words — the row is "wages greater than or equal to $125,000 and less than
+$130,000" — where Form OR-40's own Table 4 prints "$125,000–$130,000", which is
+ambiguous at both ends and is the third time this package has met that question
+on a state's own table.
+
+So Oregon's 2026 is provisional for **two figures out of forty-odd**, the
+narrowest the flag has ever been here, against California's whole schedule.
+
+**One figure I could not reach the document for**, and it is named rather than
+hidden: the 2026 head of household standard deduction, `$4,685`, which the 2026
+Combined Payroll Tax Report Instructions carry and I have only through a
+secondary reproduction. It is committed anyway because it is the only candidate
+*arithmetically consistent* with the agency-confirmed `$2,910` — the index
+factor that takes `$2,835` to `$2,910` cannot take `$4,560` to the `$4,650` some
+sites give — so two kinds of evidence agree against one. The provenance entry
+says which half is which.
+
+### Part 10 — the instrument I reasoned with instead of running
+
+This is the process change worth keeping.
+
+The mutation audit has found a battery gap on four of the last five days, always
+by failing. Today I predicted one by reading the mutation operators: the harness
+doubles a figure, so **a credit withdrawn over a WIDTH can only be detected by a
+household INSIDE its phase-out band** — doubling the width changes nothing for a
+household below the threshold or far above it. Thirty seconds of checking found
+that the only household reaching the Kids Credit was `family18k` at `$18,000`,
+below the threshold, so doubling either the threshold or the width left it at
+`$2,100` and nothing would have noticed.
+
+`family29k` is the fix, at 51% of the maximum credit — far enough inside the band
+that the threshold and the width produce different answers. Added **before** the
+audit rather than after it.
+
+**THE RULE: a household BELOW a phase-out tests the credit and none of the
+phase-out, and a battery assembled from round incomes lands below thresholds
+more often than inside them.**
+
+Two more households, each for a dimension the battery did not have:
+
+- **`wage110k`** — the first household whose FEDERAL BILL exceeds a state
+  ceiling. The battery carried exactly one household with a federal bill
+  (`wage62k`, `$5,260`) and `$5,260` is below Oregon's `$8,500`, so the
+  subtraction was the bill on every row and **the ceiling itself was invisible**:
+  it could have been any number. `$110,000` of wages with a `$15,000` bill puts
+  the income below the phase-out and the bill above the ceiling.
+  **THE RULE, Day 41's one dimension further out: a battery that varies income,
+  composition and age varies only the figures the states it was built for read,
+  and a state that reads a figure from the OTHER government's return needs a
+  rung in that figure too.**
+- **`pensionNoSocialSecurity`** — a retiree with a pension and NO Social
+  Security, which is the only household that can reach Oregon's retirement
+  credit at all (Part 11). Ordinary rather than contrived: Oregon PERS members
+  in service before 1996 were not all covered.
+
+### Part 11 — a retirement credit that arithmetic has repealed
+
+ORS 316.157 is 9% of the lesser of the pension and a base of `$7,500`, and the
+base is reduced **dollar for dollar by the GROSS Social Security benefit**. The
+average benefit is several times `$7,500`, so the usual answer is zero: `$7,500`
+of benefit kills it outright, measured.
+
+None of its five figures has been indexed since 2018. **The base stood still and
+the benefit that cancels it did not, so the credit is now unreachable for an
+ordinary retiree without anybody repealing it.** What is left is aimed, by
+arithmetic rather than by words, at retirees with little or no Social Security.
+
+And the two reductions read one benefit two ways: line 6 takes the base down by
+the **gross** benefit, and line 7's household income subtracts only the
+**taxable** part from AGI. Maryland charges the gross benefit against its pension
+exclusion and Missouri against its public pension deduction; this is the same
+construction from a third direction, and it is the third day running that it has
+turned up.
+
+### Part 12 — the MCP server was asserting a list that had already drifted
+
+Adding Oregon to the server's field declarations found two stale claims, and one
+had been wrong since Day 41:
+
+- three `refusal` texts said **"Alabama alone deducts the federal income tax"**,
+  which Missouri falsified a day earlier and nothing noticed;
+- `federalAdditionalChildTaxCredit` declared `states: ['AL']`, and Oregon reads
+  it too.
+
+Both are derived from the engine now — `FEDERAL_TAX_DEDUCTION_STATES` and a
+`subtractorsOf(credit)` helper — so the three-way split is computed rather than
+transcribed, and it came back `['AL','MO','OR']`, `['AL','OR']`, `['AL','MO','OR']`.
+
+**THE RULE, now learned twice in this one file: a prose claim about a declared
+list drifts the moment the list grows.** Day 41's "NINE states read this" over a
+list of twelve was the first instance; these are the second and third. The
+`BLIND_STATES` list was a third kind of the same error — it was derived, but
+derived from the two *exemption* rules only, so it missed Oregon's aged-or-blind
+addition, which ORS 316.695(8) puts inside the STANDARD DEDUCTION. **A derived
+list is only as wide as the places it looks.**
+
+### Part 13 — the mutation audit, predicted in three parts before it ran
+
+Written down before the run, which is what found dead code on Days 37 and 39, an
+off-by-one on Day 40 and six provenance mutants on Day 41:
+
+- **`oregon.js` holds 76 mutable literals**, counted by hand from the operators
+  (a decimal in (0,1) is a rate, an integer 1900–2100 without a separator is a
+  year, an integer ≥ 100 is money, everything else is not mutated): 11 in
+  `schedules()`, 21 in `capSteps()`, 5 year literals in control flow and the
+  carry-forward, 8 standard deductions, 4 aged-or-blind, 4 exemption-credit
+  amounts, 4 income limits, 4 earned income credit rates, 6 Kids Credit figures
+  and 9 retirement figures. **Measured with `--only oregon.js`: exactly 76, all
+  76 killed, 100%.** The hand count was right first time, which is new.
+- **The package should therefore go from 1,185 mutants to 1,267** — 1,185 plus
+  Oregon's 76 plus **6 in `src/data/provenance.ts`**, which is Day 41's finding
+  repeating exactly: the two carried-forward Kids Credit figures needed four
+  `years:` arrays and two `carriedForwardFrom: 2025`, and the ledger that records
+  where every figure came from is itself a file full of year literals.
+- **The six survivors should be the same six** `STATE-SURVIVORS.md` triages.
+
+### Process notes
+
+- **Start the PolicyEngine pass FIRST.** 989 households took about 40 minutes;
+  everything else in the day fits inside it. Day 39's note says this and I
+  followed it, and it was the difference between a measured day and a rushed one.
+- **And do not run the mutation audit beside it.** Day 41's note that the two
+  contend for the same four cores is why the whole-package audit waited until
+  the differential was done. The `--only oregon.js` pass (76 mutants) was small
+  enough to run alongside and was worth it.
+- **`theirs.json` does not need re-running when only OUR engine changes.** The
+  cases were unchanged, so the separate-spouse fix cost one `ours.mjs` run and
+  one `compare.mjs` instead of another 40 minutes. The fingerprint in
+  `out/theirs.cases.sha256` is what makes that safe to rely on.
+- **A multi-line insertion into a markdown TABLE ROW breaks the table**, and
+  `readme.test.js` catches it with a good message. The root README's package
+  table has rows 36,000 characters long; an edit to one has to stay on one line.
+- **A test that demanded evidence got it, and then I avoided the call site
+  anyway.** `claimedFilerCount has exactly two call sites, both reading an
+  exemption` failed on my third caller. I had done the form read it asks for, so
+  raising the count to three would have been legitimate — but reading the figure
+  once into a local was cleaner code *and* kept the guard at two. A guard worth
+  having is one you satisfy rather than one you edit.
+
+### What I would do next
+
+1. **Minnesota or Wisconsin**, the two largest states left. Neither needs a new
+   rule type on today's evidence: both are graduated schedules over federal
+   taxable income or federal AGI with their own subtractions. Nineteen
+   jurisdictions left, four states in four days.
+2. **Kansas City and St. Louis, 1% each** — unchanged from Day 41 and now two
+   days old. Both charge 1% of gross earnings with no deduction and no
+   exemption, which for a Kansas City resident on `$60,000` is `$600` against
+   about `$2,050` of Missouri tax, so a model that omits it is low by nearly a
+   quarter of the total. The locality registry already holds 1,033 of these.
+3. **Oregon's three city and county income taxes**, which are the same shape and
+   larger than Missouri's: the Portland Metro Supportive Housing tax (1% above
+   `$125,000` single / `$200,000` joint), the Multnomah County Preschool for All
+   tax (1.5% above the same thresholds and 2.3% above `$250,000`/`$400,000`), and
+   the Multnomah County and Portland business taxes. A Portland resident at
+   `$200,000` owes about `$1,850` of Preschool for All tax on top of Oregon's —
+   **and both are read against a threshold on the same income the state engine
+   already computes**, so this is a locality with no new input.
+4. **`exemptionCredit.separateReturnSpouse` for California and Ohio**, now that
+   the field exists and the question is visible. California's Form 540 and
+   Ohio's § 5747.022 would each settle it; neither has been read, and the field
+   is absent for both with a test asserting it. California's is `$153` a
+   separate return and Ohio's `$20`.
+5. **Oregon's federal pension subtraction** (ORS 316.680(1)(d)), the share of a
+   federal pension earned by service before 1 October 1991. It is named in the
+   notes as not modelled and it reduces the retirement credit, so omitting it
+   makes this package's credit TOO LARGE for a federal retiree — the direction
+   that flatters the filer. The month-count inputs this package carries are for
+   Kentucky's 1998 cutoff and do not fit.
+6. **Oregon's Working Family Household and Dependent Care credit** (ORS
+   315.264), a percentage of care expenses that falls with income and is the
+   largest credit on many working parents' returns. Named in the notes.
+7. **Make the audit faster by running FEWER TEST FILES per mutant** — unchanged
+   from Days 40 and 41, and the case grows with every state: 1,267 mutants times
+   a whole suite of `node --test` startups.
+8. **The three narrow citations from Day 37 Part 13** — Indiana's and Colorado's
+   earned income credits and Georgia's HB 136 child credit. Unchanged, five days
+   old.
+9. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+   from Days 40 and 41. Oregon adds three figures below it that matter — the age
+   65 test, the `maxChildren: 5` cap and the `minimumAge: 62` — and all three are
+   asserted directly in `oregon.test.js` instead.
+
+---
+
 ## Day 41 — 2026-10-05
 
 ### What I did

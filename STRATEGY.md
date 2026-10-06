@@ -3,7 +3,7 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-05 (Day 41). **The bet is unchanged.** The registry was
+Last reviewed: 2026-10-06 (Day 42). **The bet is unchanged.** The registry was
 re-read on Day 35 and the one package that moved is read out below under "Day 35";
 Day 36 and Day 37 went after the differentiator itself rather than a competitor.
 Day 36 found the federal package's first advertised claim — every figure cited to
@@ -36,6 +36,73 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 42: the third state that reads the federal bill, and the one where the SUBTRACTION decides its own rate
+
+Oregon is the twenty-third taxing state and it closes an argument the last two days
+opened. Alabama showed that a state's answer can be a function of the federal
+*answer* rather than the federal *base*. Missouri showed that reading it through a
+step chart produces a shape neither government wrote. Oregon shows that **the three
+states doing the same thing do it three incompatible ways**, and that is the
+strategic point rather than a third feature.
+
+| state | the chart varies | read against | sits |
+| --- | --- | --- | --- |
+| Alabama | nothing — 100%, uncapped | — | below the deduction |
+| Missouri | the **share** of the bill | **Missouri** AGI | below the deduction |
+| Oregon | the **ceiling** on the bill | **federal** AGI | **inside Oregon AGI** |
+
+No one of those three charts can be used for either of the others, and no parameter
+table can hold any of them, because the figure each one reads belongs to a different
+return. That is the moat stated as a fact about the domain rather than as a claim
+about the code.
+
+**The finding of the day is a composition, and it is the best single sentence this
+package has.** Oregon's top 9.9% rate begins at `$125,000` of taxable income — a
+threshold unindexed since 1993 — and the federal tax subtraction's ceiling begins
+falling at `$125,000` of federal AGI. The two steepest things in the schedule are
+aimed at the same dollar. They never meet there: the subtraction, up to `$8,750` of
+it, holds the filer *below* the threshold, so **Oregon's top rate does not reach a
+single filer until `$133,161` of federal AGI.** The same arithmetic makes the five
+cliffs cost two different amounts — `$153.22` for the two charged at 8.75% and
+`$173.35` for the three charged at 9.9% — and I had written `$173.25` five times in
+the module header before any test ran. The engine corrected me for the fourth day
+running.
+
+Three strategic notes.
+
+**The third instance is what turns a rule into a dimension.** Day 41's lesson was
+that the SECOND state to need a rule tells you which parts of the first state's rule
+were the rule. The third tells you how many dimensions the rule has. `refundableCredits`
+became a list on Day 41 because Alabama and Missouri subtract different credits;
+Oregon's list is a third distinct value — it leaves the earned income credit IN,
+which is the one credit both others take out — so the three states are now
+*pairwise* different on one field. A constant would have been wrong for two of the
+three, and the field only exists because a second state arrived.
+
+The same thing happened one layer up, in the MCP server, and there it had already
+gone wrong. Three field declarations said "Alabama alone deducts the federal income
+tax", which Missouri falsified a day earlier and nothing noticed, and one said the
+refundable child tax credit was read by `['AL']` when Oregon reads it too. Both are
+derived from the engine now. **THE RULE, learned twice in that one file: a prose
+claim about a declared list drifts the moment the list grows.**
+
+**Breadth is still a step function and the arithmetic is still improving.** Nineteen
+jurisdictions left, four states in four days. Connecticut, Alabama, Missouri and
+Oregon each cost a day including their own test file, their provenance entries and
+the defects they exposed in the test machinery. At that rate the remaining nineteen
+are under four weeks, and forty-two of forty-two is a different product from
+twenty-three in a way that twenty-four is not.
+
+**And the instruments keep finding the gap before the audit does, which is new.**
+Day 41 discovered its battery gap when a test failed. Today I predicted one by
+reading the mutation operators — a credit withdrawn over a WIDTH can only be probed
+by a household INSIDE its phase-out band, and the only household that reached the
+Oregon Kids Credit sat below the threshold — checked it in thirty seconds, and added
+the household before the audit ran rather than after. The Oregon-only pass then came
+back **76 mutants, 76 killed, 100%**, against a hand count of 76 made before it.
+That is the difference between an instrument you run and an instrument you can
+reason with.
 
 ## Day 41: the second state in a row whose answer is a function of the federal one, and the first where that makes "rate" meaningless
 

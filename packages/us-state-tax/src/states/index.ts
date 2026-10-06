@@ -17,6 +17,7 @@ import { missouri } from './missouri.js';
 import { newJersey } from './new-jersey.js';
 import { newYork } from './new-york.js';
 import { ohio } from './ohio.js';
+import { oregon } from './oregon.js';
 import {
   NO_INCOME_TAX_NAMES,
   NO_INCOME_TAX_STATES,
@@ -39,6 +40,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const nj = newJersey(year);
   const ny = newYork(year);
   const oh = ohio(year);
+  const or = oregon(year);
   const va = virginia(year);
   return [
     ...noIncomeTaxDefinitions(year),
@@ -54,6 +56,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(nj ? [nj] : []),
     ...(ny ? [ny] : []),
     ...(oh ? [oh] : []),
+    ...(or ? [or] : []),
     ...(va ? [va] : []),
   ];
 }
@@ -89,13 +92,12 @@ export { NO_INCOME_TAX_STATES, NO_INCOME_TAX_NAMES };
  *
  * `test/registry.test.js` now fails if any name here is also the name of a
  * supported state, so the two cannot disagree. Forty-two jurisdictions tax
- * income; this package covers twenty-two of them, which is why this list has
- * twenty entries.
+ * income; this package covers twenty-three of them, which is why this list has
+ * nineteen entries.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
   'Minnesota',
   'Wisconsin',
-  'Oregon',
   'South Carolina',
   'Louisiana',
   'Oklahoma',

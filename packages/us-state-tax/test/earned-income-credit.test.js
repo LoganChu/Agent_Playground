@@ -77,11 +77,21 @@ test('every state whose definition carries an earned income credit pays its matc
       // itself; whether the filer keeps all of it is the netting question, and
       // Maryland's refundable half — which is what makes that netting visible —
       // is asserted in test/maryland.test.js.
+      // `run` supplies a dependent COUNT and no ages, so Oregon's higher
+      // young-child match — 17% against 14% where a dependent is under three —
+      // is unreachable here by construction and the base rate is the right
+      // expectation. That is asserted rather than assumed two lines down.
       money(creditNamed(r, rule.name), rule.matchRate * 4_000, `${state} ${year}`);
+      if (rule.youngChildMatchRate !== undefined) {
+        assert.ok(
+          rule.youngChildMatchRate > rule.matchRate,
+          `${state} ${year}: a young-child rate that is not higher is not a young-child rate`,
+        );
+      }
     }
   }
   assert.deepEqual(withCredit.sort(), [
-    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'UT', 'VA',
+    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'UT', 'VA',
   ]);
 });
 

@@ -255,6 +255,35 @@ const SHAPES = {
     lesserSpouseIncome: 95_000,
     bothSpousesHaveQualifyingIncome: true,
   },
+  // The rung Oregon needed, and it is a rung in a dimension the battery did not
+  // have at all: a household whose FEDERAL BILL exceeds a state ceiling.
+  //
+  // Oregon's federal tax subtraction is the LESSER of the federal income tax
+  // and a ceiling of $8,500 ($8,750 in 2026). The battery carried exactly one
+  // household with a federal bill on it — `wage62k`, at $5,260 — and $5,260 is
+  // below the ceiling, so the subtraction was the bill in every row and the
+  // ceiling itself was invisible: it could have been any number at all and no
+  // pinned answer would have moved.
+  //
+  // $110,000 of wages with a $15,000 federal bill fixes both halves. The income
+  // is below the $125,000 where the ceiling starts falling, so the chart's first
+  // and largest row is the one in play, and the bill is comfortably above it, so
+  // the row is what the answer depends on.
+  //
+  // THE RULE, which is Day 41's one dimension further out: a battery that varies
+  // income, composition and age still varies only the figures the states it was
+  // built for read, and a state that reads a figure from the OTHER government's
+  // return needs a rung in that figure too.
+  wage110k: {
+    income: 110_000,
+    earnedIncome: 110_000,
+    filerAge: 44,
+    spouseAge: 42,
+    socialSecurityAndMedicarePaid: 8_415,
+    lesserSpouseIncome: 40_000,
+    bothSpousesHaveQualifyingIncome: true,
+    federalIncomeTax: 15_000,
+  },
   // The two rungs above $540,000, which exist for one Connecticut parameter each
   // and are the clearest case in the battery of Day 29's point that the top of a
   // table is the part nobody writes a household for.
@@ -329,6 +358,34 @@ const SHAPES = {
     retirementIncome: 34_000,
     taxableSocialSecurity: 20_400,
     propertyTaxPaid: 3_100,
+  },
+  // A retiree with a pension and NO Social Security at all, which is the
+  // household Oregon's retirement income credit was written for and the only one
+  // that can reach it.
+  //
+  // ORS 316.157 reduces its $7,500 base dollar for dollar by the GROSS Social
+  // Security benefit, and every retiree in this battery carried a benefit larger
+  // than the whole base — so the base was cancelled on every row and the figure
+  // could have been any number at all without a pinned answer moving. That is
+  // not an artefact of the battery: it is the finding. The base has not been
+  // indexed since 2018 and the benefit that cancels it has, so the credit is now
+  // unreachable for an ordinary retiree and survives only here.
+  //
+  // And the household is ordinary rather than a contrivance. Oregon PERS members
+  // in service before 1996 were not all covered by Social Security, so a state
+  // retiree on a pension and nothing else is a real Oregon return — which is the
+  // same reason `survivor60` is a real return rather than a probe.
+  pensionNoSocialSecurity: {
+    income: 19_000,
+    earnedIncome: 0,
+    filerAge: 67,
+    retirement: {
+      filer: { employerPlanPension: 19_000, socialSecurityBenefits: 0 },
+      spouse: {},
+    },
+    retirementIncome: 19_000,
+    taxableSocialSecurity: 0,
+    propertyTaxPaid: 2_400,
   },
   retired70: {
     income: 40_000,
@@ -536,6 +593,34 @@ const SHAPES = {
   // live — CalEITC's phase-in rates by child count, the Young Child Tax Credit,
   // Maryland's poverty-level credit — and none of them is reachable by a family at
   // $38,000, because every one of them has run out by then.
+  // The rung INSIDE a credit's phase-out band, which the battery had for several
+  // credits and not for a credit withdrawn over a WIDTH.
+  //
+  // The Oregon Kids Credit is withdrawn across $5,000 of Oregon AGI above
+  // $26,550, and the only household here that reached the credit at all was
+  // `family18k` at $18,000 — BELOW the threshold, so it takes the full credit
+  // and neither the threshold nor the width can change its answer. Doubling
+  // either figure left it at $2,100 and nothing would have noticed.
+  //
+  // $29,000 is inside the band and far enough inside to tell the two apart: the
+  // credit is 51% of the maximum there, 100% if the threshold doubles and 75.5%
+  // if the width does. It is also the household the credit exists for, and the
+  // one that makes the 105% withdrawal visible rather than argued.
+  //
+  // THE RULE: a household BELOW a phase-out tests the credit and none of the
+  // phase-out, and a battery assembled from round incomes lands below thresholds
+  // more often than inside them.
+  family29k: {
+    income: 29_000,
+    earnedIncome: 29_000,
+    filerAge: 33,
+    spouseAge: 31,
+    dependentAges: [1, 5],
+    federalEarnedIncomeCredit: 5_200,
+    socialSecurityAndMedicarePaid: 2_218,
+    lesserSpouseIncome: 9_000,
+    bothSpousesHaveQualifyingIncome: true,
+  },
   family18k: {
     income: 18_000,
     earnedIncome: 18_000,

@@ -284,6 +284,21 @@
   },
   "error": null
  },
+ "single-worker-OR-15000-0-0-0-0": {
+  "id": "single-worker-OR-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 347.2900085449219
+  },
+  "state": {
+   "tax": 432.76519775390625
+  },
+  "error": null
+ },
  "single-worker-PA-15000-0-0-0-0": {
   "id": "single-worker-PA-15000-0-0-0-0",
   "federal": {
@@ -611,6 +626,21 @@
   },
   "state": {
    "tax": 354.6270446777344
+  },
+  "error": null
+ },
+ "single-worker-OR-30000-0-0-0-0": {
+  "id": "single-worker-OR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 13900.0,
+   "incomeTaxBeforeCredits": 1420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1669.6357421875
   },
   "error": null
  },
@@ -944,6 +974,21 @@
   },
   "error": null
  },
+ "single-worker-OR-50000-0-0-0-0": {
+  "id": "single-worker-OR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3209.6357421875
+  },
+  "error": null
+ },
  "single-worker-PA-50000-0-0-0-0": {
   "id": "single-worker-PA-50000-0-0-0-0",
   "federal": {
@@ -1271,6 +1316,21 @@
   },
   "state": {
    "tax": 1756.5020751953125
+  },
+  "error": null
+ },
+ "single-worker-OR-80000-0-0-0-0": {
+  "id": "single-worker-OR-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 63900.0,
+   "incomeTaxBeforeCredits": 8770.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5412.0107421875
   },
   "error": null
  },
@@ -1604,6 +1664,21 @@
   },
   "error": null
  },
+ "single-worker-OR-150000-0-0-0-0": {
+  "id": "single-worker-OR-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 24734.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 12809.89453125
+  },
+  "error": null
+ },
  "single-worker-PA-150000-0-0-0-0": {
   "id": "single-worker-PA-150000-0-0-0-0",
   "federal": {
@@ -1931,6 +2006,21 @@
   },
   "state": {
    "tax": 10563.376953125
+  },
+  "error": null
+ },
+ "single-worker-OR-400000-0-0-0-0": {
+  "id": "single-worker-OR-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 362440.09375,
+   "incomeTaxBeforeCredits": 95623.28125,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 37559.89453125
   },
   "error": null
  },
@@ -2264,6 +2354,21 @@
   },
   "error": null
  },
+ "couple-two-children-OR-30000-0-0-0-0": {
+  "id": "couple-two-children-OR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7316.0
+  },
+  "state": {
+   "tax": -1058.00927734375
+  },
+  "error": null
+ },
  "couple-two-children-PA-30000-0-0-0-0": {
   "id": "couple-two-children-PA-30000-0-0-0-0",
   "federal": {
@@ -2591,6 +2696,21 @@
   },
   "state": {
    "tax": 656.4382934570312
+  },
+  "error": null
+ },
+ "couple-two-children-OR-60000-0-0-0-0": {
+  "id": "couple-two-children-OR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 27800.0,
+   "incomeTaxBeforeCredits": 2840.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 1242.2958984375
+  },
+  "state": {
+   "tax": 2889.809326171875
   },
   "error": null
  },
@@ -2924,6 +3044,21 @@
   },
   "error": null
  },
+ "couple-two-children-OR-100000-0-0-0-0": {
+  "id": "couple-two-children-OR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 67800.0,
+   "incomeTaxBeforeCredits": 7640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6280.23046875
+  },
+  "error": null
+ },
  "couple-two-children-PA-100000-0-0-0-0": {
   "id": "couple-two-children-PA-100000-0-0-0-0",
   "federal": {
@@ -3251,6 +3386,21 @@
   },
   "state": {
    "tax": 4906.626953125
+  },
+  "error": null
+ },
+ "couple-two-children-OR-200000-0-0-0-0": {
+  "id": "couple-two-children-OR-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 167800.0,
+   "incomeTaxBeforeCredits": 26340.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 14556.85546875
   },
   "error": null
  },
@@ -3584,6 +3734,21 @@
   },
   "error": null
  },
+ "single-parent-OR-12000-0-0-0-0": {
+  "id": "single-parent-OR-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -1621.199951171875
+  },
+  "error": null
+ },
  "single-parent-PA-12000-0-0-0-0": {
   "id": "single-parent-PA-12000-0-0-0-0",
   "federal": {
@@ -3911,6 +4076,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "single-parent-OR-25000-0-0-0-0": {
+  "id": "single-parent-OR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 850.0,
+   "incomeTaxBeforeCredits": 85.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1785.0,
+   "earnedIncomeCredit": 4249.6220703125
+  },
+  "state": {
+   "tax": -973.6004638671875
   },
   "error": null
  },
@@ -4244,6 +4424,21 @@
   },
   "error": null
  },
+ "single-parent-OR-45000-0-0-0-0": {
+  "id": "single-parent-OR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 20850.0,
+   "incomeTaxBeforeCredits": 2148.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 2226.639404296875
+  },
+  "error": null
+ },
  "single-parent-PA-45000-0-0-0-0": {
   "id": "single-parent-PA-45000-0-0-0-0",
   "federal": {
@@ -4561,6 +4756,21 @@
  },
  "retired-couple-OH-0-0-40000-0-0": {
   "id": "retired-couple-OH-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "retired-couple-OR-0-0-40000-0-0": {
+  "id": "retired-couple-OR-0-0-40000-0-0",
   "federal": {
    "adjustedGrossIncome": 0.0,
    "taxableIncome": 0.0,
@@ -4904,6 +5114,21 @@
   },
   "error": null
  },
+ "retired-couple-OR-0-20000-40000-0-0": {
+  "id": "retired-couple-OR-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 122.234130859375
+  },
+  "error": null
+ },
  "retired-couple-PA-0-20000-40000-0-0": {
   "id": "retired-couple-PA-0-20000-40000-0-0",
   "federal": {
@@ -5231,6 +5456,21 @@
   },
   "state": {
    "tax": 622.3770141601562
+  },
+  "error": null
+ },
+ "retired-couple-OR-0-50000-40000-0-0": {
+  "id": "retired-couple-OR-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 30600.0,
+   "incomeTaxBeforeCredits": 3176.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2259.43408203125
   },
   "error": null
  },
@@ -5564,6 +5804,21 @@
   },
   "error": null
  },
+ "retired-couple-OR-0-90000-40000-0-0": {
+  "id": "retired-couple-OR-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 76500.0,
+   "incomeTaxBeforeCredits": 8684.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5280.458984375
+  },
+  "error": null
+ },
  "retired-couple-PA-0-90000-40000-0-0": {
   "id": "retired-couple-PA-0-90000-40000-0-0",
   "federal": {
@@ -5891,6 +6146,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "single-retiree-OR-0-10000-24000-0-0": {
+  "id": "single-retiree-OR-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 47.785797119140625
   },
   "error": null
  },
@@ -6224,6 +6494,21 @@
   },
   "error": null
  },
+ "single-retiree-OR-0-40000-24000-0-0": {
+  "id": "single-retiree-OR-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 35650.0,
+   "incomeTaxBeforeCredits": 4030.0,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2211.2607421875
+  },
+  "error": null
+ },
  "single-retiree-PA-0-40000-24000-0-0": {
   "id": "single-retiree-PA-0-40000-24000-0-0",
   "federal": {
@@ -6551,6 +6836,21 @@
   },
   "state": {
    "tax": 1481.5020751953125
+  },
+  "error": null
+ },
+ "investor-OR-50000-0-0-20000-0": {
+  "id": "investor-OR-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 53900.0,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4901.2294921875
   },
   "error": null
  },
@@ -6884,6 +7184,21 @@
   },
   "error": null
  },
+ "investor-OR-50000-0-0-100000-0": {
+  "id": "investor-OR-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 12809.89453125
+  },
+  "error": null
+ },
  "investor-PA-50000-0-0-100000-0": {
   "id": "investor-PA-50000-0-0-100000-0",
   "federal": {
@@ -7211,6 +7526,21 @@
   },
   "state": {
    "tax": 1206.5020751953125
+  },
+  "error": null
+ },
+ "separate-OR-60000-0-0-0-0": {
+  "id": "separate-OR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 43900.0,
+   "incomeTaxBeforeCredits": 5020.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4040.4482421875
   },
   "error": null
  },
@@ -7544,6 +7874,21 @@
   },
   "error": null
  },
+ "muni-retiree-OR-0-60000-40000-0-10000": {
+  "id": "muni-retiree-OR-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 46500.0,
+   "incomeTaxBeforeCredits": 5084.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2967.48388671875
+  },
+  "error": null
+ },
  "muni-retiree-PA-0-60000-40000-0-10000": {
   "id": "muni-retiree-PA-0-60000-40000-0-10000",
   "federal": {
@@ -7871,6 +8216,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "couple-no-children-OR-25000-0-0-0-0": {
+  "id": "couple-no-children-OR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 139.21002197265625
+  },
+  "state": {
+   "tax": 575.2447509765625
   },
   "error": null
  },
@@ -8204,6 +8564,21 @@
   },
   "error": null
  },
+ "couple-no-children-OR-75000-0-0-0-0": {
+  "id": "couple-no-children-OR-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 42800.0,
+   "incomeTaxBeforeCredits": 4640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4493.833984375
+  },
+  "error": null
+ },
  "couple-no-children-PA-75000-0-0-0-0": {
   "id": "couple-no-children-PA-75000-0-0-0-0",
   "federal": {
@@ -8531,6 +8906,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "mixed-dependents-OR-40000-0-0-0-0": {
+  "id": "mixed-dependents-OR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 7800.0,
+   "incomeTaxBeforeCredits": 780.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5880.0,
+   "earnedIncomeCredit": 6369.2958984375
+  },
+  "state": {
+   "tax": -30.851318359375
   },
   "error": null
  },
@@ -8864,6 +9254,21 @@
   },
   "error": null
  },
+ "mixed-dependents-OR-90000-0-0-0-0": {
+  "id": "mixed-dependents-OR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 57800.0,
+   "incomeTaxBeforeCredits": 6440.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5426.9287109375
+  },
+  "error": null
+ },
  "mixed-dependents-PA-90000-0-0-0-0": {
   "id": "mixed-dependents-PA-90000-0-0-0-0",
   "federal": {
@@ -9191,6 +9596,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "single-parent-teen-OR-35000-0-0-0-0": {
+  "id": "single-parent-teen-OR-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 10850.0,
+   "incomeTaxBeforeCredits": 1085.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2651.6220703125
+  },
+  "state": {
+   "tax": 1127.9195556640625
   },
   "error": null
  },
@@ -9524,6 +9944,21 @@
   },
   "error": null
  },
+ "separate-with-child-OR-45000-0-0-0-0": {
+  "id": "separate-with-child-OR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 28900.0,
+   "incomeTaxBeforeCredits": 3220.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 2607.826904296875
+  },
+  "error": null
+ },
  "separate-with-child-PA-45000-0-0-0-0": {
   "id": "separate-with-child-PA-45000-0-0-0-0",
   "federal": {
@@ -9851,6 +10286,21 @@
   },
   "state": {
    "tax": 418.7903747558594
+  },
+  "error": null
+ },
+ "surviving-spouse-OR-45000-0-0-0-0": {
+  "id": "surviving-spouse-OR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 12800.0,
+   "incomeTaxBeforeCredits": 1280.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 2127.326904296875
   },
   "error": null
  },
@@ -10184,6 +10634,21 @@
   },
   "error": null
  },
+ "surviving-spouse-high-OR-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-OR-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 217800.0,
+   "incomeTaxBeforeCredits": 37468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 20127.8125
+  },
+  "error": null
+ },
  "surviving-spouse-high-PA-250000-0-0-0-0": {
   "id": "surviving-spouse-high-PA-250000-0-0-0-0",
   "federal": {
@@ -10511,6 +10976,21 @@
   },
   "state": {
    "tax": 7761.126953125
+  },
+  "error": null
+ },
+ "surviving-spouse-high-OR-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-OR-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 267800.0,
+   "incomeTaxBeforeCredits": 49468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 25619.294921875
   },
   "error": null
  },
@@ -10844,6 +11324,21 @@
   },
   "error": null
  },
+ "surviving-spouse-high-OR-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-OR-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 409600.0,
+   "incomeTaxBeforeCredits": 83984.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 40469.296875
+  },
+  "error": null
+ },
  "surviving-spouse-high-PA-450000-0-0-0-0": {
   "id": "surviving-spouse-high-PA-450000-0-0-0-0",
   "federal": {
@@ -11171,6 +11666,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "surviving-spouse-low-OR-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-OR-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -497.5458984375
   },
   "error": null
  },
@@ -11504,6 +12014,21 @@
   },
   "error": null
  },
+ "surviving-spouse-low-OR-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-OR-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 89.6590576171875
+  },
+  "error": null
+ },
  "surviving-spouse-low-PA-26000-0-0-0-0": {
   "id": "surviving-spouse-low-PA-26000-0-0-0-0",
   "federal": {
@@ -11831,6 +12356,21 @@
   },
   "state": {
    "tax": 718.9239501953125
+  },
+  "error": null
+ },
+ "separate-with-spouse-OR-0-55000-0-0-0": {
+  "id": "separate-with-spouse-OR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3192.48388671875
   },
   "error": null
  },
@@ -12164,6 +12704,21 @@
   },
   "error": null
  },
+ "separate-with-spouse-young-OR-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-OR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3341.146484375
+  },
+  "error": null
+ },
  "separate-with-spouse-young-PA-0-55000-0-0-0": {
   "id": "separate-with-spouse-young-PA-0-55000-0-0-0",
   "federal": {
@@ -12491,6 +13046,21 @@
   },
   "state": {
    "tax": 731.5020141601562
+  },
+  "error": null
+ },
+ "early-retiree-OR-0-50000-0-0-0": {
+  "id": "early-retiree-OR-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3209.6357421875
   },
   "error": null
  },
@@ -12824,6 +13394,21 @@
   },
   "error": null
  },
+ "early-retired-couple-OR-0-70000-0-0-0": {
+  "id": "early-retired-couple-OR-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 37800.0,
+   "incomeTaxBeforeCredits": 4040.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4108.833984375
+  },
+  "error": null
+ },
  "early-retired-couple-PA-0-70000-0-0-0": {
   "id": "early-retired-couple-PA-0-70000-0-0-0",
   "federal": {
@@ -13151,6 +13736,21 @@
   },
   "state": {
    "tax": 649.6270141601562
+  },
+  "error": null
+ },
+ "blind-worker-OR-40000-0-0-0-0": {
+  "id": "blind-worker-OR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 21850.0,
+   "incomeTaxBeforeCredits": 2374.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2356.16064453125
   },
   "error": null
  },
@@ -13484,6 +14084,21 @@
   },
   "error": null
  },
+ "blind-senior-OR-0-25000-20000-0-0": {
+  "id": "blind-senior-OR-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4150.0,
+   "incomeTaxBeforeCredits": 415.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1110.0732421875
+  },
+  "error": null
+ },
  "blind-senior-PA-0-25000-20000-0-0": {
   "id": "blind-senior-PA-0-25000-20000-0-0",
   "federal": {
@@ -13814,6 +14429,21 @@
   },
   "error": null
  },
+ "on-the-boundary-OR-50000-0-0-0-0": {
+  "id": "on-the-boundary-OR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 3104.68701171875
+  },
+  "error": null
+ },
  "on-the-boundary-PA-50000-0-0-0-0": {
   "id": "on-the-boundary-PA-50000-0-0-0-0",
   "federal": {
@@ -14141,6 +14771,21 @@
   },
   "state": {
    "tax": 2261.126953125
+  },
+  "error": null
+ },
+ "on-the-boundary-OR-100000-0-0-0-0": {
+  "id": "on-the-boundary-OR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6900.208984375
   },
   "error": null
  },

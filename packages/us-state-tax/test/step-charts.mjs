@@ -392,6 +392,42 @@ export const DRIVERS = {
         federalIncomeTax: 8_000,
       }),
   },
+  // Oregon's federal tax subtraction ceiling, ORS 316.695(1)(d) and Table 4 —
+  // the same provision as Missouri's above and the other half of it. Missouri's
+  // chart picks the SHARE of the federal bill and is read against Missouri AGI;
+  // Oregon's picks the CEILING and is read against FEDERAL AGI, and the two
+  // conventions at a boundary are opposite: Missouri's `upTo` is inclusive at
+  // the top of a step and Oregon's `from` is inclusive at the bottom.
+  //
+  // The federal tax is held constant at $20,000 for the same reason Missouri's
+  // is held at $8,000 — a realistic household would move the bill and the
+  // income together and the probe would measure the product of two schedules —
+  // but the FIGURE is chosen differently. It has to exceed the largest ceiling
+  // in the chart ($8,750 in 2026), because the subtraction is the LESSER of the
+  // bill and the ceiling: a bill below the ceiling makes every step of the
+  // chart invisible, which is exactly why the one household in the status
+  // battery that carried a federal bill ($5,260) could not reach any of them.
+  //
+  // Single and separate only. The joint, head of household and surviving spouse
+  // columns are the same five amounts at doubled thresholds, and the separate
+  // column is the single one halved — asserted as a relation in
+  // `oregon.test.js` rather than probed five times here.
+  'federalIncomeTaxDeduction.capSteps.<status>': {
+    // All three columns, because the thresholds differ between them: single and
+    // separate fall from $125,000 and the joint column from $250,000, so a probe
+    // on the single thresholds cannot reach a joint row. The AMOUNTS are shared
+    // and the separate column is the single one halved — both asserted as
+    // relations in `oregon.test.js` rather than probed again here.
+    statuses: ['single', 'marriedFilingSeparately', 'marriedFilingJointly'],
+    input: (value, state, year, status) =>
+      probeReturn(state, year, status, {
+        income: value,
+        earnedIncome: value,
+        filerAge: 45,
+        spouseAge: 44,
+        federalIncomeTax: 20_000,
+      }),
+  },
   // Ohio's retirement income credit, O.R.C. 5747.055 — the chart that is the
   // worked example for why this file exists.
   'retirementIncomeCredit.steps': {

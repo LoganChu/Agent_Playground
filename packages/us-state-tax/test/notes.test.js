@@ -123,6 +123,13 @@ const YEAR_ONLY_NOTES = {
   MO: { 2026: 1, 2025: 0 },
   NJ: { 2026: 1, 2025: 0 },
   OH: { 2026: 2, 2025: 0 },
+  // Oregon is the first state in this package with a note in 2025 and not in
+  // 2026, and the asymmetry is the kicker: Or. Const. Art. IX § 14 returns the
+  // surplus on ODD tax years only, because the biennium it measures ends on 30
+  // June of odd years. Every other year-specific note in this table warns about
+  // a figure 2026 has not published; Oregon's 2025 note warns about a credit
+  // 2026 does not have.
+  OR: { 2026: 1, 2025: 1 },
   UT: { 2026: 1, 2025: 0 },
 };
 
@@ -150,7 +157,7 @@ test('the notes that differ between 2025 and 2026 are exactly the ones named her
   for (const state of Object.keys(YEAR_ONLY_NOTES)) {
     assert.ok(SUPPORTED_STATES.includes(state), `${state} is in the table and is not a supported state`);
   }
-  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 10, 'states whose notes depend on the year');
+  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 11, 'states whose notes depend on the year');
 });
 
 test('a provisional state-year says so in a note, and a published one does not', () => {
@@ -237,5 +244,5 @@ test('every conditional note fires for some return and not for others', () => {
       }
     }
   }
-  assert.equal(checked, 30, 'conditional notes in the package');
+  assert.equal(checked, 34, 'conditional notes in the package');
 });

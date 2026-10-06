@@ -1,13 +1,90 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **31
-states** including **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **32
+states** including **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.37.0: **Missouri, where one dollar of income costs `$61.94`.**
+New in 0.38.0: **Oregon, where the top rate starts at `$125,000` and does not reach a single filer until `$133,161`.**
+
+Oregon is the third state here that deducts the federal income tax, and the three do
+it three different ways — which is the whole argument for modelling a state rather
+than transcribing its rate table.
+
+| state | the chart varies | read against | sits |
+| --- | --- | --- | --- |
+| Alabama | nothing — 100%, uncapped | — | below the deduction |
+| Missouri | the **share** of the bill | **Missouri** AGI | below the deduction |
+| Oregon | the **ceiling** on the bill | **federal** AGI | **inside Oregon AGI** |
+
+Oregon's ceiling is `$8,750` for 2026 and it falls in five equal steps, each one a
+cliff of the whole difference. The income where it starts falling is the same
+`$125,000` where Oregon's top 9.9% rate begins — the two steepest things in the
+schedule aimed at the same dollar:
+
+| federal AGI | ceiling | one more dollar costs |
+| --- | --- | --- |
+| `$125,000` | 8,750 → 7,000 | `$153.22` |
+| `$130,000` | 7,000 → 5,250 | `$153.21` |
+| `$135,000` | 5,250 → 3,500 | `$173.35` |
+| `$140,000` | 3,500 → 1,750 | `$173.35` |
+| `$145,000` | 1,750 → 0 | `$173.35` |
+
+**The first two cost less than the last three, and the subtraction itself is why.**
+The lost `$1,750` is charged at whatever Oregon rate the filer is on, and up to
+`$8,750` of subtraction holds them *below* the `$125,000` where 9.9% starts. Which
+produces the fact worth more than the cliffs: **Oregon's top rate nominally begins at
+`$125,000` and does not reach a single filer until `$133,161` of federal AGI.** The
+two steepest things in the schedule are aimed at the same dollar and never meet
+there.
+
+**And no two of the three states subtract the same federal credits from the
+deduction.** The worksheets take the refundable credits off, because those are money
+received rather than tax paid — and they disagree about which:
+
+| | earned income credit | refundable child tax credit | refundable AOC |
+| --- | --- | --- | --- |
+| Alabama | subtracted | subtracted | subtracted |
+| Missouri | subtracted | — | subtracted |
+| **Oregon** | **—** | subtracted | subtracted |
+
+Publication OR-17 says it in a sentence: the subtraction is the federal tax "after
+all credits other than the earned income tax credit". So `federal.earnedIncomeCredit`
+moves the answer three ways in this one library — down in the six states that match
+it, **up** in Alabama and Missouri, and down-only in Oregon, which matches it *and*
+refuses to claw it back. Missouri reads that one figure twice in opposite directions;
+Oregon reads it twice in the same direction, and that is a drafting choice rather
+than an accident.
+
+**The Oregon Kids Credit is withdrawn over a width, not at a rate.** `$1,050` for
+each dependent under six, up to five of them, and the whole of it goes across
+`$5,000` of Oregon AGI above `$26,550` — so the implied marginal rate is
+credit ÷ width and *grows with the family*:
+
+| children under 6 | credit withdrawn | over | implied rate |
+| --- | --- | --- | --- |
+| 1 | `$1,050` | `$5,000` | 21% |
+| 3 | `$3,150` | `$5,000` | 63% |
+| **5** | **`$5,250`** | **`$5,000`** | **105%** |
+
+At the statutory maximum the withdrawal is **steeper than the income that causes
+it**: a family with five children under six is strictly worse off with `$31,550` of
+Oregon AGI than with `$26,550`, before Oregon's own rate and before anything federal.
+
+**Two more things only a two-year engine can tell you.** SB 1507 raised Oregon's
+earned income credit from 9% to **14%** of the federal credit for 2026, and from 12%
+to **17%** where a dependent is under three — so the same household's credit is 55%
+larger in one of the two years this package covers. And Oregon's "kicker" surplus
+credit is a **biennium rather than a schedule**: 9.863% of the filer's own prior-year
+tax for 2025 and *nothing* for 2026, because the biennium it measures ends on 30 June
+of odd years. It is not modelled, because it needs a prior-year return this package
+is never given, and every 2025 Oregon return says so in a note.
+
+---
+
+Previously, in 0.37.0: **Missouri, where one dollar of income costs `$61.94`.**
 
 Missouri deducts a **share** of the federal income tax, and § 143.171.2 writes the
 share as a **cliff chart rather than a phase-out**: 35% of the federal bill at
@@ -455,7 +532,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.37.0/us-state-tax-0.37.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.38.0/us-state-tax-0.38.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1990,9 +2067,19 @@ ca2026.provisional;  // true
 ca2026.notes[0];     // 'PROVISIONAL: the 2026 bracket thresholds, standard deduction ...'
 ```
 
-Provisional for 2026: **CA, CO, ID, MI, MO, OH, UT**. Published: **AZ, GA, IL, IN, KY, MA, MD,
+Provisional for 2026: **CA, CO, ID, MI, MO, OH, OR, UT**. Published: **AZ, GA, IL, IN, KY, MA, MD,
 MS, NC, NJ, NY, PA, VA** and the nine states with no income tax. Nothing is provisional for
 2025.
+
+Oregon joined that list on Day 42 for **two figures out of forty-odd**, which is the
+narrowest the flag has ever been: the Oregon Kids Credit amount and its phase-out
+threshold, both indexed and both published in the January after the tax year. The rest
+of Oregon's 2026 is published, because the Department of Revenue's 2026 withholding
+formula — out on 31 December 2025 — carries the brackets, the standard deduction, the
+federal tax subtraction ceiling and its whole phase-out table. **An agency does not
+publish a withholding formula for a figure it has not settled**, which is the single
+most useful sourcing fact this package has found, and it is why `provisionalFigures`
+matters more than the per-state flag.
 
 **The counts changed in v0.33.0 and the states did not.** 103 figures are carried forward
 across those six state-years, against 148 before: Idaho gained four and Ohio twelve, where
@@ -2193,9 +2280,9 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,337 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,441 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
-Three rows are exempt, each with a written reason and a direct assertion in their
+Four rows are exempt, each with a written reason and a direct assertion in their
 place:
 
 - Ohio's 20% joint-filing-credit row, which is arithmetic no return can reach: it
@@ -2226,7 +2313,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **575** notes every
+`test/notes.test.js` pins the first 72 characters of all **599** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2251,8 +2338,8 @@ reads, and all 15 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 3,804 numeric
-figures over 62 state-years, against 346 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,110 numeric
+figures over 64 state-years, against 370 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2298,14 +2385,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 1,902 figures of tax year
+The `kind` field answers one operational question. Over the 2,055 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,602** |
-| the statute's own schedule (`statute-scheduled`) | **111** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **182** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,696** |
+| the statute's own schedule (`statute-scheduled`) | **113** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **239** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -2385,11 +2472,11 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.37.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.38.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 31 states.** No Minnesota, Wisconsin,
-  Oregon, South Carolina, Louisiana, Oklahoma, or the District of Columbia.
+- **Only 32 states.** No Minnesota, Wisconsin,
+  South Carolina, Louisiana, Oklahoma, Iowa, or the District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a
   declared list of the uncovered jurisdictions rather than from a sentence — because
   the sentence named Connecticut as uncovered on the day Connecticut shipped.

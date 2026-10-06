@@ -56,7 +56,12 @@ const BLIND_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
     const def = getStateDefinition(code, year);
     return (
       def?.exemption?.perBlindOrDisabledFiler !== undefined ||
-      def?.exemptionCredit?.perBlindOrDisabledFiler !== undefined
+      def?.exemptionCredit?.perBlindOrDisabledFiler !== undefined ||
+      // Oregon's is neither an exemption nor an exemption credit: ORS 316.695(8)
+      // puts it INSIDE the standard deduction, which is why a list derived from
+      // the two exemption rules alone missed it. A derived list is only as wide
+      // as the places it looks.
+      def?.standardDeductionAgedOrBlindAddition !== undefined
     );
   }),
 );
@@ -131,8 +136,45 @@ const boolean: JsonSchema = { type: 'boolean' };
  * The states that read `retirement`, declared once so that the field's own
  * documentation can count them instead of saying a number.
  */
+/**
+ * The states whose definition carries a federal income tax deduction, and WHICH
+ * refundable credits each one's worksheet subtracts — both derived from the
+ * engine rather than listed here.
+ *
+ * They were hand-written lists until Day 42, and both were wrong. `states` for
+ * the refundable child tax credit said `['AL']` and Oregon subtracts it too; the
+ * `refusal` text for all three fields said "Alabama alone", which Missouri had
+ * falsified a day earlier and nothing noticed, because a sentence about a list is
+ * a second copy of the list.
+ *
+ * THE RULE, which this file has now learned twice: a prose claim about a declared
+ * list drifts the moment the list grows, so derive the claim or test it. The
+ * `retirement` field's "N states read this" count was the first instance.
+ */
+const FEDERAL_TAX_DEDUCTION_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
+  SUPPORTED_YEARS.some(
+    (year) => getStateDefinition(code, year)?.federalIncomeTaxDeduction !== undefined,
+  ),
+);
+
+const REFUNDABLE_CREDIT_STATES = {
+  earnedIncomeCredit: subtractorsOf('earnedIncomeCredit'),
+  additionalChildTaxCredit: subtractorsOf('additionalChildTaxCredit'),
+  refundableAmericanOpportunityCredit: subtractorsOf('refundableAmericanOpportunityCredit'),
+} as const;
+
+function subtractorsOf(credit: string): readonly string[] {
+  return SUPPORTED_STATES.filter((code) =>
+    SUPPORTED_YEARS.some((year) =>
+      (getStateDefinition(code, year)?.federalIncomeTaxDeduction?.refundableCredits ?? []).includes(
+        credit as never,
+      ),
+    ),
+  );
+}
+
 const RETIREMENT_STATES = [
-  'MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL', 'MO',
+  'MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL', 'MO', 'OR',
 ] as const;
 
 const PERSON_RETIREMENT: JsonSchema = {
@@ -285,8 +327,8 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'taxExemptInterest',
     schema: number,
-    states: ['UT', 'CT'],
-    doc: 'Tax-exempt interest, 1040 line 2a. Utah adds it back into the modified AGI its retirement credits are withdrawn against (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income: $10,000 of it costs a retired couple exactly $250.00 of Utah tax and $0.00 of federal tax. Leave it out and a bondholding Utah retiree comes back too low. CONNECTICUT reads it for a different reason and only above its Social Security threshold: tax-exempt interest belongs in \u00a7 86 provisional income, which sets the combined income excess Connecticut charges 25% of, so omitting it understates the excess and understates Connecticut tax. Below $75,000 of federal AGI ($100,000 joint) Connecticut does not read it at all.',
+    states: ['UT', 'CT', 'OR'],
+    doc: 'Tax-exempt interest, 1040 line 2a. Utah adds it back into the modified AGI its retirement credits are withdrawn against (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income: $10,000 of it costs a retired couple exactly $250.00 of Utah tax and $0.00 of federal tax. Leave it out and a bondholding Utah retiree comes back too low. CONNECTICUT reads it for a different reason and only above its Social Security threshold: tax-exempt interest belongs in \u00a7 86 provisional income, which sets the combined income excess Connecticut charges 25% of, so omitting it understates the excess and understates Connecticut tax. Below $75,000 of federal AGI ($100,000 joint) Connecticut does not read it at all. OREGON adds it into the household income its retirement credit is reduced by (ORS 316.157), so a municipal bond cuts an Oregon retiree\u2019s credit dollar for dollar while appearing on no line of Oregon income.',
   },
   {
     name: 'taxableSocialSecurity',
@@ -305,26 +347,26 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'federalIncomeTax',
     schema: number,
-    states: ['AL', 'MO'],
-    doc: 'Form 1040 line 22 — the federal income tax AFTER non-refundable credits — plus the Form 8960 net investment income tax. ALABAMA DEDUCTS THE FEDERAL BILL on Form 40 line 12, and every filer takes it, not only itemizers, so a federal tax cut is an Alabama tax INCREASE of 5% of the cut. Omit it and the Alabama answer is too high by 5% of the whole federal bill — $191.00 on the $3,820 a single filer owes on $50,000 of wages — and the result says so in a note.',
+    states: FEDERAL_TAX_DEDUCTION_STATES,
+    doc: 'Form 1040 line 22 — the federal income tax AFTER non-refundable credits — plus the Form 8960 net investment income tax. THREE STATES DEDUCT THE FEDERAL BILL and all three give every filer the deduction, not only itemizers: Alabama deducts the whole of it at 5% (Form 40 line 12), Missouri a SHARE of it chosen by a cliff chart on Missouri AGI (MO-1040 line 13), and Oregon the whole of it up to a CEILING chosen by a chart on FEDERAL AGI (Form OR-40 line 10, $8,750 for 2026). So a federal tax cut is a state tax INCREASE in all three. Omit it and the Alabama answer is too high by 5% of the whole federal bill — $191.00 on the $3,820 a single filer owes on $50,000 of wages — and the Oregon answer by up to 9.9% of the ceiling, which is $866.25. The result says so in a note either way.',
     refusal:
-      'Alabama alone deducts the federal income tax itself (Ala. Code § 40-18-15(a)(3), Form 40 line 12). No other state in this package has the federal bill inside its base, so there is nothing for the figure to do.',
+      'Only Alabama, Missouri and Oregon have the federal bill itself inside their base — Ala. Code § 40-18-15(a)(3), Mo. Rev. Stat. § 143.171 and ORS 316.695(1)(d). No other state in this package reads it, so there is nothing for the figure to do.',
   },
   {
     name: 'federalAdditionalChildTaxCredit',
     schema: number,
-    states: ['AL'],
-    doc: "Schedule 8812's refundable child tax credit, Form 1040 line 28. Alabama's Federal Income Tax Deduction Worksheet subtracts the refundable federal credits from the deduction, because they are money received rather than tax paid — so a refundable credit RAISES Alabama tax by 5% of itself.",
+    states: REFUNDABLE_CREDIT_STATES.additionalChildTaxCredit,
+    doc: "Schedule 8812's refundable child tax credit, Form 1040 line 28. The worksheets that compute a federal-tax deduction subtract the refundable federal credits from it, because they are money received rather than tax paid — so where it is subtracted a refundable credit RAISES state tax. ALABAMA AND OREGON SUBTRACT IT AND MISSOURI DOES NOT, because Missouri's worksheet starts from Form 1040 line 22 and line 28 never reduced it: the same $1,600 costs an Alabama family $80 and a Missouri family nothing.",
     refusal:
-      'Only Alabama subtracts the refundable federal credits, and only because it deducts the federal tax they reduce.',
+      "No state in this package subtracts the refundable child tax credit from a federal-tax deduction. Missouri has such a deduction and this is the credit its worksheet leaves out.",
   },
   {
     name: 'federalRefundableAmericanOpportunityCredit',
     schema: number,
-    states: ['AL', 'MO'],
-    doc: 'Form 8863 line 8, Form 1040 line 29 — the REFUNDABLE part of the American Opportunity credit only. The non-refundable part has already reduced federalIncomeTax and must not be counted twice.',
+    states: REFUNDABLE_CREDIT_STATES.refundableAmericanOpportunityCredit,
+    doc: 'Form 8863 line 8, Form 1040 line 29 — the REFUNDABLE part of the American Opportunity credit only. The non-refundable part has already reduced federalIncomeTax and must not be counted twice. It is the one refundable credit all three federal-tax-deduction states subtract.',
     refusal:
-      'Only Alabama subtracts the refundable federal credits, and only because it deducts the federal tax they reduce.',
+      'Only the states that deduct the federal income tax subtract the refundable federal credits from it, and only because the credits reduce the tax they are deducting.',
   },
   {
     name: 'retirement',
@@ -454,8 +496,8 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'dependentAges',
     schema: { type: 'array', items: integer },
-    states: ['NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA', 'IN'],
-    doc: 'Age of EVERY dependent at year end, not only the children. IN: a dependent CHILD carries $1,500 of exemption that a dependent parent does not, so a count alone costs an Indiana family $74.55 a child in Marion County. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income.',
+    states: ['NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA', 'IN', 'OR'],
+    doc: 'Age of EVERY dependent at year end, not only the children. IN: a dependent CHILD carries $1,500 of exemption that a dependent parent does not, so a count alone costs an Indiana family $74.55 a child in Marion County. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income. OR: TWO credits need it — the Oregon Kids Credit is $1,050 for each dependent UNDER SIX up to five of them, withdrawn across $5,000 of Oregon AGI so that a family with five of them faces an implied marginal rate of 105%; and the earned income credit is 17% of the federal credit where a dependent is under THREE against 14% otherwise. A count of dependents reaches neither, and the result says what that cost.',
   },
   {
     name: 'filerAge',

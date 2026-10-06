@@ -448,6 +448,39 @@
   },
   "error": null
  },
+ "single-worker-OR-15000-0-0-0-0": {
+  "id": "single-worker-OR-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": 427.25,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 48.62
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-PA-15000-0-0-0-0": {
   "id": "single-worker-PA-15000-0-0-0-0",
   "federal": {
@@ -970,6 +1003,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-OR-30000-0-0-0-0": {
+  "id": "single-worker-OR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1664.13,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -1504,6 +1570,39 @@
   },
   "error": null
  },
+ "single-worker-OR-50000-0-0-0-0": {
+  "id": "single-worker-OR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3204.13,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-PA-50000-0-0-0-0": {
   "id": "single-worker-PA-50000-0-0-0-0",
   "federal": {
@@ -2026,6 +2125,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-OR-80000-0-0-0-0": {
+  "id": "single-worker-OR-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5397.75,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -2560,6 +2692,39 @@
   },
   "error": null
  },
+ "single-worker-OR-150000-0-0-0-0": {
+  "id": "single-worker-OR-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12805.41,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-PA-150000-0-0-0-0": {
   "id": "single-worker-PA-150000-0-0-0-0",
   "federal": {
@@ -3082,6 +3247,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-OR-400000-0-0-0-0": {
+  "id": "single-worker-OR-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 37555.41,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -3616,6 +3814,39 @@
   },
   "error": null
  },
+ "couple-two-children-OR-30000-0-0-0-0": {
+  "id": "couple-two-children-OR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": -923.99,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 1052
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 1024.24
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 325.5
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-PA-30000-0-0-0-0": {
   "id": "couple-two-children-PA-30000-0-0-0-0",
   "federal": {
@@ -4144,6 +4375,39 @@
   },
   "error": null
  },
+ "couple-two-children-OR-60000-0-0-0-0": {
+  "id": "couple-two-children-OR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 2876.83,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 1052
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 173.92
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-PA-60000-0-0-0-0": {
   "id": "couple-two-children-PA-60000-0-0-0-0",
   "federal": {
@@ -4666,6 +4930,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-two-children-OR-100000-0-0-0-0": {
+  "id": "couple-two-children-OR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6267.25,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 1052
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -5200,6 +5497,39 @@
   },
   "error": null
  },
+ "couple-two-children-OR-200000-0-0-0-0": {
+  "id": "couple-two-children-OR-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14535.13,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 1052
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-PA-200000-0-0-0-0": {
   "id": "couple-two-children-PA-200000-0-0-0-0",
   "federal": {
@@ -5723,6 +6053,39 @@
     {
      "name": "Ohio earned income credit",
      "amount": 1224
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-OR-12000-0-0-0-0": {
+  "id": "single-parent-OR-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -1621.2,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 571.2
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 1050
     }
    ]
   },
@@ -6256,6 +6619,39 @@
   },
   "error": null
  },
+ "single-parent-OR-25000-0-0-0-0": {
+  "id": "single-parent-OR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": -981.68,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 594.95
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 1050
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-PA-25000-0-0-0-0": {
   "id": "single-parent-PA-25000-0-0-0-0",
   "federal": {
@@ -6784,6 +7180,39 @@
   },
   "error": null
  },
+ "single-parent-OR-45000-0-0-0-0": {
+  "id": "single-parent-OR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 2216.06,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 147.51
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-PA-45000-0-0-0-0": {
   "id": "single-parent-PA-45000-0-0-0-0",
   "federal": {
@@ -7306,6 +7735,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-OR-0-0-40000-0-0": {
+  "id": "retired-couple-OR-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -7840,6 +8302,39 @@
   },
   "error": null
  },
+ "retired-couple-OR-0-20000-40000-0-0": {
+  "id": "retired-couple-OR-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 114.15,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-PA-0-20000-40000-0-0": {
   "id": "retired-couple-PA-0-20000-40000-0-0",
   "federal": {
@@ -8362,6 +8857,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-OR-0-50000-40000-0-0": {
+  "id": "retired-couple-OR-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2248.85,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -8896,6 +9424,39 @@
   },
   "error": null
  },
+ "retired-couple-OR-0-90000-40000-0-0": {
+  "id": "retired-couple-OR-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5266.9,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-PA-0-90000-40000-0-0": {
   "id": "retired-couple-PA-0-90000-40000-0-0",
   "federal": {
@@ -9418,6 +9979,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-retiree-OR-0-10000-24000-0-0": {
+  "id": "single-retiree-OR-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 43.57,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -9952,6 +10546,39 @@
   },
   "error": null
  },
+ "single-retiree-OR-0-40000-24000-0-0": {
+  "id": "single-retiree-OR-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2205.75,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-retiree-PA-0-40000-24000-0-0": {
   "id": "single-retiree-PA-0-40000-24000-0-0",
   "federal": {
@@ -10474,6 +11101,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "investor-OR-50000-0-0-20000-0": {
+  "id": "investor-OR-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4895.72,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -11008,6 +11668,39 @@
   },
   "error": null
  },
+ "investor-OR-50000-0-0-100000-0": {
+  "id": "investor-OR-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12805.41,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "investor-PA-50000-0-0-100000-0": {
   "id": "investor-PA-50000-0-0-100000-0",
   "federal": {
@@ -11526,6 +12219,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-OR-60000-0-0-0-0": {
+  "id": "separate-OR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4030.56,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -12060,6 +12786,39 @@
   },
   "error": null
  },
+ "muni-retiree-OR-0-60000-40000-0-10000": {
+  "id": "muni-retiree-OR-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2956.9,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "muni-retiree-PA-0-60000-40000-0-10000": {
   "id": "muni-retiree-PA-0-60000-40000-0-10000",
   "federal": {
@@ -12588,6 +13347,39 @@
   },
   "error": null
  },
+ "couple-no-children-OR-25000-0-0-0-0": {
+  "id": "couple-no-children-OR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": 567.16,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 19.49
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-no-children-PA-25000-0-0-0-0": {
   "id": "couple-no-children-PA-25000-0-0-0-0",
   "federal": {
@@ -13110,6 +13902,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-no-children-OR-75000-0-0-0-0": {
+  "id": "couple-no-children-OR-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4483.25,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -13644,6 +14469,39 @@
   },
   "error": null
  },
+ "mixed-dependents-OR-40000-0-0-0-0": {
+  "id": "mixed-dependents-OR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": -45.03,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 1315
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 1082.78
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "mixed-dependents-PA-40000-0-0-0-0": {
   "id": "mixed-dependents-PA-40000-0-0-0-0",
   "federal": {
@@ -14166,6 +15024,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "mixed-dependents-OR-90000-0-0-0-0": {
+  "id": "mixed-dependents-OR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5412.75,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 1315
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -14700,6 +15591,39 @@
   },
   "error": null
  },
+ "single-parent-teen-OR-35000-0-0-0-0": {
+  "id": "single-parent-teen-OR-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": 1117.34,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 371.23
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-teen-PA-35000-0-0-0-0": {
   "id": "single-parent-teen-PA-35000-0-0-0-0",
   "federal": {
@@ -15218,6 +16142,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-child-OR-45000-0-0-0-0": {
+  "id": "separate-with-child-OR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2748.63,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -15752,6 +16709,39 @@
   },
   "error": null
  },
+ "surviving-spouse-OR-45000-0-0-0-0": {
+  "id": "surviving-spouse-OR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 2116.74,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 147.51
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-PA-45000-0-0-0-0": {
   "id": "surviving-spouse-PA-45000-0-0-0-0",
   "federal": {
@@ -16274,6 +17264,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-OR-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-OR-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 20115.25,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -16808,6 +17831,39 @@
   },
   "error": null
  },
+ "surviving-spouse-high-OR-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-OR-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 25610.82,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-high-PA-300000-0-0-0-0": {
   "id": "surviving-spouse-high-PA-300000-0-0-0-0",
   "federal": {
@@ -17330,6 +18386,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-OR-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-OR-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 40460.82,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -17864,6 +18953,39 @@
   },
   "error": null
  },
+ "surviving-spouse-low-OR-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-OR-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -505.63,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 619.78
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-low-PA-18000-0-0-0-0": {
   "id": "surviving-spouse-low-PA-18000-0-0-0-0",
   "federal": {
@@ -18387,6 +19509,39 @@
     {
      "name": "Ohio earned income credit",
      "amount": 1226.95
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-OR-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-OR-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 81.58,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 572.57
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
     }
    ]
   },
@@ -18916,6 +20071,39 @@
   },
   "error": null
  },
+ "separate-with-spouse-OR-0-55000-0-0-0": {
+  "id": "separate-with-spouse-OR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3273.27,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-with-spouse-PA-0-55000-0-0-0": {
   "id": "separate-with-spouse-PA-0-55000-0-0-0",
   "federal": {
@@ -19434,6 +20622,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-OR-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-OR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3330.06,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -19968,6 +21189,39 @@
   },
   "error": null
  },
+ "early-retiree-OR-0-50000-0-0-0": {
+  "id": "early-retiree-OR-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3204.13,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "early-retiree-PA-0-50000-0-0-0": {
   "id": "early-retiree-PA-0-50000-0-0-0",
   "federal": {
@@ -20490,6 +21744,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "early-retired-couple-OR-0-70000-0-0-0": {
+  "id": "early-retired-couple-OR-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4098.25,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -21024,6 +22311,39 @@
   },
   "error": null
  },
+ "blind-worker-OR-40000-0-0-0-0": {
+  "id": "blind-worker-OR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2350.65,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "blind-worker-PA-40000-0-0-0-0": {
   "id": "blind-worker-PA-40000-0-0-0-0",
   "federal": {
@@ -21546,6 +22866,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "blind-senior-OR-0-25000-20000-0-0": {
+  "id": "blind-senior-OR-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1104.56,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 263
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
@@ -22080,6 +23433,39 @@
   },
   "error": null
  },
+ "on-the-boundary-OR-50000-0-0-0-0": {
+  "id": "on-the-boundary-OR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 254.62
+  },
+  "state": {
+   "tax": 3097.98,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 35.65
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "on-the-boundary-PA-50000-0-0-0-0": {
   "id": "on-the-boundary-PA-50000-0-0-0-0",
   "federal": {
@@ -22602,6 +23988,39 @@
     },
     {
      "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "on-the-boundary-OR-100000-0-0-0-0": {
+  "id": "on-the-boundary-OR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 83900,
+   "incomeTaxBeforeCredits": 13170,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6884.75,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
      "amount": 0
     }
    ]
