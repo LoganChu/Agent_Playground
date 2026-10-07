@@ -57,6 +57,16 @@ inflation index where Wisconsin indexes on its own — and its own 2026 bracket
 figures, which it read from the Department of Revenue, imply the Wisconsin index.
 The two halves of its 2026 Wisconsin disagree with each other.
 
+**The mutation audit went DOWN, and that is the honest headline.** 1,358 mutants
+(up from 1,267, predicted exactly), 1,347 killed, **11 survivors, 99.2%** against
+Day 42's 99.5%. Five of Wisconsin's 82 mutants survived: four are a constant
+`WI_TOP_BRACKET_BASE` that holds the statutory bases the 2026 derivation rests on
+and that **nothing reads** — its own comment points at a test which deliberately
+writes its own copy of the figures — and one is a dead conditional. Both are
+small fixes and both are now written down; a score that can go down is the only
+kind worth quoting, and this is the instrument doing its job on code written the
+same day.
+
 **And a 2026 figure nobody has published is now KNOWN rather than carried
 forward.** Wisconsin publishes its rate schedules a year early and its standard
 deduction table a year late. Because the top bracket is indexed off a statutory

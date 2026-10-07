@@ -120,9 +120,61 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1267 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.5% |
+| `us-state-tax` (rule parameters) | 1358 | 11 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.2% |
 
-The state figure was re-measured on **Day 42** over the build that ships today:
+The state figure was re-measured on **Day 43** over the build that ships today,
+and **the score went DOWN**: Wisconsin took the audit from 1,267 mutants to
+**1,358** and **five of its 82 survived**, so the survivors went from 6 to 11 and
+the score from 99.5% to **99.2%**. That is the result worth having rather than
+the one to bury — the whole point of the instrument is that it can say no — and
+the five decompose into one real defect and one dead branch.
+
+**Four of the five are a constant nothing reads.** `WI_TOP_BRACKET_BASE` holds
+the `$225,000` / `$300,000` / `$150,000` statutory bases the 2026 derivation
+rests on, and its own doc comment says "see `test/wisconsin-indexation.test.js`"
+— which writes its own copy of those figures rather than importing them,
+deliberately, because *a test that calls the code it is checking checks nothing*.
+Both halves of that are defensible and together they leave the shipped constant
+with **no reader at all**: four money literals that could be any number.
+
+**It is Day 42's Ohio defect, one day later, in code written the same day as the
+comment.** Ohio's unread `perFiler` table carried a wrong figure for 33 days "on
+the strength of a comment claiming a test that did not exist". Here the test
+exists and does not read the thing the comment points at, which is the same
+failure with better paperwork. **THE RULE: a comment that names a test is a claim
+about that test, and "see `foo.test.js`" has to mean `foo.test.js` reads THIS
+value.**
+
+**The fifth is a dead conditional**: `retirementIncomeExclusionElection` is gated
+on `year >= 2025` inside a function that already returns `undefined` for every
+year but 2025 and 2026, so the branch can never be false. Unlike the six
+long-standing survivors it is not unreachable in principle — it is removable.
+
+All three of the day's other predictions held. The count was predicted exactly at
+1,358 — 1,267 plus Wisconsin's 82 plus 9 in `src/data/provenance.ts`, the ledger
+that records where every figure came from being itself full of year literals —
+and the other six survivors are the same six at the same six lines.
+
+**And the hand count was right on two of the harness's three operators and wrong
+on the third.** 16 rates and 54 money literals, both predicted; 6 year literals
+predicted against **12** measured. The six missed are the OBJECT KEYS of the three
+`Record<number, ...>` tables that hold Wisconsin's 2025 and 2026 schedules side
+by side — the harness mutates a key exactly as it mutates a value, and a hand
+count that reads the figures misses the keys because a key does not look like a
+parameter. Oregon and Missouri branch on `year >= 2026` instead and have no such
+keys.
+
+**The first attempt at this measurement enumerated 1,626 mutants rather than
+1,358**, because the `--skip` list for the seven locality registries — 1,033
+transcribed local rates, which are data and not rules — lived in
+`tools/mutation/README.md` and nowhere the program could read. It is a harness
+default now, announced at start-up beside the record destination. Day 42's rule
+was that a flag which is PRESENT and does nothing is worse than one that is
+missing; this is that rule with the sign flipped, and the only thing standing
+between the wrong flag and a wrong number in this README was `check-scores.mjs`
+comparing the recorded skip list.
+
+Day 42 is the row underneath:
 Oregon took the audit from 1,185 mutants to **1,267** and **all 82 of the new
 ones were killed**, so the six survivors are the same six and the score held at
 99.5%. All four numbers were predicted in writing before the run, and this time

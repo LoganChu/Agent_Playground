@@ -19,6 +19,7 @@ rather than the suite's reach.
 | **Day 40, after Alabama** | **1,130** | **6** | **99.5%** |
 | **Day 41, after Missouri** | **1,185** | **6** | **99.5%** |
 | **Day 42, after Oregon** | **1,267** | **6** | **99.5%** |
+| **Day 43, Wisconsin's first run** | **1,358** | **11** | **99.2%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -225,6 +226,47 @@ it.**
 The second run's own listing, unedited:
 
 ```
+### states/wisconsin.js — 5 of 82 survived (Day 43, NOT yet triaged as unreachable)
+
+```text
+  line   98  money  225_000 -> 450000
+  line   99  money  300_000 -> 600000
+  line  100  money  150_000 -> 300000
+  line  101  money  225_000 -> 450000
+  line  321  year   2025 -> 2024
+```
+
+**These are the first survivors in this file that are WORK rather than
+unreachable arithmetic**, and they are in code written the same day. The six
+below are unreachable in principle and say why; these four plus one are not.
+
+**Lines 98 to 101: `WI_TOP_BRACKET_BASE` has no reader.** It holds the
+`$225,000` / `$300,000` / `$150,000` statutory bases that the whole 2026
+standard deduction derivation rests on, and its doc comment says "see
+`test/wisconsin-indexation.test.js`". That test writes its OWN copy of those
+three figures rather than importing them — deliberately, and the comment in the
+test says why: *a test that calls the code it is checking checks nothing.* Both
+halves are defensible and together they leave the shipped constant unconstrained.
+
+**It is Day 42's Ohio defect one day later.** Ohio's unread `perFiler` table
+carried a wrong figure for 33 days "on the strength of a comment claiming a test
+that did not exist"; here the test exists and does not read the value the comment
+points at, which is the same failure with better paperwork.
+
+**THE RULE: a comment that names a test is a claim about that test, and "see
+`foo.test.js`" has to mean `foo.test.js` reads THIS value.**
+
+The fix is a cross-check rather than a rewrite: the test keeps its own copy as
+the authority for the arithmetic AND asserts that the package's exported constant
+equals it. That is the one relationship which both kills the mutants and keeps the
+test independent of the thing it checks.
+
+**Line 321: a conditional that can never be false.**
+`retirementIncomeExclusionElection: year >= 2025 ? {...} : undefined`, inside a
+`wisconsin(year)` that already returns `undefined` for every year but 2025 and
+2026. Unlike the six below it is not unreachable in principle — it is
+REMOVABLE, and removing it is better than triaging it.
+
 ### states/flat-states.js — 2 of 150 survived
   line  157  year   2024 -> 2023
   line  287  year   2025 -> 2024
