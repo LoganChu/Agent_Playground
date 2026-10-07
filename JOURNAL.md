@@ -611,7 +611,44 @@ afterwards. **The right call at the end of a run is to finish it, not to start
 the refactor**, and the design is written into `mutate.mjs` and `check-scores.mjs`
 so tomorrow's first hour is spent building it rather than rediscovering it.
 
-### Part 18 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
+### Part 18 — the sweep, rather than the fix: three more claims, all mine
+
+Having been caught by one invented figure, I went over **every** numeric and WHY
+claim in `wisconsin.ts` and in the thirty Wisconsin provenance entries rather
+than only the one that bit me. Three more were wrong.
+
+- **"unchanged since 2011"** for the 30% capital gain exclusion. The year was not
+  from a source. What is true, and is what the entry says now, is that the share
+  has not moved across the years this package checks.
+- **"three of the five cells DETERMINED"** for the 2026 standard deduction
+  maxima. **Four** of the five are — single, joint, surviving spouse (which IS
+  the joint figure) and head of household — and only the separate one is not. The
+  same miscount was in this journal and in the package README, phrased as "the
+  single, joint, surviving spouse and head of household maxima and the joint
+  threshold", which names five things as four.
+- **"$700 since 2001"**. 2001 is where a PARAMETER FILE's series begins, not
+  necessarily where the statute's does, and the entry now says which of the two
+  it knows.
+
+And one claim about Wisconsin that today's own open question contradicts: an
+entry said a qualifying surviving spouse takes the joint threshold "because
+§ 71.05(22)(dp) puts that status on the joint schedule for the two years after
+the death". **Nothing I read says that, and Part 0's own evidence points the
+other way.** It now says this package gives the status the joint figure because
+that is the near-universal state rule, names the open question, and states the
+exposure.
+
+**THE RULE: when one unsourced claim turns up, the thing to do is not to fix it
+but to SWEEP the file it was in, because a claim nothing can test was not written
+carefully once — it was written in the same pass as its neighbours.** One
+invented figure found by luck became four found on purpose, plus four claims that
+came out of the sweep stronger than they went in.
+
+The ratio is the part worth keeping. Of roughly thirty claims checked, four were
+wrong, four improved, and twenty-two were confirmed as written — so a sweep is
+not a rewrite, and the twenty-two are what makes the four findable.
+
+### Part 19 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
 
 Worklist item 7 since Day 40 has been "make the audit faster by running FEWER
 TEST FILES per mutant", and the note beside it had the diagnosis right and the
