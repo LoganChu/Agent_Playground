@@ -20,6 +20,7 @@ rather than the suite's reach.
 | **Day 41, after Missouri** | **1,185** | **6** | **99.5%** |
 | **Day 42, after Oregon** | **1,267** | **6** | **99.5%** |
 | **Day 43, Wisconsin's first run** | **1,358** | **11** | **99.2%** |
+| **Day 43, after the five Wisconsin fixes** | **1,357** | **6** | **99.6%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -226,7 +227,7 @@ it.**
 The second run's own listing, unedited:
 
 ```
-### states/wisconsin.js — 5 of 82 survived (Day 43, NOT yet triaged as unreachable)
+### states/wisconsin.js — 5 of 82 survived on the first run, ALL FIXED the same day
 
 ```text
   line   98  money  225_000 -> 450000
@@ -236,9 +237,12 @@ The second run's own listing, unedited:
   line  321  year   2025 -> 2024
 ```
 
-**These are the first survivors in this file that are WORK rather than
-unreachable arithmetic**, and they are in code written the same day. The six
-below are unreachable in principle and say why; these four plus one are not.
+**These were the first survivors in this file that were WORK rather than
+unreachable arithmetic**, and they were in code written the same day. The six
+below are unreachable in principle and say why; these four plus one were not, so
+they were fixed rather than triaged and the re-run came back at 1,357 mutants and
+the same six. `--only wisconsin.js` after the fixes: **81 mutants, 81 killed,
+100%**. The entry is kept because the diagnosis is the useful part.
 
 **Lines 98 to 101: `WI_TOP_BRACKET_BASE` has no reader.** It holds the
 `$225,000` / `$300,000` / `$150,000` statutory bases that the whole 2026

@@ -23,11 +23,14 @@ twenty-fourth.
 **1,348 tests**, a 1,056-household differential grid agreeing on 6,849 of 7,392 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors) and the state engine's rule parameters at **99.2%** (1358
-mutants, 11 survivors), up from 85.8% on Day 33 and 96.3% on Day 34 and **down
-from 99.5% on Day 42** — Wisconsin added 82 mutants and five of them survived,
-four being a shipped constant that nothing reads and one a dead conditional. A
-score that can go down is the only kind worth quoting. Day 37's ledger
+mutants, 0 survivors) and the state engine's rule parameters at **99.6%** (1357
+mutants, 6 survivors), up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
+there by going DOWN first. Wisconsin's first run was 1,358 mutants and **11**
+survivors, 99.2%, because five of its 82 survived: four a shipped constant that
+nothing read and one a conditional that could never be false. Both were fixed and
+re-measured, with all four figures of the second run predicted in writing before
+it. **A score that can go down is the only kind worth quoting**, and this is the
+first time this one has. Day 37's ledger
 took the audit from 702 mutants to 740 and **all 38 of the new ones were killed**,
 with the same six survivors as before — and both figures now carry a fingerprint of
 the build they were measured on, so a stale score can be told from a current one by

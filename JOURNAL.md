@@ -708,9 +708,21 @@ state has.
 `--only wisconsin.js` after both fixes: **81 mutants, 81 killed, 100%** — one
 fewer mutant than before because the dead year literal is gone.
 
-**THE PREDICTION FOR THE RE-RUN, written here before it starts: 1,357 mutants,
+**THE PREDICTION FOR THE RE-RUN, written here before it started: 1,357 mutants,
 1,351 killed, 6 survivors, 99.6%** — which would be the highest this package has
 recorded, and the six would be the same six again.
+
+**Measured: `mutants 1357    killed 1351    survived 6    score 99.6%`, and the
+six are the same six at the same six lines.** All four figures predicted exactly,
+which is the second time in two days the whole prediction has landed — and the
+more useful fact is that the first run's prediction did NOT, on the one number
+that was not arithmetic. **The count is derivable and the survivors are not**: a
+mutant count follows from the source and three operators, and whether a mutant
+dies follows from whether anybody wrote a test, which is a fact about the day
+rather than about the file.
+
+So the day's score went 99.5% → 99.2% → 99.6%, and the middle number is the one
+that did the work.
 
 ### Part 20 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
 

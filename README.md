@@ -120,59 +120,73 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1358 | 11 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.2% |
+| `us-state-tax` (rule parameters) | 1357 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 43** over the build that ships today,
-and **the score went DOWN**: Wisconsin took the audit from 1,267 mutants to
-**1,358** and **five of its 82 survived**, so the survivors went from 6 to 11 and
-the score from 99.5% to **99.2%**. That is the result worth having rather than
-the one to bury — the whole point of the instrument is that it can say no — and
-the five decompose into one real defect and one dead branch.
+and it moved **twice**:
 
-**Four of the five are a constant nothing reads.** `WI_TOP_BRACKET_BASE` holds
-the `$225,000` / `$300,000` / `$150,000` statutory bases the 2026 derivation
-rests on, and its own doc comment says "see `test/wisconsin-indexation.test.js`"
-— which writes its own copy of those figures rather than importing them,
-deliberately, because *a test that calls the code it is checking checks nothing*.
-Both halves of that are defensible and together they leave the shipped constant
-with **no reader at all**: four money literals that could be any number.
+```text
+Day 42, after Oregon          1,267 mutants    6 survivors   99.5%
+Day 43, Wisconsin's first run 1,358 mutants   11 survivors   99.2%
+Day 43, after the five fixes  1,357 mutants    6 survivors   99.6%
+```
 
-**It is Day 42's Ohio defect, one day later, in code written the same day as the
-comment.** Ohio's unread `perFiler` table carried a wrong figure for 33 days "on
-the strength of a comment claiming a test that did not exist". Here the test
-exists and does not read the thing the comment points at, which is the same
+**The first run is the one worth reading, because the score went DOWN.** Five of
+Wisconsin's 82 mutants survived, where the prediction was none — the first fall
+since this instrument was built, and the whole argument for having it. A quality
+number that can only go up is a number nothing is measuring.
+
+**Four of the five were a constant nothing read.** `WI_TOP_BRACKET_BASE` holds
+the `$225,000` / `$300,000` / `$150,000` statutory bases that the entire 2026
+derivation rests on, and its doc comment said "see
+`test/wisconsin-indexation.test.js`" — which writes its own copy of those figures
+rather than importing them, deliberately, because *a test that calls the code it
+is checking checks nothing*. Both halves are defensible and together they left
+the shipped constant with **no reader at all**: four money literals that could
+have been any number.
+
+**It is Day 42's Ohio defect one day later, in code written the same hour as its
+own comment.** Ohio's unread `perFiler` table carried a wrong figure for 33 days
+"on the strength of a comment claiming a test that did not exist"; here the test
+exists and does not read the value the comment points at, which is the same
 failure with better paperwork. **THE RULE: a comment that names a test is a claim
 about that test, and "see `foo.test.js`" has to mean `foo.test.js` reads THIS
-value.**
+value.** The fix is a cross-check rather than a rewrite, because both halves were
+right: the test keeps its own copy as the authority for the arithmetic and
+asserts that the exported constant equals it.
 
-**The fifth is a dead conditional**: `retirementIncomeExclusionElection` is gated
-on `year >= 2025` inside a function that already returns `undefined` for every
-year but 2025 and 2026, so the branch can never be false. Unlike the six
-long-standing survivors it is not unreachable in principle — it is removable.
+**The fifth was a conditional that could never be false** —
+`retirementIncomeExclusionElection` gated on `year >= 2025` inside a function
+that already returns `undefined` for every year but 2025 and 2026. Not
+unreachable in principle like the six long-standing survivors, but *removable*,
+and the guard that looked like caution was hiding that the rule applies to every
+year the state has. Removing it is why the second run has one mutant fewer.
 
-All three of the day's other predictions held. The count was predicted exactly at
-1,358 — 1,267 plus Wisconsin's 82 plus 9 in `src/data/provenance.ts`, the ledger
-that records where every figure came from being itself full of year literals —
-and the other six survivors are the same six at the same six lines.
+**Every number of the second run was predicted in writing before it started** —
+1,357 mutants, 1,351 killed, 6 survivors, 99.6%, same six at the same six lines —
+and 99.6% is the highest this package has recorded.
 
-**And the hand count was right on two of the harness's three operators and wrong
-on the third.** 16 rates and 54 money literals, both predicted; 6 year literals
-predicted against **12** measured. The six missed are the OBJECT KEYS of the three
-`Record<number, ...>` tables that hold Wisconsin's 2025 and 2026 schedules side
-by side — the harness mutates a key exactly as it mutates a value, and a hand
-count that reads the figures misses the keys because a key does not look like a
-parameter. Oregon and Missouri branch on `year >= 2026` instead and have no such
-keys.
+The count was predicted exactly on the first run too, at 1,358: 1,267 plus
+Wisconsin's 82 plus **9 in `src/data/provenance.ts`**, the ledger that records
+where every figure came from being itself full of year literals and audited like
+any other file in the build. **But the hand count was right on two of the
+harness's three operators and wrong on the third** — 16 rates and 54 money
+literals predicted and measured, 6 year literals predicted against 12. The six
+missed are the OBJECT KEYS of the three `Record<number, ...>` tables that hold
+Wisconsin's 2025 and 2026 schedules side by side: the harness mutates a key
+exactly as it mutates a value, and a hand count that reads the figures misses the
+keys because a key does not look like a parameter. Oregon and Missouri branch on
+`year >= 2026` instead and have no such keys.
 
-**The first attempt at this measurement enumerated 1,626 mutants rather than
-1,358**, because the `--skip` list for the seven locality registries — 1,033
-transcribed local rates, which are data and not rules — lived in
-`tools/mutation/README.md` and nowhere the program could read. It is a harness
-default now, announced at start-up beside the record destination. Day 42's rule
-was that a flag which is PRESENT and does nothing is worse than one that is
-missing; this is that rule with the sign flipped, and the only thing standing
-between the wrong flag and a wrong number in this README was `check-scores.mjs`
-comparing the recorded skip list.
+**And the first attempt at this measurement enumerated 1,626 mutants**, because
+the `--skip` list for the seven locality registries — 1,033 transcribed local
+rates, which are data and not rules — lived in `tools/mutation/README.md` and
+nowhere the program could read. It is a harness default now, announced at
+start-up beside the record destination. Day 42's rule was that a flag which is
+PRESENT and does nothing is worse than one that is missing; this is that rule
+with the sign flipped, and the only thing standing between the wrong flag and a
+wrong number in this README was `check-scores.mjs` comparing the recorded skip
+list.
 
 Day 42 is the row underneath:
 Oregon took the audit from 1,185 mutants to **1,267** and **all 82 of the new

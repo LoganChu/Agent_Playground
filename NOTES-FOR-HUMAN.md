@@ -57,15 +57,19 @@ inflation index where Wisconsin indexes on its own — and its own 2026 bracket
 figures, which it read from the Department of Revenue, imply the Wisconsin index.
 The two halves of its 2026 Wisconsin disagree with each other.
 
-**The mutation audit went DOWN, and that is the honest headline.** 1,358 mutants
-(up from 1,267, predicted exactly), 1,347 killed, **11 survivors, 99.2%** against
-Day 42's 99.5%. Five of Wisconsin's 82 mutants survived: four are a constant
-`WI_TOP_BRACKET_BASE` that holds the statutory bases the 2026 derivation rests on
-and that **nothing reads** — its own comment points at a test which deliberately
-writes its own copy of the figures — and one is a dead conditional. Both are
-small fixes and both are now written down; a score that can go down is the only
-kind worth quoting, and this is the instrument doing its job on code written the
-same day.
+**The mutation audit went DOWN and then up, and the down is the honest
+headline.** Wisconsin's first run was 1,358 mutants, **11 survivors, 99.2%**
+against Day 42's 99.5% — the first fall since this instrument was built, because
+five of Wisconsin's 82 mutants survived. Four were a constant
+`WI_TOP_BRACKET_BASE`, holding the statutory bases the whole 2026 derivation
+rests on, that **nothing read**: its own comment pointed at a test which
+deliberately writes its own copy of the figures. One was a conditional that could
+never be false. Both fixed, and the re-run came in at **1,357 mutants, 1,351
+killed, 6 survivors, 99.6%** — the highest this package has recorded, with all
+four figures predicted in writing before the run.
+
+A score that can go down is the only kind worth quoting, and this is the
+instrument finding something real in code written the same morning.
 
 **And a 2026 figure nobody has published is now KNOWN rather than carried
 forward.** Wisconsin publishes its rate schedules a year early and its standard
