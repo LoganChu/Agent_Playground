@@ -1314,7 +1314,7 @@ export interface EarnedIncomeCreditRule {
   readonly investmentIncomeLimit?: number;
   /**
    * A match that **varies with the number of qualifying children** — Wisconsin's,
-   * Wis. Stat. § 71.07(9e)(aj), and the only state match in this package that is
+   * Wis. Stat. § 71.07(9e), and the only state match in this package that is
    * not one percentage.
    *
    * ```text

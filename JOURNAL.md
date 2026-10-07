@@ -225,10 +225,10 @@ instrument**, and the instrument is `test/wisconsin-indexation.test.js`:
    five published years bound it the same way, through the factors from step 1.
 3. The 2026 figure is `round10(base x factor)` over both intervals.
 
-**Four of the seven figures come out UNIQUE** — the single, joint, surviving
-spouse and head of household maxima, and the joint threshold — and the single and
-joint ones are independently corroborated by two secondary reproductions of the
-2026 table. Three are left choosing between two adjacent multiples of `$10`.
+**Four of the seven figures come out UNIQUE** — the single, joint and head of
+household maxima and the joint threshold, the surviving spouse column being the
+joint figure rather than a seventh — and the single and joint ones are
+independently corroborated by two secondary reproductions of the 2026 table. Three are left choosing between two adjacent multiples of `$10`.
 
 **And the method is VALIDATED rather than asserted.** Deriving the bases from
 2021–2024 alone and predicting 2025 puts the published figure inside the
@@ -283,8 +283,9 @@ Wisconsin, and it was right to fail and wrong to be obeyed.
 The rule rests on a fact about **publication**: a state prints every column of a
 table in one document, so a column nobody read means a table nobody read. **A
 DERIVATION runs column by column and can settle one and not its neighbour.** The
-2026 single, joint, surviving spouse and head of household maxima are determined
-and the separate one is not, so flagging the siblings would have claimed an
+2026 single, joint and head of household maxima are determined — and the
+surviving spouse column with them, being the joint figure — while the separate
+one is not, so flagging the siblings would have claimed an
 uncertainty that is not there.
 
 The rule now exempts `bounded-derivation` — and a new test takes its place:

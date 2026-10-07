@@ -2582,7 +2582,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.2.upTo',
     kind: 'indexed',
     document: '2026 Form 1-ES instructions',
-    cite: 'Wis. Stat. § 71.06 — the 7.65% rate begins at $323,290 single and head of household, $431,060 joint and $215,530 separate for 2025, and $332,720, $443,630 and $221,820 for 2026. These three are the figures the rest of this state-year is measured against: their statutory bases are $225,000, $300,000 and $150,000 (2013 Act 20, verified ARITHMETICALLY rather than read in a subsection: 266,930/225,000, 355,910/300,000 and 177,960/150,000 agree to six figures), so a published value divided by its base IS the cumulative indexation factor to within $5/base — which is what makes the unpublished 2026 standard deduction schedule derivable',
+    cite: 'Wis. Stat. § 71.06 — the 7.65% rate begins at $323,290 single and head of household, $431,060 joint and $215,530 separate for 2025, and $332,720, $443,630 and $221,820 for 2026. These three are the figures the rest of this state-year is measured against: their statutory bases are $225,000, $300,000 and $150,000, VERIFIED ARITHMETICALLY rather than read in a subsection — 266,930/225,000, 355,910/300,000 and 177,960/150,000 agree to six figures, across three statuses and five years. 2013 Act 20 is the act that took Wisconsin from five brackets to four and is the likely source of the three figures, on one source rather than two, which is why the arithmetic is what this entry rests on, so a published value divided by its base IS the cumulative indexation factor to within $5/base — which is what makes the unpublished 2026 standard deduction schedule derivable',
     constant: false,
   },
   {
@@ -2600,7 +2600,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'deduction.maximum.*',
     kind: 'derived',
     years: [2026],
-    cite: 'DERIVED, and for three of the five cells DETERMINED. The 2026 Standard Deduction Table is not published until January 2027, but § 71.06 and § 71.05(22) index both schedules on the same CPI measure, so the published 2026 top-bracket thresholds bound the cumulative factor to 7.5 parts per million and each figure’s own statutory base is bounded by its five published years. The single ($13,960), joint and surviving spouse ($25,840) and head of household ($18,030) cells come out UNIQUE; the single and joint figures are independently corroborated by two secondary reproductions of the 2026 table. The separate cell is bounded and not determined and is overridden by the entry below. See test/wisconsin-indexation.test.js, which also validates the method by predicting the published 2025 schedule from 2021-2024 alone',
+    cite: 'DERIVED, and for FOUR of the five cells DETERMINED. The 2026 Standard Deduction Table is not published until January 2027, but § 71.06 and § 71.05(22) index both schedules on the same CPI measure, so the published 2026 top-bracket thresholds bound the cumulative factor to 7.5 parts per million and each figure’s own statutory base is bounded by its five published years. The single ($13,960), joint and surviving spouse ($25,840) and head of household ($18,030) cells come out UNIQUE; the single and joint figures are independently corroborated by two secondary reproductions of the 2026 table. The separate cell is bounded and not determined and is overridden by the entry below. See test/wisconsin-indexation.test.js, which also validates the method by predicting the published 2025 schedule from 2021-2024 alone',
     constant: true,
   },
   {
@@ -2634,7 +2634,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'deduction.tiers.marriedFilingJointly.0.above',
     kind: 'derived',
     years: [2026],
-    cite: 'DETERMINED by the derivation: $29,037.10 to $29,038.30 admits $29,040 and nothing else. Same arithmetic as the maxima, same test. The qualifying surviving spouse cell is this figure by § 71.05(22)(dp)’s own cross-reference and is covered by the entry below',
+    cite: 'DETERMINED by the derivation: $29,037.10 to $29,038.30 admits $29,040 and nothing else. Same arithmetic as the maxima, same test. The qualifying surviving spouse cell takes this figure in this package and is covered by the entry below, where the open question about that status is recorded',
     constant: true,
   },
   {
@@ -2642,7 +2642,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'deduction.tiers.qualifyingSurvivingSpouse.0.above',
     kind: 'derived',
     years: [2026],
-    cite: 'the joint threshold, which a qualifying surviving spouse uses because § 71.05(22)(dp) puts that status on the joint schedule for the two years after the death',
+    cite: 'the joint threshold, which this package gives a qualifying surviving spouse because that is the near-universal state rule. WHETHER WISCONSIN OFFERS THE STATUS AT ALL IS THE OPEN QUESTION OF DAY 43 and is recorded in NOTES-FOR-HUMAN.md: § 71.06 writes its schedules for "fiduciaries, single individuals and heads of households" and for "married persons", with no surviving-spouse schedule, and the Form 1 instructions tell a filer whose spouse died in an earlier year to file as single or head of household. If that reading holds, this cell and the joint rate schedule are both wrong for the status and the error is up to $2,861 in the filer\'s favour',
     constant: true,
   },
   {
@@ -2681,7 +2681,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'capitalGainsSubtraction.share',
     kind: 'statute',
     document: '§ 71.05(6)(b)9',
-    cite: 'Wis. Stat. § 71.05(6)(b)9, Schedule WD line 25 — 30% of the net capital gain to the extent it is long-term. Unchanged since 2011 and the reason Wisconsin’s top rate on a long-term gain is 5.355% rather than 7.65%',
+    cite: 'Wis. Stat. § 71.05(6)(b)9, Schedule WD line 25 — 30% of the net capital gain to the extent it is long-term, and the reason Wisconsin’s top rate on a long-term gain is 5.355% rather than 7.65%. The share has not moved across the years this package checks; an earlier draft of this entry said "unchanged since 2011" and that year was not from a source',
     constant: true,
   },
   {
@@ -2689,7 +2689,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'exemption.perFiler.*',
     kind: 'statute',
     document: '§ 71.05(23)',
-    cite: 'Wis. Stat. § 71.05(23) — $700 per exemption, so $1,400 on a joint return and $700 on every other status including a qualifying surviving spouse, who files alone. UNINDEXED and $700 since 2001, which is the figure and the whole of what this ledger knows about it — an earlier draft of this entry added a purchasing-power percentage that nothing here could cite, and it was wrong',
+    cite: 'Wis. Stat. § 71.05(23) — $700 per exemption, so $1,400 on a joint return and $700 on every other status including a qualifying surviving spouse, who files alone. UNINDEXED, and $700 for every year any source this package has consulted carries — the earliest is 2001, which is where a parameter file\'s series begins and not necessarily where the statute\'s does. An earlier draft of this entry added a purchasing-power percentage that nothing here could cite, and it was wrong',
     constant: true,
   },
   {
@@ -2753,7 +2753,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'schoolPropertyTaxCredit.rentShare',
     kind: 'statute',
     document: '§ 71.07(9)',
-    cite: 'Wis. Stat. § 71.07(9)(a)4 — 20% of rent is treated as property tax where heat is included. The statute uses a higher share where it is not, and this package does not ask which, because the $300 cap binds either way above $12,500 of annual rent',
+    cite: 'Wis. Stat. § 71.07(9) — 20% of rent is treated as property tax where heat is included. Section level: the subdivision is one a parameter file names and this package has not read. The statute uses a higher share where it is not, and this package does not ask which, because the $300 cap binds either way above $12,500 of annual rent',
     constant: true,
   },
   {
@@ -2761,7 +2761,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'marriedCoupleCredit.rate',
     kind: 'statute',
     document: '§ 71.07(6)',
-    cite: 'Wis. Stat. § 71.07(6)(am) — 3% of the qualified earned income of the spouse with the LESSER qualified earned income',
+    cite: 'Wis. Stat. § 71.07(6) — 3% of the qualified earned income of the spouse with the LESSER qualified earned income. Section level; the paragraph is not one this package has read',
     constant: true,
   },
   {
@@ -2769,7 +2769,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'marriedCoupleCredit.max',
     kind: 'statute',
     document: '§ 71.07(6)',
-    cite: 'Wis. Stat. § 71.07(6)(am) — $480, which the 3% reaches at $16,000 of second-earner income. Unindexed',
+    cite: 'Wis. Stat. § 71.07(6) — $480, which the 3% reaches at $16,000 of second-earner income. Unindexed across the years this package checks',
     constant: true,
   },
   {
@@ -2777,7 +2777,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'earnedIncomeCredit.matchRate',
     kind: 'statute',
     document: '§ 71.07(9e)',
-    cite: 'Wis. Stat. § 71.07(9e)(aj) — ZERO, which is the rate for a filer with no qualifying children. Wisconsin pays no match at all on the federal childless credit, so this is a figure and not a placeholder; the rates for one, two and three children are the table below',
+    cite: 'Wis. Stat. § 71.07(9e) — ZERO, which is the rate for a filer with no qualifying children. Wisconsin pays no match at all on the federal childless credit, so this is a figure and not a placeholder; the rates for one, two and three children are the table below',
     constant: true,
   },
   {
@@ -2785,7 +2785,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'earnedIncomeCredit.matchRateByChildCount.*.rate',
     kind: 'statute',
     document: '§ 71.07(9e)',
-    cite: 'Wis. Stat. § 71.07(9e)(aj) — 4% with one qualifying child, 11% with two, 34% with three or more. The largest spread by family size of any state match here: on the 2026 federal maximums that is $177.08, $804.76 and $2,798.54',
+    cite: 'Wis. Stat. § 71.07(9e) — 4% with one qualifying child, 11% with two, 34% with three or more. The largest spread by family size of any state match here: on the 2026 federal maximums that is $177.08, $804.76 and $2,798.54',
     constant: true,
   },
   {
@@ -2793,7 +2793,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'earnedIncomeCredit.matchRateByChildCount.*.children',
     kind: 'statute',
     document: '§ 71.07(9e)',
-    cite: 'Wis. Stat. § 71.07(9e)(aj) — the child counts the three rates attach to, 1, 2 and 3. The last means three OR MORE',
+    cite: 'Wis. Stat. § 71.07(9e) — the child counts the three rates attach to, 1, 2 and 3. The last means three OR MORE',
     constant: true,
   },
   {
@@ -2809,7 +2809,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'retirementIncomeExclusionElection.perPerson',
     kind: 'statute',
     document: '2025 Wisconsin Act 15',
-    cite: 'Wis. Stat. § 71.05(6)(b)54m.a — $24,000 of qualifying retirement income per eligible individual. Unindexed as enacted, which is the Oregon retirement credit’s fate in advance',
+    cite: 'Wis. Stat. § 71.05(6)(b)54m.a — $24,000 of qualifying retirement income per eligible individual. This package carries the same figure for 2025 and 2026 because Act 15 is four months old and nothing has indexed it yet; whether the statute indexes it at all is not something this package has read',
     constant: true,
   },
   {

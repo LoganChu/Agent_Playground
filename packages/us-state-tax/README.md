@@ -678,9 +678,9 @@ lies within `$5` of it — and three filing statuses give three bounds on one fa
 base is bounded the same way by its five published years, and the 2026 figure is then
 `round10(base × factor)` over both intervals.
 
-**Four of the seven come out unique** — the single, joint, surviving spouse and head of
-household maxima and the joint threshold — and the single and joint ones are independently
-corroborated by two secondary reproductions of the table. Three admit two adjacent multiples
+**Four of the seven come out unique** — the single, joint and head of household maxima and
+the joint threshold, the surviving spouse column being the joint figure — and the single and
+joint ones are independently corroborated by two secondary reproductions of the table. Three admit two adjacent multiples
 of `$10` and are flagged in `provisionalFigures`, each with its interval, both candidate
 values, which one is stored and the bound: `$10` of deduction is **at most 77 cents of tax**,
 the narrowest provisional flag this package has ever carried.
