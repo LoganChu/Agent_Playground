@@ -173,7 +173,7 @@ import type { ByStatus, Citation } from '../types.js';
 
 const CITATIONS: readonly Citation[] = [
   {
-    title: 'Wis. Stat. § 71.06 — the rate schedules and § 71.06(2e) the indexation of their brackets',
+    title: 'Wis. Stat. § 71.06 — the four rate schedules and the bracket indexing provision. Cited at SECTION level deliberately: § 71.06(2e) is written "for taxable years beginning after December 31, 2009, and before January 1, 2025" and 2025 Act 118 repealed § 71.06(1m), (1n), (1p) and (2)(c) to (h), so the subsection that indexes a 2026 bracket is not one this package has read',
     url: 'https://docs.legis.wisconsin.gov/statutes/statutes/71/i/06',
   },
   {
@@ -375,7 +375,7 @@ const NOTES: readonly string[] = [
   'Wisconsin has NO itemized deduction. § 71.07(5) gives a CREDIT of 5% of the excess of eligible itemized deductions over the standard deduction, and 5% is below every Wisconsin rate — so the credit is worth less than a deduction for the same expense would be, and the gap WIDENS with the bracket: $10,000 of excess is worth $500 against $530 of deduction value at 5.3% and against $765 at 7.65%. Pass stateItemizedDeductions, which is the Schedule 1 figure and NOT the federal Schedule A total: Wisconsin excludes state and local taxes, the largest line on most Schedule As, and counts only medical and dental above the federal AGI floor, investment and home mortgage interest, charitable contributions and casualty losses.',
   'The Wisconsin earned income credit is FOUR rates and not one: 0% with no qualifying children, 4% with one, 11% with two and 34% with three or more (§ 71.07(9e)(aj)). On the 2026 federal maximums that is $177.08, $804.76 and $2,798.54, so a parent of three keeps 15.8 times in dollars what a parent of one keeps, against a rate ratio of 8.5. It is refundable. The child count this engine uses is `dependents`, which is not the same question § 32 asks — a dependent parent is a dependent and not a qualifying child — so a household whose dependents are not all qualifying children is overstated and should pass the qualifying-child count instead.',
   'Wisconsin excludes 30% of the net LONG-TERM capital gain (§ 71.05(6)(b)9, Schedule WD line 25), bounded by the net gain as a whole: a short-term loss eats the exclusion and a short-term gain cannot create one. Pass shortTermCapitalGains alongside netCapitalGain to split the line; absent, the whole net gain is treated as long-term, which OVERSTATES the exclusion for a filer with short-term gains. Wisconsin\'s top rate on a long-term gain is 7.65% x 70% = 5.355%.',
-  'Wisconsin does not tax Social Security or Tier 1 railroad retirement benefits at all, and this engine subtracts the taxable part from `taxableSocialSecurity`. It does not tax U.S. military retired pay either (§ 71.05(1)(a)), which is NOT modelled here — pass military retired pay through `subtractions` or it is taxed.',
+  'Wisconsin does not tax Social Security or Tier 1 railroad retirement benefits at all, and this engine subtracts the taxable part from `taxableSocialSecurity`. It does not tax U.S. military retired pay either — § 71.05(1)(a), (am) and (an), of which only (a) is the closed 31 December 1963 cohort and (am) is the general exemption — which is NOT modelled here — pass military retired pay through `subtractions` or it is taxed.',
   'The married couple credit is 3% of the LESSER of the two spouses\' qualifying earned income, capped at $480 (§ 71.07(6)), and it needs a figure no federal return carries: Form 1040 does not split earned income between the two people on a joint return. Pass lesserSpouseIncome. Absent, the credit is computed as zero, which is right for a single-earner couple and wrong for most joint returns — two spouses on $50,000 each are worth $480 and one spouse on $100,000 is worth nothing, on identical joint income.',
   'The school property tax credit is 12% of property tax paid plus 12% of 20% of rent, capped at $300 (§ 71.07(9)). The cap binds at $2,500 of property tax, which is below the median Wisconsin property tax bill, so for most Wisconsin homeowners this credit is a flat $300 and the only question is whether they reach it. Pass propertyTaxPaid or rentPaid. The 20% is the "heat included" share; where heat is not included the statute uses a higher one, which this package does not ask about because the cap binds either way above $12,500 of annual rent.',
   'Not modelled: the child and dependent care credit, which from 2024 is 100% of the federal credit on up to $10,000 of expenses ($20,000 for two or more) — several times the federal credit itself and the largest omission here for a working parent; the homestead credit (§ 71.54); the tuition and fees subtraction; the medical care insurance subtraction; the 529 contribution subtraction; the unemployment compensation subtraction and its 50% phase-out; the Wisconsin AMT; and part-year and nonresident returns, which apportion on Form 1NPR rather than computing the full-year figure here.',
@@ -440,7 +440,7 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
     base: 'federalAdjustedGrossIncome',
     subtractsTaxableSocialSecurity: true,
     outOfStateMunicipalInterestAddition: {
-      cite: 'Wis. Stat. § 71.05(1)(c) — interest on bonds or notes issued by any other state or its political subdivisions is not exempt; Wisconsin Schedule AD line 2',
+      cite: 'Wisconsin Schedule AD line 1, "State and municipal interest" — the Form 1 instructions say this is generally the tax-exempt interest on federal Form 1040 line 2a. Wis. Stat. § 71.05(1) works the other way round from most states\' add-backs: paragraphs (b) and (c) ENUMERATE the Wisconsin obligations whose interest is exempt, so another state\'s bond is in the Wisconsin base because it is not on that list rather than because a provision adds it back. Cited at section level; (1)(c) alone is the exemption list and naming it for the addition is the error this cite used to make',
       measure: 'interest',
       netOfExpenses: false,
     },
@@ -455,13 +455,14 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
       name: 'Long-term capital gain exclusion (30%)',
       share: 0.3,
       includesShortTerm: false,
-      cite: 'Wis. Stat. § 71.05(6)(b)9 — 30% of the net capital gain as computed under the Internal Revenue Code, to the extent it is long-term; Schedule WD line 25',
+      cite: 'Wis. Stat. § 71.05(6)(b)9 — "on assets held more than one year and on all assets acquired from a decedent, 30 percent of the capital gain as computed under the Internal Revenue Code", and "the capital gains and capital losses for all assets shall be netted before application of the percentage", which is the sentence this engine implements as min(net gain, long-term gain); Schedule WD line 25',
     },
     exemption: {
       perFiler: byStatus({ single: 700, joint: 1_400, separate: 700, headOfHousehold: 700 }),
       perDependent: 700,
-      // § 71.05(23)(b)2 — $250 more for the taxpayer and for the spouse at 65,
-      // per person and not per return.
+      // § 71.05(23) — $250 more for the taxpayer and for the spouse at 65, per
+      // person and not per return. Section level: the paragraph is not one this
+      // package has read, and a subsection is where a citation goes wrong.
       perSeniorFiler: 250,
       seniorAge: 65,
       separateReturnSpouse: {

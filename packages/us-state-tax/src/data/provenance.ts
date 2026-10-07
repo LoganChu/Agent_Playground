@@ -2566,7 +2566,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.0.upTo',
     kind: 'indexed',
     document: '2026 Form 1-ES instructions',
-    cite: 'Wis. Stat. § 71.06(2e) indexes every bracket boundary off the statutory base amounts, rounded to the nearest $10. The top of the 3.5% band is $14,680 single and head of household, $19,580 joint and $9,790 separate for 2025 (2025 Form 1 instructions, rate schedules) and $15,110, $20,150 and $10,080 for 2026 (2026 Form 1-ES instructions, published December 2025 — the only document carrying the 2026 schedules until the 2026 Form 1 instructions appear in January 2027)',
+    cite: 'Wis. Stat. § 71.06 indexes every bracket boundary off the statutory base amounts, rounded to the nearest $10 — section level, because § 71.06(2e) is written for 2010 through 2024 and 2025 Act 118 repealed several neighbouring subsections, so the subsection in force for 2026 is not one this package has read. The top of the 3.5% band is $14,680 single and head of household, $19,580 joint and $9,790 separate for 2025 (2025 Form 1 instructions, rate schedules) and $15,110, $20,150 and $10,080 for 2026 (2026 Form 1-ES instructions, published December 2025 — the only document carrying the 2026 schedules until the 2026 Form 1 instructions appear in January 2027)',
     constant: false,
   },
   {
@@ -2574,7 +2574,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.1.upTo',
     kind: 'indexed',
     document: '2025 Wisconsin Act 15',
-    cite: 'THE ONE FIGURE HERE A WIDELY USED REFERENCE MODEL GETS WRONG. 2025 Act 15 raised the top of the 4.4% band to $50,480 single and head of household, $67,300 joint and $33,650 separate, retroactive to 1 January 2025; § 71.06(2e) indexation resumes for 2026 and produces $51,950, $69,260 and $34,630, which is what the 2026 Form 1-ES instructions carry. The arithmetic is what settles 2025 rather than the citation alone: $50,480 times the factor the published 2026 figures pin rounds to $51,950 to the dollar, and all three statuses agree. PolicyEngine-US 2.15.3 carries $51,130 / $68,170 / $34,090 for 2025 — the Act 15 figures indexed a year early — which cannot reach the 2026 figures the same model also carries: $51,130 indexed is $52,620',
+    cite: 'THE ONE FIGURE HERE A WIDELY USED REFERENCE MODEL GETS WRONG. 2025 Act 15 raised the top of the 4.4% band to $50,480 single and head of household, $67,300 joint and $33,650 separate, retroactive to 1 January 2025; § 71.06\'s bracket indexing resumes for 2026 and produces $51,950, $69,260 and $34,630, which is what the 2026 Form 1-ES instructions carry. The arithmetic is what settles 2025 rather than the citation alone: $50,480 times the factor the published 2026 figures pin rounds to $51,950 to the dollar, and all three statuses agree. PolicyEngine-US 2.15.3 carries $51,130 / $68,170 / $34,090 for 2025 — the Act 15 figures indexed a year early — which cannot reach the 2026 figures the same model also carries: $51,130 indexed is $52,620',
     constant: false,
   },
   {
@@ -2582,7 +2582,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'rate.byStatus.*.2.upTo',
     kind: 'indexed',
     document: '2026 Form 1-ES instructions',
-    cite: 'Wis. Stat. § 71.06(2e) — the 7.65% rate begins at $323,290 single and head of household, $431,060 joint and $215,530 separate for 2025, and $332,720, $443,630 and $221,820 for 2026. These three are the figures the rest of this state-year is measured against: their statutory bases are $225,000, $300,000 and $150,000 (2013 Act 20), so a published value divided by its base IS the cumulative indexation factor to within $5/base — which is what makes the unpublished 2026 standard deduction schedule derivable',
+    cite: 'Wis. Stat. § 71.06 — the 7.65% rate begins at $323,290 single and head of household, $431,060 joint and $215,530 separate for 2025, and $332,720, $443,630 and $221,820 for 2026. These three are the figures the rest of this state-year is measured against: their statutory bases are $225,000, $300,000 and $150,000 (2013 Act 20, verified ARITHMETICALLY rather than read in a subsection: 266,930/225,000, 355,910/300,000 and 177,960/150,000 agree to six figures), so a published value divided by its base IS the cumulative indexation factor to within $5/base — which is what makes the unpublished 2026 standard deduction schedule derivable',
     constant: false,
   },
   {
@@ -2600,7 +2600,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'deduction.maximum.*',
     kind: 'derived',
     years: [2026],
-    cite: 'DERIVED, and for three of the five cells DETERMINED. The 2026 Standard Deduction Table is not published until January 2027, but § 71.06(2e) and § 71.05(22)(ds) index both schedules on the same CPI measure, so the published 2026 top-bracket thresholds bound the cumulative factor to 7.5 parts per million and each figure’s own statutory base is bounded by its five published years. The single ($13,960), joint and surviving spouse ($25,840) and head of household ($18,030) cells come out UNIQUE; the single and joint figures are independently corroborated by two secondary reproductions of the 2026 table. The separate cell is bounded and not determined and is overridden by the entry below. See test/wisconsin-indexation.test.js, which also validates the method by predicting the published 2025 schedule from 2021-2024 alone',
+    cite: 'DERIVED, and for three of the five cells DETERMINED. The 2026 Standard Deduction Table is not published until January 2027, but § 71.06 and § 71.05(22) index both schedules on the same CPI measure, so the published 2026 top-bracket thresholds bound the cumulative factor to 7.5 parts per million and each figure’s own statutory base is bounded by its five published years. The single ($13,960), joint and surviving spouse ($25,840) and head of household ($18,030) cells come out UNIQUE; the single and joint figures are independently corroborated by two secondary reproductions of the 2026 table. The separate cell is bounded and not determined and is overridden by the entry below. See test/wisconsin-indexation.test.js, which also validates the method by predicting the published 2025 schedule from 2021-2024 alone',
     constant: true,
   },
   {
@@ -2705,7 +2705,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'exemption.perSeniorFiler',
     kind: 'statute',
     document: '§ 71.05(23)',
-    cite: 'Wis. Stat. § 71.05(23)(b)2 — $250 more for the taxpayer and again for the spouse at 65, PER PERSON, so a joint return where both have reached 65 claims two. Unindexed',
+    cite: 'Wis. Stat. § 71.05(23) — $250 more for the taxpayer and again for the spouse at 65, PER PERSON, so a joint return where both have reached 65 claims two. Unindexed. Section level: the paragraph that carries the age addition is not one this package has read, and § 71.05(23)(a)2 is the only subdivision of it a source has shown',
     constant: true,
   },
   {
@@ -2713,7 +2713,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'exemption.seniorAge',
     kind: 'statute',
     document: '§ 71.05(23)',
-    cite: 'Wis. Stat. § 71.05(23)(b)2 — 65, and Wisconsin’s age addition sits inside the EXEMPTION rather than inside the standard deduction, which is why its separate-return declaration has no aged half to read',
+    cite: 'Wis. Stat. § 71.05(23) — 65, and Wisconsin’s age addition sits inside the EXEMPTION rather than inside the standard deduction, which is why its separate-return declaration has no aged half to read',
     constant: true,
   },
   {

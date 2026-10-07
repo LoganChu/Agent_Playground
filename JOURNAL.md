@@ -459,6 +459,14 @@ one that says something about Wisconsin.
   caller cost a parameter rather than a rewrite. Day 41's rule about the second
   state telling you which parts of the first state's rule were the rule, applied
   to control flow instead of to data.
+- **Two restarts of the recorded audit, for two different reasons, and both are
+  rules this journal already contained.** The first was the wrong `--skip` flags
+  (Part 12), which is Day 42's "a flag that does nothing" with the sign flipped.
+  The second was four wrong citations found after the run had started (Part 16),
+  which is Day 42's "make every citation edit before the audit" missing the words
+  "and check them first". **The pattern is worth naming: a rule that tells you
+  WHEN to do something does not tell you to do it, and the gap shows up as the
+  rule being obeyed and the thing it protects still going wrong.**
 - **Nine `assert.equal(..., N)` count pins broke on one new state**, across the
   registry, the notes, the status sweep, the step probes and three READMEs. They
   are doing their job and the cost is real: about forty minutes of the day. The
@@ -493,7 +501,56 @@ product.** The drift was invisible for the ordinary reason: the README suites ar
 the ones a new state breaks, so they get regenerated every day, and a surface
 with no test about it is a surface nothing forces anybody to look at.
 
-### Part 16 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
+### Part 16 — four citations wrong, and Day 42's rule needed one more word
+
+Day 42 Part 14 found four wrong citations in Oregon, every one of them a
+parenthesis, and wrote the rule: *a wrong citation is worse than a missing one,
+and a SUBSECTION is where a citation goes wrong, because the section is the part
+you looked up and the subsection is the part you inferred.* Day 42 Part 15 added
+the process half: *make every documentation and citation edit BEFORE starting the
+recorded audit.*
+
+**I followed the second rule and broke the first, which is the gap between them.**
+Every documentation edit was made before the audit started — and four of the
+citations in those edits were wrong, because the rule tells you WHEN to edit and
+not to go looking. So the audit started, and then I went and checked.
+
+| citation | what it actually is |
+| --- | --- |
+| `§ 71.05(1)(a)` for the military retirement exemption | the **closed 31 December 1963 cohort**; the general exemption is `(am)`, and `(an)` covers the coast guard, NOAA and PHS commissioned corps |
+| `§ 71.05(1)(c)` for the out-of-state municipal interest addition | a list of **Wisconsin** obligations whose interest is **exempt** — the opposite direction |
+| `§ 71.05(22)(ds)` for the standard deduction indexing | "Standard deduction indexing" for **1998 to 2000 only** |
+| `§ 71.05(23)(b)2` for the `$250` age addition | a subdivision nothing I read names; `(23)(a)2` is the only one a source showed |
+
+And a fifth that is not wrong but is not safe: **`§ 71.06(2e)` is written "for
+taxable years beginning after December 31, 2009, and before January 1, 2025", and
+2025 Act 118 repealed `§ 71.06(1m)`, `(1n)`, `(1p)` and `(2)(c)` to `(h)`** — so
+the subsection that indexes a 2026 Wisconsin bracket is not one this package has
+read. All five are now at section level with the reason written beside them, and
+`§ 71.06(1q)` is gone from the base-amounts comment too, because those three
+figures were verified ARITHMETICALLY — `266,930/225,000`, `355,910/300,000` and
+`177,960/150,000` agreeing to six figures — and not read in a subsection.
+
+**Two citations came out of the check stronger rather than weaker**, which is the
+part that makes the check worth the time rather than only a tax on carelessness:
+
+- **`§ 71.05(22)(dp)` is right.** It is "Deduction limits, 2000 and thereafter",
+  and `(dm)` — which the reference model cites — is "Deduction limits; 1994 to
+  1999", an obsolete subsection.
+- **`§ 71.05(6)(b)9` is right, and its own words describe the code.** "On assets
+  held more than one year and on all assets acquired from a decedent, 30 percent
+  of the capital gain as computed under the internal revenue code", and "the
+  capital gains and capital losses for all assets shall be netted before
+  application of the percentage" — which is exactly the `min(net gain, long-term
+  gain)` this engine computes, arrived at from PolicyEngine's implementation and
+  now confirmed from the statute's sentence.
+
+**THE RULE, Day 42's with one more word: make every citation edit before the
+audit, AND CHECK THE CITATIONS FIRST, because an unchecked citation is an edit
+you have not made yet.** The cost of learning that today was a second restart of
+the recorded run, which is the whole argument for the rule in one line.
+
+### Part 17 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
 
 Worklist item 7 since Day 40 has been "make the audit faster by running FEWER
 TEST FILES per mutant", and the note beside it had the diagnosis right and the
@@ -598,14 +655,14 @@ one.
 6. **`exemptionCredit.separateReturnSpouse` for California and Ohio**, unchanged
    from Day 42. California's is `$153` a separate return and Ohio's `$20`.
 7. **Fingerprint the mutable literals rather than the file bytes**, unchanged
-   from Day 42 and still worth it: `mutate.mjs` already enumerates every mutant,
-   so a digest over that enumeration would be invalidated by a figure changing
-   and NOT by a comment or a citation being corrected. Today cost no audit runs
-   to this, because Part 15's rule was followed and every documentation edit
-   happened before the recorded run — but the only reason the Wisconsin
-   surviving-spouse fix is tomorrow's work rather than today's is that a
-   parameter change mid-audit invalidates the score, and a literal fingerprint
-   would not change that. Weaker case than it looked.
+   from Day 42 and **stronger today than it looked yesterday**: `mutate.mjs`
+   already enumerates every mutant, so a digest over that enumeration would be
+   invalidated by a figure changing and NOT by a comment or a citation being
+   corrected. Day 43 lost a restart to exactly that — four citations fixed after
+   the audit had started (Part 16) — and would have lost nothing with a literal
+   fingerprint, because not one of the five edits changed a mutant. It does NOT
+   help with the Wisconsin surviving-spouse fix, which is a parameter change and
+   genuinely invalidates a score. Two restarts in one day is the case for it.
 8. **Select test files per mutant** (Part 15), now worth about half what it was.
    The sound design is written down in `mutate.mjs`.
 9. **Oregon's federal pension subtraction** and **Oregon's Working Family
