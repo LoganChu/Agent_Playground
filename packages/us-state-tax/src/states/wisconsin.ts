@@ -265,8 +265,18 @@ const THRESHOLDS: Readonly<Record<number, ByStatus<readonly number[]>>> = {
  * They are here because they are what makes 2026's unpublished standard
  * deduction knowable: `published / base` is the cumulative indexation factor,
  * and three independent statuses agreeing on it to seven figures is a tighter
- * bound than any single ratio of rounded figures can give. See
- * `test/wisconsin-indexation.test.js`.
+ * bound than any single ratio of rounded figures can give.
+ *
+ * **`test/wisconsin-indexation.test.js` does the arithmetic from its OWN copy of
+ * these three figures and then asserts that this constant equals it.** The two
+ * halves of that are both deliberate and the Day 43 mutation audit found what
+ * happens when only the first is: the test wrote its own copy — because a test
+ * that calls the code it is checking checks nothing — and nothing else read this
+ * export, so all four of its literals survived. **THE RULE: a comment that names
+ * a test is a claim about that test, and "see `foo.test.js`" has to mean
+ * `foo.test.js` reads THIS value.** Day 42 found the same shape in Ohio's unread
+ * exemption table, which carried a wrong figure for 33 days on the strength of a
+ * comment claiming a test that did not exist.
  */
 export const WI_TOP_BRACKET_BASE: ByStatus = byStatus({
   single: 225_000,
@@ -511,18 +521,22 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
         { children: 3, rate: 0.34 },
       ],
     },
-    retirementIncomeExclusionElection:
-      year >= 2025
-        ? {
-            name: 'Retirement income subtraction',
-            minimumAge: 67,
-            perPerson: 24_000,
-            jointBothEligible: 48_000,
-            forfeits:
-              'every credit listed under Wis. Stat. § 71.07 is forfeited for the year, including any carryover',
-            cite: 'Wis. Stat. § 71.05(6)(b)54m, created by 2025 Wisconsin Act 15 — up to $24,000 of payments from a plan qualified under IRC § 401(a), § 403 or § 457(b) or from an IRA, at age 67, and 54m.b, which bars every s. 71.07 credit for the same year; Schedule SB line 16',
-          }
-        : undefined,
+    // NOT gated on the year. 2025 Act 15 made the subtraction retroactive to 1
+    // January 2025 and this state-year exists only for 2025 and 2026, so a
+    // `year >= 2025` guard here is a branch that can never be false — and the
+    // Day 43 mutation audit proved it by surviving `2025 -> 2024`. Removing it
+    // is better than triaging it: an unreachable branch is a parameter nothing
+    // constrains, and the guard that looks like caution is the thing hiding
+    // that this rule applies to every year the state has.
+    retirementIncomeExclusionElection: {
+      name: 'Retirement income subtraction',
+      minimumAge: 67,
+      perPerson: 24_000,
+      jointBothEligible: 48_000,
+      forfeits:
+        'every credit listed under Wis. Stat. § 71.07 is forfeited for the year, including any carryover',
+      cite: 'Wis. Stat. § 71.05(6)(b)54m, created by 2025 Wisconsin Act 15 — up to $24,000 of payments from a plan qualified under IRC § 401(a), § 403 or § 457(b) or from an IRA, at age 67, and 54m.b, which bars every s. 71.07 credit for the same year; Schedule SB line 16',
+    },
     notes: year >= 2026 ? [...NOTES_2026, ...NOTES] : NOTES,
     conditionalNotes: [
       {

@@ -35,6 +35,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { getStateDefinition } from './strict.mjs';
+import { WI_TOP_BRACKET_BASE } from '../dist/esm/states/wisconsin.js';
 
 /** Half of the $10 rounding interval every indexed Wisconsin figure is rounded to. */
 const HALF = 5;
@@ -101,6 +102,30 @@ function candidates(series, years, target) {
   }
   return { candidates: out, raw: [lo, hi] };
 }
+
+test('the package ships the same statutory bases this file computes from', () => {
+  // The two copies are deliberate and so is this assertion. The table above is
+  // written out HERE rather than imported, because a test that computes from the
+  // value it is checking checks nothing — and `WI_TOP_BRACKET_BASE` is exported
+  // so that a reader of the module can see what the derivation rests on.
+  //
+  // The Day 43 mutation audit found the gap between those two facts: with the
+  // test holding its own copy and nothing else reading the export, all FOUR of
+  // the exported literals survived — `225_000 -> 450000` and its three
+  // neighbours, a parameter the package could ship with any value at all.
+  //
+  // **THE RULE: a comment that names a test is a claim about that test, and
+  // "see `foo.test.js`" has to mean `foo.test.js` reads THIS value.** The fix is
+  // a cross-check and not a rewrite: this file's copy stays the authority for
+  // the arithmetic, and the shipped constant has to agree with it.
+  assert.equal(WI_TOP_BRACKET_BASE.single, BASE.single);
+  assert.equal(WI_TOP_BRACKET_BASE.marriedFilingJointly, BASE.joint);
+  assert.equal(WI_TOP_BRACKET_BASE.marriedFilingSeparately, BASE.separate);
+  // Head of household shares the single schedule in Wisconsin, so it shares the
+  // base — and a surviving spouse takes the joint one.
+  assert.equal(WI_TOP_BRACKET_BASE.headOfHousehold, BASE.single);
+  assert.equal(WI_TOP_BRACKET_BASE.qualifyingSurvivingSpouse, BASE.joint);
+});
 
 test('three statuses bound the 2026 factor to under ten parts per million', () => {
   const [lo, hi] = factor(2026);

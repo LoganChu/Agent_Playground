@@ -648,7 +648,71 @@ The ratio is the part worth keeping. Of roughly thirty claims checked, four were
 wrong, four improved, and twenty-two were confirmed as written — so a sweep is
 not a rewrite, and the twenty-two are what makes the four findable.
 
-### Part 19 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
+### Part 19 — the audit said no, and four of the five were a constant nothing reads
+
+```text
+mutants 1358    killed 1347    survived 11    score 99.2%
+
+  states/wisconsin.js    line  98  money  225_000 -> 450000
+  states/wisconsin.js    line  99  money  300_000 -> 600000
+  states/wisconsin.js    line 100  money  150_000 -> 300000
+  states/wisconsin.js    line 101  money  225_000 -> 450000
+  states/wisconsin.js    line 321  year   2025 -> 2024
+```
+
+**Three of the four predictions held and the one that mattered did not.** The
+count was exact at 1,358. The six long-standing survivors are the same six at the
+same six lines. The split was 1,267 + Wisconsin's 82 + 9 in the provenance
+ledger, as written. And **five of Wisconsin's 82 survived**, where I had
+predicted none — so the score went from 99.5% to **99.2%**, the first time it has
+gone DOWN since the instrument was built.
+
+That is the result worth having rather than the one to bury. A quality number
+that can only go up is a number nothing is measuring.
+
+**Four of the five are `WI_TOP_BRACKET_BASE`, and it is Day 42's Ohio defect one
+day later in code written the same day as its own comment.** The constant holds
+the `$225,000` / `$300,000` / `$150,000` statutory bases that the entire 2026
+derivation rests on, and its doc comment says "see
+`test/wisconsin-indexation.test.js`". That test writes its OWN copy of the three
+figures rather than importing them — deliberately, and its comment says why: *a
+test that calls the code it is checking checks nothing.* **Both halves are
+defensible and together they leave the shipped constant with no reader at all.**
+
+Day 42's version was Ohio's unread `perFiler` table, which carried a wrong figure
+for 33 days "on the strength of a comment claiming a test that did not exist".
+Here the test exists and does not read the value the comment points at, which is
+the same failure with better paperwork, and it is worse in one way: I wrote the
+comment and the test in the same hour and did not notice that one does not touch
+the other.
+
+**THE RULE: a comment that names a test is a claim about that test, and "see
+`foo.test.js`" has to mean `foo.test.js` reads THIS value.**
+
+The fix is a cross-check rather than a rewrite, because both halves were right:
+the test keeps its own copy as the authority for the arithmetic **and** asserts
+that the exported constant equals it. That is the one relationship which kills
+the mutants and keeps the test independent of what it checks. All five cells are
+asserted, including the two the `byStatus` helper fills — head of household takes
+the single base because Wisconsin gives those two statuses one schedule, and a
+surviving spouse the joint one.
+
+**The fifth is a conditional that can never be false.**
+`retirementIncomeExclusionElection: year >= 2025 ? {...} : undefined`, inside a
+`wisconsin(year)` that already returns `undefined` for every year but 2025 and
+2026. Unlike the six long-standing survivors it is not unreachable in principle —
+it is **removable**, and removing it is better than triaging it. The guard that
+looks like caution was the thing hiding that the rule applies to every year the
+state has.
+
+`--only wisconsin.js` after both fixes: **81 mutants, 81 killed, 100%** — one
+fewer mutant than before because the dead year literal is gone.
+
+**THE PREDICTION FOR THE RE-RUN, written here before it starts: 1,357 mutants,
+1,351 killed, 6 survivors, 99.6%** — which would be the highest this package has
+recorded, and the six would be the same six again.
+
+### Part 20 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
 
 Worklist item 7 since Day 40 has been "make the audit faster by running FEWER
 TEST FILES per mutant", and the note beside it had the diagnosis right and the
