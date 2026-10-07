@@ -27,7 +27,7 @@ node tools/mutation/mutate.mjs packages/us-state-tax --only virginia.js
 | `--limit N` | first N mutants — for checking the harness, not the package |
 | `--shard i/n` | every nth mutant, for splitting a run |
 | `--skip-tests f` | test files to leave out (default `readme.test.js`) |
-| `--test-isolation m` | `none` (default) runs the whole suite in ONE node process per mutant; `process` restores one process per test file, which is what every run before Day 43 did and is about twice as slow |
+| `--test-isolation m` | `none` (default) runs the whole suite in ONE node process per mutant; `process` restores one process per test file, which is what every run before Day 43 did and is about 24% slower on four cores |
 | `--json f` | write every result, not just survivors |
 
 ## How long it takes, and the one flag that halves it
@@ -42,16 +42,26 @@ audit got **twice as slow**: 43 Alabama mutants went from 4m11s to 9m42s.
 suite on Day 43:
 
 ```text
-                       real     user
-default (per-file)     8.27s   14.49s
-isolation=none         6.53s    7.35s
+one suite run, standalone        real     user
+  default (one process/file)     8.27s   14.49s
+  isolation=none                 6.53s    7.35s
+
+the audit itself, four workers on four cores
+  default                        11.1 mutants/min
+  isolation=none                 13.8 mutants/min   -> 24% faster
 ```
 
-Real time falls 21% and **user time halves** — and user time is what decides
-throughput when the workers saturate the cores, so the whole-package audit goes
-from about 110 minutes to about 55. Both modes report the same 765 tests and the
-same 765 passes, and both exit non-zero on a planted mutant, which is the only
-behaviour this harness depends on.
+**The honest figure is the 24%, and the first version of this note said "twice as
+fast".** That was inferred from the user time halving, and it is the wrong
+inference: with workers equal to cores the wall clock tracks the REAL time of one
+run, because the per-file children were already saturating the cores and their
+cost was inside that real time. User time predicts how the win scales when cores
+are added — `--workers 8` on eight cores runs eight single-threaded processes
+here and sixty-four on the old path — not what the win is on four.
+
+Both modes report the same 765 tests and the same 765 passes, both exit non-zero
+on a planted mutant, and `--only ohio.js` returns the same 64 mutants and the same
+two survivors on both, which is what validated the change before it was trusted.
 
 It is the default. `--test-isolation process` restores the old behaviour, the mode
 in force is announced at start-up, and a Node that does not support the flag falls

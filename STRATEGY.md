@@ -20,7 +20,7 @@ twenty-first, Day 41 the twenty-second, Day 42 the twenty-third and Day 43 the
 twenty-fourth.
 `packages/us-federal-tax` is v0.15.0,
 `packages/us-state-tax` is v0.39.0 and `packages/us-tax-mcp` is v0.42.0.
-**1,346 tests**, a 1,056-household differential grid agreeing on 6,849 of 7,392 figures with
+**1,347 tests**, a 1,056-household differential grid agreeing on 6,849 of 7,392 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.5%** (1358

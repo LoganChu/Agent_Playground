@@ -240,6 +240,36 @@ test('a separate filer living with their spouse loses the § 86 thresholds', () 
   assert.ok(separate.socialSecurity.taxableBenefits >= apart.socialSecurity.taxableBenefits);
 });
 
+test("the page's own state count is the number of states it ranks", () => {
+  // Day 8's operating rule — never let the docs contain an unverified number —
+  // and `packages/*/test/readme.test.js` has enforced it for every package
+  // README since. **This page was the one surface it did not cover**, and it
+  // drifted: `index.html` said "30 states" in its title, its meta description
+  // and its opening paragraph while the engine had grown to 32 and then 33, and
+  // the first two of those are what a search result and a pasted link show.
+  //
+  // THE RULE: a claim on the one page a visitor actually reads needs the same
+  // test as a claim in a README, and it is the page, not the README, that is the
+  // product.
+  //
+  // Read from the SOURCE `index.html` rather than from `dist`, because the
+  // source is what a future run edits, and compared against the ranking the
+  // model actually produces rather than against `SUPPORTED_STATES` — the page
+  // claims to rank states, and a state in the registry that the ranking dropped
+  // would make the registry count the wrong number to check.
+  const html = readFileSync(join(here, '..', 'index.html'), 'utf8');
+  const ranked = compute({ year: 2026, filingStatus: 'single', wages: 60_000 }).states.length;
+  const claims = [...html.matchAll(/(\d+) states/g)].map((m) => Number(m[1]));
+  assert.ok(claims.length >= 3, `index.html states its coverage ${claims.length} times, expected 3`);
+  for (const claimed of claims) {
+    assert.equal(claimed, ranked, `index.html claims ${claimed} states and the page ranks ${ranked}`);
+  }
+  // And the title and the meta description specifically, because those two are
+  // the ones a visitor sees before the page loads.
+  assert.match(html, new RegExp(`<title>[^<]*${ranked} states`), 'the <title> carries the count');
+  assert.match(html, new RegExp(`name="description"[\\s\\S]{0,200}${ranked} states`), 'so does the meta description');
+});
+
 test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // The site's whole claim is that it ranks thirty states against each
   // other, and a ranking is only as good as its worst-modelled member.

@@ -315,19 +315,30 @@ for (const f of escaping) console.error(`[mutate] not run: test/${f} (reads outs
  * cost. The knob that removes the children themselves is a different one.
  *
  * `--experimental-test-isolation=none` runs every file in the SAME process.
- * Measured on this suite, Day 43, with the audit itself using all four cores:
+ * Measured on this suite, Day 43:
  *
  * ```text
- *                        real     user
- * default (per-file)     8.27s   14.49s
- * isolation=none         6.53s    7.35s
+ * one suite run, standalone        real     user
+ *   default (one process/file)     8.27s   14.49s
+ *   isolation=none                 6.53s    7.35s
+ *
+ * the audit itself, four workers on four cores
+ *   default                        11.1 mutants/min
+ *   isolation=none                 13.8 mutants/min   -> 24% faster
  * ```
  *
- * **User time halves**, and user time is what decides throughput when four
- * workers saturate four cores — so the audit's wall clock roughly halves, from
- * about 110 minutes to about 55. Both modes report the same 765 tests and 765
- * passes, and both exit non-zero on a planted mutant, which is the only
- * behaviour the harness depends on.
+ * **24%, and the first version of this comment said "twice as fast".** That was
+ * inferred from the user time halving and it is the wrong inference: with workers
+ * equal to cores the wall clock tracks the REAL time of one run, because the
+ * per-file children were already saturating the cores and their cost was inside
+ * that real time. User time predicts how the win SCALES when cores are added —
+ * `--workers 8` on eight cores runs eight single-threaded processes here and
+ * sixty-four on the old path — not what the win is on four.
+ *
+ * Both modes report the same 765 tests and 765 passes, both exit non-zero on a
+ * planted mutant, and `--only ohio.js` returns the same 64 mutants and the same
+ * two survivors on both, which is what validated the change before it was
+ * trusted.
  *
  * It is a DEFAULT and not an optimisation to remember, for Part 12's reason:
  * `--test-isolation process` restores the old behaviour, and the mode in force

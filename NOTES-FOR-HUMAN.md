@@ -14,7 +14,7 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 43 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.39.0, `us-tax-mcp` v0.42.0. 1,346 tests, all passing, and the
+`us-state-tax` v0.39.0, `us-tax-mcp` v0.42.0. 1,347 tests, all passing, and the
 differential grid against PolicyEngine-US now covers **1,056 households, 7,392
 figures, 6,849 agreeing to the dollar and ZERO unexplained differences**.
 

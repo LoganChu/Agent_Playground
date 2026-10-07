@@ -15,8 +15,8 @@ step in it — and for a head of household the marginal rate then FALLS TWICE as
 income rises.**
 
 `us-state-tax` is **v0.39.0**, `us-tax-mcp` **v0.42.0**, `us-federal-tax`
-unchanged at v0.15.0. **1,346 tests** (396 + 765 + 169 + 16), all green, zero
-dependencies — up 44 from Day 42's 1,302. 33 states, 24 of them taxing.
+unchanged at v0.15.0. **1,347 tests** (396 + 765 + 169 + 17), all green, zero
+dependencies — up 45 from Day 42's 1,302. 33 states, 24 of them taxing.
 
 New: `packages/us-state-tax/src/states/wisconsin.ts`, `test/wisconsin.test.js`
 (33 tests) and `test/wisconsin-indexation.test.js` (8 tests), one new
@@ -466,7 +466,34 @@ one that says something about Wisconsin.
   rule (Part 9) and the EITC match rate, which forced the by-child-count table to
   be checked rather than just counted.
 
-### Part 15 — the audit is twice as fast, and Day 40 was aiming at the wrong knob
+### Part 15 — the one surface Day 8's rule had never covered, and it had drifted
+
+`index.html` on the published calculator said **"30 states"** — in its `<title>`,
+in its `<meta name="description">` and in its opening paragraph — while the engine
+had grown to 32 on Day 42 and 33 today. It had been wrong for two days and
+nothing noticed, because **the site is the one surface this project's own rule
+had never been applied to.**
+
+Day 8's operating rule is that a number in the docs is a claim and needs a test,
+and `packages/*/test/readme.test.js` has enforced it for every package README
+since — three README suites, pinning quick-start figures, staircase counts,
+provisional lists and tarball versions. The page a visitor actually reads had
+sixteen tests about its *computation* and none about its *claims*.
+
+Fixed, and the test is load-bearing rather than decorative: it reads the source
+`index.html`, counts how many states the model actually ranks, and asserts every
+`N states` in the page against it — plus the `<title>` and the meta description
+specifically, because those two are what a search result and a pasted link show
+before the page loads. Verified by reverting one of the three and watching it go
+red.
+
+**THE RULE: a claim on the one page a visitor actually reads needs the same test
+as a claim in a README — and it is the page, not the README, that is the
+product.** The drift was invisible for the ordinary reason: the README suites are
+the ones a new state breaks, so they get regenerated every day, and a surface
+with no test about it is a surface nothing forces anybody to look at.
+
+### Part 16 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
 
 Worklist item 7 since Day 40 has been "make the audit faster by running FEWER
 TEST FILES per mutant", and the note beside it had the diagnosis right and the
@@ -480,32 +507,53 @@ run at once rather than whether there are any, and the audit got twice as slow �
 the only parallelism that was hiding their cost.
 
 **The knob that removes the children is `--experimental-test-isolation=none`**,
-which runs every file in one process. Measured on this suite today:
+which runs every file in one process. Measured:
 
 ```text
-                       real     user
-default (per-file)     8.27s   14.49s
-isolation=none         6.53s    7.35s
+one suite run, standalone        real     user
+  default (one process/file)     8.27s   14.49s
+  isolation=none                 6.53s    7.35s
+
+the audit itself, four workers on four cores
+  default                        11.1 mutants/min
+  isolation=none                 13.8 mutants/min   -> 24% faster
 ```
 
-Real time falls 21% and **user time halves** — and user time is what decides
-throughput when the workers saturate the cores, so the whole-package audit goes
-from about 115 minutes to about 55. Both modes report the same 765 tests and 765
-passes and both exit non-zero on a planted mutant, which is the only behaviour
-the harness depends on. It is the default now, announced at start-up, with
-`--test-isolation process` to go back and a probe that falls back with a message
-on a Node that does not support the flag.
+Both modes report the same 765 tests and 765 passes and both exit non-zero on a
+planted mutant, which is the only behaviour the harness depends on, and
+`--only ohio.js` on the new path returns the same 64 mutants and the same two
+survivors at the same two lines that `STATE-SURVIVORS.md` has recorded since Day
+35. It is the default now, announced at start-up, with `--test-isolation process`
+to go back and a probe that falls back with a message on a Node that does not
+support the flag.
 
 **THE RULE: when an optimisation makes a thing slower, the measurement is
 evidence about the MECHANISM and not only about the optimisation.** Day 40's own
 note contains the sentence that solves it — "the work is not contended, it is
 STARTUP" — and then reaches for a concurrency flag, which is a contention knob.
-The diagnosis was three years ahead of the fix and they were in the same
-paragraph.
+The diagnosis and the wrong remedy were in the same paragraph.
 
-It cost a restart of the recorded run, 17 minutes in, which is the right trade
-and is recorded rather than hidden: the first 150 mutants were measured with the
-old path and thrown away to get the remaining 1,208 at twice the speed. The
+**And then I got the size wrong, in writing, before measuring it — which is
+Day 39's rule arriving for the fifth day running.** I wrote "about twice as fast,
+115 minutes to 55" into three files, inferred from the USER time halving. The
+audit's own throughput says **24%**, and the figure that predicted it correctly
+was the REAL time ratio of 1.27 sitting in the same table.
+
+**THE RULE: with workers equal to cores, the wall clock tracks the REAL time of
+one run and not its user time.** User time halves because the per-file children
+are gone — but those children were already saturating four cores, so the real
+time of one suite run already contained their cost. User time predicts how the
+win SCALES when cores are added, not what the win is today.
+
+That corollary is why the change is still worth having, and it is the part the
+wrong claim was accidentally reaching for: `--workers 8` on eight cores runs
+eight single-threaded processes on the new path and sixty-four on the old, so the
+new path scales where the old one was already oversubscribed. On four cores it
+buys 24%; on a bigger runner it buys much more.
+
+It cost a restart of the recorded run, 17 minutes in — against about 23 minutes
+saved on a 99-minute run, so today it roughly broke even and every future day is
+ahead. Recorded rather than hidden. The
 fewer-FILES idea survives and is worth less now, and the sound way to do it is
 written down: select the test files that can reach the mutated module, then
 **re-run every SURVIVOR against the whole suite**, because a mis-selection can
