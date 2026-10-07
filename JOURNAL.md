@@ -459,14 +459,17 @@ one that says something about Wisconsin.
   caller cost a parameter rather than a rewrite. Day 41's rule about the second
   state telling you which parts of the first state's rule were the rule, applied
   to control flow instead of to data.
-- **Two restarts of the recorded audit, for two different reasons, and both are
-  rules this journal already contained.** The first was the wrong `--skip` flags
-  (Part 12), which is Day 42's "a flag that does nothing" with the sign flipped.
-  The second was four wrong citations found after the run had started (Part 16),
-  which is Day 42's "make every citation edit before the audit" missing the words
-  "and check them first". **The pattern is worth naming: a rule that tells you
-  WHEN to do something does not tell you to do it, and the gap shows up as the
-  rule being obeyed and the thing it protects still going wrong.**
+- **Three restarts of the recorded audit, for three reasons, and all three are
+  rules this journal already contained.** The wrong `--skip` flags (Part 12),
+  which is Day 42's "a flag that does nothing" with the sign flipped; four wrong
+  citations found after the run had started (Part 16), which is Day 42's "make
+  every citation edit before the audit" missing the words "and check them first";
+  and one invented purchasing-power figure found by Day 42 Part 10's rule about
+  WHY-claims, also after the run had started. **The pattern is worth naming: a
+  rule that tells you WHEN to do something does not tell you to DO it, and the
+  gap shows up as the rule being obeyed and the thing it protects still going
+  wrong.** All three restarts are what worklist item 7 exists to prevent, and two
+  of the three would have cost nothing with a literal fingerprint.
 - **Nine `assert.equal(..., N)` count pins broke on one new state**, across the
   registry, the notes, the status sweep, the step probes and three READMEs. They
   are doing their job and the cost is real: about forty minutes of the day. The
@@ -550,7 +553,64 @@ audit, AND CHECK THE CITATIONS FIRST, because an unchecked citation is an edit
 you have not made yet.** The cost of learning that today was a second restart of
 the recorded run, which is the whole argument for the rule in one line.
 
-### Part 17 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
+And a third restart, for the thing the first two were practice for. Going back
+over every claim in the day's writing for the ones nothing could test — Day 42
+Part 10's rule, that **the claims that need checking are the ones that explain
+WHY** — turned up one invented figure of my own: a provenance entry said
+Wisconsin's `$700` exemption "is 40% of its 2001 purchasing power". Nothing in
+this repository can cite a CPI series, I did not compute it, and it is wrong:
+`$700` of 2026 money is worth about 54% of `$700` of 2001 money. **The figure is
+gone rather than corrected, because the honest version of that sentence is "$700
+since 2001", which is the whole of what the ledger knows.**
+
+Two other claims came out of the same pass stronger, which is the argument for
+making the pass at all:
+
+- **`19.778%` really is the figure the statute prints.** § 71.05(22)(dp) reads
+  "subtracting from `$19,010` **19.778 percent** of aggregate Wisconsin adjusted
+  gross income in excess of `$21,360`". I had the claim from a parameter file and
+  now have it from the paragraph, and the two dollar figures are the base-year
+  amounts the indexing starts from — which is independent confirmation of Part
+  7's whole method.
+- **"374,000 dollars of joint income"** was loose where the surrounding sentence
+  was precise, mixing income with taxable income. It is `$374,370` of TAXABLE
+  income, between the `$69,260` where 6.348% starts and the `$443,630` where
+  7.65% does.
+
+### Part 17 — a correction Day 42 made in one of the two files that carried it
+
+`fingerprint.mjs` used to claim that rewording a doc comment does not invalidate
+a recorded score, "because `tsc` puts it in the `.d.ts`". Day 42 Part 15 found
+that false — both packages set `removeComments: false` — and corrected it.
+
+**`check-scores.mjs` carried the same sentence and still does, until today.** It
+is the file a reader reaches first, because it is the one CI runs and the one
+whose output names the staleness; and its header said "a reworded doc comment
+changes neither, because `tsc` puts it in the `.d.ts` — so 'a string is not a
+mutant' is now a computation rather than an argument."
+
+**THE RULE: a false claim that appears in two files is corrected in two files,
+and the copy that survives is the one you were not reading.** Day 42 found the
+defect by being bitten by it in `fingerprint.mjs` and fixed the file that bit it.
+
+The argument underneath is still right and is kept as a correction: a string is
+not a mutant, so a byte fingerprint is STRICTER than the property it stands in
+for and can reject a score that is still valid. Making it a computation rather
+than an argument needs the digest to be over the ENUMERATED LITERALS instead of
+the file bytes — worklist item 7, which has now cost **three** audit restarts
+across two days, one on Day 42 and two today.
+
+I did not do it today, and the reason is worth writing down rather than leaving
+as a gap. It is not a one-line change: the enumerator lives inline in
+`mutate.mjs` and would have to move into a module both files import, the recorded
+fingerprint format changes, and **both** scores would need re-recording — so it
+is a refactor of the one instrument that makes this project's quality claim
+checkable, started at the end of a long run with two audits to re-measure
+afterwards. **The right call at the end of a run is to finish it, not to start
+the refactor**, and the design is written into `mutate.mjs` and `check-scores.mjs`
+so tomorrow's first hour is spent building it rather than rediscovering it.
+
+### Part 18 — the audit is 24% faster, Day 40 was aiming at the wrong knob, and so was I
 
 Worklist item 7 since Day 40 has been "make the audit faster by running FEWER
 TEST FILES per mutant", and the note beside it had the diagnosis right and the

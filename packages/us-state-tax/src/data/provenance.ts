@@ -2616,7 +2616,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'deduction.tiers.*.*.rate',
     kind: 'statute',
     document: '§ 71.05(22)(dp)',
-    cite: 'Wis. Stat. § 71.05(22)(dp) — 12% single, 19.778% joint, separate and surviving spouse, and 22.515% then 12% head of household. Statutory and UNINDEXED, which is what makes the sliding scale a multiplier on the marginal rate rather than a step in it: a single filer in the 4.4% bracket and inside the band pays 4.928% on their next dollar. The 19.778% is the figure the statute prints and not a rounding of anything',
+    cite: 'Wis. Stat. § 71.05(22)(dp), "Deduction limits, 2000 and thereafter" — 12% single, 19.778% joint, separate and surviving spouse, and 22.515% then 12% head of household. Statutory and UNINDEXED, which is what makes the sliding scale a multiplier on the marginal rate rather than a step in it: a single filer in the 4.4% bracket and inside the band pays 4.928% on their next dollar. The 19.778% is the figure the statute PRINTS and not a rounding of anything — the paragraph reads "subtracting from $19,010 19.778 percent of aggregate Wisconsin adjusted gross income in excess of $21,360", the base-year amounts the indexing starts from',
     constant: true,
   },
   {
@@ -2689,7 +2689,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'exemption.perFiler.*',
     kind: 'statute',
     document: '§ 71.05(23)',
-    cite: 'Wis. Stat. § 71.05(23) — $700 per exemption, so $1,400 on a joint return and $700 on every other status including a qualifying surviving spouse, who files alone. UNINDEXED and $700 since 2001, which is 40% of its 2001 purchasing power',
+    cite: 'Wis. Stat. § 71.05(23) — $700 per exemption, so $1,400 on a joint return and $700 on every other status including a qualifying surviving spouse, who files alone. UNINDEXED and $700 since 2001, which is the figure and the whole of what this ledger knows about it — an earlier draft of this entry added a purchasing-power percentage that nothing here could cite, and it was wrong',
     constant: true,
   },
   {

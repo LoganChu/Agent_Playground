@@ -49,8 +49,8 @@
  *
  * **And Wisconsin's published top rate is 7.65% while the highest marginal rate
  * an ordinary Wisconsin wage earner meets is 6.348%, at `$69,260` of joint
- * taxable income — 374,000 dollars of joint income below where the 7.65%
- * begins.**
+ * taxable income — `$374,370` of taxable income below the `$443,630` where the
+ * 7.65% begins.**
  *
  * ## The head of household scale has two tiers and the second one is an identity
  *
@@ -290,9 +290,11 @@ const STANDARD_THRESHOLD: Readonly<Record<number, ByStatus>> = {
 /**
  * The withdrawal rates of § 71.05(22)(dp), which are statutory and unindexed.
  *
- * `19.778%` is not a rounding of anything — it is the figure the statute prints,
- * and it is what takes the joint maximum to zero at the income the joint column
- * of the Standard Deduction Table ends at.
+ * `19.778%` is not a rounding of anything — it is the figure the statute prints:
+ * § 71.05(22)(dp) reads "subtracting from $19,010 **19.778 percent** of aggregate
+ * Wisconsin adjusted gross income in excess of $21,360", those two dollar figures
+ * being the base-year amounts the indexing starts from rather than the ones in
+ * force.
  */
 export const WI_WITHDRAWAL_RATE = {
   single: 0.12,

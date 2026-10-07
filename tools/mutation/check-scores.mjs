@@ -34,9 +34,24 @@
  * The second is the one that could not be done before. It separates the two
  * reasons a score can move, because they want different fixes: the parameters
  * changed (`mutantFingerprint`), or the suite that kills them changed
- * (`suiteFingerprint`). A reworded doc comment changes neither, because `tsc`
- * puts it in the `.d.ts` — so **"a string is not a mutant" is now a computation
- * rather than an argument.**
+ * (`suiteFingerprint`).
+ *
+ * **This comment used to go on to say that a reworded doc comment changes
+ * neither, "because `tsc` puts it in the `.d.ts`". That is false, and Day 42
+ * corrected it in `fingerprint.mjs` and not here** — both packages set
+ * `"removeComments": false`, so every doc comment is in the emitted `.js`, and
+ * `mutantFingerprint` is a hash of raw bytes. Rewording a comment or correcting
+ * a citation DOES invalidate a recorded score.
+ *
+ * **THE RULE, which is Day 42's own finding arriving one file late: a false
+ * claim that appears in two files is corrected in two files, and the copy that
+ * is not the one you were reading is the one that survives.** The claim behind
+ * it is still true and still worth stating — a string is not a mutant, so this
+ * fingerprint is STRICTER than the property it stands in for and can reject a
+ * score that is in fact valid, which is the safe direction. Making it a
+ * computation rather than an argument needs the digest to be over the ENUMERATED
+ * LITERALS rather than over the file bytes, which is on the worklist and has now
+ * cost two audit restarts (Day 42 one, Day 43 one).
  *
  * ```sh
  * node tools/mutation/check-scores.mjs          # report
