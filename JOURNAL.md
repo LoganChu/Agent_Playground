@@ -15,8 +15,8 @@ step in it — and for a head of household the marginal rate then FALLS TWICE as
 income rises.**
 
 `us-state-tax` is **v0.39.0**, `us-tax-mcp` **v0.42.0**, `us-federal-tax`
-unchanged at v0.15.0. **1,347 tests** (396 + 765 + 169 + 17), all green, zero
-dependencies — up 45 from Day 42's 1,302. 33 states, 24 of them taxing.
+unchanged at v0.15.0. **1,348 tests** (396 + 766 + 169 + 17), all green, zero
+dependencies — up 46 from Day 42's 1,302. 33 states, 24 of them taxing.
 
 New: `packages/us-state-tax/src/states/wisconsin.ts`, `test/wisconsin.test.js`
 (33 tests) and `test/wisconsin-indexation.test.js` (8 tests), one new
