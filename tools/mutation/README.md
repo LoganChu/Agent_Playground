@@ -8,9 +8,12 @@ could be shipped with a wrong value for.
 # The whole federal package.
 node tools/mutation/mutate.mjs packages/us-federal-tax
 
-# The state package's RULE parameters, leaving out the locality registries.
-node tools/mutation/mutate.mjs packages/us-state-tax \
-  --skip localities/ohio.js,localities/ohio-school-districts.js,localities/indiana.js,localities/michigan.js,localities/maryland.js,localities/new-york.js,localities/counties.js
+# The state package's RULE parameters. The locality registries are left out by
+# DEFAULT now, because Day 43 started a two-hour recorded run without the flag
+# that every run before it had used -- the invocation was in this README and
+# nowhere the program could read. `mutate.mjs` carries the list and announces it
+# at start-up; `--skip none` includes them.
+node tools/mutation/mutate.mjs packages/us-state-tax
 
 # One file, while fixing it.
 node tools/mutation/mutate.mjs packages/us-state-tax --only virginia.js
@@ -19,7 +22,7 @@ node tools/mutation/mutate.mjs packages/us-state-tax --only virginia.js
 | flag | meaning |
 | --- | --- |
 | `--workers N` | parallel worker copies (default: CPU count, capped at 8) |
-| `--skip a,b` | substrings of `dist/esm` paths to leave out |
+| `--skip a,b` | substrings of `dist/esm` paths to leave out. OMITTED, it takes the harness default for the package (the state package's locality registries); `--skip none` leaves nothing out |
 | `--only s` | only files whose path contains `s` |
 | `--limit N` | first N mutants — for checking the harness, not the package |
 | `--shard i/n` | every nth mutant, for splitting a run |

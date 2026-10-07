@@ -43,6 +43,7 @@ import {
   SUPPORTED_YEARS,
   getStateDefinition,
 } from './strict.mjs';
+import { stateFigureProvenance } from '../dist/esm/data/provenance.js';
 
 /** Walk a dot path, treating numeric segments as array indices. */
 const resolve = (root, path) => {
@@ -76,6 +77,24 @@ const withStatusAt = (path, index, status) => {
 test('a provisional figure under a filing status is flagged under every filing status', () => {
   let checked = 0;
   for (const { definition, figure } of entries()) {
+    // THE ONE EXCEPTION, and it is why the reason field exists. The rule above
+    // rests on a fact about PUBLICATION: a state prints every column of a table
+    // in one document, so a column nobody read means a table nobody read. A
+    // `bounded-derivation` figure was not read at all — it was computed from
+    // figures the state did publish — and that arithmetic runs COLUMN BY COLUMN
+    // and can settle one and not its neighbour. Wisconsin's 2026 standard
+    // deduction schedule is the first: the published rate schedules determine
+    // the single, joint, surviving spouse and head of household maxima
+    // uniquely and leave the separate one choosing between two multiples of
+    // $10, so flagging the siblings would claim an uncertainty that is not
+    // there.
+    //
+    // The teeth move rather than disappear: `wisconsin-indexation.test.js`
+    // asserts, from the published series, that exactly the flagged figures are
+    // the ambiguous ones — which is a stronger claim than this rule makes,
+    // because it is checked against the arithmetic instead of against the
+    // shape of the table.
+    if (figure.reason === 'bounded-derivation') continue;
     for (const position of statusPositions(figure.path)) {
       for (const status of FILING_STATUSES) {
         const sibling = withStatusAt(figure.path, position, status);
@@ -98,6 +117,41 @@ test('a provisional figure under a filing status is flagged under every filing s
     checked > 0,
     'no provisional figure names a filing status, so the rule above checked nothing',
   );
+});
+
+test('an unflagged sibling of a bounded derivation is DETERMINED, not merely unread', () => {
+  // The exception above is only safe if something says the siblings are known.
+  // The provenance ledger does: every figure in the same table that is not
+  // flagged must be `derived` there — the kind that claims an exact relation —
+  // and never `carried-forward`, `unestablished` or absent. Without this, the
+  // `continue` would let a whole unread table through by flagging one cell of
+  // it and calling the flag a derivation.
+  let checked = 0;
+  for (const { definition, figure } of entries()) {
+    if (figure.reason !== 'bounded-derivation') continue;
+    for (const position of statusPositions(figure.path)) {
+      for (const status of FILING_STATUSES) {
+        const sibling = withStatusAt(figure.path, position, status);
+        if (typeof resolve(definition, sibling) !== 'number') continue;
+        if ((definition.provisionalFigures ?? []).some((other) => other.path === sibling)) continue;
+        checked += 1;
+        const entry = stateFigureProvenance(
+          definition,
+          definition.code,
+          definition.year,
+          sibling,
+        );
+        assert.ok(
+          entry !== undefined && ['derived', 'indexed', 'statute'].includes(entry.kind),
+          `${definition.code} ${definition.year}: '${sibling}' is an unflagged sibling of the ` +
+            `bounded derivation '${figure.path}' and the ledger calls it ` +
+            `'${entry?.kind ?? 'nothing'}'. An unflagged sibling has to be a figure something ` +
+            `determines, or the exception is a hole.`,
+        );
+      }
+    }
+  }
+  assert.ok(checked > 0, 'no bounded derivation has an unflagged sibling, so this checked nothing');
 });
 
 test('the two state-years Day 37 corrected still carry every column', () => {

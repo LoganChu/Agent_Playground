@@ -254,10 +254,30 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // v0.37.0, when MISSOURI arrived and charged this couple $935.03 — which is
   // not a zero and still beats Utah by $453.43.
   //
-  // TWELVE states have passed Utah and not one of them by changing its own law.
-  // The first nine were rows that were wrong; the last three are rows that did
-  // not exist, which is the same fact about a ranking from the other side: it
-  // is only ever a ranking of what somebody has modelled.
+  // THIRTEEN states have passed Utah, and the thirteenth is the first to do it
+  // BY CHANGING ITS OWN LAW. Wisconsin arrived on Day 43 and charges this couple
+  // NOTHING, where the same couple in Wisconsin a year ago paid about $1,507:
+  // 2025 Act 15, signed 3 July 2025, created Wis. Stat. § 71.05(6)(b)54m, which
+  // subtracts up to $48,000 of retirement income on a joint return where both
+  // spouses have reached 67 — and this couple's whole $60,000 pension less that
+  // $48,000 leaves $12,000, which Wisconsin's $25,840 standard deduction and
+  // $1,900 of exemptions wipe out twice over. Social Security was already
+  // exempt.
+  //
+  // The catch is the one thing no summary of Act 15 says, and the engine models
+  // it: claiming the subtraction FORFEITS EVERY CREDIT under § 71.07 — the
+  // married couple credit, the school property tax credit, the itemized
+  // deduction credit, the earned income credit, the homestead credit. For this
+  // couple that is free, because a tax of zero needs no credits. For a couple
+  // with a smaller pension it is not, and the engine computes the whole return
+  // both ways and keeps the lower answer, as Schedule SB line 16 instructs.
+  //
+  // So the first twelve rows that passed Utah say something about this table and
+  // the thirteenth says something about Wisconsin. The first nine were rows that
+  // were WRONG; the next three were rows that did not EXIST, which is the same
+  // fact about a ranking from the other side — it is only ever a ranking of what
+  // somebody has modelled; and this one is a row that CHANGED, four months ago,
+  // in a state legislature.
   //
   // Missouri is the most interesting of the three, because it is the first new
   // row to pass Utah WITHOUT exempting this couple. Missouri is in every list
@@ -293,18 +313,23 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  assert.equal(place, 28, `Utah ranks ${place}`);
-  // The twelve that passed it, all of them by being modelled rather than by
-  // changing: six on v0.18.0, three on v0.19.0, Connecticut on v0.35.0,
-  // Alabama on v0.36.0 and Missouri today.
+  assert.equal(place, 29, `Utah ranks ${place}`);
+  // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
+  // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
+  // And Wisconsin's is a ZERO that the election produces rather than an
+  // exemption. Asserted both ways, because the interesting half is the
+  // counterfactual: without § 71.05(6)(b)54m this couple would pay about
+  // $1,507, which is what makes the row news rather than another exempting
+  // state.
+  assert.equal(model.states.find((r) => r.state === 'WI').total, 0, 'Wisconsin is zero');
   // Three of them now charge this couple NOTHING AT ALL, which is the size of
   // what was wrong: Illinois, Michigan and Mississippi exempt every dollar of a
   // $60,000 pension, and the page showed $2,192.85, $1,632 and $936 for them.
-  for (const code of ['IL', 'MI', 'MS']) {
+  for (const code of ['IL', 'MI', 'MS', 'WI']) {
     const row = model.states.find((r) => r.state === code);
     assert.equal(row.total, 0, `${code} should be zero for a retired couple`);
   }

@@ -118,6 +118,27 @@ export type StateFigureKind =
    */
   | 'determined-after-year-end'
   /**
+   * Not published for this year, not last year's figure either: **computed from
+   * figures that ARE published for this year**, under an uncertainty the
+   * computation bounds.
+   *
+   * Distinct from `derived`, which is an exact relation between two figures
+   * this package holds — the Utah military retirement credit rate IS the tax
+   * rate — and from `carried-forward`, which is last year's number standing in.
+   * Here the figure is new, it was not read, and the arithmetic says how wrong
+   * it can be. `cite` must state the bound, and the figure must be flagged in
+   * `provisionalFigures` with reason `bounded-derivation` — checked both ways by
+   * `test/provenance.test.js`, exactly as `carried-forward` is.
+   *
+   * Wisconsin's three 2026 standard deduction figures are the first. The 2026
+   * rate schedules ARE published and the top bracket threshold is indexed off a
+   * statutory base of $225,000, so a published threshold bounds the cumulative
+   * indexation factor to 7.5 parts per million — which determines four of the
+   * seven figures of the unpublished standard deduction schedule outright and
+   * narrows these three to two adjacent multiples of $10 each.
+   */
+  | 'derived-bounded'
+  /**
    * Not a figure read from anywhere: a value chosen to encode the *absence* of
    * a limit — a bracket with no ceiling, a phase-out that does not apply.
    */
@@ -2500,6 +2521,304 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     document: 'HHS poverty guidelines',
     cite: 'the HHS poverty guidelines, republished every January — the cliff the Credit for Low Income Individuals sits on, and the figure that decides whether Virginia\'s real floor is the statutory threshold or this one',
     constant: false,
+  },
+
+  // =========================================================================
+  // WISCONSIN — Day 43. The first state-year in this ledger where a figure
+  // nobody published is nonetheless KNOWN, which is why `derived-bounded`
+  // exists.
+  //
+  // Wisconsin publishes its rate schedules a year early (the 2026 Form 1-ES
+  // instructions, December 2025) and its Standard Deduction Table a year late
+  // (the 2026 Form 1 instructions, January 2027). The top bracket threshold is
+  // indexed off a statutory base of $225,000 / $300,000 / $150,000 set by 2013
+  // Act 20, so a published threshold BOUNDS the cumulative indexation factor —
+  // to 7.5 parts per million for 2026, across three statuses. That bound
+  // determines four of the seven figures of the unpublished 2026 standard
+  // deduction schedule outright, and narrows the other three to two adjacent
+  // multiples of $10 each. `test/wisconsin-indexation.test.js` does the
+  // arithmetic and validates the method by hold-out: bases derived from
+  // 2021-2024 alone put all seven published 2025 figures inside their
+  // admissible sets.
+  //
+  // So the 2025 schedule is `indexed` and READ; the 2026 schedule is `derived`
+  // where the arithmetic settles it and `derived-bounded` where it does not,
+  // which is a sharper statement than either `indexed` or `carried-forward`
+  // could make.
+  // =========================================================================
+  {
+    state: 'WI',
+    path: 'year',
+    kind: 'sentinel',
+    cite: 'The tax year the definition answers for, not a figure read from anywhere',
+    constant: false,
+  },
+  {
+    state: 'WI',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '§ 71.06 —',
+    cite: 'Wis. Stat. § 71.06 — 3.5%, 4.4%, 5.3% and 7.65%. The first two were cut from 3.54% and 4.65% by 2023 Act 19 for tax years beginning on or after 1 January 2023 and none of the four has moved since. Note that Wisconsin’s WITHHOLDING tables (Publication W-166) still carry the pre-2023 3.54% and 4.65%, which is why a withholding formula is NOT the primary source for Wisconsin the way it is for Oregon',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'rate.byStatus.*.0.upTo',
+    kind: 'indexed',
+    document: '2026 Form 1-ES instructions',
+    cite: 'Wis. Stat. § 71.06(2e) indexes every bracket boundary off the statutory base amounts, rounded to the nearest $10. The top of the 3.5% band is $14,680 single and head of household, $19,580 joint and $9,790 separate for 2025 (2025 Form 1 instructions, rate schedules) and $15,110, $20,150 and $10,080 for 2026 (2026 Form 1-ES instructions, published December 2025 — the only document carrying the 2026 schedules until the 2026 Form 1 instructions appear in January 2027)',
+    constant: false,
+  },
+  {
+    state: 'WI',
+    path: 'rate.byStatus.*.1.upTo',
+    kind: 'indexed',
+    document: '2025 Wisconsin Act 15',
+    cite: 'THE ONE FIGURE HERE A WIDELY USED REFERENCE MODEL GETS WRONG. 2025 Act 15 raised the top of the 4.4% band to $50,480 single and head of household, $67,300 joint and $33,650 separate, retroactive to 1 January 2025; § 71.06(2e) indexation resumes for 2026 and produces $51,950, $69,260 and $34,630, which is what the 2026 Form 1-ES instructions carry. The arithmetic is what settles 2025 rather than the citation alone: $50,480 times the factor the published 2026 figures pin rounds to $51,950 to the dollar, and all three statuses agree. PolicyEngine-US 2.15.3 carries $51,130 / $68,170 / $34,090 for 2025 — the Act 15 figures indexed a year early — which cannot reach the 2026 figures the same model also carries: $51,130 indexed is $52,620',
+    constant: false,
+  },
+  {
+    state: 'WI',
+    path: 'rate.byStatus.*.2.upTo',
+    kind: 'indexed',
+    document: '2026 Form 1-ES instructions',
+    cite: 'Wis. Stat. § 71.06(2e) — the 7.65% rate begins at $323,290 single and head of household, $431,060 joint and $215,530 separate for 2025, and $332,720, $443,630 and $221,820 for 2026. These three are the figures the rest of this state-year is measured against: their statutory bases are $225,000, $300,000 and $150,000 (2013 Act 20), so a published value divided by its base IS the cumulative indexation factor to within $5/base — which is what makes the unpublished 2026 standard deduction schedule derivable',
+    constant: false,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.maximum.*',
+    kind: 'indexed',
+    document: '2025 Form 1 instructions',
+    years: [2025],
+    cite: 'Wis. Stat. § 71.05(22)(dp) and the Standard Deduction Table in the 2025 Form 1 instructions — $13,560 single, $25,110 joint and surviving spouse, $11,930 separate and $17,520 head of household. Read; the 2026 column of the same table does not exist until January 2027 and is covered by the four entries below',
+    constant: true,
+    why: 'a one-year entry, because 2025 and 2026 have different KINDS of provenance for this path rather than different figures: 2025 was read in the Standard Deduction Table and 2026 was derived from the published rate schedules. Splitting the entry is the only way to say that',
+  },
+  {
+    state: 'WI',
+    path: 'deduction.maximum.*',
+    kind: 'derived',
+    years: [2026],
+    cite: 'DERIVED, and for three of the five cells DETERMINED. The 2026 Standard Deduction Table is not published until January 2027, but § 71.06(2e) and § 71.05(22)(ds) index both schedules on the same CPI measure, so the published 2026 top-bracket thresholds bound the cumulative factor to 7.5 parts per million and each figure’s own statutory base is bounded by its five published years. The single ($13,960), joint and surviving spouse ($25,840) and head of household ($18,030) cells come out UNIQUE; the single and joint figures are independently corroborated by two secondary reproductions of the 2026 table. The separate cell is bounded and not determined and is overridden by the entry below. See test/wisconsin-indexation.test.js, which also validates the method by predicting the published 2025 schedule from 2021-2024 alone',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.maximum.marriedFilingSeparately',
+    kind: 'derived-bounded',
+    years: [2026],
+    cite: 'BOUNDED, not determined: the derivation gives $12,274.90 to $12,277.60, which admits $12,270 and $12,280 and no other value. This package carries $12,280, which the interval midpoint of $12,276.25 rounds to. $10 of deduction, at most 77 cents of tax, and the 2026 Form 1 instructions settle it',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.*.*.rate',
+    kind: 'statute',
+    document: '§ 71.05(22)(dp)',
+    cite: 'Wis. Stat. § 71.05(22)(dp) — 12% single, 19.778% joint, separate and surviving spouse, and 22.515% then 12% head of household. Statutory and UNINDEXED, which is what makes the sliding scale a multiplier on the marginal rate rather than a step in it: a single filer in the 4.4% bracket and inside the band pays 4.928% on their next dollar. The 19.778% is the figure the statute prints and not a rounding of anything',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.*.0.above',
+    kind: 'indexed',
+    document: '2025 Form 1 instructions',
+    years: [2025],
+    cite: 'Wis. Stat. § 71.05(22)(dp) — the Wisconsin AGI above which the withdrawal begins: $19,550 single and head of household, $28,210 joint and surviving spouse, $13,390 separate for 2025. Indexed on the same measure as the maxima and read from the same table. The 2026 figures are derived — see the two entries below',
+    constant: true,
+    why: 'a one-year entry for the same reason as the maxima above: the 2025 figure was read and the 2026 figure was derived, which is a difference in provenance rather than in value',
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.marriedFilingJointly.0.above',
+    kind: 'derived',
+    years: [2026],
+    cite: 'DETERMINED by the derivation: $29,037.10 to $29,038.30 admits $29,040 and nothing else. Same arithmetic as the maxima, same test. The qualifying surviving spouse cell is this figure by § 71.05(22)(dp)’s own cross-reference and is covered by the entry below',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.qualifyingSurvivingSpouse.0.above',
+    kind: 'derived',
+    years: [2026],
+    cite: 'the joint threshold, which a qualifying surviving spouse uses because § 71.05(22)(dp) puts that status on the joint schedule for the two years after the death',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.single.0.above',
+    kind: 'derived-bounded',
+    years: [2026],
+    cite: 'BOUNDED: $20,124.00 to $20,125.60 admits $20,120 and $20,130. This package carries $20,120, the midpoint’s rounding. The head of household column holds the SAME figure, which is why `provisionalFigures` flags two paths for one unresolved number — Day 42’s rule that a byStatus table turns one unread figure into five',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.headOfHousehold.0.above',
+    kind: 'derived-bounded',
+    years: [2026],
+    cite: 'the single threshold, same figure and same $20,120/$20,130 ambiguity — § 71.05(22)(dp) gives single and head of household one threshold and two withdrawal rates. It also moves the derived crossover below it by $10 of income',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.marriedFilingSeparately.0.above',
+    kind: 'derived-bounded',
+    years: [2026],
+    cite: 'BOUNDED: $13,779.60 to $13,785.90 admits $13,780 and $13,790. This package carries $13,780, the midpoint’s rounding. Starting the withdrawal $10 of income early or late costs at most two cents of tax, which is the smallest provisional figure in this package',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'deduction.tiers.headOfHousehold.1.above',
+    kind: 'derived',
+    cite: 'NOT A PARAMETER. The income at which the head-of-household deduction has fallen to the single one, after which § 71.05(22)(dp) withdraws both at 12%: threshold + (maxHeadOfHousehold - maxSingle) / (22.515% - 12%). $57,210.49 for 2025 and $58,826.61 for 2026. The only source that carries the 2025 figure records $57,210, which is this rounded — so the identity is checked against the published value rather than replacing it, in test/wisconsin.test.js',
+    constant: false,
+  },
+  {
+    state: 'WI',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: '§ 71.05(6)(b)9',
+    cite: 'Wis. Stat. § 71.05(6)(b)9, Schedule WD line 25 — 30% of the net capital gain to the extent it is long-term. Unchanged since 2011 and the reason Wisconsin’s top rate on a long-term gain is 5.355% rather than 7.65%',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '§ 71.05(23)',
+    cite: 'Wis. Stat. § 71.05(23) — $700 per exemption, so $1,400 on a joint return and $700 on every other status including a qualifying surviving spouse, who files alone. UNINDEXED and $700 since 2001, which is 40% of its 2001 purchasing power',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'exemption.perDependent',
+    kind: 'statute',
+    document: '§ 71.05(23)',
+    cite: 'Wis. Stat. § 71.05(23) — the same $700 for each dependent',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'exemption.perSeniorFiler',
+    kind: 'statute',
+    document: '§ 71.05(23)',
+    cite: 'Wis. Stat. § 71.05(23)(b)2 — $250 more for the taxpayer and again for the spouse at 65, PER PERSON, so a joint return where both have reached 65 claims two. Unindexed',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'exemption.seniorAge',
+    kind: 'statute',
+    document: '§ 71.05(23)',
+    cite: 'Wis. Stat. § 71.05(23)(b)2 — 65, and Wisconsin’s age addition sits inside the EXEMPTION rather than inside the standard deduction, which is why its separate-return declaration has no aged half to read',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'exemption.filersClaimed.*',
+    kind: 'statute',
+    document: '§ 71.05(23)',
+    cite: 'Wis. Stat. § 71.05(23) — a count of people, not an amount. A joint return claims two and a qualifying surviving spouse one, because the spouse is dead and there is one filer on the return',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'itemizedDeductionCredit.rate',
+    kind: 'statute',
+    document: '§ 71.07(5)',
+    cite: 'Wis. Stat. § 71.07(5) — 5% of the excess of eligible itemized deductions over the standard deduction. A CREDIT and not a deduction, and 5% is below every Wisconsin rate, so the state’s itemized relief is worth less than a deduction and the gap widens with the bracket',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'schoolPropertyTaxCredit.rate',
+    kind: 'statute',
+    document: '§ 71.07(9)',
+    cite: 'Wis. Stat. § 71.07(9) — 12% of property taxes on a principal dwelling',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'schoolPropertyTaxCredit.max',
+    kind: 'statute',
+    document: '§ 71.07(9)',
+    cite: 'Wis. Stat. § 71.07(9) — a $300 maximum, which is 12% of $2,500 and binds below the median Wisconsin property tax bill, so for most Wisconsin homeowners this credit is a flat $300',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'schoolPropertyTaxCredit.rentShare',
+    kind: 'statute',
+    document: '§ 71.07(9)',
+    cite: 'Wis. Stat. § 71.07(9)(a)4 — 20% of rent is treated as property tax where heat is included. The statute uses a higher share where it is not, and this package does not ask which, because the $300 cap binds either way above $12,500 of annual rent',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'marriedCoupleCredit.rate',
+    kind: 'statute',
+    document: '§ 71.07(6)',
+    cite: 'Wis. Stat. § 71.07(6)(am) — 3% of the qualified earned income of the spouse with the LESSER qualified earned income',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'marriedCoupleCredit.max',
+    kind: 'statute',
+    document: '§ 71.07(6)',
+    cite: 'Wis. Stat. § 71.07(6)(am) — $480, which the 3% reaches at $16,000 of second-earner income. Unindexed',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: '§ 71.07(9e)',
+    cite: 'Wis. Stat. § 71.07(9e)(aj) — ZERO, which is the rate for a filer with no qualifying children. Wisconsin pays no match at all on the federal childless credit, so this is a figure and not a placeholder; the rates for one, two and three children are the table below',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'earnedIncomeCredit.matchRateByChildCount.*.rate',
+    kind: 'statute',
+    document: '§ 71.07(9e)',
+    cite: 'Wis. Stat. § 71.07(9e)(aj) — 4% with one qualifying child, 11% with two, 34% with three or more. The largest spread by family size of any state match here: on the 2026 federal maximums that is $177.08, $804.76 and $2,798.54',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'earnedIncomeCredit.matchRateByChildCount.*.children',
+    kind: 'statute',
+    document: '§ 71.07(9e)',
+    cite: 'Wis. Stat. § 71.07(9e)(aj) — the child counts the three rates attach to, 1, 2 and 3. The last means three OR MORE',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'retirementIncomeExclusionElection.minimumAge',
+    kind: 'statute',
+    document: '2025 Wisconsin Act 15',
+    cite: 'Wis. Stat. § 71.05(6)(b)54m.a, created by 2025 Act 15 — 67 before the close of the taxable year. Not 65, and not the federal full retirement age by accident: 67 IS the full retirement age for everyone born in 1960 or later',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'retirementIncomeExclusionElection.perPerson',
+    kind: 'statute',
+    document: '2025 Wisconsin Act 15',
+    cite: 'Wis. Stat. § 71.05(6)(b)54m.a — $24,000 of qualifying retirement income per eligible individual. Unindexed as enacted, which is the Oregon retirement credit’s fate in advance',
+    constant: true,
+  },
+  {
+    state: 'WI',
+    path: 'retirementIncomeExclusionElection.jointBothEligible',
+    kind: 'statute',
+    document: '2025 Wisconsin Act 15',
+    cite: 'Wis. Stat. § 71.05(6)(b)54m.a — $48,000 where BOTH spouses on a joint return have reached 67. A pooled cap and not two per-person ones: a couple with $40,000 and $2,000 of pension subtracts the whole $42,000, where a per-person cap would allow $26,000',
+    constant: true,
   },
 
 ];

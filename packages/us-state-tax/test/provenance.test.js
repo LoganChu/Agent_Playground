@@ -285,9 +285,17 @@ test("an entry's document identifies ONE citation, not merely matches one", () =
   );
 });
 
-test('every kind that asserts a document has one, and the two that cannot do not', () => {
+test('every kind that asserts a document has one, and the three that cannot do not', () => {
   for (const entry of STATE_FIGURE_PROVENANCE) {
-    const needsDocument = !['sentinel', 'unestablished', 'derived'].includes(entry.kind);
+    // `derived-bounded` joins `derived` here for the same reason: the figure was
+    // not read in a document, it was COMPUTED from figures that were, so naming
+    // a document would be naming a page the figure is not on. What a
+    // `derived-bounded` entry owes instead is the bound, and `provisional.test.js`
+    // asserts that its `provisionalFigures` twin states the interval and both
+    // candidate values.
+    const needsDocument = !['sentinel', 'unestablished', 'derived', 'derived-bounded'].includes(
+      entry.kind,
+    );
     if (needsDocument) {
       assert.ok(
         entry.document !== undefined,
@@ -310,9 +318,14 @@ test('carried-forward here and provisionalFigures there name the same figures', 
     }
     for (const path of realFigures(definition)) {
       const entry = stateFigureProvenance(definition, state, year, path);
-      const carried = entry?.kind === 'carried-forward';
-      if (carried && !flagged.has(path)) ledgerSays.push(`${state} ${year} ${path}`);
-      if (!carried && flagged.has(path) && entry?.kind !== 'determined-after-year-end') {
+      // `derived-bounded` is flagged provisional for the same reason
+      // `carried-forward` is — the figure was not read for this year — so it
+      // belongs on BOTH sides of this agreement. Day 43 added it because
+      // Wisconsin's three unpublished 2026 figures are neither last year's nor
+      // unknowable, and labelling them either would have been a false claim.
+      const unread = entry?.kind === 'carried-forward' || entry?.kind === 'derived-bounded';
+      if (unread && !flagged.has(path)) ledgerSays.push(`${state} ${year} ${path}`);
+      if (!unread && flagged.has(path) && entry?.kind !== 'determined-after-year-end') {
         definitionSays.push(`${state} ${year} ${path} (ledger says '${entry?.kind}')`);
       }
     }
@@ -501,7 +514,11 @@ test('the README section quotes the numbers this file measures', () => {
   assert.equal(of('statute', 'derived', 'sentinel'), quoted(/`sentinel`\) \| \*\*([\d,]+)\*\*/), 'costing nothing');
   assert.equal(of('statute-scheduled'), quoted(/`statute-scheduled`\) \| \*\*([\d,]+)\*\*/), 'on a schedule');
   assert.equal(
-    of('indexed', 'agency', 'carried-forward', 'determined-after-year-end'),
+    // `derived-bounded` belongs in this row rather than in the costs-nothing
+    // one. The figure itself was computed, so the arithmetic is free — but the
+    // ambiguity the arithmetic left is settled only by the state's own table, so
+    // the row that means "somebody has to read a document" is where it goes.
+    of('indexed', 'agency', 'carried-forward', 'derived-bounded', 'determined-after-year-end'),
     quoted(/`determined-after-year-end`\) \| \*\*([\d,]+)\*\*/),
     'needing a release read',
   );
@@ -510,7 +527,8 @@ test('the README section quotes the numbers this file measures', () => {
   // the table has quietly stopped describing the package.
   assert.equal(
     of('statute', 'derived', 'sentinel', 'statute-scheduled', 'indexed', 'agency',
-       'carried-forward', 'determined-after-year-end', 'federal-conformity', 'unestablished'),
+       'carried-forward', 'derived-bounded', 'determined-after-year-end', 'federal-conformity',
+       'unestablished'),
     figures2026,
     'every 2026 figure is in exactly one row of the table',
   );

@@ -18,7 +18,7 @@
 /** Every state in `us-state-tax` that charges an income tax. */
 export const STATES = [
   'AL', 'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
-  'MI', 'MO', 'MS', 'NC', 'NJ', 'NY', 'OH', 'OR', 'PA', 'UT', 'VA',
+  'MI', 'MO', 'MS', 'NC', 'NJ', 'NY', 'OH', 'OR', 'PA', 'UT', 'VA', 'WI',
 ];
 
 /** The household shapes, before a state is attached to one. */
@@ -127,6 +127,33 @@ const SHAPES = [
     childAges: [2, 7, 14],
     wages,
   })),
+
+  // Day 43: a head of household ABOVE the income where a two-tier schedule
+  // changes tier.
+  //
+  // The grid's three heads of household earned $12,000, $25,000, $35,000 and
+  // $45,000, which is a deliberate spread across every state's earned income
+  // credit — and every one of them is below $58,836.61, the income at which
+  // Wisconsin's head-of-household standard deduction stops being withdrawn at
+  // 22.515% and starts being withdrawn at 12% alongside the single one. So the
+  // whole second tier of that schedule was invisible from this grid: the
+  // crossover could have been any number above $45,000 and no case would have
+  // moved.
+  //
+  // THE RULE, which is Day 27's upward widening applied to a SCHEDULE rather
+  // than to a credit: a status is tested only at the incomes the grid gave it,
+  // and a grid that chose a status's incomes to straddle one provision's
+  // thresholds has said nothing about any other provision that bands the same
+  // status somewhere else. The heads of household here were placed for earned
+  // income credits, which live below $50,000; a deduction schedule that changes
+  // shape at $58,837 needed a rung of its own.
+  {
+    kind: 'single-parent-high',
+    filingStatus: 'headOfHousehold',
+    primaryAge: 44,
+    childAges: [12],
+    wages: 90_000,
+  },
 
   // A single parent whose child is too old for every young-child credit and
   // still inside § 24. The grid's only single parent has a five-year-old.

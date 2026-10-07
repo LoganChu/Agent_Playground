@@ -1897,10 +1897,15 @@ const WHAT_A_NEW_YEAR_COSTS: Readonly<Record<FigureSource['kind'], string>> = {
 };
 
 /**
- * The state engine's answer to the same question. Eight kinds rather than six,
+ * The state engine's answer to the same question. Eleven kinds rather than six,
  * because a state can set a figure by ordinance, derive it from another figure,
  * leave it undetermined until the year closes, or simply not have read it yet —
  * and the last of those is the one a caller most needs told.
+ *
+ * `derived-bounded` is the newest and the one whose answer is least obvious: the
+ * figure was NOT read and is NOT last year's, it was computed from figures the
+ * state did publish for this year, and what a new year costs is reading the
+ * figures the computation consumes rather than the figure itself.
  */
 const WHAT_A_NEW_STATE_YEAR_COSTS: Readonly<Record<StateFigureKind, string>> = {
   statute: 'nothing — a change here is an amendment to the state code, and news',
@@ -1909,6 +1914,8 @@ const WHAT_A_NEW_STATE_YEAR_COSTS: Readonly<Record<StateFigureKind, string>> = {
   'federal-conformity': 'nothing from the state — the figure IS the federal one, adopted by reference',
   agency: 'read the other agency’s release — the state does not publish this figure',
   derived: 'nothing beyond the figure it is computed from',
+  'derived-bounded':
+    'read the document to confirm it, or read the figures it is derived from — this figure was computed from this year’s published figures rather than read, and the derivation left a bounded ambiguity the state’s own table would settle',
   'carried-forward': 'READ THE DOCUMENT — this year’s figure was not read, and last year’s stands in',
   'determined-after-year-end': 'wait — the law does not fix this figure until the tax year has closed',
   sentinel: 'nothing — this value encodes the absence of a limit rather than a published figure',

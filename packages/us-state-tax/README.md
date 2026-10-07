@@ -2280,7 +2280,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,441 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,497 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2313,11 +2313,11 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **599** notes every
+`test/notes.test.js` pins the first 72 characters of all **630** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
-exactly which notes 2026 has that 2025 does not — ten states, fifteen notes, each
+exactly which notes 2026 has that 2025 does not — twelve states, seventeen notes, each
 a statement about the law a reader can check — because **a year branch is a selector,
 and a selector is caught by an assertion on the relation between its branches, not by
 a household sitting between them.**
@@ -2333,13 +2333,13 @@ and a disagreement is checkable without knowing which is right.
 And a rule's `name` is now checked against the rule. A name travels in the result
 object — `"Michigan retirement and pension benefits deduction (phased in, 75% for
 2025)"` — so a percentage or a dollar figure printed in one is a claim a caller
-reads, and all 15 of them are now required to equal a figure the rule actually holds.
+reads, and all 17 of them are now required to equal a figure the rule actually holds.
 
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,110 numeric
-figures over 64 state-years, against 372 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,286 numeric
+figures over 66 state-years, against 398 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2385,14 +2385,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,055 figures of tax year
+The `kind` field answers one operational question. Over the 2,143 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,696** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,765** |
 | the statute's own schedule (`statute-scheduled`) | **113** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **239** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **258** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.

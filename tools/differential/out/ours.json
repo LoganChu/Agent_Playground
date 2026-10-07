@@ -560,6 +560,35 @@
   },
   "error": null
  },
+ "single-worker-WI-15000-0-0-0-0": {
+  "id": "single-worker-WI-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": 11.9,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-AL-30000-0-0-0-0": {
   "id": "single-worker-AL-30000-0-0-0-0",
   "federal": {
@@ -1115,6 +1144,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-WI-30000-0-0-0-0": {
+  "id": "single-worker-WI-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 591.14,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -1682,6 +1740,35 @@
   },
   "error": null
  },
+ "single-worker-WI-50000-0-0-0-0": {
+  "id": "single-worker-WI-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1576.74,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-AL-80000-0-0-0-0": {
   "id": "single-worker-AL-80000-0-0-0-0",
   "federal": {
@@ -2237,6 +2324,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-WI-80000-0-0-0-0": {
+  "id": "single-worker-WI-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3240.32,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -2804,6 +2920,35 @@
   },
   "error": null
  },
+ "single-worker-WI-150000-0-0-0-0": {
+  "id": "single-worker-WI-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7309.36,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-AL-400000-0-0-0-0": {
   "id": "single-worker-AL-400000-0-0-0-0",
   "federal": {
@@ -3359,6 +3504,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-WI-400000-0-0-0-0": {
+  "id": "single-worker-WI-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 22123.99,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -3926,6 +4100,39 @@
   },
   "error": null
  },
+ "couple-two-children-WI-30000-0-0-0-0": {
+  "id": "couple-two-children-WI-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": -750.51,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 804.76
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-AL-60000-0-0-0-0": {
   "id": "couple-two-children-AL-60000-0-0-0-0",
   "federal": {
@@ -4487,6 +4694,39 @@
   },
   "error": null
  },
+ "couple-two-children-WI-60000-0-0-0-0": {
+  "id": "couple-two-children-WI-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 1331.26,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 136.65
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-AL-100000-0-0-0-0": {
   "id": "couple-two-children-AL-100000-0-0-0-0",
   "federal": {
@@ -5042,6 +5282,39 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-two-children-WI-100000-0-0-0-0": {
+  "id": "couple-two-children-WI-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3721.22,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
      "amount": 0
     }
    ]
@@ -5609,6 +5882,39 @@
   },
   "error": null
  },
+ "couple-two-children-WI-200000-0-0-0-0": {
+  "id": "couple-two-children-WI-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 9646.91,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-AL-12000-0-0-0-0": {
   "id": "single-parent-AL-12000-0-0-0-0",
   "federal": {
@@ -6165,6 +6471,35 @@
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
      "amount": 816
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-WI-12000-0-0-0-0": {
+  "id": "single-parent-WI-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -163.2,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 163.2
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
     }
    ]
   },
@@ -6731,6 +7066,35 @@
   },
   "error": null
  },
+ "single-parent-WI-25000-0-0-0-0": {
+  "id": "single-parent-WI-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": 63.42,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 169.98
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-AL-45000-0-0-0-0": {
   "id": "single-parent-AL-45000-0-0-0-0",
   "federal": {
@@ -7292,6 +7656,35 @@
   },
   "error": null
  },
+ "single-parent-WI-45000-0-0-0-0": {
+  "id": "single-parent-WI-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 1193.42,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 42.14
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-AL-0-0-40000-0-0": {
   "id": "retired-couple-AL-0-0-40000-0-0",
   "federal": {
@@ -7847,6 +8240,39 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-WI-0-0-40000-0-0": {
+  "id": "retired-couple-WI-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
      "amount": 0
     }
    ]
@@ -8414,6 +8840,39 @@
   },
   "error": null
  },
+ "retired-couple-WI-0-20000-40000-0-0": {
+  "id": "retired-couple-WI-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-AL-0-50000-40000-0-0": {
   "id": "retired-couple-AL-0-50000-40000-0-0",
   "federal": {
@@ -8969,6 +9428,39 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-WI-0-50000-40000-0-0": {
+  "id": "retired-couple-WI-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480) — forfeited by the retirement income subtraction",
      "amount": 0
     }
    ]
@@ -9536,6 +10028,39 @@
   },
   "error": null
  },
+ "retired-couple-WI-0-90000-40000-0-0": {
+  "id": "retired-couple-WI-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 588.81,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480) — forfeited by the retirement income subtraction",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-retiree-AL-0-10000-24000-0-0": {
   "id": "single-retiree-AL-0-10000-24000-0-0",
   "federal": {
@@ -10091,6 +10616,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-retiree-WI-0-10000-24000-0-0": {
+  "id": "single-retiree-WI-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -10658,6 +11212,35 @@
   },
   "error": null
  },
+ "single-retiree-WI-0-40000-24000-0-0": {
+  "id": "single-retiree-WI-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 38.15,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "investor-AL-50000-0-0-20000-0": {
   "id": "investor-AL-50000-0-0-20000-0",
   "federal": {
@@ -11213,6 +11796,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "investor-WI-50000-0-0-20000-0": {
+  "id": "investor-WI-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2290.56,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -11780,6 +12392,35 @@
   },
   "error": null
  },
+ "investor-WI-50000-0-0-100000-0": {
+  "id": "investor-WI-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5614.72,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-AL-60000-0-0-0-0": {
   "id": "separate-AL-60000-0-0-0-0",
   "federal": {
@@ -12331,6 +12972,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-WI-60000-0-0-0-0": {
+  "id": "separate-WI-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2574.16,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -12898,6 +13568,39 @@
   },
   "error": null
  },
+ "muni-retiree-WI-0-60000-40000-0-10000": {
+  "id": "muni-retiree-WI-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480) — forfeited by the retirement income subtraction",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-no-children-AL-25000-0-0-0-0": {
   "id": "couple-no-children-AL-25000-0-0-0-0",
   "federal": {
@@ -13459,6 +14162,39 @@
   },
   "error": null
  },
+ "couple-no-children-WI-25000-0-0-0-0": {
+  "id": "couple-no-children-WI-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-no-children-AL-75000-0-0-0-0": {
   "id": "couple-no-children-AL-75000-0-0-0-0",
   "federal": {
@@ -14014,6 +14750,39 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-no-children-WI-75000-0-0-0-0": {
+  "id": "couple-no-children-WI-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2320.05,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
      "amount": 0
     }
    ]
@@ -14581,6 +15350,39 @@
   },
   "error": null
  },
+ "mixed-dependents-WI-40000-0-0-0-0": {
+  "id": "mixed-dependents-WI-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": -1716.59,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 2165.56
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "mixed-dependents-AL-90000-0-0-0-0": {
   "id": "mixed-dependents-AL-90000-0-0-0-0",
   "federal": {
@@ -15136,6 +15938,629 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "mixed-dependents-WI-90000-0-0-0-0": {
+  "id": "mixed-dependents-WI-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3049.29,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-AL-90000-0-0-0-0": {
+  "id": "single-parent-high-AL-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3673.35,
+   "credits": []
+  },
+  "error": null
+ },
+ "single-parent-high-AZ-90000-0-0-0-0": {
+  "id": "single-parent-high-AZ-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1646.25,
+   "credits": []
+  },
+  "error": null
+ },
+ "single-parent-high-CA-90000-0-0-0-0": {
+  "id": "single-parent-high-CA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1460.63,
+   "credits": [
+    {
+     "name": "Personal and dependent exemption credits",
+     "amount": 628
+    },
+    {
+     "name": "California Earned Income Tax Credit (CalEITC)",
+     "amount": 0
+    },
+    {
+     "name": "Young Child Tax Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-CO-90000-0-0-0-0": {
+  "id": "single-parent-high-CO-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2897.4,
+   "credits": [
+    {
+     "name": "Colorado earned income tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-CT-90000-0-0-0-0": {
+  "id": "single-parent-high-CT-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3870,
+   "credits": [
+    {
+     "name": "Personal tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Connecticut earned income tax credit child bonus",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-GA-90000-0-0-0-0": {
+  "id": "single-parent-high-GA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3493,
+   "credits": [
+    {
+     "name": "Georgia child tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Georgia eligible itemizer tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-ID-90000-0-0-0-0": {
+  "id": "single-parent-high-ID-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2980.08,
+   "credits": []
+  },
+  "error": null
+ },
+ "single-parent-high-IL-90000-0-0-0-0": {
+  "id": "single-parent-high-IL-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4165.43,
+   "credits": [
+    {
+     "name": "Illinois earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Illinois child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-IN-90000-0-0-0-0": {
+  "id": "single-parent-high-IN-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4299.05,
+   "credits": [
+    {
+     "name": "Indiana earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Indiana unified tax credit for the elderly",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-KY-90000-0-0-0-0": {
+  "id": "single-parent-high-KY-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3032.4,
+   "credits": []
+  },
+  "error": null
+ },
+ "single-parent-high-MA-90000-0-0-0-0": {
+  "id": "single-parent-high-MA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3570,
+   "credits": [
+    {
+     "name": "Massachusetts earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Child and Family Tax Credit",
+     "amount": 440
+    },
+    {
+     "name": "Limited Income Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-MD-90000-0-0-0-0": {
+  "id": "single-parent-high-MD-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6061.05,
+   "credits": [
+    {
+     "name": "Senior tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland earned income credit (refundable half)",
+     "amount": 0
+    },
+    {
+     "name": "Maryland poverty level credit",
+     "amount": 0
+    },
+    {
+     "name": "Maryland child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-MI-90000-0-0-0-0": {
+  "id": "single-parent-high-MI-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3323.5,
+   "credits": [
+    {
+     "name": "Michigan earned income tax credit for working families",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-MO-90000-0-0-0-0": {
+  "id": "single-parent-high-MO-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2810.81,
+   "credits": [
+    {
+     "name": "Working family tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-MS-90000-0-0-0-0": {
+  "id": "single-parent-high-MS-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2684,
+   "credits": []
+  },
+  "error": null
+ },
+ "single-parent-high-NC-90000-0-0-0-0": {
+  "id": "single-parent-high-NC-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2827.91,
+   "credits": []
+  },
+  "error": null
+ },
+ "single-parent-high-NJ-90000-0-0-0-0": {
+  "id": "single-parent-high-NJ-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2059.38,
+   "credits": [
+    {
+     "name": "New Jersey earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-NY-90000-0-0-0-0": {
+  "id": "single-parent-high-NY-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3700.08,
+   "credits": [
+    {
+     "name": "New York household credit",
+     "amount": 0
+    },
+    {
+     "name": "New York earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Empire State child credit",
+     "amount": 252.5
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-OH-90000-0-0-0-0": {
+  "id": "single-parent-high-OH-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1986.13,
+   "credits": [
+    {
+     "name": "Retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Senior citizen credit",
+     "amount": 0
+    },
+    {
+     "name": "Exemption credit",
+     "amount": 0
+    },
+    {
+     "name": "Joint filing credit",
+     "amount": 0
+    },
+    {
+     "name": "Ohio earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-OR-90000-0-0-0-0": {
+  "id": "single-parent-high-OR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5833.11,
+   "credits": [
+    {
+     "name": "Oregon retirement income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon exemption credit",
+     "amount": 526
+    },
+    {
+     "name": "Oregon earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon Kids Credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-PA-90000-0-0-0-0": {
+  "id": "single-parent-high-PA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2763,
+   "credits": [
+    {
+     "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-UT-90000-0-0-0-0": {
+  "id": "single-parent-high-UT-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3244.18,
+   "credits": [
+    {
+     "name": "Taxpayer Tax Credit",
+     "amount": 760.82
+    },
+    {
+     "name": "Utah Social Security benefits credit (code AH)",
+     "amount": 0
+    },
+    {
+     "name": "Utah earned income tax credit",
+     "amount": 0
+    },
+    {
+     "name": "Utah child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-VA-90000-0-0-0-0": {
+  "id": "single-parent-high-VA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4307.43,
+   "credits": [
+    {
+     "name": "Spouse tax adjustment",
+     "amount": 0
+    },
+    {
+     "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-high-WI-90000-0-0-0-0": {
+  "id": "single-parent-high-WI-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3796.82,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -15703,6 +17128,35 @@
   },
   "error": null
  },
+ "single-parent-teen-WI-35000-0-0-0-0": {
+  "id": "single-parent-teen-WI-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": 590.44,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 106.06
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-with-child-AL-45000-0-0-0-0": {
   "id": "separate-with-child-AL-45000-0-0-0-0",
   "federal": {
@@ -16254,6 +17708,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-child-WI-45000-0-0-0-0": {
+  "id": "separate-with-child-WI-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1584.83,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -16821,6 +18304,35 @@
   },
   "error": null
  },
+ "surviving-spouse-WI-45000-0-0-0-0": {
+  "id": "surviving-spouse-WI-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 666.03,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 42.14
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-high-AL-250000-0-0-0-0": {
   "id": "surviving-spouse-high-AL-250000-0-0-0-0",
   "federal": {
@@ -17376,6 +18888,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-WI-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-WI-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12334.01,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -17943,6 +19484,35 @@
   },
   "error": null
  },
+ "surviving-spouse-high-WI-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-WI-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14984.01,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-high-AL-450000-0-0-0-0": {
   "id": "surviving-spouse-high-AL-450000-0-0-0-0",
   "federal": {
@@ -18498,6 +20068,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-WI-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-WI-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 23034.36,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -19065,6 +20664,35 @@
   },
   "error": null
  },
+ "surviving-spouse-low-WI-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-WI-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -177.08,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 177.08
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-low-AL-26000-0-0-0-0": {
   "id": "surviving-spouse-low-AL-26000-0-0-0-0",
   "federal": {
@@ -19621,6 +21249,35 @@
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
      "amount": 817.96
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-WI-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-WI-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -163.59,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 163.59
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
     }
    ]
   },
@@ -20183,6 +21840,35 @@
   },
   "error": null
  },
+ "separate-with-spouse-WI-0-55000-0-0-0": {
+  "id": "separate-with-spouse-WI-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 841.01,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-with-spouse-young-AL-0-55000-0-0-0": {
   "id": "separate-with-spouse-young-AL-0-55000-0-0-0",
   "federal": {
@@ -20734,6 +22420,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-WI-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-WI-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2256.75,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]
@@ -21301,6 +23016,35 @@
   },
   "error": null
  },
+ "early-retiree-WI-0-50000-0-0-0": {
+  "id": "early-retiree-WI-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1576.74,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "early-retired-couple-AL-0-70000-0-0-0": {
   "id": "early-retired-couple-AL-0-70000-0-0-0",
   "federal": {
@@ -21856,6 +23600,39 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "early-retired-couple-WI-0-70000-0-0-0": {
+  "id": "early-retired-couple-WI-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2056.54,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    },
+    {
+     "name": "Married couple credit (assumed: one earner — pass lesserSpouseIncome, worth up to $480)",
      "amount": 0
     }
    ]
@@ -22423,6 +24200,35 @@
   },
   "error": null
  },
+ "blind-worker-WI-40000-0-0-0-0": {
+  "id": "blind-worker-WI-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1083.94,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "blind-senior-AL-0-25000-20000-0-0": {
   "id": "blind-senior-AL-0-25000-20000-0-0",
   "federal": {
@@ -22978,6 +24784,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "blind-senior-WI-0-25000-20000-0-0": {
+  "id": "blind-senior-WI-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes) — forfeited by the retirement income subtraction",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid) — forfeited by the retirement income subtraction",
      "amount": 0
     }
    ]
@@ -23545,6 +25380,35 @@
   },
   "error": null
  },
+ "on-the-boundary-WI-50000-0-0-0-0": {
+  "id": "on-the-boundary-WI-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 254.62
+  },
+  "state": {
+   "tax": 1535.75,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 10.18
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "on-the-boundary-AL-100000-0-0-0-0": {
   "id": "on-the-boundary-AL-100000-0-0-0-0",
   "federal": {
@@ -24100,6 +25964,35 @@
     },
     {
      "name": "Virginia earned income tax credit (refundable, 20% of the federal credit)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "on-the-boundary-WI-100000-0-0-0-0": {
+  "id": "on-the-boundary-WI-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 83900,
+   "incomeTaxBeforeCredits": 13170,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4390.42,
+   "credits": [
+    {
+     "name": "Wisconsin earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Itemized deduction credit (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES state and local taxes)",
+     "amount": 0
+    },
+    {
+     "name": "School property tax credit (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)",
      "amount": 0
     }
    ]

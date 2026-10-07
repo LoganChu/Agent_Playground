@@ -175,7 +175,13 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // first band's width moves from $1,313 to $1,348 and the other seven move
   // with it. Every Missouri filer's answer differs between the two years and
   // not one Missouri figure was amended.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'UT']);
+  // WISCONSIN joins for a FOURTH reason, and it is the first of its kind here:
+  // not a rate change, not a reading, not a block indexation — a figure that is
+  // DERIVED. Wisconsin's 2026 standard deduction schedule is not published and
+  // will not be until January 2027, and it still differs from 2025's, because
+  // the published 2026 rate schedules pin the indexation factor tightly enough
+  // to compute it. A state can move onto this list by arithmetic.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

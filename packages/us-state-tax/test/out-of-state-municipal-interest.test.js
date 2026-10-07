@@ -59,13 +59,13 @@ function household(state, extra = {}) {
 
 const taxOf = (state, extra = {}) => stateIncomeTax(household(state, extra)).tax;
 
-test('five states make the addition, and each declares its own provision', () => {
-  assert.deepEqual(ADDING, ['IL', 'IN', 'MD', 'OH', 'VA']);
+test('six states make the addition, and each declares its own provision', () => {
+  assert.deepEqual(ADDING, ['IL', 'IN', 'MD', 'OH', 'VA', 'WI']);
   const cites = ADDING.map((code) => ruleOf(code).cite);
   // Day 30's rule: a shared citation launders a claim nobody checked through one
   // somebody did. Four of these five were added on one afternoon, which is
   // exactly when that is easiest to do.
-  assert.equal(new Set(cites).size, 5, 'two states share a citation');
+  assert.equal(new Set(cites).size, 6, 'two states share a citation');
   for (const code of ADDING) {
     const rule = ruleOf(code);
     assert.ok(rule.cite.length > 60, `${code}: a label is not a citation`);
@@ -77,8 +77,8 @@ test('five states make the addition, and each declares its own provision', () =>
 
 test('the two axes are independent, which is why they are two fields', () => {
   // If every wide state were also net, one enum would do. Ohio is wide and gross,
-  // Maryland is wide and net, Virginia is narrow and net, Illinois is narrow and
-  // gross: all four corners are occupied by a real state.
+  // Maryland is wide and net, Virginia is narrow and net, Illinois and Wisconsin
+  // are narrow and gross: all four corners are occupied by a real state.
   const shape = (code) => `${ruleOf(code).measure}/${ruleOf(code).netOfExpenses}`;
   assert.equal(shape('OH'), 'interestAndDividends/false');
   assert.equal(shape('MD'), 'interestAndDividends/true');
@@ -92,10 +92,10 @@ test('the two axes are independent, which is why they are two fields', () => {
   assert.equal(ruleOf('IN').acquiredAfterYear, 2011);
 });
 
-test('every declaration is REACHABLE: the figure moves the tax in all five', () => {
+test('every declaration is REACHABLE: the figure moves the tax in all six', () => {
   // A declaration no input can reach is decoration. Four of these were added
-  // together, so proving each one separately is the difference between five rules
-  // and one rule copied five times.
+  // together, so proving each one separately is the difference between six rules
+  // and one rule copied six times.
   for (const code of ADDING) {
     const without = taxOf(code);
     const with_ = taxOf(code, { outOfStateMunicipalInterest: COUPON });

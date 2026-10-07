@@ -137,7 +137,9 @@ test('every provisional figure says what would settle it, and names a document',
   for (const def of provisional()) {
     for (const figure of def.provisionalFigures) {
       assert.ok(
-        ['awaiting-publication', 'determined-after-year-end'].includes(figure.reason),
+        ['awaiting-publication', 'determined-after-year-end', 'bounded-derivation'].includes(
+          figure.reason,
+        ),
         `${def.code} ${def.year} '${figure.path}' has reason '${figure.reason}'`,
       );
       // Long enough to be a document and not a shrug. "the state" is 9.
@@ -169,7 +171,37 @@ test('a figure the law fixes after the year ends is never a carry-forward', () =
   }
 });
 
-test('the two kinds are both in use, so neither assertion is vacuous', () => {
+test('a bounded derivation is never a carry-forward either, and states its interval', () => {
+  // The third reason, added on Day 43. It claims the figure was COMPUTED from
+  // figures this year's documents do carry, so it is not last year's number —
+  // and `resolvedBy` has to say what the computation left open, or the reason is
+  // just `awaiting-publication` with a better name.
+  for (const def of provisional()) {
+    for (const figure of def.provisionalFigures) {
+      if (figure.reason !== 'bounded-derivation') continue;
+      assert.equal(
+        figure.carriedForwardFrom,
+        undefined,
+        `${def.code} ${def.year} '${figure.path}' is a bounded derivation and also a carry-forward. ` +
+          'It is one or the other: a derived figure is not last year\'s figure.',
+      );
+      assert.match(
+        figure.resolvedBy,
+        /interval/,
+        `${def.code} ${def.year} '${figure.path}' does not state the interval the derivation left open`,
+      );
+      // And the candidates, so a future run reading the document knows what it
+      // is confirming or correcting rather than only that something is wrong.
+      assert.match(
+        figure.resolvedBy,
+        /admits \$[\d,]+ and \$[\d,]+/,
+        `${def.code} ${def.year} '${figure.path}' does not name both candidates`,
+      );
+    }
+  }
+});
+
+test('the three kinds are all in use, so no assertion is vacuous', () => {
   const reasons = new Set(
     provisional().flatMap((d) => d.provisionalFigures.map((f) => f.reason)),
   );
@@ -178,8 +210,8 @@ test('the two kinds are both in use, so neither assertion is vacuous', () => {
   // and would go on passing for ever.
   assert.deepEqual(
     [...reasons].sort(),
-    ['awaiting-publication', 'determined-after-year-end'],
-    'both provisional reasons must be in use for the distinction to be tested',
+    ['awaiting-publication', 'bounded-derivation', 'determined-after-year-end'],
+    'every provisional reason must be in use for the distinction to be tested',
   );
 });
 

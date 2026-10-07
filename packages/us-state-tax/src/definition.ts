@@ -106,7 +106,82 @@ export type DeductionRule =
       readonly reduction: ByStatus;
       /** The provision, including the absence of an "or fraction thereof" clause. */
       readonly cite: string;
+    }
+  /**
+   * A deduction **withdrawn as a percentage of income**, continuously, from a
+   * maximum down to nothing — Wisconsin's sliding scale standard deduction,
+   * Wis. Stat. § 71.05(22)(dp) and the Standard Deduction Table in the Form 1
+   * instructions.
+   *
+   * ```
+   * deduction = max(0, maximum - SUM over tiers of rate_i x (income in tier i))
+   * ```
+   *
+   * **It is the opposite of a staircase and it is a RATE, which makes it part
+   * of the marginal rate rather than a step in it.** Alabama's and
+   * Connecticut's withdrawals are whole steps at boundaries; Wisconsin's is a
+   * slope, so inside the phase-out band a filer's marginal rate is the
+   * statutory rate times `(1 + withdrawal rate)`. A single Wisconsin filer in
+   * the 4.4% bracket and inside the band pays **4.93%** on their next dollar
+   * (`4.4% x 1.12`), and a joint filer in the 5.3% bracket pays **6.35%**
+   * (`5.3% x 1.19778`) — neither figure appears in any rate table.
+   *
+   * **The tiers exist for one filing status.** Single, joint and separate
+   * returns have one rate each. Head of household has two: 22.515% and then
+   * 12%, and the income where it changes is not a free parameter — it is the
+   * income at which the head-of-household deduction has fallen to the SINGLE
+   * one, after which the two are withdrawn together at the same 12%. See
+   * {@link slidingScaleCrossover}.
+   *
+   * Read against the state's own adjusted gross income (Form 1 line 7), not a
+   * federal figure, which matters for every Wisconsin subtraction: a dollar of
+   * Social Security or of the 30% capital gain exclusion lowers the income the
+   * scale is read against and so buys back part of the deduction as well.
+   */
+  | {
+      readonly kind: 'slidingScale';
+      /** The deduction at or below the first tier's threshold. */
+      readonly maximum: ByStatus;
+      /** Ascending by {@link SlidingScaleTier.above}; one entry for most statuses. */
+      readonly tiers: ByStatus<readonly SlidingScaleTier[]>;
+      readonly cite: string;
     };
+
+/**
+ * One tier of a {@link DeductionRule} sliding scale.
+ */
+export interface SlidingScaleTier {
+  /** State AGI above which {@link rate} applies to the excess. */
+  readonly above: number;
+  /** The share of each dollar above {@link above} withdrawn from the maximum. */
+  readonly rate: number;
+}
+
+/**
+ * The income at which a steeper sliding scale has caught a shallower one.
+ *
+ * Wisconsin's head of household standard deduction starts `maxHigh - maxLow`
+ * above the single one and is withdrawn at `rateHigh` rather than `rateLow`, so
+ * the gap closes at `(maxHigh - maxLow) / (rateHigh - rateLow)` of income above
+ * the shared threshold — and from there the statute withdraws both at
+ * `rateLow`, which keeps a head of household from ever deducting LESS than a
+ * single filer on the same income.
+ *
+ * It is computed rather than stored because it is an identity between four
+ * figures that are themselves published, and storing it would be storing a
+ * fifth figure that can disagree with them. For 2025 it comes out at
+ * `$57,210.48` against the `$57,210` the only source that carries it records,
+ * which is what `test/wisconsin.test.js` asserts.
+ */
+export function slidingScaleCrossover(
+  threshold: number,
+  maxHigh: number,
+  maxLow: number,
+  rateHigh: number,
+  rateLow: number,
+): number {
+  return threshold + (maxHigh - maxLow) / (rateHigh - rateLow);
+}
 
 /**
  * What a state does with the SPOUSE of a filer who files separately, when that
@@ -1237,6 +1312,178 @@ export interface EarnedIncomeCreditRule {
    * MO-WFTC.
    */
   readonly investmentIncomeLimit?: number;
+  /**
+   * A match that **varies with the number of qualifying children** — Wisconsin's,
+   * Wis. Stat. § 71.07(9e)(aj), and the only state match in this package that is
+   * not one percentage.
+   *
+   * ```text
+   * 0 children   0%
+   * 1 child      4%
+   * 2 children  11%
+   * 3 or more   34%
+   * ```
+   *
+   * Ascending by {@link children}; the largest entry means "this many or more",
+   * and a count below the smallest entry takes {@link matchRate}.
+   *
+   * **The spread is the provision.** The rate ratio is 8.5, and the ratio in
+   * dollars is larger still, because the federal credit the rate multiplies
+   * also grows with the family: on the 2026 federal maximums of `$4,427`,
+   * `$7,316` and `$8,231` the Wisconsin credit is `$177.08`, `$804.76` and
+   * `$2,798.54`, so a parent of three keeps **15.8 times** what a parent of one
+   * keeps. Quoting "Wisconsin matches 4% to 34% of the federal EITC" and taking
+   * either end is wrong by most of an order of magnitude.
+   *
+   * It is also the reason this cannot be a {@link childlessMatchRate}: that
+   * field is one exception to one rate, and here every count is its own rate.
+   */
+  readonly matchRateByChildCount?: readonly {
+    readonly children: number;
+    readonly rate: number;
+  }[];
+}
+
+/**
+ * Wisconsin's married couple credit, Wis. Stat. § 71.07(6)(am) — a percentage of
+ * the LESSER of the two spouses' qualifying earned income, on a joint return
+ * only.
+ *
+ * It exists to undo the rate-schedule marriage penalty, and the shape says how
+ * well: 3% of the smaller earner's income up to `$480`, so it is worth its
+ * maximum from `$16,000` of second-earner income and nothing at all to a
+ * single-earner couple. Two spouses on `$50,000` each get `$480`; one spouse on
+ * `$100,000` gets nothing, on identical joint income.
+ *
+ * **It needs a figure no federal return carries.** Form 1040 does not split
+ * earned income between the two people on a joint return, so
+ * {@link StateIncomeTaxInput.lesserSpouseIncome} has to be supplied. Absent, the
+ * engine computes zero — the answer that does not flatter the filer — and says
+ * so in the credit's own name.
+ */
+export interface MarriedCoupleCreditRule {
+  readonly name: string;
+  /** 3%. */
+  readonly rate: number;
+  /** `$480`. */
+  readonly max: number;
+  readonly cite: string;
+}
+
+/**
+ * Wisconsin's itemized deduction credit, Wis. Stat. § 71.07(5) — the state's
+ * answer to itemizing, and it is a CREDIT rather than a deduction.
+ *
+ * ```
+ * credit = rate x max(0, eligible itemized deductions - the state standard deduction)
+ * ```
+ *
+ * **5% of the excess, which is below every Wisconsin rate**, so itemizing in
+ * Wisconsin is worth strictly less than the same deduction would be worth
+ * federally and strictly less than the standard deduction it is measured
+ * against. A filer in the 5.3% bracket with `$10,000` of excess mortgage
+ * interest keeps `$500` where a deduction would have been worth `$530`, and a
+ * filer in the 7.65% bracket keeps the same `$500` against `$765`. **The credit
+ * is regressive in the rate: the higher the bracket, the less the state's
+ * itemized relief is worth relative to a deduction.** No other state in this
+ * package converts its itemized deductions into a flat-rate credit.
+ *
+ * And {@link excludes} is why the figure cannot be the federal Schedule A
+ * total: Wisconsin's eligible itemized deductions are medical and dental above
+ * the federal AGI floor, the investment interest and home mortgage interest
+ * allowed federally, charitable contributions and casualty losses — and **not
+ * state and local taxes**, which is the largest line on most Schedule As. So
+ * {@link StateIncomeTaxInput.stateItemizedDeductions} must be the Schedule 1
+ * figure and not the federal one.
+ */
+export interface ItemizedDeductionCreditRule {
+  readonly name: string;
+  /** 5%. */
+  readonly rate: number;
+  /** The Schedule A lines Wisconsin does NOT count, quoted into the result. */
+  readonly excludes: string;
+  readonly cite: string;
+}
+
+/**
+ * Wisconsin's school property tax credit, Wis. Stat. § 71.07(9) — a credit for
+ * property tax or for the share of rent that stands in for it.
+ *
+ * `rate` of the property tax paid on a principal residence plus `rentShare` of
+ * the rent, capped at `max`. The cap binds at `$2,500` of property tax, which is
+ * below the median Wisconsin property tax bill, so **for most Wisconsin
+ * homeowners this credit is a flat `$300`** and the only thing the inputs decide
+ * is whether they reach it.
+ *
+ * {@link rentShare} is the "heat included" figure. Where heat is not included the
+ * statute uses a higher share, and this package does not ask which, because the
+ * cap binds either way above `$12,500` of annual rent — but a tenant below that
+ * is understated, and the notes say so.
+ */
+export interface SchoolPropertyTaxCreditRule {
+  readonly name: string;
+  /** 12%. */
+  readonly rate: number;
+  /** `$300`, which is `rate` x `$2,500`. */
+  readonly max: number;
+  /** The share of rent treated as property tax — 20%, heat included. */
+  readonly rentShare: number;
+  readonly cite: string;
+}
+
+/**
+ * Wisconsin's retirement income exclusion, Wis. Stat. § 71.05(6)(b)54m — a
+ * subtraction a filer may take **only by giving up every credit on the return**.
+ *
+ * 2025 Act 15 created it: a filer who has reached {@link minimumAge} before the
+ * close of the year subtracts up to {@link perPerson} of retirement income, or
+ * {@link jointBothEligible} where both spouses on a joint return qualify. And
+ * then subd. 54m.b:
+ *
+ * > An individual who claims the subtraction under this subdivision for a
+ * > taxable year may not claim any credit, including any eligible carryover of
+ * > such credit, listed under s. 71.07 for the same taxable year.
+ *
+ * **That is not a limitation on the subtraction. It is an ELECTION, and it is
+ * the only one of its kind in this package.** Every other mutually exclusive
+ * provision here is a choice between two credits, or between a deduction and a
+ * credit for the same expense — Utah's three retirement credits, New Jersey's
+ * property tax deduction against its `$50` credit, Virginia's low income credit
+ * against its earned income credit. This one trades a subtraction against
+ * *everything else on the form*: the married couple credit, the school property
+ * tax credit, the itemized deduction credit, the earned income credit, the
+ * homestead credit and any carryover of any of them.
+ *
+ * So the engine computes the **whole return twice** and takes the lower tax,
+ * which is what the Schedule SB line 16 instructions tell the filer to do. The
+ * crossover is a real income, not a formality: the subtraction is worth the
+ * filer's marginal rate times the retirement income it removes, and the credits
+ * are worth whatever they are worth, so a 67-year-old couple with a small
+ * pension and a property tax bill is better off NOT claiming it. See
+ * `test/wisconsin.test.js`, which drives the crossover.
+ *
+ * Two further consequences, neither of them obvious:
+ *
+ * - **The subtraction is worth more than its face value**, because the standard
+ *   deduction is a sliding scale read against Wisconsin AGI. Removing `$24,000`
+ *   of pension both takes it out of the base and buys back up to
+ *   `24,000 x 19.778%` of standard deduction on a joint return — so the
+ *   election is worth the rate on nearly `$28,750`, not on `$24,000`.
+ * - **It is a cliff in the credits, not a phase-out.** A dollar more of
+ *   retirement income can tip the comparison, and when it does the filer loses
+ *   every credit at once.
+ */
+export interface RetirementIncomeExclusionElectionRule {
+  readonly name: string;
+  /** 67, before the close of the taxable year. */
+  readonly minimumAge: number;
+  /** `$24,000` of qualifying retirement income. */
+  readonly perPerson: number;
+  /** `$48,000`, where BOTH spouses on a joint return have reached the age. */
+  readonly jointBothEligible: number;
+  /** The forfeiture, quoted into the result when the election is taken. */
+  readonly forfeits: string;
+  readonly cite: string;
 }
 
 /** One step of a step-function credit: the amount for income at or below `upTo`. */
@@ -3409,6 +3656,18 @@ export interface StateIncomeTaxDefinition {
   readonly lowIncomeCredit?: LowIncomeCreditRule;
   readonly povertyLevelCredit?: PovertyLevelCreditRule;
   readonly propertyTaxRelief?: PropertyTaxReliefRule;
+  /** Wisconsin's married couple credit — see {@link MarriedCoupleCreditRule}. */
+  readonly marriedCoupleCredit?: MarriedCoupleCreditRule;
+  /** Wisconsin's itemized deduction credit — see {@link ItemizedDeductionCreditRule}. */
+  readonly itemizedDeductionCredit?: ItemizedDeductionCreditRule;
+  /** Wisconsin's school property tax credit — see {@link SchoolPropertyTaxCreditRule}. */
+  readonly schoolPropertyTaxCredit?: SchoolPropertyTaxCreditRule;
+  /**
+   * Wisconsin's § 71.05(6)(b)54m election — a retirement income subtraction that
+   * forfeits every credit on the return, so the engine computes both ways and
+   * takes the lower tax. See {@link RetirementIncomeExclusionElectionRule}.
+   */
+  readonly retirementIncomeExclusionElection?: RetirementIncomeExclusionElectionRule;
   /**
    * Required when {@link base} is `stateDefined`: which input field carries the
    * state's own measure of income, and why no federal figure can stand in.

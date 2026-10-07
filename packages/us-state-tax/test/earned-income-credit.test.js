@@ -81,7 +81,30 @@ test('every state whose definition carries an earned income credit pays its matc
       // young-child match — 17% against 14% where a dependent is under three —
       // is unreachable here by construction and the base rate is the right
       // expectation. That is asserted rather than assumed two lines down.
-      money(creditNamed(r, rule.name), rule.matchRate * 4_000, `${state} ${year}`);
+      // Wisconsin's match is a table by child count rather than one rate, so
+      // the expectation is resolved from the rule the way the engine resolves
+      // it — written out here rather than imported, because a test that calls
+      // the code it is checking checks nothing. `run` supplies ONE dependent.
+      const expectedRate =
+        rule.matchRateByChildCount === undefined
+          ? rule.matchRate
+          : (rule.matchRateByChildCount
+              .filter((entry) => entry.children <= 1)
+              .map((entry) => entry.rate)
+              .pop() ?? rule.matchRate);
+      money(creditNamed(r, rule.name), expectedRate * 4_000, `${state} ${year}`);
+      if (rule.matchRateByChildCount !== undefined) {
+        // A table of one row is a rate with extra steps, and a table whose
+        // rows do not rise is not a table about family size.
+        assert.ok(rule.matchRateByChildCount.length > 1, `${state} ${year}: one row`);
+        for (let i = 1; i < rule.matchRateByChildCount.length; i += 1) {
+          assert.ok(
+            rule.matchRateByChildCount[i].children > rule.matchRateByChildCount[i - 1].children &&
+              rule.matchRateByChildCount[i].rate > rule.matchRateByChildCount[i - 1].rate,
+            `${state} ${year}: row ${i} does not rise in both columns`,
+          );
+        }
+      }
       if (rule.youngChildMatchRate !== undefined) {
         assert.ok(
           rule.youngChildMatchRate > rule.matchRate,
@@ -91,8 +114,26 @@ test('every state whose definition carries an earned income credit pays its matc
     }
   }
   assert.deepEqual(withCredit.sort(), [
-    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'UT', 'VA',
+    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'UT', 'VA', 'WI',
   ]);
+});
+
+test('Wisconsin is the only state here whose match depends on the family', () => {
+  // Four rates where every other state has one or two, and the two-rate states
+  // vary on something else: Maryland on being childless, Oregon on a child
+  // being under three. Wisconsin varies on the COUNT, which means the same
+  // federal credit produces four different Wisconsin credits.
+  const byCount = SUPPORTED_STATES.filter(
+    (state) => getStateDefinition(state, 2026).earnedIncomeCredit?.matchRateByChildCount,
+  );
+  assert.deepEqual(byCount, ['WI']);
+  const at = (dependents) =>
+    eitcOf(run('WI', { agi: 22_000, dependents, earnedIncomeCredit: 4_000 }));
+  money(at(0), 0, 'no children');
+  money(at(1), 160, 'one child');
+  money(at(2), 440, 'two children');
+  money(at(3), 1_360, 'three children');
+  money(at(9), 1_360, 'nine children — the top row means three OR MORE');
 });
 
 test('a state with no earned income credit ignores a federal one entirely', () => {

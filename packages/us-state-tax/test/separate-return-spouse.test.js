@@ -80,7 +80,7 @@ test('every state with an exemption declares what it does with a separate filer�
   // default is what kept fourteen states counting a dead spouse for 27 days,
   // and the default here would have been "counts nobody" in all twelve — which
   // is right in eight of them and wrong in four.
-  assert.equal(WITH_EXEMPTIONS.length, 14);
+  assert.equal(WITH_EXEMPTIONS.length, 15);
   for (const code of WITH_EXEMPTIONS) {
     const rule = declarationOf(code);
     assert.ok(rule, `${code} has an exemption rule and must declare separateReturnSpouse`);
@@ -103,7 +103,7 @@ test('the answer today: four states count the spouse, four say no, two have noth
   assert.deepEqual(by('claimed'), ['IL', 'IN', 'MD', 'VA']);
   assert.deepEqual(by('notClaimed'), ['AL', 'CT', 'MO', 'NJ']);
   assert.deepEqual(by('noFilerExemption'), ['GA', 'NY']);
-  assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH']);
+  assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH', 'WI']);
   // And the second claim is now answered in all four, by THREE different
   // mechanisms and in two directions. Written out for the same reason as the
   // first list: a state moving between them is a diff.
@@ -111,7 +111,7 @@ test('the answer today: four states count the spouse, four say no, two have noth
   assert.deepEqual(aged('follows'), ['IL', 'IN', 'VA']);
   assert.deepEqual(aged('doesNotFollow'), ['MD']);
   assert.deepEqual(aged('unresolved'), ['MA', 'MI', 'MS']);
-  assert.deepEqual(aged('notApplicable'), ['AL', 'CT', 'GA', 'MO', 'NJ', 'NY', 'OH']);
+  assert.deepEqual(aged('notApplicable'), ['AL', 'CT', 'GA', 'MO', 'NJ', 'NY', 'OH', 'WI']);
   // No state is `unresolved` on the aged half while being resolved on the first:
   // the four that are left are the four nobody has read at all. An aged claim
   // that outlived its exemption claim would be the harder gap to see, because the
@@ -119,6 +119,15 @@ test('the answer today: four states count the spouse, four say no, two have noth
   for (const code of aged('unresolved')) {
     assert.equal(declarationOf(code).spouse, 'unresolved', `${code}: half-read`);
   }
+  // Wisconsin is the first state to be `unresolved` on the first half and
+  // `notApplicable` on the second, and the combination is a real answer rather
+  // than a half-read one: Wisconsin's $250 age addition is part of the
+  // EXEMPTION and its aged-or-blind question therefore does not exist
+  // separately — there is no § 63(f)-shaped second provision to read. The
+  // invariant above runs the other way (unresolved-aged implies
+  // unresolved-spouse) and is unaffected.
+  assert.equal(declarationOf('WI').spouse, 'unresolved');
+  assert.equal(declarationOf('WI').agedAndBlind, 'notApplicable');
 });
 
 test('the means-tested figure is declared where it exists, and only there', () => {

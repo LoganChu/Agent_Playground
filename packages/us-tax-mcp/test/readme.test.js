@@ -490,20 +490,20 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('32 states');
-  assert.equal(SUPPORTED_STATES.length, 32);
+  quotes('33 states');
+  assert.equal(SUPPORTED_STATES.length, 33);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 23);
-  quotes('Eight of the twenty-three taxing states cut their rate for 2026');
+  assert.equal(taxing.length, 24);
+  quotes('Eight of the twenty-four taxing states cut their rate for 2026');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.equal(provisional.length, 8);
-  quotes('eight of the 2026 state-years carry at');
+  assert.equal(provisional.length, 9);
+  quotes('nine of the 2026 state-years carry at');
 
   // Colorado's 2026 overtime add-back, which the section names.
   const co = stateIncomeTax({

@@ -62,6 +62,7 @@ export type StateCode =
   | 'TX'
   | 'UT'
   | 'VA'
+  | 'WI'
   | 'WA'
   | 'WY';
 
@@ -207,6 +208,24 @@ export type ParameterStatus =
  *
  * Carrying both under one word invites a future run to treat the second as
  * negligence and the first as weather. They are the opposite way round.
+ *
+ * Day 43 added a third, and it was added because the other two could not
+ * describe a real figure. Wisconsin publishes its 2026 rate schedules a year
+ * before its 2026 standard deduction table, and the published schedules pin the
+ * indexation factor tightly enough to DETERMINE four of the seven standard
+ * deduction figures and to narrow the other three to two adjacent multiples of
+ * `$10` each. Those three are not `awaiting-publication` in the sense that
+ * matters — they are not last year's figure standing in, and a future run does
+ * not need the document to get within `$10` of them — and they are plainly not
+ * `determined-after-year-end`, because Wisconsin settled them in 2025. Forcing
+ * either label would have been a false claim, and the one that was tempting
+ * (`awaiting-publication` with `carriedForwardFrom: 2025`) would have been
+ * false in the specific way this ledger exists to prevent: it would have said
+ * the figure is last year's when it is not.
+ *
+ * **THE RULE: a two-valued reason field is a claim that there are two ways a
+ * figure can be unsettled, and the third way shows up as a figure that fits
+ * neither label badly enough to notice.**
  */
 export type ProvisionalReason =
   /**
@@ -219,7 +238,19 @@ export type ProvisionalReason =
    * Nothing published during the year can settle it; the figure here is the
    * statutory default or an upper bound, and `notes` says which direction.
    */
-  | 'determined-after-year-end';
+  | 'determined-after-year-end'
+  /**
+   * The figure is **computed from figures the state HAS published for this
+   * year**, under an uncertainty the computation bounds — so it is neither a
+   * carry-forward nor unknowable, and the debt is smaller than either.
+   *
+   * {@link ProvisionalFigure.resolvedBy} must state the interval and the
+   * candidate values, and may not claim
+   * {@link ProvisionalFigure.carriedForwardFrom}: the whole point is that this
+   * figure is not last year's. Wisconsin's three are the first, and each is a
+   * choice between two values `$10` apart, worth at most 77 cents of tax.
+   */
+  | 'bounded-derivation';
 
 /**
  * One figure in a state-year that is not taken from a published source.

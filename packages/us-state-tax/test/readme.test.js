@@ -51,11 +51,11 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 32 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 32);
+test('README: 33 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 33);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Eleven graduated, eleven flat, one on a schedule of its own, nine with none.
+  // Twelve graduated, eleven flat, one on a schedule of its own, nine with none.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
@@ -66,23 +66,23 @@ test('README: 32 states, 2025 and 2026, nine with no income tax', () => {
   const baseAmount = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'baseAmountSchedule',
   );
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MO', 'MS', 'NJ', 'NY', 'OR', 'VA']);
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MO', 'MS', 'NJ', 'NY', 'OR', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    32,
+    33,
   );
-  // Twenty-three taxing states — nineteen of them when the README says seven cut
+  // Twenty-four taxing states — nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 23);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 24);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -660,7 +660,7 @@ test('README: the provisional and published lists for 2026', () => {
   // announced by the Department of Revenue; Maryland's is $3,350, unchanged,
   // confirmed by the Comptroller's 2026 withholding guide. The provisional flag
   // is a debt, and three have now been paid.
-  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'UT']);
+  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'UT', 'WI']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
@@ -678,7 +678,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['MN', 'WI', 'IA', 'SC', 'LA', 'OK', 'DC']) {
+  for (const state of ['MN', 'SC', 'IA', 'LA', 'OK', 'AR', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -1423,16 +1423,18 @@ test('README: every count in the step-probe and notes sections', () => {
   assert.ok(notePrefix.includes(`PREFIX_LENGTH = ${quoted(/first (\d+) characters/)};`));
   // 15 rates and thresholds printed in rule names.
   assert.ok(registry.includes(`assert.equal(checked, ${quoted(/all (\d+) of them are now required/)},`));
-  // Eleven states and year-specific notes. Oregon is the eleventh and the first
-  // whose asymmetry runs the other way: its 2025 note warns about the kicker,
-  // a credit 2026 does not have, where every other entry warns about a 2026
-  // figure that is not published yet.
+  // Twelve states and year-specific notes. Oregon is the one whose asymmetry
+  // runs the other way — its 2025 note warns about the kicker, a credit 2026
+  // does not have, where every other entry warns about a 2026 figure that is not
+  // published yet — and WISCONSIN is the twelfth, whose 2026 note is the only
+  // provisional lead in the package that also says what the UNFLAGGED figures of
+  // the same table are: derived, and determined.
   const yearOnly = notes.slice(notes.indexOf('const YEAR_ONLY_NOTES'), notes.indexOf('};', notes.indexOf('const YEAR_ONLY_NOTES')));
-  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 11, 'eleven states in the README and in the table');
+  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 12, 'twelve states in the README and in the table');
   assert.equal(
     [...yearOnly.matchAll(/2026: (\d+)/g)].reduce((sum, [, n]) => sum + Number(n), 0),
-    16,
-    'sixteen 2026-only notes in the README and in the table',
+    17,
+    'seventeen 2026-only notes in the README and in the table',
   );
 
   // And the Ohio figures the section names, read out of the definition rather than

@@ -71,7 +71,7 @@
  *                                  [--max-survivors N] [--record [FILE]]
  */
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import { execFileSync, execSync } from 'node:child_process';
 import os from 'node:os';
 
@@ -111,7 +111,49 @@ const flag = (name, dflt, presentWithoutValue) => {
   return value;
 };
 const WORKERS = Number(flag('workers', Math.max(2, Math.min(8, os.cpus().length))));
-const SKIP = String(flag('skip', '')).split(',').filter(Boolean);
+/**
+ * Files the state package's audit has always left out, as a DEFAULT rather than
+ * as a line in a README.
+ *
+ * Day 43 started a two-hour recorded measurement with the wrong flags, because
+ * the invocation every previous run used lived in `tools/mutation/README.md` and
+ * nowhere the program could read. It enumerated 1,626 mutants instead of 1,356
+ * and would have recorded a score against a different mutant set from every
+ * score before it. `check-scores.mjs` compares the `skipped` list and would have
+ * rejected it, which is the only thing that stood between a wrong flag and a
+ * wrong number in the README.
+ *
+ * **THE RULE, which is Day 42's with the sign flipped: a flag that is PRESENT
+ * and does nothing is worse than one that is missing, and a flag that is ABSENT
+ * while the run silently measures something ELSE is worse than both.** Day 42's
+ * fix was to announce at start-up what the run would record; this one is to make
+ * the invocation a property of the harness, so that there is nothing to
+ * remember, and to announce the effective list for the same reason.
+ *
+ * The locality registries are left out because they are DATA — 1,033 rates and
+ * names transcribed from ordinances — rather than rules, and a mutation score
+ * over a registry measures whether the registry has a test per row, which is a
+ * different question from whether the rules are pinned. Pass `--skip none` to
+ * include them.
+ */
+const DEFAULT_SKIP = {
+  'us-state-tax': [
+    'localities/ohio.js',
+    'localities/ohio-school-districts.js',
+    'localities/indiana.js',
+    'localities/michigan.js',
+    'localities/maryland.js',
+    'localities/new-york.js',
+    'localities/counties.js',
+  ],
+};
+const SKIP_GIVEN = flag('skip', null);
+const SKIP =
+  SKIP_GIVEN === null
+    ? (DEFAULT_SKIP[basename(pkgDir)] ?? [])
+    : SKIP_GIVEN === 'none'
+      ? []
+      : String(SKIP_GIVEN).split(',').filter(Boolean);
 const ONLY = flag('only', null);
 const LIMIT = Number(flag('limit', Infinity));
 const JSON_OUT = flag('json', null);
@@ -212,6 +254,13 @@ if (SHARD) {
 }
 selected = selected.slice(0, LIMIT);
 console.error(`[mutate] ${pkgDir}: ${selected.length} mutants over ${files.length} files, ${WORKERS} workers`);
+// Announced for the same reason the record destination is: a measurement that
+// takes two hours must say what it is measuring BEFORE the wait, not after it.
+console.error(
+  SKIP.length === 0
+    ? '[mutate] skipping no files'
+    : `[mutate] skipping ${SKIP.length} file(s)${SKIP_GIVEN === null ? ' (harness default for this package)' : ' (--skip)'}: ${SKIP.join(', ')}`,
+);
 
 // ---- baseline ----
 // Some test files assert about the REPOSITORY rather than about the engine —

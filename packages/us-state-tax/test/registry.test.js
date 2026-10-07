@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 32);
+  assert.equal(SUPPORTED_STATES.length, 33);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -102,10 +102,10 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // twenty-two of them — thirty-one supported states less the nine with no
-  // income tax at all — so the uncovered list has the other twenty.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 19);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 23);
+  // twenty-four of them — thirty-three supported states less the nine with no
+  // income tax at all — so the uncovered list has the other eighteen.
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 18);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 24);
   for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
     assert.match(getMissingStatesMessage(), new RegExp(name));
   }
@@ -200,7 +200,7 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has eight', () => {
+test('2025 has no provisional state and 2026 has nine', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
@@ -223,6 +223,15 @@ test('2025 has no provisional state and 2026 has eight', () => {
   // figure it has not settled. A per-STATE flag is therefore a blunter
   // instrument than `provisionalFigures`, which is why both exist.
   //
+  // WISCONSIN joined on Day 43 for THREE figures out of a seven-figure standard
+  // deduction schedule, which is narrower still than Oregon's in a different
+  // sense: the other four are not published either, and they are KNOWN, because
+  // the published 2026 rate schedules pin the indexation factor tightly enough
+  // to determine them. Wisconsin is therefore the first state-year here whose
+  // provisional flag covers figures that interval ARITHMETIC could not settle
+  // rather than figures no document carries — see
+  // test/wisconsin-indexation.test.js.
+  //
   // The seven that remain are NOT one more afternoon's work, which is the thing
   // Day 27 got wrong and Day 28 corrected. Five are waiting on a document that
   // does not exist until January 2027 (Utah's TC-40 instructions, Ohio's IT 1040
@@ -234,11 +243,11 @@ test('2025 has no provisional state and 2026 has eight', () => {
   // each figure is now lives in `provisionalFigures`, not in prose — see
   // test/provisional.test.js.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 8);
+  assert.equal(count(2026), 9);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'UT']);
+  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'UT', 'WI']);
 });
 
 test('the package has no runtime dependencies', () => {
@@ -361,7 +370,7 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
   }
   // Pinned so that a walk which stops finding names — a renamed field, a rule moved
   // behind a function — fails instead of reporting a clean sweep over nothing.
-  assert.equal(checked, 15, 'rates and thresholds printed in rule names');
+  assert.equal(checked, 17, 'rates and thresholds printed in rule names');
 });
 
 test("a threshold the engine cannot apply is quoted in the note that asks the caller to apply it", () => {

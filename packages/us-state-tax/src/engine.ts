@@ -141,6 +141,25 @@ function standardDeduction(
       return input.federal.deduction;
     case 'table':
       return def.deduction.amounts[input.filingStatus];
+    case 'slidingScale': {
+      // A RATE and not a staircase: Wisconsin withdraws a percentage of every
+      // dollar above the threshold, continuously, so the withdrawal is part of
+      // the filer's marginal rate rather than a step in it. Read against the
+      // state's own AGI (Form 1 line 7), which is why `stateAgi` has to be a
+      // figure by the time this runs.
+      const rule = def.deduction;
+      const tiers = rule.tiers[input.filingStatus];
+      const income = requireStateAgi(stateAgi);
+      let withdrawn = 0;
+      tiers.forEach((tier, i) => {
+        // The next tier's threshold, or no ceiling for the last one. Head of
+        // household is the only status with two, and its second threshold is
+        // the income at which its deduction has fallen to the single one.
+        const to = tiers[i + 1]?.above ?? Infinity;
+        withdrawn += tier.rate * Math.max(0, Math.min(income, to) - tier.above);
+      });
+      return Math.max(0, rule.maximum[input.filingStatus] - withdrawn);
+    }
     case 'phaseOutStaircase': {
       const rule = def.deduction;
       const status = input.filingStatus;
@@ -877,6 +896,18 @@ function exclusiveRetirementCredits(
  * only dependent is a dependent parent — childless for the federal credit — is
  * treated here as having a child and matched at 50%. The state's notes say so.
  */
+/**
+ * The number of qualifying children a state credit counts.
+ *
+ * `dependents`, which is the only count this package is ever given. It is not
+ * the same question as § 32's — a dependent parent is a dependent and not a
+ * qualifying child — and the difference is a whole band of Wisconsin's match,
+ * so the state's notes say what the count is and what it is not.
+ */
+function qualifyingChildrenOf(input: StateIncomeTaxInput): number {
+  return Math.max(0, Math.trunc(input.dependents ?? 0));
+}
+
 function unmarriedChildless(input: StateIncomeTaxInput): boolean {
   const status = input.filingStatus;
   const unmarried =
@@ -1799,6 +1830,96 @@ function exemptionCredit(
   return lines.reduce((sum, [count, each]) => sum + count * Math.max(0, each - perExemption), 0);
 }
 
+/**
+ * Wisconsin's married couple credit — 3% of the LESSER of the two spouses'
+ * earned income, capped at `$480`, on a joint return only.
+ *
+ * Returns the credit and whether the figure it needs was supplied, because the
+ * two answers are "zero because the couple has one earner" and "zero because
+ * nobody told me", and a credit line that cannot tell them apart is the kind of
+ * silence this package has been bitten by before.
+ */
+function marriedCoupleCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): { readonly amount: number; readonly supplied: boolean } {
+  const rule = def.marriedCoupleCredit;
+  if (!rule || input.filingStatus !== 'marriedFilingJointly') {
+    return { amount: 0, supplied: true };
+  }
+  if (input.lesserSpouseIncome === undefined) return { amount: 0, supplied: false };
+  const lesser = nonNegative(input.lesserSpouseIncome, 'lesserSpouseIncome');
+  return { amount: Math.min(rule.max, lesser * rule.rate), supplied: true };
+}
+
+/**
+ * Wisconsin's itemized deduction credit — 5% of the excess of ELIGIBLE itemized
+ * deductions over the state standard deduction.
+ *
+ * Measured against the standard deduction the filer would otherwise have taken,
+ * which in Wisconsin is a sliding scale: so the credit's base rises as income
+ * rises and the deduction it is netted against falls away, and above the end of
+ * the phase-out the whole of the itemized total is in the credit.
+ */
+function itemizedDeductionCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  standardDeductionTaken: number,
+): number {
+  const rule = def.itemizedDeductionCredit;
+  if (!rule) return 0;
+  const itemized = nonNegative(input.stateItemizedDeductions, 'stateItemizedDeductions');
+  return rule.rate * Math.max(0, itemized - standardDeductionTaken);
+}
+
+/** Wisconsin's school property tax credit — 12% of property tax plus 20% of rent, capped at `$300`. */
+function schoolPropertyTaxCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  const rule = def.schoolPropertyTaxCredit;
+  if (!rule) return 0;
+  const property =
+    nonNegative(input.propertyTaxPaid, 'propertyTaxPaid') +
+    nonNegative(input.rentPaid, 'rentPaid') * rule.rentShare;
+  return Math.min(rule.max, property * rule.rate);
+}
+
+/**
+ * Wisconsin's § 71.05(6)(b)54m subtraction, where the filer elects it.
+ *
+ * Per person who has reached the age, capped per person — except on a joint
+ * return where BOTH have, which pools the two incomes against one larger cap.
+ * The two are not the same arithmetic: a couple where one spouse has `$40,000`
+ * of pension and the other `$2,000` subtracts `$42,000` of the `$48,000` pooled
+ * cap, and `$26,000` under a per-person one.
+ */
+function retirementExclusionElection(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  const rule = def.retirementIncomeExclusionElection;
+  if (!rule) return 0;
+  const { people } = retirementPeople(input);
+  const eligible = people.filter(
+    (person) => person.age !== undefined && person.age >= rule.minimumAge,
+  );
+  if (eligible.length === 0) return 0;
+  // § 71.05(6)(b)54m.a names payments from a plan qualified under IRC § 401(a),
+  // § 403 or § 457(b) and from an IRA. So: the employer plan, the defined
+  // contribution plan, the IRA — and `governmentPension`, which is a disjoint
+  // field by its own documentation and is a § 401(a) governmental plan in
+  // Wisconsin's hands. Social Security and military retired pay are absent
+  // because Wisconsin exempts both outright, so there is nothing left of them
+  // to subtract.
+  const qualifying = (person: (typeof people)[number]): number =>
+    person.pension + person.ira + person.governmentPension;
+  if (input.filingStatus === 'marriedFilingJointly' && eligible.length >= 2) {
+    return Math.min(rule.jointBothEligible, eligible.reduce((sum, p) => sum + qualifying(p), 0));
+  }
+  return eligible.reduce((sum, p) => sum + Math.min(rule.perPerson, qualifying(p)), 0);
+}
+
 function taxpayerCredit(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -2583,6 +2704,12 @@ function computeOnce(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
   propertyTaxRoute: 'deduction' | 'credit',
+  /**
+   * Whether this pass takes Wisconsin's § 71.05(6)(b)54m retirement income
+   * subtraction, which forfeits every credit on the return. `compute` runs both
+   * passes and keeps the lower tax; nothing else may set it.
+   */
+  electRetirementExclusion = false,
 ): Computed {
   const base = conformityAmount(def, input);
   const back = [...addBacks(def, input), ...municipalInterestAddition(def, input)];
@@ -2631,8 +2758,18 @@ function computeOnce(
     // rather than its long-term half — adding `shortTermCapitalGains`, which
     // Massachusetts reads, would count the same dollars twice for a caller who
     // supplies both.
-    capitalGainsSubtraction =
-      nonNegative(input.netCapitalGain, 'netCapitalGain') * def.capitalGainsSubtraction.share;
+    const netGain = nonNegative(input.netCapitalGain, 'netCapitalGain');
+    // Wisconsin's Schedule WD line 25 excludes the short-term half: the
+    // subtraction is a share of the net LONG-TERM gain, bounded by the net gain
+    // as a whole, so a short-term gain cannot create an exclusion and a
+    // short-term LOSS eats one. `shortTermCapitalGains` is the figure that
+    // splits the line; absent, the whole net gain is treated as long-term,
+    // which is the only answer a single netted figure supports and which the
+    // state's notes name.
+    const longTerm = def.capitalGainsSubtraction.includesShortTerm
+      ? netGain
+      : Math.max(0, netGain - nonNegative(input.shortTermCapitalGains, 'shortTermCapitalGains'));
+    capitalGainsSubtraction = Math.min(netGain, longTerm) * def.capitalGainsSubtraction.share;
     if (capitalGainsSubtraction > 0) {
       computedSubtractions.push({
         name: def.capitalGainsSubtraction.name,
@@ -2728,8 +2865,23 @@ function computeOnce(
     def.federalIncomeTaxDeduction?.reducesStateAdjustedGrossIncome === true
       ? federalIncomeTaxDeduction(def, input, undefined)
       : 0;
+  // Wisconsin's § 71.05(6)(b)54m. A Schedule SB subtraction like any other
+  // where it is claimed, and the reason it needs a flag rather than a rule is
+  // subd. 54m.b: claiming it forfeits every credit under s. 71.07. So it is
+  // computed on this pass only if `compute` asked for the pass that claims it.
+  let retirementExclusionElected = 0;
+  if (electRetirementExclusion && def.retirementIncomeExclusionElection) {
+    retirementExclusionElected = retirementExclusionElection(def, input);
+    if (retirementExclusionElected > 0) {
+      computedSubtractions.push({
+        name: `${def.retirementIncomeExclusionElection.name} (claimed: ${def.retirementIncomeExclusionElection.forfeits})`,
+        amount: retirementExclusionElected,
+      });
+    }
+  }
   const subtractions =
     given +
+    retirementExclusionElected +
     exclusion +
     businessDeduction +
     capitalGainsSubtraction +
@@ -2746,6 +2898,13 @@ function computeOnce(
   const propertyTax = qualifyingPropertyTax(def, input);
   const propertyTaxDeduction = propertyTaxRoute === 'deduction' ? propertyTax : 0;
   const deduction = stateDeduction(def, input, stateAgi) + propertyTaxDeduction;
+  // Wisconsin's itemized deduction credit is 5% of the excess of eligible
+  // itemized deductions over THE STANDARD DEDUCTION, so the credit needs the
+  // standard figure on its own and not the `max()` above. In Wisconsin the two
+  // are the same number — the state has no itemized deduction at all, which is
+  // why it has this credit — and taking the standard figure directly keeps that
+  // a fact about Wisconsin rather than an assumption about `stateDeduction`.
+  const standardDeductionTaken = standardDeduction(def, input, stateAgi);
   const exemptions = stateExemptions(def, input, modifiedAgi, stateAgi);
   const measures: IncomeMeasures = {
     federalAdjustedGrossIncome: input.federal.adjustedGrossIncome,
@@ -3035,13 +3194,27 @@ function computeOnce(
       rule.youngChildMatchRate !== undefined &&
       rule.youngChildMaxAge !== undefined &&
       (input.dependentAges?.some((age) => age <= rule.youngChildMaxAge!) ?? false);
+    // Wisconsin's § 71.07(9e)(aj) is the only match here that is not one
+    // percentage: 0%, 4%, 11% and 34% by the number of qualifying children, so
+    // the rate is looked up on the family rather than applied to the credit.
+    // The largest entry means "this many or more"; a count below the smallest
+    // takes `matchRate`, which for Wisconsin is the 0% a childless filer gets.
+    const byCount = rule.matchRateByChildCount;
+    const childCountRate =
+      byCount === undefined
+        ? undefined
+        : byCount.reduce<number | undefined>(
+            (chosen, entry) =>
+              qualifyingChildrenOf(input) >= entry.children ? entry.rate : chosen,
+            undefined,
+          );
     const matched = barred
       ? 0
       : (childless
           ? rule.childlessMatchRate!
           : youngChild
             ? rule.youngChildMatchRate!
-            : rule.matchRate) * federalCredit;
+            : (childCountRate ?? rule.matchRate)) * federalCredit;
     // Virginia offers a flat per-exemption credit as an ALTERNATIVE to the
     // match, not in addition to it, and the filer takes whichever leaves them
     // better off. Which one that is turns on refundability rather than on size:
@@ -3230,6 +3403,64 @@ function computeOnce(
       refundable: false,
     });
   }
+  // Wisconsin's Schedule 1 and Schedule 2 credits. Order is immaterial here —
+  // all three are non-refundable and the engine caps their sum at the tax, which
+  // is what Form 1 does by running them down a column — but the names are not,
+  // because two of the three need a figure no federal return carries.
+  if (def.itemizedDeductionCredit) {
+    credits.push({
+      name:
+        input.stateItemizedDeductions === undefined
+          ? `${def.itemizedDeductionCredit.name} (assumed: no eligible itemized deductions — pass stateItemizedDeductions, which EXCLUDES ${def.itemizedDeductionCredit.excludes})`
+          : def.itemizedDeductionCredit.name,
+      amount: itemizedDeductionCredit(def, input, standardDeductionTaken),
+      refundable: false,
+    });
+  }
+  if (def.schoolPropertyTaxCredit) {
+    credits.push({
+      name:
+        input.propertyTaxPaid === undefined && input.rentPaid === undefined
+          ? `${def.schoolPropertyTaxCredit.name} (assumed: no property tax and no rent — pass propertyTaxPaid or rentPaid)`
+          : def.schoolPropertyTaxCredit.name,
+      amount: schoolPropertyTaxCredit(def, input),
+      refundable: false,
+    });
+  }
+  if (def.marriedCoupleCredit && input.filingStatus === 'marriedFilingJointly') {
+    const couple = marriedCoupleCredit(def, input);
+    credits.push({
+      name: couple.supplied
+        ? def.marriedCoupleCredit.name
+        : `${def.marriedCoupleCredit.name} (assumed: one earner — pass lesserSpouseIncome, worth up to $${def.marriedCoupleCredit.max})`,
+      amount: couple.amount,
+      refundable: false,
+    });
+  }
+  // § 71.05(6)(b)54m.b. "May not claim ANY credit, including any eligible
+  // carryover of such credit, listed under s. 71.07" — which is every credit
+  // above, refundable ones included, because the Wisconsin earned income credit
+  // is s. 71.07(9e) and the homestead credit is claimed by a filer who has not
+  // taken this subtraction. The credits are kept in the result with their
+  // amounts zeroed rather than dropped, so a caller comparing the two passes can
+  // see WHAT was given up: a credit line that silently disappears is the same
+  // defect as a figure that silently changes.
+  const forfeited = electRetirementExclusion && retirementExclusionElected > 0;
+  if (forfeited) {
+    // In place, and NOT by rebuilding the array under the same name: the first
+    // version of this cleared `credits` and then spread the cleared array back
+    // into itself, because `effectiveCredits` was the same reference when
+    // nothing was forfeited. It lost every credit on every Wisconsin return,
+    // elected or not, and the only symptom was a tax too high by the credits —
+    // no error, no empty-looking code. THE RULE: a conditional rebuild of an
+    // array must not alias the array it rebuilds.
+    const zeroed = credits.map((credit) => ({
+      ...credit,
+      name: `${credit.name} — forfeited by the retirement income subtraction`,
+      amount: 0,
+    }));
+    credits.splice(0, credits.length, ...zeroed);
+  }
   const nonRefundable = credits.filter((c) => !c.refundable).reduce((s, c) => s + c.amount, 0);
   const refundable = credits.filter((c) => c.refundable).reduce((s, c) => s + c.amount, 0);
   const taxBeforeRefundableCredits = Math.max(0, grossTax - Math.min(grossTax, nonRefundable));
@@ -3259,6 +3490,32 @@ function computeOnce(
 }
 
 /**
+ * The state computation, having chosen every route the return offers a choice of.
+ *
+ * Two states make the filer compute the whole return more than once, for
+ * unrelated reasons, and they compose: New Jersey chooses between a property tax
+ * deduction and the flat credit that replaces it, and Wisconsin chooses between
+ * a retirement income subtraction and every credit on the form. Four passes are
+ * possible in principle and no state needs more than two, because no state has
+ * both rules — but the nesting is written out rather than assumed, so a state
+ * that acquires both gets the right answer instead of the first one.
+ */
+function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Computed {
+  const best = computeBestPropertyTaxRoute(def, input, false);
+  // Wisconsin's § 71.05(6)(b)54m election. The subtraction is worth the filer's
+  // marginal rate on the retirement income it removes PLUS the sliding-scale
+  // standard deduction it buys back; the credits are worth whatever they are
+  // worth. Neither dominates, so the only way to get the crossover right is to
+  // compute both returns, which is what the Schedule SB line 16 instructions
+  // tell the filer to do. Ties go to NOT electing, because that is the return
+  // that keeps the credits visible and the one a filer files by default.
+  if (!def.retirementIncomeExclusionElection) return best;
+  if (retirementExclusionElection(def, input) === 0) return best;
+  const elected = computeBestPropertyTaxRoute(def, input, true);
+  return elected.tax < best.tax ? elected : best;
+}
+
+/**
  * The state computation, having chosen between a property tax deduction and the
  * flat credit that replaces it.
  *
@@ -3270,10 +3527,14 @@ function computeOnce(
  *
  * Ties go to the deduction, which is the order the form presents them in.
  */
-function compute(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): Computed {
-  const deducted = computeOnce(def, input, 'deduction');
+function computeBestPropertyTaxRoute(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  electRetirementExclusion: boolean,
+): Computed {
+  const deducted = computeOnce(def, input, 'deduction', electRetirementExclusion);
   if (!def.propertyTaxRelief || qualifyingPropertyTax(def, input) === 0) return deducted;
-  const credited = computeOnce(def, input, 'credit');
+  const credited = computeOnce(def, input, 'credit', electRetirementExclusion);
   return credited.tax < deducted.tax ? credited : deducted;
 }
 
