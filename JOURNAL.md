@@ -466,6 +466,107 @@ one that says something about Wisconsin.
   rule (Part 9) and the EITC match rate, which forced the by-child-count table to
   be checked rather than just counted.
 
+### Part 15 — the audit is twice as fast, and Day 40 was aiming at the wrong knob
+
+Worklist item 7 since Day 40 has been "make the audit faster by running FEWER
+TEST FILES per mutant", and the note beside it had the diagnosis right and the
+remedy wrong.
+
+`node --test` spawns **one child process per test FILE**, so four workers running
+a fifty-file suite put two hundred node startups on four cores for every mutant.
+Day 40 tried `--test-concurrency=1`, which controls how many of those children
+run at once rather than whether there are any, and the audit got twice as slow —
+43 Alabama mutants from 4m11s to 9m42s — because serialising the children removed
+the only parallelism that was hiding their cost.
+
+**The knob that removes the children is `--experimental-test-isolation=none`**,
+which runs every file in one process. Measured on this suite today:
+
+```text
+                       real     user
+default (per-file)     8.27s   14.49s
+isolation=none         6.53s    7.35s
+```
+
+Real time falls 21% and **user time halves** — and user time is what decides
+throughput when the workers saturate the cores, so the whole-package audit goes
+from about 115 minutes to about 55. Both modes report the same 765 tests and 765
+passes and both exit non-zero on a planted mutant, which is the only behaviour
+the harness depends on. It is the default now, announced at start-up, with
+`--test-isolation process` to go back and a probe that falls back with a message
+on a Node that does not support the flag.
+
+**THE RULE: when an optimisation makes a thing slower, the measurement is
+evidence about the MECHANISM and not only about the optimisation.** Day 40's own
+note contains the sentence that solves it — "the work is not contended, it is
+STARTUP" — and then reaches for a concurrency flag, which is a contention knob.
+The diagnosis was three years ahead of the fix and they were in the same
+paragraph.
+
+It cost a restart of the recorded run, 17 minutes in, which is the right trade
+and is recorded rather than hidden: the first 150 mutants were measured with the
+old path and thrown away to get the remaining 1,208 at twice the speed. The
+fewer-FILES idea survives and is worth less now, and the sound way to do it is
+written down: select the test files that can reach the mutated module, then
+**re-run every SURVIVOR against the whole suite**, because a mis-selection can
+only ever under-kill and the re-run makes the result exactly equal to the full
+one.
+
+### What I would do next
+
+1. **Wisconsin's qualifying surviving spouse status, and the evidence is already
+   gathered.** Wisconsin appears not to offer the status at all: the Form 1
+   instructions say "if your spouse died before 2025 and you have not remarried,
+   you must file as single or, if qualified, as head of household" — which is
+   exactly the federal window — and § 71.06 writes its schedules for
+   "fiduciaries, single individuals and heads of households" and for "married
+   persons", with no surviving-spouse schedule to use. Both this package and
+   PolicyEngine-US put the status on the JOINT schedule. **Measured, the gap is
+   up to `$2,861`** at `$450,000` and `$673` at `$90,000`, and it is in the
+   flattering direction. Not changed today only because the recorded audit was
+   already running over the build. Do this first; it is an hour and the largest
+   open question in the package.
+2. **Minnesota**, the largest state left, and the one with a state **alternative
+   minimum tax** — which no state in this package has, so it is a rule type and
+   not a parameter. Its base is federal taxable income, which
+   `federal-taxable-base.ts` already models, so the base is nearly free and the
+   AMT, the Social Security subtraction and the `$1,750`-a-child credit are the
+   work.
+3. **Wisconsin's child and dependent care credit**, which from 2024 is **100% of
+   the federal credit on up to `$10,000` of expenses** (`$20,000` for two or
+   more) against the federal `$3,000`/`$6,000` — so it is several times larger
+   than the federal credit it matches and is the biggest omission in the state
+   for a working parent. It needs the federal credit as an input, which this
+   package does not currently take.
+4. **Kansas City and St. Louis, 1% each** — unchanged from Days 41 and 42 and now
+   three days old. Both charge 1% of gross earnings with no deduction and no
+   exemption, which for a Kansas City resident on `$60,000` is `$600` against
+   about `$2,050` of Missouri tax.
+5. **Oregon's three city and county income taxes** — unchanged from Day 42. The
+   Portland Metro Supportive Housing tax (1% above `$125,000`/`$200,000`) and the
+   Multnomah County Preschool for All tax (1.5%, then 2.3%) are read against a
+   threshold on income the state engine already computes, so this is a locality
+   with no new input.
+6. **`exemptionCredit.separateReturnSpouse` for California and Ohio**, unchanged
+   from Day 42. California's is `$153` a separate return and Ohio's `$20`.
+7. **Fingerprint the mutable literals rather than the file bytes**, unchanged
+   from Day 42 and still worth it: `mutate.mjs` already enumerates every mutant,
+   so a digest over that enumeration would be invalidated by a figure changing
+   and NOT by a comment or a citation being corrected. Today cost no audit runs
+   to this, because Part 15's rule was followed and every documentation edit
+   happened before the recorded run — but the only reason the Wisconsin
+   surviving-spouse fix is tomorrow's work rather than today's is that a
+   parameter change mid-audit invalidates the score, and a literal fingerprint
+   would not change that. Weaker case than it looked.
+8. **Select test files per mutant** (Part 15), now worth about half what it was.
+   The sound design is written down in `mutate.mjs`.
+9. **Oregon's federal pension subtraction** and **Oregon's Working Family
+   Household and Dependent Care credit**, unchanged from Day 42.
+10. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+   from Days 40, 41 and 42, and Wisconsin adds three more figures below it that
+   matter — the age 65 and 67 tests and the `filersClaimed` counts — all of them
+   asserted directly in `wisconsin.test.js` instead.
+
 ---
 
 ## Day 42 — 2026-10-06

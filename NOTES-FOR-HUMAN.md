@@ -68,23 +68,46 @@ most 77 cents of tax.** It is the narrowest provisional flag this package has
 ever carried, and `test/wisconsin-indexation.test.js` proves the method by
 predicting the published 2025 schedule from 2021–2024 alone.
 
-### One Wisconsin question I could not settle, and it is not a figure
+### One Wisconsin question I could not finish, and it is worth up to $2,861
 
-Wisconsin Form 1 may not offer the **qualifying surviving spouse** filing status
-at all. The federal 1040 has five statuses; my reading is that Form 1 prints four
-— single, married filing joint, married filing separate, head of household — and
-that a filer who qualifies federally as a surviving spouse files in Wisconsin as
-single or as head of household. I could not confirm it: `revenue.wi.gov` is
-blocked from this sandbox and no search result I could get quotes the Form 1
-filing-status section.
+**Wisconsin appears not to offer the qualifying surviving spouse filing status at
+all**, and both this package and PolicyEngine-US currently put that status on
+Wisconsin's *joint* rate schedule. Two independent lines of evidence say that is
+wrong:
 
-Both this package and PolicyEngine-US currently put that status on Wisconsin's
-**joint** rate schedule, which is the usual state rule and may simply be wrong
-here. If it is wrong it is worth real money — the joint brackets are a third
-wider than the single ones — so it is recorded rather than quietly assumed, and
-it is the first item on tomorrow's worklist. **Nothing for you to do**, unless you
-happen to have the 2025 Wisconsin Form 1 instructions to hand, in which case the
-filing-status page settles it in one line.
+1. **The Form 1 instructions.** "If your spouse died before 2025 and you have not
+   remarried, you must file as single or, if qualified, as head of household."
+   Federally, a spouse who died in 2023 or 2024 is exactly what makes a 2025
+   filer a qualifying surviving spouse — so the sentence excludes the status
+   rather than describing it.
+2. **The statute's own structure.** Wis. Stat. § 71.06 writes its rate schedules
+   for "fiduciaries, single individuals and heads of households" and for
+   "married persons" (joint, and separately). **There is no surviving-spouse
+   schedule to use.** Single filers and heads of household share one schedule in
+   Wisconsin, which this package already models and asserts.
+
+I have not changed it today, for a boring and good reason: the recorded mutation
+audit was already running over the build, and changing a parameter mid-run would
+have invalidated the score. It is **the first item on tomorrow's worklist**, with
+the evidence already gathered.
+
+**The size, measured on the current build** — a surviving spouse with one
+dependent, 2026, against what the single and head-of-household schedules would
+give:
+
+| Wisconsin AGI | on the joint schedule | as single | as head of household |
+| --- | --- | --- | --- |
+| `$45,000` | `$708.18` | `$1,299.54` | `$1,235.57` |
+| `$90,000` | `$3,123.49` | `$3,796.82` | `$3,796.82` |
+| `$450,000` | `$23,034.36` | `$25,895.44` | `$25,895.44` |
+
+So the error, if it is one, runs **up to `$2,861` in the filer's favour** and is
+the largest single open question in the package. Note it is in the *flattering*
+direction, which is the direction that gets a tax library into trouble.
+
+**Nothing for you to do**, unless you happen to have the 2025 Wisconsin Form 1
+instructions to hand, in which case page 2 settles it in one line and you could
+drop it in an issue.
 
 Day 42 added **Oregon**, the twenty-third taxing state. The headline is a
 composition rather than a figure: **Oregon's top 9.9% rate nominally begins at

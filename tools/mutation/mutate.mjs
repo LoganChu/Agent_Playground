@@ -302,22 +302,76 @@ const TEST_FILES = readdirSync(join(pkgDir, 'test'))
   .filter((f) => !SKIP_TESTS.includes(f) && !escaping.includes(f));
 for (const f of SKIP_TESTS) console.error(`[mutate] not run: test/${f} (named in --skip-tests)`);
 for (const f of escaping) console.error(`[mutate] not run: test/${f} (reads outside the package)`);
-// One `node --test` per mutant, every file in the suite.
-//
-// Day 40 measured the obvious speedup and it was BACKWARDS. `node --test`
-// defaults to one child process per test file, up to the core count, so N
-// workers each running a 45-file suite put 4N processes on 4 cores — and
-// `--test-concurrency=1` inside each worker, which should have matched the
-// hardware, took 43 Alabama mutants from 4m11s to 9m42s with the same user
-// time. The work is not contended, it is STARTUP: 45 files x 1,130 mutants is
-// 50,000 node processes, and serialising them inside a worker removes the only
-// parallelism that was hiding the cost.
-//
-// So the cheap win is fewer FILES per mutant, not different concurrency —
-// selecting the test files that can reach the mutated module — and that is a
-// day's work with a dependency graph in it. Written down here rather than in a
-// journal nobody greps for.
-const TESTCMD = ['--test', ...TEST_FILES.map((f) => `test/${f}`)];
+/**
+ * One `node --test` per mutant, every file in the suite, **in one process**.
+ *
+ * Day 40 measured the obvious speedup and it was BACKWARDS, and the diagnosis in
+ * that note was right while the remedy was aimed at the wrong knob. `node --test`
+ * spawns one CHILD PROCESS PER TEST FILE, so N workers each running a 50-file
+ * suite put 50N node startups on 4 cores; the cost is startup and not contention.
+ * Day 40 tried `--test-concurrency=1`, which controls how many of those children
+ * run at once, and took 43 Alabama mutants from 4m11s to 9m42s — because
+ * serialising the children removed the only parallelism that was hiding their
+ * cost. The knob that removes the children themselves is a different one.
+ *
+ * `--experimental-test-isolation=none` runs every file in the SAME process.
+ * Measured on this suite, Day 43, with the audit itself using all four cores:
+ *
+ * ```text
+ *                        real     user
+ * default (per-file)     8.27s   14.49s
+ * isolation=none         6.53s    7.35s
+ * ```
+ *
+ * **User time halves**, and user time is what decides throughput when four
+ * workers saturate four cores — so the audit's wall clock roughly halves, from
+ * about 110 minutes to about 55. Both modes report the same 765 tests and 765
+ * passes, and both exit non-zero on a planted mutant, which is the only
+ * behaviour the harness depends on.
+ *
+ * It is a DEFAULT and not an optimisation to remember, for Part 12's reason:
+ * `--test-isolation process` restores the old behaviour, and the mode in force
+ * is announced at start-up. If the running Node does not support the flag the
+ * probe below falls back with a message, rather than leaving a red baseline to
+ * be diagnosed.
+ *
+ * The fewer-FILES-per-mutant idea in Day 40's note is still worth having and is
+ * now worth less: selecting the test files that can reach the mutated module
+ * would cut the remaining 7.35s of user time, and the sound way to do it is to
+ * re-run every SURVIVOR against the whole suite, because a mis-selection can
+ * only ever under-kill. Left on the worklist.
+ */
+const ISOLATION = String(flag('test-isolation', 'none'));
+function isolationArgs(mode) {
+  return mode === 'none' ? ['--experimental-test-isolation=none'] : [];
+}
+let isolation = ISOLATION;
+if (isolation === 'none') {
+  // A probe rather than a version check: the flag's name has changed once
+  // already and a version table would be a second copy of the truth.
+  try {
+    execFileSync(
+      process.execPath,
+      ['--test', ...isolationArgs('none'), `test/${TEST_FILES[0]}`],
+      { cwd: pkgDir, stdio: 'pipe', timeout: 120_000 },
+    );
+  } catch (e) {
+    if (/not allowed|bad option|unknown option/i.test(String(e.stderr || ''))) {
+      console.error(
+        `[mutate] this Node (${process.version}) does not support --experimental-test-isolation; running one process per test file`,
+      );
+      isolation = 'process';
+    }
+    // Any other failure is a red test file, which the baseline check below is
+    // the right place to report.
+  }
+}
+console.error(
+  isolation === 'none'
+    ? `[mutate] one node process per mutant (--experimental-test-isolation=none) over ${TEST_FILES.length} test files`
+    : `[mutate] one node process per TEST FILE (${TEST_FILES.length} per mutant)`,
+);
+const TESTCMD = ['--test', ...isolationArgs(isolation), ...TEST_FILES.map((f) => `test/${f}`)];
 function runSuite(dir) {
   try {
     execFileSync(process.execPath, TESTCMD, { cwd: dir, stdio: 'pipe', timeout: 120_000 });

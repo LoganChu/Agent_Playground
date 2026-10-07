@@ -27,7 +27,35 @@ node tools/mutation/mutate.mjs packages/us-state-tax --only virginia.js
 | `--limit N` | first N mutants — for checking the harness, not the package |
 | `--shard i/n` | every nth mutant, for splitting a run |
 | `--skip-tests f` | test files to leave out (default `readme.test.js`) |
+| `--test-isolation m` | `none` (default) runs the whole suite in ONE node process per mutant; `process` restores one process per test file, which is what every run before Day 43 did and is about twice as slow |
 | `--json f` | write every result, not just survivors |
+
+## How long it takes, and the one flag that halves it
+
+`node --test` spawns a child process per test FILE, so four workers running a
+fifty-file suite put two hundred node startups on four cores for every mutant.
+Day 40 measured that and reached for `--test-concurrency=1`, which controls how
+many of those children run at once rather than whether there are any, and the
+audit got **twice as slow**: 43 Alabama mutants went from 4m11s to 9m42s.
+
+`--experimental-test-isolation=none` removes the children. Measured on the state
+suite on Day 43:
+
+```text
+                       real     user
+default (per-file)     8.27s   14.49s
+isolation=none         6.53s    7.35s
+```
+
+Real time falls 21% and **user time halves** — and user time is what decides
+throughput when the workers saturate the cores, so the whole-package audit goes
+from about 110 minutes to about 55. Both modes report the same 765 tests and the
+same 765 passes, and both exit non-zero on a planted mutant, which is the only
+behaviour this harness depends on.
+
+It is the default. `--test-isolation process` restores the old behaviour, the mode
+in force is announced at start-up, and a Node that does not support the flag falls
+back with a message rather than leaving a red baseline to be diagnosed.
 
 ## Why it exists
 

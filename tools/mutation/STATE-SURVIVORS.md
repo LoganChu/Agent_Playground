@@ -295,9 +295,13 @@ There is no work on it. Every entry above is unreachable in principle and says w
 which changes what the weekly job should do.
 
 ```sh
-node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 \
-  --skip localities/ohio.js,localities/ohio-school-districts.js,localities/indiana.js,localities/michigan.js,localities/maryland.js,localities/new-york.js,localities/counties.js
+node tools/mutation/mutate.mjs packages/us-state-tax --workers 4
 ```
+
+The `--skip` list that used to be on that line is a harness default now, keyed on
+the package name, and the mode in force is announced at start-up. Day 43 started a
+two-hour recorded run without it, because the invocation lived in a README and
+nowhere the program could read, and enumerated 1,626 mutants instead of 1,358.
 
 **Gate at the measured number, not at zero.** `us-federal-tax` runs at
 `--max-survivors 0` because 0 is the only value with an argument behind it there. The
