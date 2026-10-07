@@ -4,6 +4,470 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 43 — 2026-10-07
+
+### What I did
+
+**Added the twenty-fourth taxing state, and it is the one where the published
+rate table is furthest from the tax: Wisconsin's standard deduction is withdrawn
+as a RATE, so the withdrawal is a multiplier on the marginal rate rather than a
+step in it — and for a head of household the marginal rate then FALLS TWICE as
+income rises.**
+
+`us-state-tax` is **v0.39.0**, `us-tax-mcp` **v0.42.0**, `us-federal-tax`
+unchanged at v0.15.0. **1,346 tests** (396 + 765 + 169 + 16), all green, zero
+dependencies — up 44 from Day 42's 1,302. 33 states, 24 of them taxing.
+
+New: `packages/us-state-tax/src/states/wisconsin.ts`, `test/wisconsin.test.js`
+(33 tests) and `test/wisconsin-indexation.test.js` (8 tests), one new
+`DeductionRule` variant, four new rule types, a third `ProvisionalReason`, a
+tenth `StateFigureKind`, 30 provenance entries, one new differential household
+and three divergence reasons.
+
+CI read at the START of the run, the standing item since Day 37: **green on the
+last push** (run 145, 432b332). One API call.
+
+### Part 0 — the day's first command, and the one thing that cost ten minutes
+
+`git fetch origin main && git checkout -B main origin/main` came up at `432b332`
+with Oregon in it. Day 42's note about `npm install` in all three packages was
+followed and cost nothing, which is what a rule written down is for.
+
+**The ten minutes went on `curl` instead.** `revenue.wi.gov` and
+`docs.legis.wisconsin.gov` are both blocked by the egress proxy, and `WebFetch`
+on the 2026 Form 1-ES instructions PDF is blocked too. So Wisconsin was sourced
+the Day 1 way — `WebSearch` plus the pinned PolicyEngine-US parameter YAML — and
+that turned out to matter more here than in any state so far, because
+PolicyEngine's Wisconsin is wrong in two places and the YAML is where both are
+visible.
+
+### Part 1 — why Wisconsin, and the thing that made it worth the day
+
+Day 42's worklist named Minnesota or Wisconsin first, as the two largest states
+left. I picked Wisconsin on the strength of three things a rate table cannot
+hold: a standard deduction that phases out at a RATE, an itemized deduction
+converted into a 5% CREDIT, and — found while reading, not before — an election
+created four months ago that trades a subtraction against every credit on the
+form.
+
+All three paid. The second is the smallest and still the sharpest sentence in
+the module: **5% is below every Wisconsin rate, so Wisconsin's itemized relief
+is worth less than a deduction for the same expense would be, and the gap WIDENS
+with the bracket.** `$10,000` of excess is worth `$500` against `$530` of
+deduction value at 5.3% and against `$765` at 7.65%.
+
+### Part 2 — a deduction withdrawn at a RATE, and what that does to the marginal rate
+
+Three states in this package withdraw a deduction as income rises and all three
+do it in whole steps at boundaries. Wis. Stat. § 71.05(22)(dp) does it
+continuously:
+
+| status | withdrawal rate | and the marginal rate inside the band |
+| --- | --- | --- |
+| single | 12% | 4.4% x 1.12 = **4.928%** |
+| joint, separate | 19.778% | 5.3% x 1.19778 = **6.348%** |
+| head of household | 22.515% | 4.4% x 1.22515 = **5.391%** |
+
+**THE RULE: a withdrawal expressed as a PERCENTAGE OF INCOME is not a step in
+the marginal rate, it is a multiplier on it** — and a multiplier survives into
+every bracket, where a staircase is a local event. Alabama's and Connecticut's
+staircases produce a spike at a boundary; Wisconsin's slope raises the rate
+across `$116,333` of income.
+
+The band is not a corner of the distribution. For a single filer in 2026 it runs
+from `$20,120` to `$136,453.33` of Wisconsin AGI. **Wisconsin's published top
+rate is 7.65% and the highest marginal rate an ordinary Wisconsin wage earner
+meets is 6.348%, at `$69,260` of joint taxable income — 374,000 dollars of joint
+income below where the 7.65% begins.**
+
+### Part 3 — the marginal rate is not monotonic, and for a head of household it turns twice
+
+The withdrawal ENDS, and the statutory rate on the far side is lower than the
+withdrawal-inflated rate on this side. So a Wisconsin filer's marginal rate
+**falls** as income rises. Every boundary below was located by bisecting the
+engine rather than computed by hand:
+
+```text
+head of household, no dependents, 2026
+Wisconsin AGI       rate
+     $18,729        the first dollar of Wisconsin tax
+     $20,120        3.500% -> 4.290%
+     $31,318        4.290% -> 5.391%
+     $58,826.61     5.391% -> 4.930%   FALLS: the tier changes to 12%
+     $61,629        4.930% -> 5.936%
+    $136,453.33     5.936% -> 5.300%   FALLS: the deduction is gone
+    $333,420        5.300% -> 7.650%
+```
+
+Up, up, **down**, up, **down**, up. A single or joint filer turns once; a head of
+household turns twice, because it also meets a tier change. No other state in
+this package has a non-monotonic marginal rate at all.
+
+### Part 4 — a threshold that is an identity, which is why it is not stored
+
+A head of household starts with more deduction and loses it faster, and the two
+are tuned: at 22.515% the head-of-household figure catches the single figure
+exactly, and from there the statute withdraws both at 12% so that a head of
+household never deducts less than a single filer on the same income.
+
+```text
+crossover = threshold + (maxHeadOfHousehold - maxSingle) / (0.22515 - 0.12)
+2025:  19,550 + 3,960 / 0.10515  =  57,210.49
+2026:  20,120 + 4,070 / 0.10515  =  58,826.61
+```
+
+The only source that carries the 2025 figure records `$57,210`, which is the
+identity rounded. So the engine **computes** it — `slidingScaleCrossover` in
+`definition.ts` — and `wisconsin.test.js` asserts the agreement against the
+published value.
+
+**THE RULE: a figure that is an identity between four published figures is a
+fifth figure that can disagree with them, and storing it is storing the
+disagreement.** The consequence is worth stating too: the whole
+head-of-household premium — `$4,070` in 2026 — is withdrawn inside one band, and
+above `$58,826.61` a head of household and a single filer have the same standard
+deduction to the dollar.
+
+I checked whether the crossover's exact value is insensitive, because it looked
+like it should be: the deduction is continuous in income there. **It is not.**
+Moving the crossover moves the deduction above it at `0.22515 - 0.12 = 0.10515`
+per dollar, so a `$1,000` error in the crossover is `$105` of deduction. I had
+nearly written the opposite into the module header. **THE RULE: continuity at a
+boundary is a statement about the FUNCTION, not about the sensitivity to where
+the boundary is.**
+
+### Part 5 — an election that trades a subtraction against every credit on the form
+
+2025 Act 15, signed 3 July 2025, created Wis. Stat. § 71.05(6)(b)54m —
+`$24,000` of retirement income at 67, `$48,000` where both spouses on a joint
+return qualify. Subdivision 54m.b is the whole of it:
+
+> An individual who claims the subtraction under this subdivision for a taxable
+> year may not claim any credit, including any eligible carryover of such
+> credit, listed under s. 71.07 for the same taxable year.
+
+**Not a limitation — an ELECTION, and the only one of its kind in this
+package.** Every other mutually exclusive provision here trades one credit for
+another (Utah's three retirement credits, Virginia's low income credit against
+its earned income credit) or a deduction against a credit for the same expense
+(New Jersey's property tax). This one trades a subtraction against *everything
+else on the form*: the married couple credit, the school property tax credit,
+the itemized deduction credit, the earned income credit, the homestead credit,
+and any carryover of any of them.
+
+So `compute()` runs the whole return twice and keeps the lower tax, which is
+what the Schedule SB line 16 instructions tell the filer to do. The engine
+already had that shape for New Jersey's property tax choice, and the two
+compose: `computeBestPropertyTaxRoute` is now nested inside the election, four
+passes possible in principle and two needed by any state, **written out rather
+than assumed, so a state that acquires both rules gets the right answer instead
+of the first one.**
+
+Two things about it that no summary of Act 15 states:
+
+- **The subtraction is worth more than its face value.** The standard deduction
+  is a sliding scale read against Wisconsin AGI, so removing `$24,000` of pension
+  both takes it out of the base and buys back `$4,746.72` of deduction on a joint
+  return inside the band. The election is worth the rate on `$28,746.72`.
+- **The crossover is a real income.** Measured: a joint return at 68 and 68 with
+  `$80,000` of other income and `$4,000` of property tax is better off keeping
+  its credits up to **`$5,692.35`** of pension and better off electing above it.
+  The whole `$300` school property tax credit goes at once on the dollar that
+  tips it.
+
+And the elected return keeps every credit line **with its amount zeroed and its
+name saying why**. A caller comparing the two passes can see what was given up.
+**THE RULE: a credit line that silently disappears is the same defect as a figure
+that silently changes** — which is Day 42's third lesson about silences, arriving
+as a design decision rather than as a bug.
+
+### Part 6 — the bug in my own new code, and it is the best rule of the day
+
+The forfeiting branch was written like this:
+
+```js
+const effectiveCredits = forfeited ? credits.map(zeroed) : credits;
+credits.length = 0;
+credits.push(...effectiveCredits);
+```
+
+When nothing is forfeited, `effectiveCredits` **is** `credits`. So
+`credits.length = 0` empties it and the spread pushes nothing back.
+
+**It lost every credit on every Wisconsin return, elected or not** — and the only
+symptom was a tax too high by the credits. No error, no exception, no
+empty-looking code; the array was rebuilt from itself and the rebuild was
+correct for the branch I was thinking about. It was caught by a test I had
+written for something else entirely: the earned income credit came back `$0.00`
+for one, two and three children.
+
+**THE RULE: a conditional rebuild of an array must not alias the array it
+rebuilds.** The fix is `splice(0, length, ...zeroed)` inside the `if`, and the
+comment in `engine.ts` is longer than the code.
+
+### Part 7 — how a 2026 figure nobody published is KNOWN
+
+Wisconsin publishes its rate schedules a year EARLY — the 2026 Form 1-ES
+instructions, December 2025 — and its Standard Deduction Table a year LATE, in
+the Form 1 instructions of January 2027. Day 42 met the same shape in Oregon and
+resolved one figure by noticing it was the only candidate arithmetically
+consistent with an agency-confirmed one. **Today that argument became an
+instrument**, and the instrument is `test/wisconsin-indexation.test.js`:
+
+1. The top bracket threshold is indexed off statutory bases of `$225,000`,
+   `$300,000` and `$150,000` (2013 Act 20) — verified because `266,930/225,000`,
+   `355,910/300,000` and `177,960/150,000` agree to six figures. A published
+   threshold therefore **bounds** the cumulative indexation factor, since the
+   figure is rounded to the nearest `$10` and the true product is within `$5`.
+   Three statuses give three bounds on one factor and the 2026 intersection is
+   **7.5 parts per million wide**.
+2. Each standard deduction figure has a base of its own, unknown and not needed:
+   five published years bound it the same way, through the factors from step 1.
+3. The 2026 figure is `round10(base x factor)` over both intervals.
+
+**Four of the seven figures come out UNIQUE** — the single, joint, surviving
+spouse and head of household maxima, and the joint threshold — and the single and
+joint ones are independently corroborated by two secondary reproductions of the
+2026 table. Three are left choosing between two adjacent multiples of `$10`.
+
+**And the method is VALIDATED rather than asserted.** Deriving the bases from
+2021–2024 alone and predicting 2025 puts the published figure inside the
+admissible set for all seven. The cruder version — chaining the year-over-year
+ratio of two rounded figures — gets the 2025 separate deduction wrong by `$10`,
+and that failure is asserted in the test file too, because it is the reason the
+file does interval arithmetic instead of multiplication.
+
+**THE RULE: an index factor is CUMULATIVE FROM A BASE, so a year-over-year ratio
+of two rounded figures is not the factor, and chaining it compounds the
+rounding.** I had the chained version first and it put the single/head of
+household threshold at `$20,120` for the wrong reason and the separate maximum at
+`$12,280` for the wrong reason, and only one of the two survived doing it
+properly.
+
+### Part 8 — the third kind of unsettled figure, and why two were not enough
+
+The three ambiguous figures broke the ledger's vocabulary, and that is the
+finding rather than an inconvenience.
+
+`ProvisionalReason` had two values. `awaiting-publication` means last year's
+figure is standing in; `determined-after-year-end` means the law has not fixed
+the figure yet. **Wisconsin's three are neither.** They are not last year's — the
+derivation produced new numbers — and Wisconsin settled them in 2025, so nothing
+is waiting on the year to close. Forcing either label would have been a false
+claim, and the tempting one (`awaiting-publication` with
+`carriedForwardFrom: 2025`) would have been false in exactly the way the ledger
+exists to prevent.
+
+So there is a third: **`bounded-derivation`**, and a tenth `StateFigureKind`,
+**`derived-bounded`**. Each entry states the interval, both candidate values,
+which one is stored and why — the value the interval's own midpoint rounds to —
+and `provisional.test.js` asserts all of that rather than trusting it.
+
+**THE RULE: a two-valued reason field is a claim that there are two ways a figure
+can be unsettled, and the third way shows up as a figure that fits neither label
+badly enough to notice.**
+
+The error is bounded and the bound is derived rather than measured: `$10` of
+deduction at Wisconsin's top rate of 7.65% is 76.5 cents, and a threshold `$10`
+out moves the deduction by the withdrawal rate times `$10`, which is less. **At
+most 77 cents of tax — the narrowest provisional flag this package has ever
+carried**, against Oregon's two unindexed figures and California's whole
+schedule.
+
+### Part 9 — an invariant whose teeth had to MOVE rather than come out
+
+`provisional-coverage.test.js` has required since Day 37 that a provisional
+figure under one filing status be flagged under every filing status. It failed on
+Wisconsin, and it was right to fail and wrong to be obeyed.
+
+The rule rests on a fact about **publication**: a state prints every column of a
+table in one document, so a column nobody read means a table nobody read. **A
+DERIVATION runs column by column and can settle one and not its neighbour.** The
+2026 single, joint, surviving spouse and head of household maxima are determined
+and the separate one is not, so flagging the siblings would have claimed an
+uncertainty that is not there.
+
+The rule now exempts `bounded-derivation` — and a new test takes its place:
+**every unflagged sibling of a bounded derivation must be a figure the provenance
+ledger calls DETERMINED** (`derived`, `indexed` or `statute`), never
+`carried-forward`, `unestablished` or absent. Without it the exemption would let
+a whole unread table through by flagging one cell of it and calling the flag a
+derivation.
+
+**THE RULE: an exemption from an invariant needs a replacement invariant, and the
+replacement has to be checkable against the thing the exemption appeals to.** The
+teeth moved from the shape of the table to the arithmetic that determined it,
+which is a stronger claim than the original.
+
+And Day 42's rule repeated exactly: **four paths are flagged for three figures**,
+because § 71.05(22)(dp) gives single and head of household ONE threshold and
+`deduction.tiers` holds it once per status. An entry written for one column flags
+one column.
+
+### Part 10 — two defects in the reference model, found before anything ran
+
+Both are in `policyengine-us` 2.15.3, both are about 2026 indexation, and both
+were found by reading the YAML rather than by running the grid.
+
+**Its 2025 middle bracket is a year ahead of itself.** 2025 Act 15 set the top of
+the 4.4% band at `$50,480` single, `$67,300` joint and `$33,650` separate,
+retroactive to 1 January 2025, with indexation resuming in 2026. PolicyEngine
+carries `$51,130` / `$68,170` / `$34,090` for 2025 — the Act 15 figures indexed a
+year early. **The arithmetic settles it rather than the citation alone**:
+`$50,480` times the factor the published 2026 figures pin rounds to `$51,950` to
+the dollar, and all three statuses agree, where `$51,130` indexed is `$52,620`,
+a figure no source carries.
+
+**And its 2026 standard deduction is uprated by the wrong government's index.**
+With no published 2026 value it uprates the 2025 schedule by `gov.irs.uprating`,
+`1.0226629`, giving `$13,870` single against `$13,960`. The tie-break here is not
+this package's arithmetic against theirs:
+
+| PolicyEngine's own 2026 Wisconsin | implied factor |
+| --- | --- |
+| bracket thresholds, READ from the Department of Revenue | **1.0291** |
+| standard deduction, uprated by `gov.irs.uprating` | **1.0227** |
+
+**The two halves of its 2026 Wisconsin are indexed on different series, one of
+them the wrong government's.** Wis. Stat. § 71.06(2e) and § 71.05(22)(ds) index
+both schedules on the same Wisconsin CPI measure.
+
+**THE RULE, which is Day 42's Part 8 one level up: when two models disagree about
+an unpublished indexed figure, look for the disagreement INSIDE one of them
+first.** A model that carries a published figure for one parameter and an uprated
+one for another has already told you which it trusts.
+
+The third difference is older and better known: **a widow is one person.**
+`wi_base_exemption` is `exemptions_count` times `$700` and that count includes a
+deceased spouse, where § 71.05(23) allows the spouse's `$700` only "if a joint
+return is filed". That is the class of error this package fixed across fourteen
+call sites in v0.27.0 and named `livingFilerCount`, and it is `$53.54` at the top
+rate.
+
+### Part 11 — the differential grid, and the dimension it did not have
+
+**1,056 households, 7,392 figures, 6,849 agreeing to the dollar, 543 differences
+explained and ZERO unexplained**, against the pinned PolicyEngine-US 2.15.3.
+Wisconsin added 44 cases and 29 differences, which resolved into exactly the
+three families above.
+
+The grid needed one new shape, and predicting it was the Day 42 Part 10 move
+applied to a schedule rather than to a credit. **The grid's four heads of
+household earned `$12,000`, `$25,000`, `$35,000` and `$45,000`, and every one of
+them is below `$58,826.61`** — so the whole second tier of Wisconsin's
+head-of-household sliding scale was invisible from this grid, and the crossover
+could have been any number above `$45,000` without a case moving.
+
+**THE RULE: a grid that chose a status's incomes to straddle one provision's
+thresholds has said nothing about any other provision that bands the same status
+somewhere else.** Those four heads of household were placed for earned income
+credits, which live below `$50,000`. A deduction schedule that changes shape at
+`$58,837` needed a rung of its own, and `single-parent-high` at `$90,000` is it.
+
+### Part 12 — a two-hour measurement started with the wrong flags
+
+The state package's audit has always been run with a `--skip` list for the seven
+locality registries. **That invocation lived in `tools/mutation/README.md` and
+nowhere the program could read.** I started the recorded run without it, and it
+enumerated **1,626 mutants instead of 1,358** — the 268 extra being the 1,033
+transcribed local rates, which are data rather than rules.
+
+`check-scores.mjs` compares the recorded `skipped` list, so it would have
+rejected the score. **That is the only thing that stood between a wrong flag and
+a wrong number in the README**, and it is too thin a thing to be standing there.
+
+The list is now a **harness default** keyed on the package name, and it is
+announced at start-up beside the record destination:
+
+```text
+[mutate] packages/us-state-tax: 1358 mutants over 29 files, 4 workers
+[mutate] skipping 7 file(s) (harness default for this package): localities/ohio.js, ...
+[mutate] will record the score in tools/mutation/scores.json when the run completes
+```
+
+**THE RULE, which is Day 42 Part 16's with the sign flipped: a flag that is
+PRESENT and does nothing is worse than one that is missing, and a flag that is
+ABSENT while the run silently measures something ELSE is worse than both.** Day
+42's fix was to announce what the run would record; this one is to remove the
+thing there was to remember. `--skip none` includes the registries.
+
+### Part 13 — the mutation audit, predicted in two parts before it ran
+
+- **`wisconsin.js` holds 82 mutable literals**, and the hand count was exactly
+  right on two of the three operators and wrong on the third. Measured by kind:
+  **16 rates, 54 money, 12 years.** I predicted 16, 54 and **6**, so the whole
+  six-literal miss is in one operator — and the reason is a shape no previous
+  state here has used.
+
+  `THRESHOLDS`, `STANDARD_MAX` and `STANDARD_THRESHOLD` are
+  `Record<number, ...>` objects **keyed by the tax year**, so `2025:` and `2026:`
+  appear six more times as OBJECT KEYS in the emitted JavaScript, and the harness
+  mutates a key exactly as it mutates a value. Oregon and Missouri both branch on
+  `year >= 2026` and hold their figures in functions; Wisconsin holds two
+  published schedules side by side in a table, which is clearer to read and six
+  mutants wider.
+
+  **THE RULE: a year-keyed record is as many year literals as it has keys, and a
+  hand count that reads the figures misses the keys, because a key does not look
+  like a parameter.** Worth more than the six: a mutated key makes the whole
+  year's table unreachable, so these are the six easiest mutants in the file to
+  kill and the ones most likely to be killed by an unrelated test.
+- **The package should go from 1,267 to 1,358** — 1,267 plus 82 plus **9 in
+  `src/data/provenance.ts`**, which is Day 41's and Day 42's finding for the
+  third time: the nine `years:` arrays the per-year entries needed are nine year
+  literals, and the ledger that records where every figure came from gets audited
+  like any other file.
+- **The six survivors should be the same six** `STATE-SURVIVORS.md` triages.
+
+The count was predicted exactly once the flags were right, which is what makes
+Part 12 a process finding rather than a near miss.
+
+### Part 14 — the calculator's ranking, and the first row to pass Utah by legislation
+
+On the retired-couple ranking the site has carried since v0.17.0 — joint, both
+70, `$40,000` of Social Security and a `$60,000` pension — **Wisconsin charges
+nothing**, and it is the THIRTEENTH state to pass Utah.
+
+The first nine were rows that were **wrong**. The next three were rows that did
+not **exist**. **This one is a row that CHANGED**, four months ago, in a state
+legislature: the same couple in Wisconsin a year ago paid about `$1,507`, and
+§ 71.05(6)(b)54m takes `$48,000` of the pension out, leaving `$12,000` against a
+`$25,840` standard deduction and `$1,900` of exemptions.
+
+**THE RULE: a ranking of states is a ranking of three different things at once —
+what the law says, what somebody modelled, and when they last looked — and the
+only one of the three a reader assumes is the first.** Twelve of the thirteen
+rows that passed Utah say something about this table. The thirteenth is the only
+one that says something about Wisconsin.
+
+### Process notes
+
+- **Start the PolicyEngine pass FIRST** — Day 39's note, followed, and the 1,056
+  cases took about fifteen minutes against the predicted forty, because the
+  state dimension of the grid is 2026-only. Which is itself worth recording:
+  **the 2025 bracket defect in Part 10 is NOT VISIBLE from this grid at all**,
+  and it was found by arithmetic on the YAML. A differential test is bounded by
+  the vocabulary of its cases, and the year is part of that vocabulary.
+- **A search that repeats the figures in your query is not a source.** I asked
+  for "head of household $18,030 separate $12,280" and got both back as
+  confirmation. They were my own arithmetic. Every figure in Part 7 is derived
+  and tested instead.
+- **`WebFetch` is blocked on the same domains as `curl`**, so there is no second
+  route to an agency PDF. Worth knowing before planning a day around one.
+- **The engine already had the shape the election needed.** `computeOnce` was
+  split out from `compute` for New Jersey's property tax choice, and the second
+  caller cost a parameter rather than a rewrite. Day 41's rule about the second
+  state telling you which parts of the first state's rule were the rule, applied
+  to control flow instead of to data.
+- **Nine `assert.equal(..., N)` count pins broke on one new state**, across the
+  registry, the notes, the status sweep, the step probes and three READMEs. They
+  are doing their job and the cost is real: about forty minutes of the day. The
+  ones that earned it were the two that were not counts — the provisional sibling
+  rule (Part 9) and the EITC match rate, which forced the by-child-count table to
+  be checked rather than just counted.
+
+---
+
 ## Day 42 — 2026-10-06
 
 ### What I did

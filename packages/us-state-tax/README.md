@@ -532,7 +532,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.38.0/us-state-tax-0.38.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.39.0/us-state-tax-0.39.0.tgz
 ```
 
 ## The rate is the easy part
@@ -572,6 +572,125 @@ co.conformity; // { base: 'federalTaxableIncome', amount: 84250 }
 ```
 
 ## What this gets right that rate tables cannot
+
+### Wisconsin's standard deduction is a RATE, so the marginal rate is not what the table says
+
+Three states here withdraw a deduction as income rises, and the other two do it in whole
+steps at boundaries. Wis. Stat. § 71.05(22)(dp) does it **continuously, as a percentage of
+every dollar of Wisconsin AGI above a threshold** — and a percentage of income subtracted
+from a deduction is not a step in the marginal rate. It is a multiplier on it.
+
+| status | withdrawal | inside the band, 4.4% bracket | inside the band, 5.3% bracket |
+| --- | --- | --- | --- |
+| single | 12% | **4.928%** | **5.936%** |
+| joint, separate | 19.778% | **5.270%** | **6.348%** |
+| head of household | 22.515% | **5.391%** | — |
+
+None of those figures appears in any rate table, and the band is not a corner of the
+distribution: for a single filer in 2026 it runs from `$20,120` to `$136,453.33` of
+Wisconsin AGI. **Wisconsin's published top rate is 7.65% and the highest marginal rate an
+ordinary Wisconsin wage earner ever meets is 6.348%, at `$69,260` of joint taxable income —
+374,000 dollars of joint income below where the 7.65% begins.**
+
+#### And the rate FALLS as income rises, twice for a head of household
+
+The withdrawal ends, and the statutory rate on the far side is lower than the
+withdrawal-inflated rate on this side. Every boundary below was located by bisecting the
+engine:
+
+| Wisconsin AGI | marginal rate |
+| --- | --- |
+| `$18,729` | the first dollar of Wisconsin tax |
+| `$20,120` | 3.500% → 4.290% |
+| `$31,318` | 4.290% → 5.391% |
+| `$58,826.61` | 5.391% → **4.930%** — falls: the tier changes to 12% |
+| `$61,629` | 4.930% → 5.936% |
+| `$136,453.33` | 5.936% → **5.300%** — falls: the deduction is gone |
+| `$333,420` | 5.300% → 7.650% |
+
+Up, up, **down**, up, **down**, up. No other state in this package has a marginal rate that
+turns downward at all.
+
+The `$58,826.61` is **not a parameter.** It is the income at which the head-of-household
+deduction has fallen to the single one, after which the statute withdraws both at 12% so
+that a head of household never deducts less than a single filer on the same income:
+`threshold + (maxHeadOfHousehold − maxSingle) ÷ (22.515% − 12%)`. The only source that
+carries the 2025 figure records `$57,210` and the identity gives `$57,210.49`, so the engine
+computes it and the test checks it against the published value — because a figure that is an
+identity between four published figures is a fifth figure that can disagree with them.
+
+### A subtraction that costs every credit on the Wisconsin return
+
+2025 Act 15 created Wis. Stat. § 71.05(6)(b)54m: `$24,000` of retirement income at 67,
+`$48,000` where both spouses on a joint return qualify. Subdivision 54m.b is the whole of
+it:
+
+> An individual who claims the subtraction under this subdivision for a taxable year may not
+> claim any credit, including any eligible carryover of such credit, listed under s. 71.07
+> for the same taxable year.
+
+**Every credit** — the married couple credit, the school property tax credit, the itemized
+deduction credit, the earned income credit, the homestead credit, and any carryover of any
+of them. It is an **election**, not a limitation, so the engine computes the whole return
+twice and returns the lower tax, which is what the Schedule SB line 16 instructions tell the
+filer to do. On the elected return every credit line is still there with its amount zeroed
+and its name saying why, because a credit that silently disappears is the same defect as a
+figure that silently changes.
+
+The crossover is a real income rather than a formality, and two things make it so:
+
+- **The subtraction is worth more than its face value.** The sliding scale above is read
+  against Wisconsin AGI, so removing `$24,000` of pension also buys back `$4,746.72` of
+  standard deduction on a joint return inside the band. The election is worth the filer's
+  rate on `$28,746.72`.
+- **Measured:** a joint return at 68 and 68 with `$80,000` of other income and `$4,000` of
+  property tax is better off keeping its credits up to **`$5,692.35`** of pension and better
+  off electing above it. The whole `$300` school property tax credit goes at once on the
+  dollar that tips it.
+
+### Itemizing in Wisconsin is a credit, and the credit is regressive in the rate
+
+Wisconsin has no itemized deduction. § 71.07(5) gives a **credit of 5%** of the excess of
+eligible itemized deductions over the standard deduction — and 5% is below every Wisconsin
+rate, so the gap between the credit and what a deduction would be worth **widens with the
+bracket**:
+
+```text
+$10,000 of excess, 5.30% bracket   credit $500   a deduction would be worth $530
+$10,000 of excess, 7.65% bracket   credit $500   a deduction would be worth $765
+```
+
+And the eligible total is not the federal one: **state and local taxes are excluded
+outright**, which is the largest line on most Schedule As. Pass `stateItemizedDeductions` as
+the Schedule 1 figure, not the Schedule A total.
+
+### A 2026 figure nobody has published, and how it is known
+
+Wisconsin publishes its rate schedules a year **early** — the Department of Revenue's 2026
+Form 1-ES instructions, December 2025 — and its Standard Deduction Table a year **late**, in
+the Form 1 instructions of January 2027.
+
+The top bracket threshold is indexed off statutory bases of `$225,000`, `$300,000` and
+`$150,000` (2013 Act 20). A published threshold therefore **bounds** the cumulative
+indexation factor, because the figure is rounded to the nearest `$10` and the true product
+lies within `$5` of it — and three filing statuses give three bounds on one factor, whose
+2026 intersection is **7.5 parts per million wide**. Each standard deduction figure's own
+base is bounded the same way by its five published years, and the 2026 figure is then
+`round10(base × factor)` over both intervals.
+
+**Four of the seven come out unique** — the single, joint, surviving spouse and head of
+household maxima and the joint threshold — and the single and joint ones are independently
+corroborated by two secondary reproductions of the table. Three admit two adjacent multiples
+of `$10` and are flagged in `provisionalFigures`, each with its interval, both candidate
+values, which one is stored and the bound: `$10` of deduction is **at most 77 cents of tax**,
+the narrowest provisional flag this package has ever carried.
+
+`test/wisconsin-indexation.test.js` does the arithmetic and **validates the method by
+hold-out**: bases derived from 2021–2024 alone put all seven published 2025 figures inside
+their admissible sets, and the cruder year-over-year chaining gets one of them wrong by `$10`
+— which is asserted too, because it is the reason the file does interval arithmetic instead
+of multiplication. An index factor is cumulative from a base, so a year-over-year ratio of
+two rounded figures is not the factor.
 
 ### The One Big Beautiful Bill Act cut taxes in states that never voted on it
 
@@ -2453,7 +2572,7 @@ poverty level credit — which Virginia, with the same cliff, had cited all alon
 
 ## Coverage
 
-**Graduated:** California, Maryland, Mississippi, New Jersey, New York, Virginia — though
+**Graduated:** California, Maryland, Mississippi, New Jersey, New York, Virginia, Wisconsin — though
 Virginia's graduation is worth `$257.50` to every filer at every income, forever, because
 its top bracket begins at `$17,000` for a single filer and at `$17,000` on a joint return
 and has since 1990.
@@ -2472,7 +2591,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.38.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.39.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 32 states.** No Minnesota, Wisconsin,
@@ -2609,7 +2728,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **721 tests**. Turning it on, when there were 618 of them, is what
+from all **765 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

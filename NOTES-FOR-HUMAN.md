@@ -13,10 +13,78 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 42 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.38.0, `us-tax-mcp` v0.41.0. 1,302 tests, all passing, and the
-differential grid against PolicyEngine-US now covers **989 households, 6,923
-figures, 6,425 agreeing to the dollar and ZERO unexplained differences**.
+**As of Day 43 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.39.0, `us-tax-mcp` v0.42.0. 1,346 tests, all passing, and the
+differential grid against PolicyEngine-US now covers **1,056 households, 7,392
+figures, 6,849 agreeing to the dollar and ZERO unexplained differences**.
+
+Day 43 added **Wisconsin**, the twenty-fourth taxing state, and it is the one
+where the published rate table is furthest from the tax. Wisconsin withdraws its
+standard deduction **as a percentage of income** rather than in steps — 12% for
+a single filer, 19.778% on a joint return, 22.515% for a head of household — so
+inside the phase-out band the filer's marginal rate is the statutory rate
+MULTIPLIED by one plus the withdrawal rate. A joint filer in the 5.3% bracket
+pays **6.348%** on their next dollar. **Wisconsin's published top rate is 7.65%
+and the highest marginal rate an ordinary Wisconsin wage earner ever meets is
+6.348%, at `$69,260` of joint taxable income — 374,000 dollars of joint income
+below where the 7.65% begins.**
+
+And the rate is **not monotonic**. The withdrawal ends, and the statutory rate on
+the far side is lower than the inflated rate on this side, so a Wisconsin filer's
+marginal rate FALLS as income rises. A head of household's falls twice: 3.500%,
+4.290%, 5.391%, **4.930%**, 5.936%, **5.300%**, 7.650%. No other state in this
+package has a marginal rate that turns downward at all.
+
+**The thing worth a retiree's attention is four months old.** 2025 Act 15 created
+a subtraction of `$24,000` of retirement income at age 67 (`$48,000` where both
+spouses on a joint return qualify) — and a filer who claims it **forfeits every
+credit on the Wisconsin return**, including the earned income credit and the
+homestead credit. It is an election and not a limitation, so this engine computes
+the whole return both ways and returns the lower tax, which is what the Schedule
+SB instructions tell the filer to do. Measured, the crossover for a couple at 68
+with `$80,000` of other income and `$4,000` of property tax is **`$5,692.35`** of
+pension: below it the credits are worth more, above it the subtraction is, and
+the whole `$300` school property tax credit goes at once on the dollar that tips
+it. On the calculator's retired-couple ranking Wisconsin is now the thirteenth
+state to pass Utah and **the first to do it by changing its own law** rather than
+by being modelled.
+
+**The grid found two defects in the reference model and none in this one**, which
+is the first time that has happened on a new state. PolicyEngine-US carries
+Wisconsin's 2025 middle bracket as the 2025 Act 15 figure *indexed a year early*,
+and uprates Wisconsin's unpublished 2026 standard deduction by the **federal**
+inflation index where Wisconsin indexes on its own — and its own 2026 bracket
+figures, which it read from the Department of Revenue, imply the Wisconsin index.
+The two halves of its 2026 Wisconsin disagree with each other.
+
+**And a 2026 figure nobody has published is now KNOWN rather than carried
+forward.** Wisconsin publishes its rate schedules a year early and its standard
+deduction table a year late. Because the top bracket is indexed off a statutory
+base of `$225,000`, a published threshold pins the indexation factor to 7.5 parts
+per million — which determines four of the seven unpublished 2026 figures
+outright and narrows the other three to two adjacent multiples of `$10`. Those
+three are flagged, each with its interval, both candidates and the bound: **at
+most 77 cents of tax.** It is the narrowest provisional flag this package has
+ever carried, and `test/wisconsin-indexation.test.js` proves the method by
+predicting the published 2025 schedule from 2021–2024 alone.
+
+### One Wisconsin question I could not settle, and it is not a figure
+
+Wisconsin Form 1 may not offer the **qualifying surviving spouse** filing status
+at all. The federal 1040 has five statuses; my reading is that Form 1 prints four
+— single, married filing joint, married filing separate, head of household — and
+that a filer who qualifies federally as a surviving spouse files in Wisconsin as
+single or as head of household. I could not confirm it: `revenue.wi.gov` is
+blocked from this sandbox and no search result I could get quotes the Form 1
+filing-status section.
+
+Both this package and PolicyEngine-US currently put that status on Wisconsin's
+**joint** rate schedule, which is the usual state rule and may simply be wrong
+here. If it is wrong it is worth real money — the joint brackets are a third
+wider than the single ones — so it is recorded rather than quietly assumed, and
+it is the first item on tomorrow's worklist. **Nothing for you to do**, unless you
+happen to have the 2025 Wisconsin Form 1 instructions to hand, in which case the
+filing-status page settles it in one line.
 
 Day 42 added **Oregon**, the twenty-third taxing state. The headline is a
 composition rather than a figure: **Oregon's top 9.9% rate nominally begins at
@@ -156,8 +224,8 @@ needs you.
 Nothing below has changed, but Day 39 produced a figure that bears on what this
 repository is worth and I would rather you had it than not.
 
-**This package covers twenty-three of the forty-two jurisdictions that tax income.**
-The missing nineteen are Minnesota, Wisconsin, South Carolina,
+**This package covers twenty-four of the forty-two jurisdictions that tax income.**
+The missing eighteen are Minnesota, South Carolina,
 Louisiana, Oklahoma, Iowa, Rhode Island, Vermont, Arkansas, Kansas, Nebraska,
 New Mexico, Montana, Maine, Delaware, Hawaii, North Dakota, West Virginia and the
 District of Columbia. That list is no longer prose: it is a declared, exported
@@ -171,11 +239,12 @@ Every day of the last five weeks has made the twenty states more right, which is
 real and is the moat — but a nineteen-state engine and a twenty-state engine are
 the same product, and a forty-two-state one is a different one.
 
-Connecticut, Alabama, Missouri and Oregon each took one day, including their own
-test file, their provenance entries and the defects they exposed in the test
-machinery. Four states in four days. So the remaining nineteen are **under four
-weeks of runs** at the current standard — and the estimate has got *better* every
-time it has been restated, which is the opposite of how these usually go.
+Connecticut, Alabama, Missouri, Oregon and Wisconsin each took one day, including
+their own test file, their provenance entries and the defects they exposed in the
+test machinery. Five states in five days. So the remaining eighteen are **under
+three and a half weeks of runs** at the current standard — and the estimate has
+got *better* every time it has been restated, which is the opposite of how these
+usually go.
 
 The reason it keeps improving is worth one line, because it is the thing that
 would decide whether to keep going: the states have started composing. Alabama
@@ -183,6 +252,14 @@ needed a new rule for the federal tax deduction, Missouri needed one more field
 on it, and Oregon needed two — the machinery is being extended rather than
 rebuilt, and each new state audits the ones before it. Oregon found a defect in
 the exemption-credit rule that had been there since Day 30.
+
+Day 43 is worth one more line on this, because it is the first time the new state
+found defects in the thing this package is checked against rather than in itself.
+Wisconsin produced zero defects in `us-state-tax` and two in PolicyEngine-US, and
+both are indexation errors on 2026 figures. **The moat is starting to point
+outward**: a package that has read the agency documents and done the interval
+arithmetic can now say, with a test, which of two models is right about a figure
+neither of them can look up.
 
 Nothing for you to do. It is a number you would want if anyone ever asks you what
 this is worth.
