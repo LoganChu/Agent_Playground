@@ -119,6 +119,19 @@ test('every column completes in exactly twenty steps, and the separate one does 
   // claims, because a loop is the only version that can contradict the claim.
   const def = getStateDefinition('AL', 2026);
   const { maximum, min, threshold, increment, reduction } = def.deduction;
+  // The column a status is READ against, which is not always the column named
+  // after it: Alabama has no qualifying surviving spouse status and files such a
+  // filer as single (§ 40-18-1 defines head of family as 26 U.S.C. § 2(b), which
+  // excludes a surviving spouse, and § 40-18-5 gives the joint schedule to
+  // "married persons filing a joint return" only). So the surviving-spouse cell
+  // of every Alabama table is derived from the joint one by `byStatus()` and then
+  // never read, and this loop asks the engine for the answer rather than the
+  // table — which is why it caught the change in v0.40.0 instead of passing
+  // through it. See `surviving-spouse-column.test.js`.
+  const column = (status) =>
+    status === 'qualifyingSurvivingSpouse' && def.survivingSpouseFilesAs !== undefined
+      ? def.survivingSpouseFilesAs.filesAs
+      : status;
   for (const status of FILING_STATUSES) {
     const range = maximum[status] - min[status];
     const steps = Math.ceil(range / reduction[status]);
@@ -127,10 +140,11 @@ test('every column completes in exactly twenty steps, and the separate one does 
     // and $35,500 ($17,750 separate) is the figure the published chart ends at.
     const floorAt = threshold[status] + 20 * increment[status];
     assert.equal(floorAt, status === 'marriedFilingSeparately' ? 17_750 : 35_500);
-    money(al({ agi: floorAt, filingStatus: status }).deduction, min[status], `${status} floor`);
+    const read = column(status);
+    money(al({ agi: floorAt, filingStatus: status }).deduction, min[read], `${status} floor`);
     money(
-      al({ agi: floorAt - increment[status], filingStatus: status }).deduction,
-      Math.max(min[status], maximum[status] - 19 * reduction[status]),
+      al({ agi: floorAt - increment[read], filingStatus: status }).deduction,
+      Math.max(min[read], maximum[read] - 19 * reduction[read]),
       `${status} nineteenth step`,
     );
   }

@@ -532,7 +532,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.39.0/us-state-tax-0.39.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.40.0/us-state-tax-0.40.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2174,6 +2174,129 @@ for a spouse with no income. And a claimant who is *separated* — living apart 
 during the last six months, or under a written agreement — ticks the Unmarried oval on line
 19a and genuinely is one claimant on their own income, whatever the spouse figure says.
 
+## Which column a widow is read against, and the four states that got it wrong (v0.40.0)
+
+The section above is about how many **people** a surviving spouse's return has. This one is
+the other half of the same question and it went unasked for seventeen more days: **which
+column of the state's own table that one person is read against.**
+
+`byStatus()` defaults the surviving-spouse column to the **joint** figure. That is right
+wherever a state has the status — § 63(c)(2)(A) and every state that copied it put a
+surviving spouse on the joint schedule, and nine of the states here say so in print, three
+of them naming the joint figure outright. It is silently wrong wherever the state does
+**not** have the status, and it is wrong in the flattering direction: a widow handed a
+married couple's brackets, deduction and exemptions on one person's income.
+
+Four states here have no such status, and all four were taking the joint column:
+
+| | files as | what it was worth |
+| --- | --- | --- |
+| **Wisconsin** | head of household | up to **`$2,861.08`** at `$450,000`; `$673.33` at `$90,000` |
+| **Alabama** | single | **`$240`** |
+| **Mississippi** | head of family | **`$208`** |
+| **Arizona** | head of household | **`$201.25`**, and not by a column — see below |
+
+### The deciding words are not the ones you would guess
+
+A state with no surviving-spouse status is **not** a state that files her as single, and
+**not** a state that files her as head of household. It is whichever its own instruction
+says — and the instruction turns on one phrase. Whether the head-of-household box reads
+
+- *"if you qualify to file as head of household on your federal return"*, or
+- *"…as head of household **or qualifying surviving spouse** on your federal return"*.
+
+The first **denies** her the box. 26 U.S.C. § 2(b)(1) admits only an individual who *"is not
+married at the close of his taxable year, **is not a surviving spouse** (as defined in
+subsection (a))"* — so a federal qualifying surviving spouse does not qualify federally as a
+head of household, and a state that incorporates the federal test by reference has excluded
+her by reference too. The second **grants** it, because the state has named her status as an
+alternative qualification.
+
+Both shapes are in this package and they give opposite answers:
+
+| | what the state says | so |
+| --- | --- | --- |
+| **Wisconsin** | Form 1: a federal qualifying surviving spouse *"may file your Wisconsin return as head of household"*; the DOR filing-status FAQ puts *"head of household **or qualifying surviving spouse with dependent child**"* in the test itself | head of household |
+| **Arizona** | Form 140, the head-of-household box: *"you may file as head of household … only if … you qualify to file as head of household on your federal return, **or** you qualify to file as a qualifying widow or widower on your federal return"* | head of household |
+| **Mississippi** | Miss. Code § 27-7-21(d) writes its own definition — *"an individual who is **single**, or married but not living with his spouse for the entire taxable year, who maintains a household …"* — and never cross-references § 2(b) at all, so the exclusion never arrives | head of family |
+| **Alabama** | Ala. Code § 40-18-1: head of family *"has the same meaning as … head of household as defined in 26 U.S.C. § 2(b)"*, and nothing adds her back. § 40-18-5 writes one schedule for single persons, heads of family and separate returns and one for a joint return, with no surviving-spouse grant of the kind § 1(a) carries — *"and every surviving spouse"* | single |
+| **Massachusetts** | Form 1 ties its head-of-household box to qualifying for the status *federally*, with no alternative named — so § 2(b)(1) excludes her | single (unchanged) |
+
+Nine states are in the other group, and the engine translates nothing in them: California,
+Colorado, Connecticut, Idaho, Missouri, New York, North Carolina, Oregon and Utah all carry
+the status on their own return. Connecticut's instructions put its zero-tax threshold at
+`$24,000` and New York's its standard deduction at `$16,050` — **the married-filing-jointly
+figures, in so many words**, which is the strongest form this evidence comes in.
+
+### Arizona is the one where a column swap cannot finish the job
+
+Arizona files her as a head of household, and Arizona's standard deduction **is** the
+federal one (A.R.S. § 43-1041(A)) — which § 63(c)(2)(A) sets at the **joint** amount for a
+surviving spouse. So the two halves of her Arizona return are chosen by two different
+governments and they disagree. The instruction booklet prints an amount against the *box*;
+the statute points at *§ 63*. **Nobody has read which governs**, the gap is 2.5% of `$8,050`
+on the 2026 federal figures, and the engine says so in a note rather than picking a side:
+it uses whatever `federal.deduction` the caller passed, so a caller who supplied the
+surviving-spouse figure gets the second reading and one who supplied the head-of-household
+figure gets the first.
+
+**THE RULE: a column swap reaches every figure the state CHOSE and none of the figures it
+BORROWED.** Arizona is the only state here that is both — a federal cross-reference *and* a
+status a widow has to be moved across — which is why it is the only one with the question.
+
+### The translation is one line, and the invariant is the product
+
+`survivingSpouseFilesAs` on the state definition rewrites the status **once**, at the entry
+point, before any by-status table is read. The alternative was a
+`qualifyingSurvivingSpouse:` override on every table in every file, and Wisconsin alone has
+eight. The result still reports the status the **caller** asked about, with a note naming
+the column it came off and pricing what the joint default would have been worth:
+
+```js
+stateIncomeTax({ state: 'WI', year: 2026, filingStatus: 'qualifyingSurvivingSpouse',
+                 federal: { adjustedGrossIncome: 90_000, taxableIncome: 65_850,
+                            deduction: 24_150, deductionKind: 'standard' },
+                 dependents: 1, dependentAges: [10] });
+// .filingStatus -> 'qualifyingSurvivingSpouse'   (the question is not changed)
+// .totalTax     -> 3796.82                        (was 3123.49)
+// .notes        -> "Wisconsin HAS NO QUALIFYING SURVIVING SPOUSE FILING STATUS. This
+//                   return was computed as a head of household … Carrying the federal
+//                   status straight across to the JOINT column instead … would have
+//                   UNDERSTATED this return by $673.33."
+```
+
+`test/surviving-spouse-column.test.js` is the part that makes it stay right, and it draws
+the line where the answer becomes **observable**: if no household in the 30-household
+battery can tell a state's surviving-spouse column from both its single and its
+head-of-household one, nothing in the state turns on the question and a citation would be
+decoration. The moment a state acquires a figure that distinguishes them, the test demands
+either a declaration or an entry in the ledger of states that offer the status, and it names
+the state, the household and both figures. Checked by deleting Wisconsin's declaration and
+watching it report exactly the finding that had been invisible for forty-three days.
+
+**THE RULE: an invariant should fire exactly when the thing it protects becomes measurable
+— which, for a by-status column, is when some household can tell two columns apart.**
+
+And the sensitivity sweep in `status-sweep.test.js` proves the translation is *complete*
+from the other side: the surviving-spouse cell of all four states is now unreachable **by
+construction**, so a cell whose perturbation moved a widow's answer would mean a table the
+translation missed. Two independent proofs of the same thing, pointing in opposite
+directions.
+
+### The method note, which cost three test failures to learn
+
+The first version of that test ran the household battery once per filing status. It reported
+Arizona as a state whose surviving-spouse column was observable, unexplained *and*
+untranslated — and Arizona was none of those things. `household()` builds the federal
+standard deduction **from the filing status it is given**, correctly, because that is what a
+federal return does. So running the battery once per status varies two things at once, and in
+a state whose own deduction is the federal one every difference came through the federal
+basis and none of it through any Arizona figure.
+
+**THE RULE: a sweep that changes the filing status also changes the federal basis, so it
+measures the two together — and a question about which COLUMN of a state's table is read has
+to hold everything that is not the column still.**
+
 ## Provisional figures are labelled, and now say what would settle them
 
 Most state parameters are indexed for inflation and published late in the tax year. Six of
@@ -2432,7 +2555,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **630** notes every
+`test/notes.test.js` pins the first 72 characters of all **632** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2591,7 +2714,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.39.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.40.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **Only 32 states.** No Minnesota, Wisconsin,
@@ -2728,7 +2851,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **766 tests**. Turning it on, when there were 618 of them, is what
+from all **773 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

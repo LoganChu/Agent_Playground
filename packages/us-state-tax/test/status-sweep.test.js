@@ -278,21 +278,56 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
           // an in-place write and the restore is a `finally` — a definition left
           // wrong by a thrown assertion would corrupt every test after this one.
           let moved = false;
+          // Tracked separately from `moved`, and the reason is ALIASING rather
+          // than anything about widows. `byStatus()` writes
+          // `qualifyingSurvivingSpouse: v.qualifyingSurvivingSpouse ?? v.joint`,
+          // so where the cell is an array or an object the two statuses hold the
+          // SAME REFERENCE and an in-place write to one is a write to both. The
+          // perturbation below therefore moves the JOINT column's answer, which
+          // says nothing about whether the surviving-spouse column was read.
+          // Only a household filed as a surviving spouse can answer that.
+          let movedForWidow = false;
           try {
             setAt(table, at, leaf.value * 2 + 1);
-            outer: for (const filingStatus of FILING_STATUSES) {
+            for (const filingStatus of FILING_STATUSES) {
               for (const name of HOUSEHOLDS) {
                 const key = `${year}|${state}|${filingStatus}|${name}`;
                 if (digest(stateIncomeTax(household(name, state, year, filingStatus))).join(',') !== pinned.get(key)) {
                   moved = true;
-                  break outer;
+                  if (filingStatus === 'qualifyingSurvivingSpouse') movedForWidow = true;
                 }
+                if (moved && movedForWidow) break;
               }
+              if (moved && movedForWidow) break;
             }
           } finally {
             setAt(table, at, leaf.value);
           }
           checked++;
+          // The surviving-spouse cell of a state that HAS NO SUCH STATUS, which is
+          // unreachable by construction rather than by a hand-written exemption:
+          // `byStatus()` derives the cell from the joint one and the engine
+          // translates the status before any table is read, so nothing can reach
+          // it. Four states, both years — Alabama, Arizona, Mississippi and
+          // Wisconsin; see `surviving-spouse-column.test.js`.
+          //
+          // Asserted the other way round from the ledger below, and that is the
+          // point of putting it here: a cell that MOVED would mean the translation
+          // missed a table, so this is a second and independent proof that it
+          // reaches all of them. The first is that the widow's answer equals the
+          // answer in the column the state sends her to, household by household.
+          if (status === 'qualifyingSurvivingSpouse' && def.survivingSpouseFilesAs !== undefined) {
+            exempt.push(where);
+            assert.equal(
+              movedForWidow,
+              false,
+              `${where}: ${state} files a surviving spouse as ` +
+                `${def.survivingSpouseFilesAs.filesAs}, so nothing should read this cell — and ` +
+                `a household's answer moved when it changed, which means the status translation ` +
+                `is not reaching every by-status table`,
+            );
+            continue;
+          }
           const allowed = NOT_REACHABLE_BY_ANY_HOUSEHOLD[path];
           if (allowed?.states.includes(state)) {
             exempt.push(where);
@@ -333,5 +368,9 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // not falsify it and it would have gone on being quoted while it drifted. The
   // two numbers now are both measured by the two assertions above and below.
   assert.equal(inside, 3_012, 'numbers inside those cells, 114 of them Wisconsin\'s');
-  assert.equal(exempt.length, 30, 'cells the engine cannot reach, all of them documented');
+  // 30 documented in NOT_REACHABLE_BY_ANY_HOUSEHOLD, plus 28 that are the
+  // surviving-spouse cells of the four states which have no surviving-spouse
+  // status — exempt by construction rather than by a ledger entry, and asserted
+  // in the opposite direction. See the branch above.
+  assert.equal(exempt.length, 58, 'cells the engine cannot reach, all of them documented');
 });

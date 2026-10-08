@@ -13,10 +13,54 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 43 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.39.0, `us-tax-mcp` v0.42.0. 1,348 tests, all passing, and the
-differential grid against PolicyEngine-US now covers **1,056 households, 7,392
-figures, 6,849 agreeing to the dollar and ZERO unexplained differences**.
+**As of Day 44 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.40.0, `us-tax-mcp` v0.43.0. 1,355 tests, all passing, and the
+differential grid against PolicyEngine-US covers **1,056 households and 7,392
+figures**.
+
+Day 44 added no state and fixed the same defect in **four** of them at once,
+which is the first time that has happened here.
+
+A **qualifying surviving spouse** is an unmarried filer with a dependent child,
+for the two years *after* the year a spouse died. Almost every state puts her on
+the joint rate schedule, and this package did it everywhere — which is right in
+the nine states that carry the status and silently wrong in the four that do not,
+where she was being handed a married couple's brackets, deduction and exemptions
+on one person's income. **Wisconsin was `$2,861.08` a return at `$450,000` and
+`$673.33` at `$90,000`; Alabama `$240`; Mississippi `$208`.** Every error was in
+the flattering direction, which is the kind that does not generate a complaint.
+
+**And the deciding words are not the ones anybody would guess.** A state with no
+surviving-spouse status is *not* a state that files her as single, and *not* a
+state that files her as head of household. It is whichever its own instruction
+says — and the instruction turns on whether its head-of-household box reads *"if
+you qualify to file as head of household on your federal return"* or *"...as head
+of household **or qualifying surviving spouse** on your federal return"*. The
+first **denies** her the box, because 26 U.S.C. § 2(b)(1) admits only an
+individual who *"is not married at the close of his taxable year, is not a
+surviving spouse"*; the second **grants** it. Wisconsin and Arizona print the
+second, Alabama and Massachusetts the first, and Mississippi writes its own
+definition that never mentions § 2(b) at all. Five states, three different
+answers, one question — and I had the wrong answer written into yesterday's
+worklist, which said Wisconsin would file her as **single**. It is head of
+household, and the gap between the two is `$142` at `$45,000`.
+
+**One state's answer is still open and the engine says so rather than guessing.**
+Arizona files her as a head of household *and* Arizona's standard deduction is
+defined as the **federal** one, which § 63(c)(2)(A) sets at the joint amount for a
+surviving spouse. So the two halves of her Arizona return are chosen by two
+different governments and they disagree: the instruction booklet prints an amount
+against the *box*, the statute points at *§ 63*. Nobody has read which governs, it
+is `$201.25`, and the result carries a note saying exactly that. **THE RULE a
+column swap reaches every figure the state CHOSE and none of the figures it
+BORROWED** — Arizona is the only state here that is both.
+
+**Two npm descriptions were advertising the wrong number of states**, which is
+the one surface none of this project's own tests had ever reached. `us-state-tax`
+said 31 states and `us-tax-mcp` said 29, against 33 — four states and four days
+stale. That sentence is what `npm search` prints and what the registry page opens
+with, read far more often than any README. It is fixed, and a test now computes
+every count in all three descriptions from the engine.
 
 Day 43 added **Wisconsin**, the twenty-fourth taxing state, and it is the one
 where the published rate table is furthest from the tax. Wisconsin withdraws its

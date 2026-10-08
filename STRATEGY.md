@@ -3,10 +3,11 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-07 (Day 43). **The bet is unchanged, and Day 43 is the
-first evidence that it has started paying in a direction I had not planned for:
-the new state found two defects in the model this package is CHECKED AGAINST and
-none in itself.** The registry was
+Last reviewed: 2026-10-08 (Day 44). **The bet is unchanged, and Days 43 and 44 are the
+first evidence that it has started paying in two directions I had not planned for:
+Day 43's new state found two defects in the model this package is CHECKED AGAINST
+and none in itself, and Day 44 found one defect in FOUR of this package's own
+states at once by asking a single question of all of them.** The registry was
 re-read on Day 35 and the one package that moved is read out below under "Day 35";
 Day 36 and Day 37 went after the differentiator itself rather than a competitor.
 Day 36 found the federal package's first advertised claim — every figure cited to
@@ -17,10 +18,19 @@ which only 148 were flagged, and nothing saying whether the other 801 were fixed
 law or simply unread. Day 38 closed the hole that all of that work is useless against: an
 input key the engine does not read. Day 39 added the twentieth taxing state, Day 40 the
 twenty-first, Day 41 the twenty-second, Day 42 the twenty-third and Day 43 the
-twenty-fourth.
+twenty-fourth. **Day 44 added no state and is the clearest return on the bet so far:
+it fixed the same defect in FOUR states at once, found by asking one question of all
+twenty-four rather than by reading a twenty-fifth.** `byStatus()` had been handing a
+qualifying surviving spouse the JOINT column in every state, which is right in the
+nine that carry the status and silently wrong — in the flattering direction — in the
+four that do not. Wisconsin was `$2,861.08` a return at `$450,000`. **The depth bet
+pays twice: once when a state is added, and again when a question asked across the
+states already in finds a class of error rather than an instance** — and a question
+that could only be asked because every state here is a DECLARATION rather than a
+procedure, so one sweep can read all twenty-four.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.39.0 and `packages/us-tax-mcp` is v0.42.0.
-**1,348 tests**, a 1,056-household differential grid agreeing on 6,849 of 7,392 figures with
+`packages/us-state-tax` is v0.40.0 and `packages/us-tax-mcp` is v0.43.0.
+**1,355 tests**, a 1,056-household differential grid agreeing on 6,849 of 7,392 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
 mutants, 0 survivors) and the state engine's rule parameters at **99.6%** (1357

@@ -27,6 +27,23 @@ function arizona(year: number): StateIncomeTaxDefinition {
     code: 'AZ',
     subtractsTaxableSocialSecurity: true,
     name: 'Arizona',
+    // Arizona has no qualifying surviving spouse status and sends her to HEAD OF
+    // HOUSEHOLD, by the same words Wisconsin uses. Worth $201.25 against the
+    // joint column this package used before v0.40.0.
+    survivingSpouseFilesAs: {
+      filesAs: 'headOfHousehold',
+      cite:
+        '2025 Form 140 instructions, the head-of-household box: "you may file as head of household on your Arizona ' +
+        'return only if one of the following applies: you qualify to file as head of household ' +
+        'on your federal return, OR you qualify to file as a qualifying widow or widower on ' +
+        'your federal return" — the same sentence is in the Form 140NR instructions. The SINGLE ' +
+        'box is written for the filer who "was widowed before January 1 of the tax year, ' +
+        'did not remarry, AND does not qualify to file as a qualifying widow or widower with ' +
+        'dependent children on the federal return", so the two boxes partition the widows ' +
+        'between them and a federal qualifying surviving spouse is on the head-of-household ' +
+        'side of the line. Form 140 has four statuses and none of them is hers: married filing ' +
+        'joint, married filing separate, head of household, single.',
+    },
     year,
     status: 'published',
     base: 'federalAdjustedGrossIncome',
@@ -43,6 +60,7 @@ function arizona(year: number): StateIncomeTaxDefinition {
       'Arizona repealed its personal and dependent exemptions in 2019 and replaced them with a dependent tax credit, which this package does not compute. An Arizona return with dependents computed here will be too high by $100 per dependent under 17 and $25 per other dependent, subject to a phase-out.',
       'Arizona allows an increased standard deduction of 25% of charitable contributions for filers who do not itemize (A.R.S. § 43-1041(G)). Not modelled — supply it through `subtractions` if it applies.',
       'Arizona itemized deductions differ from federal ones, most importantly by disallowing state income taxes. Passing a federal itemized deduction through unchanged overstates the Arizona deduction.',
+      'ARIZONA IS THE ONE STATE HERE WHERE TRANSLATING A SURVIVING SPOUSE\'S FILING STATUS CANNOT FINISH THE JOB, and the reason is the note above it rather than anything about widows: Arizona files her as a head of household (box 5), and Arizona\'s standard deduction is the FEDERAL one, which § 63(c)(2)(A) sets at the JOINT amount for a surviving spouse. So the two halves of her Arizona return are chosen by two different governments and they disagree. The Form 140A instructions print one amount against each BOX, head of household among them, which reads as the box governing; A.R.S. § 43-1041(A) points at § 63, which reads as the federal status governing. NOBODY HAS READ WHICH, and the gap is 2.5% of $8,050 on the 2026 federal figures — $201.25. This package uses whatever `federal.deduction` the caller passes, so a caller who supplied the surviving-spouse figure gets the second reading and a caller who supplied the head-of-household figure gets the first; the result says which in a note. It is the only state in this package whose deduction is a federal cross-reference AND whose own status table a surviving spouse has to be moved across, which is why no other state has the question. A SECOND QUESTION CAME OUT OF THE SAME PARAGRAPH AND IS ALSO UNREAD: one secondary reproduction of the 2025 Form 140A instructions shows $23,650 against box 5 where the 2025 federal head-of-household standard deduction is $23,625 — $25 apart. If that figure is really what Arizona prints then `kind: \'federal\'` is wrong by $25 of deduction for every Arizona head of household, which is 62.5 cents of tax. It is recorded here and not acted on because one garbled extraction of a PDF is not a source, and the three other figures in the same list ($31,500 and $15,750) agree with the federal ones exactly.',
     ],
     citations: AZ_CITATIONS,
   };
@@ -831,6 +849,27 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
     code: 'MS',
     subtractsTaxableSocialSecurity: true,
     name: 'Mississippi',
+    // Mississippi has no qualifying surviving spouse status and reaches HEAD OF
+    // FAMILY by a route neither Arizona nor Alabama takes: its own definition,
+    // which never mentions federal law and so never inherits § 2(b)(1)'s
+    // exclusion of a surviving spouse. Worth $208 against the joint column this
+    // package used before v0.40.0.
+    survivingSpouseFilesAs: {
+      filesAs: 'headOfHousehold',
+      cite:
+        'Miss. Code § 27-7-21(d) defines a head of family as "an individual who is SINGLE, or ' +
+        'married but not living with his spouse for the entire taxable year, who maintains a ' +
+        'household which constitutes the principal place of abode of himself and one or more ' +
+        'individuals who are dependents under the provisions of Section 152(a)" — the dependent ' +
+        'test is a federal cross-reference and the UNMARRIED test is not, so § 2(b)(1)\'s "is ' +
+        'not a surviving spouse" never arrives. Form 89-350 states the same test in four words: ' +
+        '"single and have a dependent living in the home". Form 80-105\'s five statuses are ' +
+        'single, married filing joint or combined, MARRIED - SPOUSE DIED IN TAX YEAR, married ' +
+        'filing separate and head of family; the third is for the year of death only -- the 2025 ' +
+        'instructions give it to a filer whose spouse died in 2025 and who did not remarry in ' +
+        '2025 -- which is the year a federal qualifying surviving spouse is NOT one, so it is ' +
+        'not a route to the $12,000 column.',
+    },
     year,
     status: 'published',
     base: 'federalAdjustedGrossIncome',

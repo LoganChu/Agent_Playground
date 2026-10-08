@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.42.0/us-tax-mcp-0.42.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.43.0/us-tax-mcp-0.43.0.tgz"
       ]
     }
   }
@@ -155,6 +155,45 @@ tool says in its own output rather than only here.
 ---
 
 ## State tax: the rate is the easy part
+
+**New in 0.43.0 — a widow is read against a COLUMN, and four states here have no
+column for her.** A **qualifying surviving spouse** is an unmarried filer with a
+dependent child, for the two years *after* the year a spouse died. Almost every
+state puts her on the joint schedule, and this server did that everywhere —
+which is right in the nine states that carry the status and silently wrong, in
+the flattering direction, in the four that do not: **Wisconsin** (`$2,861.08`
+at `$450,000`, `$673.33` at `$90,000`), **Alabama** (`$240`), **Mississippi**
+(`$208`) and **Arizona**.
+
+**And the deciding words are not the ones a model would guess.** A state with no
+surviving-spouse status is *not* a state that files her as single, and *not* a
+state that files her as head of household. It is whichever its own instruction
+says, and the instruction turns on whether the head-of-household box reads *"if
+you qualify to file as head of household on your federal return"* or *"…as head
+of household **or qualifying surviving spouse** on your federal return"*. The
+first **denies** her the box, because 26 U.S.C. § 2(b)(1) admits only an
+individual who *"is not married at the close of his taxable year, **is not a
+surviving spouse**"* — so she does not qualify federally as a head of household,
+and a state that incorporates the federal test by reference has excluded her by
+reference too. The second **grants** it. Wisconsin and Arizona print the second;
+Alabama and Massachusetts the first; Mississippi writes its own definition and
+never cross-references § 2(b) at all. Five states, three different answers, one
+question.
+
+If a user asks what a widow owes in a state, this server now computes it off the
+column that state actually uses and **says which one in a note**, with what the
+joint default would have been worth. Do not tell a user Wisconsin has a
+qualifying surviving spouse rate schedule; it has none, and the Form 1
+instructions send her to head of household.
+
+**Arizona is the one where the answer is still open and the server says so.**
+Arizona files her as a head of household and Arizona's standard deduction *is*
+the federal one, which § 63(c)(2)(A) sets at the **joint** amount for a surviving
+spouse. The booklet prints an amount against the *box*; the statute points at
+*§ 63*. Nobody has read which governs, it is worth `$201.25` on the 2026 figures,
+and the server uses whatever federal deduction it was given rather than picking a
+side.
+
 
 **New in 0.28.0 — three carried-forward figures paid off, and one that never
 could be.** Every state-year here says whether its figures are `published` or
@@ -898,7 +937,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **396 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **766 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **773 tests**, every state figure cited to its statute.
 This package adds **169 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the

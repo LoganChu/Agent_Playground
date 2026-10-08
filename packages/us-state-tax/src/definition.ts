@@ -3444,8 +3444,77 @@ export interface PlanTypeRetirementRule {
   readonly definedContributionCite: string;
 }
 
+/**
+ * Which of a state's OWN filing statuses a filer whose FEDERAL status is
+ * qualifying surviving spouse uses, in a state that does not offer the status.
+ *
+ * ## Why this is a field and not a default
+ *
+ * {@link byStatus} defaults the surviving-spouse column to the JOINT figure,
+ * which is right wherever the state has the status, because § 63(c)(2)(A) and
+ * every state that copied it put a surviving spouse on the joint schedule. It
+ * is silently wrong wherever the state does NOT have the status, and the error
+ * is in the flattering direction: a widow is handed a married couple's
+ * brackets, deduction and exemptions on one person's income.
+ *
+ * Day 26 found the same assumption in a helper that counted PEOPLE and fixed it
+ * across fourteen call sites (`livingFilerCount`). This is the other half: not
+ * how many filers the return has, but **which column of the state's own table
+ * it is read against**, and no count can answer that.
+ *
+ * ## The deciding words, which are not the ones you would expect
+ *
+ * A state with no surviving-spouse status is NOT a state that files her as
+ * single, and NOT a state that files her as head of household. It is whichever
+ * its own instruction says, and the instruction turns on one phrase — whether
+ * the head-of-household box reads
+ *
+ * - *"if you qualify to file as head of household on your federal return"*, or
+ * - *"...as head of household **or qualifying surviving spouse** on your
+ *   federal return"*.
+ *
+ * The first DENIES her the box, because 26 U.S.C. § 2(b)(1) defines a head of
+ * household as an individual who "is not a surviving spouse (as defined in
+ * subsection (a))" — so a federal qualifying surviving spouse does not qualify
+ * federally as a head of household, and a state that incorporates the federal
+ * test by reference has excluded her by reference too. The second GRANTS it,
+ * because the state named her status as an alternative qualification.
+ *
+ * Both shapes are in this package, and they are two states apart:
+ *
+ * | state | the instruction | files as |
+ * | --- | --- | --- |
+ * | Wisconsin | head of household **or qualifying surviving spouse** | head of household |
+ * | Arizona | head of household **or qualifying widow or widower** | head of household |
+ * | Mississippi | its own definition, with no federal cross-reference at all | head of family |
+ * | Alabama | head of family **is** § 2(b), and nothing is added | single |
+ * | Massachusetts | head of household, if you qualify federally | single |
+ *
+ * **THE RULE: a state that has no column for a filer has still told you which
+ * of its columns she uses, and reading "no status" as "single" is a guess that
+ * is wrong in two of this package's four cases.**
+ */
+export interface SurvivingSpouseStatusRule {
+  /**
+   * The state's own filing status a federal qualifying surviving spouse files
+   * under. Every by-status table in the definition is read against this column
+   * instead, and the result still reports the status the caller supplied.
+   */
+  readonly filesAs: FilingStatus;
+  /** What was read, and the words it turns on. */
+  readonly cite: string;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
+  /**
+   * The state has no qualifying surviving spouse status, and this is the
+   * status of its own that such a filer uses — see
+   * {@link SurvivingSpouseStatusRule}. Absent means the state offers the
+   * status, in which case the surviving-spouse column of every table is the
+   * state's own and nothing is translated.
+   */
+  readonly survivingSpouseFilesAs?: SurvivingSpouseStatusRule;
   readonly name: string;
   readonly year: number;
   readonly status: ParameterStatus;

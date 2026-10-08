@@ -404,6 +404,26 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
   return {
     code: 'WI',
     name: 'Wisconsin',
+    // Wisconsin has no qualifying surviving spouse status, and the status it
+    // sends her to is HEAD OF HOUSEHOLD rather than single — which is the
+    // opposite of the two other states in this package without the status, and
+    // is worth up to $2,861 against the joint column this package used before
+    // v0.40.0.
+    survivingSpouseFilesAs: {
+      filesAs: 'headOfHousehold',
+      cite:
+        '2025 Form 1 instructions (I-111): a filer who qualifies for the FEDERAL qualifying ' +
+        'surviving spouse status "may file your Wisconsin return as head of household", and ' +
+        '"if your spouse died before 2025 and you have not remarried, you must file as single ' +
+        'or, if qualified, as head of household"; the Department of Revenue filing-status FAQ ' +
+        'adds the same words to the head-of-household test itself — "you must qualify to file ' +
+        'your federal income tax return using the head of household OR QUALIFYING SURVIVING ' +
+        'SPOUSE WITH DEPENDENT CHILD filing status". A federal qualifying surviving spouse has ' +
+        'a dependent child and maintained the home by definition, so the second qualification ' +
+        'always holds. § 71.06 writes its schedules for "fiduciaries, single individuals and ' +
+        'heads of households" and for "married persons", with no surviving-spouse schedule to ' +
+        'read the joint column off.',
+    },
     year,
     status: year >= 2026 ? 'provisional' : 'published',
     provisionalFigures:

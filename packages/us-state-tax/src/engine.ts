@@ -69,6 +69,19 @@ export { applyBrackets, roundCents };
  * be wrong by the amount of every pre-tax deduction the filer has, since
  * Pennsylvania allows almost none of them.
  */
+/**
+ * Filing status names for the one note that has to print one: a caller told that
+ * their widow was computed "as headOfHousehold" has been told a field name, and
+ * the sentence is about a form.
+ */
+const FILED_AS: Readonly<Record<FilingStatus, string>> = {
+  single: 'a single filer',
+  marriedFilingJointly: 'a joint return',
+  marriedFilingSeparately: 'a separate return',
+  headOfHousehold: 'a head of household',
+  qualifyingSurvivingSpouse: 'a qualifying surviving spouse',
+};
+
 function conformityAmount(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
   switch (def.base) {
     case 'federalAdjustedGrossIncome':
@@ -3915,7 +3928,7 @@ function assertKnownRetirementFields(split: StateIncomeTaxInput['retirement']): 
  * are exactly the ones where a fallback would look right and be wrong.
  */
 export function stateIncomeTax(
-  input: StateIncomeTaxInput,
+  asked: StateIncomeTaxInput,
   options: StateIncomeTaxOptions = {},
 ): StateIncomeTaxResult {
   // Before `getStateDefinition`, which throws on an unsupported state or year,
@@ -3924,17 +3937,42 @@ export function stateIncomeTax(
   // wrong complaint — or from the wrong state, which is the reason the retirement
   // guard runs ahead of the `rate.kind === 'none'` return — is a typo the caller
   // has to work backwards from.
-  const inputNotes = unknownInputNotes(input, STATE_INCOME_TAX_INPUT, options.strict === true);
-  assertKnownRetirementFields(input.retirement);
-  const def = getStateDefinition(input.state, input.year);
-  const name = stateName(input.state);
+  const inputNotes = unknownInputNotes(asked, STATE_INCOME_TAX_INPUT, options.strict === true);
+  assertKnownRetirementFields(asked.retirement);
+  const def = getStateDefinition(asked.state, asked.year);
+  const name = stateName(asked.state);
+
+  // The surviving-spouse column, translated ONCE here rather than in each of the
+  // eighty-odd places a by-status table is read.
+  //
+  // A state that does not offer the qualifying surviving spouse status has still
+  // told the filer which of ITS statuses to use, and every table in the
+  // definition — the brackets, the deduction, the exemption, each credit's
+  // threshold — has to be read against that column. Rewriting the status here
+  // does all of them at once and cannot miss one, which is the whole argument
+  // for doing it at the entry point: the alternative is a `qualifyingSurvivingSpouse:`
+  // override on every table in the file, and Wisconsin has eight.
+  //
+  // `livingFilerCount` and `claimedFilerCount` are unaffected by construction,
+  // because the status this translates TO is always a one-filer status — single,
+  // or head of household. A translation to a joint status would be a different
+  // and much more dangerous change, and `surviving-spouse-column.test.js`
+  // forbids one.
+  //
+  // The result reports the status the CALLER supplied, not this one. A caller who
+  // asked about a widow gets an answer about a widow, with a note saying which
+  // column of the state's table it came off.
+  const translated =
+    asked.filingStatus === 'qualifyingSurvivingSpouse' ? def.survivingSpouseFilesAs : undefined;
+  const input: StateIncomeTaxInput =
+    translated === undefined ? asked : { ...asked, filingStatus: translated.filesAs };
 
   if (def.rate.kind === 'none') {
     return {
       state: input.state,
       stateName: name,
       year: input.year,
-      filingStatus: input.filingStatus,
+      filingStatus: asked.filingStatus,
       hasIncomeTax: false,
       conformity: { base: def.base, amount: 0 },
       additions: 0,
@@ -3970,6 +4008,65 @@ export function stateIncomeTax(
   // Notes that depend on what the caller supplied rather than on the state, so a
   // model reading the result learns that a figure it left out was load-bearing.
   const dynamic: string[] = [];
+  // The translated filing status, and it is said even though nothing was
+  // DISCARDED and no default was guessed — because the answer came off a
+  // different column of the state's table than the one the caller named, and a
+  // caller comparing two states' widows would otherwise have no way to see that
+  // one of them is not a widow here at all.
+  //
+  // Priced, like the § 151(b) note below it, by running the return again on the
+  // column the caller would have got by default. That figure is what the
+  // assumption was worth, which is the only honest way to say "this mattered".
+  if (translated !== undefined) {
+    const asJoint = compute(def, { ...input, filingStatus: 'marriedFilingJointly' });
+    // Each tax rounded to cents BEFORE the subtraction, not after. `compute`
+    // returns an unrounded figure and the result reports a rounded one, so
+    // `roundCents(a - b)` can differ by a cent from the difference of the two
+    // numbers a caller can actually see: this return and the one it gets by
+    // filing the counterfactual status. On a $90,000 Wisconsin widow it was
+    // $673.32 against the $673.33 of $3,796.82 minus $3,123.49.
+    //
+    // THE RULE: a note that prices a counterfactual is quoting the difference of
+    // two ANSWERS, so it has to be the difference of the answers as reported and
+    // not of the figures behind them.
+    const missed = roundCents(roundCents(here.tax) - roundCents(asJoint.tax));
+    dynamic.push(
+      `${def.name} HAS NO QUALIFYING SURVIVING SPOUSE FILING STATUS. This return was computed as ` +
+        `${FILED_AS[translated.filesAs]}, which is the status ${def.name} itself directs such a ` +
+        `filer to use — ${translated.cite} Carrying the federal status straight across to the ` +
+        `JOINT column instead, which is what every table of a state's figures by filing status ` +
+        `invites and what this package did before v0.40.0, would have ` +
+        `${
+          missed === 0
+            ? `changed nothing on THIS return, because no ${def.name} figure on it depends on ` +
+              `the filing status at all — which is a fact about this household rather than ` +
+              `about the state`
+            : `${missed > 0 ? 'UNDERSTATED' : 'overstated'} this return by $${Math.abs(
+                missed,
+              ).toFixed(2)}`
+        }.`,
+    );
+    // And the limit of the translation, which is not a defect in it: a column
+    // swap reaches every figure the STATE chose and none of the figures it
+    // BORROWED. A state whose deduction is defined as the federal one has
+    // already had that figure chosen by the federal filing status, before the
+    // state saw the return, and no status this engine substitutes afterwards can
+    // move it.
+    if (def.deduction.kind === 'federal') {
+      dynamic.push(
+        `AND THE DEDUCTION ON THIS RETURN IS STILL THE FEDERAL ONE FOR A SURVIVING SPOUSE, which ` +
+          `is the JOINT amount under § 63(c)(2)(A). ${def.name}'s standard deduction is defined ` +
+          `as the federal amount rather than as a figure of its own, so the status translated ` +
+          `above moves every table ${def.name} wrote and not the one it borrowed — and the two ` +
+          `readings of that cross-reference disagree. The instruction booklet prints an amount ` +
+          `against the BOX (the head-of-household figure), and the statute points at § 63, which ` +
+          `for this filer is the joint figure. NOBODY HAS READ WHICH GOVERNS. The engine uses the ` +
+          `federal deduction supplied in \`federal.deduction\`, so a caller who passed the ` +
+          `surviving-spouse figure has the second reading; pass the head-of-household figure for ` +
+          `the first. Worth ${def.name}'s rate on the gap between the two federal amounts.`,
+      );
+    }
+  }
   // IRC § 151(b)'s spouse, and the two ways a separate return can go wrong about
   // one. The discipline is the federal package's: **a note is owed when an input
   // was DISCARDED, or when an unanswerable question was answered by a default —
@@ -4505,7 +4602,7 @@ export function stateIncomeTax(
     state: input.state,
     stateName: name,
     year: input.year,
-    filingStatus: input.filingStatus,
+    filingStatus: asked.filingStatus,
     hasIncomeTax: true,
     conformity: { base: def.base, amount: roundCents(here.conformityAmount) },
     additions: roundCents(here.additions),

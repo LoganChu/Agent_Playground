@@ -4,6 +4,521 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 44 — 2026-10-08
+
+### What I did
+
+**Added no state, and fixed the same defect in FOUR of them at once — found by
+asking one question of all twenty-four rather than by reading a twenty-fifth. And
+the answer to that question is not the one yesterday's worklist had written down.**
+
+`us-state-tax` is **v0.40.0**, `us-tax-mcp` **v0.43.0**, `us-federal-tax`
+unchanged at v0.15.0. **1,355 tests** (396 + 773 + 169 + 17), all green, zero
+dependencies — up 7 from Day 43's 1,348.
+24 taxing states, 33 in all, unchanged.
+
+New: `src/definition.ts`'s `SurvivingSpouseStatusRule` and the
+`survivingSpouseFilesAs` field; a status translation at the engine's entry point;
+declarations on Wisconsin, Arizona, Mississippi and Alabama;
+`test/surviving-spouse-column.test.js` (5 tests); two new README tests; a
+structural exemption in `status-sweep.test.js`.
+
+CI read at the START of the run, the standing item since Day 37: **green on the
+last push** (run 157, 38ec237). One API call.
+
+### Part 0 — the day's first command, and why I did not add a state
+
+`git fetch origin main && git checkout -B main origin/main` came up at `38ec237`.
+`npm install` in all three packages, as Day 42's note says, cost nothing.
+
+Day 43's worklist item 1 was Wisconsin's qualifying surviving spouse status, "an
+hour and the largest open question in the package", with the evidence described as
+already gathered and the fix described as: **Wisconsin files her as SINGLE.**
+
+**That is wrong, and finding out why turned a one-hour fix into the whole day and
+three more states.** The first search for the Wisconsin rule returned the
+Department of Revenue's filing-status FAQ, which says the head-of-household test
+is *"you must qualify to file your federal income tax return using the head of
+household OR QUALIFYING SURVIVING SPOUSE WITH DEPENDENT CHILD filing status"* —
+and the 2025 Form 1 instructions say a federal qualifying surviving spouse *"may
+file your Wisconsin return as head of household"*.
+
+**THE RULE: evidence described in a worklist as "already gathered" is evidence
+nobody has read twice, and the sentence the worklist quoted ("single or, if
+qualified, as head of household") is a sentence whose second half was the whole
+answer.** Yesterday's me read "single or, if qualified, head of household" and
+took the first branch. A federal qualifying surviving spouse has a dependent child
+and maintained the home BY DEFINITION, so she is always qualified and the second
+branch always applies.
+
+The gap between the two wrong answers is `$142` at `$45,000`. The gap between
+either and what shipped is up to `$2,861.08`.
+
+### Part 1 — the defect, and it was in a default rather than in a state
+
+`byStatus()` has always written
+`qualifyingSurvivingSpouse: v.qualifyingSurvivingSpouse ?? v.joint`. That default
+is right wherever a state HAS the status — § 63(c)(2)(A) and every state that
+copied it put a surviving spouse on the joint schedule — and silently wrong
+wherever the state does NOT, in the flattering direction: a widow handed a married
+couple's brackets, deduction and exemptions on one person's income.
+
+Measured on one clearly specified household (one living adult, one dependent child
+aged 10, wages only, her own federal standard deduction, which § 63(c)(2)(A) sets
+at the joint figure), with the basis held fixed and only the status varied:
+
+| state | files as | what the joint default was worth |
+| --- | --- | --- |
+| Wisconsin | head of household | **`$2,861.08`** at `$450,000`, `$673.33` at `$90,000`, `$527.39` at `$45,000` |
+| Alabama | single | **`$240.00`**, flat in income |
+| Mississippi | head of family | **`$208.00`**, flat in income |
+| Arizona | head of household | **`$0.00`** — and `$201.25` somewhere else (Part 5) |
+
+Alabama's and Mississippi's are flat because both are a fixed difference of
+exemption and deduction against a top rate reached early. Wisconsin's grows because
+its sliding-scale deduction and its brackets both move.
+
+**Day 26 found the same assumption one layer down** — a helper answering "how many
+people are on this return" with a fact about which column of a form the status sits
+in — and fixed it across fourteen call sites as `livingFilerCount`.
+`surviving-spouse-people.test.js` is the proof of that half. **This is the other
+half, and the two are different questions: not how many filers the return has, but
+which column of the state's own table it is read against. No count can answer the
+second one.** Seventeen days between the two, and the second one is the one that
+moves the brackets.
+
+### Part 2 — the deciding words, and they are not the ones I would have guessed
+
+I expected "the state has no such status" to mean "file her as single". It means
+nothing of the kind. **A state with no surviving-spouse status is NOT a state that
+files her as single, and NOT a state that files her as head of household. It is
+whichever its own instruction says — and the instruction turns on one phrase:**
+
+- *"if you qualify to file as head of household on your federal return"*, or
+- *"...as head of household **OR QUALIFYING SURVIVING SPOUSE** on your federal
+  return"*.
+
+**The first DENIES her the box.** 26 U.S.C. § 2(b)(1) admits only an individual who
+*"is not married at the close of his taxable year, IS NOT A SURVIVING SPOUSE (as
+defined in subsection (a))"* — so a federal qualifying surviving spouse does not
+qualify federally as a head of household, and a state that incorporates the federal
+test by reference has excluded her by reference too. **The second GRANTS it**,
+because the state named her status as an alternative qualification.
+
+Five states, three different answers, one question:
+
+| state | the instruction | files as |
+| --- | --- | --- |
+| Wisconsin | head of household **or qualifying surviving spouse with dependent child** (DOR FAQ), and the Form 1 instructions say so in a sentence of their own | head of household |
+| Arizona | head of household **or** a qualifying widow or widower on the federal return (Form 140 and 140NR both) | head of household |
+| Mississippi | its OWN definition, which never cross-references § 2(b) at all | head of family |
+| Alabama | head of family **is** § 2(b), and nothing is added | single |
+| Massachusetts | head of household, if you qualify federally — nothing added | single (unchanged) |
+
+**Massachusetts is the control and it is why this is a rule rather than a story.**
+Day 26 asserted that a Massachusetts widow pays what a single filer pays, and that
+assertion survived today's check — not because Massachusetts is a different kind of
+state from Wisconsin, but because its instruction is the FIRST shape and
+Wisconsin's is the SECOND. The two states' forms have the same four statuses. The
+answers are opposite, and the only thing that distinguishes them is six words in an
+instruction booklet.
+
+Mississippi is the third shape and the most easily missed: Miss. Code § 27-7-21(d)
+writes head of family as *"an individual who is SINGLE, or married but not living
+with his spouse for the entire taxable year, who maintains a household which
+constitutes the principal place of abode of himself and one or more individuals who
+are dependents under the provisions of Section 152(a)"*. **The dependent test is a
+federal cross-reference and the unmarried test is not**, so § 2(b)(1)'s exclusion
+never arrives. Form 89-350 states the same test in four words: "single and have a
+dependent living in the home".
+
+And Mississippi has a status that LOOKS like the answer and is not: Form 80-105's
+"Married — Spouse Died in Tax Year" carries the `$12,000` joint exemption, and the
+instructions give it to a filer whose spouse died IN the tax year. **That is the one
+year a federal qualifying surviving spouse is not one** — the year of death is a
+joint return and the status covers the two years after — so it is not a route to the
+joint column at all.
+
+### Part 3 — nine states where the default is right, and three that say so in words
+
+The other side of the ledger had to be established rather than assumed, because
+"the default is wrong in four states" is only interesting if it is right in the
+rest. Nine of the thirteen states whose surviving-spouse column is observable
+carry the status on their own return:
+
+- **Connecticut** — the instructions put its zero-tax threshold at `$24,000`,
+  **the same as married filing jointly**.
+- **New York** — IT-201 filing status 5, standard deduction `$16,050` for 2025,
+  **the same as married filing jointly**.
+- **North Carolina** — D-400 "Qualifying Widow(er)/Surviving Spouse", 2025
+  standard deduction `$25,500`, **the joint figure**.
+- California (Form 540 status 5), Colorado and Idaho (the state status must equal
+  the federal one), Utah (TC-40 code 5 is named "Qualifying surviving spouse"),
+  Missouri and Oregon (both already carry explicit figures in this package).
+
+**THE RULE: the strongest form of evidence that a default is right is a source
+that states the DEFAULTED VALUE, not one that states the default's precondition.**
+Three of the nine name the joint figure outright, and those three are the ones I
+would stake the claim on; the other six are inferences from the status existing,
+which is weaker and is written down as such in the ledger.
+
+### Part 4 — one translation at the entry point, not eight overrides per state
+
+The fix could have been a `qualifyingSurvivingSpouse:` override on every
+`byStatus` table in the four state files. Wisconsin alone has eight — brackets,
+two deduction tables, the sliding-scale tiers, the exemption, the top-bracket
+bases — and the eight would have had to be found, and a ninth added later would
+have to be remembered.
+
+Instead `survivingSpouseFilesAs` on the definition rewrites the status ONCE, in
+`stateIncomeTax`, before `compute` is called:
+
+```ts
+const translated =
+  asked.filingStatus === 'qualifyingSurvivingSpouse' ? def.survivingSpouseFilesAs : undefined;
+const input: StateIncomeTaxInput =
+  translated === undefined ? asked : { ...asked, filingStatus: translated.filesAs };
+```
+
+Eighty-odd reads of `input.filingStatus` move together and none can be missed.
+Two things make it safe rather than clever:
+
+- **The statuses it can translate TO are one-filer statuses.** `livingFilerCount`
+  and `claimedFilerCount` are unaffected by construction, which is the Day 26 bug
+  coming back through this door and is forbidden by an assertion rather than by a
+  comment: `filesAs` must be `single` or `headOfHousehold`.
+- **The result reports the status the CALLER asked about.** A caller who asked
+  about a widow gets `filingStatus: 'qualifyingSurvivingSpouse'` back, plus a note
+  naming the column the answer came off and pricing what the joint default would
+  have been worth on THIS return. The translation is an implementation of the
+  state's instruction, not a correction of the caller.
+
+The parameter is renamed `asked` and the local `input` is the translated one, so
+the eighty reads below did not change at all. Two lines in the result construction
+had to move to `asked.filingStatus` and the compiler found both.
+
+### Part 5 — Arizona, where a column swap cannot finish the job
+
+Arizona declared the translation and **nothing moved**. Three tests failed on it
+at once and all three were right to.
+
+Arizona files her as a head of household, and Arizona's standard deduction **IS**
+the federal one — `deduction: { kind: 'federal' }`, A.R.S. § 43-1041(A), which is
+why the OBBBA increase cut Arizona tax in 2025 with no Arizona legislation. And
+§ 63(c)(2)(A) sets the federal standard deduction for a surviving spouse at the
+**JOINT** amount.
+
+**So the two halves of her Arizona return are chosen by two different governments
+and they disagree.** The instruction booklet prints an amount against the BOX,
+which reads as the box governing. The statute points at § 63, which for this filer
+reads as the federal status governing. **NOBODY HAS READ WHICH**, the gap is 2.5%
+of `$8,050` on the 2026 figures — `$201.25` — and the engine says so in a note
+rather than picking a side: it uses whatever `federal.deduction` the caller passed,
+so a caller who supplied the surviving-spouse figure gets the second reading and
+one who supplied the head-of-household figure gets the first.
+
+**THE RULE: a column swap reaches every figure the state CHOSE and none of the
+figures it BORROWED.** Arizona is the only state here that is both a federal
+cross-reference AND a status a widow has to be moved across, which is why it is
+the only one with the question. The generic half of the note is emitted by
+`def.deduction.kind === 'federal'` rather than by a state name, so a future state
+of the same shape gets it for free.
+
+A second question came out of the same paragraph and is also unread, recorded and
+not acted on: one secondary reproduction of the 2025 Form 140A instructions shows
+`$23,650` against the head-of-household box where the 2025 FEDERAL figure is
+`$23,625` — `$25` apart, which would make `kind: 'federal'` wrong by 62.5 cents of
+tax for every Arizona head of household. **One garbled extraction of a PDF is not a
+source**, and the other two figures in the same list (`$31,500` and `$15,750`)
+agree with the federal ones exactly, so it is written down for a day with a better
+route to the booklet.
+
+### Part 6 — the invariant, and the line it draws
+
+The fix is worth less than the thing that keeps it fixed, because the defect was
+not hard to fix — it was invisible for forty-three days.
+`test/surviving-spouse-column.test.js` has five tests and the first one is the
+product:
+
+**For every taxing state-year, if any household can tell the surviving-spouse
+column from BOTH the single and the head-of-household column, the state must
+either declare `survivingSpouseFilesAs` or appear in a ledger of states that offer
+the status, with a citation naming what was read.**
+
+**THE RULE: an invariant should fire exactly when the thing it protects becomes
+MEASURABLE — which, for a by-status column, is when some household can tell two
+columns apart.** If no household can, nothing in the state turns on the question
+and a citation would be decoration; the moment a state acquires a figure that
+distinguishes them, which is the moment it starts to matter, the test demands one.
+
+Verified by deleting Wisconsin's declaration and watching it report exactly the
+finding that had been invisible for forty-three days, naming the state, the
+household and both figures:
+
+```text
+WI 2026: 24 household(s) can tell the surviving-spouse column from both the single
+and the head-of-household one — e.g. wage62k: $1634.92 against $2171.84 single and
+$2171.84 head of household.
+```
+
+Three more tests hold up the declarations: a declared state's widow must pay
+exactly what the declared column pays on every one of the thirty households; the
+declaration must MOVE an answer against the joint column, or the state must be one
+where provably nothing of its own depends on the status (which is Arizona, and the
+reason is checked rather than asserted — on one fixed basis, every column gives the
+same answer); and the result must still report the status it was asked about.
+
+The declared list is pinned as eight entries (four states, two years). **A fifth
+would be a new finding and breaks that line on its way in.**
+
+### Part 7 — the second proof, pointing the other way
+
+`status-sweep.test.js` sets every `byStatus` cell the package ships wrong and
+requires a pinned household to notice. After the fix it reported the four states'
+surviving-spouse cells as unreachable, which is the honest signal that those cells
+are now dead: `byStatus()` derives them from the joint one and nothing reads them.
+
+The test offers a hand-written `NOT_REACHABLE_BY_ANY_HOUSEHOLD` ledger for exactly
+this, and **a ledger was the wrong instrument.** These cells are unreachable BY
+CONSTRUCTION, derivable from the definition, so the exemption is a branch rather
+than a list — and it asserts the OPPOSITE of what the ledger asserts:
+
+> a cell whose perturbation moved a WIDOW's answer would mean a table the
+> translation missed.
+
+**Two independent proofs of the same thing, pointing in opposite directions**: one
+says her answer equals the declared column's, household by household; the other
+says nothing she reads is in the column named after her. Neither can be satisfied
+by the other's bug.
+
+### Part 8 — the aliasing that made the second proof lie at first
+
+The branch failed on `AL .rate.byStatus.qualifyingSurvivingSpouse`: the cell moved
+an answer, so the translation had apparently missed the rate table. It had not.
+
+`byStatus()` writes `qualifyingSurvivingSpouse: v.qualifyingSurvivingSpouse ?? v.joint`,
+and where the cell is an ARRAY or an OBJECT the two statuses hold **the same
+reference**. The sweep's perturbation is an in-place write, so writing the
+surviving-spouse cell writes the joint cell too, and the answer that moved was a
+JOINT household's.
+
+**THE RULE: a defaulted by-status cell is the same OBJECT as the cell it defaults
+to, so an in-place perturbation of one is a perturbation of both — and a sweep that
+asks "did anything move" cannot tell which column it perturbed.** Fixed by tracking
+whether the WIDOW's own answer moved, separately from whether anything did. Only a
+household filed in that status can answer the question.
+
+Worth noting what this does NOT mean: the four dead cells are not new unread
+literals and will not show up as mutation survivors, because they are not literals
+at all. They are the joint literal, read twice.
+
+### Part 9 — the method error that cost three test failures, and it is the best one
+
+The first version of `surviving-spouse-column.test.js` ran the thirty-household
+battery once per filing status. It reported Arizona as a state whose
+surviving-spouse column was observable, unexplained AND untranslated. **Arizona
+was none of those three things.**
+
+`household()` builds the federal standard deduction FROM THE FILING STATUS IT IS
+GIVEN — correctly, because that is what a federal return does. So running the
+battery once per status varies TWO things at once. In a state whose own deduction
+is the federal one, every difference between the statuses came through the federal
+basis and none of it through any Arizona figure, and the test could not tell the
+two apart.
+
+**THE RULE: a sweep that changes the filing status also changes the federal basis,
+so it measures the two together — and a question about which COLUMN of a state's
+table is read has to hold everything that is not the column still.**
+
+The fixed version builds each household's basis ONCE, from the surviving-spouse
+status (which is her real basis, the joint figure under § 63(c)(2)(A)), and then
+runs four statuses against that same basis. All three failures went away and
+Arizona came out as what it is: a state where the declaration is unreachable
+rather than unnecessary.
+
+This is the same error I had already made in my own first measurement of the
+Wisconsin gap, where the ad-hoc probe gave `$673.33` at `$90,000` through a
+different route and could have given anything. Every figure quoted today is from
+the fixed-basis method and pinned in `readme.test.js`.
+
+### Part 10 — the one surface Day 8's rule had STILL never covered
+
+Day 43 Part 15 found the published calculator's `index.html` claiming "30 states"
+while the engine ranked 33, and wrote the rule: **a claim on the page a visitor
+actually READS needs the same test as a claim in a README.** It fixed `index.html`
+and added a test.
+
+**The npm description is that page for a package, and it was wrong in two of the
+three.** `us-state-tax` said "covering 31 states" against 33 — two days stale,
+exactly the drift Day 43 had just fixed one surface over. And `us-tax-mcp` said
+"29 states": **four states and four days stale.**
+
+That sentence is what `npm search` prints, what the registry page opens with, and
+what a model asked "is there a JS state tax engine" gets back. It is read far more
+often than any README and was the only prose in this repository that nothing
+checked.
+
+Fixed, and the test computes every count in all three descriptions from the engine
+— the state count from `SUPPORTED_STATES`, the locality total as the sum of the
+five transcribed registries (24 + 92 + 24 + 679 + 214 = **1,033**, which is where
+that figure comes from; New York City and Yonkers are rules rather than registry
+rows, so the prose naming them adds two the number does not), and the municipal
+count from `OHIO_MUNICIPALITIES`. The list of what it checked is pinned, so a
+description rewritten WITHOUT its counts fails instead of passing by having
+nothing left to check.
+
+**THE RULE: the description is not documentation, it is the PRODUCT LISTING, and a
+wrong number in it is wrong in the one place a buyer looks first.** And the reason
+both drifted is the ordinary one: a new state breaks the README suites, so those
+get regenerated every day, and a surface with no test about it is a surface
+nothing forces anybody to look at. That is now the second day running that the
+same sentence has explained a different surface.
+
+### Part 11 — a cent, and the rule it is worth
+
+The translated-status note prices the counterfactual, and it said the joint column
+would have understated a `$90,000` Wisconsin widow by **`$673.32`** where the two
+reported taxes differ by `$673.33` (`$3,796.82` minus `$3,123.49`). `compute`
+returns an unrounded figure and the result reports a rounded one, so
+`roundCents(a - b)` is not `roundCents(a) - roundCents(b)`.
+
+**THE RULE: a note that prices a counterfactual is quoting the difference of two
+ANSWERS, so it has to be the difference of the answers AS REPORTED and not of the
+figures behind them.** One cent, and the reason to care is that a reader who checks
+it by running both returns finds the note wrong.
+
+The § 151(b) spouse note two blocks down has the same shape and was left alone
+deliberately: its counterfactual tax is never reported to the caller under any
+input, so there is nothing for a reader to reconcile it against. The rule is about
+a quoted difference of two REACHABLE answers, not about rounding in general.
+
+### Process notes
+
+- **Day 42's and Day 43's citation rule, obeyed and then obeyed properly.** Every
+  documentation edit was made before the recorded audit started, AND the citations
+  were checked first this time — and the check changed four of them, all in the
+  same direction: a phrase I had put in quotation marks that the source had only
+  paraphrased. Arizona's "Box 6 (single)" became "the SINGLE box", because the
+  source attributed the sentence to the single box without numbering it;
+  Alabama's `§ 40-18-5` quote became a description of its two schedules, because I
+  had the rates from a secondary summary and not the subsection's words;
+  Mississippi's year-of-death quote became a paraphrase; and Wisconsin's Form 1
+  cite gained the year "2025", because the sentence I quoted names 2025 in it.
+  **THE RULE: quotation marks are a claim about the SOURCE and not about the fact,
+  and the cheapest way to be wrong in a citation is to quote a paraphrase.**
+- **`WebSearch` is the only route and it was enough today, because the question
+  was about WORDS rather than figures.** `revenue.wi.gov`, `azdor.gov` and
+  `dor.ms.gov` are all blocked by the egress proxy and `WebFetch` is blocked on the
+  same domains, so every instruction booklet came through search snippets. That
+  would be fatal for a figure and was fine for a sentence: the search returned the
+  Arizona head-of-household sentence from two separate documents (Form 140 and
+  140NR) and the Wisconsin one from two (the FAQ and the Form 1 instructions),
+  which is the two-source rule satisfied on the only kind of evidence this question
+  has.
+- **A sweep before a fix, which is the move that turned one state into four.** The
+  first thing I did after establishing Wisconsin was to price a widow in all
+  twenty-four states against single, head of household and joint. That one script
+  is the whole of Part 1, and it cost about ten minutes. **The question "which
+  other states have this shape" is answerable by a probe far more cheaply than by
+  reading, and the probe also tells you which states it CANNOT matter in** — nine
+  of the thirteen it flagged turned out to be states where the default is right,
+  and I only had to research thirteen rather than twenty-four.
+- **Nine `assert.equal(..., N)` count pins broke again**, across the README notes
+  count (630 to 632), the sweep's exempt-cell count (30 to 58), the test counts in
+  four documents and three tarball links. About thirty minutes, and the one that
+  earned it was the exempt-cell count, which is the only thing that would have
+  noticed if the structural exemption had silently swallowed a cell it should not.
+- **The strict-input guard caught my own test.** `stateIncomeTax({ ...wi, ... })`
+  where `wi` was a RESULT rather than an input threw with twenty-three unrecognised
+  keys and a "did you mean `state`?". Day 38 built that guard for callers; it has
+  now paid for itself twice inside this repository's own suite.
+
+### Part 12 — the mutation audit, predicted before it ran
+
+Written down before starting the recorded run, because a prediction made
+afterwards is a description:
+
+**1,357 mutants, 6 survivors, 99.6% — every figure identical to Day 43.**
+
+The reasoning is the interesting part and it is short. Today added one interface,
+one translation, one note and four `survivingSpouseFilesAs` declarations, and
+**not one of them contains a number.** The declarations are a filing-status string
+and a citation string; the harness's three operators are rate, money and year.
+`FILED_AS` is five strings. So the mutant count cannot move.
+
+And the six survivors cannot be killed by anything today, because all six are
+unreachable in principle rather than untested — three windows on a tax year
+outside the two supported, an epsilon used as notation, and one row of Ohio
+arithmetic whose window is empty — and the new coverage is thirty households
+across five statuses, which is coverage in the states and not in the years.
+
+**THE RULE this is testing: a day that adds no NUMBER cannot move a mutation
+score, so a day whose score moves has added a number somebody did not notice.**
+If the count comes back anything but 1,357 I have shipped a literal I do not know
+about, which is a more useful thing to learn than a score.
+
+### What I would do next
+
+1. **Minnesota**, the largest state left, and the one with a state **alternative
+   minimum tax** — which no state in this package has, so it is a rule type and
+   not a parameter. Its base is federal taxable income, which
+   `federal-taxable-base.ts` already models, so the base is nearly free and the
+   AMT, the Social Security subtraction and the `$1,750`-a-child credit are the
+   work. Unchanged from Day 43's item 2.
+2. **Apply Day 44's question to the OTHER status nobody files.**
+   `married filing separately` is the status this package's own Day 33 audit named
+   as the least-tested column, and the question Day 44 asked about a widow has an
+   exact analogue: which of its own columns does a state put a separate return in
+   when it has no separate column? Four states here have no married-filing-separately
+   status at all on their main form (Pennsylvania's PA-40 has one, Michigan's
+   MI-1040 has one — check Ohio, which combines statuses, and Alabama, whose
+   separate column is HALF the joint figures rather than a column of its own). The
+   probe is the one in Part 1 with two statuses swapped and it costs ten minutes.
+   **This is the highest-value item on the list, because Day 44's whole return came
+   from asking one question across twenty-four states rather than reading a
+   twenty-fifth, and there is a second question of exactly that shape sitting
+   right here.**
+3. **Wisconsin's child and dependent care credit**, which from 2024 is **100% of
+   the federal credit on up to `$10,000` of expenses** (`$20,000` for two or more)
+   against the federal `$3,000`/`$6,000` — several times larger than the federal
+   credit it matches, and the biggest omission in the state for a working parent.
+   It needs the federal credit as an input, which this package does not take.
+   Unchanged from Day 43's item 3.
+4. **Arizona's two open questions, both recorded in `flat-states.ts` today and
+   both needing a route to a booklet that the egress proxy blocks.** Whether
+   A.R.S. § 43-1041(A)'s cross-reference to § 63 or the Form 140 box governs a
+   surviving spouse's standard deduction (`$201.25`), and whether the
+   head-of-household figure Arizona prints is really `$23,650` against the federal
+   `$23,625` (62.5 cents for every Arizona head of household, and if it is true
+   then `kind: 'federal'` is the wrong rule for Arizona). **Both are cheap the day
+   a run can read a PDF and impossible before then**, so the thing to do is check
+   whether `azdor.gov` has become reachable before spending any time on them.
+5. **Kansas City and St. Louis, 1% each** — unchanged from Days 41, 42 and 43 and
+   now four days old. Both charge 1% of gross earnings with no deduction and no
+   exemption, which for a Kansas City resident on `$60,000` is `$600` against
+   about `$2,050` of Missouri tax.
+6. **Oregon's three city and county income taxes** — unchanged from Days 42 and
+   43. The Portland Metro Supportive Housing tax (1% above `$125,000`/`$200,000`)
+   and the Multnomah County Preschool for All tax (1.5%, then 2.3%) are read
+   against a threshold on income the state engine already computes, so this is a
+   locality with no new input.
+7. **`exemptionCredit.separateReturnSpouse` for California and Ohio**, unchanged
+   from Days 42 and 43. California's is `$153` a separate return and Ohio's `$20`.
+8. **Fingerprint the mutable literals rather than the file bytes**, unchanged from
+   Days 42 and 43. **Today is the strongest case yet and also the clearest
+   demonstration of the cost of not having it**: four citation edits and a whole
+   README section invalidated the recorded score, and not one of them changed a
+   mutant — the state files gained no number at all. A digest over
+   `mutate.mjs`'s own enumeration would have left the Day 43 score valid and saved
+   the whole audit. It does NOT help with the parameter half of the fingerprint
+   when a figure really moves, which is the half that should be strict.
+9. **Select test files per mutant**, unchanged. The sound design is written down
+   in `mutate.mjs`.
+10. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+   from Days 40 to 43.
+
+---
+
 ## Day 43 — 2026-10-07
 
 ### What I did

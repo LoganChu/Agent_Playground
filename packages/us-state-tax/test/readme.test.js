@@ -12,6 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { stateIncomeTax as lenientStateIncomeTax } from '../dist/esm/index.js';
 
 import {
+  INDIANA_COUNTIES,
+  MARYLAND_COUNTIES,
   MICHIGAN_CITIES,
   OHIO_EARNED_INCOME_DISTRICTS,
   OHIO_MUNICIPALITIES,
@@ -1304,6 +1306,164 @@ test('no README advertises a tarball that is not the current version', () => {
       }
     }
   }
+});
+
+test("README: every figure in the surviving-spouse column section (v0.40.0)", () => {
+  // Day 8's rule on the newest section. Every figure below is quoted in the
+  // README's "Which column a widow is read against" section, and the household
+  // is the one the section describes: a real federal qualifying surviving spouse
+  // — one living adult, one dependent child, wages only, and HER OWN federal
+  // standard deduction, which § 63(c)(2)(A) sets at the joint figure.
+  //
+  // The basis is held fixed across the two statuses on purpose; a probe that
+  // rebuilt it per status would be measuring the federal deduction as well as
+  // the state's column. See `surviving-spouse-column.test.js`.
+  const widow = (state, agi, filingStatus = 'qualifyingSurvivingSpouse') =>
+    stateIncomeTax({
+      state,
+      year: 2026,
+      filingStatus,
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: Math.max(0, agi - 32_200),
+        deduction: 32_200,
+        deductionKind: 'standard',
+      },
+      dependents: 1,
+      dependentAges: [10],
+      earnedIncome: agi,
+    });
+  const gap = (state, agi) => widow(state, agi).totalTax - widow(state, agi, 'marriedFilingJointly').totalTax;
+
+  // The table: what the joint default was worth in each of the four states.
+  money(gap('WI', 450_000), 2_861.08, 'Wisconsin at $450,000');
+  money(gap('WI', 90_000), 673.33, 'Wisconsin at $90,000');
+  money(gap('AL', 90_000), 240, 'Alabama');
+  money(gap('MS', 90_000), 208, 'Mississippi');
+  // Alabama's and Mississippi's are flat in income because both are a fixed
+  // difference of exemption and deduction against a top rate reached early.
+  money(gap('AL', 45_000), 240, 'Alabama at $45,000 too');
+  money(gap('MS', 450_000), 208, 'Mississippi at $450,000 too');
+  // Arizona's is NOT a column at all, which is the section's point: every
+  // Arizona figure that depends on the filing status is the federal deduction,
+  // so the translation moves nothing and the money is in a question nobody has
+  // read.
+  money(gap('AZ', 90_000), 0, 'Arizona moves nothing');
+  // 2.5% of the gap between the two federal standard deductions, which is what
+  // the unread question is worth.
+  money(0.025 * (32_200 - 24_150), 201.25, "Arizona's unread question");
+
+  // The worked example, and the note's own arithmetic.
+  const wiInput = {
+    state: 'WI',
+    year: 2026,
+    filingStatus: 'qualifyingSurvivingSpouse',
+    federal: {
+      adjustedGrossIncome: 90_000,
+      taxableIncome: 65_850,
+      deduction: 24_150,
+      deductionKind: 'standard',
+    },
+    dependents: 1,
+    dependentAges: [10],
+  };
+  const wi = stateIncomeTax(wiInput);
+  assert.equal(wi.filingStatus, 'qualifyingSurvivingSpouse');
+  money(wi.totalTax, 3_796.82, 'the worked example');
+  const said = wi.notes.find((n) => n.includes('NO QUALIFYING SURVIVING SPOUSE FILING STATUS'));
+  assert.ok(said, 'the note is emitted');
+  assert.match(said, /UNDERSTATED this return by \$673\.33\./);
+  money(
+    stateIncomeTax({ ...wiInput, filingStatus: 'marriedFilingJointly' }).totalTax,
+    3_123.49,
+    'the same return on the joint column',
+  );
+
+  // And the nine states the engine translates nothing in.
+  const offered = ['CA', 'CO', 'CT', 'ID', 'MO', 'NC', 'NY', 'OR', 'UT'];
+  assert.equal(offered.length, 9, 'the README says nine');
+  for (const state of offered) {
+    assert.equal(
+      getStateDefinition(state, 2026).survivingSpouseFilesAs,
+      undefined,
+      `${state} offers the status and should declare no translation`,
+    );
+  }
+  for (const state of ['AL', 'AZ', 'MS', 'WI']) {
+    assert.ok(getStateDefinition(state, 2026).survivingSpouseFilesAs !== undefined, state);
+  }
+});
+
+test('no package.json description claims a count the engine does not have', () => {
+  // The one surface Day 8's rule had still never been applied to, found the day
+  // after the same gap was found in `site/index.html`.
+  //
+  // Day 8's operating rule is that a number in the docs is a claim and needs a
+  // test, and the three `readme.test.js` suites have enforced it for every
+  // package README since. Day 43 found that the published calculator's
+  // `index.html` said "30 states" while the engine ranked 33, and wrote the rule
+  // one level up: a claim on the page a visitor actually READS needs the same
+  // test as a claim in a README.
+  //
+  // The npm description is that page for a package. It is the sentence `npm
+  // search` prints, the sentence the registry page opens with, and the sentence
+  // an LLM asked "is there a JS state tax engine" gets back — read far more often
+  // than any README, and until today the only prose in this repository that
+  // nothing checked. Both of the two that carry a state count were WRONG:
+  // `us-state-tax` said 31 states against 33 and `us-tax-mcp` said 29, which is
+  // FOUR states and four days stale. The drift is invisible for the ordinary
+  // reason: a new state breaks the README suites, so those get regenerated every
+  // day, and a surface with no test about it is a surface nothing forces anybody
+  // to look at.
+  //
+  // THE RULE: the description is not documentation, it is the product listing,
+  // and a wrong number in it is wrong in the one place a buyer looks first.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+  // Every count is computed from the engine rather than written here, so a new
+  // state or a new municipality moves the expectation and the descriptions have
+  // to follow it. The locality total is the sum of the five transcribed
+  // registries; New York City and Yonkers are named in the prose and are rules
+  // rather than registry rows, which is why the figure is 1,033 and not 1,035.
+  const localities =
+    MARYLAND_COUNTIES.length +
+    INDIANA_COUNTIES.length +
+    MICHIGAN_CITIES.length +
+    OHIO_MUNICIPALITIES.length +
+    OHIO_SCHOOL_DISTRICTS.length;
+  const expected = {
+    states: SUPPORTED_STATES.length,
+    'local income taxes': localities,
+    municipalities: OHIO_MUNICIPALITIES.length,
+  };
+  const checked = [];
+  for (const name of ['us-federal-tax', 'us-state-tax', 'us-tax-mcp']) {
+    const { description } = JSON.parse(
+      readFileSync(join(root, 'packages', name, 'package.json'), 'utf8'),
+    );
+    for (const [noun, want] of Object.entries(expected)) {
+      const found = description.match(new RegExp(`([0-9][0-9,]*) ${noun}`, 'g')) ?? [];
+      for (const claim of found) {
+        const got = Number(claim.split(' ')[0].replace(/,/g, ''));
+        assert.equal(
+          got,
+          want,
+          `${name}'s npm description says "${claim}" and the engine has ${want}`,
+        );
+        checked.push(`${name}: ${claim}`);
+      }
+    }
+  }
+  // Pinned so that a description REWRITTEN without its counts fails here instead
+  // of passing by having nothing left to check — which is the failure mode of
+  // every test that loops over what it finds.
+  assert.deepEqual(checked, [
+    'us-state-tax: 33 states',
+    'us-state-tax: 1,033 local income taxes',
+    'us-state-tax: 679 municipalities',
+    'us-tax-mcp: 33 states',
+    'us-tax-mcp: 1,033 local income taxes',
+    'us-tax-mcp: 679 municipalities',
+  ]);
 });
 
 test("README: Georgia's itemizer credit is worth $6,012 of deduction, and Indiana's elderly credit is the whole return", () => {

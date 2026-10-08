@@ -218,6 +218,27 @@ export function alabama(year: number): StateIncomeTaxDefinition | undefined {
   return {
     code: 'AL',
     name: 'Alabama',
+    // Alabama has no qualifying surviving spouse status and sends her to SINGLE,
+    // where Arizona and Mississippi send her to their head-of-household column.
+    // The difference is one sentence of Ala. Code § 40-18-1. Worth $240 against
+    // the joint column this package used before v0.40.0.
+    survivingSpouseFilesAs: {
+      filesAs: 'single',
+      cite:
+        'Ala. Code § 40-18-1 defines "head of family" as having "the same meaning as the term ' +
+        'head of household as defined in 26 U.S.C. § 2(b)" — and § 2(b)(1) admits only an ' +
+        'individual who "is not married at the close of his taxable year, IS NOT A SURVIVING ' +
+        'SPOUSE (as defined in subsection (a))", which the Form 40 booklet repeats in its own ' +
+        'words: head of family requires that the filer "is not a surviving spouse". Unlike ' +
+        'Arizona and Wisconsin, nothing adds her status back as an alternative qualification. ' +
+        'And § 40-18-5 writes two schedules — one for single persons, heads of family and ' +
+        'married persons filing separately, one for a joint return — with no surviving-spouse ' +
+        'grant of the kind IRC § 1(a) carries, which imposes the joint rates on "every ' +
+        'married individual who makes a single return jointly ... AND EVERY SURVIVING ' +
+        'SPOUSE". So the federal joint-rate grant does not cross over either. Of Form 40\'s ' +
+        'four statuses that leaves single, which the booklet ' +
+        'gives to a filer who "was unmarried" at 31 December.',
+    },
     // Alabama indexes nothing at all. The rate schedule is from 1935; the
     // personal exemption, the standard deduction figures and the dependent
     // exemption chart are where Act 2022-292 left them; the defined benefit
