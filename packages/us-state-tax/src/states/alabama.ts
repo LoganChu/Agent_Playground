@@ -219,9 +219,17 @@ export function alabama(year: number): StateIncomeTaxDefinition | undefined {
     code: 'AL',
     name: 'Alabama',
     // Alabama has no qualifying surviving spouse status and sends her to SINGLE,
-    // where Arizona and Mississippi send her to their head-of-household column.
-    // The difference is one sentence of Ala. Code § 40-18-1. Worth $240 against
-    // the joint column this package used before v0.40.0.
+    // where Wisconsin, Arizona and Mississippi all send her to their
+    // head-of-household column. **Alabama is the one of the four whose answer is
+    // the one a guess would give**, and the reason is that § 40-18-1 incorporates
+    // 26 U.S.C. § 2(b) by reference and nothing adds her status back.
+    //
+    // Worth $240 against the joint column this package used before v0.40.0 — but
+    // only ABOVE $35,500, where the optional standard deduction staircase has
+    // reached its floor in both columns. Below that it is LARGER, $385.00 at
+    // $18,000, because the staircase withdraws a bigger deduction from the joint
+    // column and has further to fall. Both figures are pinned in
+    // `test/readme.test.js`.
     survivingSpouseFilesAs: {
       filesAs: 'single',
       cite:

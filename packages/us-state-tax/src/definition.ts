@@ -3480,7 +3480,8 @@ export interface PlanTypeRetirementRule {
  * test by reference has excluded her by reference too. The second GRANTS it,
  * because the state named her status as an alternative qualification.
  *
- * Both shapes are in this package, and they are two states apart:
+ * There are THREE shapes in this package, not two — Mississippi reaches the
+ * same answer as Wisconsin and Arizona by never mentioning federal law at all:
  *
  * | state | the instruction | files as |
  * | --- | --- | --- |
@@ -3488,11 +3489,12 @@ export interface PlanTypeRetirementRule {
  * | Arizona | head of household **or qualifying widow or widower** | head of household |
  * | Mississippi | its own definition, with no federal cross-reference at all | head of family |
  * | Alabama | head of family **is** § 2(b), and nothing is added | single |
- * | Massachusetts | head of household, if you qualify federally | single |
+ * | Massachusetts | head of household, if you qualify federally — and whether its instruction names her status as an alternative HAS NOT BEEN READ | single |
  *
  * **THE RULE: a state that has no column for a filer has still told you which
  * of its columns she uses, and reading "no status" as "single" is a guess that
- * is wrong in two of this package's four cases.**
+ * is wrong in THREE of this package's four cases** — only Alabama's answer is
+ * the one the guess gives.
  */
 export interface SurvivingSpouseStatusRule {
   /**

@@ -28,8 +28,13 @@ function arizona(year: number): StateIncomeTaxDefinition {
     subtractsTaxableSocialSecurity: true,
     name: 'Arizona',
     // Arizona has no qualifying surviving spouse status and sends her to HEAD OF
-    // HOUSEHOLD, by the same words Wisconsin uses. Worth $201.25 against the
-    // joint column this package used before v0.40.0.
+    // HOUSEHOLD, by the same words Wisconsin uses.
+    //
+    // AND IT IS WORTH NOTHING AGAINST THE JOINT COLUMN, which is the finding
+    // rather than an anticlimax: every Arizona figure that depends on the filing
+    // status is the FEDERAL standard deduction, so there is no Arizona column for
+    // a translation to move. The $201.25 at stake in Arizona is a different
+    // question entirely and is unread — see the last of the notes below.
     survivingSpouseFilesAs: {
       filesAs: 'headOfHousehold',
       cite:
@@ -853,7 +858,11 @@ function mississippi(year: number): StateIncomeTaxDefinition | undefined {
     // FAMILY by a route neither Arizona nor Alabama takes: its own definition,
     // which never mentions federal law and so never inherits § 2(b)(1)'s
     // exclusion of a surviving spouse. Worth $208 against the joint column this
-    // package used before v0.40.0.
+    // package used before v0.40.0 — $4,000 of exemption and $1,200 of standard
+    // deduction at 4% — from about $30,000 of income up. Below that it is
+    // SMALLER, $124.00 at $26,000, because her taxable income runs out before the
+    // whole $5,200 gap can be used. Both figures are pinned in
+    // `test/readme.test.js`.
     survivingSpouseFilesAs: {
       filesAs: 'headOfHousehold',
       cite:

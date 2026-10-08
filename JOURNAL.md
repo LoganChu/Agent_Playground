@@ -13,8 +13,8 @@ asking one question of all twenty-four rather than by reading a twenty-fifth. An
 the answer to that question is not the one yesterday's worklist had written down.**
 
 `us-state-tax` is **v0.40.0**, `us-tax-mcp` **v0.43.0**, `us-federal-tax`
-unchanged at v0.15.0. **1,356 tests** (396 + 774 + 169 + 17), all green, zero
-dependencies — up 8 from Day 43's 1,348.
+unchanged at v0.15.0. **1,357 tests** (396 + 775 + 169 + 17), all green, zero
+dependencies — up 9 from Day 43's 1,348.
 24 taxing states, 33 in all, unchanged.
 
 New: `src/definition.ts`'s `SurvivingSpouseStatusRule` and the
@@ -90,7 +90,7 @@ in — and fixed it across fourteen call sites as `livingFilerCount`.
 `surviving-spouse-people.test.js` is the proof of that half. **This is the other
 half, and the two are different questions: not how many filers the return has, but
 which column of the state's own table it is read against. No count can answer the
-second one.** Seventeen days between the two, and the second one is the one that
+second one.** Eighteen days between the two, and the second one is the one that
 moves the brackets.
 
 ### Part 2 — the deciding words, and they are not the ones I would have guessed
@@ -452,6 +452,74 @@ a quoted difference of two REACHABLE answers, not about rounding in general.
   keys and a "did you mean `state`?". Day 38 built that guard for callers; it has
   now paid for itself twice inside this repository's own suite.
 
+### Part 11a — the sweep I should have done BEFORE the audit, and the four things it found in my own prose
+
+Day 42 Part 15's rule is *make every documentation and citation edit before
+starting the recorded audit*; Day 43 Part 16 added *and check the citations
+first*. **I obeyed both and still restarted the audit three times today, because
+both rules are about CITATIONS and the things that were wrong were CLAIMS.** The
+complete sweep — every numeric and every WHY claim I had written, in source
+comments, both READMEs, the notes and the journal — was done only after the third
+restart, and it found three more:
+
+- **"reading 'no status' as 'single' is a guess that is wrong in two of this
+  package's four cases"** in `definition.ts`. It is wrong in **three** of the
+  four: only Alabama's answer is the one the guess gives. I had counted the
+  states that *disagree with each other* rather than the ones the guess gets
+  wrong.
+- **"the opposite of the two other states in this package without the status"**
+  in `wisconsin.ts`. There are three other states without it, and Wisconsin
+  AGREES with two of them and is the opposite of one.
+- **"Worth $201.25 against the joint column"** in `flat-states.ts`, for Arizona.
+  **Flatly false, and it is the one claim on this list a reader would have acted
+  on**: the column is worth NOTHING in Arizona, which is Part 5's whole finding,
+  and the `$201.25` belongs to a different and unread question. I had copied the
+  sentence pattern from the other three states and the pattern carried a figure
+  that does not mean the same thing there.
+
+**THE RULE, which is Day 42's and Day 43's with the gap between them named: a
+rule about WHEN to edit and a rule about WHICH EDITS to check do not add up to a
+sweep. The sweep is its own step, it goes last, and it covers every claim rather
+than every citation** — and the tell for the third one is the sharpest: **a
+sentence written by copying a sentence about another state carries that state's
+units.**
+
+And the sweep found a fourth thing that was not an error but was missing, which
+is the argument for doing it at all rather than only as a tax on carelessness.
+**The divergence bound for Wisconsin was derived WRONG and the derivation was the
+only thing that could show it.** I had written `$3,257.41` as "the most this
+divergence can ever be", composed of `$7,810` of standard deduction at 7.65%,
+`$700` of exemption and `$110,910` of top-bracket start. Above `$443,630` of
+taxable income **every Wisconsin deduction has already phased out in BOTH
+columns**, so the deduction contributes nothing up there and should never have
+been in the sum. What is actually left is exact rather than approximate:
+
+```text
+joint:              tax = 0.0765 x taxable income - 11,229.99
+head of household:  tax = 0.0765 x taxable income -  8,422.46
+                                      difference =   2,807.53
+            plus $700 of exemption at 7.65%      =      53.55
+                                                   --------
+                                                    2,861.08
+```
+
+and measured identical at `$450,000`, `$600,000`, `$1,050,000` and `$5,000,000` —
+**reached rather than approached**, which no bound I had written said.
+
+**The one thing that can add to it is a credit, and finding it is why the bound
+is worth deriving.** Wis. Stat. § 71.07(6)'s **married couple credit**, up to
+`$480`, is claimable by a joint return with two earners and by no head of
+household — so the counterfactual comparison tops out at `$3,341.08`, which is
+`$41.08` ABOVE the `$3,300` ceiling I had put in the ledger. The grid passes
+either way because every widow in it has a single earner, so the bound was wrong
+in a direction nothing could detect. **A real widow has one earner and never
+meets that credit; the counterfactual joint return in the comparison can.**
+
+**THE RULE: a bound that is a SUM is a claim about which terms belong in it, and
+the term that does not belong is the one that is true somewhere else in the
+range.** The deduction term is real below `$159,690` and zero above it, and the
+bound is about above it.
+
 ### Part 11b — the published calculator was quoting the wrong number too
 
 `site/src/compute.js` line 41 offers `['qualifyingSurvivingSpouse', 'Qualifying
@@ -721,8 +789,10 @@ about, which is a more useful thing to learn than a score.
    demonstration of the cost of not having it**: four citation edits, a whole
    README section and a ONE-WORD regression fix (Part 11c) invalidated the
    recorded score, and not one of them changed a mutant — the state files gained
-   no number at all. That is a fourth lost restart in three days, and this one
-   cost eighty minutes of a run that was already eighty minutes in. A digest over
+   no number at all. That is a fourth, fifth and sixth lost restart in three days —
+   three of them today, for a one-word regression fix, a moved constant and a
+   prose sweep, and not one of the three changed a mutant. The first cost eighty
+   minutes of a run that was already eighty minutes in. A digest over
    `mutate.mjs`'s own enumeration would have left the Day 43 score valid and saved
    the whole audit. It does NOT help with the parameter half of the fingerprint
    when a figure really moves, which is the half that should be strict.

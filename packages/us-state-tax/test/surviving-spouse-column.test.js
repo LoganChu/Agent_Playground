@@ -133,6 +133,33 @@ function battery(state, year) {
   });
 }
 
+// The ledger's own size and membership, pinned because three READMEs say "nine
+// states" and one of them names the three that state the joint FIGURE rather
+// than merely the status's existence — which is the strongest form this evidence
+// comes in, and the distinction the other six do not have.
+test('the ledger of states that offer the status is the nine the READMEs claim', () => {
+  assert.deepEqual(Object.keys(OFFERS_THE_STATUS).sort(), [
+    'CA',
+    'CO',
+    'CT',
+    'ID',
+    'MO',
+    'NC',
+    'NY',
+    'OR',
+    'UT',
+  ]);
+  const namesTheJointFigure = Object.entries(OFFERS_THE_STATUS)
+    .filter(([, cite]) => /SAME AS MARRIED FILING JOINTLY|married-filing-jointly figure/i.test(cite))
+    .map(([state]) => state);
+  assert.deepEqual(namesTheJointFigure, ['CT', 'NC', 'NY']);
+  // Every entry says what was read, not just that something was.
+  for (const [state, cite] of Object.entries(OFFERS_THE_STATUS)) {
+    assert.ok(cite.length > 80, `${state}'s citation is too short to be one`);
+    assert.match(cite, /Form|TC-40|DR 0104|D-400|CT-1040|IT-201|instructions/);
+  }
+});
+
 // ---------------------------------------------------------------------------
 // 1. The detector. A surviving-spouse column no household can mistake for the
 //    single or the head-of-household one is a column somebody chose, and it has

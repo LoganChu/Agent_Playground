@@ -2177,7 +2177,7 @@ during the last six months, or under a written agreement — ticks the Unmarried
 ## Which column a widow is read against, and the four states that got it wrong (v0.40.0)
 
 The section above is about how many **people** a surviving spouse's return has. This one is
-the other half of the same question and it went unasked for seventeen more days: **which
+the other half of the same question and it went unasked for eighteen more days: **which
 column of the state's own table that one person is read against.**
 
 `byStatus()` defaults the surviving-spouse column to the **joint** figure. That is right
@@ -2237,8 +2237,12 @@ Both shapes are in this package and they give opposite answers:
 Nine states are in the other group, and the engine translates nothing in them: California,
 Colorado, Connecticut, Idaho, Missouri, New York, North Carolina, Oregon and Utah all carry
 the status on their own return. Connecticut's instructions put its zero-tax threshold at
-`$24,000` and New York's its standard deduction at `$16,050` — **the married-filing-jointly
-figures, in so many words**, which is the strongest form this evidence comes in.
+`$24,000`, New York's its standard deduction at `$16,050` and North Carolina's its standard
+deduction at `$25,500` — **all three the married-filing-jointly figure, in so many words**,
+which is the strongest form this evidence comes in: a source that states the DEFAULTED
+VALUE and not merely the default's precondition. The other six are inferences from the
+status existing on the form, which is weaker, and the ledger in
+`test/surviving-spouse-column.test.js` says which is which.
 
 **Massachusetts is the one row here that rests on an absence**, and it is recorded
 rather than hidden. Day 26 asserted that a Massachusetts widow pays what a single
@@ -2873,7 +2877,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **774 tests**. Turning it on, when there were 618 of them, is what
+from all **775 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

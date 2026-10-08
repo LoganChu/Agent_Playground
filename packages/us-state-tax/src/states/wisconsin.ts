@@ -405,10 +405,15 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
     code: 'WI',
     name: 'Wisconsin',
     // Wisconsin has no qualifying surviving spouse status, and the status it
-    // sends her to is HEAD OF HOUSEHOLD rather than single — which is the
-    // opposite of the two other states in this package without the status, and
-    // is worth up to $2,861 against the joint column this package used before
-    // v0.40.0.
+    // sends her to is HEAD OF HOUSEHOLD rather than single — which it shares with
+    // two of the three other states here without the status (Arizona and
+    // Mississippi) and not with the third (Alabama). Worth $2,861.08 against the
+    // joint column this package used before v0.40.0, for any income above
+    // $443,630 of taxable income: $2,807.53 of bracket placement plus $53.55 of
+    // exemption, both constant up there because every Wisconsin deduction has
+    // already phased out in both columns. See `surviving-spouse-column.test.js`
+    // and the Wisconsin entry in `tools/differential/known-divergences.json`,
+    // which derives the same figure twice.
     survivingSpouseFilesAs: {
       filesAs: 'headOfHousehold',
       cite:
