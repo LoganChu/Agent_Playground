@@ -1,332 +1,353 @@
 [
- {
-  "metric": "state.tax",
-  "state": "MO",
-  "maxAbs": 100,
-  "reason": "THE BOUNDARY BELONGS TO THE STEP BELOW IT, and the statute says so in its own table. Mo. Rev. Stat. 143.171.2 sets the share of the federal income tax a Missouri filer may deduct with five rows: \"$25,000 or less - 35 percent; From $25,001 to $50,000 - 25 percent; From $50,001 to $100,000 - 15 percent; From $100,001 to $125,000 - 5 percent; $125,001 or more - 0 percent\". A filer standing EXACTLY on $50,000 or $100,000 of Missouri adjusted gross income is therefore in the LOWER row and keeps the HIGHER share. PolicyEngine-US stores the chart as a `single_amount` bracket whose thresholds are `>=`, which puts the boundary in the row above and gives that filer the smaller share - 15% at $50,000 where the statute gives 25%, and 5% at $100,000 where it gives 15%. Every case here is a household whose Missouri AGI lands exactly on one of the two figures, which is why the differences are all one sign: this package deducts MORE of the federal bill and charges less. It is the same convention question Connecticut's Table E raised and Alabama's dependent chart raised after it, in a third state, found by the `on-the-boundary` household the Day 40 grid added for exactly this - and here it reaches ordinary households too, because $50,000 and $100,000 of wages are round numbers a case author picks for other reasons. The size is the ten points of share times the federal bill times 4.7%, so it grows with the federal bill rather than with the Missouri one: $18.66 for a wage earner at $50,000 and $78.19 for one with a $100,000 capital gain behind the same wage."
- },
- {
-  "metric": "state.tax",
-  "state": "MD",
-  "kind": "muni-retiree",
-  "maxAbs": 895,
-  "reason": "NOT MODELLED THERE. Maryland adds interest OR DIVIDENDS, less related expenses, attributable to an obligation of another state or of a political subdivision of another state - Md. Code, Tax-Gen. s 10-204(b), Form 502 line 1b - and PolicyEngine-US models no such addition for Maryland. Added here in us-state-tax v0.29.0. Maryland's is the widest of the five: a bond fund's exempt-interest dividends are inside it where Virginia's and Indiana's reach only the coupon. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Maryland's is 5.75% of state tax plus 3.20% in the highest county."
- },
- {
-  "metric": "state.tax",
-  "state": "VA",
-  "kind": "muni-retiree",
-  "maxAbs": 575,
-  "reason": "NOT MODELLED THERE. Virginia adds interest on obligations of any state other than Virginia, or of a political subdivision of such other state, reduced by the related expenses not deducted in computing federal AGI - Va. Code s 58.1-322.01(1) - and PolicyEngine-US models no such addition for Virginia. Added here in us-state-tax v0.29.0. Virginia's reaches the coupon only, and is net of expenses. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Virginia's top rate is 5.75% and it applies from $17,000 of taxable income in every filing status."
- },
- {
-  "metric": "state.tax",
-  "state": "IN",
-  "kind": "muni-retiree",
-  "maxAbs": 595,
-  "reason": "NOT MODELLED THERE. Indiana adds the interest excluded under IRC s 103 on an obligation of a state other than Indiana ACQUIRED BY THE TAXPAYER AFTER 31 DECEMBER 2011 - Ind. Code s 6-3-1-3.5(a)(11), and Income Tax Information Bulletin #19 makes acquisition the trade date - and PolicyEngine-US models no such addition for Indiana. Added here in us-state-tax v0.29.0. Indiana's is the only one of the five that turns on a fact about the HOLDING rather than about the coupon, so an Indiana resident holding an out-of-state bond bought in 2010 owes Indiana nothing on it permanently; no return carries a trade date, so the engine adds back what it is given and the result says so. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Indiana's is 2.95% of state tax plus a county rate that reaches the 3.00% statutory maximum in Randolph County."
- },
- {
-  "metric": "state.tax",
-  "state": "OH",
-  "kind": "muni-retiree",
-  "maxAbs": 400,
-  "reason": "NOT MODELLED THERE. Ohio adds interest or dividends on obligations or securities of any state other than Ohio and its subdivisions - O.R.C. s 5747.01(A)(1), Ohio Schedule of Adjustments line 1, 'Non-Ohio state or local government interest and dividends' - and PolicyEngine-US models no such addition for Ohio. Added here in us-state-tax v0.29.0. Ohio's is gross like Illinois's and wide like Maryland's, which is why the two axes are stored separately rather than as one enum of five states. THIS DIFFERENCE WAS INVISIBLE FOR ONE RUN: the unbounded Ohio entry for the $20-per-exemption credit was the first match for it and the report called it explained, which is what bounded that entry and added the shadowing section to compare.mjs. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Ohio's bound is $400 rather than 3.5% of $10,000, because its schedule charges a constant whole on the first dollar of a band and $10,000 of extra base can cross one."
- },
- {
-  "metric": "state.tax",
-  "state": "IN",
-  "idIncludes": "retired-couple-IN-0-0-40000",
-  "maxAbs": 110,
-  "reason": "A DEFECT THERE. A retired couple both 70 with $40,000 of Social Security and no other income: Indiana exempts the benefit, so federal AGI is zero and the $5,000 of exemptions takes Indiana AGI to MINUS $5,000. The whole difference is Marion County's 2.02% applied to that negative figure: `in_county_tax` is `rate * in_agi` with no floor, so PolicyEngine has an Indiana county paying a retiree $101 a year. It floors the STATE tax at zero on the same figure, which is what makes this an oversight rather than a reading of the statute. The other half of this difference used to be the unified tax credit for the elderly, IC 6-3-3-9 - $140, refundable, and the whole of an Indiana return for a household living on Social Security. It is modelled here from v0.22.0 and the two engines now agree on it to the cent, which is why this entry's bound fell from $250 to $110."
- },
- {
-  "metric": "federal.taxableIncome",
-  "kind": "single-worker",
-  "reason": "HARNESS. PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction; the harness supplies no itemised deductions, so this package takes the standard one. Above about $300,000 in a high-tax state the two diverge by the SALT deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
- },
- {
-  "metric": "federal.incomeTaxBeforeCredits",
-  "kind": "single-worker",
-  "reason": "HARNESS. Follows the taxable-income difference above."
- },
- {
-  "metric": "state.tax",
-  "state": "CO",
-  "reason": "NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. \u00a7 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js."
- },
- {
-  "metric": "state.tax",
-  "state": "ID",
-  "reason": "NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes."
- },
- {
-  "metric": "state.tax",
-  "state": "AZ",
-  "reason": "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. \u00a7 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit."
- },
- {
-  "metric": "state.tax",
-  "state": "KY",
-  "reason": "NOT MODELLED HERE. Kentucky's family size tax credit, which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%."
- },
- {
-  "metric": "state.tax",
-  "state": "MI",
-  "maxAbs": 60,
-  "reason": "NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal exemption is indexed annually under MCL 206.30(2), and for 2026 it is $5,900 - published in the state's own 2026 income tax withholding guide (Form 446, Rev. 02-26). This package carried the $5,800 of 2025 forward and flagged it provisional until Day 28; it now carries the published figure, and PolicyEngine-US PROJECTS $5,950 by uprating. So this entry used to describe a gap this package owed and now describes one it does not: the gap is $50 of exemption, $2.13 per exemption at 4.25%, and the side holding the published number is this one. The count went UP by one when the figure was corrected, which is worth understanding rather than explaining away - at $5,800 one household happened to land on the same rounded dollar as PolicyEngine's $5,950 and at $5,900 it no longer does. AGREEING WITH A PROJECTION IS NOT EVIDENCE, and a differential count that falls is not by itself a sign of being more right. Michigan's SPECIAL exemption for a blind or disabled filer is still carried forward at $3,400 and still flagged, because it appears on the MI-1040 and on no withholding document - see provisionalFigures on the state-year, which records that one figure rather than the whole year."
- },
- {
-  "metric": "state.tax",
-  "state": "MI",
-  "maxAbs": 400,
-  "reason": "NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), refundable and claimed on Form MI-1040CR-7, which pays a standard allowance by household size below an income ceiling and so reaches a low-income household with no heating bill on the return. PolicyEngine-US models it; this package does not. It appears only on the two lowest-income Michigan households in the grid."
- },
- {
-  "metric": "state.tax",
-  "state": "NY",
-  "maxAbs": 2,
-  "reason": "A DERIVED RECAPTURE AGAINST A STORED ONE, and this entry used to say something false. It read 'NOT MODELLED THERE. The New York household credit ... PolicyEngine-US models neither the credit nor the offset' for as long as it has existed, and PolicyEngine-US models BOTH: ny_household_credit has been in its non-refundable credit list since 2007 and ny_eitc subtracts it under s 606(d)(1). Chasing that on Day 29 found TWO defects HERE, both now fixed, and closed every NY difference the entry was supposed to be about. (1) s 606(b) is measured on 'household gross income' -- the aggregate adjusted gross income of the household 'as reported for FEDERAL income tax purposes', which the IT-201 instructions make 'the amount from Form IT-201, line 19'. This package passed line 33, New York's own AGI, so every New York subtraction bought a credit whose ceiling is $32,000: a retired couple with $94,000 of federal AGI was given $75 of it. The locality engine had it right the whole time -- its parameter is named federalAgi, because the same instruction note covers the city tables. (2) IT-215 line 15 is 'the SMALLER of line 13 or line 14' -- Worksheet B line 5, or the household credit -- so the EIC is reduced only by the household credit the filer could USE. This package subtracted all of it, so a single parent of two at $12,000 lost $90 of a REFUNDABLE match to a NON-REFUNDABLE credit that could only ever have been worth $80. What is left under this entry is a different fact entirely, which is why the bound is now $2 rather than $80: this package DERIVES the s 601(d) supplemental tax from the rate schedule and PolicyEngine stores the published incremental-benefit table ($567 for a 2026 single filer). Inside the phase-in band the two differ by $1.06 at $150,000. WHICH IS RIGHT IS OPEN -- the table is written into the statute, so a derivation that disagrees with it by a dollar may be this package's defect rather than a rounding difference. It appears on no household with a household credit."
- },
- {
-  "metric": "state.tax",
-  "state": "NC",
-  "maxAbs": 400,
-  "reason": "NOT MODELLED HERE. The North Carolina child deduction, up to $3,000 a child and phasing to zero as AGI rises (G.S. 105-153.5(a1)), named in the state's notes. The bound is $400 rather than $250 from Day 26, because the grid gained a household with THREE children and the deduction is per child: $9,000 at 3.99% is $359.10. North Carolina's retirement rules are now modelled: it taxes a pension in FULL and deducts military retired pay in full, which is why no retiree case is left here."
- },
- {
-  "metric": "state.tax",
-  "state": "MA",
-  "reason": "HARNESS. Massachusetts taxes its own gross income and the harness states it directly, so any difference is a difference about what belongs on Form 1 line 21 rather than about the tax. Massachusetts also has a No Tax Status and a Limited Income Credit that this package does not model."
- },
- {
-  "metric": "state.tax",
-  "state": "PA",
-  "reason": "HARNESS. Pennsylvania has no federal starting line, so the harness states the eight-class base itself."
- },
- {
-  "metric": "state.tax",
-  "state": "UT",
-  "reason": "PROVISIONAL FIGURES. Utah indexes the Taxpayer Tax Credit's phase-out threshold and its per-dependent exemption annually and had not published the 2026 amounts when this was written, so this package carries 2025's forward and says so. PolicyEngine has indexed values. The gap is 1.3 cents per dollar of threshold - $5.36 for a single filer, $10.73 joint - and will close when Utah publishes."
- },
- {
-  "metric": "state.tax",
-  "state": "CA",
-  "reason": "PROVISIONAL FIGURES. California's 2026 brackets, standard deduction and exemption credits are the 2025 published amounts carried forward; the FTB indexes them to the CCPI after this was written. PolicyEngine projects them."
- },
- {
-  "metric": "state.tax",
-  "state": "OH",
-  "reason": "NOT MODELLED HERE. Ohio's $20-per-exemption credit for a filer with Ohio AGI of $30,000 or less (R.C. 5747.022). BOUNDED AT $100 ON DAY 32, and the bound is the finding rather than the credit: R.C. 5747.022 is $20 an exemption and the largest household in this grid has four, so nothing this entry explains can exceed $80. Without a bound it was the FIRST match for every Ohio state.tax difference in the file and silently carried four it cannot explain - a $275 addition for other states' municipal interest, two separate-return spouse differences belonging to the `separate-with-spouse` entry, and $316.09 of Ohio earned income credit belonging to the entry that follows the federal s 32(d) disagreement. AN ENTRY WITH NO BOUND ABSORBS THE NEXT DIFFERENCE IN ITS STATE, and a report that says zero unexplained is the last place that will say so.",
-  "maxAbs": 100
- },
- {
-  "metric": "state.tax",
-  "state": "MD",
-  "maxAbs": 6,
-  "maxShareOfIncome": 0.0017,
-  "reason": "NOT UPDATED THERE, twice. Two facts, and between them they account for every Maryland difference in this grid to the cent - verified by running this package with both of PolicyEngine's figures, after which 22 of the 23 Maryland cases agreed exactly. (1) ALLEGANY COUNTY raised its rate from 3.03% to 3.20% for 2026. This package carries the new rate; PolicyEngine's county table cites the 2025 resident booklet and stops there, so it charges 2025's. That is 0.17 of a point of taxable income, which is why this entry is bounded by a SHARE OF INCOME rather than by a dollar figure: the same one fact is $43.76 on a $30,000 household and $678.70 on a $400,000 one. (2) The 2026 standard deduction, which until Day 28 was the other way round. HB 352 replaced the 15%-of-AGI formula with a flat $3,350/$6,700 indexed from 2026; this package carried the 2025 figure forward and flagged it provisional because secondary sources split between $3,350 and $3,400, and PolicyEngine uprates it to $3,400/$6,850. The Comptroller has settled it: the 2026 employer withholding guide and the 2026 Form MW507 both carry $3,350, and the fiscal note on HB 411 of 2026 - a bill to raise the deduction to $4,100, which died in committee - prices the rise against a current law of $3,350. So the figure never moved and PolicyEngine's is a projection of an increase that did not happen. At most $150 of deduction, about $6 of state and county tax at the top rate."
- },
- {
-  "metric": "state.tax",
-  "kind": "single-worker",
-  "idIncludes": "-400000-",
-  "maxAbs": 700,
-  "reason": "HARNESS, in the state. The same fact as the two federal entries above, one level down. At $400,000 PolicyEngine's household ITEMISES federally - its only itemised deduction being the state income tax it is in the middle of computing - and two states then follow that federal election, in both directions. VIRGINIA requires a federal itemiser to itemise on the state return (Va. Code \u00a7 58.1-322.03(1)) and subtracts state income tax from the itemised total, which in this harness leaves ZERO, so PolicyEngine gives the filer no deduction at all where this package gives the $8,750 standard one: $503.13 at 5.75%. GEORGIA does the same under \u00a7 48-7-27(a)(1), allowing $21,965 of itemised deductions against this package's $15,000 standard one, and then pays $300 a taxpayer for having itemised - the eligible itemizer credit of O.C.G.A. \u00a7 48-7-27.1, which IS modelled here from v0.22.0 and which test/georgia-itemizer-credit.test.js pins. It does not fire in this grid because the harness's own federal return takes the standard deduction, so `federal.deductionKind` is `standard` on every case in it. $347.55 of deduction plus $300 of credit is the $647.55. Neither difference can be closed from this harness, which supplies no itemised deductions on purpose: feeding a state tax back into the federal return is circular. NOTE the cite: this entry said \u00a7 48-7-29.23 until Day 26, copied from PolicyEngine-US's own variable file. No such section exists - their PARAMETER file has it right."
- },
- {
-  "metric": "state.tax",
-  "state": "MS",
-  "idIncludes": "early-retire",
-  "maxAbs": 1800,
-  "reason": "A DISAGREEMENT ABOUT AGE, and both models document their side. Mississippi exempts qualified retirement income under \u00a7 27-7-15(4)(k), and \u00a7 27-7-15(4)(l) leaves a PREMATURE distribution \u2014 one the federal \u00a7 72(t) penalty would reach \u2014 fully taxable. This package therefore requires 59 1/2; PolicyEngine-US models the exemption with no age test at all and says so in its own parameter file. The grid could not see the disagreement until Day 26, because every retiree in it was 67 or older. A 56-year-old drawing a $50,000 pension is charged $1,268 here and nothing there, and a couple of 57 and 55 with $70,000 is charged $1,736. This package's reading is in test/retirement-by-source.test.js and in the state's notes; it is the one place where being right costs the filer money, so it is worth restating that a distribution before 59 1/2 is what (l) is about."
- },
- {
-  "metric": "federal.earnedIncomeCredit",
-  "kind": "separate-with-child",
-  "maxAbs": 1100,
-  "reason": "\u00a7 32(d), and a different reading of the ARPA amendment. A married filer who files separately gets no earned income credit under \u00a7 32(d)(1) unless \u00a7 32(d)(2) applies \u2014 which needs the filer to have lived with a qualifying child for more than half the year AND either to have had a different principal abode from the spouse for the last six months or to be legally separated and not a member of the same household. PolicyEngine-US turns a single parameter, `eligibility.separate_filer`, true from 2021 and allows the credit to EVERY separate filer. This package requires the facts: `separatedFromSpouse` plus a qualifying child, and the case grid supplies neither, so it computes zero. Neither model is reading the statute wrongly \u2014 one is assuming the exception applies and the other is assuming it does not, and nothing on a return either model was given says which. $1,053.62 for one child at $45,000 in 2026."
- },
- {
-  "metric": "state.tax",
-  "kind": "separate-with-child",
-  "maxAbs": 950,
-  "reason": "FOLLOWS THE \u00a7 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set their earned income credit as a flat percentage of the federal one - it read \"six\" until Day 32, and the seventh was invisible because the unbounded Ohio entry above matched its difference first, so a $1,053.62 disagreement about the federal credit reaches the state return multiplied by that state's match: New Jersey 40% ($421.45), New York 30% ($316.09), Illinois 20% plus its 40%-of-that child credit ($295.01 of it), Virginia 20% ($210.72), Indiana 10% ($105.36), OHIO 30% ($316.09, R.C. 5747.71), and Maryland most of all, because Maryland matches at 50% AND every Maryland county runs its own earned income credit at ten times the county rate. The bound is $950 for that Maryland case. Not a state disagreement at all: fix the federal reading and all six move together."
- },
- {
-  "metric": "state.tax",
-  "state": "GA",
-  "kind": "surviving-spouse-low",
-  "maxAbs": 400,
-  "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT -- the same reading as the $45,000 and the three high-income cases, and the case that shows the $748.50 those entries call a constant is not one. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000 and PolicyEngine-US gives the 2026 one the joint $30,000 while giving the 2025 one the single amount. Above $30,000 of income the whole $15,000 of difference is in use and the gap is $748.50 at every income. At $26,000 it is $299.40, because the widow has not got $30,000 of income for the larger deduction to come off: the difference is clipped by the income, not by the deduction. A DEDUCTION DISAGREEMENT IS A CONSTANT ONLY ABOVE THE DEDUCTION, which is exactly what a grid that only ever filed this status at $45,000 and up could not show. At $18,000 there is no difference at all -- both engines reach zero -- so the entry covers one case of the two."
- },
- {
-  "metric": "state.tax",
-  "state": "GA",
-  "kind": "surviving-spouse",
-  "maxAbs": 800,
-  "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT, and this package follows the statute where PolicyEngine-US follows itself inconsistently. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000. PolicyEngine gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount, which is what makes this a reading rather than a rate: $15,000 at 4.99% is $748.50. Recorded in Georgia's notes since v0.15.0."
- },
- {
-  "metric": "federal.childTaxCredit",
-  "kind": "surviving-spouse-high",
-  "maxAbs": 2300,
-  "reason": "A DEFECT THERE, and it was a defect HERE until Day 27. \u00a7 24(b)(2) sets the phase-out threshold at \"$400,000 in the case of a joint return, and $200,000 in any other case\". A QUALIFYING SURVIVING SPOUSE DOES NOT FILE A JOINT RETURN - \u00a7 2(a) hands them the joint RATE SCHEDULE under \u00a7 1(a) and says nothing about any threshold - so the figure is $200,000, and Schedule 8812 line 9 prints the same split in two lines: \"Married filing jointly-$400,000\" and \"All other filing statuses-$200,000\". PolicyEngine-US carries $400,000 for this status, so at $250,000 and $300,000 of wages it gives a widow with one child the full $2,200 and this package gives nothing. NOTE WHICH CASE IS MISSING FROM THIS LIST: at $450,000 the two engines AGREE at $0, because that income clears the joint threshold as well. That is the whole reason the $450,000 shape exists - without it, a report of two disagreeing incomes could not distinguish \"this package now uses $200,000\" from \"this package lost the credit for some other reason\". This package carried $400,000 too, with a comment calling the question UNRESOLVED on the grounds that irs.gov is blocked from the build sandbox and PolicyEngine agreed; the statutory sentence settles it unaided and was quoted in that comment. See packages/us-federal-tax/test/surviving-spouse.test.js, which walks the parameter tree and requires every status-keyed table in the package to declare its statutory grouping."
- },
- {
-  "metric": "federal.taxableIncome",
-  "kind": "surviving-spouse-high",
-  "idIncludes": "-450000-",
-  "reason": "HARNESS. The same fact as the single-worker entry above, on the one surviving-spouse case rich enough to reach it: PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction, and the harness supplies no itemised deductions on purpose, so this package takes the standard one. It appears only in CALIFORNIA and MARYLAND, the two high-tax states in the grid where $450,000 of wages generates enough state and local tax to beat a $32,200 standard deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
- },
- {
-  "metric": "federal.incomeTaxBeforeCredits",
-  "kind": "surviving-spouse-high",
-  "idIncludes": "-450000-",
-  "reason": "HARNESS. Follows the taxable-income difference above."
- },
- {
-  "metric": "state.tax",
-  "state": "GA",
-  "kind": "surviving-spouse-high",
-  "maxAbs": 800,
-  "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT - the same entry as the $45,000 surviving-spouse case, at three higher incomes. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000; PolicyEngine-US gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount. It is $748.50 at EVERY income here - $15,000 of deduction at a flat 4.99% - which is what makes it a reading of the statute rather than a rate or a threshold, and is why one bound covers all three cases. A separate entry from the $45,000 one because `kind` matches exactly and the new shape is a new kind; that is a small cost of naming it `surviving-spouse-high` and it is worth paying, because a report that lumped the two together could not show that the $45,000 case and the $450,000 case differ by the same dollar."
- },
- {
-  "metric": "state.tax",
-  "kind": "separate-with-spouse",
-  "maxAbs": 691,
-  "reason": "A DEFECT THERE, and it took three days and three statutes to get to a one-sentence answer. Day 30 recorded SIX differences on these two households as one open question: PolicyEngine-US counted the spouse in Virginia's $930 exemption and $12,000 age deduction, Maryland's $3,200 exemption and its $1,000 addition at 65, and Indiana's $1,000 exemption and its $1,000 addition at 65, and this package counted nobody. They were never one question. Day 31 closed the FOUR that were IRC s 151(b) - the state exemption gains a no-income spouse on a separate return in VA, IL, MD and IN, and expressly does not in NJ. Day 32 closed the AGED half, which is a different claim with a different answer in each state: VIRGINIA and INDIANA adopt s 63(f) by reference (s 58.1-322.03(2)(b), 'each blind or aged taxpayer as defined under s 63(f)'; IC 6-3-1-3.5(a), 'each additional amount allowable under Section 63(f)'), ILLINOIS writes the spouse's own two $1,000s out in 35 ILCS 5/204(d) with s 151(b)'s conditions copied onto them, and MARYLAND says NO - Tax-Gen. s 10-211(b)(3) and (b)(4) allow $1,000 'if THE INDIVIDUAL' is 65 or blind, where (b)(1) instead counts 'each exemption that the individual may deduct under subsection (a)' and (a) is the subsection that reaches the spouse. Three mechanisms, two directions, one question. The Indiana difference this entry used to carry ($49.70) is CLOSED by that reading. WHAT IS LEFT IS ONE DIFFERENCE AND IT IS THEIRS. $690.01 in Virginia, and it was never the s 151(b) question: it is the $12,000 AGE DEDUCTION of s 58.1-322.03(5), which attaches to a person's own birth date rather than to an exemption count, so s 151(b) cannot reach it and the exemption's answer cannot be borrowed for it. On a separate return one return holds one person's deduction. `va_age_deduction` counts head and spouse with NO filing-status test at all, and PolicyEngine's tax unit holds the spouse whatever the status, so their separate return deducts $24,000 where this one deducts $12,000: $12,000 at 5.75% is $690.00, and the cent is rounding. Their own `va_age_deduction_person` divides the total between the eligible people - the worksheet's half-allocation - but both halves stay inside the one tax unit, so the total on the return is the joint figure. AND THE SAME MEMBER-COUNT SHAPE MADE THEM RIGHT ABOUT SOMETHING THIS PACKAGE HAD WRONG, which is why this entry is not a scorecard. s 58.1-322.03(5)(b) withdraws the age deduction against 'the total combined adjusted federal adjusted gross income of both spouses' on a separate return - the Form 760 Age Deduction Worksheet says all married taxpayers enter the combined figure even when filing separately - and this package tested the joint $75,000 threshold against the FILER's income alone, which gave a separate filer a larger deduction than either a single or a joint return. PolicyEngine reads the combined figure by construction, because its tax unit holds both people. Fixed in us-state-tax v0.29.0: the measure is declared on `ageDeduction.separateReturn` with the statute quoted, the figure is a required input on such a return, and the income-tested half is REFUSED rather than guessed when it is missing. So on one provision their member count is the defect and on the next it is the reading, and only reading their source tells those apart."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "retired-couple",
-  "maxAbs": 4500,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $90,000, so the bound is $4,500."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "early-retired-couple",
-  "maxAbs": 3500,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $70,000, so the bound is $3,500."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "muni-retiree",
-  "maxAbs": 3000,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $60,000, so the bound is $3,000."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "separate-with-spouse-young",
-  "maxAbs": 2750,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $55,000, so the bound is $2,750."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "separate-with-spouse",
-  "maxAbs": 2750,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $55,000, so the bound is $2,750."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "early-retiree",
-  "maxAbs": 2500,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $50,000, so the bound is $2,500."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "single-retiree",
-  "maxAbs": 2000,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $40,000, so the bound is $2,000."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "blind-senior",
-  "maxAbs": 1250,
-  "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $25,000, so the bound is $1,250."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "surviving-spouse-high",
-  "maxAbs": 111,
-  "reason": "PROPAGATED FROM THE FEDERAL RETURN, and Alabama is the only state here where that can happen. Form 40 line 12 deducts the federal income tax, so a disagreement about the FEDERAL bill becomes a disagreement about the STATE one at 5% of itself. The federal disagreement is the one already recorded in this file: s 24(b)(2) sets the child tax credit phase-out at $400,000 'in the case of a joint return, and $200,000 in any other case', a qualifying surviving spouse does not file a joint return, and PolicyEngine-US carries $400,000 for the status - so at $250,000 and $300,000 of wages it gives a widow with one child the whole $2,200 and this package gives nothing. Their federal bill is therefore $2,200 lower, their Alabama deduction $2,200 smaller, and their Alabama tax $110 higher. At $450,000 both engines give no credit and the Alabama columns agree, which is the same control the federal entry relies on. THE BOUND IS DERIVED FROM THE RATE: 5% of the $2,200 credit. THE BOUND IS STORED ONE DOLLAR ABOVE THE FACT, and the reason is the reference model's arithmetic: PolicyEngine-US answers in float32, so a difference that is exactly the rate-derived bound measures as $110.000390625 or $25.000390625 and `maxAbs` is a strict comparison. Rounding the bound up by a dollar is the narrowest honest way to say 'exactly this fact and nothing larger'."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "on-the-boundary",
-  "maxAbs": 26,
-  "reason": "A DEFECT THERE, and the first divergence in this file that was PREDICTED BEFORE IT WAS MEASURED. s 40-18-19(a)(9) grants $1,000 a dependent 'for taxpayers with adjusted gross income equal to or less than fifty thousand dollars ($50,000)' and $500 'in excess of fifty thousand dollars and equal to or less than one hundred thousand dollars ($100,000)'. Both boundaries are INCLUSIVE in the statute's own words, so a filer at exactly $50,000 keeps the $1,000 and one at exactly $100,000 keeps the $500. PolicyEngine-US stores the chart as a `single_amount` bracket whose thresholds are read as 'at or above', so it hands both boundaries to the step above. The `on-the-boundary` shape exists for this: Day 39 predicted a boundary disagreement in Connecticut and the grid said nothing, because in 779 households nobody was standing on a boundary. THE BOUND IS DERIVED FROM THE RATE: one dependent, one step of $500, at 5%. THE BOUND IS STORED ONE DOLLAR ABOVE THE FACT, and the reason is the reference model's arithmetic: PolicyEngine-US answers in float32, so a difference that is exactly the rate-derived bound measures as $110.000390625 or $25.000390625 and `maxAbs` is a strict comparison. Rounding the bound up by a dollar is the narrowest honest way to say 'exactly this fact and nothing larger'."
- },
- {
-  "metric": "state.tax",
-  "state": "AL",
-  "kind": "couple-two-children",
-  "maxAbs": 51,
-  "reason": "The same s 40-18-19(a)(9) boundary convention as the `on-the-boundary` entry above, found on a household that was already in the grid: a couple with two children and exactly $100,000 of wages stands on the chart's upper boundary by accident. This package keeps $500 a child, PolicyEngine-US drops to $300, and $400 of exemption is $20 of tax. It is the one case in this file that argues for the new shape rather than being the new shape: a convention this grid could not see for 39 days was sitting inside a household it had had all along, because nobody had asked which side of $100,000 the household was on. THE BOUND IS DERIVED FROM THE RATE: two dependents, one step of $500 each, at 5%. THE BOUND IS STORED ONE DOLLAR ABOVE THE FACT, and the reason is the reference model's arithmetic: PolicyEngine-US answers in float32, so a difference that is exactly the rate-derived bound measures as $110.000390625 or $25.000390625 and `maxAbs` is a strict comparison. Rounding the bound up by a dollar is the narrowest honest way to say 'exactly this fact and nothing larger'."
- },
- {
-  "metric": "state.tax",
-  "state": "OR",
-  "year": 2026,
-  "maxAbs": 30,
-  "reason": "AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is on the published side. Every one of these is tax year 2026 and none is 2025, which is the signature of the disagreement rather than a symptom of it. PolicyEngine-US carries Oregon's 2026 figures as its 2025 figures uprated by gov.irs.uprating with downward rounding; this package carries the figures the Department of Revenue PUBLISHED in its 2026 withholding tax formulas (150-206-436, Rev. 12-31-25, out on 31 December 2025). Eight parameters differ: the standard deduction ($2,910/$5,820/$4,685 published against $2,895/$5,795/$4,660 uprated), the two indexed bracket boundaries ($4,550 and $11,400 against $4,450 and $11,350), the federal tax subtraction ceiling and its four phase-out rows ($8,750/$7,000/$5,250/$3,500/$1,750 against $8,650/$6,950/$5,200/$3,450/$1,700), and the exemption credit ($263 against $261.80170566232823 - a tax credit that is not a whole number of dollars is a giveaway that nothing published it). Day 41's rule, which Missouri's pension ceiling produced for one figure and Oregon's reproduces for eight: AN UPRATED FIGURE IS A MODEL'S FORECAST OF A DOCUMENT, AND THE DOCUMENT EXISTS. The tie-break is structural rather than a matter of preference - an agency does not publish a withholding formula for a figure it has not settled. THE BOUND IS DERIVED FROM THE RATES AND NOT FROM THE MEASUREMENT: $25 of standard deduction at 9.9% is $2.48, $100 of the first bracket boundary at the two-point step is $2.00 and $4.00 on a doubled joint schedule, $50 of the second at its two-point step is $1.00 and $2.00 joint, $100 of subtraction ceiling at 9.9% is $9.90, and $1.20 of exemption credit times four exemptions is $4.80 - about $23 in the worst mixture, bounded here at $30. The thresholds themselves are identical in both models, so no cliff can amplify it."
- },
- {
-  "metric": "state.tax",
-  "state": "OR",
-  "kind": "couple-two-children",
-  "year": 2026,
-  "maxAbs": 800,
-  "reason": "THE ONE OREGON FIGURE THIS PACKAGE CARRIES FORWARD, and the one place in this entry pair where PolicyEngine's forecast is likely the closer of the two. The Oregon Kids Credit's phase-out threshold is indexed by HB 3235 (2023) - $25,000 for 2023, $25,750 for 2024, $26,550 for 2025 - and the Department of Revenue publishes a year's Kids Credit figures in the JANUARY AFTER that year, so no document carries the 2026 threshold yet and neither model can be checked. PolicyEngine uprates it to $27,250; this package carries $26,550 forward and flags it in `provisionalFigures` with the document that would settle it, which is the convention it follows for every unpublished indexed figure (California's whole schedule, Ohio's exemption chart). Carrying it forward withdraws the credit EARLIER than the indexed figure would, so this package's error is against the filer and it says so in the ledger entry. The same applies to the $1,050 amount, where the two models happen to agree because PolicyEngine has not uprated it either. THE BOUND IS DERIVED FROM THE RULE AND NOT FROM THE MEASUREMENT: the credit is withdrawn across $5,000, the two thresholds are $700 apart, and the statutory maximum is five children at $1,050 - so the most this fact can ever be worth is 5 x $1,050 x 700/5,000 = $735, plus the $30 of parameter vintage in the entry above. The grid's largest instance is $134.02, on a couple at $30,000 with one child under six."
- },
- {
-  "metric": "state.tax",
-  "state": "WI",
-  "year": 2026,
-  "maxAbs": 16,
-  "reason": "POLICYENGINE UPRATES WISCONSIN'S STANDARD DEDUCTION BY THE FEDERAL INDEX, AND ITS OWN BRACKETS DISAGREE WITH IT. Wisconsin's 2026 Standard Deduction Table is not published until January 2027, so policyengine-us 2.15.3 has no 2026 value and uprates the 2025 schedule by `gov.irs.uprating`, which is 1.0226629 - giving $13,870 single, $25,680 joint, $12,200 separate, $17,920 head of household and thresholds of $19,990 / $28,850 / $13,690. This package carries $13,960 / $25,840 / $12,280 / $18,030 and $20,120 / $29,040 / $13,780. The tie-break is not a preference and it is not this package's arithmetic against theirs: it is PolicyEngine's own bracket parameters against PolicyEngine's own deduction parameters. Its 2026 bracket thresholds are READ from the Department of Revenue's 2026 Form 1-ES instructions, and 332,720/225,000 over 323,290/225,000 is 1.0291, not 1.0227 - so the two halves of its 2026 Wisconsin are indexed on different series, one of them the WRONG GOVERNMENT'S. Wis. Stat. 71.06(2e) and 71.05(22)(ds) index both schedules on the same Wisconsin CPI measure, which is why this package derives the deduction schedule from the published brackets instead of uprating it, and why four of its seven figures come out UNIQUE and the other three within $10 - see test/wisconsin-indexation.test.js. THE BOUND IS DERIVED FROM THE RULE: the largest possible gap in deduction is the 2026 joint figure, $25,840 against $25,680, which is $160, and the most tax $160 of deduction can carry is 160 x 7.65% = $12.24, plus up to $160 x 19.778% x 7.65% = $2.42 where the threshold difference moves the withdrawal as well. The grid's largest instance is $10.48."
- },
- {
-  "metric": "state.tax",
-  "state": "WI",
-  "kind": "surviving-spouse",
-  "year": 2026,
-  "maxAbs": 60,
-  "reason": "A WIDOW IS ONE PERSON AND POLICYENGINE GIVES HER TWO $700 EXEMPTIONS. `wi_base_exemption` is `exemptions_count` times $700, and `exemptions_count` is the federal-style count, which for a qualifying surviving spouse includes the deceased spouse. Wis. Stat. 71.05(23) allows '$700 for the taxpayer, $700 for the taxpayer's spouse IF A JOINT RETURN IS FILED, and $700 for each dependent', and a surviving spouse does not file a joint return. This is the same class of error this package fixed across fourteen call sites in v0.27.0 and named `livingFilerCount`: a filing status is a row on a form and not a number of people. THE BOUND: one $700 exemption at Wisconsin's top rate of 7.65% is $53.55, and the grid's largest instance is $53.54, the rest being the deduction-index difference in the entry above. A SEPARATE, UNREAD QUESTION SITS BEHIND THIS ONE and is recorded in NOTES-FOR-HUMAN.md: Wisconsin Form 1 may not offer the qualifying surviving spouse status at all - it prints four boxes - in which case both models are answering a question Wisconsin does not ask, and the right answer is to file such a return as single or head of household. Nothing read so far settles it, and both models put the status on the joint rate schedule."
- },
- {
-  "metric": "state.tax",
-  "state": "WI",
-  "kind": "separate-with-spouse-young",
-  "year": 2026,
-  "maxAbs": 45,
-  "reason": "THE SECTION 151(b) SPOUSE ON A SEPARATE RETURN, which this package declares UNRESOLVED for Wisconsin rather than guessing. PolicyEngine's `exemptions_count` gives a separate filer whose spouse has no gross income an exemption for that spouse, worth $700 of Wisconsin exemption; this package's `exemption.separateReturnSpouse.spouse` is `'unresolved'` for Wisconsin with a cite naming what would settle it, and the engine does not allow it - so this package's figure is HIGHER. Day 30's rule is why: a provision read for one state is not evidence about another, and the answer runs both ways among the states that have been read (Virginia and Illinois count the spouse because their exemptions are defined by reference to section 151; New Jersey does not, because its statute conditions the spouse's exemption on a joint return). Wis. Stat. 71.05(23) reads 'if a joint return is filed', which POINTS the same way as New Jersey - but the Form 1 exemption worksheet is the document that settles it and nobody has read it. THE BOUND: $700 of exemption at the 4.4% rate the grid's case is in is $30.80, and at the 7.65% top rate $53.55; the grid's instance is $31.91, the remainder being the deduction-index difference."
- },
- {
-  "metric": "state.tax",
-  "state": "WI",
-  "kind": "surviving-spouse-high",
-  "year": 2026,
-  "maxAbs": 60,
-  "reason": "THE SAME FACT AS THE `surviving-spouse` ENTRY, for the other two shapes of that status in the grid. Written out rather than matched by prefix because a prefix rule would also absorb a shape nobody has looked at. A WIDOW IS ONE PERSON AND POLICYENGINE GIVES HER TWO $700 EXEMPTIONS. `wi_base_exemption` is `exemptions_count` times $700, and `exemptions_count` is the federal-style count, which for a qualifying surviving spouse includes the deceased spouse. Wis. Stat. 71.05(23) allows '$700 for the taxpayer, $700 for the taxpayer's spouse IF A JOINT RETURN IS FILED, and $700 for each dependent', and a surviving spouse does not file a joint return. This is the same class of error this package fixed across fourteen call sites in v0.27.0 and named `livingFilerCount`: a filing status is a row on a form and not a number of people. THE BOUND: one $700 exemption at Wisconsin's top rate of 7.65% is $53.55, and the grid's largest instance is $53.54, the rest being the deduction-index difference in the entry above. A SEPARATE, UNREAD QUESTION SITS BEHIND THIS ONE and is recorded in NOTES-FOR-HUMAN.md: Wisconsin Form 1 may not offer the qualifying surviving spouse status at all - it prints four boxes - in which case both models are answering a question Wisconsin does not ask, and the right answer is to file such a return as single or head of household. Nothing read so far settles it, and both models put the status on the joint rate schedule."
- },
- {
-  "metric": "state.tax",
-  "state": "WI",
-  "kind": "surviving-spouse-low",
-  "year": 2026,
-  "maxAbs": 60,
-  "reason": "THE SAME FACT AS THE `surviving-spouse` ENTRY, for the other two shapes of that status in the grid. Written out rather than matched by prefix because a prefix rule would also absorb a shape nobody has looked at. A WIDOW IS ONE PERSON AND POLICYENGINE GIVES HER TWO $700 EXEMPTIONS. `wi_base_exemption` is `exemptions_count` times $700, and `exemptions_count` is the federal-style count, which for a qualifying surviving spouse includes the deceased spouse. Wis. Stat. 71.05(23) allows '$700 for the taxpayer, $700 for the taxpayer's spouse IF A JOINT RETURN IS FILED, and $700 for each dependent', and a surviving spouse does not file a joint return. This is the same class of error this package fixed across fourteen call sites in v0.27.0 and named `livingFilerCount`: a filing status is a row on a form and not a number of people. THE BOUND: one $700 exemption at Wisconsin's top rate of 7.65% is $53.55, and the grid's largest instance is $53.54, the rest being the deduction-index difference in the entry above. A SEPARATE, UNREAD QUESTION SITS BEHIND THIS ONE and is recorded in NOTES-FOR-HUMAN.md: Wisconsin Form 1 may not offer the qualifying surviving spouse status at all - it prints four boxes - in which case both models are answering a question Wisconsin does not ask, and the right answer is to file such a return as single or head of household. Nothing read so far settles it, and both models put the status on the joint rate schedule."
- }
+  {
+    "metric": "state.tax",
+    "state": "MO",
+    "maxAbs": 100,
+    "reason": "THE BOUNDARY BELONGS TO THE STEP BELOW IT, and the statute says so in its own table. Mo. Rev. Stat. 143.171.2 sets the share of the federal income tax a Missouri filer may deduct with five rows: \"$25,000 or less - 35 percent; From $25,001 to $50,000 - 25 percent; From $50,001 to $100,000 - 15 percent; From $100,001 to $125,000 - 5 percent; $125,001 or more - 0 percent\". A filer standing EXACTLY on $50,000 or $100,000 of Missouri adjusted gross income is therefore in the LOWER row and keeps the HIGHER share. PolicyEngine-US stores the chart as a `single_amount` bracket whose thresholds are `>=`, which puts the boundary in the row above and gives that filer the smaller share - 15% at $50,000 where the statute gives 25%, and 5% at $100,000 where it gives 15%. Every case here is a household whose Missouri AGI lands exactly on one of the two figures, which is why the differences are all one sign: this package deducts MORE of the federal bill and charges less. It is the same convention question Connecticut's Table E raised and Alabama's dependent chart raised after it, in a third state, found by the `on-the-boundary` household the Day 40 grid added for exactly this - and here it reaches ordinary households too, because $50,000 and $100,000 of wages are round numbers a case author picks for other reasons. The size is the ten points of share times the federal bill times 4.7%, so it grows with the federal bill rather than with the Missouri one: $18.66 for a wage earner at $50,000 and $78.19 for one with a $100,000 capital gain behind the same wage."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MD",
+    "kind": "muni-retiree",
+    "maxAbs": 895,
+    "reason": "NOT MODELLED THERE. Maryland adds interest OR DIVIDENDS, less related expenses, attributable to an obligation of another state or of a political subdivision of another state - Md. Code, Tax-Gen. s 10-204(b), Form 502 line 1b - and PolicyEngine-US models no such addition for Maryland. Added here in us-state-tax v0.29.0. Maryland's is the widest of the five: a bond fund's exempt-interest dividends are inside it where Virginia's and Indiana's reach only the coupon. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Maryland's is 5.75% of state tax plus 3.20% in the highest county."
+  },
+  {
+    "metric": "state.tax",
+    "state": "VA",
+    "kind": "muni-retiree",
+    "maxAbs": 575,
+    "reason": "NOT MODELLED THERE. Virginia adds interest on obligations of any state other than Virginia, or of a political subdivision of such other state, reduced by the related expenses not deducted in computing federal AGI - Va. Code s 58.1-322.01(1) - and PolicyEngine-US models no such addition for Virginia. Added here in us-state-tax v0.29.0. Virginia's reaches the coupon only, and is net of expenses. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Virginia's top rate is 5.75% and it applies from $17,000 of taxable income in every filing status."
+  },
+  {
+    "metric": "state.tax",
+    "state": "IN",
+    "kind": "muni-retiree",
+    "maxAbs": 595,
+    "reason": "NOT MODELLED THERE. Indiana adds the interest excluded under IRC s 103 on an obligation of a state other than Indiana ACQUIRED BY THE TAXPAYER AFTER 31 DECEMBER 2011 - Ind. Code s 6-3-1-3.5(a)(11), and Income Tax Information Bulletin #19 makes acquisition the trade date - and PolicyEngine-US models no such addition for Indiana. Added here in us-state-tax v0.29.0. Indiana's is the only one of the five that turns on a fact about the HOLDING rather than about the coupon, so an Indiana resident holding an out-of-state bond bought in 2010 owes Indiana nothing on it permanently; no return carries a trade date, so the engine adds back what it is given and the result says so. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Indiana's is 2.95% of state tax plus a county rate that reaches the 3.00% statutory maximum in Randolph County."
+  },
+  {
+    "metric": "state.tax",
+    "state": "OH",
+    "kind": "muni-retiree",
+    "maxAbs": 400,
+    "reason": "NOT MODELLED THERE. Ohio adds interest or dividends on obligations or securities of any state other than Ohio and its subdivisions - O.R.C. s 5747.01(A)(1), Ohio Schedule of Adjustments line 1, 'Non-Ohio state or local government interest and dividends' - and PolicyEngine-US models no such addition for Ohio. Added here in us-state-tax v0.29.0. Ohio's is gross like Illinois's and wide like Maryland's, which is why the two axes are stored separately rather than as one enum of five states. THIS DIFFERENCE WAS INVISIBLE FOR ONE RUN: the unbounded Ohio entry for the $20-per-exemption credit was the first match for it and the report called it explained, which is what bounded that entry and added the shadowing section to compare.mjs. This grid's muni case holds $10,000 of tax-exempt interest and the harness passes the whole of it as out-of-state, because nothing in either model's input schema distinguishes whose bonds they are. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: a budget set to the last measurement is a ratchet, so each of these four is $10,000 at the state's own top combined rate, which is the most this fact can be worth on this grid. Ohio's bound is $400 rather than 3.5% of $10,000, because its schedule charges a constant whole on the first dollar of a band and $10,000 of extra base can cross one."
+  },
+  {
+    "metric": "state.tax",
+    "state": "IN",
+    "idIncludes": "retired-couple-IN-0-0-40000",
+    "maxAbs": 110,
+    "reason": "A DEFECT THERE. A retired couple both 70 with $40,000 of Social Security and no other income: Indiana exempts the benefit, so federal AGI is zero and the $5,000 of exemptions takes Indiana AGI to MINUS $5,000. The whole difference is Marion County's 2.02% applied to that negative figure: `in_county_tax` is `rate * in_agi` with no floor, so PolicyEngine has an Indiana county paying a retiree $101 a year. It floors the STATE tax at zero on the same figure, which is what makes this an oversight rather than a reading of the statute. The other half of this difference used to be the unified tax credit for the elderly, IC 6-3-3-9 - $140, refundable, and the whole of an Indiana return for a household living on Social Security. It is modelled here from v0.22.0 and the two engines now agree on it to the cent, which is why this entry's bound fell from $250 to $110."
+  },
+  {
+    "metric": "federal.taxableIncome",
+    "kind": "single-worker",
+    "reason": "HARNESS. PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction; the harness supplies no itemised deductions, so this package takes the standard one. Above about $300,000 in a high-tax state the two diverge by the SALT deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
+  },
+  {
+    "metric": "federal.incomeTaxBeforeCredits",
+    "kind": "single-worker",
+    "reason": "HARNESS. Follows the taxable-income difference above."
+  },
+  {
+    "metric": "state.tax",
+    "state": "CO",
+    "reason": "NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. § 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js."
+  },
+  {
+    "metric": "state.tax",
+    "state": "ID",
+    "reason": "NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AZ",
+    "reason": "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit."
+  },
+  {
+    "metric": "state.tax",
+    "state": "KY",
+    "reason": "NOT MODELLED HERE. Kentucky's family size tax credit, which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MI",
+    "maxAbs": 60,
+    "reason": "NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal exemption is indexed annually under MCL 206.30(2), and for 2026 it is $5,900 - published in the state's own 2026 income tax withholding guide (Form 446, Rev. 02-26). This package carried the $5,800 of 2025 forward and flagged it provisional until Day 28; it now carries the published figure, and PolicyEngine-US PROJECTS $5,950 by uprating. So this entry used to describe a gap this package owed and now describes one it does not: the gap is $50 of exemption, $2.13 per exemption at 4.25%, and the side holding the published number is this one. The count went UP by one when the figure was corrected, which is worth understanding rather than explaining away - at $5,800 one household happened to land on the same rounded dollar as PolicyEngine's $5,950 and at $5,900 it no longer does. AGREEING WITH A PROJECTION IS NOT EVIDENCE, and a differential count that falls is not by itself a sign of being more right. Michigan's SPECIAL exemption for a blind or disabled filer is still carried forward at $3,400 and still flagged, because it appears on the MI-1040 and on no withholding document - see provisionalFigures on the state-year, which records that one figure rather than the whole year."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MI",
+    "maxAbs": 400,
+    "reason": "NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), refundable and claimed on Form MI-1040CR-7, which pays a standard allowance by household size below an income ceiling and so reaches a low-income household with no heating bill on the return. PolicyEngine-US models it; this package does not. It appears only on the two lowest-income Michigan households in the grid."
+  },
+  {
+    "metric": "state.tax",
+    "state": "NY",
+    "maxAbs": 2,
+    "reason": "A DERIVED RECAPTURE AGAINST A STORED ONE, and this entry used to say something false. It read 'NOT MODELLED THERE. The New York household credit ... PolicyEngine-US models neither the credit nor the offset' for as long as it has existed, and PolicyEngine-US models BOTH: ny_household_credit has been in its non-refundable credit list since 2007 and ny_eitc subtracts it under s 606(d)(1). Chasing that on Day 29 found TWO defects HERE, both now fixed, and closed every NY difference the entry was supposed to be about. (1) s 606(b) is measured on 'household gross income' -- the aggregate adjusted gross income of the household 'as reported for FEDERAL income tax purposes', which the IT-201 instructions make 'the amount from Form IT-201, line 19'. This package passed line 33, New York's own AGI, so every New York subtraction bought a credit whose ceiling is $32,000: a retired couple with $94,000 of federal AGI was given $75 of it. The locality engine had it right the whole time -- its parameter is named federalAgi, because the same instruction note covers the city tables. (2) IT-215 line 15 is 'the SMALLER of line 13 or line 14' -- Worksheet B line 5, or the household credit -- so the EIC is reduced only by the household credit the filer could USE. This package subtracted all of it, so a single parent of two at $12,000 lost $90 of a REFUNDABLE match to a NON-REFUNDABLE credit that could only ever have been worth $80. What is left under this entry is a different fact entirely, which is why the bound is now $2 rather than $80: this package DERIVES the s 601(d) supplemental tax from the rate schedule and PolicyEngine stores the published incremental-benefit table ($567 for a 2026 single filer). Inside the phase-in band the two differ by $1.06 at $150,000. WHICH IS RIGHT IS OPEN -- the table is written into the statute, so a derivation that disagrees with it by a dollar may be this package's defect rather than a rounding difference. It appears on no household with a household credit."
+  },
+  {
+    "metric": "state.tax",
+    "state": "NC",
+    "maxAbs": 400,
+    "reason": "NOT MODELLED HERE. The North Carolina child deduction, up to $3,000 a child and phasing to zero as AGI rises (G.S. 105-153.5(a1)), named in the state's notes. The bound is $400 rather than $250 from Day 26, because the grid gained a household with THREE children and the deduction is per child: $9,000 at 3.99% is $359.10. North Carolina's retirement rules are now modelled: it taxes a pension in FULL and deducts military retired pay in full, which is why no retiree case is left here."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MA",
+    "reason": "HARNESS. Massachusetts taxes its own gross income and the harness states it directly, so any difference is a difference about what belongs on Form 1 line 21 rather than about the tax. Massachusetts also has a No Tax Status and a Limited Income Credit that this package does not model."
+  },
+  {
+    "metric": "state.tax",
+    "state": "PA",
+    "reason": "HARNESS. Pennsylvania has no federal starting line, so the harness states the eight-class base itself."
+  },
+  {
+    "metric": "state.tax",
+    "state": "UT",
+    "reason": "PROVISIONAL FIGURES. Utah indexes the Taxpayer Tax Credit's phase-out threshold and its per-dependent exemption annually and had not published the 2026 amounts when this was written, so this package carries 2025's forward and says so. PolicyEngine has indexed values. The gap is 1.3 cents per dollar of threshold - $5.36 for a single filer, $10.73 joint - and will close when Utah publishes."
+  },
+  {
+    "metric": "state.tax",
+    "state": "CA",
+    "reason": "PROVISIONAL FIGURES. California's 2026 brackets, standard deduction and exemption credits are the 2025 published amounts carried forward; the FTB indexes them to the CCPI after this was written. PolicyEngine projects them."
+  },
+  {
+    "metric": "state.tax",
+    "state": "OH",
+    "reason": "NOT MODELLED HERE. Ohio's $20-per-exemption credit for a filer with Ohio AGI of $30,000 or less (R.C. 5747.022). BOUNDED AT $100 ON DAY 32, and the bound is the finding rather than the credit: R.C. 5747.022 is $20 an exemption and the largest household in this grid has four, so nothing this entry explains can exceed $80. Without a bound it was the FIRST match for every Ohio state.tax difference in the file and silently carried four it cannot explain - a $275 addition for other states' municipal interest, two separate-return spouse differences belonging to the `separate-with-spouse` entry, and $316.09 of Ohio earned income credit belonging to the entry that follows the federal s 32(d) disagreement. AN ENTRY WITH NO BOUND ABSORBS THE NEXT DIFFERENCE IN ITS STATE, and a report that says zero unexplained is the last place that will say so.",
+    "maxAbs": 100
+  },
+  {
+    "metric": "state.tax",
+    "state": "MD",
+    "maxAbs": 6,
+    "maxShareOfIncome": 0.0017,
+    "reason": "NOT UPDATED THERE, twice. Two facts, and between them they account for every Maryland difference in this grid to the cent - verified by running this package with both of PolicyEngine's figures, after which 22 of the 23 Maryland cases agreed exactly. (1) ALLEGANY COUNTY raised its rate from 3.03% to 3.20% for 2026. This package carries the new rate; PolicyEngine's county table cites the 2025 resident booklet and stops there, so it charges 2025's. That is 0.17 of a point of taxable income, which is why this entry is bounded by a SHARE OF INCOME rather than by a dollar figure: the same one fact is $43.76 on a $30,000 household and $678.70 on a $400,000 one. (2) The 2026 standard deduction, which until Day 28 was the other way round. HB 352 replaced the 15%-of-AGI formula with a flat $3,350/$6,700 indexed from 2026; this package carried the 2025 figure forward and flagged it provisional because secondary sources split between $3,350 and $3,400, and PolicyEngine uprates it to $3,400/$6,850. The Comptroller has settled it: the 2026 employer withholding guide and the 2026 Form MW507 both carry $3,350, and the fiscal note on HB 411 of 2026 - a bill to raise the deduction to $4,100, which died in committee - prices the rise against a current law of $3,350. So the figure never moved and PolicyEngine's is a projection of an increase that did not happen. At most $150 of deduction, about $6 of state and county tax at the top rate."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "single-worker",
+    "idIncludes": "-400000-",
+    "maxAbs": 700,
+    "reason": "HARNESS, in the state. The same fact as the two federal entries above, one level down. At $400,000 PolicyEngine's household ITEMISES federally - its only itemised deduction being the state income tax it is in the middle of computing - and two states then follow that federal election, in both directions. VIRGINIA requires a federal itemiser to itemise on the state return (Va. Code § 58.1-322.03(1)) and subtracts state income tax from the itemised total, which in this harness leaves ZERO, so PolicyEngine gives the filer no deduction at all where this package gives the $8,750 standard one: $503.13 at 5.75%. GEORGIA does the same under § 48-7-27(a)(1), allowing $21,965 of itemised deductions against this package's $15,000 standard one, and then pays $300 a taxpayer for having itemised - the eligible itemizer credit of O.C.G.A. § 48-7-27.1, which IS modelled here from v0.22.0 and which test/georgia-itemizer-credit.test.js pins. It does not fire in this grid because the harness's own federal return takes the standard deduction, so `federal.deductionKind` is `standard` on every case in it. $347.55 of deduction plus $300 of credit is the $647.55. Neither difference can be closed from this harness, which supplies no itemised deductions on purpose: feeding a state tax back into the federal return is circular. NOTE the cite: this entry said § 48-7-29.23 until Day 26, copied from PolicyEngine-US's own variable file. No such section exists - their PARAMETER file has it right."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MS",
+    "idIncludes": "early-retire",
+    "maxAbs": 1800,
+    "reason": "A DISAGREEMENT ABOUT AGE, and both models document their side. Mississippi exempts qualified retirement income under § 27-7-15(4)(k), and § 27-7-15(4)(l) leaves a PREMATURE distribution — one the federal § 72(t) penalty would reach — fully taxable. This package therefore requires 59 1/2; PolicyEngine-US models the exemption with no age test at all and says so in its own parameter file. The grid could not see the disagreement until Day 26, because every retiree in it was 67 or older. A 56-year-old drawing a $50,000 pension is charged $1,268 here and nothing there, and a couple of 57 and 55 with $70,000 is charged $1,736. This package's reading is in test/retirement-by-source.test.js and in the state's notes; it is the one place where being right costs the filer money, so it is worth restating that a distribution before 59 1/2 is what (l) is about."
+  },
+  {
+    "metric": "federal.earnedIncomeCredit",
+    "kind": "separate-with-child",
+    "maxAbs": 1100,
+    "reason": "§ 32(d), and a different reading of the ARPA amendment. A married filer who files separately gets no earned income credit under § 32(d)(1) unless § 32(d)(2) applies — which needs the filer to have lived with a qualifying child for more than half the year AND either to have had a different principal abode from the spouse for the last six months or to be legally separated and not a member of the same household. PolicyEngine-US turns a single parameter, `eligibility.separate_filer`, true from 2021 and allows the credit to EVERY separate filer. This package requires the facts: `separatedFromSpouse` plus a qualifying child, and the case grid supplies neither, so it computes zero. Neither model is reading the statute wrongly — one is assuming the exception applies and the other is assuming it does not, and nothing on a return either model was given says which. $1,053.62 for one child at $45,000 in 2026."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "separate-with-child",
+    "maxAbs": 950,
+    "reason": "FOLLOWS THE § 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set their earned income credit as a flat percentage of the federal one - it read \"six\" until Day 32, and the seventh was invisible because the unbounded Ohio entry above matched its difference first, so a $1,053.62 disagreement about the federal credit reaches the state return multiplied by that state's match: New Jersey 40% ($421.45), New York 30% ($316.09), Illinois 20% plus its 40%-of-that child credit ($295.01 of it), Virginia 20% ($210.72), Indiana 10% ($105.36), OHIO 30% ($316.09, R.C. 5747.71), and Maryland most of all, because Maryland matches at 50% AND every Maryland county runs its own earned income credit at ten times the county rate. The bound is $950 for that Maryland case. Not a state disagreement at all: fix the federal reading and all six move together."
+  },
+  {
+    "metric": "state.tax",
+    "state": "GA",
+    "kind": "surviving-spouse-low",
+    "maxAbs": 400,
+    "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT -- the same reading as the $45,000 and the three high-income cases, and the case that shows the $748.50 those entries call a constant is not one. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000 and PolicyEngine-US gives the 2026 one the joint $30,000 while giving the 2025 one the single amount. Above $30,000 of income the whole $15,000 of difference is in use and the gap is $748.50 at every income. At $26,000 it is $299.40, because the widow has not got $30,000 of income for the larger deduction to come off: the difference is clipped by the income, not by the deduction. A DEDUCTION DISAGREEMENT IS A CONSTANT ONLY ABOVE THE DEDUCTION, which is exactly what a grid that only ever filed this status at $45,000 and up could not show. At $18,000 there is no difference at all -- both engines reach zero -- so the entry covers one case of the two."
+  },
+  {
+    "metric": "state.tax",
+    "state": "GA",
+    "kind": "surviving-spouse",
+    "maxAbs": 800,
+    "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT, and this package follows the statute where PolicyEngine-US follows itself inconsistently. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000. PolicyEngine gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount, which is what makes this a reading rather than a rate: $15,000 at 4.99% is $748.50. Recorded in Georgia's notes since v0.15.0."
+  },
+  {
+    "metric": "federal.childTaxCredit",
+    "kind": "surviving-spouse-high",
+    "maxAbs": 2300,
+    "reason": "A DEFECT THERE, and it was a defect HERE until Day 27. § 24(b)(2) sets the phase-out threshold at \"$400,000 in the case of a joint return, and $200,000 in any other case\". A QUALIFYING SURVIVING SPOUSE DOES NOT FILE A JOINT RETURN - § 2(a) hands them the joint RATE SCHEDULE under § 1(a) and says nothing about any threshold - so the figure is $200,000, and Schedule 8812 line 9 prints the same split in two lines: \"Married filing jointly-$400,000\" and \"All other filing statuses-$200,000\". PolicyEngine-US carries $400,000 for this status, so at $250,000 and $300,000 of wages it gives a widow with one child the full $2,200 and this package gives nothing. NOTE WHICH CASE IS MISSING FROM THIS LIST: at $450,000 the two engines AGREE at $0, because that income clears the joint threshold as well. That is the whole reason the $450,000 shape exists - without it, a report of two disagreeing incomes could not distinguish \"this package now uses $200,000\" from \"this package lost the credit for some other reason\". This package carried $400,000 too, with a comment calling the question UNRESOLVED on the grounds that irs.gov is blocked from the build sandbox and PolicyEngine agreed; the statutory sentence settles it unaided and was quoted in that comment. See packages/us-federal-tax/test/surviving-spouse.test.js, which walks the parameter tree and requires every status-keyed table in the package to declare its statutory grouping."
+  },
+  {
+    "metric": "federal.taxableIncome",
+    "kind": "surviving-spouse-high",
+    "idIncludes": "-450000-",
+    "reason": "HARNESS. The same fact as the single-worker entry above, on the one surviving-spouse case rich enough to reach it: PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction, and the harness supplies no itemised deductions on purpose, so this package takes the standard one. It appears only in CALIFORNIA and MARYLAND, the two high-tax states in the grid where $450,000 of wages generates enough state and local tax to beat a $32,200 standard deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
+  },
+  {
+    "metric": "federal.incomeTaxBeforeCredits",
+    "kind": "surviving-spouse-high",
+    "idIncludes": "-450000-",
+    "reason": "HARNESS. Follows the taxable-income difference above."
+  },
+  {
+    "metric": "state.tax",
+    "state": "GA",
+    "kind": "surviving-spouse-high",
+    "maxAbs": 800,
+    "reason": "GEORGIA HAS NO SURVIVING-SPOUSE AMOUNT - the same entry as the $45,000 surviving-spouse case, at three higher incomes. HB 1437 sets the standard deduction at one figure 'in the case of a married couple filing a joint return' and another 'in the case of any other taxpayer', so a surviving spouse takes the $15,000; PolicyEngine-US gives the 2026 surviving spouse the JOINT $30,000 while giving the 2025 one the SINGLE amount. It is $748.50 at EVERY income here - $15,000 of deduction at a flat 4.99% - which is what makes it a reading of the statute rather than a rate or a threshold, and is why one bound covers all three cases. A separate entry from the $45,000 one because `kind` matches exactly and the new shape is a new kind; that is a small cost of naming it `surviving-spouse-high` and it is worth paying, because a report that lumped the two together could not show that the $45,000 case and the $450,000 case differ by the same dollar."
+  },
+  {
+    "metric": "state.tax",
+    "kind": "separate-with-spouse",
+    "maxAbs": 691,
+    "reason": "A DEFECT THERE, and it took three days and three statutes to get to a one-sentence answer. Day 30 recorded SIX differences on these two households as one open question: PolicyEngine-US counted the spouse in Virginia's $930 exemption and $12,000 age deduction, Maryland's $3,200 exemption and its $1,000 addition at 65, and Indiana's $1,000 exemption and its $1,000 addition at 65, and this package counted nobody. They were never one question. Day 31 closed the FOUR that were IRC s 151(b) - the state exemption gains a no-income spouse on a separate return in VA, IL, MD and IN, and expressly does not in NJ. Day 32 closed the AGED half, which is a different claim with a different answer in each state: VIRGINIA and INDIANA adopt s 63(f) by reference (s 58.1-322.03(2)(b), 'each blind or aged taxpayer as defined under s 63(f)'; IC 6-3-1-3.5(a), 'each additional amount allowable under Section 63(f)'), ILLINOIS writes the spouse's own two $1,000s out in 35 ILCS 5/204(d) with s 151(b)'s conditions copied onto them, and MARYLAND says NO - Tax-Gen. s 10-211(b)(3) and (b)(4) allow $1,000 'if THE INDIVIDUAL' is 65 or blind, where (b)(1) instead counts 'each exemption that the individual may deduct under subsection (a)' and (a) is the subsection that reaches the spouse. Three mechanisms, two directions, one question. The Indiana difference this entry used to carry ($49.70) is CLOSED by that reading. WHAT IS LEFT IS ONE DIFFERENCE AND IT IS THEIRS. $690.01 in Virginia, and it was never the s 151(b) question: it is the $12,000 AGE DEDUCTION of s 58.1-322.03(5), which attaches to a person's own birth date rather than to an exemption count, so s 151(b) cannot reach it and the exemption's answer cannot be borrowed for it. On a separate return one return holds one person's deduction. `va_age_deduction` counts head and spouse with NO filing-status test at all, and PolicyEngine's tax unit holds the spouse whatever the status, so their separate return deducts $24,000 where this one deducts $12,000: $12,000 at 5.75% is $690.00, and the cent is rounding. Their own `va_age_deduction_person` divides the total between the eligible people - the worksheet's half-allocation - but both halves stay inside the one tax unit, so the total on the return is the joint figure. AND THE SAME MEMBER-COUNT SHAPE MADE THEM RIGHT ABOUT SOMETHING THIS PACKAGE HAD WRONG, which is why this entry is not a scorecard. s 58.1-322.03(5)(b) withdraws the age deduction against 'the total combined adjusted federal adjusted gross income of both spouses' on a separate return - the Form 760 Age Deduction Worksheet says all married taxpayers enter the combined figure even when filing separately - and this package tested the joint $75,000 threshold against the FILER's income alone, which gave a separate filer a larger deduction than either a single or a joint return. PolicyEngine reads the combined figure by construction, because its tax unit holds both people. Fixed in us-state-tax v0.29.0: the measure is declared on `ageDeduction.separateReturn` with the statute quoted, the figure is a required input on such a return, and the income-tested half is REFUSED rather than guessed when it is missing. So on one provision their member count is the defect and on the next it is the reading, and only reading their source tells those apart."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "retired-couple",
+    "maxAbs": 4500,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $90,000, so the bound is $4,500."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "early-retired-couple",
+    "maxAbs": 3500,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $70,000, so the bound is $3,500."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "muni-retiree",
+    "maxAbs": 3000,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $60,000, so the bound is $3,000."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "separate-with-spouse-young",
+    "maxAbs": 2750,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $55,000, so the bound is $2,750."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "separate-with-spouse",
+    "maxAbs": 2750,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $55,000, so the bound is $2,750."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "early-retiree",
+    "maxAbs": 2500,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $50,000, so the bound is $2,500."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "single-retiree",
+    "maxAbs": 2000,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $40,000, so the bound is $2,000."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "blind-senior",
+    "maxAbs": 1250,
+    "reason": "A DEFECT THERE, and it is half of a law modelled. Ala. Admin. Code r. 810-3-19-.04 exempts a payment to a retiree or beneficiary under a DEFINED BENEFIT PLAN, as IRC s 414(j) defines one, from Alabama income tax to the extent it is taxable federally - no cap, NO AGE TEST, and non-qualified defined benefit plans, excess benefit plans and SERPs are named in the regulation as included. PolicyEngine-US models the OTHER half of the statute instead: s 40-18-19(a)(13)'s Schedule RS exclusion, which is $6,000 per person and needs age 65, and which is the rule for a DEFINED CONTRIBUTION distribution. Its model already contains the exempt-in-full shape for a PUBLIC pension (`taxable_public_pension_income` is subtracted from Alabama AGI outright), so what is missing is that a private defined benefit pension is in the same class. This harness passes the case's pension as `employerPlanPension`, which in Alabama means a defined benefit plan and in PolicyEngine means `taxable_private_pension_income` with no plan type attached - so the two models are also being asked slightly different questions about the same dollars, and only one of them can express the answer. A 401(k) draw IS taxable here above $6,000 from 65, through `definedContributionPlan`, and the two engines then agree. THE BOUND IS DERIVED FROM THE RATE AND NOT FROM THE MEASUREMENT: 5% of this case's pension, which is the most the fact can be worth on a return whose top rate is 5%. This kind's largest pension is $25,000, so the bound is $1,250."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "surviving-spouse-high",
+    "maxAbs": 111,
+    "reason": "PROPAGATED FROM THE FEDERAL RETURN, and Alabama is the only state here where that can happen. Form 40 line 12 deducts the federal income tax, so a disagreement about the FEDERAL bill becomes a disagreement about the STATE one at 5% of itself. The federal disagreement is the one already recorded in this file: s 24(b)(2) sets the child tax credit phase-out at $400,000 'in the case of a joint return, and $200,000 in any other case', a qualifying surviving spouse does not file a joint return, and PolicyEngine-US carries $400,000 for the status - so at $250,000 and $300,000 of wages it gives a widow with one child the whole $2,200 and this package gives nothing. Their federal bill is therefore $2,200 lower, their Alabama deduction $2,200 smaller, and their Alabama tax $110 higher. At $450,000 both engines give no credit and the Alabama columns agree, which is the same control the federal entry relies on. THE BOUND IS DERIVED FROM THE RATE: 5% of the $2,200 credit. THE BOUND IS STORED ONE DOLLAR ABOVE THE FACT, and the reason is the reference model's arithmetic: PolicyEngine-US answers in float32, so a difference that is exactly the rate-derived bound measures as $110.000390625 or $25.000390625 and `maxAbs` is a strict comparison. Rounding the bound up by a dollar is the narrowest honest way to say 'exactly this fact and nothing larger'."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "on-the-boundary",
+    "maxAbs": 26,
+    "reason": "A DEFECT THERE, and the first divergence in this file that was PREDICTED BEFORE IT WAS MEASURED. s 40-18-19(a)(9) grants $1,000 a dependent 'for taxpayers with adjusted gross income equal to or less than fifty thousand dollars ($50,000)' and $500 'in excess of fifty thousand dollars and equal to or less than one hundred thousand dollars ($100,000)'. Both boundaries are INCLUSIVE in the statute's own words, so a filer at exactly $50,000 keeps the $1,000 and one at exactly $100,000 keeps the $500. PolicyEngine-US stores the chart as a `single_amount` bracket whose thresholds are read as 'at or above', so it hands both boundaries to the step above. The `on-the-boundary` shape exists for this: Day 39 predicted a boundary disagreement in Connecticut and the grid said nothing, because in 779 households nobody was standing on a boundary. THE BOUND IS DERIVED FROM THE RATE: one dependent, one step of $500, at 5%. THE BOUND IS STORED ONE DOLLAR ABOVE THE FACT, and the reason is the reference model's arithmetic: PolicyEngine-US answers in float32, so a difference that is exactly the rate-derived bound measures as $110.000390625 or $25.000390625 and `maxAbs` is a strict comparison. Rounding the bound up by a dollar is the narrowest honest way to say 'exactly this fact and nothing larger'."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "kind": "couple-two-children",
+    "maxAbs": 51,
+    "reason": "The same s 40-18-19(a)(9) boundary convention as the `on-the-boundary` entry above, found on a household that was already in the grid: a couple with two children and exactly $100,000 of wages stands on the chart's upper boundary by accident. This package keeps $500 a child, PolicyEngine-US drops to $300, and $400 of exemption is $20 of tax. It is the one case in this file that argues for the new shape rather than being the new shape: a convention this grid could not see for 39 days was sitting inside a household it had had all along, because nobody had asked which side of $100,000 the household was on. THE BOUND IS DERIVED FROM THE RATE: two dependents, one step of $500 each, at 5%. THE BOUND IS STORED ONE DOLLAR ABOVE THE FACT, and the reason is the reference model's arithmetic: PolicyEngine-US answers in float32, so a difference that is exactly the rate-derived bound measures as $110.000390625 or $25.000390625 and `maxAbs` is a strict comparison. Rounding the bound up by a dollar is the narrowest honest way to say 'exactly this fact and nothing larger'."
+  },
+  {
+    "metric": "state.tax",
+    "state": "OR",
+    "year": 2026,
+    "maxAbs": 30,
+    "reason": "AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is on the published side. Every one of these is tax year 2026 and none is 2025, which is the signature of the disagreement rather than a symptom of it. PolicyEngine-US carries Oregon's 2026 figures as its 2025 figures uprated by gov.irs.uprating with downward rounding; this package carries the figures the Department of Revenue PUBLISHED in its 2026 withholding tax formulas (150-206-436, Rev. 12-31-25, out on 31 December 2025). Eight parameters differ: the standard deduction ($2,910/$5,820/$4,685 published against $2,895/$5,795/$4,660 uprated), the two indexed bracket boundaries ($4,550 and $11,400 against $4,450 and $11,350), the federal tax subtraction ceiling and its four phase-out rows ($8,750/$7,000/$5,250/$3,500/$1,750 against $8,650/$6,950/$5,200/$3,450/$1,700), and the exemption credit ($263 against $261.80170566232823 - a tax credit that is not a whole number of dollars is a giveaway that nothing published it). Day 41's rule, which Missouri's pension ceiling produced for one figure and Oregon's reproduces for eight: AN UPRATED FIGURE IS A MODEL'S FORECAST OF A DOCUMENT, AND THE DOCUMENT EXISTS. The tie-break is structural rather than a matter of preference - an agency does not publish a withholding formula for a figure it has not settled. THE BOUND IS DERIVED FROM THE RATES AND NOT FROM THE MEASUREMENT: $25 of standard deduction at 9.9% is $2.48, $100 of the first bracket boundary at the two-point step is $2.00 and $4.00 on a doubled joint schedule, $50 of the second at its two-point step is $1.00 and $2.00 joint, $100 of subtraction ceiling at 9.9% is $9.90, and $1.20 of exemption credit times four exemptions is $4.80 - about $23 in the worst mixture, bounded here at $30. The thresholds themselves are identical in both models, so no cliff can amplify it."
+  },
+  {
+    "metric": "state.tax",
+    "state": "OR",
+    "kind": "couple-two-children",
+    "year": 2026,
+    "maxAbs": 800,
+    "reason": "THE ONE OREGON FIGURE THIS PACKAGE CARRIES FORWARD, and the one place in this entry pair where PolicyEngine's forecast is likely the closer of the two. The Oregon Kids Credit's phase-out threshold is indexed by HB 3235 (2023) - $25,000 for 2023, $25,750 for 2024, $26,550 for 2025 - and the Department of Revenue publishes a year's Kids Credit figures in the JANUARY AFTER that year, so no document carries the 2026 threshold yet and neither model can be checked. PolicyEngine uprates it to $27,250; this package carries $26,550 forward and flags it in `provisionalFigures` with the document that would settle it, which is the convention it follows for every unpublished indexed figure (California's whole schedule, Ohio's exemption chart). Carrying it forward withdraws the credit EARLIER than the indexed figure would, so this package's error is against the filer and it says so in the ledger entry. The same applies to the $1,050 amount, where the two models happen to agree because PolicyEngine has not uprated it either. THE BOUND IS DERIVED FROM THE RULE AND NOT FROM THE MEASUREMENT: the credit is withdrawn across $5,000, the two thresholds are $700 apart, and the statutory maximum is five children at $1,050 - so the most this fact can ever be worth is 5 x $1,050 x 700/5,000 = $735, plus the $30 of parameter vintage in the entry above. The grid's largest instance is $134.02, on a couple at $30,000 with one child under six."
+  },
+  {
+    "metric": "state.tax",
+    "state": "WI",
+    "year": 2026,
+    "maxAbs": 16,
+    "reason": "POLICYENGINE UPRATES WISCONSIN'S STANDARD DEDUCTION BY THE FEDERAL INDEX, AND ITS OWN BRACKETS DISAGREE WITH IT. Wisconsin's 2026 Standard Deduction Table is not published until January 2027, so policyengine-us 2.15.3 has no 2026 value and uprates the 2025 schedule by `gov.irs.uprating`, which is 1.0226629 - giving $13,870 single, $25,680 joint, $12,200 separate, $17,920 head of household and thresholds of $19,990 / $28,850 / $13,690. This package carries $13,960 / $25,840 / $12,280 / $18,030 and $20,120 / $29,040 / $13,780. The tie-break is not a preference and it is not this package's arithmetic against theirs: it is PolicyEngine's own bracket parameters against PolicyEngine's own deduction parameters. Its 2026 bracket thresholds are READ from the Department of Revenue's 2026 Form 1-ES instructions, and 332,720/225,000 over 323,290/225,000 is 1.0291, not 1.0227 - so the two halves of its 2026 Wisconsin are indexed on different series, one of them the WRONG GOVERNMENT'S. Wis. Stat. 71.06(2e) and 71.05(22)(ds) index both schedules on the same Wisconsin CPI measure, which is why this package derives the deduction schedule from the published brackets instead of uprating it, and why four of its seven figures come out UNIQUE and the other three within $10 - see test/wisconsin-indexation.test.js. THE BOUND IS DERIVED FROM THE RULE: the largest possible gap in deduction is the 2026 joint figure, $25,840 against $25,680, which is $160, and the most tax $160 of deduction can carry is 160 x 7.65% = $12.24, plus up to $160 x 19.778% x 7.65% = $2.42 where the threshold difference moves the withdrawal as well. The grid's largest instance is $10.48."
+  },
+  {
+    "metric": "state.tax",
+    "state": "WI",
+    "kind": "surviving-spouse",
+    "year": 2026,
+    "maxAbs": 60,
+    "reason": "A WIDOW IS ONE PERSON AND POLICYENGINE GIVES HER TWO $700 EXEMPTIONS. `wi_base_exemption` is `exemptions_count` times $700, and `exemptions_count` is the federal-style count, which for a qualifying surviving spouse includes the deceased spouse. Wis. Stat. 71.05(23) allows '$700 for the taxpayer, $700 for the taxpayer's spouse IF A JOINT RETURN IS FILED, and $700 for each dependent', and a surviving spouse does not file a joint return. This is the same class of error this package fixed across fourteen call sites in v0.27.0 and named `livingFilerCount`: a filing status is a row on a form and not a number of people. THE BOUND: one $700 exemption at Wisconsin's top rate of 7.65% is $53.55, and the grid's largest instance is $53.54, the rest being the deduction-index difference in the entry above. A SEPARATE, UNREAD QUESTION SITS BEHIND THIS ONE and is recorded in NOTES-FOR-HUMAN.md: Wisconsin Form 1 may not offer the qualifying surviving spouse status at all - it prints four boxes - in which case both models are answering a question Wisconsin does not ask, and the right answer is to file such a return as single or head of household. Nothing read so far settles it, and both models put the status on the joint rate schedule."
+  },
+  {
+    "metric": "state.tax",
+    "state": "WI",
+    "kind": "separate-with-spouse-young",
+    "year": 2026,
+    "maxAbs": 45,
+    "reason": "THE SECTION 151(b) SPOUSE ON A SEPARATE RETURN, which this package declares UNRESOLVED for Wisconsin rather than guessing. PolicyEngine's `exemptions_count` gives a separate filer whose spouse has no gross income an exemption for that spouse, worth $700 of Wisconsin exemption; this package's `exemption.separateReturnSpouse.spouse` is `'unresolved'` for Wisconsin with a cite naming what would settle it, and the engine does not allow it - so this package's figure is HIGHER. Day 30's rule is why: a provision read for one state is not evidence about another, and the answer runs both ways among the states that have been read (Virginia and Illinois count the spouse because their exemptions are defined by reference to section 151; New Jersey does not, because its statute conditions the spouse's exemption on a joint return). Wis. Stat. 71.05(23) reads 'if a joint return is filed', which POINTS the same way as New Jersey - but the Form 1 exemption worksheet is the document that settles it and nobody has read it. THE BOUND: $700 of exemption at the 4.4% rate the grid's case is in is $30.80, and at the 7.65% top rate $53.55; the grid's instance is $31.91, the remainder being the deduction-index difference."
+  },
+  {
+    "metric": "state.tax",
+    "state": "WI",
+    "kind": "surviving-spouse-high",
+    "year": 2026,
+    "maxAbs": 60,
+    "reason": "THE SAME FACT AS THE `surviving-spouse` ENTRY, for the other two shapes of that status in the grid. Written out rather than matched by prefix because a prefix rule would also absorb a shape nobody has looked at. A WIDOW IS ONE PERSON AND POLICYENGINE GIVES HER TWO $700 EXEMPTIONS. `wi_base_exemption` is `exemptions_count` times $700, and `exemptions_count` is the federal-style count, which for a qualifying surviving spouse includes the deceased spouse. Wis. Stat. 71.05(23) allows '$700 for the taxpayer, $700 for the taxpayer's spouse IF A JOINT RETURN IS FILED, and $700 for each dependent', and a surviving spouse does not file a joint return. This is the same class of error this package fixed across fourteen call sites in v0.27.0 and named `livingFilerCount`: a filing status is a row on a form and not a number of people. THE BOUND: one $700 exemption at Wisconsin's top rate of 7.65% is $53.55, and the grid's largest instance is $53.54, the rest being the deduction-index difference in the entry above. A SEPARATE, UNREAD QUESTION SITS BEHIND THIS ONE and is recorded in NOTES-FOR-HUMAN.md: Wisconsin Form 1 may not offer the qualifying surviving spouse status at all - it prints four boxes - in which case both models are answering a question Wisconsin does not ask, and the right answer is to file such a return as single or head of household. Nothing read so far settles it, and both models put the status on the joint rate schedule."
+  },
+  {
+    "metric": "state.tax",
+    "state": "WI",
+    "kind": "surviving-spouse-low",
+    "year": 2026,
+    "maxAbs": 60,
+    "reason": "THE SAME FACT AS THE `surviving-spouse` ENTRY, for the other two shapes of that status in the grid. Written out rather than matched by prefix because a prefix rule would also absorb a shape nobody has looked at. A WIDOW IS ONE PERSON AND POLICYENGINE GIVES HER TWO $700 EXEMPTIONS. `wi_base_exemption` is `exemptions_count` times $700, and `exemptions_count` is the federal-style count, which for a qualifying surviving spouse includes the deceased spouse. Wis. Stat. 71.05(23) allows '$700 for the taxpayer, $700 for the taxpayer's spouse IF A JOINT RETURN IS FILED, and $700 for each dependent', and a surviving spouse does not file a joint return. This is the same class of error this package fixed across fourteen call sites in v0.27.0 and named `livingFilerCount`: a filing status is a row on a form and not a number of people. THE BOUND: one $700 exemption at Wisconsin's top rate of 7.65% is $53.55, and the grid's largest instance is $53.54, the rest being the deduction-index difference in the entry above. A SEPARATE, UNREAD QUESTION SITS BEHIND THIS ONE and is recorded in NOTES-FOR-HUMAN.md: Wisconsin Form 1 may not offer the qualifying surviving spouse status at all - it prints four boxes - in which case both models are answering a question Wisconsin does not ask, and the right answer is to file such a return as single or head of household. Nothing read so far settles it, and both models put the status on the joint rate schedule."
+  },
+  {
+    "metric": "state.tax",
+    "state": "WI",
+    "idIncludes": "surviving-spouse",
+    "maxAbs": 3300,
+    "reason": "A DEFECT THERE, and it is the same defect this package shipped for forty-three days until v0.40.0. PolicyEngine-US reads a FEDERAL qualifying surviving spouse straight across to the state's JOINT column, which is right in the nine states here that carry the status and wrong in the four that do not. A state with no surviving-spouse status has still told the filer which of ITS statuses to use, and the instruction turns on whether its head-of-household box reads \"if you qualify to file as head of household on your federal return\" or \"...as head of household OR QUALIFYING SURVIVING SPOUSE on your federal return\": the first DENIES her the box, because 26 U.S.C. 2(b)(1) admits only an individual who \"is not married at the close of his taxable year, is not a surviving spouse (as defined in subsection (a))\", so she does not qualify federally as a head of household and a state incorporating the federal test by reference has excluded her by reference too; the second GRANTS it. Every difference here has this package charging MORE, because the joint column is the generous one. WISCONSIN: the 2025 Form 1 instructions (I-111) say a filer who qualifies federally as a qualifying surviving spouse \"may file your Wisconsin return as head of household\", and the Department of Revenue's filing-status FAQ puts \"head of household OR QUALIFYING SURVIVING SPOUSE WITH DEPENDENT CHILD\" in the head-of-household test itself; s. 71.06 writes its schedules for \"fiduciaries, single individuals and heads of households\" and for \"married persons\", with no surviving-spouse schedule to read a joint column off. THE BOUND IS DERIVED RATHER THAN MEASURED: the joint column differs from the head-of-household one by $7,810 of maximum standard deduction (7.65% = $597.47), by $700 of exemption ($53.55), and by $110,910 of the top bracket's starting point at the 2.35-point step from 5.3% to 7.65% ($2,606.39) - $3,257.41 in all, which is the most this divergence can ever be in Wisconsin and is why $3,300 is the ceiling here. The largest in the grid is $2,807.54, at $450,000."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AL",
+    "idIncludes": "surviving-spouse",
+    "maxAbs": 400,
+    "reason": "A DEFECT THERE, and it is the same defect this package shipped for forty-three days until v0.40.0. PolicyEngine-US reads a FEDERAL qualifying surviving spouse straight across to the state's JOINT column, which is right in the nine states here that carry the status and wrong in the four that do not. A state with no surviving-spouse status has still told the filer which of ITS statuses to use, and the instruction turns on whether its head-of-household box reads \"if you qualify to file as head of household on your federal return\" or \"...as head of household OR QUALIFYING SURVIVING SPOUSE on your federal return\": the first DENIES her the box, because 26 U.S.C. 2(b)(1) admits only an individual who \"is not married at the close of his taxable year, is not a surviving spouse (as defined in subsection (a))\", so she does not qualify federally as a head of household and a state incorporating the federal test by reference has excluded her by reference too; the second GRANTS it. Every difference here has this package charging MORE, because the joint column is the generous one. ALABAMA: Ala. Code 40-18-1 defines \"head of family\" as having the same meaning as head of household in 26 U.S.C. 2(b), and the Form 40 booklet repeats 2(b)(1)'s exclusion in its own words - head of family requires that the filer \"is not a surviving spouse\". Nothing adds her status back as an alternative qualification, and 40-18-5's joint schedule is written for a joint return with no surviving-spouse grant of the kind IRC 1(a) carries. Of Form 40's four statuses that leaves single. THE BOUND IS DERIVED: $5,500 of maximum optional standard deduction and $1,500 of personal exemption at the 5% top rate is $350, plus $40 of bracket width (the 2% and 4% bands are $500/$3,000 single against $1,000/$6,000 joint), so $390 is the ceiling and $400 is the entry's. AND THE DIFFERENCE IS NOT FLAT IN INCOME: it is $240 above $35,500, where Alabama's deduction staircase has reached its floor in both columns, and it is LARGER below that - $385.00 at $18,000 - because the staircase withdraws a bigger deduction from the joint column and has further to fall."
+  },
+  {
+    "metric": "state.tax",
+    "state": "MS",
+    "idIncludes": "surviving-spouse",
+    "maxAbs": 240,
+    "reason": "A DEFECT THERE, and it is the same defect this package shipped for forty-three days until v0.40.0. PolicyEngine-US reads a FEDERAL qualifying surviving spouse straight across to the state's JOINT column, which is right in the nine states here that carry the status and wrong in the four that do not. A state with no surviving-spouse status has still told the filer which of ITS statuses to use, and the instruction turns on whether its head-of-household box reads \"if you qualify to file as head of household on your federal return\" or \"...as head of household OR QUALIFYING SURVIVING SPOUSE on your federal return\": the first DENIES her the box, because 26 U.S.C. 2(b)(1) admits only an individual who \"is not married at the close of his taxable year, is not a surviving spouse (as defined in subsection (a))\", so she does not qualify federally as a head of household and a state incorporating the federal test by reference has excluded her by reference too; the second GRANTS it. Every difference here has this package charging MORE, because the joint column is the generous one. MISSISSIPPI: Miss. Code 27-7-21(d) writes head of family as \"an individual who is SINGLE, or married but not living with his spouse for the entire taxable year, who maintains a household which constitutes the principal place of abode of himself and one or more individuals who are dependents under the provisions of Section 152(a)\" - the dependent test is a federal cross-reference and the UNMARRIED test is not, so 2(b)(1)'s exclusion never arrives and she qualifies. Form 89-350 states the same test in four words: \"single and have a dependent living in the home\". The status that LOOKS like the answer is not one: Form 80-105's \"Married - Spouse Died in Tax Year\" carries the $12,000 joint exemption and the instructions give it to a filer whose spouse died IN the tax year, which is the one year a federal qualifying surviving spouse is NOT one. THE BOUND IS DERIVED: $4,000 of exemption and $1,200 of standard deduction at 4.4% (2025) is $228.80 and at 4.0% (2026) is $208.00, so $240 is the ceiling. Below about $26,000 it is smaller rather than larger - $124.00 - because the widow's taxable income runs out before the whole $5,200 gap can be used."
+  }
 ]

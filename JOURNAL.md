@@ -70,13 +70,19 @@ at the joint figure), with the basis held fixed and only the status varied:
 | state | files as | what the joint default was worth |
 | --- | --- | --- |
 | Wisconsin | head of household | **`$2,861.08`** at `$450,000`, `$673.33` at `$90,000`, `$527.39` at `$45,000` |
-| Alabama | single | **`$240.00`**, flat in income |
-| Mississippi | head of family | **`$208.00`**, flat in income |
+| Alabama | single | **`$385.00`** at `$18,000`, falling to **`$240.00`** at `$35,500` and flat above |
+| Mississippi | head of family | **`$208.00`** from `$30,000` up, `$124.00` at `$26,000` |
 | Arizona | head of household | **`$0.00`** — and `$201.25` somewhere else (Part 5) |
 
-Alabama's and Mississippi's are flat because both are a fixed difference of
-exemption and deduction against a top rate reached early. Wisconsin's grows because
-its sliding-scale deduction and its brackets both move.
+**That table had "flat in income" in two of its rows for most of the day and the
+differential grid took both out** (Part 12). Alabama's is biggest at the BOTTOM,
+because its optional standard deduction is a staircase that withdraws a larger
+figure from the joint column and reaches its floor at `$35,500`; Mississippi's is
+smallest at the bottom instead, because a widow at `$26,000` runs out of taxable
+income before the whole `$5,200` of exemption and deduction gap can be used; and
+Wisconsin's grows throughout because its sliding-scale deduction and its brackets
+both move. **Three states, three different shapes, and the two I called flat were
+the two I had only measured above `$45,000`.**
 
 **Day 26 found the same assumption one layer down** — a helper answering "how many
 people are on this return" with a fact about which column of a form the status sits
@@ -428,12 +434,74 @@ a quoted difference of two REACHABLE answers, not about rounding in general.
   four documents and three tarball links. About thirty minutes, and the one that
   earned it was the exempt-cell count, which is the only thing that would have
   noticed if the structural exemption had silently swallowed a cell it should not.
+- **A file the harness never runs is inside the suite fingerprint, so editing it
+  invalidates a score it cannot affect.** `readme.test.js` is named in
+  `--skip-tests` — it is skipped for every one of the 1,357 mutants, by design,
+  because it reads documents rather than the engine — and `suiteFingerprint` is a
+  digest over every `.js`, `.json` and `.mjs` under `test/`. I edited it after
+  starting the recorded run and the record came out self-consistent only because
+  the fingerprint is taken at the END of the run rather than the start. **THE
+  RULE: a fingerprint over the files is a fingerprint over more than the property
+  it stands in for, in BOTH halves of this instrument** — worklist item 8 is about
+  the parameter half (a comment that cannot change a mutant) and this is the same
+  defect in the suite half (a test that cannot kill one). The suite digest should
+  cover the files the run actually loads, which `mutate.mjs` already knows,
+  because it prints them.
 - **The strict-input guard caught my own test.** `stateIncomeTax({ ...wi, ... })`
   where `wi` was a RESULT rather than an input threw with twenty-three unrecognised
   keys and a "did you mean `state`?". Day 38 built that guard for callers; it has
   now paid for itself twice inside this repository's own suite.
 
-### Part 12 — the mutation audit, predicted before it ran
+### Part 12 — the differential grid, and the claim it took out of my own writing
+
+**1,056 households, 7,392 figures, 6,839 agreeing to the dollar, 553 differences
+explained and ZERO unexplained**, against the pinned PolicyEngine-US 2.15.3. The
+fix created **14 new differences and every one of them is a
+`surviving-spouse-*` case in Wisconsin, Alabama or Mississippi** — which is the
+cleanest confirmation the grid has ever given that a change did what it said and
+nothing else: no state outside the three moved, and no household inside them that
+is not a widow moved.
+
+**PolicyEngine-US has the defect this package shipped until today**, in all three
+states, and it has it for the same reason: it reads the federal status straight
+across to the state's joint column. Three new entries in
+`known-divergences.json`, each bounding the difference by a DERIVATION rather than
+by the measurement:
+
+| state | the ceiling, and where it comes from | the grid's largest |
+| --- | --- | --- |
+| Wisconsin | `$7,810` of deduction at 7.65% (`$597.47`) + `$700` of exemption (`$53.55`) + `$110,910` of top-bracket start at the 2.35-point step (`$2,606.39`) = **`$3,257.41`** | `$2,807.54` |
+| Alabama | `$5,500` of deduction + `$1,500` of exemption at 5% (`$350`) + `$40` of bracket width = **`$390`** | `$385.00` |
+| Mississippi | `$4,000` of exemption + `$1,200` of deduction at 4.4% = **`$228.80`** | `$208.00` |
+
+**And the grid refuted a claim in my own writing, which is the part worth the
+day.** The table in Part 1 said Alabama's and Mississippi's differences were
+"flat in income" — a WHY-claim, which is exactly the kind Day 42 Part 10's rule
+says to go looking for — and it was false in both, in opposite directions. I had
+measured both only at `$45,000` and above.
+
+- **Alabama's is biggest at the BOTTOM**: `$385.00` at `$18,000` against `$240.00`
+  at `$45,000`, because its optional standard deduction is a staircase that
+  withdraws a larger figure from the joint column and does not reach its floor
+  until `$35,500`.
+- **Mississippi's is smallest at the bottom**: `$124.00` at `$26,000`, because a
+  widow there runs out of taxable income before the whole `$5,200` of exemption
+  and deduction gap can be used.
+
+**THE RULE: "flat in income" is a claim about the whole range and is almost always
+made from one end of it.** The two households that caught it are
+`surviving-spouse-low` at `$18,000` and `$26,000`, which **Day 29 added for a
+different reason entirely** — four credits that switch off before `$30,000` — and
+whose note says: *a grid widened in ONE direction is still a grid with an edge*.
+Fifteen days later that widening is what stopped a false sentence reaching a
+README. **A household added to reach one provision is a household that will
+contradict a claim nobody had thought to doubt**, which is the argument for
+widening a grid in both directions even when only one of them has a reason today.
+
+Both figures are now in the README table with the shape described, and
+`readme.test.js` pins five of them plus the two ceiling derivations.
+
+### Part 13 — the mutation audit, predicted before it ran
 
 Written down before starting the recorded run, because a prediction made
 afterwards is a description:

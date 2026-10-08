@@ -17754,7 +17754,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 1720,
+   "tax": 1912.88,
    "credits": []
   },
   "error": null
@@ -18080,7 +18080,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 676,
+   "tax": 884,
    "credits": []
   },
   "error": null
@@ -18315,7 +18315,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 666.03,
+   "tax": 1193.42,
    "credits": [
     {
      "name": "Wisconsin earned income credit",
@@ -18344,7 +18344,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 9605.9,
+   "tax": 9720.9,
    "credits": []
   },
   "error": null
@@ -18670,7 +18670,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 8876,
+   "tax": 9084,
    "credits": []
   },
   "error": null
@@ -18905,7 +18905,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 12334.01,
+   "tax": 12572.26,
    "credits": [
     {
      "name": "Wisconsin earned income credit",
@@ -18934,7 +18934,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 11447.15,
+   "tax": 11562.15,
    "credits": []
   },
   "error": null
@@ -19260,7 +19260,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 10876,
+   "tax": 11084,
    "credits": []
   },
   "error": null
@@ -19495,7 +19495,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 14984.01,
+   "tax": 15222.26,
    "credits": [
     {
      "name": "Wisconsin earned income credit",
@@ -19524,7 +19524,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 16913.9,
+   "tax": 17028.9,
    "credits": []
   },
   "error": null
@@ -19850,7 +19850,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 16876,
+   "tax": 17084,
    "credits": []
   },
   "error": null
@@ -20085,7 +20085,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 23034.36,
+   "tax": 25895.44,
    "credits": [
     {
      "name": "Wisconsin earned income credit",
@@ -20114,7 +20114,7 @@
    "earnedIncomeCredit": 4427
   },
   "state": {
-   "tax": 200,
+   "tax": 585,
    "credits": []
   },
   "error": null
@@ -20704,7 +20704,7 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": 603.75,
+   "tax": 986.25,
    "credits": []
   },
   "error": null
@@ -21030,7 +21030,7 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": 0,
+   "tax": 124,
    "credits": []
   },
   "error": null
@@ -21265,7 +21265,7 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": -163.59,
+   "tax": 112.69,
    "credits": [
     {
      "name": "Wisconsin earned income credit",

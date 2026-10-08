@@ -16,7 +16,8 @@ about reach, not about capability, and those older entries overstate it badly.
 **As of Day 44 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
 `us-state-tax` v0.40.0, `us-tax-mcp` v0.43.0. 1,355 tests, all passing, and the
 differential grid against PolicyEngine-US covers **1,056 households and 7,392
-figures**.
+figures, 6,839 agreeing to the dollar, 553 differences explained and ZERO
+unexplained**.
 
 Day 44 added no state and fixed the same defect in **four** of them at once,
 which is the first time that has happened here.

@@ -1340,10 +1340,22 @@ test("README: every figure in the surviving-spouse column section (v0.40.0)", ()
   money(gap('WI', 90_000), 673.33, 'Wisconsin at $90,000');
   money(gap('AL', 90_000), 240, 'Alabama');
   money(gap('MS', 90_000), 208, 'Mississippi');
-  // Alabama's and Mississippi's are flat in income because both are a fixed
-  // difference of exemption and deduction against a top rate reached early.
-  money(gap('AL', 45_000), 240, 'Alabama at $45,000 too');
+  money(gap('WI', 45_000), 527.39, 'Wisconsin at $45,000');
+  // NOT flat in income, which is the claim the differential grid refuted on the
+  // day it was written. Alabama's optional standard deduction is a staircase
+  // that withdraws a larger figure from the joint column and reaches its floor
+  // at $35,500, so the gap is LARGEST at the bottom; Mississippi's is smallest
+  // at the bottom instead, because a widow at $26,000 runs out of taxable income
+  // before the whole $5,200 of exemption and deduction gap can be used.
+  money(gap('AL', 18_000), 385, 'Alabama at $18,000');
+  money(gap('AL', 35_500), 240, 'Alabama at the floor of its staircase');
+  money(gap('AL', 450_000), 240, 'Alabama above it, flat');
+  money(gap('MS', 26_000), 124, 'Mississippi at $26,000');
+  money(gap('MS', 30_000), 208, 'Mississippi from $30,000');
   money(gap('MS', 450_000), 208, 'Mississippi at $450,000 too');
+  // The two derivations the grid's divergence entries bound these with.
+  assert.equal(5_500 * 0.05 + 1_500 * 0.05 + 500 * 0.02 + 3_000 * 0.01, 390, "Alabama's ceiling");
+  money(4_000 * 0.04 + 1_200 * 0.04, 208, "Mississippi's 2026 ceiling");
   // Arizona's is NOT a column at all, which is the section's point: every
   // Arizona figure that depends on the filing status is the federal deduction,
   // so the translation moves nothing and the money is in a question nobody has

@@ -2191,10 +2191,22 @@ Four states here have no such status, and all four were taking the joint column:
 
 | | files as | what it was worth |
 | --- | --- | --- |
-| **Wisconsin** | head of household | up to **`$2,861.08`** at `$450,000`; `$673.33` at `$90,000` |
-| **Alabama** | single | **`$240`** |
-| **Mississippi** | head of family | **`$208`** |
+| **Wisconsin** | head of household | up to **`$2,861.08`** at `$450,000`; `$673.33` at `$90,000`; `$527.39` at `$45,000` |
+| **Alabama** | single | **`$385.00`** at `$18,000`, falling to **`$240.00`** at `$35,500` and flat above it |
+| **Mississippi** | head of family | **`$208.00`** from `$30,000` up; `$124.00` at `$26,000` |
 | **Arizona** | head of household | **`$201.25`**, and not by a column — see below |
+
+None of the three is flat in income, and the two that look it are flat only over part
+of the range. **Alabama's is biggest at the BOTTOM**: its optional standard deduction
+is a staircase that withdraws a larger figure from the joint column and reaches its
+floor at `$35,500`, so above that the gap is the `$240` the exemption and the bracket
+widths account for and below it the staircase adds to it. **Mississippi's and
+Wisconsin's are biggest at the top**, Mississippi's because a widow at `$26,000` runs
+out of taxable income before the whole `$5,200` of exemption and deduction gap can be
+used, and Wisconsin's because its sliding-scale deduction and its brackets both move.
+The differential grid found this: the `surviving-spouse-low` households Day 29 added
+at `$18,000` and `$26,000` are the reason a "flat in income" claim did not survive the
+day it was written.
 
 ### The deciding words are not the ones you would guess
 
