@@ -510,6 +510,42 @@ audit**, which is the fourth this project has lost to the byte fingerprint in
 three days and is now the strongest line in worklist item 9: not one character of
 that fix changed a mutant.
 
+### Part 11d — a doc comment that ended up documenting the wrong thing
+
+The second adversarial pass over the diff — made after Part 11c, because the first
+one had just paid for itself — found that inserting `FILED_AS` after an existing
+JSDoc block had **orphaned that block**:
+
+```ts
+/**
+ * The base amount a state's computation starts from...
+ * Pennsylvania is the one state here with no federal starting line at all...
+ */
+/**
+ * Filing status names for the one note that has to print one...
+ */
+const FILED_AS = { ... };
+
+function conformityAmount(...)        // <- no longer documented
+```
+
+`conformityAmount` lost its doc comment and a paragraph about Pennsylvania's
+starting line became the thing immediately above a map of filing-status names.
+Nothing breaks, no figure moves, and in a file whose comments are the product this
+is still a defect: **a comment is attached to whatever follows it, so inserting
+anything between a comment and its subject reassigns the comment.**
+
+**THE RULE: a new declaration goes ABOVE the doc comment of the thing it is not,
+or below the thing that comment belongs to — never between them.** The tell is
+two JSDoc blocks with nothing between them, which is a shape a linter could find
+and this project's does not.
+
+It cost the audit's third start of the day, three minutes in, and the same pass
+found one more thing worth the restart: the Arizona note's parenthetical said the
+booklet "prints an amount against the BOX (the head-of-household figure)" — true
+of Arizona and a hard-coded assumption in a branch that fires for any state whose
+deduction is the federal one. It now reads the translated status.
+
 ### Part 12 — the differential grid, and the claim it took out of my own writing
 
 **1,056 households, 7,392 figures, 6,839 agreeing to the dollar, 553 differences

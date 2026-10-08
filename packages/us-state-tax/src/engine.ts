@@ -61,15 +61,6 @@ import type {
 export { applyBrackets, roundCents };
 
 /**
- * The base amount a state's computation starts from, before its own additions and
- * subtractions.
- *
- * Pennsylvania is the one state here with no federal starting line at all, so it
- * demands its own figure rather than silently accepting federal AGI — which would
- * be wrong by the amount of every pre-tax deduction the filer has, since
- * Pennsylvania allows almost none of them.
- */
-/**
  * Filing status names for the one note that has to print one: a caller told that
  * their widow was computed "as headOfHousehold" has been told a field name, and
  * the sentence is about a form.
@@ -82,6 +73,15 @@ const FILED_AS: Readonly<Record<FilingStatus, string>> = {
   qualifyingSurvivingSpouse: 'a qualifying surviving spouse',
 };
 
+/**
+ * The base amount a state's computation starts from, before its own additions and
+ * subtractions.
+ *
+ * Pennsylvania is the one state here with no federal starting line at all, so it
+ * demands its own figure rather than silently accepting federal AGI — which would
+ * be wrong by the amount of every pre-tax deduction the filer has, since
+ * Pennsylvania allows almost none of them.
+ */
 function conformityAmount(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
   switch (def.base) {
     case 'federalAdjustedGrossIncome':
@@ -4059,8 +4059,9 @@ export function stateIncomeTax(
           `as the federal amount rather than as a figure of its own, so the status translated ` +
           `above moves every table ${def.name} wrote and not the one it borrowed — and the two ` +
           `readings of that cross-reference disagree. The instruction booklet prints an amount ` +
-          `against the BOX (the head-of-household figure), and the statute points at § 63, which ` +
-          `for this filer is the joint figure. NOBODY HAS READ WHICH GOVERNS. The engine uses the ` +
+          `against the BOX — the one for ${FILED_AS[translated.filesAs]} — and the statute points ` +
+          `at § 63, which for this filer is the joint figure. NOBODY HAS READ WHICH GOVERNS. The ` +
+          `engine uses the ` +
           `federal deduction supplied in \`federal.deduction\`, so a caller who passed the ` +
           `surviving-spouse figure has the second reading; pass the head-of-household figure for ` +
           `the first. Worth ${def.name}'s rate on the gap between the two federal amounts.`,
