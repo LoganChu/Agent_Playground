@@ -23,8 +23,13 @@ and it took six starts to get, which is the other half of the day (Parts 11a,
 New: `src/definition.ts`'s `SurvivingSpouseStatusRule` and the
 `survivingSpouseFilesAs` field; a status translation at the engine's entry point;
 declarations on Wisconsin, Arizona, Mississippi and Alabama;
-`test/surviving-spouse-column.test.js` (5 tests); two new README tests; a
-structural exemption in `status-sweep.test.js`.
+`test/surviving-spouse-column.test.js` (**7** tests); two new README tests; a
+structural exemption in `status-sweep.test.js`; and `tools/mutation/mutate.mjs`'s
+worker pool, which turned out to have one worker in it (Part 15).
+
+And a coincidence a reader of the two numbers above will notice: **1,357 tests and
+1,357 mutants.** They are unrelated — one is what the suite asserts and the other
+is what the harness can set wrong — and they were 1,348 and 1,357 yesterday.
 
 CI read at the START of the run, the standing item since Day 37: **green on the
 last push** (run 157, 38ec237). One API call.
