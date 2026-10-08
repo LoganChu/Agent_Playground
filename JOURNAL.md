@@ -788,9 +788,70 @@ times. That is the opposite of where I would have looked, and it is the second d
 running that it has been — Day 43 found four wrong citations and three invented
 figures in its own writing and zero in its state module.
 
+### Part 15 — the worker pool was a pool of ONE, and it had been since it was written
+
+The fifth start reported `50/1357` after fourteen minutes. That is **3.8
+mutants/minute** against the 13.8 Day 43 recorded, so the run was six hours and
+not one, and the reason is the best finding of the day about this project's own
+instrument.
+
+`ps` was the giveaway: **two node processes**, the harness and one child, with a
+load average of 1.5 on four cores.
+
+```js
+async function worker(dir, list) {
+  for (const mu of list) {
+    ...
+    const r = runSuite(dir);        // <- execFileSync
+```
+
+`runSuite` was `execFileSync`. The pool starts `WORKERS` copies of `worker`, each
+an `async` function over its own chunk of the mutant list — and **a synchronous
+child-process call blocks the one event loop they all share**, so the first worker
+to reach `runSuite` held it until the suite returned and the other three could not
+start. Four queues, one runner, three idle cores, **and the start-up line has said
+"4 workers" the whole time.**
+
+**THE RULE: a worker pool whose work is a SYNCHRONOUS call is a pool of one, and
+it reports the number of workers you asked for.** Day 43 Part 12's rule was *a
+flag that is PRESENT and does nothing is worse than one that is missing*; this is
+the same thing one level down, where the flag is honoured, the number is printed,
+and the concurrency it names never existed. **The only thing that could have
+caught it is `ps`, and nothing in the harness's own output could**, which is the
+part worth fixing after today: the run should print how many children are
+actually alive.
+
+`execFile` promisified, `await` in both call sites, and validated the way Day 43
+validated `isolation=none` — **on `--only alabama.js`, which returns 43 mutants,
+43 killed, 100%, the same figures Day 41 recorded** — plus the timing that proves
+the mechanism rather than the outcome:
+
+```text
+one suite run, standalone        real 11.52s   user 14.44s
+--only alabama.js, 43 mutants    real  2m54s   user  9m29s    user/real = 3.26
+                                 14.8 mutants/min against 3.8
+```
+
+**`user/real = 3.26` on four cores is the measurement.** A score that came out the
+same and a wall clock that fell would be consistent with the machine being
+quieter; the user-time ratio is not.
+
+And one thing fixed beside it, because the sweep found it while the fix was being
+written: `maxBuffer` is now explicit at 64 MB with the reason measured. The green
+suite's TAP output is **152 KB** against the 1 MB default, so the default was
+never binding — but **an overflow throws, `runSuite` reads a throw as NOT GREEN,
+and not-green reads as a mutant KILLED**, so the failure mode of that buffer is a
+score that is TOO HIGH. A default whose failure direction flatters the number gets
+a figure with a reason rather than a default with none.
+
+`tools/mutation/` is in neither fingerprint — not `dist/esm`, not `test/` — so
+this cost no restart at all, which is the one piece of luck the day had.
+
 ### If the recorded score is still stale when you read this
 
-The fifth start of the audit was running over commit `6176941` when the day ended.
+The SIXTH start of the audit was running over commit `6176941` when the day
+ended, on the parallelised harness from Part 15 — about 85 minutes rather than six
+hours.
 If `node tools/mutation/check-scores.mjs` still says `us-state-tax` is STALE, the
 run did not finish and **the first thing to do is re-run it**, because CI's
 `mutation-claims` job is red until it does and everything else in CI is green:

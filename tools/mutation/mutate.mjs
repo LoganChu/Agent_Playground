@@ -72,7 +72,8 @@
  */
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
-import { execFileSync, execSync } from 'node:child_process';
+import { execFile, execFileSync, execSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import os from 'node:os';
 
 const argv = process.argv.slice(2);
@@ -383,9 +384,52 @@ console.error(
     : `[mutate] one node process per TEST FILE (${TEST_FILES.length} per mutant)`,
 );
 const TESTCMD = ['--test', ...isolationArgs(isolation), ...TEST_FILES.map((f) => `test/${f}`)];
-function runSuite(dir) {
+const execFileAsync = promisify(execFile);
+
+/**
+ * Run one worker's copy of the suite — **asynchronously**, which is the whole of
+ * Day 44's speed finding and is not an optimisation.
+ *
+ * This was `execFileSync` from the day the worker pool was written. The pool
+ * starts `WORKERS` copies of {@link worker}, each an `async` function over its
+ * own chunk of the mutant list — and a SYNCHRONOUS child-process call blocks the
+ * one event loop they all share, so the first worker to reach `runSuite` held it
+ * until the suite returned and the other three could not start. **Four queues,
+ * one runner.** The start-up line said "4 workers" the entire time.
+ *
+ * Measured on this container, Day 44, 1,357 mutants over the state package:
+ *
+ * ```text
+ * one suite run, standalone        real 11.52s   user 14.44s
+ * serial (execFileSync)            ~16 s/mutant  ->  about 4.3 hours
+ * ```
+ *
+ * The giveaway was `ps`: **two node processes**, the harness and one child, with
+ * a load average of 1.5 on four cores. A pool of four that is really one shows
+ * up as three idle cores, and nothing in the harness's own output could say so,
+ * because the only thing it prints is `WORKERS`.
+ *
+ * **THE RULE: a worker pool whose work is a SYNCHRONOUS call is a pool of one,
+ * and it reports the number of workers you asked for.** Day 43 Part 12's rule
+ * was "a flag that is PRESENT and does nothing is worse than one that is
+ * missing"; this is the same thing one level down, where the flag is honoured,
+ * the number is printed, and the concurrency it names never existed.
+ *
+ * `maxBuffer` is explicit rather than defaulted, and the figure is measured: the
+ * green suite's TAP output is 152 KB against a 1 MB default, so the default was
+ * never binding — but a default that is not binding by a factor of seven is a
+ * default that a hundred more tests could make binding, and an overflow here
+ * throws, which `runSuite` reads as NOT GREEN, which reads as a mutant KILLED.
+ * **The failure mode of this buffer is a score that is too high**, so it gets a
+ * number with a reason rather than a default with none.
+ */
+async function runSuite(dir) {
   try {
-    execFileSync(process.execPath, TESTCMD, { cwd: dir, stdio: 'pipe', timeout: 120_000 });
+    await execFileAsync(process.execPath, TESTCMD, {
+      cwd: dir,
+      timeout: 120_000,
+      maxBuffer: 64 * 1024 * 1024,
+    });
     return { green: true };
   } catch (e) {
     const out = String(e.stdout || '') + String(e.stderr || '');
@@ -413,7 +457,7 @@ for (let i = 0; i < WORKERS; i++) {
   if (statSync(join(pkgDir, 'README.md'), { throwIfNoEntry: false })) cpSync(join(pkgDir, 'README.md'), join(d, 'README.md'));
   workerDirs.push(d);
 }
-const base = runSuite(workerDirs[0]);
+const base = await runSuite(workerDirs[0]);
 if (!base.green) {
   console.error('[mutate] BASELINE IS RED. Refusing to run — every mutant would read as killed.');
   writeFileSync('/tmp/mutate-baseline.log', base.out);
@@ -441,7 +485,7 @@ async function worker(dir, list) {
     const target = join(dir, 'dist/esm', mu.rel);
     const src = originals.get(mu.rel);
     writeFileSync(target, src.slice(0, mu.offset) + mu.to + src.slice(mu.offset + mu.from.length));
-    const r = runSuite(dir);
+    const r = await runSuite(dir);
     writeFileSync(target, src);
     results.push({ ...mu, survived: r.green });
     done++;

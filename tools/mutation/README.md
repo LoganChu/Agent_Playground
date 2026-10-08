@@ -1,5 +1,19 @@
 # A LEVELS audit that runs
 
+> **Day 44: the worker pool was a pool of ONE until today.** `runSuite` was
+> `execFileSync`, and the pool starts `WORKERS` copies of an `async` worker over
+> one event loop — so a synchronous child-process call in it meant the first
+> worker held the loop until its suite returned and the other three never
+> started. Four queues, one runner, three idle cores, and the start-up line has
+> said "4 workers" since the pool was written. Promisified: **3.8 mutants/minute
+> to 14.8**, validated on `--only alabama.js` (43 mutants, 43 killed, the figures
+> Day 41 recorded) with `user/real = 3.26` on four cores — the ratio, not the wall
+> clock, is what proves it. **A worker pool whose work is a SYNCHRONOUS call is a
+> pool of one, and it reports the number of workers you asked for.** Nothing in
+> this harness's own output could have caught it; `ps` did. Worth adding: print
+> how many children are actually alive.
+
+
 `mutate.mjs` sets one number in a built package wrong, runs the suite, puts it
 back, and does it again for every number. A **survivor** is a number this package
 could be shipped with a wrong value for.
