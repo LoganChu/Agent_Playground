@@ -171,10 +171,15 @@ which is weaker and is written down as such in the ledger.
 ### Part 4 — one translation at the entry point, not eight overrides per state
 
 The fix could have been a `qualifyingSurvivingSpouse:` override on every
-`byStatus` table in the four state files. Wisconsin alone has eight — brackets,
-two deduction tables, the sliding-scale tiers, the exemption, the top-bracket
-bases — and the eight would have had to be found, and a ninth added later would
-have to be remembered.
+`byStatus` table in the four state files. **Wisconsin alone has eleven
+`byStatus`/`byStatusOf` call sites** — two year-keyed bracket tables, two maxima,
+two thresholds, the sliding-scale tiers, the bracket list, the top-bracket bases,
+the exemption and the filer count — producing five tables the definition actually
+carries, and all eleven would have had to be found, and a twelfth added later
+would have to be remembered. **I wrote "eight" from a hand count and the real
+number is eleven, which is the same miss Day 43 Part 13 made about year-keyed
+records: a table held twice, once per tax year, is two call sites and reads like
+one.**
 
 Instead `survivingSpouseFilesAs` on the definition rewrites the status ONCE, in
 `stateIncomeTax`, before `compute` is called:
@@ -186,7 +191,9 @@ const input: StateIncomeTaxInput =
   translated === undefined ? asked : { ...asked, filingStatus: translated.filesAs };
 ```
 
-Eighty-odd reads of `input.filingStatus` move together and none can be missed.
+**Seventy-four reads of `input.filingStatus`** — counted with `grep -c` rather
+than estimated, because the number is the argument — move together and none can
+be missed.
 Two things make it safe rather than clever:
 
 - **The statuses it can translate TO are one-filer statuses.** `livingFilerCount`
@@ -200,7 +207,7 @@ Two things make it safe rather than clever:
   state's instruction, not a correction of the caller.
 
 The parameter is renamed `asked` and the local `input` is the translated one, so
-the eighty reads below did not change at all. Two lines in the result construction
+the seventy-four reads below did not change at all. Two lines in the result construction
 had to move to `asked.filingStatus` and the compiler found both.
 
 ### Part 5 — Arizona, where a column swap cannot finish the job
@@ -242,7 +249,11 @@ route to the booklet.
 ### Part 6 — the invariant, and the line it draws
 
 The fix is worth less than the thing that keeps it fixed, because the defect was
-not hard to fix — it was invisible for forty-three days.
+not hard to fix — it was invisible, and it was invisible because nothing in
+forty-three days of this suite had ever asked which column a widow is read
+against. **The Wisconsin defect itself was ONE day old**; what was forty-three
+days old is the missing question, which is why four states could carry the same
+answer at once and no state's own test file noticed.
 `test/surviving-spouse-column.test.js` has five tests and the first one is the
 product:
 
@@ -258,8 +269,8 @@ and a citation would be decoration; the moment a state acquires a figure that
 distinguishes them, which is the moment it starts to matter, the test demands one.
 
 Verified by deleting Wisconsin's declaration and watching it report exactly the
-finding that had been invisible for forty-three days, naming the state, the
-household and both figures:
+finding no assertion in this package could previously express, naming the state,
+the household and both figures:
 
 ```text
 WI 2026: 24 household(s) can tell the surviving-spouse column from both the single
@@ -519,6 +530,38 @@ meets that credit; the counterfactual joint return in the comparison can.**
 the term that does not belong is the one that is true somewhere else in the
 range.** The deduction term is real below `$159,690` and zero above it, and the
 bound is about above it.
+
+### Part 11a-ii — and the sweep found three more, which is the point about sweeps
+
+After fixing the three in Part 11a I went over the **test file** and the remaining
+surfaces too, which the first sweep had skipped because it was aimed at `src/` and
+the documents. Three more, and all three are the same species: **a number I wrote
+from a hand count or a feel, in a sentence whose whole job is to be the number.**
+
+| what I wrote | what it is | counted by |
+| --- | --- | --- |
+| "Wisconsin alone has **eight** by-status tables" | **eleven** `byStatus`/`byStatusOf` call sites, producing **five** tables the definition carries | `grep -c` and a walk of the definition |
+| "**eighty-odd** places a by-status table is read" | **seventy-four** reads of `input.filingStatus` | `grep -c` |
+| "wrong in four states at once, for **forty-three days**" | the WISCONSIN defect was **one** day old; forty-three days is the age of the missing QUESTION | the journal |
+
+The first is Day 43 Part 13's finding arriving from the other direction. That one
+was *a year-keyed record is as many year literals as it has keys, and a hand count
+that reads the figures misses the keys*. This one is the same table counted the
+other way: `THRESHOLDS`, `STANDARD_MAX` and `STANDARD_THRESHOLD` each hold **two**
+years, so each is two `byStatus` call sites and reads like one. **A table held
+twice is two call sites and looks like one, in both directions.**
+
+The third is the most useful because the corrected version is a better claim than
+the wrong one. "Four states carried this for forty-three days" invites the
+question *how did four states get it wrong*; "forty-three days of this package had
+no test able to ask which column a widow is read against" answers it. **The defect
+was one day old in Wisconsin and the SILENCE was forty-three days old, and the
+silence is the thing that let four states share one answer.**
+
+**THE RULE: every number in a sentence written to carry a number has to be
+counted, and the ones that get written from a feel are the ones in sentences
+ABOUT counting.** Three sweeps, nine claims, and seven of the nine were mine
+rather than the world's.
 
 ### Part 11b — the published calculator was quoting the wrong number too
 

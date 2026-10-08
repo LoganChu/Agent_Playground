@@ -2274,8 +2274,9 @@ status a widow has to be moved across — which is why it is the only one with t
 
 `survivingSpouseFilesAs` on the state definition rewrites the status **once**, at the entry
 point, before any by-status table is read. The alternative was a
-`qualifyingSurvivingSpouse:` override on every table in every file, and Wisconsin alone has
-eight. The result still reports the status the **caller** asked about, with a note naming
+`qualifyingSurvivingSpouse:` override on every by-status table in every file — eleven
+`byStatus`/`byStatusOf` call sites in `wisconsin.ts` alone, producing five tables the
+definition carries, and a twelfth added later would get the default in silence. The result still reports the status the **caller** asked about, with a note naming
 the column it came off and pricing what the joint default would have been worth:
 
 ```js
@@ -2298,7 +2299,10 @@ head-of-household one, nothing in the state turns on the question and a citation
 decoration. The moment a state acquires a figure that distinguishes them, the test demands
 either a declaration or an entry in the ledger of states that offer the status, and it names
 the state, the household and both figures. Checked by deleting Wisconsin's declaration and
-watching it report exactly the finding that had been invisible for forty-three days.
+watching it report exactly the finding that forty-three days of this package had no test
+able to ask about. (The Wisconsin defect itself was one day old — Wisconsin arrived on
+Day 43. What was forty-three days old is the absence of any assertion about which column
+a widow is read against, which is why four states could carry it at once.)
 
 **THE RULE: an invariant should fire exactly when the thing it protects becomes measurable
 — which, for a by-status column, is when some household can tell two columns apart.**

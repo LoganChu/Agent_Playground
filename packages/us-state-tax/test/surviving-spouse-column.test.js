@@ -9,8 +9,11 @@
 // that copied it put a surviving spouse on the joint schedule — and it is
 // silently wrong wherever the state does NOT have the status, in the flattering
 // direction: a widow is handed a married couple's brackets, deduction and
-// exemptions on one person's income. It was wrong in four states at once, for
-// forty-three days, worth up to $2,861 a return in Wisconsin.
+// exemptions on one person's income. It was wrong in four states at once, worth
+// up to $2,861.08 a return in Wisconsin — and nothing in this suite could see it,
+// which is the fact this file exists to change. There has never been a test here
+// about which column a widow is read against; the four states carried the default
+// from the day each was added, which for Wisconsin was one day.
 //
 // Day 26 found the same assumption in a helper that counted PEOPLE
 // (`livingFilerCount`, fixed across fourteen call sites) and
@@ -38,13 +41,18 @@
 // reference too. The second GRANTS it, because the state named her status as an
 // alternative qualification.
 //
-// Both shapes are in this package and they give opposite answers:
+// THREE shapes are in this package, not two, and only one of the three gives the
+// answer a guess would give. Mississippi reaches the same place as Wisconsin and
+// Arizona by never mentioning federal law at all:
 //
 //   Wisconsin     "head of household or qualifying surviving spouse"  -> HoH
 //   Arizona       "head of household or qualifying widow or widower"  -> HoH
 //   Mississippi   its own definition, no federal cross-reference      -> HoF
 //   Alabama       head of family IS § 2(b), and nothing is added      -> single
-//   Massachusetts head of household, if you qualify federally         -> single
+//   Massachusetts head of household, if you qualify federally — and     -> single
+//                 whether its instruction names her status as an
+//                 alternative HAS NOT BEEN READ; $120 at $45,000 if
+//                 it does
 //
 // ## What this file asserts, and the line it draws
 //

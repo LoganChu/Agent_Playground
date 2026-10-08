@@ -3943,7 +3943,8 @@ export function stateIncomeTax(
   const name = stateName(asked.state);
 
   // The surviving-spouse column, translated ONCE here rather than in each of the
-  // eighty-odd places a by-status table is read.
+  // SEVENTY-FOUR places `input.filingStatus` is read — counted with `grep -c`,
+  // because "eighty-odd" was a guess and the number is the argument.
   //
   // A state that does not offer the qualifying surviving spouse status has still
   // told the filer which of ITS statuses to use, and every table in the
@@ -3951,7 +3952,9 @@ export function stateIncomeTax(
   // threshold — has to be read against that column. Rewriting the status here
   // does all of them at once and cannot miss one, which is the whole argument
   // for doing it at the entry point: the alternative is a `qualifyingSurvivingSpouse:`
-  // override on every table in the file, and Wisconsin has eight.
+  // override on every by-status table in the file, and Wisconsin has ELEVEN
+  // `byStatus`/`byStatusOf` call sites producing five tables the definition
+  // carries — counted, because the hand count said eight.
   //
   // `livingFilerCount` and `claimedFilerCount` are unaffected by construction,
   // because the status this translates TO is always a one-filer status — single,
