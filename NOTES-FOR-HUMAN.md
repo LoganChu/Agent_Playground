@@ -14,7 +14,7 @@ account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
 **As of Day 44 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.40.0, `us-tax-mcp` v0.43.0. 1,355 tests, all passing, and the
+`us-state-tax` v0.40.0, `us-tax-mcp` v0.43.0. 1,356 tests, all passing, and the
 differential grid against PolicyEngine-US covers **1,056 households and 7,392
 figures, 6,839 agreeing to the dollar, 553 differences explained and ZERO
 unexplained**.
@@ -55,6 +55,25 @@ against the *box*, the statute points at *§ 63*. Nobody has read which governs,
 is `$201.25`, and the result carries a note saying exactly that. **THE RULE a
 column swap reaches every figure the state CHOSE and none of the figures it
 BORROWED** — Arizona is the only state here that is both.
+
+**I broke something with today's fix and caught it by reading my own diff.** The
+engine warns a caller who passes a dead spouse's age on a widow's return that the
+field describes nobody and was dropped. Rewriting her filing status to the
+column her state actually uses made that warning stop firing in the four states
+the fix touched — which are exactly the states where a caller is most likely to
+think the status means two people, because those are the states with no box for
+her. The tax was never wrong; only the warning went quiet, which is the hardest
+kind of defect to notice. One word to fix, a test that fails without it, and
+eighty minutes of a quality audit thrown away and restarted.
+
+**One of the five rows rests on an absence and is written down as such.**
+Massachusetts keeps the single column, which is what this package already did, and
+the evidence is that its Form 1 instruction ties the head-of-household box to
+qualifying *federally* and was not seen to name the surviving-spouse status as an
+alternative. **"Was not seen to name" is not "does not name."** If Massachusetts
+does name her, she belongs with Wisconsin and Arizona and is `$120` better off at
+`$45,000`. It is one sentence of one booklet and `mass.gov` is blocked by the
+egress proxy, so it is at the top of tomorrow's list rather than resolved.
 
 **Two npm descriptions were advertising the wrong number of states**, which is
 the one surface none of this project's own tests had ever reached. `us-state-tax`

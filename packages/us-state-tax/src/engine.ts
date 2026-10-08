@@ -4234,7 +4234,22 @@ export function stateIncomeTax(
   //
   // Dropping them errs towards more tax in every case, which is why it is safe
   // to do silently and still worth not doing silently.
-  if (input.filingStatus === 'qualifyingSurvivingSpouse') {
+  //
+  // `asked` and not `input`, and this line is a REGRESSION FIX from the hour it
+  // was written in. The v0.40.0 status translation rewrites `input.filingStatus`
+  // before anything reads it, so in the four states that have no surviving-spouse
+  // status this gate stopped matching and the note went silent — in exactly the
+  // four states where a caller is most likely to believe the status means two
+  // filers, because those are the states whose own form has no box for her. The
+  // computation was unaffected (`livingFilerCount` is 1 for single and for head of
+  // household alike, so the fields were still dropped); only the saying-so
+  // stopped, which is the whole purpose of the block.
+  //
+  // THE RULE, and it is the one to apply to any future translation: the
+  // TRANSLATED status is for COMPUTING and the ASKED status is for anything the
+  // caller is TOLD. Two of these existed and the compiler found one of them,
+  // because `result.filingStatus` is typed and a note is a string.
+  if (asked.filingStatus === 'qualifyingSurvivingSpouse') {
     const supplied: string[] = [];
     if (input.spouseAge !== undefined) supplied.push('spouseAge');
     if (input.retirement?.spouse !== undefined) supplied.push('retirement.spouse');

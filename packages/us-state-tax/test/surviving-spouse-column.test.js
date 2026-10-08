@@ -310,3 +310,51 @@ test('a state that offers the status says nothing about translating one', () => 
     );
   }
 });
+
+// ---------------------------------------------------------------------------
+// 6. The note Day 26 built, which this file's own change silenced for an hour.
+//
+//    `surviving-spouse-people.test.js` proves the engine DROPS every
+//    spouse-shaped field on a widow's return. The engine also SAYS so, and the
+//    saying-so is the point: v0.27.0 found fourteen places that had been reading
+//    those fields, and every one of them took a caller who supplied them.
+//
+//    The v0.40.0 translation rewrites `input.filingStatus` before anything reads
+//    it, so the gate on that note stopped matching in exactly the four states
+//    that have no surviving-spouse status — which are exactly the states where a
+//    caller is most likely to believe the status means two filers, because their
+//    own forms have no box for her. The computation never changed;
+//    `livingFilerCount` is 1 for single and for head of household alike.
+//
+//    THE RULE: the TRANSLATED status is for COMPUTING and the ASKED status is for
+//    anything the caller is TOLD. Both halves need a test, because only one of
+//    them is typed.
+// ---------------------------------------------------------------------------
+
+test('a translated return still says a widow has no spouse', () => {
+  const withSpouseFields = (state) =>
+    stateIncomeTax({
+      ...household('retired70', state, 2026, 'qualifyingSurvivingSpouse'),
+      filerAge: 70,
+      spouseAge: 70,
+    });
+  // The four that translate, and four that do not, so a fix that broke the other
+  // branch would fail here too.
+  for (const state of ['AL', 'AZ', 'MS', 'WI', 'CT', 'NY', 'VA', 'MA']) {
+    const said = withSpouseFields(state).notes.filter((n) => n.includes('ONE-PERSON return'));
+    assert.equal(said.length, 1, `${state} should say once that a widow has no spouse`);
+    assert.match(said[0], /spouseAge/);
+    // And it names the status the CALLER gave, not the column the state uses.
+    assert.match(said[0], /Filing status is qualifyingSurvivingSpouse/);
+  }
+  // The dropping itself, which is the thing the note is about: her answer does
+  // not move when a dead spouse's age is supplied.
+  for (const state of ['AL', 'AZ', 'MS', 'WI']) {
+    const base = household('retired70', state, 2026, 'qualifyingSurvivingSpouse');
+    assert.equal(
+      stateIncomeTax({ ...base, filerAge: 70, spouseAge: 70 }).totalTax,
+      stateIncomeTax({ ...base, filerAge: 70 }).totalTax,
+      `${state}: a dead spouse's age moved a widow's answer`,
+    );
+  }
+});

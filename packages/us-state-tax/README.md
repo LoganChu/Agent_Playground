@@ -2232,13 +2232,23 @@ Both shapes are in this package and they give opposite answers:
 | **Arizona** | Form 140, the head-of-household box: *"you may file as head of household … only if … you qualify to file as head of household on your federal return, **or** you qualify to file as a qualifying widow or widower on your federal return"* | head of household |
 | **Mississippi** | Miss. Code § 27-7-21(d) writes its own definition — *"an individual who is **single**, or married but not living with his spouse for the entire taxable year, who maintains a household …"* — and never cross-references § 2(b) at all, so the exclusion never arrives | head of family |
 | **Alabama** | Ala. Code § 40-18-1: head of family *"has the same meaning as … head of household as defined in 26 U.S.C. § 2(b)"*, and nothing adds her back. § 40-18-5 writes one schedule for single persons, heads of family and separate returns and one for a joint return, with no surviving-spouse grant of the kind § 1(a) carries — *"and every surviving spouse"* | single |
-| **Massachusetts** | Form 1 ties its head-of-household box to qualifying for the status *federally*, with no alternative named — so § 2(b)(1) excludes her | single (unchanged) |
+| **Massachusetts** | Form 1 ties its head-of-household box to qualifying for the status *federally* — and whether its instruction names the surviving-spouse status as an alternative, the way Wisconsin's and Arizona's do, **has not been read**; if it does not, § 2(b)(1) excludes her | single (unchanged, and the weakest of the five — see below) |
 
 Nine states are in the other group, and the engine translates nothing in them: California,
 Colorado, Connecticut, Idaho, Missouri, New York, North Carolina, Oregon and Utah all carry
 the status on their own return. Connecticut's instructions put its zero-tax threshold at
 `$24,000` and New York's its standard deduction at `$16,050` — **the married-filing-jointly
 figures, in so many words**, which is the strongest form this evidence comes in.
+
+**Massachusetts is the one row here that rests on an absence**, and it is recorded
+rather than hidden. Day 26 asserted that a Massachusetts widow pays what a single
+filer pays and that assertion still stands, but the evidence for it is that the
+Form 1 instruction ties the head-of-household box to qualifying *federally* and
+was not seen to name her status as an alternative — and **"was not seen to name"
+is not "does not name"**. If it does name her, Massachusetts belongs with Wisconsin
+and Arizona and a widow there is `$120` better off at `$45,000`. The thing to read
+is one sentence of the Form 1 head-of-household instruction, and `mass.gov` is
+blocked by the egress proxy.
 
 ### Arizona is the one where a column swap cannot finish the job
 
@@ -2863,7 +2873,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **773 tests**. Turning it on, when there were 618 of them, is what
+from all **774 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

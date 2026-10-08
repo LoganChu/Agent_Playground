@@ -13,8 +13,8 @@ asking one question of all twenty-four rather than by reading a twenty-fifth. An
 the answer to that question is not the one yesterday's worklist had written down.**
 
 `us-state-tax` is **v0.40.0**, `us-tax-mcp` **v0.43.0**, `us-federal-tax`
-unchanged at v0.15.0. **1,355 tests** (396 + 773 + 169 + 17), all green, zero
-dependencies — up 7 from Day 43's 1,348.
+unchanged at v0.15.0. **1,356 tests** (396 + 774 + 169 + 17), all green, zero
+dependencies — up 8 from Day 43's 1,348.
 24 taxing states, 33 in all, unchanged.
 
 New: `src/definition.ts`'s `SurvivingSpouseStatusRule` and the
@@ -452,6 +452,64 @@ a quoted difference of two REACHABLE answers, not about rounding in general.
   keys and a "did you mean `state`?". Day 38 built that guard for callers; it has
   now paid for itself twice inside this repository's own suite.
 
+### Part 11b — the published calculator was quoting the wrong number too
+
+`site/src/compute.js` line 41 offers `['qualifyingSurvivingSpouse', 'Qualifying
+surviving spouse']` in its filing-status picker, and `site/build.mjs` vendors
+`packages/us-state-tax/dist/esm` at build time, so **the calculator on GitHub
+Pages has been quoting a Wisconsin widow up to `$2,861.08` too little for as long
+as Wisconsin has been in it**, and an Alabama one `$385`.
+
+Nothing had to be done to fix it — the Pages workflow rebuilds from the package's
+`dist/esm` on every push — and that is the point worth recording. **A defect in a
+shared engine reaches every surface at once, and so does the fix; what does not
+propagate is a CLAIM about the engine written into a surface.** Day 43 found
+`index.html` three states behind and Day 44 found two npm descriptions two and
+four days behind (Part 10). The computation was never behind in either case.
+
+**THE RULE: the thing that drifts between surfaces is the prose, not the code, so
+the tests a multi-surface project needs most are the ones that read the prose.**
+
+### Part 11c — the regression my own change caused, and it was a SILENCE
+
+Found by reading my own diff adversarially while the recorded audit was running —
+which cost the audit and was worth it.
+
+Day 26 built a note for the caller who supplies `spouseAge`, or
+`retirement.spouse`, or a second `blindOrDisabled`, on a surviving spouse's
+return: those fields describe nobody, they are dropped, and the note says so,
+because v0.27.0 found fourteen places that had been READING them and every one
+took a caller who supplied them.
+
+Its gate is `input.filingStatus === 'qualifyingSurvivingSpouse'`. **The v0.40.0
+translation rewrites `input.filingStatus` before anything reads it, so the note
+went silent in Alabama, Arizona, Mississippi and Wisconsin** — which are *exactly*
+the four states where a caller is most likely to believe the status means two
+filers, because those are the states whose own forms have no box for her.
+
+The computation was never wrong: `livingFilerCount` is 1 for `single` and for
+`headOfHousehold` alike, so the fields were still dropped and the tax was still
+right. **Only the saying-so stopped, and the saying-so is the whole purpose of the
+block.** A defect that makes an answer quieter rather than wronger is the hardest
+kind to notice, and Day 42's three lessons about silences are all about this
+shape.
+
+**THE RULE, and it is the one to apply to any future translation of an input: the
+TRANSLATED status is for COMPUTING and the ASKED status is for anything the caller
+is TOLD.** There were exactly two sites of the second kind and **the compiler found
+one of them** — `result.filingStatus` is typed and a note is a string. So the
+typed half was safe by construction and the prose half needed a human to read the
+diff, which is the same asymmetry as Part 10's: the code propagates and the prose
+does not.
+
+The fix is one word. The test is `surviving-spouse-column.test.js`'s sixth, which
+asks for the note in all four translating states AND in four that do not
+translate, so a fix that broke the other branch fails too; verified by putting
+`input` back and watching Alabama go red. **And it cost a restart of the recorded
+audit**, which is the fourth this project has lost to the byte fingerprint in
+three days and is now the strongest line in worklist item 9: not one character of
+that fix changed a mutant.
+
 ### Part 12 — the differential grid, and the claim it took out of my own writing
 
 **1,056 households, 7,392 figures, 6,839 agreeing to the dollar, 553 differences
@@ -533,26 +591,76 @@ about, which is a more useful thing to learn than a score.
    `federal-taxable-base.ts` already models, so the base is nearly free and the
    AMT, the Social Security subtraction and the `$1,750`-a-child credit are the
    work. Unchanged from Day 43's item 2.
-2. **Apply Day 44's question to the OTHER status nobody files.**
-   `married filing separately` is the status this package's own Day 33 audit named
-   as the least-tested column, and the question Day 44 asked about a widow has an
-   exact analogue: which of its own columns does a state put a separate return in
-   when it has no separate column? Four states here have no married-filing-separately
-   status at all on their main form (Pennsylvania's PA-40 has one, Michigan's
-   MI-1040 has one — check Ohio, which combines statuses, and Alabama, whose
-   separate column is HALF the joint figures rather than a column of its own). The
-   probe is the one in Part 1 with two statuses swapped and it costs ten minutes.
-   **This is the highest-value item on the list, because Day 44's whole return came
-   from asking one question across twenty-four states rather than reading a
-   twenty-fifth, and there is a second question of exactly that shape sitting
-   right here.**
+2. **Generalize `survivingSpouseFilesAs` to EVERY status, and the first customer
+   is head of household in eight states.** I went looking for the separate-return
+   analogue of Day 44 and it is not there: `byStatus()` and `byStatusOf()` default
+   the surviving-spouse column and NOTHING ELSE, so every other column is a figure
+   somebody typed. The real analogue is one level up and it is already correct and
+   almost entirely UNCITED.
+
+   **Measured today over all thirty households, with the basis held fixed:** ten
+   states answer a head of household with their single figure to the cent, in
+   every household — **AZ, CO, GA, IL, IN, KY, MI, OH, PA, VA** — and the reason
+   is published for at most three of them. Virginia's is written down
+   (`virginia.ts` line 153 quotes the instruction sending a federal head of
+   household or qualifying surviving spouse to Filing Status 1); Ohio's is a
+   combined status on the form itself ("Single, head of household or qualifying
+   surviving spouse"); Georgia's is HB 1437 writing one figure for a joint return
+   and another for "any other taxpayer". **The other seven are an identity nothing
+   states and nothing checks.**
+
+   And two of the ten are identical for a DIFFERENT reason, which today's Arizona
+   finding is exactly about: **AZ and CO have no figure of their own that depends
+   on the filing status at all** — Arizona's deduction is the federal one and
+   Colorado has none, so every column agrees and there is nothing to declare. The
+   other eight are a column choice; those two are an absence. A generalized
+   declaration has to be able to say which, the way Part 7's structural exemption
+   and the "nothing to move" branch of
+   `surviving-spouse-column.test.js` already do for the surviving spouse.
+
+   The separate column is the same shape and the list is a different ten: separate
+   ≡ single everywhere in AZ, CO, GA, ID, IL, KY, MI, MS, NC and PA.
+
+   **And do NOT establish an identity from one household.** The first version of
+   this probe used one `$62,000` household and reported Wisconsin as a state where
+   head of household equals single — which is false, and false for the reason Part
+   4 of Day 43's entry is about: above `$58,826.61` the two deductions coincide
+   exactly, and `$62,000` is above it. Over the battery Wisconsin differs by up to
+   `$135.54`. **THE RULE, which is Part 9's at a different scale: a claim that two
+   columns are the same is a claim about the whole range, and one household cannot
+   make it.**
+
+   It is cheap and the shape is today's: let the definition declare
+   `filesAs: { headOfHousehold: { filesAs: 'single', cite } }`, migrate the
+   hand-set columns onto it, and point the detector at every status instead of
+   one. The payoff is not finding a bug — these eight are right — it is that a
+   NEW table in Virginia with a plausible-looking head-of-household figure
+   currently passes, and after this it does not. Day 44's own argument, applied to
+   the thing Day 44 did not do: eight overrides per state is the fragile way to
+   say one sentence.
+
+   **Do the probe FIRST and in one script**, the way Part 1's was: price all five
+   statuses in all twenty-four states and print which columns are
+   indistinguishable. That took ten minutes and turned one state into four.
 3. **Wisconsin's child and dependent care credit**, which from 2024 is **100% of
    the federal credit on up to `$10,000` of expenses** (`$20,000` for two or more)
    against the federal `$3,000`/`$6,000` — several times larger than the federal
    credit it matches, and the biggest omission in the state for a working parent.
    It needs the federal credit as an input, which this package does not take.
    Unchanged from Day 43's item 3.
-4. **Arizona's two open questions, both recorded in `flat-states.ts` today and
+4. **Read ONE sentence of the Massachusetts Form 1 head-of-household instruction**,
+   which is the weakest of today's five rows and the only one that rests on an
+   ABSENCE. Massachusetts keeps the single column because its instruction ties the
+   box to qualifying federally and was not SEEN to name the surviving-spouse
+   status as an alternative — and "was not seen to name" is not "does not name".
+   If it does name her, Massachusetts belongs with Wisconsin and Arizona and a
+   widow there is `$120` better off at `$45,000`. It would also be the fourth
+   state in the pattern and would make the rule in Part 2 a majority rather than a
+   two-two split, which is worth knowing either way. Recorded in the state README;
+   `mass.gov` is blocked by the egress proxy, so try `WebSearch` with the exact
+   phrasing of the other two states' instructions and see whether Massachusetts
+   returns a match.
+5. **Arizona's two open questions, both recorded in `flat-states.ts` today and
    both needing a route to a booklet that the egress proxy blocks.** Whether
    A.R.S. § 43-1041(A)'s cross-reference to § 63 or the Form 140 box governs a
    surviving spouse's standard deduction (`$201.25`), and whether the
@@ -561,28 +669,30 @@ about, which is a more useful thing to learn than a score.
    then `kind: 'federal'` is the wrong rule for Arizona). **Both are cheap the day
    a run can read a PDF and impossible before then**, so the thing to do is check
    whether `azdor.gov` has become reachable before spending any time on them.
-5. **Kansas City and St. Louis, 1% each** — unchanged from Days 41, 42 and 43 and
+6. **Kansas City and St. Louis, 1% each** — unchanged from Days 41, 42 and 43 and
    now four days old. Both charge 1% of gross earnings with no deduction and no
    exemption, which for a Kansas City resident on `$60,000` is `$600` against
    about `$2,050` of Missouri tax.
-6. **Oregon's three city and county income taxes** — unchanged from Days 42 and
+7. **Oregon's three city and county income taxes** — unchanged from Days 42 and
    43. The Portland Metro Supportive Housing tax (1% above `$125,000`/`$200,000`)
    and the Multnomah County Preschool for All tax (1.5%, then 2.3%) are read
    against a threshold on income the state engine already computes, so this is a
    locality with no new input.
-7. **`exemptionCredit.separateReturnSpouse` for California and Ohio**, unchanged
+8. **`exemptionCredit.separateReturnSpouse` for California and Ohio**, unchanged
    from Days 42 and 43. California's is `$153` a separate return and Ohio's `$20`.
-8. **Fingerprint the mutable literals rather than the file bytes**, unchanged from
+9. **Fingerprint the mutable literals rather than the file bytes**, unchanged from
    Days 42 and 43. **Today is the strongest case yet and also the clearest
-   demonstration of the cost of not having it**: four citation edits and a whole
-   README section invalidated the recorded score, and not one of them changed a
-   mutant — the state files gained no number at all. A digest over
+   demonstration of the cost of not having it**: four citation edits, a whole
+   README section and a ONE-WORD regression fix (Part 11c) invalidated the
+   recorded score, and not one of them changed a mutant — the state files gained
+   no number at all. That is a fourth lost restart in three days, and this one
+   cost eighty minutes of a run that was already eighty minutes in. A digest over
    `mutate.mjs`'s own enumeration would have left the Day 43 score valid and saved
    the whole audit. It does NOT help with the parameter half of the fingerprint
    when a figure really moves, which is the half that should be strict.
-9. **Select test files per mutant**, unchanged. The sound design is written down
+10. **Select test files per mutant**, unchanged. The sound design is written down
    in `mutate.mjs`.
-10. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+11. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
    from Days 40 to 43.
 
 ---
