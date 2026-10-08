@@ -14,7 +14,10 @@ the answer to that question is not the one yesterday's worklist had written down
 
 `us-state-tax` is **v0.40.0**, `us-tax-mcp` **v0.43.0**, `us-federal-tax`
 unchanged at v0.15.0. **1,357 tests** (396 + 775 + 169 + 17), all green, zero
-dependencies — up 9 from Day 43's 1,348.
+dependencies — up 9 from Day 43's 1,348. **The mutation audit records 1,357
+mutants, 6 survivors, 99.6%, every figure predicted before it ran** (Part 13) —
+and it took six starts to get, which is the other half of the day (Parts 11a,
+11a-ii, 11c, 11d, 14 and 15).
 24 taxing states, 33 in all, unchanged.
 
 New: `src/definition.ts`'s `SurvivingSpouseStatusRule` and the
@@ -730,6 +733,38 @@ score, so a day whose score moves has added a number somebody did not notice.**
 If the count comes back anything but 1,357 I have shipped a literal I do not know
 about, which is a more useful thing to learn than a score.
 
+**MEASURED, on the sixth start and the parallelised harness:**
+
+```text
+mutants 1357    killed 1351    survived 6    score 99.6%
+
+states/flat-states.js  line 179  year  2024 -> 2023
+states/flat-states.js  line 309  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**Every figure as predicted — the count, the survivor count, the score and the
+identity of all six.** `check-scores.mjs` passes: every advertised score matches
+the record and the record matches this build, so `mutation-claims` goes green.
+
+**And four of the six LINE NUMBERS moved**, which is a finding rather than noise.
+`flat-states.js` went 157 and 287 to 179 and 309, and `ohio.js` 87 and 106 to 88
+and 107 — because today added comments above them and `removeComments: false`
+puts comments in the built `.js` the harness reads. The mutants are identical:
+same files, same operators, same values, same reasons.
+
+**THE RULE: a survivor identified by a LINE NUMBER is identified by something a
+comment can move, so a ledger of line numbers goes stale without anything it
+describes having changed.** It is the byte fingerprint's defect in a document
+rather than in a digest, and the fix is the same: name the mutant by what it is —
+file, operator, from, to — which `STATE-SURVIVORS.md` already does in its other
+three columns. **The line number is the one column that is not about the
+mutant.** Updated, with the note, and worth doing properly on the day worklist
+item 9 lands.
+
 ### Part 14 — the day's real shape, which is five audit starts and one lesson
 
 Counting them honestly, because the count is the finding:
@@ -741,11 +776,19 @@ Counting them honestly, because the count is the finding:
 | 3 | an orphaned doc comment and a hard-coded box (Part 11d) | no |
 | 4 | three false claims in `src/` and a bound derived wrong (Part 11a) | no |
 | 5 | three counts written from a feel, in the test file (Part 11a-ii) | no |
+| 6 | — it finished, in about eighty minutes | — |
 
-**Five starts, four restarts, and not one of the edits that caused them changed a
-single mutable literal.** Four of the four restarts would have cost nothing with a
-digest over `mutate.mjs`'s own enumeration instead of over the file bytes
-(worklist item 9, now seven restarts old across three days).
+**Six starts, five restarts, and not one of the edits that caused the first four
+changed a single mutable literal.** All four would have cost nothing with a digest
+over `mutate.mjs`'s own enumeration instead of over the file bytes (worklist item
+9, now seven restarts old across three days).
+
+**The fifth restart is the exception and it paid for all the others**, because it
+was not a prose fix: start 5 was going to run for six hours, and finding out why
+found that the harness's worker pool had never had more than one worker in it
+(Part 15). **A restart forced by a wrong number cost four hours; a restart forced
+by a wrong RATE bought three of them back and will buy them back every day from
+here.**
 
 But the fingerprint is only half of it and the cheaper half. **The other half is
 that I started the audit four times before the writing was finished**, and Day
@@ -847,11 +890,24 @@ a figure with a reason rather than a default with none.
 `tools/mutation/` is in neither fingerprint — not `dist/esm`, not `test/` — so
 this cost no restart at all, which is the one piece of luck the day had.
 
-### If the recorded score is still stale when you read this
+### The recorded score, and it is current
 
-The SIXTH start of the audit was running over commit `6176941` when the day
-ended, on the parallelised harness from Part 15 — about 85 minutes rather than six
-hours.
+`node tools/mutation/check-scores.mjs` passes on this build:
+
+```text
+us-federal-tax — measured 2026-10-02: 711 mutants, 0 survivors, 100%
+us-state-tax   — measured 2026-10-08: 1357 mutants, 6 survivors, 99.6%
+
+Every advertised mutation score matches the record, and the record matches this build.
+```
+
+It took **six starts** of the audit to get there, and the last one ran in about
+eighty minutes on the harness Part 15 fixed rather than the six hours the serial
+one needed. CI's `mutation-claims` job was red from the first push of the day
+until this one, which is the instrument working: a stale claim was marked stale
+for every minute it was stale.
+
+#### If it ever reads STALE again, this is the command
 If `node tools/mutation/check-scores.mjs` still says `us-state-tax` is STALE, the
 run did not finish and **the first thing to do is re-run it**, because CI's
 `mutation-claims` job is red until it does and everything else in CI is green:

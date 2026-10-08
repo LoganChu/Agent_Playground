@@ -20,10 +20,21 @@ figures, 6,839 agreeing to the dollar, 553 differences explained and ZERO
 unexplained**.
 
 Day 44 added no state and fixed the same defect in **four** of them at once,
-which is the first time that has happened here. It also took **five
-starts of the two-hour quality audit** — four restarts — and every restart was
+which is the first time that has happened here. It also took **six
+starts of the quality audit** — five restarts — and every restart but the last was
 because I had written a number from a hand count rather than counting it. That is
 the honest headline of the day alongside the fix.
+
+**The last restart was worth more than the fix it interrupted.** The fifth run was
+going to take six hours instead of one, and the reason turned out to be that the
+audit's four "workers" have been a pool of **one** since the pool was written: the
+function that runs the test suite used a *synchronous* call, which blocks the one
+event loop all four share, so three of your four cores sat idle while the start-up
+line said "4 workers". Promisified, the audit runs **3.9× faster** — and it was
+validated by re-running a state whose figures were recorded three days ago and
+getting them back exactly. The final score is unchanged at **1,357 mutants, 6
+survivors, 99.6%**, every figure predicted in writing before the run, and
+`check-scores.mjs` now passes so CI is fully green.
 
 A **qualifying surviving spouse** is an unmarried filer with a dependent child,
 for the two years *after* the year a spouse died. Almost every state puts her on

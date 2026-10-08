@@ -272,20 +272,36 @@ test independent of the thing it checks.
 REMOVABLE, and removing it is better than triaging it.
 
 ### states/flat-states.js — 2 of 150 survived
-  line  157  year   2024 -> 2023
-  line  287  year   2025 -> 2024
+  line  179  year   2024 -> 2023
+  line  309  year   2025 -> 2024
 ### states/new-jersey.js — 2 of 71 survived
   line  104  year   2028 -> 2027
   line  229  year   2028 -> 2027
 ### states/ohio.js — 2 of 64 survived
-  line   87  rate   0.01 -> 0.005
-  line  106  rate   0.2 -> 0.1
+  line   88  rate   0.01 -> 0.005
+  line  107  rate   0.2 -> 0.1
 ```
+
+> **Day 44: the same six mutants, and four of the LINE NUMBERS moved.**
+> `flat-states.js` went 157 and 287 to **179** and **309**, and `ohio.js` 87 and
+> 106 to **88** and **107**, because Day 44 added comments to Arizona and
+> Mississippi in `flat-states.ts` and one line to `ohio.ts`'s neighbourhood — and
+> `removeComments: false` puts them in the built `.js` the harness reads. The
+> MUTANTS are identical: same files, same operators, same values, same reasons.
+>
+> **THE RULE: a survivor identified by a line number is identified by something a
+> comment can move, so a ledger of line numbers goes stale without anything it
+> describes having changed.** It is the same defect as the byte fingerprint, in
+> the document rather than in the digest, and the fix is the same one: name the
+> mutant by what it is — file, operator, from, to — which the table above already
+> does in its other three columns. The line number is the one column that is not
+> about the mutant.
 
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
-`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` 157
-(`year >= 2024`) and 287 (`year >= 2025`).
+`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` 179
+(`year >= 2024`) and 309 (`year >= 2025`) — the two flat-states numbers were 157 and
+287 before Day 44 added comments above them, which is the note above this one.
 
 The package supports 2025 and 2026. Both are inside every one of these windows, so
 moving an edge changes nothing that can be asked for. These are Day 29's category —
@@ -296,14 +312,14 @@ added.**
 
 ### E — an epsilon (1).
 
-`ohio.js` 87: `(year >= 2026 ? 500_000 : 750_000) - 0.01`, mutated to `- 0.005`. The
+`ohio.js` 88 (87 before Day 44): `(year >= 2026 ? 500_000 : 750_000) - 0.01`, mutated to `- 0.005`. The
 `0.01` exists to express "just below the next band" and any small value does the same
 job, so no household can tell. **A representation detail is not a parameter**, and
 counting it as one is the harness measuring its own notation.
 
 ### F — arithmetic no return can reach (1), now asserted rather than left.
 
-`ohio.js` 106: the joint filing credit's `0.2` row. It applies below `$25,000` of
+`ohio.js` 107 (106 before Day 44): the joint filing credit's `0.2` row. It applies below `$25,000` of
 modified AGI less exemptions, and O.R.C. 5747.02(A)(3) charges an Ohio return nothing
 at all until `$26,050` of taxable income — the exemption is subtracted from the
 credit's income figure and not from the tax's, so the window where the first test
