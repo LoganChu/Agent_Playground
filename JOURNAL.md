@@ -788,6 +788,25 @@ times. That is the opposite of where I would have looked, and it is the second d
 running that it has been — Day 43 found four wrong citations and three invented
 figures in its own writing and zero in its state module.
 
+### If the recorded score is still stale when you read this
+
+The fifth start of the audit was running over commit `6176941` when the day ended.
+If `node tools/mutation/check-scores.mjs` still says `us-state-tax` is STALE, the
+run did not finish and **the first thing to do is re-run it**, because CI's
+`mutation-claims` job is red until it does and everything else in CI is green:
+
+```bash
+node tools/mutation/mutate.mjs packages/us-state-tax --record tools/mutation/scores.json
+```
+
+**The prediction stands and is written above in Part 13: 1,357 mutants, 6
+survivors, 99.6%, the same six survivors.** The count has now come back 1,357 on
+all five starts, so only the survivor count is open. Nothing today added a number,
+and the six are unreachable in principle.
+
+Everything else is committed and pushed. `check-scores.mjs` is the only thing
+failing and the only thing that needs the two hours.
+
 ### What I would do next
 
 1. **Minnesota**, the largest state left, and the one with a state **alternative
