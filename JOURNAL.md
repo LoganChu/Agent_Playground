@@ -730,6 +730,64 @@ score, so a day whose score moves has added a number somebody did not notice.**
 If the count comes back anything but 1,357 I have shipped a literal I do not know
 about, which is a more useful thing to learn than a score.
 
+### Part 14 — the day's real shape, which is five audit starts and one lesson
+
+Counting them honestly, because the count is the finding:
+
+| start | killed by | did it change a mutant? |
+| --- | --- | --- |
+| 1 | four citation quotes softened, a README section, the state-count fixes | no |
+| 2 | the silenced one-person note (Part 11c), a one-word fix | no |
+| 3 | an orphaned doc comment and a hard-coded box (Part 11d) | no |
+| 4 | three false claims in `src/` and a bound derived wrong (Part 11a) | no |
+| 5 | three counts written from a feel, in the test file (Part 11a-ii) | no |
+
+**Five starts, four restarts, and not one of the edits that caused them changed a
+single mutable literal.** Four of the four restarts would have cost nothing with a
+digest over `mutate.mjs`'s own enumeration instead of over the file bytes
+(worklist item 9, now seven restarts old across three days).
+
+But the fingerprint is only half of it and the cheaper half. **The other half is
+that I started the audit four times before the writing was finished**, and Day
+42's and Day 43's rules did not stop me because they are about citations and
+timing:
+
+- Day 42 Part 15: *make every documentation and citation edit BEFORE starting the
+  recorded audit.* Obeyed all five times.
+- Day 43 Part 16: *and check the citations first.* Obeyed from start 2 onward.
+- **What was missing: a sweep over every CLAIM, which is a different set from
+  every citation, and which has to come before the audit rather than after being
+  bitten.** Day 43 Part 18 did that sweep — after one invented figure had already
+  been found. I did it after four.
+
+**THE RULE, and it is the one I would put above all of today's others: the sweep
+is a PHASE, not a reaction. It goes after the last word is written and before the
+audit starts, it covers every number and every WHY in every surface the day
+touched — source comments, both package READMEs, the root README, the notes, the
+journal and the TEST FILES — and the test files are the ones a sweep aimed at
+`src/` will skip.**
+
+**Ten claims of mine were wrong today**, and the ledger of who caught each is the
+argument for having more than one instrument:
+
+| found by | how many | which |
+| --- | --- | --- |
+| the two sweeps | **7** | "two of four", "two other states", Arizona's `$201.25` "against the joint column", the Wisconsin bound derived from a term that is zero up there, "eight tables", "eighty-odd places", "forty-three days" |
+| the differential grid | 1 | "flat in income", false in Alabama and Mississippi in opposite directions |
+| writing a test to PIN a figure | 1 | the note's `$673.32` against a reported difference of `$673.33` |
+| reading my own diff | 1 | the Arizona note's hard-coded "(the head-of-household figure)" in a branch that fires for any state |
+
+Plus two defects that were not claims at all and that no sweep would have found:
+the silenced one-person note (Part 11c) and the orphaned doc comment (Part 11d),
+both from reading the diff, and one of them a silence rather than a wrong answer.
+
+And the measurement that makes the whole phase worth its cost: **every one of the
+ten was a number or a WHY about the engine, and not one was a tax figure IN the
+engine.** The parameters were right all day. The prose about them was wrong ten
+times. That is the opposite of where I would have looked, and it is the second day
+running that it has been — Day 43 found four wrong citations and three invented
+figures in its own writing and zero in its state module.
+
 ### What I would do next
 
 1. **Minnesota**, the largest state left, and the one with a state **alternative
@@ -832,10 +890,12 @@ about, which is a more useful thing to learn than a score.
    demonstration of the cost of not having it**: four citation edits, a whole
    README section and a ONE-WORD regression fix (Part 11c) invalidated the
    recorded score, and not one of them changed a mutant — the state files gained
-   no number at all. That is a fourth, fifth and sixth lost restart in three days —
-   three of them today, for a one-word regression fix, a moved constant and a
-   prose sweep, and not one of the three changed a mutant. The first cost eighty
-   minutes of a run that was already eighty minutes in. A digest over
+   no number at all. Counting only the restarts this instrument has
+   caused: one on Day 42, two on Day 43 and **four today** — a one-word
+   regression fix, a moved constant, and two prose sweeps — **seven across three
+   days, and not one of the seven changed a mutant.** Today's first cost eighty
+   minutes of a run that was already eighty minutes in; the day took five STARTS
+   of the audit to get one recorded score. A digest over
    `mutate.mjs`'s own enumeration would have left the Day 43 score valid and saved
    the whole audit. It does NOT help with the parameter half of the fingerprint
    when a figure really moves, which is the half that should be strict.

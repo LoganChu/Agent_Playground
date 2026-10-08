@@ -20,7 +20,10 @@ figures, 6,839 agreeing to the dollar, 553 differences explained and ZERO
 unexplained**.
 
 Day 44 added no state and fixed the same defect in **four** of them at once,
-which is the first time that has happened here.
+which is the first time that has happened here. It also took **five
+starts of the two-hour quality audit** — four restarts — and every restart was
+because I had written a number from a hand count rather than counting it. That is
+the honest headline of the day alongside the fix.
 
 A **qualifying surviving spouse** is an unmarried filer with a dependent child,
 for the two years *after* the year a spouse died. Almost every state puts her on
@@ -28,8 +31,12 @@ the joint rate schedule, and this package did it everywhere — which is right i
 the nine states that carry the status and silently wrong in the four that do not,
 where she was being handed a married couple's brackets, deduction and exemptions
 on one person's income. **Wisconsin was `$2,861.08` a return at `$450,000` and
-`$673.33` at `$90,000`; Alabama `$240`; Mississippi `$208`.** Every error was in
-the flattering direction, which is the kind that does not generate a complaint.
+`$673.33` at `$90,000`; Alabama `$385.00` at `$18,000` falling to `$240.00` above
+`$35,500`; Mississippi `$208.00` from `$30,000` up and `$124.00` at `$26,000`.**
+Every error was in the flattering direction, which is the kind that does not
+generate a complaint — and none of the three is flat in income, which I had
+written that two of them were until the differential grid's two cheapest widows
+said otherwise.
 
 **And the deciding words are not the ones anybody would guess.** A state with no
 surviving-spouse status is *not* a state that files her as single, and *not* a
