@@ -627,7 +627,29 @@ is genuinely not a score of this build.
 12. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
    from Days 40 to 44.
 
-13. **Kansas City and St. Louis, 1% each** — unchanged from Days 41 to 44 and now
+13. **Put a test over the ROOT README, which is the only document here with none.**
+   Three counts in its table had drifted and nothing could have caught them:
+   `site` said "all 30 states at once" against 34, `tools/differential` said
+   "989 households" against 1,100, and the `us-tax-mcp` row carried a
+   "twenty-nine states" that is now just wrong. Every package README has
+   `readme.test.js` over it and `tools/test-counts.mjs --check` reads two of them;
+   the front door of the repository has nothing.
+
+   **It is the Day 36 defect in the one place Day 36 did not look.** That day's
+   rule was that a count a human copies by hand goes stale, and the answer was to
+   measure it in CI — applied to the package READMEs and to the mutation scores
+   and not to the file a reader sees first. A `tools/readme-root.mjs --check` in
+   the `counts` job would cost one line of CI; the counts it needs are
+   `SUPPORTED_STATES.length`, the differential grid's case count out of
+   `out/cases.json`, and the MCP tool count.
+
+   Deliberately NOT done today: the fix belongs in a package or a tool and the
+   recorded mutation audit was already in flight, so touching either would have
+   cost a third of a day's second audit for a documentation test. Day 42's rule
+   — all documentation and citation edits BEFORE the audit starts — cuts both
+   ways, and this is the half where it says wait.
+
+14. **Kansas City and St. Louis, 1% each** — unchanged from Days 41 to 44 and now
    five days old. **Oregon's three city and county income taxes** — unchanged
    from Days 42 to 44. **`exemptionCredit.separateReturnSpouse` for California
    and Ohio** — unchanged from Days 42 to 44.
