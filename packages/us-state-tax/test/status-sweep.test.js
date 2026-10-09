@@ -350,7 +350,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // renamed field, a rule moved behind a function — fails instead of reporting a
   // clean sweep over nothing. That is the failure mode the mutation harness had on
   // its first run, and it printed 100%.
-  assert.equal(checked, 928, 'byStatus cells with a parameter the harness would mutate');
+  assert.equal(checked, 1008, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -367,7 +367,28 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // staircases" — was a figure nothing here computes, so Alabama's arrival could
   // not falsify it and it would have gone on being quoted while it drifted. The
   // two numbers now are both measured by the two assertions above and below.
-  assert.equal(inside, 3_012, 'numbers inside those cells, 114 of them Wisconsin\'s');
+  // The per-state decomposition this message used to carry ("114 of them
+  // Wisconsin's") was itself a hand count, which is the defect the note above
+  // warns about one level down. It is now computed, so a state's arrival moves
+  // it or fails.
+  const byState = new Map();
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of TAXING) {
+      const def = getStateDefinition(state, year);
+      if (def === undefined) continue;
+      let own = 0;
+      for (const { table } of byStatusTables(def, '', [], new WeakSet())) {
+        for (const status of FILING_STATUSES) own += countLeaves(table[status]);
+      }
+      byState.set(state, (byState.get(state) ?? 0) + own);
+    }
+  }
+  const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
+  assert.equal(inside, 3_182, 'numbers inside those cells');
+  // Connecticut alone is 1,020 of the 3,182 — nearly a third, because its three
+  // staircases and its 2% add-back table are all by-status and all four columns
+  // wide. Minnesota's arrival added 170.
+  assert.deepEqual(largest, ['CT', 1020], 'the state contributing most of them');
   // 30 documented in NOT_REACHABLE_BY_ANY_HOUSEHOLD, plus 28 that are the
   // surviving-spouse cells of the four states which have no surviving-spouse
   // status — exempt by construction rather than by a ledger entry, and asserted

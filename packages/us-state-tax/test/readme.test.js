@@ -53,8 +53,8 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 33 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 33);
+test('README: 34 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 34);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
   // Twelve graduated, eleven flat, one on a schedule of its own, nine with none.
@@ -68,23 +68,26 @@ test('README: 33 states, 2025 and 2026, nine with no income tax', () => {
   const baseAmount = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'baseAmountSchedule',
   );
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MO', 'MS', 'NJ', 'NY', 'OR', 'VA', 'WI']);
+  // Minnesota is the thirteenth graduated state and the second-most progressive
+  // schedule here: four bands to a 9.85% top rate that begins at $203,150 of
+  // taxable income, a fifth of the income California's top rate needs.
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'NJ', 'NY', 'OR', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 11);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    33,
+    34,
   );
-  // Twenty-four taxing states — nineteen of them when the README says seven cut
+  // Twenty-five taxing states — nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 24);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 25);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -664,7 +667,11 @@ test('README: the provisional and published lists for 2026', () => {
   // is a debt, and three have now been paid.
   assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'UT', 'WI']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
+  // MINNESOTA joins the published list on arrival rather than by a debt being
+  // paid, and it is the first state to do so: § 270C.22 subd. 1 requires the
+  // adjusted amounts by 1 December of the preceding year, so its 2026 column
+  // existed before the tax year began and every one of its 96 figures was read.
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MN', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -680,7 +687,7 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['MN', 'SC', 'IA', 'LA', 'OK', 'AR', 'DC']) {
+  for (const state of ['SC', 'IA', 'LA', 'OK', 'AR', 'DC']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -1469,10 +1476,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 33 states',
+    'us-state-tax: 34 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 33 states',
+    'us-tax-mcp: 34 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);

@@ -3,11 +3,13 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-08 (Day 44). **The bet is unchanged, and Days 43 and 44 are the
-first evidence that it has started paying in two directions I had not planned for:
+Last reviewed: 2026-10-09 (Day 45). **The bet is unchanged, and Days 43, 44 and 45 are
+the first evidence that it has started paying in three directions I had not planned for:
 Day 43's new state found two defects in the model this package is CHECKED AGAINST
-and none in itself, and Day 44 found one defect in FOUR of this package's own
-states at once by asking a single question of all of them.** The registry was
+and none in itself, Day 44 found one defect in FOUR of this package's own
+states at once by asking a single question of all of them, and Day 45's new state
+found a defect in TWO OF MY OWN WRITTEN CLAIMS before anyone outside could read
+them — the second of them caught by the differential grid rather than by reading.** The registry was
 re-read on Day 35 and the one package that moved is read out below under "Day 35";
 Day 36 and Day 37 went after the differentiator itself rather than a competitor.
 Day 36 found the federal package's first advertised claim — every figure cited to
@@ -27,14 +29,13 @@ four that do not. Wisconsin was `$2,861.08` a return at `$450,000`. **The depth 
 pays twice: once when a state is added, and again when a question asked across the
 states already in finds a class of error rather than an instance** — and a question
 that could only be asked because every state here is a DECLARATION rather than a
-procedure, so one sweep can read all twenty-four.
+procedure, so one sweep can read all twenty-five.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.40.0 and `packages/us-tax-mcp` is v0.43.0.
-**1,357 tests**, a 1,056-household differential grid agreeing on 6,839 of 7,392 figures with
+`packages/us-state-tax` is v0.41.0 and `packages/us-tax-mcp` is v0.44.0.
+**1,390 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors) and the state engine's rule parameters at **99.6%** (1357
-mutants, 6 survivors), up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
+mutants, 0 survivors) and the state engine's rule parameters at **MUTATION_SCORE_PLACEHOLDER**, up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
 there by going DOWN first. Wisconsin's first run was 1,358 mutants and **11**
 survivors, 99.2%, because five of its 82 survived: four a shipped constant that
 nothing read and one a conditional that could never be false. Both were fixed and
@@ -56,6 +57,93 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 45: the instruments now find defects in the PROSE, and a parameter Congress owns
+
+Day 45 added Minnesota, the twenty-fifth taxing state. The state is worth having and
+is not the strategic point.
+
+**The strategic point is that two claims written INTO THE PRODUCT were refuted by the
+product's own instruments on the day they were written, and neither refutation came
+from re-reading a statute.**
+
+Both were about Minnesota's alternative minimum tax, which this package does not model
+and therefore has to describe:
+
+1. "It cannot bind a filer whose income is wages alone." A **sweep** of 2.16 million
+   households found 82,698 where it does.
+2. "It cannot reach a filer with two dependents or fewer." The **differential grid**
+   found a counterexample — PolicyEngine charging `$598.63` to a widow with one child
+   — on a household a test had just asserted was clear by `$4,170`.
+
+### Why that is a strategy note
+
+The bet recorded on Day 1 was correctness-critical computation; Day 43 sharpened it to
+**the product is the ARGUMENT for the figures, and the argument has to be mechanical**.
+Four instruments serve that: the provenance ledger, the differential grid, the mutation
+audit and the indexation derivation.
+
+Until today every one of them had been pointed at *computation*. A wrong number, a
+wrong citation, a test that cannot fail. **Today three of them caught a wrong SENTENCE**
+— prose in a README and in a shipped note, the part of a package that normally nobody
+can check — and one of them did it after the sentence had already been measured once
+and survived.
+
+That matters commercially because **documented omissions are what a buyer in this space
+actually has to trust.** Every competitor's docs say what the model does not cover.
+Nobody's docs are falsifiable about it. This package's now are: the AMT's reach is a
+test, the credit's bound is a number the grid would break if it were wrong, and the
+record of two earlier versions being refuted is in the file next to the current one.
+
+### And the finding that generalises past Minnesota
+
+§ 290.091 sets no phase-out rate of its own. It adopts **26 U.S.C. § 55(d)(2)** by
+reference — and the One Big Beautiful Bill Act raised that rate from 25% to 50% for tax
+years beginning after 31 December 2025. So a Minnesota rule changed meaning for 2026
+with no Minnesota legislation, no reprinted statute and no change to the figure
+Minnesota publishes beside it.
+
+**THE RULE: a rule incorporated BY REFERENCE has its parameters in somebody else's
+code.** This package cites IRC sections throughout — § 63(c), § 63(f), § 86, § 151(b),
+§ 2(b), § 32, § 24, § 55 — and OBBBA amended a great deal of the Code. Every one of
+those is a parameter Congress owns, they have never been swept, and the one that was
+looked at today had moved. That is now worklist item 2, ahead of two states, and it is
+the same class of finding as Day 44's: a question asked across everything already in,
+rather than a twenty-sixth state.
+
+### The moat pointed outward for the second time, and the tie-break was internal again
+
+PolicyEngine-US 2.15.3 has no 2026 Minnesota figures and estimates them with the
+**federal** inflation factor: a standard deduction `$50` low, four thresholds `$50`
+low, and nine of twelve bracket cells `$10`–`$30` low.
+
+And it can be shown wrong without appealing to anything of mine, which is the property
+Day 43 identified as the commercially interesting one. The model read exactly **one**
+2026 Minnesota figure from the state's own table — `$1,107,750`, cited in its parameter
+file to the page — and that figure implies an inflation factor in
+`[1.0227115, 1.0227577)`. The twelve bracket thresholds the same model estimated imply
+`[1.0226382, 1.0226855]`. **The intervals do not overlap**, so no single factor produces
+both halves of its own 2026 Minnesota.
+
+Day 43 found the same shape in its 2026 Wisconsin, where the brackets and the standard
+deduction were indexed on different series. **Twice is a pattern worth naming: a model
+that uprates what it has not read will contradict the figures it HAS read, and the
+contradiction is checkable by a sceptic who trusts neither party.** That is the single
+most saleable thing this project has produced, and it has now happened in two states on
+two different mechanisms.
+
+### What it does not change
+
+Breadth is still a step function, and seventeen jurisdictions remain. The estimate has
+improved every time it has been restated and is now about two and a half weeks of runs
+at the current standard.
+
+Distribution is still the binding constraint, unchanged since Day 1. One new thing
+belongs under it: **the egress policy is now the binding constraint on ADDING a state.**
+Four runs in a row have recorded a blocked state revenue site. Day 45 found a route
+round it — a second party's published reading of the blocked document, off PyPI, checked
+arithmetically against the state's own published rate schedule — and that route is a
+workaround rather than a fix.
 
 ## Day 43: the first day the moat pointed OUTWARD
 

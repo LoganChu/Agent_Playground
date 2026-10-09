@@ -100,17 +100,70 @@ function caseIncome(caseRow) {
  * fields add: the entry is allowed `maxAbs` dollars plus `maxShareOfIncome` of
  * the household's income, which is exactly the shape of "one rate differs, and
  * one fixed figure differs."
+ *
+ * `minAbs` is the mirror, and it exists because a bound in one direction only
+ * lets a large reason swallow a small one. `direction` bounds the SIGN, which is
+ * the one discriminator that is part of a reason's mechanism rather than of its
+ * size. See the notes on both in `match`.
  */
 function match(rule, caseRow, metric, delta) {
   if (rule.metric !== metric) return false;
   if (rule.state && rule.state !== caseRow.state) return false;
   if (rule.kind && rule.kind !== caseRow.kind) return false;
   if (rule.idIncludes && !caseRow.id.includes(rule.idIncludes)) return false;
+  // `notStates` exists because of what Minnesota's arrival did to three entries
+  // scoped by `kind` alone, and it is Day 24's lesson one level further out.
+  //
+  // `maxAbs` stops an entry absorbing a BIGGER difference in a state it is about.
+  // Nothing stopped these three absorbing a difference in a state they have never
+  // heard of: the moment the grid gained Minnesota, the $400,000 federal-itemiser
+  // entry and the § 32(d) earned-income-credit entry both started claiming
+  // Minnesota differences, and NEITHER MECHANISM CAN REACH A MINNESOTA RETURN —
+  // Minnesota starts from federal AGI, so a federal itemised deduction is outside
+  // its base entirely, and this package models no Minnesota earned income credit
+  // for a federal difference to be multiplied by.
+  //
+  // THE RULE: an entry scoped by `kind` claims every state the grid is ever given,
+  // including the ones added after the reason was written. A whitelist frozen to
+  // whatever matched on the day would be the ratchet this file warns about
+  // elsewhere, so the exclusion is explicit and each one has to be argued.
+  if (rule.notStates && rule.notStates.includes(caseRow.state)) return false;
   if (rule.maxAbs !== undefined || rule.maxShareOfIncome !== undefined) {
     const bound =
       (rule.maxAbs ?? 0) + (rule.maxShareOfIncome ?? 0) * caseIncome(caseRow);
     if (Math.abs(delta) > bound) return false;
   }
+  // `minAbs` is `maxAbs`'s mirror, added on Day 45 for Minnesota, and the case
+  // for it is the same case: a reason states the size it claims, and SOME
+  // reasons have a floor as well as a ceiling. Minnesota's three classes of
+  // divergence differ by two orders of magnitude and by nothing else a rule can
+  // see — an unmodelled refundable credit worth thousands, an unmodelled
+  // alternative minimum tax worth hundreds, and a stale 2026 parameter worth a
+  // few dollars — and they land on overlapping sets of households, so `state`,
+  // `kind` and `idIncludes` cannot separate them.
+  //
+  // Without a floor the credit entry absorbs the parameter differences, which is
+  // exactly Day 24's defect pointed the other way: the broad reason swallows the
+  // narrow one and the report says the right number of differences for the wrong
+  // reasons. With it, each entry claims a BAND and a difference outside every
+  // band is unexplained, which is what the report is for.
+  if (rule.minAbs !== undefined && Math.abs(delta) < rule.minAbs) return false;
+  // `direction` is the third bound and the only one that is not about size, and
+  // Minnesota is why it exists. Two of its entries overlap in magnitude and
+  // cannot be separated by any band: an unmodelled refundable CREDIT and an
+  // unmodelled alternative minimum TAX, both worth several hundred dollars on
+  // neighbouring households.
+  //
+  // They can be separated by sign, and the sign is not a detail of the data — it
+  // is part of each claim. A credit this package does not model can only make
+  // PolicyEngine's answer LOWER than ours; a tax it does not model can only make
+  // it HIGHER. An entry that matches a difference pointing the wrong way is
+  // wrong about its own mechanism, whatever its size, so this is a check on the
+  // reason rather than a filter on the data.
+  //
+  // `delta` is ours minus theirs.
+  if (rule.direction === 'oursHigher' && delta <= 0) return false;
+  if (rule.direction === 'theirsHigher' && delta >= 0) return false;
   return true;
 }
 

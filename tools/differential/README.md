@@ -429,3 +429,64 @@ nobody will notice, because a report only ever lists what it found. `compare.mjs
 lists them under **Dead reasons**. Entries are ordered narrow before wide, because
 `find()` takes the first match and a wide reason listed ahead of a narrow one
 kills the narrow one silently.
+
+### Two more bounds, and the third is not about size at all (Day 45)
+
+Minnesota's arrival needed both, and each is a lesson rather than a convenience.
+
+**`minAbs`.** Minnesota produces three classes of divergence that differ by two
+orders of magnitude and by nothing else a rule can see: an unmodelled refundable
+credit worth up to `$5,640`, an unmodelled alternative minimum tax worth `$602`,
+and a stale 2026 parameter worth `$2.67` to `$10.20`. They land on *overlapping*
+sets of households, so `state`, `kind` and `idIncludes` cannot separate them, and
+with only a ceiling the credit entry absorbed the parameter differences.
+
+That is **Day 32's lesson pointed the other way**. `maxAbs` stops a broad reason
+claiming a difference bigger than the figure it names; nothing stopped it
+claiming one far smaller. A reason now states a BAND, and a difference outside
+every band is unexplained — which is what the report is for.
+
+**`direction`.** Even a band could not separate Minnesota's credit from its AMT:
+the credit differences run `$105.33` to `$5,640` and the AMT one is `$602.78`,
+straight through the middle. What separates them is the SIGN, and the sign is
+part of each claim rather than a property of the data: **a credit this package
+does not model can only make the other model's answer lower; a tax it does not
+model can only make it higher.** An entry matching a difference that points the
+wrong way is wrong about its own mechanism whatever its size, so `direction` is a
+check on the reason and not a filter on the data.
+
+**`notStates`, and this one is a defect that was already there.** Three entries
+in this file are scoped by `kind` with no state, and the day the grid gained
+Minnesota all three began claiming Minnesota differences:
+
+| entry | what it claims | could it reach Minnesota? |
+| --- | --- | --- |
+| the `$400,000` federal itemiser | PolicyEngine itemises federally and Virginia and Georgia follow the election | **No.** Minnesota starts from federal AGI, so a federal itemised deduction is outside its base entirely |
+| the § 32(d) earned income credit | a federal credit difference multiplied by seven states' flat match rates | **No.** Minnesota's analogue is the working family credit half of § 290.0661, which is not a percentage of the federal credit and is not modelled here at all |
+| the § 151(b) / § 63(f) spouse | a no-income spouse counted on a separate return | **Yes** — and Minnesota's version is its additional standard DEDUCTION rather than an exemption, so it was given an entry of its own naming § 290.0123, subd. 2 |
+
+**THE RULE: an entry scoped by `kind` claims every state the grid is ever given,
+including the ones added after the reason was written.** `maxAbs` guards the size
+of a claim and says nothing about its reach. Two of the three mechanisms above
+cannot touch a Minnesota return at any income, and both were silently credited
+with one.
+
+A whitelist frozen to whatever matched on the day it was written would be the
+ratchet this file warns about elsewhere, so the fix is an explicit exclusion that
+has to be argued in the reason — which is what the three entries now do.
+
+### And the grid priced an open question, which is a use for it nobody planned
+
+Minnesota ships with one claim resting on an ABSENCE: nobody has read whether
+§ 290.0123, subd. 2's additional standard deduction for the aged follows a
+separate filer's spouse who has no gross income, the way 26 U.S.C. § 63(f)(1)(B)
+does federally. The package counts only the people on the return and says so.
+
+PolicyEngine-US takes the other side, so the grid reports the difference: `$1,600`
+of deduction and **`$108.80`** of tax on one household, `$98.61` after the stale
+parameters net against it.
+
+**A differential test is the cheapest way to put a number on a question nobody
+has answered, because the other model has already taken the other side of it.**
+Every previous use of this harness was to find a disagreement where one of the
+two readings is wrong. This is a disagreement where nobody here knows which is.

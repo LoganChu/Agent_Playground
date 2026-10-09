@@ -145,7 +145,66 @@ export type DeductionRule =
       /** Ascending by {@link SlidingScaleTier.above}; one entry for most statuses. */
       readonly tiers: ByStatus<readonly SlidingScaleTier[]>;
       readonly cite: string;
+    }
+  /**
+   * A table of amounts, **reduced by a percentage of income above a threshold
+   * and floored at a fixed share of itself** — Minnesota's standard deduction
+   * limitation, Minn. Stat. § 290.0123, subd. 5, whose own heading is
+   * "Deduction limited".
+   *
+   * ```
+   * gross     = amounts[status] + any aged or blind addition
+   * withdrawn = SUM over tiers of rate_i x (income in tier i)
+   * deduction = max(gross x (1 - maxReductionShare), gross - withdrawn)
+   * ```
+   *
+   * **It is a `slidingScale` with a FLOOR, and the floor is what makes it a
+   * separate rule rather than a fifth Wisconsin.** Wisconsin's scale withdraws
+   * the deduction to nothing and then stops; Minnesota's may never take more
+   * than {@link DeductionLimitationRule.maxReductionShare} of it, so a
+   * Minnesota filer keeps a fifth of the deduction at every income there is.
+   * Two consequences, and neither is visible in a rate table:
+   *
+   * - the withdrawal is part of the marginal rate *until* the floor binds and
+   *   not after, so a Minnesota filer's marginal rate rises through the band and
+   *   then FALLS back to the statutory rate — the opposite of the usual shape;
+   * - the income where that happens is not a parameter. It is wherever the two
+   *   expressions cross, which depends on the deduction and therefore on how
+   *   many aged or blind people are on the return.
+   *
+   * It is read against the measure in {@link DeductionLimitationRule.measuredOn}
+   * and not against the state's own AGI, which matters in Minnesota precisely
+   * because its Social Security subtraction sits below this line: a retiree's
+   * subtraction does not buy any of this deduction back.
+   */
+  | {
+      readonly kind: 'limitedTable';
+      /** The deduction before the limitation, by filing status. */
+      readonly amounts: ByStatus;
+      readonly limitation: DeductionLimitationRule;
     };
+
+/**
+ * The limitation half of a {@link DeductionRule} `limitedTable`.
+ *
+ * Minnesota's has two tiers — 3% of the excess over the lower threshold and 10%
+ * of the excess over the higher one — and `tiers` carries them in the same shape
+ * as Wisconsin's sliding scale, so the arithmetic that reads them is shared and
+ * the tier semantics cannot drift between the two states.
+ */
+export interface DeductionLimitationRule {
+  /** Ascending by {@link SlidingScaleTier.above}. */
+  readonly tiers: ByStatus<readonly SlidingScaleTier[]>;
+  /**
+   * The largest share of the deduction the limitation may remove — Minnesota's
+   * 80%, § 290.0123, subd. 5(a)(2). The deduction therefore never falls below
+   * `1 - maxReductionShare` of itself.
+   */
+  readonly maxReductionShare: number;
+  /** Which income figure the tiers are read against. */
+  readonly measuredOn: IncomeMeasure;
+  readonly cite: string;
+}
 
 /**
  * One tier of a {@link DeductionRule} sliding scale.
@@ -511,6 +570,51 @@ export interface ExemptionRule {
     /** The exemption removed by one step. */
     readonly reduction: number;
     /** The provision that says so, including the "or fraction thereof" clause. */
+    readonly cite: string;
+  };
+  /**
+   * The exemption withdrawn in whole steps as a **share of itself** rather than
+   * as a fixed number of dollars — Minnesota's dependent exemption, Minn. Stat.
+   * § 290.0121, subd. 2, which disallows 2% of it "for each $2,500, or fraction
+   * thereof," of federal AGI above the threshold.
+   *
+   * ```
+   * exemption = total x max(0, 1 - sharePerStep x ceil(max(0, federalAgi - start) / increment))
+   * ```
+   *
+   * **The difference from {@link stepPhaseOut} is that one step is worth a
+   * percentage and not an amount, so what a step COSTS depends on how many
+   * dependents are on the return** — and that is the whole reason it is a
+   * separate field rather than a `reduction` computed per filer. Connecticut
+   * withdraws `$1,000` of exemption per `$1,000` of income whoever the filer
+   * is. Minnesota's step costs a parent of one `$104` of exemption in 2025 and a
+   * parent of four `$416`, on the same dollar of income.
+   *
+   * It shares the `ceil` with Connecticut and for the same reason: "or fraction
+   * thereof" means the first dollar over the threshold costs the whole first
+   * step.
+   *
+   * **And the `ceil` makes the staircase ONE STEP SHORTER than it looks.** It
+   * has `1 / sharePerStep` steps — fifty in Minnesota — and fifty steps of
+   * `$2,500` is `$125,000`, which is the width a careless reader writes down.
+   * The real width is `(1 / sharePerStep - 1) x increment`: the fiftieth step
+   * takes the last 2% and it arrives on the FIRST dollar past the forty-ninth,
+   * so the exemption is gone once income exceeds the threshold by
+   * **`$122,500`** (`$61,250` on a separate return) and not by `$125,000`.
+   * `test/minnesota.test.js` asserts the boundary at the dollar; the `$125,000`
+   * figure was in three places in this package before it did.
+   *
+   * Read against FEDERAL AGI, which the subdivision names, and not against any
+   * state figure: a Minnesota subtraction cannot buy this exemption back.
+   */
+  readonly proportionalStepPhaseOut?: {
+    /** Federal AGI above which the withdrawal begins, by filing status. */
+    readonly start: ByStatus;
+    /** The width of one step of income, by filing status. */
+    readonly increment: ByStatus;
+    /** The share of the exemption one whole step removes — Minnesota's 2%. */
+    readonly sharePerStep: number;
+    /** The provision, including the "or fraction thereof" clause. */
     readonly cite: string;
   };
 }
@@ -3496,6 +3600,55 @@ export interface PlanTypeRetirementRule {
  * is wrong in THREE of this package's four cases** — only Alabama's answer is
  * the one the guess gives.
  */
+/**
+ * A subtraction of the federally taxable Social Security benefit that is
+ * **withdrawn in whole steps as a share of itself** — Minnesota's simplified
+ * Social Security subtraction, Minn. Stat. § 290.0132, subd. 26(c).
+ *
+ * ```
+ * subtraction = taxableSocialSecurity
+ *             x max(0, 1 - sharePerStep x ceil(max(0, federalAgi - fullSubtractionAtOrBelow) / increment))
+ * ```
+ *
+ * Minnesota is one of the few states that taxes the benefit at all, and since
+ * 2023 it has subtracted **all** of the federally taxable amount below a
+ * threshold. Above it the subtraction is withdrawn 10% at a time for each
+ * `$4,000` of federal AGI *or fraction thereof* — and, like every "or fraction
+ * thereof" staircase in this package, one dollar over a boundary costs a whole
+ * step.
+ *
+ * So the subtraction is gone once federal AGI exceeds the threshold by
+ * **`$36,000`** (`$18,000` on a separate return) and not by the `$40,000` that
+ * ten steps of `$4,000` suggests: the tenth step takes the last tenth and it
+ * arrives on the first dollar past the ninth. The same off-by-one-step as
+ * {@link ExemptionRule.proportionalStepPhaseOut}, from the same four words.
+ *
+ * **The step is a share of the benefit, so what a boundary costs depends on the
+ * benefit** and not on the statute: a Minnesota retiree with `$30,000` of
+ * taxable benefit loses `$3,000` of subtraction on one dollar of income, and a
+ * retiree with `$6,000` loses `$600`. That is the same shape as
+ * {@link ExemptionRule.proportionalStepPhaseOut} and the same reason it cannot
+ * be written as a dollar reduction.
+ *
+ * It is not {@link SocialSecurityBenefitAdjustmentRule}, which is Connecticut's:
+ * that one is a share of the LESSER of gross benefits and a § 86(c) combined
+ * income excess, and it has no staircase at all.
+ */
+export interface SocialSecuritySubtractionRule {
+  readonly name: string;
+  /**
+   * Federal AGI at or below which the whole federally taxable benefit is
+   * subtracted. The boundary is inclusive — § 290.0132, subd. 26(c) reduces the
+   * subtraction only for income "in excess of" it.
+   */
+  readonly fullSubtractionAtOrBelow: ByStatus;
+  /** The width of one step of federal AGI above that, by filing status. */
+  readonly increment: ByStatus;
+  /** The share of the benefit one whole step removes — Minnesota's 10%. */
+  readonly sharePerStep: number;
+  readonly cite: string;
+}
+
 export interface SurvivingSpouseStatusRule {
   /**
    * The state's own filing status a federal qualifying surviving spouse files
@@ -3718,6 +3871,14 @@ export interface StateIncomeTaxDefinition {
    * rather than asking for it twice.
    */
   readonly subtractsTaxableSocialSecurity?: boolean;
+  /**
+   * The federally taxable benefit subtracted in full below a threshold and
+   * withdrawn in whole steps above it — Minnesota only, see
+   * {@link SocialSecuritySubtractionRule}. Mutually exclusive with
+   * {@link subtractsTaxableSocialSecurity}, which is the unconditional version;
+   * `registry.test.js` rules the combination out.
+   */
+  readonly socialSecuritySubtraction?: SocialSecuritySubtractionRule;
   /** Virginia's spouse tax adjustment. Joint returns only. */
   readonly spouseTaxAdjustment?: SpouseTaxAdjustmentRule;
   /**

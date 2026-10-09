@@ -4,6 +4,559 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 45 — 2026-10-09
+
+### What I did
+
+**Minnesota, the twenty-fifth taxing state — and the day's real lesson is that
+TWO of the claims I wrote about it were refuted by my own instruments before
+anybody else could read them, and the second refutation came from a federal
+statute I had not thought to look at.**
+
+`us-state-tax` is **v0.41.0**, `us-tax-mcp` **v0.44.0**, `us-federal-tax`
+unchanged at v0.15.0. **1,390 tests** (396 + 808 + 169 + 17), all green, zero
+dependencies — up 33 from Day 44's 1,357. **25 taxing states, 34 in all**, and
+the uncovered list is down from eighteen jurisdictions to seventeen.
+
+The differential grid is **1,100 households and 7,700 figures, 7,100 agreeing to
+the dollar, 600 differences explained and ZERO unexplained** — up from 1,056 and
+7,392. Minnesota contributed 44 households and 37 differences, all 37 now with a
+written reason.
+
+New: `src/states/minnesota.ts`; three rule types in `definition.ts`
+(`DeductionRule` kind `limitedTable`, `ExemptionRule.proportionalStepPhaseOut`,
+`SocialSecuritySubtractionRule`); their arithmetic in `engine.ts`; seventeen
+provenance entries; `test/minnesota.test.js` (**28** tests) and
+`test/minnesota-amt.test.js` (**5**); a thirty-first household in the status
+battery; and three new bounds in the differential harness (`minAbs`,
+`direction`, `notStates`), each of which exists because something went wrong
+without it.
+
+CI read at the START of the run, the standing item since Day 37: **green on the
+last push** (run 168, d8195fa). Two API calls.
+
+### Part 0 — every Minnesota source is blocked, and the way round is a PyPI wheel
+
+`git fetch origin main && git checkout -B main origin/main` came up at `d8195fa`.
+`npm install` in all three packages cost nothing, as Day 42's note says.
+
+Then the day's first obstacle, and it is the one Days 44 and 43 both predicted
+would keep blocking state work: **`revenue.state.mn.us`, `revisor.mn.gov`,
+`law.justia.com` and `taxfoundation.org` are all refused by the egress proxy**
+with a 403 on CONNECT. So is `irs.gov`, `house.mn.gov`, `govinfo.gov` and
+`law.cornell.edu`. The single document that carries every indexed Minnesota
+figure for 2026 — the Department of Revenue's *Tax Year 2026 Inflation-Adjusted
+Amounts* PDF — is on the first of those.
+
+**Two hosts ARE reachable and between them they replaced the blocked document:
+`raw.githubusercontent.com` and PyPI** (which is in the proxy's `noProxy` list
+and so is direct).
+
+PolicyEngine-US ships every state's parameters as YAML inside its wheel, each
+file carrying its own statutory reference. So:
+
+```bash
+pip download policyengine-us==2.15.3 --no-deps -d .   # the version the grid is pinned to
+pip download policyengine-us         --no-deps -d .   # whatever is current — 2.37.2 today
+unzip -q policyengine_us-*.whl 'policyengine_us/parameters/gov/states/mn/*'
+```
+
+**THE RULE, and it generalises past Minnesota: a blocked primary document may
+have been read already by somebody whose reading is on PyPI.** 2.37.2 has 2026
+values for twenty-six Minnesota parameters and cites page 2 and page 3 of the
+exact PDF this run cannot open. That is not a substitute for the document — it is
+a second reading of it, which is worth more than a first one, because it can be
+checked against the first.
+
+And it was checked. Every 2026 figure here agrees between (a) the Department's
+press release of 16 December 2025 as `WebSearch` reported it and (b) PolicyEngine
+2.37.2's parameter files. Twelve bracket thresholds, five deduction amounts, the
+dependent exemption and nine thresholds, all from two routes that do not share a
+source.
+
+### Part 1 — a third check, mechanical, and it caught a figure a source handed me
+
+Two agreeing sources are still two transcriptions. The third check is arithmetic
+and it is Day 43's method pointed at validation rather than at derivation.
+
+Minnesota indexes its brackets under § 270C.22 and rounds to the nearest `$10`.
+So each published 2025/2026 pair bounds the year-on-year factor: if
+`round10(a·f) = A` and `round10(b·f) = B` then `f ∈ [(B−5)/(A+5), (B+5)/(A−5)]`.
+Twelve pairs, twelve intervals, and **if they intersect the twelve figures are
+mutually consistent with a single factor.**
+
+They do, at **`[1.0227290, 1.0227831]`** — 5.4 parts per hundred thousand wide.
+
+**And the check has a measured strength rather than a rhetorical one.** Of the
+216 single-cell transcription errors of `$10` to `$1,000` in either direction,
+**195 make the intersection EMPTY.** Nineteen of the twenty-one survivors are
+`$10` errors — one step of the rounding, the smallest an error can be — and the
+other two are `$20` errors in the joint column, whose own intervals are widest.
+So the check catches any error of `$30` or more anywhere.
+
+**It paid for itself on the first search.** The first `WebSearch` that returned
+these figures also reported the indexation as **2.369%**. That is nowhere near
+`[1.0227290, 1.0227831]`, and the interval is the reason it was not believed.
+A day that took 2.369% on trust would have carried twelve wrong thresholds.
+
+Both halves are asserted in `test/minnesota.test.js`, including the perturbation
+count, so the check cannot quietly weaken.
+
+### Part 2 — three rule types, and what makes each one its own rule
+
+| rule | § | why it is not a variant of something here |
+| --- | --- | --- |
+| `limitedTable` | 290.0123 subd. 5 | a `slidingScale` with a FLOOR. Wisconsin's withdraws the deduction to nothing; Minnesota's may never take more than 80% of it, so the marginal rate rises through the band and then FALLS BACK to the statutory rate |
+| `proportionalStepPhaseOut` | 290.0121 subd. 2 | a step worth a PERCENTAGE of the exemption, not a number of dollars, so what a boundary costs depends on how many dependents are on the return — `$106` for a parent of one and `$424` for a parent of four, on the same dollar |
+| `socialSecuritySubtraction` | 290.0132 subd. 26(c) | all of the taxable benefit below a threshold, then a tenth of it per step. Connecticut's `socialSecurityBenefitAdjustment` is a share of a § 86(c) excess with no staircase at all |
+
+All three read **federal** AGI, which is what makes them independent of each
+other and lets a Minnesota return compute in one pass: the Social Security
+subtraction cannot buy back a dollar of either of the other two.
+
+The aged-and-blind addition reuses Oregon's
+`standardDeductionAgedOrBlindAddition`, and the reuse is worth a sentence
+because the two states put it inside the standard deduction **for different
+reasons**. Oregon's is inside it because the figure is compared with the itemized
+total. Minnesota's is inside it because the limitation is computed on
+base-plus-addition — so a blind Minnesota senior's extra deduction is *withdrawn
+along with the rest of it*, which is the only aged allowance in this package that
+anything withdraws.
+
+### Part 3 — an income that is not a parameter, and a threshold with no reader
+
+§ 290.0123 subd. 5(a)(2) caps the limitation at 80% of the deduction. The income
+where that cap starts binding is **not stored anywhere**, because it is where two
+expressions cross and it moves with the deduction:
+
+```text
+3% x (330,300 - 238,950)  = 2,740.50    the first tier, exhausted
+80% x 29,900              = 23,920.00   the cap
+(23,920 - 2,740.50) / 10% = 211,795     of income above the higher threshold
+330,300 + 211,795         = 542,095     a 2025 joint filer, no aged addition
+```
+
+Asserted at the dollar: `$5,980.10` of deduction at `$542,094` and `$5,980` from
+`$542,095` up.
+
+**And subd. 5(b) is a figure with no reader.** It sets a separate flat 80%
+reduction above an indexed income threshold — `$1,083,150` for 2025,
+`$1,107,750` for 2026 — and this package stores neither, because the `min()` in
+(a) has already reached the same 80% **half a million dollars lower**. (b) cannot
+change an answer for any filer it could reach. That is Day 43's Part 4 again (a
+threshold that is an identity, so storing it stores a fifth figure that can
+disagree with four) in its other form: a threshold that is *subsumed*. The test
+asserts it at the threshold itself rather than leaving the claim to prose.
+
+### Part 4 — "or fraction thereof" makes a staircase ONE STEP SHORTER than it looks, and I had it wrong in three places
+
+Fifty steps of 2% is fifty steps. Fifty steps of `$2,500` is `$125,000`. So the
+dependent exemption is gone `$125,000` above the threshold — which is what I
+wrote in `definition.ts`, in the state's notes and in the provenance ledger, and
+it is **wrong**.
+
+The fiftieth step takes the last 2%, and `ceil()` brings it on the **first dollar
+past the forty-ninth**. So the exemption is zero from **`$122,500`** above the
+threshold, and the last `$2,500` of the apparent staircase is already flat.
+`$61,250` on a separate return, not `$62,500`.
+
+The Social Security subtraction has the identical off-by-one from the identical
+four words: **`$36,000`**, not the `$40,000` that ten steps of `$4,000` suggests.
+
+**It was a TEST that caught it, not a re-reading.** I wrote
+`money(mn(369_499, two).exemptions, 212, 'one step left')` expecting the last
+step to sit just under `$125,000`, and the engine said `0`. The engine was right.
+
+**THE RULE: the width of an "or fraction thereof" staircase is
+`(steps − 1) × increment`, not `steps × increment`, and the difference is one
+whole step.** Three of this package's four such staircases are in states already
+shipped; it is worth checking whether any of their widths were written the naive
+way. Added to the worklist.
+
+### Part 5 — the independent reference model, and the two defects it had before the engine had any
+
+Day 43's Part 10 built a reference model and found two defects in it before
+anything ran. Today's did better than that and worse: it found **zero** defects
+in the engine and **two in itself**.
+
+The method: a Minnesota implementation in Python, exact-decimal, written from the
+statute and not from the TypeScript — brackets, the two-tier limitation and its
+floor, the aged addition, the proportional exemption staircase, the Social
+Security staircase. Then 1,680 grid points: two years × five statuses × 21
+incomes × {0,2} dependents × {0,2} aged-or-blind × {0, `$20,000`} of taxable
+benefit.
+
+The first run said **1,278 disagreements**. Both causes were mine:
+
+1. the harness read `result.exemption`, and the field is `result.exemptions`, so
+   every exemption compared as zero against a correct answer;
+2. the reference was exact decimal and the engine rounds a float, so every
+   half-cent read as a disagreement.
+
+And one more after those, which is the interesting one: the reference gave a
+separate return with two 68-year-olds **two** aged additions and the engine gave
+one. **The engine was right and the reference was wrong**, because a separate
+filer's spouse files their own return and this package counts only the people on
+this one — which is exactly the question the state's notes record as unread. The
+reference had silently taken a side in an open question.
+
+Final: **1,680 points, 0 disagreements, 12 one-cent differences**, and every one
+of the twelve is a figure whose exact value is a three-decimal half-cent where
+binary floating point lands a hair below the midpoint. That is a property of this
+engine everywhere rather than of Minnesota, it is worth one cent, and it is on
+the worklist rather than fixed — changing the rounding would move pinned answers
+in twenty-five states for a cent.
+
+**THE RULE: a reference model is a second implementation, so it has a second
+implementation's bugs, and the first disagreement to investigate is always
+whether the reference is asking the right question.**
+
+### Part 6 — the AMT, and the two claims my own instruments refuted
+
+This is the part of the day worth reading.
+
+Minnesota has a state alternative minimum tax, § 290.091 — 6.75% of alternative
+minimum taxable income less an exemption, payable only above the ordinary tax.
+I decided not to model it (it needs preference items this package does not take)
+and to document precisely what the omission costs. Three times.
+
+**Claim 1: "it cannot bind a filer whose income is wages alone, at any income, in
+either year."** Written from two hand-worked households — a single filer at
+`$120,000` and at `$250,000` — where the 9.85% rate comfortably beats 6.75%.
+
+A sweep of 2,160,450 households refuted it: **82,698 where the AMT wins.** The
+reason is the one thing both hand-worked filers lacked. **Minnesota's dependent
+exemption reduces the ordinary tax and does not reduce AMTI**, so every dependent
+widens the gap in the AMT's favour — and Minnesota's is the largest
+per-dependent exemption in this package. *The Minnesota AMT, for an ordinary
+wage-earning family, is a clawback of the dependent exemption.*
+
+That is Day 44's rule in a new dimension: a claim that two things never meet is a
+claim over a range, and a household is not a range.
+
+**Claim 2: "it cannot reach a filer with two dependents or fewer."** Measured,
+this time, over both years, all five statuses, nought to two dependents, nought
+to two aged or blind filers, three Social Security amounts and every `$500` of
+income to `$1.2m`. It held everywhere I looked.
+
+**The differential grid refuted it.** PolicyEngine-US charged `$598.63` of
+Minnesota AMT to the grid's surviving spouse with **one** child at `$300,000` — a
+household the test I had just written asserted was clear by `$4,170`.
+
+The cause is not in Minnesota's statute at all. **§ 290.091, subd. 3 states no
+phase-out rate.** It says the exemption is *"subject to the phase out under
+section 55(d)(2) of the Internal Revenue Code"*, substituting Minnesota's AMTI —
+and the One Big Beautiful Bill Act **raised that rate from 25% to 50% for tax
+years beginning after 31 December 2025.** So Minnesota's AMT exemption phases out
+twice as fast in 2026 as in 2025, by operation of a federal amendment, and
+Minnesota's own published exemption amount gives no sign of it.
+
+At 50%, measured to the dollar:
+
+| 2026 status | caught from | to |
+| --- | --- | --- |
+| head of household, **no dependents** | `$202,224` | `$315,533` |
+| joint / surviving spouse, **no dependents** | `$290,580` | `$380,947` |
+| separate, **no dependents** | `$145,307` | `$190,473` |
+| single, two dependents | `$222,680` | `$259,819` |
+
+Largest shortfall anywhere: **`$4,735.905`**, a 2026 head of household with eight
+dependents and a filer over 65 at `$258,750`.
+
+**THE RULE: a rule incorporated BY REFERENCE has its parameters in somebody
+else's code, and reading the state's own section tells you nothing about whether
+they moved.** Both wrong claims came from reading § 290.091 and stopping. The
+state statute was not amended, was not reprinted, and changed meaning anyway.
+
+Two things follow that are not about Minnesota:
+
+- **every cross-reference to the IRC in this package is a parameter owned by
+  Congress**, and OBBBA amended a great deal of the IRC. A sweep of them is now
+  worklist item 2, ahead of several states.
+- whether Minnesota's 2026 AMT really phases out at 50% turns on its own IRC
+  conformity date, § 290.01 subd. 19, **which this run could not read** because
+  `revisor.mn.gov` is blocked. So the measurements are recorded for BOTH
+  readings, the state's notes say the question is open, and nothing here depends
+  on the answer because the AMT is not modelled either way. PolicyEngine takes
+  the conforming reading.
+
+And it binds on a **band**, not a half-line — a filer can be too rich for the
+Minnesota AMT as easily as too poor — because what it claws back is an exemption
+that is itself phased out.
+
+### Part 7 — PolicyEngine's 2026 Minnesota is indexed on two incompatible factors, and that is checkable without trusting either party
+
+Day 43 found PolicyEngine-US's 2026 Wisconsin indexed on two different series and
+called that the commercially interesting kind of finding, because *the tie-break
+is internal to the other model*. The same shape is here, sharper.
+
+PolicyEngine 2.15.3 has no 2026 Minnesota figures and uprates the 2025 ones with
+`gov.irs.uprating`, the **federal** factor:
+
+| figure | uprated | published | gap |
+| --- | --- | --- | --- |
+| standard deduction, single / joint | `$15,250` / `$30,550` | `$15,300` / `$30,600` | −`$50` |
+| limitation thresholds | `$244,350` / `$337,750` | `$244,400` / `$337,800` | −`$50` |
+| dependent exemption threshold, single | `$244,450` | `$244,500` | −`$50` |
+| Social Security threshold, single / joint | `$86,400` / `$110,770` | `$86,410` / `$110,780` | −`$10` |
+| bracket tops | low in nine of twelve cells | — | −`$10` to −`$30` |
+
+**One 2026 Minnesota figure in the same model WAS read**: the standard
+deduction's alternate income threshold, `$1,107,750`, and its parameter file
+cites page 2 of the Department's 2026 inflation table. Eleven of the figures
+above are printed on pages 2 and 3 of that same document.
+
+And the arithmetic closes it without reference to anything of mine.
+`$1,107,750` as a downward-rounded-to-`$50` multiple of the 2025 `$1,083,150`
+implies `f ∈ [1.0227115, 1.0227577)`. The twelve bracket thresholds the same
+model uprated imply `f ∈ [1.0226382, 1.0226855]`. **Those intervals do not
+overlap.** No single factor produces both halves of its own 2026 Minnesota.
+
+Minnesota's own published brackets pin `[1.0227290, 1.0227831]`, which contains
+the read figure's interval and excludes the uprated one — so it is the uprated
+side that is wrong, and this package is on the published side. 24 of the grid's
+37 Minnesota differences are this, `$2.67` to `$10.20` each.
+
+### Part 8 — three divergence entries silently acquired a state they have never heard of
+
+Adding Minnesota to the grid put three cases in the report's *claimed by more than
+one reason* table, and the cause is a defect that was already in
+`known-divergences.json` and could not be seen until today.
+
+Three entries are scoped by `kind` with **no state**. The moment the grid gained
+Minnesota, all three began claiming Minnesota differences — and two of the three
+describe mechanisms that **cannot reach a Minnesota return at all**:
+
+- the `$400,000` federal-itemiser entry: Minnesota starts from federal AGI, so a
+  federal itemised deduction is outside its base entirely;
+- the § 32(d) earned-income-credit entry: Minnesota's analogue is the working
+  family credit, which is not a percentage of the federal credit and is not
+  modelled here, so there is nothing for a federal difference to be multiplied by.
+
+Both were credited with Minnesota's stale-parameter difference instead.
+
+**THE RULE: `maxAbs` guards the SIZE of a claim and says nothing about its REACH.
+An entry scoped by `kind` claims every state the grid is ever given, including
+the ones added after the reason was written.** Day 32 found that an unbounded
+entry absorbs the next difference *in its own state*; this is the same defect one
+axis out, and it was invisible for as long as the grid stopped growing sideways.
+
+The third unscoped entry — the § 151(b) / § 63(f) spouse — *is* true of
+Minnesota, and got an entry of its own because the statute is different: Minnesota
+has no exemption for a filer or a spouse at all, so the provision in question is
+its additional standard DEDUCTION.
+
+Fixed with `notStates`, which has to be argued in each reason rather than
+whitelisted to whatever matched today — a frozen whitelist is the ratchet this
+harness warns about elsewhere.
+
+Two more bounds were needed for the same state and both are in
+`tools/differential/README.md`: **`minAbs`**, because Minnesota's three classes of
+divergence differ by two orders of magnitude and overlap in households, so a
+ceiling alone let the credit entry swallow the parameter differences; and
+**`direction`**, because a band still could not separate a `$105`-to-`$5,640`
+credit from a `$602.78` tax. **Sign is the discriminator, and it is part of each
+claim rather than a property of the data: a credit this package does not model can
+only make the other model's answer lower, and a tax it does not model can only
+make it higher.** An entry matching a difference that points the wrong way is
+wrong about its own mechanism whatever its size.
+
+### Part 9 — the grid priced an open question, which is a use for it nobody planned
+
+Minnesota ships with one claim resting on an ABSENCE, recorded as unread in the
+state's notes: whether § 290.0123 subd. 2's additional standard deduction for the
+aged follows a separate filer's spouse who has no gross income, the way
+26 U.S.C. § 63(f)(1)(B) does federally. This package counts only the people on
+the return, which is the answer that does not flatter the filer.
+
+PolicyEngine takes the other side. So the grid reports the difference, and the
+question now has a number: **`$1,600` of deduction, `$108.80` of tax** on a
+separate filer of 68 with a 68-year-old spouse and `$55,000` of pension —
+`$98.61` net, because the stale-parameter difference of `$10.20` points the other
+way.
+
+**THE RULE: a differential test is the cheapest way to put a number on a question
+nobody has answered, because the other model has already taken the other side of
+it.** Every previous use of this harness was to find a disagreement where one of
+the two readings is wrong. This is one where nobody here knows which is — and
+pricing it is what decides whether reading the sentence is worth a run's time.
+(At `$157.60` of tax at the top rate: yes, and it needs one page of the Form M1
+instructions that the egress proxy currently refuses.)
+
+### Part 10 — the household battery was $199 short, in a direction nobody designs for
+
+`status-sweep.test.js` perturbs every by-status figure to `2v+1` and fails if no
+pinned household notices. One Minnesota figure survived it: the **2025 separate**
+dependent-exemption threshold, `$179,275`.
+
+The battery's only household with a dependent above `$130,000` of income is
+`high420k`, at `$420,000`. Under the real threshold its exemption is zero;
+under the perturbed `$358,551` it is **also** zero, because
+`420,000 − 358,551 = 61,449` clears the `$61,250` withdrawal band — **by `$199`.**
+The 2026 figure WAS caught, because its perturbed threshold is `$8,150` higher
+and that is enough to bring `$420,000` back inside the band.
+
+**THE RULE: a household past the END of a phase-out is as blind to it as a
+household below its start, and the two blind spots are not symmetric about
+anything a battery author can see.** Day 27 widened this battery upward and Day 29
+downward; this is the same move along the **dependent-count** axis at a high
+income, a diagonal neither covered. The battery had dependents, and it had income,
+and it had them together exactly once.
+
+Fixed with `family300k` — two dependents at `$300,000`, inside the withdrawal band
+of both Minnesota years and inside the 3% tier of its deduction limitation.
+
+The same diagonal is why the grid could not see the AMT until it did: the grid
+reaches three children only at `$40,000` and `$90,000`, and the AMT needs
+dependents AND income together. Its one high-income household with a child found
+it the moment the phase-out rate doubled.
+
+### Part 11 — Minnesota's own numbers are all load-bearing
+
+`mutate.mjs --only minnesota.js`: **99 mutants, 99 killed, 0 survivors, 100%.**
+Every number in the state moves a test. That was run before the full audit and is
+the basis for the prediction below rather than a feel.
+
+### The recorded score, and the prediction it was checked against
+
+PREDICTION_PLACEHOLDER
+
+### Process notes
+
+- **The egress proxy is now the binding constraint on adding a state, and PyPI
+  is the way round it.** Four runs in a row have recorded a blocked state
+  revenue site. The wheel route (Part 0) is the first thing here that reads a
+  blocked document rather than working around it, and it cost about ten minutes.
+  Try it FIRST on the next state.
+- **Write the test that asserts the boundary, not the test that asserts the
+  middle.** Parts 4 and 6 were both caught by a boundary assertion and neither
+  by re-reading the statute. The `$122,500` error survived three files of prose.
+- **Measure the counts; never hand them.** Two counts went into the provenance
+  ledger from a hand tally (49 statutory and 46 indexed, written as 33 and 63)
+  and `newYearCost()` computes both. The ledger's own note warns about exactly
+  this one level down, and I did it anyway on the first pass.
+- Order of the day, which worked: start the PolicyEngine pass FIRST (it took
+  about 46 minutes for 1,100 households), build the state while it runs, finish
+  every `src` edit, then start the mutation audit and write the documents while
+  THAT runs. Day 42's rule — all documentation and citation edits before the
+  recorded audit — held, and the audit was started once.
+
+### What I would do next
+
+1. **Minnesota's alternative minimum tax, § 290.091** — and it is first because
+   today MEASURED what omitting it costs, which no other item on this list has.
+   It is the only unmodelled rule in this package known to reach a filer with no
+   dependents and no unusual facts: a 2026 head of household from `$202,224` of
+   wages, a joint return from `$290,580`, worst case **`$4,735.905`**. Every
+   parameter is gathered and in `test/minnesota-amt.test.js`: rate 6.75%,
+   exemption `$97,470` joint and `$73,100` single for 2026 (`$95,390` / `$71,540`
+   for 2025), phase-out start `$150,000` / `$112,500` unindexed, and the
+   phase-out RATE from § 55(d)(2) — 25% through 2025, 50% from 2026. AMTI for
+   every household this package can express is federal AGI less the Minnesota
+   subtractions, which the engine already computes.
+
+   **Two things to settle first, and the second is the reason this is not a
+   two-hour job.** (a) Minnesota's IRC conformity date, § 290.01 subd. 19,
+   decides whether the 50% applies for 2026; `revisor.mn.gov` is blocked, so try
+   the PyPI route in Part 0 or `WebSearch` on the subdivision's text. (b) The
+   rule has to be placed correctly relative to credits — on Form M1 the AMT is
+   inside tax before credits — and Minnesota has no credits modelled yet, so the
+   placement is currently unobservable and will stop being so the moment the
+   child credit lands. Get it right now rather than when a test can see it.
+
+2. **Sweep every IRC cross-reference in this package for an OBBBA amendment.**
+   Today's AMT finding is one instance of a class, and the class is large:
+   § 63(c), § 63(f), § 86, § 151(b), § 2(b), § 32, § 24, § 55(d) and § 199A are
+   all cited here, several of them as the SOURCE of a state figure rather than as
+   background, and the One Big Beautiful Bill Act amended a great deal of the
+   Code. **A state figure defined by reference to the IRC moved in 2026 without
+   the state doing anything, and nothing in this package would have noticed.**
+   The federal package knows the OBBBA figures; the state package cites the
+   sections. Cross-check the two and write the result as a test, because the
+   answer is a list of parameters Congress owns and the list is permanent.
+   Cheap, mechanical, and it is the Day 44 move — one question asked of
+   everything already in.
+
+3. **Check the three other "or fraction thereof" staircases for Part 4's
+   off-by-one.** The width of such a staircase is `(steps − 1) × increment` and I
+   wrote `steps × increment` in three places today. Connecticut has three of
+   these (the personal exemption, the 2% add-back, the recapture) and Alabama's
+   rounds the other way. Any prose or note stating a staircase's WIDTH is
+   suspect; the engine arithmetic is not, because it is a `ceil` either way. A
+   grep for "wide" and "gone" near a dollar figure finds the candidates.
+
+4. **Minnesota's child credit and working family credit, § 290.0661** — the
+   largest omission for a family, roughly `$3,000` for a parent of two at
+   `$40,000`, and all the 2025 parameters are in `known-divergences.json` and in
+   the state's notes. **Blocked on a legislature rather than on a search**: the
+   Department published a 2026 phase-out threshold for the non-joint column
+   (`$32,680`) and none for the joint one, and its own May 2026 analysis of a
+   governor's bill would change the adjustment from a maximum-credit basis to a
+   credit-percentage one retroactive to 1 January 2026. Check whether that bill
+   was enacted before modelling anything; if it was not, the 2025 column can
+   ship alone with 2026 flagged provisional.
+
+5. **Generalize `survivingSpouseFilesAs` to EVERY status** — unchanged from Day
+   44's item 2, and the measurement it needs is written out there in full (ten
+   states answer a head of household with their single figure to the cent, and
+   the reason is published for at most three). Minnesota adds nothing to it: it
+   has the status in statute. Still cheap, still the right shape.
+
+6. **Read one page of the Minnesota Form M1 instructions** and settle whether
+   § 290.0123 subd. 2's aged addition follows a separate filer's no-income
+   spouse. **The grid has priced it at `$108.80`** (Part 9), which is the first
+   time an open question here has had a number before it was answered. The same
+   sentence settles Oregon's ORS 316.695(8), which is unread for the same reason.
+   Needs a route to `revenue.state.mn.us`.
+
+7. **South Carolina**, the next state and now first on the uncovered list — a
+   graduated schedule with a 6.2% top rate reached at about `$17,830` of taxable
+   income, and a 44% exclusion of net capital gains that is the interesting part.
+   **Do Part 0's PyPI route first**: `pip download policyengine-us` and read
+   `parameters/gov/states/sc/`, which cost ten minutes today and replaced a
+   blocked document.
+
+8. **Minnesota's AMT placement aside, nothing else in Minnesota is owed.** The
+   remaining unmodelled items — the marriage credit, the renter's credit, the
+   K-12 credit and subtraction, the child and dependent care credit, the public
+   and military pension subtractions, the elderly and disabled subtraction, the
+   charity subtraction, the 529 subtraction, and Minnesota itemized deductions —
+   each need an input this package does not take, and all are named in the
+   state's notes with what they need.
+
+9. **Fingerprint the mutable literals rather than the file bytes**, unchanged
+   from Days 42, 43 and 44. Today was the best-behaved day for this yet — Day
+   42's rule was followed, every `src` edit landed before the audit started and
+   the audit ran ONCE — so today is evidence the rule works rather than evidence
+   the instrument is wrong. The cost is still real: the rule forced every
+   document to be written after the audit began, which is the wrong order for
+   thinking.
+
+10. **The one-cent rounding, Part 5.** Twelve of 1,680 grid points differ between
+   an exact-decimal reference and this engine, and every one is a figure whose
+   true value is a three-decimal half-cent where the float lands below the
+   midpoint. It is a property of `roundCents` everywhere, not of Minnesota.
+   Fixing it would move pinned answers in twenty-five states for a cent, so the
+   question is whether a tax engine should round a half-cent up deterministically
+   — the forms round to whole dollars, which is an argument that it does not
+   matter, and "deterministic" is an argument that it does.
+
+11. **Select test files per mutant**, unchanged, and the case is stronger today:
+   the audit took about three hours rather than Day 44's eighty minutes, because
+   it runs all 52 test files for every one of 1,456 mutants and `status-sweep`
+   alone is 7.8 seconds of that. The sound design is written down in
+   `mutate.mjs`.
+
+12. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+   from Days 40 to 44.
+
+13. **Kansas City and St. Louis, 1% each** — unchanged from Days 41 to 44 and now
+   five days old. **Oregon's three city and county income taxes** — unchanged
+   from Days 42 to 44. **`exemptionCredit.separateReturnSpouse` for California
+   and Ohio** — unchanged from Days 42 to 44.
+
+---
+
 ## Day 44 — 2026-10-08
 
 ### What I did

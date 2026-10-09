@@ -95,6 +95,7 @@ const OFFERS_THE_STATUS = {
   CO: 'DR 0104 instructions: "you must use the same filing status on both your federal and Colorado returns", so the federal status carries across unchanged and Colorado writes no figure against it of its own.',
   CT: 'CT-1040 carries qualifying surviving spouse as one of its five checkboxes, and the instructions set its zero-tax threshold at $24,000 — THE SAME AS MARRIED FILING JOINTLY, which is the joint column this package reads.',
   ID: 'Form 40 instructions: "your Idaho filing status must be the same as your federal filing status."',
+  MN: 'Minn. Stat. § 290.06, subd. 2c(1) writes ONE rate schedule for "married individuals filing joint returns and surviving spouses", and Form M1 carries the status as its own box — so Minnesota names the status IN THE STATUTE and sets its figures at the married-filing-jointly figure by the same sentence, which is the strongest form this evidence takes in any of the ten. The Department of Revenue bracket releases print the two together in one column.',
   MO: 'Form MO-1040 carries "Qualifying widow(er)" as its own status, and this package stores Missouri figures against it explicitly rather than by default — see `missouri.ts`.',
   NC: 'D-400 carries "Qualifying Widow(er)/Surviving Spouse"; its 2025 standard deduction of $25,500 is the married-filing-jointly figure.',
   NY: 'IT-201 filing status 5; the instructions put its standard deduction at $16,050 for 2025, THE SAME AS MARRIED FILING JOINTLY.',
@@ -141,16 +142,23 @@ function battery(state, year) {
   });
 }
 
-// The ledger's own size and membership, pinned because three READMEs say "nine
-// states" and one of them names the three that state the joint FIGURE rather
+// The ledger's own size and membership, pinned because three READMEs say "ten
+// states" and one of them names the four that state the joint FIGURE rather
 // than merely the status's existence — which is the strongest form this evidence
 // comes in, and the distinction the other six do not have.
-test('the ledger of states that offer the status is the nine the READMEs claim', () => {
+//
+// Minnesota is the tenth and the only one whose evidence is a STATUTE rather
+// than a form or an instruction: § 290.06 subd. 2c(1) puts joint filers and
+// surviving spouses under one schedule, so the status's existence and its
+// figure are the same sentence. The other nine are read off a form box or an
+// instruction that sends the filer to the federal status.
+test('the ledger of states that offer the status is the ten the READMEs claim', () => {
   assert.deepEqual(Object.keys(OFFERS_THE_STATUS).sort(), [
     'CA',
     'CO',
     'CT',
     'ID',
+    'MN',
     'MO',
     'NC',
     'NY',
@@ -160,11 +168,11 @@ test('the ledger of states that offer the status is the nine the READMEs claim',
   const namesTheJointFigure = Object.entries(OFFERS_THE_STATUS)
     .filter(([, cite]) => /SAME AS MARRIED FILING JOINTLY|married-filing-jointly figure/i.test(cite))
     .map(([state]) => state);
-  assert.deepEqual(namesTheJointFigure, ['CT', 'NC', 'NY']);
+  assert.deepEqual(namesTheJointFigure, ['CT', 'MN', 'NC', 'NY']);
   // Every entry says what was read, not just that something was.
   for (const [state, cite] of Object.entries(OFFERS_THE_STATUS)) {
     assert.ok(cite.length > 80, `${state}'s citation is too short to be one`);
-    assert.match(cite, /Form|TC-40|DR 0104|D-400|CT-1040|IT-201|instructions/);
+    assert.match(cite, /Form|TC-40|DR 0104|D-400|CT-1040|IT-201|instructions|Minn\. Stat\./);
   }
 });
 

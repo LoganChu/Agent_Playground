@@ -80,7 +80,7 @@ test('every state with an exemption declares what it does with a separate filerâ
   // default is what kept fourteen states counting a dead spouse for 27 days,
   // and the default here would have been "counts nobody" in all twelve â€” which
   // is right in eight of them and wrong in four.
-  assert.equal(WITH_EXEMPTIONS.length, 15);
+  assert.equal(WITH_EXEMPTIONS.length, 16);
   for (const code of WITH_EXEMPTIONS) {
     const rule = declarationOf(code);
     assert.ok(rule, `${code} has an exemption rule and must declare separateReturnSpouse`);
@@ -96,13 +96,13 @@ test('every state with an exemption declares what it does with a separate filerâ
   }
 });
 
-test('the answer today: four states count the spouse, four say no, two have nothing to count', () => {
+test('the answer today: four states count the spouse, four say no, three have nothing to count', () => {
   // Written out so that a state MOVING between these lists is a diff rather than
   // a silent change of behaviour in twelve states at once.
   const by = (kind) => WITH_EXEMPTIONS.filter((c) => declarationOf(c).spouse === kind);
   assert.deepEqual(by('claimed'), ['IL', 'IN', 'MD', 'VA']);
   assert.deepEqual(by('notClaimed'), ['AL', 'CT', 'MO', 'NJ']);
-  assert.deepEqual(by('noFilerExemption'), ['GA', 'NY']);
+  assert.deepEqual(by('noFilerExemption'), ['GA', 'MN', 'NY']);
   assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH', 'WI']);
   // And the second claim is now answered in all four, by THREE different
   // mechanisms and in two directions. Written out for the same reason as the
@@ -111,7 +111,7 @@ test('the answer today: four states count the spouse, four say no, two have noth
   assert.deepEqual(aged('follows'), ['IL', 'IN', 'VA']);
   assert.deepEqual(aged('doesNotFollow'), ['MD']);
   assert.deepEqual(aged('unresolved'), ['MA', 'MI', 'MS']);
-  assert.deepEqual(aged('notApplicable'), ['AL', 'CT', 'GA', 'MO', 'NJ', 'NY', 'OH', 'WI']);
+  assert.deepEqual(aged('notApplicable'), ['AL', 'CT', 'GA', 'MN', 'MO', 'NJ', 'NY', 'OH', 'WI']);
   // No state is `unresolved` on the aged half while being resolved on the first:
   // the four that are left are the four nobody has read at all. An aged claim
   // that outlived its exemption claim would be the harder gap to see, because the
@@ -128,6 +128,18 @@ test('the answer today: four states count the spouse, four say no, two have noth
   // unresolved-spouse) and is unaffected.
   assert.equal(declarationOf('WI').spouse, 'unresolved');
   assert.equal(declarationOf('WI').agedAndBlind, 'notApplicable');
+  // Minnesota joins Georgia and New York on `noFilerExemption`, and it is the
+  // STRONGEST of the three: Georgia and New York stopped giving the filer an
+  // exemption; Minnesota never replaced the one it repealed with anything but a
+  // dependent allowance, so Â§ 290.0121 has no sentence about a taxpayer or a
+  // spouse to read either way. Its aged-and-blind answer is `notApplicable`
+  // for a different reason from the other eight â€” the addition exists, but it
+  // is on the standard DEDUCTION rather than on the exemption, so there is no
+  // exemption addition for a spouse to follow. Whether the deduction addition
+  // follows one is a separate unread question and is in the state's notes.
+  assert.equal(declarationOf('MN').spouse, 'noFilerExemption');
+  assert.equal(declarationOf('MN').agedAndBlind, 'notApplicable');
+  assert.ok(getStateDefinition('MN', 2026).standardDeductionAgedOrBlindAddition !== undefined);
 });
 
 test('the means-tested figure is declared where it exists, and only there', () => {

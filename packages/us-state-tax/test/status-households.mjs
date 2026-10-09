@@ -56,6 +56,10 @@
 //                 household reaches.
 //   family130k    New York's joint child-credit threshold and the first step of
 //                 Maryland's exemption staircase.
+//   family300k    dependents at a HIGH income, which the battery had exactly one
+//                 of and which was $199 short of Minnesota's 2025 separate
+//                 exemption phase-out. Inside the withdrawal band of both
+//                 Minnesota years and of the 3% tier of its deduction limit.
 //   retired70     two people over 65 with a pension and a benefit. The senior
 //                 credits, the pension and retirement exclusions, and the
 //                 § 151(b) spouse exemption on a separate return.
@@ -234,6 +238,42 @@ const SHAPES = {
     propertyTaxPaid: 5_400,
     socialSecurityAndMedicarePaid: 9_945,
     lesserSpouseIncome: 45_000,
+    bothSpousesHaveQualifyingIncome: true,
+  },
+  // DEPENDENTS AT A HIGH INCOME, which this battery had exactly one of — and it
+  // was $199 short of the figure that found the gap.
+  //
+  // Minnesota's dependent exemption is withdrawn over a $61,250 band above
+  // $179,275 on a 2025 separate return, and the detector perturbs a threshold
+  // to `2v + 1`. `high420k` is the only household here with a dependent above
+  // $130,000 of income, and at $420,000 the exemption is zero under BOTH the
+  // real threshold and the perturbed one — 420,000 - 358,551 = 61,449, which
+  // clears the band by $199 — so the figure could have been wrong in either
+  // direction and nothing would have noticed. The same figure for 2026 WAS
+  // caught, because its perturbed threshold is $8,150 higher and that is enough
+  // to bring $420,000 back inside the band.
+  //
+  // THE RULE: a household that is past the end of a phase-out is as blind to it
+  // as a household below its start, and the two blind spots are not symmetric
+  // about anything a battery author can see. Day 29 widened this battery
+  // DOWNWARD for credits that switch off; this is the same move along the
+  // DEPENDENT-COUNT axis at a high income, which is a diagonal neither Day 27
+  // nor Day 29 covered: the battery had dependents and it had income and it
+  // had them together exactly once.
+  //
+  // $300,000 sits inside the withdrawal band of both Minnesota years and of
+  // every other high-income exemption phase-out in the package, and it is below
+  // the $330,300 where Minnesota's deduction limitation changes tier, so it
+  // also exercises the 3% tier rather than the 10% one.
+  family300k: {
+    income: 300_000,
+    earnedIncome: 300_000,
+    filerAge: 48,
+    spouseAge: 47,
+    dependentAges: [9, 15],
+    propertyTaxPaid: 8_200,
+    socialSecurityAndMedicarePaid: 13_243,
+    lesserSpouseIncome: 110_000,
     bothSpousesHaveQualifyingIncome: true,
   },
   // The rung the ladder was missing between $151,750 and $420,000 of state AGI,

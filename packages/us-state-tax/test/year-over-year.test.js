@@ -181,7 +181,18 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // will not be until January 2027, and it still differs from 2025's, because
   // the published 2026 rate schedules pin the indexation factor tightly enough
   // to compute it. A state can move onto this list by arithmetic.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'UT', 'WI']);
+  //
+  // MINNESOTA joins for a FIFTH reason, and it is the dullest and the best one:
+  // because the state published the figures BEFORE the tax year began. Minn.
+  // Stat. § 270C.22 subd. 1 requires the commissioner to announce the adjusted
+  // amounts by 1 December of the preceding year, so every Minnesota figure for
+  // 2026 — twelve bracket thresholds, five deduction amounts, the dependent
+  // exemption and nine thresholds under it — was read rather than carried
+  // forward or derived. Minnesota is the first state-year pair here with no
+  // `provisionalFigures` entry at all. Illinois and Michigan joined this list
+  // when somebody went and read a notice; Minnesota is on it because the notice
+  // existed in time.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MN', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

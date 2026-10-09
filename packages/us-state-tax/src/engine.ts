@@ -173,6 +173,37 @@ function standardDeduction(
       });
       return Math.max(0, rule.maximum[input.filingStatus] - withdrawn);
     }
+    case 'limitedTable': {
+      // Minnesota, § 290.0123 subd. 5. The aged and blind addition is INSIDE
+      // the figure being limited rather than beside it, which is the half that
+      // costs money: the 80% cap and the 3%/10% withdrawal are both computed on
+      // base-plus-addition, so a blind Minnesota senior's extra deduction is
+      // withdrawn along with the rest of it. (Oregon's addition, the other one
+      // in this package, is inside the standard deduction for a different
+      // reason — it is compared with the itemized total — and nothing withdraws
+      // it.)
+      const rule = def.deduction;
+      const status = input.filingStatus;
+      const gross = rule.amounts[status] + agedOrBlind;
+      const income =
+        rule.limitation.measuredOn === 'federalAdjustedGrossIncome'
+          ? input.federal.adjustedGrossIncome
+          : requireStateAgi(stateAgi);
+      const tiers = rule.limitation.tiers[status];
+      let withdrawn = 0;
+      tiers.forEach((tier, i) => {
+        // The same tier semantics as `slidingScale`: a tier's rate applies to
+        // the income between its own threshold and the NEXT tier's, so
+        // Minnesota's 3% reaches only the span between the two thresholds and
+        // its 10% everything above the higher one.
+        const to = tiers[i + 1]?.above ?? Infinity;
+        withdrawn += tier.rate * Math.max(0, Math.min(income, to) - tier.above);
+      });
+      // The floor, § 290.0123 subd. 5(a)(2): the limitation may remove at most
+      // 80% of the deduction, so a Minnesota filer keeps a fifth of it at every
+      // income there is.
+      return Math.max(gross * (1 - rule.limitation.maxReductionShare), gross - withdrawn);
+    }
     case 'phaseOutStaircase': {
       const rule = def.deduction;
       const status = input.filingStatus;
@@ -682,6 +713,22 @@ function stateExemptions(
     const over = Math.max(0, modifiedAgi - step.start[input.filingStatus]);
     if (over > 0) {
       total = Math.max(0, total - step.reduction * Math.ceil(over / step.increment));
+    }
+  }
+  // Minnesota's § 290.0121 subd. 2, which is the same staircase measured in
+  // PERCENTAGES of the exemption rather than in dollars of it. Read against
+  // FEDERAL AGI, which the subdivision names — the opposite of Connecticut
+  // above, whose Table A is read against Connecticut AGI, and the two are a
+  // Social Security subtraction apart for a Minnesota retiree.
+  //
+  // `ceil` again, and for the same four words: "or fraction thereof".
+  const share = rule.proportionalStepPhaseOut;
+  if (share !== undefined && total > 0) {
+    const status = input.filingStatus;
+    const over = Math.max(0, input.federal.adjustedGrossIncome - share.start[status]);
+    if (over > 0) {
+      const steps = Math.ceil(over / share.increment[status]);
+      total = total * Math.max(0, 1 - share.sharePerStep * steps);
     }
   }
   return total;
@@ -2805,6 +2852,27 @@ function computeOnce(
       name: 'Social Security and Tier 1 railroad retirement benefits',
       amount: socialSecuritySubtraction,
     });
+  }
+  // Minnesota's simplified subtraction, § 290.0132 subd. 26(c). The whole
+  // federally taxable benefit comes out at or below the threshold and is
+  // withdrawn a tenth at a time for every $4,000 above it OR FRACTION THEREOF,
+  // so it is gone $40,000 up. Measured on FEDERAL AGI, the figure the
+  // subdivision names, which is why this subtraction does not shrink its own
+  // threshold.
+  const mnSocialSecurity = def.socialSecuritySubtraction;
+  if (mnSocialSecurity && taxableSocialSecurity > 0) {
+    const status = input.filingStatus;
+    const over = Math.max(
+      0,
+      input.federal.adjustedGrossIncome - mnSocialSecurity.fullSubtractionAtOrBelow[status],
+    );
+    const steps = over > 0 ? Math.ceil(over / mnSocialSecurity.increment[status]) : 0;
+    const share = Math.max(0, 1 - mnSocialSecurity.sharePerStep * steps);
+    const amount = taxableSocialSecurity * share;
+    if (amount > 0) {
+      socialSecuritySubtraction = amount;
+      computedSubtractions.push({ name: mnSocialSecurity.name, amount });
+    }
   }
   // Connecticut's two retirement subtractions. They read FEDERAL AGI, not
   // Connecticut AGI, so neither depends on the other and neither depends on

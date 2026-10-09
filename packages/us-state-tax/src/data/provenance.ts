@@ -2821,6 +2821,154 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     constant: true,
   },
 
+  // ---------------------------------------------------------------------------
+  // Minnesota. 96 real figures a year, and EVERY ONE OF THEM IS READ FOR BOTH
+  // YEARS — the first state-year pair here with no carried-forward figure and
+  // no derivation, because § 270C.22 subd. 1 makes the commissioner announce the
+  // adjusted amounts by 1 December of the PRECEDING year. The Department of
+  // Revenue met that deadline for 2026 on 16 December 2025 and for 2025 on
+  // 16 December 2024, so both releases existed before either tax year began.
+  //
+  // That is the operational point of the `kind` column stated in one state:
+  // what a new Minnesota year costs, MEASURED by newYearCost() rather than
+  // counted by hand, is 49 statutory figures that cannot move without an
+  // amendment, 46 indexed ones that are on a published calendar, and 6
+  // sentinels. Neither of those costs is a search.
+  {
+    state: 'MN',
+    path: 'year',
+    kind: 'sentinel',
+    cite: 'The tax year the definition answers for, not a figure read from anywhere',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '§ 290.06, subd. 2c',
+    cite: 'Minn. Stat. § 290.06, subd. 2c — 5.35%, 6.80%, 7.85% and 9.85%. The top rate was added by 2013 Minn. Laws ch. 143 and none of the four has moved since; subd. 2d indexes the THRESHOLDS and says nothing about the rates, which is why the rate schedule is 20 statutory cells beside 15 indexed ones in the same table',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'indexed',
+    document: '16 December 2025',
+    cite: 'Minn. Stat. § 290.06, subd. 2d indexes every bracket boundary under § 270C.22, rounded to the nearest $10. 2025 was read in the Department of Revenue release of 16 December 2024 and 2026 in the release of 16 December 2025, both of which this state-year lists. THE 2026 COLUMN WAS CORROBORATED ARITHMETICALLY BEFORE IT WAS TRUSTED, and the corroboration has a measured strength. Each published pair bounds the year-on-year factor to an interval; the twelve intervals INTERSECT, at 1.0227290 to 1.0227831, which is 5.4 parts per hundred thousand wide. That is a real constraint rather than a restatement: of the 216 single-cell transcription errors of $10 to $1,000 in either direction, 195 make the intersection EMPTY. Nineteen of the twenty-one survivors are $10 errors — one rounding step, the smallest change the $10 rounding can hide — and the other two are $20 errors in the joint column alone, at the tops of its 6.80% and 7.85% bands. So the check catches any error of $30 or more anywhere, and any error of $20 or more outside those two cells. It earned its keep immediately: the first search that returned these figures also reported the factor as 2.369%, which is nowhere near this interval, and the interval is why that was not believed',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'deduction.amounts.*',
+    kind: 'indexed',
+    document: '16 December 2025',
+    cite: 'Minn. Stat. § 290.0123, subd. 1, indexed under subd. 6 and rounded to the nearest $50 — $14,950 single and separate, $29,900 joint and surviving spouse, $22,500 head of household for 2025; $15,300, $30,600 and $23,000 for 2026. Both columns read in the Department of Revenue releases this state-year lists. The single and separate figures are exactly half the joint one in both years, which the statute requires rather than the rounding happening to allow',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'deduction.limitation.tiers.*.*.rate',
+    kind: 'statute',
+    document: '§ 290.0123',
+    cite: 'Minn. Stat. § 290.0123, subd. 5(a)(1) — 3% of the excess over the lower threshold and 10% of the excess over the higher one. Statutory and UNINDEXED, which is what makes the limitation part of the marginal rate rather than a step in it: a Minnesota single filer in the 7.85% bracket and inside the 10% tier pays 8.635% on their next dollar, until the 80% cap binds and the rate drops back to 7.85%. The 10% tier and its threshold were added for tax year 2023; before that the limitation had one tier',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'deduction.limitation.tiers.*.*.above',
+    kind: 'indexed',
+    document: 'inflation-adjusted amounts',
+    cite: 'Minn. Stat. § 290.0123, subd. 5(a)(1), indexed under subd. 6 — $238,950 and $330,300 for 2025 and $244,400 and $337,800 for 2026, halved exactly for a separate return ($119,475 / $165,150 and $122,200 / $168,900). The 2026 pair is in the Department of Revenue tax year 2026 inflation-adjusted amounts table. Note that the lower threshold is NOT the same figure as the dependent exemption threshold beside it: $238,950 against $239,050 for a single filer in 2025, two separately indexed amounts $100 apart',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'deduction.limitation.maxReductionShare',
+    kind: 'statute',
+    document: '§ 290.0123',
+    cite: 'Minn. Stat. § 290.0123, subd. 5(a)(2) — the limitation removes the LESSER of the tiered amount and 80% of the standard deduction, so the deduction never falls below a fifth of itself. Statutory and unindexed. Subd. 5(b) sets out a separate flat 80% reduction above an indexed income threshold ($1,083,150 for 2025, $1,107,750 for 2026) and this package does not store it, because it is not a free parameter: the tiered reduction already exceeds 80% of the deduction far below that income — $542,095 of AGI for a 2025 joint filer with no aged or blind addition — so the min() in (a) has bound for every filer (b) could reach. test/minnesota.test.js asserts that at the threshold itself rather than leaving the claim to this sentence',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'standardDeductionAgedOrBlindAddition.amount.*',
+    kind: 'indexed',
+    document: 'inflation-adjusted amounts',
+    cite: 'Minn. Stat. § 290.0123, subd. 2, indexed under subd. 6 — $2,000 per qualifying person on a single or head of household return in both years, $1,550 for 2025 and $1,600 for 2026 on a joint, separate or surviving spouse one. It follows 26 U.S.C. § 63(f) in giving the UNMARRIED filer the larger amount. These are the one group of Minnesota figures the indexation check cannot reach, and the reason is granularity rather than evidence. The brackets pin the cumulative 2021-to-2026 factor to 1.223457 to 1.223536; the published $1,650-to-$2,000 single cell bounds it only to 1.179 to 1.246 and the $1,300-to-$1,600 joint cell to 1.189 to 1.275. Both contain the bracket interval, so both are CONSISTENT and neither is corroborated: a $50-rounded figure near $2,000 carries about a thousand times less information about the factor than a $10-rounded figure near $300,000, so it has to be READ rather than checked',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'standardDeductionAgedOrBlindAddition.age',
+    kind: 'statute',
+    document: '§ 290.0123',
+    cite: 'Minn. Stat. § 290.0123, subd. 2 — 65, the age 26 U.S.C. § 63(f)(1) uses, and unindexed',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '§ 290.0121',
+    cite: 'ZERO, in all five statuses, and it is a READ figure rather than an unfilled field: Minn. Stat. § 290.0121, subd. 1 allows the exemption "for each individual who is a dependent of the taxpayer" and there is no corresponding allowance for the taxpayer or the spouse anywhere in the section. Minnesota repealed its personal exemption when it conformed to the federal suspension of § 151 and replaced it with a dependent exemption alone, so it is the only state in this package where the filer gets nothing. test/separate-return-spouse.test.js PROVES the zero rather than trusting it — a non-zero cell in any status fails the noFilerExemption declaration',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'exemption.perDependent',
+    kind: 'indexed',
+    document: '16 December 2025',
+    cite: 'Minn. Stat. § 290.0121, subd. 1, indexed under subd. 3 and rounded to the nearest $50 — $5,200 for 2025 and $5,300 for 2026, both read in the Department of Revenue releases this state-year lists. Worth up to $522.05 of tax a dependent in 2026 at the 9.85% top rate, which is more than any other dependent exemption in this package',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'exemption.proportionalStepPhaseOut.start.*',
+    kind: 'indexed',
+    document: 'inflation-adjusted amounts',
+    cite: 'Minn. Stat. § 290.0121, subd. 2, indexed under subd. 3 — the federal AGI above which the exemption begins to be disallowed: $239,050 single, $358,550 joint and surviving spouse, $298,800 head of household and $179,275 separate for 2025, and $244,500, $366,700, $305,600 and $183,350 for 2026. Four separately indexed columns, and the separate column is exactly half the joint one in both years',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'exemption.proportionalStepPhaseOut.increment.*',
+    kind: 'statute',
+    document: '§ 290.0121',
+    cite: 'Minn. Stat. § 290.0121, subd. 2 — $2,500 of federal AGI a step, $1,250 on a separate return. Statutory and UNINDEXED, which is the half that matters: the thresholds move every year and the step does not, so the number of steps is fixed at fifty by 2% and $2,500 together and the staircase is always the same width however far the threshold moves. That width is $122,500 and not $125,000: the fiftieth step takes the last 2% and the ceil() in \'or fraction thereof\' brings it on the first dollar past $122,500, so fifty steps of $2,500 reach zero one step early ($61,250 on a separate return)',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'exemption.proportionalStepPhaseOut.sharePerStep',
+    kind: 'statute',
+    document: '§ 290.0121',
+    cite: 'Minn. Stat. § 290.0121, subd. 2 — 2% of the exemption per step, disallowed "for each $2,500, or fraction thereof". Statutory and unindexed. The four words are the whole rule: ceil() rather than floor(), so one dollar over any boundary costs a whole 2% step — $106 of exemption for a Minnesota parent of one in 2026 and $424 for a parent of four, on the same dollar',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'socialSecuritySubtraction.fullSubtractionAtOrBelow.*',
+    kind: 'indexed',
+    document: 'inflation-adjusted amounts',
+    cite: 'Minn. Stat. § 290.0132, subd. 26(c), indexed under subd. 26(j) — $84,490 single and head of household, $108,320 joint and surviving spouse, $54,160 separate for 2025, and $86,410, $110,780 and $55,390 for 2026. The 2026 column is in the Department of Revenue tax year 2026 inflation-adjusted amounts table. Subd. 26(j) adjusts ONLY these thresholds: the alternative subtraction amounts in paragraph (a) have stood at $5,840 joint and $4,560 single since 2023 and the Department lists them as not indexed, which is why the alternative route is a different kind of figure from this one and is recorded in the notes rather than carried here',
+    constant: false,
+  },
+  {
+    state: 'MN',
+    path: 'socialSecuritySubtraction.increment.*',
+    kind: 'statute',
+    document: '§ 290.0132, subd. 26',
+    cite: 'Minn. Stat. § 290.0132, subd. 26(c) — $4,000 of adjusted gross income a step, $2,000 on a separate return. Statutory and unindexed, so the withdrawal is always the same width however far the threshold moves — $36,000 and not the $40,000 that ten steps of $4,000 suggests, because the tenth step arrives on the first dollar past $36,000 ($18,000 separate)',
+    constant: true,
+  },
+  {
+    state: 'MN',
+    path: 'socialSecuritySubtraction.sharePerStep',
+    kind: 'statute',
+    document: '§ 290.0132, subd. 26',
+    cite: 'Minn. Stat. § 290.0132, subd. 26(c) — 10% of the subtraction per step, reduced "for each $4,000, or fraction thereof". Statutory and unindexed, and the same four words as the dependent exemption: one dollar over a boundary costs a tenth of the whole benefit, which for a retiree with $30,000 of federally taxable benefit is $3,000 of subtraction on one dollar of income',
+    constant: true,
+  },
 ];
 
 /** Walk a dot path, treating numeric segments as array indices. */

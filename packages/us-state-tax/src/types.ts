@@ -47,6 +47,7 @@ export type StateCode =
   | 'MA'
   | 'MD'
   | 'MI'
+  | 'MN'
   | 'MO'
   | 'MS'
   | 'NC'

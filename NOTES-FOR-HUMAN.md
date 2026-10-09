@@ -13,28 +13,78 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 44 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
-`us-state-tax` v0.40.0, `us-tax-mcp` v0.43.0. 1,357 tests, all passing, and the
-differential grid against PolicyEngine-US covers **1,056 households and 7,392
-figures, 6,839 agreeing to the dollar, 553 differences explained and ZERO
+**As of Day 45 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
+`us-state-tax` v0.41.0, `us-tax-mcp` v0.44.0. 1,390 tests, all passing, and the
+differential grid against PolicyEngine-US covers **1,100 households and 7,700
+figures, 7,100 agreeing to the dollar, 600 differences explained and ZERO
 unexplained**.
 
-Day 44 added no state and fixed the same defect in **four** of them at once,
-which is the first time that has happened here. It also took **six
-starts of the quality audit** — five restarts — and every restart but the last was
-because I had written a number from a hand count rather than counting it. That is
-the honest headline of the day alongside the fix.
+Day 45 added **Minnesota** — the twenty-fifth taxing state, thirty-fourth in all,
+and the first one here whose **2026 figures are published rather than guessed**.
+Minnesota requires its commissioner to announce the inflation-adjusted amounts by
+1 December of the *preceding* year, so all 96 of its figures were read for both
+years and neither year carries a provisional flag. That is a first in this
+package, and it says something worth knowing: what makes most of this package's
+2026 provisional is a publication calendar, not the difficulty of the figures.
 
-**The last restart was worth more than the fix it interrupted.** The fifth run was
-going to take six hours instead of one, and the reason turned out to be that the
-audit's four "workers" have been a pool of **one** since the pool was written: the
-function that runs the test suite used a *synchronous* call, which blocks the one
-event loop all four share, so three of your four cores sat idle while the start-up
-line said "4 workers". Promisified, the audit runs **3.9× faster** — and it was
-validated by re-running a state whose figures were recorded three days ago and
-getting them back exactly. The final score is unchanged at **1,357 mutants, 6
-survivors, 99.6%**, every figure predicted in writing before the run, and
-`check-scores.mjs` now passes so CI is fully green.
+**The honest headline of the day is that two of the things I wrote about
+Minnesota were wrong, and the project's own instruments said so before anyone
+else could read them.** Both were about the state's alternative minimum tax,
+which this package does not model and now describes precisely.
+
+- I first wrote that the Minnesota AMT "cannot bind a filer whose income is wages
+  alone". A sweep of 2.16 million households found 82,698 where it does. The
+  reason: Minnesota's dependent exemption cuts the ordinary tax and does not cut
+  the AMT base, so **the Minnesota AMT is, for an ordinary wage-earning family, a
+  clawback of the dependent exemption.**
+- I then wrote that it cannot reach a filer with two dependents or fewer, having
+  measured that over both years, all five filing statuses and every $500 of
+  income to $1.2m. **The differential test against PolicyEngine-US refuted
+  that too**, on a widow with one child at $300,000.
+
+The cause is not in Minnesota law. § 290.091 sets no phase-out rate of its own:
+it adopts **26 U.S.C. § 55(d)(2)** by reference, and the One Big Beautiful Bill
+Act raised that rate from 25% to 50% for 2026. So Minnesota's AMT exemption
+phases out twice as fast next year, by a federal amendment, and Minnesota's own
+statute and published figures give no sign of it. At 50% the Minnesota AMT
+reaches a filer **with no dependents at all** — a head of household from $202,224
+of wages, a joint return from $290,580 — and the largest gap this package can be
+asked for is **$4,735.91**.
+
+**THE RULE, which is now worklist item 2 and applies well beyond Minnesota: a
+rule incorporated BY REFERENCE has its parameters in somebody else's code.**
+Reading the state's section tells you nothing about whether they moved, and OBBBA
+amended a great deal of the Internal Revenue Code. Every IRC cross-reference in
+this package is a figure Congress owns, and they have not been swept.
+
+**And the second pointer OUTWARD, after Day 43's.** PolicyEngine-US — the funded
+fifty-state model this package is checked against — has no 2026 Minnesota figures
+and estimates them with the *federal* inflation factor. The result is a standard
+deduction $50 low, thresholds $50 low and nine of twelve bracket cells $10–$30
+low. **It can be shown wrong without trusting anything of mine**: the model read
+exactly one 2026 Minnesota figure from the state's own table ($1,107,750, and its
+parameter file cites the page), and that figure implies an inflation factor
+between 1.0227115 and 1.0227577, while the twelve bracket thresholds the same
+model estimated imply 1.0226382 to 1.0226855. **The two ranges do not overlap**,
+so no single factor produces both halves of its own 2026 Minnesota. Day 43 found
+the same shape in its Wisconsin. That is twice now, and it is the argument this
+project is for: not "we worked harder", but *here is arithmetic you can check
+without taking either side's word*.
+
+**One thing you could do, and it is small.** Three Minnesota questions are
+settled by one page each of a document this sandbox cannot open —
+`revenue.state.mn.us` and `revisor.mn.gov` are both refused by the egress policy,
+as `mass.gov` and `azdor.gov` have been for days. If the environment's network
+policy can be widened to state revenue and legislature sites, it would close
+those three and several older ones. Worth about $157 of tax per affected return
+on the Minnesota question the grid priced today; worth more as a general matter,
+because four runs in a row have now recorded a blocked state revenue site as the
+reason a question stayed open.
+
+Nothing else is waiting on you, and nothing is blocked: today's run found a way
+round the block for the figures that mattered, by reading a second party's
+published reading of the same document off PyPI and checking it arithmetically
+against the state's own published rate schedule.
 
 A **qualifying surviving spouse** is an unmarried filer with a dependent child,
 for the two years *after* the year a spouse died. Almost every state puts her on

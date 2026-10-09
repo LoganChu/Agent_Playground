@@ -1,13 +1,132 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **32
-states** including **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **34
+states** including **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.38.0: **Oregon, where the top rate starts at `$125,000` and does not reach a single filer until `$133,161`.**
+New in 0.41.0: **Minnesota — the first state here whose 2026 figures are READ rather than carried forward, and the only one that gives the filer no exemption at all.**
+
+## Minnesota, and the publication calendar that is the real difference (v0.41.0)
+
+Every other state-year marked 2026 in this package is `provisional` in at least
+one figure, because most states publish an indexed rate schedule late in the year
+it applies to or early in the next. **Minnesota publishes its for the year
+ahead.** Minn. Stat. § 270C.22, subd. 1 requires the commissioner to announce the
+adjusted amounts by **1 December of the preceding year**, and the Department of
+Revenue released 2026's on 16 December 2025 — brackets, standard deduction,
+dependent exemption, and every threshold the two limitations and the Social
+Security subtraction are read against.
+
+So all **96** of Minnesota's figures are read for both years, neither year
+carries a `provisionalFigures` entry, and Minnesota is the first state-year pair
+here of which that is true. It is worth noticing for a reason beyond Minnesota:
+**what makes most of this package's 2026 provisional is a publication calendar
+and not the difficulty of the figures.**
+
+### The 2026 figures were corroborated before they were trusted, and the check has a measured strength
+
+A published figure still has to survive being transcribed. Each 2025/2026 pair of
+bracket thresholds is a pair of `$10`-rounded values, so it bounds the year-on-year
+indexation factor to an interval — and if the twelve intervals **intersect**, the
+twelve figures are mutually consistent with one factor. They do, at
+**1.0227290 to 1.0227831**, five parts per hundred thousand wide.
+
+That is a real constraint rather than a restatement. Of the 216 single-cell
+transcription errors of `$10` to `$1,000` in either direction, **195 make the
+intersection empty.** Nineteen of the twenty-one survivors are `$10` errors — one
+step of the rounding, the smallest an error can be — and the other two are `$20`
+errors in the joint column alone.
+
+It earned its keep immediately: the first source consulted for these figures also
+reported the indexation as **2.369%**, which is nowhere near the interval, and the
+interval is why that was not believed.
+
+`test/minnesota.test.js` asserts both the intersection and its detection power.
+
+### Three rules arrive with it, and all three are staircases or slopes no rate table shows
+
+| rule | shape | the part that is not in any table |
+| --- | --- | --- |
+| standard deduction, § 290.0123 subd. 5 | 3% of AGI above one threshold, then 10% above a second, and never more than **80%** of the deduction removed | the marginal rate RISES through the band and then **falls back** to the statutory rate |
+| dependent exemption, § 290.0121 subd. 2 | 2% of the exemption disallowed per `$2,500` **or fraction thereof** | a step costs a percentage, so it costs a parent of four twice what it costs a parent of two |
+| Social Security, § 290.0132 subd. 26 | the whole taxable benefit below a threshold, withdrawn 10% per `$4,000` **or fraction thereof** | gone `$36,000` above the threshold, not the `$40,000` ten steps of `$4,000` suggests |
+
+**All three read FEDERAL AGI**, which is what makes them independent of each
+other: a `$20,000` Social Security subtraction does not buy back a dollar of the
+standard deduction or of the dependent exemption.
+
+### The 80% floor, and an income that is not a parameter
+
+§ 290.0123, subd. 5(a)(2) caps the reduction at 80% of the deduction, so a
+Minnesota filer keeps a fifth of it at every income there is. The income where
+that cap starts binding is **not a stored figure** — it is wherever the tiered
+withdrawal crosses the cap, which depends on the deduction and therefore on how
+many aged or blind people are on the return. For a 2025 joint filer with no
+addition it is **`$542,095`**:
+
+```text
+3% x (330,300 - 238,950)                    = 2,740.50   by the higher threshold
+80% x 29,900                                = 23,920.00  the cap
+(23,920 - 2,740.50) / 10%                   = 211,795    of income above it
+330,300 + 211,795                           = 542,095
+```
+
+And subd. 5(b)'s separate flat-80% branch above `$1,083,150` (2025) / `$1,107,750`
+(2026) is **not stored, because it is not a free parameter**: the `min()` in (a)
+has already reached the same 80% half a million dollars lower, so (b) cannot
+change an answer for any filer it could reach. `test/minnesota.test.js` asserts
+that at the threshold itself rather than leaving the claim to this paragraph.
+
+### The only state here that gives the FILER nothing
+
+§ 290.0121, subd. 1 allows an exemption "for each individual who is a dependent of
+the taxpayer", and there is no corresponding allowance for the taxpayer or the
+spouse anywhere in the section — Minnesota repealed its personal exemption on
+conforming to the federal suspension of § 151 and replaced it with a dependent
+exemption alone. `$5,200` for 2025 and `$5,300` for 2026, which is the largest
+per-dependent figure in this package and worth `$522.05` of tax at the 9.85% top
+rate.
+
+The zero is **proved rather than asserted**: `test/separate-return-spouse.test.js`
+fails a `noFilerExemption` declaration if any status has a non-zero `perFiler`.
+
+### "Or fraction thereof" makes a staircase one step shorter than it looks
+
+Fifty steps of 2% is fifty, and fifty steps of `$2,500` is `$125,000` — which is
+the width a careless reader writes down, and it was in three places in this
+package before a test asked for the boundary. The fiftieth step takes the last 2%
+and the `ceil()` brings it on the **first dollar past the forty-ninth**, so the
+exemption is gone from **`$122,500`** above the threshold (`$61,250` on a separate
+return). The Social Security subtraction has the identical off-by-one, from the
+identical four words: **`$36,000`**, not `$40,000`.
+
+### What is not modelled, and the one that is measured rather than waved at
+
+The child credit and working family credit of § 290.0661 — one combined
+refundable credit, `$1,750` a child plus a 4%-of-earnings phase-in, withdrawn
+together at 12% — are the largest omission for a family, and they are omitted
+because **the 2026 figures are not settled**: the Department published a 2026
+phase-out threshold for the non-joint column and none for the joint one, and its
+own May 2026 analysis of a governor's bill would change the adjustment basis
+retroactively. Modelling that would be a figure invented rather than read.
+
+**The alternative minimum tax of § 290.091 is the largest omission for a high
+earner, and what it costs is measured** in `test/minnesota-amt.test.js` — which
+measured two earlier versions of this README's claim about it *wrong*. Subd. 3
+states no phase-out rate of its own: it makes the exemption "subject to the phase
+out under section 55(d)(2) of the Internal Revenue Code", and the One Big
+Beautiful Bill Act raised that rate from 25% to 50% for tax years beginning after
+31 December 2025. At 50% the Minnesota AMT reaches a filer **with no dependents at
+all** — a 2026 head of household from `$202,224` to `$315,533` of wages, a joint
+return from `$290,580` to `$380,947` — and the largest shortfall measured is
+**`$4,735.905`**.
+
+**THE RULE: a rule incorporated BY REFERENCE has its parameters in somebody
+else's code, and reading the state's own section tells you nothing about whether
+they moved.** Both wrong versions came from reading § 290.091 and stopping.
 
 Oregon is the third state here that deducts the federal income tax, and the three do
 it three different ways — which is the whole argument for modelling a state rather
@@ -532,7 +651,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.40.0/us-state-tax-0.40.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.41.0/us-state-tax-0.41.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2552,7 +2671,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,497 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,567 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2585,7 +2704,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **632** notes every
+`test/notes.test.js` pins the first 72 characters of all **650** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2610,8 +2729,8 @@ reads, and all 17 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,286 numeric
-figures over 66 state-years, against 398 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,488 numeric
+figures over 68 state-years, against 420 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2657,14 +2776,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,143 figures of tax year
+The `kind` field answers one operational question. Over the 2,244 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,765** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,820** |
 | the statute's own schedule (`statute-scheduled`) | **113** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **258** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **304** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -2881,7 +3000,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **775 tests**. Turning it on, when there were 618 of them, is what
+from all **808 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

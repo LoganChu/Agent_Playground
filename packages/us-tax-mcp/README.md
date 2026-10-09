@@ -3,7 +3,7 @@
 **US federal, state and local tax as an MCP server.** Nine tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
-**state income tax for 33 states including Wisconsin, Oregon, Missouri, New York, New Jersey, Alabama, Massachusetts, Maryland,
+**state income tax for 34 states including Minnesota, Wisconsin, Oregon, Missouri, New York, New Jersey, Alabama, Massachusetts, Maryland,
 Ohio and Virginia** and **1,033 local income taxes — New York City, Yonkers, all 24 Maryland
 jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities
 and all 214 Ohio school districts** — for **tax years 2024, 2025 and 2026** — entirely offline, with every figure cited to
@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.43.0/us-tax-mcp-0.43.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.44.0/us-tax-mcp-0.44.0.tgz"
       ]
     }
   }
@@ -780,7 +780,7 @@ The same dollar, deferred out of the same paycheck, is inside one local wage tax
 the other — worth `$612.50` to Columbus and saving `$306.25` from the district. A model that
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
-Eight of the twenty-four taxing states cut their rate for 2026, so an unsupported year is an
+Eight of the twenty-five taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and nine of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud. Illinois came
 off that list in 0.27.0, and Kentucky and Maryland in 0.28.0: Kentucky's 2026 standard
@@ -833,7 +833,7 @@ adjustment as "up to `$259`"; `$257.50` is the most its own worksheet can produc
 | `quarterly_estimated_payments` | "What do I send the IRS each quarter?" The IRC § 6654 safe harbors and four dated installments. |
 | `get_tax_parameters` | "What are the 2026 brackets?" Every published figure for a year, cited. |
 | `paycheck_withholding` | "What will my take-home pay be?" "How should I fill out my W-4?" One paycheck by the Publication 15-T percentage method, and what to put on Step 4(c). |
-| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 33 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
+| `state_income_tax` | "What do I owe California?" "What does New York take?" "What about New York City, Marion County, Detroit, or Columbus?" A state and local return for 34 states plus New York City, Yonkers, all 24 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all 679 Ohio municipalities and all 214 taxing Ohio school districts, taking the federal figures from `estimate_federal_tax` — because which federal figure a state starts from is what decides the answer. |
 | `describe_state` | "What does Ohio need?" "What does Utah do that a rate table doesn't?" The fields `state_income_tax` reads for ONE state — required ones first, each with the form line it comes off and what its absence costs — plus that state's conformity base, its own notes and its statutes. Call it before computing a state you have not computed before: an omitted per-state field is usually a wrong answer rather than a missing one, because the engine falls back to a federal figure the state does not use. It is also where the per-state documentation lives, so that `state_income_tax`'s schema costs every session one state's worth of context rather than twenty-eight. |
 | `list_supported_years` | What is covered, what is **not** covered, and where each year's numbers came from. |
 | `figure_provenance` | "Where does this number come from?" "Is this figure current?" Which document publishes one figure in one year — the Revenue Procedure or state release that indexes it, the section of the Code or of the state code that fixes it, the worksheet line it is read from — and what a new tax year would require for it. **Pass `state` for a state figure** and omit it for a federal one. Some figures answer `reconstructed` or `carried-forward`: not read for that year, with the document that would settle it. |
@@ -867,7 +867,7 @@ computed instead, and which line of which document would prove it right or wrong
 way, so a model can ask "what in here is not from a published source" and get an
 answer rather than a shrug.
 
-**New in 0.36.0 — the same question for all 33 states.** Pass `state` and the tool
+**New in 0.36.0 — the same question for all 34 states.** Pass `state` and the tool
 answers from `us-state-tax`'s own ledger: 2,293 figures across 56 state-years, each
 mapped to a document and a kind of authority. The case it exists for is California:
 
@@ -937,7 +937,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **396 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **775 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **808 tests**, every state figure cited to its statute.
 This package adds **169 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
@@ -976,10 +976,10 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **18 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 33 states — AK, AL, AZ, CA, CO, CT, FL, GA, ID, IL, IN, KY,
-  MA, MD, MI, MO, MS, NC, NH, NJ, NV, NY, OH, OR, PA, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
-  nothing else. Minnesota, South Carolina and Iowa are absent, and asking for one is an error
+- **17 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 34 states — AK, AL, AZ, CA, CO, CT, FL, GA, ID, IL, IN, KY,
+  MA, MD, MI, MN, MO, MS, NC, NH, NJ, NV, NY, OH, OR, PA, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
+  nothing else. South Carolina, Louisiana and Iowa are absent, and asking for one is an error
   rather than a zero. Alabama's municipal occupational licence taxes — Birmingham's 1% of
   gross wages, Gadsden's 2% — are not modelled either. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
   Indiana's 92 counties, Michigan's 24 cities, Ohio's 679 municipalities and Ohio's 214
