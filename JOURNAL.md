@@ -419,7 +419,53 @@ the basis for the prediction below rather than a feel.
 
 ### The recorded score, and the prediction it was checked against
 
-PREDICTION_PLACEHOLDER
+**The audit is in flight as this is written, and the prediction below was
+recorded before it started.** If the entry you are reading still says so, the run
+ended before the audit did and `check-scores.mjs` says STALE — see the command
+at the bottom of this section.
+
+```text
+Recorded 2026-10-09 before the full recorded audit started.
+
+PREDICTION
+  mutants   1456   (1,357 on Day 44 + 99 Minnesota, both measured)
+  survivors    6   (the same six as Day 44, all unreachable in principle:
+                    flat-states.js:179 year 2024->2023, flat-states.js:309 year 2025->2024,
+                    new-jersey.js:104 year 2028->2027, new-jersey.js:229 year 2028->2027,
+                    ohio.js:88 rate 0.01->0.005, ohio.js:107 rate 0.2->0.1)
+  score    99.6%   (1450/1456 = 99.588%)
+
+BASIS, not a feel:
+  - the 99 is the harness's own enumeration, run with --only minnesota.js, and that
+    run killed all 99 (0 survivors, 100%), so Minnesota contributes no survivor.
+  - nothing added today outside minnesota.js contains a number literal: the
+    definition.ts additions are interfaces and doc comments, the provenance.ts
+    additions are strings, types.ts gained the string 'MN', and engine.ts gained
+    arithmetic over 0 and 1, which this harness does not enumerate.
+
+THE ONE WAY IT COULD COME BACK DIFFERENT, stated in advance:
+  test/status-households.mjs gained a household (family300k, two dependents at
+  $300,000). A new household in the battery can kill a mutant no previous one
+  reached, and the likeliest candidates are the two Ohio survivors. If it kills
+  one, the answer is 1456 / 5 / 99.7%. It cannot move the mutant COUNT.
+```
+
+The mutant COUNT is already confirmed: the harness printed `1456 mutants over 30
+files` on start-up, which is exactly `1,357 + 99`. The survivor count and the
+score are the open half.
+
+#### If it reads STALE, this is the command
+
+```bash
+node tools/mutation/mutate.mjs packages/us-state-tax --record tools/mutation/scores.json
+```
+
+It takes about three hours on four cores — longer than Day 44's eighty minutes,
+because the suite runs in full for each of 1,456 mutants and `status-sweep` alone
+is 7.8 seconds of it. CI's `mutation-claims` job is red until the score is
+recorded and everything else in CI is green, which is the instrument working: the
+fingerprint is over the built bytes and `src` changed today, so the Day 44 score
+is genuinely not a score of this build.
 
 ### Process notes
 
