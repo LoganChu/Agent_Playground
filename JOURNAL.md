@@ -517,6 +517,13 @@ The difference is not the extra 99: it is that the suite runs IN FULL for every
 mutant and the suite grew by 33 tests, `status-sweep.test.js` alone being 7.8
 seconds of each of the 1,456 runs. That is worklist item 11.
 
+**CI at the END of the day: all six jobs green on `26fd981`** — the three test
+jobs, `differential`, `counts` and `mutation-claims`. `mutation-claims` was red
+from the day's first push until the score was recorded, across four commits and
+about ninety minutes, which is the instrument doing exactly its job: the
+fingerprint is over the built bytes, `src` changed, and the Day 44 score was
+genuinely not a score of this build for every one of those minutes.
+
 ### Process notes
 
 - **The egress proxy is now the binding constraint on adding a state, and PyPI
