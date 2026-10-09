@@ -391,3 +391,24 @@ faster.
 The proxies' own limits are stated where they are made: `status-sweep` perturbs one
 number per `byStatus` cell and says what covers the rest; `step-probes` covers
 staircases and names the file that owns every chart it does not drive.
+
+## Day 45: Minnesota added 99 mutants and no survivors
+
+The twenty-fifth state contributed **99 mutants, all of them killed**, measured
+on its own with `mutate.mjs --only minnesota.js` before the full audit ran. Every
+number in Minnesota moves a test, so the six below are unchanged and the package
+total went from 1,357 to **1,456** with the score steady at **99.6%**.
+
+The six are the same six at the same six line numbers, which was predicted: Day
+45 touched `definition.ts`, `engine.ts`, `types.ts`, `data/provenance.ts` and the
+new `states/minnesota.ts`, and none of `flat-states.ts`, `new-jersey.ts` or
+`ohio.ts`. Day 44's rule — *a survivor identified by a LINE NUMBER is identified
+by something a comment can move* — is why the prediction named the line numbers
+explicitly rather than assuming them.
+
+One thing was stated in advance as the way the prediction could fail, and it did
+not: `test/status-households.mjs` gained a thirty-first household (`family300k`,
+two dependents at `$300,000`), and a new household can kill a mutant no previous
+one reached. The two Ohio rate survivors were the likeliest candidates, being
+arithmetic rather than out-of-range years. It killed neither, so both remain
+asserted-unreachable rather than merely unreached.

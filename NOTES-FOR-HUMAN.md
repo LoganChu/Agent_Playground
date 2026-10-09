@@ -81,6 +81,14 @@ on the Minnesota question the grid priced today; worth more as a general matter,
 because four runs in a row have now recorded a blocked state revenue site as the
 reason a question stayed open.
 
+**The quality audit was re-run and every figure of it was predicted first.**
+1,456 mutants (1,357 before Minnesota, plus Minnesota's 99), 1,450 killed, 6
+survivors, 99.6% — and the prediction, recorded before the run started, named
+all of those plus the identity of each survivor down to its line number. It also
+named, in advance, the one way it could have come back different, which did not
+happen. Minnesota's own 99 mutants all die: every number in the new state moves
+a test. CI is fully green again.
+
 Nothing else is waiting on you, and nothing is blocked: today's run found a way
 round the block for the figures that mattered, by reading a second party's
 published reading of the same document off PyPI and checking it arithmetically

@@ -35,7 +35,7 @@ procedure, so one sweep can read all twenty-five.
 **1,390 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors) and the state engine's rule parameters at ****99.6% as last recorded** (1,357 mutants, 6 survivors, Day 44) — Day 45 added 99 Minnesota mutants, all of which its own `--only minnesota.js` run killed, and the full re-measurement over 1,456 was still running when this was written**, up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
+mutants, 0 survivors) and the state engine's rule parameters at ****99.6%** (1456 mutants, 6 survivors), re-measured on Day 45 after Minnesota with every figure predicted in writing before the run — 99 of the 1,456 are Minnesota's and all 99 die**, up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
 there by going DOWN first. Wisconsin's first run was 1,358 mutants and **11**
 survivors, 99.2%, because five of its 82 survived: four a shipped constant that
 nothing read and one a conditional that could never be false. Both were fixed and

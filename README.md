@@ -120,7 +120,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 711 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1357 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1456 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 43** over the build that ships today,
 and it moved **twice**:
@@ -129,6 +129,7 @@ and it moved **twice**:
 Day 42, after Oregon          1,267 mutants    6 survivors   99.5%
 Day 43, Wisconsin's first run 1,358 mutants   11 survivors   99.2%
 Day 43, after the five fixes  1,357 mutants    6 survivors   99.6%
+Day 45, after Minnesota       1,456 mutants    6 survivors   99.6%
 ```
 
 **The first run is the one worth reading, because the score went DOWN.** Five of
@@ -165,6 +166,17 @@ year the state has. Removing it is why the second run has one mutant fewer.
 **Every number of the second run was predicted in writing before it started** —
 1,357 mutants, 1,351 killed, 6 survivors, 99.6%, same six at the same six lines —
 and 99.6% is the highest this package has recorded.
+
+**Day 45's re-measurement after Minnesota was predicted in writing too, and came
+back identical to the prediction in every figure**: 1,456 mutants, 1,450 killed,
+6 survivors, 99.6%, and the same six survivors at the same six line numbers. The
+prediction was a DERIVATION rather than a guess — `mutate.mjs --only
+minnesota.js` was run first and gave 99 mutants with 0 survivors, so `1,357 + 99`
+was arithmetic, and nothing added outside `minnesota.js` contains a number
+literal. **Minnesota's 99 are all load-bearing: every number in the
+twenty-fifth state moves a test.** The one way it could have come back different
+was stated in advance — the household battery gained a thirty-first household,
+and a new household can kill a mutant no previous one reached — and it did not.
 
 The count was predicted exactly on the first run too, at 1,358: 1,267 plus
 Wisconsin's 82 plus **9 in `src/data/provenance.ts`**, the ledger that records

@@ -32,6 +32,12 @@ battery; and three new bounds in the differential harness (`minAbs`,
 `direction`, `notStates`), each of which exists because something went wrong
 without it.
 
+**The mutation audit records 1,456 mutants, 6 survivors, 99.6%, and every figure
+of it was predicted in writing before the run** — the count, the killed count,
+the survivor count, the score and the identity of all six survivors down to
+their line numbers. One start, because Day 42's rule was followed rather than
+rediscovered: every `src` edit landed before the audit began.
+
 CI read at the START of the run, the standing item since Day 37: **green on the
 last push** (run 168, d8195fa). Two API calls.
 
@@ -417,12 +423,34 @@ it the moment the phase-out rate doubled.
 Every number in the state moves a test. That was run before the full audit and is
 the basis for the prediction below rather than a feel.
 
-### The recorded score, and the prediction it was checked against
+### The recorded score, and every figure of it predicted before the run
 
-**The audit is in flight as this is written, and the prediction below was
-recorded before it started.** If the entry you are reading still says so, the run
-ended before the audit did and `check-scores.mjs` says STALE — see the command
-at the bottom of this section.
+`node tools/mutation/check-scores.mjs` passes on this build:
+
+```text
+us-federal-tax — measured 2026-10-02: 711 mutants, 0 survivors, 100%
+us-state-tax   — measured 2026-10-09: 1456 mutants, 6 survivors, 99.6%
+
+Every advertised mutation score matches the record, and the record matches this build.
+```
+
+The run: **1,456 mutants, 1,450 killed, 6 survivors, 99.6%**, in one start, and
+it came back **identical to the prediction in every figure** — the count, the
+killed count, the survivor count, the score, and the identity of all six
+survivors down to their line numbers:
+
+```text
+states/flat-states.js  line 179  year  2024 -> 2023
+states/flat-states.js  line 309  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**The prediction was a DERIVATION rather than a guess, and that is the only
+reason it is worth anything.** It was recorded before the run started and is
+reproduced here verbatim:
 
 ```text
 Recorded 2026-10-09 before the full recorded audit started.
@@ -450,22 +478,44 @@ THE ONE WAY IT COULD COME BACK DIFFERENT, stated in advance:
   one, the answer is 1456 / 5 / 99.7%. It cannot move the mutant COUNT.
 ```
 
-The mutant COUNT is already confirmed: the harness printed `1456 mutants over 30
-files` on start-up, which is exactly `1,357 + 99`. The survivor count and the
-score are the open half.
+Three things about that are worth keeping.
 
-#### If it reads STALE, this is the command
+**The count was arithmetic, not a feel.** `mutate.mjs --only minnesota.js` was
+run FIRST and printed 99 mutants, so `1,357 + 99` was addition. Day 44's five
+restarts were all caused by numbers written from a hand count, and the cheap fix
+is to measure the part you are about to predict.
 
-```bash
-node tools/mutation/mutate.mjs packages/us-state-tax --record tools/mutation/scores.json
-```
+**The survivor count was a derivation too**, because the Minnesota-only run also
+reported 0 survivors — so Minnesota could not contribute one, and the six had to
+be the same six. Line numbers included, because nothing today touched
+`flat-states.ts`, `new-jersey.ts` or `ohio.ts` and Day 44's lesson is that a
+survivor identified by a line number is identified by something a comment can
+move.
 
-It takes about three hours on four cores — longer than Day 44's eighty minutes,
-because the suite runs in full for each of 1,456 mutants and `status-sweep` alone
-is 7.8 seconds of it. CI's `mutation-claims` job is red until the score is
-recorded and everything else in CI is green, which is the instrument working: the
-fingerprint is over the built bytes and `src` changed today, so the Day 44 score
-is genuinely not a score of this build.
+**And the one way it could have come back different was stated in advance and did
+not happen.** `status-households.mjs` gained `family300k`, and a new household in
+the battery can kill a mutant no previous one reached — the two Ohio rate
+survivors being the likeliest candidates, since they are arithmetic rather than
+out-of-range years. It killed neither. Writing that down before the run is what
+makes "the prediction held" a result rather than a coincidence: a prediction with
+no stated failure mode cannot be surprised.
+
+The six remain **unreachable in principle** rather than untested — four windows
+on a tax year outside the two supported, and two rows of Ohio arithmetic asserted
+unreachable. Triaged in `tools/mutation/STATE-SURVIVORS.md`.
+
+**One start, and the reason is Day 42's rule followed rather than rediscovered.**
+Every `src` edit landed before the audit began; the READMEs, the journal, the
+strategy note and the human notes were all written while it ran. Day 44 took six
+starts and five of the restarts were edits made during a run. The cost of the
+rule is real and is on the worklist as item 9 — it forces every document to be
+written after the audit starts, which is the wrong order for thinking — but today
+is evidence the rule works.
+
+It took about two hours on four cores, against Day 44's eighty minutes for 1,357.
+The difference is not the extra 99: it is that the suite runs IN FULL for every
+mutant and the suite grew by 33 tests, `status-sweep.test.js` alone being 7.8
+seconds of each of the 1,456 runs. That is worklist item 11.
 
 ### Process notes
 
