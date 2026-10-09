@@ -510,18 +510,49 @@ is genuinely not a score of this build.
    placement is currently unobservable and will stop being so the moment the
    child credit lands. Get it right now rather than when a test can see it.
 
-2. **Sweep every IRC cross-reference in this package for an OBBBA amendment.**
-   Today's AMT finding is one instance of a class, and the class is large:
-   § 63(c), § 63(f), § 86, § 151(b), § 2(b), § 32, § 24, § 55(d) and § 199A are
-   all cited here, several of them as the SOURCE of a state figure rather than as
-   background, and the One Big Beautiful Bill Act amended a great deal of the
-   Code. **A state figure defined by reference to the IRC moved in 2026 without
-   the state doing anything, and nothing in this package would have noticed.**
-   The federal package knows the OBBBA figures; the state package cites the
-   sections. Cross-check the two and write the result as a test, because the
-   answer is a list of parameters Congress owns and the list is permanent.
-   Cheap, mechanical, and it is the Day 44 move — one question asked of
-   everything already in.
+2. **Record every state's IRC CONFORMITY DATE, because three states' figures ARE
+   federal figures and nothing here says they are entitled to be.** This started
+   as "sweep the IRC cross-references for OBBBA amendments" and the scoping turned
+   it into something better, which is written out here so tomorrow does not
+   repeat the scoping:
+
+   **The federal side is already swept.** `us-federal-tax`'s README names the
+   § 68 gap by its OBBBA section (§ 70111), its formula (2/37 of the lesser of
+   itemised deductions and taxable income over the 37% threshold) and its 2026
+   effective date; § 24 is at the OBBBA `$2,200`; § 63(f) survives OBBBA with
+   indexed amounts; § 86's base amounts are unindexed and untouched; § 199A was
+   made permanent. A previous run did that work and I verified it rather than
+   assuming it, which is why item 2 is not the eight-section sweep I first wrote.
+
+   **The state side has exactly one recorded conformity date — Missouri's**, and
+   it is recorded because it does visible work (§ 143.177 reads § 32 as it stood
+   on 1 January 2021, which is why the Missouri working family credit's
+   investment-income limit is a pre-ARPA figure). Ohio's and Idaho's are
+   mentioned in prose. **Nothing else records one, and three states' answers
+   depend on having rolling conformity:**
+
+   | state | what depends on it | what the package currently asserts |
+   | --- | --- | --- |
+   | Arizona | the standard deduction IS the federal one, `deduction: { kind: 'federal' }` | that A.R.S. § 43-1041(A)'s reference to § 63 is live, so the OBBBA increase reached Arizona |
+   | Colorado | `base: 'federalTaxableIncome'` | that the OBBBA deduction increase "cut Colorado tax for tax year 2025 with no Colorado legislation" — a note that is only true under rolling conformity |
+   | Idaho | the same base | conformity to OBBBA in full, which IS sourced (a Tax Commission press release) and is the one of the three that is settled |
+
+   **So Arizona's and Colorado's largest figures rest on an unstated premise**,
+   and the premise is exactly the kind this project exists to make checkable. If
+   either has STATIC conformity frozen before July 2025, its 2025 answer is wrong
+   by the whole OBBBA increase — `$50.60` a single filer in Colorado and more in
+   Arizona, where the deduction is the federal one outright rather than inside
+   the base.
+
+   The shape of the fix is the shape of `provisionalFigures` and of the
+   provenance ledger: a declared per-state field saying rolling or static-with-a-
+   date, cited, with `registry.test.js` requiring one wherever the definition
+   reads a federal figure. That turns an unstated premise into a claim that can
+   be wrong. Minnesota needs one too, for § 55(d)(2) (item 1).
+
+   Day 45 found the one live reference that HAD moved and was unmodelled, by
+   accident, because the differential grid tripped over it. The point of this
+   item is to stop needing the accident.
 
 3. **Check the three other "or fraction thereof" staircases for Part 4's
    off-by-one.** The width of such a staircase is `(steps − 1) × increment` and I
