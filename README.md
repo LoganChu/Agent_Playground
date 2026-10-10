@@ -120,16 +120,17 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1456 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1458 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
-The federal figure was re-measured on **Day 46** over the build that ships today. The
-state one has moved **twice** in its history:
+Both figures were re-measured on **Day 46** over the build that ships today. The state
+one has moved **twice** in its history:
 
 ```text
 Day 42, after Oregon          1,267 mutants    6 survivors   99.5%
 Day 43, Wisconsin's first run 1,358 mutants   11 survivors   99.2%
 Day 43, after the five fixes  1,357 mutants    6 survivors   99.6%
 Day 45, after Minnesota       1,456 mutants    6 survivors   99.6%
+Day 46, after the conformity  1,458 mutants    6 survivors   99.6%
 ```
 
 **The first run is the one worth reading, because the score went DOWN.** Five of

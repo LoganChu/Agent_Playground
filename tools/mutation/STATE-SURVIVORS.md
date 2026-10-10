@@ -22,6 +22,7 @@ rather than the suite's reach.
 | **Day 43, Wisconsin's first run** | **1,358** | **11** | **99.2%** |
 | **Day 43, after the five Wisconsin fixes** | **1,357** | **6** | **99.6%** |
 | **Day 45, after Minnesota** | **1,456** | **6** | **99.6%** |
+| **Day 46, after the conformity declarations** | **1,458** | **6** | **99.6%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -298,11 +299,33 @@ REMOVABLE, and removing it is better than triaging it.
 > does in its other three columns. The line number is the one column that is not
 > about the mutant.
 
+> **Day 46: the two `flat-states.js` numbers moved AGAIN, and this time the rule was
+> tested rather than restated.** 179 and 309 became **234** and **364** — `+55` each —
+> because Day 46 added a `federalConformity` declaration to Arizona, at the top of the
+> file. `new-jersey.js` 104/229 and `ohio.js` 88/107 did not move, because neither file
+> was touched.
+>
+> **The prediction written before that run named all six survivors, said new-jersey's
+> and ohio's four numbers would be unchanged, and explicitly DECLINED to predict the
+> two flat-states numbers** — on the grounds that the built-file offset is not
+> derivable from the source diff. That refusal turned out to be the only part of the
+> prediction that could have been wrong: `flat-states.ts` gained **+65** source lines,
+> all above both survivors, so a derived guess would have said 244 and 374. **Wrong by
+> ten, twice.** Ten of the added lines are TypeScript that emits nothing — the field's
+> type annotations and the JSDoc on the interface — and a source diff cannot tell those
+> from lines that emit.
+>
+> So the rule now has a measurement behind it: across a 55-line shift the PARAMETER
+> identity held exactly and the line number was unrecoverable. A prediction is worth
+> something when it says which of its parts it cannot compute.
+
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
-`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` 179
-(`year >= 2024`) and 309 (`year >= 2025`) — the two flat-states numbers were 157 and
-287 before Day 44 added comments above them, which is the note above this one.
+`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` **234**
+(`year >= 2024`) and **364** (`year >= 2025`) — the two flat-states numbers were 157
+and 287 before Day 44, 179 and 309 before Day 46, and have now moved twice without
+anything they describe having changed, which is the note above this one. **Read the
+other three columns, not this one.**
 
 The package supports 2025 and 2026. Both are inside every one of these windows, so
 moving an edge changes nothing that can be asked for. These are Day 29's category —

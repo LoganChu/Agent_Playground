@@ -391,15 +391,47 @@ scratch file so it could not be edited afterwards:
 **The federal result came back identical to the prediction in every figure:
 716 mutants, 716 killed, 0 survivors, 100.0%.**
 
-**The state audit was still running when this was committed**, and it is recorded that
-way deliberately: the prediction above is dated by the commit that carries it, so it
-cannot be quietly revised once the answer is known. The result lands in a later commit
-today, and `mutation-claims` is RED until it does — the fingerprint is over the built
-parameters, `src` changed, so the Day 45 score genuinely is not a score of this build.
-That is the instrument working, exactly as on Day 45.
+**The state result came back identical to the prediction in every figure I
+predicted:**
 
-**It also restarted once**, for the one-cent fix in Part 11. The first attempt ran
-fifteen minutes before I threw it away.
+```text
+mutants 1458    killed 1452    survived 6    score 99.6%
+
+states/flat-states.js  line 234  year  2024 -> 2023
+states/flat-states.js  line 364  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+The count, the killed count, the survivor count, the score, the identity of all six
+survivors, and the two line numbers I said would be **unchanged** — `new-jersey.js` at
+104 and 229 and `ohio.js` at 88 and 107, because I did not touch either file — all as
+written. The two new mutants both died: `flat-states.js:74` is not among that file's
+two survivors and `federal-taxable-base.js` has none at all, so the stated failure mode
+(1,458 / 1,450 / 8 / 99.45%) did not happen.
+
+**AND THE ONE THING I REFUSED TO PREDICT IS THE ONE THING A DERIVATION WOULD HAVE GOT
+WRONG, WHICH IS THE RESULT WORTH HAVING.** The two `flat-states.js` survivors moved
+from 179 and 309 to **234 and 364** — exactly **+55** each. The source diff for that
+file is **+65** net, all of it above both, so a line number derived from the source
+shift would have said 244 and 374: **wrong by ten, twice.** Ten lines of what I added
+to `flat-states.ts` are TypeScript that emits nothing — the `federalConformity` field's
+type annotations and the JSDoc on the interface — and a source diff cannot tell those
+from lines that emit.
+
+Day 44's rule was "a survivor identified by a LINE NUMBER is identified by something a
+comment can move", and it has been quoted on four days as a reason to name the
+parameter instead. **Today it stopped being a maxim and became a measurement**: the
+parameter identity held across a 55-line shift and the derived line number would have
+missed. The honest prediction was the one that said which half it could not compute.
+
+**The audit restarted once**, for the one-cent fix in Part 11 — fifteen minutes of a
+two-and-a-quarter-hour run thrown away. `mutation-claims` was red from the day's first
+push until this commit, across three commits, which is the instrument working rather
+than a problem: the fingerprint is over the built parameters, `src` changed, and the
+Day 45 score genuinely was not a score of this build for every one of those minutes.
 
 ### Process notes
 

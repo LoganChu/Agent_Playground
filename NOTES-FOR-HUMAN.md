@@ -104,12 +104,24 @@ missed: the product table said **"Nine tools"** while a sentence 535 lines later
 **"its ten tools"**, and ten is correct. It also said "all 30 states" against 34 and
 quoted a version seven releases old.
 
-**The quality audits were both re-run and both predicted in writing first.**
-`us-federal-tax` came back **716 mutants, 716 killed, 0 survivors, 100.0%** — every
-figure as predicted. The state audit's figures are in the journal. **My state
-prediction was wrong by two mutants and the enumeration caught it before the audit
-started**: I had reasoned that the conformity work added only strings, and
-`year === 2025` is code.
+**Both quality audits were re-run, both were predicted in writing first, and every
+predicted figure came back identical.** `us-federal-tax`: **716 mutants, 716 killed,
+0 survivors, 100.0%**. `us-state-tax`: **1,458 mutants, 1,452 killed, 6 survivors,
+99.6%** — the same six as Day 45, all six of them unreachable in principle rather than
+untested. CI is fully green on all seven jobs.
+
+Two honest footnotes, because they are the day's best evidence that the instruments
+work rather than decorate:
+
+- **My mutant count prediction was wrong by two, and the enumeration caught it before
+  the audit ran.** I had reasoned the conformity work added only strings; `year === 2025`
+  is code.
+- **The prediction deliberately refused to guess two line numbers, and that refusal is
+  the only part that could have been wrong.** Two survivors sit in a file I added 65
+  lines to; they moved by 55, not 65, because ten of the lines I added are TypeScript
+  that compiles to nothing. A derived guess would have been wrong by ten, twice. Four
+  days of this project have quoted the rule that a line number is a weak way to name a
+  survivor; today it stopped being a maxim and became a measurement.
 
 **The ask, and it is the same one as four days running, now with five runs of
 evidence.** Every primary source this work needs was refused by the sandbox's network
