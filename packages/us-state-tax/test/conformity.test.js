@@ -19,17 +19,32 @@ const OBBBA_2025 = {
   deductionKind: 'standard',
 };
 
-/** The same filer as the pre-OBBBA 2025 standard deduction would have left them. */
+/**
+ * The same filer as the pre-OBBBA 2025 standard deduction would have left them.
+ *
+ * `$15,000` — Rev. Proc. 2024-40 § 2.15, which OBBBA § 70102 superseded in July
+ * 2025. **This said `$14,600` until Day 46, which is the 2024 figure**, and every
+ * assertion below was inflated by the `$400` of ordinary indexation that
+ * separates the two. The tests passed because they supplied their own premise:
+ * the engine takes 4.4% of whatever deduction it is handed, so an assertion that
+ * Colorado fell by 4.4% of `$1,150` is arithmetically perfect and factually
+ * about a change OBBBA did not make.
+ */
 const PRE_OBBBA_2025 = {
   adjustedGrossIncome: 100_000,
-  taxableIncome: 85_400,
-  deduction: 14_600,
+  taxableIncome: 85_000,
+  deduction: 15_000,
   deductionKind: 'standard',
 };
 
 test('Arizona inherits the federal standard deduction, so OBBBA cut Arizona tax', () => {
   // A.R.S. § 43-1041(A) defines the Arizona standard deduction as equal to the
-  // federal one. Nothing in Arizona law changed in 2025; the bill still fell.
+  // federal one, so the bill falls when the federal figure rises. Nothing in
+  // Arizona LAW changed in 2025 — and for Arizona that is a warning rather than
+  // a reassurance: § 43-105 is frozen at 1 January 2025, six months before the
+  // Act, and the OBBBA figure is on the 2025 form by executive order. See
+  // `federal-conformity.test.js`, which is about the entitlement rather than
+  // the arithmetic.
   const after = stateIncomeTax({
     state: 'AZ',
     year: 2025,
@@ -45,8 +60,8 @@ test('Arizona inherits the federal standard deduction, so OBBBA cut Arizona tax'
   money(after.deduction, 15_750, 'AZ deduction follows the federal figure');
   money(after.taxableIncome, 84_250);
   money(after.tax, 2106.25);
-  money(before.tax, 2135.0);
-  money(before.tax - after.tax, 28.75, 'the OBBBA increase is worth 2.5% of $1,150');
+  money(before.tax, 2125.0);
+  money(before.tax - after.tax, 18.75, 'the OBBBA increase is worth 2.5% of $750');
 });
 
 test('Colorado and Idaho start below the federal deduction and inherited it too', () => {
@@ -61,7 +76,7 @@ test('Colorado and Idaho start below the federal deduction and inherited it too'
   money(co.conformity.amount, 84_250, 'Colorado starts from taxable income, not AGI');
   money(co.deduction, 0, 'Colorado has no deduction of its own');
   money(co.tax, 3707.0);
-  money(coBefore.tax - co.tax, 50.6, '4.4% of the $1,150 increase');
+  money(coBefore.tax - co.tax, 33.0, '4.4% of the $750 increase');
 
   const id = stateIncomeTax({ state: 'ID', year: 2025, filingStatus: 'single', federal: OBBBA_2025 });
   const idBefore = stateIncomeTax({
@@ -72,7 +87,7 @@ test('Colorado and Idaho start below the federal deduction and inherited it too'
   });
   // 0% on the first $4,811, then 5.3%.
   money(id.tax, (84_250 - 4811) * 0.053);
-  money(idBefore.tax - id.tax, 60.95, '5.3% of the $1,150 increase');
+  money(idBefore.tax - id.tax, 39.75, '5.3% of the $750 increase');
 });
 
 test('Illinois and Michigan start from AGI, so OBBBA did nothing to them', () => {

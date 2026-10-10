@@ -560,3 +560,50 @@ export const YEAR_2025: YearParameters = {
     },
   ],
 };
+
+/**
+ * The 2025 standard deduction **as Rev. Proc. 2024-40 published it**, before the
+ * One Big Beautiful Bill Act superseded it.
+ *
+ * This is a figure that was law for six months and is law no longer, and it is
+ * declared here for one reason: **without it, "what OBBBA did to 2025" is a
+ * subtraction nobody can check.** The header comment above has named these three
+ * numbers in prose since the package shipped, and prose is exactly what the
+ * § 63(c) provenance entry says a figure may not be.
+ *
+ * It cost something to learn that. `us-state-tax` describes the OBBBA increase in
+ * five states' notes and in four test files, and every one of them measured it
+ * against `$14,600` — the **2024** figure — making the increase `$1,150` instead
+ * of `$750`. The tests asserted the inflated figure and passed, because a test
+ * that transcribes its own premise cannot fail on it. Two packages in this
+ * repository disagreed by 53% about a federal figure for 46 days, and the one
+ * that was right had the answer in a comment.
+ *
+ * So: not a parameter of the engine, which must never compute with these, but an
+ * exported figure that a test may subtract from {@link YEAR_2025}'s
+ * `standardDeduction` to get the increase OBBBA actually made.
+ *
+ * Pub. L. 119-21 § 70102 is the superseding statute; Rev. Proc. 2024-40 § 2.15
+ * is the superseded figure.
+ */
+export const SUPERSEDED_2025_STANDARD_DEDUCTION = {
+  single: 15_000,
+  marriedFilingJointly: 30_000,
+  marriedFilingSeparately: 15_000,
+  headOfHousehold: 22_500,
+  qualifyingSurvivingSpouse: 30_000,
+} as const;
+
+/**
+ * What OBBBA § 70102 added to each status's 2025 standard deduction.
+ *
+ * Derived rather than stored, so it cannot disagree with either side of the
+ * subtraction — the defect this whole pair exists to prevent.
+ */
+export const OBBBA_2025_STANDARD_DEDUCTION_INCREASE = Object.freeze(
+  Object.fromEntries(
+    (Object.keys(SUPERSEDED_2025_STANDARD_DEDUCTION) as (keyof typeof SUPERSEDED_2025_STANDARD_DEDUCTION)[]).map(
+      (status) => [status, YEAR_2025.standardDeduction[status] - SUPERSEDED_2025_STANDARD_DEDUCTION[status]],
+    ),
+  ),
+) as Readonly<Record<keyof typeof SUPERSEDED_2025_STANDARD_DEDUCTION, number>>;

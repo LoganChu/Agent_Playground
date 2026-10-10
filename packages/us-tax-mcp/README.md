@@ -1,6 +1,6 @@
 # us-tax-mcp
 
-**US federal, state and local tax as an MCP server.** Nine tools that compute income tax,
+**US federal, state and local tax as an MCP server.** Ten tools that compute income tax,
 self-employment tax, FICA, capital gains, NIIT, the child tax credit and EITC, the Section
 199A deduction, the SALT cap, quarterly estimated payments, **paycheck withholding**,
 **state income tax for 34 states including Minnesota, Wisconsin, Oregon, Missouri, New York, New Jersey, Alabama, Massachusetts, Maryland,
@@ -464,17 +464,32 @@ question that decides the answer, and it is different in every state — which i
 `state_income_tax` takes the federal figures from `estimate_federal_tax` rather than
 describing the household a second time.
 
-**The One Big Beautiful Bill Act cut 2025 tax in four states that never voted on it**, each
-by a different route, because each reaches under federal AGI somewhere:
+**The One Big Beautiful Bill Act cut 2025 tax in five states that never voted on it**, each
+by a different route, because each reaches under federal AGI somewhere. The increase was
+$750 for a single filer — $15,000 to $15,750, Rev. Proc. 2024-40 superseded by OBBBA § 70102:
 
-| State | Route | Cut for one single filer |
-| --- | --- | --- |
-| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $28.75 |
-| Colorado | Starts from federal **taxable** income | $50.60 |
-| Idaho | Starts from federal **taxable** income | $60.95 |
-| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $69.00 |
+| State | Route | Cut for one single filer | IRC conformity |
+| --- | --- | --- | --- |
+| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $18.75 | **static, 2025-01-01** |
+| Colorado | Starts from federal **taxable** income | $33.00 | rolling |
+| Idaho | Starts from federal **taxable** income | $39.75 | **static, 2026-01-01** |
+| Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | $35.25 | rolling |
+| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $45.00 | rolling |
 
-Illinois and Michigan, on federal AGI, got nothing. No state form changed in any of the six.
+Illinois and Michigan, on federal AGI, got nothing.
+
+**The last column is the part that is hard to get right, and it decides how much the rest
+of the row is worth.** Colorado, Missouri and Utah read the Code as it stands, so the
+increase reached them with no state act at all. Idaho was frozen at 1 January 2025 when
+OBBBA passed and its 2025 answer only became the one above when HB 559 was signed on
+10 February 2026 and backdated. Arizona is *still* frozen at 1 January 2025 for tax year
+2025: two bills to move it were vetoed, and the OBBBA deduction is on the 2025 Form 140
+because Executive Order 2025-15 told the Department to put it there. Each of the five
+declares its rule as `federalConformity`, and a result reports it at
+`conformity.federal` beside the `conformity.base` that was already there — the two
+halves of "is this state entitled to the federal figure in this answer?". It is
+ABSENT for every other state, because a conformity claim on a state that cannot
+read a below-AGI federal figure would be backed by nothing.
 
 **And "starts from federal taxable income" is not "passes it through."** Colorado has added
 the § 199A deduction back since 2021, and from tax year 2026 adds back the OBBBA **overtime**
@@ -935,9 +950,9 @@ EITC withdrawal at the § 32 phase-out rate.
 
 ## Correctness
 
-The engines underneath live in the same repository. `packages/us-federal-tax`: **396 tests**
+The engines underneath live in the same repository. `packages/us-federal-tax`: **400 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **808 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **820 tests**, every state figure cited to its statute.
 This package adds **169 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the

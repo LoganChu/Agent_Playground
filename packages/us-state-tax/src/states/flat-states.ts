@@ -20,6 +20,21 @@ const AZ_CITATIONS: readonly Citation[] = [
     title: 'Ariz. Rev. Stat. § 43-1041 — Arizona standard deduction equals the federal amount',
     url: 'https://www.azleg.gov/ars/43/01041.htm',
   },
+  {
+    title:
+      'Ariz. Rev. Stat. § 43-105 — the IRC conformity date. HB 2688 (2025) set it at January 1, 2025; HB 4168, signed June 13, 2026, moved it to January 1, 2026 for taxable years beginning after December 31, 2025',
+    url: 'https://www.azleg.gov/ars/43/00105.htm',
+  },
+  {
+    title:
+      'Arizona Executive Order 2025-15 (November 2025) — directs the Department of Revenue to put five OBBBA provisions on the 2025 individual forms, the increased standard deduction among them',
+    url: 'https://azgovernor.gov/office-arizona-governor/news/2025/11/governor-katie-hobbs-signs-executive-order-taking-steps-cut',
+  },
+  {
+    title:
+      'ADOR — Middle Class Tax Cuts Package (MCTCP) Worksheet for calendar year 2025: the four Schedule 1-A subtractions the executive order created',
+    url: 'https://azdor.gov/forms/individual/middle-class-tax-cuts-package-mctcp-worksheet',
+  },
 ];
 
 function arizona(year: number): StateIncomeTaxDefinition {
@@ -52,16 +67,66 @@ function arizona(year: number): StateIncomeTaxDefinition {
     year,
     status: 'published',
     base: 'federalAdjustedGrossIncome',
+    // Arizona's conformity is STATIC, which is the fact that was missing from
+    // this file for 46 days while the note below claimed the opposite.
+    //
+    // 2025: § 43-105 was frozen at January 1, 2025 by HB 2688 — SIX MONTHS
+    // BEFORE the One Big Beautiful Bill Act was enacted on July 4, 2025. Under
+    // the conformity statute alone, an Arizona 2025 return takes the Rev. Proc.
+    // 2024-40 standard deduction of $15,000/$30,000/$22,500 and NOT the OBBBA
+    // figures. The legislature's two attempts to move the date for 2025 —
+    // SB 1106 and HB 2785 — were both vetoed. The OBBBA figures are on the 2025
+    // Form 140 because Executive Order 2025-15 told the Department to put them
+    // there, and ADOR says a filer who claims them may have to amend if the
+    // eventual statute differs, with penalties and interest waived to
+    // October 15, 2027.
+    //
+    // 2026: settled by statute. HB 4168, signed June 13, 2026, moved the date to
+    // January 1, 2026 for taxable years beginning after December 31, 2025, so
+    // OBBBA is inside the Code Arizona reads and no executive order is load-bearing.
+    //
+    // THE ANSWER THIS PACKAGE SHIPS FOR 2025 IS THE ONE ON THE STATE'S OWN FORM,
+    // which is the right choice; what was wrong was calling the reason "no
+    // Arizona legislation", as though silence were conformity.
+    federalConformity:
+      year === 2025
+        ? {
+            kind: 'staticDate',
+            conformedTo: '2025-01-01',
+            cite:
+              'A.R.S. § 43-105 as amended by HB 2688 (2025) — the IRC in effect on January 1, 2025, excluding later changes',
+            reachedAnyway: {
+              route: 'executiveAction',
+              cite:
+                'Executive Order 2025-15 (November 2025), implemented in the 2025 Form 140 and the MCTCP worksheet; SB 1106 and HB 2785 were vetoed',
+              why:
+                'Under § 43-105 alone a 2025 Arizona return would take the superseded Rev. Proc. 2024-40 standard deduction of $15,000/$30,000/$22,500, making this package $18.75 low for a single filer and $37.50 low for a joint one. No Arizona statute carries the OBBBA figures into 2025.',
+            },
+            primaryTextUnread:
+              'azleg.gov and azdor.gov are both refused by this sandbox\u2019s egress policy. The date, the vetoes and HB 4168 are established from the legislature\u2019s own bill summaries and ADOR\u2019s news release as WebSearch reported them, agreeing across four independent write-ups.',
+          }
+        : {
+            kind: 'staticDate',
+            conformedTo: '2026-01-01',
+            cite:
+              'A.R.S. § 43-105 as amended by HB 4168 (signed June 13, 2026) — the IRC in effect on January 1, 2026, for taxable years beginning after December 31, 2025',
+            primaryTextUnread:
+              'azleg.gov is refused by this sandbox\u2019s egress policy; HB 4168\u2019s date and signing are established from the Arizona legislature\u2019s enrolled-bill summary and three secondary write-ups that agree.',
+          },
     rate: { kind: 'flat', rate: 0.025 },
     // The whole point of Arizona. A.R.S. § 43-1041(A) sets the Arizona standard
     // deduction *equal to* the federal one rather than to a number of its own, so
-    // the OBBBA increase from $14,600/$29,200 to $15,750/$31,500 cut Arizona tax
-    // in 2025 with no Arizona legislation and no Arizona announcement. Storing an
-    // Arizona figure here would have been a transcription of the federal figure
-    // with a lag.
+    // a federal change moves the Arizona bill with no Arizona rate change.
+    // The OBBBA increase was $750/$1,500/$1,125 — NOT the $1,150/$2,300 this
+    // comment claimed until Day 46, which was the 2024-to-2025 change and
+    // includes $400 of ordinary indexation that OBBBA had nothing to do with.
+    // Storing an Arizona figure here would have been a transcription of the
+    // federal figure with a lag.
     deduction: { kind: 'federal' },
     notes: [
-      "Arizona's standard deduction is defined as equal to the federal standard deduction (A.R.S. § 43-1041(A)), so it follows federal changes automatically. The One Big Beautiful Bill Act's mid-2025 increase therefore cut Arizona tax for the 2025 tax year without any Arizona legislation.",
+      "Arizona's standard deduction is defined as equal to the federal standard deduction (A.R.S. § 43-1041(A)), so it tracks the federal figure rather than a number of Arizona's own. The One Big Beautiful Bill Act raised it by $750 single, $1,500 joint and $1,125 head of household for 2025, which is $18.75, $37.50 and $28.12 of Arizona tax. The head-of-household figure is $28.12 and not $28.13 because $1,125 x 2.5% is an exact half-cent ($28.125) and this engine rounds a float, which lands below the midpoint here; Missouri's $1,125 x 4.7% is the same shape and rounds the other way, to $52.88.",
+      "ARIZONA'S IRC CONFORMITY IS STATIC, AND FOR 2025 IT IS FROZEN SIX MONTHS BEFORE THE ACT THIS PACKAGE APPLIES. A.R.S. § 43-105 reads the Code as it stood on 1 January 2025 (HB 2688); OBBBA was enacted on 4 July 2025. Two bills to move the date for 2025, SB 1106 and HB 2785, were vetoed. The OBBBA standard deduction is on the 2025 Form 140 because Executive Order 2025-15 directed the Department to put it there, and the Department has said a filer who claims these provisions may need to amend if the statute the legislature eventually passes differs, with penalties and interest waived if amended by 15 October 2027. This package ships the figure the state's own form carries, which is the right choice for anyone filing — but the authority for the 2025 Arizona answer is an executive order and not a statute, and that is a materially different thing to rely on. For 2026 the question is closed: HB 4168, signed 13 June 2026, moved the conformity date to 1 January 2026.",
+      "FOUR ARIZONA SUBTRACTIONS FOR 2025 ARE NOT MODELLED HERE AND THEY ALL COME FROM THE SAME EXECUTIVE ORDER. Executive Order 2025-15 created Arizona subtractions for the federal Schedule 1-A senior deduction, qualified tips, qualified overtime and qualified vehicle loan interest, reported on the Department's Middle Class Tax Cuts Package worksheet and available only on Form 140 (not 140A or 140EZ). None of them reduces federal adjusted gross income, so none reaches an Arizona return through this package's base, and an Arizona 2025 answer computed here is therefore TOO HIGH for any filer who has one. The senior subtraction is the one that can be priced without extra inputs: $6,000 for a filer aged 65 or over is $150.00 of Arizona tax, and $12,000 for a couple both aged 65 or over is $300.00. Supply any of the four through `subtractions` if they apply.",
       'Arizona repealed its personal and dependent exemptions in 2019 and replaced them with a dependent tax credit, which this package does not compute. An Arizona return with dependents computed here will be too high by $100 per dependent under 17 and $25 per other dependent, subject to a phase-out.',
       'Arizona allows an increased standard deduction of 25% of charitable contributions for filers who do not itemize (A.R.S. § 43-1041(G)). Not modelled — supply it through `subtractions` if it applies.',
       'Arizona itemized deductions differ from federal ones, most importantly by disallowing state income taxes. Passing a federal itemized deduction through unchanged overstates the Arizona deduction.',

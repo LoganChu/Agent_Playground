@@ -120,6 +120,14 @@ jobs:
           done
       - name: Measure every suite and check the README and the committed record
         run: node tools/test-counts.mjs --check
+      # The ROOT README, which until Day 46 was the only document here with no
+      # test over it. `npm test` above builds each package, so the engines this
+      # reads are present by the time it runs. It found three stale counts and a
+      # seven-release-old version string on its first run, two of which a careful
+      # reading of the same file on Day 45 had missed — including "Nine tools"
+      # in the product table against "its ten tools" five hundred lines later.
+      - name: Check the root README against the code
+        run: node tools/readme-root.mjs --check
 
   # Is the mutation score this repository advertises a score of this repository?
   #
@@ -151,3 +159,36 @@ jobs:
           done
       - name: Check every advertised mutation score against the record and this build
         run: node tools/mutation/check-scores.mjs --check
+
+  # Does this repository agree with ITSELF about what federal law did?
+  #
+  # Day 46 is the reason this job exists. `us-federal-tax`'s data said the OBBBA
+  # standard deduction increase was $750/$1,500/$1,125 — correctly, with the
+  # superseded Rev. Proc. 2024-40 figures named in a comment — while
+  # `us-state-tax` described the same increase in FIVE states' shipped notes, two
+  # READMEs and four test files as $1,150, which is the 2024-to-2025 change. The
+  # two packages disagreed by 53% for 46 days.
+  #
+  # Every instrument this repository had was scoped to ONE package: the provenance
+  # ledger, the differential grid, the mutation audit, the indexation derivation.
+  # A claim the state package makes about a FEDERAL figure is a cross-package
+  # claim, and nothing could read across. This job is the first thing that can.
+  cross-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # Both engines, built: the tool runs each one rather than reading its source,
+      # so an advertised figure is checked against an ANSWER and not against a
+      # literal somebody could have copied wrong in both places.
+      - name: Build both engines
+        run: |
+          for dir in packages/us-federal-tax packages/us-state-tax; do
+            echo "::group::build $dir"
+            (cd "$dir" && npm install && npm run build)
+            echo "::endgroup::"
+          done
+      - name: Require every OBBBA and conformity claim to match both engines
+        run: node tools/cross-package/obbba-claims.mjs --check

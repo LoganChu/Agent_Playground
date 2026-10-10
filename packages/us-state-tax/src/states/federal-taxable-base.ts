@@ -6,16 +6,32 @@
  * demonstrate opposite halves of it.
  *
  * Starting below the federal standard deduction means a state inherits every
- * federal change to it. Neither legislature acted in 2025, and both states' tax
- * fell anyway when the One Big Beautiful Bill Act raised the federal standard
- * deduction from $14,600 to $15,750 in July of that year. In Colorado that is
- * $50.60 of tax per single filer; in Idaho $60.95. No Colorado or Idaho form
- * changed, and no state announcement was made, because nothing in state law
- * changed.
+ * federal change to it. The One Big Beautiful Bill Act raised that deduction from
+ * $15,000 to $15,750 for a single filer in July 2025 — an increase of **$750**,
+ * which is $33.00 of Colorado tax and $39.75 of Idaho tax. (Until Day 46 this
+ * comment said $14,600 to $15,750 and quoted $50.60 and $60.95. $14,600 is the
+ * **2024** figure; Rev. Proc. 2024-40 had already indexed 2025 to $15,000 before
+ * OBBBA touched it, so a third of the increase this file claimed for the Act was
+ * ordinary indexation. The engine was never wrong — only this sentence, four test
+ * files that asserted it, and five states' notes.)
  *
- * Then they diverge. **Idaho conformed to the OBBBA in full**, passing legislation
- * in 2026 that adopts the four Schedule 1-A deductions retroactively for 2025 —
- * so an Idaho waiter's tip deduction reduces Idaho tax too. **Colorado did not.**
+ * **And the two states got there by opposite routes, which this comment also had
+ * wrong.** Colorado's conformity is ROLLING: § 39-22-103(5.3) reads the Code as
+ * amended from time to time, so the increase arrived with no Colorado act and no
+ * Colorado announcement. Idaho's is a STATIC DATE, and on the day OBBBA passed
+ * Idaho was frozen at 1 January 2025 — so Idaho's 2025 answer was NOT this one
+ * until HB 559 was signed on 10 February 2026 and moved the date to 1 January
+ * 2026 retroactively. For seven months the right Idaho 2025 answer was the
+ * pre-OBBBA one. "Neither legislature acted and both states' tax fell anyway",
+ * which is what this comment used to say, is true of Colorado and false of Idaho.
+ *
+ * Then they diverge again, on WHICH OBBBA provisions. Idaho adopted the four
+ * Schedule 1-A deductions retroactively for 2025 — so an Idaho waiter's tip
+ * deduction reduces Idaho tax too — while **decoupling** from § 168(k) and
+ * § 168(n) bonus depreciation and from the OBBBA § 70302 transition rules for
+ * 2022-2024 domestic research expenditures. So "conformed to the OBBBA in full",
+ * which is what this comment used to say, is also too strong; it conformed in
+ * full for every provision an individual wage return can reach. **Colorado did not.**
  * It has added the § 199A qualified business income deduction back since 2021, and
  * from 2026 adds back the qualified overtime deduction as well (HB25-1296) — while
  * still allowing the tips deduction directly beside it on the same federal form.
@@ -68,6 +84,13 @@ function colorado(year: number): StateIncomeTaxDefinition | undefined {
     // the TABOR mechanism can reduce the rate retroactively.
     status: year === 2025 ? 'published' : 'provisional',
     base: 'federalTaxableIncome',
+    federalConformity: {
+      kind: 'rolling',
+      cite:
+        'Colo. Rev. Stat. § 39-22-103(5.3) — the IRC "as amended at any time or from time to time". The Department of Revenue repealed its contrary prospective-only rule on 8 November 2023 after the Court of Appeals allowed refunds based on retroactive federal changes.',
+      primaryTextUnread:
+        'law.justia.com and Colorado state sites are refused by this sandbox\u2019s egress policy. Rolling status is established from the statutory phrase as three independent practitioner write-ups reproduce it, plus the 2023 rule repeal. The limit worth knowing: the definition does not reach federal changes enacted AFTER the last day of a taxable year, and OBBBA was enacted 4 July 2025 \u2014 inside tax year 2025 \u2014 so 2025 is covered.',
+    },
     rate: { kind: 'flat', rate: 0.044 },
     // Colorado has no deduction of its own; the federal one is already inside the
     // starting point.
@@ -124,10 +147,15 @@ const ID_CITATIONS: readonly Citation[] = [
     title: 'Idaho State Tax Commission — filing 2025 Idaho income taxes now that conformity is law',
     url: 'https://tax.idaho.gov/pressrelease/update-on-filing-2025-idaho-income-taxes-now-that-conformity-is-law/',
   },
+  {
+    title:
+      'Idaho HB 559 (2026) — IRC conformity date moved to January 1, 2026, signed 10 February 2026 and retroactive to 1 January 2025; decouples from § 168(k) and § 168(n) bonus depreciation and from the OBBBA § 70302 transition rules for 2022-2024 domestic R&E',
+    url: 'https://legislature.idaho.gov/statutesrules/idstat/title63/t63ch30/sect63-3004/',
+  },
 ];
 
 const ID_NOTES: readonly string[] = [
-  'Idaho starts from federal taxable income, so it inherits the federal standard or itemized deduction, the Section 199A qualified business income deduction, and — for 2025 through 2028 — all four OBBBA Schedule 1-A deductions. Idaho adopted the OBBBA by conformity legislation after the federal act passed, so the adoption is retroactive to tax year 2025.',
+  'Idaho starts from federal taxable income, so it inherits the federal standard or itemized deduction, the Section 199A qualified business income deduction, and — for 2025 through 2028 — all four OBBBA Schedule 1-A deductions. Idaho adopted the OBBBA by conformity legislation after the federal act passed: HB 559, signed 10 February 2026, moved the conformity date to 1 January 2026 retroactively to 1 January 2025. Idaho DID decouple from § 168(k) and § 168(n) bonus depreciation and from the transition rules for 2022-2024 domestic research expenditures, so “conformed in full” is only true of the provisions an individual wage return can reach.',
   'Idaho cut its rate from 5.695% to 5.3% retroactively for 2025 under HB 40 (2025). A 2025 Idaho return computed on the pre-HB 40 rate is 7.5% too high.',
   'The Idaho zero bracket is $4,811 of taxable income for single and married-filing-separately filers and $9,622 for joint, head of household and surviving spouse filers — head of household gets the doubled amount, which is unusual.',
   'Not modelled: the Idaho grocery credit, the child tax credit, and the deduction for retirement benefits. An Idaho return computed here will be too high for filers who qualify for any of them.',
@@ -159,6 +187,31 @@ function idaho(year: number): StateIncomeTaxDefinition | undefined {
     name: 'Idaho',
     year,
     status: year === 2025 ? 'published' : 'provisional',
+    // Idaho's conformity is a STATIC DATE, and that is the whole reason its 2025
+    // answer is the one below rather than the pre-OBBBA one. HB 559 (signed
+    // 10 February 2026) moved § 63-3004's date to 1 January 2026 and made it
+    // retroactive to 1 January 2025, so for the seven months between OBBBA's
+    // enactment and that signature the correct Idaho 2025 answer was DIFFERENT
+    // from the one this package ships. 2026 needs no retroactivity.
+    federalConformity: {
+      kind: 'staticDate',
+      conformedTo: '2026-01-01',
+      cite:
+        'Idaho Code § 63-3004 as amended by HB 559 (2026) — the IRC as amended and in effect on 1 January 2026',
+      ...(year === 2025
+        ? {
+            reachedAnyway: {
+              route: 'retroactiveLegislation' as const,
+              cite:
+                'Idaho HB 559, signed 10 February 2026, retroactive to 1 January 2025; Idaho State Tax Commission press release on filing 2025 returns "now that conformity is law"',
+              why:
+                'Before HB 559, § 63-3004 was frozen at 1 January 2025 and OBBBA was enacted 4 July 2025, so a 2025 Idaho return took the superseded $15,000 standard deduction and none of the four Schedule 1-A deductions. The answer this package ships became the right one on 10 February 2026 and was the wrong one for the seven months before it.',
+            },
+          }
+        : {}),
+      primaryTextUnread:
+        'legislature.idaho.gov is refused by this sandbox\u2019s egress policy. The date, the signature, the retroactivity and the two decouplings are established from the statute page and three practitioner write-ups as WebSearch reported them, which agree on every one of those four facts.',
+    },
     provisionalFigures:
       year === 2026
         ? [

@@ -126,6 +126,8 @@ export type {
   LocalityCode,
   ParameterStatus,
   PersonRetirementIncome,
+  FederalConformityKind,
+  FederalConformityRule,
   ProvisionalFigure,
   ProvisionalReason,
   RetirementIncomeSplit,

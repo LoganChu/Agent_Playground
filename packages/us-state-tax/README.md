@@ -813,19 +813,56 @@ two rounded figures is not the factor.
 
 ### The One Big Beautiful Bill Act cut taxes in states that never voted on it
 
-OBBBA raised the 2025 federal standard deduction from `$14,600` to `$15,750` in July 2025.
-Four of the states here inherited that automatically — each by a different route, and none
-of them by legislating:
+OBBBA raised the 2025 federal standard deduction from `$15,000` to `$15,750` for a single
+filer in July 2025 — an increase of **`$750`** (`$1,500` joint, `$1,125` head of
+household). **Five** of the states here pass that through:
 
-| State | Why | Cut per single filer |
-| --- | --- | --- |
-| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | `$28.75` |
-| Colorado | Starts from federal taxable income | `$50.60` |
-| Idaho | Starts from federal taxable income | `$60.95` |
-| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | `$69.00` |
+| State | How it reads the federal figure | Cut, single | Conformity |
+| --- | --- | --- | --- |
+| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | `$18.75` | **static, 2025-01-01** |
+| Colorado | Starts from federal taxable income | `$33.00` | rolling |
+| Idaho | Starts from federal taxable income | `$39.75` | **static, 2026-01-01** |
+| Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | `$35.25` | rolling |
+| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | `$45.00` | rolling |
 
-Illinois and Michigan, on federal AGI, got nothing. No state form changed and no state
-announcement was made in any of the four, because no state law changed.
+Illinois and Michigan, on federal AGI, got nothing.
+
+**The right-hand column is the point, and this README did not have it until Day 46.** The
+five figures agree about what happened and disagree completely about *why*, and the
+difference is what a reader actually has to trust:
+
+- **Colorado, Missouri and Utah** read the Code as it stands. The increase arrived with no
+  state act, no state form change and no state announcement.
+- **Idaho** was frozen at 1 January 2025 when OBBBA passed on 4 July 2025, so Idaho's 2025
+  answer was the *pre-OBBBA* one until **HB 559 was signed on 10 February 2026** and
+  backdated the new conformity date to 1 January 2025. The answer in the table became
+  correct seven months into the following year.
+- **Arizona** is still frozen at 1 January 2025 for tax year 2025. Two bills to move it,
+  SB 1106 and HB 2785, were **vetoed**. The OBBBA deduction is on Arizona's 2025 Form 140
+  because **Executive Order 2025-15** directed the Department of Revenue to put it there,
+  and the Department has said a filer who claims it may need to amend if the eventual
+  statute differs, with penalties and interest waived to 15 October 2027. This package
+  ships the figure on the state's own form — but the authority behind the Arizona 2025
+  answer is an executive order, not a statute. HB 4168, signed 13 June 2026, closes the
+  question for 2026 only.
+
+So "none of them by legislating", which is what this section said for 46 days, is true of
+three of the five, achieved by retroactive legislation in the fourth, and in the fifth is
+the reason to be careful rather than a reassurance. Every state's rule is declared on the
+definition as `federalConformity` and `test/federal-conformity.test.js` finds the states
+that need one **by moving the federal figure and watching the tax**, so a sixth cannot be
+added without declaring one.
+
+Two more things that table hides, both now tested:
+
+- **Utah's is a band, and it is the only one.** The other four pay the state rate times the
+  increase at every income. Utah's arrives through a credit that withdraws at 1.3 cents on
+  the dollar, so a 2025 single filer keeps the full `$45.00` to `$87,444` of federal AGI
+  and gets **exactly `$0.00` from `$90,906`**. It is capped at the bottom too — the credit
+  is non-refundable, so a filer at `$20,000` gains `$23.23`.
+- **The head-of-household column lands on an exact half-cent in three states**, and the
+  engine does not round it the same way: `$1,125` × 2.5% = `$28.125` reports as `$28.12`
+  and × 4.7% = `$52.875` reports as `$52.88`. Two down, one up, from one float.
 
 ### "Starts from federal taxable income" is not "passes it through"
 
@@ -2704,7 +2741,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **650** notes every
+`test/notes.test.js` pins the first 72 characters of all **656** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2730,7 +2767,7 @@ reads, and all 17 of them are now required to equal a figure the rule actually h
 
 Every figure here was already cited to a statute or a state release. What nothing said
 was **which document any one figure came from**. Today the ledger covers 4,488 numeric
-figures over 68 state-years, against 420 citations; when it was written there was no
+figures over 68 state-years, against 430 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3000,7 +3037,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **808 tests**. Turning it on, when there were 618 of them, is what
+from all **820 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

@@ -187,6 +187,11 @@ const INVESTMENT_INCOME_LIMIT: Readonly<Record<number, number>> = {
 const CITATIONS: readonly Citation[] = [
   {
     title:
+      'Mo. Rev. Stat. § 143.091 — terms used in the Missouri income tax have the same meaning as in the Internal Revenue Code: ROLLING conformity, and the reason § 143.177\u2019s separate January 1, 2021 reference to § 32 has to be written out',
+    url: 'https://revisor.mo.gov/main/OneSection.aspx?section=143.091',
+  },
+  {
+    title:
       'Mo. Rev. Stat. § 143.011 — the rate schedule and its top-rate reductions: 4.95% for 2023, 4.8% for 2024 and 4.7% from 2025, with further 0.1-point cuts conditioned on general revenue growth',
     url: 'https://revisor.mo.gov/main/OneSection.aspx?section=143.011',
   },
@@ -367,6 +372,27 @@ export function missouri(year: number): StateIncomeTaxDefinition | undefined {
           ]
         : undefined,
     base: 'federalAdjustedGrossIncome',
+    // Missouri is ROLLING, and it is the best illustration in this package of why
+    // "rolling" is not a property of a state but of a cross-reference.
+    //
+    // § 143.091 gives every undefined term its Internal Revenue Code meaning as
+    // it stands, so the OBBBA standard deduction reached Missouri automatically
+    // and § 143.131.2 handed it straight to the Missouri return — $35.25 of tax
+    // for a single filer, which nobody in Jefferson City voted for.
+    //
+    // AND IN THE SAME STATUTE CHAPTER, § 143.177.3(1) reads § 32 "as such credit
+    // existed ... as of January 1, 2021", which is a STATIC reference inside a
+    // rolling state, and it is why the Missouri working family credit still
+    // carries a pre-ARPA investment-income limit. One state, two conformity
+    // rules, four sections apart. A reader who knows only that Missouri is
+    // "rolling" gets that credit wrong.
+    federalConformity: {
+      kind: 'rolling',
+      cite:
+        'Mo. Rev. Stat. § 143.091 — IRC meanings as they stand. NOT uniform across the chapter: § 143.177.3(1) fixes § 32 at 1 January 2021, and § 143.131.2 takes § 63(c) as it stands.',
+      primaryTextUnread:
+        'revisor.mo.gov is refused by this sandbox\u2019s egress policy. Rolling status under § 143.091 is established from the Council On State Taxation\u2019s IRC conformity chart (as of 31 December 2025) and the Tax Foundation\u2019s list of the ten states that conform to the federal standard deduction, which names Missouri. The COST chart groups CORPORATE income taxes, so it is weaker evidence for the individual tax than it looks; § 143.091 is in the general-definitions part of the individual chapter, and § 143.131.2\u2019s behaviour on the 2025 forms is consistent with it.',
+    },
     // ONE schedule for every filing status. § 143.011 does not vary by status
     // and § 143.031's combined return computes each spouse's tax on their own
     // share of it rather than widening the bands.

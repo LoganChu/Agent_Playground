@@ -1,13 +1,13 @@
 {
   "packages": {
     "us-federal-tax": {
-      "measured": "2026-10-02",
-      "mutants": 711,
-      "killed": 711,
+      "measured": "2026-10-10",
+      "mutants": 716,
+      "killed": 716,
       "survivors": 0,
       "score": 100,
-      "mutantFingerprint": "216da02c41d21ff6",
-      "suiteFingerprint": "76f151887662b465"
+      "mutantFingerprint": "ef502e0e1b75cff7",
+      "suiteFingerprint": "f2360acdeb3264a0"
     },
     "us-state-tax": {
       "measured": "2026-10-09",

@@ -63,8 +63,8 @@ test('the Utah credit is built on the FEDERAL deduction, so OBBBA cut Utah tax t
   // Utah starts from federal AGI and so should be indifferent to a change below
   // it — except that the credit reaches under AGI and picks the deduction up.
   const after = utah(60_000, { year: 2025, deduction: 15_750 });
-  const before = utah(60_000, { year: 2025, deduction: 14_600 });
-  money(before.tax - after.tax, 69.0, '6% of the $1,150 increase');
+  const before = utah(60_000, { year: 2025, deduction: 15_000 });
+  money(before.tax - after.tax, 45.0, '6% of the $750 increase');
 });
 
 const pennsylvania = (income, opts = {}) =>

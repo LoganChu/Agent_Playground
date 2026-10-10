@@ -218,16 +218,18 @@ test('README: the CalEITC section', () => {
 });
 
 test('README: the OBBBA pass-through table', () => {
-  const preObbba = { ...FEDERAL_2025, taxableIncome: 85_400, deduction: 14_600 };
+  const preObbba = { ...FEDERAL_2025, taxableIncome: 85_000, deduction: 15_000 };
   const cut = (state) =>
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: preObbba }).tax -
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: FEDERAL_2025 }).tax;
-  money(cut('AZ'), 28.75);
-  money(cut('CO'), 50.6);
-  money(cut('ID'), 60.95);
+  money(cut('AZ'), 18.75);
+  money(cut('CO'), 33.0);
+  money(cut('ID'), 39.75);
+  money(cut('MO'), 35.25, 'the fifth state, which this table omitted until Day 46');
 
-  // Utah's is measured at $60,000 because the credit is fully phased out at
-  // $100,000, where a change to the credit would be worth nothing.
+  // Utah's is measured at $60,000 because the credit is fully withdrawn by
+  // $90,906, where a change to the credit is worth nothing. The exact boundary is
+  // asserted in `federal-conformity.test.js`.
   const utah = (deduction) =>
     stateIncomeTax({
       state: 'UT',
@@ -235,7 +237,7 @@ test('README: the OBBBA pass-through table', () => {
       filingStatus: 'single',
       federal: { adjustedGrossIncome: 60_000, taxableIncome: 60_000 - deduction, deduction, deductionKind: 'standard' },
     }).tax;
-  money(utah(14_600) - utah(15_750), 69.0);
+  money(utah(15_000) - utah(15_750), 45.0);
 
   for (const state of ['IL', 'MI']) {
     money(cut(state), 0, `${state} is on federal AGI and got nothing`);

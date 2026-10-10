@@ -909,7 +909,7 @@ estimateFederalTax({ filingStatus: 'single', wages: 1 }, { strict: true });
 ```
 
 Pass `strict: true` from a test suite, where a typo should stop the run. This
-package's own suite does, from every one of its **396 tests**.
+package's own suite does, from every one of its **400 tests**.
 
 Three details that are decisions rather than accidents:
 

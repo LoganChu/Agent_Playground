@@ -136,6 +136,87 @@ export type ConformityBase =
   | 'stateDefined';
 
 /**
+ * How a state's law tracks the Internal Revenue Code.
+ *
+ * {@link ConformityBase} says *where* a state's computation starts. This says
+ * *when* — which is the half that decides whether a federal change the state
+ * never legislated about reaches the state's return.
+ *
+ * **The two are independent and the difference is invisible in an answer.**
+ * Arizona and Colorado both gave their filers the One Big Beautiful Bill Act's
+ * 2025 standard deduction increase. Colorado gave it automatically, because its
+ * conformity is rolling. Arizona's conformity statute was frozen at a date six
+ * months BEFORE the Act, its legislature's two conformity bills were vetoed, and
+ * the increase reached Arizona's 2025 form by an executive order. The figures
+ * agree; the authority behind them does not, and only one of the two is a statute.
+ *
+ * This package shipped both answers for 46 days describing them as the same
+ * thing — "no state legislation" — which is true of Arizona in a way that
+ * undermines the answer rather than supporting it.
+ */
+export type FederalConformityKind =
+  /**
+   * The state reads the Code as it stands for the taxable year, so a federal
+   * amendment enacted during the year reaches the state with no state act.
+   * Colorado, Missouri and Utah here.
+   */
+  | 'rolling'
+  /**
+   * The state reads the Code frozen at a named date, so a federal amendment
+   * reaches the state only when the legislature moves the date. Arizona and
+   * Idaho here — and both needed something beyond the statute to arrive at the
+   * answer this package ships for 2025. See {@link FederalConformityRule.reachedAnyway}.
+   */
+  | 'staticDate';
+
+/**
+ * One state-year's conformity to the Internal Revenue Code.
+ *
+ * Required of every state whose answer MOVES when a below-AGI federal figure
+ * moves — which `test/federal-conformity.test.js` determines by running the
+ * engine twice rather than by reading the definition, so a new rule type cannot
+ * slip a sixth such state in without a declaration.
+ */
+export interface FederalConformityRule {
+  readonly kind: FederalConformityKind;
+  /**
+   * The date the Code is frozen at, ISO. Required when {@link kind} is
+   * `staticDate` and forbidden when it is `rolling` — a rolling state has no
+   * such date, and storing one would invite a reader to trust it.
+   */
+  readonly conformedTo?: string;
+  /** The conformity statute, by section, and the act that last set the date. */
+  readonly cite: string;
+  /**
+   * Set where this state-year's answer is **not the one its conformity rule
+   * alone would produce** — because something outside the conformity statute
+   * carried the current federal figure onto the state's return anyway.
+   *
+   * This is the field the whole type exists for. Without it a static-date state
+   * that happens to ship the right answer is indistinguishable from a rolling
+   * one, and the two carry very different risk: Idaho's 2025 answer is backed by
+   * a statute passed in February 2026, and Arizona's by an executive order that
+   * two vetoed bills failed to replace.
+   */
+  readonly reachedAnyway?: {
+    readonly route: 'retroactiveLegislation' | 'executiveAction';
+    readonly cite: string;
+    /** What would be true of this state-year's answer without it. */
+    readonly why: string;
+  };
+  /**
+   * Present where the conformity statute's **current text has not been read
+   * directly**, with the route by which it was established instead.
+   *
+   * Every state revenue and legislature site this package needs has been refused
+   * by the sandbox's egress policy for five runs, so some of these are
+   * established from secondary reproductions and cross-checks. That is weaker
+   * evidence than a statute and is recorded as such rather than rounded up.
+   */
+  readonly primaryTextUnread?: string;
+}
+
+/**
  * Which input field carries a `stateDefined` state's own measure of income.
  *
  * Three states in this package have no federal starting line, and each needs a
@@ -1692,6 +1773,20 @@ export interface StateIncomeTaxResult {
   readonly conformity: {
     readonly base: ConformityBase;
     readonly amount: number;
+    /**
+     * How this state tracks the Internal Revenue Code — present only for the
+     * states whose answer MOVES when a below-AGI federal figure moves (Arizona,
+     * Colorado, Idaho, Missouri and Utah), and absent for every other state,
+     * where no such claim would be backed by anything.
+     *
+     * `base` says where the computation starts and this says when. The pair is
+     * the whole answer to "is this state entitled to the federal figure in its
+     * result?", and until Day 46 a caller could get only the first half — so a
+     * result that inherited the One Big Beautiful Bill Act by rolling conformity
+     * (Colorado) was indistinguishable from one that inherited it because a
+     * Governor ordered a Department to print it on a form (Arizona).
+     */
+    readonly federal?: FederalConformityRule;
   };
   readonly additions: number;
   /**

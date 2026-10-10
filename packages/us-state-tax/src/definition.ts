@@ -13,6 +13,7 @@ import type {
   FederalDeductionKey,
   FilingStatus,
   ParameterStatus,
+  FederalConformityRule,
   ProvisionalFigure,
   StateCode,
   StateDefinedBaseField,
@@ -3674,6 +3675,20 @@ export interface StateIncomeTaxDefinition {
   readonly year: number;
   readonly status: ParameterStatus;
   readonly base: ConformityBase;
+  /**
+   * How this state-year tracks the Internal Revenue Code — see
+   * {@link FederalConformityRule}.
+   *
+   * Required of every state whose answer moves when a below-AGI federal figure
+   * moves (Arizona, Colorado, Idaho, Missouri and Utah), and absent elsewhere.
+   * `test/federal-conformity.test.js` decides which states those are by MOVING
+   * THE FIGURE and watching the tax, so the requirement is a measurement rather
+   * than a list somebody keeps up to date.
+   *
+   * It exists because {@link base} alone cannot tell a reader whether a federal
+   * change the state never legislated about is entitled to be in the answer.
+   */
+  readonly federalConformity?: FederalConformityRule;
   readonly rate: RateRule;
   /**
    * Income taken out of {@link rate} and taxed at a rate of its own, in the

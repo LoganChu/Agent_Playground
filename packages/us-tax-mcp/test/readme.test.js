@@ -417,21 +417,27 @@ const stateFed = (agi, taxable, deduction) => ({
   deductionKind: 'standard',
 });
 
-test('README: the OBBBA pass-through table, recomputed for all four states', () => {
+test('README: the OBBBA pass-through table, recomputed for all five states', () => {
+  // $15,000 is the pre-OBBBA 2025 figure (Rev. Proc. 2024-40). This test said
+  // $14,600 until Day 46 — the 2024 figure — so every cut below was overstated by
+  // the $400 of ordinary indexation between the two years, and the test could not
+  // notice because it supplied the premise it was asserting.
   const after = stateFed(100_000, 84_250, 15_750);
-  const before = stateFed(100_000, 85_400, 14_600);
+  const before = stateFed(100_000, 85_000, 15_000);
   const cut = (state, federalAfter = after, federalBefore = before) =>
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: federalBefore }).tax -
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: federalAfter }).tax;
 
-  assert.equal(cut('AZ').toFixed(2), '28.75');
-  quotes('| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $28.75 |');
-  assert.equal(cut('CO').toFixed(2), '50.60');
-  quotes('| Colorado | Starts from federal **taxable** income | $50.60 |');
-  assert.equal(cut('ID').toFixed(2), '60.95');
-  quotes('| Idaho | Starts from federal **taxable** income | $60.95 |');
+  assert.equal(cut('AZ').toFixed(2), '18.75');
+  quotes('| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $18.75 | **static, 2025-01-01** |');
+  assert.equal(cut('CO').toFixed(2), '33.00');
+  quotes('| Colorado | Starts from federal **taxable** income | $33.00 | rolling |');
+  assert.equal(cut('ID').toFixed(2), '39.75');
+  quotes('| Idaho | Starts from federal **taxable** income | $39.75 | **static, 2026-01-01** |');
+  assert.equal(cut('MO').toFixed(2), '35.25');
+  quotes('| Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | $35.25 | rolling |');
 
-  // Utah's credit is exhausted at $100,000 of income, so the effect is measured
+  // Utah's credit is fully withdrawn by $90,906 of AGI, so the effect is measured
   // where the credit is still live.
   const utah = (deduction) =>
     stateIncomeTax({
@@ -440,11 +446,16 @@ test('README: the OBBBA pass-through table, recomputed for all four states', () 
       filingStatus: 'single',
       federal: stateFed(60_000, 60_000 - deduction, deduction),
     }).tax;
-  assert.equal((utah(14_600) - utah(15_750)).toFixed(2), '69.00');
-  quotes('| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $69.00 |');
+  assert.equal((utah(15_000) - utah(15_750)).toFixed(2), '45.00');
+  quotes('| Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $45.00 | rolling |');
 
   for (const state of ['IL', 'MI']) assert.equal(cut(state), 0);
   quotes('Illinois and Michigan, on federal AGI, got nothing.');
+
+  // The conformity claim the table now makes, as the engine declares it.
+  for (const [state, kind] of [['AZ', 'staticDate'], ['CO', 'rolling'], ['ID', 'staticDate'], ['MO', 'rolling'], ['UT', 'rolling']]) {
+    assert.equal(getStateDefinition(state, 2025).federalConformity.kind, kind, state);
+  }
 });
 
 test('README: the state marginal-rate table, recomputed', () => {

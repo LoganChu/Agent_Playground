@@ -94,7 +94,8 @@ const UT_CITATIONS: readonly Citation[] = [
 
 const UT_NOTES: readonly string[] = [
   "Utah's statutory rate is not its marginal rate for most working filers. The Taxpayer Tax Credit is 6% of the federal standard or itemized deduction plus $2,111 per dependent, reduced by 1.3 cents for each dollar of Utah taxable income above $18,213 ($36,426 joint). Inside that band the true marginal rate is the statutory rate plus 1.3 points — 5.75% in 2026 against a headline 4.45%.",
-  'The credit depends on the FEDERAL deduction, so Utah is a federal-AGI state whose credit is nonetheless sensitive to changes below AGI. The OBBBA standard deduction increase raised the Utah credit by 6% of the increase — about $69 for a single filer in 2025 — cutting Utah tax with no Utah legislation.',
+  'The credit depends on the FEDERAL deduction, so Utah is a federal-AGI state whose credit is nonetheless sensitive to changes below AGI. The OBBBA standard deduction increase raised the Utah credit by 6% of the increase — $45.00 for a single filer in 2025 and $90.00 for a joint one — cutting Utah tax with no Utah legislation. (This note said $69 until Day 46, which measured the increase from the 2024 standard deduction of $14,600 rather than from the $15,000 that Rev. Proc. 2024-40 had already set for 2025. The OBBBA increase is $750, not $1,150.)',
+  'AND UTAH IS THE ONLY STATE HERE WHERE THAT FEDERAL INCREASE IS WORTH NOTHING AT THE TOP. Arizona, Colorado, Idaho and Missouri read the federal deduction through their base or through a deduction of their own, so the benefit is the state rate times the increase at every income. Utah reads it through a credit that withdraws at 1.3 cents on the dollar, so the benefit is a BAND: a 2025 single filer taking the standard deduction keeps the full $45.00 to $87,444 of federal AGI, loses it progressively above that, and gets exactly $0.00 from $90,906 upwards. At the bottom it is capped too, because the credit is non-refundable — a filer at $20,000 gains $23.23 rather than $45.00, since the credit already covered more of their tax than the increase is worth.',
   'Utah cut its rate twice in two years: 4.55% for 2024, 4.5% for 2025 (HB 106), and 4.45% for 2026 (SB 60).',
   "Utah's child tax credit is withdrawn at TEN cents on the dollar — 2.2 times the state's own tax rate, so the withdrawal is a larger marginal tax than the tax is. $1,000 for each child under 6, gone by $59,000 of income for a single filer with one child and $71,000 for a couple ($49,000/$61,000 in 2026 after HB 290, $43,000/$54,000 in 2025). Inside the band a Utah family faces about 14.75% on the next dollar against a headline 4.45%, and 16.05% where the Taxpayer Tax Credit is being withdrawn at the same time.",
   "The child tax credit is withdrawn against a DIFFERENT income figure from Utah's retirement credits, on the same return. TC-40 line 9 — state taxable income, after every Utah subtraction — plus tax-exempt interest, where the Retirement and Social Security Benefits credits use line 6, before them. A Utah subtraction therefore buys back child credit and does nothing for a retiree's.",
@@ -151,6 +152,20 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
           }))
         : undefined,
     base: 'federalAdjustedGrossIncome',
+    // Utah is the state in this package where conformity matters MOST QUIETLY.
+    // Its base is federal AGI, which normally means below-AGI federal changes
+    // cannot reach it — and then the Taxpayer Tax Credit reads the federal
+    // standard-or-itemized deduction anyway, so the OBBBA increase cut Utah tax
+    // by 6 cents on the dollar through a credit rather than through the base.
+    // `test/federal-conformity.test.js` finds Utah by moving the figure, which is
+    // the only way to find it: nothing about `base` or `deduction` says so.
+    federalConformity: {
+      kind: 'rolling',
+      cite:
+        'Utah Code § 59-10-103(1) — "adjusted gross income" and "taxable income" mean the same as in IRC §§ 62 and 63, read as in effect for the taxable year, with references including later amendments',
+      primaryTextUnread:
+        'le.utah.gov and codes.findlaw.com are both refused by this sandbox\u2019s egress policy, so the CURRENT text of § 59-10-103 has not been read. Rolling status is established from two older reproductions of the section carrying the "in effect for the taxable year" and "as hereafter amended" language, plus the Tax Foundation\u2019s list of the ten states conforming to the federal standard deduction, which names Utah. THIS IS THE WEAKEST OF THE FIVE CONFORMITY ENTRIES HERE and the one to re-read first if a route to a Utah statute opens: the general "as amended" clause was found in the 2006 and 2010 texts and not confirmed in the current one.',
+    },
     rate: { kind: 'flat', rate: year === 2025 ? 0.045 : 0.0445 },
     // Utah has no deduction of its own; the federal deduction enters through the
     // credit instead, which is why it is worth 6 cents on the dollar rather than
