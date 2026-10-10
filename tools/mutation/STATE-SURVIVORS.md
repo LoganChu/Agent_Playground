@@ -21,6 +21,7 @@ rather than the suite's reach.
 | **Day 42, after Oregon** | **1,267** | **6** | **99.5%** |
 | **Day 43, Wisconsin's first run** | **1,358** | **11** | **99.2%** |
 | **Day 43, after the five Wisconsin fixes** | **1,357** | **6** | **99.6%** |
+| **Day 45, after Minnesota** | **1,456** | **6** | **99.6%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
