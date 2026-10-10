@@ -13,6 +13,119 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 46 nothing is waiting on you, and today's headline is a mistake of mine
+that had been shipping for 46 days.** `us-federal-tax` is v0.15.0, `us-state-tax`
+v0.41.0, `us-tax-mcp` v0.44.0. **1,406 tests**, all passing.
+
+Day 46 added no state. It took the IRC-conformity item off the worklist and the sweep
+found that **this repository had been wrong about what the One Big Beautiful Bill Act
+did** — in five states' shipped notes, in two READMEs and in four test files.
+
+OBBBA raised the 2025 standard deduction for a single filer by **$750**, from $15,000
+to $15,750. The state package said **$1,150** everywhere, because it measured the
+increase from **$14,600** — which is the **2024** figure. Rev. Proc. 2024-40 had
+already indexed 2025 to $15,000 before the Act touched it, so a third of what this
+package credited to OBBBA was ordinary inflation indexation.
+
+**The engine was never wrong.** It takes 2.5% of whatever deduction it is handed. The
+wrong figures were in prose and in test fixtures, and the per-state amounts are now:
+
+| state | was | is |
+| --- | --- | --- |
+| Arizona | $28.75 | **$18.75** |
+| Colorado | $50.60 | **$33.00** |
+| Idaho | $60.95 | **$39.75** |
+| Missouri | *missing from both tables* | **$35.25** |
+| Utah | $69.00 | **$45.00** |
+
+**Why nothing caught it, which is the part worth your attention.** The tests were not
+weak — they were *circular*. Each built a "pre-OBBBA" federal basis with
+`deduction: 14_600`, handed it to the engine and asserted the engine's answer. `4.4%
+of $1,150 = $50.60` is arithmetically perfect and factually about a change Congress
+did not make. A test that supplies the premise it is asserting can only ever confirm
+it, and it reads exactly like a test that works.
+
+**And the right answer was in this repository the whole time.** `us-federal-tax`'s own
+data file has said "$750 / $1,500 / $1,125" in a comment since the day it shipped.
+Every quality instrument here — the provenance ledger, the differential grid, the
+mutation audit, the indexation derivation — is scoped to ONE package, and a claim the
+state package makes about a *federal* figure is a cross-package claim. Nothing could
+read across. **Two packages in one repository disagreed by 53% for 46 days.** There is
+now a CI job that compares them, and it fails if either README advertises a figure the
+two engines do not produce.
+
+**The real product of the day is a new kind of checkable claim, and it is the one
+nobody else in this space states at all: not what a state's rule is, but whether the
+state is ENTITLED to the federal figure in the answer.** Five of the twenty-five
+taxing states here pass a below-AGI federal figure straight through, and all three of
+their mechanisms are different — which this package had been describing as one thing:
+
+- **Colorado, Missouri and Utah** read the federal Code as it stands. The increase
+  arrived automatically, with no state law, no form change and no announcement.
+- **Idaho** was frozen at 1 January 2025 when OBBBA passed in July 2025. **For seven
+  months the correct Idaho 2025 answer was the pre-OBBBA one.** It became the one this
+  package ships on 10 February 2026, when HB 559 was signed and backdated.
+- **Arizona is still frozen at 1 January 2025 for tax year 2025.** Two bills to move
+  it — SB 1106 and HB 2785 — were **vetoed**. The OBBBA standard deduction is on
+  Arizona's 2025 Form 140 because **Executive Order 2025-15** directed the Department
+  of Revenue to put it there, and the Department has said a filer who claims these
+  provisions may have to amend if the eventual statute differs, with penalties and
+  interest waived if amended by **15 October 2027**.
+
+This package ships the figure on Arizona's own form, which is right for anyone filing.
+But the authority for Arizona's 2025 answer is an executive order rather than a
+statute, and that is a materially different thing to rely on. **Every model in this
+space produces Arizona's number; this one now says what the number rests on**, as a
+declared field on the definition and on every result, not as a sentence in a document.
+HB 4168, signed 13 June 2026, closes the question for 2026 only.
+
+**One thing that is money for a real filer, and it is new.** The same Arizona
+executive order created **four Arizona subtractions this package does not model** —
+the federal Schedule 1-A senior deduction, qualified tips, qualified overtime and
+qualified vehicle loan interest. None of them reduces federal adjusted gross income,
+so none reaches an Arizona return through this package's starting point, and **an
+Arizona 2025 answer computed here is too high for any filer who has one.** The senior
+one can be priced with no new inputs: **$150.00 of Arizona tax for a filer aged 65 or
+over, $300.00 for a couple both 65 or over.** It is now a note on every Arizona
+result, and it is the top of tomorrow's list.
+
+**Two smaller findings that are the kind of thing a buyer cannot get elsewhere.**
+Utah's share of the OBBBA increase is a **band** — a 2025 single filer keeps the full
+$45.00 to $87,444 of federal AGI and gets **exactly $0.00 from $90,906**, because
+Utah's benefit arrives through a credit that withdraws at 1.3 cents on the dollar. It
+is the only one of the five bounded above. And the head-of-household column lands on
+an exact half-cent in three states and the engine does not round it the same way:
+$1,125 × 2.5% = $28.125 reports as $28.12, while × 4.7% = $52.875 reports as $52.88.
+
+**The root README now has a test over it**, which it never had — it was the only
+document here without one. It checks 18 counts against the engines, and the first run
+found four stale claims, two of which a careful reading of the same file yesterday
+missed: the product table said **"Nine tools"** while a sentence 535 lines later said
+**"its ten tools"**, and ten is correct. It also said "all 30 states" against 34 and
+quoted a version seven releases old.
+
+**The quality audits were both re-run and both predicted in writing first.**
+`us-federal-tax` came back **716 mutants, 716 killed, 0 survivors, 100.0%** — every
+figure as predicted. The state audit's figures are in the journal. **My state
+prediction was wrong by two mutants and the enumeration caught it before the audit
+started**: I had reasoned that the conformity work added only strings, and
+`year === 2025` is code.
+
+**The ask, and it is the same one as four days running, now with five runs of
+evidence.** Every primary source this work needs was refused by the sandbox's network
+policy: `azleg.gov`, `azdor.gov`, `le.utah.gov`, `legislature.idaho.gov`,
+`revisor.mo.gov`, `law.justia.com` and `cost.org` all return 403. Everything in the
+conformity table above is established from legislature bill summaries, a department
+news release and practitioner write-ups cross-checked against each other — and every
+one of the five entries carries a `primaryTextUnread` field saying exactly that, with
+Utah's naming itself the weakest evidence of the five and the first to re-read.
+**If the environment's network policy can be widened to state revenue and legislature
+sites, it would settle all five directly** plus several older questions. Day 45's
+PyPI workaround does not help here: PolicyEngine models parameters, not conformity
+dates.
+
+---
+
 **As of Day 45 nothing is waiting on you.** `us-federal-tax` is v0.15.0,
 `us-state-tax` v0.41.0, `us-tax-mcp` v0.44.0. 1,390 tests, all passing, and the
 differential grid against PolicyEngine-US covers **1,100 households and 7,700

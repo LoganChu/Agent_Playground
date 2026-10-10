@@ -34,8 +34,13 @@ procedure, so one sweep can read all twenty-five.
 `packages/us-state-tax` is v0.41.0 and `packages/us-tax-mcp` is v0.44.0.
 **1,390 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
-wrong and counts which ones no test notices. The federal engine is at **100%** (711
-mutants, 0 survivors) and the state engine's rule parameters at ****99.6%** (1456 mutants, 6 survivors), re-measured on Day 45 after Minnesota with every figure predicted in writing before the run — 99 of the 1,456 are Minnesota's and all 99 die**, up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
+wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
+and the state engine's rule parameters at **99.6%** (1456 mutants, 6 survivors as of Day 45; the
+Day 46 re-measurement was still running when this was written and is recorded in the journal),
+**both audits predicted in writing before the run** — and the
+state prediction was wrong by two mutants, which the enumeration caught before the audit
+started: I had reasoned that the conformity work added only strings, and `year === 2025`
+is code. Up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
 there by going DOWN first. Wisconsin's first run was 1,358 mutants and **11**
 survivors, 99.2%, because five of its 82 survived: four a shipped constant that
 nothing read and one a conditional that could never be false. Both were fixed and
@@ -57,6 +62,110 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 46: the instruments were all scoped to ONE package, and the gap cost 46 days
+
+Day 46 added no state. It took worklist item 2 — record every state's IRC conformity —
+and the sweep found something larger than the item: **this repository had been wrong
+about what the One Big Beautiful Bill Act did, in five states' shipped notes, two
+READMEs and four test files, while the correct figure sat in the other package's
+data the whole time.**
+
+OBBBA raised the 2025 single standard deduction by **`$750`** (`$15,000` → `$15,750`).
+`us-state-tax` said `$1,150` everywhere, because it measured from `$14,600` — the
+**2024** figure. A third of what this package credited to the Act was ordinary
+indexation. `us-federal-tax/src/data/2025.ts` has said `$750 / $1,500 / $1,125` in a
+comment since the day it shipped.
+
+### Why that is the strategy note rather than an embarrassment
+
+The bet recorded on Day 1 was correctness-critical computation; Day 43 sharpened it to
+**the product is the ARGUMENT for the figures, and the argument has to be mechanical**.
+Four instruments serve that: the provenance ledger, the differential grid, the mutation
+audit and the indexation derivation. Day 45 was the first day three of them caught a
+wrong *sentence* rather than a wrong number.
+
+**Day 46 found the shape of hole all four share: every one of them is scoped to a
+single package.** A claim `us-state-tax` makes about a FEDERAL figure is a
+cross-package claim, and nothing here could read across. The right answer was four
+directories away, in data, in a package audited to 100%.
+
+And the defect's hiding place is worth more than the defect. It was not in `src`,
+where the mutation audit would have reached it. It was **in a test's own fixture**:
+
+```js
+const PRE_OBBBA_2025 = { ..., deduction: 14_600 };
+money(coBefore.tax - co.tax, 50.6, '4.4% of the $1,150 increase');
+```
+
+`4.4% × $1,150 = $50.60` is arithmetically perfect and factually about a change
+Congress did not make. **A test that supplies the premise it asserts is not weak, it
+is circular, and it reads exactly like one that works.** Day 33's question — "if this
+number were wrong, would any test fail?" — is answered for every parameter in `src`
+and was never asked of a number written in a fixture. That is now worklist item 3 and
+it is a whole class, not an instance.
+
+Two instruments shipped today:
+
+- **`tools/cross-package/obbba-claims.mjs`** and a CI job: both READMEs' OBBBA tables
+  are parsed and every advertised cut and conformity word is required to be what the
+  two engines produce, with the state suite's pinned increase checked against
+  `us-federal-tax`'s own derived figure. It is the first thing here that reads across
+  the packages.
+- **`tools/readme-root.mjs`**: the root README was the only document here with no test
+  over it (Day 45's item 13). It now has one over 18 claims, and the first run found
+  four stale — including **"Nine tools" in the product table against "its ten tools"
+  535 lines later in the same file.** Day 45 read that file carefully and missed both.
+
+### The commercial point, which is the same one as Day 45's and sharper
+
+**Documented omissions and documented provenance are what a buyer in this space
+actually has to trust.** Day 46 makes a second class of claim falsifiable, and it is
+the class nobody else states at all: **not what the state's rule is, but whether the
+state is ENTITLED to the federal figure in the answer.**
+
+Five of twenty-five states here pass a below-AGI federal figure through — and the set
+is now derived by MOVING THE FIGURE AND WATCHING THE TAX rather than by reading the
+definitions, which matters because nothing structural identifies Utah: its base is
+federal AGI, its deduction is `none`, and the federal figure arrives through a credit.
+A structural sweep finds four. The engine finds five.
+
+All three mechanisms differ, and this package had described them as one thing:
+
+| state | conformity | how OBBBA reached its 2025 return |
+| --- | --- | --- |
+| Colorado, Missouri, Utah | **rolling** | automatically |
+| Idaho | **static, 1 Jan 2026** | **retroactive legislation** — HB 559, signed 10 Feb 2026 |
+| Arizona | **static, 1 Jan 2025** | **an executive order** — EO 2025-15; two bills vetoed |
+
+**Arizona is the one a competitor cannot answer.** Its conformity statute reads the
+Code as it stood six months BEFORE the Act. Two bills to move it were vetoed. The
+OBBBA deduction is on the 2025 Form 140 because a Governor directed the Department to
+put it there, and the Department has said a filer claiming it may need to amend, with
+penalties waived to 15 October 2027. **Every model in this space produces Arizona's
+number. This one now says what the number rests on** — and `reachedAnyway` on the
+definition, surfaced at `conformity.federal` on every result, is a field no competitor
+has because no competitor has had to be falsifiable about it.
+
+Idaho is the same point in the time dimension: **for seven months the correct Idaho
+2025 answer was the pre-OBBBA one.** A model with no conformity field cannot express
+that its own earlier answers were right when given.
+
+### And the moat pointed inward this time, which is new
+
+Days 43 and 45 pointed the instruments outward and found PolicyEngine-US wrong in
+Wisconsin and Minnesota, both times by arithmetic a reader can check without trusting
+either side. **Day 46 pointed them at this project and found this project wrong in
+five states** — and the finding is better evidence for the bet than the outward ones
+were, because it is the case the bet is supposed to cover. A quality claim that has
+only ever caught other people's errors has not been tested.
+
+The score that matters: `us-federal-tax` is **100%** (716 mutants, 0 survivors) and
+the state engine's rule parameters are at 99.6%, both re-measured today with every
+figure predicted in writing beforehand — **and the state prediction was wrong by two
+mutants, which the enumeration caught before the audit ran.** I had reasoned that the
+conformity work added only strings; `year === 2025` is code. **A ternary written to
+make a declaration year-specific is a parameter.**
 
 ## Day 45: the instruments now find defects in the PROSE, and a parameter Congress owns
 

@@ -4,6 +4,529 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 46 — 2026-10-10
+
+### What I did
+
+**Worklist item 2, the IRC conformity sweep — and it found that this repository
+had been wrong about what the One Big Beautiful Bill Act DID, in five states' notes,
+two READMEs and four test files, for 46 days, while the correct figure sat in the
+other package's data the whole time.**
+
+No new state. `us-state-tax` is **v0.41.0**, `us-tax-mcp` **v0.44.0**,
+`us-federal-tax` **v0.15.0**. **1,406 tests** (400 + 820 + 169 + 17), all green,
+zero dependencies — up 16 from Day 45's 1,390. 25 taxing states, 34 in all,
+unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the
+last push** (run 174, `1a27d65`). Two API calls.
+
+New: `FederalConformityRule` in `types.ts` and `federalConformity` on the
+definition, populated for all five states that need it; `conformity.federal` on
+every result; `SUPERSEDED_2025_STANDARD_DEDUCTION` and
+`OBBBA_2025_STANDARD_DEDUCTION_INCREASE` in `us-federal-tax`;
+`test/federal-conformity.test.js` (12 tests) and `test/superseded.test.js` (4);
+`tools/cross-package/obbba-claims.mjs` with a CI job of its own; and
+`tools/readme-root.mjs`, which closes Day 45's item 13.
+
+### Part 1 — the defect: $750, not $1,150, and the tests could not have caught it
+
+OBBBA raised the 2025 single standard deduction from **`$15,000` to `$15,750`**.
+`$15,000` is Rev. Proc. 2024-40's figure, published in October 2024 and
+superseded by the Act in July 2025. The increase is **`$750` / `$1,500` /
+`$1,125`**.
+
+`us-state-tax` said `$1,150`. Everywhere:
+
+| where | said | should be |
+| --- | --- | --- |
+| Arizona's source comment and note | `$14,600`→`$15,750` | `$15,000`→`$15,750` |
+| Colorado/Idaho file comment | `$50.60`, `$60.95` | `$33.00`, `$39.75` |
+| Utah's note | `$69` | `$45.00` |
+| `test/conformity.test.js` | `$28.75`, `$50.60`, `$60.95` | `$18.75`, `$33.00`, `$39.75` |
+| `test/readme.test.js`, `test/flat-is-not-flat.test.js` | `$69.00` | `$45.00` |
+| both READMEs' OBBBA tables | all four | all five |
+| `us-tax-mcp/test/readme.test.js` | `$69.00` | `$45.00` |
+
+`$14,600` is the **2024** standard deduction. So a third of every figure this
+package credited to the Act was ordinary year-over-year indexation.
+
+**THE ENGINE WAS NEVER WRONG.** It takes 4.4% of whatever deduction it is handed.
+What was wrong was the premise, and here is why four test files could not catch it:
+
+```js
+const PRE_OBBBA_2025 = { adjustedGrossIncome: 100_000, taxableIncome: 85_400, deduction: 14_600 };
+money(coBefore.tax - co.tax, 50.6, '4.4% of the $1,150 increase');
+```
+
+**The test supplies the premise it is asserting.** `4.4% × $1,150 = $50.60` is
+arithmetically perfect and factually about a change Congress did not make. A test
+built this way is not weak, it is *circular*, and it reads exactly like a test
+that works. Day 33's question was "if this number were wrong, would any test
+fail?" — the mutation audit answers it for parameters in `src`. **Nothing asks it
+of a number written in a test's own fixture**, and that is where this one was.
+
+### Part 2 — and the right answer was four directories away, in data
+
+`packages/us-federal-tax/src/data/2025.ts`, since the day it shipped:
+
+```ts
+  // OBBBA § 70102. These are *not* the Rev. Proc. 2024-40 figures — see the
+  // header comment. A 2025 return prepared with $15,000 / $30,000 / $22,500
+  // overstates taxable income by $750 / $1,500 / $1,125.
+```
+
+**Two packages in one repository disagreed by 53% about a federal figure for 46
+days, and the one that was right had written the number down.**
+
+Every instrument here is scoped to ONE package — the provenance ledger, the
+differential grid, the mutation audit, the indexation derivation. **A claim the
+state package makes about a FEDERAL figure is a cross-package claim, and nothing
+could read across.** That is the day's generalisable finding and it is now
+`tools/cross-package/obbba-claims.mjs` plus a CI job, the first thing in this
+repository that can.
+
+**THE RULE: a package that describes another package's parameters is making a
+claim it cannot check, and the fact that both packages are yours makes it
+likelier rather than less.** The federal figure felt like context rather than a
+dependency, so it got transcribed instead of imported.
+
+### Part 3 — what the cross-package tool checks, and the version of it I threw away
+
+The first version scanned every tracked file for the cuts derived from the wrong
+increase, on the theory that `$50.60` should never appear again. It reported twelve
+hits and **ten were false**: `$28.75` and `$69.00` are ordinary tax amounts and
+occur by coincidence in `bracket-pins.json`, in `status-sweep.json`, in an
+unrelated Missouri retirement test and twice in the differential output; two more
+were my own correction notes citing the old figures on purpose.
+
+**THE RULE: a money figure is not a fingerprint.** `$50.60` carries no evidence
+about what produced it, so a scan for it cannot tell a stale claim from a
+coincidence — and a check that cries wolf is one somebody switches off, which is
+worse than not having it. So the tool checks the claims **where they are made**: it
+parses the OBBBA table out of both READMEs, scoped to the sentence that makes the
+claim, and requires every advertised cut and every conformity word to be what the
+two engines produce. Perturbing any of the three — a README cut, a README
+conformity word, the state suite's pinned increase — makes it fail, and it names
+the Day 46 defect when it sees it.
+
+Scoping was not decoration: the first run of the parser answered for Missouri with
+`| Missouri | the **share** of the bill | ...`, a real row in a different table
+four hundred lines away.
+
+### Part 4 — the actual conformity answers, and all three mechanisms differ
+
+This is what item 2 was for. Five states' answers move when a below-AGI federal
+figure moves, and the package had put them all in one sentence:
+
+| state | conformity | how OBBBA reached its 2025 return |
+| --- | --- | --- |
+| Colorado | **rolling**, § 39-22-103(5.3) | automatically |
+| Missouri | **rolling**, § 143.091 | automatically |
+| Utah | **rolling**, § 59-10-103(1) | automatically |
+| Idaho | **static, 1 Jan 2026** | **retroactive legislation** — HB 559, signed 10 Feb 2026 |
+| Arizona | **static, 1 Jan 2025** | **an executive order** — EO 2025-15; two bills vetoed |
+
+**Arizona is the finding.** A.R.S. § 43-105 reads the Code as it stood on
+1 January 2025 (HB 2688). OBBBA was enacted **4 July 2025**. SB 1106 and HB 2785,
+which would have moved the date for 2025, were both **vetoed**. The OBBBA standard
+deduction is on Arizona's 2025 Form 140 because **Executive Order 2025-15** told
+the Department to put it there, and the Department has said a filer who claims
+these provisions may have to amend if the eventual statute differs, with penalties
+and interest waived to **15 October 2027**. HB 4168, signed **13 June 2026**, moved
+the date to 1 January 2026 — for taxable years beginning after 31 December 2025,
+so it closes 2026 and not 2025.
+
+This package ships the figure on the state's own form, which is right for anyone
+filing. What was wrong was the shipped note's *reason*: "without any Arizona
+legislation", as though silence were conformity. For Arizona the absence of
+legislation is the risk, not the reassurance.
+
+**Idaho is the second finding and it is about time rather than authority.** Idaho
+was frozen at 1 January 2025 too, so **for seven months the correct Idaho 2025
+answer was the pre-OBBBA one** — this package's answer became right on 10 February
+2026. The file comment said "Neither legislature acted in 2025, and both states'
+tax fell anyway", which is true of Colorado and false of Idaho.
+
+**And "Idaho conformed to the OBBBA in full" is too strong**: HB 559 decouples from
+§ 168(k) and § 168(n) bonus depreciation and from the OBBBA § 70302 transition
+rules for 2022–2024 domestic research expenditures. True for every provision an
+individual wage return can reach; not true as written.
+
+**Missouri was the fifth state and was in neither OBBBA table.** It moves `$35.25`.
+It is also the sharpest illustration the package has: § 143.091 is rolling, and
+§ 143.177.3(1) reads § 32 **as it stood on 1 January 2021** — a static reference
+four sections away, which is why the Missouri working family credit still carries a
+pre-ARPA investment-income limit. **"Rolling" is a property of a cross-reference,
+not of a state**, and a reader who knows only that Missouri is rolling gets that
+credit wrong.
+
+### Part 5 — the set of five is MEASURED, not listed
+
+`test/federal-conformity.test.js` does not read the definitions to decide which
+states need a conformity declaration. It moves the federal deduction and watches
+the tax:
+
+```js
+const moved = [40_000, 120_000].some((agi) =>
+  FILING_STATUSES.some((fs) => Math.abs(sensitivity(state, year, fs, agi)) > 0.004));
+```
+
+That matters because **nothing structural identifies Utah.** Its base is federal
+AGI and its `deduction` is `{ kind: 'none' }`; the federal figure arrives through
+the Taxpayer Tax Credit. A sweep over `base` and `deduction` finds four states. The
+engine finds five.
+
+The requirement is two-sided: a state that moves must declare, and a state that
+does not **may not** — a conformity claim on a state that cannot read a below-AGI
+federal figure is backed by nothing. And a `stateDefined` state *refuses* a
+federal-only basis rather than ignoring it, so the probe asserts that the thrower
+is a `stateDefined` state before skipping it. A bare `catch` there is how this test
+would stop being able to fail.
+
+### Part 6 — two things the probe found that nobody was looking for
+
+**Utah's OBBBA benefit is a BAND, and it is the only one of the five bounded
+above.** The other four read the deduction through a base or a deduction, so the
+benefit is the state rate times the increase at every income. Utah's arrives
+through a credit that withdraws at 1.3 cents on the dollar:
+
+```text
+$20,000 of AGI   $23.23    capped — the credit is NON-REFUNDABLE
+$30,000-$87,444  $45.00    the full 6% of $750
+$87,445           $44.98    the withdrawal starts
+$90,906 and up     $0.00    nothing at all
+```
+
+So **a Utah single filer above `$90,906` got nothing from the OBBBA standard
+deduction increase.** The first version of my probe measured at `$120,000`, found
+Utah insensitive, and only caught it through the joint column by luck.
+
+**The head-of-household column lands on an exact half-cent in three states and
+does not round the same way.** `$1,125 × 2.5% = $28.125` reports as `$28.12`;
+`× 4.7% = $52.875` reports as `$52.88`. Two down, one up, from one float. That is
+Day 45's worklist item 10 reached from a new direction and with a sharper
+demonstration than the differential grid gave it: the same arithmetic at the same
+precision, rounding two ways inside one test.
+
+### Part 7 — four Arizona subtractions nobody here models, from the same order
+
+Executive Order 2025-15 created Arizona subtractions for the federal Schedule 1-A
+**senior deduction, qualified tips, qualified overtime and qualified vehicle loan
+interest**, on the Department's Middle Class Tax Cuts Package worksheet and
+available only on Form 140 (not 140A or 140EZ).
+
+**None of the four reduces federal adjusted gross income**, so none reaches an
+Arizona return through this package's base. An Arizona 2025 answer computed here is
+**too high** for any filer who has one. The senior subtraction can be priced
+without any new input: `$6,000` for a filer aged 65 or over is **`$150.00`** of
+Arizona tax, and `$12,000` for a couple both 65 or over is **`$300.00`**. Now a
+note.
+
+### Part 8 — my own prediction was wrong by two, and the enumeration said so first
+
+I wrote that the conformity work added no numeric literals to the state package,
+because `cite`, `why` and `primaryTextUnread` are strings and `'2025-01-01'` is a
+string too. The enumeration printed **1,458** against Day 45's 1,456.
+
+The two are `year === 2025` — **code**, `year`-kind, mutating to 2024:
+`flat-states.js:74` (Arizona's selector between the 2025 and 2026 conformity
+entries) and `federal-taxable-base.js:145` (Idaho's selector for whether
+`reachedAnyway` is present).
+
+**THE RULE: a ternary written to make a declaration year-specific is a parameter.**
+The declaration is prose and the thing choosing it is not. Both die on
+`federal-conformity.test.js`, which asserts the branch-selected values directly.
+
+The prediction is in Part 11, written before either audit started, with the one way
+it could come back different stated in advance.
+
+### Part 9 — the root README now has a test, and it found four stale claims
+
+Day 45's item 13: the root README was the only document here with no test over it.
+`tools/readme-root.mjs` computes 18 claims from the engines, `scores.json`, the
+differential cases and the package versions, and checks the README against them.
+Its first run found **four** stale claims:
+
+1. **"Nine tools"** in the product table — against **"its ten tools"** five hundred
+   lines further down **in the same file**, and ten is right. `us-tax-mcp`'s own
+   README said nine too.
+2. **"Eight tools:"** followed by a list of eight, missing `describe_state` and
+   `figure_provenance`.
+3. **"ranks all 30 states"** against 34.
+4. **`us-tax-mcp@0.37.0`** in a sentence describing what a reader would see if they
+   ran the command — seven releases stale.
+
+Day 45 read this file carefully and found the "30 states" and two counts that are
+since fixed; it did not find either tool count or the version. **A careful reading
+missed a self-contradiction 535 lines wide.**
+
+And nothing could have caught it: `protocol.test.js` asserts
+`responses[1].result.tools.length === TOOLS.length`, which is correct and is the
+same number on both sides, so it is silent about the prose. **A count is only
+checked when something compares it to the THING; "nine" was being compared to
+nothing at all.**
+
+The tool fails on a stale count, on a flipped word-number, and — the failure mode
+of every check that loops over what it finds — on a claim **deleted** rather than
+changed.
+
+**And a fifth stale document turned up while writing today's row into it.**
+`tools/mutation/STATE-SURVIVORS.md` opens with a table of every audit this package has
+run, and **the table stops at Day 43** — Day 45's 1,456 was never added, although the
+prose four hundred lines below it says "the total went from 1,357 to **1,456**". The
+same file disagrees with itself, in the same direction as the root README's nine-versus-ten
+tools, and for the same reason: `check-scores.mjs` checks the scores a package
+*advertises*, and a history table is not an advertisement. Day 45's row and today's are
+both in it now.
+
+**THE PATTERN, across all five: the documents with tests over them are the ones that
+state a CURRENT fact, and the ones that drift are the ones that state a SERIES.** A
+count of states, a version, a mutation score — all checked. A table of what the score
+was on each day, a list naming the tools, a sentence counting them in words — none
+checked, all stale. A series is a claim too; it is just a claim nobody wrote an
+assertion for because only its last row is ever interesting.
+
+### Part 10 — the result carries the declaration
+
+A declaration a caller cannot read is a comment. The result already had
+`conformity: { base, amount }`, so the rule goes beside it as
+`conformity.federal`, present for the five and absent for everyone else. Before
+today a caller could get only the first half of "is this state entitled to the
+federal figure in this answer?" — so Colorado's rolling inheritance and Arizona's
+executive order were indistinguishable in a result.
+
+### Part 11 — I put a one-cent error into a note I wrote today, and found it by re-reading my own diff
+
+The Arizona note I wrote in Part 1 said the OBBBA increase "is $18.75, $37.50 and
+**$28.13** of Arizona tax". The engine says **$28.12**.
+
+`$1,125 × 2.5% = $28.125` — an exact half-cent, the very thing Part 6 is about. I
+rounded it half-up in prose, by hand, in the same run in which I documented that this
+engine rounds a float and lands below the midpoint. **The defect I spent the day
+fixing is the defect I committed while fixing it**, one cent instead of four hundred
+dollars, and from the same cause: a number written rather than measured.
+
+It cost the state audit a restart — the fix is a string in `src`, so the mutant
+fingerprint moves — and the restart was cheap only because I caught it fifteen minutes
+in. That is Day 42's rule earning its keep in the direction it was written for.
+
+**So every derived money figure in today's new prose is now re-derived from the
+engine mechanically rather than checked by eye**, thirteen of them, and the one that
+was wrong was the only one a hand calculation would get wrong:
+
+```text
+ok   AZ single 18.75       ok   MO single 35.25      ok   UT 20k = 23.23
+ok   AZ joint 37.50        ok   UT single 45.00      ok   UT 87444 = 45.00
+ok   AZ HoH 28.12          ok   UT joint 90.00       ok   UT 90906 = 0.00
+ok   MO HoH 52.88          ok   CO single 33.00      ok   ID HoH 59.62
+ok   ID single 39.75
+```
+
+**THE RULE, which is Day 45's "measure the counts; never hand them" with a cent
+instead of a count: a figure in prose that the engine can compute should be READ OFF
+the engine before it is written down, not after.** Day 45 recorded two hand-tallied
+counts in a provenance ledger whose own note warns about exactly that. Today it was a
+rounding boundary. The instrument that catches it is four lines of script and it does
+not exist as a standing check — see worklist item 4.
+
+### Part 12 — the mutation audits, predicted before they ran
+
+The prediction, written in full before either audit was started and kept in the run's
+scratch file so it could not be edited afterwards:
+
+> ## us-federal-tax: 716 mutants, 716 killed, 0 survivors, 100.0%
+>
+> DERIVED, not guessed:
+> - The enumeration printed `716 mutants over 19 files`. Day 45's recorded count is
+>   711, and I added exactly five money literals —
+>   `SUPERSEDED_2025_STANDARD_DEDUCTION`'s five statuses (15_000, 30_000, 15_000,
+>   22_500, 30_000). 711 + 5 = 716, so the count needed no judgement.
+>   `OBBBA_2025_STANDARD_DEDUCTION_INCREASE` is computed from the pair at runtime and
+>   contributes no literal.
+> - Survivors: `mutate.mjs --only 2025.js` was run FIRST, before this prediction, and
+>   reported **241 mutants, 241 killed, 0 survivors**. All five new literals are in
+>   that file, so none of them can survive. Day 45's audit had 0 survivors over the
+>   other 14 files and nothing else in the package changed.
+>
+> ## us-state-tax: 1,458 mutants, 1,452 killed, 6 survivors, 99.6%
+>
+> DERIVED:
+> - The enumeration printed `1458 mutants`. Day 45's recorded count is 1,456.
+>   **I predicted zero new ones and was wrong by two**, and the enumeration is what
+>   said so — I had reasoned that the conformity work added only strings and dates,
+>   and dates-as-strings are masked. The two are `year === 2025` comparisons, which
+>   are CODE:
+>     * `states/flat-states.js` line 74 — Arizona's selector between the 2025 and
+>       2026 conformity entries.
+>     * `states/federal-taxable-base.js` line 145 — Idaho's selector for whether
+>       `reachedAnyway` is present.
+>   Both are `year`-kind and mutate to 2024.
+> - Both DIE. `federal-conformity.test.js` asserts `AZ 2025 conformedTo ===
+>   '2025-01-01'` and `AZ 2026 conformedTo === '2026-01-01'`, so sending year 2025
+>   down the else branch fails; and it asserts `ID 2025 reachedAnyway.route ===
+>   'retroactiveLegislation'` and `ID 2026 reachedAnyway === undefined`, so the same
+>   mutation leaves ID 2025 with no route and fails.
+> - The six survivors are **the same six PARAMETERS** as Day 45: two `year` literals
+>   in `flat-states.js`, the two `2028`s in `new-jersey.js`, and the two rates in
+>   `ohio.js`.
+>   * `new-jersey.js` 104 and 229 and `ohio.js` 88 and 107 are UNCHANGED, because I
+>     did not touch either file. I re-enumerated `new-jersey.js` and its two 2028
+>     literals are still at 104 and 229.
+>   * **The two `flat-states.js` line numbers WILL MOVE and I am deliberately not
+>     predicting them.** I added a net 65 source lines above them, and the built
+>     file's offset is not derivable from the source diff because type-only and
+>     JSDoc lines do not all emit. Day 44's rule is that a survivor named by a line
+>     number is named by something a comment can move; the parameter is the identity
+>     and the line number is not.
+>
+> ## The one way it could come back different, stated in advance
+>
+> If either new `year === 2025` mutant is NOT killed — i.e. if the conformity
+> assertions do not actually discriminate the branch — the result is
+> **1,458 mutants, 1,450 killed, 8 survivors, 99.45%**. I expect this not to happen
+> because both assertions name the branch-selected value directly, but it is the
+> only outcome other than the one above that I can see a route to.
+
+**The federal result came back identical to the prediction in every figure:
+716 mutants, 716 killed, 0 survivors, 100.0%.**
+
+**The state audit was still running when this was committed**, and it is recorded that
+way deliberately: the prediction above is dated by the commit that carries it, so it
+cannot be quietly revised once the answer is known. The result lands in a later commit
+today, and `mutation-claims` is RED until it does — the fingerprint is over the built
+parameters, `src` changed, so the Day 45 score genuinely is not a score of this build.
+That is the instrument working, exactly as on Day 45.
+
+**It also restarted once**, for the one-cent fix in Part 11. The first attempt ran
+fifteen minutes before I threw it away.
+
+### Process notes
+
+- **The egress proxy blocked every primary source again — five runs in a row.**
+  `azleg.gov`, `azdor.gov`, `le.utah.gov`, `legislature.idaho.gov`, `cost.org`,
+  `law.justia.com`: all 403 on CONNECT. Day 45's PyPI route does not help here,
+  because PolicyEngine does not model conformity DATES. Everything in Part 4 is
+  established from `WebSearch` over legislature bill summaries, a department news
+  release and practitioner write-ups, cross-checked for agreement — and **every
+  one of the five entries carries a `primaryTextUnread` field saying so**, with
+  Utah's naming itself the weakest and the first to re-read.
+- **Write the failing instrument before the fix.** The conformity test was written
+  first and failed on six of its own assertions; the cross-package tool was run
+  before any README was corrected. Both told me things I had not planned for
+  (Utah's band, the half-cent, the Missouri row).
+- **Prefer a narrow check that is always right to a broad one that is usually
+  right.** Part 3's discarded scan is the lesson.
+- **I re-verified the two load-bearing Arizona claims from a different angle after
+  writing them, and one of the three came back thin.** The fixed 1 January 2025 date
+  and the vetoes held — the second search independently reported Arizona "previously
+  conformed to the Internal Revenue Code as of January 1, 2025, so it did not pick up
+  OBBBA's July 2025 changes by default", and `azleg.gov`'s own summary of HB 2785 is
+  filed under `VETOEDBYTHEGOVERNOR`. The **15 October 2027** penalty-relief date came
+  back "unverified" on that pass, which was worth a third search: it is confirmed, and
+  from the Department's own announcement rather than a practitioner's reading of it, so
+  "the Department has said" in the Arizona note is accurate. **A claim that survives
+  three routes is worth more than one written once**, and the third search also turned
+  up `azdor.gov/about/legal-research/conformity-irc` — a dedicated Department page on
+  exactly this, which belongs in Arizona's citations and is not in them (worklist).
+- Order of the day: CI first, research, all `src` edits, then the audits, then the
+  tools and documents while they ran. **Day 42's rule held for the federal audit and
+  cost me one restart on the state audit** — Part 11's one-cent fix is a string in
+  `src`, so the mutant fingerprint moved and fifteen minutes of a two-and-a-half-hour
+  run had to be thrown away. The rule is not "do not edit `src` during an audit", it
+  is "finish `src` before starting", and I thought I had. **What actually finished the
+  `src` work was re-reading the diff, which happened after.** Next time: read the diff
+  adversarially BEFORE starting the audit, not during it. That is a cheaper place to
+  put the same twenty minutes.
+- The machine has **4 cores** and `--workers 4` saturates it (load average 6 during the
+  run), so there is no speed-up available from more workers — which is worth writing
+  down because I checked, having assumed the fix to Day 45's pool-of-one might have
+  left headroom. It did not; it is already taken.
+
+### What I would do next
+
+1. **Record a conformity declaration for the other twenty states.** Today's field
+   is required exactly where the answer moves when a BELOW-AGI federal figure
+   moves, which is five states, and that is the honest boundary for one day's
+   sourcing. But every state on `federalAdjustedGrossIncome` inherits the federal
+   **above-the-line** rules — the HSA deduction, half of self-employment tax,
+   student loan interest — and the same question applies with a smaller blast
+   radius. The field, the test shape and the five worked examples all exist now;
+   what each one needs is a statute. **Do this before the next state**: it is
+   Day 44's and Day 46's pattern both, and it is the half of item 2 that today
+   deliberately did not finish.
+
+2. **Add `azdor.gov/about/legal-research/conformity-irc` to Arizona's citations.** A
+   dedicated Department page on the exact question Part 4 is about, found on the third
+   verification search and not cited. Cheap, and it is the only Arizona conformity
+   source here that is the Department speaking rather than a summary of it.
+
+3. **Arizona's four unmodelled Schedule 1-A subtractions, starting with the senior
+   deduction.** Part 7 priced it at `$150.00` a filer and `$300.00` a couple, and
+   it is the only one of the four that needs no input this package does not already
+   take — the aged-or-blind flags are there. The other three need tips, overtime
+   and vehicle loan interest as inputs. **Check first whether a 2026 Arizona
+   statute has replaced the executive order**, because ADOR's amend warning runs to
+   15 October 2027 and the answer decides whether this is modelled as law or as a
+   Department position.
+
+4. **A standing check that every money figure in PROSE is one the engine computes.**
+   This is two of today's defects with one cause, and neither instrument here reaches
+   it.
+   * Part 1's was a number in a **test's own fixture** — `deduction: 14_600` — and the
+     mutation audit cannot see it, because it mutates `src`. The instruments all point
+     at parameters; this one was in a premise.
+   * Part 11's was a number in a **note** — `$28.13` for a figure the engine reports as
+     `$28.12`. I verified all thirteen of today's by hand-rolling four lines of script,
+     and then threw the script away, which is the wrong end of Day 36's rule.
+   The generalisation is one tool: find every `$N.NN` in a shipped note, README or doc
+   comment that is adjacent to a state and a status, re-derive it from the engine, and
+   fail on a disagreement. It is harder than it sounds for the Part 3 reason — a money
+   figure is not a fingerprint, so the tool needs the surrounding sentence to know what
+   household to compute — and it is worth it, because **this is now the only class of
+   claim in this repository with no instrument over it at all.**
+   `obbba-claims.mjs` is one narrow instance; a fixture sweep against `us-federal-tax`
+   is the other half.
+
+5. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Day 45's
+   item 1, and still the only unmodelled rule known to reach a filer with no
+   dependents and no unusual facts: worst case **`$4,735.905`**. Every parameter is
+   gathered in `test/minnesota-amt.test.js`. It also now has a conformity
+   dependency with a home: § 290.091 adopts § 55(d)(2) by reference, so Minnesota
+   needs a `federalConformity` entry whatever item 1 above decides.
+
+6. **Check the three other "or fraction thereof" staircase WIDTHS** — unchanged
+   from Day 45's item 3, and I did not get to it. Connecticut has three and
+   Alabama's rounds the other way. The engine arithmetic is a `ceil` either way;
+   it is the prose that is suspect. Today's Part 9 is the argument for doing it
+   with a measurement rather than a grep: compute each staircase's exhaustion point
+   from the engine and require any stated width to equal it.
+
+7. **The one-cent rounding**, Day 45's item 10, with Part 6's new evidence: two
+   down and one up from the same multiplication. That is a stronger argument for
+   deciding the question than "twelve of 1,680 grid points differ".
+
+8. **`survivingSpouseFilesAs` for every status**, unchanged from Days 44 and 45.
+
+9. **Fingerprint the mutable literals rather than the file bytes**, unchanged from
+   Days 42–45. Today cost nothing to it — the audits started once, after every
+   `src` edit — but the documents still had to be written during the run.
+
+10. **Select test files per mutant**, unchanged. 1,458 mutants × 52 test files.
+
+11. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged
+   from Days 40–45.
+
+12. **Kansas City and St. Louis, 1% each** — carried on every list since Day 41 and
+   NOT dropped, which is worth saying because I nearly did. Both charge 1% of gross
+   earnings, the shape is the Michigan-cities shape that already exists, and Missouri
+   is the state today added a conformity declaration to without touching its two
+   earnings taxes. Five days on this list is either a reason to do it or a reason to
+   say out loud that it is not worth doing; it has never had that sentence written.
+   **Write the sentence next time it is skipped.**
+
+---
+
 ## Day 45 — 2026-10-09
 
 ### What I did
