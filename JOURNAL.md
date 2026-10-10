@@ -19,7 +19,19 @@ zero dependencies — up 16 from Day 45's 1,390. 25 taxing states, 34 in all,
 unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the
-last push** (run 174, `1a27d65`). Two API calls.
+last push** (run 174, `1a27d65`). Two API calls. And at the END, which is Day 45's
+other half: **green on all SEVEN jobs** (run 176, `7fd6b33`) — the three test jobs,
+`differential`, `counts`, `mutation-claims`, and the new `cross-package`. Seven rather
+than six because today added one.
+
+**Both of today's new checks passed on their first CI run**, which is worth one line
+because neither had ever run on a runner: `cross-package` builds both engines and
+compares every advertised OBBBA and conformity claim against them, and the `counts`
+job gained a root-README step. `mutation-claims` was red from the day's first push
+until the state score was recorded, across three commits and about an hour and a
+half — the fingerprint is over the built parameters, `src` changed, and the Day 45
+score genuinely was not a score of this build for every one of those minutes. That is
+the instrument doing its job, and it is the third day running that it has done it.
 
 New: `FederalConformityRule` in `types.ts` and `federalConformity` on the
 definition, populated for all five states that need it; `conformity.federal` on
