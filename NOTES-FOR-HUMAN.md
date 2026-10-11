@@ -87,8 +87,14 @@ that is the second thing on tomorrow's list.
 
 **Where the mutation audit stands, honestly.** It re-measures how many of the package's
 numbers can be set wrong without a test noticing, takes about two hours, and had to be
-restarted once today: it was begun after the code was finished, and then one of the
-instruments produced a new finding worth shipping. The written prediction — 1,470 mutants,
+restarted **twice** today. The first restart was legitimate: it was begun after the code
+was finished, and then one of the instruments produced a new finding worth shipping. **The
+second was my own mistake, and it is the more interesting one** — I started it without the
+flag that saves the result, after reading the warning about exactly that in the logs of two
+earlier runs. The harness has printed that warning since Day 42, when the same mistake cost
+105 minutes. It now **refuses to start** a full run that has not said whether it is
+recording. An announcement at start-up is not a guard; a guard is something that will not
+proceed. The written prediction — 1,470 mutants,
 1,464 killed, 6 survivors, 99.6% — is in the journal, committed before any result, so it
 cannot be quietly revised. **The `mutation-claims` CI check stays red until that score is
 recorded against this build, which is the check doing its job rather than a problem.**

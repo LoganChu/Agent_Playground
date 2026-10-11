@@ -306,9 +306,11 @@ placed in prose is not.** That is the argument for the instrument, sharpened.
 
 ### Part 12 — the mutation prediction, written before the run
 
-The state audit was started, stopped at 100/1470, and restarted — see the process notes
-for why, which is a rule rather than an accident. The prediction below was written while
-the first run was in flight and **before any result**, and is quoted here unedited.
+**The state audit was started THREE times today**, and the two stops have different
+lessons — see Part 13 and the process notes. The prediction below was written while the
+first run was in flight and **before any result**, and is quoted here unedited. The
+enumeration came back 1,470 on all three starts, so it is a prediction about the run that
+finally recorded.
 
 >
 > ## us-state-tax: 1,470 mutants, 1,464 killed, 6 survivors, 99.6%
@@ -407,6 +409,39 @@ the first run was in flight and **before any result**, and is quoted here unedit
 > score is a score of this build. `check-scores.mjs` is the thing that would say otherwise.
 >
 
+### Part 13 — I read the harness's own warning twice and then made the mistake it warns about
+
+The mutation harness has printed this at start-up since Day 42:
+
+```text
+[mutate] NOT recording (pass --record to write tools/mutation/scores.json)
+```
+
+Day 42 added it after losing **105 minutes** to a run that measured correctly and recorded
+nothing. Day 43 lost a two-hour run to the wrong flags, and the fix was the same line,
+earlier and louder. The harness carries two long comments about both incidents.
+
+**I read that line in the logs of two separate runs today and started a third without the
+flag.** It appeared in the output I quoted back to myself while checking that the audit had
+begun. It is correct, prominent, and printed before any work happens.
+
+**THE RULE: AN ANNOUNCEMENT AT START-UP IS NOT A GUARD. A GUARD IS SOMETHING THAT WILL NOT
+PROCEED.** This is the distinction this repository draws everywhere else — between a note
+and an assertion, between a document that states a count and a test that checks it — and
+the mutation harness, which exists to ask *"if this number were wrong, would anything
+fail?"*, had the note and not the assertion for five days.
+
+A full run now refuses to start without `--record` or `--no-record`. Scoped to a **full**
+run deliberately: `--limit` and `--only` check the harness rather than the package, cannot
+be recorded anyway, and are run casually, so making those choose is the kind of friction
+that gets a guard deleted. Both scopings are verified.
+
+**And the shape is the day's own finding again.** Day 42's announcement was right about
+the facts and wrong about what would change behaviour — a true statement with no mechanism
+behind it, which is the documentation equivalent of a number that is right for the wrong
+reason. Part 1 is about a declaration that had stopped being true; this is about one that
+was true and inert.
+
 ### Process notes
 
 - **The egress proxy blocked every primary source again — six runs in a row.**
@@ -433,11 +468,12 @@ the first run was in flight and **before any result**, and is quoted here unedit
   Senate fact sheet (read twice, independently), the House bill summary, and PolicyEngine.
   Day 46's "a claim that survives three routes is worth more than one written once" is why
   the fourth was done.
-- **The audit was started too early and the reason is a rule.** Day 42's rule is "finish
-  `src` before starting" and Day 46 found it broken by re-reading its own diff afterwards.
-  Today `src` *was* finished and the diff *was* read adversarially first — and then the
-  differential harness produced the capital-gains finding, which is a `src` change. 100 of
-  1,470 mutants were thrown away. **THE SHARPER RULE: the audit is the LAST thing to
+- **The audit was started three times, and only the first stop was anybody's fault but
+  mine.** Day 42's rule is "finish `src` before starting" and Day 46 found it broken by
+  re-reading its own diff afterwards. Today `src` *was* finished and the diff *was* read
+  adversarially first — and then the differential harness produced the capital-gains
+  finding, which is a `src` change. 100 of 1,470 mutants thrown away. **The second stop was
+  Part 13: no `--record`**, 50 more thrown away, and it is now impossible to repeat. **THE SHARPER RULE: the audit is the LAST thing to
   start, after every instrument has been RUN, because an instrument's output is a source
   of `src` changes.** Reading the diff is not enough; the instruments have to have spoken.
 - **The audit also ran at a third of Day 46's rate** — about 4 mutants a minute against
