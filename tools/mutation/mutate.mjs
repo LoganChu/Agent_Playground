@@ -68,6 +68,7 @@
  * Usage:
  *   node tools/mutation/mutate.mjs <packageDir> [--workers N] [--skip a,b]
  *                                  [--only substr] [--limit N] [--json out.json]
+ *                                  (--record | --no-record)  <- required for a FULL run
  *                                  [--max-survivors N] [--record [FILE]]
  */
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
@@ -79,7 +80,7 @@ import os from 'node:os';
 const argv = process.argv.slice(2);
 const pkgDir = argv[0];
 if (!pkgDir) {
-  console.error('usage: mutate.mjs <packageDir> [--workers N] [--skip a,b] [--only s] [--limit N] [--json f]');
+  console.error('usage: mutate.mjs <packageDir> (--record|--no-record) [--workers N] [--skip a,b] [--only s] [--limit N] [--json f]');
   process.exit(2);
 }
 /**
@@ -168,6 +169,48 @@ const MAX_SURVIVORS = flag('max-survivors', null);
 // Bare `--record` writes the repository's own score file, which is what every
 // caller has ever wanted and what the usage line above now says.
 const RECORD_OUT = flag('record', null, 'tools/mutation/scores.json');
+
+/**
+ * A FULL RUN MUST CHOOSE. `--record` or `--no-record`, explicitly, or this
+ * refuses to start.
+ *
+ * ## Why an announcement was not enough
+ *
+ * Day 42 lost 105 minutes to a run that recorded nothing, and the fix was to
+ * ANNOUNCE the destination at start-up: `[mutate] NOT recording (pass --record
+ * to write tools/mutation/scores.json)`. Day 43 lost a two-hour run to the wrong
+ * flags and the fix was the same announcement, louder.
+ *
+ * **Day 47 read that line twice, in the log of two separate runs, and started a
+ * third without the flag.** The announcement is correct, prominent, and printed
+ * before any work happens. It did not work, because it is a message addressed to
+ * somebody who has already decided what they are doing.
+ *
+ * **THE RULE: AN ANNOUNCEMENT AT START-UP IS NOT A GUARD. A guard is something
+ * that will not proceed.** This is the same distinction the repository draws
+ * everywhere else between a note and an assertion — a note tells a reader
+ * something, an assertion refuses to let them be wrong — and the mutation
+ * harness had the note and not the assertion for five days.
+ *
+ * Scoped to a FULL run on purpose. `--limit` and `--only` exist to check the
+ * harness rather than the package, cannot be recorded anyway (see the refusal
+ * below), and are run casually and often; making those choose would be the kind
+ * of friction that gets a guard deleted.
+ */
+const NO_RECORD = argv.includes('--no-record');
+if (RECORD_OUT === null && !NO_RECORD && ONLY === null && !Number.isFinite(LIMIT)) {
+  console.error(
+    '[mutate] REFUSED to start: a full run must say whether it is recording.\n' +
+      '\n' +
+      `  --record       write the score and both fingerprints to tools/mutation/scores.json\n` +
+      '  --no-record    measure only, and leave the committed score alone\n' +
+      '\n' +
+      'This run is 1,400-odd mutants and takes about two hours on four cores. Day 42 lost\n' +
+      '105 minutes to a run that recorded nothing and Day 47 lost two more, both times with\n' +
+      'the "NOT recording" line sitting in the log. An announcement is not a guard.',
+  );
+  process.exit(2);
+}
 
 /**
  * Mask comments and string/template literals with spaces, keeping every byte
