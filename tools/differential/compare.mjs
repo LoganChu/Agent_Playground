@@ -254,12 +254,73 @@ function requireExpectedReference() {
   }
 }
 
+/**
+ * Every entry states the size it claims, or says in writing why it cannot.
+ *
+ * ## Why this is a hard requirement and not a convention
+ *
+ * Day 32 bounded Ohio's `$20`-per-exemption credit entry at `$100` after finding
+ * it had silently carried a `$275` municipal-interest addition, two
+ * separate-return spouse differences and `$316.09` of earned income credit. The
+ * lesson was written down — "AN ENTRY WITH NO BOUND ABSORBS THE NEXT DIFFERENCE
+ * IN ITS STATE, and a report that says zero unexplained is the last place that
+ * will say so" — and then fifteen days passed in which twelve of the
+ * fifty-eight entries still had no bound, because nothing required one.
+ *
+ * **Day 47 is what that cost.** Arizona's entry read "NOT MODELLED HERE.
+ * Arizona's family income tax credit, `$25` a person to `$100` a return, and its
+ * `$100` dependent tax credit", with no case filter and no `maxAbs`. It was the
+ * first match for every Arizona `state.tax` difference in the grid, and it
+ * explained `$305.00` on a CHILDLESS retired couple at `$78,100` of adjusted
+ * gross income — a household neither named credit can reach. Behind it sat two
+ * real defects: Arizona taking the federal § 63(f) age addition its statute does
+ * not allow, and Arizona not subtracting the § 43-1022(35) senior deduction.
+ *
+ * **THE RULE: A REASON THAT STATES NO SIZE IS NOT A REASON, IT IS A CATCH-ALL.**
+ * The tell was available the whole time and is written in this file's own prose:
+ * an entry whose reason names a figure smaller than the difference it is credited
+ * with.
+ *
+ * `unbounded` is the escape hatch and it is deliberately a STRING: an entry may
+ * decline to state a size, but only by arguing for it in writing, where a reader
+ * can disagree. Ten do — the harness artefacts, whose size is a property of what
+ * the harness declines to do rather than of any provision, and the two
+ * provisional-figure entries, which close when a state publishes.
+ */
+function requireEveryReasonBounded(known) {
+  const naked = known
+    .map((rule, i) => ({ rule, i }))
+    .filter(
+      ({ rule }) =>
+        rule.maxAbs === undefined &&
+        rule.maxShareOfIncome === undefined &&
+        typeof rule.unbounded !== 'string',
+    );
+  if (naked.length === 0) return;
+  throw new Error(
+    `${naked.length} of ${known.length} entries in known-divergences.json state no size:\n` +
+      naked
+        .map(
+          ({ rule, i }) =>
+            `  [${i}] ${rule.state ?? 'any state'} ${rule.metric}` +
+            `${rule.kind ? ` kind=${rule.kind}` : ''} — "${(rule.reason ?? '').slice(0, 90)}..."`,
+        )
+        .join('\n') +
+      '\n\nGive each one a `maxAbs` DERIVED FROM THE PROVISION ITS REASON NAMES — not from the ' +
+      'largest difference it currently matches, which is how a bound becomes a ratchet — or a ' +
+      '`maxShareOfIncome`, or an `unbounded` string arguing why no bound is derivable. An entry ' +
+      'with no size claims every later difference in its state, including the ones a more ' +
+      'specific entry was written for, and including real defects.',
+  );
+}
+
 export function compare() {
   requireFreshTheirs();
   const cases = read('out/cases.json');
   const ours = read('out/ours.json');
   const theirs = read('out/theirs.json');
   const known = read('known-divergences.json');
+  requireEveryReasonBounded(known);
   const used = new Set();
 
   const diffs = [];

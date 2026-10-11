@@ -1,8 +1,8 @@
 # Differential test against PolicyEngine-US
 
-1100 households, 7700 figures compared, **7100 agree to the dollar** (92.2%).
+1100 households, 7700 figures compared, **7099 agree to the dollar** (92.2%).
 
-600 differences are explained by `known-divergences.json`; **0 are not.**
+601 differences are explained by `known-divergences.json`; **0 are not.**
 
 ## Unexplained
 
@@ -18,29 +18,67 @@ Two different things end up here and they need different fixes. Most are genuine
 | --- | --- | ---: | ---: | ---: |
 | `single-worker-MD-400000-0-0-0-0` | state.tax | $33,885.18 | $33,206.48 | $678.70 |
 | `single-worker-CO-400000-0-0-0-0` | state.tax | $16,891.60 | $17,531.83 | -$640.23 |
+| `mixed-dependents-AZ-90000-0-0-0-0` | state.tax | $1,445.00 | $1,087.50 | $357.50 |
 | `separate-with-child-MI-45000-0-0-0-0` | state.tax | $1,411.00 | $1,090.66 | $320.34 |
 | `separate-with-spouse-ID-0-55000-0-0-0` | state.tax | $1,631.82 | $1,316.04 | $315.78 |
 | `separate-with-child-ID-45000-0-0-0-0` | state.tax | $1,276.72 | $960.94 | $315.78 |
+| `couple-two-children-AZ-60000-0-0-0-0` | state.tax | $695.00 | $462.50 | $232.50 |
+| `couple-two-children-AZ-100000-0-0-0-0` | state.tax | $1,695.00 | $1,462.50 | $232.50 |
+| `couple-two-children-AZ-200000-0-0-0-0` | state.tax | $4,195.00 | $3,962.50 | $232.50 |
 | `separate-with-child-UT-45000-0-0-0-0` | state.tax | $1,258.07 | $1,039.11 | $218.96 |
 | `separate-with-spouse-CA-0-55000-0-0-0` | state.tax | $1,186.53 | $982.17 | $204.36 |
+| `mixed-dependents-AZ-40000-0-0-0-0` | state.tax | $195.00 | $0.00 | $195.00 |
 | `single-worker-CA-400000-0-0-0-0` | state.tax | $33,336.13 | $33,157.91 | $178.22 |
 | `single-worker-ID-400000-0-0-0-0` | state.tax | $20,091.72 | $19,930.94 | $160.78 |
+| `investor-AZ-50000-0-0-20000-0` | state.tax | $1,347.50 | $1,231.25 | $116.25 |
 | `separate-with-child-AZ-45000-0-0-0-0` | state.tax | $722.50 | $606.25 | $116.25 |
+| `on-the-boundary-AZ-50000-0-0-0-0` | state.tax | $847.50 | $731.25 | $116.25 |
+| `on-the-boundary-AZ-100000-0-0-0-0` | state.tax | $2,097.50 | $1,981.25 | $116.25 |
+| `single-parent-AZ-45000-0-0-0-0` | state.tax | $521.25 | $409.38 | $111.88 |
+| `single-parent-high-AZ-90000-0-0-0-0` | state.tax | $1,646.25 | $1,534.38 | $111.88 |
+| `single-parent-teen-AZ-35000-0-0-0-0` | state.tax | $271.25 | $159.38 | $111.88 |
+| `surviving-spouse-AZ-45000-0-0-0-0` | state.tax | $521.25 | $409.38 | $111.88 |
 | `separate-with-child-PA-45000-0-0-0-0` | state.tax | $1,381.50 | $1,276.14 | $105.36 |
+| `retired-couple-AZ-0-50000-40000-0-0` | state.tax | $145.00 | $57.50 | $87.50 |
+| `retired-couple-AZ-0-90000-40000-0-0` | state.tax | $1,145.00 | $1,057.50 | $87.50 |
+| `muni-retiree-AZ-0-60000-40000-0-10000` | state.tax | $395.00 | $307.50 | $87.50 |
 | `separate-with-spouse-KY-0-55000-0-0-0` | state.tax | $718.55 | $639.11 | $79.44 |
+| `blind-senior-AZ-0-25000-20000-0-0` | state.tax | $72.50 | $0.00 | $72.50 |
+| `single-parent-AZ-25000-0-0-0-0` | state.tax | $21.25 | -$50.00 | $71.25 |
 | `separate-with-child-NC-45000-0-0-0-0` | state.tax | $1,286.77 | $1,226.93 | $59.84 |
 | `mixed-dependents-MI-40000-0-0-0-0` | state.tax | -$1,464.54 | -$1,518.05 | $53.51 |
+| `single-parent-AZ-12000-0-0-0-0` | state.tax | $0.00 | -$50.00 | $50.00 |
+| `retired-couple-AZ-0-0-40000-0-0` | state.tax | $0.00 | -$50.00 | $50.00 |
+| `retired-couple-AZ-0-20000-40000-0-0` | state.tax | $0.00 | -$50.00 | $50.00 |
+| `couple-no-children-AZ-25000-0-0-0-0` | state.tax | $0.00 | -$50.00 | $50.00 |
+| `surviving-spouse-low-AZ-18000-0-0-0-0` | state.tax | $0.00 | -$50.00 | $50.00 |
 | `single-worker-MI-15000-0-0-0-0` | state.tax | $282.56 | $235.56 | $47.00 |
-| `separate-with-spouse-AZ-0-55000-0-0-0` | state.tax | $890.00 | $928.75 | -$38.75 |
+| `surviving-spouse-low-AZ-26000-0-0-0-0` | state.tax | $46.25 | $0.00 | $46.25 |
+| `single-retiree-AZ-0-40000-24000-0-0` | state.tax | $447.50 | $403.75 | $43.75 |
+| `separate-with-spouse-AZ-0-55000-0-0-0` | state.tax | $972.50 | $928.75 | $43.75 |
 | `separate-with-spouse-MD-0-55000-0-0-0` | state.tax | $116.80 | $78.78 | $38.02 |
 | `separate-with-spouse-MA-0-55000-0-0-0` | state.tax | $2,495.00 | $2,460.00 | $35.00 |
 | `separate-with-child-CA-45000-0-0-0-0` | state.tax | $307.69 | $273.87 | $33.82 |
+| `blind-worker-AZ-40000-0-0-0-0` | state.tax | $597.50 | $568.75 | $28.75 |
+| `single-retiree-AZ-0-10000-24000-0-0` | state.tax | $0.00 | -$25.00 | $25.00 |
 | `couple-two-children-OR-200000-0-0-0-0` | state.tax | $14,535.13 | $14,556.86 | -$21.73 |
 | `separate-with-child-MA-45000-0-0-0-0` | state.tax | $1,440.00 | $1,458.55 | -$18.55 |
+| `couple-no-children-AZ-75000-0-0-0-0` | state.tax | $1,070.00 | $1,087.50 | -$17.50 |
+| `early-retired-couple-AZ-0-70000-0-0-0` | state.tax | $945.00 | $962.50 | -$17.50 |
+| `surviving-spouse-high-AZ-250000-0-0-0-0` | state.tax | $5,646.25 | $5,659.38 | -$13.13 |
+| `surviving-spouse-high-AZ-300000-0-0-0-0` | state.tax | $6,896.25 | $6,909.38 | -$13.13 |
+| `surviving-spouse-high-AZ-450000-0-0-0-0` | state.tax | $10,646.25 | $10,659.38 | -$13.13 |
 | `couple-two-children-OR-100000-0-0-0-0` | state.tax | $6,267.25 | $6,280.23 | -$12.98 |
 | `couple-two-children-OR-60000-0-0-0-0` | state.tax | $2,876.83 | $2,889.81 | -$12.98 |
 | `mixed-dependents-MI-90000-0-0-0-0` | state.tax | $2,571.25 | $2,560.63 | $10.63 |
+| `single-worker-AZ-30000-0-0-0-0` | state.tax | $347.50 | $356.25 | -$8.75 |
+| `single-worker-AZ-50000-0-0-0-0` | state.tax | $847.50 | $856.25 | -$8.75 |
+| `single-worker-AZ-80000-0-0-0-0` | state.tax | $1,597.50 | $1,606.25 | -$8.75 |
+| `single-worker-AZ-150000-0-0-0-0` | state.tax | $3,347.50 | $3,356.25 | -$8.75 |
 | `single-worker-AZ-400000-0-0-0-0` | state.tax | $9,597.50 | $9,606.25 | -$8.75 |
+| `separate-AZ-60000-0-0-0-0` | state.tax | $1,097.50 | $1,106.25 | -$8.75 |
+| `separate-with-spouse-young-AZ-0-55000-0-0-0` | state.tax | $972.50 | $981.25 | -$8.75 |
+| `early-retiree-AZ-0-50000-0-0-0` | state.tax | $847.50 | $856.25 | -$8.75 |
 | `couple-two-children-MI-100000-0-0-0-0` | state.tax | $3,247.00 | $3,238.50 | $8.50 |
 | `couple-two-children-MI-200000-0-0-0-0` | state.tax | $7,497.00 | $7,488.50 | $8.50 |
 | `couple-two-children-MI-60000-0-0-0-0` | state.tax | $1,174.31 | $1,165.81 | $8.50 |
@@ -73,15 +111,24 @@ Two different things end up here and they need different fixes. Most are genuine
 
 - `single-worker-MI-15000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-worker-AZ-30000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-worker-MI-30000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-worker-AZ-50000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-worker-MI-50000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-worker-AZ-80000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-worker-MI-80000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-worker-AZ-150000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-worker-MI-150000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
-- `single-worker-AZ-400000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `single-worker-AZ-400000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
   - also matches *HARNESS, in the state. The same fact as the two federal entries above,…*
 - `single-worker-CA-400000-0-0-0-0` / state.tax — credited to *PROVISIONAL FIGURES. California's 2026 brackets, standard deduction an…*
   - also matches *HARNESS, in the state. The same fact as the two federal entries above,…*
@@ -96,41 +143,84 @@ Two different things end up here and they need different fixes. Most are genuine
   - also matches *HARNESS, in the state. The same fact as the two federal entries above,…*
 - `single-worker-OR-400000-0-0-0-0` / state.tax — credited to *HARNESS, in the state. The same fact as the two federal entries above,…*
   - also matches *AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is …*
+- `couple-two-children-AZ-60000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `couple-two-children-MI-60000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 - `couple-two-children-OR-60000-0-0-0-0` / state.tax — credited to *AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is …*
   - also matches *THE ONE OREGON FIGURE THIS PACKAGE CARRIES FORWARD, and the one place …*
+- `couple-two-children-AZ-100000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `couple-two-children-MI-100000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 - `couple-two-children-OR-100000-0-0-0-0` / state.tax — credited to *AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is …*
   - also matches *THE ONE OREGON FIGURE THIS PACKAGE CARRIES FORWARD, and the one place …*
+- `couple-two-children-AZ-200000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `couple-two-children-MI-200000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 - `couple-two-children-OR-200000-0-0-0-0` / state.tax — credited to *AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is …*
   - also matches *THE ONE OREGON FIGURE THIS PACKAGE CARRIES FORWARD, and the one place …*
+- `single-parent-AZ-12000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `single-parent-AZ-25000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-parent-MI-25000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-parent-AZ-45000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-parent-MI-45000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `retired-couple-AZ-0-0-40000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `retired-couple-AZ-0-20000-40000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `retired-couple-AZ-0-50000-40000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `retired-couple-AZ-0-90000-40000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `single-retiree-AZ-0-10000-24000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `single-retiree-AZ-0-40000-24000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `investor-AZ-50000-0-0-20000-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `investor-MI-50000-0-0-20000-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 - `investor-MI-50000-0-0-100000-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `separate-AZ-60000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `separate-MI-60000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `muni-retiree-AZ-0-60000-40000-0-10000` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `couple-no-children-AZ-25000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `couple-no-children-MI-25000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `couple-no-children-AZ-75000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `couple-no-children-MI-75000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `mixed-dependents-AZ-40000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `mixed-dependents-MI-40000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `mixed-dependents-AZ-90000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `mixed-dependents-MI-90000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-parent-high-AZ-90000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-parent-high-MI-90000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `single-parent-teen-AZ-35000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `single-parent-teen-MI-35000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
-- `separate-with-child-AZ-45000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `separate-with-child-AZ-45000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
   - also matches *FOLLOWS THE § 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set th…*
 - `separate-with-child-CA-45000-0-0-0-0` / state.tax — credited to *PROVISIONAL FIGURES. California's 2026 brackets, standard deduction an…*
   - also matches *FOLLOWS THE § 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set th…*
@@ -146,21 +236,34 @@ Two different things end up here and they need different fixes. Most are genuine
   - also matches *FOLLOWS THE § 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set th…*
 - `separate-with-child-UT-45000-0-0-0-0` / state.tax — credited to *PROVISIONAL FIGURES. Utah indexes the Taxpayer Tax Credit's phase-out …*
   - also matches *FOLLOWS THE § 32(d) DIFFERENCE ABOVE. SEVEN states in this grid set th…*
+- `surviving-spouse-AZ-45000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `surviving-spouse-MI-45000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 - `surviving-spouse-high-AL-250000-0-0-0-0` / state.tax — credited to *PROPAGATED FROM THE FEDERAL RETURN, and Alabama is the only state here…*
   - also matches *A DEFECT THERE, and it is the same defect this package shipped for for…*
+- `surviving-spouse-high-AZ-250000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `surviving-spouse-high-MI-250000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 - `surviving-spouse-high-AL-300000-0-0-0-0` / state.tax — credited to *PROPAGATED FROM THE FEDERAL RETURN, and Alabama is the only state here…*
   - also matches *A DEFECT THERE, and it is the same defect this package shipped for for…*
+- `surviving-spouse-high-AZ-300000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `surviving-spouse-high-MI-300000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `surviving-spouse-high-AZ-450000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `surviving-spouse-high-MI-450000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `surviving-spouse-low-AZ-18000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `surviving-spouse-low-AZ-26000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `surviving-spouse-low-MI-26000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
-- `separate-with-spouse-AZ-0-55000-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `separate-with-spouse-AZ-0-55000-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
   - also matches *A DEFECT THERE, and it took three days and three statutes to get to a …*
 - `separate-with-spouse-CA-0-55000-0-0-0` / state.tax — credited to *PROVISIONAL FIGURES. California's 2026 brackets, standard deduction an…*
   - also matches *A DEFECT THERE, and it took three days and three statutes to get to a …*
@@ -174,10 +277,24 @@ Two different things end up here and they need different fixes. Most are genuine
   - also matches *A DEFECT THERE, and it took three days and three statutes to get to a …*
 - `separate-with-spouse-UT-0-55000-0-0-0` / state.tax — credited to *PROVISIONAL FIGURES. Utah indexes the Taxpayer Tax Credit's phase-out …*
   - also matches *A DEFECT THERE, and it took three days and three statutes to get to a …*
+- `separate-with-spouse-young-AZ-0-55000-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `early-retiree-AZ-0-50000-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `early-retired-couple-AZ-0-70000-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `blind-worker-AZ-40000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `blind-worker-MI-40000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `blind-senior-AZ-0-25000-20000-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
+- `on-the-boundary-AZ-50000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `on-the-boundary-MI-50000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
+- `on-the-boundary-AZ-100000-0-0-0-0` / state.tax — credited to *NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital…*
+  - also matches *NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-107…*
 - `on-the-boundary-MI-100000-0-0-0-0` / state.tax — credited to *NOT UPDATED THERE, and the direction has REVERSED. Michigan's personal…*
   - also matches *NOT MODELLED HERE. The Michigan home heating credit (MCL 206.527a), re…*
 
@@ -193,8 +310,8 @@ Each of these is an entry in `known-divergences.json` that no difference in this
 
 - **50** — A DEFECT THERE, and it was a defect HERE until Day 27. § 24(b)(2) sets the phase-out threshold at "$400,000 in the case of a joint return, and $200,000 in any other case". A QUALIFYING SURVIVING SPOUSE DOES NOT FILE A JOINT RETURN - § 2(a) hands them the joint RATE SCHEDULE under § 1(a) and says nothing about any threshold - so the figure is $200,000, and Schedule 8812 line 9 prints the same split in two lines: "Married filing jointly-$400,000" and "All other filing statuses-$200,000". PolicyEngine-US carries $400,000 for this status, so at $250,000 and $300,000 of wages it gives a widow with one child the full $2,200 and this package gives nothing. NOTE WHICH CASE IS MISSING FROM THIS LIST: at $450,000 the two engines AGREE at $0, because that income clears the joint threshold as well. That is the whole reason the $450,000 shape exists - without it, a report of two disagreeing incomes could not distinguish "this package now uses $200,000" from "this package lost the credit for some other reason". This package carried $400,000 too, with a comment calling the question UNRESOLVED on the grounds that irs.gov is blocked from the build sandbox and PolicyEngine agreed; the statutory sentence settles it unaided and was quoted in that comment. See packages/us-federal-tax/test/surviving-spouse.test.js, which walks the parameter tree and requires every status-keyed table in the package to declare its statutory grouping. (largest: `surviving-spouse-high-AL-250000-0-0-0-0`, -$2,200.00)
 - **44** — NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. § 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js. (largest: `mixed-dependents-CO-40000-0-0-0-0`, $7,132.86)
-- **41** — NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit. (largest: `investor-AZ-50000-0-0-100000-0`, $616.25)
-- **38** — NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes. (largest: `mixed-dependents-ID-90000-0-0-0-0`, $786.55)
+- **42** — NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital gain, A.R.S. § 43-1022(22), for assets acquired after 31 December 2011 — 10% in 2013, 20% in 2014 and 25% from 2015. PolicyEngine models it as `az_long_term_capital_gains_subtraction`; this package does not, so an Arizona answer is too high for anybody with long-term gains. FOUND ON DAY 47 BY BOUNDING THE ENTRY BELOW THIS ONE, which had carried it since the grid was built: a $616.25 difference on `investor-AZ-50000-0-0-100000-0` was being explained by a family income tax credit worth at most $100, on a household with no dependents. THE BOUND IS DERIVED FROM THE PROVISION AND THE GRID, not from that measurement: 2.5% of a quarter of the gain, and the largest long-term gain in this grid is $100,000, so nothing this entry explains can exceed 0.025 x 0.25 x $100,000 = $625 — set to $2,500 to leave room for the $350,000 gain the `veryHigh1m4` shape would bring if it reached this grid, and narrow enough to surface anything larger. It is the top of the worklist. (largest: `investor-AZ-50000-0-0-100000-0`, $616.25)
+- **38** — NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes. BOUNDED AT $1,700 ON DAY 47, derived from the provisions and the grid rather than from any measurement: the grocery credit is $155 a head with $155 more at 65, and the largest household here is five people of whom two are 65 or over (5 x $155 + 2 x $155 = $1,085), plus Idaho's $205-a-child tax credit on three children ($615). It is a wide bound and a derived one, which is the point — an entry with no bound at all absorbs the next difference in its state whatever its size. (largest: `mixed-dependents-ID-90000-0-0-0-0`, $786.55)
 - **38** — AN UPRATED FORECAST AGAINST A PUBLISHED DOCUMENT, and this package is on the published side. Every one of these is tax year 2026 and none is 2025, which is the signature of the disagreement rather than a symptom of it. PolicyEngine-US carries Oregon's 2026 figures as its 2025 figures uprated by gov.irs.uprating with downward rounding; this package carries the figures the Department of Revenue PUBLISHED in its 2026 withholding tax formulas (150-206-436, Rev. 12-31-25, out on 31 December 2025). Eight parameters differ: the standard deduction ($2,910/$5,820/$4,685 published against $2,895/$5,795/$4,660 uprated), the two indexed bracket boundaries ($4,550 and $11,400 against $4,450 and $11,350), the federal tax subtraction ceiling and its four phase-out rows ($8,750/$7,000/$5,250/$3,500/$1,750 against $8,650/$6,950/$5,200/$3,450/$1,700), and the exemption credit ($263 against $261.80170566232823 - a tax credit that is not a whole number of dollars is a giveaway that nothing published it). Day 41's rule, which Missouri's pension ceiling produced for one figure and Oregon's reproduces for eight: AN UPRATED FIGURE IS A MODEL'S FORECAST OF A DOCUMENT, AND THE DOCUMENT EXISTS. The tie-break is structural rather than a matter of preference - an agency does not publish a withholding formula for a figure it has not settled. THE BOUND IS DERIVED FROM THE RATES AND NOT FROM THE MEASUREMENT: $25 of standard deduction at 9.9% is $2.48, $100 of the first bracket boundary at the two-point step is $2.00 and $4.00 on a doubled joint schedule, $50 of the second at its two-point step is $1.00 and $2.00 joint, $100 of subtraction ceiling at 9.9% is $9.90, and $1.20 of exemption credit times four exemptions is $4.80 - about $23 in the worst mixture, bounded here at $30. The thresholds themselves are identical in both models, so no cliff can amplify it. (largest: `couple-two-children-OR-200000-0-0-0-0`, -$21.73)
 - **37** — NOT UPDATED THERE, twice. Two facts, and between them they account for every Maryland difference in this grid to the cent - verified by running this package with both of PolicyEngine's figures, after which 22 of the 23 Maryland cases agreed exactly. (1) ALLEGANY COUNTY raised its rate from 3.03% to 3.20% for 2026. This package carries the new rate; PolicyEngine's county table cites the 2025 resident booklet and stops there, so it charges 2025's. That is 0.17 of a point of taxable income, which is why this entry is bounded by a SHARE OF INCOME rather than by a dollar figure: the same one fact is $43.76 on a $30,000 household and $678.70 on a $400,000 one. (2) The 2026 standard deduction, which until Day 28 was the other way round. HB 352 replaced the 15%-of-AGI formula with a flat $3,350/$6,700 indexed from 2026; this package carried the 2025 figure forward and flagged it provisional because secondary sources split between $3,350 and $3,400, and PolicyEngine uprates it to $3,400/$6,850. The Comptroller has settled it: the 2026 employer withholding guide and the 2026 Form MW507 both carry $3,350, and the fiscal note on HB 411 of 2026 - a bill to raise the deduction to $4,100, which died in committee - prices the rise against a current law of $3,350. So the figure never moved and PolicyEngine's is a projection of an increase that did not happen. At most $150 of deduction, about $6 of state and county tax at the top rate. (largest: `surviving-spouse-high-MD-450000-0-0-0-0`, $766.78)
 - **34** — PROVISIONAL FIGURES. California's 2026 brackets, standard deduction and exemption credits are the 2025 published amounts carried forward; the FTB indexes them to the CCPI after this was written. PolicyEngine projects them. (largest: `couple-two-children-CA-200000-0-0-0-0`, $213.94)

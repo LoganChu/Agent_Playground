@@ -43,32 +43,44 @@
   {
     "metric": "federal.taxableIncome",
     "kind": "single-worker",
-    "reason": "HARNESS. PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction; the harness supplies no itemised deductions, so this package takes the standard one. Above about $300,000 in a high-tax state the two diverge by the SALT deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
+    "reason": "HARNESS. PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction; the harness supplies no itemised deductions, so this package takes the standard one. Above about $300,000 in a high-tax state the two diverge by the SALT deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it.",
+    "unbounded": "HARNESS. The size of a harness artefact is a property of what the harness does or declines to do — here, supplying no itemised deductions, because feeding a state tax back into the federal return is circular — and not of a provision with a statutory maximum. No bound is derivable."
   },
   {
     "metric": "federal.incomeTaxBeforeCredits",
     "kind": "single-worker",
-    "reason": "HARNESS. Follows the taxable-income difference above."
+    "reason": "HARNESS. Follows the taxable-income difference above.",
+    "unbounded": "HARNESS. The size of a harness artefact is a property of what the harness does or declines to do — here, supplying no itemised deductions, because feeding a state tax back into the federal return is circular — and not of a provision with a statutory maximum. No bound is derivable."
   },
   {
     "metric": "state.tax",
     "state": "CO",
-    "reason": "NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. § 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js."
+    "reason": "NOT MODELLED HERE. Colorado's Social Security subtraction (C.R.S. § 39-22-104(4)(f)), its child tax credit and its family affordability tax credit. The credits are large and refundable at low incomes; the subtraction makes a Colorado retiree too high. Recorded in the state's notes and in test/social-security.test.js.",
+    "unbounded": "Colorado's family affordability tax credit alone is up to $3,200 a child under 6 and its child tax credit up to $3,200 a child, both refundable, and the Social Security subtraction is up to $24,000 a person at 4.4% — so a derived bound would be several thousand dollars and would bound nothing this grid contains. A bound that cannot bind is worse than a declared absence, because it reads as a check. Deriving the real one means scoping by household shape; worklist."
   },
   {
     "metric": "state.tax",
     "state": "ID",
-    "reason": "NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes."
+    "reason": "NOT MODELLED HERE. Idaho's grocery credit ($155 a head, $155 more at 65) and its child tax credit, both named in the state's notes. BOUNDED AT $1,700 ON DAY 47, derived from the provisions and the grid rather than from any measurement: the grocery credit is $155 a head with $155 more at 65, and the largest household here is five people of whom two are 65 or over (5 x $155 + 2 x $155 = $1,085), plus Idaho's $205-a-child tax credit on three children ($615). It is a wide bound and a derived one, which is the point — an entry with no bound at all absorbs the next difference in its state whatever its size.",
+    "maxAbs": 1700
   },
   {
     "metric": "state.tax",
     "state": "AZ",
-    "reason": "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit."
+    "maxAbs": 2500,
+    "reason": "NOT MODELLED HERE. Arizona's 25% subtraction for net long-term capital gain, A.R.S. § 43-1022(22), for assets acquired after 31 December 2011 — 10% in 2013, 20% in 2014 and 25% from 2015. PolicyEngine models it as `az_long_term_capital_gains_subtraction`; this package does not, so an Arizona answer is too high for anybody with long-term gains. FOUND ON DAY 47 BY BOUNDING THE ENTRY BELOW THIS ONE, which had carried it since the grid was built: a $616.25 difference on `investor-AZ-50000-0-0-100000-0` was being explained by a family income tax credit worth at most $100, on a household with no dependents. THE BOUND IS DERIVED FROM THE PROVISION AND THE GRID, not from that measurement: 2.5% of a quarter of the gain, and the largest long-term gain in this grid is $100,000, so nothing this entry explains can exceed 0.025 x 0.25 x $100,000 = $625 — set to $2,500 to leave room for the $350,000 gain the `veryHigh1m4` shape would bring if it reached this grid, and narrow enough to surface anything larger. It is the top of the worklist."
+  },
+  {
+    "metric": "state.tax",
+    "state": "AZ",
+    "reason": "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), $25 a person to $100 a return, and its $100 dependent tax credit. BOUNDED AT $400 ON DAY 47, and the bound is the finding: § 43-1073 is $25 a person and capped at $100 a RETURN, and the dependent credit is $100 for each dependent under 17 — the largest household in this grid has three — so nothing this entry can explain exceeds $100 + 3 x $100. WITHOUT A BOUND IT ABSORBED TWO REAL DEFECTS FOR THE LIFE OF THE GRID: it was the first match for every Arizona state.tax difference, including $305.00 on a CHILDLESS retired couple at $78,100 of AGI, which neither named credit can reach — the dependent credit needs a dependent and the family income tax credit runs out far below that income. Those differences were Arizona taking the federal § 63(f) age addition it is not allowed, and not subtracting the § 43-1022(35) senior deduction. Both are fixed; the residual is $87.50 and this bound is still too wide to surface it, because `maxAbs` cannot express an income limit. Scoping by household shape is the next step.",
+    "maxAbs": 400
   },
   {
     "metric": "state.tax",
     "state": "KY",
-    "reason": "NOT MODELLED HERE. Kentucky's family size tax credit, which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%."
+    "reason": "NOT MODELLED HERE. Kentucky's family size tax credit, which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%.",
+    "unbounded": "Kentucky's family size tax credit FORGIVES THE WHOLE TAX below the federal poverty guideline for the household's size, so the provision's maximum is the entire Kentucky bill and no flat bound is narrower than the thing it is bounding."
   },
   {
     "metric": "state.tax",
@@ -97,22 +109,26 @@
   {
     "metric": "state.tax",
     "state": "MA",
-    "reason": "HARNESS. Massachusetts taxes its own gross income and the harness states it directly, so any difference is a difference about what belongs on Form 1 line 21 rather than about the tax. Massachusetts also has a No Tax Status and a Limited Income Credit that this package does not model."
+    "reason": "HARNESS. Massachusetts taxes its own gross income and the harness states it directly, so any difference is a difference about what belongs on Form 1 line 21 rather than about the tax. Massachusetts also has a No Tax Status and a Limited Income Credit that this package does not model.",
+    "unbounded": "HARNESS. The difference is about what belongs on Form 1 line 21 rather than about the tax, so its size is a property of the harness's own base-building and not of any provision. No statute bounds it."
   },
   {
     "metric": "state.tax",
     "state": "PA",
-    "reason": "HARNESS. Pennsylvania has no federal starting line, so the harness states the eight-class base itself."
+    "reason": "HARNESS. Pennsylvania has no federal starting line, so the harness states the eight-class base itself.",
+    "unbounded": "HARNESS. Pennsylvania has no federal starting line and the harness states the eight-class base itself, so the difference is the harness's own choice of base and not a provision with a maximum."
   },
   {
     "metric": "state.tax",
     "state": "UT",
-    "reason": "PROVISIONAL FIGURES. Utah indexes the Taxpayer Tax Credit's phase-out threshold and its per-dependent exemption annually and had not published the 2026 amounts when this was written, so this package carries 2025's forward and says so. PolicyEngine has indexed values. The gap is 1.3 cents per dollar of threshold - $5.36 for a single filer, $10.73 joint - and will close when Utah publishes."
+    "reason": "PROVISIONAL FIGURES. Utah indexes the Taxpayer Tax Credit's phase-out threshold and its per-dependent exemption annually and had not published the 2026 amounts when this was written, so this package carries 2025's forward and says so. PolicyEngine has indexed values. The gap is 1.3 cents per dollar of threshold - $5.36 for a single filer, $10.73 joint - and will close when Utah publishes.",
+    "unbounded": "PROVISIONAL FIGURES. The reason already states the size it claims — $5.36 single and $10.73 joint, derived from 1.3 cents per dollar of threshold — but it is a per-status figure rather than one flat ceiling, and pinning the wrong one would make the entry stop matching. It closes when Utah publishes."
   },
   {
     "metric": "state.tax",
     "state": "CA",
-    "reason": "PROVISIONAL FIGURES. California's 2026 brackets, standard deduction and exemption credits are the 2025 published amounts carried forward; the FTB indexes them to the CCPI after this was written. PolicyEngine projects them."
+    "reason": "PROVISIONAL FIGURES. California's 2026 brackets, standard deduction and exemption credits are the 2025 published amounts carried forward; the FTB indexes them to the CCPI after this was written. PolicyEngine projects them.",
+    "unbounded": "PROVISIONAL FIGURES. The gap is whatever the FTB's eventual CCPI factor turns out to be against PolicyEngine's projection of it, across brackets, the standard deduction and the exemption credits at once. Nothing published bounds it until the FTB publishes."
   },
   {
     "metric": "state.tax",
@@ -183,13 +199,15 @@
     "metric": "federal.taxableIncome",
     "kind": "surviving-spouse-high",
     "idIncludes": "-450000-",
-    "reason": "HARNESS. The same fact as the single-worker entry above, on the one surviving-spouse case rich enough to reach it: PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction, and the harness supplies no itemised deductions on purpose, so this package takes the standard one. It appears only in CALIFORNIA and MARYLAND, the two high-tax states in the grid where $450,000 of wages generates enough state and local tax to beat a $32,200 standard deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it."
+    "reason": "HARNESS. The same fact as the single-worker entry above, on the one surviving-spouse case rich enough to reach it: PolicyEngine computes the household's state and local tax and itemises when that beats the standard deduction, and the harness supplies no itemised deductions on purpose, so this package takes the standard one. It appears only in CALIFORNIA and MARYLAND, the two high-tax states in the grid where $450,000 of wages generates enough state and local tax to beat a $32,200 standard deduction. Feeding a state tax back into the federal return is circular and the harness refuses to guess at it.",
+    "unbounded": "HARNESS. The size of a harness artefact is a property of what the harness does or declines to do — here, supplying no itemised deductions, because feeding a state tax back into the federal return is circular — and not of a provision with a statutory maximum. No bound is derivable."
   },
   {
     "metric": "federal.incomeTaxBeforeCredits",
     "kind": "surviving-spouse-high",
     "idIncludes": "-450000-",
-    "reason": "HARNESS. Follows the taxable-income difference above."
+    "reason": "HARNESS. Follows the taxable-income difference above.",
+    "unbounded": "HARNESS. The size of a harness artefact is a property of what the harness does or declines to do — here, supplying no itemised deductions, because feeding a state tax back into the federal return is circular — and not of a provision with a statutory maximum. No bound is derivable."
   },
   {
     "metric": "state.tax",

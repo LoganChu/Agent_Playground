@@ -9140,7 +9140,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 362.5,
+   "tax": 145,
    "credits": []
   },
   "error": null
@@ -9750,7 +9750,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1362.5,
+   "tax": 1145,
    "credits": []
   },
   "error": null
@@ -10966,7 +10966,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 546.25,
+   "tax": 447.5,
    "credits": []
   },
   "error": null
@@ -13386,7 +13386,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 612.5,
+   "tax": 395,
    "credits": []
   },
   "error": null
@@ -18250,7 +18250,7 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 320,
+   "tax": 521.25,
    "credits": []
   },
   "error": null
@@ -18856,7 +18856,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5445,
+   "tax": 5646.25,
    "credits": []
   },
   "error": null
@@ -19462,7 +19462,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 6695,
+   "tax": 6896.25,
    "credits": []
   },
   "error": null
@@ -20068,7 +20068,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 10445,
+   "tax": 10646.25,
    "credits": []
   },
   "error": null
@@ -21280,7 +21280,7 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": 0,
+   "tax": 46.25,
    "credits": []
   },
   "error": null
@@ -21886,7 +21886,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 890,
+   "tax": 972.5,
    "credits": []
   },
   "error": null
@@ -24306,7 +24306,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 546.25,
+   "tax": 597.5,
    "credits": []
   },
   "error": null
@@ -24912,7 +24912,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 120,
+   "tax": 72.5,
    "credits": []
   },
   "error": null

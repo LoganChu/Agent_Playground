@@ -105,6 +105,27 @@ function one(c) {
         fed.netInvestmentIncomeTax,
       additionalChildTaxCredit: fed.credits.childTaxCredit?.refundableCredit ?? 0,
     },
+    // THE FOUR SCHEDULE 1-A DEDUCTIONS, which this harness had never passed and
+    // which three states in this package subtract.
+    //
+    // Day 47. The senior deduction is the one that bites, because it needs no
+    // income the grid does not already have: § 151(d)(5) gives $6,000 to anybody
+    // 65 or over, withdrawn at 6 cents on the dollar above $75,000 of modified
+    // AGI, and the grid has retirees aged 67 and 70. Arizona subtracts it under
+    // A.R.S. § 43-1022(35) and PolicyEngine models it as
+    // `additional_senior_deduction` — so for every elderly Arizona household the
+    // two engines were being asked different questions, and the difference was
+    // being credited to Arizona's $25-a-head family income tax credit.
+    //
+    // Tips, overtime and vehicle loan interest are all zero here because no case
+    // carries that income. They are passed anyway: a field supplied only when it
+    // is non-zero is a field nobody notices is missing.
+    federalDeductions: {
+      tips: fed.additionalDeductions.tips.deduction,
+      overtime: fed.additionalDeductions.overtime.deduction,
+      senior: fed.additionalDeductions.senior.deduction,
+      carLoanInterest: fed.additionalDeductions.vehicleLoanInterest.deduction,
+    },
     filerAge: c.primaryAge,
     spouseAge: c.spouseAge ?? undefined,
     // The same fact the federal side is given above, one level down. The harness
