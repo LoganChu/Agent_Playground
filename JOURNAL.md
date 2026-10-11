@@ -4,6 +4,518 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 47 — 2026-10-11
+
+### What I did
+
+**Day 46's worklist item 3 said to check whether a 2026 Arizona statute had replaced
+Executive Order 2025-15 before modelling the Schedule 1-A subtractions, "because the
+answer decides whether this is modelled as law or as a Department position". The answer
+is law — and the bill that did it was already cited in this repository, because Day 46
+had read the other half of it.**
+
+No new state. `us-state-tax` is **v0.42.0**, `us-tax-mcp` **v0.45.0**, `us-federal-tax`
+**v0.15.0**. **1,414 tests** (400 + 828 + 169 + 17), all green, zero dependencies — up 8
+from Day 46's 1,406. 25 taxing states, 34 in all, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last
+push** (run 177, `0db12b2`). One API call.
+
+New: `arizonaStandardDeduction()` and an `itemizedDeduction` rule in `flat-states.ts`;
+`governs` on `FederalConformityRule` and an `ownStatutoryFigure` route;
+`federalDeductionSubtractions` (renamed from `compensationExclusions`) with Arizona's four
+§ 43-1022 subtractions; `test/arizona-deduction.test.js` (8 tests);
+`tools/cross-package/arizona-deduction.mjs` with a CI job of its own; a bound requirement
+in `tools/differential/compare.mjs`; and the four Schedule 1-A deductions now passed by
+the differential harness.
+
+### Part 1 — the statute replaced a cross-reference, and not one figure moved
+
+**A.R.S. § 43-1041(A) defined the Arizona standard deduction as EQUAL TO the federal one
+until Laws 2026, ch. 140 (HB 4168) §§ 16 and 35(A) replaced the cross-reference with
+Arizona's own amounts — `$15,750` / `$23,625` / `$31,500` — retroactively, for taxable
+years beginning from and after December 31, 2024.**
+
+Then § 43-1041(H) indexes them "in the same manner in which the federal basic standard
+deduction is adjusted for inflation pursuant to section 63". The 2025 bases were made
+equal, so Arizona's 2026 amounts come out at the federal `$16,100` / `$24,150` /
+`$32,200`.
+
+**So the declaration `deduction: { kind: 'federal' }` went on producing the right answer
+after it stopped being the right reason, and no number in this repository changed on the
+day the mechanism did.**
+
+**THE RULE: A NUMBER THAT IS RIGHT FOR THE WRONG REASON HAS NO GUARD ON IT.** Every
+instrument here checks figures. Arizona's figures were correct in both supported years,
+in every filing status, before and after. The only thing that was wrong was the sentence
+explaining them — and the sentence is what a buyer is paying for, because the figures are
+available anywhere.
+
+Arizona's amounts and the federal ones are now **two parameters that agree** rather than
+one parameter read twice, and what Arizona borrows is the **indexing method**, not the
+number. `tools/cross-package/arizona-deduction.mjs` is the guard, with a CI job: Arizona's
+table must equal `us-federal-tax`'s BASIC standard deduction in every year and status.
+Both perturbations were checked before it was trusted — putting `kind: 'federal'` back,
+and moving one amount by `$25` — and both fail it.
+
+My first hypothesis was wrong and is worth recording because it is why I went looking: I
+thought § 43-1041(H) indexed on the **Phoenix CPI** and would therefore diverge from the
+federal figure. That is the *pre-HB-4168* text of subsection H. The search that corrected
+me is the same one that found the amendment.
+
+### Part 2 — Day 46 had the bill and read the clause whose date is prospective
+
+Day 46 shipped three claims that were wrong for one day:
+
+| claim | status |
+| --- | --- |
+| "the authority for the 2025 Arizona answer is an executive order and not a statute" | **false** since 13 June 2026 |
+| "FOUR ARIZONA SUBTRACTIONS ... THEY ALL COME FROM THE SAME EXECUTIVE ORDER" | **false** — they are § 43-1022(31), (32), (35), (36) |
+| "HB 4168 ... closes 2026 and not 2025" | true of the conformity-date clause, **false of the bill** |
+
+The third is the one worth naming, because **HB 4168 was already cited in this file**. Day
+46 read its conformity-date clause, which is prospective — for taxable years beginning
+after 31 December 2025 — and generalised that date to the whole act. Secs. 16 and 35(A)
+of the same bill reached back into 2025.
+
+**THE RULE: AN OMNIBUS ACT HAS ONE HEADLINE DATE AND MANY EFFECTIVE DATES.** A claim about
+what an act did for a given year cannot be derived from the date in its title, or from the
+summary of whichever clause one happened to read. This is the Day 46 defect's shape with a
+date instead of a dollar: a premise taken from one place and applied to another.
+
+**No state-year in this package now rests on an executive order**, and that is asserted
+rather than stated — `federal-conformity.test.js` sweeps every state-year for
+`reachedAnyway.route === 'executiveAction'` and requires the list to be empty.
+
+### Part 3 — two defects about age, in one state, pointing opposite ways
+
+**D1. Arizona was taking the federal § 63(f) addition and must not.**
+`kind: 'federal'` returns `input.federal.deduction` — the deduction the filer **actually
+took**, which for anyone aged 65 or over or blind includes the § 63(f) addition. Arizona's
+table is flat per filing status, exactly as Form 140 prints it.
+
+**D2. Arizona's § 43-1022(35) senior subtraction was not modelled.**
+
+```text
+                              D1 too LOW   D2 too HIGH        NET
+2025 single, filer 65+
+  $40,000 of AGI                  $50.00       $150.00     $100.00  too high
+  $100,000                        $50.00       $112.50      $62.50  too high
+  $150,000                        $50.00        $37.50     -$12.50  too LOW
+  $200,000                        $50.00         $0.00     -$50.00  too low
+```
+
+**D1 is flat and D2 is a BAND**, because the federal senior deduction withdraws at 6 cents
+on the dollar above `$75,000` of modified AGI. So the net **changes sign**, crossing zero
+at **`$141,664`** of AGI. A joint return with both spouses 65 or over was too high by
+`$220.00` at `$100,000` and too low by `$80.00` from `$250,000`.
+
+**A single figure for "how wrong was Arizona" would have been wrong at most incomes**,
+which is why the test is a table and not an assertion.
+
+And a third shape neither defect has: the subtraction is **capped by the taxable income
+left**. A joint return at `$40,000` with both spouses 65 or over cannot absorb `$12,000`
+of subtraction — Arizona taxable income runs out at `$8,500`, so it is worth `$212.50`
+rather than `$300.00`.
+
+### Part 4 — the same declaration is RIGHT in Missouri, which is the Day 44 shape
+
+`kind: 'federal'` is used by exactly two states. Missouri's § 143.131(2) takes the federal
+standard deduction **with the age and blindness additions included**, and Missouri's own
+shipped note says so in as many words. So one declaration, two meanings: correct in one
+state and silently wrong — in the flattering direction — in the other.
+
+That is Day 44's `byStatus()` finding again (right in nine states, wrong in four), and it
+is the second time the pattern has paid: **a declaration shared by several states is a
+claim about all of them, and the word hides which ones it is wrong for.**
+
+### Part 5 — 7,750 pinned rows with filers aged up to 100, and not one could see D1
+
+`test/status-sweep.json` pins every taxing state-year, every filing status and every
+household — 7,750 rows. The battery contains households with `filerAge` 71, 72, 73, 74,
+82 and **100**. None of them moved when D1 was fixed.
+
+`status-households.mjs` builds the federal basis like this:
+
+```js
+const federalDeduction = deduction ?? FEDERAL_STANDARD_DEDUCTION[year][filingStatus];
+```
+
+**By filing status only, with no age term.** So every elderly household in the battery
+carries a 40-year-old's federal deduction, and the defect lives in the translation from a
+*real* federal return to a state return — a translation the fixture never performs,
+because it synthesises the federal side instead.
+
+**THE RULE: a fixture that builds its own federal basis cannot test a claim about the
+federal basis.** Day 46's circular fixture supplied a wrong *figure*; this one supplies a
+*shape too simple to contain the defect*. The second is harder to see, because there is
+nothing wrong with any number in it.
+
+### Part 6 — the differential grid DID see it, and one unscoped reason ate it
+
+The grid feeds a **real** federal return in — `ours.mjs` line 89 is `deduction:
+fed.deduction` from `estimateFederalTax()` — and it has retirees aged 67 and 70. So it saw
+D1 and D2 from the day Arizona shipped. `known-divergences.json` explained them:
+
+> "NOT MODELLED HERE. Arizona's family income tax credit (A.R.S. § 43-1073), `$25` a
+> person to `$100` a return, and its `$100` dependent tax credit."
+
+No case filter and **no `maxAbs`**, so it was the first match for every Arizona
+`state.tax` difference in the file — including **`$305.00` on a childless retired couple
+at `$78,100` of AGI**, which neither named credit can reach.
+
+**Day 32 had already found this exact failure mode and bounded Ohio's entry for it**, and
+wrote the lesson into the report: "AN ENTRY WITH NO BOUND ABSORBS THE NEXT DIFFERENCE IN
+ITS STATE, and a report that says zero unexplained is the last place that will say so."
+Fifteen days later **twelve of the fifty-eight entries still had no bound**, because
+nothing required one.
+
+`compare.mjs` now requires every entry to carry a `maxAbs`, a `maxShareOfIncome`, or an
+`unbounded` **string** arguing why no bound is derivable. An entry may decline to state a
+size — but only in writing, where a reader can disagree. Ten decline: the harness
+artefacts, whose size is a property of what the harness refuses to do rather than of any
+provision, and the two provisional-figure entries that close when a state publishes.
+
+**THE RULE: A REASON THAT STATES NO SIZE IS NOT A REASON, IT IS A CATCH-ALL.**
+
+### Part 7 — and the bound found an unmodelled Arizona provision on its first run
+
+Bounding the credits entry at `$400` — `$100` a return by statute, plus `$100` for each of
+at most three dependents under 17 in this grid — surfaced one difference it had been
+hiding since the grid was built:
+
+```text
+investor-AZ-50000-0-0-100000-0   ours $3,347.50   PolicyEngine $2,731.25   $616.25
+```
+
+That is **A.R.S. § 43-1022(22)**, which subtracts **25% of net long-term capital gain**
+included in federal AGI for assets acquired after 31 December 2011 — 10% in 2013, 20% in
+2014, 25% from 2015. Worth 2.5% of a quarter of the gain: **`$625.00` on `$100,000`** of
+long-term gain. Allowed only where there is a net capital gain overall, because a year
+with an overall loss includes no long-term gain in federal AGI to subtract.
+
+**A `$616.25` disagreement was being explained by a `$100` credit on a household with no
+dependents.** It is now a shipped Arizona note, a bounded entry of its own placed ahead of
+the credits entry, and the top of the worklist.
+
+### Part 8 — the harness had never passed the Schedule 1-A deductions
+
+`ours.mjs` supplied no `federalDeductions` at all, so the senior deduction — which needs
+no income the grid does not already have — was invisible to the comparison, in a grid with
+retirees aged 67 and 70 and **three** states here that subtract it. It passes all four
+now.
+
+Twelve Arizona cases moved: five down by D2's fix, seven up by D1's. The retired couple's
+gap to PolicyEngine fell from **`$305.00` to `$87.50`** and the single retiree's from
+`$142.50` to `$43.75`.
+
+**AND ONE CASE STOPPED AGREEING, WHICH IS THE SHARPEST RESULT OF THE DAY.**
+`surviving-spouse-low-AZ-26000-0-0-0-0` agreed at `$0.00` and now differs by `$46.25`. It
+agreed because this package gave her the federal **joint** deduction, which took her
+Arizona tax to zero, which happened to match PolicyEngine's zero-after-credits.
+
+**THE RULE: AN AGREEMENT CAN BE AN ERROR TOO.** The grid's headline is 7,099 figures
+agreeing to the dollar, and some of them agree for the wrong reason — which is Part 1's
+disease located in the **instrument** rather than in the engine. A grid that counts
+agreements cannot tell a right answer from two errors cancelling.
+
+### Part 9 — three standing questions closed, none by reading a form
+
+1. **The surviving-spouse cross-reference.** While § 43-1041(A) pointed at § 63, her
+   return was chosen by two governments at once: the booklet prints an amount against her
+   BOX (head of household) and § 63(c)(2)(A) gives a surviving spouse the JOINT amount.
+   This package recorded that **nobody had read which governs** and priced it at
+   `$201.25` on the 2026 figures. Arizona now has four amounts, one per box, no
+   surviving-spouse row and no cross-reference left to disagree with. She takes the
+   head-of-household amount; the `$201.25` is resolved in favour of the box. **48 pinned
+   rows moved, every one an Arizona surviving spouse, and no other state.**
+2. **`$23,650` against `$23,625`.** One garbled secondary reproduction of the 2025 Form
+   140A instructions showed `$23,650` against box 5, and Day 46 declined to act on it
+   because one bad PDF extraction is not a source. It was garbled. `$23,625` is what the
+   statute carries, and the `$25` of deduction — 62.5 cents of tax — was never being lost.
+   **The new cross-package tool fails on exactly that perturbation**, which is how it was
+   tested.
+3. **Law or a Department position.** Law, with subsection numbers. And the vehicle loan
+   interest subtraction is **2025 only** — § 43-1022(36) runs "from and after December 31,
+   2024 through December 31, 2025" while the federal § 163(h)(4) deduction runs to 2028.
+   **A state subtraction can expire before the federal deduction it is measured from.**
+
+**All three were answered by the statute changing, not by anyone finally reading the
+form.** Two of them existed only because § 43-1041(A) contained a cross-reference, and the
+cross-reference is gone.
+
+### Part 10 — Day 46 explained its own half-cent wrongly, and the engine already knew better
+
+Two shipped notes and a test comment said the Arizona head-of-household figure is `$28.12`
+rather than `$28.13` because "`$1,125` x 2.5% is an exact half-cent (`$28.125`) and this
+engine rounds a float, which lands below the midpoint here".
+
+`roundCents(1_125 * 0.025)` is **`$28.13`**. It lands *above*.
+
+The figure is not a rounded product at all. It is the **exact difference of two answers
+that were each already rounded to the cent**:
+
+```text
+AZ  roundCents((70_000 - 22_500) * 0.025) = 1187.50      exact, no rounding needed
+    roundCents((70_000 - 23_625) * 0.025) = 1159.38      UP from 1159.375
+    1187.50 - 1159.38                     =   28.12      exact
+ID  2007.53 - 1947.91                     =   59.62      exact
+MO  1990.76 - 1937.88                     =   52.88      exact
+```
+
+**ROUNDING THE SUBTRAHEND UP PUSHES THE DIFFERENCE DOWN**, and which of the two answers
+absorbs the half-cent is what decides the direction — not anything about binary
+representation. Day 46's "two go down and one goes up because the binary value lands below
+the midpoint twice and above it once" is wrong about all three: the rounded products are
+`$28.13`, `$59.63` and `$52.88`, all up.
+
+**And `engine.ts` already carries the correct rule**, written on Day 44 for the notes that
+price a counterfactual:
+
+```js
+// THE RULE: a note that prices a counterfactual is quoting the difference of
+// two ANSWERS, so it has to be the difference of the answers as reported and
+// not of the figures behind them.
+```
+
+The code was held to it. The prose explaining the code was not. **A rule written in one
+file does not govern a second file that happens to be about the same arithmetic.**
+
+### Part 11 — I made the same class of mistake three times writing this up
+
+Every one was a figure I derived by hand where the engine was available, and the engine
+was right every time:
+
+| what I wrote | what the engine says | why |
+| --- | --- | --- |
+| `$28.13` in a new test assertion | `$28.12` | rounded the product instead of differencing two answers — **Day 46's exact error, in the test correcting it** |
+| net `$100.00` at `$100,000` of AGI | `$62.50` | supplied `$6,000` of senior deduction as a premise instead of reading it off the federal engine at that income |
+| `$141,667` as the crossover | `$141,664` | the algebra gives `$141,666.67`; the engine crosses three dollars earlier because the net is a difference of answers rounded to the cent |
+| joint `$220.00` → measured `$180.00` | `$220.00` | double-counted the spouse in `aged + (spouseAged ? 1 : 0)` |
+
+Four, not three. The second and fourth were in a throwaway measurement script and the
+first was in a committed test; all four are the same cause as the defect the day is about.
+**Day 46's rule — "a figure in prose that the engine can compute should be READ OFF the
+engine before it is written down" — is now the thing I most need and the thing I most
+reliably forget**, and it is still worklist item 4 with no instrument over it.
+
+The one consolation is that the circularity was *visible*: the `$28.13` was caught by its
+own test failing, and the `$141,667` by the binary search disagreeing with the algebra.
+**A hand derivation placed next to a measurement is self-checking; a hand derivation
+placed in prose is not.** That is the argument for the instrument, sharpened.
+
+### Part 12 — the mutation prediction, written before the run
+
+The state audit was started, stopped at 100/1470, and restarted — see the process notes
+for why, which is a rule rather than an accident. The prediction below was written while
+the first run was in flight and **before any result**, and is quoted here unedited.
+
+>
+> ## us-state-tax: 1,470 mutants, 1,464 killed, 6 survivors, 99.6%
+>
+> ### The count is ENUMERATED, not guessed — and my reasoning was wrong by two
+>
+> The harness printed `1470 mutants over 30 files`. Day 46's recorded count is 1,458, so
+> twelve are new. I had reasoned TEN and the enumeration caught it, which is the second day
+> running that it has:
+>
+> - **3** `2025` year literals in `arizonaStandardDeduction` — the three ternaries choosing
+>   between the 2025 and 2026 amounts.
+> - **6** money literals: `15_750`, `16_100`, `31_500`, `32_200`, `23_625`, `24_150`.
+> - **1** `2025` year literal in the `federalDeductionSubtractions` ternary, which decides
+>   whether § 43-1022(36)'s vehicle loan interest subtraction is present.
+> - **2** THAT I MISSED: `years: [2025]` and `years: [2026]` on the two new provenance
+>   entries in `data/provenance.ts`. I had been counting literals in the state definition
+>   and forgot that the ledger is emitted code too.
+>
+> Nothing else emits. `cap: Infinity` x4 and `phaseOutThreshold: Infinity` x4 are not
+> finite, so `mutantOf` returns null; `phaseOutRate: 0` is below the harness's 100 floor and
+> is not a rate (`v > 0 && v < 1` fails at zero), so it is not a mutant either. Everything in
+> `types.ts` and the renamed interface in `definition.ts` is type-only.
+>
+> ### All twelve DIE, and for a named reason each
+>
+> - The 3 deduction-table years: mutating to 2024 sends year 2025 down the else branch, so
+>   2025 would ship the 2026 amounts. `arizona-deduction.test.js` asserts all four amounts
+>   against both years, and `status-sweep.json` pins 48 Arizona rows per status.
+> - The 6 money literals: doubling any one moves a pinned Arizona answer in
+>   `status-sweep.json`, and `arizona-deduction.test.js` asserts each against
+>   `STATUTORY[year][status]`.
+> - The subtractions year: at 2024, year 2025 loses `carLoanInterest`.
+>   `arizona-deduction.test.js` asserts `sources(2025)` deepEqual
+>   `['tips','overtime','senior','carLoanInterest']` and that the 2025 loan subtraction is
+>   worth $25.00.
+> - The 2 provenance years: an entry scoped to `[2024]` or `[2025]` covers no supported year
+>   for its path, so `provenance.test.js`'s "every figure in every state-year has exactly one
+>   provenance entry" reports the Arizona deduction amounts uncovered. That test failed
+>   today for exactly this reason before the entries were added, so it is known to be able
+>   to fail.
+>
+> ### The six survivors are the same six PARAMETERS as Day 46
+>
+>   states/flat-states.js  line 367  year  2024 -> 2023   (`year >= 2024`)
+>   states/flat-states.js  line 497  year  2025 -> 2024   (`year >= 2025`)
+>   states/new-jersey.js   line 104  year  2028 -> 2027
+>   states/new-jersey.js   line 229  year  2028 -> 2027
+>   states/ohio.js         line  88  rate  0.01 -> 0.005
+>   states/ohio.js         line 107  rate  0.2  -> 0.1
+>
+> ### AND THIS TIME I AM PREDICTING THE TWO MOVED LINE NUMBERS, BECAUSE I MEASURED THEM
+>
+> Day 46 refused to predict them, on the grounds that the built-file offset is not derivable
+> from the source diff — and that refusal turned out to be the only part of the prediction a
+> derivation would have got wrong, by ten, twice.
+>
+> The refusal was right and incomplete. The offset is not DERIVABLE; it is MEASURABLE, with
+> one grep of the built artefact, which costs nothing:
+>
+>     src/states/flat-states.ts   `year >= 2024` 267 -> 406   +139
+>                                 `year >= 2025` 399 -> 538   +139
+>     dist/esm/.../flat-states.js `year >= 2024` 234 -> 367   +133
+>                                 `year >= 2025` 364 -> 497   +133
+>
+> The net source diff for the file is +177/-38 = **+139**, which matches the source shift
+> exactly, so every line I added is above both guards. The BUILT shift is **+133**: six of
+> the 139 lines emit nothing — the `arizonaStandardDeduction` JSDoc block and the
+> `itemizedDeduction` type positions. **A derivation from the source diff would have said
+> 373 and 503: wrong by six, twice**, which is Day 46's finding reproduced at a different
+> magnitude.
+>
+> **THE RULE, which sharpens Day 46's: when a prediction contains a quantity you cannot
+> derive, measure it rather than omitting it.** Day 46's maxim was "name the parameter, not
+> the line number", and it is still right about which is the IDENTITY. But declining to state
+> the line number at all left the prediction weaker than it needed to be, because the number
+> was sitting in a file on disk the whole time.
+>
+> `new-jersey.js` and `ohio.js` were not touched, so their four line numbers are UNCHANGED.
+>
+> ### The one way it could come back different, stated in advance
+>
+> If any of the six money literals is NOT killed, it would be because every pinned Arizona
+> household sits below the deduction being doubled, so the answer is zero either way and
+> nothing moves. `status-sweep.json`'s smallest Arizona household is `family38k` at $38,000,
+> which is above the largest 2025 amount ($31,500) but BELOW twice the single amount
+> ($31,500) — so for the single column the doubling would take taxable income to zero for
+> that household, and the kill has to come from a richer one. There are plenty, and
+> `arizona-deduction.test.js` asserts the amounts directly, so I expect all six to die. If I
+> am wrong the result is **1,470 / 1,463 / 7 / 99.5%** or worse by one per missed literal.
+>
+> ## us-federal-tax: unchanged at 716 / 716 / 0 / 100.0%
+>
+> Nothing in that package changed today. Not re-run; the recorded score's fingerprint is
+> over the built parameters and `packages/us-federal-tax/src` is untouched, so the Day 46
+> score is a score of this build. `check-scores.mjs` is the thing that would say otherwise.
+>
+
+### Process notes
+
+- **The egress proxy blocked every primary source again — six runs in a row.**
+  `azleg.gov`, `azdor.gov` and `azgovernor.gov` all answer **403 to CONNECT**, and this
+  time it was confirmed against the proxy's own status endpoint rather than inferred:
+  `recentRelayFailures` records `"gateway answered 403 to CONNECT (policy denial or
+  upstream failure)"` for `www.azleg.gov:443`. Every host but the package registries is
+  refused.
+- **BUT TWO NEW ROUTES WORK, and one of them is better than a legislature's website.**
+  `api.github.com` and `raw.githubusercontent.com` answer; and **PyPI does**, which Day 45
+  found. So `policyengine-us` **2.38.19** was downloaded as a wheel and its Arizona
+  parameter files read directly — no install, no execution, just `zipfile`. Its
+  `amount.yaml` cites "A.R.S. 43-1041(A) and (H)" and "Laws 2026, ch. 140 (HB 4168),
+  secs. 16 and 35(A)", carries the same six amounts this package now does, and its
+  `subtractions.yaml` names § 43-1022(31) through (36) with a comment reading "HB 4168
+  (2026): auto loan interest sunsets after TY2025 (43-1022(36))".
+  **THE RULE: a competitor's parameter file is a secondary source that CITES its primary
+  one, and a model that is actively maintained has already done the reading the sandbox
+  will not let me do.** It is not a statute and is recorded as such in every
+  `primaryTextUnread` field — but it is a far stronger route than a practitioner blog,
+  because it is checkable, versioned, and wrong in ways its own tests would catch. This is
+  the single most useful thing found today about how to work inside this sandbox.
+- **Four independent WebSearch routes agreed before anything was changed**: the enacted
+  Senate fact sheet (read twice, independently), the House bill summary, and PolicyEngine.
+  Day 46's "a claim that survives three routes is worth more than one written once" is why
+  the fourth was done.
+- **The audit was started too early and the reason is a rule.** Day 42's rule is "finish
+  `src` before starting" and Day 46 found it broken by re-reading its own diff afterwards.
+  Today `src` *was* finished and the diff *was* read adversarially first — and then the
+  differential harness produced the capital-gains finding, which is a `src` change. 100 of
+  1,470 mutants were thrown away. **THE SHARPER RULE: the audit is the LAST thing to
+  start, after every instrument has been RUN, because an instrument's output is a source
+  of `src` changes.** Reading the diff is not enough; the instruments have to have spoken.
+- **The audit also ran at a third of Day 46's rate** — about 4 mutants a minute against
+  10.8 — because I was running tests, the differential harness and the engines on the same
+  four cores. Day 46 established that `--workers 4` already saturates the machine. **Do
+  not do other CPU work during the audit**; it is cheaper to wait than to halve the rate
+  of a two-hour run.
+- **Write the failing instrument before the fix** held again, and paid twice: the
+  cross-package tool was perturbed two ways before being trusted, and the divergence bound
+  found § 43-1022(22) on its first run.
+
+### What I would do next
+
+1. **Model A.R.S. § 43-1022(22) — Arizona's 25% long-term capital gains subtraction.**
+   Found today, priced at **`$625.00` on `$100,000`** of long-term gain, and currently
+   only a note. It needs a net-long-term-gain input and the "net capital gain overall"
+   condition, and `investor-AZ-50000-0-0-100000-0` is a ready-made test. **This is the
+   largest unmodelled Arizona provision known and it is the top of the list.**
+
+2. **A standing check that every money figure in PROSE is one the engine computes** —
+   unchanged from Day 46's item 4 and now with **four** more instances, all mine, all from
+   today (Part 11). It is still the only class of claim in this repository with no
+   instrument over it at all, and it is the class I keep adding to. The shape that would
+   have caught every one of today's: a registry mapping each `$N.NN` in a shipped note or
+   doc comment to the engine call that produces it, with a coverage check that fails on an
+   unregistered figure.
+
+3. **Scope the Arizona credits divergence entry by household shape.** `maxAbs: 400` is too
+   wide to surface the remaining `$87.50` on childless elderly households, because
+   `maxAbs` cannot express the family income tax credit's income limit. The residual is
+   measured and unexplained; the entry should not be able to claim a household with no
+   dependents.
+
+4. **Bound the ten entries that currently argue they cannot be bounded.** Colorado's and
+   Kentucky's are the honest ones to attack: Kentucky's family size tax credit really does
+   forgive the whole bill, but Colorado's three provisions each have a statutory maximum
+   and the entry declines to add them up. The `unbounded` escape hatch is a declared
+   decision now, which is better than silence, and it should not become a habit.
+
+5. **Record a conformity declaration for the other twenty states** — Day 46's item 1,
+   unchanged, and today gave it a shape it did not have: `governs` now distinguishes a
+   below-the-line dependency from a base-only one, and every one of the twenty is
+   `'base'`. What each still needs is a statute.
+
+6. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 and 46,
+   worst case **`$4,735.905`**, every parameter already gathered in
+   `test/minnesota-amt.test.js`.
+
+7. **Check the three other "or fraction thereof" staircase WIDTHS** — unchanged from Days
+   45 and 46, and not done for a third time. Connecticut has three and Alabama's rounds
+   the other way.
+
+8. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44, 45 and 46.
+
+9. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days
+   42–46, and today it cost 100 mutants rather than fifteen minutes.
+
+10. **Select test files per mutant** — unchanged. 1,470 mutants x 54 test files, and the
+    run is two hours when nothing competes with it.
+
+11. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged from Days
+    40–46. Today it mattered: `phaseOutRate: 0` on Arizona's new itemized-deduction rule
+    is not a mutant, because zero is neither a rate (`v > 0` fails) nor money (`v >= 100`
+    fails), so a rule that should never phase out is indistinguishable from one whose
+    phase-out was forgotten.
+
+12. **Kansas City and St. Louis, 1% each** — carried since Day 41 and Day 46 said to write
+    the sentence next time it was skipped, so here it is. **It is not worth doing yet, and
+    the reason is Arizona.** Two days running, the thing that paid was a question asked
+    about states already in the package — the conformity sweep, and today's "what does
+    this declaration mean in each state that uses it?" Both found defects in shipped
+    answers. Two more earnings taxes would add coverage and could not find anything,
+    because nothing in the package would be asked a new question. **It goes back on the
+    list the first day there is no standing question about a state already here**, and
+    there are eleven above it today.
+
+---
+
 ## Day 46 — 2026-10-10
 
 ### What I did

@@ -13,6 +13,86 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 47 nothing is waiting on you except the network ask below, and today's
+headline is that Arizona's standard deduction stopped being the federal one four months
+ago and nothing here noticed, because the number did not change.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.42.0**, `us-tax-mcp` **v0.45.0**.
+**1,414 tests**, all passing.
+
+A.R.S. § 43-1041(A) defined the Arizona standard deduction as *equal to* the federal one
+until Arizona's HB 4168, signed **13 June 2026**, replaced that cross-reference with
+Arizona's own amounts — $15,750 / $23,625 / $31,500 — **backdated to tax year 2025**.
+Arizona's figures still match the federal ones, because the same statute says to index
+them by the federal method. So this package kept giving the right answer with the wrong
+reason behind it, and no test could tell.
+
+**Two things about age were wrong in Arizona, in opposite directions, and a real filer
+felt both.**
+
+- The old cross-reference handed Arizona whatever deduction the filer *actually took*
+  federally, which for anyone 65 or over or blind includes an extra federal allowance
+  Arizona does not give. The package was **$50.00 too low** for a single Arizona filer
+  aged 65 or over, **$80.00** for a couple both 65 or over, **$100.00** for a filer who is
+  both 65 and blind.
+- Arizona's senior subtraction (A.R.S. § 43-1022(35)) was not modelled at all, which made
+  the package **too high** by up to **$150.00** for a single filer and **$300.00** for a
+  couple — but only up to $75,000 of income, because it withdraws at 6 cents on the dollar
+  and is worth nothing from $175,000.
+
+**So "how wrong was Arizona" has no single answer: too high by $100.00 at low incomes,
+exactly right at $141,664, and too low by $50.00 at the top.** Both are fixed, and
+Arizona's four Schedule 1-A subtractions — tips, overtime, the senior deduction and
+vehicle loan interest — are now modelled, read off the federal return rather than
+recomputed. The vehicle loan one is **2025 only**, while the federal deduction it is
+measured from runs to 2028.
+
+**One new thing that is money, found by an instrument rather than by reading.** Arizona
+subtracts **25% of net long-term capital gain** (A.R.S. § 43-1022(22)) and this package
+does not model it, which makes an Arizona answer too high for anybody with long-term
+gains — **$625.00 on $100,000** of gain. It is now a note on every Arizona result and the
+first thing on tomorrow's list. It had been visible in the comparison against
+PolicyEngine-US since that grid was built, and was being blamed on an Arizona credit worth
+at most $100 on a household that had no dependents at all.
+
+**Why nothing caught any of this, which is the part worth your attention.** Every quality
+instrument here checks *figures*, and none of these was a wrong figure:
+
+- The 7,750-row regression battery contains households aged 71, 72, 73, 74, 82 and 100 —
+  and none of them could see the age defect, because the battery builds its own simplified
+  federal return instead of using a real one.
+- The comparison against PolicyEngine-US *did* see it, and one unexplained-difference
+  entry with no size limit on it had been absorbing it. That entry named two Arizona
+  credits worth at most $100 and was credited with a $305.00 disagreement. There is now a
+  rule that every such entry must state the largest difference it could possibly explain,
+  or argue in writing why it cannot — and the rule found the capital-gains gap above within
+  minutes of being switched on.
+- And one household **stopped agreeing** with PolicyEngine once Arizona was fixed. It had
+  agreed at $0.00 because this package's too-generous deduction happened to produce the
+  same zero as their correct deduction plus credits we do not model. **An agreement can be
+  a mistake too.**
+
+**Three questions this package had recorded as unanswered are now closed, and the statute
+closed all three rather than anyone finally reading a form.** The largest was worth
+**$201.25**: a widowed Arizona filer's deduction used to be chosen by two governments at
+once that disagreed, and the cross-reference that caused the disagreement no longer
+exists.
+
+**I also corrected an explanation I wrote yesterday, and made the same kind of mistake
+four times today while writing this up.** Each time it was a figure I worked out by hand
+where the engine could have told me, and each time the engine was right — once by a single
+cent, in the very test written to fix yesterday's single-cent error. Every derived figure
+in today's new text is now read off the engine. Building the instrument that would enforce
+that is the second thing on tomorrow's list.
+
+**Where the mutation audit stands, honestly.** It re-measures how many of the package's
+numbers can be set wrong without a test noticing, takes about two hours, and had to be
+restarted once today: it was begun after the code was finished, and then one of the
+instruments produced a new finding worth shipping. The written prediction — 1,470 mutants,
+1,464 killed, 6 survivors, 99.6% — is in the journal, committed before any result, so it
+cannot be quietly revised. **The `mutation-claims` CI check stays red until that score is
+recorded against this build, which is the check doing its job rather than a problem.**
+
 **As of Day 46 nothing is waiting on you, and today's headline is a mistake of mine
 that had been shipping for 46 days.** `us-federal-tax` is v0.15.0, `us-state-tax`
 v0.41.0, `us-tax-mcp` v0.44.0. **1,406 tests**, all passing.
@@ -123,8 +203,29 @@ work rather than decorate:
   days of this project have quoted the rule that a line number is a weak way to name a
   survivor; today it stopped being a maxim and became a measurement.
 
-**The ask, and it is the same one as four days running, now with five runs of
-evidence.** Every primary source this work needs was refused by the sandbox's network
+**THE ASK, now with six runs of evidence and one thing that makes it cheaper to grant.**
+
+Day 47 confirmed the denial against the proxy's own status endpoint rather than inferring
+it: `recentRelayFailures` records *"gateway answered 403 to CONNECT (policy denial or
+upstream failure)"* for `www.azleg.gov:443`. Every host was tested — `azleg.gov`,
+`azdor.gov`, `azgovernor.gov` and four practitioner sites all refused; only package
+registries answer.
+
+**But two routes DO work and one of them is genuinely good.** `api.github.com` and
+`raw.githubusercontent.com` answer, and **PyPI does** — so today I downloaded
+`policyengine-us` 2.38.19 as a wheel and read its Arizona parameter files directly,
+without installing or running anything. Its standard-deduction parameter cites *"A.R.S.
+43-1041(A) and (H)"* and *"Laws 2026, ch. 140 (HB 4168), secs. 16 and 35(A)"* and carries
+the same six amounts this package now ships; its subtractions list names § 43-1022(31)
+through (36) and notes that the vehicle-loan one sunsets after 2025. **An actively
+maintained competitor's parameter file is a secondary source that cites its primary one,
+and it has already done the reading this sandbox forbids.** That is a durable route for
+every future state and it cost one download.
+
+So the ask is now smaller than it was: it would still settle things faster and more
+authoritatively, but it is no longer the only way through.
+
+**The original ask, for the record.** Every primary source this work needs was refused by the sandbox's network
 policy: `azleg.gov`, `azdor.gov`, `le.utah.gov`, `legislature.idaho.gov`,
 `revisor.mo.gov`, `law.justia.com` and `cost.org` all return 403. Everything in the
 conformity table above is established from legislature bill summaries, a department

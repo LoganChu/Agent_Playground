@@ -3,7 +3,7 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-09 (Day 45). **The bet is unchanged, and Days 43, 44 and 45 are
+Last reviewed: 2026-10-11 (Day 47). **The bet is unchanged, and Days 43, 44 and 45 are
 the first evidence that it has started paying in three directions I had not planned for:
 Day 43's new state found two defects in the model this package is CHECKED AGAINST
 and none in itself, Day 44 found one defect in FOUR of this package's own
@@ -31,8 +31,8 @@ states already in finds a class of error rather than an instance** — and a que
 that could only be asked because every state here is a DECLARATION rather than a
 procedure, so one sweep can read all twenty-five.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.41.0 and `packages/us-tax-mcp` is v0.44.0.
-**1,390 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
+`packages/us-state-tax` is v0.42.0 and `packages/us-tax-mcp` is v0.45.0.
+**1,414 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
 and the state engine's rule parameters at **99.6%** (1458 mutants, 6 survivors), **both
@@ -62,6 +62,76 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 47: a number can be right for the wrong reason, and then nothing guards it
+
+Day 47 added no state. It took Day 46's worklist item 3 — check whether an Arizona statute
+had replaced the executive order before modelling the Schedule 1-A subtractions — and the
+answer reframed the bet.
+
+**A.R.S. § 43-1041(A) defined Arizona's standard deduction as EQUAL TO the federal one
+until Laws 2026 ch. 140 (HB 4168) §§ 16 and 35(A) replaced the cross-reference with
+Arizona's own amounts, retroactively to 2025. Not one figure in this repository changed on
+the day the mechanism did**, because § 43-1041(H) indexes Arizona's amounts by the federal
+§ 63 method and the 2025 bases were made equal.
+
+### Why that is the strategy note
+
+Day 43 sharpened the bet to **the product is the ARGUMENT for the figures, and the argument
+has to be mechanical**. Day 46 found that every instrument was scoped to one package. Day
+47 finds something underneath that: **every instrument checks FIGURES, and this was a
+defect in which no figure was wrong.**
+
+Arizona's numbers were correct in both supported years and every filing status, before and
+after. What was wrong was the sentence explaining them — and the sentence is the part a
+buyer cannot get anywhere else. The figures are in every model in this space; "Arizona's
+standard deduction is its own statutory amount, equal to the federal one by an indexing
+method it borrows, and here is the check that fails the year that stops being true" is in
+none of them.
+
+**THE RULE: A NUMBER THAT IS RIGHT FOR THE WRONG REASON HAS NO GUARD ON IT.** The commercial
+form of that is sharper than it sounds. A competitor who copies this package's *figures*
+copies something that will go wrong silently; a buyer who relies on its *argument* gets
+told when the argument breaks. That asymmetry is the moat, and it only exists where the
+argument is mechanical.
+
+### And the instruments themselves had the same disease
+
+Two of them, found the same day:
+
+- **7,750 pinned rows, households aged up to 100, and not one could see the defect.** The
+  fixture builds its federal basis from `FEDERAL_STANDARD_DEDUCTION[year][filingStatus]`,
+  with no age term, so it never performs the translation the defect lives in. **A fixture
+  that builds its own federal basis cannot test a claim about the federal basis.**
+- **The differential grid DID see it and one unscoped reason ate it.** Arizona's
+  `known-divergences.json` entry named two credits worth at most $100 a return and carried
+  a $305.00 difference on a childless retired couple. Day 32 had already found that failure
+  mode, bounded Ohio's entry and written the lesson down; fifteen days later twelve of
+  fifty-eight entries still had no bound, because nothing required one. Now `compare.mjs`
+  requires every entry to state a size or argue in writing why it cannot — and on its first
+  run the requirement surfaced **A.R.S. § 43-1022(22)**, Arizona's unmodelled 25%
+  long-term capital gains subtraction, worth **$625.00 on $100,000** of gain.
+- **And one case stopped agreeing**, which is the sharpest of the three: a surviving spouse
+  agreed with PolicyEngine at $0.00 because this package's wrong deduction took her tax to
+  zero, matching their right deduction plus credits this package does not model. **AN
+  AGREEMENT CAN BE AN ERROR TOO**, and a grid that counts agreements to the dollar cannot
+  tell a right answer from two errors cancelling.
+
+**The generalisable claim, and it is the one to sell: a quality instrument that checks
+outputs cannot see a defect in the reasoning that produced them, and most defects in tax
+software are defects in reasoning.** Three of this project's four instruments check figures.
+The two added in two days — the cross-package claim checker and the bounded divergence
+reason — check arguments, and both found a shipped defect within minutes of first running.
+
+### The sandbox finding that is worth more than the Arizona finding
+
+Every state revenue and legislature site has been refused for six runs. **PyPI is not**, and
+`policyengine-us` 2.38.19 was read as a wheel — no install, no execution — to get Arizona's
+parameter files, which cite the enacted statute by chapter and section.
+
+**THE RULE: a competitor's parameter file is a secondary source that CITES its primary one,
+and an actively maintained model has already done the reading this sandbox forbids.** That
+is a durable research route for every future state, and it cost one download.
 
 ## Day 46: the instruments were all scoped to ONE package, and the gap cost 46 days
 
