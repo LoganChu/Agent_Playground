@@ -409,6 +409,74 @@ finally recorded.
 > score is a score of this build. `check-scores.mjs` is the thing that would say otherwise.
 >
 
+### Part 12b — the result: every figure identical, and the two line numbers off by ONE
+
+```text
+mutants 1470    killed 1464    survived 6    score 99.6%
+
+states/flat-states.js  line 368  year  2024 -> 2023
+states/flat-states.js  line 498  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**The count, the kill count, the survivor count, the score, the identity of all six
+survivors and the four line numbers predicted as UNCHANGED all came back exactly as
+written.** All twelve new mutants died, including the two `years: [...]` literals in the
+provenance ledger that my own reasoning had missed and the enumeration caught. The stated
+failure mode — a money literal surviving because every pinned Arizona household sits below
+twice the deduction — did not happen.
+
+**And the two numbers I predicted are 367 and 497 against an actual 368 and 498. Off by
+one, twice, and the reason is better than the error.**
+
+Day 46 refused to predict these two, because the built-file offset is not *derivable* from
+the source diff. Part 12 argued that was too weak: not derivable, but **measurable**, with
+one `grep -n` of the built artefact. That argument was right, and measuring beat deriving
+by a factor of six — a source-derived guess would have said 373 and 503, wrong by six each,
+because six of the 139 lines I added are JSDoc and type positions that emit nothing.
+
+**The measurement went STALE.** After the grep I added one more `src` line above both
+guards — the Arizona long-term capital gains note from Part 7, a single string in the
+`notes` array — and rebuilt. Both built line numbers moved by exactly one. The prediction
+quoted a measurement of a build that no longer existed.
+
+```text
+src/states/flat-states.ts    +1 line   (one string, in Arizona's notes)
+dist/.../flat-states.js      367 -> 368   and   497 -> 498
+```
+
+**THE RULE: A MEASUREMENT HAS A TIMESTAMP, and quoting one after the thing it measured has
+changed is a derivation again.** The `mutantFingerprint` in `scores.json` exists to make
+exactly this checkable — and *the score was fine*, because the audit was correctly
+restarted against the new build. It was the **prose beside it** that was not re-measured.
+The instrument guarded the number it was built to guard, and nothing guarded the sentence
+next to it.
+
+**That is the fourth variation of one disease in a single day**, and the day's own thesis
+turned on me:
+
+| where | the figure was | and then |
+| --- | --- | --- |
+| Arizona's `kind: 'federal'` | right | the statute moved underneath it (Part 1) |
+| Day 42's "NOT recording" line | true | nothing was behind it (Part 13) |
+| Day 46's half-cent explanation | right about the number | wrong about the mechanism (Part 10) |
+| **my own line numbers** | **measured correctly** | **one `src` line moved them (here)** |
+
+**And Day 46's rule survives both attempts on it.** Across every run — 157/287, 179/309,
+234/364, 368/498 — **the parameter identity has been exactly right every time, and the line
+number has been wrong every time it was stated**, whether derived (out by ten, then six) or
+measured (out by one). Measuring is strictly better than guessing. It does not make a
+fragile identifier robust, and the honest conclusion is the one the ledger has carried
+since Day 44: *read the other three columns.*
+
+`scores.json` records 1,470 / 1,464 / 6 / 99.6% against this build's fingerprint,
+`check-scores.mjs` passes, and the README's history table and `STATE-SURVIVORS.md` both
+carry the Day 47 row — the second of which is the file Day 46 found stale for exactly the
+reason that a series is a claim nobody writes an assertion for.
+
 ### Part 13 — I read the harness's own warning twice and then made the mistake it warns about
 
 The mutation harness has printed this at start-up since Day 42:

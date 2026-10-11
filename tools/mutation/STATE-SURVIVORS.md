@@ -23,6 +23,7 @@ rather than the suite's reach.
 | **Day 43, after the five Wisconsin fixes** | **1,357** | **6** | **99.6%** |
 | **Day 45, after Minnesota** | **1,456** | **6** | **99.6%** |
 | **Day 46, after the conformity declarations** | **1,458** | **6** | **99.6%** |
+| **Day 47, after Arizona's own deduction table** | **1,470** | **6** | **99.6%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -273,9 +274,9 @@ test independent of the thing it checks.
 2026. Unlike the six below it is not unreachable in principle — it is
 REMOVABLE, and removing it is better than triaging it.
 
-### states/flat-states.js — 2 of 150 survived
-  line  179  year   2024 -> 2023
-  line  309  year   2025 -> 2024
+### states/flat-states.js — 2 of 161 survived
+  line  368  year   2024 -> 2023
+  line  498  year   2025 -> 2024
 ### states/new-jersey.js — 2 of 71 survived
   line  104  year   2028 -> 2027
   line  229  year   2028 -> 2027
@@ -319,13 +320,44 @@ REMOVABLE, and removing it is better than triaging it.
 > identity held exactly and the line number was unrecoverable. A prediction is worth
 > something when it says which of its parts it cannot compute.
 
+> **Day 47: 234 and 364 became 368 and 498, and I PREDICTED 367 and 497 — off by one,
+> twice. The reason is better than the error.**
+>
+> Day 46's refusal to predict these two looked too weak, because the offset is not
+> DERIVABLE but it is MEASURABLE: one `grep -n` of the built artefact. So Day 47
+> measured them and wrote them into the prediction, with the derivation shown —
+> `flat-states.ts` shifted `+139` source lines and the built file `+133`, six of the
+> added lines being JSDoc and type positions that emit nothing, so a source-derived
+> guess would have said 373 and 503 and been **wrong by six, twice**. Measuring beat
+> deriving by a factor of six.
+>
+> **It was still wrong, and not because measuring is the wrong idea. The measurement
+> went STALE.** After the grep, one more `src` line was added above both guards — the
+> Arizona long-term capital gains note, a single string in the `notes` array — and the
+> package was rebuilt. Both numbers moved by exactly one. The prediction quoted a
+> measurement of a build that no longer existed.
+>
+> **THE RULE: A MEASUREMENT HAS A TIMESTAMP, and quoting one after the thing it measured
+> changed is a derivation again.** This is what the `mutantFingerprint` in `scores.json`
+> exists to make checkable for the SCORE — and the score was fine, because the audit was
+> correctly restarted against the new build. It was the prediction that was not
+> re-measured. The instrument guarded the number it was built to guard and nothing
+> guarded the prose beside it.
+>
+> **And Day 46's rule survives both attempts on it.** Across every run — 157/287,
+> 179/309, 234/364, 368/498 — the PARAMETER identity has been exactly right every time
+> and the line number has been wrong every time it was stated, whether derived (out by
+> ten, then six) or measured (out by one). Measuring is strictly better than guessing.
+> It does not make a fragile identifier robust. **Read the other three columns.**
+
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
-`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` **234**
-(`year >= 2024`) and **364** (`year >= 2025`) — the two flat-states numbers were 157
-and 287 before Day 44, 179 and 309 before Day 46, and have now moved twice without
-anything they describe having changed, which is the note above this one. **Read the
-other three columns, not this one.**
+`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` **368**
+(`year >= 2024`) and **498** (`year >= 2025`) — the two flat-states numbers were 157 and
+287 before Day 44, 179 and 309 before Day 46, 234 and 364 before Day 47, and have now
+moved three times without anything they describe having changed, which is the note above
+this one. The last move was **one line**, caused by adding a single sentence to Arizona's
+notes. **Read the other three columns, not this one.**
 
 The package supports 2025 and 2026. Both are inside every one of these windows, so
 moving an edge changes nothing that can be asked for. These are Day 29's category —

@@ -94,10 +94,20 @@ flag that saves the result, after reading the warning about exactly that in the 
 earlier runs. The harness has printed that warning since Day 42, when the same mistake cost
 105 minutes. It now **refuses to start** a full run that has not said whether it is
 recording. An announcement at start-up is not a guard; a guard is something that will not
-proceed. The written prediction — 1,470 mutants,
-1,464 killed, 6 survivors, 99.6% — is in the journal, committed before any result, so it
-cannot be quietly revised. **The `mutation-claims` CI check stays red until that score is
-recorded against this build, which is the check doing its job rather than a problem.**
+proceed. **It finished, and it came back
+1,470 mutants, 1,464 killed, 6 survivors, 99.6% — identical to the prediction committed
+beforehand in every figure**, including the identity of all six survivors. CI is green
+again on all seven jobs.
+
+**One part of that prediction was wrong and it is the part worth your attention**, because
+it is the same mistake as the Arizona one in miniature. Each survivor is reported with a
+line number, and I predicted two of them by *measuring* the built file rather than guessing
+— which was the right idea and beat guessing by a factor of six. Then I added one more line
+of code above them (the capital-gains note two paragraphs up), rebuilt, and quoted the
+measurement anyway. Both were off by exactly one. **A measurement has a timestamp, and
+quoting it after the thing it measured has changed is a guess again.** The score itself was
+fine, because the re-measurement was correctly restarted against the new build; it was the
+sentence beside it that nobody re-checked.
 
 **As of Day 46 nothing is waiting on you, and today's headline is a mistake of mine
 that had been shipping for 46 days.** `us-federal-tax` is v0.15.0, `us-state-tax`

@@ -35,9 +35,11 @@ procedure, so one sweep can read all twenty-five.
 **1,414 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1458 mutants, 6 survivors), **both
-re-measured on Day 46 with every figure predicted in writing before the run and every
-predicted figure coming back identical** — and the
+and the state engine's rule parameters at **99.6%** (1470 mutants, 6 survivors), **the state
+one re-measured on Day 47 and the federal one on Day 46, each with every figure predicted in
+writing before the run — and on Day 47 the count, the kill count, the survivor count, the
+score and the identity of all six survivors came back exactly as predicted while the two
+line numbers were off by one, which is the finding rather than the footnote** — and the
 state prediction was wrong by two mutants, which the enumeration caught before the audit
 started: I had reasoned that the conformity work added only strings, and `year === 2025`
 is code. Up from 85.8% on Day 33 and 96.3% on Day 34 — and it got
