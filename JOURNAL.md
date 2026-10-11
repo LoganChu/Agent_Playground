@@ -19,7 +19,16 @@ No new state. `us-state-tax` is **v0.42.0**, `us-tax-mcp` **v0.45.0**, `us-feder
 from Day 46's 1,406. 25 taxing states, 34 in all, unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
-push** (run 177, `0db12b2`). One API call.
+push** (run 177, `0db12b2`). One API call. And at the END, which is Day 45's other half:
+**green on all SEVEN jobs** (run 183, `d3e138d`) — the three test jobs, `differential`,
+`counts`, `cross-package` and `mutation-claims`.
+
+**`mutation-claims` was red from the day's first push until the score was recorded**, across
+five commits and about two hours, and that is the instrument working rather than a problem:
+the fingerprint is over the built parameters, `src` changed, and Day 46's score genuinely
+was not a score of this build for every one of those minutes. Fourth day running that it
+has caught exactly that. **`cross-package` gained a second step — `arizona-deduction.mjs` —
+and it passed on its first run on a runner.**
 
 New: `arizonaStandardDeduction()` and an `itemizedDeduction` rule in `flat-states.ts`;
 `governs` on `FederalConformityRule` and an `ownStatutoryFigure` route;
