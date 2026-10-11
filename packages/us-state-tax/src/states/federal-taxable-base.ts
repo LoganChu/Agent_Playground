@@ -86,6 +86,7 @@ function colorado(year: number): StateIncomeTaxDefinition | undefined {
     base: 'federalTaxableIncome',
     federalConformity: {
       kind: 'rolling',
+      governs: 'belowTheLine',
       cite:
         'Colo. Rev. Stat. § 39-22-103(5.3) — the IRC "as amended at any time or from time to time". The Department of Revenue repealed its contrary prospective-only rule on 8 November 2023 after the Court of Appeals allowed refunds based on retroactive federal changes.',
       primaryTextUnread:
@@ -195,6 +196,7 @@ function idaho(year: number): StateIncomeTaxDefinition | undefined {
     // from the one this package ships. 2026 needs no retroactivity.
     federalConformity: {
       kind: 'staticDate',
+      governs: 'belowTheLine',
       conformedTo: '2026-01-01',
       cite:
         'Idaho Code § 63-3004 as amended by HB 559 (2026) — the IRC as amended and in effect on 1 January 2026',

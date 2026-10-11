@@ -37,14 +37,19 @@ const PRE_OBBBA_2025 = {
   deductionKind: 'standard',
 };
 
-test('Arizona inherits the federal standard deduction, so OBBBA cut Arizona tax', () => {
-  // A.R.S. § 43-1041(A) defines the Arizona standard deduction as equal to the
-  // federal one, so the bill falls when the federal figure rises. Nothing in
-  // Arizona LAW changed in 2025 — and for Arizona that is a warning rather than
-  // a reassurance: § 43-105 is frozen at 1 January 2025, six months before the
-  // Act, and the OBBBA figure is on the 2025 form by executive order. See
-  // `federal-conformity.test.js`, which is about the entitlement rather than
-  // the arithmetic.
+test('ARIZONA NO LONGER INHERITS THE FEDERAL STANDARD DEDUCTION, and the figure did not change', () => {
+  // THIS TEST ASSERTED THE OPPOSITE UNTIL DAY 47, and it was right when written.
+  // A.R.S. § 43-1041(A) defined the Arizona standard deduction as equal to the
+  // federal one until Laws 2026 ch. 140 (HB 4168) §§ 16 and 35(A) replaced the
+  // cross-reference with Arizona's own figures, retroactively for taxable years
+  // beginning after 31 December 2024.
+  //
+  // So Arizona's answer is unchanged and its REASON is not, which is the one
+  // kind of change no figure can show you. The OBBBA increase is still worth
+  // $18.75 to a single Arizona filer — but because Arizona's legislature
+  // adopted the post-OBBBA amounts, not because Arizona reads the Code. That
+  // claim is asserted against Arizona's own table in
+  // `arizona-deduction.test.js`, which is where it now belongs.
   const after = stateIncomeTax({
     state: 'AZ',
     year: 2025,
@@ -57,11 +62,17 @@ test('Arizona inherits the federal standard deduction, so OBBBA cut Arizona tax'
     filingStatus: 'single',
     federal: PRE_OBBBA_2025,
   });
-  money(after.deduction, 15_750, 'AZ deduction follows the federal figure');
+  money(after.deduction, 15_750, "Arizona's own § 43-1041(A) amount, which equals the federal one");
   money(after.taxableIncome, 84_250);
   money(after.tax, 2106.25);
-  money(before.tax, 2125.0);
-  money(before.tax - after.tax, 18.75, 'the OBBBA increase is worth 2.5% of $750');
+  // AND THE PRE-OBBBA BASIS NOW CHANGES NOTHING, which is the assertion that
+  // would have failed before today and is the whole point of the file this
+  // comment keeps pointing at: a test that supplies the premise it asserts can
+  // only ever confirm it. Handing Arizona the superseded $15,000 used to move
+  // its answer by $18.75; Arizona does not read the figure any more.
+  money(before.deduction, 15_750, 'unmoved by a federal deduction Arizona does not read');
+  money(before.tax, 2106.25);
+  money(before.tax - after.tax, 0, 'Arizona is deaf to the federal deduction as of HB 4168');
 });
 
 test('Colorado and Idaho start below the federal deduction and inherited it too', () => {

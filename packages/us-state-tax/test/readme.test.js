@@ -222,7 +222,12 @@ test('README: the OBBBA pass-through table', () => {
   const cut = (state) =>
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: preObbba }).tax -
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: FEDERAL_2025 }).tax;
-  money(cut('AZ'), 18.75);
+  // ARIZONA IS NO LONGER IN THIS TABLE. HB 4168 §§ 16 and 35(A) replaced
+  // § 43-1041(A)'s federal cross-reference with Arizona's own amounts, so
+  // handing Arizona a pre-OBBBA federal deduction no longer moves its answer.
+  // The $18.75 is still real and is now asserted against Arizona's own
+  // statutory table in `arizona-deduction.test.js`.
+  money(cut('AZ'), 0, 'Arizona reads its own figure as of HB 4168');
   money(cut('CO'), 33.0);
   money(cut('ID'), 39.75);
   money(cut('MO'), 35.25, 'the fifth state, which this table omitted until Day 46');
@@ -1365,14 +1370,27 @@ test("README: every figure in the surviving-spouse column section (v0.40.0)", ()
   // The two derivations the grid's divergence entries bound these with.
   assert.equal(5_500 * 0.05 + 1_500 * 0.05 + 500 * 0.02 + 3_000 * 0.01, 390, "Alabama's ceiling");
   money(4_000 * 0.04 + 1_200 * 0.04, 208, "Mississippi's 2026 ceiling");
-  // Arizona's is NOT a column at all, which is the section's point: every
-  // Arizona figure that depends on the filing status is the federal deduction,
-  // so the translation moves nothing and the money is in a question nobody has
-  // read.
-  money(gap('AZ', 90_000), 0, 'Arizona moves nothing');
-  // 2.5% of the gap between the two federal standard deductions, which is what
-  // the unread question is worth.
-  money(0.025 * (32_200 - 24_150), 201.25, "Arizona's unread question");
+  // ARIZONA'S QUESTION IS CLOSED, AND THE STATUTE CLOSED IT RATHER THAN A
+  // READING. While § 43-1041(A) defined the Arizona standard deduction as the
+  // federal one, a surviving spouse's Arizona return was chosen by two
+  // governments at once — the booklet prints an amount against her BOX (head of
+  // household) and § 63(c)(2)(A) gives her the JOINT figure — and this package
+  // recorded that nobody had read which governs, worth $201.25 on the 2026
+  // figures. HB 4168 gave Arizona its own four amounts, one per box, with no
+  // surviving-spouse row and no federal cross-reference left to disagree with.
+  // So the translation now moves exactly the gap it was always worth, and the
+  // $201.25 is resolved in favour of the box.
+  money(gap('AZ', 90_000), 201.25, "Arizona's question, answered by HB 4168 in favour of the box");
+  // And it is the same $201.25: 2.5% of the gap between Arizona's own joint and
+  // head-of-household amounts, which for 2026 equal the federal ones because
+  // § 43-1041(H) borrows the federal indexing method.
+  money(0.025 * (32_200 - 24_150), 201.25, 'the gap, derived');
+  const azDef = getStateDefinition('AZ', 2026);
+  money(
+    0.025 * (azDef.deduction.amounts.marriedFilingJointly - azDef.deduction.amounts.headOfHousehold),
+    201.25,
+    "and derived again from Arizona's OWN table rather than the federal one",
+  );
 
   // The worked example, and the note's own arithmetic.
   const wiInput = {

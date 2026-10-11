@@ -2916,21 +2916,27 @@ function computeOnce(
   // twice on one return, in opposite directions.
   const retirement = retirementSubtractions(def, input);
   for (const detail of retirement.details) computedSubtractions.push(detail);
-  // Georgia's tips and overtime exclusions. They are read off the federal
-  // deductions the same dollars produced, which is the only figure a package
-  // whose base is federal AGI has: the § 224 and § 225 deductions are below the
-  // line, so the compensation they exempt is still inside every conforming
-  // state's base and a state that wants to follow has to legislate for itself.
-  let compensationExcluded = 0;
-  if (def.compensationExclusions) {
+  // Three states' subtractions of a federal Schedule 1-A deduction, read off the
+  // federal return rather than recomputed here. Every one of those deductions —
+  // § 224 tips, § 225 overtime, § 151(d)(5) senior, § 163(h)(4) vehicle loan
+  // interest — sits BELOW federal adjusted gross income, so the income it exempts
+  // federally is still inside the base of every state that starts from federal
+  // AGI, and a state that wants to follow has to legislate for itself. Georgia and
+  // Alabama did for overtime and tips; Arizona did for all four, in A.R.S.
+  // § 43-1022(31), (32), (35) and (36).
+  //
+  // Called `compensationExclusions` until Day 47, when Arizona needed all four and
+  // two of them are not compensation.
+  let federalDeductionSubtracted = 0;
+  if (def.federalDeductionSubtractions) {
     const taken = input.federalDeductions ?? {};
-    for (const rule of def.compensationExclusions) {
+    for (const rule of def.federalDeductionSubtractions) {
       const amount = Math.min(
         nonNegative(taken[rule.source], `federalDeductions.${rule.source}`),
         rule.cap,
       );
       if (amount > 0) {
-        compensationExcluded += amount;
+        federalDeductionSubtracted += amount;
         computedSubtractions.push({ name: rule.name, amount });
       }
     }
@@ -2971,7 +2977,7 @@ function computeOnce(
     planType.total +
     ageDeductionTaken +
     retirement.total +
-    compensationExcluded +
+    federalDeductionSubtracted +
     federalTaxAgiSubtraction;
   const stateAgi = Math.max(0, base + additions - subtractions);
   const modifiedAgi = stateAgi + businessDeduction;

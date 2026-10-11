@@ -388,6 +388,7 @@ export function missouri(year: number): StateIncomeTaxDefinition | undefined {
     // "rolling" gets that credit wrong.
     federalConformity: {
       kind: 'rolling',
+      governs: 'belowTheLine',
       cite:
         'Mo. Rev. Stat. § 143.091 — IRC meanings as they stand. NOT uniform across the chapter: § 143.177.3(1) fixes § 32 at 1 January 2021, and § 143.131.2 takes § 63(c) as it stands.',
       primaryTextUnread:

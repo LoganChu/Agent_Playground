@@ -161,6 +161,7 @@ function utah(year: number): StateIncomeTaxDefinition | undefined {
     // the only way to find it: nothing about `base` or `deduction` says so.
     federalConformity: {
       kind: 'rolling',
+      governs: 'belowTheLine',
       cite:
         'Utah Code § 59-10-103(1) — "adjusted gross income" and "taxable income" mean the same as in IRC §§ 62 and 63, read as in effect for the taxable year, with references including later amendments',
       primaryTextUnread:

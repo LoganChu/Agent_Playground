@@ -2925,9 +2925,31 @@ export interface RetirementIncomeSubtractionRule {
  * phase-out, and is smaller above either — so a high-income filer's state
  * exclusion is understated here and never overstated.
  */
-export interface CompensationExclusionRule {
+/**
+ * A state subtraction whose AMOUNT is a federal deduction the filer took below
+ * the line.
+ *
+ * Every Schedule 1-A deduction — § 224 tips, § 225 overtime, § 151(d)(5) senior,
+ * § 163(h)(4) vehicle loan interest — sits BELOW federal adjusted gross income.
+ * So the income it exempts federally is still inside the base of every state
+ * that starts from federal AGI, and a state that wants to follow has to
+ * legislate for itself. Three here have: Alabama, Georgia and, since HB 4168,
+ * Arizona.
+ *
+ * **The amount is READ from the federal return and never recomputed here.** That
+ * is Day 46's rule paid forward: the one time this package derived a federal
+ * figure of its own it was wrong by 53% for 46 days. Each of these deductions
+ * has its own phase-out — the senior one withdraws at 6 cents on the dollar
+ * above $75,000 of modified AGI — and a state package that reimplemented them
+ * would be maintaining a second copy of the federal rules with a lag.
+ *
+ * Called `compensationExclusions` until Day 47, when Arizona needed all four and
+ * two of them are not compensation.
+ */
+export interface FederalDeductionSubtractionRule {
   readonly name: string;
   readonly source: FederalDeductionKey;
+  /** `Infinity` where the state follows the federal figure without a cap. */
   readonly cap: number;
 }
 
@@ -3869,7 +3891,7 @@ export interface StateIncomeTaxDefinition {
    * Exclusions of a class of compensation the federal government deducts below
    * the line, so a federal-AGI base never saw them. Georgia's tips and overtime.
    */
-  readonly compensationExclusions?: readonly CompensationExclusionRule[];
+  readonly federalDeductionSubtractions?: readonly FederalDeductionSubtractionRule[];
   /** Maryland's centenarian subtraction — `$100,000` of income at age 100. */
   readonly agedIncomeSubtraction?: AgedIncomeSubtractionRule;
   /** Virginia's age deduction — a subtraction withdrawn at 100%. */

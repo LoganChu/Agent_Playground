@@ -7,7 +7,9 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.41.0: **Minnesota — the first state here whose 2026 figures are READ rather than carried forward, and the only one that gives the filer no exemption at all.**
+New in 0.42.0: **Arizona's standard deduction stopped being the federal one, no figure moved, and the old declaration was quietly wrong about age.**
+
+A.R.S. § 43-1041(A) defined the Arizona standard deduction as *equal to* the federal one until Laws 2026 ch. 140 (HB 4168) §§ 16 and 35(A) replaced the cross-reference with Arizona's own amounts — **retroactively, for taxable years beginning after 31 December 2024**. The figures are identical, because § 43-1041(H) borrows the federal § 63 indexing method. **What was not identical is what the old declaration did with age:** it returned the deduction a filer *actually took* federally, which for anyone 65 or over or blind includes the § 63(f) addition that Arizona does not allow — `$50.00` for a single filer 65 or over, `$80.00` for a couple both 65 or over, `$100.00` for a filer both 65 and blind. Arizona's four § 43-1022 Schedule 1-A subtractions are now modelled too, read off the federal return rather than recomputed.
 
 ## Minnesota, and the publication calendar that is the real difference (v0.41.0)
 
@@ -651,7 +653,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.41.0/us-state-tax-0.41.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.42.0/us-state-tax-0.42.0.tgz
 ```
 
 ## The rate is the easy part
@@ -815,15 +817,16 @@ two rounded figures is not the factor.
 
 OBBBA raised the 2025 federal standard deduction from `$15,000` to `$15,750` for a single
 filer in July 2025 — an increase of **`$750`** (`$1,500` joint, `$1,125` head of
-household). **Five** of the states here pass that through:
+household). **Four** of the states here pass that through — five until 13 June 2026, when
+Arizona stopped:
 
 | State | How it reads the federal figure | Cut, single | Conformity |
 | --- | --- | --- | --- |
-| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | `$18.75` | **static, 2025-01-01** |
 | Colorado | Starts from federal taxable income | `$33.00` | rolling |
 | Idaho | Starts from federal taxable income | `$39.75` | **static, 2026-01-01** |
 | Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | `$35.25` | rolling |
 | Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | `$45.00` | rolling |
+| ~~Arizona~~ | **No longer reads it at all.** § 43-1041(A) carried the federal figure by cross-reference until HB 4168 replaced it with Arizona's own amounts, retroactive to 2025 | `$18.75`, but from Arizona's own statute | **static, 2025-01-01**, and it no longer decides the deduction |
 
 Illinois and Michigan, on federal AGI, got nothing.
 
@@ -837,25 +840,37 @@ difference is what a reader actually has to trust:
   answer was the *pre-OBBBA* one until **HB 559 was signed on 10 February 2026** and
   backdated the new conformity date to 1 January 2025. The answer in the table became
   correct seven months into the following year.
-- **Arizona** is still frozen at 1 January 2025 for tax year 2025. Two bills to move it,
-  SB 1106 and HB 2785, were **vetoed**. The OBBBA deduction is on Arizona's 2025 Form 140
-  because **Executive Order 2025-15** directed the Department of Revenue to put it there,
-  and the Department has said a filer who claims it may need to amend if the eventual
-  statute differs, with penalties and interest waived to 15 October 2027. This package
-  ships the figure on the state's own form — but the authority behind the Arizona 2025
-  answer is an executive order, not a statute. HB 4168, signed 13 June 2026, closes the
-  question for 2026 only.
+- **Arizona left the table, and nothing about its answer changed.** Its conformity date is
+  still frozen at 1 January 2025 for tax year 2025 — the two bills to move it, SB 1106 and
+  HB 2785, were **vetoed**, and for seven months the OBBBA deduction was on Arizona's 2025
+  Form 140 only because **Executive Order 2025-15** told the Department to put it there.
+  Then **HB 4168, signed 13 June 2026**, wrote `$15,750` / `$23,625` / `$31,500` into
+  A.R.S. § 43-1041(A) itself, **retroactively for taxable years beginning after 31 December
+  2024**, and § 43-1041(H) indexes them by the federal § 63 method. So Arizona's 2025
+  answer rests on a statute rather than an order, and it rests on *Arizona's* statute
+  rather than on the Code. Its figures still equal the federal ones — that is now a
+  coincidence the statute creates rather than a cross-reference, and
+  `test/arizona-deduction.test.js` pins it so that it fails the year it ends.
+
+**This README said the opposite of that for one day, and the bill it got wrong was already
+cited here.** On Day 46 it read HB 4168's conformity-date clause — prospective, for years
+after 31 December 2025 — and concluded the Act "closes the question for 2026 only". Secs.
+16 and 35(A) of the same bill reached back into 2025. **An omnibus act has one headline
+date and many effective dates**, and a claim about what it did for a given year cannot be
+derived from the date in its title.
 
 So "none of them by legislating", which is what this section said for 46 days, is true of
-three of the five, achieved by retroactive legislation in the fourth, and in the fifth is
-the reason to be careful rather than a reassurance. Every state's rule is declared on the
-definition as `federalConformity` and `test/federal-conformity.test.js` finds the states
-that need one **by moving the federal figure and watching the tax**, so a sixth cannot be
-added without declaring one.
+Colorado, Missouri and Utah, achieved by retroactive legislation in Idaho, and in Arizona
+was never true at all. Every state's rule is declared on the definition as
+`federalConformity` — which now also records **which half of the return** the conformity
+date governs, because Arizona's still governs its base while no longer governing its
+deduction — and `test/federal-conformity.test.js` finds the states that need one **by
+moving the federal figure and watching the tax**, so a fifth cannot be added without
+declaring one.
 
 Two more things that table hides, both now tested:
 
-- **Utah's is a band, and it is the only one.** The other four pay the state rate times the
+- **Utah's is a band, and it is the only one.** The other three pay the state rate times the
   increase at every income. Utah's arrives through a credit that withdraws at 1.3 cents on
   the dollar, so a 2025 single filer keeps the full `$45.00` to `$87,444` of federal AGI
   and gets **exactly `$0.00` from `$90,906`**. It is capped at the bottom too — the credit
@@ -2741,7 +2756,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **656** notes every
+`test/notes.test.js` pins the first 72 characters of all **658** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2766,8 +2781,8 @@ reads, and all 17 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,488 numeric
-figures over 68 state-years, against 430 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,517 numeric
+figures over 68 state-years, against 438 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2813,14 +2828,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,244 figures of tax year
+The `kind` field answers one operational question. Over the 2,258 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,820** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,829** |
 | the statute's own schedule (`statute-scheduled`) | **113** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **304** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **309** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -3037,7 +3052,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **820 tests**. Turning it on, when there were 618 of them, is what
+from all **828 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

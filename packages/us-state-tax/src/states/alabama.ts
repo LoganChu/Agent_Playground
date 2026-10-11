@@ -346,7 +346,7 @@ export function alabama(year: number): StateIncomeTaxDefinition | undefined {
     // field is absent rather than empty, so nothing claims a rule exists.
     ...(year >= 2026
       ? {
-          compensationExclusions: [
+          federalDeductionSubtractions: [
             { name: 'Qualified overtime compensation', source: 'overtime' as const, cap: OVERTIME_DEDUCTION_CAP },
           ],
         }

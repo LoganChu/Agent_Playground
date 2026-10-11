@@ -350,7 +350,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // renamed field, a rule moved behind a function — fails instead of reporting a
   // clean sweep over nothing. That is the failure mode the mutation harness had on
   // its first run, and it printed 100%.
-  assert.equal(checked, 1008, 'byStatus cells with a parameter the harness would mutate');
+  assert.equal(checked, 1018, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -384,14 +384,17 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
     }
   }
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
-  assert.equal(inside, 3_182, 'numbers inside those cells');
-  // Connecticut alone is 1,020 of the 3,182 — nearly a third, because its three
+  assert.equal(inside, 3_192, 'numbers inside those cells');
+  // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
-  // wide. Minnesota's arrival added 170.
+  // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,
+  // which replaced a one-word federal cross-reference on Day 47, added 10.
   assert.deepEqual(largest, ['CT', 1020], 'the state contributing most of them');
-  // 30 documented in NOT_REACHABLE_BY_ANY_HOUSEHOLD, plus 28 that are the
+  // 30 documented in NOT_REACHABLE_BY_ANY_HOUSEHOLD, plus 30 that are the
   // surviving-spouse cells of the four states which have no surviving-spouse
   // status — exempt by construction rather than by a ledger entry, and asserted
-  // in the opposite direction. See the branch above.
-  assert.equal(exempt.length, 58, 'cells the engine cannot reach, all of them documented');
+  // in the opposite direction. See the branch above. It was 28 until Day 47 gave
+  // Arizona a standard-deduction table of its own: one more unreachable
+  // surviving-spouse cell per year, in a state that already had no such box.
+  assert.equal(exempt.length, 60, 'cells the engine cannot reach, all of them documented');
 });

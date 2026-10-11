@@ -124,32 +124,81 @@ function sensitiveStates(year) {
   return out;
 }
 
-test('exactly five states read a below-AGI federal figure, and it is MEASURED not listed', () => {
+test('exactly FOUR states read a below-AGI federal figure, and it is MEASURED not listed', () => {
   for (const year of YEARS) {
     assert.deepEqual(
       sensitiveStates(year),
-      ['AZ', 'CO', 'ID', 'MO', 'UT'],
+      ['CO', 'ID', 'MO', 'UT'],
       `${year}: the states whose tax moves when the federal deduction moves`,
     );
   }
 });
 
-test('every state that reads one declares how it tracks the Code, and no other state does', () => {
+test('ARIZONA LEFT THIS SET, and the measurement is what says so rather than a note', () => {
+  // Day 46 found five. Day 47 finds four, and the state that left did not change
+  // its answer by a cent: A.R.S. § 43-1041(A) defined Arizona's standard
+  // deduction AS the federal one until Laws 2026 ch. 140 (HB 4168) §§ 16 and
+  // 35(A) replaced the cross-reference with Arizona's own figures, retroactive
+  // to taxable years beginning after 31 December 2024.
+  //
+  // So this is the inverse of the Day 46 defect. There the figures were wrong
+  // and the mechanism was right; here the figures are right and the MECHANISM
+  // changed, and no number in this package moved on the day it happened. That
+  // is why the probe is the test: nothing else in this file could tell the two
+  // apart.
+  for (const year of YEARS) {
+    for (const filingStatus of FILING_STATUSES) {
+      for (const agi of [40_000, 120_000]) {
+        assert.equal(
+          sensitivity('AZ', year, filingStatus, agi),
+          0,
+          `AZ ${year} ${filingStatus} at $${agi}: Arizona's deduction is its own, so moving the ` +
+            `federal one must not move Arizona's tax`,
+        );
+      }
+    }
+  }
+});
+
+test('a conformity claim must say WHICH HALF of the return it governs, and be backed for that half', () => {
+  // Day 46 made this two-sided and could only ask one question: does the state's
+  // tax move when a below-AGI federal figure moves? Arizona answered yes, so it
+  // had to declare; after HB 4168 it answers no, so under the old rule it was
+  // forbidden to declare — although § 43-105 still decides which Code builds the
+  // federal AGI Arizona starts from.
+  //
+  // THE RULE: "does this state read the federal Code?" is not one question. The
+  // claim now names the half it governs and each half is checked against a
+  // different fact about the state.
   for (const year of YEARS) {
     const sensitive = new Set(sensitiveStates(year));
     for (const state of SUPPORTED_STATES) {
       const def = getStateDefinition(state, year);
       if (!def) continue;
+      const c = def.federalConformity;
       if (sensitive.has(state)) {
         assert.ok(
-          def.federalConformity,
+          c,
           `${state} ${year}: tax moves with a below-AGI federal figure, so federalConformity is required`,
         );
-      } else {
         assert.equal(
-          def.federalConformity,
-          undefined,
-          `${state} ${year}: tax does not move with a below-AGI federal figure, so a conformity claim here would be unbacked`,
+          c.governs,
+          'belowTheLine',
+          `${state} ${year}: measured sensitive below the line, so that is what it governs`,
+        );
+      } else if (c) {
+        // A state may still declare when the date reaches its BASE — but only if
+        // it actually has a federal base. A conformity claim on a stateDefined
+        // state would be backed by nothing at all.
+        assert.equal(
+          c.governs,
+          'base',
+          `${state} ${year}: not sensitive below the line, so a 'belowTheLine' claim would be unbacked`,
+        );
+        assert.equal(
+          def.base,
+          'federalAdjustedGrossIncome',
+          `${state} ${year}: a 'base' conformity claim needs a federal base to govern`,
         );
       }
     }
@@ -175,28 +224,42 @@ test('a static-date state names its date and a rolling one has none', () => {
   }
 });
 
-test('THE FINDING: Arizona 2025 is the only answer here carried by executive action', () => {
+test("THE FINDING: Arizona 2025 is carried by ARIZONA'S OWN FIGURE, not by conformity and not by the order", () => {
+  // Day 46 called this entry "the only answer here carried by executive action"
+  // and that was true when it was written. It stopped being true on 13 June
+  // 2026, nearly four months before Day 46 ran, and Day 46 had the bill in hand:
+  // it cited HB 4168 for moving the conformity date and did not read that §§ 16
+  // and 35(A) of the same bill backdated Arizona's own deduction table to 2025.
+  //
+  // THE RULE: AN OMNIBUS ACT HAS ONE HEADLINE DATE AND MANY EFFECTIVE DATES.
   const az = getStateDefinition('AZ', 2025).federalConformity;
   assert.equal(az.kind, 'staticDate');
-  assert.equal(az.conformedTo, '2025-01-01', 'frozen six months BEFORE the Act this package applies');
-  assert.equal(az.reachedAnyway.route, 'executiveAction');
+  assert.equal(az.conformedTo, '2025-01-01', 'the date was never moved for 2025 — both bills were vetoed');
+  assert.equal(az.governs, 'base', 'what the date still reaches is federal AGI, not the deduction');
+  assert.equal(az.reachedAnyway.route, 'ownStatutoryFigure');
+  assert.match(az.reachedAnyway.cite, /43-1041\(A\)/);
+  assert.match(az.reachedAnyway.cite, /HB 4168/);
+  assert.match(az.reachedAnyway.cite, /retroactive/i, 'the retroactivity is the whole of the finding');
+  // The vetoes and the order are still on the record, because the seven months
+  // in which the order WAS the only authority are a fact about the year.
   assert.match(az.reachedAnyway.cite, /Executive Order 2025-15/);
-  assert.match(az.reachedAnyway.cite, /vetoed/, 'the legislature tried twice and failed, which is the point');
+  assert.match(az.reachedAnyway.cite, /vetoed/);
 
-  // 2026 needs nothing but the statute.
   const az26 = getStateDefinition('AZ', 2026).federalConformity;
   assert.equal(az26.conformedTo, '2026-01-01', 'HB 4168, signed 13 June 2026');
+  assert.equal(az26.governs, 'base');
   assert.equal(az26.reachedAnyway, undefined);
 
-  // And it is the ONLY one of its kind in the package.
+  // NO STATE-YEAR IN THIS PACKAGE NOW RESTS ON AN EXECUTIVE ORDER. That is the
+  // claim worth asserting, because it is the one that changed.
   const byExecutive = [];
   for (const year of YEARS) {
-    for (const state of sensitiveStates(year)) {
-      const c = getStateDefinition(state, year).federalConformity;
-      if (c.reachedAnyway?.route === 'executiveAction') byExecutive.push(`${state} ${year}`);
+    for (const state of SUPPORTED_STATES) {
+      const c = getStateDefinition(state, year)?.federalConformity;
+      if (c?.reachedAnyway?.route === 'executiveAction') byExecutive.push(`${state} ${year}`);
     }
   }
-  assert.deepEqual(byExecutive, ['AZ 2025']);
+  assert.deepEqual(byExecutive, [], 'Arizona was the only one and HB 4168 replaced it');
 });
 
 test("Idaho 2025's answer became the right one on 10 February 2026 and not before", () => {
@@ -220,7 +283,7 @@ test('Colorado, Missouri and Utah are rolling, and none of them needed a route',
   }
 });
 
-test('the five deltas are the state rate times the REAL increase', () => {
+test('the four deltas are the state rate times the REAL increase', () => {
   // These are the figures that were wrong in four test files and five notes.
   // Each is now stated against the $750 / $1,500 / $1,125 increase.
   //
@@ -230,8 +293,13 @@ test('the five deltas are the state rate times the REAL increase', () => {
   // $79.50. A single filer at $120,000 is past the withdrawal of Utah's credit,
   // so Utah's delta is $0.00. Each status is measured where all five states are
   // live, and both of those boundaries have a test of their own below.
+  //
+  // ARIZONA IS NOT HERE ANY MORE and its $18.75 has not gone away: Arizona's own
+  // statutory table carries the post-OBBBA figures, so the Act's increase is
+  // inside § 43-1041(A) rather than reaching Arizona through the Code. That is
+  // asserted in `arizona-deduction.test.js`, against the table, which is where
+  // the claim now lives.
   const expected = {
-    AZ: { single: 18.75, marriedFilingJointly: 37.5 },
     CO: { single: 33.0, marriedFilingJointly: 66.0 },
     ID: { single: 39.75, marriedFilingJointly: 79.5 },
     MO: { single: 35.25, marriedFilingJointly: 70.5 },
@@ -255,20 +323,37 @@ test('the five deltas are the state rate times the REAL increase', () => {
   );
 });
 
-test('the head-of-household column lands on a HALF CENT in three states, and it does not round the same way', () => {
+test('the head-of-household column lands on a HALF CENT in two states, and it does not round the same way', () => {
   // 1,125 x 2.5% is 28.125; x 5.3% is 59.625; x 4.7% is 52.875. All three are
-  // exact half-cents, and the engine rounds a float: two go DOWN and one goes UP,
-  // because the binary value lands below the midpoint twice and above it once.
+  // exact half-cents, and two report DOWN while one reports UP.
+  //
+  // DAY 46 EXPLAINED THAT WRONGLY AND DAY 47 MEASURED IT. The old comment said
+  // "the engine rounds a float ... the binary value lands below the midpoint
+  // twice and above it once". It does not: `roundCents` of all three products
+  // rounds UP, to 28.13, 59.63 and 52.88. None of these figures is a rounded
+  // product. Each is the EXACT difference of two answers already rounded to the
+  // cent — Idaho reports 2007.53 - 1947.91 = 59.62 exactly, with no rounding of
+  // the difference at all.
+  //
+  // THE RULE: ROUNDING THE SUBTRAHEND UP PUSHES THE DIFFERENCE DOWN. The
+  // direction is decided by WHICH of the two answers absorbs the half-cent, not
+  // by anything about binary representation. `engine.ts` already carries this
+  // rule for the notes that price a counterfactual; the prose explaining the
+  // half-cent had not been held to it.
   //
   // This is worklist item 10 from Day 45, reached from a new direction and with a
   // sharper demonstration than the differential grid gave it: the same arithmetic
   // at the same precision, rounding two ways inside one test.
-  const measured = { AZ: 28.12, ID: 59.62, MO: 52.88 };
+  // Arizona's $28.12 is the third instance and is no longer measurable from
+  // here, because moving the federal deduction no longer moves Arizona. It is
+  // asserted against Arizona's own table in `arizona-deduction.test.js` instead,
+  // and the two exact values below are still checked on both sides.
+  const measured = { ID: 59.62, MO: 52.88 };
   for (const [state, want] of Object.entries(measured)) {
     const got = sensitivity(state, 2025, 'headOfHousehold', 70_000);
     assert.equal(Number(got.toFixed(2)), want, `${state} head of household`);
   }
-  assert.equal(Number((1_125 * 0.025).toFixed(3)), 28.125, 'the exact value AZ rounds DOWN from');
+  assert.equal(Number((1_125 * 0.025).toFixed(3)), 28.125, 'the exact value Arizona rounds DOWN from');
   assert.equal(Number((1_125 * 0.047).toFixed(3)), 52.875, 'the exact value MO rounds UP from');
 
   // Colorado and Utah have no half-cent at this status, so they are exact.
@@ -276,8 +361,8 @@ test('the head-of-household column lands on a HALF CENT in three states, and it 
   assert.equal(sensitivity('UT', 2025, 'headOfHousehold', 70_000).toFixed(2), '67.50');
 });
 
-test('UTAH IS THE ONLY ONE OF THE FIVE WHERE THE OBBBA INCREASE IS WORTH NOTHING AT THE TOP', () => {
-  // The other four read the deduction through the base or through a deduction of
+test('UTAH IS THE ONLY ONE OF THE FOUR WHERE THE OBBBA INCREASE IS WORTH NOTHING AT THE TOP', () => {
+  // The other three read the deduction through the base or through a deduction of
   // their own, so the benefit is the state rate times the increase at every
   // income. Utah reads it through a CREDIT that withdraws at 1.3 cents on the
   // dollar, so the benefit is a band: full value to $87,444 of AGI, nothing at
@@ -292,7 +377,7 @@ test('UTAH IS THE ONLY ONE OF THE FIVE WHERE THE OBBBA INCREASE IS WORTH NOTHING
   assert.ok(sensitivity('UT', 2025, 'single', 20_000) < 45, 'capped by the tax itself');
 
   // Every other state keeps its full delta at $200,000.
-  for (const [state, want] of Object.entries({ AZ: 18.75, CO: 33.0, ID: 39.75, MO: 35.25 })) {
+  for (const [state, want] of Object.entries({ CO: 33.0, ID: 39.75, MO: 35.25 })) {
     assert.ok(
       Math.abs(sensitivity(state, 2025, 'single', 200_000) - want) < 0.005,
       `${state} is unbounded above`,
@@ -300,12 +385,12 @@ test('UTAH IS THE ONLY ONE OF THE FIVE WHERE THE OBBBA INCREASE IS WORTH NOTHING
   }
 });
 
-test('and the OLD figures are wrong for every one of the five', () => {
+test('and the OLD figures are wrong for every one of the four', () => {
   // The guard that would have caught Day 4's defect: the increase measured from
-  // the 2024 figure produces a different answer in all five states, so a test
+  // the 2024 figure produces a different answer in all four states, so a test
   // asserting one of these is asserting the 2024-to-2025 change and calling it
-  // OBBBA.
-  const wrong = { AZ: 28.75, CO: 50.6, ID: 60.95, MO: 54.05, UT: 69.0 };
+  // OBBBA. Arizona's $28.75 is checked against its own table instead.
+  const wrong = { CO: 50.6, ID: 60.95, MO: 54.05, UT: 69.0 };
   for (const [state, bad] of Object.entries(wrong)) {
     const got = sensitivity(state, 2025, 'single');
     assert.ok(
@@ -317,12 +402,18 @@ test('and the OLD figures are wrong for every one of the five', () => {
 
 test('the weakest conformity entry says so, in the field rather than in a journal', () => {
   // Every state revenue and legislature site this package needs has been refused
-  // by the sandbox's egress policy for five runs. Four of the five entries are
-  // established from secondary reproductions, and that is recorded where a
-  // reader of the definition will see it.
+  // by the sandbox's egress policy for six runs — a policy denial on CONNECT,
+  // confirmed against the proxy's own status endpoint on Day 47. Every entry is
+  // established from secondary reproductions cross-checked against each other,
+  // and that is recorded where a reader of the definition will see it rather
+  // than in a journal nobody ships.
+  //
+  // ARIZONA IS CHECKED HERE TOO although it is no longer in the sensitive set,
+  // because an unread primary text is a property of the CLAIM and not of which
+  // half of the return the claim governs.
   const unread = [];
-  for (const state of sensitiveStates(2025)) {
-    if (getStateDefinition(state, 2025).federalConformity.primaryTextUnread) unread.push(state);
+  for (const state of [...new Set([...sensitiveStates(2025), 'AZ'])].sort()) {
+    if (getStateDefinition(state, 2025).federalConformity?.primaryTextUnread) unread.push(state);
   }
   assert.deepEqual(unread, ['AZ', 'CO', 'ID', 'MO', 'UT'], 'all five, honestly');
 
@@ -347,7 +438,8 @@ test('a RESULT carries the conformity rule, because a caller cannot read the def
   assert.equal(at('AZ').base, 'federalAdjustedGrossIncome');
   assert.equal(at('AZ').federal.kind, 'staticDate');
   assert.equal(at('AZ').federal.conformedTo, '2025-01-01');
-  assert.equal(at('AZ').federal.reachedAnyway.route, 'executiveAction');
+  assert.equal(at('AZ').federal.governs, 'base');
+  assert.equal(at('AZ').federal.reachedAnyway.route, 'ownStatutoryFigure');
 
   // And absent where it would be unbacked. Illinois starts from federal AGI and
   // nothing below it reaches an Illinois return, so Illinois has no business

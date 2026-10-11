@@ -434,8 +434,8 @@ test('HB 527 deducts the overtime premium in 2026, capped at $1,000, and 2025 ha
   const in2025 = al({ year: 2025, agi: 50_000, federalDeductions: { overtime: 1_000 } });
   const bare2025 = al({ year: 2025, agi: 50_000 });
   money(in2025.tax, bare2025.tax, '2025 reads no overtime deduction');
-  assert.equal(getStateDefinition('AL', 2025).compensationExclusions, undefined);
-  assert.equal(getStateDefinition('AL', 2026).compensationExclusions.length, 1);
+  assert.equal(getStateDefinition('AL', 2025).federalDeductionSubtractions, undefined);
+  assert.equal(getStateDefinition('AL', 2026).federalDeductionSubtractions.length, 1);
 });
 
 // ---------------------------------------------------------------------------

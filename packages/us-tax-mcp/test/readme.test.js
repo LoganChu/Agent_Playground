@@ -417,7 +417,7 @@ const stateFed = (agi, taxable, deduction) => ({
   deductionKind: 'standard',
 });
 
-test('README: the OBBBA pass-through table, recomputed for all five states', () => {
+test('README: the OBBBA pass-through table, recomputed for all four states', () => {
   // $15,000 is the pre-OBBBA 2025 figure (Rev. Proc. 2024-40). This test said
   // $14,600 until Day 46 — the 2024 figure — so every cut below was overstated by
   // the $400 of ordinary indexation between the two years, and the test could not
@@ -428,8 +428,14 @@ test('README: the OBBBA pass-through table, recomputed for all five states', () 
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: federalBefore }).tax -
     stateIncomeTax({ state, year: 2025, filingStatus: 'single', federal: federalAfter }).tax;
 
-  assert.equal(cut('AZ').toFixed(2), '18.75');
-  quotes('| Arizona | Its standard deduction *is* the federal one (A.R.S. § 43-1041) | $18.75 | **static, 2025-01-01** |');
+  // ARIZONA IS NO LONGER A PASS-THROUGH. Laws 2026 ch. 140 (HB 4168) §§ 16 and
+  // 35(A) replaced § 43-1041(A)'s federal cross-reference with Arizona's own
+  // amounts, retroactively to 2025, so moving the federal deduction no longer
+  // moves Arizona's answer. The $18.75 is unchanged and now comes from Arizona's
+  // own statute — asserted against its table in the state package's
+  // `arizona-deduction.test.js`.
+  assert.equal(cut('AZ').toFixed(2), '0.00');
+  quotes('| ~~Arizona~~ | **No longer reads it.** § 43-1041(A) carried the federal figure by cross-reference until HB 4168 replaced it with Arizona\'s own amounts, retroactive to 2025 | $18.75, from Arizona\'s own statute | **static, 2025-01-01**, and it no longer decides the deduction |');
   assert.equal(cut('CO').toFixed(2), '33.00');
   quotes('| Colorado | Starts from federal **taxable** income | $33.00 | rolling |');
   assert.equal(cut('ID').toFixed(2), '39.75');

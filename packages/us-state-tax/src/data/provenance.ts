@@ -250,8 +250,12 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   ...YEAR_ENTRIES,
 
   // =========================================================================
-  // ARIZONA — one figure. The standard deduction is `kind: 'federal'`, so
-  // Arizona stores no copy of it and there is nothing here to cite.
+  // ARIZONA — one figure until Day 47, because the standard deduction was
+  // `kind: 'federal'` and Arizona stored no copy of it. HB 4168 §§ 16 and
+  // 35(A) replaced that cross-reference with Arizona's own amounts, so there
+  // are now eleven, and SIX OF THEM ARE THE INTERESTING KIND: a figure this
+  // state's statute carries that is equal to a federal figure for a reason
+  // rather than by transcription.
   // =========================================================================
   {
     state: 'AZ',
@@ -259,6 +263,32 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     kind: 'statute',
     document: '§ 43-1011',
     cite: 'Ariz. Rev. Stat. § 43-1011 — the 2.5% rate, flat since tax year 2023',
+    constant: true,
+  },
+  {
+    state: 'AZ',
+    path: 'deduction.amounts.*',
+    years: [2025],
+    kind: 'statute',
+    document: 'Laws 2026, ch. 140 (HB 4168) §§ 16 and 35(A)',
+    cite: "Ariz. Rev. Stat. § 43-1041(A) as amended by Laws 2026, ch. 140 (HB 4168) §§ 16 and 35(A), signed June 13, 2026 and retroactive to taxable years beginning from and after December 31, 2024 — $15,750 single and separate, $23,625 head of household, $31,500 joint. These are PRINTED IN THE ARIZONA STATUTE and are not this package's copy of a federal figure, which is what they were before HB 4168 and what the absence of this entry used to record.",
+    constant: true,
+  },
+  {
+    state: 'AZ',
+    path: 'deduction.amounts.*',
+    years: [2026],
+    kind: 'indexed',
+    document: 'Ariz. Rev. Stat. § 43-1041(H)',
+    cite: "Ariz. Rev. Stat. § 43-1041(H) indexes the subsection (A) amounts 'in the same manner in which the federal basic standard deduction is adjusted for inflation pursuant to section 63', so the 2026 Arizona amounts are the 2025 ones carried forward by the FEDERAL method and come out equal to the federal figures — $16,100 / $24,150 / $32,200, Rev. Proc. 2025-32 § 4.14(1). INDEXED AND NOT CARRIED-FORWARD, because the index is specified and applied rather than unpublished; what is borrowed is the method, not the number. `test/arizona-deduction.test.js` requires the equality to hold against us-federal-tax and fails the year it stops.",
+    constant: true,
+  },
+  {
+    state: 'AZ',
+    path: 'itemizedDeduction.phaseOutRate',
+    kind: 'statute',
+    document: '§ 43-1042',
+    cite: 'Ariz. Rev. Stat. § 43-1042 — Arizona itemized deductions, which carry no income-based phase-out of their own, so the rate is zero by the statute saying nothing rather than by this package choosing a default. A filer may itemise in Arizona whether or not they itemised federally.',
     constant: true,
   },
 
@@ -614,7 +644,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
   {
     state: 'GA',
-    path: 'compensationExclusions.*.cap',
+    path: 'federalDeductionSubtractions.*.cap',
     years: [2026],
     kind: 'statute',
     document: 'Georgia HB 463 (2026)',
@@ -1381,7 +1411,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
   {
     state: 'AL',
-    path: 'compensationExclusions.*.cap',
+    path: 'federalDeductionSubtractions.*.cap',
     kind: 'statute',
     document: 'HB 527 (2026)',
     cite: 'Alabama HB 527, signed in April 2026 — up to $1,000 of qualified overtime compensation for tax years beginning after 31 December 2025 and through 2028, on the federal definition of overtime above the regular rate. The predecessor it replaces was uncapped and covered the whole overtime wage, and it expired on 30 June 2025',

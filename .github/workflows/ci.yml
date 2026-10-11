@@ -192,3 +192,9 @@ jobs:
           done
       - name: Require every OBBBA and conformity claim to match both engines
         run: node tools/cross-package/obbba-claims.mjs --check
+      # Arizona's standard deduction stopped being the federal one on 13 June 2026
+      # and not one figure here moved, because A.R.S. § 43-1041(H) borrows the
+      # federal § 63 indexing method. A number that is right for the wrong reason
+      # has no guard on it; this is the guard.
+      - name: Arizona's own deduction still equals the federal basic one
+        run: node tools/cross-package/arizona-deduction.mjs --check

@@ -180,6 +180,39 @@ export type FederalConformityKind =
 export interface FederalConformityRule {
   readonly kind: FederalConformityKind;
   /**
+   * **Which half of the return this state's conformity date actually reaches.**
+   *
+   * Day 46 shipped this field set for five states on one test: move the federal
+   * standard deduction and see whose tax moves. That measured the right thing
+   * and named it wrongly, because it conflated two different dependencies:
+   *
+   * - `belowTheLine` — a federal figure reaches this state BELOW its starting
+   *   line, so the conformity date governs a number the state applies to its own
+   *   base. Colorado, Idaho and Missouri take the federal standard deduction
+   *   itself; **Utah takes it through a credit** and is the reason this value is
+   *   not called `standardDeduction`. Nothing structural identifies Utah — its
+   *   `deduction` is `{ kind: 'none' }` and the federal figure arrives through
+   *   the Taxpayer Tax Credit — so a name describing the MECHANISM would have
+   *   been wrong for a quarter of the states it covers.
+   * - `base` — the state's starting line is federal adjusted gross income and
+   *   nothing below it is federal, so the conformity date governs only the
+   *   ABOVE-the-line rules that build AGI: the HSA deduction, half of
+   *   self-employment tax, student loan interest. **Arizona, since HB 4168.**
+   *
+   * The distinction became load-bearing on Day 47 rather than being invented
+   * for tidiness. A.R.S. § 43-1041(A) used to define Arizona's standard
+   * deduction as the federal one; HB 4168 replaced the cross-reference with
+   * Arizona's own figures. Arizona's answer stopped moving when the federal
+   * deduction moves — so under Day 46's test it stopped qualifying for a
+   * conformity declaration at all, although its conformity date is still
+   * perfectly load-bearing for its base.
+   *
+   * **THE RULE: "does this state read the federal Code?" is not one question.**
+   * A single boolean answered it for five states and had no answer for the
+   * twenty whose dependency is above the line.
+   */
+  readonly governs: 'belowTheLine' | 'base';
+  /**
    * The date the Code is frozen at, ISO. Required when {@link kind} is
    * `staticDate` and forbidden when it is `rolling` — a rolling state has no
    * such date, and storing one would invite a reader to trust it.
@@ -195,11 +228,24 @@ export interface FederalConformityRule {
    * This is the field the whole type exists for. Without it a static-date state
    * that happens to ship the right answer is indistinguishable from a rolling
    * one, and the two carry very different risk: Idaho's 2025 answer is backed by
-   * a statute passed in February 2026, and Arizona's by an executive order that
-   * two vetoed bills failed to replace.
+   * a statute passed in February 2026.
+   *
+   * The three routes are not three wordings of one thing:
+   *
+   * - `retroactiveLegislation` — the legislature moved the conformity date
+   *   backwards over a year that had already closed. Idaho, HB 559.
+   * - `executiveAction` — no statute carries the figure and the revenue
+   *   department was told to apply it anyway. **Arizona was here until
+   *   June 13, 2026 and is not any more.**
+   * - `ownStatutoryFigure` — the state stopped relying on the federal figure
+   *   and legislated its own, so the conformity date no longer decides the
+   *   answer. Arizona, HB 4168 §§ 16 and 35(A). This is the route that makes
+   *   the question moot rather than answering it, and it is worth a name of its
+   *   own precisely because a reader who sees the right number on a
+   *   static-date state will otherwise assume one of the other two.
    */
   readonly reachedAnyway?: {
-    readonly route: 'retroactiveLegislation' | 'executiveAction';
+    readonly route: 'retroactiveLegislation' | 'executiveAction' | 'ownStatutoryFigure';
     readonly cite: string;
     /** What would be true of this state-year's answer without it. */
     readonly why: string;
@@ -209,7 +255,7 @@ export interface FederalConformityRule {
    * directly**, with the route by which it was established instead.
    *
    * Every state revenue and legislature site this package needs has been refused
-   * by the sandbox's egress policy for five runs, so some of these are
+   * by the sandbox's egress policy for six runs, so some of these are
    * established from secondary reproductions and cross-checks. That is weaker
    * evidence than a statute and is recorded as such rather than rounded up.
    */

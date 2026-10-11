@@ -17,8 +17,29 @@ const AZ_CITATIONS: readonly Citation[] = [
     url: 'https://www.azleg.gov/ars/43/01011.htm',
   },
   {
-    title: 'Ariz. Rev. Stat. § 43-1041 — Arizona standard deduction equals the federal amount',
+    title:
+      "Ariz. Rev. Stat. § 43-1041(A) — the Arizona standard deduction amounts. It defined them as EQUAL TO the federal amount until Laws 2026, ch. 140 (HB 4168) §§ 16 and 35(A) replaced the cross-reference with Arizona figures of its own — $15,750 single and separate, $23,625 head of household, $31,500 joint — retroactive to taxable years beginning from and after December 31, 2024",
     url: 'https://www.azleg.gov/ars/43/01041.htm',
+  },
+  {
+    title:
+      "Ariz. Rev. Stat. § 43-1041(H) — indexes the subsection (A) amounts 'in the same manner in which the federal basic standard deduction is adjusted for inflation pursuant to section 63'. What Arizona borrows after HB 4168 is the METHOD and not the number, which is why the 2026 amounts come out equal to the federal ones rather than being defined as them",
+    url: 'https://www.azleg.gov/ars/43/01041.htm',
+  },
+  {
+    title:
+      'Ariz. Rev. Stat. § 43-1042 — Arizona itemized deductions, which a filer may take whether or not they itemised federally, and which disallow state income taxes. Subsection (D), added by HB 4168 for 2026, caps the Arizona SALT itemized deduction at a flat $10,000 in lieu of IRC § 164(b)(7)',
+    url: 'https://www.azleg.gov/ars/43/01042.htm',
+  },
+  {
+    title:
+      'Ariz. Rev. Stat. § 43-1022 — the Arizona subtractions. HB 4168 added qualified tips (31), qualified overtime (32), the federal senior deduction (35) and qualified passenger vehicle loan interest (36), the last for 2025 only',
+    url: 'https://www.azleg.gov/ars/43/01022.htm',
+  },
+  {
+    title:
+      'Arizona Department of Revenue — Conformity to the Internal Revenue Code: the Department speaking on the exact question § 43-105 decides, rather than a summary of it',
+    url: 'https://azdor.gov/about/legal-research/conformity-irc',
   },
   {
     title:
@@ -36,6 +57,64 @@ const AZ_CITATIONS: readonly Citation[] = [
     url: 'https://azdor.gov/forms/individual/middle-class-tax-cuts-package-mctcp-worksheet',
   },
 ];
+
+/**
+ * Arizona's OWN standard deduction, which is what A.R.S. § 43-1041(A) has set
+ * since Laws 2026, ch. 140 (HB 4168) §§ 16 and 35(A) — retroactively, for
+ * taxable years beginning from and after December 31, 2024.
+ *
+ * ## This replaced a cross-reference, and that is the whole point
+ *
+ * Before HB 4168, § 43-1041(A) defined the Arizona standard deduction *as* the
+ * federal one, and this package said so with `deduction: { kind: 'federal' }`.
+ * **That declaration was right until June 13, 2026 and wrong afterwards**, and
+ * the figures do not say so, because § 43-1041(H) indexes the amounts below "in
+ * the same manner in which the federal basic standard deduction is adjusted for
+ * inflation pursuant to section 63" and the 2025 bases were made equal. So
+ * Arizona's amounts and the federal ones are now TWO parameters that agree
+ * rather than ONE parameter read twice.
+ *
+ * **THE RULE: a number that is right for the wrong reason has no guard on it.**
+ * Reading the federal figure produced the correct Arizona answer in both
+ * supported years, and nothing here would have noticed the day it stopped. The
+ * guard is `test/arizona-deduction.test.js`, which requires every amount below
+ * to equal `us-federal-tax`'s BASIC standard deduction for the same year and
+ * fails when the borrowed method stops producing the federal figure.
+ *
+ * ## And it is the BASIC amount, which is what the old declaration got wrong
+ *
+ * `kind: 'federal'` returned `federal.deduction` — the deduction a filer
+ * ACTUALLY TOOK, which for anyone aged 65 or over or blind includes the
+ * § 63(f) addition. Arizona allows no such addition: the table is flat per
+ * filing status, exactly as the Form 140 instructions print it. The package was
+ * therefore $50.00 low for a single Arizona filer aged 65 or over, $80.00 for a
+ * couple both 65 or over, and $100.00 for a filer both 65 and blind.
+ *
+ * ## No surviving-spouse row, because Arizona's form has no such box
+ *
+ * Form 140 has four: married filing joint, married filing separate, head of
+ * household, single. {@link arizona}'s `survivingSpouseFilesAs` has already
+ * translated her to head of household before this table is read, so the
+ * surviving-spouse entry reuses the head-of-household *constant* rather than
+ * carrying a literal of its own — a figure nothing reads is a mutant nothing
+ * can kill, which is Day 34's lesson.
+ */
+function arizonaStandardDeduction(year: number) {
+  // Rev. Proc. 2025-32 § 4.14(1) for 2026; OBBBA § 70102 as indexed for 2025.
+  const single = year === 2025 ? 15_750 : 16_100;
+  const joint = year === 2025 ? 31_500 : 32_200;
+  const headOfHousehold = year === 2025 ? 23_625 : 24_150;
+  return byStatus({
+    single,
+    joint,
+    // § 43-1041(A) gives a married person filing separately the single amount,
+    // not half the joint one. They are equal here, but they are equal by the
+    // statute saying so rather than by arithmetic.
+    separate: single,
+    headOfHousehold,
+    qualifyingSurvivingSpouse: headOfHousehold,
+  });
+}
 
 function arizona(year: number): StateIncomeTaxDefinition {
   return {
@@ -67,70 +146,130 @@ function arizona(year: number): StateIncomeTaxDefinition {
     year,
     status: 'published',
     base: 'federalAdjustedGrossIncome',
-    // Arizona's conformity is STATIC, which is the fact that was missing from
-    // this file for 46 days while the note below claimed the opposite.
+    // Arizona's conformity is STATIC, and the answer it governs is no longer the
+    // standard deduction — which is the correction Day 47 made to Day 46.
+    //
+    // WHAT DAY 46 GOT WRONG, AND IT HAD THE BILL IN HAND. It read HB 4168's
+    // conformity-date clause, whose effective date is prospective, and wrote
+    // "HB 4168 ... closes 2026 and not 2025". Secs. 16 and 35(A) of the SAME
+    // BILL backdated Arizona's own standard-deduction table and four
+    // subtractions to taxable years beginning after December 31, 2024.
+    //
+    // THE RULE: AN OMNIBUS ACT HAS ONE HEADLINE DATE AND MANY EFFECTIVE DATES.
+    // A claim about what an act did for a given year cannot be derived from the
+    // date in its title or in the summary of whichever clause one happened to
+    // read.
     //
     // 2025: § 43-105 was frozen at January 1, 2025 by HB 2688 — SIX MONTHS
-    // BEFORE the One Big Beautiful Bill Act was enacted on July 4, 2025. Under
-    // the conformity statute alone, an Arizona 2025 return takes the Rev. Proc.
-    // 2024-40 standard deduction of $15,000/$30,000/$22,500 and NOT the OBBBA
-    // figures. The legislature's two attempts to move the date for 2025 —
-    // SB 1106 and HB 2785 — were both vetoed. The OBBBA figures are on the 2025
-    // Form 140 because Executive Order 2025-15 told the Department to put them
-    // there, and ADOR says a filer who claims them may have to amend if the
-    // eventual statute differs, with penalties and interest waived to
-    // October 15, 2027.
+    // BEFORE the One Big Beautiful Bill Act was enacted on July 4, 2025 — and it
+    // stayed frozen: SB 1106 and HB 2785 were both vetoed. For seven months the
+    // OBBBA figures were on the 2025 Form 140 only because Executive Order
+    // 2025-15 told the Department to put them there. **That ended on June 13,
+    // 2026.** HB 4168 wrote $15,750 / $23,625 / $31,500 into § 43-1041(A)
+    // retroactively, so Arizona's 2025 standard deduction is now Arizona's own
+    // number and arrives by statute rather than by conformity or by order.
     //
-    // 2026: settled by statute. HB 4168, signed June 13, 2026, moved the date to
-    // January 1, 2026 for taxable years beginning after December 31, 2025, so
-    // OBBBA is inside the Code Arizona reads and no executive order is load-bearing.
+    // 2026: § 43-105 reads the Code as of January 1, 2026.
     //
-    // THE ANSWER THIS PACKAGE SHIPS FOR 2025 IS THE ONE ON THE STATE'S OWN FORM,
-    // which is the right choice; what was wrong was calling the reason "no
-    // Arizona legislation", as though silence were conformity.
+    // EITHER WAY THE CONFORMITY DATE NO LONGER DECIDES ARIZONA'S DEDUCTION, so
+    // `governs` is `'base'`: what the date still reaches is the above-the-line
+    // rules that build federal AGI, which is Arizona's starting line.
     federalConformity:
       year === 2025
         ? {
             kind: 'staticDate',
+            governs: 'base',
             conformedTo: '2025-01-01',
             cite:
               'A.R.S. § 43-105 as amended by HB 2688 (2025) — the IRC in effect on January 1, 2025, excluding later changes',
             reachedAnyway: {
-              route: 'executiveAction',
+              route: 'ownStatutoryFigure',
               cite:
-                'Executive Order 2025-15 (November 2025), implemented in the 2025 Form 140 and the MCTCP worksheet; SB 1106 and HB 2785 were vetoed',
+                'A.R.S. § 43-1041(A) as amended by Laws 2026, ch. 140 (HB 4168) §§ 16 and 35(A), signed June 13, 2026 and retroactive to taxable years beginning from and after December 31, 2024. Until then: Executive Order 2025-15, after SB 1106 and HB 2785 were vetoed.',
               why:
-                'Under § 43-105 alone a 2025 Arizona return would take the superseded Rev. Proc. 2024-40 standard deduction of $15,000/$30,000/$22,500, making this package $18.75 low for a single filer and $37.50 low for a joint one. No Arizona statute carries the OBBBA figures into 2025.',
+                'The conformity date is six months too early for the OBBBA, so under § 43-105 alone a 2025 Arizona return would take the superseded Rev. Proc. 2024-40 standard deduction of $15,000/$30,000/$22,500. It does not, and since June 13, 2026 the reason is NOT conformity and NOT the executive order: § 43-1041(A) carries $15,750/$23,625/$31,500 as Arizona figures of its own. For the seven months before that the only authority was the order, and ADOR has waived penalties and interest for a filer who amends by October 15, 2027.',
             },
             primaryTextUnread:
-              'azleg.gov and azdor.gov are both refused by this sandbox\u2019s egress policy. The date, the vetoes and HB 4168 are established from the legislature\u2019s own bill summaries and ADOR\u2019s news release as WebSearch reported them, agreeing across four independent write-ups.',
+              'azleg.gov, azdor.gov and azgovernor.gov are all refused by this sandbox\u2019s egress policy — a policy denial on CONNECT, confirmed against the proxy\u2019s own status endpoint. HB 4168\u2019s retroactivity and the amended § 43-1041(A) amounts are established from the enacted Senate fact sheet as WebSearch reported it twice independently, from the House bill summary, and from policyengine-us 2.38.19, whose Arizona standard-deduction parameter cites \u201cA.R.S. 43-1041(A) and (H)\u201d and \u201cLaws 2026, ch. 140 (HB 4168), secs. 16 and 35(A)\u201d and carries the same six amounts this file does.',
           }
         : {
             kind: 'staticDate',
+            governs: 'base',
             conformedTo: '2026-01-01',
             cite:
               'A.R.S. § 43-105 as amended by HB 4168 (signed June 13, 2026) — the IRC in effect on January 1, 2026, for taxable years beginning after December 31, 2025',
             primaryTextUnread:
-              'azleg.gov is refused by this sandbox\u2019s egress policy; HB 4168\u2019s date and signing are established from the Arizona legislature\u2019s enrolled-bill summary and three secondary write-ups that agree.',
+              'azleg.gov is refused by this sandbox\u2019s egress policy; HB 4168\u2019s date and signing are established from the Arizona legislature\u2019s enacted fact sheet, the House bill summary and policyengine-us 2.38.19\u2019s citation of Laws 2026, ch. 140.',
           },
     rate: { kind: 'flat', rate: 0.025 },
-    // The whole point of Arizona. A.R.S. § 43-1041(A) sets the Arizona standard
-    // deduction *equal to* the federal one rather than to a number of its own, so
-    // a federal change moves the Arizona bill with no Arizona rate change.
-    // The OBBBA increase was $750/$1,500/$1,125 — NOT the $1,150/$2,300 this
-    // comment claimed until Day 46, which was the 2024-to-2025 change and
-    // includes $400 of ordinary indexation that OBBBA had nothing to do with.
-    // Storing an Arizona figure here would have been a transcription of the
-    // federal figure with a lag.
-    deduction: { kind: 'federal' },
+    // ARIZONA'S STANDARD DEDUCTION IS ARIZONA'S OWN, as of HB 4168. It was a
+    // cross-reference to the federal figure until June 13, 2026, and this said
+    // `{ kind: 'federal' }` for 47 days — correct for 46 of them and, after the
+    // statute changed, correct only by a coincidence § 43-1041(H) creates.
+    // See {@link arizonaStandardDeduction} for the coincidence and its guard.
+    deduction: { kind: 'table', amounts: arizonaStandardDeduction(year) },
+    // Arizona allows itemising whether or not the filer itemised federally
+    // (§ 43-1042), so this is NOT gated on `federal.deductionKind` — and the
+    // Arizona figure is not the federal one, chiefly because § 43-1042(A)
+    // disallows state income taxes. The caller's own Arizona Schedule A total is
+    // the only figure that can be right, so it is read from
+    // `stateItemizedDeductions` and the engine takes the larger of the two.
+    // Before today an Arizona itemiser silently received their FEDERAL itemised
+    // total through `kind: 'federal'`, which the note below has warned was an
+    // overstatement since the state shipped.
+    // The four Schedule 1-A subtractions HB 4168 enacted as A.R.S. § 43-1022,
+    // retroactive to taxable years beginning after December 31, 2024. Executive
+    // Order 2025-15 had put them on the Department's MCTCP worksheet first; the
+    // statute is what they rest on now.
+    //
+    // THE VEHICLE LOAN SUBTRACTION IS 2025 ONLY. § 43-1022(36) runs "from and
+    // after December 31, 2024 through December 31, 2025" while the federal
+    // § 163(h)(4) deduction runs to 2028, so an Arizona filer gets it in one of
+    // the two years this package supports and not the other. That asymmetry is
+    // the reason this is a year-specific list rather than a constant: a state
+    // subtraction can expire before the federal deduction it is measured from.
+    //
+    // No caps. Arizona follows the federal figure, which is already capped and
+    // already phased out federally — the senior deduction withdraws at 6 cents
+    // on the dollar of modified AGI above $75,000 single and $150,000 joint. The
+    // amounts are READ from `federal.federalDeductions` and never recomputed
+    // here, which is Day 46's rule: the one federal figure this package derived
+    // for itself was wrong by 53% for 46 days.
+    federalDeductionSubtractions: [
+      { name: 'Qualified tips (A.R.S. § 43-1022(31))', source: 'tips', cap: Infinity },
+      { name: 'Qualified overtime compensation (A.R.S. § 43-1022(32))', source: 'overtime', cap: Infinity },
+      { name: 'Federal senior deduction (A.R.S. § 43-1022(35))', source: 'senior', cap: Infinity },
+      ...(year === 2025
+        ? [
+            {
+              name: 'Qualified passenger vehicle loan interest (A.R.S. § 43-1022(36), 2025 only)',
+              source: 'carLoanInterest' as const,
+              cap: Infinity,
+            },
+          ]
+        : []),
+    ],
+    itemizedDeduction: {
+      name: 'Arizona itemized deductions',
+      requiresFederalItemizing: false,
+      forcedWhenFederalItemizing: false,
+      phaseOutRate: 0,
+      phaseOutThreshold: byStatus({
+        single: Infinity,
+        joint: Infinity,
+        separate: Infinity,
+        headOfHousehold: Infinity,
+      }),
+    },
     notes: [
-      "Arizona's standard deduction is defined as equal to the federal standard deduction (A.R.S. § 43-1041(A)), so it tracks the federal figure rather than a number of Arizona's own. The One Big Beautiful Bill Act raised it by $750 single, $1,500 joint and $1,125 head of household for 2025, which is $18.75, $37.50 and $28.12 of Arizona tax. The head-of-household figure is $28.12 and not $28.13 because $1,125 x 2.5% is an exact half-cent ($28.125) and this engine rounds a float, which lands below the midpoint here; Missouri's $1,125 x 4.7% is the same shape and rounds the other way, to $52.88.",
-      "ARIZONA'S IRC CONFORMITY IS STATIC, AND FOR 2025 IT IS FROZEN SIX MONTHS BEFORE THE ACT THIS PACKAGE APPLIES. A.R.S. § 43-105 reads the Code as it stood on 1 January 2025 (HB 2688); OBBBA was enacted on 4 July 2025. Two bills to move the date for 2025, SB 1106 and HB 2785, were vetoed. The OBBBA standard deduction is on the 2025 Form 140 because Executive Order 2025-15 directed the Department to put it there, and the Department has said a filer who claims these provisions may need to amend if the statute the legislature eventually passes differs, with penalties and interest waived if amended by 15 October 2027. This package ships the figure the state's own form carries, which is the right choice for anyone filing — but the authority for the 2025 Arizona answer is an executive order and not a statute, and that is a materially different thing to rely on. For 2026 the question is closed: HB 4168, signed 13 June 2026, moved the conformity date to 1 January 2026.",
-      "FOUR ARIZONA SUBTRACTIONS FOR 2025 ARE NOT MODELLED HERE AND THEY ALL COME FROM THE SAME EXECUTIVE ORDER. Executive Order 2025-15 created Arizona subtractions for the federal Schedule 1-A senior deduction, qualified tips, qualified overtime and qualified vehicle loan interest, reported on the Department's Middle Class Tax Cuts Package worksheet and available only on Form 140 (not 140A or 140EZ). None of them reduces federal adjusted gross income, so none reaches an Arizona return through this package's base, and an Arizona 2025 answer computed here is therefore TOO HIGH for any filer who has one. The senior subtraction is the one that can be priced without extra inputs: $6,000 for a filer aged 65 or over is $150.00 of Arizona tax, and $12,000 for a couple both aged 65 or over is $300.00. Supply any of the four through `subtractions` if they apply.",
+      "ARIZONA'S STANDARD DEDUCTION IS ARIZONA'S OWN NUMBER, AND IT STOPPED BEING THE FEDERAL ONE ON 13 JUNE 2026. A.R.S. § 43-1041(A) defined it as equal to the federal standard deduction until Laws 2026 ch. 140 (HB 4168) §§ 16 and 35(A) wrote $15,750 single and separate, $23,625 head of household and $31,500 joint into the statute, retroactively for taxable years beginning after 31 December 2024. The figures this package ships are unchanged, because § 43-1041(H) indexes Arizona's amounts by the federal § 63 method and the 2025 bases were made equal, so 2026 comes out at the federal $16,100 / $24,150 / $32,200. THAT EQUALITY IS NOW A COINCIDENCE THE STATUTE CREATES RATHER THAN A CROSS-REFERENCE, which is to say Arizona's deduction and the federal one are two parameters that agree instead of one parameter read twice. `test/arizona-deduction.test.js` pins the agreement so it fails the day it ends. The One Big Beautiful Bill Act raised the federal figure by $750 single, $1,500 joint and $1,125 head of household for 2025, which is $18.75, $37.50 and $28.12 of Arizona tax. THE HEAD-OF-HOUSEHOLD FIGURE IS $28.12 AND NOT $28.13, AND THE REASON THIS NOTE GAVE FOR ONE DAY WAS WRONG. $1,125 x 2.5% is an exact half-cent, $28.125, and the note said the engine 'rounds a float, which lands below the midpoint here' — but rounding that product lands ABOVE: $28.13. The figure is not a rounded product at all. It is the exact difference of two answers that were each ALREADY rounded to the cent: at $70,000 of head-of-household AGI, $1,187.50 against $1,159.38, and $1,159.375 rounded UP to get there. ROUNDING THE SUBTRAHEND UP PUSHES THE DIFFERENCE DOWN, which is the whole mechanism, and which of the two answers carries the half-cent is what decides the direction. Idaho's $1,125 x 5.3% is $59.625 and reports $59.62 the same way; Missouri's $1,125 x 4.7% is $52.875 and reports $52.88, because there the half-cent lands in the figure being subtracted FROM. The engine already carries this rule for counterfactual notes — 'the difference of the answers as reported and not of the figures behind them' — and the prose explaining it had not been held to it.",
+      "AND ARIZONA ALLOWS NO ADDITION FOR AGE OR BLINDNESS, which is what the old cross-reference got wrong. `deduction: { kind: 'federal' }` returned the deduction the filer ACTUALLY TOOK federally, and for anyone aged 65 or over or blind that includes the § 63(f) addition — $2,000 single and $1,600 each on a joint return for 2025. Arizona's table is flat per filing status, exactly as the Form 140 instructions print it, so until today this package was TOO LOW by $50.00 for a single Arizona filer aged 65 or over, $80.00 for a couple both 65 or over, $100.00 for a filer both 65 and blind, and $51.25 / $82.50 on the 2026 figures. Missouri, the only other state here whose deduction is the federal one, DOES take the additions — § 143.131(2) says the federal standard deduction and its own note says the age and blindness amounts are included — so the one declaration was right in one state and wrong in the other.",
+      "ARIZONA'S IRC CONFORMITY IS STATIC AND FOR 2025 IS FROZEN SIX MONTHS BEFORE THE ACT — BUT SINCE 13 JUNE 2026 THAT NO LONGER DECIDES THE DEDUCTION. A.R.S. § 43-105 reads the Code as it stood on 1 January 2025 (HB 2688); OBBBA was enacted on 4 July 2025; the two bills to move the date for 2025, SB 1106 and HB 2785, were vetoed, and the date was never moved. For seven months the OBBBA standard deduction was on the 2025 Form 140 only because Executive Order 2025-15 directed the Department to put it there, and ADOR has waived penalties and interest for a filer who amends by 15 October 2027. HB 4168 then wrote Arizona's own amounts into § 43-1041(A) retroactively, so the 2025 answer rests on a statute rather than on an order — and it rests on Arizona's statute rather than on the federal Code. THIS REPOSITORY SAID THE OPPOSITE FOR ONE DAY: that 'the authority for the 2025 Arizona answer is an executive order and not a statute', and that HB 4168 'closes 2026 and not 2025'. The second half of that is the mistake worth naming, because the bill was already cited here: an omnibus act has one headline date and many effective dates, and the clause that was read was the one whose date is prospective. What the conformity date still governs is Arizona's BASE, federal adjusted gross income, and so the above-the-line rules that build it.",
+      "FOUR ARIZONA SCHEDULE 1-A SUBTRACTIONS ARE NOT MODELLED HERE, AND THEY ARE STATUTE RATHER THAN AN EXECUTIVE ORDER. Executive Order 2025-15 put them on the Department's Middle Class Tax Cuts Package worksheet (Form 140 page 6, item V — not available on 140A or 140EZ) for 2025; HB 4168 then enacted them as A.R.S. § 43-1022: qualified tips (31), qualified overtime (32), the federal senior deduction (35) and qualified passenger vehicle loan interest (36). THE VEHICLE LOAN SUBTRACTION IS 2025 ONLY and sunsets after it, while the federal deduction runs to 2028 — so this is one of the few places where an Arizona subtraction expires before the federal deduction it is measured from. None of the four reduces federal adjusted gross income, so none reaches an Arizona return through this package's base, and an Arizona answer computed here is TOO HIGH for any filer who has one. THE SENIOR SUBTRACTION IS A BAND, NOT A FLAT AMOUNT, which is what this note said for one day and is wrong: the figure Arizona subtracts is the federal senior deduction, and that withdraws at 6 cents on the dollar of modified AGI above $75,000 single and $150,000 joint. So the full $6,000 is worth $150.00 of Arizona tax to $75,000 of AGI for a single filer and nothing at all from $175,000; $12,000 for a couple both 65 or over is worth $300.00 to $150,000 and nothing from $250,000. Below about $44,000 of joint AGI it is worth less again, because Arizona taxable income runs out before the subtraction does. THIS PACKAGE NOW TAKES THEM FOR YOU when you pass the federal deductions in `federalDeductions` — `tips`, `overtime`, `senior` and `carLoanInterest`, which are `additionalDeductions.*.deduction` on `us-federal-tax`'s result. The amounts are read from there and never recomputed here: each has its own federal phase-out, and a state package that reimplemented them would be keeping a second copy of the federal rules with a lag. Without that field an Arizona answer is too high for any filer who has one, and `subtractions` still works.",
       'Arizona repealed its personal and dependent exemptions in 2019 and replaced them with a dependent tax credit, which this package does not compute. An Arizona return with dependents computed here will be too high by $100 per dependent under 17 and $25 per other dependent, subject to a phase-out.',
       'Arizona allows an increased standard deduction of 25% of charitable contributions for filers who do not itemize (A.R.S. § 43-1041(G)). Not modelled — supply it through `subtractions` if it applies.',
-      'Arizona itemized deductions differ from federal ones, most importantly by disallowing state income taxes. Passing a federal itemized deduction through unchanged overstates the Arizona deduction.',
-      'ARIZONA IS THE ONE STATE HERE WHERE TRANSLATING A SURVIVING SPOUSE\'S FILING STATUS CANNOT FINISH THE JOB, and the reason is the note above it rather than anything about widows: Arizona files her as a head of household (box 5), and Arizona\'s standard deduction is the FEDERAL one, which § 63(c)(2)(A) sets at the JOINT amount for a surviving spouse. So the two halves of her Arizona return are chosen by two different governments and they disagree. The Form 140A instructions print one amount against each BOX, head of household among them, which reads as the box governing; A.R.S. § 43-1041(A) points at § 63, which reads as the federal status governing. NOBODY HAS READ WHICH, and the gap is 2.5% of $8,050 on the 2026 federal figures — $201.25. This package uses whatever `federal.deduction` the caller passes, so a caller who supplied the surviving-spouse figure gets the second reading and a caller who supplied the head-of-household figure gets the first; the result says which in a note. It is the only state in this package whose deduction is a federal cross-reference AND whose own status table a surviving spouse has to be moved across, which is why no other state has the question. A SECOND QUESTION CAME OUT OF THE SAME PARAGRAPH AND IS ALSO UNREAD: one secondary reproduction of the 2025 Form 140A instructions shows $23,650 against box 5 where the 2025 federal head-of-household standard deduction is $23,625 — $25 apart. If that figure is really what Arizona prints then `kind: \'federal\'` is wrong by $25 of deduction for every Arizona head of household, which is 62.5 cents of tax. It is recorded here and not acted on because one garbled extraction of a PDF is not a source, and the three other figures in the same list ($31,500 and $15,750) agree with the federal ones exactly.',
+      'Arizona itemized deductions differ from federal ones, most importantly by disallowing state income taxes (A.R.S. § 43-1042), and § 43-1042(D) caps the Arizona SALT itemized deduction at a flat $10,000 from 2026 in lieu of IRC § 164(b)(7) — one cap, with no single-versus-joint split. A filer may itemise in Arizona whether or not they itemised federally, so this package reads `stateItemizedDeductions` and takes the larger of that and the standard deduction. UNTIL TODAY IT PASSED THE FEDERAL ITEMISED TOTAL THROUGH UNCHANGED, which is the overstatement this note has warned about since the state shipped — the warning was right and the code did it anyway. A caller who supplies no Arizona figure now gets the standard deduction rather than a federal number Arizona would not allow.',
+      "A STANDING ARIZONA QUESTION WAS ANSWERED BY THE STATUTE CHANGING RATHER THAN BY ANYONE READING THE FORM, and it is worth recording because the answer cost nothing. Arizona files a surviving spouse as a head of household (box 5), and while § 43-1041(A) defined the Arizona standard deduction as the federal one, the two halves of her return were chosen by two different governments and disagreed: the instruction booklet prints an amount against the BOX, and § 63(c)(2)(A) gives a surviving spouse the JOINT amount. This package recorded that NOBODY HAD READ WHICH GOVERNS, and priced the gap at 2.5% of $8,050 on the 2026 figures — $201.25. HB 4168 dissolved the question: § 43-1041(A) now carries Arizona's own four amounts, one per box on Form 140, and there is no surviving-spouse box and no federal cross-reference left to disagree with. She takes the head-of-household amount, $23,625 for 2025 and $24,150 for 2026, and the $201.25 is resolved in favour of the box. THE SECOND QUESTION IN THE SAME PARAGRAPH IS ALSO CLOSED: one secondary reproduction of the 2025 Form 140A instructions showed $23,650 against box 5 where the federal head-of-household figure is $23,625, and this package declined to act on a single garbled extraction. It was garbled — $23,625 is what § 43-1041(A) carries and what policyengine-us reads off the 2025 Form 140 instructions — so the 62.5 cents a head of household was feared to be losing was never being lost.",
     ],
     citations: AZ_CITATIONS,
   };
@@ -306,7 +445,7 @@ function georgia(year: number): StateIncomeTaxDefinition | undefined {
     },
     ...(year >= 2026
       ? {
-          compensationExclusions: [
+          federalDeductionSubtractions: [
             { name: 'Georgia qualified overtime exclusion', source: 'overtime', cap: 1_750 },
             { name: 'Georgia cash tip exclusion', source: 'tips', cap: 1_750 },
           ] as const,

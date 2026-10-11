@@ -81,8 +81,22 @@ const fail = (...lines) => {
   process.exit(1);
 };
 
-/** The five states whose answer moves when a below-AGI federal figure moves. */
-const SENSITIVE = ['AZ', 'CO', 'ID', 'MO', 'UT'];
+/**
+ * The states whose answer moves when a below-AGI federal figure moves.
+ *
+ * FOUR, NOT FIVE. Arizona was here until Day 47: A.R.S. § 43-1041(A) defined its
+ * standard deduction as the federal one until Laws 2026, ch. 140 (HB 4168)
+ * §§ 16 and 35(A) replaced the cross-reference with Arizona's own amounts,
+ * retroactively for taxable years beginning after December 31, 2024.
+ *
+ * Arizona's figures did not change, which is why this needed a tool rather than
+ * a reading: its 2025 amounts ARE the post-OBBBA federal ones and its 2026 ones
+ * come out equal because § 43-1041(H) borrows the federal § 63 indexing method.
+ * The equality is now a coincidence the statute creates, and it has a check of
+ * its own in `arizona-deduction.mjs` — which is where Arizona's $18.75 is
+ * asserted now that it cannot be measured by moving the federal figure.
+ */
+const SENSITIVE = ['CO', 'ID', 'MO', 'UT'];
 
 /**
  * Utah's cut has to be measured where its Taxpayer Tax Credit is still live —
@@ -157,7 +171,7 @@ const cut = (code, from, to) => {
   return at(from) - at(to);
 };
 
-const NAMES = { AZ: 'Arizona', CO: 'Colorado', ID: 'Idaho', MO: 'Missouri', UT: 'Utah' };
+const NAMES = { CO: 'Colorado', ID: 'Idaho', MO: 'Missouri', UT: 'Utah' };
 
 const rows = SENSITIVE.map((code) => ({
   code,
@@ -250,7 +264,7 @@ if (CHECK) {
     for (const r of rows) {
       const a = ad[r.code];
       if (!a) {
-        problems.push(`${rel}: no OBBBA row for ${r.name}, and all five states pass the increase through`);
+        problems.push(`${rel}: no OBBBA row for ${r.name}, and all four of these states pass the increase through`);
         continue;
       }
       if (a.cut === undefined) {
