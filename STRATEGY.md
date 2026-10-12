@@ -35,7 +35,7 @@ procedure, so one sweep can read all twenty-five.
 **1,426 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1470 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.6%** (1471 mutants, 6 survivors), **the state
 one re-measured on Day 47 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and on Day 47 the count, the kill count, the survivor count, the
 score and the identity of all six survivors came back exactly as predicted while the two

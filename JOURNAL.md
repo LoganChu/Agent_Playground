@@ -393,18 +393,69 @@ during it**, which is the whole difference between today and Day 47's three star
 > build. `check-scores.mjs` is the thing that would say otherwise.
 >
 
-### Part 11b — the result
+### Part 11b — the result: every figure exact, and ALL SIX LINE NUMBERS RIGHT
 
-PENDING AT THE TIME OF WRITING. The run is `node tools/mutation/mutate.mjs
-packages/us-state-tax --record --workers 4`, enumerated at **1,471 mutants**, baseline
-green, and it announced that it will write `tools/mutation/scores.json`.
+```text
+mutants 1471    killed 1465    survived 6    score 99.6%
 
-**Where the day stands if it did not finish: re-run exactly that command.** The prediction
-above is complete and unedited, `src` and `test/` are final — so the
-`mutantFingerprint` and `suiteFingerprint` the score records are the ones this commit
-carries — and `check-scores.mjs` will keep the `mutation-claims` CI job RED until the
-score is recorded against this build, which is the instrument working rather than a
-problem.
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**The count, the kill count, the survivor count, the score, the identity of all six
+survivors AND ALL SIX LINE NUMBERS came back exactly as written.** The one new mutant —
+`share: 0.25` → `0.125` — died, as did everything else; the stated failure mode did not
+happen.
+
+**This is the first time in this instrument's history that the line numbers were right,
+and the reason is not that I got better at predicting them.**
+
+| day | method | result |
+| --- | --- | --- |
+| Day 46 | declined to state them | — (and a derivation would have been out by ten, twice) |
+| Day 47 | **measured**, then changed `src` | out by one, twice |
+| Day 48 | **measured last** | **exact, six for six** |
+
+Day 47 concluded that measuring beats deriving but "does not make a fragile identifier
+robust", and blamed the identifier. **The identifier was never the problem.** Day 47
+measured the built artefact, then added one string to Arizona's `notes`, rebuilt, and
+quoted the earlier measurement — so both numbers moved by exactly one. Today the same
+`grep -n` was taken **after the last `src` change of the day** (Part 10's validation
+reorder), after the rebuild, and after every instrument had run green.
+
+**THE RULE: A MEASUREMENT IS NOT WRONG BECAUSE IT IS A MEASUREMENT; IT IS WRONG BECAUSE IT
+IS TAKEN TOO EARLY.** Day 47's rule — *a measurement has a timestamp* — was right and
+stopped one step short of the consequence: the fix is not to distrust the measurement, it
+is to **order the work so the measurement is last**. The Arizona capital gains work added
+67 emitting lines above both guards, 368 and 498 became 435 and 565, and nothing had to be
+derived.
+
+**And this does not promote the line number back to being an identity.** `new-jersey.js`
+104/229 and `ohio.js` 88/107 came back unchanged for the fifth run running **because those
+two files were not touched** — which is exactly the point: the number tracks the file's
+history, not the parameter's. The Day 44 advice stands. What today adds is that the fourth
+column is predictable when the prediction is the last thing written rather than the first.
+
+**One sentence in `STATE-SURVIVORS.md` was falsified by this run and is left standing with
+a correction beneath it rather than edited away:** "the line number has been wrong every
+time it was stated". It was a claim about a **series**, and a series is the one shape
+nothing in this repository asserts — which is the reason Day 46 found this very file
+stale. **A sentence that counts a streak expires without being touched.**
+
+`scores.json` records 1,471 / 1,465 / 6 / 99.6% against this build's fingerprint,
+`check-scores.mjs` passes, and the root README's history table and `STATE-SURVIVORS.md`
+both carry the Day 48 row — the second being the file whose staleness is the standing
+example of the problem above.
+
+The run took **about 80 minutes at 18.6 mutants a minute**, against Day 46's 10.8 and
+Day 47's 4. The whole difference is that nothing competed with it: the first 50 mutants
+went at 3.6 a minute while the README verification was running, and the rate quadrupled
+the moment I stopped touching the four cores. **Day 47's "it is cheaper to wait" is
+measured now rather than asserted.**
 
 ### Process notes
 

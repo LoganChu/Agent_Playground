@@ -24,6 +24,7 @@ rather than the suite's reach.
 | **Day 45, after Minnesota** | **1,456** | **6** | **99.6%** |
 | **Day 46, after the conformity declarations** | **1,458** | **6** | **99.6%** |
 | **Day 47, after Arizona's own deduction table** | **1,470** | **6** | **99.6%** |
+| **Day 48, after Arizona's capital gain rule** | **1,471** | **6** | **99.6%** |
 
 Each survivor is a number the package could ship with a wrong value for.
 
@@ -349,15 +350,47 @@ REMOVABLE, and removing it is better than triaging it.
 > and the line number has been wrong every time it was stated, whether derived (out by
 > ten, then six) or measured (out by one). Measuring is strictly better than guessing.
 > It does not make a fragile identifier robust. **Read the other three columns.**
+>
+> **DAY 48 BROKE THE SECOND HALF OF THAT SENTENCE, which is why it is left standing rather
+> than edited.** 435/565 came back exact, so "wrong every time it was stated" is now false
+> — and it was a claim about a SERIES, which is the one shape nothing in this repository
+> asserts. Day 46 found this very file stale for that reason. The note below says what
+> changed and it was not the identifier: the measurement was taken last instead of first.
+> **A sentence that counts a streak is a sentence that expires without being touched.**
 
 ### C — a year window outside `SUPPORTED_YEARS` (4). Unreachable in principle.
 
-`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` **368**
-(`year >= 2024`) and **498** (`year >= 2025`) — the two flat-states numbers were 157 and
-287 before Day 44, 179 and 309 before Day 46, 234 and 364 before Day 47, and have now
-moved three times without anything they describe having changed, which is the note above
-this one. The last move was **one line**, caused by adding a single sentence to Arizona's
-notes. **Read the other three columns, not this one.**
+`new-jersey.js` 104 and 229 (`year >= 2026 && year <= 2028`), `flat-states.js` **435**
+(`year >= 2024`) and **565** (`year >= 2025`) — the two flat-states numbers were 157 and
+287 before Day 44, 179 and 309 before Day 46, 234 and 364 before Day 47, 368 and 498
+before Day 48, and have now moved FOUR times without anything they describe having
+changed, which is the note above this one. **Read the other three columns, not this one.**
+
+> **Day 48: 368 and 498 became 435 and 565, AND ALL SIX LINE NUMBERS WERE PREDICTED
+> CORRECTLY FOR THE FIRST TIME.**
+>
+> Day 46 declined to predict the two moving numbers and Day 47 predicted them by measuring
+> the built artefact, which beat deriving by a factor of six and was still off by one —
+> because one `src` line was added above both guards *after* the measurement was taken, so
+> the prediction quoted a build that no longer existed.
+>
+> Day 48 took the same `grep -n` and took it **last**: after the final `src` change of the
+> day (a validation reorder found by re-reading the diff), after the rebuild, and after
+> every instrument in the repository had run green. The Arizona capital gains work added 67
+> emitting lines above both guards, 368 and 498 became **435** and **565**, and both came
+> back exactly — as did the four this file has been calling unchanged.
+>
+> **THE RULE: A MEASUREMENT IS NOT WRONG BECAUSE IT IS A MEASUREMENT; IT IS WRONG BECAUSE
+> IT IS TAKEN TOO EARLY.** Day 47 blamed the identifier and concluded that a line number is
+> fragile. It is — and the fragility is entirely about ORDER. Measured after the last
+> change, the fragile identifier is exact; measured before it, no amount of precision helps.
+>
+> This does not promote the line number back to being an identity. `new-jersey.js` 104 and
+> 229 and `ohio.js` 88 and 107 came back unchanged for the fifth run running **because
+> those two files were not touched** — which is the point: the number tracks the file's
+> history and not the parameter's. The Day 44 advice stands, *read the other three
+> columns*; what Day 48 adds is that the fourth column is predictable when the prediction
+> is the last thing written rather than the first.
 
 The package supports 2025 and 2026. Both are inside every one of these windows, so
 moving an edge changes nothing that can be asked for. These are Day 29's category —
