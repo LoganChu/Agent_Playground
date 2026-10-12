@@ -498,6 +498,24 @@ measured now rather than asserted.**
   again: the first 50 mutants ran at about 3.6 a minute against Day 46's 10.8, because the
   README verification and the readme suite were running on the same four cores. It is
   cheaper to wait.
+- **The provision was verified through the PUBLISHED package, not just the repo**, which
+  is the one check Part 6 argues for and nothing automated does. `tools/smoke/install-from-release.mjs`
+  passes — every install line the READMEs advertise works, both tarballs resolve, the
+  release workflow had already cut `us-state-tax-v0.43.0` and `us-tax-mcp-v0.46.0`, and the
+  server answers `initialize` with its ten tools. Then `us-state-tax@0.43.0` was installed
+  from that URL into an empty directory and asked directly:
+
+  ```text
+  subtraction  { name: 'Net long-term capital gain subtraction (25%)', amount: 25000 }
+  tax          3972.50 with, 4597.50 without  =>  worth $625.00
+  the gate     a loss year returns 4597.50, identical to supplying no qualifying gain
+  the note     fires when the field is withheld
+  ```
+
+  **Every figure predicted in Part 1 and in the README, off the artefact a buyer would
+  install.** Day 20's lesson was that an unpublished package cannot be installed by
+  anyone; this is its other half — **a provision modelled in `src` is not shipped until
+  the tarball does it.**
 - **Write the failing instrument before the fix** held three times: the basis
   perturbations were checked before the declaration was trusted, `requiresNonZero` was
   proven by the entry it was written for, and the MCP completeness test was proven by
