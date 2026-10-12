@@ -18,7 +18,18 @@ No new state. `us-state-tax` is **v0.43.0**, `us-tax-mcp` **v0.46.0**, `us-feder
 from Day 47's 1,414. 25 taxing states, 34 in all, unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
-push** (run 184, `dd81ee6`). One API call.
+push** (run 184, `dd81ee6`). One API call. And at the END, which is Day 45's other half:
+**green on all SEVEN jobs** (run 188, `03d07ab`) — the three test jobs, `differential`,
+`counts`, `cross-package` and `mutation-claims`.
+
+**`mutation-claims` was red from the day's first push until the score was recorded**, over
+three commits and about ninety minutes, and that is the instrument working rather than a
+problem: the fingerprint is over the built parameters, `src` changed, and Day 47's score
+genuinely was not a score of this build for any of those minutes. Fifth day running that
+it has caught exactly that. **`cross-package`'s Arizona step still passes** — Arizona's own
+deduction table still equals the federal basic one in both years, which today's work did
+not touch and which is the check that fails the year § 43-1041(H)'s borrowed indexing
+method stops producing the federal figure.
 
 New: `CapitalGainsSubtractionBasis`, a three-way discriminator replacing
 `includesShortTerm: boolean`; `longTermCapitalGainAfter2011` as a state input;
