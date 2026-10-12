@@ -2425,21 +2425,111 @@ and Arizona and a widow there is `$120` better off at `$45,000`. The thing to re
 is one sentence of the Form 1 head-of-household instruction, and `mass.gov` is
 blocked by the egress proxy.
 
-### Arizona is the one where a column swap cannot finish the job
+### Arizona was the one where a column swap could not finish the job, and a statute ended it
 
-Arizona files her as a head of household, and Arizona's standard deduction **is** the
-federal one (A.R.S. § 43-1041(A)) — which § 63(c)(2)(A) sets at the **joint** amount for a
-surviving spouse. So the two halves of her Arizona return are chosen by two different
-governments and they disagree. The instruction booklet prints an amount against the *box*;
-the statute points at *§ 63*. **Nobody has read which governs**, the gap is 2.5% of `$8,050`
-on the 2026 federal figures, and the engine says so in a note rather than picking a side:
-it uses whatever `federal.deduction` the caller passed, so a caller who supplied the
-surviving-spouse figure gets the second reading and one who supplied the head-of-household
-figure gets the first.
+**This section described a live question for 47 days and had been answering a dead one for
+one of them.** It said Arizona's standard deduction *is* the federal one, that
+§ 63(c)(2)(A) therefore hands a surviving spouse the **joint** amount while the instruction
+booklet prints an amount against her **box**, and that **nobody had read which governs** —
+a gap worth 2.5% of `$8,050`, or `$201.25`.
+
+All three sentences stopped being true on 13 June 2026. Laws 2026, ch. 140 (HB 4168)
+§§ 16 and 35(A) replaced § 43-1041(A)'s cross-reference with Arizona's own amounts,
+retroactive to taxable years beginning after 31 December 2024. Arizona now has four
+amounts, one per box on Form 140, no surviving-spouse row, and **no federal
+cross-reference left to disagree with**. She takes the head-of-household amount —
+`$23,625` for 2025, `$24,150` for 2026 — and the `$201.25` is resolved in favour of the
+box.
+
+**THE RULE: A DOCUMENT DESCRIBING A QUESTION OUTLIVES THE QUESTION.** Day 47 closed this
+one, updated the state's shipped notes, its citations and its conformity ledger, and left
+this section standing — and no test could tell, because the only claims under test in this
+file are its counts. Every figure here was still correct; what had expired was the
+*mechanism* the prose described. That is the same shape as the defect Day 47 was about, in
+the document rather than in the declaration: Arizona's `kind: 'federal'` went on producing
+the right number after it stopped being the right reason.
+
+What survives is the rule the question produced, which was never about Arizona:
 
 **THE RULE: a column swap reaches every figure the state CHOSE and none of the figures it
-BORROWED.** Arizona is the only state here that is both — a federal cross-reference *and* a
-status a widow has to be moved across — which is why it is the only one with the question.
+BORROWED.** Arizona was the only state here that was both — a federal cross-reference *and*
+a status a widow has to be moved across — which is why it was the only one with the
+question, and why the question dissolved the moment the cross-reference did. Missouri is
+now the only state here whose deduction is the federal one, and Missouri **does** take the
+§ 63(f) age and blindness additions where Arizona never did.
+
+### Arizona charges a long-term capital gain 1.875% and a wage 2.5%
+
+**A.R.S. § 43-1022(22) subtracts 25% of the net long-term capital gain** included in
+federal AGI, on assets acquired after 31 December 2011. Against the flat 2.5% that is
+0.625% of the gain — `$625.00` on `$100,000`, `$62.50` on `$10,000` — and an effective rate
+of **1.875%** on a qualifying gain. It is the only place in Arizona where the rate depends
+on the **kind** of income rather than on its size.
+
+Two things about it are easy to get wrong and both are in the sources.
+
+**Short-term items are EXCLUDED, not netted — and that is where Arizona parts company with
+Wisconsin.** Both states take a share of a long-term gain, so the two rules look like one
+rule with two shares. They are not:
+
+```text
+a $10,000 short-term LOSS behind a $50,000 long-term gain
+  — $40,000 of net capital gain in federal AGI —
+
+  Arizona     25% of the $50,000 long-term gain      $12,500
+  Wisconsin   30% of the $40,000 NET gain            $12,000
+  Missouri   100% of the $40,000 NET gain            $40,000
+```
+
+**The smaller share yields the larger subtraction, and both states are right.** Wis. Stat.
+§ 71.05(6)(b)9 adds that "the capital gains and capital losses for all assets shall be
+netted before application of the percentage", so a short-term loss eats the Wisconsin
+exclusion. Arizona's Form 140 worksheet says the opposite in a sentence of its own — *"Do
+not include any short-term capital gains or (losses) in this worksheet"* — and "net
+long-term capital gain" is the IRC § 1222(7) term, which nets long against long and
+nothing else.
+
+**THE RULE: a share and a base are two parameters, and a package that stores only the share
+has made the base a property of the code rather than of the state.** `basis` is a
+discriminator on the rule for exactly that reason, and it earns its keep in the type
+checker: putting Wisconsin's basis on Arizona's declaration is a **compile error**, where
+the boolean it replaced would have been silently wrong by `$62.50` on the household above.
+
+**And it is gated on there being a net capital gain overall**, which is the statute's own
+limit rather than a smoothing of it: § 43-1022(22) reaches only gain "included in federal
+adjusted gross income", and a year that nets to a capital loss includes none. So the same
+`$50,000` behind a **`$100,000`** short-term loss subtracts `$0.00`, and one dollar of net
+gain opens the whole `$12,500`.
+
+```js
+stateIncomeTax({ state: 'AZ', year: 2026, filingStatus: 'single',
+                 federal: { adjustedGrossIncome: 200_000, taxableIncome: 183_900,
+                            deduction: 16_100, deductionKind: 'standard' },
+                 netCapitalGain: 100_000,            // the gate, Form 1040 line 7
+                 longTermCapitalGainAfter2011: 100_000 });  // the base, Form 140's own line
+// .totalTax -> 3972.50     (4597.50 without the subtraction — $625.00)
+```
+
+`longTermCapitalGainAfter2011` is **supplied rather than derived**, because no figure on a
+federal return carries it: line 7 is already netted short against long, Schedule D splits
+the two halves but not the two vintages, and the 2025 Form 140NR instructions require the
+acquisition date to be **verifiable**, with a gift or inherited asset carrying the original
+owner's date. Omit it and an Arizona answer with long-term gains comes back too high — and
+says so, in a note that names the field and the size.
+
+**The 2011 vintage is live in both supported years, and a plausible secondary source says
+it is not.** Arizona SB 1331 (2025) would have extended the subtraction to every long-term
+gain "irrespective of when assets were acquired" from 1 January 2026. It passed the Senate,
+cleared House Ways & Means 5–4 on 12 March 2025, and **died**; at least one tax-calculator
+site reports the expansion as law. The refutation is a 2026-session document rather than an
+argument — the Senate fact sheet for SB 1633, in the 57th Legislature's **second** regular
+session, still describes current law as "a 25 percent ... subtraction for net long-term
+capital gains ... derived from any asset acquired after December 31, 2011".
+
+**THE RULE: A BILL THAT DIED LEAVES SUMMARIES OF WHAT IT WOULD HAVE DONE LYING AROUND, AND
+THEY READ EXACTLY LIKE SUMMARIES OF LAW.** The date is stored as data on the rule rather
+than left implicit in the field's name, so the day Arizona does strike it, one figure moves
+and one test fails.
 
 ### The translation is one line, and the invariant is the product
 

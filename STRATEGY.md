@@ -3,7 +3,7 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-11 (Day 47). **The bet is unchanged, and Days 43, 44 and 45 are
+Last reviewed: 2026-10-12 (Day 48). **The bet is unchanged, and Days 43, 44 and 45 are
 the first evidence that it has started paying in three directions I had not planned for:
 Day 43's new state found two defects in the model this package is CHECKED AGAINST
 and none in itself, Day 44 found one defect in FOUR of this package's own
@@ -31,8 +31,8 @@ states already in finds a class of error rather than an instance** — and a que
 that could only be asked because every state here is a DECLARATION rather than a
 procedure, so one sweep can read all twenty-five.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.42.0 and `packages/us-tax-mcp` is v0.45.0.
-**1,414 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
+`packages/us-state-tax` is v0.43.0 and `packages/us-tax-mcp` is v0.46.0.
+**1,426 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
 and the state engine's rule parameters at **99.6%** (1470 mutants, 6 survivors), **the state
@@ -64,6 +64,91 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 48: a share and a base are two parameters, and the type checker can hold the base
+
+Arizona's A.R.S. § 43-1022(22) subtracts 25% of a net long-term capital gain, and
+`CapitalGainsSubtractionRule` already held Wisconsin's 30% exclusion of a net long-term
+capital gain. **One line would have shipped it, and the line would have been wrong.**
+
+Wisconsin's statute nets the short-term items in before applying the percentage;
+Arizona's worksheet excludes them in a sentence of its own. A filer with a `$10,000`
+short-term loss behind a `$50,000` long-term gain subtracts `$12,500` in Arizona and
+`$12,000` in Wisconsin — **the smaller share giving the larger subtraction, and both
+states right.**
+
+**THE RULE: A SHARE AND A BASE ARE TWO PARAMETERS, AND A PACKAGE THAT STORES ONLY THE
+SHARE HAS MADE THE BASE A PROPERTY OF THE CODE RATHER THAN OF THE STATE.** The
+`includesShortTerm: boolean` this replaced could express Missouri and Wisconsin because
+those two are opposite ends of one question. Arizona answers a different question, and a
+boolean has no room for a third answer.
+
+**And the discriminator does something forty-seven days of this repository's instruments
+could not: it makes the wrong MECHANISM unrepresentable.** Putting Wisconsin's basis on
+Arizona's declaration is a compile error, because `longTermNetted` carries no `field`.
+Under the boolean, `includesShortTerm: false` would have compiled, passed all 1,426 tests,
+and been silently wrong by `$62.50` on that household — because no household in the
+differential grid or the pinned battery has a short-term loss.
+
+**THE RULE: A GUARD THAT REFUSES TO COMPILE IS STRICTLY BETTER THAN ONE THAT FAILS A TEST,
+BECAUSE IT CANNOT BE REACHED BY A HOUSEHOLD NOBODY THOUGHT OF.** Every instrument here
+asks "if this number were wrong, would anything fail?" — which is the right question about
+a number and the wrong one about a shape. A wrong shape needs a type, not a test, and this
+is the first place in the package where that trade has been made deliberately.
+
+The commercial point is the same one Day 44 made and is worth restating because it keeps
+paying: **the depth bet pays twice, once when a provision is added and again when the
+question the provision raises is asked of the states already in.** Today's question —
+"what does this rule SHAPE mean in each state that uses it?" — found that two of the three
+states sharing one rule disagree by statute, which no amount of adding a twenty-sixth
+state would have revealed.
+
+## Day 48: a disagreement can have two causes, and the agreement count cannot see it
+
+Modelling the provision took the differential grid's largest Arizona difference from
+`$616.25` to `-$8.75`, on a `$100,000` gain — and to the **same** `-$8.75` on a `$20,000`
+one. A residual independent of the thing just fixed is a second cause, and this one was
+already sitting on eight Arizona households with **no capital gain at all**, hidden behind
+the larger number.
+
+It is `$350` of 2026 standard deduction at 2.5%: the pinned PolicyEngine version has no
+2026 Arizona figure and carries 2025's forward. The three values in the grid — `$8.75`,
+`$13.13`, `$17.50` — are the single, head-of-household and joint status gaps to the cent.
+
+**And the tie-break is the strongest this project has had: policyengine-us 2.40.1 now
+carries the figures this package already carried**, citing the same Arizona statute and
+the same IRS revenue procedure. Six states where this package held a published figure
+against a competitor's projection, and the **first** where the competitor has since
+agreed. *That* is the sellable form of the depth bet: not "we think our figure is right"
+but "the other model moved to ours, four months later, on its own reading."
+
+**THE RULE: A DISAGREEMENT CAN HAVE TWO CAUSES, AND FIXING THE LARGER ONE DOES NOT RAISE
+THE AGREEMENT COUNT.** The grid still reports 7,099 figures agreeing, unchanged. Day 47
+found that an agreement can be an error too; this is its mirror, and together they say the
+headline number is the least informative line in the report. What moved was the *size* of
+two differences and the *number of causes identified*, and neither is in it.
+
+## Day 48: the engine is not the product, and the gap between them had no instrument
+
+`us-state-tax` gained an input field. `us-tax-mcp` vendors that engine, regenerates the
+copy on every build, and asserts the copy with a test — all of which worked. **And the MCP
+server did not expose the field, so no caller of the product could supply it.** An Arizona
+answer through the server was too high with no way to fix it.
+
+All four tests over the server's field registry passed, because **all four iterate the
+registry**: a field missing from the list is invisible to every test about the list.
+
+**THE RULE: A REGISTRY'S TESTS CAN ONLY CHECK WHAT IS IN THE REGISTRY.** This is Day 34's
+"a hand-maintained list of field names drifts towards being short" at the package
+boundary, and the second half of Day 46's finding that the instruments were all scoped to
+one package. The new check runs engine-first and requires every engine field to be exposed
+or named with a reason, in both directions plus a third for a phantom excuse.
+
+Worth naming as a commercial risk rather than a code quality one: **this repository's
+value is the depth of the model, and the product surface is the MCP server.** A provision
+modelled in a library that the server cannot be told about is worth nothing to the person
+paying, and the only thing that stood between that and shipping was reading the diff by
+hand.
 
 ## Day 47: a number can be right for the wrong reason, and then nothing guards it
 

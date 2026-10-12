@@ -4,6 +4,507 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 48 — 2026-10-12
+
+### What I did
+
+**Worklist item 1: Arizona's 25% long-term capital gain subtraction, the largest
+unmodelled provision known to this package. It is modelled — and the finding is not the
+provision, it is that it looks exactly like Wisconsin's and is not Wisconsin's. The two
+states read the same two figures and reach different answers, and both are right.**
+
+No new state. `us-state-tax` is **v0.43.0**, `us-tax-mcp` **v0.46.0**, `us-federal-tax`
+**v0.15.0**. **1,426 tests** (400 + 839 + 170 + 17), all green, zero dependencies — up 12
+from Day 47's 1,414. 25 taxing states, 34 in all, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last
+push** (run 184, `dd81ee6`). One API call.
+
+New: `CapitalGainsSubtractionBasis`, a three-way discriminator replacing
+`includesShortTerm: boolean`; `longTermCapitalGainAfter2011` as a state input;
+Arizona's `capitalGainsSubtraction`; two Arizona `conditionalNotes`;
+`test/arizona-capital-gains.test.js` (11 tests); a `loss60k` household in the status
+sweep; `requiresNonZero` on divergence entries; `netCapitalGain` and the new field
+exposed through the MCP; and a test that the MCP's field list is COMPLETE against the
+engine's.
+
+### Part 1 — the same two figures, two states, different answers, both right
+
+**A.R.S. § 43-1022(22) subtracts 25% of the net long-term capital gain included in
+federal AGI on assets acquired after 31 December 2011.** Against the flat 2.5% that is
+0.625% of the gain — **`$625.00` on `$100,000`** — and an effective Arizona rate of
+**1.875%** on a qualifying gain against 2.5% on a wage. It is the only place in Arizona
+where the rate depends on the KIND of income.
+
+`CapitalGainsSubtractionRule` already existed, with Wisconsin's 30% exclusion of net
+long-term gain sitting in it. The temptation was a one-line declaration: `share: 0.25`,
+`includesShortTerm: false`. **That would have been wrong, and wrong in a way no figure in
+this repository could have revealed**, because the grid's households have no short-term
+losses.
+
+```text
+a $10,000 short-term LOSS behind a $50,000 long-term gain
+  — $40,000 of net capital gain in federal AGI —
+
+  Arizona     25% of the $50,000 long-term gain      $12,500
+  Wisconsin   30% of the $40,000 NET gain            $12,000
+  Missouri   100% of the $40,000 NET gain            $40,000
+```
+
+**THE SMALLER SHARE GIVES THE LARGER SUBTRACTION.** Wis. Stat. § 71.05(6)(b)9 adds that
+"the capital gains and capital losses for all assets shall be netted before application
+of the percentage". Arizona's Form 140 worksheet says the opposite in a sentence of its
+own — *"Do not include any short-term capital gains or (losses) in this worksheet"* — and
+"net long-term capital gain" is the **IRC § 1222(7)** term, which nets long against long
+and nothing else.
+
+**THE RULE: A SHARE AND A BASE ARE TWO PARAMETERS, AND A PACKAGE THAT STORES ONLY THE
+SHARE HAS MADE THE BASE A PROPERTY OF THE CODE RATHER THAN OF THE STATE.** Wisconsin's
+30% and Arizona's 25% were never the interesting difference between them.
+
+### Part 2 — the discriminator earns its keep in the TYPE CHECKER, which a boolean cannot
+
+`includesShortTerm: boolean` could express Missouri and Wisconsin because those two are
+opposite ends of one question. Arizona answers a different question, so the field became
+a discriminated union: `wholeNetGain`, `longTermNetted`, `longTermExcludingShortTerm`.
+
+Perturbing it to prove the guards, which is Day 46's rule:
+
+| perturbation | caught by |
+| --- | --- |
+| `share: 0.25` → `0.2` | **7 test failures** |
+| `acquiredAfter: '2011-12-31'` → `'2012-12-31'` | 1 test failure |
+| `basis.kind` → `'longTermNetted'` | **a COMPILE error** |
+
+**The third is the one worth the refactor.** `longTermNetted` does not carry a `field`,
+so Arizona's declaration does not type-check against it: `Object literal may only specify
+known properties, and 'field' does not exist in type '{ readonly kind: "longTermNetted"; }'`.
+Under the boolean, `includesShortTerm: false` would have compiled, passed every test in
+this repository, and been silently wrong by **`$62.50`** on the household above.
+
+**THE RULE: A GUARD THAT REFUSES TO COMPILE IS STRICTLY BETTER THAN ONE THAT FAILS A
+TEST, BECAUSE IT CANNOT BE REACHED BY A HOUSEHOLD NOBODY THOUGHT OF.** This repository
+has spent forty-seven days making wrong numbers fail; this is the first time it has made
+a wrong MECHANISM unrepresentable.
+
+### Part 3 — the vintage is live, and the open web says it is not
+
+**SB 1331 (2025) would have extended the subtraction to every long-term gain
+"irrespective of when assets were acquired" from 1 January 2026. It passed the Senate,
+cleared House Ways & Means 5-4 on 12 March 2025, and DIED.** At least one tax-calculator
+site states the expansion took effect for 2026.
+
+The refutation is not an argument, it is a date: the Senate fact sheet for **SB 1633**, in
+the 57th Legislature's **SECOND** regular session — a 2026 document, about a different
+bill — describes current law as "a 25 percent individual income tax subtraction for net
+long-term capital gains included in FAGI ... derived from any asset acquired after
+December 31, 2011".
+
+**THE RULE: A BILL THAT DIED LEAVES SUMMARIES OF WHAT IT WOULD HAVE DONE LYING AROUND,
+AND THEY READ EXACTLY LIKE SUMMARIES OF LAW.** A bill summary is written in the present
+tense about a hypothetical, and nothing in its text marks which it became. The tell is
+not the wording; it is **which session's documents still carry the old rule**.
+
+So `acquiredAfter: '2011-12-31'` is stored as DATA on the rule with provenance, not left
+implicit in the input field's name. The day Arizona strikes it, one figure moves and
+`the vintage is a parameter and not a fact about a field name` fails.
+
+### Part 4 — the gap did not close, and what was under it had been hiding in plain sight
+
+The differential grid is what found this provision on Day 47. After modelling it:
+
+```text
+investor-AZ-50000-0-0-100000-0   was  ours $3,347.50  theirs $2,731.25   +$616.25
+                                 now  ours $2,722.50  theirs $2,731.25     -$8.75
+investor-AZ-50000-0-0-20000-0    was                                     +$116.25
+                                 now                                       -$8.75
+```
+
+**THE SAME `-$8.75`, ON A $20,000 GAIN AND A $100,000 ONE.** A residual independent of the
+thing just fixed is a second cause, and it was already visible on eight other Arizona
+households — `single-worker-AZ` at 30k, 50k, 80k, 150k and 400k, with no capital gain at
+all. It decodes exactly:
+
+```text
+single / separate      $350 of deduction x 2.5% =  $8.75
+head of household      $525                     = $13.125
+joint                  $700                     = $17.50
+```
+
+**PolicyEngine-US 2.15.3, the pinned version, has no 2026 Arizona standard deduction and
+carries 2025's forward.** Every Arizona difference in the grid pointing that way is one of
+those three figures, to the cent — including the surviving spouse at `$13.13`, because
+Form 140 files her in the head-of-household box.
+
+**And the tie-break does not require trusting this package: policyengine-us 2.40.1 now
+carries `$16,100` / `$24,150` / `$32,200`**, citing "A.R.S. 43-1041(A) and (H)", "Laws
+2026, ch. 140 (HB 4168), secs. 16 and 35(A)" and Rev. Proc. 2025-32 § 4.14(1) — the same
+statute and the same revenue procedure this package cites, with a comment reproducing the
+indexing argument. Sixth state where this package held a published figure against a
+projection, and **the first where the competitor has since agreed**.
+
+**THE RULE: A DISAGREEMENT CAN HAVE TWO CAUSES, AND FIXING THE LARGER ONE DOES NOT RAISE
+THE AGREEMENT COUNT.** The grid still reports 7,099 figures agreeing — unchanged — and
+that is the honest outcome rather than a disappointing one. Day 47 found that an agreement
+can be an error too; this is its mirror. **A count of agreements cannot measure progress
+on a figure that disagrees for two reasons.** What moved is the *size* of two differences
+and the *number of causes identified*, and neither is in the headline.
+
+### Part 5 — I repeated Day 47's defect within an hour, in the instrument I had just written
+
+The capital-gains divergence entry was rewritten to describe the one residual way the two
+models can differ — PolicyEngine does not model the vintage at all — and given
+`direction: 'oursHigher'` (a subtraction they take and we may not can only make their tax
+lower) and `maxAbs: 2500`, DERIVED FROM THE PROVISION as Day 47's rule requires.
+
+**Both bounds were right and the entry still claimed twenty-odd Arizona households with
+no capital gain at all**, because it sits above the credits entry in file order and
+`$232.50` of unmodelled dependent credit is a positive difference under `$2,500`.
+
+**THE RULE: A SIZE BOUND AND A SIGN SAY WHAT A REASON CAN EXPLAIN; NEITHER SAYS WHOM IT
+CAN EXPLAIN IT ABOUT.** A subtraction of a capital gain cannot account for a penny of
+difference on a filer who has no capital gain, however small the difference and whichever
+way it points — and that is a fact about the mechanism, so it belongs in the entry beside
+the other two.
+
+`requiresNonZero` is the third bound, checked against the CASE rather than against either
+model's answer. It is what **Day 47's worklist item 3** asked for and could not get from
+`maxAbs`, and it closed in one line what two days of widening bounds could not:
+
+```text
+Arizona differences claimed by more than one reason    25 -> 3
+all differences claimed by more than one reason        92 -> 54
+unexplained                                             0 -> 0
+```
+
+The three that remain are genuinely multi-causal, which the report's own text predicted:
+a separate return in Arizona differs by an Arizona credit **and** by § 32(d) at once.
+
+The credits entry also got the `direction` its own mechanism implies, which is the other
+half of item 3.
+
+### Part 6 — the engine gained a field and the PRODUCT did not
+
+`us-tax-mcp` vendors both engines, regenerated on every build by `sync-engine.mjs`, with
+`test/engine-sync.test.js` asserting the copy. That worked: the new source arrived.
+
+**And the MCP server did not expose the field, so nobody using it could supply the gain.**
+An Arizona answer through the server was too high with no way for the caller to fix it.
+
+Every test passed. `state-fields.test.js` has four strong tests — the schema pointer, the
+documentation, the per-state validator, and Day 32's "accepting an input is not reading
+it" — and **all four iterate `STATE_FIELDS`**, so a field missing FROM `STATE_FIELDS` is
+invisible to every one of them.
+
+**THE RULE: A REGISTRY'S TESTS CAN ONLY CHECK WHAT IS IN THE REGISTRY.** Four properties
+of every field listed, and not one word about whether the list is complete. That is
+Day 34's "a hand-maintained list of field names drifts towards being short" at the
+PACKAGE BOUNDARY, and Day 46's finding that this repository's instruments were all scoped
+to one package.
+
+The new test walks the other way — engine first, because the engine is where a field is
+born — and requires every one of `KNOWN_STATE_INPUT_FIELDS` to be exposed or **named with
+a reason**. Ten are excused (four are the tool's own required arguments, two are exposed
+as `stateAdditions`/`stateSubtractions`, four are derived), and the excuse list is checked
+in both directions plus a third: an excuse for a field the engine has never heard of
+fails too. Deleting the new field from the registry makes it fail with exactly the gap it
+was written for. `KNOWN_STATE_INPUT_FIELDS` is itself held to `types.ts` by a source parse
+in the state package, so the chain now runs from the interface to the server with an
+assertion at every link.
+
+**And wiring it up found a second one.** The MCP refuses a field for a state that does not
+read it, and `netCapitalGain` was listed for `['MD', 'MO']`. **Arizona now reads it — as
+the GATE rather than as an amount** — so the field was accepted and the gate could never
+open. `state-fields.test.js`'s "every per-state field is READ" caught it, reporting the
+new field as accepted-and-never-read, which is the right complaint about the wrong field.
+**A field whose only job is to be a precondition is invisible to a test that looks for a
+changed answer, unless the precondition can be met.**
+
+### Part 7 — two more figures I derived by hand, both wrong, neither shipped
+
+Day 47's Part 11 was four hand-derived figures, all wrong, the engine right every time.
+Today: two, in the README I had just written.
+
+| what I wrote | the engine | why |
+| --- | --- | --- |
+| `.totalTax -> 3981.25` | **`3972.50`** | reused a 2025 run's output for a 2026 example — `$15,750` of deduction against `$16,100` |
+| "silently wrong by `$500`" | **`$62.50`** | priced the difference in the SUBTRACTION (`$2,500`) and never multiplied by the rate |
+
+**Fourth day running for this class, and the first where none of it shipped** — because I
+read every figure off the engine *before* committing rather than after. The second is the
+more interesting error: `$2,500` of subtraction is a real quantity, it is simply not a
+tax. **A figure with the right magnitude and the wrong UNITS survives a plausibility check
+that a wrong figure would fail.**
+
+It is still worklist item 2 and still has no instrument. What today adds to the case: the
+discipline WORKS when applied — four days of this error and the first clean one is the
+day I checked first — and a discipline that works when remembered is exactly the thing
+Day 47 Part 13 said is not a guard.
+
+### Part 8 — three documents that outlived the thing they described
+
+1. **The state README's Arizona section** described the surviving-spouse question — which
+   **Day 47 closed** — as live and unanswered: "Arizona's standard deduction **is** the
+   federal one", "**nobody has read which governs**", `$201.25` at stake. Day 47 updated
+   the shipped notes, the citations and the conformity ledger, and left this standing.
+   **Every figure in it was still correct; the MECHANISM it described had expired.** Which
+   is Day 47's own thesis in the document rather than the declaration.
+   **THE RULE: A DOCUMENT DESCRIBING A QUESTION OUTLIVES THE QUESTION.** Rewritten, with
+   the rule the question produced kept, because the rule outlived it too.
+2. **Two sub-READMEs advertised "828 tests"** after the suite reached 839.
+   `test-counts.mjs --check` caught both — it has checked each package's own bold claim
+   since Day 38 — but only after `tools/test-counts.json` stopped being stale, because the
+   staleness check exits before the README check runs. **A checker that exits on the first
+   failure reports one of two independent problems.**
+3. **Both lockfiles carried `0.41.0`/`0.44.0`** against package.json's `0.42.0`/`0.45.0` —
+   stale since Day 47's bump, fixed by `npm install`. Nothing checks it. Smallest finding
+   of the day and the only one with no instrument proposed.
+
+### Part 9 — the loss household this battery never had
+
+The test that every `conditionalNote` fires for some household and not for all of them
+refused the second Arizona note: a qualifying long-term gain with no net capital gain
+overall, which is the statute's gate. **No household in the 33-shape battery has a capital
+LOSS**, in a package where three states subtract a capital gain.
+
+`loss60k` is the shape, and it is the one household where all three must answer zero for
+three different reasons:
+
+```text
+Arizona     § 43-1022(22) reaches only gain "included in federal AGI"; a loss year
+            includes none. $0.00 despite a $50,000 qualifying long-term gain.
+Wisconsin   § 71.05(6)(b)9 nets all assets BEFORE the percentage; the loss eats it.
+Missouri    subtracts the whole of Form 1040 line 7, which is negative.
+```
+
+**`netCapitalGain: 0` IS the loss**, and that is a property of this package rather than of
+the return: the field is `nonNegative`, so line 7's negative half is not representable.
+The `$3,000` of federal capital loss deduction reaches these states through federal AGI,
+where it already is.
+
+250 new pinned rows. **20 moved, all Arizona, all the two gain households** — and that is
+the proof the basis refactor is behaviour-preserving for Missouri and Wisconsin, which no
+amount of reading the diff could give.
+
+```text
+high420k      AGI 420,000 -> 420,000     NO qualifying gain supplied, deliberately
+veryHigh1m4   AGI 1,400,000 -> 1,342,500  25% of $230,000
+              tax  31,500 -> 30,062.50    = 2.5% x $57,500
+```
+
+`high420k` keeps its `$80,000` of net gain and `$30,000` short-term half and supplies NO
+qualifying figure, so the battery pins **both** sides: the subtraction taken, and the
+subtraction withheld for want of a vintage. Setting it on both households left the
+"supplied a gain with no qualifying half" note firing for nobody, which is how the split
+was found — **by the instrument, twice, in the same test**.
+
+### Part 10 — validation inside a conditional
+
+Caught by re-reading my own diff adversarially before starting the audit, which is the
+step Day 47 added:
+
+```js
+base = netGain > 0 ? nonNegative(input.longTermCapitalGainAfter2011, basis.field) : 0;
+```
+
+Correct arithmetic. And it means a **negative** qualifying gain is refused in a year with
+a net gain and accepted in silence in a year without one — the same caller error diagnosed
+or ignored depending on a different field's value.
+
+**THE RULE: VALIDATION PLACED INSIDE A CONDITIONAL IS VALIDATION THE CONDITIONAL CAN TURN
+OFF.** A `nonNegative` call is not part of the computation, it is a claim about the input,
+and a claim about an input cannot depend on whether the engine happens to need it today.
+The test now asserts the refusal on both sides of the gate.
+### Part 11 — the mutation prediction, written before the run
+
+Written while the enumeration was in hand and **before any result**, and quoted here
+unedited. The audit was started ONCE today: Day 47's sharper rule — *the audit is the LAST
+thing to start, after every instrument has been RUN, because an instrument's output is a
+source of `src` changes* — was followed, and every instrument in this repository had run
+green before the first mutant.
+
+The one `src` change made after the instruments spoke was Part 10's validation reorder,
+found by reading the diff adversarially. **It was made before the audit started, not
+during it**, which is the whole difference between today and Day 47's three starts.
+
+>
+> ## us-state-tax: 1,471 mutants, 1,465 killed, 6 survivors, 99.6%
+>
+> ### The count is ENUMERATED, and this time my reasoning matched it
+>
+> The harness printed `1471 mutants over 30 files`. Day 47 recorded 1,470, so ONE is new,
+> and one is what I reasoned before running the enumeration — the first of the last three
+> days where the enumeration did not correct me.
+>
+> - **1** new mutant: `share: 0.25` on Arizona's `capitalGainsSubtraction`. It is a RATE
+>   (`v > 0 && v < 1`), so the harness halves it to `0.125`.
+>
+> Nothing else in today's `src` emits a mutable literal:
+>
+> - `acquiredAfter: '2011-12-31'`, `field: 'longTermCapitalGainAfter2011'` and
+>   `kind: 'longTermExcludingShortTerm'` are STRINGS.
+> - `basis: { kind: 'wholeNetGain' }` and `{ kind: 'longTermNetted' }` REPLACED
+>   `includesShortTerm: true` and `false`, and a boolean was never a mutant either, so the
+>   Missouri and Wisconsin migrations are mutant-neutral in both directions.
+> - The new `netGain > 0` guard and `Math.max(0, …)` use `0`, which is neither money
+>   (`v >= 100` fails) nor a rate (`v > 0` fails at zero) — the same floor that keeps
+>   Arizona's `phaseOutRate: 0` out of the set and is still worklist item 11.
+> - The new provenance entry carries no `years` array and no number at all, which is the
+>   trap Day 47 fell into and caught: the ledger is emitted code too.
+> - `types.ts`'s addition is one string in `KNOWN_STATE_INPUT_FIELDS`.
+>
+> ### The one new mutant DIES, for three independent reasons
+>
+> `arizona-capital-gains.test.js` asserts the subtraction equals `gain * 0.25` for four
+> gains in both years AND the tax difference against four stated figures ($625.00, $62.50,
+> $250.00, $0.01); `status-sweep.json` pins `veryHigh1m4`'s Arizona rows, whose state AGI
+> of $1,342,500 is $1,400,000 less 25% of $230,000; and `registry.test.js` requires the
+> "25%" printed in the rule's NAME to equal the share the rule holds, which is the
+> assertion that would survive even if both others were deleted.
+>
+> ### The six survivors are the same six PARAMETERS, and the two moved lines are MEASURED
+>
+> Day 47's rule: not derivable, but measurable, with one `grep -n` of the built artefact —
+> and its sharper half, that a measurement has a timestamp. **This grep was taken AFTER the
+> last `src` change of the day**, which is the mistake Day 47 made (it measured, then added
+> one line to a `notes` array, and both numbers moved by one).
+>
+>     states/flat-states.js  line 435  year  2024 -> 2023   (`year >= 2024`)
+>     states/flat-states.js  line 565  year  2025 -> 2024   (`year >= 2025`)
+>     states/new-jersey.js   line 104  year  2028 -> 2027
+>     states/new-jersey.js   line 229  year  2028 -> 2027
+>     states/ohio.js         line  88  rate  0.01 -> 0.005
+>     states/ohio.js         line 107  rate  0.2  -> 0.1
+>
+> Day 47's were 368 and 498; the Arizona work added 67 emitting lines above both guards.
+> `new-jersey.ts` and `ohio.ts` were not touched, so their four line numbers are UNCHANGED,
+> and I have confirmed each is still the line the parameter sits on rather than assuming it.
+>
+> ### The one way it could come back different, stated in advance
+>
+> If `share: 0.25` is NOT killed, the score is 1,471 / 1,464 / 7 / 99.5%. The only route I
+> can see is a harness detail rather than a test gap: the three killers above are in files
+> the run does execute (`arizona-capital-gains.test.js` is new today, and a new test file
+> the harness did not pick up would also have failed the baseline, which came back green).
+>
+> ## us-federal-tax: unchanged at 716 / 716 / 0 / 100.0%
+>
+> `packages/us-federal-tax/src` is untouched today, so the Day 46 score is a score of this
+> build. `check-scores.mjs` is the thing that would say otherwise.
+>
+
+### Part 11b — the result
+
+PENDING AT THE TIME OF WRITING. The run is `node tools/mutation/mutate.mjs
+packages/us-state-tax --record --workers 4`, enumerated at **1,471 mutants**, baseline
+green, and it announced that it will write `tools/mutation/scores.json`.
+
+**Where the day stands if it did not finish: re-run exactly that command.** The prediction
+above is complete and unedited, `src` and `test/` are final — so the
+`mutantFingerprint` and `suiteFingerprint` the score records are the ones this commit
+carries — and `check-scores.mjs` will keep the `mutation-claims` CI job RED until the
+score is recorded against this build, which is the instrument working rather than a
+problem.
+
+### Process notes
+
+- **The egress proxy blocked every primary source again — seven runs in a row.**
+  `azleg.gov`, `azdor.gov`, `aztax-aide.org`, `law.justia.com` and even `irs.gov` all
+  answer **403 to CONNECT**. Every host but the package registries is refused.
+- **BUT `WebSearch` IS NOT SUBJECT TO THE SANDBOX'S EGRESS POLICY, and that is the most
+  useful thing found today about working in here.** It runs server-side, so it returned
+  quoted text FROM `azleg.gov` — the SB 1331 and SB 1633 fact sheets, and the Form 140
+  worksheet's "do not include any short-term capital gains or (losses)" sentence — from
+  hosts `curl` cannot open at all. **THE RULE: a blocked host is blocked for the TOOLS
+  THAT DIAL IT, not for every tool.** Day 47 recorded the 403s and reached for
+  PolicyEngine's parameter files; both routes are real and the search one reaches primary
+  documents.
+- **PyPI works, and it was worth two independent things today.** `policyengine-us`
+  **2.40.1** downloaded as a wheel and read with `zipfile` — no install, no execution.
+  Its `capital_gains/rate.yaml` carries the 10/20/25% series citing § 43-1022(22) and the
+  2022 Form 140 instructions, confirming 25% for both supported years; its
+  `az_long_term_capital_gains_subtraction.py` shows it does NOT model the vintage; and its
+  `deductions/standard/amount.yaml` carries the 2026 figures this package carries, which
+  is Part 4's tie-break. **A competitor's parameter file is a secondary source that cites
+  its primary one — and a competitor's LATER VERSION is evidence about a figure that costs
+  nothing to collect and does not require either party to be trusted.**
+- **Four routes agreed before anything was changed**, which is Day 46's rule: the SB 1331
+  House summary, the SB 1331 fiscal note, the SB 1633 fact sheet (a 2026-session statement
+  of current law) and policyengine-us 2.40.1. The fourth is what made the third's
+  significance visible.
+- **Do not run tests during the audit.** Day 47's lesson, and I paid a fraction of it
+  again: the first 50 mutants ran at about 3.6 a minute against Day 46's 10.8, because the
+  README verification and the readme suite were running on the same four cores. It is
+  cheaper to wait.
+- **Write the failing instrument before the fix** held three times: the basis
+  perturbations were checked before the declaration was trusted, `requiresNonZero` was
+  proven by the entry it was written for, and the MCP completeness test was proven by
+  deleting the field it was written for.
+
+### What I would do next
+
+1. **A standing check that every money figure in PROSE is one the engine computes** —
+   unchanged from Days 46 and 47, now with **two more instances**, both mine, both from
+   today (Part 7), and both caught before shipping for the first time. It is still the
+   only class of claim in this repository with no instrument over it at all. The shape
+   that would catch them: a registry mapping each `$N.NN` in a shipped note or doc comment
+   to the engine call that produces it, with a coverage check that fails on an
+   unregistered figure. **Today sharpens the case in a way the last two days did not: the
+   second error had the right magnitude and the wrong UNITS** — `$2,500` of subtraction
+   quoted as a tax — which is the kind a plausibility check passes.
+
+2. **Bound Arizona's credits entry by the family income tax credit's INCOME limit.**
+   `requiresNonZero` closed the shape half of Day 47's item 3 and `direction` closed the
+   sign half; the income limit is what remains, and § 43-1073's ceiling is far below the
+   households the entry still claims. The mechanism to add is `maxIncome`, next to
+   `maxShareOfIncome`, which already reads `caseIncome`.
+
+3. **Model A.R.S. § 43-1022(23), the qualified small business capital gain subtraction.**
+   Found while reading § 43-1022 for item 1 and not pursued: it is a **100%** subtraction
+   rather than 25%, which makes it worth 2.5% of the whole gain, and it sits in the same
+   subsection as today's work with a different base. Nothing in this package mentions it
+   yet, which makes it the largest Arizona provision now known to be unmodelled.
+
+4. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+   Day 47. Colorado's and Kentucky's are the honest ones to attack.
+
+5. **Record a conformity declaration for the other twenty states** — unchanged from
+   Days 46 and 47. What each still needs is a statute.
+
+6. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45, 46 and 47,
+   worst case **`$4,735.905`**, every parameter already gathered in
+   `test/minnesota-amt.test.js`.
+
+7. **Check the three other "or fraction thereof" staircase WIDTHS** — unchanged from
+   Days 45, 46 and 47, and not done for a fourth time. Connecticut has three and Alabama's
+   rounds the other way.
+
+8. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 through 47.
+
+9. **Fingerprint the mutable literals rather than the file bytes** — unchanged from
+   Days 42–47.
+
+10. **Select test files per mutant** — unchanged. 1,471 mutants x 55 test files.
+
+11. **Lower the mutation harness's `$100` money floor**, or justify it. Unchanged from
+    Days 40–47, and it mattered again today: the `netGain > 0` gate's zero and
+    `Math.max(0, …)` are neither money nor a rate, so neither is a mutant.
+
+12. **Assert that each lockfile's version matches its package.json.** New, tiny, and the
+    only finding today with no instrument proposed until now — both lockfiles had been
+    stale since Day 47's bump and `npm install` fixed them silently.
+
+13. **Kansas City and St. Louis, 1% each** — carried since Day 41. **Still not worth doing,
+    and the reason is the same as Day 47's with one more day of evidence.** Today's pay
+    came entirely from a question asked about states already here: "what does this rule
+    SHAPE mean in each state that uses it?" found that Wisconsin's and Arizona's
+    subtractions disagree by statute, and asking it of the MCP's field list found a
+    provision the product could not reach. Two more earnings taxes would add coverage and
+    could not find anything. **It goes back on the list the first day there is no standing
+    question about a state already here**, and there are twelve above it today.
+
+---
+
 ## Day 47 — 2026-10-11
 
 ### What I did

@@ -13,6 +13,80 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 48 nothing is waiting on you except the network ask below, and today's
+headline is that Arizona charges a long-term capital gain 1.875% and a wage 2.5% — which
+this package now knows, and did not yesterday.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.43.0**, `us-tax-mcp` **v0.46.0**.
+**1,426 tests**, all passing.
+
+Yesterday's note said Arizona subtracts 25% of a long-term capital gain and this package
+did not model it — **$625.00 of real money on a $100,000 gain**, the largest known gap in
+the state, found by the comparison against a competitor's model rather than by reading a
+form. It is modelled now, and three things about it were worth the day.
+
+**1. The provision that looks identical to Wisconsin's is not identical to Wisconsin's,
+and the difference is money.** Both states subtract a share of a long-term capital gain,
+so the two rules look like one rule with two percentages. Take a filer with a **$10,000
+short-term loss** behind a **$50,000 long-term gain**:
+
+| | subtraction |
+| --- | --- |
+| Arizona, 25% | **$12,500** |
+| Wisconsin, 30% | **$12,000** |
+
+**The smaller percentage gives the bigger subtraction, and both states are right.**
+Wisconsin's statute says to net all the gains and losses together *before* applying the
+percentage, so a short-term loss eats the exclusion. Arizona's own worksheet says the
+opposite in a sentence of its own: *"Do not include any short-term capital gains or
+(losses) in this worksheet."* Getting this wrong by copying Wisconsin's rule and changing
+the number would have cost $62.50 on that household — and is now impossible, because the
+two rules are different *types* and the compiler refuses the mix-up.
+
+**2. One claim about Arizona that is wrong on the open web, and the document that settles
+it.** A 2025 bill (SB 1331) would have removed the rule that the asset must have been
+bought after 2011, from this tax year. It passed the Senate, got through a House committee
+5–4, and **died**. At least one tax-calculator site states the expansion as current law.
+The thing that refutes it is not an argument but a date: a **2026-session** Arizona Senate
+fact sheet, written for a different bill, still describes current law with the 2011 date
+in it. **A bill that died leaves summaries of what it would have done lying around, and
+they read exactly like summaries of law.**
+
+**3. The gap did not close, and what was underneath it is the better news.** Fixing a
+$616.25 disagreement with PolicyEngine-US on an Arizona investor left **$8.75** — and the
+same $8.75 turned out to be sitting on *every* Arizona household in the comparison,
+including ones with no capital gain at all, where it had been hidden behind the larger
+number. It is **$350 of 2026 standard deduction**: the pinned version of PolicyEngine has
+no 2026 Arizona figure and carries 2025's forward.
+
+**And this package is on the right side of it by the only test that does not require you
+to trust me: PolicyEngine's own current version now carries the same figures this package
+does** — $16,100 / $24,150 / $32,200 — citing the same Arizona statute and the same IRS
+revenue procedure. That is the sixth state where this package held a published figure
+against a competitor's projection, and the first where the competitor has since agreed.
+
+**Two gaps in my own tooling, found and closed, and they are the part I would want you to
+see.**
+
+- **The server did not expose the new field.** The engine gained it, the engine's own 839
+  tests proved it worked, the MCP server copied the new engine in on the next build — and
+  the field was not on the server's list, so **nobody using the MCP could have supplied
+  it**. Every test passed, because every test in that file walks the list and a field
+  missing *from* the list is invisible to all of them. There is now a test that the list is
+  **complete**: every field the engine accepts is exposed, or named with a reason why not.
+  It fails when I delete the new field, which is how I know it works.
+- **A stale paragraph in the published README.** It described Arizona's surviving-spouse
+  question — which yesterday's work *closed* — as live and unanswered. Every figure in it
+  was still right; the mechanism it described had expired. Rewritten, and the rule it
+  produced kept, because the rule outlived the question.
+
+**I also made the same mistake twice while writing today's README and caught both.** Two
+dollar figures I worked out by hand were wrong ($3,981.25 for $3,972.50, and $500 for
+$62.50) and the engine was right both times. That is the fourth day running for this
+class of error and the first where none of it shipped — because I read every figure off
+the engine before committing instead of after. The standing instrument for it is still
+unbuilt and still the second thing on tomorrow's list.
+
 **As of Day 47 nothing is waiting on you except the network ask below, and today's
 headline is that Arizona's standard deduction stopped being the federal one four months
 ago and nothing here noticed, because the number did not change.**
