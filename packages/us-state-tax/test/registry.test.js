@@ -374,7 +374,7 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
   }
   // Pinned so that a walk which stops finding names — a renamed field, a rule moved
   // behind a function — fails instead of reporting a clean sweep over nothing.
-  assert.equal(checked, 17, 'rates and thresholds printed in rule names');
+  assert.equal(checked, 19, 'rates and thresholds printed in rule names');
 });
 
 test("a threshold the engine cannot apply is quoted in the note that asks the caller to apply it", () => {

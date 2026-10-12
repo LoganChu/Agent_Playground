@@ -491,7 +491,7 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
     capitalGainsSubtraction: {
       name: 'Long-term capital gain exclusion (30%)',
       share: 0.3,
-      includesShortTerm: false,
+      basis: { kind: 'longTermNetted' },
       cite: 'Wis. Stat. § 71.05(6)(b)9 — "on assets held more than one year and on all assets acquired from a decedent, 30 percent of the capital gain as computed under the Internal Revenue Code", and "the capital gains and capital losses for all assets shall be netted before application of the percentage", which is the sentence this engine implements as min(net gain, long-term gain); Schedule WD line 25',
     },
     exemption: {

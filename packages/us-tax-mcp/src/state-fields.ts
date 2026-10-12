@@ -321,8 +321,16 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'netCapitalGain',
     schema: number,
-    states: ['MD', 'MO'],
-    doc: 'Net capital gain inside Maryland taxable income, surtaxed 2% when federal AGI exceeds $350,000. The threshold is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08. Exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains.',
+    states: ['MD', 'MO', 'AZ'],
+    doc:
+      "Net capital gain, Form 1040 line 7, and THREE STATES READ IT FOR THREE DIFFERENT PURPOSES. MARYLAND surtaxes it 2% when federal AGI exceeds $350,000; the threshold is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08, and you should exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains. MISSOURI subtracts 100% of it, short-term gain included (§ 143.121.3(14)), so pass the whole line. ARIZONA reads it as a TEST AND NOT AS AN AMOUNT: § 43-1022(22) subtracts a quarter of the long-term gain only where there is a net capital gain overall, so this field is the gate on longTermCapitalGainAfter2011 and Arizona subtracts nothing without it. One field, three mechanisms, and the figure to pass is the same one.",
+  },
+  {
+    name: 'longTermCapitalGainAfter2011',
+    schema: number,
+    states: ['AZ'],
+    doc:
+      "Net LONG-TERM capital gain from assets acquired after 31 December 2011 — Arizona only, and the figure Form 140 asks for on a line of its own. A.R.S. § 43-1022(22) subtracts 25% of it, which is 0.625% of the gain in tax: $625.00 on $100,000, and an effective Arizona rate of 1.875% on a qualifying long-term gain against 2.5% on a wage. It cannot be derived from netCapitalGain: Form 1040 line 7 is already netted short against long, Schedule D splits the halves but not the vintages, and nothing on a federal return records when an asset was bought. SHORT-TERM ITEMS DO NOT BELONG HERE, as gains or as losses — the Form 140 worksheet says “do not include any short-term capital gains or (losses) in this worksheet”, which is where Arizona parts company with Wisconsin, whose statute nets them in first. Pass it ALONGSIDE netCapitalGain: the subtraction is allowed only where there is a net capital gain overall, because § 43-1022(22) reaches only gain included in federal AGI and a year that nets to a loss includes none, so a $50,000 long-term gain behind a $100,000 short-term loss subtracts nothing. Leave it out and an Arizona answer with long-term gains comes back too high.",
   },
   {
     name: 'taxExemptInterest',

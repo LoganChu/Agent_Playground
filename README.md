@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.42.0/us-state-tax-0.42.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.43.0/us-state-tax-0.43.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.45.0/us-tax-mcp-0.45.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.46.0/us-tax-mcp-0.46.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -547,7 +547,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.45.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.46.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -1000,7 +1000,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.45.0/us-tax-mcp-0.45.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.46.0/us-tax-mcp-0.46.0.tgz"
       ]
     }
   }

@@ -11572,7 +11572,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1347.5,
+   "tax": 1222.5,
    "credits": []
   },
   "error": null
@@ -12178,7 +12178,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3347.5,
+   "tax": 2722.5,
    "credits": []
   },
   "error": null

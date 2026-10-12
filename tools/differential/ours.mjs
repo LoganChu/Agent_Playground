@@ -188,6 +188,28 @@ function one(c) {
     // are all long-term stock gains with none of the classes Maryland exempts —
     // so one value serves both and neither is being told something untrue.
     netCapitalGain: c.longTermCapitalGains || undefined,
+    // AND THE SAME DOLLARS A FOURTH TIME, under the name A.R.S. § 43-1022(22)
+    // asks for. Arizona subtracts 25% of the net LONG-TERM capital gain on
+    // assets acquired after 31 December 2011, and no figure on a federal return
+    // carries the acquisition date — so without this field every Arizona case
+    // with a gain is a disagreement about this harness rather than about
+    // Arizona, which is what it was from the day the grid was built until
+    // Day 48.
+    //
+    // THE GRID'S GAINS ARE ALL `longTermCapitalGains` BY CONSTRUCTION, with no
+    // short-term half and no pre-2012 half: `cases.mjs` builds them as a single
+    // long-term stock gain, which is why the same value serves `investmentIncome`,
+    // `netCapitalGain` and this field without any of them being told something
+    // untrue. The same argument as the Maryland surtax above.
+    //
+    // AND POLICYENGINE DOES NOT MODEL THE VINTAGE AT ALL — `az_long_term_capital_
+    // gains_subtraction` takes 25% of every long-term gain regardless of when the
+    // asset was acquired. So the two models agree here only because this grid's
+    // assets are all post-2011. A grid with a pre-2012 gain in it would diverge
+    // by 0.625% of that gain, in PolicyEngine's favour, and that is a fact about
+    // their model rather than about this one: it is recorded in
+    // `known-divergences.json` rather than smoothed over by withholding the field.
+    longTermCapitalGainAfter2011: c.longTermCapitalGains || undefined,
     retirement: { filer: person },
     ...(c.county ? { county: c.county.ours } : {}),
     ...stateDefinedBase(c.state, c),

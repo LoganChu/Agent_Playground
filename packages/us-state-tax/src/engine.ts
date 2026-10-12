@@ -2812,24 +2812,70 @@ function computeOnce(
   // just exempted.
   let capitalGainsSubtraction = 0;
   if (def.capitalGainsSubtraction) {
-    // ONE field, deliberately. `netCapitalGain` is Form 1040 line 7, which
-    // already nets short-term against long-term, and
-    // `includesShortTerm` records that Missouri wants the whole of that line
-    // rather than its long-term half — adding `shortTermCapitalGains`, which
-    // Massachusetts reads, would count the same dollars twice for a caller who
-    // supplies both.
     const netGain = nonNegative(input.netCapitalGain, 'netCapitalGain');
-    // Wisconsin's Schedule WD line 25 excludes the short-term half: the
-    // subtraction is a share of the net LONG-TERM gain, bounded by the net gain
-    // as a whole, so a short-term gain cannot create an exclusion and a
-    // short-term LOSS eats one. `shortTermCapitalGains` is the figure that
-    // splits the line; absent, the whole net gain is treated as long-term,
-    // which is the only answer a single netted figure supports and which the
-    // state's notes name.
-    const longTerm = def.capitalGainsSubtraction.includesShortTerm
-      ? netGain
-      : Math.max(0, netGain - nonNegative(input.shortTermCapitalGains, 'shortTermCapitalGains'));
-    capitalGainsSubtraction = Math.min(netGain, longTerm) * def.capitalGainsSubtraction.share;
+    const basis = def.capitalGainsSubtraction.basis;
+    // THREE STATES, THREE BASES, AND THE TWO THAT LOOK ALIKE ARE THE TWO THAT
+    // DIFFER. Wisconsin and Arizona both take a share of a long-term gain and
+    // reach different answers on the same household, because the two statutes
+    // say opposite things about short-term items — see
+    // {@link CapitalGainsSubtractionBasis}, which carries the worked example.
+    let base: number;
+    if (basis.kind === 'wholeNetGain') {
+      // Missouri: "all income reported as a capital gain for federal income tax
+      // purposes". `netCapitalGain` is Form 1040 line 7, which already nets
+      // short against long, and adding `shortTermCapitalGains` — the field
+      // Massachusetts reads, because it charges that half 8.5% — would count
+      // the same dollars twice for a caller who supplies both.
+      base = netGain;
+    } else if (basis.kind === 'longTermNetted') {
+      // Wisconsin's Schedule WD line 25: a share of the net LONG-TERM gain,
+      // bounded by the net gain as a whole, because § 71.05(6)(b)9 requires the
+      // gains and losses "for all assets" to be netted BEFORE the percentage.
+      // So a short-term gain cannot create an exclusion and a short-term LOSS
+      // eats one. `shortTermCapitalGains` splits the line; absent, the whole
+      // net gain is treated as long-term, which is the only answer a single
+      // netted figure supports and which the state's notes name.
+      const longTerm = Math.max(
+        0,
+        netGain - nonNegative(input.shortTermCapitalGains, 'shortTermCapitalGains'),
+      );
+      base = Math.min(netGain, longTerm);
+    } else {
+      // Arizona's § 43-1022(22). Two differences from Wisconsin, both statutory:
+      //
+      // 1. SHORT-TERM ITEMS ARE EXCLUDED RATHER THAN NETTED, so the base is not
+      //    bounded by the net gain. "Net long-term capital gain" is IRC
+      //    § 1222(7) — long-term gains less long-term LOSSES — and the Form 140
+      //    worksheet adds "do not include any short-term capital gains or
+      //    (losses) in this worksheet".
+      // 2. THE VINTAGE. Only assets acquired after `basis.acquiredAfter`
+      //    qualify, which is why this reads a field of its own rather than
+      //    subtracting two: nothing on a federal return records when an asset
+      //    was bought.
+      //
+      // AND IT IS GATED ON A NET GAIN OVERALL, which is the statute's "included
+      // in federal adjusted gross income" and not a smoothing of it: a year
+      // that nets to a capital loss includes no gain in federal AGI to subtract
+      // from. That gate is the ONE place the short-term figures reach this
+      // basis, and they reach it as a test rather than as an amount.
+      //
+      // THE FIELD IS VALIDATED BEFORE THE GATE IS CONSULTED, AND THAT ORDER IS
+      // THE POINT. The first draft of this read
+      // `netGain > 0 ? nonNegative(...) : 0`, which is correct arithmetic and
+      // means a negative qualifying gain is REFUSED in a year with a net gain
+      // and silently accepted in a year without one — the same caller error
+      // diagnosed or ignored depending on a different field's value.
+      //
+      // **THE RULE: VALIDATION PLACED INSIDE A CONDITIONAL IS VALIDATION THE
+      // CONDITIONAL CAN TURN OFF.** A `nonNegative` call is not part of the
+      // computation, it is a claim about the input, and a claim about an input
+      // cannot depend on whether the engine happens to need it today. Found by
+      // re-reading this diff adversarially before the mutation audit, which is
+      // the step Day 47 added to the checklist.
+      const qualifying = nonNegative(input.longTermCapitalGainAfter2011, basis.field);
+      base = netGain > 0 ? qualifying : 0;
+    }
+    capitalGainsSubtraction = base * def.capitalGainsSubtraction.share;
     if (capitalGainsSubtraction > 0) {
       computedSubtractions.push({
         name: def.capitalGainsSubtraction.name,

@@ -653,7 +653,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.42.0/us-state-tax-0.42.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.43.0/us-state-tax-0.43.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2756,7 +2756,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **660** notes every
+`test/notes.test.js` pins the first 72 characters of all **664** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2776,13 +2776,13 @@ and a disagreement is checkable without knowing which is right.
 And a rule's `name` is now checked against the rule. A name travels in the result
 object — `"Michigan retirement and pension benefits deduction (phased in, 75% for
 2025)"` — so a percentage or a dollar figure printed in one is a claim a caller
-reads, and all 17 of them are now required to equal a figure the rule actually holds.
+reads, and all 19 of them are now required to equal a figure the rule actually holds.
 
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,517 numeric
-figures over 68 state-years, against 438 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,519 numeric
+figures over 68 state-years, against 442 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2828,12 +2828,12 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,258 figures of tax year
+The `kind` field answers one operational question. Over the 2,259 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,829** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,830** |
 | the statute's own schedule (`statute-scheduled`) | **113** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **309** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
@@ -3052,7 +3052,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **828 tests**. Turning it on, when there were 618 of them, is what
+from all **839 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

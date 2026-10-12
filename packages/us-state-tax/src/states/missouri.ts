@@ -467,7 +467,7 @@ export function missouri(year: number): StateIncomeTaxDefinition | undefined {
     capitalGainsSubtraction: {
       name: 'Capital gains subtraction',
       share: 1,
-      includesShortTerm: true,
+      basis: { kind: 'wholeNetGain' },
       cite: 'Mo. Rev. Stat. § 143.121.3(14), added by HB 594 (2025) and retroactive to 1 January 2025 — "one hundred percent of all income reported as a capital gain for federal income tax purposes", which reaches short-term gain as well as long-term. It is a modification in arriving at Missouri adjusted gross income, so it moves the figure § 143.171.2’s percentage chart is read against.',
     },
     stateRetirementDeduction: {

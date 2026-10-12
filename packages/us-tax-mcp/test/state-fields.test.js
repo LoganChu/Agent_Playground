@@ -27,6 +27,7 @@ import test from 'node:test';
 
 import { TOOLS, ToolInputError } from '../dist/index.js';
 import { STATE_FIELDS, fieldsForState, shortDescription } from '../dist/state-fields.js';
+import { KNOWN_STATE_INPUT_FIELDS } from '../dist/state-engine/index.js';
 
 const stateTool = TOOLS.find((tool) => tool.name === 'state_income_tax');
 const describeTool = TOOLS.find((tool) => tool.name === 'describe_state');
@@ -362,6 +363,18 @@ test('every per-state field is READ, not merely accepted', () => {
             state,
             [field.name]: value,
             ...(field.name === 'stateItemizedDeductions' ? { federalItemized: true } : {}),
+            // A PARTNER FIELD, for the same reason `federalItemized` is one above:
+            // the field is read only on a return the partner makes possible.
+            // A.R.S. § 43-1022(22) subtracts a share of the long-term gain only
+            // where there is a net capital gain OVERALL — a year that nets to a
+            // loss includes no gain in federal AGI to subtract from — so without
+            // `netCapitalGain` the gate closes, the answer does not move, and
+            // this test would report a field it can in fact reach as unread.
+            //
+            // Injected rather than added to `EXPLAINED` below BECAUSE THE FIELD
+            // IS GENUINELY READ. The excuse list is for fields this probe set
+            // cannot build a household for; this one it can, in one more key.
+            ...(field.name === 'longTermCapitalGainAfter2011' ? { netCapitalGain: value } : {}),
           });
           if (supplied !== undefined && supplied !== plain) {
             moved = true;
@@ -580,4 +593,68 @@ test('a state ADDED to a field list is read there, not merely accepted beside th
     }).structured.state;
   assert.equal(retiree(2026).stateAdjustedGrossIncome, 20_000);
   assert.equal(retiree(2025).stateAdjustedGrossIncome, 25_000);
+});
+
+test('every field the ENGINE accepts is exposed by this server, or excused by name', () => {
+  // THE GAP THIS CLOSES WAS FOUND BY HAND ON DAY 48, AND BY HAND IS THE WHOLE
+  // PROBLEM.
+  //
+  // `us-state-tax` gained `longTermCapitalGainAfter2011` that day, for Arizona's
+  // A.R.S. § 43-1022(22) — the largest unmodelled Arizona provision, worth
+  // $625.00 on a $100,000 long-term gain. The engine read it, its own suite
+  // proved it, `sync-engine.mjs` copied the new source into `src/state-engine/`
+  // on the next build, and the MCP server went on not exposing it. Every test in
+  // this file passed: they all iterate `STATE_FIELDS`, so a field missing FROM
+  // `STATE_FIELDS` is invisible to all of them.
+  //
+  // **THE RULE: A REGISTRY'S TESTS CAN ONLY CHECK WHAT IS IN THE REGISTRY.** The
+  // four tests above prove the pointer, the documentation, the validator and the
+  // read — four properties of every field listed, and not one word about whether
+  // the list is complete. That is Day 34's "a hand-maintained list of field names
+  // drifts towards being short" at the package boundary, and Day 46's finding that
+  // this repository's instruments were all scoped to ONE package.
+  //
+  // It is checked in this direction — engine first — because the engine is where a
+  // field is born. `KNOWN_STATE_INPUT_FIELDS` is itself held to `types.ts` by a
+  // source parse in `us-state-tax`'s `unknown-input.test.js`, so the chain runs
+  // from the interface to the server with an assertion at every link.
+  const exposed = new Set(STATE_FIELDS.map((field) => field.name));
+
+  // Named with its reason, so this is a set of claims and not an allowlist — and
+  // checked in both directions below, so it cannot become a graveyard.
+  const ELSEWHERE = {
+    // The four that identify the return rather than describing it. They are
+    // required arguments of `state_income_tax` itself.
+    state: 'a required argument of the tool',
+    year: 'a required argument of the tool',
+    filingStatus: 'a required argument of the tool',
+    federal: 'built by the tool from the federal engine, not supplied per state',
+    dependents: 'derived from dependentAges, which IS exposed',
+    // Exposed under a name that says whose they are, because `additions` and
+    // `subtractions` are ambiguous in a tool that also computes a federal return.
+    additions: 'exposed as stateAdditions',
+    subtractions: 'exposed as stateSubtractions',
+    // Pennsylvania's tax forgiveness takes the CLAIMANT's eligibility income from
+    // the return the tool already has; only the spouse's half is a separate input.
+    pennsylvaniaEligibilityIncome: 'derived from the federal return the tool builds',
+    federalDeductions: 'assembled by the tool from qbi, overtime and tips',
+    federalOneDollarHigher: "the engine's own marginal-rate probe, not a caller's input",
+  };
+
+  const unexposed = KNOWN_STATE_INPUT_FIELDS.filter((name) => !exposed.has(name));
+  const surprising = unexposed.filter((name) => ELSEWHERE[name] === undefined);
+  assert.deepEqual(
+    surprising,
+    [],
+    `the engine accepts these and this server does not expose them: ${surprising.join(', ')}`,
+  );
+  // The other direction: a field that becomes exposed must leave the excuse list,
+  // or the list stops describing the server.
+  const stale = Object.keys(ELSEWHERE).filter((name) => !unexposed.includes(name));
+  assert.deepEqual(stale, [], `these are exposed and still excused: ${stale.join(', ')}`);
+  // And an excuse for a field the engine has never heard of is a third way to rot.
+  const phantom = Object.keys(ELSEWHERE).filter(
+    (name) => !KNOWN_STATE_INPUT_FIELDS.includes(name),
+  );
+  assert.deepEqual(phantom, [], `excused but not an engine field: ${phantom.join(', ')}`);
 });

@@ -259,6 +259,15 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   // =========================================================================
   {
     state: 'AZ',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: '§ 43-1022(22)',
+    cite:
+      "A.R.S. § 43-1022(22) and the Form 140 net long-term capital gain worksheet — 25 percent of the net long-term capital gain included in federal AGI on assets acquired after 31 December 2011. CONSTANT ACROSS BOTH YEARS HERE AND NOT ACROSS THE PROVISION’S LIFE: 10 percent in 2013, 20 percent in 2014, 25 percent from 2015, which policyengine-us 2.40.1 carries as a three-step series citing the same statute and the 2022 Form 140 instructions. The share is the half of this provision that has NOT been under legislative attack — SB 1331 (2025) went after the 2011 vintage and not the quarter, and died.",
+    constant: true,
+  },
+  {
+    state: 'AZ',
     path: 'rate.rate',
     kind: 'statute',
     document: '§ 43-1011',

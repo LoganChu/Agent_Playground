@@ -1424,6 +1424,44 @@ export interface StateIncomeTaxInput {
    */
   readonly netCapitalGain?: number;
   /**
+   * Net **long-term** capital gain from assets acquired after 31 December 2011
+   * — Arizona only, and the figure its own form asks for on a line of its own.
+   *
+   * A.R.S. § 43-1022(22) subtracts 25% of this. It is supplied rather than
+   * derived because **no figure on a federal return carries it**: Form 1040
+   * line 7 is already netted short against long, Schedule D splits the two
+   * halves but not the two vintages, and nothing on either says when an asset
+   * was bought. {@link netCapitalGain} less
+   * {@link shortTermCapitalGains} gives the long-term half and still cannot
+   * give this one.
+   *
+   * **Short-term items do not belong here, as gains or as losses.** The Form
+   * 140 worksheet says so in a sentence of its own — "Do not include any
+   * short-term capital gains or (losses) in this worksheet" — which is where
+   * Arizona parts company with Wisconsin, whose statute nets them first. Pass
+   * the long-term gains less the long-term losses, on post-2011 assets only.
+   *
+   * **It is still gated on there being a net capital gain overall**, because
+   * § 43-1022(22) reaches only gain "included in federal adjusted gross
+   * income" and a year that nets to a loss includes none. That test is read off
+   * {@link netCapitalGain}, so a caller with short-term losses should supply
+   * both fields: this one alone cannot tell a $50,000 long-term gain that
+   * survived from one a short-term loss wiped out.
+   *
+   * Treated as zero when absent, which leaves an Arizona answer TOO HIGH by
+   * 0.625% of the qualifying gain — `$625.00` on `$100,000`. Arizona's notes
+   * say so on every result where {@link netCapitalGain} is supplied without it.
+   *
+   * **The date in the name is a statutory constant and not a safe one.**
+   * Arizona SB 1331 (2025) would have removed the vintage condition for 2026
+   * and died in the House; if a later session passes it, this field becomes
+   * "all net long-term capital gain" and its name is stale while its meaning is
+   * not. The date lives as data on the rule —
+   * `capitalGainsSubtraction.basis.acquiredAfter` — so the parameter has
+   * provenance even though the field name repeats it.
+   */
+  readonly longTermCapitalGainAfter2011?: number;
+  /**
    * Wages earned inside Yonkers by a filer who does **not** live there, Form
    * Y-203. Yonkers charges non-residents 0.5% of Yonkers-source earnings.
    *
@@ -1674,6 +1712,7 @@ export const KNOWN_STATE_INPUT_FIELDS = [
   'county',
   'stateItemizedDeductions',
   'netCapitalGain',
+  'longTermCapitalGainAfter2011',
   'yonkersNonresidentEarnings',
   'city',
   'cityIncome',

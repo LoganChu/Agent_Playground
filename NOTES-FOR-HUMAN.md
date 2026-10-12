@@ -17,8 +17,8 @@ about reach, not about capability, and those older entries overstate it badly.
 headline is that Arizona's standard deduction stopped being the federal one four months
 ago and nothing here noticed, because the number did not change.**
 
-`us-federal-tax` is v0.15.0, `us-state-tax` **v0.42.0**, `us-tax-mcp` **v0.45.0**.
-**1,414 tests**, all passing.
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.43.0**, `us-tax-mcp` **v0.46.0**.
+**1,426 tests**, all passing.
 
 A.R.S. § 43-1041(A) defined the Arizona standard deduction as *equal to* the federal one
 until Arizona's HB 4168, signed **13 June 2026**, replaced that cross-reference with

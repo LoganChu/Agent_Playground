@@ -1378,13 +1378,22 @@ const stateTool: ToolDefinition = {
     const county = source['county'];
     const itemized = readNumber(source, 'stateItemizedDeductions');
     const capitalGain = readNumber(source, 'netCapitalGain');
+    const arizonaLongTermGain = readNumber(source, 'longTermCapitalGainAfter2011');
     const federalItemized = source['federalItemized'];
     if (federalItemized !== undefined && typeof federalItemized !== 'boolean') {
       throw new ToolInputError('federalItemized must be true or false.');
     }
     for (const [field, value, states] of [
       ['stateItemizedDeductions', itemized, ['MD', 'VA', 'GA', 'MO']],
-      ['netCapitalGain', capitalGain, ['MD', 'MO']],
+      // ARIZONA JOINED ON DAY 48, AND IT READS THIS FIELD AS A TEST RATHER THAN AS
+      // AN AMOUNT. A.R.S. § 43-1022(22) subtracts a quarter of the long-term gain
+      // only where there is a net capital gain OVERALL, so `netCapitalGain` is the
+      // gate on `longTermCapitalGainAfter2011` below. Leaving Arizona off this list
+      // made the gate unreachable through this server: the field was accepted and
+      // could never open, which `state-fields.test.js` reported as a field accepted
+      // and never read.
+      ['netCapitalGain', capitalGain, ['MD', 'MO', 'AZ']],
+      ['longTermCapitalGainAfter2011', arizonaLongTermGain, ['AZ']],
       // Georgia joined on Day 26 and it is the one state where `federalItemized`
       // is worth money on its own: the eligible itemizer credit of
       // § 48-7-27.1 is $300 a taxpayer for the election alone, with no state
@@ -1714,6 +1723,9 @@ const stateTool: ToolDefinition = {
       ...(lesserSpouseIncome !== undefined ? { lesserSpouseIncome } : {}),
       ...(federalPovertyGuideline !== undefined ? { federalPovertyGuideline } : {}),
       ...(capitalGain !== undefined ? { netCapitalGain: capitalGain } : {}),
+      ...(arizonaLongTermGain !== undefined
+        ? { longTermCapitalGainAfter2011: arizonaLongTermGain }
+        : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
       ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),
       ...(qbi !== undefined || overtime !== undefined || tips !== undefined

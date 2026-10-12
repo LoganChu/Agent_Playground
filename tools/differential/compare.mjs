@@ -128,6 +128,38 @@ function match(rule, caseRow, metric, delta) {
   // whatever matched on the day would be the ratchet this file warns about
   // elsewhere, so the exclusion is explicit and each one has to be argued.
   if (rule.notStates && rule.notStates.includes(caseRow.state)) return false;
+  // `requiresNonZero` is a bound on the household's SHAPE rather than on the
+  // difference's size, and it is the thing Day 47's worklist item 3 asked for
+  // after `maxAbs` turned out not to be able to express "this provision cannot
+  // reach this filer".
+  //
+  // DAY 48 NEEDED IT WITHIN MINUTES OF MODELLING THE PROVISION THAT MOTIVATED IT.
+  // Arizona's § 43-1022(22) capital gains entry was rewritten to describe the one
+  // residual difference — PolicyEngine does not model the 2011 asset vintage — and
+  // given `direction: 'oursHigher'` and a $2,500 bound DERIVED FROM THE PROVISION.
+  // Both bounds were right and between them they still let the entry claim
+  // twenty-odd Arizona households with NO CAPITAL GAIN AT ALL, because it sits
+  // above the credits entry in file order and $232.50 of unmodelled dependent
+  // credit is a positive difference under $2,500.
+  //
+  // **THE RULE: A SIZE BOUND AND A SIGN SAY WHAT A REASON CAN EXPLAIN; NEITHER
+  // SAYS WHOM IT CAN EXPLAIN IT ABOUT.** A subtraction of a capital gain cannot
+  // account for a penny of difference on a filer who has no capital gain, however
+  // small the difference and whichever way it points — and that is a fact about
+  // the mechanism, so it belongs in the entry beside the other two.
+  //
+  // Checked against the CASE rather than against either model's answer, so it
+  // cannot be satisfied by a household one model happens to treat as having a
+  // gain. The names are `cases.mjs` fields; an entry naming a field no case
+  // carries would silently match nothing, so `registry` below requires each one
+  // to exist on at least one case.
+  if (rule.requiresNonZero) {
+    for (const field of rule.requiresNonZero) {
+      const value = caseRow[field];
+      const present = Array.isArray(value) ? value.length > 0 : (value ?? 0) !== 0;
+      if (!present) return false;
+    }
+  }
   if (rule.maxAbs !== undefined || rule.maxShareOfIncome !== undefined) {
     const bound =
       (rule.maxAbs ?? 0) + (rule.maxShareOfIncome ?? 0) * caseIncome(caseRow);

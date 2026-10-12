@@ -249,5 +249,5 @@ test('every conditional note fires for some return and not for others', () => {
       }
     }
   }
-  assert.equal(checked, 36, 'conditional notes in the package');
+  assert.equal(checked, 40, 'conditional notes in the package');
 });

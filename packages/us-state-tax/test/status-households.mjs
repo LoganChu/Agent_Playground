@@ -553,6 +553,19 @@ const SHAPES = {
     netCapitalGain: 80_000,
     investmentIncome: 80_000,
     shortTermCapitalGains: 30_000,
+    // NO `longTermCapitalGainAfter2011`, DELIBERATELY, and this household is the
+    // reason the field's absence has a note of its own. It has $80,000 of net
+    // gain and a $30,000 short-term half, so a long-term half of $50,000 is
+    // arithmetic — and Arizona still subtracts nothing, because § 43-1022(22)
+    // needs the ACQUISITION DATE and no figure here carries one. A caller in
+    // exactly this position gets an Arizona answer $312.50 too high and a note
+    // saying so.
+    //
+    // `veryHigh1m4` is the household that supplies the field, so the battery
+    // pins both sides: the subtraction taken and the subtraction withheld for
+    // want of a vintage. Setting it here too would have left the "supplied a
+    // gain with no qualifying half" note firing for nobody, which is how
+    // `notes.test.js` found this split.
     collectiblesGains: 10_000,
     outOfStateMunicipalInterest: 9_000,
     socialSecurityAndMedicarePaid: 13_243,
@@ -571,9 +584,42 @@ const SHAPES = {
     netCapitalGain: 350_000,
     investmentIncome: 350_000,
     shortTermCapitalGains: 120_000,
+    // $350,000 net less the $120,000 short-term half.
+    longTermCapitalGainAfter2011: 230_000,
     socialSecurityAndMedicarePaid: 22_000,
     lesserSpouseIncome: 400_000,
     bothSpousesHaveQualifyingIncome: true,
+  },
+  // A LONG-TERM GAIN INSIDE AN OVERALL CAPITAL LOSS, which is a shape this
+  // battery had none of in any of its 33 households — found by the test that
+  // requires every conditional note to be readable by somebody, which is the
+  // second time an instrument over the PROSE has found a gap in the households.
+  //
+  // It is the one household where the three states here that subtract a capital
+  // gain must all answer zero for three different reasons, and where supplying
+  // more information makes the subtraction SMALLER rather than larger:
+  //
+  //   Arizona     § 43-1022(22) reaches only gain "included in federal adjusted
+  //               gross income", and a loss year includes none. $0.00 despite a
+  //               $50,000 qualifying long-term gain sitting right here.
+  //   Wisconsin   § 71.05(6)(b)9 nets all assets BEFORE the percentage, so the
+  //               short-term loss eats the exclusion outright.
+  //   Missouri    subtracts the whole of Form 1040 line 7, which is negative.
+  //
+  // `netCapitalGain: 0` IS THE LOSS, and that is a property of this package
+  // rather than of the return: the field is `nonNegative`, so Form 1040 line 7's
+  // negative half is not representable and a loss year is a zero. The
+  // $3,000 of federal capital loss deduction reaches these states through
+  // federal AGI, where it already is.
+  loss60k: {
+    income: 60_000,
+    earnedIncome: 60_000,
+    filerAge: 44,
+    spouseAge: 43,
+    netCapitalGain: 0,
+    longTermCapitalGainAfter2011: 50_000,
+    socialSecurityAndMedicarePaid: 4_590,
+    rentPaid: 12_000,
   },
   // A blind filer, and a dependent at college. Two whole dimensions the first
   // draft of this battery had none of: `blindOrDisabled` and

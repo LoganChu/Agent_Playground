@@ -3440,12 +3440,97 @@ export interface FederalIncomeTaxDeductionRule {
  * {@link FederalIncomeTaxDeductionRule.rateSteps}, unlocking a deduction for
  * the federal tax ON the gain it just exempted.
  */
+/**
+ * What the share is a share OF, which is the whole of the difference between
+ * the three states here that subtract a capital gain — and it is a
+ * discriminator rather than a boolean because Arizona is a third shape, not a
+ * variation on either of the other two.
+ *
+ * `includesShortTerm: boolean` carried this until Day 48, and it could express
+ * Missouri and Wisconsin because those two really are opposite ends of one
+ * question. Arizona answers a different question: its worksheet does not net
+ * short-term items against the long-term gain, it **excludes them from the
+ * computation entirely**, and the 2025 Form 140 instructions say so in a
+ * sentence of their own — "Do not include any short-term capital gains or
+ * (losses) in this worksheet."
+ *
+ * The three differ on one household, which is the only test that matters here.
+ * A filer with a `$10,000` short-term LOSS and a `$50,000` long-term gain has
+ * `$40,000` of net capital gain in federal AGI:
+ *
+ * ```text
+ *   Missouri    wholeNetGain          100% x $40,000  = $40,000
+ *   Wisconsin   longTermNetted         30% x $40,000  = $12,000
+ *   Arizona     longTermExcludingShortTerm
+ *                                      25% x $50,000  = $12,500
+ * ```
+ *
+ * **Wisconsin and Arizona read the same two figures and reach different
+ * answers, and both are right**, because the two statutes say opposite things
+ * about the same arithmetic. Wis. Stat. § 71.05(6)(b)9 adds that "the capital
+ * gains and capital losses for all assets shall be netted before application
+ * of the percentage", so a short-term loss eats the exclusion. A.R.S.
+ * § 43-1022(22) subtracts "net long-term capital gain", which is a **defined
+ * federal term** — IRC § 1222(7), long-term gains less long-term losses — and
+ * nets nothing short-term into it.
+ *
+ * **THE RULE: a share and a base are two parameters, and a package that stores
+ * only the share has made the base a property of the code rather than of the
+ * state.** Wisconsin's 30% and Arizona's 25% were never the interesting
+ * difference between them.
+ */
+export type CapitalGainsSubtractionBasis =
+  /**
+   * The whole of Form 1040 line 7, short-term gain included — Missouri, which
+   * subtracts "all income reported as a capital gain for federal income tax
+   * purposes".
+   */
+  | { readonly kind: 'wholeNetGain' }
+  /**
+   * The long-term half, **netted against short-term items first and bounded by
+   * the net gain as a whole** — Wisconsin's Schedule WD line 25, where a
+   * short-term gain cannot create an exclusion and a short-term loss eats one.
+   */
+  | { readonly kind: 'longTermNetted' }
+  /**
+   * The long-term gain **with short-term items excluded rather than netted**,
+   * and only where the filer has a net capital gain overall — Arizona.
+   *
+   * The second half is not a refinement of the first, it is the statute's own
+   * limit: § 43-1022(22) reaches net long-term capital gain "included in
+   * federal adjusted gross income", and a year with an overall capital LOSS
+   * includes no gain in federal AGI at all. So a `$100,000` short-term loss
+   * against a `$50,000` long-term gain subtracts nothing, where the same
+   * `$50,000` with a `$10,000` short-term loss subtracts the whole quarter.
+   *
+   * {@link field} is read rather than derived because no figure on a federal
+   * return carries it — see {@link StateTaxInput.longTermCapitalGainAfter2011}.
+   */
+  | {
+      readonly kind: 'longTermExcludingShortTerm';
+      /** The input field carrying the vintage-qualifying gain. */
+      readonly field: 'longTermCapitalGainAfter2011';
+      /**
+       * The asset-acquisition date the gain must fall after, as the statute
+       * carries it — a PARAMETER and not a fact about the field's name.
+       *
+       * It is stored here because it is the half of this provision most likely
+       * to move: Arizona SB 1331 (2025) would have struck it, extending the
+       * subtraction to every long-term gain "irrespective of when assets were
+       * acquired" from 1 January 2026, and it DIED in the House after passing
+       * the Senate. The 57th Legislature's second regular session still
+       * describes current law with the date in it.
+       */
+      readonly acquiredAfter: string;
+      readonly vintageCite: string;
+    };
+
 export interface CapitalGainsSubtractionRule {
   readonly name: string;
-  /** The share subtracted — 1 for Missouri. */
+  /** The share subtracted — 1 for Missouri, 0.3 Wisconsin, 0.25 Arizona. */
   readonly share: number;
-  /** Whether short-term gain is included. True for Missouri. */
-  readonly includesShortTerm: boolean;
+  /** What the share is a share of. */
+  readonly basis: CapitalGainsSubtractionBasis;
   readonly cite: string;
 }
 
