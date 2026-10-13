@@ -21,7 +21,18 @@ same household by the same engine.**
 to sixteen.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
-push** (run 190, `9bf1af2`). One API call.
+push** (run 190, `9bf1af2`). One API call. And at the END, which is Day 45's other half:
+**green on all SEVEN jobs** (run 194, `bc6a704`) — the three test jobs, `differential`,
+`counts`, `cross-package` and `mutation-claims`.
+
+**`mutation-claims` was red from the day's first push until the score was recorded**, across
+three commits and about three hours, and that is the instrument working rather than a
+problem: the fingerprint is over the built parameters, `src` changed, and Day 48's score
+genuinely was not a score of this build for any of those minutes. Sixth day running that it
+has caught exactly that — and today it caught it twice, because the first audit recorded
+14 survivors against a build the fix then replaced. **`cross-package`'s Arizona step still
+passes**, which is the check that fails the year § 43-1041(H)'s borrowed indexing method
+stops producing the federal figure, and nothing today touched it.
 
 New: `src/states/south-carolina.ts`; a `RecognizedStandardDeductionRule`; a third
 `FederalConformityRule.governs` value, `recognizedDeductions`; `SlidingScaleTier` split
