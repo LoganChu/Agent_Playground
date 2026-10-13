@@ -145,6 +145,45 @@ export type DeductionRule =
       readonly maximum: ByStatus;
       /** Ascending by {@link SlidingScaleTier.above}; one entry for most statuses. */
       readonly tiers: ByStatus<readonly SlidingScaleTier[]>;
+      /**
+       * The income the scale is read against. Absent means the state's own AGI,
+       * which is Wisconsin's Form 1 line 7 and the reason every Wisconsin
+       * subtraction buys part of the deduction back.
+       *
+       * South Carolina's SCIAD is read against **federal** AGI, so no South
+       * Carolina subtraction moves it: the 44% capital gain deduction lowers a
+       * South Carolina filer's taxable income and does nothing at all to their
+       * deduction, where the same dollar in Wisconsin does both.
+       */
+      readonly measuredOn?: IncomeMeasure;
+      /**
+       * The REDUCTION is rounded DOWN to a multiple of this, which turns the
+       * scale from a rate into a staircase — South Carolina's `$10`, S.C. Code
+       * § 12-6-1140(15)(b) as SCDOR Information Letter 26-20 states it: "any
+       * reduction amount that is not a multiple of ten dollars is rounded down
+       * to the next lowest ten dollars".
+       *
+       * **IT IS THE THIRD STAIRCASE SHAPE IN THIS PACKAGE AND THE FIRST THAT
+       * STEPS ON THE REDUCTION RATHER THAN ON THE INCOME.** Alabama's
+       * § 40-18-15(b) withdraws `$25` for each `$500` of income and
+       * Connecticut's § 12-702 `$1,000` for each `$1,000` "or fraction
+       * thereof" — both of them count steps of INCOME, so both have a step
+       * width the statute states. South Carolina states a fraction and rounds
+       * its product, so the width is a CONSEQUENCE: at a withdrawal rate of
+       * 3/11, `$10` of reduction costs `$36.66...` of income, and the steps of
+       * an integer-dollar income run **37, 37, 36**, repeating.
+       *
+       * The direction favours the filer, as Alabama's floor does and
+       * Connecticut's "or fraction thereof" does not. The cost is paid on one
+       * dollar instead: at a step boundary one dollar of income raises taxable
+       * income by `$11`, so the marginal rate is **eleven times** the statutory
+       * one — 21.89% in South Carolina's 1.99% band and **57.31%** in its 5.21%
+       * one — while a model that reads the fraction without the rounding
+       * reports 5.21% x 14/11 = 6.6318% at every income in the band. That
+       * figure is the correct AVERAGE across a step and is wrong about every
+       * single dollar.
+       */
+      readonly roundReductionDownTo?: number;
       readonly cite: string;
     }
   /**
@@ -192,10 +231,16 @@ export type DeductionRule =
  * of the excess over the higher one — and `tiers` carries them in the same shape
  * as Wisconsin's sliding scale, so the arithmetic that reads them is shared and
  * the tier semantics cannot drift between the two states.
+ *
+ * It is {@link RateTier} and not {@link SlidingScaleTier}, which narrowed on Day
+ * 49 when South Carolina needed a tier that carries a DENOMINATOR instead of a
+ * rate. Minn. Stat. § 290.0123 subd. 5 states percentages, so the narrower type
+ * is what the statute has — and a limitation that could carry a denominator
+ * would be a shape no Minnesota document supports.
  */
 export interface DeductionLimitationRule {
-  /** Ascending by {@link SlidingScaleTier.above}. */
-  readonly tiers: ByStatus<readonly SlidingScaleTier[]>;
+  /** Ascending by {@link RateTier.above}. */
+  readonly tiers: ByStatus<readonly RateTier[]>;
   /**
    * The largest share of the deduction the limitation may remove — Minnesota's
    * 80%, § 290.0123, subd. 5(a)(2). The deduction therefore never falls below
@@ -210,12 +255,57 @@ export interface DeductionLimitationRule {
 /**
  * One tier of a {@link DeductionRule} sliding scale.
  */
-export interface SlidingScaleTier {
-  /** State AGI above which {@link rate} applies to the excess. */
+/**
+ * One tier of a {@link DeductionRule} `slidingScale` — and the two shapes are
+ * **the two ways a statute writes a withdrawal**, not two ways to store one
+ * number.
+ *
+ * Wisconsin's § 71.05(22)(dp) states PERCENTAGES: 22.515%, 19.778%, 12%. South
+ * Carolina's § 12-6-1140(15)(b) states a FRACTION — the deduction reduced by
+ * itself times the excess over `$55,000` — and never writes a percentage at
+ * all. Each tier carries whichever of the two its own statute has.
+ *
+ * **AND THE DIFFERENCE IS MONEY, WHICH IS WHY THIS IS A UNION AND NOT A
+ * CONVENIENCE.** The first South Carolina declaration stored the quotient,
+ * `15_000 / 55_000`, which is the most natural thing to write and is **one ulp
+ * BELOW 3/11** in binary floating point. Multiply it by `$27,500` and the
+ * product is `7499.9999999999991`; the statute's own `$10` rounding then floors
+ * it to `$7,490`, so a single filer at `$67,500` of federal AGI kept `$7,510`
+ * of SCIAD where the Department's own worked example says `$7,500`. At the end
+ * of the phase-out the same ulp left `$10` of deduction standing at `$95,000`,
+ * where the deduction is supposed to be gone.
+ *
+ * Dividing LAST — `maximum x excess / denominator` — is exact for every one of
+ * these figures, because each quotient is a whole number of dollars whenever
+ * the statute's arithmetic says it is.
+ *
+ * **THE RULE: A FLOOR TURNS A ROUNDING ERROR OF ONE ULP INTO A WHOLE STEP.** A
+ * pre-divided rate is a rounded parameter, and rounding it is harmless in every
+ * continuous rule in this package — Wisconsin's scale is off by fractions of a
+ * cent and nobody can see it — and ruinous the moment a `floor()` stands
+ * downstream of it, because the error no longer scales with itself. So where a
+ * statute writes a fraction, both of its figures are parameters and the
+ * division is the engine's job.
+ */
+/** Wisconsin and Minnesota: the statute states the percentage withdrawn per dollar. */
+export interface RateTier {
+  /** The income above which {@link rate} applies to the excess. */
   readonly above: number;
   /** The share of each dollar above {@link above} withdrawn from the maximum. */
   readonly rate: number;
 }
+
+/**
+ * South Carolina: the statute states the deduction reduced by a FRACTION of
+ * itself, and this is the fraction's denominator. The withdrawal is
+ * `maximum x (income - above) / denominator`, computed in that order.
+ */
+export interface FractionTier {
+  readonly above: number;
+  readonly denominator: number;
+}
+
+export type SlidingScaleTier = RateTier | FractionTier;
 
 /**
  * The income at which a steeper sliding scale has caught a shallower one.
@@ -1320,6 +1410,24 @@ export interface EarnedIncomeCreditRule {
   /** False means a filer with no state tax gets nothing. Utah. */
   readonly refundable: boolean;
   /**
+   * A dollar ceiling on the matched credit — South Carolina's `$200`, imposed by
+   * Act 110 of 2026 (H.4216) § 7 amending S.C. Code § 12-6-3632 for tax years
+   * after 2025. Absent everywhere else, because every other match in this
+   * package is a percentage and nothing more.
+   *
+   * **A cap on a MATCH is not a smaller match, and the difference is who pays
+   * it.** South Carolina's rate is 125% of the federal credit and stays 125%:
+   * the cap binds only above `$160` of federal credit, so it takes nothing from
+   * a filer near the top or the bottom of the federal schedule and everything
+   * from the families in the middle of it. And because the credit is
+   * non-refundable the loss is bounded by the South Carolina tax as well, so
+   * the largest federal credits — which belong to households with no South
+   * Carolina liability to offset — lose nothing at all. The provision is
+   * therefore worth least to the poorest claimants it covers, which is the
+   * opposite of how a cap on a credit usually reads.
+   */
+  readonly maximum?: number;
+  /**
    * New York: the state credit is the match **less** the household credit, so a
    * filer who gets both keeps only the larger. N.Y. Tax Law § 606(d)(1).
    */
@@ -1466,12 +1574,40 @@ export interface EarnedIncomeCreditRule {
  * engine computes zero — the answer that does not flatter the filer — and says
  * so in the credit's own name.
  */
+/**
+ * What a {@link MarriedCoupleCreditRule} puts its ceiling on, and the two
+ * answers are not interchangeable.
+ *
+ * Wisconsin's § 71.07(6)(am) is 3% of the lesser earned income "not to exceed
+ * `$480`" — a ceiling on the CREDIT. South Carolina's § 12-6-3330(B) is
+ * seven-tenths of one percent "of the lesser of fifty thousand dollars or the
+ * South Carolina qualified earned income of the taxpayer with the lower
+ * qualified earned income" — a ceiling on the INCOME.
+ *
+ * **The two produce the same number today and are different parameters, and
+ * storing South Carolina's as a credit cap would store `0.007 x $50,000` as
+ * though the statute had said `$350`.** It did not: the `$50,000` is the
+ * indexed figure (the statute's own was `$30,000`, amended in 2017 and indexed
+ * since), so it moves on its own, and the `$350` would have to be recomputed by
+ * hand every time it did — a figure derived from two parameters, kept as if it
+ * were one of them.
+ *
+ * This is Day 48's rule in a second rule: **a share and a base are two
+ * parameters**, and a ceiling belongs to whichever of the two the statute
+ * attached it to.
+ */
+export type MarriedCoupleCreditCap =
+  /** A ceiling on the credit. Wisconsin's `$480`. */
+  | { readonly kind: 'credit'; readonly max: number }
+  /** A ceiling on the income the rate is applied to. South Carolina's `$50,000`. */
+  | { readonly kind: 'earnedIncome'; readonly max: number };
+
 export interface MarriedCoupleCreditRule {
   readonly name: string;
-  /** 3%. */
+  /** 3% in Wisconsin, 0.7% in South Carolina. */
   readonly rate: number;
-  /** `$480`. */
-  readonly max: number;
+  /** What the ceiling is on — see {@link MarriedCoupleCreditCap}. */
+  readonly cap: MarriedCoupleCreditCap;
   readonly cite: string;
 }
 
@@ -2599,6 +2735,32 @@ export interface AgedIncomeSubtractionRule {
   readonly minimumAge: number;
   /** The most one person may subtract, limited by their own income. */
   readonly maximum: number;
+  /**
+   * The amount is reduced, **per person**, by the retirement and military
+   * subtractions that same person already took — South Carolina's
+   * § 12-6-1170(B), "reduced by any amount the taxpayer deducts pursuant to
+   * subsection (A)".
+   *
+   * **THAT OFFSET IS WHAT MAKES THIS A FLOOR RATHER THAN AN ADDITION, AND IT IS
+   * THE REASON SOUTH CAROLINA'S `$15,000` IS NOT A RETIREMENT PROVISION.** Every
+   * guide files it under retirement income. It asks nothing about the income:
+   * at 65 a South Carolina filer with `$60,000` of wages subtracts `$15,000` and
+   * a filer with `$60,000` of pension subtracts `$10,000` of retirement
+   * deduction plus `$5,000` of this — `$15,000` either way. So the pair is a
+   * guarantee of `$15,000` to a 65-year-old and the split between the two lines
+   * is bookkeeping.
+   *
+   * And it runs the other way for the one group that cannot use it: a military
+   * retiree's pay is exempt in full under § 12-6-1171, which consumes the whole
+   * `$15,000` and leaves nothing for their other income — **the offset takes
+   * away a deduction the exemption had already made unnecessary**, and the two
+   * only ever meet where the retired pay is under `$15,000`.
+   *
+   * Maryland's centenarian subtraction is the same rule with no offset:
+   * `$100,000` of ANY income at 100, reduced by nothing. The two states are the
+   * only ones here that subtract income rather than a class of income.
+   */
+  readonly reducedByRetirementSubtractions?: boolean;
 }
 
 /**
@@ -2872,6 +3034,38 @@ export interface RetirementIncomeSubtractionRule {
    * nothing else, because North Carolina taxes every other pension outright.
    */
   readonly cap?: number | ByStatus;
+  /**
+   * A cap that CHANGES WITH THE CLAIMANT'S AGE rather than gating availability —
+   * South Carolina's § 12-6-1170(A)(1), `$3,000` of retirement income at any age
+   * and `$10,000` from 65. Ascending by {@link fromAge}; the last band whose age
+   * the person has reached is theirs. Mutually exclusive with {@link cap}.
+   *
+   * It is a third shape beside {@link minimumAge} and {@link cappedMinimumAge},
+   * and the three are worth holding apart because they answer different
+   * questions about the same `$0`. New York's 59 1/2 says a younger claimant gets
+   * NOTHING from the capped part; Michigan's `maximumAge` says an older one does
+   * not need it. South Carolina says every age qualifies and the amount is what
+   * moves — which makes it the only state in this rule where a 40-year-old with
+   * a pension has a subtraction at all.
+   */
+  readonly capByAge?: readonly { readonly fromAge: number; readonly cap: number }[];
+  /**
+   * Military retired pay is subtracted **in full, outside the cap, with no age
+   * test** — South Carolina's § 12-6-1171(A), the Workforce Enhancement and
+   * Military Recognition Act of 2022.
+   *
+   * **Three flags on this rule, three states, three answers about the same
+   * dollars, and they are mutually exclusive by law rather than by convention.**
+   * New York exempts GOVERNMENT service in full and leaves the `$20,000` intact
+   * for everything else ({@link governmentPensionExemptInFull}). Michigan
+   * exempts military pay and charges it against the shared cap, so a second
+   * pension behind a military one is worth less ({@link militaryReducesCap}).
+   * South Carolina exempts military pay in full and charges a civilian
+   * government pension the ordinary `$3,000`/`$10,000` — so a retired South
+   * Carolina sergeant pays nothing on `$60,000` of retired pay and a retired
+   * South Carolina state trooper pays on `$50,000` of theirs.
+   */
+  readonly militaryExemptInFull?: boolean;
   /**
    * A fraction of {@link cap}, applied **after** {@link militaryReducesCap} has
    * taken military retired pay off it — which is the order Michigan's Worksheet
@@ -3768,6 +3962,52 @@ export interface SurvivingSpouseStatusRule {
   readonly cite: string;
 }
 
+/**
+ * The standard deduction a **frozen** Code recognizes, where the filer's actual
+ * federal deduction is larger — South Carolina's, and the mechanism is the one
+ * thing in this package that {@link StateIncomeTaxDefinition.addBacks} could not
+ * express.
+ *
+ * `addBacks` names federal deductions a `federalTaxableIncome` state refuses, and
+ * each of them is a FIGURE THE CALLER SUPPLIES: § 199A, tips, overtime, the
+ * senior deduction, vehicle loan interest. The standard deduction is not like
+ * that. There is no "OBBBA increase" line on any federal return — the filer took
+ * `$15,750`, the Code the state reads says `$15,000`, and the add-back is the
+ * DIFFERENCE OF TWO PARAMETERS rather than a line anybody can hand over.
+ *
+ * ```text
+ * add-back = max(0, the federal deduction actually taken - amounts[status])
+ * ```
+ *
+ * and only for a filer who took the STANDARD deduction, because an itemizer's
+ * federal figure is their own Schedule A and has nothing to do with § 63(c)(7).
+ *
+ * **South Carolina conforms to the Internal Revenue Code as amended through 31
+ * December 2024** (S.C. Code § 12-6-40(A)(1)(a), as amended effective 22 May
+ * 2025) and the One Big Beautiful Bill Act was enacted 4 July 2025, so for tax
+ * year 2025 South Carolina's own Code still carries the pre-OBBBA § 63(c)(7)
+ * amounts as Rev. Proc. 2024-40 indexed them — `$15,000` single and separate,
+ * `$22,500` head of household, `$30,000` joint and surviving spouse — against
+ * the `$15,750` / `$23,625` / `$31,500` the same filer took federally.
+ *
+ * **And Act 110 of 2026 abolished the whole problem without touching the
+ * conformity date.** From tax year 2026 South Carolina starts from federal AGI,
+ * which is ABOVE the standard deduction and above all four Schedule 1-A
+ * deductions, so a frozen § 63 stops being able to reach an individual return at
+ * all. The date is still 31 December 2024 and no longer matters.
+ *
+ * **THE RULE: A STATE CAN CURE A CONFORMITY GAP BY MOVING ITS STARTING LINE
+ * INSTEAD OF MOVING ITS DATE** — and the two are indistinguishable in the
+ * answer, which is why {@link FederalConformityRule} exists and why this rule
+ * is declared for 2025 and absent for 2026 rather than being given a zero.
+ */
+export interface RecognizedStandardDeductionRule {
+  readonly name: string;
+  /** What the state's frozen Code allows, by filing status. */
+  readonly amounts: ByStatus;
+  readonly cite: string;
+}
+
 export interface StateIncomeTaxDefinition {
   readonly code: StateCode;
   /**
@@ -4036,6 +4276,13 @@ export interface StateIncomeTaxDefinition {
    * because those deductions never entered a federal-AGI base in the first place.
    */
   readonly addBacks?: readonly FederalDeductionKey[];
+  /**
+   * The standard deduction this state's frozen Code recognizes, where it is
+   * smaller than the one the filer took — South Carolina 2025 only. See
+   * {@link RecognizedStandardDeductionRule}, which says why this cannot be an
+   * {@link addBacks} entry.
+   */
+  readonly recognizedStandardDeduction?: RecognizedStandardDeductionRule;
   /**
    * What this state adds back of the interest on **other** states' municipal
    * obligations, from {@link StateIncomeTaxInput.outOfStateMunicipalInterest}.

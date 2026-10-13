@@ -350,7 +350,11 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // renamed field, a rule moved behind a function — fails instead of reporting a
   // clean sweep over nothing. That is the failure mode the mutation harness had on
   // its first run, and it printed 100%.
-  assert.equal(checked, 1018, 'byStatus cells with a parameter the harness would mutate');
+  // 1,043 from Day 49: South Carolina adds 25, which is three bracket rows and
+  // their ceilings in 2025, two rows and theirs in 2026, the SCIAD's base and
+  // its phase-out start and denominator, and the recognized standard deduction —
+  // all five statuses of each, every one of them reached by a pinned household.
+  assert.equal(checked, 1043, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -384,7 +388,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
     }
   }
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
-  assert.equal(inside, 3_192, 'numbers inside those cells');
+  assert.equal(inside, 3_247, 'numbers inside those cells');
   // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
   // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,

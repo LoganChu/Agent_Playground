@@ -348,7 +348,11 @@ test('every number in every staircase moves a pinned answer', () => {
   // rule moved behind a function — fails instead of reporting a clean sweep over
   // nothing. That is the failure mode the mutation harness had on its first run,
   // and it printed 100%.
-  assert.equal(checked, 1_567, 'numbers inside the staircases this package ships');
+  // 1,575 from Day 49: South Carolina's SCIAD adds eight — the base, the
+  // phase-out start and the denominator across the statuses that differ, plus
+  // the $10 the reduction is rounded down to. Every one is reached by a probe,
+  // which is the assertion above rather than this count.
+  assert.equal(checked, 1_575, 'numbers inside the staircases this package ships');
   assert.equal(exempt.length, 14, 'staircase rows nothing can reach — four rows, both years, Connecticut\'s in two columns and Oregon\'s in three, all documented');
 });
 

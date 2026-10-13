@@ -136,6 +136,15 @@ const YEAR_ONLY_NOTES = {
   // unsettled and the other four of the same schedule are KNOWN rather than
   // published, because the published 2026 rate schedules determine them.
   WI: { 2026: 1, 2025: 0 },
+  // SOUTH CAROLINA IS THE LARGEST ENTRY IN THIS TABLE AND IT IS NOT A TABLE OF
+  // INDEXED FIGURES: its two years are two different laws. Act 110 of 2026
+  // changed the starting point, the deduction, the rate schedule and the earned
+  // income credit, so FIVE notes belong to 2026 alone — the provisional lead,
+  // the federal-AGI starting point, the SCIAD being read against federal AGI,
+  // the 57.31% marginal dollar and the $200 credit cap — and TWO belong to 2025
+  // alone, the federal taxable income starting point with its OBBBA add-backs
+  // and the § 199A add-back. Everything else is the same law in both years.
+  SC: { 2026: 5, 2025: 2 },
 };
 
 test('the notes that differ between 2025 and 2026 are exactly the ones named here', () => {
@@ -162,7 +171,7 @@ test('the notes that differ between 2025 and 2026 are exactly the ones named her
   for (const state of Object.keys(YEAR_ONLY_NOTES)) {
     assert.ok(SUPPORTED_STATES.includes(state), `${state} is in the table and is not a supported state`);
   }
-  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 12, 'states whose notes depend on the year');
+  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 13, 'states whose notes depend on the year');
 });
 
 test('a provisional state-year says so in a note, and a published one does not', () => {

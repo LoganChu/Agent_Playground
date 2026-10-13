@@ -100,6 +100,7 @@ const OFFERS_THE_STATUS = {
   NC: 'D-400 carries "Qualifying Widow(er)/Surviving Spouse"; its 2025 standard deduction of $25,500 is the married-filing-jointly figure.',
   NY: 'IT-201 filing status 5; the instructions put its standard deduction at $16,050 for 2025, THE SAME AS MARRIED FILING JOINTLY.',
   OR: 'Form OR-40 carries the status, and this package stores Oregon figures against it explicitly — see `oregon.ts`.',
+  SC: 'SC1040 instructions, every year from 2015 to 2025: "choose the same filing status that you used on your federal return. Check only one box." So the federal status carries across and South Carolina writes no schedule of its own against it — which is the same evidence Colorado, Idaho and Utah are here on, and it is the WEAKEST of the three forms in this list. What was NOT read: the box label on the 2026 SC1040, and the 2025 booklet qualifies the rule with "generally will match your federal return" without naming the exception. What supports it beyond the instructions is that Act 110\u2019s SCIAD table carries a figure for the status at the joint amount ($30,000), which is the joint column this package reads for it.',
   UT: 'TC-40 instructions: enter the code matching the federal return, and the code list carries "5 Qualifying surviving spouse" outright.',
 };
 
@@ -152,7 +153,7 @@ function battery(state, year) {
 // surviving spouses under one schedule, so the status's existence and its
 // figure are the same sentence. The other nine are read off a form box or an
 // instruction that sends the filer to the federal status.
-test('the ledger of states that offer the status is the ten the READMEs claim', () => {
+test('the ledger of states that offer the status is the eleven the READMEs claim', () => {
   assert.deepEqual(Object.keys(OFFERS_THE_STATUS).sort(), [
     'CA',
     'CO',
@@ -163,6 +164,7 @@ test('the ledger of states that offer the status is the ten the READMEs claim', 
     'NC',
     'NY',
     'OR',
+    'SC',
     'UT',
   ]);
   const namesTheJointFigure = Object.entries(OFFERS_THE_STATUS)

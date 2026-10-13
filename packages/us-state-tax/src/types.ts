@@ -58,6 +58,7 @@ export type StateCode =
   | 'OH'
   | 'OR'
   | 'PA'
+  | 'SC'
   | 'SD'
   | 'TN'
   | 'TX'
@@ -207,11 +208,37 @@ export interface FederalConformityRule {
    * conformity declaration at all, although its conformity date is still
    * perfectly load-bearing for its base.
    *
+   * - `recognizedDeductions` — the state starts BELOW the federal standard
+   *   deduction and **adds the part of it the frozen Code does not recognize
+   *   straight back**, so the date decides which figures the state allows and
+   *   the answer does not move when the federal figure does. South Carolina
+   *   2025, § 12-6-40(A)(1)(a) frozen at 31 December 2024 with the OBBBA
+   *   increase and all four Schedule 1-A deductions added back on the SC1040.
+   *
+   * **AND THE THIRD VALUE EXISTS BECAUSE THE MEASUREMENT COULD NOT SEE IT.**
+   * `federal-conformity.test.js` decides which states must declare by MOVING a
+   * below-AGI federal figure and watching the tax — the right instrument, and
+   * it reported South Carolina 2025 insensitive. It is insensitive. The reason
+   * is that the add-back cancels the movement exactly, which is to say **the
+   * state's non-conformity is the cause of the very insensitivity that looked
+   * like evidence of no conformity dependency at all.** The most non-conforming
+   * state in this package is the one the probe calls indifferent.
+   *
+   * So a sensitivity probe measures whether the MODEL compensates for a federal
+   * figure, not whether the STATE reads the federal Code, and the two come
+   * apart exactly where a state freezes its Code and legislates an add-back.
+   * The insensitivity is not even a property of the state: it is a property of
+   * the HOUSEHOLD. Every filer whose federal standard deduction is at or above
+   * the pre-OBBBA amount is insensitive, because the add-back is a difference
+   * floored at zero — and a filer BELOW it, a dependent on a limited standard
+   * deduction, moves with the federal figure like any Colorado filer.
+   * `test/south-carolina.test.js` asserts both halves.
+   *
    * **THE RULE: "does this state read the federal Code?" is not one question.**
    * A single boolean answered it for five states and had no answer for the
    * twenty whose dependency is above the line.
    */
-  readonly governs: 'belowTheLine' | 'base';
+  readonly governs: 'belowTheLine' | 'base' | 'recognizedDeductions';
   /**
    * The date the Code is frozen at, ISO. Required when {@link kind} is
    * `staticDate` and forbidden when it is `rolling` — a rolling state has no

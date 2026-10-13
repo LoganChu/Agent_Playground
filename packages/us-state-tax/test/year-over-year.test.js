@@ -192,7 +192,17 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // `provisionalFigures` entry at all. Illinois and Michigan joined this list
   // when somebody went and read a notice; Minnesota is on it because the notice
   // existed in time.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MN', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'UT', 'WI']);
+  //
+  // SOUTH CAROLINA joins for a SIXTH reason and it is the largest one on the
+  // list: not a rate change, not a reading, not an indexation, not a derivation
+  // and not a timely notice — a NEW LAW. Act 110 of 2026 moved the starting
+  // point from federal taxable income to federal AGI, replaced the three-bracket
+  // schedule with two, put a state deduction where the federal one had been and
+  // capped the earned income credit. Every other state on this list computes the
+  // same way in both years with different numbers; South Carolina does not
+  // compute the same way, which is the strongest possible case for refusing to
+  // fall back to the nearest supported year.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MN', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

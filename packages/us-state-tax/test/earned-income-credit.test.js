@@ -92,7 +92,22 @@ test('every state whose definition carries an earned income credit pays its matc
               .filter((entry) => entry.children <= 1)
               .map((entry) => entry.rate)
               .pop() ?? rule.matchRate);
-      money(creditNamed(r, rule.name), expectedRate * 4_000, `${state} ${year}`);
+      // South Carolina's $200 ceiling, Act 110 of 2026 § 7 — the first dollar
+      // cap on a match in this package. Written out here for the same reason
+      // the child-count table is: a test that asks the engine what it did
+      // checks nothing. This filer's $4,000 federal credit is far above the
+      // cap, so where a cap exists it BINDS here, which the assertion below
+      // makes explicit rather than leaving to the arithmetic.
+      const uncapped = expectedRate * 4_000;
+      const expected = rule.maximum === undefined ? uncapped : Math.min(rule.maximum, uncapped);
+      money(creditNamed(r, rule.name), expected, `${state} ${year}`);
+      if (rule.maximum !== undefined) {
+        assert.ok(rule.maximum > 0, `${state} ${year}: a cap of zero is not a cap`);
+        assert.ok(
+          rule.maximum < uncapped,
+          `${state} ${year}: the cap does not bind on a $4,000 federal credit, so this household cannot see it`,
+        );
+      }
       if (rule.matchRateByChildCount !== undefined) {
         // A table of one row is a rate with extra steps, and a table whose
         // rows do not rise is not a table about family size.
@@ -114,7 +129,7 @@ test('every state whose definition carries an earned income credit pays its matc
     }
   }
   assert.deepEqual(withCredit.sort(), [
-    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'UT', 'VA', 'WI',
+    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'SC', 'UT', 'VA', 'WI',
   ]);
 });
 

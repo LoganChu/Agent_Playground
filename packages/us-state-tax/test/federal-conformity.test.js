@@ -187,19 +187,42 @@ test('a conformity claim must say WHICH HALF of the return it governs, and be ba
           `${state} ${year}: measured sensitive below the line, so that is what it governs`,
         );
       } else if (c) {
-        // A state may still declare when the date reaches its BASE — but only if
-        // it actually has a federal base. A conformity claim on a stateDefined
-        // state would be backed by nothing at all.
-        assert.equal(
-          c.governs,
-          'base',
+        // An insensitive state may still declare, and there are now TWO backings
+        // for it. Each is checked against a different structural fact, because a
+        // claim this probe cannot see has to be backed by something the probe
+        // can.
+        assert.ok(
+          c.governs === 'base' || c.governs === 'recognizedDeductions',
           `${state} ${year}: not sensitive below the line, so a 'belowTheLine' claim would be unbacked`,
         );
-        assert.equal(
-          def.base,
-          'federalAdjustedGrossIncome',
-          `${state} ${year}: a 'base' conformity claim needs a federal base to govern`,
-        );
+        if (c.governs === 'base') {
+          // The date reaches the state's starting line — but only if it has a
+          // federal one. A 'base' claim on a stateDefined state would be backed
+          // by nothing at all.
+          assert.equal(
+            def.base,
+            'federalAdjustedGrossIncome',
+            `${state} ${year}: a 'base' conformity claim needs a federal base to govern`,
+          );
+        } else {
+          // SOUTH CAROLINA, AND THE CASE THIS PROBE IS BLIND TO BY
+          // CONSTRUCTION. The state starts below the federal standard deduction
+          // and adds back the part its frozen Code does not recognize, so the
+          // movement cancels and the probe reports no sensitivity. The claim is
+          // backed by the add-back machinery instead: a state cannot say the
+          // date governs which deductions it recognizes unless it holds the
+          // rule that refuses one.
+          assert.equal(
+            def.base,
+            'federalTaxableIncome',
+            `${state} ${year}: a 'recognizedDeductions' claim only means something below the federal deduction`,
+          );
+          assert.ok(
+            def.recognizedStandardDeduction !== undefined ||
+              (def.addBacks !== undefined && def.addBacks.length > 0),
+            `${state} ${year}: 'recognizedDeductions' is backed by the add-back and this state has none`,
+          );
+        }
       }
     }
   }

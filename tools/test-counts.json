@@ -1,9 +1,9 @@
 {
-  "measured": "2026-10-12",
-  "total": 1426,
+  "measured": "2026-10-13",
+  "total": 1447,
   "packages": {
     "packages/us-federal-tax": 400,
-    "packages/us-state-tax": 839,
+    "packages/us-state-tax": 860,
     "packages/us-tax-mcp": 170,
     "site": 17
   }

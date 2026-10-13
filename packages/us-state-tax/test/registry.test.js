@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 34);
+  assert.equal(SUPPORTED_STATES.length, 35);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -47,22 +47,23 @@ test('an unsupported year is an error, not a silent fallback', () => {
 
 const getMissingStatesMessage = () => {
   try {
-    getStateDefinition('SC', 2026);
+    getStateDefinition('LA', 2026);
   } catch (e) {
     return e.message;
   }
-  throw new Error('SC resolved');
+  throw new Error('LA resolved');
 };
 
 test('an unsupported state names what is missing rather than returning zero', () => {
-  // The example has now moved FOUR times — Ohio on Day 16, Virginia on Day 17,
-  // Minnesota on Day 45 — and each move is the point of the test: a state used
-  // here as the stand-in for "absent" has to be replaced the day it ships, or
-  // the assertion starts proving something about a state that is present.
-  assert.throws(() => getStateDefinition('SC', 2026), /not supported/);
+  // The example has now moved FIVE times — Ohio on Day 16, Virginia on Day 17,
+  // Minnesota on Day 45, South Carolina on Day 49 — and each move is the point
+  // of the test: a state used here as the stand-in for "absent" has to be
+  // replaced the day it ships, or the assertion starts proving something about
+  // a state that is present.
+  assert.throws(() => getStateDefinition('LA', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('SC', 2026), /South Carolina/);
+  assert.throws(() => getStateDefinition('LA', 2026), /Louisiana/);
   // New York, New Jersey and Massachusetts were all on this list until they were
   // not. When a state moves from the gap list into the registry, this is where
   // the two have to be kept in step — and the message must stop naming it.
@@ -72,6 +73,7 @@ test('an unsupported state names what is missing rather than returning zero', ()
   assert.equal(isSupported('MD', 2026), true);
   assert.equal(isSupported('OH', 2026), true);
   assert.equal(isSupported('VA', 2026), true);
+  assert.equal(isSupported('SC', 2026), true);
   assert.doesNotMatch(getMissingStatesMessage(), /Massachusetts/);
   // Maryland and Ohio are now named in that message as states this package DOES
   // cover, so the check is on the list of gaps — the part after the em dash —
@@ -79,7 +81,7 @@ test('an unsupported state names what is missing rather than returning zero', ()
   // Day 16 and Virginia until Day 17, which is the point: the example has to
   // move as the gap closes, and it has now moved twice.
   const gaps = getMissingStatesMessage().split('—')[1] ?? '';
-  assert.match(gaps, /South Carolina/);
+  assert.match(gaps, /Louisiana/);
   // Compared as whole list ITEMS and not as substrings, which is the Day 37
   // citation rule in a second place: `/Virginia/` matched this message for a
   // covered state the day West Virginia joined the gap list, and the assertion
@@ -89,7 +91,15 @@ test('an unsupported state names what is missing rather than returning zero', ()
     .replace(/\. Returning zero[\s\S]*$/, '')
     .split(',')
     .map((s) => s.trim());
-  for (const covered of ['Maryland', 'Ohio', 'Virginia', 'Connecticut', 'Alabama', 'Minnesota']) {
+  for (const covered of [
+    'Maryland',
+    'Ohio',
+    'Virginia',
+    'Connecticut',
+    'Alabama',
+    'Minnesota',
+    'South Carolina',
+  ]) {
     assert.ok(!named.includes(covered), `the gap list names ${covered}, which is covered`);
   }
   assert.ok(named.includes('West Virginia'));
@@ -106,10 +116,20 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // twenty-five of them — thirty-four supported states less the nine with no
-  // income tax at all — so the uncovered list has the other seventeen.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 17);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 25);
+  // twenty-six of them — thirty-five supported states less the nine with no
+  // income tax at all — so the uncovered list has the other sixteen.
+  //
+  // The three figures are asserted together on purpose: the identity
+  // `covered + uncovered = 42` is the only thing that catches a state added to
+  // the registry and left in the gap list, which is the defect the list was
+  // declared for in the first place.
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 16);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 26);
+  assert.equal(
+    SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length + UNCOVERED_TAXING_JURISDICTIONS.length,
+    42,
+    'the covered and uncovered taxing jurisdictions must still add up to forty-two',
+  );
   for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
     assert.match(getMissingStatesMessage(), new RegExp(name));
   }
@@ -204,7 +224,7 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has nine', () => {
+test('2025 has no provisional state and 2026 has ten', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
@@ -246,12 +266,22 @@ test('2025 has no provisional state and 2026 has nine', () => {
   // by a TABOR surplus calculation that runs after the year closes. Which kind
   // each figure is now lives in `provisionalFigures`, not in prose — see
   // test/provisional.test.js.
+  //
+  // SOUTH CAROLINA joined on Day 49 and is a kind this list had not held. The
+  // other nine are provisional because a state did not publish an INDEXED
+  // figure. South Carolina's 2026 figures are mostly published and are STATUTE —
+  // Act 110 of 2026 fixed the rates, the SCIAD and the earned income credit cap
+  // in March 2026 — and what is missing is the indexed dependent exemption and,
+  // behind it, the 2026 SC1040 instructions that would confirm which of the
+  // § 12-6-1140 and § 12-6-1170 subtractions the reform left standing. So it is
+  // the first state-year here whose provisional flag covers a question about
+  // which PROVISIONS survive rather than only about what a figure indexed to.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 9);
+  assert.equal(count(2026), 10);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'UT', 'WI']);
+  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test('the package has no runtime dependencies', () => {
@@ -374,7 +404,12 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
   }
   // Pinned so that a walk which stops finding names — a renamed field, a rule moved
   // behind a function — fails instead of reporting a clean sweep over nothing.
-  assert.equal(checked, 19, 'rates and thresholds printed in rule names');
+  // 21 from Day 49: South Carolina's 'Net capital gain deduction (44%)' is read in
+  // both years and its 0.44 share is what the name is checked against. The
+  // state's other printed label, 'Senior deduction (age 65)', holds no % or $
+  // token and is deliberately not counted — an age is a LABEL and this test
+  // reads money and rates.
+  assert.equal(checked, 21, 'rates and thresholds printed in rule names');
 });
 
 test("a threshold the engine cannot apply is quoted in the note that asks the caller to apply it", () => {

@@ -80,7 +80,7 @@ test('every state with an exemption declares what it does with a separate filerâ
   // default is what kept fourteen states counting a dead spouse for 27 days,
   // and the default here would have been "counts nobody" in all twelve â€” which
   // is right in eight of them and wrong in four.
-  assert.equal(WITH_EXEMPTIONS.length, 16);
+  assert.equal(WITH_EXEMPTIONS.length, 17);
   for (const code of WITH_EXEMPTIONS) {
     const rule = declarationOf(code);
     assert.ok(rule, `${code} has an exemption rule and must declare separateReturnSpouse`);
@@ -96,13 +96,18 @@ test('every state with an exemption declares what it does with a separate filerâ
   }
 });
 
-test('the answer today: four states count the spouse, four say no, three have nothing to count', () => {
+test('the answer today: four states count the spouse, four say no, four have nothing to count', () => {
   // Written out so that a state MOVING between these lists is a diff rather than
   // a silent change of behaviour in twelve states at once.
   const by = (kind) => WITH_EXEMPTIONS.filter((c) => declarationOf(c).spouse === kind);
   assert.deepEqual(by('claimed'), ['IL', 'IN', 'MD', 'VA']);
   assert.deepEqual(by('notClaimed'), ['AL', 'CT', 'MO', 'NJ']);
-  assert.deepEqual(by('noFilerExemption'), ['GA', 'MN', 'NY']);
+  // SOUTH CAROLINA joined this list on Day 49 and is the cleanest case in it:
+  // Â§ 12-6-1140(13) allows an exemption for DEPENDENTS and names none for a
+  // filer or a spouse, in either year, so a separate return has nothing to
+  // claim or forgo. Georgia, Minnesota and New York reach the same answer from
+  // three different directions.
+  assert.deepEqual(by('noFilerExemption'), ['GA', 'MN', 'NY', 'SC']);
   assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH', 'WI']);
   // And the second claim is now answered in all four, by THREE different
   // mechanisms and in two directions. Written out for the same reason as the
@@ -111,7 +116,18 @@ test('the answer today: four states count the spouse, four say no, three have no
   assert.deepEqual(aged('follows'), ['IL', 'IN', 'VA']);
   assert.deepEqual(aged('doesNotFollow'), ['MD']);
   assert.deepEqual(aged('unresolved'), ['MA', 'MI', 'MS']);
-  assert.deepEqual(aged('notApplicable'), ['AL', 'CT', 'GA', 'MN', 'MO', 'NJ', 'NY', 'OH', 'WI']);
+  assert.deepEqual(aged('notApplicable'), [
+    'AL',
+    'CT',
+    'GA',
+    'MN',
+    'MO',
+    'NJ',
+    'NY',
+    'OH',
+    'SC',
+    'WI',
+  ]);
   // No state is `unresolved` on the aged half while being resolved on the first:
   // the four that are left are the four nobody has read at all. An aged claim
   // that outlived its exemption claim would be the harder gap to see, because the

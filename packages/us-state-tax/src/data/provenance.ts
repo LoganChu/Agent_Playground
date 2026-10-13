@@ -2805,10 +2805,10 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
   {
     state: 'WI',
-    path: 'marriedCoupleCredit.max',
+    path: 'marriedCoupleCredit.cap.max',
     kind: 'statute',
     document: '§ 71.07(6)',
-    cite: 'Wis. Stat. § 71.07(6) — $480, which the 3% reaches at $16,000 of second-earner income. Unindexed across the years this package checks',
+    cite: 'Wis. Stat. § 71.07(6) — $480, which the 3% reaches at $16,000 of second-earner income. Unindexed across the years this package checks. The path says `cap.max` because the statute attaches "not to exceed" to the CREDIT; South Carolina attaches its own ceiling to the income',
     constant: true,
   },
   {
@@ -3006,6 +3006,256 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     kind: 'statute',
     document: '§ 290.0132, subd. 26',
     cite: 'Minn. Stat. § 290.0132, subd. 26(c) — 10% of the subtraction per step, reduced "for each $4,000, or fraction thereof". Statutory and unindexed, and the same four words as the dependent exemption: one dollar over a boundary costs a tenth of the whole benefit, which for a retiree with $30,000 of federally taxable benefit is $3,000 of subtraction on one dollar of income',
+    constant: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // SOUTH CAROLINA. Two years, two laws, and the ledger is where that shows
+  // most plainly: nine of these entries are year-scoped, because Act 110 of 2026
+  // did not index a figure, it replaced a mechanism. The 2025 rate schedule is
+  // `indexed` and the 2026 one is `statute` — the same path, two different kinds
+  // of debt, and a reader who wants to know what tax year 2027 costs South
+  // Carolina needs both answers.
+  {
+    state: 'SC',
+    path: 'year',
+    kind: 'sentinel',
+    cite: 'The tax year the definition answers for, not a figure read from anywhere',
+    constant: false,
+  },
+  {
+    state: 'SC',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    years: [2025],
+    document: '§ 12-6-510',
+    cite: 'S.C. Code § 12-6-510(A) — 0%, 3% and 6% for tax year 2025. The RATES are statutory and the thresholds below are indexed, which is the usual split; what is unusual is that the top rate has been on a legislated glide path, 6.5% for 2022, 6.4% for 2023, 6.2% for 2024 and 6% for 2025, so a reader who treats it as constant across years is wrong about every year but the last',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'indexed',
+    years: [2025],
+    document: 'Instructions (SC1040)',
+    cite: 'SCDOR 2025 Individual Income Tax Instructions (SC1040), the 2025 rate schedule — $3,560 and $17,830, indexed annually under § 12-6-520 and the same three bands for EVERY filing status, which is the fact about this schedule a table of state rates does not carry',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    years: [2026],
+    document: 'Act 110 of 2026 (H.4216), signed',
+    cite: 'S.C. Code § 12-6-510(C) as added by Act 110 of 2026 (H.4216) § 1 — 1.99% and 5.21%, for tax years beginning after 2025. SCDOR prints the upper band as "5.21% minus $966"; the $966 is not a parameter, it is $30,000 x (5.21% - 1.99%) exactly, which is the constant that makes the two-band schedule continuous at the threshold. Act 110 also provides for automatic reductions in the top rate from 2027 where revenue grows, which is NOT modelled and cannot be until a year closes',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'statute',
+    years: [2026],
+    document: 'Act 110 of 2026 (H.4216), signed',
+    cite: 'S.C. Code § 12-6-510(C) as added by Act 110 of 2026 (H.4216) § 1 — the single bracket boundary is $30,000 of taxable income, a statutory figure for its first year rather than an indexed one, and the same for every filing status',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'recognizedStandardDeduction.amounts.*',
+    kind: 'federal-conformity',
+    years: [2025],
+    document: 'Rev. Proc. 2024-40',
+    cite: 'IRC § 63(c)(7) as it stood on 31 December 2024 — the date S.C. Code § 12-6-40(A)(1)(a) freezes the Code at — indexed for 2025 by Rev. Proc. 2024-40 § 3.15: $15,000 single and separate, $22,500 head of household, $30,000 joint and surviving spouse. A FEDERAL figure that South Carolina adopted by reference and the federal government then superseded, which is the one case where `federal-conformity` means the state tracks a figure that no longer exists federally',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'deduction.maximum.*',
+    kind: 'statute',
+    years: [2026],
+    document: 'Act 110 of 2026 (H.4216), signed',
+    cite: 'S.C. Code § 12-6-1140(15)(a) as added by Act 110 of 2026 (H.4216) § 3 — the SCIAD base: $15,000 single and separate, $22,500 head of household, $30,000 joint and surviving spouse. They are the pre-OBBBA federal standard deductions to the dollar, which is where the Act got them, and they are now South Carolina figures that index on South Carolina\u2019s own schedule',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'deduction.tiers.*.*.above',
+    kind: 'statute',
+    years: [2026],
+    document: 'Act 110 of 2026 (H.4216), signed',
+    cite: 'S.C. Code § 12-6-1140(15)(b) as added by Act 110 of 2026 (H.4216) § 3 — the federal AGI at which the SCIAD begins to be withdrawn: $40,000 single and separate, $60,000 head of household, $80,000 joint and surviving spouse, as SCDOR Information Letter 26-20 states them',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'deduction.tiers.*.*.denominator',
+    kind: 'statute',
+    years: [2026],
+    document: 'Information Letter 26-20',
+    // The path said `.rate` and carried the QUOTIENT until the ulp defect — see
+    // `SlidingScaleTier`. The quotient was a derived figure masquerading as a
+    // parameter and it was wrong in the sixteenth digit, which a $10 floor
+    // turned into a whole step. The denominator is what the statute has.
+    cite: 'S.C. Code § 12-6-1140(15)(b) as SCDOR Information Letter 26-20 states it — the denominator of the phase-out fraction: $55,000 single and separate, $82,500 head of household, $110,000 joint and surviving spouse, so the phase-out runs $40,000-$95,000, $60,000-$142,500 and $80,000-$190,000. EACH IS ELEVEN THIRDS OF ITS OWN BASE, so the withdrawal rate is 3/11 in every filing status and the columns differ only in where it begins — asserted in `test/south-carolina.test.js` rather than assumed, because an amendment that moved one base without its denominator would end it silently',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'deduction.roundReductionDownTo',
+    // `statute` and not `agency`: `agency` in this ledger means a body that is
+    // NOT the state's revenue department, and an SCDOR information letter is
+    // the revenue department. It is a rule of law rather than an annual figure,
+    // and the cite says plainly that the sentence quoted is the Department's
+    // and that § 12-6-1140(15)(b) itself has not been read here.
+    kind: 'statute',
+    years: [2026],
+    document: 'Information Letter 26-20',
+    cite: 'SCDOR Information Letter 26-20 — "any reduction amount that is not a multiple of ten dollars is rounded down to the next lowest ten dollars". The $10 is why the SCIAD phase-out is a staircase rather than a rate, and because the withdrawal rate is 3/11 the step is $36.66... of income: the widths of an integer-dollar income run 37, 37, 36, repeating. `kind: agency` and not `statute` because the rounding sentence is the Department\u2019s and this package has not read § 12-6-1140(15)(b) itself',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: '§ 12-6-1150',
+    cite: 'S.C. Code § 12-6-1150(A) — 44% of net capital gain, unchanged since 1991 and untouched by Act 110. Against the flat 5.21% of 2026 that is an effective 2.9176% on a long-term gain and 5.21% on a wage; against the 6% top rate of 2025 it is 3.36%',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'retirementIncomeSubtractions.0.capByAge.*.cap',
+    kind: 'statute',
+    document: '§ 12-6-1170',
+    cite: 'S.C. Code § 12-6-1170(A)(1) — $3,000 of retirement income for a claimant under 65 and $10,000 from 65, per person. Unindexed, and the $3,000 has not moved since 1989',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'retirementIncomeSubtractions.0.capByAge.*.fromAge',
+    kind: 'statute',
+    document: '§ 12-6-1170',
+    cite: 'S.C. Code § 12-6-1170(A)(1) — the band boundary is the 65th birthday, and the first band begins at 0 because the subtraction has NO age test at all: a 40-year-old with a pension has $3,000 of it, which no other retirement rule in this package allows',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'agedIncomeSubtraction.maximum',
+    kind: 'statute',
+    document: '§ 12-6-1170',
+    cite: 'S.C. Code § 12-6-1170(B) — $15,000 per person, of ANY income rather than of retirement income, reduced by whatever that person deducted under subsection (A). Unindexed since 1994',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'agedIncomeSubtraction.minimumAge',
+    kind: 'statute',
+    document: '§ 12-6-1170',
+    cite: 'S.C. Code § 12-6-1170(B) — 65, "attained the age of sixty-five years" by the end of the taxable year',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '§ 12-6-1140(13)',
+    cite: 'ZERO, and it is a figure rather than a placeholder: S.C. Code § 12-6-1140(13) allows an exemption for DEPENDENTS and names no exemption for the filer or a spouse, in either year. In 2025 the federal standard deduction is already inside federal taxable income and in 2026 the SCIAD stands where it was, so the state has never needed one',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'exemption.perDependent',
+    kind: 'indexed',
+    years: [2025],
+    document: 'Instructions (SC1040)',
+    cite: 'SCDOR 2025 Individual Income Tax Instructions (SC1040), dependent exemption worksheet — $4,930 for each eligible dependent, indexed annually under § 12-6-1140(13); $4,790 for 2024',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'exemption.perQualifyingChild',
+    kind: 'derived',
+    years: [2025],
+    cite: 'S.C. Code § 12-6-1160 sets the young child deduction EQUAL to the § 12-6-1140(13) dependent exemption rather than naming an amount, so this is one statutory figure read twice and a South Carolina dependent under six is worth exactly double one of seven. Kept as its own field so the two can be told apart the day South Carolina decouples them, and `test/south-carolina.test.js` asserts the equality so that day is noticed',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'exemption.perDependent',
+    kind: 'carried-forward',
+    years: [2026],
+    document: 'Instructions (SC1040)',
+    carriedForwardFrom: 2025,
+    resolvedBy:
+      'the 2026 SC1040 instructions and dependent exemption worksheet, which SCDOR publishes close to the start of the 2027 filing season',
+    cite: 'The published 2025 figure of $4,930 CARRIED FORWARD. § 12-6-1140(13) indexes the amount annually and no SCDOR document reachable when this was written carries the 2026 one. Carrying it forward understates the exemption, so a 2026 South Carolina return with dependents is computed slightly too HIGH — at most the indexation times the rate, a few dollars a dependent',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'exemption.perQualifyingChild',
+    kind: 'carried-forward',
+    years: [2026],
+    document: 'Instructions (SC1040)',
+    carriedForwardFrom: 2025,
+    resolvedBy:
+      'the same 2026 SC1040 dependent exemption worksheet: § 12-6-1160 ties the two together, so one document settles both',
+    cite: 'Equal to the dependent exemption by § 12-6-1160 and therefore carried forward with it',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'exemption.qualifyingChildMaxAge',
+    kind: 'statute',
+    document: '§ 12-6-1160',
+    cite: 'S.C. Code § 12-6-1160 — a dependent "who had not attained the age of six years" by the end of the taxable year, stored as the inclusive age 5 because that is what a list of ages is compared against',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'marriedCoupleCredit.rate',
+    kind: 'statute',
+    document: '§ 12-6-3330',
+    cite: 'S.C. Code § 12-6-3330(A) — seven-tenths of one percent of the qualified earned income of the spouse with the LOWER qualified earned income, on a joint return',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'marriedCoupleCredit.cap.max',
+    // The first draft of this entry said `indexed`, from a feel rather than a
+    // document, and the second said `unestablished` — which would have been the
+    // first figure in this package to raise that backlog above zero since Day 37
+    // drove it there. Neither was necessary, because the statute settles it:
+    // § 12-6-3330(B)(1) prints "fifty thousand dollars" FLAT, substituted for
+    // "thirty thousand dollars" by 2017 Act No. 40 § 17.A for tax years after
+    // 2017, with no indexing clause anywhere in the section.
+    //
+    // AND THE CODIFIED TEXT HIDES A SIX-YEAR PHASE-IN. policyengine-us carries
+    // $43,333 for 2021, $46,667 for 2022 and $50,000 for 2023 — evenly spaced
+    // thirds of the $20,000 increase, which is the 2017 Act's transition
+    // provision. The current code shows the destination and the annotation says
+    // only "applies to tax years beginning after 2017", so a model built from
+    // the codified statute alone is wrong about 2018 through 2022 by up to $140
+    // of credit and right about every year this package supports.
+    kind: 'statute',
+    document: '§ 12-6-3330',
+    cite: 'S.C. Code § 12-6-3330(B)(1) — seven-tenths of one percent of the lesser of FIFTY THOUSAND DOLLARS or the qualified earned income of the spouse with the lower qualified earned income. A flat statutory figure at its maximum since 2023, so the $350 maximum credit every summary of this provision quotes is 0.7% OF THIS and not a parameter of its own — and storing it as a ceiling on the credit would store a derived number as though the statute had said it',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: '§ 12-6-3632',
+    cite: 'S.C. Code § 12-6-3632 — 125% of the federal earned income credit, non-refundable. Phased in from 20.83% for 2018 and at its statutory maximum since 2023. Act 110 left the RATE alone and capped the credit, which is why this entry covers both years and the cap below covers one',
+    constant: true,
+  },
+  {
+    state: 'SC',
+    path: 'earnedIncomeCredit.maximum',
+    kind: 'statute',
+    years: [2026],
+    document: 'Act 110 of 2026 (H.4216), signed',
+    cite: 'S.C. Code § 12-6-3632 as amended by Act 110 of 2026 (H.4216) § 7 — $200 per return, for tax years beginning after 2025, where the credit had no ceiling at all. The cap binds from $160 of federal credit upward, so it takes nothing from the smallest claims; and because the credit is non-refundable it takes nothing from a household with no South Carolina liability either, which is where the largest federal credits are',
     constant: true,
   },
 ];

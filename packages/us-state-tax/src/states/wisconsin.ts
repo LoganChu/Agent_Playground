@@ -166,7 +166,7 @@
  * three are in `provisionalFigures` with the alternative named, and each stores
  * the value the interval's own midpoint rounds to.
  */
-import type { StateIncomeTaxDefinition, SlidingScaleTier } from '../definition.js';
+import type { StateIncomeTaxDefinition, RateTier } from '../definition.js';
 import { slidingScaleCrossover } from '../definition.js';
 import { byStatus, byStatusOf, whenAgedAtLeast } from './helpers.js';
 import type { ByStatus, Citation } from '../types.js';
@@ -314,10 +314,10 @@ export const WI_WITHDRAWAL_RATE = {
   headOfHouseholdFirstTier: 0.22515,
 } as const;
 
-function tiers(year: number): ByStatus<readonly SlidingScaleTier[]> {
+function tiers(year: number): ByStatus<readonly RateTier[]> {
   const max = STANDARD_MAX[year]!;
   const start = STANDARD_THRESHOLD[year]!;
-  return byStatusOf<readonly SlidingScaleTier[]>({
+  return byStatusOf<readonly RateTier[]>({
     single: [{ above: start.single, rate: WI_WITHDRAWAL_RATE.single }],
     joint: [{ above: start.marriedFilingJointly, rate: WI_WITHDRAWAL_RATE.joint }],
     separate: [{ above: start.marriedFilingSeparately, rate: WI_WITHDRAWAL_RATE.separate }],
@@ -533,7 +533,10 @@ export function wisconsin(year: number): StateIncomeTaxDefinition | undefined {
     marriedCoupleCredit: {
       name: 'Married couple credit',
       rate: 0.03,
-      max: 480,
+      // A ceiling on the CREDIT, which is what the statute's "not to exceed
+      // $480" attaches it to. South Carolina's § 12-6-3330(B) puts its ceiling
+      // on the INCOME instead — see MarriedCoupleCreditCap.
+      cap: { kind: 'credit', max: 480 },
       cite: 'Wis. Stat. § 71.07(6) — 3% of the qualified earned income of the spouse with the lesser qualified earned income, not to exceed $480; Wisconsin Form 1 Schedule 2',
     },
     earnedIncomeCredit: {

@@ -160,18 +160,50 @@ function standardDeduction(
       // the filer's marginal rate rather than a step in it. Read against the
       // state's own AGI (Form 1 line 7), which is why `stateAgi` has to be a
       // figure by the time this runs.
+      //
+      // South Carolina is the second state in this rule and differs in both of
+      // the ways `measuredOn` and `roundReductionDownTo` record. Its SCIAD is
+      // read against FEDERAL AGI, so no South Carolina subtraction buys any of
+      // it back, where in Wisconsin every subtraction does. And its reduction is
+      // rounded DOWN to a multiple of $10, which turns the rate into a staircase
+      // whose step is $10 of deduction rather than a round step of income.
       const rule = def.deduction;
       const tiers = rule.tiers[input.filingStatus];
-      const income = requireStateAgi(stateAgi);
+      const income =
+        rule.measuredOn === 'federalAdjustedGrossIncome'
+          ? input.federal.adjustedGrossIncome
+          : requireStateAgi(stateAgi);
+      const maximum = rule.maximum[input.filingStatus];
       let withdrawn = 0;
       tiers.forEach((tier, i) => {
         // The next tier's threshold, or no ceiling for the last one. Head of
         // household is the only status with two, and its second threshold is
         // the income at which its deduction has fallen to the single one.
         const to = tiers[i + 1]?.above ?? Infinity;
-        withdrawn += tier.rate * Math.max(0, Math.min(income, to) - tier.above);
+        const inTier = Math.max(0, Math.min(income, to) - tier.above);
+        // THE DIVISION IS LAST, and for South Carolina that is the difference
+        // between $7,500 and $7,510 of deduction. `maximum / denominator` is
+        // 3/11, which no binary float holds, and the `floor()` below turns the
+        // missing ulp into a whole $10 step at every income where the statute's
+        // own arithmetic lands on a round number. See {@link SlidingScaleTier}.
+        withdrawn +=
+          'denominator' in tier
+            ? (maximum * inTier) / tier.denominator
+            : tier.rate * inTier;
       });
-      return Math.max(0, rule.maximum[input.filingStatus] - withdrawn);
+      if (rule.roundReductionDownTo !== undefined) {
+        // § 12-6-1140(15)(b): "any reduction amount that is not a multiple of
+        // ten dollars is rounded down to the next lowest ten dollars". The
+        // rounding is applied to the WITHDRAWAL and before the floor, which is
+        // the order the worksheet uses and the only order that leaves the
+        // deduction a multiple of $10 at every income.
+        //
+        // It is also the step that has to be capped first: `withdrawn` can
+        // exceed `maximum` far above the band, and rounding an unbounded figure
+        // down is harmless here only because the floor below catches it.
+        withdrawn = Math.floor(withdrawn / rule.roundReductionDownTo) * rule.roundReductionDownTo;
+      }
+      return Math.max(0, maximum - withdrawn);
     }
     case 'limitedTable': {
       // Minnesota, § 290.0123 subd. 5. The aged and blind addition is INSIDE
@@ -1604,9 +1636,11 @@ function retirementSubtractions(
     }
   }
 
+  let takenBySource: ReadonlyMap<RetirementPerson, number> = new Map();
   if (bySource) {
     const subtracted = retirementIncomeBySource(bySource, input, people);
     if (subtracted) {
+      takenBySource = subtracted.perPerson;
       details.push({
         name:
           assumed && subtracted.allocationMatters
@@ -1622,8 +1656,26 @@ function retirementSubtractions(
     // cannot see. `stateAgi` is clamped at zero downstream, so the only case
     // this overstates is two centenarians on one return with less than
     // `$200,000` between them — and it is recorded in the state's notes.
-    const claimants = people.filter((p) => p.age !== undefined && p.age >= aged.minimumAge).length;
-    if (claimants > 0) details.push({ name: aged.name, amount: aged.maximum * claimants });
+    const claimants = people.filter((p) => p.age !== undefined && p.age >= aged.minimumAge);
+    let subtracted = 0;
+    for (const person of claimants) {
+      if (aged.reducedByRetirementSubtractions !== true) {
+        subtracted += aged.maximum;
+        continue;
+      }
+      // § 12-6-1170(B), "reduced by any amount the taxpayer deducts pursuant to
+      // subsection (A)" — PER PERSON, and the figure deducted rather than the
+      // income it came from. So the pair is a floor of `$15,000` on a
+      // 65-year-old's total subtraction rather than `$15,000` on top of it, and
+      // a military retiree whose pay is already exempt in full gets nothing
+      // here at all.
+      //
+      // Floored at zero per claimant rather than on the sum: a couple where one
+      // spouse exhausts their own `$15,000` must not borrow the other's, which
+      // is the same unused-room-is-lost rule New York's `$20,000` has.
+      subtracted += Math.max(0, aged.maximum - (takenBySource.get(person) ?? 0));
+    }
+    if (subtracted > 0) details.push({ name: aged.name, amount: subtracted });
   }
 
   return { total: details.reduce((sum, d) => sum + d.amount, 0), details };
@@ -1651,7 +1703,13 @@ function retirementIncomeBySource(
   input: StateIncomeTaxInput,
   people: readonly RetirementPerson[],
 ):
-  | { readonly name: string; readonly amount: number; readonly allocationMatters: boolean }
+  | {
+      readonly name: string;
+      readonly amount: number;
+      /** What each person took, for an {@link AgedIncomeSubtractionRule} offset. */
+      readonly perPerson: ReadonlyMap<RetirementPerson, number>;
+      readonly allocationMatters: boolean;
+    }
   | undefined {
   const qualifies = (rule: RetirementIncomeSubtractionRule, age: number | undefined): boolean => {
     if (rule.minimumAge !== undefined && !(age !== undefined && age >= rule.minimumAge)) {
@@ -1679,7 +1737,14 @@ function retirementIncomeBySource(
     person: RetirementPerson,
   ): { readonly exempt: number; readonly chargedFirst: number; readonly pool: number } => {
     const governmentExempt = rule.governmentPensionExemptInFull === true;
-    const militaryExempt = governmentExempt || rule.militaryReducesCap === true;
+    // Three flags, three states, and South Carolina's is the one that exempts
+    // military retired pay WITHOUT exempting a civilian government pension —
+    // § 12-6-1171(A) against § 12-6-1170(A)(1). So the retired sergeant's
+    // $60,000 leaves the return whole and the retired state trooper's is charged
+    // the ordinary $3,000/$10,000 cap, on the same street as in New York and
+    // with the two swapped.
+    const militaryExempt =
+      governmentExempt || rule.militaryReducesCap === true || rule.militaryExemptInFull === true;
     // New York's $20,000 opens at 59½ and its exemption of a government pension
     // does not, so the age test belongs to the pool and not to the rule.
     const oldEnough =
@@ -1700,12 +1765,26 @@ function retirementIncomeBySource(
     };
   };
 
-  const capOf = (rule: RetirementIncomeSubtractionRule): number =>
-    rule.cap === undefined
+  const capOf = (rule: RetirementIncomeSubtractionRule, age: number | undefined): number => {
+    // South Carolina's § 12-6-1170(A)(1): the cap is $3,000 at any age and
+    // $10,000 from 65, so the age decides the AMOUNT rather than the
+    // availability. The last band whose age the person has reached is theirs,
+    // and a person whose age was not supplied gets the first band — the one no
+    // age test can fail — because an unsupplied age must not buy the larger
+    // figure.
+    if (rule.capByAge !== undefined) {
+      let chosen = 0;
+      for (const band of rule.capByAge) {
+        if (band.fromAge === 0 || (age !== undefined && age >= band.fromAge)) chosen = band.cap;
+      }
+      return chosen;
+    }
+    return rule.cap === undefined
       ? Infinity
       : typeof rule.cap === 'number'
         ? rule.cap
         : rule.cap[input.filingStatus];
+  };
 
   /**
    * One cap, shared by everything that has a claim on it — and the order is
@@ -1718,25 +1797,33 @@ function retirementIncomeBySource(
   const against = (
     rule: RetirementIncomeSubtractionRule,
     parts: readonly { readonly exempt: number; readonly chargedFirst: number; readonly pool: number }[],
+    age: number | undefined,
   ): number => {
     const exempt = parts.reduce((sum, p) => sum + p.exempt, 0);
     const charged = parts.reduce((sum, p) => sum + p.chargedFirst, 0);
     const pool = parts.reduce((sum, p) => sum + p.pool, 0);
-    const room = Math.max(0, capOf(rule) - charged) * (rule.capMultiplier ?? 1);
+    const room = Math.max(0, capOf(rule, age) - charged) * (rule.capMultiplier ?? 1);
     return exempt + Math.min(pool, room);
   };
 
   for (const rule of rules) {
     let amount = 0;
+    // What each person took, for South Carolina's § 12-6-1170(B) offset — the
+    // senior deduction is reduced by the amount THAT PERSON deducted and not by
+    // the return's total, so a couple where one spouse holds the whole pension
+    // keep a different amount of it than a couple who split it.
+    const perPerson = new Map<RetirementPerson, number>();
     if (rule.scope === 'return') {
       // Michigan keys the whole return to the older spouse — Form 4884 asks for
       // one birth year and one only — so a 66-year-old married to a 58-year-old
       // qualifies both of their pensions, and they share one cap.
       const ages = people.map((p) => p.age).filter((a): a is number => a !== undefined);
-      if (!qualifies(rule, ages.length > 0 ? Math.max(...ages) : undefined)) continue;
+      const oldest = ages.length > 0 ? Math.max(...ages) : undefined;
+      if (!qualifies(rule, oldest)) continue;
       amount = against(
         rule,
         people.map((person) => split(rule, person)),
+        oldest,
       );
     } else {
       // Per person, with a cap each and no transfer between them: unused room is
@@ -1744,17 +1831,24 @@ function retirementIncomeBySource(
       // full when a couple split it and half taxed when one of them holds it.
       for (const person of people) {
         if (!qualifies(rule, person.age)) continue;
-        amount += against(rule, [split(rule, person)]);
+        const taken = against(rule, [split(rule, person)], person.age);
+        perPerson.set(person, (perPerson.get(person) ?? 0) + taken);
+        amount += taken;
       }
     }
     if (amount <= 0) continue;
     return {
       name: rule.name,
       amount,
+      perPerson,
       // A capped or source-sensitive rule gives two different answers for the
       // same household total depending on who received what, so a caller who
       // supplied a total rather than a split is told which assumption was used.
-      allocationMatters: rule.cap !== undefined || rule.governmentPensionExemptInFull === true,
+      allocationMatters:
+        rule.cap !== undefined ||
+        rule.capByAge !== undefined ||
+        rule.governmentPensionExemptInFull === true ||
+        rule.militaryExemptInFull === true,
     };
   }
   return undefined;
@@ -1909,7 +2003,14 @@ function marriedCoupleCredit(
   }
   if (input.lesserSpouseIncome === undefined) return { amount: 0, supplied: false };
   const lesser = nonNegative(input.lesserSpouseIncome, 'lesserSpouseIncome');
-  return { amount: Math.min(rule.max, lesser * rule.rate), supplied: true };
+  // Wisconsin caps the CREDIT and South Carolina caps the INCOME. The two reach
+  // the same number for every household either of them has, and they are two
+  // different parameters: see {@link MarriedCoupleCreditCap}.
+  const amount =
+    rule.cap.kind === 'credit'
+      ? Math.min(rule.cap.max, lesser * rule.rate)
+      : Math.min(lesser, rule.cap.max) * rule.rate;
+  return { amount, supplied: true };
 }
 
 /**
@@ -2033,6 +2134,37 @@ function addBacks(
     if (amount > 0) out.push({ name: ADD_BACK_LABELS[key] ?? key, amount });
   }
   return out;
+}
+
+/**
+ * The add-back a frozen conformity date produces on the standard deduction — see
+ * {@link RecognizedStandardDeductionRule}, which says why this is not an
+ * {@link addBacks} entry.
+ *
+ * Two gates, and both of them are the statute rather than caution.
+ *
+ * **An ITEMIZER adds back nothing here.** § 63(c)(7) is the standard deduction
+ * and an itemizer took none of it; their federal figure is their own Schedule A,
+ * which a frozen Code has no quarrel with. (South Carolina does reach an
+ * itemizer, through the § 12-6-1130(2) state tax add-back, and that is a
+ * different provision and is not modelled — see the state's notes.)
+ *
+ * **And the difference is floored at zero**, so this rule is inert in a year
+ * when the state's own figure catches up or overtakes, which is what makes it
+ * safe to leave declared on a state-year rather than deleted the moment a
+ * legislature moves a date.
+ */
+function recognizedStandardDeductionAddBack(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): { name: string; amount: number }[] {
+  const rule = def.recognizedStandardDeduction;
+  if (!rule) return [];
+  if (input.federal.deductionKind !== 'standard') return [];
+  const allowed = rule.amounts[input.filingStatus];
+  const amount = Math.max(0, input.federal.deduction - allowed);
+  if (amount <= 0) return [];
+  return [{ name: rule.name, amount }];
 }
 
 /**
@@ -2772,7 +2904,11 @@ function computeOnce(
   electRetirementExclusion = false,
 ): Computed {
   const base = conformityAmount(def, input);
-  const back = [...addBacks(def, input), ...municipalInterestAddition(def, input)];
+  const back = [
+    ...addBacks(def, input),
+    ...recognizedStandardDeductionAddBack(def, input),
+    ...municipalInterestAddition(def, input),
+  ];
   const additions =
     nonNegative(input.additions, 'additions') + back.reduce((s, a) => s + a.amount, 0);
   const given = nonNegative(input.subtractions, 'subtractions');
@@ -3341,13 +3477,20 @@ function computeOnce(
               qualifyingChildrenOf(input) >= entry.children ? entry.rate : chosen,
             undefined,
           );
-    const matched = barred
+    const matchedBeforeCap = barred
       ? 0
       : (childless
           ? rule.childlessMatchRate!
           : youngChild
             ? rule.youngChildMatchRate!
             : (childCountRate ?? rule.matchRate)) * federalCredit;
+    // South Carolina's $200, Act 110 of 2026 § 7. The cap is on the MATCHED
+    // figure and not on the rate, so the 125% match survives it intact and the
+    // cap binds from $160 of federal credit upward — which is why it takes
+    // nothing from the smallest claims and everything from the middle of the
+    // federal schedule.
+    const matched =
+      rule.maximum === undefined ? matchedBeforeCap : Math.min(rule.maximum, matchedBeforeCap);
     // Virginia offers a flat per-exemption credit as an ALTERNATIVE to the
     // match, not in addition to it, and the filer takes whichever leaves them
     // better off. Which one that is turns on refundability rather than on size:
@@ -3565,7 +3708,11 @@ function computeOnce(
     credits.push({
       name: couple.supplied
         ? def.marriedCoupleCredit.name
-        : `${def.marriedCoupleCredit.name} (assumed: one earner — pass lesserSpouseIncome, worth up to $${def.marriedCoupleCredit.max})`,
+        : `${def.marriedCoupleCredit.name} (assumed: one earner — pass lesserSpouseIncome, worth up to $${
+            def.marriedCoupleCredit.cap.kind === 'credit'
+              ? def.marriedCoupleCredit.cap.max
+              : roundCents(def.marriedCoupleCredit.cap.max * def.marriedCoupleCredit.rate)
+          })`,
       amount: couple.amount,
       refundable: false,
     });

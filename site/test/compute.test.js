@@ -343,7 +343,12 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  assert.equal(place, 29, `Utah ranks ${place}`);
+  // 30 from Day 49, because SOUTH CAROLINA slotted in above Utah at $75.82 for
+  // this couple: it exempts the whole taxable Social Security benefit, deducts
+  // $10,000 of the pension for each spouse over 65 and then tops each of them up
+  // to $15,000 under § 12-6-1170(B). The ranking is the point of the page and
+  // Utah's PLACE moving while its tax does not is exactly what this test is for.
+  assert.equal(place, 30, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
