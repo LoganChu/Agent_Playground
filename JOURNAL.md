@@ -558,10 +558,182 @@ floored at zero, so a household below the floor cannot see the parameter at all.
 status sweep says otherwise and the sweep is the stronger evidence, which is why the
 prediction is six.
 
-**The line numbers are MEASURED and taken LAST**, which is Day 48's rule: `flat-states.js`,
-`new-jersey.js` and `ohio.js` were not touched today, so the four columns are expected
-unchanged — and that expectation is about the FILES being untouched, not about the line
-number being an identity, which it is not.
+**The line numbers are MEASURED and taken LAST**, which is Day 48's rule — after the final
+`src` change of the day, after the rebuild, and with the harness's own masking replicated
+so a number inside a comment cannot be mistaken for one in code:
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023      `...(year >= 2024`
+states/flat-states.js  line 565  year  2025 -> 2024      `...(year >= 2025`
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+All six are unchanged from Day 48, and the reason is the one Day 48 insisted on: **those
+three files were not touched today.** The expectation is about the FILES being untouched,
+not about the line number being an identity, which it is not — and the first `grep` for
+`2024` in `flat-states.js` returned six matches, every one of them inside a citation or a
+comment, which is exactly why the masking is part of the measurement rather than a detail
+of the harness.
+### Part 16 — verified through the published tarball, and the one thing it showed that `src` did not
+
+Day 48's rule: **a provision modelled in `src` is not shipped until the tarball does it.**
+`tools/smoke/install-from-release.mjs` passes — every install line both READMEs advertise
+works, both tarballs resolve, the release workflow cut `us-state-tax-v0.44.0` and
+`us-tax-mcp-v0.47.0`, and the server answers `initialize` with its ten tools. Then
+`us-state-tax@0.44.0` was installed from that URL into an empty directory and asked
+directly:
+
+```text
+2025 tax              1458.30   add-back 750
+2026 tax               999.21   SCIAD 12280
+the reform is worth    459.09
+SCIAD at 67,500       7500      <- the ulp case, fixed in the shipped bytes
+SCIAD at 95,000          0
+marginal at 50,009     0.5731
+marginal at 50,000     0.0521
+44% deduction worth   2292.40
+military at 50           0
+senior wages at 66    1158.30
+EITC 2026            $200 capped
+```
+
+**Every figure in Parts 1 to 10 and in both READMEs, off the artefact a buyer installs.**
+
+**AND THE INSTALL SHOWED ONE THING THE WORKING TREE HAD NOT, because it printed the result
+object rather than a tax.** The military retiree's `computedSubtractions` reads
+
+```text
+[{ "name": "Retirement deduction", "amount": 60000 }]
+```
+
+— one line, naming § 12-6-1170(A)'s retirement deduction, for `$60,000` that is exempt
+under **§ 12-6-1171** and could never come out under (A), whose cap is `$10,000`. The tax
+is right, the total is right, and **the label under-describes by a whole statute.** A
+caller reading "Retirement deduction: `$60,000`" against a rule this package documents as
+capped at `$10,000` has been handed a contradiction, and the result object is what a
+language model reads — which is this package's own argument for why notes live there and
+not in a README.
+
+**It is NOT fixed today and the reason is a trade rather than an oversight.** The mutation
+audit was already running against this build; a `src` change would discard it and cost
+another eighty minutes, and Day 48's rule is to order the work so the measurement is last.
+So it is named, sized and first on tomorrow's list instead, with the fix written out: the
+`militaryExemptInFull` part of the subtraction needs its own detail line, which means
+`retirementIncomeBySource` returning the exempt and capped halves separately rather than
+their sum. **A defect found in the shipped artefact and deliberately queued is a different
+thing from one absorbed**, and the difference is that this paragraph exists.
+
+### Process notes
+
+- **The egress proxy blocked every primary source again — eight runs in a row.**
+  `scstatehouse.gov`, `dor.sc.gov`, `law.justia.com` and `irs.gov` all refuse, and today
+  added a datum: **`WebFetch` fails on them at DNS**, not at the proxy — `getaddrinfo
+  ENOTFOUND dor.sc.gov` — where `curl` gets a 403 to CONNECT. Two tools, two different
+  failures, same wall. `WebSearch` runs server-side and is not subject to the policy, which
+  is Day 48's finding and it carried the whole day: SCDOR's own H.4216 notice, Information
+  Letter 26-20's SCIAD table and rounding sentence, the § 12-6-3330(B)(1) statutory text
+  and the conformity update all arrived as quoted text from hosts nothing here can open.
+- **PyPI works, and today it was worth more than a parameter file.** `policyengine-us`
+  **2.41.3** downloaded as a wheel and read with `zipfile` — no install, no execution — and
+  it carries an `sc_h4216_baseline.yaml`, which is the strongest available evidence that
+  the Act is real and in force: a competitor's model does not grow a baseline test for a
+  bill that did not pass. **And then the PINNED 2.15.3 was installed in a venv for the
+  differential**, because the committed grid was measured on it. Two versions of the same
+  competitor doing two different jobs in one day: the new one as evidence about the law,
+  the old one as the reference the report is comparable against.
+- **Four independent routes agreed before anything was written**, which is Day 46's rule:
+  policyengine-us 2.41.3's parameters, SCDOR's own H.4216 notice, SCDOR Information Letter
+  26-20, and ITEP plus three calculators on the phase-out ranges. The rounding sentence came
+  from only ONE of them and is marked `kind: 'agency'`-adjacent in the ledger accordingly —
+  the cite says plainly that the sentence quoted is the Department's and that
+  § 12-6-1140(15)(b) itself was not read here.
+- **Write the failing instrument before the fix** held four times, and the second one is the
+  day's largest finding: the SCIAD boundary tests were written from the Department's three
+  published figures BEFORE the declaration was trusted, and they are what caught the ulp.
+  The prose instrument was proven by changing a shipped note by one cent. The conformity
+  test's third `governs` value was proven by the household that still moves. The capital-gain
+  basis agreement was proven on a grid rather than by reading two files.
+- **Do not run tests during the audit**, and this time the order was planned rather than
+  learned again: the differential's PolicyEngine run took about 25 minutes of four cores, and
+  it finished and was committed BEFORE the mutation audit started.
+- **The line-number measurement is the LAST thing** and Day 48's rule now has a corollary
+  worth keeping: the first `grep` for `2024` in `flat-states.js` returned six matches and
+  every one was in a citation or a comment. **A measurement of a line number has to replicate
+  the harness's masking or it is measuring the documentation.**
+
+### What I would do next
+
+1. **Give South Carolina's military retirement subtraction its own line in the result**, and
+   it is first because it was found in the SHIPPED package (Part 16). `$60,000` of military
+   retired pay is reported as a "Retirement deduction", which is § 12-6-1170(A) and is
+   capped at `$10,000`; the exemption that actually reaches it is § 12-6-1171 and is
+   uncapped. The tax is right and the label is a statute out. The fix:
+   `retirementIncomeBySource` already computes the exempt and capped halves separately in
+   `split()` and then adds them, so it needs to return both and the caller needs to push two
+   details with two names and two cites. One rule, two statutes, two lines.
+
+2. **A `provisionalFigures` shape for a PROVISION rather than a figure.** South Carolina 2026
+   is the first state-year here whose debt is partly "is this subtraction still law after the
+   reform", and `status: 'provisional'` is the same flag for that as for an unindexed amount.
+   `ProvisionalReason` has four values and none of them is *survival*. The note says it in
+   prose, which is where every other claim in this package started before it got an
+   instrument.
+3. **Carry the prose-figure instrument to a second state, and pick the hardest one.**
+   Today's is South Carolina only, and the four-provenance shape is now known. Maryland has
+   seventeen notes and the most money figures in the package; Georgia's thirteen are the
+   ones most likely to carry a derived figure. The cost is the two provenances nothing can
+   infer — which households a note is about, and what each derived figure is derived from —
+   so the question to answer on the second state is **how much of that is reusable**, and
+   the answer decides whether a package-wide registry is a day or a week.
+4. **The `$166` question: measure what the `$200` earned income credit cap costs across the
+   whole federal schedule, with an engine that produces the federal credit.** I measured the
+   peak at about `$170` with my own reconstruction of the 2026 federal parameters and
+   deliberately kept it out of the shipped notes for exactly that reason. `us-federal-tax`
+   computes the federal credit; the cross-package harness already exists; this is one script
+   and it would turn a stated mechanism into a measured distribution.
+5. **Model A.R.S. § 43-1022(23), Arizona's qualified small business capital gain
+   subtraction** — unchanged from Day 48. 100% rather than 25%, so 2.5% of the whole gain,
+   and still the largest Arizona provision known to be unmodelled.
+6. **Bound Arizona's credits entry by the family income tax credit's INCOME limit** —
+   unchanged from Day 48. `maxIncome` next to `maxShareOfIncome`.
+7. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+   Days 47 and 48, and today added a sharper reason to care: the `$691` separate-with-spouse
+   entry was not unbounded, and a bound that is wide enough for one state's mechanism is
+   still a bound scoped to EVERY state. **The real lesson is about SCOPE rather than size** —
+   an entry keyed by household kind should say which states it believes it covers.
+8. **Record a conformity declaration for the other twenty states** — unchanged from Days
+   46, 47 and 48, and today's third `governs` value changes what each one needs: the question
+   is no longer only "does a federal figure move this state's tax" but "and if it does not,
+   is that because the state ignores it or because this package adds it back".
+9. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 through 48,
+   worst case **`$4,735.905`**, every parameter already gathered in `test/minnesota-amt.test.js`.
+10. **Check the three other "or fraction thereof" staircase WIDTHS** — unchanged from Days 45
+   through 48, and today is the first day it is interesting rather than tidy: South Carolina
+   is a fourth staircase shape, it steps on the REDUCTION rather than the income, and its
+   width is 37/37/36. Connecticut has three and Alabama's rounds the other way. **The sweep
+   to do is one table: every staircase in the package, what it steps on, how wide, and which
+   direction it rounds.**
+11. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 through 48.
+12. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days
+    42–48.
+13. **Select test files per mutant** — unchanged. 1,534 mutants x 56 test files, and the
+    count went up today.
+14. **Lower the mutation harness's `$100` money floor**, or justify it — unchanged from Days
+    40–48. It mattered again: the `fromAge: 0` of South Carolina's new `capByAge` is not a
+    mutant, and it is a real boundary with a real meaning (no age test at all).
+15. **Assert that each lockfile's version matches its package.json** — unchanged from Day 48.
+16. **The twenty-seventh state.** Sixteen jurisdictions left. Louisiana is now first on the
+    declared uncovered list and is the one to do, unless a question about a state already
+    here is larger — and today's lesson is that the two are not in competition: **South
+    Carolina was chosen on breadth and paid in depth.** Louisiana has a feature worth the
+    same treatment: its 2025 reform moved it to a flat 3% with a large standard deduction,
+    so it is a second state whose two supported years may be two different laws.
+
+---
+
 ## Day 48 — 2026-10-12
 
 ### What I did
