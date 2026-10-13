@@ -120,11 +120,11 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1471 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1526 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
-The state figure was re-measured on **Day 48** over the build that ships today; the
-federal one on Day 46, over a package neither Day 47 nor Day 48 touched. The state one has moved
-**twice** in its history:
+The state figure was re-measured on **Day 49** over the build that ships today; the
+federal one on Day 46, over a package no day since has touched. The state one has moved
+**three times** in its history:
 
 ```text
 Day 42, after Oregon          1,267 mutants    6 survivors   99.5%
@@ -134,6 +134,9 @@ Day 45, after Minnesota       1,456 mutants    6 survivors   99.6%
 Day 46, after the conformity  1,458 mutants    6 survivors   99.6%
 Day 47, Arizona's own table   1,470 mutants    6 survivors   99.6%
 Day 48, the capital gain rule 1,471 mutants    6 survivors   99.6%
+Day 49, South Carolina        1,534 mutants   14 survivors   99.1%
+Day 49, after deleting two    1,526 mutants    6 survivors   99.6%
+          dead tables
 ```
 
 **The first run is the one worth reading, because the score went DOWN.** Five of
@@ -141,7 +144,16 @@ Wisconsin's 82 mutants survived, where the prediction was none — the first fal
 since this instrument was built, and the whole argument for having it. A quality
 number that can only go up is a number nothing is measuring.
 
-**Four of the five were a constant nothing read.** `WI_TOP_BRACKET_BASE` holds
+**Day 49 fell the same way and for the SAME CAUSE, which is what makes it worth
+printing twice.** Eight of South Carolina's 47 mutants survived, and all eight were
+in two `byStatus` tables hoisted out of the declaration and exported "for the test"
+— after which the test was written from its own literals, which is the correct way
+to write a test and left the tables with no reader at all. A prediction of six
+written an hour earlier had no model of the question *is this figure read by
+anything*, which is the question this audit exists to answer. **THE RULE: A CONSTANT
+HOISTED FOR A TEST THAT THE TEST DOES NOT READ IS A SECOND COPY OF THE REGISTRY.**
+
+**Four of Wisconsin's five were a constant nothing read.** `WI_TOP_BRACKET_BASE` holds
 the `$225,000` / `$300,000` / `$150,000` statutory bases that the entire 2026
 derivation rests on, and its doc comment said "see
 `test/wisconsin-indexation.test.js`" — which writes its own copy of those figures

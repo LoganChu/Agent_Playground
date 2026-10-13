@@ -577,6 +577,118 @@ not about the line number being an identity, which it is not — and the first `
 `2024` in `flat-states.js` returned six matches, every one of them inside a citation or a
 comment, which is exactly why the masking is part of the measurement rather than a detail
 of the harness.
+### Part 15b — the result: I PREDICTED SIX AND GOT FOURTEEN, and the eight were three hours old
+
+```text
+mutants 1534    killed 1520    survived 14    score 99.1%
+
+states/south-carolina.js — 8 of 47 survived
+  line 133  money  40_000 -> 80000        SCIAD_PHASE_OUT_START.single
+  line 134  money  40_000 -> 80000        SCIAD_PHASE_OUT_START.separate
+  line 135  money  60_000 -> 120000       SCIAD_PHASE_OUT_START.headOfHousehold
+  line 136  money  80_000 -> 160000       SCIAD_PHASE_OUT_START.joint
+  line 151  money  55_000 -> 110000       SCIAD_PHASE_OUT_DENOMINATOR.single
+  line 152  money  55_000 -> 110000       SCIAD_PHASE_OUT_DENOMINATOR.separate
+  line 153  money  82_500 -> 165000       SCIAD_PHASE_OUT_DENOMINATOR.headOfHousehold
+  line 154  money  110_000 -> 220000      SCIAD_PHASE_OUT_DENOMINATOR.joint
+
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**The count was right — 1,534, exactly as enumerated, with the +63 broken out correctly.
+The score was wrong, the survivor count was wrong, and the stated failure mode was the
+wrong one.** I predicted the risk was in `recognizedStandardDeduction.amounts`, for a
+household reason. Every one of those died. The eight that survived are a class I did not
+consider at all, and they are the worst kind to miss, because **I wrote them myself three
+hours earlier.**
+
+`SCIAD_PHASE_OUT_START` and `SCIAD_PHASE_OUT_DENOMINATOR` were two named `byStatus` tables
+hoisted beside `SCIAD_BASE` and exported as `SCIAD_PARAMETERS` with the comment *"Exported
+for `south-carolina.test.js`, which asserts the 3/11 proportionality."* **And then the test
+was written from its own literals** — correctly, because Day 27's rule is that a test
+written from the data can only confirm the data. So the export had no reader, the two
+tables had no reader, and eight shipped figures could have been any value at all.
+
+**It is Day 43's Wisconsin defect — "a shipped constant that nothing read" — in a module
+three hours old, and the audit found all eight of them.** The real parameters were in
+`deduction.tiers` the whole time, where the engine reads them and where the tests kill
+every one.
+
+**THE RULE: A CONSTANT HOISTED FOR A TEST THAT THE TEST DOES NOT READ IS A SECOND COPY OF
+THE REGISTRY.** Hoisting a figure to make it testable and then not testing it leaves
+exactly what Day 39 found in Connecticut and Day 43 in Wisconsin: a duplicate that drifts
+silently, because the copy the engine reads is the only one anybody pays for.
+
+Both tables are deleted, the export is gone, and the proportionality the export was
+invented for — each denominator is eleven thirds of its own base — is now asserted **against
+the definition**:
+
+```js
+const [{ denominator }] = def.tiers[filingStatus];
+assert.equal(denominator, (def.maximum[filingStatus] * 11) / 3);
+```
+
+which is the assertion that can fail for a reason that matters. **And the lesson about the
+prediction is not "predict better".** The enumeration was measured and exact; what I had no
+instrument for was *is this figure read by anything* — and that question is precisely what
+the mutation audit answers. **A prediction can only cover the failure modes you have a
+model of, and the audit's value is the ones you do not.**
+
+### Part 15c — the re-run, predicted again before it started
+
+Deleting the two tables removes their eight mutants and nothing else:
+
+```text
+mutants 1526    killed 1520    survived 6    score 99.6%
+
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+1,534 less 8 is 1,526; the kill count is unchanged at 1,520 because the eight removed were
+survivors; 1,520/1,526 is 99.606%. **South Carolina's 47 mutants are now 39**, re-enumerated
+rather than subtracted, and the six line numbers were re-measured after the deletion —
+`ohio.js:88` now shows five mutants on one line and `107` two, which is the same line
+carrying the same two survivors among them.
+
+Day 43 did exactly this and recorded both rows, which is why `STATE-SURVIVORS.md` carries
+"Wisconsin's first run" and "after the five Wisconsin fixes" as separate lines. **A score
+that can go down is the only kind worth quoting, and this one went down before it came
+back.**
+
+**The result, and this one came back exactly as written:**
+
+```text
+mutants 1526    killed 1520    survived 6    score 99.6%
+
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+The count, the kill count, the survivor count, the score, the identity of all six survivors
+and all six line numbers. `scores.json` records 1,526 / 1,520 / 6 / 99.6% against this
+build's fingerprint, `check-scores.mjs` passes, and both Day 49 rows are in
+`STATE-SURVIVORS.md` and the root README's history table.
+
+**So the day's two predictions split the way they should.** The one about arithmetic I
+could check was right both times; the one about *what nothing reads* was wrong, and the
+instrument that exists to answer that question answered it. Worth keeping separate in
+future predictions: **a count is a derivation and a survival is a measurement, and only one
+of them can be reasoned to.**
+
 ### Part 16 — verified through the published tarball, and the one thing it showed that `src` did not
 
 Day 48's rule: **a provision modelled in `src` is not shipped until the tarball does it.**

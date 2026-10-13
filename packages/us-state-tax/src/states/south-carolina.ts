@@ -35,7 +35,6 @@
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
 import { byStatus, uniform } from './helpers.js';
-import { FILING_STATUSES } from '../types.js';
 import type { Bracket, Citation, ByStatus } from '../types.js';
 
 const CITATIONS: readonly Citation[] = [
@@ -186,32 +185,6 @@ const SCIAD_BASE: ByStatus = byStatus({
   joint: 30_000,
 });
 
-/** Where the SCIAD starts to be withdrawn, § 12-6-1140(15)(b). */
-const SCIAD_PHASE_OUT_START: ByStatus = byStatus({
-  single: 40_000,
-  separate: 40_000,
-  headOfHousehold: 60_000,
-  joint: 80_000,
-});
-
-/**
- * The denominators § 12-6-1140(15)(b) divides by, as SCDOR Information Letter
- * 26-20 states them — `$55,000`, `$82,500` and `$110,000`, so the phase-out runs
- * `$40,000`-`$95,000`, `$60,000`-`$142,500` and `$80,000`-`$190,000`.
- *
- * **They are not three independent figures.** Each is exactly eleven thirds of
- * its own base, so the withdrawal rate is **3/11 for every filing status** and
- * the three statuses differ only in where it begins. `south-carolina.test.js`
- * asserts the proportionality rather than assuming it, because the day an
- * amendment moves one base without its denominator is the day this stops being
- * one number.
- */
-const SCIAD_PHASE_OUT_DENOMINATOR: ByStatus = byStatus({
-  single: 55_000,
-  separate: 55_000,
-  headOfHousehold: 82_500,
-  joint: 110_000,
-});
 
 /**
  * The standard deduction South Carolina's Code recognizes for 2025 — the
@@ -316,6 +289,27 @@ function southCarolinaDefinition(year: number): StateIncomeTaxDefinition {
           // value cost $10 of deduction at every income where the statute's own
           // arithmetic is exact — see SlidingScaleTier, which carries the worked
           // example and the rule.
+          //
+          // EVERY SCIAD FIGURE LIVES HERE AND NOWHERE ELSE, and that is a
+          // correction. The first draft hoisted the phase-out starts and the
+          // denominators into two named `byStatus` tables beside `SCIAD_BASE`,
+          // exported them as `SCIAD_PARAMETERS` "for the test", and then the
+          // test was written from its own literals — correctly, because Day 27's
+          // rule is that a test written from the data can only confirm the data.
+          // So eight shipped figures were read by nothing at all, and the
+          // mutation audit found all eight: Day 43's Wisconsin defect, in a
+          // module three hours old.
+          //
+          // THE RULE: A CONSTANT HOISTED FOR A TEST THAT THE TEST DOES NOT READ
+          // IS A SECOND COPY OF THE REGISTRY. The proportionality the export was
+          // meant to serve — each denominator is eleven thirds of its own base,
+          // so the withdrawal rate is 3/11 in every column — is asserted in
+          // `south-carolina.test.js` against the DEFINITION, which is the only
+          // copy that can be wrong in a way anybody pays for.
+          //
+          // Each denominator is eleven thirds of the base above it: 15,000 and
+          // 55,000, 22,500 and 82,500, 30,000 and 110,000, so the phase-out
+          // runs $40,000-$95,000, $60,000-$142,500 and $80,000-$190,000.
           tiers: {
             single: [{ above: 40_000, denominator: 55_000 }],
             marriedFilingSeparately: [{ above: 40_000, denominator: 55_000 }],
@@ -479,11 +473,3 @@ export function southCarolina(year: number): StateIncomeTaxDefinition | undefine
   if (year !== 2025 && year !== 2026) return undefined;
   return southCarolinaDefinition(year);
 }
-
-/** Exported for `south-carolina.test.js`, which asserts the 3/11 proportionality. */
-export const SCIAD_PARAMETERS = {
-  base: SCIAD_BASE,
-  start: SCIAD_PHASE_OUT_START,
-  denominator: SCIAD_PHASE_OUT_DENOMINATOR,
-  statuses: FILING_STATUSES,
-} as const;

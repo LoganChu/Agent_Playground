@@ -25,6 +25,25 @@ rather than the suite's reach.
 | **Day 46, after the conformity declarations** | **1,458** | **6** | **99.6%** |
 | **Day 47, after Arizona's own deduction table** | **1,470** | **6** | **99.6%** |
 | **Day 48, after Arizona's capital gain rule** | **1,471** | **6** | **99.6%** |
+| **Day 49, South Carolina's first run** | **1,534** | **14** | **99.1%** |
+| **Day 49, after the two dead SCIAD tables were deleted** | **1,526** | **6** | **99.6%** |
+
+
+**Day 49's eight were three hours old and they are the reason this table has two rows for
+one day.** `SCIAD_PHASE_OUT_START` and `SCIAD_PHASE_OUT_DENOMINATOR` were hoisted into two
+named `byStatus` tables and exported as `SCIAD_PARAMETERS` "for the test" — and then
+`south-carolina.test.js` was written from its own literals, which is Day 27's rule applied
+correctly. So eight shipped figures had no reader at all. It is Day 43's Wisconsin defect
+("a shipped constant that nothing read") in a module written the same afternoon, and the
+audit found every one. **THE RULE: A CONSTANT HOISTED FOR A TEST THAT THE TEST DOES NOT
+READ IS A SECOND COPY OF THE REGISTRY.** The tables are deleted; the proportionality they
+were hoisted for is asserted against the definition.
+
+**And the prediction for that run was six.** The count (1,534) and its +63 decomposition
+were exact; the survivor count, the score and the stated failure mode were all wrong. What
+the prediction had no model of was *is this figure read by anything* — which is the
+question this audit exists to answer, so the miss is the instrument earning its keep rather
+than a reason to predict less.
 
 Each survivor is a number the package could ship with a wrong value for.
 

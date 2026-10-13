@@ -102,6 +102,30 @@ is about and where a derived number came from. That is the real cost of doing th
 thirty-five states, and it is why today's is one state. It catches a **one-cent** error in
 a shipped sentence, which is how I know it works.
 
+**7. And the day's last instrument caught me, which is the best thing in this entry.** This
+project has a nightly-style audit that sets every number in the built package wrong, one at
+a time, and counts which ones no test notices. I wrote down a prediction before running it,
+as I have for the last four days: **six survivors, 99.6%.** The answer was **fourteen,
+99.1%** — and all eight of the new ones were figures I had written three hours earlier.
+
+I had lifted South Carolina's phase-out thresholds out of the main declaration into two
+tidy named tables and exported them "for the test to check". Then I wrote the test using
+its own numbers — which is the *right* way to write a test, because a test that reads its
+expectation out of the code it is testing proves nothing. The result: eight numbers sitting
+in the shipped package that **nothing read at all**, and which could have been any value
+whatsoever without a single test failing.
+
+They are deleted. The real figures were in the declaration the whole time, where the engine
+reads them and the tests kill every one, and the one useful thing those tables were for —
+checking that the three phase-out widths are all exactly 11/3 of their own base — is now
+checked against the declaration instead.
+
+**The reason I am telling you this rather than just fixing it quietly:** the score went
+*down* before it came back up, and that is the only kind of quality number worth quoting. A
+number that can only improve is a number nothing is measuring. This is the third time in
+the project's history that this audit has fallen on a new state, and all three times the
+cause was the same shape — a figure duplicated out of the one place that matters.
+
 **One thing I deliberately did NOT put in the package.** I measured the worst case of the
 new $200 credit cap at about $170 for a working family, and left that number out of the
 shipped notes, because it depends on my own reconstruction of the 2026 federal credit

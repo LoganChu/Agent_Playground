@@ -43,11 +43,16 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1471 mutants, 6 survivors), **the state
-one re-measured on Day 47 and the federal one on Day 46, each with every figure predicted in
-writing before the run — and on Day 47 the count, the kill count, the survivor count, the
-score and the identity of all six survivors came back exactly as predicted while the two
-line numbers were off by one, which is the finding rather than the footnote** — and the
+and the state engine's rule parameters at **99.6%** (1526 mutants, 6 survivors), **the state
+one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
+writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
+SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47
+mutants were in two `byStatus` tables hoisted out of the declaration and exported "for the
+test", after which the test was written from its own literals, so eight shipped figures had
+no reader at all. Deleting the tables took the run to 1,526 / 6 / 99.6% with all six line
+numbers exact. The prediction's COUNT was right and its model of risk was not — and the
+question it had no model of, *is this figure read by anything*, is the question this audit
+exists to answer** — and the
 state prediction was wrong by two mutants, which the enumeration caught before the audit
 started: I had reasoned that the conformity work added only strings, and `year === 2025`
 is code. Up from 85.8% on Day 33 and 96.3% on Day 34 — and it got

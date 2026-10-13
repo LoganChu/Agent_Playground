@@ -166,9 +166,23 @@ test('the withdrawal rate is 3/11 for EVERY filing status, and that is not a coi
     assert.equal(denominator, (base * 11) / 3, `${filingStatus}: the ratio is not 3/11`);
   }
   // And the declaration carries the DENOMINATOR, not the quotient. Part 3 is why.
-  const tiers = getStateDefinition('SC', 2026).deduction.tiers;
+  const def = getStateDefinition('SC', 2026).deduction;
   for (const [filingStatus, [, start, denominator]] of Object.entries(SCIAD)) {
-    assert.deepEqual(tiers[filingStatus], [{ above: start, denominator }], filingStatus);
+    assert.deepEqual(def.tiers[filingStatus], [{ above: start, denominator }], filingStatus);
+  }
+  // THE PROPORTIONALITY, ASSERTED AGAINST THE DEFINITION AND NOT AGAINST THE
+  // TABLE ABOVE. The first version of this test checked 3/11 against its own
+  // literals, which is Day 27's rule applied correctly and is also why two
+  // hoisted `byStatus` tables in the module were read by NOTHING — the mutation
+  // audit found all eight of their figures. The tables are gone; this is the
+  // assertion they were hoisted for, pointed at the only remaining copy.
+  for (const filingStatus of Object.keys(SCIAD)) {
+    const [{ denominator }] = def.tiers[filingStatus];
+    assert.equal(
+      denominator,
+      (def.maximum[filingStatus] * 11) / 3,
+      `${filingStatus}: the shipped denominator is no longer eleven thirds of the shipped base`,
+    );
   }
 });
 
