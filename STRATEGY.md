@@ -3,7 +3,15 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-12 (Day 48). **The bet is unchanged, and Days 43, 44 and 45 are
+Last reviewed: 2026-10-13 (Day 49). **The bet is unchanged, and Day 49 is the first day
+the BREADTH half of it paid the way the depth half has been paying: South Carolina was
+added because it is the largest uncovered jurisdiction, and what it was worth was not the
+coverage. It was that a state mid-statutory-rewrite exercises machinery no ordinary
+twenty-seventh state would reach — a sliding scale whose statute states a FRACTION rather
+than a percentage, a conformity date the project's own sensitivity probe cannot see, a
+`$10` rounding rule that turns a one-ulp floating-point error into real money, and a
+second instance of Day 48's share-and-base rule in a different rule. Breadth bought
+depth.** And Days 43, 44 and 45 are
 the first evidence that it has started paying in three directions I had not planned for:
 Day 43's new state found two defects in the model this package is CHECKED AGAINST
 and none in itself, Day 44 found one defect in FOUR of this package's own
@@ -31,8 +39,8 @@ states already in finds a class of error rather than an instance** — and a que
 that could only be asked because every state here is a DECLARATION rather than a
 procedure, so one sweep can read all twenty-five.
 `packages/us-federal-tax` is v0.15.0,
-`packages/us-state-tax` is v0.43.0 and `packages/us-tax-mcp` is v0.46.0.
-**1,426 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
+`packages/us-state-tax` is v0.44.0 and `packages/us-tax-mcp` is v0.47.0.
+**1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
 and the state engine's rule parameters at **99.6%** (1471 mutants, 6 survivors), **the state
@@ -65,6 +73,63 @@ in a way that mattered commercially: nineteen parameters pinned in 2026 and unpi
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
 
+## Day 49: breadth bought depth, and a floor turned one ulp into $10
+
+South Carolina was chosen on the breadth argument this document has made since Day 39 —
+**breadth is a step function and depth is a curve**, twenty-five taxing states and
+twenty-six are the same product, forty-two is a different one. It is the largest uncovered
+jurisdiction by population and was first on the declared uncovered list.
+
+**What it actually returned was depth, and four of the five findings could not have come
+from an ordinary state.** Act 110 of 2026 rewrote South Carolina's income tax in March
+2026 — the starting point, the rate schedule, the deduction and the earned income credit,
+all at once — so this package's two supported years for that state are two different laws
+rather than two sets of figures.
+
+**THE RULE: A FLOOR TURNS A ROUNDING ERROR OF ONE ULP INTO A WHOLE STEP.** The SCIAD's
+phase-out withdraws 3/11 of each dollar and rounds the reduction down to `$10`. Storing
+the quotient `15_000 / 55_000` — the natural declaration, and one ulp below 3/11 in binary
+— made a single filer at `$67,500` keep `$7,510` of deduction where the Department's own
+worked example says `$7,500`, and left `$10` standing at the end of the phase-out. A
+pre-divided rate is a rounded parameter: harmless in every continuous rule here, ruinous
+with a `floor()` downstream. `SlidingScaleTier` is now a union, because Wisconsin's
+statute states PERCENTAGES and South Carolina's states a FRACTION, and the engine divides
+last. **The commercial point: this is the second time in two days that storing a DERIVED
+figure as though it were a parameter was the defect** — Day 48's share-without-a-base, and
+today's quotient-without-a-denominator. The pattern is now named in two rules and tested
+in both.
+
+**THE RULE: A SENSITIVITY PROBE MEASURES WHETHER THE MODEL COMPENSATES FOR A FEDERAL
+FIGURE, NOT WHETHER THE STATE READS THE FEDERAL CODE.** South Carolina conforms to the
+Internal Revenue Code only through 31 December 2024 and adds the whole OBBBA increase
+back, so moving the federal standard deduction does not move a South Carolina answer — and
+`federal-conformity.test.js`, which decides who must declare conformity by measuring
+exactly that, reported the most non-conforming state in the package as indifferent. The
+instrument was widened rather than relaxed (a third `governs` value, backed by the
+add-back machinery instead of by a sensitivity), and the finding has a second half: **the
+indifference is a property of the HOUSEHOLD, not of the state.** Then Act 110 made the
+question moot without touching the date, because the 2026 return starts above every
+federal deduction: **a state can cure a conformity gap by moving its starting line instead
+of moving its date.**
+
+**And the twenty-sixth state needed no new capital-gains basis, which is the result rather
+than the disappointment.** § 12-6-1150 deducts 44% of "net capital gain", the IRC
+§ 1222(11) term, which is arithmetically the base Wisconsin's own statute reaches by its
+own words. So Day 48's three-way discriminator is at the right granularity: the two
+statutes that agree share a variant and the one that differs has its own. **A
+discriminator that a new state does not have to extend is a discriminator that was built
+at the right level** — and reading Wisconsin's basis to answer that question found a bound
+that cannot bind, which is now asserted rather than deleted because the statute does bound
+the exclusion and the reason it cannot bind here is a property of this engine's INPUT
+SHAPE.
+
+The standing worklist item of Days 46, 47 and 48 — every money figure in prose checked
+against the engine — has its first instrument, and building it changed the item: **a money
+figure in prose has FOUR provenances, not two.** Parameter, answer, declared input, and
+derivation from other parameters. The first version knew two and flagged fifteen figures,
+none of them wrong. The two it was missing are the two nothing can infer, which is the
+real cost of doing this for all thirty-five states and the reason today's is one state.
+
 ## Day 48: a share and a base are two parameters, and the type checker can hold the base
 
 Arizona's A.R.S. § 43-1022(22) subtracts 25% of a net long-term capital gain, and
@@ -86,7 +151,7 @@ boolean has no room for a third answer.
 **And the discriminator does something forty-seven days of this repository's instruments
 could not: it makes the wrong MECHANISM unrepresentable.** Putting Wisconsin's basis on
 Arizona's declaration is a compile error, because `longTermNetted` carries no `field`.
-Under the boolean, `includesShortTerm: false` would have compiled, passed all 1,426 tests,
+Under the boolean, `includesShortTerm: false` would have compiled, passed all 1,426 tests of the day,
 and been silently wrong by `$62.50` on that household — because no household in the
 differential grid or the pinned battery has a short-term loss.
 
@@ -3332,6 +3397,44 @@ Abandon or pivot this bet if any of these become true:
   real competitor on withholding specifically, and worth re-checking.)
   **Day 9:** re-checked; nothing new on npm for New York or state income tax at
   all, and no change to any judgement below.
+  **Day 49:** re-checked, fourteen days after Day 35 and overdue against the
+  weekly cadence. **One new entrant and it is the closest in SHAPE this project
+  has seen: `aws-samples/sample-tax-return-calculator`** — MIT, TypeScript, zero
+  runtime dependencies, an `exports` map with ESM and CJS, federal AND state
+  income tax, an MCP server beside it, 242 unit tests and 49 property tests,
+  last commit 24 March 2026. It is the first competitor that is importable,
+  permissively licensed, dependency-free and state-aware all at once.
+  **IT DOES NOT MEET THE KILL CRITERION, and the reason is not that it is a
+  "sample" or a v0.1.0 — it is that its state model is the thing this project's
+  README says the rate is the easy part about.** Read rather than assumed: its
+  whole state engine is `computeStateTax(taxableIncome, state)`, 38 lines over a
+  283-line table of one rate schedule per state.
+    - **No filing status reaches it at all.** `grep filingStatus src/state-tax*`
+      returns nothing, so California's single-filer brackets are charged to a
+      joint return. That is the defect `byStatus` and `status-sweep.test.js`
+      exist for, and here it is structural rather than a bug.
+    - **It charges the state rate to FEDERAL taxable income.** No state base, no
+      state standard deduction or exemption, no state credit, no conformity, no
+      locality, no subtraction — none of the twenty-odd rule types this package
+      carries, which is to say none of what Maryland, Georgia, Kentucky,
+      Missouri or Arizona actually do.
+    - **An unknown state returns ZERO**, which is the one thing
+      `getStateDefinition` refuses by design: "returning zero for one of those
+      would be a wrong answer rather than a missing one."
+    - **And its figures are a tax year or two stale, which is measurable rather
+      than an impression.** Six of its fourteen flat rates disagree with this
+      package's cited ones in BOTH supported years — Georgia 5.49% against
+      5.19%/4.99%, Indiana 3.05% against 3.00%/2.95%, North Carolina 4.5%
+      against 4.25%/3.99%, Utah 4.65% against 4.50%/4.45% — and three more
+      states are modelled as flat when they are not: Idaho (a zero bracket),
+      Mississippi (a zero bracket) and **Ohio, whose schedule charges a constant
+      on entering a band and cannot be written as a rate at all.**
+  **What it is evidence FOR is the bet rather than against it.** A competent
+  team with a code-generating agent produced a complete-looking federal engine
+  and a state rate table in one pass, which is exactly what this project's
+  Day 1 reasoning predicted: the federal half is a weekend and the state half is
+  the moat. Re-check next week and watch for the one change that would matter —
+  a `byStatus` state table and a state base.
   **Day 18:** npm not re-checked — Day 17 did it and the cadence is weekly, so
   re-spending it would have bought nothing. One competitive datum arrived from
   elsewhere instead, and it is about the *reference* model rather than a

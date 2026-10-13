@@ -13,8 +13,104 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 48 nothing is waiting on you except the network ask below, and today's
-headline is that Arizona charges a long-term capital gain 1.875% and a wage 2.5% — which
+**As of Day 49 nothing is waiting on you except the network ask below, and today's
+headline is that South Carolina rewrote its income tax in March 2026 — so this package's
+two supported years for that state are two different laws, and its 5.21% top rate hides a
+57.31% marginal rate on one dollar in every thirty-seven.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.44.0**, `us-tax-mcp` **v0.47.0**.
+**1,447 tests**, all passing. **South Carolina is the twenty-sixth taxing state** and the
+thirty-fifth in all; sixteen jurisdictions that tax income are still uncovered.
+
+**What Act 110 of 2026 did, and why it was worth a day.** South Carolina's governor signed
+H.4216 on 30 March 2026. It changed four things at once for tax year 2026: the starting
+point (from federal *taxable* income to federal *AGI*), the rate schedule (three brackets
+to two, 1.99% and 5.21%), the deduction (a new state deduction, the SCIAD, where the
+federal standard deduction had been), and the earned income credit (capped at **$200**,
+where it had been 125% of the federal credit with no ceiling). A single filer on $50,000
+pays **$1,458.30** for 2025 and **$999.21** for 2026.
+
+**1. The 57.31%, which is the part no table of state rates can show.** The SCIAD phases
+out as income rises — and the statute rounds the phase-out amount **down to the nearest
+$10**. That turns a smooth withdrawal into a staircase: for most dollars of income the
+marginal rate is the ordinary 5.21%, and at each step boundary one extra dollar of income
+costs **$10 of deduction as well**, so eleven dollars become taxable and the rate on that
+one dollar is **57.31%**. The steps are 37, 37 and 36 dollars of income wide, repeating —
+a width that appears in no document, because it is a consequence of the statute's fraction
+rather than something the statute says.
+
+**2. One mistake of mine, caught by a document rather than by arithmetic, and worth $10 a
+filer.** The natural way to store that phase-out is as a single rate: 15,000 ÷ 55,000. In
+binary floating point that quotient is one *sixteenth-digit* step below the true 3/11 — and
+the statute's rounding-down then turns that invisible error into a whole $10 step. A single
+filer at $67,500 of income kept **$7,510** of deduction where South Carolina's own worked
+example says **$7,500**, and $10 of deduction was still standing at the income where it
+should have hit zero. It was caught because the test was written from the Department's
+three published figures *before* the code was trusted. The fix stores the statute's two
+numbers and divides last, and all nine published figures are now exact.
+
+The general lesson, which I have written into the package: **rounding down after dividing
+is where a harmless floating-point error becomes a real one.** Everywhere else in these
+engines, that kind of error is fractions of a cent and nobody can see it.
+
+**3. The $966 South Carolina prints on its own rate schedule is the state's marriage
+penalty.** The Department publishes the upper band as "5.21% minus $966". That $966 is
+$30,000 × (5.21% − 1.99%) — the number that makes the two-band schedule join up smoothly.
+It is *also*, to the cent, what a married couple pay for South Carolina not widening its
+brackets on a joint return: a couple at $120,000 pay **$965.99** more than two single
+filers at $60,000 each. One number doing two jobs, for the same reason.
+
+**4. South Carolina's "$15,000 retirement deduction" is not a retirement deduction.**
+Every guide files it under retirement income. The statute gives a filer of 65 **$15,000 of
+any income at all** — wages included — reduced by whatever retirement deduction they
+already took. So it is a **floor**, not a bonus: at 66 a filer with $60,000 pays
+**$1,158.30** whether that money is a pension or a paycheque. And **military retired pay
+comes out in full at any age with no cap**, which means a military retiree gets no senior
+deduction — the offset removes a deduction their own exemption had already made
+unnecessary. $60,000 of military retired pay costs nothing; the same $60,000 of civilian
+government pension costs $1,878.30 at 50.
+
+**5. A conformity date that the project's own measuring instrument could not see, which is
+the finding I would most want you to have.** South Carolina reads the federal tax code as
+it stood on 31 December 2024, so it has not adopted the 2025 federal act — and its 2025
+return adds back five federal deductions because of that. This project has a test that
+decides which states depend on federal law by *moving a federal number and watching the
+state tax*. It reported South Carolina as **indifferent**.
+
+It is indifferent. The add-back cancels the movement exactly. **So the state's
+non-conformity is the cause of the very indifference that looked like evidence of no
+dependency at all — the most non-conforming state in the package is the one the test calls
+unaffected.** The test was widened rather than relaxed, and the finding has a second half:
+the indifference is a property of the *household*, not of the state. A dependent filer on a
+small standard deduction moves with the federal figure like anyone else.
+
+And then Act 110 made the whole question moot without touching the date: the 2026 return
+starts at federal AGI, which sits *above* all of those deductions. **A state can cure a
+conformity gap by moving its starting line instead of moving its date** — and the two are
+indistinguishable in the answer, which is exactly why this package records the mechanism
+and not just the number.
+
+**6. The one thing three previous days kept putting off is now built, and building it
+changed what it was.** For three days running my own notes ended with the same unfinished
+item: *every dollar figure in the prose should be one the engine actually computes.* It is
+now built for South Carolina. The first version checked figures against the parameters and
+the answers, and flagged fifteen — **none of which was wrong.** They were the sentences'
+own inputs ("a couple at $120,000") and figures *derived* from two parameters (the $966
+above). A money figure in prose has **four** sources, not two, and the two I had missed are
+the two nothing can work out automatically: somebody has to say which household a sentence
+is about and where a derived number came from. That is the real cost of doing this for all
+thirty-five states, and it is why today's is one state. It catches a **one-cent** error in
+a shipped sentence, which is how I know it works.
+
+**One thing I deliberately did NOT put in the package.** I measured the worst case of the
+new $200 credit cap at about $170 for a working family, and left that number out of the
+shipped notes, because it depends on my own reconstruction of the 2026 federal credit
+tables rather than on anything this package computes. The notes state the mechanism and an
+example the engine produces. That is the rule from point 6 applied before the instrument
+could complain.
+
+**As of Day 48 nothing was waiting on you except the network ask below, and that day's
+headline was that Arizona charges a long-term capital gain 1.875% and a wage 2.5% — which
 this package now knows, and did not yesterday.**
 
 `us-federal-tax` is v0.15.0, `us-state-tax` **v0.43.0**, `us-tax-mcp` **v0.46.0**.
@@ -717,8 +813,9 @@ needs you.
 Nothing below has changed, but Day 39 produced a figure that bears on what this
 repository is worth and I would rather you had it than not.
 
-**This package covers twenty-four of the forty-two jurisdictions that tax income.**
-The missing eighteen are Minnesota, South Carolina,
+**This package covers twenty-SIX of the forty-two jurisdictions that tax income**
+(it said twenty-four when this section was written on Day 39; Minnesota closed one
+and South Carolina the other). The missing sixteen are
 Louisiana, Oklahoma, Iowa, Rhode Island, Vermont, Arkansas, Kansas, Nebraska,
 New Mexico, Montana, Maine, Delaware, Hawaii, North Dakota, West Virginia and the
 District of Columbia. That list is no longer prose: it is a declared, exported
@@ -734,8 +831,9 @@ the same product, and a forty-two-state one is a different one.
 
 Connecticut, Alabama, Missouri, Oregon and Wisconsin each took one day, including
 their own test file, their provenance entries and the defects they exposed in the
-test machinery. Five states in five days. So the remaining eighteen are **under
-three and a half weeks of runs** at the current standard — and the estimate has
+test machinery. Five states in five days, and South Carolina on Day 49 took one
+day while being mid-rewrite. So the remaining **sixteen** are **about three weeks
+of runs** at the current standard — and the estimate has
 got *better* every time it has been restated, which is the opposite of how these
 usually go.
 

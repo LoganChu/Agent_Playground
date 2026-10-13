@@ -4,6 +4,564 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 49 — 2026-10-13
+
+### What I did
+
+**South Carolina, the twenty-sixth taxing state — and the first state here whose two
+supported years are two different LAWS rather than two sets of figures. Act 110 of 2026
+(H.4216), signed 30 March 2026, changed the starting point, the deduction, the rate
+schedule and the earned income credit all at once, so the difference between this
+package's 2025 and 2026 answers is a measurement of what the reform did, taken on the
+same household by the same engine.**
+
+`us-state-tax` is **v0.44.0**, `us-tax-mcp` **v0.47.0**, `us-federal-tax` **v0.15.0**.
+**1,447 tests** (400 + 860 + 170 + 17), all green, zero dependencies — up 21 from Day
+48's 1,426. **26 taxing states, 35 in all**, up one; the declared uncovered list is down
+to sixteen.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last
+push** (run 190, `9bf1af2`). One API call.
+
+New: `src/states/south-carolina.ts`; a `RecognizedStandardDeductionRule`; a third
+`FederalConformityRule.governs` value, `recognizedDeductions`; `SlidingScaleTier` split
+into `RateTier | FractionTier`; `measuredOn` and `roundReductionDownTo` on the sliding
+scale; `EarnedIncomeCreditRule.maximum`; `MarriedCoupleCreditCap`, a discriminated
+ceiling; `capByAge` and `militaryExemptInFull` on `RetirementIncomeSubtractionRule`;
+`reducedByRetirementSubtractions` on `AgedIncomeSubtractionRule`; 27 provenance entries;
+`test/south-carolina.test.js` (21 tests) — and the first instrument for the standing
+worklist item of Days 46, 47 and 48.
+
+### Part 1 — why South Carolina, and the one number that decides it
+
+The strategy document's own argument: **breadth is a step function and depth is a
+curve.** Twenty-five taxing states and twenty-six are the same product; forty-two is a
+different one. South Carolina is the largest uncovered jurisdiction by population (5.4M)
+and was first on the declared uncovered list, which is why it was first on the list.
+
+What it turned out to be worth is not the breadth. It is that **a state in the middle of
+a statutory rewrite exercises machinery no amount of adding a twenty-seventh ordinary
+state would reach.**
+
+### Part 2 — THE HEADLINE: a 5.21% top rate and a 57.31% marginal rate
+
+Act 110 put a new deduction, the SCIAD, where the federal standard deduction had been,
+and phases it out on federal AGI. Three figures per filing status, from SCDOR
+Information Letter 26-20:
+
+```text
+                 base      starts at   denominator   phase-out ends
+single           $15,000    $40,000     $55,000       $95,000
+head of house    $22,500    $60,000     $82,500       $142,500
+joint            $30,000    $80,000     $110,000      $190,000
+```
+
+**Each denominator is exactly eleven thirds of its own base, so the withdrawal rate is
+3/11 in every column** and the three statuses differ only in where it begins. That is
+not a coincidence worth noting and moving on from — it is the reason the 2026 marriage
+penalty comes out at a number SCDOR already prints (Part 4).
+
+Then § 12-6-1140(15)(b) **rounds the reduction DOWN to the next lowest `$10`**, which
+turns the whole thing from a rate into a staircase:
+
+```text
+inside a step, 5.21% band        5.21%
+at a step boundary               5.21% x 11 = 57.31%
+at a step boundary, 1.99% band   1.99% x 11 = 21.89%
+a continuous reading             5.21% x 14/11 = 6.6318%
+```
+
+One dollar at a step boundary takes `$10` of deduction with it, so taxable income rises
+by `$11` and the tax by eleven times the statutory rate. **A model that applies the
+fraction without the rounding reports 6.6318% at every income in the band, which is the
+correct AVERAGE across a step and wrong about every single dollar.**
+
+And the step width is a consequence rather than a parameter. `$10` of reduction at 3/11
+of a dollar is `$36.66...`, so **the widths of an integer-dollar income run 37, 37, 36,
+repeating** — the boundaries for a single filer are `$40,037`, `$40,074`, `$40,110`,
+`$40,147`, `$40,184`, `$40,220`. Alabama's staircase steps `$500` of income and
+Connecticut's `$1,000`; both of those widths are in their statutes.
+
+**THE RULE: ALABAMA AND CONNECTICUT COUNT STEPS OF INCOME AND SOUTH CAROLINA ROUNDS THE
+REDUCTION, SO ONLY THE FIRST TWO HAVE A STEP WIDTH A STATUTE CAN STATE.** The third
+kind's width is the quotient of two parameters and is not a round number in any base.
+
+### Part 3 — the defect this found in my own first declaration, worth `$10` of deduction
+
+The natural way to declare that withdrawal is the quotient:
+
+```ts
+tiers: { single: [{ above: 40_000, rate: 15_000 / 55_000 }] }
+```
+
+**`15_000 / 55_000` is 3/11, which no binary float holds, and the nearest double is one
+ulp BELOW it.**
+
+```text
+15000/55000          0.27272727272727270709
+3/11                 0.27272727272727270709   (the same double)
+x 27,500             7499.9999999999990905
+floor to $10         7490          <- the engine's first answer
+15000 x 27500/55000  7500          <- the Department's worked example
+```
+
+So a single filer at `$67,500` kept **`$7,510`** of SCIAD against the `$7,500` SCDOR
+prints, and at the end of the phase-out **`$10` of deduction was left standing at
+`$95,000`**, where the deduction is supposed to be gone.
+
+**It was caught by the probes rather than by arithmetic**, and specifically by writing
+the test from the Department's three published figures — base at the threshold, half the
+base at the midpoint, zero at the end — before trusting the declaration. Every one of
+those three is a round number, which is exactly where a floor amplifies a sub-ulp error.
+
+**THE RULE: A FLOOR TURNS A ROUNDING ERROR OF ONE ULP INTO A WHOLE STEP.** A pre-divided
+rate is a rounded parameter. Rounding it is harmless in every continuous rule in this
+package — Wisconsin's sliding scale is off by fractions of a cent and nothing can see it
+— and ruinous the moment a `floor()` stands downstream, because the error stops scaling
+with itself.
+
+The fix is a parameter SHAPE and not a nudge to the arithmetic. `SlidingScaleTier` is now
+a union: Wisconsin's § 71.05(22)(dp) states PERCENTAGES (22.515%, 19.778%, 12%) and South
+Carolina's § 12-6-1140(15)(b) states a FRACTION and never writes a percentage at all, so
+each tier carries whichever of the two its own statute has and the engine divides LAST.
+All nine published boundary figures are now exact.
+
+**And I asked the same question of every other rounding in the package**, which is the
+move Day 44 and Day 48 both paid for:
+
+- `Math.floor`/`Math.ceil` at eight other sites all divide an income excess by an INTEGER
+  increment — dollars by dollars — which is exact at these magnitudes.
+- **Minnesota's `proportionalStepPhaseOut` is the one that could have had it and does
+  not**, and the reason is a guard rather than luck: `0.02 x 50` is
+  `1.0000000000000002` in doubles, and the expression is
+  `total * Math.max(0, 1 - sharePerStep * steps)`. The `max(0, …)` absorbs it. A version
+  without that clamp would hand a Minnesota filer a NEGATIVE exemption at the fiftieth
+  step.
+- California's `amountPerIncrement` floors a quotient to cents on purpose, to reproduce
+  the FTB's own published figure, and the quotient is not near a cent boundary.
+
+### Part 4 — the 2026 marriage penalty IS the constant SCDOR prints on the rate schedule
+
+SCDOR writes the upper band as **"5.21% minus `$966`"**. The `$966` is not a parameter:
+`$30,000 x (5.21% - 1.99%)` is `$966` exactly, and it is the constant that makes the
+two-band schedule continuous at the threshold. It is Ohio's `baseAmountSchedule` written
+the other way round — Ohio's constant arrives whole on the first dollar of the band and
+makes the schedule DISCONTINUOUS; South Carolina's is subtracted and keeps it continuous.
+
+South Carolina also **taxes every filing status on the same rate schedule**, in both
+years. Virginia is the only other state here that does not widen its brackets. So:
+
+```text
+2025   joint at $120,000      $4,758.30
+       two singles at $60,000 $4,116.60
+       the penalty              $641.70  = $3,560 x 6% + $14,270 x 3%
+                                           (one filer's whole graduated schedule)
+
+2026   joint at $120,000      $4,290.89
+       two singles at $60,000 $3,324.90
+       the penalty              $965.99  = the printed $966, less a cent
+```
+
+**The 2026 penalty is the printed constant, and for the same reason it is printed: both
+are `$30,000` times the rate step.** Everything else on the 2026 return scales perfectly
+between the single and joint columns — the SCIAD's base AND its denominator both double,
+so the two taxable incomes agree to the cent — and the unwidened `$30,000` band is the
+only thing left.
+
+**It reports as `$965.99` and not `$966.00`, and that is not an error.** The single
+return's own tax is `1,662.445`, which is reported rounded up, twice. Day 48's Arizona
+rule: *the difference of the answers as reported, not of the figures behind them.* The
+engine is asked for two answers and both are rounded before anything is subtracted.
+
+### Part 5 — a conformity date the measurement cannot see
+
+S.C. Code § 12-6-40(A)(1)(a) reads the Internal Revenue Code **as amended through 31
+December 2024**, effective 22 May 2025, and the One Big Beautiful Bill Act was enacted 4
+July 2025. South Carolina has not adopted it. So a 2025 return, which starts from federal
+TAXABLE income, adds back the OBBBA increase in the standard deduction and all four
+Schedule 1-A deductions, plus § 199A, which § 12-6-50 names outright.
+
+`federal-conformity.test.js` decides which states must declare a conformity rule by
+**moving a below-AGI federal figure and watching the tax**. It reported South Carolina
+2025 insensitive, and refused the `belowTheLine` declaration.
+
+**It is insensitive. The add-back cancels the movement exactly — which is to say the
+state's NON-conformity is the cause of the very indifference that looked like evidence of
+no conformity dependency at all. The most non-conforming state in this package is the one
+the probe calls indifferent.**
+
+**THE RULE: A SENSITIVITY PROBE MEASURES WHETHER THE MODEL COMPENSATES FOR A FEDERAL
+FIGURE, NOT WHETHER THE STATE READS THE FEDERAL CODE.** The two come apart exactly where
+a state freezes its Code and legislates an add-back.
+
+The instrument was extended rather than weakened: a third `governs` value,
+`recognizedDeductions`, backed by the add-back machinery instead of by a sensitivity —
+a state cannot claim the date governs which deductions it recognizes unless it holds the
+rule that refuses one. And the finding has a second half the test now pins:
+
+**THE INSENSITIVITY IS A PROPERTY OF THE HOUSEHOLD, NOT OF THE STATE.** The add-back is a
+difference floored at zero, so every filer whose federal standard deduction is at or
+above the pre-OBBBA figure is insensitive — and a filer BELOW it, a dependent on a
+limited standard deduction, moves with the federal figure like any Colorado filer, at
+6 cents on the dollar.
+
+### Part 6 — Act 110 cured the conformity gap without moving the date
+
+The 2026 return starts at federal **AGI**, which is above the standard deduction and
+above all four Schedule 1-A deductions. The conformity date is still 31 December 2024 and
+can no longer reach an individual wage return at all: `addBacks` is empty, and
+`recognizedStandardDeduction` is declared for 2025 and absent for 2026.
+
+**THE RULE: A STATE CAN CURE A CONFORMITY GAP BY MOVING ITS STARTING LINE INSTEAD OF
+MOVING ITS DATE** — and the two are indistinguishable in the answer, which is the whole
+reason `FederalConformityRule` exists.
+
+### Part 7 — the twenty-sixth state needed no fourth capital-gains basis, and that is the result
+
+Day 48 built a three-way `CapitalGainsSubtractionBasis` for Missouri, Wisconsin and
+Arizona. § 12-6-1150(A) deducts 44% of "net capital gain", which is the **IRC § 1222(11)**
+term — net long-term gain over net short-term LOSS. That is arithmetically the base
+Wis. Stat. § 71.05(6)(b)9 reaches by its own words, so South Carolina shares Wisconsin's
+variant and nothing was added.
+
+**That is evidence the discriminator is at the right granularity rather than a
+disappointment**: the two statutes that agree share a variant and the one that differs
+has its own. What South Carolina adds is that **its base is a FEDERAL CROSS-REFERENCE**,
+so it moves if Congress amends § 1222(11) and Wisconsin's does not — a difference in
+authority with no difference in today's answer, which is the same shape as Day 47's
+Arizona standard deduction.
+
+The agreement is now a test over a grid of five (net gain, short-term gain) households
+rather than an inspection, with the one household that tells all three apart written out.
+
+**And reading Wisconsin's basis to answer that question found a guard that cannot
+fire.** The engine computes `base = min(netGain, max(0, netGain - shortTerm))`, and
+`shortTermCapitalGains` is validated NON-NEGATIVE, so the `min` is an identity on every
+input the engine accepts. It is left in place and asserted rather than deleted, because
+the comment above it is a claim about the STATUTE — § 71.05(6)(b)9 does bound the
+exclusion by the net gain as a whole — and the reason it cannot bind here is a property
+of this engine's input shape, which a future field could change.
+
+**THE RULE: A BOUND THAT CANNOT BIND IS A CLAIM ABOUT THE INPUT SHAPE, NOT ABOUT THE LAW,
+AND IT NEEDS A TEST THAT SAYS WHICH.** Day 43 found a Wisconsin constant that nothing
+read and deleted it; this one is not that, and the difference is worth keeping.
+
+### Part 8 — the `$15,000` that is filed under retirement and is not a retirement provision
+
+§ 12-6-1170 has two subsections and every guide describes both as retirement income:
+
+- **(A)(1)** deducts retirement income up to `$3,000` under 65 and `$10,000` from 65, per
+  person, with **no age test on availability at all** — so a 40-year-old with a pension
+  has `$3,000` of it, which no other state in `retirementIncomeSubtractions` allows. That
+  is why the new field is `capByAge` and not another `cappedMinimumAge`: the age moves the
+  AMOUNT.
+- **(B)** deducts `$15,000` of **ANY** income at 65, per person, *"reduced by any amount
+  the taxpayer deducts pursuant to subsection (A)"*.
+
+**The offset makes the pair a FLOOR of `$15,000` rather than `$15,000` on top.** Measured:
+
+```text
+single, 2025, $60,000, age 66, all wages      $1,158.30   ($15,000 subtracted)
+single, 2025, $60,000, age 66, all pension    $1,158.30   ($10,000 + $5,000)
+single, 2025, $60,000, age 50, all pension    $1,878.30   ($3,000)
+```
+
+`$720.00` is what turning 65 is worth, and it is `$12,000` of deduction at 6%. **At 65 a
+South Carolina wage earner and a pensioner on the same money pay the same tax to the
+cent, and the split between the two lines is bookkeeping.**
+
+It is Maryland's centenarian subtraction — `$100,000` of ANY income at 100 — with an
+offset, and those two are the only rules here that subtract *income* rather than a class
+of income. So the `AgedIncomeSubtractionRule` gained one boolean and a second state.
+
+**§ 12-6-1171 is the other half and runs the other way.** Military retired pay is
+deducted **in full, uncapped, at any age** (the Workforce Enhancement and Military
+Recognition Act of 2022), and the (B) offset is reduced by it — so a military retiree
+gets no senior deduction at all. **The offset takes away a deduction the exemption had
+already made unnecessary.** A single filer with `$60,000` of military retired pay owes
+South Carolina nothing at 50 and at 66 alike; the same `$60,000` as a civilian government
+pension costs `$1,878.30` at 50.
+
+That is three flags on one rule for three different treatments of the same dollars, and
+they are mutually exclusive by law rather than by convention: New York exempts GOVERNMENT
+service in full and keeps its `$20,000` intact, Michigan exempts military pay and charges
+it against the shared cap, South Carolina exempts military pay and charges a civilian
+government pension the ordinary cap. **New York's construction with the two swapped.**
+
+### Part 9 — two ceilings on the same arithmetic, and Day 48's rule in a second rule
+
+Wisconsin's married couple credit is 3% of the lesser spouse's earned income "not to
+exceed `$480`". South Carolina's two wage earner credit is 0.7% "of the lesser of fifty
+thousand dollars or the South Carolina qualified earned income of the taxpayer with the
+lower qualified earned income".
+
+**Wisconsin caps the CREDIT. South Carolina caps the INCOME. They produce the same number
+for every household either of them has, and they are different parameters.** Storing
+South Carolina's as a credit cap would store `0.007 x 50,000` as though the statute had
+said `$350` — and the `$350` is what every summary of the provision quotes.
+
+So `MarriedCoupleCreditRule.max` became a discriminated `cap`, and Day 48's rule — *a
+share and a base are two parameters* — now has a second instance: **a ceiling belongs to
+whichever of the two the statute attached it to.**
+
+**Two corrections to my own ledger entry for that `$50,000`, and the second is the
+interesting one.** The first draft said `indexed`, from a feel. The second said
+`unestablished` — which would have raised a backlog Day 37 drove to zero and this package
+has held at zero since. Neither was necessary: § 12-6-3330(B)(1) prints "fifty thousand
+dollars" FLAT, substituted for "thirty thousand dollars" by 2017 Act No. 40 § 17.A, with
+no indexing clause in the section.
+
+**And the codified text hides a six-year phase-in.** PolicyEngine-US carries `$43,333`
+for 2021, `$46,667` for 2022 and `$50,000` for 2023 — evenly spaced thirds of the
+`$20,000` increase, which is the 2017 Act's transition provision. The current code shows
+the destination and the annotation says only "applies to tax years beginning after 2017".
+**A model built from the codified statute alone is wrong about 2018 through 2022 by up to
+`$140` of credit and right about every year this package supports.**
+
+### Part 10 — the `$200` cap, and who actually pays it
+
+Act 110 § 7 capped the earned income credit at `$200` per return, where § 12-6-3632 had
+matched 125% of the federal credit with no ceiling. What it costs a household is
+
+```text
+min(125% of the federal credit, their South Carolina tax) - $200
+```
+
+so it takes **nothing** from the families with the largest federal credits, because their
+South Carolina tax is under `$200` to begin with, and the whole of the difference from the
+families in the middle of the federal phase-out. A head of household with two children,
+`$45,000` of wages and a `$2,400` federal credit is handed `$200` where 2025 handed
+`$3,000` — and owes nothing in either year, because the credit was never worth more than
+the `$153.43` of tax it was offsetting.
+
+**A cap on a MATCH is not a smaller match, and the difference is who pays it.** The rate
+is still 125%; the cap binds from `$160` of federal credit upward. The provision is worth
+least to the poorest claimants it covers, which is the opposite of how a cap on a credit
+usually reads.
+
+I measured the peak across the federal schedule at about `$170` and **deliberately did
+not put that figure in a shipped note**, because it depends on my own reconstruction of
+the 2026 federal EITC parameters rather than on anything this package computes. The note
+states the mechanism and the engine-computed example instead. That is Part 12's rule
+applied before Part 12's instrument could complain.
+
+### Part 11 — the 2026 honesty problem, and what `provisional` had not had to mean before
+
+SCDOR has published the Act 110 figures and has **not** published the 2026 SC1040
+instructions. So South Carolina 2026 is the first `provisional` state-year here whose debt
+is not about an indexed amount:
+
+- the rates, the SCIAD and the `$200` cap are **statute**, fixed in March 2026;
+- the dependent exemption and the young child deduction are the published 2025 `$4,930`
+  **carried forward**, flagged in `provisionalFigures` with the worksheet that settles
+  them;
+- and **whether the § 12-6-1150, § 12-6-1160, § 12-6-1170 and § 12-6-1171 subtractions
+  survive the reform is not confirmed from any primary document reachable from here.**
+  Act 110's own section list amends specific items rather than repealing § 12-6-1140, and
+  policyengine-us 2.41.3 — updated for this Act, with a baseline test for it — keeps all
+  four. The lead note says exactly that, and says which filer is computed entirely from
+  published statute: no dependents, under 65, no capital gain, no retirement income.
+
+**The other nine provisional state-years are waiting on a number. This one is partly
+waiting on a question about which PROVISIONS are still law**, and `status: 'provisional'`
+is the same flag for both, which is an argument for a shape `provisionalFigures` does not
+have yet. Noted for tomorrow rather than built today.
+
+### Part 12 — the standing worklist item of Days 46, 47 and 48, finally instrumented — and it is harder than all three said
+
+Three days running, the item was: *a standing check that every money figure in PROSE is
+one the engine computes.* It is built, for one state, and **building it changed what the
+item is.**
+
+The first version accounted for a figure in two ways — as a PARAMETER of the definition
+or as an ANSWER the engine produces for a named household — and flagged fifteen figures in
+South Carolina's notes. **Not one of the fifteen was wrong.** They were:
+
+- the notes' own **INPUTS**: "a couple at `$120,000`", "a `$2,400` federal credit";
+- figures **DERIVED** from two parameters: the `$966` that is `$30,000 x (5.21% - 1.99%)`,
+  the `$14,270` width of the 3% band, the `$11` a step dollar adds to taxable income, the
+  `$36.66...` a `$10` step costs at 3/11.
+
+**THE RULE: A MONEY FIGURE IN PROSE HAS FOUR PROVENANCES AND NOT TWO** — parameter,
+answer, input, derivation — **and an instrument that knows only the first two reports a
+state's own worked examples as defects.** The two new ones are the two that cannot be
+found automatically: somebody has to say which households a note is about, and what each
+derived figure is derived from. **That is the real cost of the package-wide registry, and
+it is why today's is one state and not a sweep.**
+
+The derivations are **recomputed from the definitions' own parameters** rather than
+listed, so a note's arithmetic is checked and not merely excused. And the whole thing is
+proven by breaking it: changing one shipped note from `$1,158.30` to `$1,158.31` fails the
+test with the sentence quoted back. **It catches a one-cent error in prose**, which is the
+class Day 48 said a plausibility check passes.
+
+### Part 13 — the differential grid: 1,144 households, 0 unexplained, and TWO stale sentences
+
+The strongest instrument here is the one that runs both this package and PolicyEngine-US
+over the same households and reports every difference over a dollar. South Carolina went
+into the grid, which took it from 1,100 cases to **1,144**.
+
+**The reference model was installed at the PINNED version, 2.15.3, and not at the current
+2.41.3, and that was the whole method.** The committed baseline was measured on 2.15.3;
+upgrading would have moved every state at once and made the SC question a question about
+two changes. The result is that the report's diff is three summary lines and nothing else:
+**not one existing state's row moved**, which is the strongest evidence available that
+today's engine surgery — the tier union, dividing last, the credit-cap discriminator and
+the per-person retirement refactor — changed no answer it was not meant to.
+
+```text
+1,144 households, 8,008 figures compared, 7,389 agree to the dollar (92.3%)
+619 differences explained, 0 unexplained
+South Carolina's own 18 differences, all explained
+```
+
+**The eleven South Carolina `state.tax` differences are ONE figure, and it is the figure
+the package had already declared it had not read.** Every one is a whole number of
+dependent-exemption claims times the filer's own marginal rate, at **$110 of taxable
+income per claim**: policyengine-us projects the 2026 exemption to **$5,040** by applying
+the federal uprating factor, and this package carries the published 2025 **$4,930**
+forward and flags it. `$5.73` is one claim at 5.21%, `$17.19` three, `$22.92` four, `$4.38`
+two claims at 1.99% — and § 12-6-1160 is why a toddler is two claims.
+
+**So the grid has PRICED the provisional flag rather than merely agreeing with it**: what
+carrying that figure forward costs a 2026 South Carolina filer with dependents is `$4.38`
+to `$22.92`, and the direction is known — against this package's filer. Paid off by
+reading the 2026 worksheet, not by adopting the projection: **a projected figure would
+agree with PolicyEngine and still not be a figure anybody has published.**
+
+**And the other seven differences found two stale sentences in the ledger of reasons,
+both of the same kind.**
+
+1. **A `$298.50` separate-return difference was MIS-CREDITED to Virginia's age deduction.**
+   That entry is scoped by household KIND with a `$691` bound and only Minnesota excluded,
+   so it absorbs any `separate-with-spouse` difference under `$691` in any other state —
+   and its own prose says *"WHAT IS LEFT IS ONE DIFFERENCE AND IT IS THEIRS. `$690.01` in
+   Virginia."* South Carolina's § 12-6-1170(B) is a **second instance of exactly the
+   mechanism that entry describes**: a per-person subtraction with no filing-status test,
+   handed to a spouse who is not on the return because PolicyEngine's tax unit holds them.
+   PolicyEngine deducts `$5,000` for the filer AND a whole `$15,000` for a 68-year-old
+   spouse with no income and no return; `$15,000` at 1.99% is **`$298.50`**, measured to
+   the cent. South Carolina is now in `notStates` and has an entry of its own, bounded at
+   `$300` by that arithmetic rather than by Virginia's.
+
+   **Minnesota was excluded from the same entry on the day Minnesota shipped. South
+   Carolina is the SECOND state to walk into it on arrival.** An entry scoped by household
+   kind and bounded in dollars is scoped to every state at once, and the bound is the only
+   thing between it and the next state's unrelated defect.
+
+2. **The § 32(d) flow-through entry said SEVEN states and South Carolina is the eighth.**
+   It had read "six" until Day 32. The eighth is the most interesting: § 12-6-3632 matches
+   the federal credit at **125%**, the largest match in the grid — and because Act 110
+   capped the credit at `$200`, the flow-through is not 125% of `$1,053.62` but the cap.
+   **A CAP ON A CREDIT BOUNDS A DIVERGENCE AS WELL AS A CREDIT**: without it South Carolina
+   would be the largest entry in that family at `$1,317.03`.
+
+**THE RULE, and it is Day 48's STATE-SURVIVORS sentence in a second document: A SENTENCE
+THAT COUNTS A SET EXPIRES WITHOUT BEING TOUCHED.** "What is left is one difference",
+"seven states" — both were true when written, both were falsified by a state arriving, and
+neither could fail a test, because a count in prose is not a claim any instrument here
+reads. Day 48 found the same shape in `STATE-SURVIVORS.md` and left the sentence standing
+with a correction beneath it; these two are corrected in place because they are
+load-bearing for an attribution rather than a historical note.
+
+### Part 14 — the registry check, fourteen days overdue, and the closest competitor yet
+
+The kill criteria say to check npm weekly. The last check was **Day 35**, so this was
+fourteen days late and is the one standing item in `STRATEGY.md` that had quietly lapsed.
+
+**One new entrant, and it is the closest in SHAPE this project has seen:
+`aws-samples/sample-tax-return-calculator`.** MIT, TypeScript, zero runtime dependencies,
+an `exports` map with both ESM and CJS, **federal AND state** income tax, an MCP server
+beside it, 242 unit tests and 49 property tests, last commit 24 March 2026, built with
+AWS's agentic IDE. It is the first competitor that is importable, permissively licensed,
+dependency-free and state-aware all at once.
+
+**It does not meet the kill criterion, and the reason is worth stating precisely because
+"it is only a sample" is not it.** I cloned it and read the state engine rather than
+inferring from the README. The whole of it is `computeStateTax(taxableIncome, state)` — 38
+lines over a 283-line table of one rate schedule per state:
+
+- **No filing status reaches it.** `grep filingStatus src/state-tax*` returns nothing, so
+  California's single-filer brackets are charged to a joint return. That is exactly the
+  defect `byStatus()` and `status-sweep.test.js` exist for — and Day 33 measured that the
+  separate and head-of-household columns are the two a test author reaches for last.
+- **It charges the state rate to FEDERAL taxable income**, with no state base, no state
+  deduction or exemption, no credit, no conformity, no locality and no subtraction.
+- **An unknown state returns ZERO**, which is the one behaviour `getStateDefinition`
+  refuses by design.
+- **And six of its fourteen flat rates disagree with this package's cited figures in BOTH
+  supported years** — Georgia 5.49% against 5.19%/4.99%, Indiana 3.05% against
+  3.00%/2.95%, North Carolina 4.5% against 4.25%/3.99%, Utah 4.65% against 4.50%/4.45% —
+  with three more states modelled as flat when they are not: Idaho, Mississippi and
+  **Ohio, whose schedule charges a constant on entering a band and cannot be written as a
+  rate at all.**
+
+That comparison is a measurement, not a reading: I ran its table against
+`getStateDefinition` for every overlapping state rather than eyeballing the file.
+
+**It is evidence FOR the bet.** A competent team with a code-generating agent produced a
+complete-looking federal engine and a state rate table in one pass — which is what Day 1
+predicted when it chose depth: **the federal half is a weekend and the state half is the
+moat.** What to watch for next week is the one change that would matter: a `byStatus`
+state table and a state base.
+
+---
+
+
+### Part 15 — the mutation prediction, written before the run
+
+
+**Written before the run, as Days 46, 47 and 48 did.** The enumeration is replicated from
+`mutate.mjs`'s own classifier — same mask, same regex, same three operators — and run
+without any suite, so the count is measured rather than guessed and the prediction is
+about SURVIVAL rather than about arithmetic I could get wrong:
+
+```text
+mutants 1534    killed 1528    survived 6    score 99.6%
+```
+
+**1,534 against Day 48's 1,471 is +63, and every one of them is accounted for:**
+
+```text
+states/south-carolina.js   47   the new state
+data/provenance.js         16   14 new `years: [...]` and 2 `carriedForwardFrom`
+                           --
+                           63
+```
+
+Nothing else moved: `engine.ts` gained four code paths today and not one numeric literal
+the harness will touch (`0` and `1` are below the `$100` money floor and are not rates),
+and Wisconsin's migration from `max: 480` to `cap: { kind: 'credit', max: 480 }` moves a
+literal without adding one.
+
+**The six survivors predicted are the same six, unchanged, and they are the six Day 44
+triaged as unreachable in principle.** Not one of today's 63 is predicted to survive, and
+the three classes that could have are all double-covered:
+
+- **The SCIAD's fifteen `byStatus` cells** — base, phase-out start and denominator across
+  five statuses. `status-sweep.test.js` asserts that every `byStatus` cell it finds moves
+  a pinned household and it PASSED on all 1,043, which is the same claim this audit
+  makes, made by a different mechanism.
+- **The `carriedForwardFrom: 2025` labels**, which look like the classic survivor — a
+  figure nothing computes with. They are caught twice: `provenance.test.js` requires the
+  ledger's year to EQUAL the definition's, and `provisional.test.js` calls
+  `getStateDefinition(code, carriedForwardFrom)`, which throws for an unsupported year.
+- **The sixteen new ledger `years: [...]`**, caught twice as well: a mutated year leaves
+  the figures it covered with no provenance ("every figure has exactly one provenance
+  entry") AND leaves the entry itself matched by nothing ("every ledger entry is needed
+  by at least one figure").
+
+**Stated failure mode:** if any mutant survives I expect it to be one of the four
+`recognizedStandardDeduction.amounts` cells for a status whose federal standard deduction
+the 2025 battery never raises above the pre-OBBBA figure — the add-back is a difference
+floored at zero, so a household below the floor cannot see the parameter at all. The
+status sweep says otherwise and the sweep is the stronger evidence, which is why the
+prediction is six.
+
+**The line numbers are MEASURED and taken LAST**, which is Day 48's rule: `flat-states.js`,
+`new-jersey.js` and `ohio.js` were not touched today, so the four columns are expected
+unchanged — and that expectation is about the FILES being untouched, not about the line
+number being an identity, which it is not.
 ## Day 48 — 2026-10-12
 
 ### What I did

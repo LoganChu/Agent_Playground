@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.46.0/us-tax-mcp-0.46.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.47.0/us-tax-mcp-0.47.0.tgz"
       ]
     }
   }
@@ -155,6 +155,38 @@ tool says in its own output rather than only here.
 ---
 
 ## State tax: the rate is the easy part
+
+**New in 0.47.0 — SOUTH CAROLINA, whose two supported years are two different LAWS,
+and whose 5.21% top rate is a 57.31% marginal rate on one dollar in every
+thirty-seven.** Act 110 of 2026 (H.4216), signed 30 March 2026, moved the
+starting point from federal **taxable** income to federal **AGI**, replaced three
+brackets (0%/3%/6%) with two (1.99%/5.21%), put a new state deduction — the
+**SCIAD** — where the federal standard deduction had been, and **capped the state
+earned income credit at `$200`** where it had been 125% of the federal credit
+with no ceiling. A single filer on `$50,000` pays `$1,458.30` for 2025 and
+`$999.21` for 2026, and asking this server for the wrong year is an error rather
+than a fallback, because the two answers come out of two different statutes.
+
+**The SCIAD's withdrawal is a staircase and not a rate.** § 12-6-1140(15)(b)
+reduces the deduction by its base times the excess of federal AGI over a
+threshold over a denominator — and rounds the reduction DOWN to the next lowest
+`$10`. Every denominator is eleven thirds of its own base, so the rate is **3/11
+in all five columns**; `$10` at 3/11 is `$36.66...` of income, so the steps run
+**37, 37, 36**, repeating, and at a boundary one dollar of income takes `$10` of
+deduction with it: taxable income rises by `$11` and the tax by **eleven times**
+the statutory rate — **57.31%**, or 21.89% in the lower band. The `$966` South
+Carolina prints as "5.21% minus `$966`" is `$30,000 x (5.21% - 1.99%)`, and it is
+also the state's whole 2026 marriage penalty, because the brackets do not widen
+on a joint return.
+
+Three more things `state_income_tax` knows about South Carolina that a rate table
+cannot: the **`$15,000` senior deduction is an AGE provision** — `$15,000` of ANY
+income at 65, reduced by the retirement deduction already taken, so it is a FLOOR
+and a 66-year-old pays `$1,158.30` on `$60,000` of wages or of pension alike;
+**military retired pay comes out in full at any age** (§ 12-6-1171), so `$60,000`
+of it costs nothing where `$60,000` of civilian government pension costs
+`$1,878.30` at 50; and **44% of net capital gain** comes out (§ 12-6-1150),
+making a long-term gain cost 2.9176% against 5.21% on a wage.
 
 **New in 0.43.0 — a widow is read against a COLUMN, and four states here have no
 column for her.** A **qualifying surviving spouse** is an unmarried filer with a
@@ -963,7 +995,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **400 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **839 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **860 tests**, every state figure cited to its statute.
 This package adds **170 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the

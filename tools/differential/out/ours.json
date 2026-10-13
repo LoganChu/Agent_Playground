@@ -518,6 +518,27 @@
   },
   "error": null
  },
+ "single-worker-SC-15000-0-0-0-0": {
+  "id": "single-worker-SC-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-UT-15000-0-0-0-0": {
   "id": "single-worker-UT-15000-0-0-0-0",
   "federal": {
@@ -1118,6 +1139,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-SC-30000-0-0-0-0": {
+  "id": "single-worker-SC-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 298.5,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -1730,6 +1772,27 @@
   },
   "error": null
  },
+ "single-worker-SC-50000-0-0-0-0": {
+  "id": "single-worker-SC-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 999.21,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-UT-50000-0-0-0-0": {
   "id": "single-worker-UT-50000-0-0-0-0",
   "federal": {
@@ -2330,6 +2393,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-SC-80000-0-0-0-0": {
+  "id": "single-worker-SC-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2988.39,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -2942,6 +3026,27 @@
   },
   "error": null
  },
+ "single-worker-SC-150000-0-0-0-0": {
+  "id": "single-worker-SC-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6849,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-worker-UT-150000-0-0-0-0": {
   "id": "single-worker-UT-150000-0-0-0-0",
   "federal": {
@@ -3542,6 +3647,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-worker-SC-400000-0-0-0-0": {
+  "id": "single-worker-SC-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 19874,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -4154,6 +4280,31 @@
   },
   "error": null
  },
+ "couple-two-children-SC-30000-0-0-0-0": {
+  "id": "couple-two-children-SC-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-UT-30000-0-0-0-0": {
   "id": "couple-two-children-UT-30000-0-0-0-0",
   "federal": {
@@ -4758,6 +4909,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-two-children-SC-60000-0-0-0-0": {
+  "id": "couple-two-children-SC-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 102.68,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -5374,6 +5550,31 @@
   },
   "error": null
  },
+ "couple-two-children-SC-100000-0-0-0-0": {
+  "id": "couple-two-children-SC-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2194.39,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-two-children-UT-100000-0-0-0-0": {
   "id": "couple-two-children-UT-100000-0-0-0-0",
   "federal": {
@@ -5978,6 +6179,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-two-children-SC-200000-0-0-0-0": {
+  "id": "couple-two-children-SC-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8683.44,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -6594,6 +6820,27 @@
   },
   "error": null
  },
+ "single-parent-SC-12000-0-0-0-0": {
+  "id": "single-parent-SC-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-UT-12000-0-0-0-0": {
   "id": "single-parent-UT-12000-0-0-0-0",
   "federal": {
@@ -7195,6 +7442,27 @@
     {
      "name": "Special Tax Forgiveness",
      "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-parent-SC-25000-0-0-0-0": {
+  "id": "single-parent-SC-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
     }
    ]
   },
@@ -7806,6 +8074,27 @@
   },
   "error": null
  },
+ "single-parent-SC-45000-0-0-0-0": {
+  "id": "single-parent-SC-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 51.54,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-UT-45000-0-0-0-0": {
   "id": "single-parent-UT-45000-0-0-0-0",
   "federal": {
@@ -8406,6 +8695,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-SC-0-0-40000-0-0": {
+  "id": "retired-couple-SC-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -9022,6 +9336,31 @@
   },
   "error": null
  },
+ "retired-couple-SC-0-20000-40000-0-0": {
+  "id": "retired-couple-SC-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-UT-0-20000-40000-0-0": {
   "id": "retired-couple-UT-0-20000-40000-0-0",
   "federal": {
@@ -9626,6 +9965,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "retired-couple-SC-0-50000-40000-0-0": {
+  "id": "retired-couple-SC-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -10242,6 +10606,31 @@
   },
   "error": null
  },
+ "retired-couple-SC-0-90000-40000-0-0": {
+  "id": "retired-couple-SC-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1222.2,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "retired-couple-UT-0-90000-40000-0-0": {
   "id": "retired-couple-UT-0-90000-40000-0-0",
   "federal": {
@@ -10846,6 +11235,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "single-retiree-SC-0-10000-24000-0-0": {
+  "id": "single-retiree-SC-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -11458,6 +11868,27 @@
   },
   "error": null
  },
+ "single-retiree-SC-0-40000-24000-0-0": {
+  "id": "single-retiree-SC-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 306.46,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-retiree-UT-0-40000-24000-0-0": {
   "id": "single-retiree-UT-0-40000-24000-0-0",
   "federal": {
@@ -12058,6 +12489,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "investor-SC-50000-0-0-20000-0": {
+  "id": "investor-SC-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1867.2,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -12670,6 +13122,27 @@
   },
   "error": null
  },
+ "investor-SC-50000-0-0-100000-0": {
+  "id": "investor-SC-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4556.6,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "investor-UT-50000-0-0-100000-0": {
   "id": "investor-UT-50000-0-0-100000-0",
   "federal": {
@@ -13266,6 +13739,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-SC-60000-0-0-0-0": {
+  "id": "separate-SC-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1662.45,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -13872,6 +14366,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "muni-retiree-SC-0-60000-40000-0-10000": {
+  "id": "muni-retiree-SC-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 75.82,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -14488,6 +15007,31 @@
   },
   "error": null
  },
+ "couple-no-children-SC-25000-0-0-0-0": {
+  "id": "couple-no-children-SC-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 174.01
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "couple-no-children-UT-25000-0-0-0-0": {
   "id": "couple-no-children-UT-25000-0-0-0-0",
   "federal": {
@@ -15092,6 +15636,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "couple-no-children-SC-75000-0-0-0-0": {
+  "id": "couple-no-children-SC-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1378.5,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -15708,6 +16277,31 @@
   },
   "error": null
  },
+ "mixed-dependents-SC-40000-0-0-0-0": {
+  "id": "mixed-dependents-SC-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "mixed-dependents-UT-40000-0-0-0-0": {
   "id": "mixed-dependents-UT-40000-0-0-0-0",
   "federal": {
@@ -16312,6 +16906,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "mixed-dependents-SC-90000-0-0-0-0": {
+  "id": "mixed-dependents-SC-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1274.3,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -16928,6 +17547,27 @@
   },
   "error": null
  },
+ "single-parent-high-SC-90000-0-0-0-0": {
+  "id": "single-parent-high-SC-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2720.08,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-high-UT-90000-0-0-0-0": {
   "id": "single-parent-high-UT-90000-0-0-0-0",
   "federal": {
@@ -17534,6 +18174,27 @@
   },
   "error": null
  },
+ "single-parent-teen-SC-35000-0-0-0-0": {
+  "id": "single-parent-teen-SC-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "single-parent-teen-UT-35000-0-0-0-0": {
   "id": "single-parent-teen-UT-35000-0-0-0-0",
   "federal": {
@@ -18130,6 +18791,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-child-SC-45000-0-0-0-0": {
+  "id": "separate-with-child-SC-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 525.96,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -18742,6 +19424,27 @@
   },
   "error": null
  },
+ "surviving-spouse-SC-45000-0-0-0-0": {
+  "id": "surviving-spouse-SC-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 0.39,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-UT-45000-0-0-0-0": {
   "id": "surviving-spouse-UT-45000-0-0-0-0",
   "federal": {
@@ -19342,6 +20045,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-SC-250000-0-0-0-0": {
+  "id": "surviving-spouse-high-SC-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11802.15,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -19954,6 +20678,27 @@
   },
   "error": null
  },
+ "surviving-spouse-high-SC-300000-0-0-0-0": {
+  "id": "surviving-spouse-high-SC-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14407.15,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-high-UT-300000-0-0-0-0": {
   "id": "surviving-spouse-high-UT-300000-0-0-0-0",
   "federal": {
@@ -20554,6 +21299,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-high-SC-450000-0-0-0-0": {
+  "id": "surviving-spouse-high-SC-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 22222.15,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -21166,6 +21932,27 @@
   },
   "error": null
  },
+ "surviving-spouse-low-SC-18000-0-0-0-0": {
+  "id": "surviving-spouse-low-SC-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "surviving-spouse-low-UT-18000-0-0-0-0": {
   "id": "surviving-spouse-low-UT-18000-0-0-0-0",
   "federal": {
@@ -21767,6 +22554,27 @@
     {
      "name": "Special Tax Forgiveness",
      "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "surviving-spouse-low-SC-26000-0-0-0-0": {
+  "id": "surviving-spouse-low-SC-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
     }
    ]
   },
@@ -22374,6 +23182,27 @@
   },
   "error": null
  },
+ "separate-with-spouse-SC-0-55000-0-0-0": {
+  "id": "separate-with-spouse-SC-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 578.89,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "separate-with-spouse-UT-0-55000-0-0-0": {
   "id": "separate-with-spouse-UT-0-55000-0-0-0",
   "federal": {
@@ -22970,6 +23799,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "separate-with-spouse-young-SC-0-55000-0-0-0": {
+  "id": "separate-with-spouse-young-SC-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1174.79,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -23582,6 +24432,27 @@
   },
   "error": null
  },
+ "early-retiree-SC-0-50000-0-0-0": {
+  "id": "early-retiree-SC-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 842.91,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "early-retiree-UT-0-50000-0-0-0": {
   "id": "early-retiree-UT-0-50000-0-0-0",
   "federal": {
@@ -24182,6 +25053,31 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "early-retired-couple-SC-0-70000-0-0-0": {
+  "id": "early-retired-couple-SC-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 961.7,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    },
+    {
+     "name": "Two wage earner credit (assumed: one earner — pass lesserSpouseIncome, worth up to $350)",
      "amount": 0
     }
    ]
@@ -24798,6 +25694,27 @@
   },
   "error": null
  },
+ "blind-worker-SC-40000-0-0-0-0": {
+  "id": "blind-worker-SC-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 497.5,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "blind-worker-UT-40000-0-0-0-0": {
   "id": "blind-worker-UT-40000-0-0-0-0",
   "federal": {
@@ -25398,6 +26315,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "blind-senior-SC-0-25000-20000-0-0": {
+  "id": "blind-senior-SC-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]
@@ -26010,6 +26948,27 @@
   },
   "error": null
  },
+ "on-the-boundary-SC-50000-0-0-0-0": {
+  "id": "on-the-boundary-SC-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 254.62
+  },
+  "state": {
+   "tax": 542.36,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
+     "amount": 200
+    }
+   ]
+  },
+  "error": null
+ },
  "on-the-boundary-UT-50000-0-0-0-0": {
   "id": "on-the-boundary-UT-50000-0-0-0-0",
   "federal": {
@@ -26610,6 +27569,27 @@
    "credits": [
     {
      "name": "Special Tax Forgiveness",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "on-the-boundary-SC-100000-0-0-0-0": {
+  "id": "on-the-boundary-SC-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 83900,
+   "incomeTaxBeforeCredits": 13170,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3987.15,
+   "credits": [
+    {
+     "name": "South Carolina earned income credit",
      "amount": 0
     }
    ]

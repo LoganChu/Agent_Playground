@@ -1,11 +1,27 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **34
-states** including **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **35
+states** including **SOUTH CAROLINA**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.44.0: **SOUTH CAROLINA, whose two supported years are two different LAWS — and whose 5.21% top rate is a 57.31% marginal rate on one dollar in every thirty-seven.**
+
+Act 110 of 2026 (H.4216), signed 30 March 2026, moved South Carolina's starting point from federal **taxable** income to federal **AGI**, replaced a three-bracket schedule (0%/3%/6%) with two (1.99%/5.21%), put a new state deduction — the **SCIAD** — where the federal standard deduction had been, and **capped the state earned income credit at `$200`** where it had been 125% of the federal credit with no ceiling. A single filer on `$50,000` pays `$1,458.30` for 2025 and `$999.21` for 2026.
+
+**The SCIAD's withdrawal is a STAIRCASE, not a rate, and that is where the 57.31% comes from.** § 12-6-1140(15)(b) reduces the deduction by its own base times the excess of federal AGI over a threshold divided by a denominator — `$15,000 x (AGI - $40,000) / $55,000` for a single filer — and **rounds the reduction down to the next lowest `$10`**. Each denominator is exactly eleven thirds of its own base, so the withdrawal rate is **3/11 in every filing status**; `$10` of reduction therefore costs `$36.66...` of income, and the steps of an integer-dollar income run **37, 37, 36**, repeating. At a step boundary one dollar of income takes `$10` of deduction with it, so taxable income rises by `$11` and the tax by **eleven times** the statutory rate: **57.31%** in the 5.21% band and **21.89%** in the 1.99% one. A model that applies the fraction without the rounding reports `5.21% x 14/11 = 6.6318%` at every income in the band, which is the correct *average* across a step and wrong about every single dollar.
+
+**And the `$966` that SCDOR prints on the 2026 rate schedule is South Carolina's marriage penalty.** The upper band is published as "5.21% minus `$966`"; `$30,000 x (5.21% - 1.99%)` is `$966` exactly, and it is the constant that makes the two-band schedule continuous. South Carolina also taxes **every filing status on the same schedule** — Virginia is the only other state here that does not widen its brackets — and because the SCIAD's base *and* its denominator both double between the single and joint columns, the unwidened `$30,000` band is the only thing left: a couple at `$120,000` pay `$965.99` more than two single filers at `$60,000` each. (A cent light, and not an error: the single return's own tax carries a half-cent that is rounded up, twice — the difference of the answers as reported, not of the figures behind them.)
+
+Three more things a rate table cannot hold:
+
+- **The `$15,000` senior deduction is an AGE provision, not a retirement one.** § 12-6-1170(B) deducts `$15,000` of **any** income at 65, *reduced by* whatever that person deducted under subsection (A) — so the pair is a **floor** rather than an addition. At 66 a South Carolina filer with `$60,000` pays `$1,158.30` whether that `$60,000` is wages or pension; the same person at 50 pays `$1,878.30`, because the retirement deduction alone is `$3,000` under 65 and `$10,000` from 65.
+- **Military retired pay is deducted in full, uncapped, at any age** (§ 12-6-1171), and it consumes the senior deduction it makes unnecessary. A single filer with `$60,000` of military retired pay owes South Carolina **nothing** at 50 and at 66 alike; the same `$60,000` as a civilian government pension costs `$1,878.30` at 50.
+- **44% of net capital gain comes out** (§ 12-6-1150), which makes a long-term gain cost **2.9176%** in 2026 against 5.21% on a wage — `$2,292.40` on `$100,000` of gain. The base is the IRC § 1222(11) term, so a short-term **loss** eats the deduction and a short-term **gain** cannot create one.
+
+**For 2025 the conformity date still bites and for 2026 it cannot.** § 12-6-40(A)(1)(a) reads the Internal Revenue Code as amended through **31 December 2024**, so a 2025 return adds back the One Big Beautiful Bill Act's increase in the standard deduction, all four of its Schedule 1-A deductions and the § 199A deduction § 12-6-50 names outright. The 2026 return starts at federal AGI, which is *above* every one of them — so **Act 110 cured a conformity gap by moving the starting line instead of moving the date**, and the date is unchanged.
 
 New in 0.42.0: **Arizona's standard deduction stopped being the federal one, no figure moved, and the old declaration was quietly wrong about age.**
 
@@ -653,7 +669,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.43.0/us-state-tax-0.43.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.44.0/us-state-tax-0.44.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2986,7 +3002,9 @@ poverty level credit — which Virginia, with the same cliff, had cited all alon
 
 ## Coverage
 
-**Graduated:** California, Maryland, Mississippi, New Jersey, New York, Virginia, Wisconsin — though
+**Graduated:** California, Maryland, Mississippi, New Jersey, New York, South Carolina, Virginia, Wisconsin — and
+South Carolina is the only state here whose NUMBER of brackets changes between the two
+supported years, three for 2025 and two for 2026 — though
 Virginia's graduation is worth `$257.50` to every filer at every income, forever, because
 its top bracket begins at `$17,000` for a single filer and at `$17,000` on a joint return
 and has since 1990.
@@ -3142,7 +3160,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **839 tests**. Turning it on, when there were 618 of them, is what
+from all **860 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of
