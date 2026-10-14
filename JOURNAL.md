@@ -20,7 +20,15 @@ Carolina military retiree with any other retirement income.**
 49's 1,447. **26 taxing states, 35 in all**, unchanged: no state was added today.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
-push** (run 195, `a27a207`). One API call.
+push** (run 195, `a27a207`). One API call. And at the END, which is Day 45's other half:
+**green on all SEVEN jobs** (run 199, `9c9f926`) — the three test jobs, `differential`,
+`counts`, `cross-package` with its new lockfile step, and `mutation-claims`.
+
+**`mutation-claims` was red from the day's first push until the score was recorded** — four
+commits and about ninety minutes — and that is the fingerprint working for the sixth day
+running rather than a problem: `src` changed and Day 49's score genuinely was not a score
+of this build for any of those minutes. **`counts` was red for the same stretch and that
+one was NOT expected**, which is the process note below and the day's last lesson.
 
 New: `exemptInFullName` on `RetirementIncomeSubtractionRule`, and
 `militaryExemptInFull` **deleted**; `against()` returns the exempt and capped halves
