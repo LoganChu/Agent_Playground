@@ -122,7 +122,7 @@ value for.
 | `us-federal-tax` | 716 | **0** | **100%** |
 | `us-state-tax` (rule parameters) | 1526 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
-The state figure was re-measured on **Day 49** over the build that ships today; the
+The state figure was re-measured on **Day 50** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. The state one has moved
 **three times** in its history:
 
@@ -137,7 +137,17 @@ Day 48, the capital gain rule 1,471 mutants    6 survivors   99.6%
 Day 49, South Carolina        1,534 mutants   14 survivors   99.1%
 Day 49, after deleting two    1,526 mutants    6 survivors   99.6%
           dead tables
+Day 50, (C)(1) + the split    1,526 mutants    6 survivors   99.6%
 ```
+
+**Day 50 is the first run whose every figure was predicted exactly** — the count, the kill
+count, the survivor count, the score, the identity of all six survivors and all six line
+numbers — because the day's changes added no mutable number, which makes the count a
+derivation rather than a guess. The row worth reading is what nearly happened to it:
+South Carolina's `$10,000` retirement cap became invisible to every TAX figure that day
+(the `$15,000` senior floor swallows it), and it is killed now only by the two tests that
+assert the subtraction's detail lines and by the prose instrument that reads it. Fixing
+the arithmetic without splitting the detail line would have created a seventh survivor.
 
 **The first run is the one worth reading, because the score went DOWN.** Five of
 Wisconsin's 82 mutants survived, where the prediction was none — the first fall

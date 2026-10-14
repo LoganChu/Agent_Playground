@@ -27,7 +27,36 @@ rather than the suite's reach.
 | **Day 48, after Arizona's capital gain rule** | **1,471** | **6** | **99.6%** |
 | **Day 49, South Carolina's first run** | **1,534** | **14** | **99.1%** |
 | **Day 49, after the two dead SCIAD tables were deleted** | **1,526** | **6** | **99.6%** |
+| **Day 50, after § 12-6-1170(C)(1) and the detail split** | **1,526** | **6** | **99.6%** |
 
+
+**Day 50 is the first row where the figures did not move and the reason they did not is
+the interesting part.** The run changed the engine's control flow, deleted a boolean flag,
+added a string field and two notes, and added no mutable number — so 1,526 was a
+*derivation* rather than a hope, and the prediction (written before the run, in the Day 50
+journal entry) got the count, the kill count, the survivor count, the score, the identity
+of all six survivors and all six line numbers exactly right.
+
+**What was at risk, and the reason to read this row at all: South Carolina's `$10,000`
+cap nearly became a seventh survivor.** After § 12-6-1170(C)(1), a 65-year-old's total
+subtraction is `max($15,000, military + min(other, max($0, $10,000 - military)))`, and the
+`$15,000` floor dominates that expression for every household — with no military pay the
+capped part cannot exceed `$10,000`, and with military pay above `$15,000` the cap term is
+already zero. **So no tax figure in this package can observe that parameter any more.**
+Before Day 50 the military household was its only tax-visible observer and the fix removed
+it.
+
+It is killed by the DETAIL LINES instead. Setting the cap to `5_000` fails exactly three
+tests, all three of them Day 50's: the two that assert `computedSubtractions` line by line
+(`[4,000; 6,000; 5,000]` against `[4,000; 1,000; 10,000]` — the same total, a different
+decomposition) and the prose-figure instrument, whose derivation reads the cap.
+
+**THE RULE: A SPLIT DETAIL LINE IS A MEASUREMENT, NOT A LABEL.** Fixing the arithmetic
+without splitting the line would have created a survivor; the two halves of that day's
+work hold each other up. And the parameter is unobservable only *in this engine's input
+shape* — in the statute the decedent's `$10,000` is neither reduced by the military
+deduction nor charged against the `$15,000`, so a surviving-spouse input would make it
+move an answer again.
 
 **Day 49's eight were three hours old and they are the reason this table has two rows for
 one day.** `SCIAD_PHASE_OUT_START` and `SCIAD_PHASE_OUT_DENOMINATOR` were hoisted into two

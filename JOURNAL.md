@@ -4,6 +4,623 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 50 — 2026-10-14
+
+### What I did
+
+**Yesterday's last paragraph said a label in the shipped tarball was a whole statute
+out, and sized the fix at two detail lines. Reading the statute to write the second
+line found the subsection the label was hiding: § 12-6-1170(C)(1), which charges the
+§ 12-6-1171 military deduction against the ordinary retirement cap. The label was
+cosmetic and the thing under it was $600 of tax, understated, for every South
+Carolina military retiree with any other retirement income.**
+
+`us-state-tax` is **v0.45.0**, `us-tax-mcp` **v0.48.0**, `us-federal-tax` **v0.15.0**.
+**1,454 tests** (400 + 867 + 170 + 17), all green, zero dependencies — up 7 from Day
+49's 1,447. **26 taxing states, 35 in all**, unchanged: no state was added today.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last
+push** (run 195, `a27a207`). One API call.
+
+New: `exemptInFullName` on `RetirementIncomeSubtractionRule`, and
+`militaryExemptInFull` **deleted**; `against()` returns the exempt and capped halves
+separately; `tools/cross-package/lockfile-versions.mjs` and a seventh CI job for it;
+two South Carolina notes; three South Carolina citations; two provenance documents
+sharpened to subsections; a named-provenance rewrite of Day 49's prose-figure
+instrument with a dead-declaration check on the other side of it; a Day 50 section in
+`tools/differential/README.md`; 7 new tests.
+
+### Part 1 — the queued label, and the subsection under it
+
+Day 49 verified the published tarball and found that a military retiree's result object
+read
+
+```json
+[{ "name": "Retirement deduction", "amount": 60000 }]
+```
+
+— one line, naming § 12-6-1170(A)'s deduction, which this package documents as capped
+at `$10,000`, for `$60,000` that comes out under § 12-6-1171, which is uncapped. The
+tax was right. It was named, sized and queued as the first item for today, which is
+the discipline that made today possible: **a defect written down is a defect you can
+start from rather than rediscover.**
+
+Writing the second line means deciding what it is called, which means reading
+§ 12-6-1171 and § 12-6-1170 together. Four searches in, with every primary source
+still refusing to resolve, the SC1040 instructions' own worksheet structure came back
+as quoted text:
+
+```text
+p-1  taxpayer retirement deduction       § 12-6-1170(A)
+p-2  spouse retirement deduction
+p-3  SURVIVING SPOUSE retirement deduction
+p-4  taxpayer military retirement deduction   § 12-6-1171
+p-5  spouse military retirement deduction
+q    age 65 and older deduction          § 12-6-1170(B)
+```
+
+and with it the sentence that cost the day its shape: **"the taxpayer and spouse
+retirement deductions are reduced by any military retirement deductions taken."**
+
+Not the `$15,000` senior deduction — that reduction this package already had, under
+(B)'s own words. The `$3,000`/`$10,000` **general** retirement deduction, reduced by
+the military one. The authority is § 12-6-1170(C)(1): *"if a taxpayer claims a
+deduction pursuant to Section 12-6-1171, then the deduction allowed by this section
+must be reduced by the amount the taxpayer deducts pursuant to Section 12-6-1171."*
+**This section** — (A) as well as (B).
+
+### Part 2 — THE HEADLINE: $600, and in the direction nobody reports
+
+A single South Carolina filer of 65 with `$60,000` of military retired pay and a
+`$20,000` civilian pension, on `$150,000` of 2025 income:
+
+```text
+                      v0.44.0     correct
+military deduction     60,000      60,000
+(A) retirement         10,000           0      <- (C)(1) takes the whole cap
+senior deduction            0           0
+                      -------     -------
+subtracted             70,000      60,000
+2025 tax             3,258.30    3,858.30      <- $600.00, exactly $10,000 at 6%
+2026 tax             3,202.00    3,723.00      <- $521.00, exactly $10,000 at 5.21%
+```
+
+Both figures were predicted in writing before the test ran and both came back exact.
+
+**The error was in the taxpayer's favour, which is the direction a filer finds out
+about from the Department rather than from their software.** Every correction this
+project has shipped in the retirement rules so far has gone the other way — Day 44's
+`byStatus` defect was `$2,861.08` a return too LOW in four states, Day 23's
+caller-supplied class taxed pensions four states exempt. This one hands back money the
+state does not allow, and the household it hands it to is a veteran, which is the
+household a vendor is least likely to be told it got wrong.
+
+**And the two rules compose into a FLOOR rather than a sum**, which is why the defect
+has a sharp edge rather than a gradient. At 65 the total subtraction is
+
+```text
+max($15,000, military + min(other, max($0, $10,000 - military)))
+```
+
+so below `$5,000` of retired pay the `$15,000` senior deduction fills the hole (C)(1)
+makes and the answer does not move at all; at `$6,000` it is `$1,000` of deduction and
+`$60.00` of tax; from `$20,000` the whole `$10,000` is gone. The boundary is a
+measured figure, in a test, not an estimate: `$5,000` is where `$15,000 − $10,000`
+puts it.
+
+### Part 3 — THE RULE: "exempt in full" and "charged against the cap" are two questions, and a state can answer yes to both
+
+Day 49 added a fourth flag to `RetirementIncomeSubtractionRule` for South Carolina,
+`militaryExemptInFull`, with a doc comment that said the flags are "mutually exclusive
+by law rather than by convention": New York exempts a government pension in full and
+leaves the `$20,000` intact; Michigan exempts military pay and charges it against the
+shared cap; South Carolina exempts military pay in full and charges a civilian
+government pension the ordinary cap.
+
+**The first two sentences are right and the third is two claims, one of which is
+false.** South Carolina does exempt military pay without exempting a civilian
+government pension — that part is real, and it is New York's construction with the
+two swapped. What it does not do is leave the cap alone. § 12-6-1170(C)(1) is
+arithmetically **exactly** what `militaryReducesCap` already did for Michigan's Form
+4884 line 3.
+
+So the flag was both redundant and wrong, and today it is **deleted**. South Carolina
+sets `militaryReducesCap: true`, which is the flag that already existed, and the three
+remaining flags answer three different questions rather than naming three states:
+
+```text
+governmentPensionExemptInFull   does a CIVILIAN government pension come out in full?
+militaryReducesCap             does military retired pay come out in full AND off the cap?
+exemptInFullName               is the exempt half a provision with its own NAME?
+```
+
+**And the deletion matters beyond tidiness, because the flag had become unreadable.**
+With `militaryReducesCap` set, `militaryExemptInFull` changes nothing: the engine's
+`militaryExempt` is an OR of the two, and `allocationMatters` was already true from
+`capByAge`. South Carolina was the only state that set it. **A boolean nothing reads
+is the Day 43 and Day 49 defect in the one shape the mutation audit cannot see** — the
+harness mutates integers, decimals and years, and says so in its own README. A dead
+number is caught in eighty minutes; a dead boolean is caught by somebody reading the
+statute again.
+
+### Part 4 — what South Carolina actually needed was not a flag but a NAME, and New York had the same defect
+
+The queued label fix is now `exemptInFullName`, a second detail line for the
+exempt-in-full half where that half is a provision of its own. South Carolina:
+
+```json
+[{ "name": "Military retirement deduction", "amount": 60000 }]
+```
+
+**Then the same question was asked of all six declarations in the rule rather than of
+the one the defect was found in** — Day 44's method, which found one defect in four
+states at once — and New York has it too, worse:
+
+```text
+before   New York pension and annuity exclusion   70,000
+after    New York government pension exclusion    70,000
+```
+
+§ 612(c)(3-a)'s exclusion is `$20,000` and begins at 59½. A retired New York City
+police officer who left at 45 on a `$70,000` pension pays New York nothing — § 612(c)(3)(i)
+asks who the employer was, not how old the retiree is — and this package reported their
+whole pension under the name of a provision that is three and a half times smaller and
+fourteen years away. **The tax was right in every one of those cases**, which is why
+neither was caught by a figure.
+
+**Michigan is the state in this rule that does NOT have the defect, and it is the
+reason the field is opt-in rather than automatic.** Its public-pension and military
+halves are the same deduction on the same Form 4884 line, so splitting them would
+invent a provision the state does not have. Illinois, Mississippi and North Carolina
+have nothing to split: North Carolina's whole rule IS the military deduction, and its
+name says so.
+
+**Why this is worth a release on its own, and it is the clearest statement of what
+this package is for.** The result object is what a language model reads. A caller
+handed `Retirement deduction: $60,000` against a cap this package's own notes put at
+`$10,000` has a contradiction it cannot resolve from the answer, and the only way out
+is to doubt the answer — which is the whole asset. A README fixes nothing here,
+because nobody reads a README inside a tool call.
+
+### Part 5 — NOT MODELLED, and declared: the surviving spouse, where the same statute runs the other way
+
+§ 12-6-1170(C)(1) has a second half: the reduction **does not apply** to an amount
+claimed as a surviving spouse. SC Revenue Ruling #22-11 says so, the SC1040 line p-3
+worksheet implements it, and `policyengine-us` leaves the survivor variables out of its
+senior-exemption offset for the same reason.
+
+So the household where this package is now too HIGH is the mirror of the one where it
+was too low:
+
+```text
+a 65-year-old widow of a career soldier, with a pension of her own
+  the decedent's § 12-6-1171 military deduction     in full, uncapped
+  the decedent's § 12-6-1170(A) deduction           $10,000   (her own age? no - HIS)
+  her own § 12-6-1170(A) deduction                  $10,000
+  § 12-6-1170(B), reduced by her own (A) alone      $ 5,000
+                                                    -------
+  more deduction than this package gives her        $25,000
+```
+
+This engine has no input for income received *as a surviving spouse*, so it treats
+those dollars as the filer's own and charges them the shared cap. It is declared in the
+state's notes with the arithmetic written out, so a caller can supply the difference
+through `subtractions` — and **it is not modelled today for a reason that is about
+scope rather than difficulty.** `PersonRetirementIncome` has a closed key set with a
+compile-time proof that the list and the interface match, and Maryland's
+`militaryRetirement` field is documented as including Survivor Benefit Plan payments.
+Adding `survivorPension` and `survivorMilitaryRetirement` therefore obliges every state
+that reads a military or pension pool to decide what it does with them, or a Maryland
+military widow silently loses a subtraction she has today. **That is Day 38's defect
+class — an input key the engine does not read — and it is a cross-state audit, not a
+field.** Sized and queued.
+
+### Part 6 — the fourth route was a competitor's own test, and it agrees line for line
+
+Day 46's rule is that a provision wants more than one route before it is trusted. This
+one had four before a line of it was written: § 12-6-1170(C)(1)'s own words, the SC1040
+line p worksheets, SC Revenue Ruling #22-11, and `policyengine-us` 2.41.3 — read out of
+a wheel downloaded from PyPI, because PyPI is the one host this sandbox can reach.
+
+Their `sc_retirement_deduction_indv.py` is the fix, in six lines:
+
+```python
+max_deduction_allowed = p.cap.calc(age)                       # line 1
+military_retirement_pay = person("military_retirement_pay", period)   # line 2
+retirement_deduction_available = max_(                        # line 3
+    max_deduction_allowed - military_retirement_pay, 0
+)
+retirement_income = add(person, period, p.sources) * head_or_spouse   # line 4
+return min_(retirement_deduction_available, retirement_income)        # line 5
+```
+
+and their published test case 3 — a filer of 70 with `$7,000` of pension and `$6,000`
+of military retired pay — was run here in a virtualenv:
+
+```text
+sc_military_deduction_indv     6000
+sc_retirement_deduction_indv   4000     <- 10,000 - 6,000, limited by 7,000
+sc_senior_exemption            5000     <- 15,000 - 6,000 - 4,000
+```
+
+**This package's three detail lines for the same household, after today, are
+`6,000`, `4,000`, `5,000`.** To the dollar and in the same decomposition, from a model
+that is not this one — and the split that makes that comparison possible is the label
+fix. Before today the same household answered with two lines and the middle figure
+could not be compared at all. It is pinned as a test.
+
+### Part 7 — THE RULE: a differential grid's coverage is bounded by the reference model's input surface, and that bound is invisible until something falls through it
+
+The obvious question after Part 2 is why the 1,144-household differential grid did not
+catch it, given that PolicyEngine models the provision correctly. The answer is in the
+cases file: **not one of the 1,144 households has military retired pay.** Every case is
+built from a wage, a pension, a Social Security benefit, a long-term gain and
+tax-exempt interest. The grid could not have caught this.
+
+And the reason is not an oversight about households. Measured in a virtualenv, not
+inferred:
+
+```text
+military_retirement_pay = 60_000      (single filer, 70, SC, 2025)
+  adjusted_gross_income            0.0
+  taxable_income                   0.0
+  state_income_tax                 0.0
+  sc_military_deduction_indv   60000.0
+```
+
+**`military_retirement_pay` is not among `gov.irs.gross_income.sources` in
+`policyengine-us` 2.41.3.** Federal AGI is zero on `$60,000` of income the Internal
+Revenue Code taxes as ordinary income — only VA disability compensation is excluded,
+and this is retired pay — and the state then deducts `$60,000` from a base that never
+contained it. A grid row with military pay in it would put the two models a whole
+pension apart on the federal column, and the report would be measuring the harness
+rather than either engine, which is the one thing this harness exists not to do.
+
+So the honest statement of this instrument's reach is narrower than "1,144 households
+across 26 states": it is 1,144 households built from **five income types**, and a sixth
+that **six** of this package's states have special rules for — Arizona, Maryland,
+Michigan, New York, North Carolina and South Carolina — is outside it. That is now a
+section of `tools/differential/README.md` with the measurement in it, three options
+ranked by cost, and the one that was taken: a per-state unit test against the reference
+model's own published fixtures, which compares the SUBTRACTION rather than the tax and
+therefore does not need federal AGI to agree.
+
+**This is the fifth defect this project has found in the model it is checked against —
+Day 2's first one, Day 43's two in Wisconsin, Day 45's in Minnesota, and this — and the
+first that is about what the model cannot be ASKED rather than about what it answers.**
+
+### Part 8 — the prose-figure instrument caught me, which is what it is for, and then its new half caught the instrument
+
+Day 49 built the first instrument over money figures in prose and scoped it to South
+Carolina. Today's notes added about twenty figures to that state, and the instrument
+failed on one: **`$25,000`.**
+
+My derivation for the widow's gap was `2 × $10,000 + $15,000 = $35,000`, and the note
+said `$25,000`. The note was right and the derivation was wrong, and the reason is that
+the gap is **three** amounts, not two: the decedent's `$10,000`, the filer's own
+`$10,000`, and what is left of the senior deduction after the filer's own (A) reduces it
+under (B)'s own words — `$5,000`, not `$15,000`. **The note also said she keeps "the
+whole $15,000", which she does not.** Both are fixed. An instrument that exists to check
+prose against arithmetic caught a sentence of prose and a line of arithmetic disagreeing,
+and the prose was the one that was right.
+
+**Then the instrument was rewritten to say WHICH provenance accounts for a figure, and
+the new half found two dead declarations in the instrument Day 49 built the day
+before.** The first version was a `Set` of numbers: it answers *is this figure
+accounted for* and not *by what*. Two consequences, and the second is the interesting
+one:
+
+1. a wrong figure can be excused by an unrelated coincidence elsewhere in the state; and
+2. a declared household or derivation that no note mentions is invisible.
+
+(2) is Day 49's own defect in instrument form — a value hoisted for a test that the test
+does not read — and asserting the other direction found two of them on its first run:
+`$50,000`, declared as an input that no South Carolina note contains, and the `$12,000`
+behind the senior deduction's `$720`, declared as a derivation that no note cited
+**because the note explained the `$720` as "the deduction, not the income" without ever
+saying how much deduction.** One was deleted and one was answered by making the note say
+its own number. The dead-declaration check is asserted only over the DECLARED sources,
+because parameters and answers are enumerated wholesale and most of them are rightly
+uncited.
+
+### Part 9 — the queued lockfile check, and the drift that was already there
+
+Day 48's worklist item 15 was one line: *assert that each lockfile's version matches its
+`package.json`.* Bumping `us-tax-mcp` from 0.47.0 to 0.48.0 today meant editing its
+lockfile, and the lockfile said **0.46.0**.
+
+**The drift the check was queued against had already happened by the time it was
+queued.** `us-tax-mcp` shipped the whole of Day 49 with a lockfile naming a version one
+behind the package. It is not cosmetic: the lockfile is inside the published tarball, and
+a consumer running `npm ci` against a checkout resolves the version the LOCKFILE names.
+It is the same class as Day 37's stale mutation score — an artefact allowed to drift from
+the thing it describes is worth less than no artefact, because it is believed.
+
+`tools/cross-package/lockfile-versions.mjs` checks both places a lockfile records its own
+version (`version` and `packages[""].version`, because a hand-edit that fixes one and not
+the other is exactly the failure) plus the name, for all three packages, in under a
+second. It is the seventh CI job.
+
+### Part 10 — the fix created a dead parameter, and the label fix is what killed it
+
+The interesting consequence of Part 2, and it was predicted in writing before the audit
+ran rather than discovered by it.
+
+After (C)(1), a 65-year-old's total subtraction is
+`max($15,000, military + min(other, max($0, $10,000 - military)))`. **The `$15,000`
+floor dominates that expression for every household there is.** With no military pay the
+capped part cannot exceed `$10,000`, which is less than `$15,000`; with military pay over
+`$15,000` the cap term is already zero. So **no tax figure anywhere in this package can
+observe South Carolina's `$10,000` parameter any more.** Before today the military
+household was its only tax-visible observer, and today's fix removed it.
+
+Measured rather than reasoned: setting the cap to `5_000` in `src` fails exactly three
+tests, and all three are today's —
+
+```text
+§ 12-6-1171 gets its own detail line, named for its own statute
+policyengine-us agrees on (C)(1), line for line
+every dollar figure in a South Carolina note is accounted for, in one of FOUR ways
+```
+
+— the first two because the DETAIL LINES differ even where the total does not
+(`[4,000; 6,000; 5,000]` against `[4,000; 1,000; 10,000]`), and the third because the
+prose derivation reads the cap. **So the label fix is what keeps the parameter alive in
+the audit. Had I fixed the arithmetic without splitting the line, I would have created a
+survivor — and the two halves of today's work turn out to hold each other up.**
+
+It also says where the `$10,000` becomes observable again in the real statute, which is
+not nowhere: **the surviving spouse of Part 5.** The decedent's `$10,000` is neither
+reduced by the military deduction nor charged against the `$15,000`, so in the law it is
+a figure that moves an answer. The parameter is unobservable *in this engine's input
+shape*, and the input it is missing is the one already queued.
+
+### Part 11 — the other distribution surface got the fix for nothing
+
+`site/` is the static calculator — Day 21's build, Day 22's self-contained release
+artefact, and the second of the two distribution surfaces. It has a **Military retired
+pay** field, passes it to `retirement.filer.militaryRetirement`, and vendors the engine
+from `dist` at build time. So every South Carolina military retiree the calculator
+answers for is corrected today **without a line of site code changing.**
+
+That is the argument for the shape this repository has, stated as a measurement rather
+than as a preference: one engine, three surfaces, and a statute read once.
+
+### Part 13 — the first audit whose every figure was predicted exactly
+
+The prediction was written down before the run finished and is in
+`tools/mutation/STATE-SURVIVORS.md` and above: **1,526 mutants, 1,520 killed, 6 survivors,
+99.6%, the same six, the same line numbers.** The result:
+
+```text
+mutants 1526    killed 1520    survived 6    score 99.6%
+
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Every figure, the identity of all six and all six line numbers. **It is the first run in
+this instrument's history where the whole prediction was right, and the reason is not that
+I predicted better — it is that today added no mutable number**, so 1,526 was a derivation
+rather than a guess. Day 49's rule holds exactly as written: **a count is a derivation and
+a survival is a measurement, and only one of them can be reasoned to.** Today there was
+nothing to reason about on the second half, because nothing new was shipped for the audit
+to be surprised by.
+
+**The one real risk was named in the prediction and it did not bite, for the reason given
+there**: South Carolina's `$10,000` cap is now invisible to every tax figure in the
+package and is killed only by the two tests that assert detail lines and by the prose
+instrument. `check-scores.mjs` passes, `scores.json` carries 1,526 / 1,520 / 6 / 99.6%
+against this build's fingerprint (`7ca02689c3745d37`), and the Day 50 row is in
+`STATE-SURVIVORS.md` and the root README's history.
+
+The run took **92 minutes on four cores** against Day 49's eighty, on 1,526 mutants over
+56 test files, which moves worklist item 15 — select test files per mutant — up the list on
+cost grounds alone.
+
+**And the differential was regenerated against the final build: byte-identical, 7,389
+figures agreeing to the dollar, zero unexplained.** Which it had to be, because the grid
+has no veteran in it — Part 7.
+
+### Process notes
+
+- **The egress proxy blocked every primary source again — nine runs in a row.**
+  `dor.sc.gov`, `dc.statelibrary.sc.gov`, `library.partnertax.ai`, `ftp.zillionforms.com`
+  and `lawserver.com` all refuse, and the two tools fail in the two different ways Day 49
+  recorded: `WebFetch` at DNS (`getaddrinfo ENOTFOUND dor.sc.gov`) and `curl` at the
+  proxy (`CONNECT tunnel failed, response 403`). **`WebSearch` runs server-side and is
+  not subject to the policy**, and it carried the whole day again: § 12-6-1170(C)(1)'s
+  statutory text, the SC1040 line p worksheet structure, SC Revenue Ruling #22-11's
+  sentence about the surviving spouse, and the "reduced by any military retirement
+  deductions taken" instruction all arrived as quoted text from hosts nothing here can
+  open.
+- **PyPI works, and today it was the primary source.** Two wheels, read with `zipfile`
+  and then installed in a virtualenv: 2.41.3 for the current model and **2.15.3, the
+  version the committed grid is pinned to**, to answer whether the hole is new. It is
+  not — both versions model (C)(1) correctly and both leave military retired pay out of
+  federal AGI. A competitor's package is the most reachable primary-adjacent source this
+  sandbox has, and it is now four days running that it has been worth more than a
+  parameter file.
+- **AND I WROTE A WRONG FIGURE INTO TODAY'S COMMIT MESSAGE, which is the fifth day
+  running for this class of error and the first time it reached a commit.** The 2026
+  *before* figure was typed as `$3,201.96` and is `$3,202.00`; the delta is `$521.00` and
+  the typed pair differ by `$521.04`. **It was caught by adding up my own prose**, because
+  `3,723.00 - 3,201.96` is not `521.00` and the sentence claimed it was. The 2026
+  before-value is the only figure in today's work that was never computed by the engine —
+  the engine's `3,723.00` is a test, and `3,202.00` follows from the same two-band schedule
+  — and that is exactly the kind of figure Days 46 to 49 kept catching. The journal above
+  is right; commit `6cc651e`'s message is not, and it stays wrong because history does,
+  which is why it is recorded here. **The standing item is now sharper: the prose
+  instrument covers the package's NOTES, and nothing covers a commit message or this
+  journal** — and a counterfactual figure, "what this package said yesterday", is a FIFTH
+  provenance no instrument can ever compute, because the code that produced it is gone.
+- **Write the failing instrument before the fix** held four times and the first one is
+  the day's best moment: the `$600` and `$60` figures were computed from the statute,
+  written into tests, and the engine came back `3,258.30` against `3,858.30` and
+  `6,498.30` against `6,558.30` — **both deltas exactly as predicted, before any code
+  changed.** The same discipline then caught me from the other side, because the prose
+  instrument failed on a derivation I had written three minutes earlier.
+- **Ask the question of every state in the rule, not of the state the defect was in.**
+  Day 44's method, used twice today: it found New York's label defect, and it found that
+  Michigan must NOT be split. The second is as valuable as the first — a generalisation
+  that does not apply everywhere is a generalisation with a boundary, and the boundary
+  is the thing worth writing down.
+- **Order the work so the measurement is last** held, with one correction to how it is
+  held: the audit mutates `packages/us-state-tax/dist`, so running `npm test` in **any**
+  package that rebuilds or copies that directory would corrupt it mid-run. `site/`'s
+  build copies it. That is now a thing to know rather than a thing to find out, and it is
+  why Part 11 is a reading of the site rather than a run of it.
+- **A dollar figure in prose is checked by the instrument; a BOOLEAN in a declaration is
+  checked by nothing.** The deleted `militaryExemptInFull` is the clearest example this
+  project has produced of the mutation harness's documented limit mattering. The harness
+  publishes its limits beside its score, which is the right thing to do, and today is the
+  first day one of those limits cost something real.
+### Part 12 — the sweep, finished rather than sampled
+
+The label question is "does this rule subtract under two provisions and report under
+one", and the honest version of asking it is to ask every rule in the engine that
+computes an exempt half and a capped half, not just the family the defect was found in.
+There are exactly two:
+
+| rule | states | exempt half | one name or two? |
+| --- | --- | --- | --- |
+| `retirementIncomeSubtractions` | IL, MS, MI, NC, NY, SC | government pension, military pay | **two** for NY and SC, one for MI |
+| `pensionIncomeExclusion` | KY | the pre-1998 service share | **one**, and correctly |
+
+Kentucky's is the interesting negative. Schedule P Part I exempts the pre-1998 share of a
+government pension in full and Part II caps everything else at `$31,110`, which is
+exactly the two-half shape — and the rule is called `Kentucky pension income exclusion
+(Schedule P)`, naming the **form that carries both parts**, under one statute. So the name
+is already the name of the whole provision, which is Michigan's situation reached by a
+different route. Illinois and Mississippi have no cap and North Carolina's whole rule *is*
+the military deduction, so none of the three has anything to split.
+
+**Two of seven declarations needed splitting and five did not, and knowing which five is
+the part that makes the first number trustworthy.**
+
+### What I would do next
+
+1. **An input for income received AS A SURVIVING SPOUSE, and it is first because it is the
+   only household in South Carolina where this package is now too generous to the state —
+   by `$25,000` of deduction.** The shape is two fields on `PersonRetirementIncome`
+   (`survivorPension`, `survivorMilitaryRetirement`) and three rule flags: that the cap is
+   set by the *deceased* spouse's age, that the survivor amounts are not reduced by the
+   military deduction, and that they do not reduce the age-65 deduction. **It is an audit
+   rather than a field**, and the reason is Day 38's defect class: `PersonRetirementIncome`
+   has a closed key set with a compile-time proof that the list matches the interface, and
+   Maryland's `militaryRetirement` is documented as *including* Survivor Benefit Plan
+   payments. So every state that reads a military or pension pool has to say what it does
+   with the new fields, or a Maryland military widow silently loses a subtraction she has
+   today. **The audit is already enumerated — eleven states read military retired pay, in
+   six different rules, and the table below is the agenda rather than the answer.** The
+   engine column is measured from `src`; the statute column is the open question in each
+   row, and the one that needs a document.
+
+   | rule | states | what it does with `person.military` today |
+   | --- | --- | --- |
+   | `retirementIncomeSubtractions` | IL, MS, MI, NC, NY, SC | exempt in full (NY, SC, MI, NC); in the capped pool (IL, MS) |
+   | `militaryRetirementSubtraction` | MD | `$12,500` under 55, `$20,000` at 55 — and its field doc already says it INCLUDES Survivor Benefit Plan payments |
+   | `militaryRetirementExclusion` | GA | base + additional, strictly under 62 |
+   | `retirementIncomeExclusion` | GA | whatever the line above left, in the character pool |
+   | `stateRetirementDeduction` | MO | exempt in full, outside both caps |
+   | `pensionIncomeExclusion` | KY | in the Schedule P Part II capped pool |
+   | `planTypeRetirement` | AL | counted as a defined benefit payment |
+
+   **Maryland is the row that makes this an audit rather than a field, and I resolved it
+   today while the mutation run was going, which collapses the item from a day to an
+   afternoon.** Md. Code, Tax-Gen. § 10-207(q) defines military retirement income to
+   include "death benefits received as a result of military service", a 2006 amendment
+   removed the enlisted-member requirement so that a surviving spouse may claim it for the
+   deceased spouse's service — and **the age test is the SURVIVOR'S OWN age on the last
+   day of the year**, per the Comptroller's Technical Bulletin 51. So Maryland's existing
+   field and cap are already correct for a military widow, and its documentation's promise
+   that SBP payments belong in `militaryRetirement` is right.
+
+   **Which settles the design**: the new fields must default to being treated exactly as
+   the filer's own income in every state that does not declare otherwise. Then Maryland
+   needs no change at all, every other state keeps today's answer, and only a state whose
+   survivor rule genuinely DIFFERS — South Carolina, where the cap is the deceased
+   spouse's age and the two reductions do not apply — reads them differently. Additive,
+   and safe for the nine states nobody has researched yet.
+
+   One thing to check first and NOT to act on from a summary: **two Maryland bills would
+   move that `$20,000`.** HB 60 of the 2025 session (the Keep Our Heroes Home Act) proposed
+   `$25,000` for 2025 and `$40,000` from 2026 regardless of age, and HB 761 of the 2026
+   session proposes `$25,000` for 2026 and `$40,000` for 2027. **Neither is confirmed
+   enacted from anything reachable here**, and Day 47's rule applies in full: a bill that
+   died leaves summaries of what it would have done lying around, and they read exactly
+   like summaries of law. The figure stays at `$20,000` until a document says otherwise.
+   Also unresolved and probably an artefact: a `$200,000` income figure appeared in one
+   quotation of the 2025 statute text and nothing else corroborates an income limit on
+   this subtraction — § 10-207 carries dozens of unrelated subtractions, which is the
+   likeliest explanation.
+2. **Add military retired pay to the differential grid, upward of the reference model's
+   hole** — the three options are ranked in `tools/differential/README.md` and the one not
+   yet taken is the only one that restores the grid: set `military_retirement_pay` AND a
+   pension variable, then subtract the double count the reference model makes, case by
+   case, with the arithmetic in `known-divergences.json`. It is ugly and it is the only
+   way to ask a question of a model that cannot be asked it directly. Worth doing for the
+   six states with military rules, or worth declaring permanently out of reach — but not
+   worth leaving undecided, because an instrument with an undeclared bound is the thing
+   Day 32 and Day 50 both found.
+3. **Carry the named-provenance prose instrument to a second state, and now there is a
+   reason to pick MARYLAND first rather than the hardest one.** Day 49 said Maryland has
+   seventeen notes and the most money figures in the package; today added the argument
+   that matters more: the dead-declaration check found two dead declarations in a
+   one-state instrument on its first run, so the ratio of dead to live declarations is a
+   measurable property of this kind of instrument, and Maryland is where it will be
+   largest.
+4. **Make the prose instrument report the accounting SOURCE on failure.** It now records
+   which provenance accounts for each figure, and still prints only the figure when one is
+   unaccounted. Printing "accounted as: answer pension66.tax" beside each accounted figure
+   would turn it from a checker into a registry, which is what the standing item of Days
+   46 to 49 actually asked for — and it would expose the remaining weakness, that a figure
+   accounted by ANY source passes, so a wrong figure can still be excused by a
+   coincidence.
+5. **The `$166` question**, unchanged from Day 49: measure what South Carolina's `$200`
+   earned income credit cap costs across the whole federal schedule, with
+   `us-federal-tax` producing the federal credit. One script; the cross-package harness
+   exists.
+6. **A `provisionalFigures` shape for a PROVISION rather than a figure**, unchanged from
+   Day 49. `ProvisionalReason` has four values and none of them is *survival*.
+7. **Model A.R.S. § 43-1022(23), Arizona's qualified small business capital gain
+   subtraction** — unchanged from Days 48 and 49.
+8. **Bound Arizona's credits entry by the family income tax credit's INCOME limit** —
+   unchanged from Days 48 and 49.
+9. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+   Days 47 to 49, and the SCOPE half of it is the live question: an entry keyed by
+   household kind should say which states it believes it covers.
+10. **Record a conformity declaration for the other twenty states** — unchanged from Days
+    46 to 49.
+11. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 to 49,
+    worst case `$4,735.905`, every parameter already gathered in
+    `test/minnesota-amt.test.js`.
+12. **The staircase table: every staircase in the package, what it steps on, how wide, and
+    which direction it rounds** — unchanged from Days 45 to 49.
+13. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 to 49. Note that
+    item 1 is a DIFFERENT surviving spouse: this one is about a filing status and that one
+    is about whose income it is, and South Carolina is the first state where both matter.
+14. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days
+    42 to 49, and today is the sixth day running that `mutation-claims` went red for a
+    `src` change that could not have moved a parameter.
+15. **Select test files per mutant** — unchanged. 1,526 mutants x 56 test files, and today
+    the run took about two hours on four cores rather than Day 49's eighty, which makes
+    this the item whose value is growing fastest.
+16. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from
+    Days 40 to 49.
+17. **The twenty-seventh state.** Sixteen jurisdictions left; **Louisiana** is first on the
+    declared list and has the feature that made South Carolina worth two days: its 2025
+    reform moved it to a flat 3% with a large standard deduction, so its two supported
+    years may be two different laws. **Today is the second day in a row that argues for
+    not rushing to it** — Day 49 said breadth bought depth, and today says the depth is
+    still being paid out two days later, out of a state already in.
+
+---
+
 ## Day 49 — 2026-10-13
 
 ### What I did
