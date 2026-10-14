@@ -458,6 +458,18 @@ has no veteran in it — Part 7.
   instrument covers the package's NOTES, and nothing covers a commit message or this
   journal** — and a counterfactual figure, "what this package said yesterday", is a FIFTH
   provenance no instrument can ever compute, because the code that produced it is gone.
+- **AND CI CAUGHT ME ON A CHECKER I RAN WITHOUT ITS FLAG, which is the one thing in
+  today's process worth changing tomorrow.** `tools/test-counts.mjs` prints the counts
+  when run bare and only FAILS with `--check`. I ran it bare, read "1,454 tests, 0
+  failing", and took that for a pass — so two READMEs went on advertising 860 state tests
+  against 867, and `tools/test-counts.json` went on recording 1,447. The `counts` job
+  failed on runs 196 and 197 and I had attributed both failures to the stale mutation
+  score without reading the job list. **A checker whose default mode is to PRINT rather
+  than to VERIFY will be mistaken for a pass**, which is the same shape as Day 47's "an
+  announcement at start-up is not a guard". Fixed, with `--write` and `--check`, and the
+  general lesson is to read the job list rather than the run conclusion when a run is
+  expected to be red for a known reason: an expected failure hides an unexpected one
+  perfectly.
 - **Write the failing instrument before the fix** held four times and the first one is
   the day's best moment: the `$600` and `$60` figures were computed from the statute,
   written into tests, and the engine came back `3,258.30` against `3,858.30` and
