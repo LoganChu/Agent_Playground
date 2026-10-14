@@ -302,6 +302,62 @@ from the federal package so that it is exactly PolicyEngine's own
 Tax. Massachusetts reads the same figure for its own `$2,000` deduction and had
 never been given it either.
 
+## Day 50: the one income type this grid cannot carry, and it is the reference model's fault
+
+**Every case in this grid has a wage, a pension, a Social Security benefit, a
+long-term gain or tax-exempt interest, and not one of the 1,144 has military
+retired pay.** That is not an oversight about households. It is a property of
+the reference model, and it was found by a defect the grid could therefore never
+have caught: South Carolina's § 12-6-1170(C)(1), which charges the § 12-6-1171
+military deduction against the ordinary `$3,000`/`$10,000` retirement cap. This
+package got it wrong for a day and the differential had nothing to say, because
+the question cannot be asked.
+
+In `policyengine-us` 2.41.3, `military_retirement_pay` is **not** one of
+`gov.irs.gross_income.sources`. Measured rather than inferred, in a virtualenv,
+on a single filer of 70 in SC for 2025:
+
+```text
+military_retirement_pay = 60_000
+  adjusted_gross_income            0.0
+  taxable_income                   0.0
+  state_income_tax                 0.0
+  sc_military_deduction_indv       60000.0
+```
+
+Federal AGI is **zero** on `$60,000` of income that the Internal Revenue Code
+taxes as ordinary income — only VA disability compensation is excluded, and this
+is retired pay — and the state then deducts `$60,000` from a base that never
+contained it. So a grid case with military retired pay in it would put the two
+models a whole pension apart on the FEDERAL column, and the report would be
+measuring the harness rather than either engine. That is the one thing this
+harness exists not to do (see "A reason has to be checked against the other
+model" above).
+
+**THE RULE: A DIFFERENTIAL GRID'S COVERAGE IS BOUNDED BY THE REFERENCE MODEL'S
+INPUT SURFACE, AND THAT BOUND IS INVISIBLE UNTIL SOMETHING FALLS THROUGH IT.**
+The honest statement of this instrument's reach is therefore narrower than
+"1,144 households across 26 states": it is 1,144 households built from five
+income types, and a sixth that six states in this package have special rules for
+is outside it. Six — Arizona, Maryland, New York, North Carolina, South Carolina
+and Michigan — all carry military-specific provisions that no row here touches.
+
+What to do about it, in order of what each costs:
+
+1. **A unit test per state against the reference model's own published test
+   fixtures**, which is what `south-carolina.test.js` Part 11 now does: their
+   `sc_retirement_deduction_indv.yaml` case 3 and this package's three detail
+   lines, compared by hand. Cheap, exact, and it does not need federal AGI to
+   agree, because it compares the SUBTRACTION rather than the tax.
+2. **Set both `military_retirement_pay` and a pension variable** for the same
+   dollars, so the pay reaches federal AGI. Rejected for now: the state rules
+   read the pension variables too, so the same dollars would be deducted twice
+   in the reference model and the grid would be comparing against a double
+   count. Their own SC fixtures set the two as separate dollars, which is
+   evidence that this is not the intended wiring.
+3. **Report it upstream.** Outside what this project does on its own — see
+   `NOTES-FOR-HUMAN.md`.
+
 ## Running it
 
 ```bash

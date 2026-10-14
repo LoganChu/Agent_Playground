@@ -104,13 +104,33 @@ const CITATIONS: readonly Citation[] = [
   },
   {
     title:
-      'S.C. Code § 12-6-1170 — subsection (A) the retirement deduction of $3,000 and $10,000, subsection (B) the $15,000 senior deduction reduced by it',
+      'S.C. Code § 12-6-1170(A) — the general retirement deduction, $3,000 at any age and $10,000 from 65, per person',
+    url: 'https://www.scstatehouse.gov/code/t12c006.php',
+  },
+  {
+    title:
+      'S.C. Code § 12-6-1170(B) — the $15,000 senior deduction, of ANY income, reduced by whatever that person deducted under subsection (A)',
     url: 'https://www.scstatehouse.gov/code/t12c006.php',
   },
   {
     title:
       'S.C. Code § 12-6-1171 — military retirement income deducted in full, at any age, under the Workforce Enhancement and Military Recognition Act of 2022',
     url: 'https://www.scstatehouse.gov/code/t12c006.php',
+  },
+  {
+    title:
+      'S.C. Code § 12-6-1170(C)(1) — the deduction allowed by THAT SECTION, (A) and (B) alike, is reduced by whatever is deducted under § 12-6-1171; the reduction does not apply to an amount claimed as a SURVIVING SPOUSE',
+    url: 'https://www.scstatehouse.gov/code/t12c006.php',
+  },
+  {
+    title:
+      'SC1040 Instructions 2025, the line p-1 and p-2 retirement deduction worksheets — line 3 subtracts the military retirement deduction from the age-based cap, before the retirement-income limit; the line p-3 surviving-spouse worksheet does not',
+    url: 'https://dor.sc.gov/sites/dor/files/forms/SC1040Instr_2025.pdf',
+  },
+  {
+    title:
+      'SC Revenue Ruling #22-11 — amounts deducted as a surviving spouse under the general retirement deduction or the military one do not reduce the $15,000 age-65 deduction, and a surviving spouse computes the decedent’s deduction separately from their own, capped by the deceased spouse’s age',
+    url: 'https://dor.sc.gov/sites/dor/files/policies/RR22-11.pdf',
   },
   {
     title:
@@ -204,8 +224,10 @@ const DEPENDENT_EXEMPTION_2025 = 4_930;
 const NOTES_BOTH_YEARS: readonly string[] = [
   'SOUTH CAROLINA TAXES EVERY FILING STATUS ON THE SAME RATE SCHEDULE. The brackets do not widen on a joint return, in either year, which is a fact about the statute (\u00a7 12-6-510) and not an omission here \u2014 and it is the whole of South Carolina\u2019s marriage penalty, because everything else on the return scales. In 2025 a couple at $120,000 pay $4,758.30 against $4,116.60 for two single filers at $60,000 each: $641.70, which is exactly what the graduated schedule is worth to one filer ($3,560 at 6% plus $14,270 at 3%), so the couple lose one filer\u2019s whole schedule. In 2026 the penalty is $965.99 and is the SAME NUMBER SCDOR PRINTS ON THE RATE SCHEDULE: the $966 of "5.21% minus $966" is $30,000 x (5.21% - 1.99%), and a couple who do not get a second $30,000 band pay exactly that. The reported figure is a cent light because the single return\u2019s own tax carries a half-cent that rounds up, twice \u2014 the difference of the answers as reported, not of the figures behind them. Virginia is the only other state in this package that does not widen its brackets.',
   'South Carolina does not tax Social Security benefits at all: the federally taxable amount is subtracted in full, at any age and any income. Pass `taxableSocialSecurity`.',
-  'THE $15,000 SENIOR DEDUCTION IS AN AGE PROVISION AND NOT A RETIREMENT ONE, and every guide files it under retirement income. \u00a7 12-6-1170(B) allows a filer of 65 to deduct $15,000 of ANY income, reduced by whatever that person deducted under subsection (A) \u2014 so the pair is a FLOOR of $15,000 rather than $15,000 on top of the retirement deduction. A single South Carolina filer of 66 with $60,000 pays $1,158.30 whether that $60,000 is pension or wages, and the same person at 50 with the same pension pays $1,878.30, because the retirement deduction alone is $3,000 under 65. The $720.00 difference is the deduction, not the income.',
-  'MILITARY RETIRED PAY IS DEDUCTED IN FULL, AT ANY AGE, WITH NO CAP \u2014 \u00a7 12-6-1171, the Workforce Enhancement and Military Recognition Act of 2022. A single filer with $60,000 of military retired pay and nothing else owes South Carolina NOTHING, at 50 and at 66 alike, where the same $60,000 of civilian government pension costs $1,878.30 at 50. And the senior deduction above is reduced by it, so a military retiree gets no senior deduction at all: the offset takes away a deduction the exemption had already made unnecessary. Pass it as `retirement.filer.militaryRetirement`, not through `retirementIncome`, which cannot tell the two apart.',
+  'THE $15,000 SENIOR DEDUCTION IS AN AGE PROVISION AND NOT A RETIREMENT ONE, and every guide files it under retirement income. \u00a7 12-6-1170(B) allows a filer of 65 to deduct $15,000 of ANY income, reduced by whatever that person deducted under subsection (A) \u2014 so the pair is a FLOOR of $15,000 rather than $15,000 on top of the retirement deduction. A single South Carolina filer of 66 with $60,000 pays $1,158.30 whether that $60,000 is pension or wages, and the same person at 50 with the same pension pays $1,878.30, because the retirement deduction alone is $3,000 under 65. The $720.00 difference is the deduction, not the income: $12,000 more of it \u2014 the $15,000 floor against the $3,000 cap \u2014 at 6%.',
+  'MILITARY RETIRED PAY IS DEDUCTED IN FULL, AT ANY AGE, WITH NO CAP \u2014 \u00a7 12-6-1171, the Workforce Enhancement and Military Recognition Act of 2022. A single filer with $60,000 of military retired pay and nothing else owes South Carolina NOTHING, at 50 and at 66 alike, where the same $60,000 of civilian government pension costs $1,878.30 at 50. Pass it as `retirement.filer.militaryRetirement`, not through `retirementIncome`, which cannot tell the two apart.',
+  'AND IT IS DEDUCTED IN FULL OUT OF A SHARED CAP, WHICH IS THE PART EVERY SUMMARY OF \u00a7 12-6-1171 LEAVES OUT. \u00a7 12-6-1170(C)(1) reduces the deduction allowed by THAT WHOLE SECTION \u2014 (A)\u2019s $3,000/$10,000 general retirement deduction as well as (B)\u2019s $15,000 senior deduction \u2014 by whatever is deducted under \u00a7 12-6-1171, and the 2025 SC1040 instructions apply it on line 3 of the line p-1 and p-2 worksheets, before the retirement-income limit. So a military retiree\u2019s OTHER retirement income is deducted at $0 and not at $10,000: a 65-year-old with $60,000 of retired pay and a $20,000 civilian pension subtracts $60,000, not $70,000. The two rules compose into a FLOOR rather than a sum \u2014 at 65 the total is max($15,000, military + min(other, max($0, $10,000 \u2212 military))) \u2014 so below $5,000 of retired pay the senior deduction fills the hole and the answer is unchanged, and from $20,000 of it the whole $10,000 is gone. Worth $600 of 2025 tax and $521 of 2026 tax at the top rate. This package had it wrong until v0.45.0, and in the taxpayer\u2019s favour, which is the direction a filer hears about from the Department rather than from their software.',
+  'NOT MODELLED \u2014 the SURVIVING-SPOUSE side of both deductions, and it is the one place where the paragraph above runs the other way. A surviving spouse claims the decedent\u2019s \u00a7 12-6-1170(A) deduction on SC1040 line p-3 and the decedent\u2019s \u00a7 12-6-1171 military deduction on a line of its own, SEPARATELY from their own and capped by the DECEASED spouse\u2019s age \u2014 and (C)(1)\u2019s reduction expressly does not apply to an amount claimed as a surviving spouse, so neither of those amounts reduces the other and neither reduces the $15,000 senior deduction (SC Revenue Ruling #22-11). A 65-year-old widow of a career soldier with a pension of her own therefore keeps the military deduction in full, the decedent\u2019s $10,000 and her own $10,000 \u2014 and the $15,000 senior deduction reduced by that last one alone, to $5,000, because (B) reduces it by what SHE deducts under (A) and (C)(1) no longer reaches her. This package has no input for income received AS A SURVIVING SPOUSE, so it treats those dollars as the filer\u2019s own and charges them the shared cap: for that household its answer is too HIGH, by $25,000 of deduction \u2014 $10,000 + $10,000 + $5,000. Supply the difference through `subtractions` until there is a field for it.',
   'The 44% net capital gain deduction (\u00a7 12-6-1150) makes a long-term gain cost 2.9176% in 2026 against 5.21% on a wage, and 3.36% in 2025 against 6%. It is worth $2,292.40 on $100,000 of gain to a 2026 filer in the top band. The base is the IRC \u00a7 1222(11) "net capital gain", so a short-term LOSS eats the deduction and a short-term GAIN cannot create one: pass `netCapitalGain` (Form 1040 line 7) and `shortTermCapitalGains` to split it. Supplying only the net figure treats all of it as long-term, which is the most generous reading and the only one a single netted number supports.',
   'Interest on obligations of the United States is exempt and is NOT modelled as a subtraction here \u2014 pass it through `subtractions`. The same goes for the South Carolina college investment (529) deduction and the subsistence allowance for police, firefighters and emergency personnel.',
   'NOT MODELLED, and the largest gap for a business owner: the \u00a7 12-6-545 reduced rate on active trade or business income. South Carolina taxes income from a pass-through trade or business at a flat rate of its own rather than at the schedule rate, so a South Carolina return with Schedule C, partnership or S corporation income computed here is TOO HIGH by the rate differential on that income.',
@@ -382,11 +404,27 @@ function southCarolinaDefinition(year: number): StateIncomeTaxDefinition {
           { fromAge: 0, cap: 3_000 },
           { fromAge: 65, cap: 10_000 },
         ],
-        // § 12-6-1171(A), the Workforce Enhancement and Military Recognition Act
-        // of 2022: military retired pay comes out IN FULL, uncapped, at any age
-        // — while a civilian federal, state or local pension is charged the
+        // § 12-6-1171, the Workforce Enhancement and Military Recognition Act of
+        // 2022: military retired pay comes out IN FULL, uncapped, at any age —
+        // while a civilian federal, state or local pension is charged the
         // ordinary cap above. New York's construction with the two swapped.
-        militaryExemptInFull: true,
+        //
+        // AND IT COMES OFF THAT CAP. § 12-6-1170(C)(1): "if a taxpayer claims a
+        // deduction pursuant to Section 12-6-1171, then the deduction allowed by
+        // this section must be reduced by the amount the taxpayer deducts
+        // pursuant to Section 12-6-1171" — THIS SECTION, so (A)'s $3,000/$10,000
+        // as well as (B)'s $15,000. The 2025 SC1040 instructions put it on line 3
+        // of the line p-1 and p-2 worksheets, above the retirement-income limit.
+        // Day 49 read § 12-6-1171 as sitting outside the cap because it is a
+        // separate statute with its own form line; it is a separate statute that
+        // SHARES the cap, and the reading was worth up to $10,000 of deduction
+        // and $600 of 2025 tax to every South Carolina military retiree with any
+        // other retirement income.
+        militaryReducesCap: true,
+        // Two statutes, two lines. The $60,000 that comes out under § 12-6-1171
+        // was reported on a line named for § 12-6-1170(A)'s $10,000 deduction,
+        // which is what the published tarball showed on Day 49.
+        exemptInFullName: 'Military retirement deduction',
       },
     ],
     agedIncomeSubtraction: {
@@ -398,6 +436,13 @@ function southCarolinaDefinition(year: number): StateIncomeTaxDefinition {
       // 65-year-old's retirement subtractions rather than $15,000 on top of
       // them — and it asks nothing about the kind of income, so a 65-year-old
       // wage earner subtracts the whole $15,000.
+      //
+      // The MILITARY half of the reduction is not in (B) and was cited to it
+      // here until Day 50. It is § 12-6-1170(C)(1), which reduces the whole
+      // section by the § 12-6-1171 amount — so (B) is reduced by (A) under its
+      // own words and by § 12-6-1171 under (C)(1), and this one flag is doing
+      // two statutes' work. The arithmetic was right and the citation was a
+      // subsection out.
       reducedByRetirementSubtractions: true,
     },
     exemption: {

@@ -599,8 +599,24 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
   // cannot be found automatically: somebody has to say which households a note
   // is about and what each derived figure is derived from. That is the real cost
   // of the item, and it is why this is one state and not a package-wide sweep.
-  const accounted = new Set();
-  const add = (n) => accounted.add(Math.round(n * 100) / 100);
+  // Day 50: the accounting is now NAMED rather than anonymous. The first
+  // version was a `Set` of numbers, which answers "is this figure accounted
+  // for" and not "by what" — so a wrong figure could be excused by an unrelated
+  // coincidence somewhere else in the state, and a declared derivation that no
+  // note mentions was invisible. That second half is Day 49's own defect in
+  // instrument form: a value hoisted for a test that the test does not read.
+  const accounted = new Map();
+  const add = (n, source) => {
+    const key = Math.round(n * 100) / 100;
+    if (!accounted.has(key)) accounted.set(key, new Set());
+    accounted.get(key).add(source);
+  };
+  /** Sources that have to earn their place: a declared one nothing cites is dead. */
+  const declared = new Set();
+  const declare = (n, source) => {
+    declared.add(source);
+    add(n, source);
+  };
 
   // (1) PARAMETERS — every numeric leaf of both definitions.
   for (const year of [2025, 2026]) {
@@ -608,7 +624,7 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
       if (node === null || typeof node !== 'object' || seen.has(node)) return;
       seen.add(node);
       for (const value of Object.values(node)) {
-        if (typeof value === 'number' && Number.isFinite(value)) add(value);
+        if (typeof value === 'number' && Number.isFinite(value)) add(value, 'parameter');
         else walk(value, seen);
       }
     };
@@ -667,27 +683,36 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
       lesserSpouseIncome: 60_000,
     }),
   };
-  for (const r of Object.values(H)) {
-    add(r.tax);
-    add(r.taxBeforeCredits);
-    add(r.deduction);
-    add(r.taxableIncome);
-    add(r.exemptions);
-    for (const s of r.computedSubtractions) add(s.amount);
-    for (const c of r.credits) add(c.amount);
-    for (const a of r.addBacks) add(a.amount);
+  for (const [name, r] of Object.entries(H)) {
+    add(r.tax, `answer ${name}.tax`);
+    add(r.taxBeforeCredits, `answer ${name}.taxBeforeCredits`);
+    add(r.deduction, `answer ${name}.deduction`);
+    add(r.taxableIncome, `answer ${name}.taxableIncome`);
+    add(r.exemptions, `answer ${name}.exemptions`);
+    for (const s of r.computedSubtractions) add(s.amount, `answer ${name}.${s.name}`);
+    for (const c of r.credits) add(c.amount, `answer ${name}.${c.name}`);
+    for (const a of r.addBacks) add(a.amount, `answer ${name}.addBack`);
   }
   // Answers about a PAIR of households, which is what a comparison note quotes.
-  add(H.single50k2025.tax - H.single50k2026.tax);
-  add(H.noGain2026.tax - H.gain2026.tax);
-  add(H.joint120k2025.tax - 2 * H.single60k2025.tax);
-  add(H.joint120k2026.tax - 2 * H.single60k2026.tax);
-  add(H.pension50.tax - H.pension66.tax);
-  add(2 * H.single60k2025.tax);
+  add(H.single50k2025.tax - H.single50k2026.tax, 'answer the reform is worth');
+  add(H.noGain2026.tax - H.gain2026.tax, 'answer what the 44% deduction is worth');
+  add(H.joint120k2025.tax - 2 * H.single60k2025.tax, 'answer the 2025 marriage penalty');
+  add(H.joint120k2026.tax - 2 * H.single60k2026.tax, 'answer the 2026 marriage penalty');
+  add(H.pension50.tax - H.pension66.tax, 'answer what turning 65 is worth');
+  add(2 * H.single60k2025.tax, 'answer two single filers at $60,000');
 
   // (3) INPUTS — the households the sentences are about. Declared, because
   // nothing can infer which numbers in a sentence are its subject.
-  for (const income of [120_000, 100_000, 60_000, 50_000, 45_000, 2_400]) add(income);
+  // $50,000 was in this list until Day 50 and no note cited it. It went out
+  // when the dead-declaration check above found it, which is the check
+  // earning its place on its first run.
+  for (const income of [120_000, 100_000, 60_000, 45_000, 2_400]) {
+    declare(income, `input $${income.toLocaleString('en-US')} of income`);
+  }
+  // The § 12-6-1170(C)(1) note's own household: $60,000 of military retired pay
+  // behind a $20,000 civilian pension, quoted as the pair and as its sum.
+  declare(70_000, 'input the sergeant\u2019s $60,000 and $20,000 together');
+  declare(20_000, 'input the civilian pension behind the retired pay');
 
   // (4) DERIVATIONS — recomputed from the definitions' own parameters rather
   // than listed, so a note's arithmetic is checked and not merely excused.
@@ -696,12 +721,39 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
   const bands2025 = d2025.rate.byStatus.single;
   const bands2026 = d2026.rate.byStatus.single;
   // The width of the 3% band, which is the second band's ceiling less the first's.
-  add(bands2025[1].upTo - bands2025[0].upTo);
+  declare(bands2025[1].upTo - bands2025[0].upTo, 'derivation the width of the 3% band');
   // The continuity constant SCDOR prints: the threshold times the rate step.
-  add(bands2026[0].upTo * (bands2026[1].rate - bands2026[0].rate));
+  declare(
+    bands2026[0].upTo * (bands2026[1].rate - bands2026[0].rate),
+    'derivation the $966 continuity constant',
+  );
   // What one step dollar adds to taxable income: the dollar plus the $10 of
   // deduction it takes with it.
-  add(1 + d2026.deduction.roundReductionDownTo);
+  declare(1 + d2026.deduction.roundReductionDownTo, 'derivation the eleven dollars of a step');
+  // § 12-6-1170(C)(1), priced at both years' top rates. The deduction (C)(1)
+  // takes away is the whole of (A)'s 65-and-over cap, so what it is worth is
+  // that cap at the top rate — and the two years disagree because the schedule
+  // changed and not because the provision did.
+  const sharedCap = d2025.retirementIncomeSubtractions[0].capByAge[1].cap;
+  declare(sharedCap * bands2025[2].rate, 'derivation (C)(1) at the 2025 top rate');
+  declare(sharedCap * bands2026[1].rate, 'derivation (C)(1) at the 2026 top rate');
+  // Where the $15,000 floor stops absorbing (C)(1): the senior deduction less
+  // the cap it is reduced by. Below that much retired pay the hole is filled.
+  declare(
+    d2025.agedIncomeSubtraction.maximum - sharedCap,
+    'derivation where the floor stops absorbing (C)(1)',
+  );
+  // The surviving spouse the package does not model, and the instrument caught
+  // the first version of this one: the gap is THREE amounts, not two. The
+  // decedent's own (A) cap, the filer's own (A) cap — which this package's
+  // (C)(1) reduction destroys and the surviving-spouse carve-out does not — and
+  // what is left of the senior deduction after the filer's own (A) reduces it
+  // under (B)'s own words. $10,000 + $10,000 + $5,000, and the senior deduction
+  // is NOT kept whole, which is what the first draft of the note said.
+  declare(
+    sharedCap * 2 + Math.max(0, d2025.agedIncomeSubtraction.maximum - sharedCap),
+    'derivation what a military widow keeps that this package charges',
+  );
   // The income one $10 step costs at the 3/11 withdrawal rate, TRUNCATED to
   // cents — the prose writes it "$36.66..." with the ellipsis, because the value
   // does not terminate.
@@ -710,14 +762,23 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
     (d2026.deduction.roundReductionDownTo * scidad.tiers.single[0].denominator) /
     scidad.maximum.single;
   add(Math.floor(stepIncome * 100) / 100);
-  // The $12,000 of extra deduction behind the senior note's $720.
-  add(12_000);
+  // The $12,000 of extra deduction behind the senior note's $720 — which was
+  // declared on Day 49 and cited by nothing, because the note explained the
+  // $720 as "the deduction, not the income" without ever saying how much
+  // deduction. The note now says $12,000 and the derivation is live.
+  declare(
+    d2025.agedIncomeSubtraction.maximum - d2025.retirementIncomeSubtractions[0].capByAge[0].cap,
+    'derivation the $12,000 behind the senior $720',
+  );
 
   const unaccounted = [];
+  /** Which sources some note actually cited, for the dead-declaration check. */
+  const cited = new Set();
   for (const year of [2025, 2026]) {
     for (const note of getStateDefinition('SC', year).notes) {
       for (const [, dollars] of note.matchAll(/\$([\d,]+(?:\.\d{2})?)/g)) {
         const figure = Number(dollars.replace(/,/g, ''));
+        for (const source of accounted.get(figure) ?? []) cited.add(source);
         if (!accounted.has(figure)) {
           unaccounted.push(`${year}: $${dollars} in "${note.slice(0, 60)}..."`);
         }
@@ -732,10 +793,197 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
       'household it describes is missing from the list above, or its arithmetic needs writing out ' +
       '— and the first is why this test exists.',
   );
+  // AND THE OTHER DIRECTION, which is Day 49's defect in instrument form: a
+  // household or a derivation declared "for the test" that no note mentions is
+  // a figure nothing reads, sitting in a test file and proving nothing. It is
+  // only asserted for the DECLARED sources — parameters and answers are
+  // enumerated wholesale and most of them are rightly uncited.
+  assert.deepEqual(
+    [...declared].filter((source) => !cited.has(source)).sort(),
+    [],
+    'a declared input or derivation above is cited by no note — either the prose that needed it ' +
+      'was deleted, or it was never the provenance of anything',
+  );
+
   // A coverage test that covers nothing passes.
   const counted = [2025, 2026]
     .flatMap((year) => getStateDefinition('SC', year).notes)
     .join(' ')
     .match(/\$[\d,]+/g);
   assert.ok(counted.length > 25, `only ${counted?.length} dollar figures found in the notes`);
+});
+
+// ---------------------------------------------------------------------------
+// Part 9 — § 12-6-1170(C)(1), the subsection Day 49 did not read
+//
+// Day 49 modelled § 12-6-1171 as an exemption that sits OUTSIDE the ordinary
+// $3,000/$10,000 retirement deduction, on the reasoning that it is a separate
+// statute with its own form line. It is a separate statute, and it is not
+// outside the cap: § 12-6-1170(C)(1) reduces "the deduction allowed by this
+// section" — which is (A) as well as (B) — by whatever the taxpayer deducts
+// under § 12-6-1171. The 2025 SC1040 instructions put that reduction on line 3
+// of the line p-1 and p-2 worksheets, before the retirement income limit.
+//
+// So a military retiree with any other retirement income was given up to
+// $10,000 of deduction South Carolina takes away, which understates the tax —
+// the direction that matters.
+// ---------------------------------------------------------------------------
+
+/** A single filer with `military` of retired pay and `pension` behind it. */
+const sergeant = (year, filerAge, military, pension, agi = 150_000) =>
+  sc({
+    year,
+    agi,
+    filerAge,
+    retirement: { filer: { militaryRetirement: military, employerPlanPension: pension } },
+  });
+
+test('§ 12-6-1170(C)(1): military retired pay comes off the (A) cap, not past it', () => {
+  // 2025, base is federal taxable income plus the $750 OBBBA add-back:
+  // 150,000 - 15,750 + 750 = 135,000. The military pay comes out in full and
+  // leaves NOTHING of the $10,000: max(0, 10,000 - 60,000) = 0. The senior
+  // deduction is then reduced by the $60,000 and is also nothing.
+  //   135,000 - 60,000 = 75,000 taxable
+  //   3% x (17,830 - 3,560) = 428.10, 6% x (75,000 - 17,830) = 3,430.20
+  money(sergeant(2025, 65, 60_000, 20_000).tax, 3_858.3, 'a retired sergeant at 65');
+
+  // AND THE AGE NO LONGER MATTERS FOR THIS HOUSEHOLD, which is the clearest
+  // statement of what (C)(1) does: at 50 the cap is $3,000 instead of $10,000
+  // and the answer is the same, because the military pay has spent both the
+  // cap and the senior deduction.
+  money(sergeant(2025, 50, 60_000, 20_000).tax, 3_858.3, 'the same household at 50');
+
+  // 2026, where the base is federal AGI and the SCIAD is fully phased out:
+  //   150,000 - 60,000 = 90,000 taxable
+  //   1.99% x 30,000 = 597.00, 5.21% x 60,000 = 3,126.00
+  money(sergeant(2026, 65, 60_000, 20_000).tax, 3_723, 'the reform year');
+});
+
+test('the $15,000 floor absorbs (C)(1) below $5,000 of retired pay and not above it', () => {
+  // The two rules compose into a floor: at 65 the total subtraction is
+  // max(15,000, M + min(P, max(0, 10,000 - M))). Below $5,000 of military pay
+  // the senior deduction fills the hole (C)(1) makes and the answer is
+  // unchanged; above it, every dollar of the hole is real.
+  //   135,000 - 15,000 = 120,000 taxable
+  //   428.10 + 6% x (120,000 - 17,830) = 428.10 + 6,130.20
+  money(sergeant(2025, 65, 5_000, 20_000).tax, 6_558.3, 'at the $5,000 boundary');
+  // $6,000 of retired pay: the subtraction is still $15,000, where before this
+  // fix it was $16,000.
+  money(sergeant(2025, 65, 6_000, 20_000).tax, 6_558.3, 'one dollar past the boundary');
+  // $20,000 and above is where the whole $10,000 is gone: the subtraction is
+  // the military pay alone.
+  //   135,000 - 20,000 = 115,000 -> 428.10 + 6% x 97,170 = 6,258.30
+  money(sergeant(2025, 65, 20_000, 20_000).tax, 6_258.3, 'the whole cap gone');
+});
+
+test('a military retiree with NO other retirement income is unaffected by (C)(1)', () => {
+  // The case Day 49 tested, and it was right: with nothing in the pool there is
+  // nothing for the reduced cap to have covered.
+  for (const age of [50, 66]) {
+    const r = sc({
+      year: 2025,
+      agi: 60_000,
+      filerAge: age,
+      retirement: { filer: { militaryRetirement: 60_000 } },
+    });
+    money(r.tax, 0, `military retired pay at ${age}`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Part 10 — the label, found in the published tarball on Day 49
+//
+// The tax was right and the result object said
+//   [{ name: 'Retirement deduction', amount: 60000 }]
+// for $60,000 that comes out under § 12-6-1171 and could never come out under
+// § 12-6-1170(A), whose cap is $10,000. A caller — or a language model — reading
+// that against this package's own documented cap has been handed a
+// contradiction. Two statutes, two lines.
+// ---------------------------------------------------------------------------
+
+test('§ 12-6-1171 gets its own detail line, named for its own statute', () => {
+  const military = sc({
+    year: 2025,
+    agi: 60_000,
+    filerAge: 50,
+    retirement: { filer: { militaryRetirement: 60_000 } },
+  });
+  assert.deepEqual(military.computedSubtractions, [
+    { name: 'Military retirement deduction', amount: 60_000 },
+  ]);
+
+  // And with a civilian pension behind it, the reduced (A) deduction is nothing,
+  // so there is no second line to print rather than a line of zero.
+  assert.deepEqual(sergeant(2025, 65, 60_000, 20_000).computedSubtractions, [
+    { name: 'Military retirement deduction', amount: 60_000 },
+  ]);
+
+  // Both statutes at once: $4,000 of retired pay leaves $6,000 of the $10,000,
+  // and the senior deduction tops the pair up to $15,000. Three lines, three
+  // provisions, and they sum to the subtraction.
+  const both = sergeant(2025, 65, 4_000, 20_000);
+  assert.deepEqual(both.computedSubtractions, [
+    { name: 'Military retirement deduction', amount: 4_000 },
+    { name: 'Retirement deduction', amount: 6_000 },
+    { name: 'Senior deduction (age 65)', amount: 5_000 },
+  ]);
+
+  // A civilian government pension is NOT exempt — § 12-6-1171 is about military
+  // service — so it prints under (A) alone and there is no military line.
+  assert.deepEqual(
+    sc({
+      year: 2025,
+      agi: 60_000,
+      filerAge: 50,
+      retirement: { filer: { governmentPension: 60_000 } },
+    }).computedSubtractions,
+    [{ name: 'Retirement deduction', amount: 3_000 }],
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Part 11 — the same household, answered by an independent model
+//
+// policyengine-us 2.41.3 models § 12-6-1170(C)(1) and publishes a test for it:
+// `sc_retirement_deduction_indv.yaml` case 3, a filer of 70 with $7,000 of
+// taxable pension income and $6,000 of military retired pay, expecting a
+// retirement deduction of $4,000. Run in a virtualenv here, the same household
+// returns
+//
+//   sc_military_deduction_indv     6000
+//   sc_retirement_deduction_indv   4000     <- 10,000 - 6,000, limited by 7,000
+//   sc_senior_exemption            5000     <- 15,000 - 6,000 - 4,000
+//
+// which is this package's three detail lines, to the dollar and in the same
+// decomposition, from a model that is not this one. Day 46's rule is that a
+// provision wants more than one route before it is trusted; this is the fourth
+// for (C)(1), after the statute's own words, the SC1040 line p worksheets and
+// SC Revenue Ruling #22-11.
+//
+// THE FEDERAL SIDE IS WHY THIS IS A UNIT TEST AND NOT A GRID ROW. In
+// policyengine-us 2.41.3 `military_retirement_pay` is not among
+// `gov.irs.gross_income.sources`, so a household whose only income is military
+// retired pay has a federal AGI of ZERO in that model — measured, not inferred:
+// `military_retirement_pay = 60_000` returns `adjusted_gross_income = 0` and
+// then deducts the $60,000 from a state base that never contained it. The
+// differential harness cannot ask the two models about a veteran until that is
+// true on both sides, which is recorded in `tools/differential/README.md`.
+// ---------------------------------------------------------------------------
+
+test('policyengine-us agrees on (C)(1), line for line', () => {
+  // Federal figures for a 70-year-old single filer on $7,000: the standard
+  // deduction covers all of it, so the 2025 South Carolina base is zero and the
+  // interesting part is the subtraction, not the tax.
+  const r = sc({
+    year: 2025,
+    agi: 7_000,
+    filerAge: 70,
+    retirement: { filer: { employerPlanPension: 7_000, militaryRetirement: 6_000 } },
+  });
+  assert.deepEqual(r.computedSubtractions, [
+    { name: 'Military retirement deduction', amount: 6_000 },
+    { name: 'Retirement deduction', amount: 4_000 },
+    { name: 'Senior deduction (age 65)', amount: 5_000 },
+  ]);
+  money(r.tax, 0, 'no tax on $7,000 at 70');
 });

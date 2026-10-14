@@ -263,6 +263,12 @@ export function newYork(year: number): StateIncomeTaxDefinition | undefined {
         cappedMinimumAge: 59.5,
         cap: 20_000,
         governmentPensionExemptInFull: true,
+        // § 612(c)(3)(i) and (ii) are their own provision — uncapped, and with
+        // no age test — so the amount they exempt does not belong on a line
+        // named for the $20,000 of § 612(c)(3-a). The retired police officer at
+        // 45 is the case that makes it plain: $70,000 was reported under a
+        // provision they do not qualify for for another fourteen years.
+        exemptInFullName: 'New York government pension exclusion',
       },
     ],
     householdCredit: {

@@ -198,3 +198,10 @@ jobs:
       # has no guard on it; this is the guard.
       - name: Arizona's own deduction still equals the federal basic one
         run: node tools/cross-package/arizona-deduction.mjs --check
+      # Day 48 queued this and Day 50 found us-tax-mcp's lockfile already two
+      # versions stale. The lockfile ships inside the tarball, so a consumer
+      # running `npm ci` resolves the version IT names rather than the one
+      # `package.json` does. It needs no build, so it runs first in spirit and
+      # last in the file.
+      - name: Each lockfile agrees with its own package.json
+        run: node tools/cross-package/lockfile-versions.mjs --check

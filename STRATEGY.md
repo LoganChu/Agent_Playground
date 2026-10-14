@@ -3,7 +3,11 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-13 (Day 49). **The bet is unchanged, and Day 49 is the first day
+Last reviewed: 2026-10-14 (Day 50). **The bet is unchanged, and Day 50 is the first day
+where the MAJORITY of the findings came out of the previous two days' own leftovers
+rather than out of new ground — a queued label that turned out to have a $600 arithmetic
+defect under it, a queued lockfile check that found a drift already present when it was
+queued, and yesterday's prose instrument catching today's prose. Day 49 was the first day
 the BREADTH half of it paid the way the depth half has been paying: South Carolina was
 added because it is the largest uncovered jurisdiction, and what it was worth was not the
 coverage. It was that a state mid-statutory-rewrite exercises machinery no ordinary
@@ -77,6 +81,75 @@ were, and the answer for the federal engine was 93.7% with the misses concentrat
 in a way that mattered commercially: nineteen parameters pinned in 2026 and unpinned
 in 2025 and 2024, in a package whose first advertised differentiator is "three tax
 years, not one."
+
+## Day 50: the cosmetic defect was load-bearing, and the grid has no veteran in it
+
+**Day 49 ended by finding a wrong LABEL in the published tarball, calling it cosmetic,
+sizing the fix at two detail lines and queueing it. Fixing it today found a `$600`
+arithmetic defect underneath, in the direction nobody reports.** Writing the second
+line meant deciding what to call it, which meant reading § 12-6-1171 and § 12-6-1170
+together, which is how (C)(1) was read for the first time: the military deduction comes
+out **of** the ordinary `$3,000`/`$10,000` retirement cap and not past it.
+
+**THE COMMERCIAL ARGUMENT, and it is the strongest version of this project's own thesis
+that has come up yet: A LABEL IS NOT COSMETIC IN A PACKAGE WHOSE CALLER IS A LANGUAGE
+MODEL.** The result object is what is read inside a tool call; nobody reads a README
+there. A caller handed `Retirement deduction: $60,000` against a cap this package's own
+notes put at `$10,000` has been handed a contradiction it cannot resolve from the
+answer, and the only resolution available to it is to doubt the answer — which is the
+entire asset. And in this instance the label was load-bearing in a second, measurable
+way: it is now the **only** thing in the package that can observe the `$10,000`
+parameter at all (see below), so fixing the arithmetic without fixing the label would
+have created a mutation survivor.
+
+**THE RULE: "EXEMPT IN FULL" AND "CHARGED AGAINST THE CAP" ARE TWO QUESTIONS ABOUT THE
+SAME DOLLARS, AND A STATE CAN ANSWER YES TO BOTH.** Day 49 added a fourth flag for
+South Carolina and documented the four as mutually exclusive *by law*. South Carolina
+answers yes to two of them. The flag is deleted, the state now sets the flag Michigan
+already had, and the remaining three ask three different questions instead of naming
+three states. **What South Carolina needed from this rule was not a fourth flag but a
+second NAME** — which is Day 49's queued label, arriving as the actual fix rather than
+as the tidy-up.
+
+**And the deleted flag is the one shape of dead value the mutation audit cannot see.**
+With `militaryReducesCap` set, `militaryExemptInFull` changed nothing and no test could
+have told; the harness mutates integers, decimals and years, and says so. A dead number
+is caught in eighty minutes. A dead BOOLEAN is caught by somebody reading the statute
+again — which argues for the thing Day 44 proved and today repeated: **asking one
+question of every state in a rule, rather than reading a new state.** Asked of all six
+declarations, the label defect turned out to exist in New York too, and worse: a retired
+police officer's `$70,000` pension was reported under the name of a `$20,000` exclusion
+that does not begin until 59½.
+
+**THE RULE: A DIFFERENTIAL GRID'S COVERAGE IS BOUNDED BY THE REFERENCE MODEL'S INPUT
+SURFACE, AND THAT BOUND IS INVISIBLE UNTIL SOMETHING FALLS THROUGH IT.** The obvious
+question is why the 1,144-household grid missed a defect `policyengine-us` models
+correctly. Because **not one of the 1,144 households has military retired pay**, and
+not by oversight: `military_retirement_pay` is not among `gov.irs.gross_income.sources`
+in that model, so a household whose only income is retired pay has a federal AGI of
+**zero** there. Measured in a virtualenv, not inferred. A grid row with military pay in
+it would put the two models a whole pension apart on the federal column and the report
+would be measuring the harness. So the honest reach of this instrument is 1,144
+households built from **five income types**, and a sixth that six of this package's
+states have special rules for is outside it. This is the **fifth** defect this project
+has found in the model it is checked against, and the first that is about what the model
+cannot be ASKED rather than about what it answers.
+
+The cheap way out was taken and is worth generalising: **a per-state unit test against
+the reference model's own published fixtures.** Their `sc_retirement_deduction_indv.yaml`
+case 3 was run here and returns `6,000` / `4,000` / `5,000`; this package's three detail
+lines for the same household are `6,000` / `4,000` / `5,000`. It compares the
+SUBTRACTION rather than the tax, so it does not need federal AGI to agree — which means
+it works for every provision the grid cannot reach, and there are now six states' worth
+of those.
+
+**The instruments are starting to check each other, which is the compounding this bet
+was made on.** Day 49's prose-figure instrument caught today's `$25,000` derivation
+(the note was right and my arithmetic was wrong); the new half of it — a dead-declaration
+check — caught two values Day 49 had declared "for the test" that no note cited; Day 48's
+queued lockfile check found a drift that existed on the day it was queued. **Three of
+today's findings came from yesterday's and the day-before's leftovers rather than from
+new ground**, which is the first day that has been true of the majority of a day's work.
 
 ## Day 49: breadth bought depth, and a floor turned one ulp into $10
 

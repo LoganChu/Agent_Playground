@@ -1641,13 +1641,29 @@ function retirementSubtractions(
     const subtracted = retirementIncomeBySource(bySource, input, people);
     if (subtracted) {
       takenBySource = subtracted.perPerson;
-      details.push({
-        name:
-          assumed && subtracted.allocationMatters
-            ? `${subtracted.name} (assumed: all of it received by one spouse, and none of it government service — pass \`retirement\` for the exact figure)`
-            : subtracted.name,
-        amount: subtracted.amount,
-      });
+      // Two statutes, two lines — and the exempt one first, because it is the
+      // one that is uncapped and the one a reader is most likely to be checking
+      // against a published cap. A line of zero is not printed: an exempt half
+      // of nothing means the state's second provision did not reach this
+      // household, which is not the same as reaching it for $0.
+      const named = subtracted.exemptName !== undefined;
+      if (named && subtracted.exempt > 0) {
+        details.push({ name: subtracted.exemptName as string, amount: subtracted.exempt });
+      }
+      const rest = named ? subtracted.capped : subtracted.exempt + subtracted.capped;
+      if (rest > 0) {
+        details.push({
+          // The assumption is about who received what, and only a CAPPED figure
+          // can change with the answer: an exempt-in-full half is the same
+          // amount however it is allocated. So the warning goes on the line it
+          // is about rather than on both.
+          name:
+            assumed && subtracted.allocationMatters
+              ? `${subtracted.name} (assumed: all of it received by one spouse, and none of it government service — pass \`retirement\` for the exact figure)`
+              : subtracted.name,
+          amount: rest,
+        });
+      }
     }
   }
 
@@ -1704,8 +1720,15 @@ function retirementIncomeBySource(
   people: readonly RetirementPerson[],
 ):
   | {
+      /** The name of the capped part — the rule's own name. */
       readonly name: string;
-      readonly amount: number;
+      /**
+       * The name of the exempt-in-full part, where it is a provision of its own.
+       * Absent means the two halves share one line, which is Michigan.
+       */
+      readonly exemptName: string | undefined;
+      readonly exempt: number;
+      readonly capped: number;
       /** What each person took, for an {@link AgedIncomeSubtractionRule} offset. */
       readonly perPerson: ReadonlyMap<RetirementPerson, number>;
       readonly allocationMatters: boolean;
@@ -1737,14 +1760,14 @@ function retirementIncomeBySource(
     person: RetirementPerson,
   ): { readonly exempt: number; readonly chargedFirst: number; readonly pool: number } => {
     const governmentExempt = rule.governmentPensionExemptInFull === true;
-    // Three flags, three states, and South Carolina's is the one that exempts
-    // military retired pay WITHOUT exempting a civilian government pension —
-    // § 12-6-1171(A) against § 12-6-1170(A)(1). So the retired sergeant's
-    // $60,000 leaves the return whole and the retired state trooper's is charged
-    // the ordinary $3,000/$10,000 cap, on the same street as in New York and
-    // with the two swapped.
-    const militaryExempt =
-      governmentExempt || rule.militaryReducesCap === true || rule.militaryExemptInFull === true;
+    // Two flags, and South Carolina is the state that exempts military retired
+    // pay WITHOUT exempting a civilian government pension — § 12-6-1171 against
+    // § 12-6-1170(A)(1). So the retired sergeant's $60,000 leaves the return
+    // whole and the retired state trooper's is charged the ordinary
+    // $3,000/$10,000 cap, on the same street as in New York and with the two
+    // swapped. What the sergeant's pay does NOT do is leave the cap alone:
+    // § 12-6-1170(C)(1) charges it, which is `militaryReducesCap`.
+    const militaryExempt = governmentExempt || rule.militaryReducesCap === true;
     // New York's $20,000 opens at 59½ and its exemption of a government pension
     // does not, so the age test belongs to the pool and not to the rule.
     const oldEnough =
@@ -1798,16 +1821,20 @@ function retirementIncomeBySource(
     rule: RetirementIncomeSubtractionRule,
     parts: readonly { readonly exempt: number; readonly chargedFirst: number; readonly pool: number }[],
     age: number | undefined,
-  ): number => {
+  ): { readonly exempt: number; readonly capped: number } => {
     const exempt = parts.reduce((sum, p) => sum + p.exempt, 0);
     const charged = parts.reduce((sum, p) => sum + p.chargedFirst, 0);
     const pool = parts.reduce((sum, p) => sum + p.pool, 0);
     const room = Math.max(0, capOf(rule, age) - charged) * (rule.capMultiplier ?? 1);
-    return exempt + Math.min(pool, room);
+    // The two halves are kept apart all the way out rather than added here,
+    // because {@link RetirementIncomeSubtractionRule.exemptInFullName} names
+    // them after two different statutes and the sum cannot be unmade later.
+    return { exempt, capped: Math.min(pool, room) };
   };
 
   for (const rule of rules) {
-    let amount = 0;
+    let exempt = 0;
+    let capped = 0;
     // What each person took, for South Carolina's § 12-6-1170(B) offset — the
     // senior deduction is reduced by the amount THAT PERSON deducted and not by
     // the return's total, so a couple where one spouse holds the whole pension
@@ -1820,11 +1847,11 @@ function retirementIncomeBySource(
       const ages = people.map((p) => p.age).filter((a): a is number => a !== undefined);
       const oldest = ages.length > 0 ? Math.max(...ages) : undefined;
       if (!qualifies(rule, oldest)) continue;
-      amount = against(
+      ({ exempt, capped } = against(
         rule,
         people.map((person) => split(rule, person)),
         oldest,
-      );
+      ));
     } else {
       // Per person, with a cap each and no transfer between them: unused room is
       // lost. That is why the same `$40,000` of New York pension is excluded in
@@ -1832,14 +1859,20 @@ function retirementIncomeBySource(
       for (const person of people) {
         if (!qualifies(rule, person.age)) continue;
         const taken = against(rule, [split(rule, person)], person.age);
-        perPerson.set(person, (perPerson.get(person) ?? 0) + taken);
-        amount += taken;
+        // The § 12-6-1170(B) offset is by what THIS PERSON deducted, and both
+        // halves count: (C)(1) names the § 12-6-1171 amount explicitly.
+        const total = taken.exempt + taken.capped;
+        perPerson.set(person, (perPerson.get(person) ?? 0) + total);
+        exempt += taken.exempt;
+        capped += taken.capped;
       }
     }
-    if (amount <= 0) continue;
+    if (exempt + capped <= 0) continue;
     return {
       name: rule.name,
-      amount,
+      exemptName: rule.exemptInFullName,
+      exempt,
+      capped,
       perPerson,
       // A capped or source-sensitive rule gives two different answers for the
       // same household total depending on who received what, so a caller who
@@ -1847,8 +1880,7 @@ function retirementIncomeBySource(
       allocationMatters:
         rule.cap !== undefined ||
         rule.capByAge !== undefined ||
-        rule.governmentPensionExemptInFull === true ||
-        rule.militaryExemptInFull === true,
+        rule.governmentPensionExemptInFull === true,
     };
   }
   return undefined;

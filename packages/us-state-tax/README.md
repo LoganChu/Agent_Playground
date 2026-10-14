@@ -7,6 +7,14 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.45.0: **South Carolina's military retirement deduction is NOT outside the retirement cap — it comes out of it, and reading it the other way was worth up to `$10,000` of deduction to every military retiree with any other retirement income.**
+
+§ 12-6-1171 deducts military retired pay in full, uncapped, at any age; v0.44.0 modelled it as sitting *beside* the ordinary `$3,000`/`$10,000` retirement deduction of § 12-6-1170(A), on the reasoning that it is a separate statute with its own form line. It is a separate statute **that shares the cap**: § 12-6-1170(C)(1) reduces "the deduction allowed by this section" — (A) as well as (B) — by whatever is deducted under § 12-6-1171, and the 2025 SC1040 instructions apply it on line 3 of the line p-1 and p-2 worksheets, above the retirement-income limit. A 65-year-old with `$60,000` of retired pay and a `$20,000` civilian pension subtracts **`$60,000`, not `$70,000`**, and pays `$3,858.30` for 2025 where this package said `$3,258.30`. The two rules compose into a **floor**, not a sum — at 65 the total is `max($15,000, military + min(other, max($0, $10,000 - military)))` — so below `$5,000` of retired pay the senior deduction fills the hole and the answer does not move at all, and from `$20,000` of it the whole `$10,000` is gone. **The correction raises tax, which is the direction a filer otherwise hears about from the Department rather than from their software.** Four routes agreed before it was written: the statute's own words, the SC1040 line p worksheets, SC Revenue Ruling #22-11, and `policyengine-us` 2.41.3, whose answer for the same household is this package's three detail lines to the dollar.
+
+**And the same release gives a provision subtracted under TWO statutes a detail line for each, in South Carolina and in New York.** v0.44.0 reported `$60,000` of § 12-6-1171 military pay as `{ name: 'Retirement deduction', amount: 60000 }` — one line, named for a provision this package documents as capped at `$10,000`. New York's was worse: a retired police officer's `$70,000` government pension was reported under the name of the § 612(c)(3-a) exclusion, which is `$20,000` and which a 45-year-old does not qualify for for another fourteen years. The tax was right both times and the **label was a whole statute out**, which matters most for the caller this package is built for: a language model reads the result object, not the README. Michigan keeps one line, because its public-pension and military parts are the same deduction on the same Form 4884 line.
+
+**NOT MODELLED, and now declared: the surviving-spouse side of both deductions.** A surviving spouse claims the decedent's § 12-6-1170(A) deduction separately from their own, capped by the *deceased* spouse's age, and (C)(1)'s reduction expressly does not reach an amount claimed as a surviving spouse. So a 65-year-old widow of a career soldier with a pension of her own keeps the military deduction in full, the decedent's `$10,000`, her own `$10,000`, and `$5,000` of the senior deduction — `$25,000` more of deduction than this package gives her, because there is no input for income received *as a surviving spouse*. It is in the state's notes with the arithmetic, so it can be supplied through `subtractions`.
+
 New in 0.44.0: **SOUTH CAROLINA, whose two supported years are two different LAWS — and whose 5.21% top rate is a 57.31% marginal rate on one dollar in every thirty-seven.**
 
 Act 110 of 2026 (H.4216), signed 30 March 2026, moved South Carolina's starting point from federal **taxable** income to federal **AGI**, replaced a three-bracket schedule (0%/3%/6%) with two (1.99%/5.21%), put a new state deduction — the **SCIAD** — where the federal standard deduction had been, and **capped the state earned income credit at `$200`** where it had been 125% of the federal credit with no ceiling. A single filer on `$50,000` pays `$1,458.30` for 2025 and `$999.21` for 2026.
@@ -18,7 +26,7 @@ Act 110 of 2026 (H.4216), signed 30 March 2026, moved South Carolina's starting 
 Three more things a rate table cannot hold:
 
 - **The `$15,000` senior deduction is an AGE provision, not a retirement one.** § 12-6-1170(B) deducts `$15,000` of **any** income at 65, *reduced by* whatever that person deducted under subsection (A) — so the pair is a **floor** rather than an addition. At 66 a South Carolina filer with `$60,000` pays `$1,158.30` whether that `$60,000` is wages or pension; the same person at 50 pays `$1,878.30`, because the retirement deduction alone is `$3,000` under 65 and `$10,000` from 65.
-- **Military retired pay is deducted in full, uncapped, at any age** (§ 12-6-1171), and it consumes the senior deduction it makes unnecessary. A single filer with `$60,000` of military retired pay owes South Carolina **nothing** at 50 and at 66 alike; the same `$60,000` as a civilian government pension costs `$1,878.30` at 50.
+- **Military retired pay is deducted in full, uncapped, at any age** (§ 12-6-1171), and it consumes both the senior deduction and the ordinary retirement cap it makes unnecessary — § 12-6-1170(C)(1), which is the correction in 0.45.0 above. A single filer with `$60,000` of military retired pay owes South Carolina **nothing** at 50 and at 66 alike; the same `$60,000` as a civilian government pension costs `$1,878.30` at 50.
 - **44% of net capital gain comes out** (§ 12-6-1150), which makes a long-term gain cost **2.9176%** in 2026 against 5.21% on a wage — `$2,292.40` on `$100,000` of gain. The base is the IRC § 1222(11) term, so a short-term **loss** eats the deduction and a short-term **gain** cannot create one.
 
 **For 2025 the conformity date still bites and for 2026 it cannot.** § 12-6-40(A)(1)(a) reads the Internal Revenue Code as amended through **31 December 2024**, so a 2025 return adds back the One Big Beautiful Bill Act's increase in the standard deduction, all four of its Schedule 1-A deductions and the § 199A deduction § 12-6-50 names outright. The 2026 return starts at federal AGI, which is *above* every one of them — so **Act 110 cured a conformity gap by moving the starting line instead of moving the date**, and the date is unchanged.
@@ -669,7 +677,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.44.0/us-state-tax-0.44.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.45.0/us-state-tax-0.45.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2862,7 +2870,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **689** notes every
+`test/notes.test.js` pins the first 72 characters of all **693** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2888,7 +2896,7 @@ reads, and all 21 of them are now required to equal a figure the rule actually h
 
 Every figure here was already cited to a statute or a state release. What nothing said
 was **which document any one figure came from**. Today the ledger covers 4,629 numeric
-figures over 70 state-years, against 476 citations; when it was written there was no
+figures over 70 state-years, against 484 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**

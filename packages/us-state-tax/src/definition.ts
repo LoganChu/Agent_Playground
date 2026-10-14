@@ -3050,23 +3050,6 @@ export interface RetirementIncomeSubtractionRule {
    */
   readonly capByAge?: readonly { readonly fromAge: number; readonly cap: number }[];
   /**
-   * Military retired pay is subtracted **in full, outside the cap, with no age
-   * test** — South Carolina's § 12-6-1171(A), the Workforce Enhancement and
-   * Military Recognition Act of 2022.
-   *
-   * **Three flags on this rule, three states, three answers about the same
-   * dollars, and they are mutually exclusive by law rather than by convention.**
-   * New York exempts GOVERNMENT service in full and leaves the `$20,000` intact
-   * for everything else ({@link governmentPensionExemptInFull}). Michigan
-   * exempts military pay and charges it against the shared cap, so a second
-   * pension behind a military one is worth less ({@link militaryReducesCap}).
-   * South Carolina exempts military pay in full and charges a civilian
-   * government pension the ordinary `$3,000`/`$10,000` — so a retired South
-   * Carolina sergeant pays nothing on `$60,000` of retired pay and a retired
-   * South Carolina state trooper pays on `$50,000` of theirs.
-   */
-  readonly militaryExemptInFull?: boolean;
-  /**
    * A fraction of {@link cap}, applied **after** {@link militaryReducesCap} has
    * taken military retired pay off it — which is the order Michigan's Worksheet
    * 3.3 uses, and it is not the same as scaling the cap first.
@@ -3089,14 +3072,48 @@ export interface RetirementIncomeSubtractionRule {
    */
   readonly governmentPensionExemptInFull?: boolean;
   /**
+   * The name of the detail line for the part this rule exempts **in full**,
+   * where that part is a provision of its own rather than a wider reading of
+   * the same one.
+   *
+   * **This exists because a rule that subtracts under two statutes and reports
+   * under one has told the caller something false about the law while getting
+   * the tax right.** South Carolina's `$60,000` of military retired pay came out
+   * of the shipped package on a line named `Retirement deduction`, which is
+   * § 12-6-1170(A) and is capped at `$10,000`; the money comes out under
+   * § 12-6-1171, which is uncapped. New York's is worse: a `$70,000` government
+   * pension was reported under the name of the § 612(c)(3-a) exclusion, which is
+   * `$20,000` and which a 45-year-old retired police officer does not qualify
+   * for at all.
+   *
+   * Absent means one line, and **Michigan is why that is the default rather
+   * than an omission**: its public-pension and military parts are the same
+   * deduction on the same Form 4884 line, so splitting them would invent a
+   * provision the state does not have.
+   */
+  readonly exemptInFullName?: string;
+  /**
    * Military retired pay is subtracted in full **and comes off the cap** that
-   * everything else shares — Michigan's Form 4884 line 3.
+   * everything else shares — Michigan's Form 4884 line 3, and South Carolina's
+   * § 12-6-1170(C)(1).
    *
    * It is the one construction here that makes a second pension worth less
    * because the first one was military: a Michigan couple with `$135,220` of
    * military retired pay have no room left for an IRA, where a couple with
    * `$135,220` of private pension are in exactly the same place. The difference
    * only appears above the cap.
+   *
+   * **THE RULE: "EXEMPT IN FULL" AND "CHARGED AGAINST THE CAP" ARE TWO
+   * QUESTIONS ABOUT THE SAME DOLLARS, AND A STATE CAN ANSWER YES TO BOTH.** Day
+   * 49 added a fourth flag, `militaryExemptInFull`, on the reading that South
+   * Carolina's § 12-6-1171 sits outside § 12-6-1170(A)'s `$3,000`/`$10,000`
+   * because it is a separate statute with its own form line. It is a separate
+   * statute, and § 12-6-1170(C)(1) reduces "the deduction allowed by this
+   * section" by whatever is deducted under it — so the two statutes share one
+   * cap after all, which is exactly what this flag already did for Michigan.
+   * The flag was deleted on Day 50 and the `$10,000` it was handing out came
+   * back. What South Carolina genuinely needed from this rule was not a fourth
+   * flag but a second NAME: see {@link exemptInFullName}.
    */
   readonly militaryReducesCap?: boolean;
 }

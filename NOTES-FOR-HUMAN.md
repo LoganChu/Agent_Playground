@@ -13,6 +13,111 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 50 nothing is waiting on you except the network ask below and ONE NEW
+OPTIONAL ONE (item 6), and today's headline is that yesterday's cosmetic defect had a
+$600 one underneath it, in the direction nobody reports.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.45.0**, `us-tax-mcp` **v0.48.0**.
+**1,454 tests**, all passing. No state was added today; 26 taxing states and 35 in all,
+unchanged.
+
+**1. Yesterday I found a wrong LABEL in the published package and wrote it down instead
+of fixing it. Fixing it today found a wrong NUMBER under it.** The label said `$60,000`
+of military retired pay came out under South Carolina's general retirement deduction,
+which is capped at `$10,000`; it actually comes out under a different statute, which is
+uncapped. The tax was right, so I called it cosmetic and queued it.
+
+Writing the correct label meant reading the two statutes together, and the second one
+has a subsection I had not read: **§ 12-6-1170(C)(1) reduces the general `$3,000`/`$10,000`
+retirement deduction by whatever the military deduction takes.** I had modelled the
+military deduction as sitting *beside* that cap rather than coming out of it. So a
+65-year-old with `$60,000` of military retired pay and a `$20,000` civilian pension was
+given `$70,000` of deduction where South Carolina allows `$60,000` — **`$600` of 2025 tax
+and `$521` of 2026 tax, understated.**
+
+**The direction is the thing I would most want you to notice.** Every correction in this
+area so far has made somebody's bill too high. This one made a veteran's too LOW, which
+is the error no customer reports and no support ticket describes. It bites every South
+Carolina military retiree with any other retirement income, and it was in the package for
+exactly one day.
+
+**2. The defect has a sharp edge, and the edge is `$5,000`.** The two rules compose into a
+floor rather than a sum: below `$5,000` of military retired pay the `$15,000` senior
+deduction fills the hole and the answer does not move at all; at `$6,000` it is `$60` of
+tax; from `$20,000` the whole `$10,000` is gone. That is a measured boundary in a test,
+not an estimate.
+
+**3. The same question, asked of every state with that shape, found the same label defect
+in New York — and worse.** A retired New York City police officer who left at 45 on a
+`$70,000` pension pays New York nothing, and this package reported their whole pension
+under the name of a `$20,000` exclusion that does not begin until 59½. Both states now
+print a line per statute. Michigan does not, and should not: there the two halves really
+are one deduction on one form line.
+
+**This is the part that is about the product rather than about tax.** The result object is
+what a language model reads inside a tool call. A caller handed "Retirement deduction:
+$60,000" against a cap this package's own notes put at `$10,000` has a contradiction it
+cannot resolve, and the only way out is to doubt the answer. No README fixes that, because
+nobody reads a README inside a tool call.
+
+**4. I found a household where this package is now too GENEROUS to the state, and it is
+the same statute read the other way.** The reduction above expressly does not apply to an
+amount claimed as a **surviving spouse** — so a 65-year-old widow of a career soldier with
+a pension of her own keeps the military deduction in full, the decedent's `$10,000`, her
+own `$10,000` and `$5,000` of the senior deduction: **`$25,000` more of deduction than
+this package gives her.** It is written into the state's notes with the arithmetic, so a
+caller can supply it, and it is not modelled because there is no input anywhere in this
+engine for income received *as a surviving spouse* — adding one obliges every state that
+reads a pension pool to say what it does with it, or a Maryland military widow silently
+loses a subtraction she has today. That is an audit, not a field, and it is first on
+tomorrow's list.
+
+**5. Four independent routes agreed before I wrote a line of it, and the fourth was a
+competitor's own test.** The statute's words, the SC1040 worksheet instructions, a South
+Carolina Revenue Ruling, and `policyengine-us` 2.41.3 — whose answer for the same
+household is this package's three subtraction lines **to the dollar and in the same
+decomposition**. It is pinned as a test, and it is only comparable at all because of the
+label fix: before today this package answered with two lines where theirs has three.
+
+**6. A NEW OPTIONAL ASK, and it is a finding about somebody else's software rather than a
+favour.** The model this project checks itself against, `policyengine-us`, **leaves
+military retired pay out of federal AGI entirely.** Measured, not inferred — a single
+filer of 70 with `$60,000` of military retired pay and nothing else:
+
+```text
+military_retirement_pay = 60_000
+  adjusted_gross_income            0.0
+  taxable_income                   0.0
+  sc_military_deduction_indv   60000.0
+```
+
+Military retired pay is ordinary taxable income federally; only VA disability
+compensation is excluded. So their model computes a state answer on a base that never
+contained the pay, and then subtracts it. **If you would like to report it, the
+reproduction above is the whole bug report** — their repository is
+`PolicyEngine/policyengine-us`, the variable is `military_retirement_pay`, and the fix is
+one line in `gov/irs/gross_income/sources.yaml`. I cannot open an issue myself; I do not
+contact people. Nothing here depends on it.
+
+**It also bounds one of my own instruments, which is why I chased it.** The 1,144-household
+differential grid has no veteran in it and could not have — a grid row with military pay
+would put the two models a whole pension apart on the federal column and the report would
+be measuring my harness instead of either engine. **THE RULE: a differential grid's
+coverage is bounded by the reference model's input surface, and that bound is invisible
+until something falls through it.** Six of this package's states have military-specific
+rules and none of them is reachable by that grid. It is now written down where the grid
+is, with the three ways out ranked by cost.
+
+**7. A check I queued two days ago found a defect that was already there when I queued
+it.** Day 48's list ended with "assert that each lockfile's version matches its
+package.json". Bumping the MCP server's version today meant editing its lockfile, and the
+lockfile said **0.46.0** against a package at 0.47.0 — stale for the whole of Day 49, with
+nothing to say so. The lockfile travels inside the published tarball, so `npm ci` against
+a checkout resolves the version the lockfile names. There is now a check, it takes under a
+second, and it is the seventh CI job.
+
+---
+
 **As of Day 49 nothing is waiting on you except the network ask below, and today's
 headline is that South Carolina rewrote its income tax in March 2026 — so this package's
 two supported years for that state are two different laws, and its 5.21% top rate hides a

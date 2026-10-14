@@ -243,7 +243,12 @@ test('a New York government pension is exempt in full, over and above the $20,00
     filerAge: 70,
     retirement: { filer: { governmentPension: 90_000, employerPlanPension: 20_000 } },
   });
-  money(subtracted(result, 'New York pension'), 110_000);
+  // 'New York' rather than 'New York pension': since Day 50 the government
+  // half is a line of its own, named for § 612(c)(3)(i), and the $20,000 line
+  // carries only what § 612(c)(3-a) actually gives.
+  money(subtracted(result, 'New York'), 110_000);
+  money(subtracted(result, 'New York government pension'), 90_000, 'the exempt half');
+  money(subtracted(result, 'New York pension and annuity'), 20_000, 'the capped half');
   money(result.tax, 0);
 });
 
@@ -253,14 +258,16 @@ test('New York exempts a government pension at 45 and gives nothing else until 5
     filerAge: 45,
     retirement: { filer: { governmentPension: 70_000 } },
   });
-  money(subtracted(officer, 'New York pension'), 70_000);
+  money(subtracted(officer, 'New York'), 70_000);
+  // And NOT on the $20,000 line, which is the point of the case.
+  money(subtracted(officer, 'New York pension and annuity'), 0, 'nothing from (3-a) at 45');
   money(officer.tax, 0);
 
   const privateSector = run('NY', 70_000, {
     filerAge: 45,
     retirement: { filer: { employerPlanPension: 70_000 } },
   });
-  money(subtracted(privateSector, 'New York pension'), 0);
+  money(subtracted(privateSector, 'New York'), 0);
   assert.ok(privateSector.tax > 2_500);
 });
 
@@ -269,7 +276,11 @@ test('New York military retired pay is federal service and is exempt in full', (
     filerAge: 55,
     retirement: { filer: { militaryRetirement: 60_000 } },
   });
-  money(subtracted(result, 'New York pension'), 60_000);
+  // Military retired pay is federal service, so it comes out under
+  // § 612(c)(3)(ii) and prints on the government line — at 55, four and a half
+  // years before § 612(c)(3-a) is available at all.
+  money(subtracted(result, 'New York government pension'), 60_000);
+  money(subtracted(result, 'New York pension and annuity'), 0, 'not from (3-a) at 55');
 });
 
 // ---------------------------------------------------------------------------
@@ -515,4 +526,65 @@ test('no other state reads it, because this package will not assert a list of 28
     const bonds = run(state, 60_000, { filerAge: 70, outOfStateMunicipalInterest: 10_000 });
     money(bonds.tax, plain.tax, `${state} should ignore it until it is verified`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// The label, asked of every state in this rule rather than of the one it was
+// found in.
+//
+// Day 49 found South Carolina reporting $60,000 of § 12-6-1171 military pay on
+// a detail line named for § 12-6-1170(A)'s $10,000 deduction. New York has the
+// same shape and the same defect, and it is worse here: § 612(c)(3)(i) is
+// uncapped and available at any age, and the line it was printed on names the
+// § 612(c)(3-a) exclusion, which is $20,000 and starts at 59½. So a retired
+// police officer's $70,000 was reported under a $20,000 provision they do not
+// yet qualify for.
+//
+// Michigan is the state in this rule that does NOT have the defect, and the
+// reason is worth keeping: its public-pension and military parts are the same
+// deduction on the same Form 4884 line, so one name is the whole truth.
+// ---------------------------------------------------------------------------
+
+test('a New York government pension is named for its own statute, not for the $20,000', () => {
+  const result = run('NY', 110_000, {
+    filerAge: 70,
+    retirement: { filer: { governmentPension: 90_000, employerPlanPension: 20_000 } },
+  });
+  assert.deepEqual(result.computedSubtractions, [
+    { name: 'New York government pension exclusion', amount: 90_000 },
+    { name: 'New York pension and annuity exclusion', amount: 20_000 },
+  ]);
+
+  // The officer who retired at 45: one line, and it is no longer the line for a
+  // provision that is fourteen years away.
+  const officer = run('NY', 70_000, {
+    filerAge: 45,
+    retirement: { filer: { governmentPension: 70_000 } },
+  });
+  assert.deepEqual(officer.computedSubtractions, [
+    { name: 'New York government pension exclusion', amount: 70_000 },
+  ]);
+
+  // And the private-sector retiree at 70 keeps the one line they always had.
+  const privateSector = run('NY', 70_000, {
+    filerAge: 70,
+    retirement: { filer: { employerPlanPension: 70_000 } },
+  });
+  assert.deepEqual(privateSector.computedSubtractions, [
+    { name: 'New York pension and annuity exclusion', amount: 20_000 },
+  ]);
+});
+
+test("Michigan's two halves are one deduction and keep one name", () => {
+  // Form 4884 has no separate line for the public-pension part, so splitting it
+  // would invent a provision. Tier one, a $200,000 public pension and $100,000
+  // private, one name — and the cap is what the private part gets.
+  const result = run('MI', 300_000, {
+    filerAge: 85,
+    year: 2026,
+    retirement: { filer: { governmentPension: 200_000, employerPlanPension: 100_000 } },
+  });
+  const lines = result.computedSubtractions.filter((s) => s.name.includes('Michigan'));
+  assert.equal(lines.length, 1, 'one line');
+  money(lines[0].amount, 200_000 + 67_610);
 });

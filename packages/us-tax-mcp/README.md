@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.47.0/us-tax-mcp-0.47.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.48.0/us-tax-mcp-0.48.0.tgz"
       ]
     }
   }
@@ -155,6 +155,29 @@ tool says in its own output rather than only here.
 ---
 
 ## State tax: the rate is the easy part
+
+**New in 0.48.0 — a provision subtracted under two statutes now answers with a
+line for each, and South Carolina's military retirement deduction comes out of
+the retirement cap rather than past it.** Asked about a 65-year-old South
+Carolina filer with `$60,000` of military retired pay and a `$20,000` civilian
+pension, this server used to answer `$3,258.30` with one subtraction line reading
+`Retirement deduction: $60,000` — a name belonging to § 12-6-1170(A), which is
+capped at `$10,000`, for money that comes out under § 12-6-1171, which is
+uncapped. It now answers `$3,858.30`, because § 12-6-1170(C)(1) reduces the whole
+of that section by whatever § 12-6-1171 deducts, and it reports
+
+```json
+[{ "name": "Military retirement deduction", "amount": 60000 }]
+```
+
+**Both halves of that matter more to a model than to a person.** The tax was
+wrong by `$600` and the label was wrong by a whole statute, and a model reading
+"Retirement deduction: $60,000" against a cap this package documents as `$10,000`
+has been handed a contradiction it cannot resolve from the answer. New York is
+split the same way: a government pension is exempt under § 612(c)(3) and now says
+so, instead of borrowing the name of the `$20,000` § 612(c)(3-a) exclusion that a
+45-year-old retired police officer does not qualify for. Michigan keeps one line,
+because there the two halves really are one deduction.
 
 **New in 0.47.0 — SOUTH CAROLINA, whose two supported years are two different LAWS,
 and whose 5.21% top rate is a 57.31% marginal rate on one dollar in every
