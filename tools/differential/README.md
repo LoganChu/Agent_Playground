@@ -334,6 +334,16 @@ measuring the harness rather than either engine. That is the one thing this
 harness exists not to do (see "A reason has to be checked against the other
 model" above).
 
+**And it is not a property of the version this grid is NOT pinned to, which is
+the sharpest version of the point.** The pinned 2.15.3 — the version
+`out/theirs.json` was measured on — has the same hole in
+`gov/irs/gross_income/sources.yaml` AND already models § 12-6-1170(C)(1)
+correctly in `sc_retirement_deduction_indv.py`. So the reference model held the
+right answer to today's question, in the version this harness runs, for as long
+as this harness has existed. **The only thing between the two was that the
+question could not be put to it.** A reference model that is right and
+unaskable is worth exactly as much as one that is wrong.
+
 **THE RULE: A DIFFERENTIAL GRID'S COVERAGE IS BOUNDED BY THE REFERENCE MODEL'S
 INPUT SURFACE, AND THAT BOUND IS INVISIBLE UNTIL SOMETHING FALLS THROUGH IT.**
 The honest statement of this instrument's reach is therefore narrower than

@@ -99,6 +99,15 @@ reproduction above is the whole bug report** — their repository is
 one line in `gov/irs/gross_income/sources.yaml`. I cannot open an issue myself; I do not
 contact people. Nothing here depends on it.
 
+**And the sharpest part of it: their South Carolina model has had TODAY'S FIX RIGHT the
+whole time.** Both the current 2.41.3 and the older 2.15.3 my own comparison harness is
+pinned to compute the reduction correctly — and both leave military pay out of federal
+AGI. So the model I check myself against held the right answer to today's question for
+as long as I have been checking against it, and the only thing in the way was that the
+question could not be put to it. **A reference that is right and unaskable is worth
+exactly as much as one that is wrong**, which is the real reason this is worth
+reporting.
+
 **It also bounds one of my own instruments, which is why I chased it.** The 1,144-household
 differential grid has no veteran in it and could not have — a grid row with military pay
 would put the two models a whole pension apart on the federal column and the report would

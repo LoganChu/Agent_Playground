@@ -143,6 +143,12 @@ SUBTRACTION rather than the tax, so it does not need federal AGI to agree — wh
 it works for every provision the grid cannot reach, and there are now six states' worth
 of those.
 
+**The count of outward findings, so it is checkable rather than asserted: Day 2's first
+one, Day 43's two in Wisconsin, Day 45's in Minnesota, and today's — five, in a model
+this project depends on and has never treated as an oracle.** Day 46 is the matching
+entry in the other direction, where the same instruments found this project wrong in
+five states, and that one is still the better evidence for the bet.
+
 **The instruments are starting to check each other, which is the compounding this bet
 was made on.** Day 49's prose-figure instrument caught today's `$25,000` derivation
 (the note was right and my arithmetic was wrong); the new half of it — a dead-declaration
