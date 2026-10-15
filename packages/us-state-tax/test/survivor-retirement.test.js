@@ -23,7 +23,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { stateIncomeTax, SUPPORTED_STATES, STATES_READING_RETIREMENT } from './strict.mjs';
+import {
+  getStateDefinition,
+  stateIncomeTax,
+  SUPPORTED_STATES,
+  STATES_READING_RETIREMENT,
+} from './strict.mjs';
 
 const FEDERAL_DEDUCTION = {
   single: 15_750,
@@ -234,4 +239,88 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
     assert.ok(STATES_READING_RETIREMENT.includes(state), `${state} is in the derived list`);
   }
   assert.equal(STATES_READING_RETIREMENT.length, 16, 'states reading retirement');
+});
+
+// ---------------------------------------------------------------------------
+// The latent double-count, guarded before it exists.
+//
+// The three survivor fields are POOLED into the filer's own income in
+// `retirementPeople`, and the one rule with a survivor claim of its own takes
+// its share back out in `split()`. That is the whole design, and it is only
+// complete for the rules that read the POOLED `RetirementPerson`.
+//
+// Two readers do not: `retirementIncomeOf` (Ohio's retirement income credit)
+// reads the caller's input directly, and `planTypeRetirement` (Alabama) reads
+// `definedBenefit`, which `split()` does not adjust because no state needs it
+// adjusted. Both are correct today for a reason that is pure coincidence of
+// which states exist: `survivorClaim` is South Carolina's, `retirementIncomeCredit`
+// is Ohio's and `planTypeRetirement` is Alabama's, and no state has two of them.
+//
+// **A DECLARATION THAT IS RIGHT BY COINCIDENCE OF WHICH STATES EXIST IS A DEFECT
+// WITH A COMMIT DATE IN THE FUTURE**, and the cheapest thing that can be done
+// about it now is to make the day it arrives a failing build rather than a wrong
+// answer. Day 50's `militaryExemptInFull` and Day 51's misspelt derived-list key
+// are the same class: something nothing reads, or nothing contradicts, until it
+// matters.
+// ---------------------------------------------------------------------------
+
+test('no state combines a survivor claim with a rule that reads the pooled income', () => {
+  const withSurvivorClaim = [];
+  const pooledReaders = { retirementIncomeCredit: [], planTypeRetirement: [] };
+  for (const state of SUPPORTED_STATES) {
+    for (const year of [2025, 2026]) {
+      const def = getStateDefinition(state, year);
+      if ((def.retirementIncomeSubtractions ?? []).some((r) => r.survivorClaim !== undefined)) {
+        if (!withSurvivorClaim.includes(state)) withSurvivorClaim.push(state);
+      }
+      for (const key of Object.keys(pooledReaders)) {
+        if (def[key] !== undefined && !pooledReaders[key].includes(state)) {
+          pooledReaders[key].push(state);
+        }
+      }
+    }
+  }
+  // Pinned by name so that the day any of the three lists changes, this test is
+  // what says so — and says which combination to go and think about.
+  assert.deepEqual(withSurvivorClaim, ['SC'], 'states with a survivor claim');
+  assert.deepEqual(pooledReaders.retirementIncomeCredit, ['OH']);
+  assert.deepEqual(pooledReaders.planTypeRetirement, ['AL']);
+  for (const [key, states] of Object.entries(pooledReaders)) {
+    const both = withSurvivorClaim.filter((s) => states.includes(s));
+    assert.deepEqual(
+      both,
+      [],
+      `${both.join(', ')} declares a survivorClaim AND ${key}. The survivor dollars are ` +
+        `pooled into the filer's own income for that reader and claimed separately by the ` +
+        `survivor rule, so they would be counted TWICE. Take the survivor share out of ` +
+        `that reader before shipping the combination.`,
+    );
+  }
+});
+
+test('two decedents on one joint return each get their own cap', () => {
+  // Both spouses widowed before this marriage, each with survivor income from a
+  // different decedent of a different age. The claim is that the cap is read per
+  // claimant from THAT claimant's decedent, so the two do not share one band —
+  // and a joint return does not widen either, because South Carolina's cap is
+  // per person and its brackets do not widen at all (§ 12-6-510).
+  //
+  //   filer:  decedent would be 70 -> $10,000 cap, $12,000 of income -> $10,000
+  //   spouse: decedent would be 60 -> $ 3,000 cap, $12,000 of income -> $ 3,000
+  //
+  // $13,000, which is neither 2 x $10,000 nor 2 x $3,000 nor one shared cap.
+  const r = stateIncomeTax({
+    ...household('SC', 2025, 'marriedFilingJointly', 160_000, 68),
+    spouseAge: 66,
+    retirement: {
+      filer: { survivorPension: 12_000, deceasedSpouseAge: 70 },
+      spouse: { survivorPension: 12_000, deceasedSpouseAge: 60 },
+    },
+  });
+  assert.deepEqual(r.computedSubtractions, [
+    { name: 'Surviving spouse retirement deduction', amount: 13_000 },
+    // Both are over 65 and neither claimed anything under (A) of their own, so
+    // the senior deduction is $15,000 each and untouched by the survivor claim.
+    { name: 'Senior deduction (age 65)', amount: 30_000 },
+  ]);
 });
