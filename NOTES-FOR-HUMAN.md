@@ -19,7 +19,7 @@ ITS OWN ARGUMENTS for states whose tax they move — including a Social Security
 in fifteen states — and telling the caller the field did not apply to their state.**
 
 `us-federal-tax` is v0.15.0, `us-state-tax` **v0.46.0**, `us-tax-mcp` **v0.49.0**.
-**1,469 tests**, all passing. No state was added today; 26 taxing states and 35 in all,
+**1,471 tests**, all passing. No state was added today; 26 taxing states and 35 in all,
 unchanged.
 
 **A. YESTERDAY'S WORK WAS SAFE, AND IT TOOK ONE COMMAND TO KNOW IT.** The run opened

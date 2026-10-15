@@ -1,4 +1,38 @@
-# Day 51 prediction, written before the run
+# Day 51 — the prediction, and the result beside it
+
+**PREDICTED, in writing before the run: 1,526 mutants, 1,520 killed, 6 survivors, 99.6%,
+the same six and the same line numbers as Day 50.**
+
+**MEASURED: 1,526 mutants, 1,520 killed, 6 survivors, 99.6%, the same six and the same
+line numbers.** Every figure, for the SECOND day running — and the named risk below did
+not bite, for a reason the prediction half-guessed: the two `states/ohio.js` rates
+survive the new absolute Ohio pins because the household behind them is a SINGLE filer,
+so the 20% joint filing credit of line 107 is unreachable, and line 107's sibling at
+line 88 is not observable in a `$90,000` return either.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**THE RUN TOOK ABOUT 115 MINUTES ON FOUR CORES against Day 50's 92, and the extra
+twenty-three minutes are mine.** Day 51 added two cross-state sweeps — 8,400 comparisons
+and 1,680 more — and the audit runs the whole suite once per mutant, so a sweep costs
+its own runtime times 1,526. **A test that is cheap in CI can be expensive in the
+audit**, which moves worklist item 18 (select test files per mutant) up on cost grounds
+for the second day running. It is worth stating plainly rather than hiding in a
+timestamp: neither sweep can ever kill a mutant, because each compares two runs of the
+SAME build and a mutated parameter moves both sides equally. **Twenty-three minutes of
+audit for zero kills is the clearest case this harness has produced for selecting test
+files per mutant.**
+
+---
+
+## The original prediction, kept as written
 
 **1,526 mutants, 1,520 killed, 6 survivors, 99.6% — the same six and the same line
 numbers as Day 50.**
@@ -76,6 +110,7 @@ rather than the suite's reach.
 | **Day 49, South Carolina's first run** | **1,534** | **14** | **99.1%** |
 | **Day 49, after the two dead SCIAD tables were deleted** | **1,526** | **6** | **99.6%** |
 | **Day 50, after § 12-6-1170(C)(1) and the detail split** | **1,526** | **6** | **99.6%** |
+| **Day 51, after the surviving-spouse claim** | **1,526** | **6** | **99.6%** |
 
 
 **Day 50 is the first row where the figures did not move and the reason they did not is

@@ -122,7 +122,7 @@ value for.
 | `us-federal-tax` | 716 | **0** | **100%** |
 | `us-state-tax` (rule parameters) | 1526 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
-The state figure was re-measured on **Day 50** over the build that ships today; the
+The state figure was re-measured on **Day 51** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. The state one has moved
 **three times** in its history:
 
@@ -138,9 +138,17 @@ Day 49, South Carolina        1,534 mutants   14 survivors   99.1%
 Day 49, after deleting two    1,526 mutants    6 survivors   99.6%
           dead tables
 Day 50, (C)(1) + the split    1,526 mutants    6 survivors   99.6%
+Day 51, the survivor claim    1,526 mutants    6 survivors   99.6%
 ```
 
-**Day 50 is the first run whose every figure was predicted exactly** — the count, the kill
+**Day 51 is the second run running whose every figure was predicted exactly**, and the
+first where the prediction named a RISK that could have falsified it: two of the six
+survivors are rates in `states/ohio.js`, and Day 51 pinned two absolute Ohio figures for
+the first time. They survive because the household behind the pins is a single filer, so
+the 20% joint filing credit is unreachable from it. **A prediction that names what would
+break it is worth more than one that does not, whichever way it comes out.**
+
+**Day 50 was the first run whose every figure was predicted exactly** — the count, the kill
 count, the survivor count, the score, the identity of all six survivors and all six line
 numbers — because the day's changes added no mutable number, which makes the count a
 derivation rather than a guess. The row worth reading is what nearly happened to it:

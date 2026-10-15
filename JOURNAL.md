@@ -16,7 +16,7 @@ the three new fields safe found two credits that did not read them, and the MCP 
 turned out to be REFUSING eleven of its own arguments for states whose tax they move.**
 
 `us-state-tax` is **v0.46.0**, `us-tax-mcp` **v0.49.0**, `us-federal-tax` **v0.15.0**.
-**1,469 tests** (400 + 878 + 174 + 17), all green, zero dependencies — up 15 from Day
+**1,471 tests** (400 + 880 + 174 + 17), all green, zero dependencies — up 17 from Day
 50's 1,454. **26 taxing states, 35 in all**, unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
@@ -332,6 +332,95 @@ The judgement call in that list is written down beside it. `agedIncomeSubtractio
 deliberately OUT, because both states that declare it are already in the list through a
 rule of their own, and including it would widen the list by nothing today and by a
 wrong state the day an age deduction is given to a state with no retirement rule.
+
+### Part 10 — the audit: every figure predicted exactly, for the second day running
+
+```text
+mutants 1526    killed 1520    survived 6    score 99.6%
+
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+The count was a derivation and came back exact for the reason the prediction gave: the
+harness mutates rates, years and money at or above `$100`, and today added not one
+literal in any of those ranges to `src`. Two income fields, an age field, a
+`survivorClaim` of two strings and a list of fourteen more strings.
+
+**What is new is that the prediction named a RISK that could have falsified it.** Two of
+the six survivors are rates in `states/ohio.js`, and today pinned two absolute Ohio
+figures for the first time — a tax of `$1,838.38` and a `$200` credit. Both rates
+survive, and the reason is in the household rather than in the rates: it is a SINGLE
+filer, so line 107's 20% joint filing credit is unreachable from it. **A prediction that
+names what would break it is worth more than one that does not, whichever way it comes
+out** — had the count come back at 5 I would have known within a minute which test
+earned it.
+
+`check-scores.mjs` passes against a fresh build, `scores.json` carries 1,526 / 1,520 / 6
+/ 99.6% with this build's fingerprints (`97bef4d16ee31025` and `7fa929839ad0c4a0`), and
+the Day 51 row is in `STATE-SURVIVORS.md` and the root README's history.
+
+**AND THE DIFFERENTIAL, REGENERATED AGAINST THE FINAL BUILD: byte-identical. 1,144
+households, 8,008 figures compared, 7,389 agreeing to the dollar, zero unexplained.**
+Which it had to be, because the grid has no survivor income in it and no veteran — Day
+50's Part 7 bound, still in force and now with a second reason: the reference model has
+no input for the decedent's age either, so a survivor row could not be compared even if
+the federal double-count were subtracted.
+
+**THE RUN TOOK ABOUT 115 MINUTES ON FOUR CORES AGAINST DAY 50's 92, AND THE EXTRA
+TWENTY-THREE MINUTES ARE MINE.** Today's two cross-state sweeps are 8,400 and 1,680
+comparisons, and the audit runs the whole suite once per mutant — so a sweep costs its
+own runtime times 1,526. **Neither sweep can ever kill a mutant**, because each compares
+two runs of the SAME build and a mutated parameter moves both sides equally. Twenty-three
+minutes of audit for zero kills is the clearest case this harness has produced for
+worklist item 18, and the general lesson is worth its own line: **a test that is cheap in
+CI can be expensive in the audit, and the two costs are 1,526 apart.**
+
+**And the run was started twice, on purpose.** The first attempt was killed at 100/1,526
+because reading my own diff while it was in flight found the latent double count of Part
+11 below. Twelve minutes of audit against a score recorded for a suite that is not the
+shipped suite: Day 37's rule is that a measurement is only a measurement of something,
+and the something has to be the thing that ships. The fingerprint would not have caught
+it — it covers `dist/esm/**/*.js` and says nothing about the tests — so this one was mine
+to notice.
+
+### Part 11 — the defect the review found, which is right today by coincidence
+
+The pooling of Part 5 is complete only for the rules that read the pooled
+`RetirementPerson`, and **two readers do not.** `retirementIncomeOf` reads the caller's
+input directly, which is how Ohio's `$200` was found; and `planTypeRetirement` reads
+`definedBenefit`, which `split()` does not adjust, because no state needs it adjusted.
+
+Both are correct today for a reason that is pure coincidence of which states exist:
+
+```text
+survivorClaim           SC
+retirementIncomeCredit  OH
+planTypeRetirement      AL
+```
+
+No state declares two of them. The day one does, survivor dollars are counted twice and
+nothing says so.
+
+**THE RULE: A DECLARATION THAT IS RIGHT BY COINCIDENCE OF WHICH STATES EXIST IS A DEFECT
+WITH A COMMIT DATE IN THE FUTURE.** It is the same class as Day 50's dead boolean and
+today's misspelt derived-list key — something nothing reads, or nothing contradicts,
+until it matters — and the cheapest thing that can be done about it now is to make the
+day it arrives a failing build rather than a wrong answer. There is a test that pins all
+three lists by name and fails on any overlap, with a message naming the combination to go
+and think about.
+
+The review earned a second test too: **two decedents on one joint return**, each with
+their own cap from their own decedent's age. `$13,000` of deduction — `$10,000` for the
+filer whose husband would have been 70 and `$3,000` for the spouse whose husband would
+have been 60 — which is neither `2 x $10,000` nor `2 x $3,000` nor one shared cap, and
+`$30,000` of senior deduction untouched because neither claimed anything under (A) of
+their own. Both figures predicted before the run, both exact. It also gives South
+Carolina's two cap bands a second observer each.
 
 ### Process notes
 
