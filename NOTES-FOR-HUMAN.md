@@ -13,9 +13,86 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 50 nothing is waiting on you except the network ask below and ONE NEW
-OPTIONAL ONE (item 6), and today's headline is that yesterday's cosmetic defect had a
-$600 one underneath it, in the direction nobody reports.**
+**As of Day 51 nothing is waiting on you except the network ask below and the optional
+report from Day 50, and today's headline is that THE MCP SERVER WAS REFUSING ELEVEN OF
+ITS OWN ARGUMENTS for states whose tax they move — including a Social Security benefit
+in fifteen states — and telling the caller the field did not apply to their state.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.46.0**, `us-tax-mcp` **v0.49.0**.
+**1,469 tests**, all passing. No state was added today; 26 taxing states and 35 in all,
+unchanged.
+
+**A. YESTERDAY'S WORK WAS SAFE, AND IT TOOK ONE COMMAND TO KNOW IT.** The run opened
+with five commits dated 14 October on a detached HEAD and `main` five behind them,
+which reads exactly like a day's work that never got pushed. It was pushed — the
+remote already had all of it, and the local tracking ref was stale from the fresh
+clone. Nothing was lost and nothing needs doing. I mention it because the first
+minute of the run looked like a disaster and `git fetch` ended it.
+
+**B. The `$25,000` widow from yesterday's item 4 is modelled, and every figure I
+predicted came back exact.** A single filer of 65 whose husband would have been 70,
+with her own `$20,000` pension, his `$30,000` of military retired pay and his `$15,000`
+pension, now deducts `$55,000` where she deducted `$30,000`: `$1,500.00` of 2025 tax
+and `$1,302.50` of 2026 tax. **It is the only South Carolina household this package has
+ever been too HIGH for**, and that direction is the one nobody reports — there is no
+letter, no notice and no support ticket for a filer who was overcharged.
+
+**C. The detail that no plausible shortcut survives: THE DECEASED SPOUSE KEEPS
+AGEING.** The cap on a widow's survivor deduction is `$3,000` or `$10,000` "based on
+the age of the deceased", and South Carolina's own guidance puts the rise in "the year
+the deceased spouse **would have been** 65" — not the year they died. So a widow of 55
+can hold a `$10,000` cap and a widow of 70 a `$3,000` one, and using the claimant's own
+age is wrong by `$7,000` of deduction in each direction. There is a new input for it,
+`deceasedSpouseAge`, because no other figure on the return implies it.
+
+**D. THE HEADLINE, AND IT IS ABOUT THE SERVER RATHER THAN ABOUT TAX.** `us-tax-mcp`
+pairs every argument with the states that read it and REFUSES the argument for any
+other state, on purpose: a silently ignored field is a wrong answer with no symptom.
+Eleven of those lists were written by hand and had drifted —
+
+```text
+taxableSocialSecurity          15 states    up to $1,206.16 of Minnesota tax on one household
+dependentAges                  10 states
+retirementIncome                8 states
+spouseAge                       6 states
+filerAge                        5 states    including the state where age decides the answer
+stateItemizedDeductions         3 states
+netCapitalGain                  2 states
+lesserSpouseIncome              2 states
+socialSecurityAndMedicarePaid   1 state
+propertyTaxPaid                 1 state
+rentPaid                        1 state
+```
+
+— and a refusal is not a dropped field. **The message names the states that DO read
+it, so a model asking about a Minnesota retiree was told that Minnesota does not read
+a Social Security benefit, concluded its own input was wrong, and stopped looking.** It
+subtracts the benefit, and withdraws the subtraction a tenth at a time, and the two
+rules together are worth `$1,206.16` on that household.
+
+All eleven are fixed. Every remaining hand-written list inside the handler now reads
+the shared table, the retirement list is derived from the engine with a compile-time
+proof, and a new test measures all 44 gates by running households in all 35 states, so
+the next drift fails a build instead of answering a question wrongly.
+
+**E. One of my own tests was asserting the defect, and that is the part I would most
+want you to see.** A test required New York to REFUSE a Social Security figure, and New
+York subtracts it in full — `$1,080.00` of tax on `$20,000` for a single filer of 70. It
+passed every day since it was written, because it was a test of my code rather than of
+the law. Two more guards in the same file had the same shape. **A green suite cannot
+tell you which of its tests are pinning your bugs**, and the only defence I have found
+is the one I already use for figures: derive the expectation from the statute, not from
+the implementation.
+
+**F. The three new fields changed no other state's answer, and that is measured rather
+than claimed.** 8,400 comparisons across 35 states, 2 years, 5 filing statuses, 3
+incomes and 4 ages: exactly one state answers differently, and it is the one with the
+statute. **The sweep found two defects before shipping** — Ohio's retirement income
+credit and Utah's military retirement credit read the caller's input rather than the
+pooled household, so both were silently smaller (`$200` and `$1,335`) for a widow who
+used the new fields than for the same widow who called the same dollars her own the day
+before.
+
 
 `us-federal-tax` is v0.15.0, `us-state-tax` **v0.45.0**, `us-tax-mcp` **v0.48.0**.
 **1,454 tests**, all passing. No state was added today; 26 taxing states and 35 in all,
