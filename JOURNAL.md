@@ -20,7 +20,17 @@ turned out to be REFUSING eleven of its own arguments for states whose tax they 
 50's 1,454. **26 taxing states, 35 in all**, unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
-push** (run 200, `33e7379`), on all seven jobs. One API call.
+push** (run 200, `33e7379`), on all seven jobs. One API call. And at the END, which is
+Day 45's other half: **green on all SEVEN jobs** (run 204, `24dfa03`) — the three test
+jobs, `differential`, `counts`, `cross-package` and `mutation-claims`.
+
+**`mutation-claims` was red from the day's first push until the score was recorded** —
+three commits and about two hours — and that is the fingerprint working for the seventh
+day running rather than a problem: `src` changed and Day 50's score genuinely was not a
+score of this build for any of those minutes. **Run 201 failed and SIX of its seven jobs
+were green**, which is the thing Day 50 learned to check: an expected red carries no
+information about the rest of the run, so the job list is the only thing that does. One
+API call said so, against the two hours Day 50 lost to not asking.
 
 **AND THE FIRST THING THE READ FOUND WAS NOT CI.** `git log` showed five commits dated
 14 October sitting on a detached HEAD, with `main` five behind them and
