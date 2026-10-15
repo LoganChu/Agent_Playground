@@ -90,6 +90,68 @@ export const SUPPORTED_STATES: readonly StateCode[] = [...new Set([...NAMES.keys
 export { NO_INCOME_TAX_STATES, NO_INCOME_TAX_NAMES };
 
 /**
+ * Every definition key that reads {@link StateIncomeTaxInput.retirement}.
+ *
+ * Exported because a SECOND copy of this fact was wrong for three states, and
+ * the second copy was in the MCP server. `us-tax-mcp` gates each of its
+ * arguments on a list of the states that read it and REFUSES the argument
+ * otherwise, with a message naming the states that do — and its
+ * `RETIREMENT_STATES` was the one list in that file still written by hand. On
+ * Day 51 it read 13 states and the engine read 16: Ohio's retirement income
+ * credit, South Carolina's whole retirement rule and Wisconsin's exclusion
+ * election were all refused an input that moves their tax, and the refusal told
+ * the caller the field did not apply to their state. **A field that is silently
+ * ignored is a wrong answer with no symptom; a field that is REFUSED with a
+ * false explanation is a wrong answer the caller has been argued out of.**
+ *
+ * South Carolina had been in the engine for two days and Ohio for a great deal
+ * longer, which is the measurement that matters: the drift is not a race
+ * condition between two commits, it is a list nobody re-reads.
+ */
+export const RETIREMENT_READING_RULES = [
+  'retirementIncomeSubtractions',
+  'pensionExclusion',
+  'militaryRetirementSubtraction',
+  'retirementIncomeExclusion',
+  'militaryRetirementExclusion',
+  'pensionIncomeExclusion',
+  'stateRetirementDeduction',
+  'planTypeRetirement',
+  'exclusiveRetirementCredits',
+  'retirementIncomeCredit',
+  'retirementSubtractionSchedule',
+  'retirementIncomeExclusionElection',
+  'reducedBaseRetirementCredit',
+] as const satisfies readonly (keyof StateIncomeTaxDefinition)[];
+
+/**
+ * The states that read {@link StateIncomeTaxInput.retirement}, DERIVED from the
+ * definitions rather than listed.
+ *
+ * `agedIncomeSubtraction` is deliberately not in
+ * {@link RETIREMENT_READING_RULES}, and it is the judgement call in this list.
+ * It carries Maryland's centenarian subtraction and South Carolina's § 12-6-1170(B)
+ * senior deduction, and it reads retirement income only through
+ * `reducedByRetirementSubtractions` — which South Carolina sets and Maryland does
+ * not. Both states are already here through a rule of their own, so including it
+ * would widen the list by nothing today and by a WRONG state the day an age
+ * deduction is given to a state with no retirement rule at all. `ageDeduction`
+ * (Virginia's) is out for the same reason and has no retirement reading at all.
+ *
+ * The compile-time `satisfies` above is what keeps this honest, and it earned its
+ * place immediately: the first draft of the list named `centenarianSubtraction`,
+ * which is not a definition key — Maryland's centenarian rule IS
+ * `agedIncomeSubtraction` — and the build refused it. A derived list is only as
+ * wide as the places it looks, and a misspelt place is a place it does not look.
+ */
+export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.filter((code) =>
+  SUPPORTED_YEARS.some((year) => {
+    const def = getStateDefinition(code, year) as unknown as Record<string, unknown>;
+    return RETIREMENT_READING_RULES.some((rule) => def[rule] !== undefined);
+  }),
+);
+
+/**
  * The jurisdictions that tax individual income and that this package does not
  * cover, by name.
  *

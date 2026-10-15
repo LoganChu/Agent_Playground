@@ -163,6 +163,25 @@ function readPersonRetirement(
   return out as PersonRetirementIncome;
 }
 
+/**
+ * The states a `state_income_tax` argument applies to, READ OFF `STATE_FIELDS`.
+ *
+ * Module level because four checks now use it and two of them run before the
+ * point where it used to be declared — it was a `const` arrow function inside
+ * the handler, so using it earlier was a temporal dead zone rather than a
+ * compile error, and the build would have shipped a ReferenceError.
+ *
+ * Every refusal in this file reads its list from here rather than restating it.
+ * They used to be literals, and on Day 24 four states were added to `retirement`
+ * in the table and the literal here refused them. Day 51 found the same shape
+ * twice more: `socialSecurityAndMedicarePaid` hard-coded against `'MA'` when
+ * Alabama had begun deducting it, and `lesserSpouseIncome` against `'VA'` when
+ * South Carolina and Wisconsin had begun reading it.
+ */
+function statesFor(field: string): readonly string[] {
+  return STATE_FIELDS.find((f) => f.name === field)?.states ?? [];
+}
+
 function readRetirementSplit(
   source: Record<string, unknown>,
 ): RetirementIncomeSplit | undefined {
@@ -1365,14 +1384,24 @@ const stateTool: ToolDefinition = {
     const shortTermGains = readNumber(source, 'shortTermCapitalGains');
     const collectibles = readNumber(source, 'collectiblesGains');
     const ficaPaid = readNumber(source, 'socialSecurityAndMedicarePaid');
+    // READ OFF THE TABLE PER FIELD, not against a hard-coded 'MA'. Three of these
+    // four are Massachusetts and nowhere else, and the fourth stopped being on
+    // Day 51: Alabama deducts the FICA and Medicare tax its filers paid, so
+    // `socialSecurityAndMedicarePaid` moves an Alabama answer and this loop
+    // refused it. The existing table-agreement test caught it the moment the
+    // table was widened, which is the good case and the reason that test exists.
     for (const [field, value] of [
       ['massachusettsFivePercentIncome', maIncome],
       ['shortTermCapitalGains', shortTermGains],
       ['collectiblesGains', collectibles],
       ['socialSecurityAndMedicarePaid', ficaPaid],
     ] as const) {
-      if (value !== undefined && state !== 'MA') {
-        throw new ToolInputError(`${field} only applies to MA, and ${state} was requested.`);
+      if (value === undefined) continue;
+      const states = statesFor(field);
+      if (!states.includes(state)) {
+        throw new ToolInputError(
+          `${field} only applies to ${states.join(' and ')}, and ${state} was requested.`,
+        );
       }
     }
     const county = source['county'];
@@ -1383,25 +1412,27 @@ const stateTool: ToolDefinition = {
     if (federalItemized !== undefined && typeof federalItemized !== 'boolean') {
       throw new ToolInputError('federalItemized must be true or false.');
     }
-    for (const [field, value, states] of [
-      ['stateItemizedDeductions', itemized, ['MD', 'VA', 'GA', 'MO']],
-      // ARIZONA JOINED ON DAY 48, AND IT READS THIS FIELD AS A TEST RATHER THAN AS
-      // AN AMOUNT. A.R.S. § 43-1022(22) subtracts a quarter of the long-term gain
-      // only where there is a net capital gain OVERALL, so `netCapitalGain` is the
-      // gate on `longTermCapitalGainAfter2011` below. Leaving Arizona off this list
-      // made the gate unreachable through this server: the field was accepted and
-      // could never open, which `state-fields.test.js` reported as a field accepted
-      // and never read.
-      ['netCapitalGain', capitalGain, ['MD', 'MO', 'AZ']],
-      ['longTermCapitalGainAfter2011', arizonaLongTermGain, ['AZ']],
-      // Georgia joined on Day 26 and it is the one state where `federalItemized`
-      // is worth money on its own: the eligible itemizer credit of
-      // § 48-7-27.1 is $300 a taxpayer for the election alone, with no state
-      // itemized figure needed. A refusal list that left Georgia off would make
-      // that credit unreachable through this server.
-      ['federalItemized', federalItemized, ['MD', 'VA', 'GA', 'MO']],
+    // READ OFF THE TABLE, and these four were the last literals in this handler
+    // that shadowed it. Both of the comments this replaces record the same
+    // lesson from two earlier days — Arizona left off `netCapitalGain` on Day 48
+    // made its whole capital-gain gate unreachable, and Georgia left off
+    // `federalItemized` on Day 26 would have hidden a $300 credit — and both
+    // were fixed by editing the literal rather than by deleting it. Day 51 found
+    // three more states behind `stateItemizedDeductions` (Alabama, Oregon and
+    // Wisconsin) and two behind `netCapitalGain` (South Carolina's 44% net
+    // capital gain deduction and Wisconsin's 30% exclusion), which is the third
+    // and fourth time this one loop has been wrong. **A list that has to be
+    // edited on the day a state is added is a list that will be wrong on the day
+    // after.**
+    for (const [field, value] of [
+      ['stateItemizedDeductions', itemized],
+      ['netCapitalGain', capitalGain],
+      ['longTermCapitalGainAfter2011', arizonaLongTermGain],
+      ['federalItemized', federalItemized],
     ] as const) {
-      if (value !== undefined && !(states as readonly string[]).includes(state)) {
+      if (value === undefined) continue;
+      const states = statesFor(field);
+      if (!states.includes(state)) {
         throw new ToolInputError(
           `${field} only applies to ${states.join(' and ')}, and ${state} was requested.`,
         );
@@ -1419,7 +1450,22 @@ const stateTool: ToolDefinition = {
     // model that supplies one without saying the filer itemized has either got
     // the federal return wrong or is about to get a Maryland answer that is too
     // low — and silently dropping the figure would hide both.
-    if (itemized !== undefined && federalItemized !== true) {
+    //
+    // AND IT IS REQUIRED ONLY WHERE THE COUPLING EXISTS, which Day 51 found by
+    // widening the table. The three states that joined `stateItemizedDeductions`
+    // that day — Alabama, Oregon and Wisconsin — do NOT condition their itemized
+    // deduction on the federal election: an Alabama filer may itemize on Form 40
+    // while taking the federal standard deduction, and the engine already gave
+    // them that, moving $90,000 of Alabama income from $4,260.00 to $3,385.00
+    // with no election supplied. So this guard refused a figure those three
+    // states read, on the strength of a Maryland statute. The condition is now
+    // the `federalItemized` gate itself, which is the only list that says where
+    // the coupling is.
+    if (
+      itemized !== undefined &&
+      federalItemized !== true &&
+      statesFor('federalItemized').includes(state)
+    ) {
       throw new ToolInputError(
         'stateItemizedDeductions needs federalItemized: true. Maryland allows itemizing only ' +
           'if the filer itemized federally (§ 10-218(b)) — which is why the larger federal ' +
@@ -1519,10 +1565,18 @@ const stateTool: ToolDefinition = {
         `bothSpousesHaveQualifyingIncome only applies to OH and VA, and ${state} was requested.`,
       );
     }
-    if (lesserSpouseIncome !== undefined && state !== 'VA') {
+    // Three states, and the other two were found by measurement on Day 51 rather
+    // than by reading: South Carolina's two-earner answer and Wisconsin's
+    // married-couple credit both move on the lesser spouse's income, and this
+    // check refused them on the strength of a sentence saying no other state has
+    // a spouse tax adjustment. True, and the wrong question — the field is read
+    // by whatever reads it, not by whatever shares Virginia's provision.
+    const LESSER_SPOUSE_STATES = statesFor('lesserSpouseIncome');
+    if (lesserSpouseIncome !== undefined && !LESSER_SPOUSE_STATES.includes(state)) {
       throw new ToolInputError(
-        `lesserSpouseIncome only applies to VA, and ${state} was requested. It belongs to the ` +
-          `spouse tax adjustment, which no other supported state has.`,
+        `lesserSpouseIncome only applies to ${LESSER_SPOUSE_STATES.join(', ')}, and ${state} ` +
+          `was requested. It is Virginia's spouse tax adjustment, South Carolina's two-earner ` +
+          `answer and Wisconsin's married-couple credit.`,
       );
     }
     // Two states read the poverty guideline and they do opposite things with
@@ -1548,8 +1602,6 @@ const stateTool: ToolDefinition = {
     // table and the literal here refused them — a test caught it, which is the
     // good case, and the module's own header had already named the bad one: two
     // copies of a fact that must agree is a bug with a waiting period.
-    const statesFor = (field: string): readonly string[] =>
-      STATE_FIELDS.find((f) => f.name === field)?.states ?? [];
     const TAXABLE_SS_STATES = statesFor('taxableSocialSecurity');
     if (taxableSocialSecurity !== undefined && !TAXABLE_SS_STATES.includes(state)) {
       throw new ToolInputError(

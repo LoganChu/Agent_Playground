@@ -778,6 +778,80 @@ export interface PersonRetirementIncome {
    * and the exemption `$1,000`.
    */
   readonly totallyDisabled?: boolean;
+  /**
+   * Qualified retirement income this person receives **as a surviving spouse**,
+   * on behalf of a deceased spouse — South Carolina's SC1040 line p-3, the
+   * "surviving spouse retirement deduction".
+   *
+   * **It is a field of its own because South Carolina gives it a deduction of
+   * its own, with its own cap, keyed to somebody who is not on the return.**
+   * § 12-6-1170(A) allows a surviving spouse a deduction for retirement income
+   * received on behalf of a deceased spouse "in the same manner" the deceased
+   * spouse would have taken it, and the SC1040 instructions say the figure is
+   * `$3,000` or `$10,000` "based on the age of the deceased" — so the cap is set
+   * by {@link deceasedSpouseAge} and not by this person's own age. The deduction
+   * is **in addition to** the one this person claims on their own retirement
+   * income, so a widow of 65 has two caps rather than one.
+   *
+   * **In every other state in this package these dollars are read exactly as
+   * {@link employerPlanPension}** — pooled with this person's own pension, and in
+   * Alabama read as a defined benefit payment. That is the deliberate default
+   * rather than an omission: Md. Code, Tax-Gen. § 10-207(q) defines military
+   * retirement income to *include* death benefits received as a result of
+   * military service, so a Maryland military widow's Survivor Benefit Plan
+   * payments are already in the right pool, and a state that has not been
+   * researched cannot lose a subtraction it gives today by the addition of a
+   * field. Only a state whose survivor rule genuinely differs reads these
+   * dollars differently.
+   *
+   * Do not also put the same dollars in {@link employerPlanPension} or
+   * {@link militaryRetirement}; the engine would count them twice.
+   *
+   * **One deceased spouse is modelled.** The SC1040 instructions tell a filer
+   * claiming for more than one deceased spouse to "calculate the deduction
+   * separately for each deceased spouse" and attach a statement of each date of
+   * birth, so a survivor of two marriages has one cap per decedent. A caller in
+   * that position should supply the largest decedent's figures here and the rest
+   * through `subtractions`; the state's notes say so.
+   */
+  readonly survivorPension?: number;
+  /**
+   * Military retired pay this person receives **as a surviving spouse** — a
+   * Survivor Benefit Plan annuity on a deceased spouse's service, South
+   * Carolina's SC1040 line p-6 under § 12-6-1171.
+   *
+   * Exempt **in full and uncapped**, like the deceased spouse's own retired pay
+   * would have been — and, unlike the filer's own
+   * {@link militaryRetirement} in South Carolina, it does **not** come off the
+   * survivor cap: the SC1040 instructions say in terms "do not reduce the
+   * surviving spouse retirement deduction by any surviving spouse military
+   * retirement deduction taken." So § 12-6-1170(C)(1) governs a veteran's own
+   * return and not their widow's, and the two halves of this package's South
+   * Carolina answer run in opposite directions for that reason.
+   *
+   * **In every other state these dollars are read exactly as
+   * {@link militaryRetirement}**, for the reason given on
+   * {@link survivorPension}.
+   */
+  readonly survivorMilitaryRetirement?: number;
+  /**
+   * The age the **deceased spouse would have reached** during the tax year, had
+   * they lived — not their age at death.
+   *
+   * Read only where {@link survivorPension} is claimed, and it is the input that
+   * makes that deduction computable at all. South Carolina's rule is that the
+   * survivor's deduction rises from `$3,000` to `$10,000` "for the year the
+   * deceased spouse would have been 65 and older", so **the decedent keeps
+   * ageing** and a widow of 55 may hold a `$10,000` cap while a widow of 70 may
+   * hold a `$3,000` one. Supplying the survivor's own age here is the one
+   * substitution that looks right and is wrong in both directions.
+   *
+   * Absent with {@link survivorPension} present takes the lowest band — the cap
+   * no age test can fail — on the same principle as an unsupplied
+   * {@link StateIncomeTaxInput.filerAge}: an unknown age must not buy the larger
+   * figure. The result's `notes` say when that happened.
+   */
+  readonly deceasedSpouseAge?: number;
 }
 
 /**
@@ -860,6 +934,9 @@ export const PERSON_RETIREMENT_FIELDS = [
   'serviceMonthsBefore1998',
   'serviceMonthsAfter1997',
   'totallyDisabled',
+  'survivorPension',
+  'survivorMilitaryRetirement',
+  'deceasedSpouseAge',
 ] as const;
 
 /**

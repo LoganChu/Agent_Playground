@@ -51,6 +51,7 @@ import type {
   FilingStatus,
   IncomeClassDetail,
   LocalIncomeTaxResult,
+  PersonRetirementIncome,
   StateCode,
   StateIncomeTaxInput,
   StateIncomeTaxOptions,
@@ -827,7 +828,22 @@ function retirementIncomeOf(input: StateIncomeTaxInput): number {
       nonNegative(person.definedContributionPlan, 'retirement.definedContributionPlan') +
       nonNegative(person.iraDistributions, 'retirement.iraDistributions') +
       nonNegative(person.governmentPension, 'retirement.governmentPension') +
-      nonNegative(person.militaryRetirement, 'retirement.militaryRetirement');
+      nonNegative(person.militaryRetirement, 'retirement.militaryRetirement') +
+      // THE SAME DEFECT AS THE ONE THIS COMMENT ALREADY DESCRIBES, THREE YEARS
+      // OF VERSIONS LATER AND CAUGHT BEFORE SHIPPING THIS TIME. Day 51 added
+      // `survivorPension` and `survivorMilitaryRetirement`, pooled them into the
+      // `RetirementPerson` every state subtraction reads, and this function is
+      // not one of those — it reads the caller's input directly. So Ohio's
+      // credit came back $200 smaller for a widow who used the new fields than
+      // for the same widow who had put the same dollars in `employerPlanPension`
+      // the day before, measured across all 35 states rather than reasoned.
+      // Day 38's rule: ACCEPTING AN INPUT IS NOT READING IT, and a field is read
+      // by as many places as read the field.
+      nonNegative(person.survivorPension, 'retirement.survivorPension') +
+      nonNegative(
+        person.survivorMilitaryRetirement,
+        'retirement.survivorMilitaryRetirement',
+      );
   }
   return total;
 }
@@ -900,11 +916,16 @@ function militaryRetirementPay(input: StateIncomeTaxInput): number {
   const split = input.retirement;
   if (!split) return 0;
   const filers = livingFilerCount(input.filingStatus);
-  const filer = nonNegative(split.filer?.militaryRetirement, 'retirement.filer.militaryRetirement');
-  const spouse =
-    filers === 2
-      ? nonNegative(split.spouse?.militaryRetirement, 'retirement.spouse.militaryRetirement')
-      : 0;
+  // Survivor military retired pay counts here for the same reason it counts in
+  // every pool but South Carolina's: outside the one state with a survivor claim
+  // of its own, these dollars are read exactly as `militaryRetirement`, which is
+  // what a caller had to call them before the field existed. Utah's credit was
+  // $1,335 smaller without this line, which is the measurement that found it.
+  const own = (person: PersonRetirementIncome | undefined, where: string): number =>
+    nonNegative(person?.militaryRetirement, `${where}.militaryRetirement`) +
+    nonNegative(person?.survivorMilitaryRetirement, `${where}.survivorMilitaryRetirement`);
+  const filer = own(split.filer, 'retirement.filer');
+  const spouse = filers === 2 ? own(split.spouse, 'retirement.spouse') : 0;
   return filer + spouse;
 }
 
@@ -1363,6 +1384,28 @@ interface RetirementPerson {
   readonly governmentPension: number;
   readonly monthsBefore1998: number;
   readonly monthsAfter1997: number;
+  /**
+   * The part of {@link pension} that arrived as a SURVIVING SPOUSE's share of a
+   * deceased spouse's retirement income, and the part of {@link military} that
+   * arrived as a survivor annuity on their service.
+   *
+   * They are inside those pools rather than beside them, which is the whole
+   * design: a state with no survivor rule of its own reads the pooled figure and
+   * gives the same answer it gave before these fields existed, and a state that
+   * has one takes its share back out. Maryland's § 10-207(q) is the reason that
+   * is the right default rather than the convenient one — it defines military
+   * retirement income to INCLUDE death benefits from military service, so a
+   * military widow's Survivor Benefit Plan annuity belongs in the Maryland pool
+   * and the field that carries it must not remove it.
+   */
+  readonly survivorPension: number;
+  readonly survivorMilitary: number;
+  /**
+   * The age the deceased spouse would have reached in the tax year. Sets the cap
+   * on a {@link RetirementIncomeSubtractionRule.survivorClaim}, because the
+   * decedent keeps ageing.
+   */
+  readonly deceasedAge: number | undefined;
 }
 
 /**
@@ -1389,16 +1432,29 @@ function retirementPeople(
     part: { readonly age: number | undefined; readonly from: NonNullable<StateIncomeTaxInput['retirement']>['filer'] },
   ): RetirementPerson => ({
     age: part.age,
+    // The survivor's share is POOLED here and taken back out by the one rule
+    // that has a claim of its own for it, so that adding the field cannot move
+    // any state's answer that does not ask for it.
     pension:
       nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension') +
-      nonNegative(part.from?.definedContributionPlan, 'retirement.definedContributionPlan'),
-    definedBenefit: nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension'),
+      nonNegative(part.from?.definedContributionPlan, 'retirement.definedContributionPlan') +
+      nonNegative(part.from?.survivorPension, 'retirement.survivorPension'),
+    // Read as a defined BENEFIT payment, exactly as `employerPlanPension` is,
+    // which is what makes Alabama's answer the same for a survivor annuity as
+    // for the pension it continues. A survivor annuity is a defined benefit
+    // plan's annuity in all but name; a caller who knows otherwise should split
+    // it with `definedContributionPlan`.
+    definedBenefit:
+      nonNegative(part.from?.employerPlanPension, 'retirement.employerPlanPension') +
+      nonNegative(part.from?.survivorPension, 'retirement.survivorPension'),
     definedContribution: nonNegative(
       part.from?.definedContributionPlan,
       'retirement.definedContributionPlan',
     ),
     benefits: nonNegative(part.from?.socialSecurityBenefits, 'retirement.socialSecurityBenefits'),
-    military: nonNegative(part.from?.militaryRetirement, 'retirement.militaryRetirement'),
+    military:
+      nonNegative(part.from?.militaryRetirement, 'retirement.militaryRetirement') +
+      nonNegative(part.from?.survivorMilitaryRetirement, 'retirement.survivorMilitaryRetirement'),
     ira: nonNegative(part.from?.iraDistributions, 'retirement.iraDistributions'),
     // Net of losses by the time it reaches here, and a loss is not a negative
     // exclusion: Georgia's worksheet floors the non-earned sources at zero as a
@@ -1416,6 +1472,12 @@ function retirementPeople(
       part.from?.serviceMonthsAfter1997,
       'retirement.serviceMonthsAfter1997',
     ),
+    survivorPension: nonNegative(part.from?.survivorPension, 'retirement.survivorPension'),
+    survivorMilitary: nonNegative(
+      part.from?.survivorMilitaryRetirement,
+      'retirement.survivorMilitaryRetirement',
+    ),
+    deceasedAge: part.from?.deceasedSpouseAge,
   });
   if (split !== undefined) {
     const people = [read({ age: input.filerAge, from: split.filer })];
@@ -1444,6 +1506,11 @@ function retirementPeople(
     governmentPension: 0,
     monthsBefore1998: 0,
     monthsAfter1997: 0,
+    // A household total says nothing about whose income it is, let alone whose
+    // death it followed, so the fallback claims no survivor deduction at all.
+    survivorPension: 0,
+    survivorMilitary: 0,
+    deceasedAge: undefined,
   };
   const people: RetirementPerson[] = [sole];
   if (filers === 2) {
@@ -1461,6 +1528,9 @@ function retirementPeople(
       governmentPension: 0,
       monthsBefore1998: 0,
       monthsAfter1997: 0,
+      survivorPension: 0,
+      survivorMilitary: 0,
+      deceasedAge: undefined,
     });
   }
   return { people, assumed: sole.pension > 0 };
@@ -1664,6 +1734,31 @@ function retirementSubtractions(
           amount: rest,
         });
       }
+      // The SURVIVOR's two lines, after the filer's own and before the age-65
+      // deduction. FOUR lines on one return where the law has four provisions,
+      // and the reason to print them apart is the reason Day 50 split the first
+      // two: a caller handed one figure against a published $10,000 cap cannot
+      // tell which of TWO $10,000 caps it came out of, and a widow's return has
+      // both.
+      //
+      // The grouping is by CLAIMANT and the SC1040's is by provision — its lines
+      // run p-1 and p-2 (the taxpayer's and spouse's retirement), p-3 (the
+      // surviving spouse's), p-4 to p-6 (the three military deductions) and then
+      // q (age 65). So these four lines are the form's six in a different order,
+      // because within each claim this package puts the uncapped half first, and
+      // that is a convention of the result object rather than a reading of the
+      // form.
+      if (subtracted.survivor !== undefined) {
+        if (subtracted.survivor.exempt > 0) {
+          details.push({
+            name: subtracted.survivor.exemptName,
+            amount: subtracted.survivor.exempt,
+          });
+        }
+        if (subtracted.survivor.capped > 0) {
+          details.push({ name: subtracted.survivor.name, amount: subtracted.survivor.capped });
+        }
+      }
     }
   }
 
@@ -1731,6 +1826,19 @@ function retirementIncomeBySource(
       readonly capped: number;
       /** What each person took, for an {@link AgedIncomeSubtractionRule} offset. */
       readonly perPerson: ReadonlyMap<RetirementPerson, number>;
+      /**
+       * The surviving spouse's separate claim, where the state has one and the
+       * household made it. Deliberately absent from `perPerson`: it does not
+       * reduce the age-65 deduction.
+       */
+      readonly survivor:
+        | {
+            readonly name: string;
+            readonly exemptName: string;
+            readonly exempt: number;
+            readonly capped: number;
+          }
+        | undefined;
       readonly allocationMatters: boolean;
     }
   | undefined {
@@ -1760,6 +1868,14 @@ function retirementIncomeBySource(
     person: RetirementPerson,
   ): { readonly exempt: number; readonly chargedFirst: number; readonly pool: number } => {
     const governmentExempt = rule.governmentPensionExemptInFull === true;
+    // Where the rule has a claim of its OWN for survivor income, that income
+    // belongs to the other claim and has to leave this one, or the widow is
+    // given the same dollars twice. Where it has not — every other state here —
+    // the survivor's share stays pooled and this rule never learns it was there,
+    // which is what keeps a Maryland military widow's subtraction intact.
+    const separateSurvivorClaim = rule.survivorClaim !== undefined;
+    const ownPension = person.pension - (separateSurvivorClaim ? person.survivorPension : 0);
+    const ownMilitary = person.military - (separateSurvivorClaim ? person.survivorMilitary : 0);
     // Two flags, and South Carolina is the state that exempts military retired
     // pay WITHOUT exempting a civilian government pension — § 12-6-1171 against
     // § 12-6-1170(A)(1). So the retired sergeant's $60,000 leaves the return
@@ -1775,15 +1891,15 @@ function retirementIncomeBySource(
       (person.age !== undefined && person.age >= rule.cappedMinimumAge);
     return {
       exempt:
-        (governmentExempt ? person.governmentPension : 0) + (militaryExempt ? person.military : 0),
+        (governmentExempt ? person.governmentPension : 0) + (militaryExempt ? ownMilitary : 0),
       // Exempt in full AND deducted from the cap — Michigan's Form 4884 line 3,
       // which New York's construction does not do.
-      chargedFirst: rule.militaryReducesCap === true ? person.military : 0,
+      chargedFirst: rule.militaryReducesCap === true ? ownMilitary : 0,
       pool: oldEnough
-        ? person.pension +
+        ? ownPension +
           person.ira +
           (governmentExempt ? 0 : person.governmentPension) +
-          (militaryExempt ? 0 : person.military)
+          (militaryExempt ? 0 : ownMilitary)
         : 0,
     };
   };
@@ -1832,6 +1948,69 @@ function retirementIncomeBySource(
     return { exempt, capped: Math.min(pool, room) };
   };
 
+  /**
+   * The SURVIVOR's claim — SC1040 line p-3 under § 12-6-1170(A) and line p-6
+   * under § 12-6-1171, for retirement income received on a deceased spouse's
+   * behalf.
+   *
+   * It is a second deduction beside the filer's own rather than a larger version
+   * of it: the instructions say "the surviving spouse retirement deduction is in
+   * addition to the individual retirement deduction claimed from the taxpayer's
+   * own retirement plan." So a widow of 65 holds two caps, and that is the
+   * `$25,000` this package was too generous to the state by until it had an input
+   * for the income.
+   *
+   * THREE THINGS ARE TRUE OF IT, AND EACH IS CITED HERE RATHER THAN CONFIGURED,
+   * BECAUSE EACH IS A PROPERTY OF THE CONSTRUCTION AND NOT A DIAL ANY SECOND
+   * STATE IS KNOWN TO SET DIFFERENTLY:
+   *
+   * 1. **THE CAP IS THE DECEASED SPOUSE'S, AND THE DECEASED SPOUSE KEEPS
+   *    AGEING.** The SC1040 instructions put the figure at "$3,000 or $10,000 of
+   *    the qualified retirement income, based on the age of the deceased", and
+   *    SCDOR's own guidance says the cap rises "for the year the deceased spouse
+   *    would have been 65 and older" — not the year they died. So a widow of 55
+   *    may hold a `$10,000` cap and a widow of 70 a `$3,000` one, which is the
+   *    one case where reading the claimant's own age is wrong in both
+   *    directions. `policyengine-us` 2.41.3 reads the claimant's own age, which
+   *    is the sixth divergence this project has measured in that model and the
+   *    second that is about an input it does not have.
+   *
+   * 2. **THE MILITARY HALF DOES NOT COME OFF THAT CAP**, which is the exact
+   *    negation of § 12-6-1170(C)(1) on the filer's own return: "do not reduce
+   *    the surviving spouse retirement deduction by any surviving spouse
+   *    military retirement deduction taken." `policyengine-us` agrees from 2022
+   *    on, by a parameter it had to add because the 2021 worksheet did reduce it.
+   *
+   * 3. **IT DOES NOT REDUCE THE AGE-65 DEDUCTION** of § 12-6-1170(B), which the
+   *    filer's own deduction does. That is expressed by not entering
+   *    `perPerson`, the map the {@link AgedIncomeSubtractionRule} offset reads —
+   *    so the widow keeps whatever her own claim leaves of the `$15,000` and the
+   *    survivor claim takes none of it. Measured in the reference model too:
+   *    `sc_senior_exemption` is reduced by `sc_retirement_deduction_indv` and
+   *    `sc_military_deduction_indv` and by neither survivor variable.
+   *
+   * `capMultiplier` is deliberately NOT applied: it is Michigan's phase-in of
+   * Michigan's own deduction, and no state has both it and a survivor claim.
+   * Nor is {@link qualifies} consulted — the survivor's own age gates nothing
+   * here, because the age that matters belongs to somebody who is not on the
+   * return.
+   */
+  const survivorClaimOf = (
+    rule: RetirementIncomeSubtractionRule,
+    claimants: readonly RetirementPerson[],
+  ): { readonly exempt: number; readonly capped: number } => {
+    let exempt = 0;
+    let capped = 0;
+    for (const person of claimants) {
+      exempt += person.survivorMilitary;
+      // The cap is read at the DECEASED spouse's age. An absent one takes the
+      // lowest band, for the same reason an absent `filerAge` does: an unknown
+      // age must not buy the larger figure.
+      capped += Math.min(person.survivorPension, capOf(rule, person.deceasedAge));
+    }
+    return { exempt, capped };
+  };
+
   for (const rule of rules) {
     let exempt = 0;
     let capped = 0;
@@ -1867,13 +2046,29 @@ function retirementIncomeBySource(
         capped += taken.capped;
       }
     }
-    if (exempt + capped <= 0) continue;
+    const claim = rule.survivorClaim === undefined ? undefined : survivorClaimOf(rule, people);
+    const survivor =
+      rule.survivorClaim === undefined || claim === undefined || claim.exempt + claim.capped <= 0
+        ? undefined
+        : {
+            name: rule.survivorClaim.name,
+            exemptName: rule.survivorClaim.exemptInFullName,
+            exempt: claim.exempt,
+            capped: claim.capped,
+          };
+    // A household with survivor income and none of its own still reaches this
+    // rule: the survivor claim is the whole of its answer, and testing only the
+    // filer's own halves would have skipped the rule and taxed her in full.
+    if (exempt + capped + (survivor === undefined ? 0 : survivor.exempt + survivor.capped) <= 0) {
+      continue;
+    }
     return {
       name: rule.name,
       exemptName: rule.exemptInFullName,
       exempt,
       capped,
       perPerson,
+      survivor,
       // A capped or source-sensitive rule gives two different answers for the
       // same household total depending on who received what, so a caller who
       // supplied a total rather than a split is told which assumption was used.

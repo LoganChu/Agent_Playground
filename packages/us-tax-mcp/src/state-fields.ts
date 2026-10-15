@@ -30,6 +30,7 @@
  */
 import type { JsonSchema } from './schema.js';
 import {
+  STATES_READING_RETIREMENT,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
@@ -173,9 +174,33 @@ function subtractorsOf(credit: string): readonly string[] {
   );
 }
 
-const RETIREMENT_STATES = [
-  'MD', 'GA', 'KY', 'UT', 'IL', 'MS', 'MI', 'NY', 'NC', 'CT', 'AL', 'MO', 'OR',
-] as const;
+/**
+ * The states that read `retirement`, DERIVED from the engine.
+ *
+ * **It was the literal `['MD','GA','KY','UT','IL','MS','MI','NY','NC','CT','AL','MO','OR']`
+ * until Day 51, and it was wrong for THREE states.** The engine reads the field
+ * for sixteen; this named thirteen. Ohio's retirement income credit, South
+ * Carolina's whole § 12-6-1170 rule and Wisconsin's exclusion election were all
+ * refused an input that moves their tax — and the refusal below does not ignore
+ * the field, it REFUSES it with a message naming the states that do read it. So
+ * a model asking about an Ohio retiree was told, in terms, that Ohio does not
+ * read a pension. **A silently ignored field is a wrong answer with no symptom; a
+ * field refused with a false explanation is a wrong answer the caller has been
+ * argued out of, and the second is worse because the caller stops looking.**
+ *
+ * This module's header says two copies of a fact that must agree is a bug with a
+ * waiting period. `BLIND_STATES` waited five days. This one waited longer: Ohio's
+ * credit has read the field since v0.18.0 and South Carolina joined the engine on
+ * Day 49, two days before anybody noticed. **The length of the wait is the
+ * argument — the drift is not a race between two commits, it is a list nobody
+ * re-reads.**
+ *
+ * The engine owns the fact and proves it two ways: a compile-time `satisfies`
+ * that every name in `RETIREMENT_READING_RULES` is a real definition key, and a
+ * test that runs households in all 35 states and fails if any state's tax moves
+ * when `retirement` is supplied and the list omits it.
+ */
+const RETIREMENT_STATES: readonly string[] = STATES_READING_RETIREMENT;
 
 const PERSON_RETIREMENT: JsonSchema = {
   type: 'object',
@@ -191,6 +216,9 @@ const PERSON_RETIREMENT: JsonSchema = {
     governmentPension: number,
     serviceMonthsBefore1998: number,
     serviceMonthsAfter1997: number,
+    survivorPension: number,
+    survivorMilitaryRetirement: number,
+    deceasedSpouseAge: number,
   },
   additionalProperties: false,
 };
@@ -232,7 +260,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'socialSecurityAndMedicarePaid',
     schema: number,
-    states: ['MA'],
+    states: ['MA', 'AL'],
     doc: 'FICA, Medicare, railroad and public retirement contributions paid, deducted up to $2,000 per filer. There is no federal equivalent — the federal return never deducts the employee half of FICA — so this figure comes off a W-2 and nothing else.',
   },
   {
@@ -309,7 +337,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'stateItemizedDeductions',
     schema: number,
-    states: ['MD', 'VA', 'GA', 'MO'],
+    states: ['MD', 'VA', 'GA', 'MO', 'AL', 'OR', 'WI'],
     doc: 'Federal Schedule A less the state and local INCOME taxes inside it. Needs federalItemized. Maryland reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate); Virginia and Georgia COMPEL it, so a federal itemizer may not take the state standard deduction even when it is larger. Georgia does NOT require the state income tax to come out — its adjustment is for taxes paid to other states and investment interest on exempt income — so pass the Georgia figure as the IT-511 worksheet computes it.',
   },
   {
@@ -321,7 +349,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'netCapitalGain',
     schema: number,
-    states: ['MD', 'MO', 'AZ'],
+    states: ['MD', 'MO', 'AZ', 'SC', 'WI'],
     doc:
       "Net capital gain, Form 1040 line 7, and THREE STATES READ IT FOR THREE DIFFERENT PURPOSES. MARYLAND surtaxes it 2% when federal AGI exceeds $350,000; the threshold is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08, and you should exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains. MISSOURI subtracts 100% of it, short-term gain included (§ 143.121.3(14)), so pass the whole line. ARIZONA reads it as a TEST AND NOT AS AN AMOUNT: § 43-1022(22) subtracts a quarter of the long-term gain only where there is a net capital gain overall, so this field is the gate on longTermCapitalGainAfter2011 and Arizona subtracts nothing without it. One field, three mechanisms, and the figure to pass is the same one.",
   },
@@ -341,7 +369,10 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'taxableSocialSecurity',
     schema: number,
-    states: ['VA', 'MD', 'GA', 'KY', 'UT', 'CT', 'MO'],
+    states: [
+      'VA', 'MD', 'GA', 'KY', 'UT', 'CT', 'MO',
+      'AL', 'AZ', 'CA', 'ID', 'IL', 'IN', 'MI', 'MN', 'MS', 'NC', 'NY', 'OH', 'OR', 'SC', 'WI',
+    ],
     doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement. CONNECTICUT subtracts the WHOLE of it below $75,000 of federal AGI ($100,000 joint and for a qualifying surviving spouse) and at the threshold replaces that subtraction rather than tapering it \u2014 one dollar of income can cost a couple with $40,000 of benefits $405 \u2014 so a Connecticut retiree without this figure comes back far too high. Connecticut needs the GROSS benefit as well, in retirement.socialSecurityBenefits.',
   },
   {
@@ -414,6 +445,11 @@ export const STATE_FIELDS: readonly StateField[] = [
       '  totallyDisabled — qualifies at any age, and in MD for the spouse too.',
       '  governmentPension — KY and NY: federal, Commonwealth or Kentucky local retired pay, military service included. New York exempts a federal, NY State or NY local pension in full and at any age, which is the largest single fact about a New York retirement. The share attributable to service before 1 January 1998 is exempt WITHOUT LIMIT and does not consume the $31,110, so Kentucky has no maximum for that cohort.',
       '  serviceMonthsBefore1998, serviceMonthsAfter1997 — KY only: months of service credit either side of the cutoff, which set that share. A person who retired before 1998 has none after.',
+      '  survivorPension, survivorMilitaryRetirement, deceasedSpouseAge — retirement income received AS A SURVIVING SPOUSE, on a deceased spouse\'s behalf. SC ONLY changes its answer: § 12-6-1170(A) gives a survivor a SECOND deduction beside their own, capped at $3,000/$10,000 by the age the DECEASED SPOUSE WOULD HAVE REACHED this year rather than the claimant\'s — so pass deceasedSpouseAge, not the survivor\'s age, and an absent one takes the $3,000 band. The decedent\'s military retired pay comes out in full under § 12-6-1171 beside it, and NEITHER amount is reduced by the other or reduces the $15,000 senior deduction, which is the exact negation of (C)(1) on the veteran\'s own return. Worth $25,000 of deduction to a 65-year-old widow of a career soldier with a pension of her own. EVERY OTHER STATE reads these dollars exactly as employerPlanPension and militaryRetirement, so passing them costs nothing and loses nothing — Maryland\'s § 10-207(q) already defines military retirement income to INCLUDE death benefits from military service. Do not also put the same dollars in the own-income fields.',
+      '  SC — $3,000 of retirement income at any age and $10,000 from 65, PER PERSON; military retired pay in full and uncapped under § 12-6-1171, but § 12-6-1170(C)(1) charges it against that cap AND against the $15,000 age-65 deduction, so the pair is a FLOOR of $15,000 rather than a sum. A surviving spouse claims the whole thing a second time on the decedent\'s income, by their age, with (C)(1) switched off.',
+      '  OH — the retirement income credit is a staircase on retirement income, capped at $200, and lost entirely above the modified-AGI limit. It reads this field and was REFUSED it before v0.49.0.',
+      '  WI — the retirement income exclusion election.',
+      '  OR — the reduced-base retirement credit, from 62.',
       'Utah needs only militaryRetirement here.',
     ].join('\n'),
   },
@@ -444,7 +480,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'lesserSpouseIncome',
     schema: number,
-    states: ['VA'],
+    states: ['VA', 'SC', 'WI'],
     doc: 'Line 5 of the Spouse Tax Adjustment Worksheet — the SMALLER spouse\'s Virginia AGI less their exemptions. Omitted, an even split is assumed, which produces the adjustment\'s $257.50 maximum, and the result says so.',
   },
   {
@@ -462,19 +498,22 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'retirementIncome',
     schema: number,
-    states: ['NJ', 'OH', 'MI', 'IL', 'MS', 'NY'],
+    states: [
+      'NJ', 'OH', 'MI', 'IL', 'MS', 'NY',
+      'CT', 'GA', 'KY', 'MD', 'MO', 'OR', 'SC', 'WI',
+    ],
     doc: 'Taxable pension, annuity and IRA withdrawals as a RETURN total. IL, MS, MI and NY will subtract it under their own rules if `retirement` is not supplied, placing all of it on the first filer — which understates the New York exclusion, the only one of the four that is capped per person. New Jersey excludes up to $100,000 joint / $75,000 single at 62 or over, ending in a wall at $150,000 of total income that costs a joint retiree $1,381 on one dollar. Ohio bands a small retirement income credit on it. Michigan derives cityIncome from federal AGI less this figure when cityIncome is omitted. MD, GA, KY and UT read `retirement` instead, because theirs are per person.',
   },
   {
     name: 'propertyTaxPaid',
     schema: number,
-    states: ['NJ'],
+    states: ['NJ', 'WI'],
     doc: 'Property tax paid on a principal residence in the state. New Jersey allows a $15,000 deduction OR a flat $50 refundable credit, and the engine computes the return both ways and keeps the lower tax — which is not the same as taking the larger deduction.',
   },
   {
     name: 'rentPaid',
     schema: number,
-    states: ['NJ', 'MA'],
+    states: ['NJ', 'MA', 'WI'],
     doc: 'Rent paid on a principal residence in the state. New Jersey treats 18% of it as property tax, and ignores it when propertyTaxPaid is given; Massachusetts deducts half of it, capped at $4,000.',
   },
   {
@@ -504,19 +543,28 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'dependentAges',
     schema: { type: 'array', items: integer },
-    states: ['NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA', 'IN', 'OR'],
+    states: [
+      'NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA', 'IN', 'OR',
+      'AL', 'IL', 'MI', 'MN', 'MS', 'OH', 'PA', 'SC', 'VA', 'WI',
+    ],
     doc: 'Age of EVERY dependent at year end, not only the children. IN: a dependent CHILD carries $1,500 of exemption that a dependent parent does not, so a count alone costs an Indiana family $74.55 a child in Marion County. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income. OR: TWO credits need it — the Oregon Kids Credit is $1,050 for each dependent UNDER SIX up to five of them, withdrawn across $5,000 of Oregon AGI so that a family with five of them faces an implied marginal rate of 105%; and the earned income credit is 17% of the federal credit where a dependent is under THREE against 14% otherwise. A count of dependents reaches neither, and the result says what that cost.',
   },
   {
     name: 'filerAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA'],
+    states: [
+      'VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA',
+      'MA', 'MN', 'OR', 'SC', 'WI',
+    ],
     doc: 'Filer age at year end. CA: one MORE personal exemption CREDIT at 65 — $153, worth the same at every rate and every income, and claimed per person, so a couple both 65 claim four personal exemptions rather than two. MS: $1,500 of extra exemption at 65, on the same line as the dependents. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
   },
   {
     name: 'spouseAge',
     schema: integer,
-    states: ['VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA'],
+    states: [
+      'VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA',
+      'MA', 'MN', 'OH', 'OR', 'SC', 'WI',
+    ],
     doc: 'Spouse age at year end, joint returns. California and Mississippi both claim their age allowance PER PERSON, so the second spouse at 65 is worth another $153 in California and another $60 of Mississippi tax. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
   },
   {

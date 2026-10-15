@@ -3116,6 +3116,49 @@ export interface RetirementIncomeSubtractionRule {
    * flag but a second NAME: see {@link exemptInFullName}.
    */
   readonly militaryReducesCap?: boolean;
+  /**
+   * A **second, independent claim** under the same rule, for retirement income
+   * the filer receives as a **surviving spouse** on a deceased spouse's behalf —
+   * South Carolina's SC1040 lines p-3 and p-6.
+   *
+   * Present means the state allows a survivor a deduction *in addition to* the
+   * one they claim on their own income, with its own cap, and that cap is read
+   * at {@link PersonRetirementIncome.deceasedSpouseAge} rather than at the
+   * survivor's own age — the decedent keeps ageing, so the band is theirs and
+   * not the claimant's.
+   *
+   * ## Why the construction carries its own behaviour instead of three flags
+   *
+   * Day 50 sized this item as "three rule flags": that the cap is set by the
+   * deceased spouse's age, that the survivor amounts are not reduced by the
+   * military deduction, and that they do not reduce the age-65 deduction. All
+   * three are true of South Carolina and all three are properties of **this
+   * construction** rather than dials a second state is known to set differently,
+   * so they are in the engine beside their citations and not in this interface.
+   * Day 50's other lesson is the reason: a boolean no state varies is a boolean
+   * nothing reads, the mutation audit cannot see it, and it took a second
+   * reading of the statute to find the last one.
+   *
+   * The honest caveat is that South Carolina itself varied one of them *before*
+   * this package's year range. `policyengine-us` carries a
+   * `subtract_military` parameter that is `true` for 2021 and `false` from 2022,
+   * because the 2021 SC1040 worksheet did charge the survivor's military pay
+   * against the survivor cap and the 2022 one stopped. Both supported years here
+   * are on the far side of that change. **The day this package adds a year
+   * before 2022, this becomes a parameter rather than a constant** — which is
+   * written here so that the day is a lookup rather than a rediscovery.
+   *
+   * Absent means the state has no separate survivor claim, and the survivor
+   * amounts are pooled with the filer's own income — which is what every other
+   * state in this package does, and is safe for the states nobody has researched
+   * because it preserves their answer exactly.
+   */
+  readonly survivorClaim?: {
+    /** The capped part's detail line — § 12-6-1170(A) for a survivor. */
+    readonly name: string;
+    /** The exempt-in-full part's detail line — § 12-6-1171 for a survivor. */
+    readonly exemptInFullName: string;
+  };
 }
 
 /**

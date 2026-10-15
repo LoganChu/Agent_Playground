@@ -1733,8 +1733,15 @@ test('state_income_tax computes Virginia, its 11.5% band and its unreachable cei
   // Virginia has no local income tax at all, which is the law rather than a gap.
   assert.deepEqual(both.localTaxes, []);
 
-  // The three Virginia-only fields are refused elsewhere rather than dropped.
-  for (const field of ['taxableSocialSecurity', 'lesserSpouseIncome', 'federalPovertyGuideline']) {
+  // Two of these three are refused outside Virginia and its companions. THE
+  // THIRD WAS PINNING A DEFECT: this loop asserted that New York refuses
+  // `taxableSocialSecurity`, and New York subtracts a taxable benefit in full —
+  // $1,080.00 of tax on $20,000 of it for a single filer of 70 at $60,000. The
+  // test passed every day for weeks because it was a test of the code and not of
+  // the law, which is the one failure mode a snapshot cannot tell you about.
+  // Fifteen states were in that position; the measurement is in
+  // `state-field-gates.test.js`.
+  for (const field of ['lesserSpouseIncome', 'federalPovertyGuideline']) {
     assert.match(
       err('state_income_tax', {
         state: 'NY',
@@ -1745,6 +1752,18 @@ test('state_income_tax computes Virginia, its 11.5% band and its unreachable cei
       /only applies to VA/,
     );
   }
+  // And `taxableSocialSecurity` is still refused where it genuinely means
+  // nothing: Pennsylvania has no federal starting line for it to come out of.
+  assert.match(
+    err('state_income_tax', {
+      state: 'PA',
+      filingStatus: 'single',
+      ...fed(100_000),
+      pennsylvaniaTaxableIncome: 100_000,
+      taxableSocialSecurity: 1_000,
+    }),
+    /taxableSocialSecurity only applies to /,
+  );
   // And the shared one is refused outside the two states that ask it.
   assert.match(
     err('state_income_tax', {
@@ -1996,10 +2015,19 @@ test('an unknown field inside retirement is an error a model can read', () => {
     retirement: { filer: { pension: 60_000 } },
   });
   assert.match(pensionTypo, /Unknown field\(s\) in retirement\.filer: pension/);
-  // The suggestion is the point: which of the two a caller meant changes the
+  // The suggestion is the point: which of these a caller meant changes the
   // answer by thousands of dollars, because Maryland writes an IRA out of its
   // exclusion by name and treats a government pension as an employer plan.
-  assert.match(pensionTypo, /Did you mean employerPlanPension or governmentPension\?/);
+  //
+  // `survivorPension` joined the candidates on Day 51 and is LAST here, where the
+  // engine's own suggester puts it first — this one keeps declaration order and
+  // that one breaks a tie on length. Two orders from one fact, which is worth
+  // noting rather than unifying: the commonest typo wants the commonest field
+  // first, and only one of the two gives it.
+  assert.match(
+    pensionTypo,
+    /Did you mean employerPlanPension or governmentPension or survivorPension\?/,
+  );
 
   const benefitTypo = err('state_income_tax', {
     ...retiree,
@@ -2208,4 +2236,103 @@ test('figure_provenance refuses a path it does not have, and says how to find on
   assert.match(err('figure_provenance', { year: 2024, figure: 'scheduleOneA.tips.cap' }), /no figure at/);
   assert.equal(ok('figure_provenance', { year: 2025, figure: 'scheduleOneA.tips.cap' }).structured.value, 25_000);
   assert.match(err('figure_provenance', { figure: 'standardDeduction.single', filingStatus: 'single' }), /Unknown argument/);
+});
+
+// ---------------------------------------------------------------------------
+// The `retirement` gate, and the three states it was refusing
+//
+// `STATE_FIELDS` gates each argument on the states that read it and this server
+// REFUSES the argument otherwise. Until v0.49.0 the retirement entry was the
+// last hand-written list in that module and it named 13 states where the engine
+// reads 16 — so Ohio, South Carolina and Wisconsin were refused a field that
+// moves their tax, with a message naming the states that do read it.
+//
+// A model asking about an Ohio retiree was told, in terms, that Ohio does not
+// read a pension. That is not a silently dropped field; it is a wrong answer the
+// caller has been argued out of.
+// ---------------------------------------------------------------------------
+
+test('the three states the retirement gate was refusing now take the field', () => {
+  // SOUTH CAROLINA, which had been in the engine for two days when this was
+  // found: a 65-year-old widow of a career soldier, the household Day 51's
+  // § 12-6-1170 work is about. The four detail lines are the proof the input
+  // arrived, not just that it was accepted.
+  const widow = ok('state_income_tax', {
+    state: 'SC',
+    year: 2025,
+    filingStatus: 'single',
+    filerAge: 65,
+    federalAdjustedGrossIncome: 150_000,
+    federalTaxableIncome: 134_250,
+    federalDeduction: 15_750,
+    retirement: {
+      filer: {
+        employerPlanPension: 20_000,
+        survivorPension: 15_000,
+        survivorMilitaryRetirement: 30_000,
+        deceasedSpouseAge: 70,
+      },
+    },
+  });
+  assert.deepEqual(
+    widow.structured.state.computedSubtractions.map((d) => d.name),
+    [
+      'Retirement deduction',
+      'Surviving spouse military retirement deduction',
+      'Surviving spouse retirement deduction',
+      'Senior deduction (age 65)',
+    ],
+  );
+  assert.equal(widow.structured.state.tax, 4_158.3);
+
+  // OHIO, whose retirement income credit has read the field since v0.18.0 and
+  // was refused it for far longer than South Carolina. $200, the whole credit.
+  const ohio = ok('state_income_tax', {
+    state: 'OH',
+    year: 2026,
+    filingStatus: 'single',
+    filerAge: 60,
+    federalAdjustedGrossIncome: 90_000,
+    federalTaxableIncome: 74_250,
+    federalDeduction: 15_750,
+    retirement: { filer: { employerPlanPension: 30_000 } },
+  });
+  assert.equal(
+    ohio.structured.state.credits.find((c) => c.name === 'Retirement income credit')?.amount,
+    200,
+  );
+
+  // WISCONSIN, the exclusion election. Accepted is the whole claim here: the
+  // figure is pinned in the engine's own suite.
+  ok('state_income_tax', {
+    state: 'WI',
+    year: 2026,
+    filingStatus: 'single',
+    filerAge: 70,
+    federalAdjustedGrossIncome: 40_000,
+    federalTaxableIncome: 24_250,
+    federalDeduction: 15_750,
+    retirement: { filer: { employerPlanPension: 20_000 } },
+  });
+});
+
+test('the retirement gate is derived, so a state with no retirement rule is still refused', () => {
+  // The fix is a derivation and not a wider literal: California reads no
+  // retirement rule at all and is still refused, which is what makes the
+  // refusal worth having.
+  const refused = err('state_income_tax', {
+    state: 'CA',
+    year: 2026,
+    filingStatus: 'single',
+    filerAge: 70,
+    federalAdjustedGrossIncome: 90_000,
+    federalTaxableIncome: 74_250,
+    federalDeduction: 15_750,
+    retirement: { filer: { employerPlanPension: 30_000 } },
+  });
+  assert.match(refused, /retirement only applies to /);
+  assert.match(refused, /CA was requested/);
+  // And the message now names all sixteen, so a caller redirected by it is
+  // redirected to the truth.
+  for (const state of ['OH', 'SC', 'WI']) assert.match(refused, new RegExp(state));
 });

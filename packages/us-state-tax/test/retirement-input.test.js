@@ -46,17 +46,24 @@ test('a field of PersonRetirementIncome that does not exist is rejected', () => 
     name: 'RangeError',
     message: /retirement\.filer\.pension is not a field/,
   });
-  // The suggestion is the point of the message: the two fields that contain the
-  // word are the two a caller could have meant, and which one they meant changes
-  // the answer by thousands of dollars in Maryland and Kentucky.
+  // The suggestion is the point of the message: the fields that contain the word
+  // are the ones a caller could have meant, and which one they meant changes the
+  // answer by thousands of dollars in Maryland and Kentucky.
   //
   // Day 38 moved this rule into `nearestFields`, shared with the top-level
-  // guard, and the order changed with it: both fields share the same seven
+  // guard, and the order changed with it: the candidates share the same seven
   // characters with `pension`, so the tie goes to the one closest in length.
   // Declaration order was what put `employerPlanPension` first before, which is
   // not a reason for anything.
+  //
+  // DAY 51 ADDED A THIRD CANDIDATE AND IT WENT TO THE FRONT. `survivorPension`
+  // is shorter than both of the others, so the length tie-break ranks the
+  // NARROWEST of the three first for the commonest typo — a cost of widening the
+  // input surface that is worth stating rather than hiding, and the reason the
+  // message prints every candidate instead of only the best one. A caller who
+  // wrote `pension` still sees `employerPlanPension` in the list.
   assert.throws(() => stateIncomeTax(retiree({ filer: { pension: 50_000 } })), {
-    message: /Did you mean `governmentPension` or `employerPlanPension`\?/,
+    message: /Did you mean `survivorPension` or `governmentPension` or `employerPlanPension`\?/,
   });
   assert.throws(() => stateIncomeTax(retiree({ spouse: { socialSecurity: 20_000 } })), {
     message: /Did you mean `socialSecurityBenefits`\?/,
@@ -101,6 +108,9 @@ test('every documented field is accepted, and an empty split is fine', () => {
     serviceMonthsBefore1998: 120,
     serviceMonthsAfter1997: 60,
     totallyDisabled: false,
+    survivorPension: 8_000,
+    survivorMilitaryRetirement: 9_000,
+    deceasedSpouseAge: 68,
   };
   assert.deepEqual(Object.keys(everyField).sort(), [...PERSON_RETIREMENT_FIELDS].sort());
   assert.doesNotThrow(() => stateIncomeTax(retiree({ filer: everyField, spouse: everyField })));

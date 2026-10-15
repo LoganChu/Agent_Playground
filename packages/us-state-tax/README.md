@@ -7,7 +7,9 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.45.0: **South Carolina's military retirement deduction is NOT outside the retirement cap — it comes out of it, and reading it the other way was worth up to `$10,000` of deduction to every military retiree with any other retirement income.**
+New in 0.46.0: **a surviving spouse claims South Carolina's retirement deductions a SECOND time on the deceased spouse's income, by the DECEASED spouse's age, with § 12-6-1170(C)(1) switched off — worth `$25,000` of deduction and `$1,500.00` of 2025 tax to a widow of a career soldier with a pension of her own, and the only South Carolina household this package has ever been too HIGH for.** New fields `survivorPension`, `survivorMilitaryRetirement` and `deceasedSpouseAge`; every other state reads them exactly as the filer's own income, which is measured across all 35 states rather than asserted.
+
+Also in 0.46.0: two credits read the caller's input directly rather than the pooled person and were silently smaller for a widow who used the new fields — Ohio's retirement income credit by `$200` and Utah's military retirement credit by `$1,335`. Both found by the cross-state sweep before shipping, both fixed, both pinned.
 
 § 12-6-1171 deducts military retired pay in full, uncapped, at any age; v0.44.0 modelled it as sitting *beside* the ordinary `$3,000`/`$10,000` retirement deduction of § 12-6-1170(A), on the reasoning that it is a separate statute with its own form line. It is a separate statute **that shares the cap**: § 12-6-1170(C)(1) reduces "the deduction allowed by this section" — (A) as well as (B) — by whatever is deducted under § 12-6-1171, and the 2025 SC1040 instructions apply it on line 3 of the line p-1 and p-2 worksheets, above the retirement-income limit. A 65-year-old with `$60,000` of retired pay and a `$20,000` civilian pension subtracts **`$60,000`, not `$70,000`**, and pays `$3,858.30` for 2025 where this package said `$3,258.30`. The two rules compose into a **floor**, not a sum — at 65 the total is `max($15,000, military + min(other, max($0, $10,000 - military)))` — so below `$5,000` of retired pay the senior deduction fills the hole and the answer does not move at all, and from `$20,000` of it the whole `$10,000` is gone. **The correction raises tax, which is the direction a filer otherwise hears about from the Department rather than from their software.** Four routes agreed before it was written: the statute's own words, the SC1040 line p worksheets, SC Revenue Ruling #22-11, and `policyengine-us` 2.41.3, whose answer for the same household is this package's three detail lines to the dollar.
 
@@ -677,7 +679,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.45.0/us-state-tax-0.45.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.46.0/us-state-tax-0.46.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2870,7 +2872,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **693** notes every
+`test/notes.test.js` pins the first 72 characters of all **695** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3168,7 +3170,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **867 tests**. Turning it on, when there were 618 of them, is what
+from all **878 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

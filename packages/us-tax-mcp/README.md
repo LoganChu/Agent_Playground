@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.48.0/us-tax-mcp-0.48.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.49.0/us-tax-mcp-0.49.0.tgz"
       ]
     }
   }
@@ -156,7 +156,27 @@ tool says in its own output rather than only here.
 
 ## State tax: the rate is the easy part
 
-**New in 0.48.0 — a provision subtracted under two statutes now answers with a
+**New in 0.49.0 — ELEVEN ARGUMENTS WERE BEING REFUSED FOR STATES WHOSE TAX THEY
+MOVE, and the refusal told the caller the field did not apply to their state.**
+
+Every argument of `state_income_tax` is paired with the states that read it and
+refused for any other, which is deliberate: a silently ignored field is a wrong
+answer with no symptom. But eleven of those lists were written by hand and had
+drifted, the worst of them badly — `taxableSocialSecurity` was refused for
+**fifteen** states that subtract a Social Security benefit, up to `$1,206.16` of
+Minnesota tax on one household; `dependentAges` for ten, `retirementIncome` for
+eight, `filerAge` for five including the one state where age decides the whole
+retirement answer. **A field refused with a false explanation is worse than a
+field silently dropped, because the message names the states that do read it and
+the caller believes it.**
+
+All eleven are fixed, every remaining literal in the handler now reads the shared
+table, and a new test measures all 44 gates by running households in all 35
+states — so the next drift fails a build instead of answering a question wrongly.
+One existing test was asserting the defect: it required New York to refuse
+`taxableSocialSecurity`, and New York subtracts the benefit in full.
+
+**Also new in 0.49.0 — a provision subtracted under two statutes now answers with a
 line for each, and South Carolina's military retirement deduction comes out of
 the retirement cap rather than past it.** Asked about a 65-year-old South
 Carolina filer with `$60,000` of military retired pay and a `$20,000` civilian
@@ -1018,8 +1038,8 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **400 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **867 tests**, every state figure cited to its statute.
-This package adds **170 more** covering the protocol and the tool layer. Those three
+sources. `packages/us-state-tax`: **878 tests**, every state figure cited to its statute.
+This package adds **174 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

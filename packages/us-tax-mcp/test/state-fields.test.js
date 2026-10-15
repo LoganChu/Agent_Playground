@@ -300,8 +300,19 @@ test('a field offered to a state the table includes is accepted', () => {
       const args = {
         ...baseArgs(state),
         [field.name]: sampleValue(field),
-        // Two fields are refused without their partner, for their own reasons.
-        ...(field.name === 'stateItemizedDeductions' ? { federalItemized: true } : {}),
+        // Two fields are refused without their partner, for their own reasons —
+        // AND THE PARTNERSHIP IS NOT UNIVERSAL, which Day 51 found. Alabama,
+        // Oregon and Wisconsin read `stateItemizedDeductions` and do NOT read
+        // `federalItemized`: measured, not assumed — itemizing moves an Alabama
+        // answer from $4,260.00 to $3,385.00 at $90,000 with no federal election
+        // supplied, and supplying the election alone moves nothing in any of the
+        // three. So the partner is added only where the table says that state
+        // reads it, or this test refuses a field on the strength of a second
+        // field the state never asked for.
+        ...(field.name === 'stateItemizedDeductions' &&
+        STATE_FIELDS.find((f) => f.name === 'federalItemized')?.states.includes(state)
+          ? { federalItemized: true }
+          : {}),
       };
       // Ohio refuses a work city without earnings and vice versa; both are
       // exercised by the tool's own suite.

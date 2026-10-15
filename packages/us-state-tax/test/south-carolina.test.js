@@ -576,6 +576,22 @@ test('THE FINDING: the add-back makes South Carolina look INDIFFERENT to the fed
 // Part 7 — every money figure in South Carolina's PROSE is one the engine computes
 // ---------------------------------------------------------------------------
 
+/**
+ * The surviving-spouse household the notes are about, hoisted because the prose
+ * instrument and Part 12 both read it and a second copy would be a second thing
+ * to keep right.
+ */
+const WIDOW = {
+  filer: {
+    employerPlanPension: 20_000,
+    survivorPension: 15_000,
+    survivorMilitaryRetirement: 30_000,
+    deceasedSpouseAge: 70,
+  },
+};
+/** The same dollars with no field to put them in, which is what v0.45.0 had. */
+const AS_HER_OWN = { filer: { employerPlanPension: 35_000, militaryRetirement: 30_000 } };
+
 test('every dollar figure in a South Carolina note is accounted for, in one of FOUR ways', () => {
   // Days 46, 47 and 48 each ended with the same worklist item: the only class of
   // claim in this package with no instrument over it is a money figure in PROSE.
@@ -682,6 +698,14 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
       agi: 120_000,
       lesserSpouseIncome: 60_000,
     }),
+    // Day 51's household: the widow of a career soldier, in both years and both
+    // ways round. Her four detail lines ARE the note's four figures, so they are
+    // accounted as answers rather than excused by a coincidence elsewhere —
+    // which is what the first run of this instrument did to all but one of them.
+    widow2025: sc({ year: 2025, agi: 150_000, filerAge: 65, retirement: WIDOW }),
+    widow2026: sc({ year: 2026, agi: 150_000, filerAge: 65, retirement: WIDOW }),
+    widowAsHerOwn2025: sc({ year: 2025, agi: 150_000, filerAge: 65, retirement: AS_HER_OWN }),
+    widowAsHerOwn2026: sc({ year: 2026, agi: 150_000, filerAge: 65, retirement: AS_HER_OWN }),
   };
   for (const [name, r] of Object.entries(H)) {
     add(r.tax, `answer ${name}.tax`);
@@ -700,6 +724,15 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
   add(H.joint120k2026.tax - 2 * H.single60k2026.tax, 'answer the 2026 marriage penalty');
   add(H.pension50.tax - H.pension66.tax, 'answer what turning 65 is worth');
   add(2 * H.single60k2025.tax, 'answer two single filers at $60,000');
+  const subtracted = (r) => r.computedSubtractions.reduce((sum, d) => sum + d.amount, 0);
+  add(subtracted(H.widow2025), 'answer what the widow deducts');
+  add(subtracted(H.widowAsHerOwn2025), 'answer what the same dollars deduct as her own');
+  add(
+    subtracted(H.widow2025) - subtracted(H.widowAsHerOwn2025),
+    'answer what the survivor fields are worth in deduction',
+  );
+  add(H.widowAsHerOwn2025.tax - H.widow2025.tax, 'answer the widow 2025 tax');
+  add(H.widowAsHerOwn2026.tax - H.widow2026.tax, 'answer the widow 2026 tax');
 
   // (3) INPUTS — the households the sentences are about. Declared, because
   // nothing can infer which numbers in a sentence are its subject.
@@ -743,16 +776,22 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
     d2025.agedIncomeSubtraction.maximum - sharedCap,
     'derivation where the floor stops absorbing (C)(1)',
   );
-  // The surviving spouse the package does not model, and the instrument caught
-  // the first version of this one: the gap is THREE amounts, not two. The
-  // decedent's own (A) cap, the filer's own (A) cap — which this package's
-  // (C)(1) reduction destroys and the surviving-spouse carve-out does not — and
-  // what is left of the senior deduction after the filer's own (A) reduces it
-  // under (B)'s own words. $10,000 + $10,000 + $5,000, and the senior deduction
-  // is NOT kept whole, which is what the first draft of the note said.
+  // The surviving spouse, and the instrument caught the first version of this
+  // one: the gap is THREE amounts, not two. The decedent's own (A) cap, the
+  // filer's own (A) cap — which (C)(1) destroys on a veteran's own return and
+  // the surviving-spouse carve-out does not — and what is left of the senior
+  // deduction after the filer's own (A) reduces it under (B)'s own words.
+  // $10,000 + $10,000 + $5,000, and the senior deduction is NOT kept whole,
+  // which is what the first draft of the note said.
+  //
+  // DAY 51 MODELLED IT, so this is now a derivation the ENGINE also produces —
+  // `answer what the survivor fields are worth in deduction` above is the same
+  // $25,000 computed by running the household. Keeping both is the point: the
+  // declaration is the statute's arithmetic and the answer is the code's, and an
+  // instrument that accepted only one of them could not tell them apart.
   declare(
     sharedCap * 2 + Math.max(0, d2025.agedIncomeSubtraction.maximum - sharedCap),
-    'derivation what a military widow keeps that this package charges',
+    'derivation what the surviving-spouse carve-out is worth',
   );
   // The income one $10 step costs at the 3/11 withdrawal rate, TRUNCATED to
   // cents — the prose writes it "$36.66..." with the ellipsis, because the value
@@ -986,4 +1025,246 @@ test('policyengine-us agrees on (C)(1), line for line', () => {
     { name: 'Senior deduction (age 65)', amount: 5_000 },
   ]);
   money(r.tax, 0, 'no tax on $7,000 at 70');
+});
+
+// ---------------------------------------------------------------------------
+// Part 12 — THE SURVIVING SPOUSE. Day 50 declared this household NOT MODELLED
+// and wrote its arithmetic into the state's notes; Day 51 modelled it.
+//
+// It is the one South Carolina household where this package was too generous to
+// the STATE rather than to the filer, and the direction matters for the same
+// reason Day 50's did in reverse: a filer who is overcharged does not get a
+// letter telling them so.
+//
+// Four routes before a line was written, which is Day 46's rule:
+//   1. § 12-6-1170(A) — the deduction is allowed to a surviving spouse "in the
+//      same manner" the deceased spouse would have taken it.
+//   2. The SC1040 line p instructions — "$3,000 or $10,000 of the qualified
+//      retirement income, based on the age of the deceased"; "in addition to the
+//      individual retirement deduction claimed from the taxpayer's own
+//      retirement plan"; and "do not reduce the surviving spouse retirement
+//      deduction by any surviving spouse military retirement deduction taken."
+//   3. SCDOR's own guidance — the cap rises "for the year the deceased spouse
+//      would have been 65 and older", and the age 65 and older deduction "is not
+//      reduced by any surviving spouse retirement deduction".
+//   4. policyengine-us 2.41.3, which has `sc_retirement_deduction_survivors`
+//      and `sc_military_deduction_survivors` and publishes fixtures for both.
+// ---------------------------------------------------------------------------
+
+test('a widow of a career soldier keeps $25,000 of deduction the shared cap was taking', () => {
+  // THE HEADLINE HOUSEHOLD, and it is Day 50's Part 5 arithmetic with an input
+  // to express it. A single filer of 65 whose husband would have been 70, with
+  // her own $20,000 civilian pension, his $30,000 of military retired pay and
+  // his $15,000 pension, on $150,000 of income.
+  //
+  //   her own § 12-6-1170(A)                    $10,000   (her age: 65)
+  //   his § 12-6-1171, in full and uncapped     $30,000
+  //   his § 12-6-1170(A)                        $10,000   (HIS age: 70)
+  //   § 12-6-1170(B), reduced by HER OWN alone  $ 5,000   ($15,000 - $10,000)
+  //                                             -------
+  //                                             $55,000
+  //
+  // Against the $30,000 the same dollars got when a caller had no field for them
+  // and had to call them her own: the military pay exempt in full, and
+  // (C)(1) taking the whole $10,000 cap and the whole $15,000 senior deduction
+  // with it. $25,000 of deduction, and all four lines named for their own
+  // statute.
+  // WIDOW and AS_HER_OWN are the hoisted pair the prose instrument also reads, so
+  // the note's figures and this test's figures are the same household by
+  // construction rather than by two copies agreeing.
+  const survivor = WIDOW;
+  const asHerOwn = AS_HER_OWN;
+
+  const r2025 = sc({ year: 2025, agi: 150_000, filerAge: 65, retirement: survivor });
+  assert.deepEqual(r2025.computedSubtractions, [
+    { name: 'Retirement deduction', amount: 10_000 },
+    { name: 'Surviving spouse military retirement deduction', amount: 30_000 },
+    { name: 'Surviving spouse retirement deduction', amount: 10_000 },
+    { name: 'Senior deduction (age 65)', amount: 5_000 },
+  ]);
+  // 2025: federal taxable is $150,000 - $15,750 = $134,250, plus the $750 OBBBA
+  // add-back = $135,000, less $55,000 = $80,000. The schedule charges 0% on
+  // $3,560, 3% on $14,270 and 6% above:
+  //   0.03 x 14,270 + 0.06 x (80,000 - 17,830) = 428.10 + 3,730.20 = 4,158.30
+  money(r2025.taxableIncome, 80_000, '2025 base');
+  money(r2025.tax, 4_158.30, '2025 tax');
+
+  const before2025 = sc({ year: 2025, agi: 150_000, filerAge: 65, retirement: asHerOwn });
+  money(before2025.taxableIncome, 105_000, '2025 base as her own');
+  // 428.10 + 0.06 x (105,000 - 17,830) = 428.10 + 5,230.20 = 5,658.30
+  money(before2025.tax, 5_658.30, '2025 tax as her own');
+  // $25,000 of deduction at the 6% top rate, to the cent.
+  money(before2025.tax - r2025.tax, 1_500, '2025 cost of the shared cap');
+
+  const r2026 = sc({ year: 2026, agi: 150_000, filerAge: 65, retirement: survivor });
+  // 2026: the SCIAD is fully withdrawn at $150,000 of federal AGI, so the base
+  // is $150,000 - $55,000 = $95,000, charged 1.99% on $30,000 and 5.21% above:
+  //   0.0199 x 30,000 + 0.0521 x 65,000 = 597.00 + 3,386.50 = 3,983.50
+  money(r2026.taxableIncome, 95_000, '2026 base');
+  money(r2026.tax, 3_983.50, '2026 tax');
+  const before2026 = sc({ year: 2026, agi: 150_000, filerAge: 65, retirement: asHerOwn });
+  // 597.00 + 0.0521 x 90,000 = 597.00 + 4,689.00 = 5,286.00
+  money(before2026.tax, 5_286, '2026 tax as her own');
+  // $25,000 at 5.21%.
+  money(before2026.tax - r2026.tax, 1_302.50, '2026 cost of the shared cap');
+});
+
+test('the deceased spouse keeps ageing, so the cap belongs to somebody not on the return', () => {
+  // SCDOR: the deduction rises to $10,000 "for the year the deceased spouse
+  // would have been 65 and older" — not the year they died. So reading the
+  // claimant's own age is wrong in BOTH directions, and these two households are
+  // the two directions.
+  //
+  // A widow of 55 whose husband would have been 70 holds a $10,000 cap.
+  const young = sc({
+    year: 2025,
+    agi: 60_000,
+    filerAge: 55,
+    retirement: { filer: { survivorPension: 40_000, deceasedSpouseAge: 70 } },
+  });
+  assert.deepEqual(young.computedSubtractions, [
+    { name: 'Surviving spouse retirement deduction', amount: 10_000 },
+  ]);
+  // And a widow of 70 whose husband would have been 60 holds $3,000 — while her
+  // OWN age still buys her the $15,000 senior deduction, which the survivor
+  // claim does not touch.
+  const old = sc({
+    year: 2025,
+    agi: 60_000,
+    filerAge: 70,
+    retirement: { filer: { survivorPension: 40_000, deceasedSpouseAge: 60 } },
+  });
+  assert.deepEqual(old.computedSubtractions, [
+    { name: 'Surviving spouse retirement deduction', amount: 3_000 },
+    { name: 'Senior deduction (age 65)', amount: 15_000 },
+  ]);
+  // Supplying her own age in the decedent's field is the substitution that looks
+  // right: it would give the first household $3,000 and the second $10,000, both
+  // wrong, and $7,000 of deduction apart in each direction.
+  const wrongWayRound = sc({
+    year: 2025,
+    agi: 60_000,
+    filerAge: 55,
+    retirement: { filer: { survivorPension: 40_000, deceasedSpouseAge: 55 } },
+  });
+  money(
+    young.computedSubtractions[0].amount - wrongWayRound.computedSubtractions[0].amount,
+    7_000,
+    'the cost of reading the wrong person age',
+  );
+});
+
+test('an absent deceased-spouse age takes the lowest band rather than the largest', () => {
+  // The same principle as an unsupplied `filerAge`: an unknown age must not buy
+  // the bigger figure. $3,000, not $10,000.
+  const r = sc({
+    year: 2025,
+    agi: 60_000,
+    filerAge: 70,
+    retirement: { filer: { survivorPension: 40_000 } },
+  });
+  assert.deepEqual(r.computedSubtractions, [
+    { name: 'Surviving spouse retirement deduction', amount: 3_000 },
+    { name: 'Senior deduction (age 65)', amount: 15_000 },
+  ]);
+});
+
+test('(C)(1) governs the veteran own return and not the widow — policyengine-us case 2', () => {
+  // `sc_retirement_deduction_survivors.yaml` case 2, in the 2022-onwards regime
+  // this package's two years are both inside: survivor pension $4,000, survivor
+  // military retired pay $6,000, cap $3,000. The reference model returns
+  // $3,000 — measured in a virtualenv here, not read off the fixture — and
+  // $3,000 is the WHOLE cap rather than `max($3,000 - $6,000, 0) = $0`.
+  //
+  // THAT IS THE TEST THAT DISCRIMINATES. If (C)(1) reached a surviving spouse
+  // this figure would be zero, and the instructions say in terms that it does
+  // not: "do not reduce the surviving spouse retirement deduction by any
+  // surviving spouse military retirement deduction taken."
+  const r = sc({
+    year: 2025,
+    agi: 10_000,
+    filerAge: 64,
+    retirement: {
+      filer: { survivorPension: 4_000, survivorMilitaryRetirement: 6_000, deceasedSpouseAge: 64 },
+    },
+  });
+  assert.deepEqual(r.computedSubtractions, [
+    { name: 'Surviving spouse military retirement deduction', amount: 6_000 },
+    { name: 'Surviving spouse retirement deduction', amount: 3_000 },
+  ]);
+
+  // Case 1 of the same fixture, at 70: survivor pension $1,000 against a
+  // $10,000 cap, and $4,000 of survivor military pay exempt in full beside it.
+  const case1 = sc({
+    year: 2025,
+    agi: 10_000,
+    filerAge: 70,
+    retirement: {
+      filer: { survivorPension: 1_000, survivorMilitaryRetirement: 4_000, deceasedSpouseAge: 70 },
+    },
+  });
+  assert.deepEqual(case1.computedSubtractions, [
+    { name: 'Surviving spouse military retirement deduction', amount: 4_000 },
+    { name: 'Surviving spouse retirement deduction', amount: 1_000 },
+    // AND THE WHOLE $15,000, which is the third claim: the survivor's two
+    // deductions do not reduce § 12-6-1170(B). Measured in the reference model
+    // too — `sc_senior_exemption` returns 15,000 for this household, where the
+    // same $5,000 of her OWN income would have cut it to $10,000.
+    { name: 'Senior deduction (age 65)', amount: 15_000 },
+  ]);
+});
+
+test('the survivor claim is in addition to her own, and the two caps are separate', () => {
+  // The instructions' own sentence, as arithmetic. A widow of 70 whose husband
+  // would have been 70, with $12,000 of her own pension and $12,000 of his:
+  // $10,000 from each cap, not $10,000 between them. And the senior deduction is
+  // reduced by HER $10,000 alone.
+  const r = sc({
+    year: 2025,
+    agi: 80_000,
+    filerAge: 70,
+    retirement: {
+      filer: { employerPlanPension: 12_000, survivorPension: 12_000, deceasedSpouseAge: 70 },
+    },
+  });
+  assert.deepEqual(r.computedSubtractions, [
+    { name: 'Retirement deduction', amount: 10_000 },
+    { name: 'Surviving spouse retirement deduction', amount: 10_000 },
+    { name: 'Senior deduction (age 65)', amount: 5_000 },
+  ]);
+  // $25,000 of subtraction against the $15,000 a single cap plus the floor would
+  // have given her — the same $10,000 of difference the headline household has,
+  // arriving through the cap rather than through (C)(1).
+  const onlyHerOwn = sc({
+    year: 2025,
+    agi: 80_000,
+    filerAge: 70,
+    retirement: { filer: { employerPlanPension: 24_000 } },
+  });
+  money(
+    r.computedSubtractions.reduce((sum, d) => sum + d.amount, 0),
+    25_000,
+    'two caps',
+  );
+  money(
+    onlyHerOwn.computedSubtractions.reduce((sum, d) => sum + d.amount, 0),
+    15_000,
+    'one cap and the floor',
+  );
+});
+
+test('a household with only survivor income still reaches the rule', () => {
+  // The rule is skipped when it subtracts nothing, and the filer's own halves
+  // are both zero here. Testing only those would have skipped the rule and taxed
+  // her whole pension — which is why the emptiness test reads the survivor claim
+  // too.
+  const r = sc({
+    year: 2025,
+    agi: 40_000,
+    filerAge: 50,
+    retirement: { filer: { survivorPension: 9_000, deceasedSpouseAge: 66 } },
+  });
+  assert.deepEqual(r.computedSubtractions, [
+    { name: 'Surviving spouse retirement deduction', amount: 9_000 },
+  ]);
 });
