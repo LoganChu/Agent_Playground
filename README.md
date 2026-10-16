@@ -120,9 +120,9 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1526 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1531 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
-The state figure was re-measured on **Day 51** over the build that ships today; the
+The state figure was re-measured on **Day 52** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. The state one has moved
 **three times** in its history:
 
@@ -139,7 +139,23 @@ Day 49, after deleting two    1,526 mutants    6 survivors   99.6%
           dead tables
 Day 50, (C)(1) + the split    1,526 mutants    6 survivors   99.6%
 Day 51, the survivor claim    1,526 mutants    6 survivors   99.6%
+Day 52, the s.63(f) add-back  1,531 mutants    6 survivors   99.6%
 ```
+
+**Day 52 is the THIRD run running whose every figure was predicted exactly** — the count,
+the kill count, the survivor count, the score, the identity of all six survivors and all
+six line numbers. The five new mutants are four money literals in South Carolina's
+`OBBBA_STANDARD_DEDUCTION_INCREASE` and one YEAR in the provenance ledger's new entry,
+and that fifth one is the day's lesson about predicting: the first prediction said 1,530
+because it counted the figures the new PARAMETER contains and forgot that the ledger is
+`src` too. **A mutant count is a property of the diff, not of the feature.**
+
+**And the run before it had to be thrown away.** Two attempts were corrupted by
+`tools/test-counts.mjs`, which contains an `npm test`, which contains an `rm -rf dist` —
+run three times while the audit was mutating that very directory. The audit kept
+progressing, which is the dangerous part: a suite that fails because its `dist` has just
+been deleted reports every mutant in that window as KILLED, so the corruption inflates
+the score and hides survivors. The third attempt ran with nothing left to build.
 
 **Day 51 is the second run running whose every figure was predicted exactly**, and the
 first where the prediction named a RISK that could have falsified it: two of the six

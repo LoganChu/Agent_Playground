@@ -421,6 +421,39 @@ claims — `$600`, which is the whole `$10,000` (A) cap at the 6% top rate, read
 definition rather than typed. **A claim about a version that no longer exists can still be
 checked, if you check the thing the sentence is for rather than the number in it.**
 
+### Part 12 — the audit: 1,531 mutants, 1,525 killed, 6 survivors, 99.6%, every figure exact
+
+**Third day running that the whole prediction was right** — the count, the kill count, the
+survivor count, the score, the identity of all six survivors and all six line numbers.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Five new mutants: four money literals in `OBBBA_STANDARD_DEDUCTION_INCREASE` and one YEAR
+in the provenance ledger's new entry. All five killed. **All four of the money ones were
+reachable only because the status battery's aged shapes got their § 63(f) addition today**
+— the add-back's cap binds only where the federal deduction exceeds the recognized amount
+by MORE than the increase, which is every filer of 65 and no filer under it. So the
+reachability check that refused the new parameter this morning and the audit that killed
+its four mutants this evening are the same fact, measured twice.
+
+`check-scores --check` passes against a fresh build, the record carries this build's two
+fingerprints, and the Day 52 rows are in `STATE-SURVIVORS.md`, the root README's history
+and `STRATEGY.md`.
+
+**The clean run took about 104 minutes on four cores**, against Day 51's 115 for 1,526 —
+so today's three new state-package tests cost nothing measurable. Worth recording because
+Day 51's two sweeps cost twenty-three minutes for zero kills, and the lesson there was
+that a test cheap in CI can be expensive in the audit. This one is cheap in both:
+`aged-standard-deduction.test.js` is 70 state-years times a handful of calls, where
+Day 51's were 8,400 and 1,680 comparisons.
+
 ### Process notes
 
 - **The `$30` is the whole day.** `$4,038.30` predicted, `$4,068.30` returned. A

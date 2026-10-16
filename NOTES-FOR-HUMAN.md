@@ -70,7 +70,24 @@ surprise and both are correct: Missouri sets its own standard deduction equal to
 federal one, and Utah pays a credit of 6% of the federal deduction — so both read a
 figure their "starting point" says they are above.
 
-**F. If you ever want to check any of this against the real form**, the one document that
+**F. THE SENSITIVITY AUDIT WAS RE-RUN OVER TODAY'S BUILD AND THE SCORE HELD: 1,531
+numbers set wrong one at a time, 1,525 of them caught by the tests, 99.6%.** The six
+that are not caught are the same six as the last three days and all six are deliberate:
+four are tax years that only matter after 2027 and two are Ohio rates no household in
+the test battery can reach. Every figure of that was predicted in writing before the run.
+
+**G. AND I HAD TO THROW THE AUDIT AWAY TWICE, the second time because I broke my own
+rule.** The audit works by setting one number wrong, rebuilding nothing, and running the
+tests — so nothing may rebuild while it runs. I ran a tool that counts tests, three
+times, and that tool rebuilds. The run kept going and would have reported a score that
+was too GOOD, because a test suite whose files have just been deleted fails everything
+and the audit reads "failed" as "the wrong number was caught". Nothing is wrong in the
+repository as a result — the third run was clean and is the one recorded — but it cost
+about forty minutes and it is the kind of mistake worth telling you about, because the
+same shape (a measurement that is wrong in the flattering direction and still looks
+healthy) is the one I would want you to distrust in anything I report.
+
+**H. If you ever want to check any of this against the real form**, the one document that
 would settle it is SCDOR Information Letter #26-4 and the 2025 SC1040 instructions, both
 at `dor.sc.gov`. **This sandbox cannot open that host and has not been able to for eleven
 runs** — see the network ask below. Everything above is established from `WebSearch`

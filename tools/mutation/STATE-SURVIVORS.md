@@ -1,3 +1,92 @@
+# Day 52 — the prediction, the result beside it, and two runs thrown away
+
+**PREDICTED, in writing before the run: 1,531 mutants, 1,525 killed, 6 survivors, 99.6%,
+the same six and the same line numbers as Days 50 and 51.**
+
+**MEASURED: 1,531 mutants, 1,525 killed, 6 survivors, 99.6%, the same six and the same
+line numbers.** Every figure, for the THIRD day running.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+## The count was predicted TWICE and the first one was wrong by one
+
+The first prediction said **1,530**: four money literals in South Carolina's new
+`OBBBA_STANDARD_DEDUCTION_INCREASE` — `750`, `750`, `1,125`, `1,500`, four by POSITION
+rather than three by value, all clearing the harness's `$100` floor. The harness
+announced 1,531 within twenty seconds of starting, and the fifth literal is not money:
+`data/provenance.ts` gained an entry for `recognizedStandardDeduction.increase.*` with
+`years: [2025]`, **and the harness mutates years as well as rates and money.**
+
+**THE RULE: A MUTANT COUNT IS A PROPERTY OF THE DIFF, NOT OF THE FEATURE.** Predicting it
+from what the change is ABOUT misses every literal the change needed on the way — and the
+provenance ledger is `src`, it compiles to `dist`, and a year in it is as mutable as a
+year in a rate table.
+
+The corrected prediction was written at 60/1,531 and was exact.
+
+## All four new mutants were predicted KILLED, and the reason was already proved
+
+The add-back is capped by the increase, and **the cap only binds where the federal
+deduction exceeds the state's recognized amount by MORE than the increase** — which is
+every filer of 65 and no filer under it. So the four cells were reachable only once the
+status battery's five aged shapes got their § 63(f) addition:
+
+```text
+  single              17,750 - 15,000 = 2,750 >   750
+  separate            17,350 - 15,000 = 2,350 >   750
+  headOfHousehold     25,625 - 22,500 = 3,125 > 1,125
+  joint (two aged)    34,700 - 30,000 = 4,700 > 1,500
+```
+
+**The status sweep's own reachability check is what said so, before the audit ran.** It
+refused the new parameter with *"could be wrong and no pinned household would notice. Add
+a household that sits between the value and twice it"* — and it was right, in a battery
+that already had five households over 65 in it. **A reachability check on a new parameter
+is a question about the BATTERIES, not about the parameter.**
+
+## TWO RUNS WERE THROWN AWAY, and the second one is the one worth recording
+
+The first was killed deliberately at 50/1,531: `test/aged-standard-deduction.test.js` was
+written while it was in flight, and a score measured over a suite that is not the shipped
+suite is a score of nothing (Day 37's rule, Day 51's restart). Fifteen minutes, spent on
+purpose.
+
+**The second was killed at 200/1,531 because I had corrupted it.** Day 51's process note —
+written into Day 52's own journal entry that morning — says no rebuild may happen while
+the audit runs, because it mutates `packages/us-state-tax/dist`. I then ran
+`node tools/test-counts.mjs` three times. That tool runs `npm test` in all four
+directories, and `npm test` in the state package is `npm run build && node --test`, which
+is `rm -rf dist && tsc`.
+
+**The run kept progressing, which is the dangerous part.** A suite that fails because its
+`dist` has just been deleted reports every mutant in that window as KILLED, so the
+corruption INFLATES the score and HIDES survivors. A measurement that is wrong in the
+flattering direction and still looks healthy is the worst of the four possibilities, and
+nothing in this harness's output would have said so.
+
+Grepping `tools/` afterwards found a second instance: **`check-scores.mjs` — the tool
+whose whole job is verifying a score was measured over this build — runs `npm run build`
+itself.** Three of this repository's own tools contain a build.
+
+**THE RULE BEHIND THE RULE: "DO NOT REBUILD" IS NOT A CONSTRAINT ON BUILD COMMANDS, IT IS
+A CONSTRAINT ON EVERY COMMAND THAT CONTAINS ONE.** The fix is not a better note:
+`fingerprint.mjs` already hashes the paths and bytes of exactly what the harness mutates,
+so the harness can fingerprint at start-up, re-check every N mutants, and abort with the
+reason. Worklist item 22.
+
+**The clean run took about 104 minutes on four cores**, against Day 51's 115 for 1,526 —
+so the three new tests cost nothing measurable, which was the other thing worth knowing
+after Day 51's twenty-three-minute sweep.
+
+---
+
 # Day 51 — the prediction, and the result beside it
 
 **PREDICTED, in writing before the run: 1,526 mutants, 1,520 killed, 6 survivors, 99.6%,
