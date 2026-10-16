@@ -900,3 +900,79 @@ test('README: the Georgia table, against Maryland on the same figures', () => {
   assert.equal(Math.round((vet(17_500) - vet(17_501)) * 100) / 100, 873.2);
   quotes('`$873.20`');
 });
+
+// ---------------------------------------------------------------------------
+// South Carolina's worked examples, Day 52
+//
+// Three money figures in this README moved on Day 52 and NOTHING HERE NOTICED.
+// They were found by `grep`, after the state package's own prose instrument
+// flagged the same arithmetic in its shipped notes — so the document a buyer
+// reads was carried for one release by a test that greps a different document.
+//
+// This file recomputes numbers it quotes, which is the right design, and the
+// coverage is SELECTIVE: a figure nobody wrote an assertion for is a figure
+// nobody checks. The gap is not that the method is wrong, it is that the method
+// is opt-in and the README is 1,157 lines long.
+//
+//   THE RULE: A DOCUMENT WITH AN OPT-IN INSTRUMENT OVER IT IS INSTRUMENTED
+//   EXACTLY AS FAR AS SOMEBODY REMEMBERED, AND THE FIGURES THAT MOVE ARE THE
+//   ONES NOBODY WAS THINKING ABOUT WHEN THEY WROTE THE TEST.
+//
+// The general fix is the state package's accounting instrument pointed at this
+// file — every money figure in the README accounted for as a parameter, an
+// answer, an input or a derivation, with a named source. That is a day's work
+// and it is on the worklist. These three are the ones that were wrong.
+// ---------------------------------------------------------------------------
+
+test('every South Carolina figure this README works out is the answer the server gives', () => {
+  // A 2025 return, where the state recognizes the pre-OBBBA standard deduction
+  // and adds back the $750 increase it has not adopted. The federal deduction
+  // of a filer who has attained 65 is $17,750 — the basic $15,750 and IRC
+  // § 63(f)'s $2,000 — and the add-back must not reach the second of those,
+  // which is what v0.49.0 of this server did and what moved all three figures.
+  const sc2025 = (agi, filerAge, retirement) =>
+    stateIncomeTax({
+      state: 'SC',
+      year: 2025,
+      filingStatus: 'single',
+      filerAge,
+      federal: {
+        adjustedGrossIncome: agi,
+        taxableIncome: agi - (filerAge >= 65 ? 17_750 : 15_750),
+        deduction: filerAge >= 65 ? 17_750 : 15_750,
+        deductionKind: 'standard',
+      },
+      ...(retirement ? { retirement } : {}),
+    });
+
+  // "a 66-year-old pays $1,038.30 on $60,000 of wages or of pension alike"
+  const wages66 = sc2025(60_000, 66);
+  const pension66 = sc2025(60_000, 66, { filer: { employerPlanPension: 60_000 } });
+  assert.equal(wages66.tax, 1038.3);
+  assert.equal(pension66.tax, 1038.3);
+  quotes('`$1,038.30`');
+
+  // "It now answers $3,738.30" — § 12-6-1170(C)(1) takes the whole (A) cap and
+  // the whole senior deduction, so the subtraction is the retired pay alone and
+  // it is reported under § 12-6-1171's own name.
+  const sergeant = sc2025(150_000, 65, {
+    filer: { militaryRetirement: 60_000, employerPlanPension: 20_000 },
+  });
+  assert.equal(sergeant.tax, 3738.3);
+  quotes('It now answers `$3,738.30`');
+  assert.deepEqual(sergeant.computedSubtractions, [
+    { name: 'Military retirement deduction', amount: 60_000 },
+  ]);
+
+  // "this server used to answer $3,138.30" is the pre-v0.45.0 answer and cannot
+  // be recomputed from today's code — but the DIFFERENCE can, and it is the
+  // claim the sentence actually makes: the whole $10,000 (A) cap at the 6% top
+  // rate is $600, which is what sharing the cap costs this household.
+  const sharedCap = 3738.3 - 3138.3;
+  assert.equal(
+    sharedCap,
+    getStateDefinition('SC', 2025).retirementIncomeSubtractions[0].capByAge[1].cap *
+      getStateDefinition('SC', 2025).rate.byStatus.single[2].rate,
+  );
+  quotes('used to answer `$3,138.30`');
+});

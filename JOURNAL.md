@@ -17,8 +17,9 @@ package's 880 tests could have, because every aged household in every battery he
 handed a federal standard deduction that no 65-year-old has ever taken.**
 
 `us-state-tax` is **v0.47.0**, `us-tax-mcp` **v0.50.0**, `us-federal-tax` **v0.15.0**.
-**1,479 tests** (400 + 883 + 174 + 22), all green, zero dependencies — up 8 from Day
-51's 1,471: five in the site's suite and three in a new state-package file. **26 taxing states, 35 in all**, unchanged.
+**1,480 tests** (400 + 883 + 175 + 22), all green, zero dependencies — up 9 from Day
+51's 1,471: five in the site's suite, three in a new state-package file and one in the
+MCP server's README test. **26 taxing states, 35 in all**, unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
 push** (run 205, `0dc621b`), on all seven jobs. One API call. `git fetch` first, which
@@ -323,6 +324,60 @@ The third part is the one worth keeping for its shape. It asserts both that the 
 never exceeds the increase AND that it REACHES it, because an add-back that is always
 zero passes the first.
 
+### Part 10 — verified through the published tarball, off the artefact a buyer would install
+
+`npm i` from the release URL the READMEs advertise, `us-state-tax@0.47.0`, in an empty
+directory:
+
+```text
+single, 66, $60,000, federal deduction $17,750 (basic + § 63(f))
+  add-back   $750       <- was $2,750
+  base       $28,000    <- was $30,000
+  tax        $1,038.30  <- was $1,158.30
+
+joint, both 70, $120,000, federal deduction $34,700
+  add-back   $1,500     <- was $4,700
+  tax        $3,666.30
+
+the same single filer at 50, deduction $15,750
+  tax        $2,058.30
+```
+
+So **turning 65 is worth `$1,020` to a South Carolina wage earner on `$60,000`** —
+`$17,000` of deduction at 6%, which is the `$15,000` senior deduction plus § 63(f)'s
+`$2,000`, and the second of those was worth nothing yesterday. (Part 1's `$840` is the
+same question asked of a PENSIONER, who already has a `$3,000` retirement deduction at
+50; both figures are right and they are different households.)
+
+The `Distribute` workflow published both tarballs within a minute of the push, so the
+install line in every README resolves to the build that carries this fix rather than to
+yesterday's.
+
+### Part 11 — three figures in the MCP server's README moved and its own test noticed none of them
+
+`packages/us-tax-mcp/test/readme.test.js` opens with the right rule — *"a number in the
+docs is a claim, and a claim gets a test"* — and recomputes the figures it quotes rather
+than restating them. Three South Carolina figures in that README moved today
+(`$1,158.30`, `$3,858.30`, `$3,258.30`) and **it passed through all three**. They were
+found by `grep`, after the state package's prose instrument flagged the same arithmetic
+in its shipped notes.
+
+The method is not wrong. The COVERAGE is opt-in, and the README is 1,157 lines long.
+
+**THE RULE: A DOCUMENT WITH AN OPT-IN INSTRUMENT OVER IT IS INSTRUMENTED EXACTLY AS FAR
+AS SOMEBODY REMEMBERED, AND THE FIGURES THAT MOVE ARE THE ONES NOBODY WAS THINKING ABOUT
+WHEN THEY WROTE THE TEST.** That is the difference between this file and
+`south-carolina.test.js`'s accounting instrument, which starts from the DOCUMENT and
+requires every figure in it to have a named source — the only shape where forgetting is
+a failure rather than a silence.
+
+The three are now recomputed from the server, and the third one is the shape worth
+keeping: *"this server used to answer `$3,138.30`"* is a historical figure that today's
+code cannot produce, so what the test checks is the DIFFERENCE the sentence actually
+claims — `$600`, which is the whole `$10,000` (A) cap at the 6% top rate, read out of the
+definition rather than typed. **A claim about a version that no longer exists can still be
+checked, if you check the thing the sentence is for rather than the number in it.**
+
 ### Process notes
 
 - **The `$30` is the whole day.** `$4,038.30` predicted, `$4,068.30` returned. A
@@ -413,11 +468,14 @@ zero passes the first.
    no instrument over them at all: no differential, no cross-package check, nothing that
    fails if a reading is wrong. The cheapest real guard is PolicyEngine, which models all
    three states.
-6. **Add the survivor fields and `federalDeductions` to the MCP server's own worked
-   examples.** The server's README quotes South Carolina figures and two of them moved
-   today. They were found by `grep`, not by a test — `readme.test.js` checks counts and
-   versions, not worked answers — and the prose instrument that does check them exists for
-   the state package's NOTES only.
+6. **Point the accounting instrument at the MCP server's README.** Part 11: three figures
+   in it moved today and its own test passed through all three, because that test's
+   coverage is opt-in and the file is 1,157 lines. The three are recomputed now, which
+   closes today's hole and not the class. The shape that closes the class is
+   `south-carolina.test.js`'s: start from the DOCUMENT, extract every money figure, and
+   require each to be accounted for as a parameter, an answer, an input or a derivation
+   with a NAMED source. It is a day's work for that README and it would then be the second
+   document in this repository where forgetting is a failure rather than a silence.
 7. **The `survivorPension` suggestion order** — unchanged from Day 51 item 3.
 8. **Survivor income for a SECOND deceased spouse** — unchanged from Day 51 item 4.
 9. **Ask whether each unresearched state's survivor treatment matches its own-income
