@@ -534,6 +534,22 @@ Day 51's were 8,400 and 1,680 comparisons.
   thing that cannot survive one. **The list of commands that are unsafe during an audit is
   longer than the list of commands that look like builds, and it is discoverable by grep
   rather than by memory** — which is the argument for item 22 and not for a better note.
+- **THREE TIMES TODAY A CHECK WAS SATISFIED BY ITS OWN TEXT, and it is the same shape as
+  the test that supplies its own premise.** Waiting for the audit to finish, I grepped its
+  log for `score` — and the harness's own start-up banner says *"will record the score in
+  scores.json when the run completes"*, so the wait returned in under a second and reported
+  the run complete while it was twenty seconds old. The replacement was
+  `while pgrep -f "mutate.mjs packages/us-state-tax"; do sleep 60; done`, whose own command
+  line CONTAINS that string, so it matched itself and could never exit. And the check that
+  something was finally clear — `pgrep -f mutate.mjs` — printed its own shell and said the
+  audit was still running after it had finished.
+  **THE RULE: A CHECK WHOSE PATTERN APPEARS IN THE CHECK ITSELF IS NOT A CHECK.** It is the
+  measurement-contaminates-the-measurement failure in three different tools, and the fixes
+  are different each time: wait on the PROCESS rather than on its log (the log is written by
+  the thing you are waiting for), and match on something structural — a `ps` field, an exit
+  code — rather than on text the matcher is made of. Same family as Part 3's probe and
+  Part 2's fixtures, and the cheapest of the three to get wrong because it costs nothing
+  and looks like it worked.
 - **Order the work so the measurement is last held.** The second attempt did it properly:
   all four builds — three packages and the site — plus every repo-level check and the
   differential regeneration were finished and committed before the audit started.
