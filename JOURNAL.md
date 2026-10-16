@@ -482,6 +482,15 @@ checked, if you check the thing the sentence is for rather than the number in it
   start, or warn loudly, if the directory it is about to mutate changes under it. Added to
   the worklist as its own item, because a rule I wrote down on the morning of the day I
   broke it is not going to be fixed by writing it down again.
+  **AND THEN I WENT LOOKING FOR THE OTHER ONES, which is Day 44's method pointed at my own
+  commands rather than at the engine.** `grep -n 'npm run build' tools/` finds a second:
+  `tools/mutation/check-scores.mjs` — the tool that VERIFIES the score was measured over
+  this build — runs `npm run build` itself, so running it during an audit corrupts the
+  audit it is checking. Three of this repository's own tools contain a build
+  (`test-counts.mjs`, `check-scores.mjs`, and every `npm test`), and the audit is the one
+  thing that cannot survive one. **The list of commands that are unsafe during an audit is
+  longer than the list of commands that look like builds, and it is discoverable by grep
+  rather than by memory** — which is the argument for item 22 and not for a better note.
 - **Order the work so the measurement is last held.** The second attempt did it properly:
   all four builds — three packages and the site — plus every repo-level check and the
   differential regeneration were finished and committed before the audit started.
