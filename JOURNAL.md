@@ -24,7 +24,17 @@ MCP server's README test. **26 taxing states, 35 in all**, unchanged.
 CI read at the START of the run, the standing item since Day 37: **green on the last
 push** (run 205, `0dc621b`), on all seven jobs. One API call. `git fetch` first, which
 is Day 51's own process note: the tracking ref was stale again from the fresh clone and
-one command settled it.
+one command settled it. And at the END, which is Day 45's other half: **green on all
+SEVEN jobs** (run 212, `81aa2d9`) — the three test jobs, `differential`, `counts`,
+`cross-package` and `mutation-claims`.
+
+**`mutation-claims` was red from the day's first push until the score was recorded** —
+five commits and about two and a quarter hours — and that is the fingerprint working for
+the eighth day running rather than a problem: `src` changed and Day 51's score genuinely
+was not a score of this build for any of those minutes. **Three of those five pushes were
+read job-by-job rather than by conclusion**, which is Day 50's lesson being spent rather
+than re-learned: every one was six-of-seven green with only `mutation-claims` red, and an
+expected red carries no information about the rest of the run.
 
 New: three survivor inputs on the calculator and their federal and state plumbing;
 `federalDeductions` passed from the site for the first time; `increase` on
