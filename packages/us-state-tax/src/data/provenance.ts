@@ -3070,6 +3070,15 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
   {
     state: 'SC',
+    path: 'recognizedStandardDeduction.increase.*',
+    kind: 'federal-conformity',
+    years: [2025],
+    document: 'Rev. Proc. 2024-40',
+    cite: 'The difference between IRC § 63(c)(2) as the One Big Beautiful Bill Act § 70101 substituted it for 2025 and the same paragraph as Rev. Proc. 2024-40 § 3.15 indexed it — $15,750 against $15,000, $23,625 against $22,500, $31,500 against $30,000, so $750 single and separate, $1,125 head of household and $1,500 joint and surviving spouse. A DERIVED federal figure, declared rather than computed because the add-back is the difference of the two PARAMETERS and not of the filer’s own deduction: § 63(f)’s aged and blind additions are in both Codes and must survive the add-back. Published as these three amounts by TaxAct, Drake Tax and 1040.com for SC1040 line e; SCDOR Information Letter #26-4 is the document that would settle it and dor.sc.gov is refused by this sandbox’s egress policy',
+    constant: true,
+  },
+  {
+    state: 'SC',
     path: 'deduction.maximum.*',
     kind: 'statute',
     years: [2026],

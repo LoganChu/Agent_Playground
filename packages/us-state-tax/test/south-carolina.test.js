@@ -32,8 +32,42 @@ const FEDERAL_DEDUCTION = {
   qualifyingSurvivingSpouse: 31_500,
 };
 
-const federal = (agi, filingStatus = 'single', extra = {}) => {
-  const deduction = FEDERAL_DEDUCTION[filingStatus];
+/**
+ * § 63(f)'s additional standard deduction for 2025, per aged or blind person —
+ * Rev. Proc. 2024-40 § 3.15, the same table `FEDERAL_DEDUCTION` above comes from.
+ *
+ * **IT IS HERE BECAUSE A FEDERAL BLOCK WITHOUT IT IS A HOUSEHOLD THAT CANNOT
+ * EXIST.** This file had eighteen households of 65 and over, every one of them
+ * handed a federal standard deduction of exactly the basic amount — and South
+ * Carolina's 2025 add-back is measured against the federal deduction, so the
+ * suite was asking the engine about a filer of 70 who took a 40-year-old's
+ * deduction. The engine answered correctly and the answer was about nobody. The
+ * defect that hid behind it cost a real filer of 65 $120 of tax, and the
+ * instrument that found it was `site/test/compute.test.js`, which cannot write
+ * an impossible federal block because it runs the federal engine.
+ */
+const FEDERAL_AGED_ADDITION = {
+  single: 2_000,
+  headOfHousehold: 2_000,
+  marriedFilingSeparately: 1_600,
+  marriedFilingJointly: 1_600,
+  qualifyingSurvivingSpouse: 1_600,
+};
+
+/**
+ * How many § 63(f) boxes this household checks, counted the way
+ * `us-federal-tax`'s `standardDeductionFor` counts them: the filer always, the
+ * spouse only on a joint return. A qualifying surviving spouse counts nobody but
+ * the filer, because the spouse is dead.
+ */
+const agedConditions = (filingStatus, filerAge, spouseAge) =>
+  (filerAge >= 65 ? 1 : 0) +
+  (filingStatus === 'marriedFilingJointly' && spouseAge >= 65 ? 1 : 0);
+
+const federal = (agi, filingStatus = 'single', extra = {}, filerAge = 0, spouseAge = 0) => {
+  const deduction =
+    FEDERAL_DEDUCTION[filingStatus] +
+    agedConditions(filingStatus, filerAge, spouseAge) * FEDERAL_AGED_ADDITION[filingStatus];
   return {
     adjustedGrossIncome: agi,
     taxableIncome: Math.max(0, agi - deduction),
@@ -49,7 +83,7 @@ const sc = (opts) => {
     state: 'SC',
     year,
     filingStatus,
-    federal: federal(agi, filingStatus, fed),
+    federal: federal(agi, filingStatus, fed, rest.filerAge ?? 0, rest.spouseAge ?? 0),
     ...rest,
   });
 };
@@ -387,11 +421,18 @@ test('the retirement deduction is $3,000 at any age and $10,000 from 65', () => 
   const at = (age) =>
     sc({ year: 2025, agi: 60_000, filerAge: age, retirement: { filer: { employerPlanPension: 60_000 } } });
   money(at(50).tax, 1_878.3, 'age 50');
-  money(at(66).tax, 1_158.3, 'age 66');
-  money(at(50).tax - at(66).tax, 720, 'what turning 65 is worth');
-  // $12,000 of extra deduction at 6%: the $10,000 cap in place of $3,000, plus
-  // the $5,000 of senior deduction that survives the offset.
-  money(12_000 * 0.06, 720, 'the deduction behind the difference');
+  // $1,038.30 and not $1,158.30: the 66-year-old's FEDERAL deduction carries
+  // § 63(f)'s additional $2,000, which South Carolina's frozen Code allows in
+  // full, and the $120 between the two figures is that $2,000 at 6%. Day 52.
+  money(at(66).tax, 1_038.3, 'age 66');
+  money(at(50).tax - at(66).tax, 840, 'what turning 65 is worth');
+  // $14,000 of extra deduction at 6%, and only $12,000 of it is South Carolina's:
+  // the $10,000 cap in place of $3,000, plus the $5,000 of senior deduction that
+  // survives the offset, plus § 63(f)'s $2,000 inside the federal deduction the
+  // state's frozen Code allows in full.
+  money(12_000 * 0.06, 720, 'the state deduction behind the difference');
+  money(2_000 * 0.06, 120, '\u00a7 63(f) behind the rest of it');
+  money((12_000 + 2_000) * 0.06, 840, 'the two together');
 });
 
 test('the senior deduction is a FLOOR of $15,000 and asks nothing about the income', () => {
@@ -406,8 +447,8 @@ test('the senior deduction is a FLOOR of $15,000 and asks nothing about the inco
     filerAge: 66,
     retirement: { filer: { employerPlanPension: 60_000 } },
   });
-  money(wages.tax, 1_158.3, 'wages at 66');
-  money(pension.tax, 1_158.3, 'pension at 66');
+  money(wages.tax, 1_038.3, 'wages at 66');
+  money(pension.tax, 1_038.3, 'pension at 66');
   money(wages.computedSubtractions.reduce((t, s) => t + s.amount, 0), 15_000, 'the wage earner');
   money(pension.computedSubtractions.reduce((t, s) => t + s.amount, 0), 15_000, 'the pensioner');
 });
@@ -545,7 +586,24 @@ test('THE FINDING: the add-back makes South Carolina look INDIFFERENT to the fed
         deductionKind: 'standard',
       },
     }).tax;
-  assert.equal(at(15_750), at(16_750), 'a $1,000 rise in the federal deduction changes nothing');
+  // INDIFFERENT TO EXACTLY THE $750 THE ADD-BACK NAMES, AND TO NOTHING ELSE.
+  //
+  // This assertion read `at(15_750) === at(16_750)` until Day 52 and it was the
+  // defect written down as a property of the statute. The add-back was
+  // `federal.deduction - 15,000` uncapped, which cancels: the base became
+  // AGI - $15,000 for every household, so the state was indifferent to the WHOLE
+  // federal standard deduction rather than to the part it refuses — and
+  // § 63(f)'s additional $2,000 for a filer of 65, which the frozen Code gives
+  // in full, disappeared with the rest. $120 of tax at the 6% top rate.
+  //
+  // THE RULE: A PROBE THAT MOVES A PARAMETER BY EXACTLY THE AMOUNT A RULE IS
+  // SUPPOSED TO CANCEL CANNOT TELL A BOUNDED CANCELLATION FROM AN UNBOUNDED ONE.
+  // `federal-conformity.test.js` moves the deduction from $15,000 to $15,750 and
+  // reports South Carolina as insensitive, which is RIGHT and will stay right;
+  // what it cannot see is the dollar after the $750. Both assertions are needed
+  // and only one of them was here.
+  assert.equal(at(15_000), at(15_750), 'the $750 the state refuses changes nothing');
+  money(at(15_750) - at(16_750), 60, 'and the next $1,000 is the filer\u2019s, at 6%');
   assert.equal(getStateDefinition('SC', 2025).federalConformity.governs, 'recognizedDeductions');
   assert.equal(getStateDefinition('SC', 2026).federalConformity, undefined);
 
@@ -555,6 +613,11 @@ test('THE FINDING: the add-back makes South Carolina look INDIFFERENT to the fed
   // deduction — moves with the federal figure like any Colorado filer.
   assert.notEqual(at(1_350), at(2_350), 'a dependent filer IS sensitive');
   money(at(1_350) - at(2_350), 60, 'and moves at the 6% rate');
+
+  // AND THE HOUSEHOLD THE WHOLE THING IS ABOUT: a filer of 65 took $17,750
+  // federally — $15,750 basic and § 63(f)'s $2,000 — and adds back $750, so the
+  // $2,000 survives into the South Carolina base as a deduction.
+  money(at(15_750) - at(17_750), 120, 'a filer of 65 keeps § 63(f) at 6%');
 
   // An ITEMIZER adds back nothing here: § 63(c)(7) is the standard deduction and
   // they took none of it.
@@ -770,6 +833,27 @@ test('every dollar figure in a South Carolina note is accounted for, in one of F
   const sharedCap = d2025.retirementIncomeSubtractions[0].capByAge[1].cap;
   declare(sharedCap * bands2025[2].rate, 'derivation (C)(1) at the 2025 top rate');
   declare(sharedCap * bands2026[1].rate, 'derivation (C)(1) at the 2026 top rate');
+  // § 63(f)'s 2025 addition for a single filer who has attained 65, which is a
+  // FEDERAL parameter the note names because South Carolina's frozen Code allows
+  // it in full and the standard deduction add-back must not reach it. There is no
+  // fifth provenance for "a federal figure the sentence quotes", so it is
+  // declared here beside the derivations it feeds — and `FEDERAL_AGED_ADDITION`
+  // at the top of this file is the copy the households are built from, so the
+  // note and the fixture cannot disagree.
+  declare(FEDERAL_AGED_ADDITION.single, 'federal \u00a7 63(f) at 65, single, 2025');
+  // What turning 65 is worth in DEDUCTION, state and federal together: the
+  // $15,000 floor in place of the under-65 cap, plus § 63(f).
+  const under65Cap = d2025.retirementIncomeSubtractions[0].capByAge[0].cap;
+  declare(
+    d2025.agedIncomeSubtraction.maximum - under65Cap + FEDERAL_AGED_ADDITION.single,
+    'derivation the deduction turning 65 is worth, state and federal',
+  );
+  // And § 63(f) priced at the 2025 top rate, which is what the three days of the
+  // add-back defect cost a South Carolina filer of 65.
+  declare(
+    FEDERAL_AGED_ADDITION.single * bands2025[2].rate,
+    'derivation \u00a7 63(f) at the 2025 top rate',
+  );
   // Where the $15,000 floor stops absorbing (C)(1): the senior deduction less
   // the cap it is reduced by. Below that much retired pay the hole is filled.
   declare(
@@ -878,19 +962,32 @@ const sergeant = (year, filerAge, military, pension, agi = 150_000) =>
   });
 
 test('§ 12-6-1170(C)(1): military retired pay comes off the (A) cap, not past it', () => {
-  // 2025, base is federal taxable income plus the $750 OBBBA add-back:
-  // 150,000 - 15,750 + 750 = 135,000. The military pay comes out in full and
+  // 2025, base is federal taxable income plus the $750 OBBBA add-back. At 65 the
+  // federal deduction is $17,750 — $15,750 basic and § 63(f)'s $2,000 — so
+  // 150,000 - 17,750 + 750 = 133,000. The military pay comes out in full and
   // leaves NOTHING of the $10,000: max(0, 10,000 - 60,000) = 0. The senior
   // deduction is then reduced by the $60,000 and is also nothing.
-  //   135,000 - 60,000 = 75,000 taxable
-  //   3% x (17,830 - 3,560) = 428.10, 6% x (75,000 - 17,830) = 3,430.20
-  money(sergeant(2025, 65, 60_000, 20_000).tax, 3_858.3, 'a retired sergeant at 65');
+  //   133,000 - 60,000 = 73,000 taxable
+  //   3% x (17,830 - 3,560) = 428.10, 6% x (73,000 - 17,830) = 3,310.20
+  money(sergeant(2025, 65, 60_000, 20_000).tax, 3_738.3, 'a retired sergeant at 65');
 
   // AND THE AGE NO LONGER MATTERS FOR THIS HOUSEHOLD, which is the clearest
   // statement of what (C)(1) does: at 50 the cap is $3,000 instead of $10,000
   // and the answer is the same, because the military pay has spent both the
   // cap and the senior deduction.
-  money(sergeant(2025, 50, 60_000, 20_000).tax, 3_858.3, 'the same household at 50');
+  // AND THE TWO ARE NO LONGER THE SAME NUMBER, which is Day 52 and is not about
+  // (C)(1) at all: the 65-year-old's FEDERAL deduction is $2,000 larger under
+  // § 63(f), so the identical South Carolina subtraction sits on a smaller base.
+  // The claim is about the SUBTRACTION, so that is what is compared, and the
+  // $120 of tax between them is a federal figure at South Carolina's rate.
+  // Holding the federal deduction fixed across two ages — which this file did
+  // until Day 52 — is a household that cannot exist, and it is why the suite
+  // could not see the add-back swallowing § 63(f).
+  const at50 = sergeant(2025, 50, 60_000, 20_000);
+  const at65 = sergeant(2025, 65, 60_000, 20_000);
+  assert.deepEqual(at50.computedSubtractions, at65.computedSubtractions);
+  money(at50.tax, 3_858.3, 'the same household at 50');
+  money(at50.tax - at65.tax, 120, 'and the gap is § 63(f) at 6%, not (C)(1)');
 
   // 2026, where the base is federal AGI and the SCIAD is fully phased out:
   //   150,000 - 60,000 = 90,000 taxable
@@ -903,16 +1000,16 @@ test('the $15,000 floor absorbs (C)(1) below $5,000 of retired pay and not above
   // max(15,000, M + min(P, max(0, 10,000 - M))). Below $5,000 of military pay
   // the senior deduction fills the hole (C)(1) makes and the answer is
   // unchanged; above it, every dollar of the hole is real.
-  //   135,000 - 15,000 = 120,000 taxable
-  //   428.10 + 6% x (120,000 - 17,830) = 428.10 + 6,130.20
-  money(sergeant(2025, 65, 5_000, 20_000).tax, 6_558.3, 'at the $5,000 boundary');
+  //   133,000 - 15,000 = 118,000 taxable
+  //   428.10 + 6% x (118,000 - 17,830) = 428.10 + 6,010.20
+  money(sergeant(2025, 65, 5_000, 20_000).tax, 6_438.3, 'at the $5,000 boundary');
   // $6,000 of retired pay: the subtraction is still $15,000, where before this
   // fix it was $16,000.
-  money(sergeant(2025, 65, 6_000, 20_000).tax, 6_558.3, 'one dollar past the boundary');
+  money(sergeant(2025, 65, 6_000, 20_000).tax, 6_438.3, 'one dollar past the boundary');
   // $20,000 and above is where the whole $10,000 is gone: the subtraction is
   // the military pay alone.
-  //   135,000 - 20,000 = 115,000 -> 428.10 + 6% x 97,170 = 6,258.30
-  money(sergeant(2025, 65, 20_000, 20_000).tax, 6_258.3, 'the whole cap gone');
+  //   133,000 - 20,000 = 113,000 -> 428.10 + 6% x 95,170 = 6,138.30
+  money(sergeant(2025, 65, 20_000, 20_000).tax, 6_138.3, 'the whole cap gone');
 });
 
 test('a military retiree with NO other retirement income is unaffected by (C)(1)', () => {
@@ -1082,17 +1179,18 @@ test('a widow of a career soldier keeps $25,000 of deduction the shared cap was 
     { name: 'Surviving spouse retirement deduction', amount: 10_000 },
     { name: 'Senior deduction (age 65)', amount: 5_000 },
   ]);
-  // 2025: federal taxable is $150,000 - $15,750 = $134,250, plus the $750 OBBBA
-  // add-back = $135,000, less $55,000 = $80,000. The schedule charges 0% on
-  // $3,560, 3% on $14,270 and 6% above:
-  //   0.03 x 14,270 + 0.06 x (80,000 - 17,830) = 428.10 + 3,730.20 = 4,158.30
-  money(r2025.taxableIncome, 80_000, '2025 base');
-  money(r2025.tax, 4_158.30, '2025 tax');
+  // 2025: federal taxable is $150,000 - $17,750 = $132,250 — her deduction
+  // carries § 63(f)'s $2,000 because she is 65 — plus the $750 OBBBA add-back
+  // = $133,000, less $55,000 = $78,000. The schedule charges 0% on $3,560, 3% on
+  // $14,270 and 6% above:
+  //   0.03 x 14,270 + 0.06 x (78,000 - 17,830) = 428.10 + 3,610.20 = 4,038.30
+  money(r2025.taxableIncome, 78_000, '2025 base');
+  money(r2025.tax, 4_038.30, '2025 tax');
 
   const before2025 = sc({ year: 2025, agi: 150_000, filerAge: 65, retirement: asHerOwn });
-  money(before2025.taxableIncome, 105_000, '2025 base as her own');
-  // 428.10 + 0.06 x (105,000 - 17,830) = 428.10 + 5,230.20 = 5,658.30
-  money(before2025.tax, 5_658.30, '2025 tax as her own');
+  money(before2025.taxableIncome, 103_000, '2025 base as her own');
+  // 428.10 + 0.06 x (103,000 - 17,830) = 428.10 + 5,110.20 = 5,538.30
+  money(before2025.tax, 5_538.30, '2025 tax as her own');
   // $25,000 of deduction at the 6% top rate, to the cent.
   money(before2025.tax - r2025.tax, 1_500, '2025 cost of the shared cap');
 

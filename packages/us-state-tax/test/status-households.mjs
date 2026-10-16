@@ -127,6 +127,61 @@ const FEDERAL_STANDARD_DEDUCTION = {
 };
 
 /**
+ * § 63(f)'s additional standard deduction, per aged person — and the battery had
+ * five aged shapes without it until Day 52.
+ *
+ * **THE RULE AGAIN, AND IT IS THE ONE WRITTEN TWENTY LINES BELOW: A BATTERY
+ * VARIES THE HOUSEHOLDS AND FORGETS TO VARY THE BASIS THEY ARE COMPUTED FROM.**
+ * `retired70` is a couple of 70 and `retired80k` a filer of 71, and both were
+ * handed the basic standard deduction of a 40-year-old. The federal figure is an
+ * INPUT here, so the engine was never wrong about it — the households simply
+ * could not exist, and every `federalTaxableIncome` state's aged rows in
+ * `status-sweep.json` were answers about nobody.
+ *
+ * It cost a real South Carolina filer of 65 $120 of tax. The add-back against the
+ * state's frozen § 63(c) was `federal.deduction - the pre-OBBBA amount`,
+ * uncapped, which cancels to `AGI - the pre-OBBBA amount` and takes § 63(f) with
+ * it — and no household in this battery, or in `south-carolina.test.js`, carried
+ * a § 63(f) addition for it to lose. The instrument that found it was the SITE's
+ * suite, which runs the federal engine and therefore cannot write a federal
+ * block that no return could produce.
+ *
+ * Counted the way `us-federal-tax` counts it, with one deliberate gap: the filer
+ * always, the spouse only on a joint return — a qualifying surviving spouse counts
+ * nobody else, because the spouse is dead.
+ *
+ * **AGE ONLY, AND BLINDNESS IS LEFT OUT ON PURPOSE.** § 63(f)(2) gives the same
+ * addition for blindness, and `blind34k` carries `blindOrDisabled: 2` — but that
+ * field is blind OR DISABLED and § 63(f) reads blindness alone, so the shape
+ * cannot say how many of its two people would check a federal box. Supplying a
+ * count the shape does not hold would be a guess in the taxpayer's favour, which
+ * is the direction this package is most careful about. The shape needs a
+ * `federalBlind` of its own before the basis can read one; until then the
+ * blind household's federal deduction is a floor rather than a figure.
+ */
+const FEDERAL_AGED_ADDITION = {
+  2025: {
+    single: 2_000,
+    marriedFilingJointly: 1_600,
+    marriedFilingSeparately: 1_600,
+    headOfHousehold: 2_000,
+    qualifyingSurvivingSpouse: 1_600,
+  },
+  2026: {
+    single: 2_050,
+    marriedFilingJointly: 1_650,
+    marriedFilingSeparately: 1_650,
+    headOfHousehold: 2_050,
+    qualifyingSurvivingSpouse: 1_650,
+  },
+};
+
+/** How many § 63(f) boxes a shape checks under a given filing status. */
+const agedConditions = (shape, filingStatus) =>
+  ((shape.filerAge ?? 0) >= 65 ? 1 : 0) +
+  (filingStatus === 'marriedFilingJointly' && (shape.spouseAge ?? 0) >= 65 ? 1 : 0);
+
+/**
  * The seven shapes, as functions of nothing but the filing status and the year.
  *
  * `income` is the household's federal AGI. `deduction`, when given, makes the
@@ -758,7 +813,10 @@ export function household(name, state, year, filingStatus) {
   // lists were both wrong.
   const { income, deduction, deductionKind, federalEarnedIncomeCredit, federalIncomeTax, ...rest } =
     shape;
-  const federalDeduction = deduction ?? FEDERAL_STANDARD_DEDUCTION[year][filingStatus];
+  const federalDeduction =
+    deduction ??
+    FEDERAL_STANDARD_DEDUCTION[year][filingStatus] +
+      agedConditions(shape, filingStatus) * FEDERAL_AGED_ADDITION[year][filingStatus];
   return {
     state,
     year,

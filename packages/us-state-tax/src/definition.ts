@@ -4036,11 +4036,32 @@ export interface SurvivingSpouseStatusRule {
  * DIFFERENCE OF TWO PARAMETERS rather than a line anybody can hand over.
  *
  * ```text
- * add-back = max(0, the federal deduction actually taken - amounts[status])
+ * add-back = min(increase[status], max(0, the federal deduction taken - amounts[status]))
  * ```
  *
  * and only for a filer who took the STANDARD deduction, because an itemizer's
  * federal figure is their own Schedule A and has nothing to do with § 63(c)(7).
+ *
+ * **THE `min` IS THE WHOLE RULE AND IT WAS MISSING FOR THREE DAYS.** Without it
+ * the expression is algebraically `AGI - amounts[status]`, because the deduction
+ * it subtracts is the deduction it adds back — so **every part of the federal
+ * standard deduction that is not the basic amount disappeared**, and the one that
+ * matters is § 63(f): the additional `$2,000` for a filer who has attained 65,
+ * `$1,600` per aged or blind person on a joint return. OBBBA did not touch
+ * § 63(f) and South Carolina's frozen Code carries it in full, so a 2025 South
+ * Carolina filer of 65 was taxed on `$2,000` of income the state allows them —
+ * `$120` of tax at the 6% top rate, `$192` for a couple both 65 — in the one
+ * direction nobody reports. The add-back is a FIXED amount per filing status,
+ * and the tax preparers publish it as one: `$750` single and separate, `$1,125`
+ * head of household, `$1,500` joint and surviving spouse.
+ *
+ * **Which leaves the `max` leg doing the one job it can still do**: a filer whose
+ * basic deduction is LIMITED below the state's recognized amount — § 63(c)(5)'s
+ * dependent — adds back less than the increase, or nothing. It is exact for every
+ * filer whose basic deduction is not limited, which is every non-dependent, and
+ * it is within `increase` of exact for a dependent who is also aged or blind,
+ * whose basic amount lands between the two Codes' figures. That residual needs
+ * the basic deduction as its own input and nobody has asked for it.
  *
  * **South Carolina conforms to the Internal Revenue Code as amended through 31
  * December 2024** (S.C. Code § 12-6-40(A)(1)(a), as amended effective 22 May
@@ -4063,8 +4084,23 @@ export interface SurvivingSpouseStatusRule {
  */
 export interface RecognizedStandardDeductionRule {
   readonly name: string;
-  /** What the state's frozen Code allows, by filing status. */
+  /**
+   * What the state's frozen Code allows as the BASIC standard deduction, by
+   * filing status — § 63(c)(2), without § 63(f)'s aged or blind addition, which
+   * both Codes give alike.
+   */
   readonly amounts: ByStatus;
+  /**
+   * The part of the federal basic standard deduction the state has not adopted,
+   * by filing status — the ceiling on the add-back, and the figure the state's
+   * own instructions print.
+   *
+   * Required rather than optional, and that is the point: it is the difference of
+   * two federal parameters and a state declaring {@link amounts} without it
+   * computed an add-back that swallowed § 63(f). A second state with a frozen
+   * § 63 cannot repeat that by omission.
+   */
+  readonly increase: ByStatus;
   readonly cite: string;
 }
 

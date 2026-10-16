@@ -98,6 +98,41 @@
               </select>
             </label>
           </div>
+
+          <!--
+            Behind a disclosure because it applies to one household in a hundred
+            and is worth $25,000 of deduction to that one. South Carolina is the
+            only state in this package that reads these three fields; everywhere
+            else the engine pools them into the pension above, so filling them in
+            cannot change any other state's answer.
+          -->
+          <details>
+            <summary>Income received on a deceased spouse&rsquo;s behalf</summary>
+            <p class="hint">
+              A widow or widower who receives a pension or a Survivor Benefit Plan annuity
+              <em>on a deceased spouse&rsquo;s service or employment</em> deducts it separately in
+              South Carolina, with its own cap set by the age the deceased spouse
+              <strong>would have reached</strong> this year. Put those dollars here rather than in
+              the pension above, or they are counted once and deducted once instead of twice.
+            </p>
+            <div class="grid">
+              <label>
+                Survivor pension or annuity
+                <span class="hint">On a deceased spouse&rsquo;s employer plan. Not your own pension</span>
+                <input type="text" name="survivorPension" value="0" inputmode="decimal" />
+              </label>
+              <label>
+                Survivor Benefit Plan annuity
+                <span class="hint">Military retired pay continuing on a deceased spouse&rsquo;s service</span>
+                <input type="text" name="survivorMilitaryRetirement" value="0" inputmode="decimal" />
+              </label>
+              <label>
+                Age the deceased spouse would have reached
+                <span class="hint">This tax year, had they lived &mdash; not their age at death, and not yours. Leave at 0 if you would rather not say; the smaller cap is then used</span>
+                <input type="number" name="deceasedSpouseAge" value="0" min="0" max="120" inputmode="numeric" />
+              </label>
+            </div>
+          </details>
         </fieldset>
       </form>
 

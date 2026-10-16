@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.49.0/us-tax-mcp-0.49.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.50.0/us-tax-mcp-0.50.0.tgz"
       ]
     }
   }
@@ -176,14 +176,16 @@ states — so the next drift fails a build instead of answering a question wrong
 One existing test was asserting the defect: it required New York to refuse
 `taxableSocialSecurity`, and New York subtracts the benefit in full.
 
+**New in 0.50.0 — South Carolina's 2025 answer for anyone 65 or older moves, by `$120` of tax for a single filer and `$192` for a couple both 65, and it moves DOWN.** The state recognizes the pre-OBBBA standard deduction and adds back the difference; the add-back was the difference of the FILER'S OWN deduction rather than of the two statutory amounts, which cancels and silently took IRC § 63(f)'s additional `$2,000` at 65 with it. `us-state-tax` v0.47.0 caps the add-back at the increase the state has not adopted — `$750` / `$1,125` / `$1,500`, the figures SC1040 line e prints. Nothing in this server's own schema or arguments changed.
+
 **Also new in 0.49.0 — a provision subtracted under two statutes now answers with a
 line for each, and South Carolina's military retirement deduction comes out of
 the retirement cap rather than past it.** Asked about a 65-year-old South
 Carolina filer with `$60,000` of military retired pay and a `$20,000` civilian
-pension, this server used to answer `$3,258.30` with one subtraction line reading
+pension, this server used to answer `$3,138.30` with one subtraction line reading
 `Retirement deduction: $60,000` — a name belonging to § 12-6-1170(A), which is
 capped at `$10,000`, for money that comes out under § 12-6-1171, which is
-uncapped. It now answers `$3,858.30`, because § 12-6-1170(C)(1) reduces the whole
+uncapped. It now answers `$3,738.30`, because § 12-6-1170(C)(1) reduces the whole
 of that section by whatever § 12-6-1171 deducts, and it reports
 
 ```json
@@ -225,7 +227,7 @@ on a joint return.
 Three more things `state_income_tax` knows about South Carolina that a rate table
 cannot: the **`$15,000` senior deduction is an AGE provision** — `$15,000` of ANY
 income at 65, reduced by the retirement deduction already taken, so it is a FLOOR
-and a 66-year-old pays `$1,158.30` on `$60,000` of wages or of pension alike;
+and a 66-year-old pays `$1,038.30` on `$60,000` of wages or of pension alike;
 **military retired pay comes out in full at any age** (§ 12-6-1171), so `$60,000`
 of it costs nothing where `$60,000` of civilian government pension costs
 `$1,878.30` at 50; and **44% of net capital gain** comes out (§ 12-6-1150),

@@ -72,6 +72,18 @@ export function normalise(raw) {
     pension: num(raw.pension),
     ira: num(raw.ira),
     militaryRetirement: num(raw.militaryRetirement),
+    // Received ON A DECEASED SPOUSE'S BEHALF, and separate fields because South
+    // Carolina gives them a deduction of their own with a cap keyed to somebody
+    // who is not on the return. The engine pools them into the filer's own
+    // retirement income in every other state, so these three inputs cannot make
+    // any other state's answer move — which is exactly why they were safe to add
+    // and exactly why leaving them out was not.
+    survivorPension: num(raw.survivorPension),
+    survivorMilitaryRetirement: num(raw.survivorMilitaryRetirement),
+    // The age the decedent WOULD HAVE REACHED this year, had they lived. Zero
+    // means not supplied, and the engine then takes the lowest cap band — an
+    // unknown age must not buy the larger figure.
+    deceasedSpouseAge: Math.max(0, Math.min(120, Math.round(num(raw.deceasedSpouseAge)))),
     socialSecurity: num(raw.socialSecurity),
     interestDividends: num(raw.interestDividends),
     longTermCapitalGains: num(raw.longTermCapitalGains),
@@ -92,8 +104,18 @@ export function federal(input) {
     // Pensions, IRA distributions, military retired pay, interest and ordinary
     // dividends are all ordinary income federally. Only the states pull them
     // apart, which is why they are separate fields above and one field here.
+    // A survivor annuity and a Survivor Benefit Plan annuity are ordinary income
+    // federally exactly as the decedent's own payments would have been: § 72
+    // taxes the annuitant whoever they are, and § 101(a)'s death-benefit
+    // exclusion reaches life insurance proceeds rather than a continuing pension.
+    // So they belong in this sum, and three states take them back out below.
     otherOrdinaryIncome:
-      input.pension + input.ira + input.militaryRetirement + input.interestDividends,
+      input.pension +
+      input.ira +
+      input.militaryRetirement +
+      input.survivorPension +
+      input.survivorMilitaryRetirement +
+      input.interestDividends,
     longTermCapitalGains: input.longTermCapitalGains,
     socialSecurityBenefits: input.socialSecurity,
     taxExemptInterest: input.taxExemptInterest,
@@ -140,8 +162,16 @@ export function trueMarginalRate(input, fed, stateRows) {
  * Each returns `{ field, amount, note }`.
  */
 function stateDefinedBase(state, input) {
-  const { wages, pension, ira, militaryRetirement, interestDividends, longTermCapitalGains } =
-    input;
+  const {
+    wages,
+    pension,
+    ira,
+    militaryRetirement,
+    survivorPension,
+    survivorMilitaryRetirement,
+    interestDividends,
+    longTermCapitalGains,
+  } = input;
   switch (state) {
     case 'PA':
       // Pennsylvania's eight classes of income do not include Social Security,
@@ -156,38 +186,62 @@ function stateDefinedBase(state, input) {
           'distributions from an eligible plan after retirement age, Social Security and ' +
           'military retired pay are all outside the base. Figured here as wages plus ' +
           'investment income, which assumes any pension or IRA money is being drawn after ' +
-          'age 59½ — before that it is taxable and this figure is too low.',
+          'age 59½ — before that it is taxable and this figure is too low. A survivor ' +
+          'annuity and a Survivor Benefit Plan annuity are outside it too: a distribution ' +
+          'made on account of the participant’s death is not Pennsylvania-taxable ' +
+          'compensation, and military retired pay was never in the base to begin with.',
       };
     case 'NJ':
       // New Jersey does tax pensions and IRA distributions, does not tax Social
       // Security, and has exempted military pensions entirely since 2017.
       return {
         field: 'newJerseyGrossIncome',
-        amount: wages + pension + ira + interestDividends + longTermCapitalGains,
+        amount:
+          wages + pension + ira + survivorPension + interestDividends + longTermCapitalGains,
         note:
           'New Jersey enumerates its own categories of income: pensions and IRA ' +
           'distributions are in, Social Security is out, and military pensions have been ' +
-          'excluded outright since 2017. This is NJ-1040 line 27, before the retirement ' +
-          'exclusion, which the engine then applies.',
+          'excluded outright since 2017. A civilian survivor annuity is in, on the same ' +
+          'footing as the decedent’s own pension would have been; a military survivor’s ' +
+          'benefit payment is out, because GIT-1 excludes a U.S. military pension ' +
+          '“or survivor’s benefit payments” regardless of the recipient’s age. This is ' +
+          'NJ-1040 line 27, before the retirement exclusion, which the engine then applies.',
       };
     case 'MA':
       // Massachusetts excludes Social Security and contributory US or
       // Massachusetts public pensions — which is what military retired pay is.
       return {
         field: 'massachusettsFivePercentIncome',
-        amount: wages + pension + ira + interestDividends + longTermCapitalGains,
+        amount:
+          wages + pension + ira + survivorPension + interestDividends + longTermCapitalGains,
         note:
           'Massachusetts starts from its own gross income. Social Security and ' +
           'contributory US or Massachusetts public pensions — military retired pay among ' +
-          'them — are excluded; private pensions and IRA distributions are not. Form 1 ' +
-          'line 21.',
+          'them — are excluded; private pensions and IRA distributions are not. The ' +
+          'exclusion reaches SURVIVORSHIP BENEFITS on those plans by its own terms, so a ' +
+          'Survivor Benefit Plan annuity is out and a private survivor annuity is in. ' +
+          'Form 1 line 21.',
       };
     default:
       return null;
   }
 }
 
-/** Split the retirement income between the two people on the return. */
+/**
+ * Split the retirement income between the two people on the return.
+ *
+ * **The survivor fields are not split, and that is a decision rather than an
+ * omission.** The allocation dropdown exists because three states cap their
+ * exclusion per person, so whose name the income is in moves the answer. A
+ * survivor annuity has no such freedom: the person who receives it is the person
+ * the decedent was married to, and the form asks for it in the second person
+ * ("received on a deceased spouse's behalf"). Halving it onto a current spouse
+ * would hand that spouse a cap they cannot claim, and it would do so SILENTLY
+ * because South Carolina is the only state that reads the fields at all.
+ *
+ * `deceasedSpouseAge` rides with them for the same reason: it is the decedent's
+ * age, and it belongs to whoever is claiming on that decedent.
+ */
 function retirementSplit(input) {
   const share = input.joint && input.allocation === 'even' ? 0.5 : 1;
   const person = (fraction) => ({
@@ -198,8 +252,16 @@ function retirementSplit(input) {
     investmentIncome: (input.interestDividends + input.longTermCapitalGains) * fraction,
     earnedIncome: input.wages * fraction,
   });
-  if (!input.joint) return { filer: person(1) };
-  return { filer: person(share), spouse: person(1 - share) };
+  const survivor = {
+    survivorPension: input.survivorPension,
+    survivorMilitaryRetirement: input.survivorMilitaryRetirement,
+    // Absent rather than zero when it was not given: the engine's own rule is
+    // that a missing age takes the lowest cap band and says so in its notes,
+    // and a zero would be an age rather than a silence.
+    ...(input.deceasedSpouseAge > 0 ? { deceasedSpouseAge: input.deceasedSpouseAge } : {}),
+  };
+  if (!input.joint) return { filer: { ...person(1), ...survivor } };
+  return { filer: { ...person(share), ...survivor }, spouse: person(1 - share) };
 }
 
 /**
@@ -297,6 +359,26 @@ export function forState(state, input, fed) {
         Math.max(0, fed.incomeTaxBeforeCredits - fed.credits.totalNonRefundable) +
         fed.netInvestmentIncomeTax,
       additionalChildTaxCredit: fed.credits.childTaxCredit?.refundableCredit ?? 0,
+    },
+    // THE FOUR SCHEDULE 1-A DEDUCTIONS AND § 199A, which a state starting from
+    // federal TAXABLE income has inherited whether it wanted to or not. Colorado
+    // adds back § 199A in both years and the overtime deduction from 2026; South
+    // Carolina's 2025 return, whose conformity date is 31 December 2024, adds
+    // back all five.
+    //
+    // The site passed none of them until Day 52, and the one that bites is the
+    // senior deduction — the OBBBA's $6,000 for a filer of 65, which is the
+    // single most likely deduction for this page's whole audience to be holding.
+    // A South Carolina 2025 filer was computed up to $360 too LOW, and the
+    // omission had no symptom: `federalDeductions` is optional and a missing
+    // field is zero, which is the right default for the filers who took none and
+    // a silent wrong answer for the ones who did.
+    federalDeductions: {
+      qualifiedBusinessIncome: fed.qualifiedBusinessIncomeDeduction,
+      tips: fed.additionalDeductions.tips.deduction,
+      overtime: fed.additionalDeductions.overtime.deduction,
+      senior: fed.additionalDeductions.senior.deduction,
+      carLoanInterest: fed.additionalDeductions.vehicleLoanInterest.deduction,
     },
     filerAge: input.filerAge || undefined,
     spouseAge: input.joint ? input.spouseAge || undefined : undefined,
@@ -412,6 +494,8 @@ export function compute(raw) {
       input.pension +
       input.ira +
       input.militaryRetirement +
+      input.survivorPension +
+      input.survivorMilitaryRetirement +
       input.socialSecurity +
       input.interestDividends +
       input.longTermCapitalGains +

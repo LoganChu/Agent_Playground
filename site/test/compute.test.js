@@ -504,3 +504,220 @@ test('the single-file build is genuinely single, and is the same code', () => {
     'an embedded source closes the script tag early',
   );
 });
+
+// ---------------------------------------------------------------------------
+// The surviving spouse, Day 52
+// ---------------------------------------------------------------------------
+
+/**
+ * The widow of `packages/us-state-tax/test/south-carolina.test.js`, entered as
+ * RECEIPTS rather than as a completed return.
+ *
+ * A single filer of 65 whose husband would have been 70: her own $20,000
+ * civilian pension, his $30,000 of military retired pay, his $15,000 pension and
+ * $85,000 of wages. That is $150,000 received, and with no Social Security in it
+ * the federal AGI is $150,000 too — the same household the engine's own test
+ * pins, reached through the site's plumbing instead of through a hand-written
+ * `federal` block.
+ */
+const WIDOW = {
+  year: 2025,
+  filingStatus: 'single',
+  filerAge: 65,
+  wages: 85_000,
+  pension: 20_000,
+  survivorPension: 15_000,
+  survivorMilitaryRetirement: 30_000,
+  deceasedSpouseAge: 70,
+  socialSecurity: 0,
+  ira: 0,
+  interestDividends: 0,
+};
+/** The same dollars with no field to put them in, which is what the site had. */
+const AS_HER_OWN = {
+  ...WIDOW,
+  pension: 35_000,
+  militaryRetirement: 30_000,
+  survivorPension: 0,
+  survivorMilitaryRetirement: 0,
+  deceasedSpouseAge: 0,
+};
+
+test('the survivor fields reach South Carolina and change nothing else', () => {
+  const survivor = compute(WIDOW);
+  const asHerOwn = compute(AS_HER_OWN);
+
+  // 1. The same money came in. If this moves, `received` has lost a field.
+  assert.equal(survivor.received, 150_000);
+  assert.equal(asHerOwn.received, 150_000);
+
+  // 2. THE FEDERAL RETURN CANNOT SEE THE DIFFERENCE. § 72 taxes the annuitant
+  //    whoever they are, so every federal figure has to be identical to the cent
+  //    — and if it is not, the survivor dollars are missing from
+  //    `otherOrdinaryIncome` and the whole comparison below is measuring that
+  //    instead of South Carolina.
+  assert.equal(survivor.federal.adjustedGrossIncome, 150_000);
+  assert.equal(survivor.federal.adjustedGrossIncome, asHerOwn.federal.adjustedGrossIncome);
+  assert.equal(survivor.federal.taxableIncome, asHerOwn.federal.taxableIncome);
+  assert.equal(survivor.federal.totalTax, asHerOwn.federal.totalTax);
+
+  // 3. EXACTLY ONE STATE MOVES, and it is the one with the statute. This is the
+  //    engine's own claim — the other thirty-four states pool these dollars into
+  //    the filer's own pension — but it is NOT inherited here, because the site
+  //    has three states whose base it computes itself. Pennsylvania, New Jersey
+  //    and Massachusetts each had to be told what a survivor annuity is, and a
+  //    wrong answer there would show up in this list rather than in the engine's.
+  const moved = [];
+  for (const here of survivor.states) {
+    const there = asHerOwn.states.find((row) => row.state === here.state);
+    const total = (row) => (row.localRange ? row.localRange.low.total : row.total);
+    if (Math.abs(total(here) - total(there)) >= 0.005) moved.push(here.state);
+  }
+  assert.deepEqual(moved, ['SC']);
+
+  // 4. And what it is worth. $25,000 of deduction — her own $10,000 cap, his
+  //    $30,000 of military pay in full, his own $10,000 cap keyed to HIS age, and
+  //    the senior deduction reduced by her own claim alone — at South Carolina's
+  //    top rate: 6% in 2025 and 5.21% in 2026.
+  const sc = (model) => model.states.find((row) => row.state === 'SC').total;
+  assert.equal(Number((sc(asHerOwn) - sc(survivor)).toFixed(2)), 1_500);
+
+  const survivor2026 = compute({ ...WIDOW, year: 2026 });
+  const asHerOwn2026 = compute({ ...AS_HER_OWN, year: 2026 });
+  assert.equal(Number((sc(asHerOwn2026) - sc(survivor2026)).toFixed(2)), 1_302.5);
+});
+
+test('the deceased spouse keeps ageing, and the form asks for the right age', () => {
+  const sc = (raw) => compute(raw).states.find((row) => row.state === 'SC').total;
+  // $10,000 cap at 70, $3,000 at 60 — $7,000 of deduction at the 6% top rate.
+  const at70 = sc(WIDOW);
+  const at60 = sc({ ...WIDOW, deceasedSpouseAge: 60 });
+  assert.equal(Number((at60 - at70).toFixed(2)), 420);
+
+  // Left at 0, the field is passed as ABSENT rather than as an age of zero, and
+  // the engine then takes the lowest band — the cap no age test can fail. Equal
+  // to the 60-year-old decedent and NOT to the 70-year-old one, which is the
+  // direction that matters: an unsupplied age must not buy the larger figure.
+  assert.equal(sc({ ...WIDOW, deceasedSpouseAge: 0 }), at60);
+
+  // AND THE SUBSTITUTION THIS HOUSEHOLD CANNOT DETECT. She is 65 and he would
+  // have been 70, so her own age and his are in the SAME cap band, and a widow's
+  // return computed from the claimant's age is identical here — $0 of error, from
+  // the input the engine's own docs call "the one substitution that looks right
+  // and is wrong in both directions".
+  assert.equal(sc({ ...WIDOW, deceasedSpouseAge: 65 }), at70);
+
+  // So the mirror household is the test: a widow of 70 whose husband would have
+  // been 60. Her own cap is $10,000 and HIS is $3,000, and reading her age for
+  // his buys $7,000 of deduction she cannot have — $420 at the 6% top rate, the
+  // same figure as above and in the opposite direction.
+  const mirror = { ...WIDOW, filerAge: 70, deceasedSpouseAge: 60 };
+  assert.equal(Number((sc(mirror) - sc({ ...mirror, deceasedSpouseAge: 70 })).toFixed(2)), 420);
+  // A pair of households that differ only in which person's age is read, and
+  // neither of them alone can see it: the first pair above moves $420 when the
+  // DECEDENT ages and the second moves $420 when the CLAIMANT does.
+});
+
+// ---------------------------------------------------------------------------
+// The form and the computation, which are two copies of one list
+// ---------------------------------------------------------------------------
+
+/**
+ * Every control on the form is read, and everything read can be supplied.
+ *
+ * This is Day 38's defect class in the one place the project had not instrumented
+ * it: an input key nothing reads. The engine has `PersonRetirementIncome`'s
+ * closed key set and a "did you mean" suggester; the MCP server refuses an
+ * argument no state reads; the SITE had neither, so a `name` on an input and a
+ * key in `normalise` were two copies of one fact with nothing between them. A
+ * misspelt `name` would have been a field a visitor fills in that is silently
+ * discarded — and discarded INPUT is the symptomless wrong answer this whole
+ * repository is organised against.
+ *
+ * It is written against the source `index.html` rather than `dist`, for the same
+ * reason the coverage-claim test above is: the form a visitor fills in is the
+ * source file, and a build step that dropped a field should fail somewhere else.
+ */
+test('every field on the form is read, and every field read is on the form', () => {
+  const html = readFileSync(join(here, '..', 'index.html'), 'utf8');
+  const form = html.slice(html.indexOf('<form'), html.indexOf('</form>'));
+  const names = [...form.matchAll(/name="([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(new Set(names).size, names.length, 'a name appears twice on the form');
+
+  // Everything `normalise` produces, less the one figure it derives rather than
+  // reads: `joint` is a function of the filing status and no control supplies it.
+  const read = Object.keys(normalise({})).filter((key) => key !== 'joint');
+
+  assert.deepEqual(
+    [...names].sort(),
+    [...read].sort(),
+    'the form and normalise() disagree about which inputs exist',
+  );
+});
+
+test('every money field on the form reaches the figure that is supposed to total them', () => {
+  // `received` is the one output that must contain every dollar a visitor
+  // enters — it is what the page prints as "Received" and what the effective
+  // rate is quoted against. A money field left out of it is understated income
+  // on the page, and the field list comes from the form rather than from a
+  // literal so that a new one is in this test the day it is added.
+  const html = readFileSync(join(here, '..', 'index.html'), 'utf8');
+  const money = [
+    ...html.matchAll(/name="([^"]+)"[^>]*inputmode="decimal"/g),
+  ].map((m) => m[1]);
+  assert.ok(money.length >= 10, `found only ${money.length} money fields, expected at least 10`);
+
+  const base = compute({ year: 2026, filingStatus: 'single', filerAge: 67 });
+  for (const field of money) {
+    const bumped = compute({ year: 2026, filingStatus: 'single', filerAge: 67, [field]: 1_234 });
+    assert.equal(
+      bumped.received - base.received,
+      1_234,
+      `${field} does not reach model.received`,
+    );
+  }
+});
+
+test('the federal deductions below the line reach the states that add them back', () => {
+  // THE TWO DEFECTS DAY 52 FOUND, AND THEY RAN IN OPPOSITE DIRECTIONS ON THE SAME
+  // RETURN, which is why neither showed up as an implausible number.
+  //
+  //   the engine  South Carolina's 2025 add-back against its frozen § 63(c) was
+  //               `federal.deduction - $15,000`, uncapped, which cancels to
+  //               `AGI - $15,000` and takes § 63(f)'s additional $2,000 for a
+  //               filer of 65 with it. $120 too HIGH.
+  //   the site    `federalDeductions` was never passed, so the OBBBA senior
+  //               deduction — up to $6,000, and this page's whole audience is
+  //               eligible for it — was inherited by a state that adds it back.
+  //               Up to $360 too LOW.
+  //
+  // The widow's $1,500 of senior deduction against her $2,000 of § 63(f) left a
+  // net error of $30 on a $4,000 bill. A household is not a test of a provision
+  // unless the provision is the only thing moving in it, so both are pinned here
+  // by their own add-back lines and not by the total.
+  const sc = compute(WIDOW).states.find((row) => row.state === 'SC');
+  assert.deepEqual(
+    sc.result.addBacks.map((a) => [a.name.slice(0, 24), a.amount]),
+    [
+      ['Additional senior deduct', 1_500],
+      ['Federal standard deducti', 750],
+    ],
+    'both 2025 add-backs, and the standard one capped at the increase',
+  );
+
+  // $150,000 of AGI, a $17,750 federal deduction (the basic $15,750 and
+  // § 63(f)'s $2,000), $1,500 of senior deduction, both OBBBA items added back,
+  // $55,000 of South Carolina subtractions:
+  //   150,000 - 17,750 - 1,500 + 750 + 1,500 - 55,000 = 78,000
+  // and the schedule charges 0.03 x 14,270 + 0.06 x 60,170 = 4,038.30.
+  assert.equal(sc.result.taxableIncome, 78_000);
+  assert.equal(sc.total, 4_038.3);
+  // The identity the add-back exists for: the senior deduction comes straight
+  // back out, so the base is the same as if the federal return had never allowed
+  // it — and § 63(f), which the frozen Code DOES allow, survives.
+  assert.equal(
+    sc.result.taxableIncome,
+    150_000 - 17_750 + 750 - 55_000,
+    'the senior deduction is neutral and § 63(f) is not',
+  );
+});

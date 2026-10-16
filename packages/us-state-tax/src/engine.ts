@@ -2389,7 +2389,15 @@ function recognizedStandardDeductionAddBack(
   if (!rule) return [];
   if (input.federal.deductionKind !== 'standard') return [];
   const allowed = rule.amounts[input.filingStatus];
-  const amount = Math.max(0, input.federal.deduction - allowed);
+  // Capped at the increase the state has not adopted, which is what makes this
+  // the standard deduction's add-back rather than the whole federal deduction's.
+  // Uncapped, the expression cancels: the base becomes AGI less `allowed`, and
+  // § 63(f)'s aged and blind additions — which the frozen Code gives in full —
+  // vanish with it. See `RecognizedStandardDeductionRule`.
+  const amount = Math.min(
+    rule.increase[input.filingStatus],
+    Math.max(0, input.federal.deduction - allowed),
+  );
   if (amount <= 0) return [];
   return [{ name: rule.name, amount }];
 }

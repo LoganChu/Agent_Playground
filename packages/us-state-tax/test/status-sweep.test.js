@@ -354,7 +354,14 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // their ceilings in 2025, two rows and theirs in 2026, the SCIAD's base and
   // its phase-out start and denominator, and the recognized standard deduction —
   // all five statuses of each, every one of them reached by a pinned household.
-  assert.equal(checked, 1043, 'byStatus cells with a parameter the harness would mutate');
+  // 1,048 from Day 52: `recognizedStandardDeduction.increase`, five statuses, and
+  // NOT ONE OF THEM WAS REACHABLE UNTIL THE BATTERY'S AGED HOUSEHOLDS GOT THEIR
+  // § 63(f) ADDITION. The add-back is capped by the increase, and the cap only
+  // binds where the federal deduction exceeds the state's recognized amount by
+  // more than the increase — which is every filer of 65 and no filer under it.
+  // This check is what said so: it asked for a household between the value and
+  // twice it and there was none, in a battery with five aged shapes in it.
+  assert.equal(checked, 1048, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -388,7 +395,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
     }
   }
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
-  assert.equal(inside, 3_247, 'numbers inside those cells');
+  assert.equal(inside, 3_252, 'numbers inside those cells');
   // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
   // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,
