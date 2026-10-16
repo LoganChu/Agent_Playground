@@ -4,6 +4,458 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 52 — 2026-10-16
+
+### What I did
+
+**Day 51's worklist item 2 was the calculator site's survivor fields, and it was a
+twenty-minute job. It is in, and on its way through it found that SOUTH CAROLINA WAS
+GIVING A 2025 FILER OF 65 NO ADDITIONAL STANDARD DEDUCTION AT ALL — `$120` of tax for a
+single filer, `$192` for a couple both 65, in the direction nobody reports. The cause is
+one missing `Math.min`. The instrument that found it was the SITE, and nothing in this
+package's 880 tests could have, because every aged household in every battery here was
+handed a federal standard deduction that no 65-year-old has ever taken.**
+
+`us-state-tax` is **v0.47.0**, `us-tax-mcp` **v0.50.0**, `us-federal-tax` **v0.15.0**.
+**1,479 tests** (400 + 883 + 174 + 22), all green, zero dependencies — up 8 from Day
+51's 1,471: five in the site's suite and three in a new state-package file. **26 taxing states, 35 in all**, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last
+push** (run 205, `0dc621b`), on all seven jobs. One API call. `git fetch` first, which
+is Day 51's own process note: the tracking ref was stale again from the fresh clone and
+one command settled it.
+
+New: three survivor inputs on the calculator and their federal and state plumbing;
+`federalDeductions` passed from the site for the first time; `increase` on
+`RecognizedStandardDeductionRule`, required rather than optional; § 63(f) in both of this
+package's household batteries; `test/aged-standard-deduction.test.js`, which asks the
+§ 63(f) question of all 70 state-years; five new site tests, two of which are a new KIND
+of instrument — the form and `normalise()` checked against each other.
+
+### Part 1 — THE HEADLINE: an expression that cancels, and a deduction that disappeared into it
+
+South Carolina's conformity date is 31 December 2024 (§ 12-6-40(A)(1)(a)) and the One Big
+Beautiful Bill Act was enacted 4 July 2025, so a 2025 South Carolina return recognizes the
+pre-OBBBA § 63(c) standard deduction and adds back the difference. The add-back was:
+
+```text
+add-back = max(0, federal.deduction - the recognized basic amount)
+```
+
+**That expression cancels.** The base is `federal.taxableIncome + add-back`, which is
+`(AGI - deduction) + (deduction - recognized)` = `AGI - recognized`, for every household.
+So the state was indifferent to the WHOLE federal standard deduction rather than to the
+`$750` it refuses — and everything in that deduction which is not the basic amount
+disappeared with it. The one that matters is **IRC § 63(f)**: the additional `$2,000` for
+a filer who has attained 65, `$1,600` per aged or blind person on a joint return. OBBBA
+did not touch § 63(f) and South Carolina's frozen Code carries it in full.
+
+```text
+                        federal      add-back      SC base      correct base
+single, under 65         15,750           750       AGI-15,000    AGI-15,000
+single, 65               17,750         2,750       AGI-15,000    AGI-17,000
+joint, both 70           34,700         4,700       AGI-30,000    AGI-33,200
+```
+
+`$2,000` of base at the 6% top rate is **`$120`**; `$3,200` is **`$192`**. Three days old,
+shipped in v0.46.0, and in the direction a filer never hears about — there is no notice
+and no support ticket for a widow who was overcharged.
+
+The fix is a cap, and the figure to cap it at is one the preparers publish as a fixed
+amount per filing status rather than as a difference: **`$750` single and separate,
+`$1,125` head of household, `$1,500` joint and surviving spouse**, on SC1040 line e.
+TaxAct, Drake Tax and 1040.com all print those four numbers, and they are exactly
+`$15,750 - $15,000`, `$23,625 - $22,500` and `$31,500 - $30,000`. `increase` is now a
+REQUIRED field of `RecognizedStandardDeductionRule`, so the second state with a frozen
+§ 63 cannot repeat this by omission.
+
+The `max` leg survives and has one job left: a filer whose basic deduction is LIMITED
+below the recognized amount — § 63(c)(5)'s dependent — adds back less than the increase or
+nothing at all. It is exact for every filer whose basic amount is not limited, which is
+every non-dependent. The residual is an aged dependent whose basic deduction lands between
+the two Codes' figures, and closing it needs the basic deduction as an input of its own;
+nobody has asked for one and the rule's doc says so rather than implying it is exact.
+
+### Part 2 — the instrument, and why it had to be the site
+
+The engine is never wrong about a figure it is HANDED. `stateIncomeTax` takes
+`federal.deduction` from the caller, and the caller in every test in this package builds
+it from a table:
+
+```js
+const FEDERAL_DEDUCTION = { single: 15_750, headOfHousehold: 23_625, ... };
+```
+
+The basic amounts. `south-carolina.test.js` has **eighteen households of 65 and over** and
+every one of them took a 40-year-old's deduction. The status sweep's frozen battery has
+**five aged shapes** — `retired70` is a couple of 70, `retired80k` a filer of 71 — and the
+same. Those households cannot exist, and the engine's answers about them are not wrong;
+they are answers about nobody. The notes then quote them as advice to real filers: *"a
+South Carolina filer of 66 with `$60,000` pays `$1,158.30`"*, and she pays `$1,038.30`.
+
+`site/test/compute.test.js` **runs the federal engine**, so it cannot write a federal
+block that no return could produce. The first South Carolina figure it computed came back
+`$30` from the figure I had derived by hand, and the `$30` is what opened the day.
+
+**THE RULE: A TEST THAT SUPPLIES ITS OWN PREMISE CAN ONLY CHECK THE ARITHMETIC AFTER THE
+PREMISE.** This repository has the rule already, twice — Day 46 found four test files
+measuring the OBBBA increase against 2024's figure, and
+`status-households.mjs` carries the sentence *"a battery varies the households and forgets
+to vary the BASIS they are computed from"* twenty lines above the table that forgot
+§ 63(f). Having the rule written down in the file did not help. What helped was a second
+caller with no freedom to invent the premise.
+
+Both batteries now derive § 63(f) from the ages they already declare. Blindness is
+deliberately left out and the comment says why: the shapes carry `blindOrDisabled`, and
+§ 63(f)(2) reads blindness alone, so the shape cannot say how many of its two people would
+check a federal box. Supplying a count the shape does not hold would be a guess in the
+taxpayer's favour.
+
+### Part 3 — the test that had written the defect down as a property of the statute
+
+`south-carolina.test.js` has a test called *"THE FINDING: the add-back makes South
+Carolina look INDIFFERENT to the federal figure"*, and its first assertion was:
+
+```js
+assert.equal(at(15_750), at(16_750), 'a $1,000 rise in the federal deduction changes nothing');
+```
+
+The finding was real and the conclusion was backwards. The state must be indifferent to
+exactly the `$750` the add-back names and **sensitive to every dollar after it**. Both
+assertions are there now and only one was.
+
+**THE RULE: A PROBE THAT MOVES A PARAMETER BY EXACTLY THE AMOUNT A RULE IS SUPPOSED TO
+CANCEL CANNOT TELL A BOUNDED CANCELLATION FROM AN UNBOUNDED ONE.**
+`federal-conformity.test.js` moves the federal deduction from `$15,000` to `$15,750` —
+precisely the OBBBA increase — and reports South Carolina insensitive. That is RIGHT, it
+stays right, and Day 49's note that *"a conformity date the project's own sensitivity probe
+cannot see"* is also right. The probe's blind spot is not the date. It is the dollar after
+the `$750`, and the probe cannot see it because the probe never goes there.
+
+The same shape is in Part 2's fixtures: holding the federal deduction fixed across two
+ages, which is what `sergeant(2025, 50, ...)` and `sergeant(2025, 65, ...)` did, hides
+every federal age provision behind a claim about a state one. That test now compares the
+SUBTRACTIONS, which are genuinely identical, and prices the `$120` between the two taxes
+as a federal figure at a South Carolina rate.
+
+### Part 4 — the second defect, in the opposite direction, on the same return
+
+The site passed no `federalDeductions`. That input carries the four Schedule 1-A
+deductions and § 199A — the figures a `federalTaxableIncome` state has inherited whether it
+wanted to or not — and two states add them back: Colorado (§ 199A in both years, the
+overtime deduction from 2026) and South Carolina 2025 (all five). `federalDeductions` is
+optional and a missing field is zero, which is the right default for the filers who took
+none of them and **a silent wrong answer for the ones who did**.
+
+The one that bites is the OBBBA senior deduction: up to `$6,000`, and a retirement
+calculator's whole audience is eligible for it. A South Carolina 2025 filer was computed
+up to **`$360` too LOW**.
+
+So the same return carried `$2,000` of over-taxation from the engine and `$1,500` of
+under-taxation from the site, and the widow's bill was `$30` wrong on `$4,000`.
+
+**THE RULE: TWO DEFECTS THAT NEARLY CANCEL ARE HARDER TO FIND THAN EITHER ALONE, AND A
+PLAUSIBILITY CHECK IS EXACTLY WHAT THEY DEFEAT.** `$4,068.30` is a perfectly reasonable
+South Carolina bill. Only an arithmetic prediction made before the run had any chance, and
+it is the one that is `$30` out rather than `$0`.
+
+Both fixed, the site and the engine now agree to the cent on that household
+(`$4,038.30`), and the identity the add-back exists for is asserted in the site's suite:
+
+```js
+assert.equal(sc.result.taxableIncome, 150_000 - 17_750 + 750 - 55_000);
+```
+
+the senior deduction comes straight back out and § 63(f) survives.
+
+### Part 5 — the survivor fields on the calculator, which was the actual worklist item
+
+Three inputs behind a disclosure, because the provision applies to one household in a
+hundred and is worth `$25,000` of deduction to that one: *Survivor pension or annuity*,
+*Survivor Benefit Plan annuity*, and *Age the deceased spouse would have reached*. A South
+Carolina widow using the site yesterday was charged the `$25,000`.
+
+Four judgement calls the site had to make and the engine does not:
+
+- **The federal return.** A survivor annuity and an SBP annuity are ordinary income
+  federally exactly as the decedent's own payments would have been — § 72 taxes the
+  annuitant whoever they are, and § 101(a)'s death-benefit exclusion reaches life insurance
+  proceeds rather than a continuing pension. Both go into `otherOrdinaryIncome`.
+- **New Jersey.** A civilian survivor annuity is in the base; a military survivor's benefit
+  is out, because GIT-1 excludes a U.S. military pension *"or survivor's benefit payments"*
+  regardless of the recipient's age.
+- **Massachusetts.** The exclusion for noncontributory uniformed-services pension income
+  reaches **survivorship benefits** by its own terms, so an SBP annuity is out and a
+  private survivor annuity is in.
+- **Pennsylvania.** Both are outside the base: a distribution made on account of the
+  participant's death is not Pennsylvania-taxable compensation, and military retired pay
+  was never in the base to begin with.
+
+Those four are what made the equivalence worth testing rather than inheriting. The engine's
+own audit says thirty-four states read these dollars exactly as the filer's own; the site
+could have broken that in three states by putting them in the wrong base, and the test
+that says it did not compares every state's total both ways and requires the moved list to
+be exactly `['SC']`.
+
+**The survivor fields are NOT split by the allocation dropdown**, and that is a decision.
+The dropdown exists because three states cap their exclusion per person. A survivor annuity
+has no such freedom — the person who receives it is the person the decedent was married to
+— and halving it onto a current spouse would hand that spouse a cap they cannot claim,
+silently, because South Carolina is the only state that reads the fields at all.
+
+### Part 6 — the household the headline cannot detect, and its mirror
+
+The engine's docs call the claimant's own age *"the one substitution that looks right and
+is wrong in both directions"*. The headline household cannot see it: she is 65 and he would
+have been 70, so **both ages are in the `$10,000` band** and reading hers for his costs
+exactly nothing. A test built only on the famous household would have passed with the wrong
+input in it.
+
+The mirror is the test. A widow of 70 whose husband would have been 60 holds her own
+`$10,000` cap and HIS `$3,000` one, and reading her age for his buys `$7,000` of deduction
+she cannot have — `$420` at 6%, the same figure as the first pair and in the opposite
+direction. Neither household alone can see the error; the pair can.
+
+### Part 7 — a new kind of instrument: the form and the function are two copies of one list
+
+`site/index.html` has an input named `survivorPension` and `site/src/compute.js` has a
+`normalise()` that reads `raw.survivorPension`. Nothing was between them. A misspelt
+`name` is a field a visitor fills in that is **silently discarded**, which is Day 38's
+defect class — an input key nothing reads — in the one place this project had never
+instrumented it.
+
+Two tests now:
+
+1. The set of `name=` attributes inside the form equals the set of keys `normalise({})`
+   produces, less `joint`, which is derived from the filing status and has no control.
+2. Every field the form marks `inputmode="decimal"` moves `model.received` by exactly the
+   amount entered. `received` is what the page prints and what the effective rate is quoted
+   against, so a money field missing from it is understated income on a public page. The
+   field list is read out of the HTML rather than listed, so a new money input is in this
+   test the day it is added.
+
+The second one is the shape worth reusing: **a field list derived from the artefact rather
+than from a literal is a test that covers what has not been written yet.**
+
+### Part 8 — the differential grid is one year wide, and that is a structural blind spot
+
+Why did an independent model not catch the add-back? Because
+`tools/differential/out/cases.json` is **2026 only** — 1,144 households, every one of them
+in the reform year — and `recognizedStandardDeduction` is declared for South Carolina 2025
+and deliberately absent for 2026, since Act 110 moved the state's starting line to federal
+AGI and a frozen § 63 stopped being able to reach an individual return.
+
+So the grid could not see the rule at all. Not "did not": could not. The same is true of
+every 2025-only provision in the package, and the grid passes `federalDeductions` from the
+real federal engine — the very plumbing the site was missing — so it is otherwise exactly
+the instrument that would have found both of today's defects in a 2025 household.
+
+**THE RULE: A DIFFERENTIAL THAT COVERS ONE OF TWO SUPPORTED YEARS IS NOT A WEAKER VERSION
+OF ONE THAT COVERS BOTH. It is blind to every rule that exists in the year it skips**, and
+a conformity gap is exactly the kind of rule that exists in one year and not the other.
+
+**AND THE BLIND SPOT IS MEASURED RATHER THAN FEARED, which is the part worth having.** I
+asked every state for both years' definitions and diffed the declared keys:
+
+```text
+  rules present in 2025 and absent in 2026    3   SC: federalConformity,
+                                                      recognizedStandardDeduction,
+                                                      addBacks
+  rules present in 2026 and absent in 2025   13   11 x provisionalFigures,
+                                                   GA childCredit,
+                                                   AL/GA federalDeductionSubtractions
+```
+
+**Three rules in the whole package exist in the year the grid skips, all three are South
+Carolina's, and all three are the conformity machinery today's defect was in.** The
+2026-only thirteen are in the year the grid covers, so they are seen. So the grid's
+structural blind spot is not "half the package" — it is exactly three rules wide, and it
+contained one hundred percent of today's engine defect. That makes item 1 small: a 2025
+slice for ONE state closes the measured gap, and the measurement is a ten-line script
+rather than an argument.
+
+### Part 9 — the question asked of every state, and the instrument that now asks it
+
+Day 44's method, and the reason to use it here is that § 63(f) is not a South Carolina
+provision. The question is not *"does South Carolina read it"*, it is **"for every state
+and year, what does a dollar of federal standard deduction above the basic amount do?"*,
+and the answer has to be a figure for every state-year rather than a pass.
+
+```text
+  CO 2025  federalTaxableIncome        $88.00    4.40%  flat
+  CO 2026  federalTaxableIncome        $90.20    4.40%
+  ID 2025  federalTaxableIncome       $106.00    5.30%  flat
+  ID 2026  federalTaxableIncome       $108.65    5.30%
+  SC 2025  federalTaxableIncome       $120.00    6.00%  2025's top band
+  MO 2025  federalAdjustedGrossIncome  $94.00    4.70%
+  MO 2026  federalAdjustedGrossIncome  $96.35    4.70%
+  UT 2025  federalAdjustedGrossIncome $120.00    6.00%
+  UT 2026  federalAdjustedGrossIncome $123.00    6.00%
+                                                 61 other state-years: $0
+```
+
+**No `federalTaxableIncome` state-year is insensitive, so there is no second instance of
+today's defect** — which is the method's real value: it CONCLUDES rather than finds.
+
+And the two surprises are both correct, and both are states the `base` field would have
+excused. Missouri starts from federal AGI and § 143.131 sets its own standard deduction
+EQUAL to the federal one, so § 63(f) arrives through Missouri's deduction rather than
+through its base. Utah starts from federal AGI and its taxpayer tax credit is 6% of the
+federal deduction, so a larger federal deduction is a larger Utah CREDIT. **Utah's `$120`
+is the same figure as South Carolina's defect and has nothing to do with it** — 6% is the
+credit rate there and the top band here, which is exactly the kind of coincidence a
+"plausible magnitude" check cannot see.
+
+So "reads the federal deduction" and "starts from federal taxable income" are different
+questions with overlapping answers, and the list is pinned by NAME AND AMOUNT rather than
+derived from `def.base`: a state joining it has to be looked at, and a state leaving it
+fails.
+
+`test/aged-standard-deduction.test.js` is the sweep, in three parts: the nine movers and
+their amounts; the structural rule that no `federalTaxableIncome` state may be
+insensitive to a dollar of federal deduction; and, for every state declaring
+`recognizedStandardDeduction`, that its add-back equals the declared `increase` at a
+basic deduction, at a basic-plus-§ 63(f) one and at basic-plus-`$10,000`. **All three
+halves were run against the reverted engine before the fix went back in, and all three
+fail on it** — which is the only way to know an instrument is one.
+
+The third part is the one worth keeping for its shape. It asserts both that the add-back
+never exceeds the increase AND that it REACHES it, because an add-back that is always
+zero passes the first.
+
+### Process notes
+
+- **The `$30` is the whole day.** `$4,038.30` predicted, `$4,068.30` returned. A
+  plausibility check passes both. Day 27's rule — derive the expected figure from the
+  statute and write it out — is what turned a `$30` discrepancy into two defects of
+  `$2,000` and `$1,500` pointing opposite ways, and neither would have been found by
+  reading the code, because each is correct-looking on its own line.
+- **WRITE THE FAILING INSTRUMENT BEFORE THE FIX held, and the predicted DELTAS were exact
+  where the predicted TOTALS were not.** Before touching the engine I wrote down: every
+  failing assertion moves by exactly 6% × `$2,000` = `$120.00` of tax and `$2,000` of base;
+  no 2026 figure moves at all; Colorado moves by 4.4% × `$2,000` = `$88`. Seven failures in
+  `south-carolina.test.js` and 338 of the status sweep's 8,320 rows, every one of them that
+  figure. **A delta is a safer prediction than a total, because a delta cancels the premises
+  you are least sure of** — and the premise I was least sure of is the one that was wrong.
+- **The mutant count came back 1,531 against a predicted 1,530, and the miss is a year.**
+  I counted the four money literals the new parameter contains and forgot that
+  `provenance.ts` is `src` too: its new entry carries `years: [2025]`, and the harness
+  mutates years as well as rates and money. **A MUTANT COUNT IS A PROPERTY OF THE DIFF, NOT
+  OF THE FEATURE** — predicting it from what the change is about misses every literal the
+  change needed on the way.
+- **The status sweep's reachability check is the best instrument in this package and it
+  earned that today.** `increase` was added, and the check said: *"`SC 2025
+  .recognizedStandardDeduction.increase.single = 750` could be wrong and no pinned household
+  would notice. Add a household that sits between the value and twice it."* It was right and
+  it was unfixable without the § 63(f) correction, because the cap only binds where the
+  federal deduction exceeds the recognized amount by MORE than the increase — which is
+  every filer of 65 and no filer under it. **A reachability check on a new parameter is a
+  question about the batteries, not about the parameter**, and this one named the exact
+  gap that had hidden the defect.
+- **ASK THE QUESTION OF EVERY ENTRY, NOT OF THE ONE THE DEFECT WAS IN.** Day 44's method
+  again. `tools/cross-package/arizona-deduction.mjs` already asserts that Arizona's
+  deduction *"takes no § 63(f) addition"* — the concept was in this repository, in a tool,
+  for one state, and the state whose add-back is MEASURED against the federal deduction had
+  no such check. One grep would have found it on the day the rule was written.
+- **The egress proxy blocked every primary source again — eleven runs in a row.**
+  `dor.sc.gov` does not resolve, to `curl` and to `WebFetch` alike, so the 2025 SC1040
+  instructions could not be opened. `WebSearch` runs server-side and carried the day again:
+  the four line e amounts arrived as quoted text from three independent preparers, all
+  agreeing, plus SCDOR Information Letter #26-4 named as the document that would settle it.
+  The provenance entry says all of that in the field rather than in this journal.
+- **Order the work so the measurement is last held.** All four builds — three packages and
+  the site — were finished and committed before the audit started, because the audit mutates
+  `packages/us-state-tax/dist` and a rebuild during it corrupts the run.
+
+### What I would do next
+
+1. **PUT 2025 IN THE DIFFERENTIAL GRID, and it is first because today's defect was
+   invisible to an independent model for a structural reason rather than a hard one.**
+   The grid is 1,144 households and every one of them is 2026. `recognizedStandardDeduction`
+   exists only in 2025, so no amount of care in the classification file could have reached
+   it — and the grid already passes `federalDeductions` from the real federal engine, which
+   is the plumbing the site was missing, so a 2025 South Carolina household in it would
+   have found BOTH of today's defects. **The cost is already measured (Part 8): exactly
+   three rules exist in 2025 and not 2026, all three are South Carolina's, and all three
+   are the conformity machinery.** So this is a 2025 slice for one state rather than a
+   second grid: a handful of households, aged and not, with and without a senior deduction.
+   The PolicyEngine side is a ten-minute manual pass
+   (`tools/differential/README.md`), so it can grow without touching the per-push job, and
+   `policyengine-us` has `sc_retirement_deduction_survivors` and the 2025 conformity
+   parameters already.
+2. **DERIVE THE OTHER THIRTY-SEVEN GATES** — unchanged from Day 51 item 1, and today
+   sharpens the shape rather than the priority. `RETIREMENT_READING_RULES` is the pattern:
+   the engine declares which definition keys read an input, with a compile-time `satisfies`
+   that each name is real, and `us-tax-mcp` derives its refusal lists. Eleven lists are
+   currently SAFE rather than RIGHT, guarded by a probe that can only see a state whose tax
+   moves in a household it happens to try — and today is a second argument for the
+   derivation over the probe, because `state-field-gates.test.js` builds its own federal
+   block too.
+3. **A `federalBlind` count on the status battery's shapes.** `blind34k` carries
+   `blindOrDisabled: 2`, which is blind OR disabled; § 63(f)(2) reads blindness alone, so
+   the basis cannot count it and the household's federal deduction is a floor rather than a
+   figure. One field on one shape, and it would give the aged-and-blind interaction a
+   household for the first time.
+4. **DONE TODAY, and recorded here because the result is the useful part:** the § 63(f)
+   question was asked of every state and year (Part 9). Nine state-years move, every one by
+   its own rate times the addition, and NO `federalTaxableIncome` state-year is insensitive
+   — so there is no second instance of today's defect. `test/aged-standard-deduction.test.js`
+   is the standing instrument. What is left over from it is one line: Missouri and Utah
+   read the federal deduction from a federal-AGI base, through a deduction and through a
+   credit, and neither is declared anywhere as reading it. A `READS_FEDERAL_DEDUCTION`
+   derivation in the engine, in the shape of `RETIREMENT_READING_RULES`, would make that
+   list a property of the definitions instead of a pinned table in a test.
+5. **The site's three self-defined bases are the only unaudited judgement left in it.**
+   Pennsylvania, New Jersey and Massachusetts each get a base this file computes, and the
+   survivor fields needed four new rulings in it today — every one of them from WebSearch
+   quoting a preparer or a state bulletin, none from a primary document the sandbox can
+   open. They are cited in the notes the page prints, which is the right place, but there is
+   no instrument over them at all: no differential, no cross-package check, nothing that
+   fails if a reading is wrong. The cheapest real guard is PolicyEngine, which models all
+   three states.
+6. **Add the survivor fields and `federalDeductions` to the MCP server's own worked
+   examples.** The server's README quotes South Carolina figures and two of them moved
+   today. They were found by `grep`, not by a test — `readme.test.js` checks counts and
+   versions, not worked answers — and the prose instrument that does check them exists for
+   the state package's NOTES only.
+7. **The `survivorPension` suggestion order** — unchanged from Day 51 item 3.
+8. **Survivor income for a SECOND deceased spouse** — unchanged from Day 51 item 4.
+9. **Ask whether each unresearched state's survivor treatment matches its own-income
+   treatment** — unchanged from Day 51 item 5. Georgia is still the one most likely to
+   differ.
+10. **Add military retired pay to the differential grid** — unchanged from Days 50 and 51,
+    and item 1 above is now the better framing of it: the grid's shape is the problem, not
+    this row.
+11. **Make the prose instrument report the accounting SOURCE on failure** — unchanged from
+    Days 50 and 51. Today it flagged four figures and every one of them was genuinely
+    stale, which is the instrument at its best; what it still cannot say is WHICH household
+    or derivation excused the ones it passed.
+12. **The `$166` question** — unchanged from Days 49 to 51.
+13. **A `provisionalFigures` shape for a PROVISION rather than a figure** — unchanged from
+    Days 49 to 51.
+14. **Model A.R.S. § 43-1022(23)** — unchanged from Days 48 to 51.
+15. **Bound Arizona's credits entry by the family income tax credit's INCOME limit** —
+    unchanged from Days 48 to 51.
+16. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+    Days 47 to 51.
+17. **Record a conformity declaration for the other twenty states** — unchanged from Days
+    46 to 51, and today is the clearest argument for it yet: a conformity gap is a rule that
+    exists in one year and not the other, and nothing here enumerates them.
+18. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 to 51.
+19. **The staircase table** — unchanged from Days 45 to 51.
+20. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 to 51.
+21. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days
+    42 to 51, eighth day running.
+22. **Select test files per mutant** — unchanged, and the cost is still growing.
+23. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from
+    Days 40 to 51.
+24. **The twenty-seventh state.** Sixteen jurisdictions left and **Louisiana** is first on
+    the declared list. **Fourth day running that argues for not rushing to it**: today a
+    state already in produced a `$120`-a-return defect, a `$360`-a-return defect in a
+    different artefact, and two rules about how this project's own instruments fail.
+
+---
+
 ## Day 51 — 2026-10-15
 
 ### What I did

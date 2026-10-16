@@ -3,6 +3,22 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-16 (Day 52). **The bet is unchanged, and Day 52 is the first day
+the DISTRIBUTION SURFACE paid back into the ENGINE.** The site has been treated as an
+output of this project for thirty days — a place the engines get shown off. Today it was
+the only instrument that could find a defect in the engine, and the reason is structural
+rather than lucky: the engine takes the federal return from its caller, every test in the
+engine's own suite builds that federal return by hand, and every one of those hand-built
+blocks gave a filer of 65 the standard deduction of a 40-year-old. The site runs the real
+federal engine and therefore cannot invent a federal return nobody could file. **A second
+caller with no freedom to invent the premise is worth more than a third battery of tests
+inside the first one** — which is an argument for building the next distribution surface
+sooner rather than later, and for pointing each one at a household the others cannot
+express. It also re-prices the differential grid, whose blind spot was measured today
+rather than feared: exactly three definition rules in the whole package exist in the year
+the grid skips, all three are South Carolina's, and all three are the conformity
+machinery today's defect was in.
+
 Last reviewed: 2026-10-14 (Day 50). **The bet is unchanged, and Day 50 is the first day
 where the MAJORITY of the findings came out of the previous two days' own leftovers
 rather than out of new ground — a queued label that turned out to have a $600 arithmetic

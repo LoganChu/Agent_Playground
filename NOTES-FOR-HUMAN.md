@@ -13,6 +13,71 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 52 nothing is waiting on you except the network ask below and the optional
+report from Day 50, and today's headline is that THIS PACKAGE WAS OVERCHARGING EVERY
+SOUTH CAROLINA FILER OF 65 OR OVER FOR 2025 — `$120` of tax for a single filer, `$192`
+for a couple both 65 — and the thing that found it was the public calculator rather than
+any of the 880 tests over the engine.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` **v0.47.0**, `us-tax-mcp` **v0.50.0**.
+**1,476 tests**, all passing. No state was added today; 26 taxing states and 35 in all,
+unchanged.
+
+**A. WHAT WENT WRONG, IN ONE SENTENCE.** South Carolina's tax law is frozen at 31
+December 2024, so its 2025 return uses the older, smaller federal standard deduction and
+adds the difference back. The add-back was written as "the filer's own federal deduction
+minus the older amount", which looks right and quietly cancels out: it removed the whole
+federal deduction and put back a fixed one, so the extra `$2,000` that federal law gives
+a person who has turned 65 — which South Carolina's frozen law allows in full — was taken
+away from every one of them. The fix is a cap: the add-back is `$750` for a single filer,
+`$1,125` head of household, `$1,500` for a couple, which is what South Carolina's own
+form prints and what three commercial tax preparers publish. Three days old; shipped in
+v0.46.0 yesterday, fixed in v0.47.0 today.
+
+**B. THE PART I THINK IS ACTUALLY INTERESTING: THE WEBSITE FOUND IT.** The engine takes
+the federal figures from whoever calls it, and every test in this package builds them by
+hand. Every one of those hand-built blocks gave a 65-year-old the standard deduction of a
+40-year-old — eighteen households in the South Carolina file alone. Those households
+cannot exist, so the engine's answers about them were answers about nobody, and the
+package's own documentation quoted them as advice to real people. The calculator at
+`site/` runs the real federal engine, so it cannot invent a federal return that nobody
+could file, and the first South Carolina number it produced was `$30` away from the one I
+had worked out on paper. That `$30` is the whole day. **Nothing needs doing about it — I
+mention it because "the product found a bug the test suite could not" is the kind of
+thing worth knowing about how this repository is built.**
+
+**C. AND A SECOND BUG, IN THE OPPOSITE DIRECTION, ON THE SAME RETURN.** The calculator
+was not telling the state engine about the new federal deductions that sit below the
+line — in particular the `$6,000` senior deduction the One Big Beautiful Bill Act created
+in 2025, which almost everyone this page is for is eligible for. South Carolina adds that
+one back, so the page was computing some South Carolina filers up to `$360` too LOW while
+the engine was computing them `$120` too high. On the one household I tested the two
+nearly cancelled and left an error of `$30` on a `$4,000` bill, which is exactly why
+neither looked wrong. Both fixed; the page and the engine now agree to the cent.
+
+**D. THE FEATURE THAT WAS SUPPOSED TO BE TODAY'S WORK IS ALSO DONE.** The calculator now
+has three inputs for income a widow or widower receives on a deceased spouse's behalf —
+a survivor pension, a Survivor Benefit Plan annuity, and the age the deceased spouse
+would have reached this year. A South Carolina widow using the page yesterday was charged
+`$1,500` of tax she does not owe. It is behind a disclosure, because it applies to one
+household in a hundred and is worth `$25,000` of deduction to that one.
+
+**E. AND THE SAME QUESTION ASKED OF ALL TWENTY-SIX STATES FOUND NOTHING ELSE**, which
+is the news I wanted. Nine state-years read the extra federal deduction a 65-year-old
+gets, every one of them by its own tax rate times it, and no state swallows it the way
+South Carolina was. There is a standing test over it now. Two of the nine were a
+surprise and both are correct: Missouri sets its own standard deduction equal to the
+federal one, and Utah pays a credit of 6% of the federal deduction — so both read a
+figure their "starting point" says they are above.
+
+**F. If you ever want to check any of this against the real form**, the one document that
+would settle it is SCDOR Information Letter #26-4 and the 2025 SC1040 instructions, both
+at `dor.sc.gov`. **This sandbox cannot open that host and has not been able to for eleven
+runs** — see the network ask below. Everything above is established from `WebSearch`
+quoting SCDOR, three commercial preparers who all print the same four numbers, and
+`policyengine-us`, and every one of those routes is named in the code's own provenance
+ledger rather than only here.
+
 **As of Day 51 nothing is waiting on you except the network ask below and the optional
 report from Day 50, and today's headline is that THE MCP SERVER WAS REFUSING ELEVEN OF
 ITS OWN ARGUMENTS for states whose tax they move — including a Social Security benefit
