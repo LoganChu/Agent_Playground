@@ -162,13 +162,16 @@ export function trueMarginalRate(input, fed, stateRows) {
  * Each returns `{ field, amount, note }`.
  */
 function stateDefinedBase(state, input) {
+  // `survivorMilitaryRetirement` is deliberately NOT destructured here: all three
+  // of these states exclude it, so there is nothing to add it to, and a binding
+  // nothing reads is the defect class this repository keeps finding one layer
+  // down. The three notes below say so in words instead.
   const {
     wages,
     pension,
     ira,
     militaryRetirement,
     survivorPension,
-    survivorMilitaryRetirement,
     interestDividends,
     longTermCapitalGains,
   } = input;

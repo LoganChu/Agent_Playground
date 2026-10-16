@@ -17,8 +17,8 @@ package's 880 tests could have, because every aged household in every battery he
 handed a federal standard deduction that no 65-year-old has ever taken.**
 
 `us-state-tax` is **v0.47.0**, `us-tax-mcp` **v0.50.0**, `us-federal-tax` **v0.15.0**.
-**1,480 tests** (400 + 883 + 175 + 22), all green, zero dependencies — up 9 from Day
-51's 1,471: five in the site's suite, three in a new state-package file and one in the
+**1,481 tests** (400 + 883 + 175 + 23), all green, zero dependencies — up 10 from Day
+51's 1,471: six in the site's suite, three in a new state-package file and one in the
 MCP server's README test. **26 taxing states, 35 in all**, unchanged.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last
@@ -324,6 +324,49 @@ The third part is the one worth keeping for its shape. It asserts both that the 
 never exceeds the increase AND that it REACHES it, because an add-back that is always
 zero passes the first.
 
+### Part 9a — the wrong figure was printed on the page, by name, for three days
+
+The calculator's detail panel already renders every add-back line. This is the widow's
+South Carolina panel as the page showed it YESTERDAY, with both of today's defects in it:
+
+```text
+  Starting point (federalTaxableIncome)         $130,750.00
+  less Retirement deduction                     -$10,000.00
+  less Surviving spouse military retirement…    -$30,000.00   <- not on the page at all
+  less Surviving spouse retirement deduction    -$10,000.00   <-   until today: no input
+  less Senior deduction (age 65)                 -$5,000.00
+  plus Federal standard deduction add-back        $2,750.00   <- WRONG; it is $750
+  State taxable income                           $78,500.00
+                                                               and no senior add-back
+                                                               line, because the site
+                                                               never passed one
+```
+
+and as it shows it today:
+
+```text
+  Starting point (federalTaxableIncome)         $130,750.00
+  less Retirement deduction                     -$10,000.00
+  less Surviving spouse military retirement…    -$30,000.00
+  less Surviving spouse retirement deduction    -$10,000.00
+  less Senior deduction (age 65)                 -$5,000.00
+  plus Additional senior deduction add-back       $1,500.00
+  plus Federal standard deduction add-back          $750.00
+  State taxable income                           $78,000.00
+```
+
+So the defect was not hidden. It was **named, itemised and on screen** from the moment
+South Carolina shipped, in a panel built on the principle that a tax answer nobody can
+take apart is a tax answer nobody can check — and it took a prediction made on paper to
+notice it.
+
+**THE RULE: SHOWING THE WORKING IS NOT THE SAME AS CHECKING IT. A reader who was not
+already expecting `$750` had no reason to stop at `$2,750`**, and three days of readers
+did not. Transparency makes a defect findable; only an expectation written down in
+advance makes it found. The same panel needed no change today for the survivor
+deductions either — they arrive as named `computedSubtractions` and print themselves,
+which is the architecture working and is also exactly why nobody looked.
+
 ### Part 10 — verified through the published tarball, off the artefact a buyer would install
 
 `npm i` from the release URL the READMEs advertise, `us-state-tax@0.47.0`, in an empty
@@ -418,9 +461,30 @@ checked, if you check the thing the sentence is for rather than the number in it
   the four line e amounts arrived as quoted text from three independent preparers, all
   agreeing, plus SCDOR Information Letter #26-4 named as the document that would settle it.
   The provenance entry says all of that in the field rather than in this journal.
-- **Order the work so the measurement is last held.** All four builds — three packages and
-  the site — were finished and committed before the audit started, because the audit mutates
-  `packages/us-state-tax/dist` and a rebuild during it corrupts the run.
+- **I BROKE MY OWN RECORDED RULE ABOUT THE AUDIT, IN THE RUN THAT RECORDED IT.** Day 51's
+  process note says: order the work so the measurement is last held, because the audit
+  mutates `packages/us-state-tax/dist` and a rebuild during it corrupts the run. I wrote
+  that sentence into this entry, launched the audit, and then ran
+  `node tools/test-counts.mjs` — **three times**. That tool runs `npm test` in all four
+  directories, and `npm test` in the state package is `npm run build && node --test`,
+  which is `rm -rf dist && tsc`. So the directory the audit was mutating was deleted and
+  rebuilt underneath it, at least three times, while 200 mutants went by.
+  **The run was still PROGRESSING, which is the dangerous part**: a suite that fails
+  because its `dist` has just been deleted reports every mutant in that window as KILLED,
+  so the corruption inflates the score and HIDES survivors. A measurement that is wrong in
+  the flattering direction and still looks healthy is the worst of the four possibilities.
+  Killed at 200/1,531, rebuilt, and restarted as the genuinely last action of the run.
+  **THE RULE BEHIND THE RULE: "DO NOT REBUILD" IS NOT A CONSTRAINT ON BUILD COMMANDS, IT
+  IS A CONSTRAINT ON EVERY COMMAND THAT CONTAINS ONE** — and `test-counts`, `npm test` and
+  anything calling either are all build commands wearing a different name. Day 43 lost
+  three audit runs to an invocation that lived in a README and nowhere the program could
+  read; this is the same class and the fix is the same shape: the harness should refuse to
+  start, or warn loudly, if the directory it is about to mutate changes under it. Added to
+  the worklist as its own item, because a rule I wrote down on the morning of the day I
+  broke it is not going to be fixed by writing it down again.
+- **Order the work so the measurement is last held.** The second attempt did it properly:
+  all four builds — three packages and the site — plus every repo-level check and the
+  differential regeneration were finished and committed before the audit started.
 
 ### What I would do next
 
@@ -504,10 +568,17 @@ checked, if you check the thing the sentence is for rather than the number in it
 20. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 to 51.
 21. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days
     42 to 51, eighth day running.
-22. **Select test files per mutant** — unchanged, and the cost is still growing.
-23. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from
+22. **Make the mutation harness refuse to run while its target is changing.** Today's
+    process note: the audit was corrupted by `tools/test-counts.mjs`, which contains an
+    `npm test`, which contains an `rm -rf dist`. The harness already has
+    `fingerprint.mjs`, which hashes the paths and bytes of exactly what it mutates — so it
+    can take a fingerprint at start-up and re-check it every N mutants, and abort with the
+    reason rather than finishing and recording a number that is wrong in the flattering
+    direction. Cheap, and it converts a rule somebody has to remember into a failure.
+23. **Select test files per mutant** — unchanged, and the cost is still growing.
+24. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from
     Days 40 to 51.
-24. **The twenty-seventh state.** Sixteen jurisdictions left and **Louisiana** is first on
+25. **The twenty-seventh state.** Sixteen jurisdictions left and **Louisiana** is first on
     the declared list. **Fourth day running that argues for not rushing to it**: today a
     state already in produced a `$120`-a-return defect, a `$360`-a-return defect in a
     different artefact, and two rules about how this project's own instruments fail.

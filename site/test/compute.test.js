@@ -721,3 +721,35 @@ test('the federal deductions below the line reach the states that add them back'
     'the senior deduction is neutral and § 63(f) is not',
   );
 });
+
+test('the federal figures the state engine is handed are keys the federal engine still has', () => {
+  // `federalDeductions` is assembled by reaching into `fed.additionalDeductions`
+  // by name. Every field of it is OPTIONAL on the state engine's side and a
+  // missing field is treated as zero — which is the right default for the filers
+  // who took none of these and the reason the whole object was missing for
+  // thirty days without a symptom.
+  //
+  // So a RENAME in `us-federal-tax` would not throw here. It would make one of
+  // these read `undefined`, the state engine would read it as zero, and South
+  // Carolina's senior add-back would quietly vanish again. This is the only guard
+  // against that, and it is cheap: the shape is asserted rather than the figures.
+  const fed = federal(
+    normalise({ year: 2025, filingStatus: 'single', filerAge: 67, pension: 80_000 }),
+  );
+  assert.equal(typeof fed.qualifiedBusinessIncomeDeduction, 'number');
+  for (const key of ['tips', 'overtime', 'senior', 'vehicleLoanInterest']) {
+    assert.equal(
+      typeof fed.additionalDeductions[key]?.deduction,
+      'number',
+      `fed.additionalDeductions.${key}.deduction is not a number — a rename would be silent`,
+    );
+  }
+  // And the one that is non-zero for this page's audience, so the assertion is
+  // not satisfied by four zeros: $80,000 of pension at 67 is under the $75,000
+  // threshold plus the deduction, so the senior deduction is partly withdrawn
+  // and partly allowed.
+  assert.ok(
+    fed.additionalDeductions.senior.deduction > 0,
+    'a filer of 67 on $80,000 takes some of the OBBBA senior deduction',
+  );
+});
