@@ -13,8 +13,75 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 52 nothing is waiting on you except the network ask below and the optional
-report from Day 50, and today's headline is that THIS PACKAGE WAS OVERCHARGING EVERY
+**As of Day 53 nothing is waiting on you except the network ask below and the optional
+report from Day 50, and today's headline is that THE MCP SERVER WAS REFUSING EIGHT MORE OF
+ITS OWN ARGUMENTS for states whose tax they move — up to `$1,856.25` on one Arizona
+return — and that TWO PENNSYLVANIA ARGUMENTS WERE ACCEPTED, DOCUMENTED, AND THEN THROWN
+AWAY by the code underneath.**
+
+`us-federal-tax` is v0.15.0 and `us-state-tax` **v0.47.0**, both unchanged today;
+`us-tax-mcp` is **v0.51.0**. **1,483 tests**, all passing. No state was added; 26 taxing
+states and 35 in all, unchanged.
+
+**A. WHAT THE SERVER DOES, AND WHAT WAS WRONG WITH IT.** The MCP server takes about sixty
+arguments, and most of them only mean something in a few states — an Arizona itemized
+deduction total, a Connecticut child's age. Each one carries a list of the states it
+applies to, and the server REFUSES the argument for any other state, on the principle that
+quietly ignoring a figure somebody supplied is worse than saying no. Eight of those lists
+were too short. The server was telling a caller "this does not apply to your state" about a
+figure that changes their state's tax:
+
+```text
+  Arizona      itemized deductions          $1,856.25 on one return
+  Missouri     the filer's age              $1,598.00
+  Pennsylvania the spouse's forgiveness       $982.40   (a different bug -- see C)
+  New Jersey   earned income                  $420.00
+  Alabama      the filer's age                $300.00
+  Oregon       a no-income spouse             $263.00
+  Connecticut  the children's ages            $250.00   refundable
+  S. Carolina  whether they itemized           $90.00
+```
+
+All eight are fixed. Every one of those figures was worked out from the statute on paper
+BEFORE the code was asked, and all eight came back to the cent.
+
+**B. THE SAME BUG IN THE OTHER DIRECTION, WHICH NOTHING HAD EVER LOOKED FOR.** A list can
+also be too LONG: the server accepts a figure, says it applies, and nothing reads it.
+Nobody had ever measured that. Three states came out of a list — Kentucky, Georgia and
+Missouri — and in Kentucky's case the field's own documentation already said, in as many
+words, that Kentucky has no age test at all, while the list beside it said Kentucky reads
+ages. **Nothing needs doing about it; I mention it because the documentation and the code
+had disagreed in writing for days and no test could see it.**
+
+**C. THE ONE I WOULD WANT TO KNOW ABOUT: TWO PENNSYLVANIA ARGUMENTS WENT NOWHERE.** Two
+arguments about Pennsylvania's tax forgiveness were listed in the server's published
+schema, described in its documentation, and named in its own error messages — and the
+function that does the work never read either of them. A married Pennsylvanian filing
+separately who qualifies for forgiveness was charged their entire Pennsylvania tax:
+`$276.30` on one household I tested, `$982.40` on a slightly larger one. Both now go
+through. Then I asked the same question of all forty-seven arguments at once and the answer
+was that exactly those two were affected.
+
+**D. THE PART THAT WILL KEEP PAYING: FIVE REASONS A TEST FAILS TO SEE A BUG.** Last week's
+test for this covered one direction and used one test value per argument, and it missed all
+eight of A's findings. The reasons are not about tax and they generalise to anything
+measured by comparison: a test value above the rule's own limit measures the rule switched
+off against the rule switched off; comparing two supplied values cannot see what LEAVING
+THE FIELD OUT costs, which is what the refusal actually forced on people; a value of the
+wrong type is just another way of writing "not the thing being tested for"; a maximal value
+is unsafe where a rule subtracts one of the things that value contains; and picking a pair
+of cities by the wrong rate picks the direction where there is nothing to see. The new
+test — run against last week's code — reports all eight findings by name and amount, which
+is the only way to know a test is a test.
+
+**E. NOTHING IN THE TAX ENGINES CHANGED TODAY**, which is unusual and deliberate. All of
+today's work is in the layer between the engine and the caller. One useful consequence: the
+sensitivity audit's number (1,531 deliberately-wrong figures, 1,525 caught, 99.6%) is still
+a measurement of exactly this code, so it did not need re-running and the check that
+verifies it passed first time — the first day in nine that has been true.
+
+**As of Day 52 nothing was waiting on you except the network ask below and the optional
+report from Day 50, and that day's headline was that THIS PACKAGE WAS OVERCHARGING EVERY
 SOUTH CAROLINA FILER OF 65 OR OVER FOR 2025 — `$120` of tax for a single filer, `$192`
 for a couple both 65 — and the thing that found it was the public calculator rather than
 any of the 880 tests over the engine.**

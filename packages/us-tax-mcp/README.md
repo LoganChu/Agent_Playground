@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.50.0/us-tax-mcp-0.50.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.51.0/us-tax-mcp-0.51.0.tgz"
       ]
     }
   }
@@ -173,8 +173,42 @@ the caller believes it.**
 All eleven are fixed, every remaining literal in the handler now reads the shared
 table, and a new test measures all 44 gates by running households in all 35
 states — so the next drift fails a build instead of answering a question wrongly.
+(Day 53 replaced that test with one that measures the gates in BOTH directions and
+found eight more; see the 0.51.0 entry above.)
 One existing test was asserting the defect: it required New York to refuse
 `taxableSocialSecurity`, and New York subtracts the benefit in full.
+
+**New in 0.51.0 — EIGHT MORE GATES WERE REFUSING AN ARGUMENT THAT MOVES THE STATE'S
+TAX, and two Pennsylvania arguments were accepted, documented and then never read
+by the handler at all.** Day 51 found eleven lists too narrow; the probe that found
+them compared one value against another in households it chose, and all eight below
+were invisible to it:
+
+| field | state | one return | why |
+| --- | --- | --- | --- |
+| `stateItemizedDeductions` | AZ | **`$1,856.25`** | A.R.S. § 43-1042 — an Arizona filer may itemize whether or not they itemized federally |
+| `filerAge` / `spouseAge` | MO | **`$1,598.00`** | § 143.125 deducts the whole taxable Social Security benefit from 62 |
+| `pennsylvaniaSpouseEligibilityIncome` | PA | **`$982.40`** | accepted by the schema, documented by `describe_state`, dropped by the handler |
+| `earnedIncome` | NJ | **`$420.00`** | § 54A:6-15's Part II needs `$3,000` or less of earnings, and an OMITTED field fails that test |
+| `filerAge` / `spouseAge` | AL | **`$300.00`** | a defined contribution draw is taxed above `$6,000` and only from 65 |
+| `spouseHasNoGrossIncomeAndIsNotADependent` | OR | **`$263.00`** | ORS 316.085's § 151(b) spouse is an exemption CREDIT, not an exemption |
+| `dependentAges` | CT | **`$250.00`** refundable | § 12-704e's child bonus reads the ages, not the count |
+| `federalItemized` | SC | **`$90.00`** | a 2025 itemizer owes no standard-deduction add-back |
+
+Seven of the eight lists are now DERIVED from the engine's own declarations rather
+than typed — by dotted paths into the state definitions, with the compiler proving
+the first segment is a real key and a test proving every path still reaches a figure.
+Kentucky came OUT of the two age lists, because KRS 141.019(1)'s pension exclusion
+has no age test at all and the field's own documentation had said so for days while
+the list beside it disagreed.
+
+**The guard is a new instrument that measures the gates in BOTH directions**: no
+field may be refused for a state whose tax it moves, and every field DECLARED for a
+state must have a household that witnesses it — a declared pair with no witness is
+`describe_state` telling a caller to supply a figure nothing reads, which is how the
+two Pennsylvania arguments were found. Three pairs out of 209 have no witness and
+each carries its reason. Run against the previous release's lists it reports all
+eight rows above, by name and amount.
 
 **New in 0.50.0 — South Carolina's 2025 answer for anyone 65 or older moves, by `$120` of tax for a single filer and `$192` for a couple both 65, and it moves DOWN.** The state recognizes the pre-OBBBA standard deduction and adds back the difference; the add-back was the difference of the FILER'S OWN deduction rather than of the two statutory amounts, which cancels and silently took IRC § 63(f)'s additional `$2,000` at 65 with it. `us-state-tax` v0.47.0 caps the add-back at the increase the state has not adopted — `$750` / `$1,125` / `$1,500`, the figures SC1040 line e prints. Nothing in this server's own schema or arguments changed.
 
@@ -1041,7 +1075,7 @@ EITC withdrawal at the § 32 phase-out rate.
 The engines underneath live in the same repository. `packages/us-federal-tax`: **400 tests**
 against hand-computed figures, every parameter cross-checked against two independent
 sources. `packages/us-state-tax`: **883 tests**, every state figure cited to its statute.
-This package adds **175 more** covering the protocol and the tool layer. Those three
+This package adds **177 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

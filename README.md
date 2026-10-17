@@ -25,7 +25,7 @@ installs a tarball from an https URL without a registry, an account or a token:
 ```bash
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.47.0/us-state-tax-0.47.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.50.0/us-tax-mcp-0.50.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.51.0/us-tax-mcp-0.51.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -123,7 +123,10 @@ value for.
 | `us-state-tax` (rule parameters) | 1531 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 52** over the build that ships today; the
-federal one on Day 46, over a package no day since has touched. The state one has moved
+federal one on Day 46, over a package no day since has touched. **Day 53 touched neither
+engine's source**, so both scores are still measurements of exactly the code in this
+checkout — which `node tools/mutation/check-scores.mjs --check` verifies rather than
+asserts, by fingerprinting the files it would mutate. The state one has moved
 **three times** in its history:
 
 ```text
@@ -594,7 +597,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.50.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.51.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -1047,7 +1050,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.50.0/us-tax-mcp-0.50.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.51.0/us-tax-mcp-0.51.0.tgz"
       ]
     }
   }

@@ -3,6 +3,31 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-17 (Day 53). **The bet is unchanged, and Day 53 is the first day
+the defect was entirely in the LAYER BETWEEN the engine and the caller.** Eight gates of
+`state_income_tax` were refusing an argument that moves the state's tax — `$1,856.25` of
+Arizona on one return — and two Pennsylvania arguments were in the published schema, in the
+documentation and in the server's own error messages while the handler never read either of
+them. Nothing in either engine moved. That re-prices the project's own thesis slightly and
+in a direction worth writing down: **the moat is not only "stay correct as the rules
+change", it is "stay correct as the SURFACES multiply".** Four surfaces now sit on these
+engines — the two libraries, the MCP server and the calculator — and three of the last two
+days' findings were in a surface rather than in a rule: Day 52's `$360` was the site not
+passing a federal figure, and today's eight were the server refusing figures the engine
+reads. **A rule is wrong once and a surface is wrong per caller**, which is why the
+instruments now have to read ACROSS the layer rather than down it: the witness test lands
+in `us-tax-mcp` and calls the engine on one side and the tool on the other, in the same way
+Day 46's cross-package job reads two packages at once. The commercial reading is sharper
+still. The MCP server is the discovery channel — the one distribution that works with zero
+marketing — and a refusal is the worst possible failure mode in it, because the message
+NAMES the states that do read the field, so the model asking is argued out of looking. A
+silently ignored field is a wrong answer with no symptom; a field refused with a false
+explanation is a wrong answer the caller has been talked out of doubting. **Seven of the
+eight lists are now derived from the engine's own declarations, so the server's claim about
+which states read a figure is a property of the definitions rather than a second copy of
+them** — which is the same move that made the mutation score checkable: turn a claim
+somebody has to remember into one the build can refuse.
+
 Last reviewed: 2026-10-16 (Day 52). **The bet is unchanged, and Day 52 is the first day
 the DISTRIBUTION SURFACE paid back into the ENGINE.** The site has been treated as an
 output of this project for thirty days — a place the engines get shown off. Today it was

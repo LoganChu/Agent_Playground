@@ -4,6 +4,446 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 53 — 2026-10-17
+
+### What I did
+
+**Day 52's worklist item 2 was "derive the other thirty-seven gates", and what it was
+worth was not the derivation. It was that EIGHT MORE of `state_income_tax`'s gates were
+REFUSING an argument that moves the state's tax — `$1,856.25` of Arizona on one return —
+and that TWO Pennsylvania arguments were accepted by the schema, documented by
+`describe_state`, named in the accepted-argument list, and then dropped on the floor by
+the handler. Every figure was predicted from the statute before the engine was asked and
+every one came back exact.**
+
+`us-state-tax` is **v0.47.0** and `us-federal-tax` **v0.15.0**, both UNCHANGED;
+`us-tax-mcp` is **v0.51.0**. **1,483 tests** (400 + 883 + 177 + 23), all green, zero
+dependencies — up 2 from Day 52's 1,481: one test file of four replacing one of two.
+**26 taxing states, 35 in all**, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last
+push** (run 214, `5304bda`), on all seven jobs. One API call, after a `git fetch`, which
+is Day 51's process note and settled a nineteen-commit gap in a second.
+
+**AND `mutation-claims` WILL BE GREEN ON THE DAY'S FIRST PUSH, for the first time in nine
+days**, because nothing in either engine's `src` moved. `check-scores --check` says *"the
+record matches this build"* against the Day 52 measurement, so there is no 104-minute
+audit to run and no expected red to read around. **A day spent entirely in the
+distribution surface is a day the audit's subject did not move** — which is worth
+recording as a property of where the work was rather than as luck.
+
+New: `DefinitionPath`, `declaredBy`, `matching` and `DERIVATION_PATHS` in
+`state-fields.ts`; five lists derived where there were literals and two widened;
+`pennsylvaniaSpouseEligibilityIncome` and `separatedFromSpouse` read by `tools.ts` for the
+first time; three new refusal messages; six rewritten field docs;
+`test/state-field-witnesses.test.js`, which replaces `test/state-field-gates.test.js` and
+measures the gates in BOTH directions.
+
+### Part 1 — THE HEADLINE: the gate had one direction and the money was in both
+
+`STATE_FIELDS` pairs each of 47 arguments with the states that read it, and the loop at
+the end of `state_income_tax` refuses the argument for any other state. Day 51 found
+eleven of those lists too narrow and built a probe. The probe asked one question — *is
+there a state whose tax moves on a field the list omits?* — with one probe value per
+field, in households it built itself.
+
+Eight more pairs were too narrow and the probe could not see any of them:
+
+```text
+  stateItemizedDeductions  AZ  $1,856.25  A.R.S. § 43-1042: an Arizona filer may
+                                          itemize whether or not they itemized federally
+  filerAge / spouseAge     MO  $1,598.00  § 143.125: the whole taxable Social Security
+                                          benefit from 62, no income test
+  pennsylvaniaSpouse…      PA    $982.40  accepted, documented, never read
+  separatedFromSpouse      PA             by the handler at all
+  earnedIncome             NJ    $420.00  § 54A:6-15 Part II: $3,000 or less of
+                                          earnings, and an OMITTED field FAILS that
+  filerAge / spouseAge     AL    $300.00  a defined contribution draw is taxed above
+                                          $6,000 and only from 65
+  spouseHasNoGross…        OR    $263.00  ORS 316.085's § 151(b) spouse is an
+                                          exemption CREDIT, not an exemption
+  dependentAges            CT    $250.00  § 12-704e's child bonus, REFUNDABLE, reads
+                                          the ages and not the count
+  federalItemized          SC     $90.00  a 2025 itemizer owes no standard-deduction
+                                          add-back
+```
+
+**Every one of the eight figures was written down before the engine was asked and seven of
+the eight are a statutory amount times a rate.** `$1,856.25` is 2.5% of
+`$90,000 − $15,750`. `$1,598.00` is 4.7% of 85% of a `$40,000` benefit. `$300.00` is 5% of
+`$6,000` and the engine's own note says *"the `$6,000` exclusion is worth exactly `$300`"*.
+`$263.00` is Oregon's 2026 exemption credit and `$256.00` is its 2025 one. `$90.00` is 6%
+of `$1,500`, with `$67.50` and `$45.00` for the other two statuses, all three exact. Only
+New Jersey's was not predicted as a figure, because it is an unused allowance rather than a
+parameter — and its cliff turned out to be one dollar wide: `$3,000` of earnings is `$0.00`
+of New Jersey tax and `$3,001` is `$420.00`.
+
+**And three states came OUT of a list**, which is the direction nothing had ever looked:
+
+```text
+  filerAge / spouseAge     KY  Kentucky declares no age test anywhere. KRS 141.019(1)'s
+                               pension exclusion has none, which is the whole reason
+                               Kentucky is the state an early retiree can use — and the
+                               field's own documentation SAID SO while the list beside
+                               it disagreed.
+  earnedIncome             GA  no Georgia household moves on it and the doc makes no
+                               Georgia claim
+  dependentAges            MO  § 143.161.1 grants an exemption "for each exemption to
+                               which the taxpayer is entitled for federal income tax
+                               purposes" and § 151(d)(5) set that to zero in 2018
+```
+
+### Part 2 — Pennsylvania: the gate decided ACCEPTED and nothing decided USED
+
+`pennsylvaniaSpouseEligibilityIncome` and `separatedFromSpouse` were in `STATE_FIELDS`, so
+they were in the input schema, in `describe_state`'s Pennsylvania section, and in the
+accepted-argument list the unknown-argument error prints. `grep` for either name in
+`tools.ts` returned nothing. **The handler never read them.**
+
+What they are worth is the whole Pennsylvania tax, because 72 Pa. Stat. § 7304's
+forgiveness is total below the allowance and steps down ten points per `$250` above it. A
+married claimant filing separately may not use the single allowance — *"married claimants
+are not dependents of one another for Tax Forgiveness purposes, even when one spouse does
+not have any Eligibility Income"* — so the allowance is `$13,000` and the income is both
+spouses'. The engine will not assume the spouse's figure, and says so in a note. The
+server would not let the caller supply it.
+
+```text
+  separate claimant, $9,000 of eligibility income     $276.30  ->  $0.00
+  the same with two dependents, $32,000               $982.40  ->  $0.00
+```
+
+**THE RULE: A GATE THAT DECIDES WHETHER A FIELD IS ACCEPTED HAS NOT DECIDED WHETHER IT IS
+USED, AND THOSE ARE TWO DIFFERENT QUESTIONS WITH TWO DIFFERENT ANSWERS.** This is Day 38's
+defect class — an input key nothing reads — in the one place this project had never
+instrumented it: not between the caller and the schema, but between the schema and the
+engine. Forty-five of forty-seven arguments were fine. Two were not, and nothing could have
+told me which.
+
+Then I asked it of all forty-seven at once, which is Day 44's method: a ten-line script
+that greps `tools.ts` for each `STATE_FIELDS` name. It named exactly the two the witness
+test had found, and the agreement is the useful part — a measurement and a static check
+reaching the same two names is worth more than either alone.
+
+### Part 2a — THE DESIGN DOCUMENT HAD ALREADY COMPUTED TWO OF THE ANSWERS
+
+`packages/us-tax-mcp/GATES.md` is Day 52's inventory of the 47 gates, written to turn item
+2 into a list to walk rather than a question to re-ask. It groups the literal lists by the
+definition keys a derivation would have to read. Two of its rows:
+
+```text
+earnedIncome              CA GA OH MD           ownEarnedIncomeCredit, retirementExclusion, +2
+stateItemizedDeductions   MD VA GA MO AL OR WI  itemizedDeduction, itemizedDeductionCredit, …
+```
+
+`retirementExclusion` is declared by **New Jersey alone**, and New Jersey is not in that
+row's state list. `itemizedDeduction` is declared by **AL, AZ, GA, MD, MO, OR, VA** —
+Arizona included — and Arizona is not in that row's state list. **The two findings worth
+`$420.00` and `$1,856.25` were in adjacent columns of the same two rows, in the document
+whose purpose is to make those columns agree, and nothing compared them.**
+
+The row that got Georgia wrong says so too, from the other side: Georgia is in
+`earnedIncome`'s state list and is implied by none of the keys beside it.
+
+**THE RULE: AN INVENTORY WHOSE TWO COLUMNS ARE BOTH WRITTEN BY HAND IS TWO CLAIMS, NOT A
+CROSS-CHECK.** It is the same family as Day 36's *"a list of sources beside a list of
+figures is not provenance"* and Day 52's *"a test that supplies its own premise"* — a
+document that holds both halves of an identity has not thereby checked it. The fix is not a
+more careful table: it is that the KEY list becomes the only hand-written column and the
+state list is computed from it, which is what `state-fields.ts` now does and why GATES.md's
+rows have been rewritten to keep the keys and drop the states.
+
+**And the same document named the two hardest cases correctly, in advance.** Its section on
+what a derivation cannot do says: *"Oregon reads `retirement` through a credit that needs
+age 62 and a low income together, and `federalItemized` does nothing without
+`stateItemizedDeductions` beside it."* Those are exactly the two pairs today's witness test
+could not reach without help — Oregon needed a household built for it, and
+`federalItemized` for Maryland, Missouri and Virginia is the entire allowlist. **A design
+document can be right about the hard parts and still be wrong about the easy ones, because
+the hard parts are the ones somebody thought about.**
+
+### Part 3 — the five ways a probe fails to see a rule, all of them paid for today
+
+This is the part worth keeping. Each of the eight was invisible to Day 51's probe for a
+specific, repeatable reason, and the reasons are not about tax.
+
+1. **A single probe value above the rule's own limit.** `earnedIncome: 12_000` cannot see
+   New Jersey's `$3,000` ceiling: above it the rule is simply off, so the probe measured
+   "off" against "off". Fixed by giving every field a LADDER of values rather than one.
+2. **A baseline that is not the caller's baseline.** Comparing two SUPPLIED values cannot
+   see what OMITTING the field costs — and omission is exactly what a refusal forces on
+   the caller. Connecticut's `$250` was hidden this way twice over: every rung of
+   `[[4,8],[2,17],[1,30]]` has a child of 18 or under, so the bonus was paid in all three.
+   Fixed by making `undefined` the first rung of every ladder.
+3. **A probe value of the wrong TYPE.** `federalItemized` is a boolean argument and
+   `federal.deductionKind` is the string the engine reads. `deductionKind: false` is not
+   `'standard'`, and neither is `true`, so every rung suppressed South Carolina's add-back
+   equally and the `$90.00` read as clean. **A value of the wrong type is one more way of
+   writing "not the thing the rule tests for".**
+4. **A maximal probe value is not a safe probe value where a rule SUBTRACTS one of the
+   things that value contains.** Oregon's retirement income credit is 9% of a `$7,500`
+   base reduced by the GROSS Social Security benefit, and the maximal `retirement` probe
+   carries `$18,000` of benefit — enough to wipe the base out. A ladder of "nothing" and
+   "everything" reported Oregon as reading no retirement income at all. Fixed with a
+   pension-only middle rung.
+5. **A pair chosen by the wrong parameter picks the direction where there is nothing to
+   see.** Michigan's resident credit is the tax paid to the work city capped at the HOME
+   city's own nonresident rate, so wherever the work city's rate is at or below that, the
+   credit cancels it exactly. Detroit-resident-to-Albion is `$5,719.85` whether the work
+   earnings are `$0` or `$40,000`; Albion-to-Detroit is `$4,468.25` and `$4,744.05`. The
+   registries were ordered by RESIDENT rate, which picks the flat direction every time.
+
+And a sixth, which is this file's own failure rather than the engine's:
+
+6. **A co-input the state does not declare makes the GATE refuse the call, and a probe
+   whose every call is refused reports no drift at all.** The Michigan commuting probe was
+   passing `qualifyingWages`, which is an Ohio field. Four pairs read as unwitnessed when
+   the real answer was that nothing had been asked. **This is the same shape as the first
+   run of the whole instrument, which reported 0 comparisons and no drift** — and it is
+   why both halves assert a comparison count and a witness count rather than only reading
+   the verdict. Day 50's lesson, spent rather than re-learned.
+
+### Part 4 — the other direction, which nothing had ever measured
+
+A gate can be wrong two ways and only one had an instrument. Too NARROW is a refusal. Too
+WIDE is accept-and-ignore.
+
+So the new test asks the inverse question of every pair the table DOES declare: **is there
+a household in which supplying this field changes this state's answer?** A declared pair
+with no witness is `describe_state` telling a caller to supply a figure nothing reads.
+
+209 declared pairs. 206 witnessed. **Three have no witness and all three are one field**:
+`federalItemized` for Maryland, Missouri and Virginia, whose whole effect there is to
+unlock `stateItemizedDeductions` — and `state_income_tax` already refuses that field for
+those states unless the flag is `true`, with a message of its own that says so. So the flag
+changes whether a call is LEGAL rather than what it answers, which is the one honest way for
+a declared pair to have no witness. It is in an allowlist with that reason, and the test
+fails if a pair in the allowlist GAINS a witness — because an allowlist nobody prunes
+becomes a list of things that used to be true.
+
+**THE ASYMMETRY, STATED ONCE, because it decides how the derivations should guess.** Too
+wide is silent and mild, and the engine often narrates it anyway — asked about Alabama with
+a § 151(b) spouse it answers *"`spouseHasNoGrossIncomeAndIsNotADependent` was ignored:
+Alabama does not allow it"*, with the statute. Too narrow is a refusal whose message NAMES
+the states that do read the field, so the caller is argued out of looking. **A silently
+ignored field is a wrong answer with no symptom; a field refused with a false explanation is
+a wrong answer the caller has been argued out of.** So where a derivation has to guess, it
+guesses wide, and the instrument reports both directions rather than only the cheap one.
+
+### Part 5 — the derivation, and the two guards it needed
+
+Five lists were literals and two were derived from too few places. All seven are now
+derived from DOTTED PATHS into the state definitions:
+
+```text
+  OWN_AGE_STATES           24 paths  every key in a definition whose name is an age or
+                                     a birth year, less the ones that are a DEPENDENT's
+  DEPENDENT_AGE_STATES     19 paths  a child's age, plus every rule that reads a
+                                     dependent COUNT, because the count arrives through
+                                     this same field
+  STATE_ITEMIZED_STATES     2 paths  itemizedDeduction, itemizedDeductionCredit
+  FEDERAL_ITEMIZED_STATES   4 paths  requiresFederalItemizing, forcedWhenFederalItemizing,
+                                     itemizerCredit, recognizedStandardDeduction
+  EARNED_INCOME_STATES      4 paths  + OH, declared with its reason
+  SPOUSE_151B_STATES        2 paths  exemption AND exemptionCredit
+  56 paths in all
+```
+
+The paths were ENUMERATED rather than recalled: I walked all 70 state-years for every key
+whose name matches an age, a birth year, a dependent or a child, and classified the result.
+Utah is why `born` is in that search — its retirement credit tests a birth YEAR
+(`bornOnOrBefore: 1952`) and a search for `age` alone drops it.
+
+Two guards, because the two failure modes are different:
+
+- **The compiler** proves the FIRST segment of every path is a real key of
+  `StateIncomeTaxDefinition`. That is `RETIREMENT_READING_RULES`' guard, whose own comment
+  records the first draft naming `centenarianSubtraction` — not a key — and the build
+  refusing it.
+- **A test** proves every path still REACHES a figure in at least one state-year, because
+  the compiler cannot type the rest of a dotted path. **A misspelt leaf is a place the
+  derivation does not look, and a place it does not look is a field this server refuses.**
+
+**And one semantic rule that a presence check gets wrong: A DECLARED `0` OR `false` IS THE
+STATE ANSWERING NO, NOT ASKING THE QUESTION.** Three states declare
+`requiresFederalItemizing: false` — Alabama, Arizona and Oregon let a filer itemize on the
+state return either way — and a derivation on presence handed all three the
+`federalItemized` field. Missouri declares `exemption.perDependent: 0`, cited to the
+statute that sets it to zero, and a presence check put Missouri in `dependentAges`. The
+figure is declared because somebody read the statute; what they read was that there is
+none.
+
+### Part 6 — Oregon has now broken the same rule twice, in two lists, for one reason
+
+`BLIND_STATES` carries this sentence, written days ago about Oregon: *"Oregon's is neither
+an exemption nor an exemption credit: ORS 316.695(8) puts it INSIDE the standard deduction,
+which is why a list derived from the two exemption rules alone missed it. **A derived list
+is only as wide as the places it looks.**"*
+
+`SPOUSE_151B_STATES` then looked only at `def.exemption.separateReturnSpouse`, and Oregon's
+is `def.exemptionCredit.separateReturnSpouse`. The engine reads it in a function of its own
+whose comment says the rule was added because the differential grid found Oregon `$251.91`
+out. **So the engine gained the rule, the comment recorded why, and the derived list never
+saw it.**
+
+The rule was written down, in this file, about this state. Writing it down again is not the
+fix. The fix is the instrument that fails when a list and the engine disagree, whatever the
+reason — which is Day 52's lesson about the premise-supplying test, arriving at the same
+conclusion from a different direction: **a rule in a comment is a thing somebody has to
+remember; a rule in a test is a thing the build refuses.**
+
+### Part 7 — is it an instrument? Measured against the previous release
+
+The only way to know. I put the Day 52 lists back, un-read the two Pennsylvania arguments,
+rebuilt, and ran the new test:
+
+```text
+  not ok 1 - no state field is refused for a state whose tax it moves
+    stateItemizedDeductions  AZ  $1856.25  worker-high/single/2025/std
+    federalItemized          SC    $90.00  worker-mid/marriedFilingJointly/2025/std
+    earnedIncome             NJ   $577.50  spouse-aged/marriedFilingJointly/2025/std
+    dependentAges            CT   $250.00  worker-low/single/2025/std
+    filerAge                 AL   $300.00  retiree-rich/single/2025/std
+    filerAge                 MO  $2876.40  ct-window/marriedFilingSeparately/2026/std
+    spouseAge                AL    $24.72  spouse-retiree/marriedFilingJointly/2026/std
+    spouseAge                MO  $1198.50  spouse-retiree/marriedFilingJointly/2026/std
+  not ok 2 - every state field DECLARED for a state has a household that witnesses it
+    pennsylvaniaSpouseEligibilityIncome/PA   separatedFromSpouse/PA
+    earnedIncome/GA   filerAge/KY   spouseAge/KY
+```
+
+All nine findings, in both directions, by name and amount. **Two of the amounts are LARGER
+than the ones I had derived by hand** — `$2,876.40` for Missouri and `$577.50` for New
+Jersey — because the committed battery reaches households my scratch sweep did not, and
+the `ct-window` shape built for Connecticut's tax-exempt interest turned out to be
+Missouri's worst case too. **A battery added for one rule found a worse instance of
+another**, which is the argument for naming each shape after the rule that demanded it and
+then keeping all of them.
+
+### Part 8 — the households each named for the rule that demanded them
+
+Thirteen shapes x 2 years x 4 statuses x itemizing/standard = 208 households, every federal
+block from the REAL federal engine, which is Day 52's rule: a test that supplies its own
+premise can only check the arithmetic after the premise. Four of the thirteen exist because
+a rule could not be witnessed without them:
+
+- **`near62`** — New Jersey's exclusion and Oregon's credit both begin at 62.
+- **`retiree-tiny`** — ORS 316.157 reduces the credit dollar for dollar by household income
+  over `$15,000`, so it reaches nobody in any other shape.
+- **`ct-window`** — Connecticut charges 25% of the LESSER of the gross benefit and the § 86
+  combined income excess, and tax-exempt interest moves only the excess. So it matters only
+  where the excess is the smaller of the two, which needs a benefit near the statutory
+  maximum AND federal AGI within about `$5,000` of the `$100,000` threshold. **The window is
+  about five thousand dollars of AGI wide and an earlier battery sat one dollar outside it.**
+- **`spouse-retiree` and `spouse-aged`** — a per-person rule read through `spouseAge` has
+  nothing to attach to when every shape puts the retirement income on the filer. Both
+  Missouri's `spouseAge` and Alabama's needed this, and `spouse-retiree` is where both were
+  found.
+
+### Process notes
+
+- **THE PREDICTIONS WERE WRITTEN TO A FILE BEFORE THE REPRODUCTIONS RAN and all eight came
+  back exact**, including all three South Carolina statuses and both Oregon years. Day 27's
+  rule, and the reason it keeps earning its place: a figure derived from the statute is a
+  claim about the statute, and a figure read off the engine is a claim about nothing.
+- **THE DERIVATIONS AND THE WITNESS TEST FOUND THE SAME THINGS INDEPENDENTLY, which is how
+  I know either is worth having.** The witness sweep said `earnedIncome/GA` is unwitnessed;
+  the derivation said Georgia declares no rule that reads earnings. The sweep said
+  `filerAge/KY`; the derivation said Kentucky declares no age. The sweep said
+  `dependentAges/MO` after the first derivation included it; the statute said Missouri's
+  per-dependent figure is zero by reference to § 151(d)(5). **A derivation is a claim about
+  the declarations and a witness is a claim about the answers, and the day they disagree is
+  the day one of them is wrong.**
+- **No engine source changed, deliberately.** The architecturally purer home for
+  `OWN_AGE_STATES` is the engine, beside `RETIREMENT_READING_RULES`. It went in the MCP
+  package instead, where `BLIND_STATES` and three other derived lists already live, because
+  the engine's `src` is what the mutation audit fingerprints — and a change that adds no
+  mutants would still have invalidated a 104-minute measurement. **Worklist item 21
+  (fingerprint the mutable literals rather than the file bytes) is the reason that was a
+  trade-off rather than a free choice**, and this is the ninth day it has mattered. The
+  compile-time guard survives the move, because the MCP package vendors the engine's types.
+- **The tests that broke were two tests pinned to the shape of a list.** `tools.test.js`
+  required the refusal message to begin *"stateItemizedDeductions only applies to MD"* and
+  to contain *"IL, IN, MD, VA"*. Both now read the list out of `STATE_FIELDS` and assert
+  that every declared state is named. **A test that pins a derived list is one more copy of
+  a fact that is supposed to have exactly one**, which is this module's own header turned
+  on its own test file.
+- **Three figures in the MCP README moved and `readme.test.js` passed through none of them**
+  — because today's figures are new prose rather than recomputed claims. Day 52's worklist
+  item 6 (point the accounting instrument at that README) is still open and today is a
+  second argument for it: the 0.51.0 entry adds eight dollar amounts that nothing checks.
+- **The whole instrument is 60 seconds**, about 1.3 million engine calls in the narrow
+  direction and 20,000 tool calls in the wide one. It is in `us-tax-mcp`, which the mutation
+  audit does not cover, so Day 51's lesson — a test cheap in CI can be expensive in the
+  audit — does not bite here. It would have, in either engine's suite: 1,531 mutants times
+  60 seconds is 25 hours.
+
+### What I would do next
+
+1. **PUT 2025 IN THE DIFFERENTIAL GRID** — unchanged from Day 52 item 1, and still first.
+   The grid is 1,144 households and every one is 2026; exactly three definition rules exist
+   in 2025 and not 2026, all three are South Carolina's conformity machinery, and the grid
+   already passes `federalDeductions` from the real federal engine. Today sharpens it
+   slightly: `federalItemized/SC` is a 2025-only interaction too, and the grid could not
+   have seen that either.
+2. **THE SAME ACCEPTED-BUT-UNREAD QUESTION, ASKED OF THE OTHER NINE TOOLS.** Part 2's defect
+   was found in `state_income_tax` because that is the tool with a gate table to compare
+   against. The other nine tools have input schemas and no table, so nothing — not even a
+   grep — currently says whether every property they ADVERTISE is read by the handler
+   underneath. `estimate_federal_tax` has the largest schema in the server. The check is the
+   same ten lines that found Pennsylvania's two.
+3. **Give the gate's `requiredIn` the same treatment as `states`.** `STATE_FIELDS` carries
+   `requiredIn` — the fields whose ABSENCE is a wrong answer rather than a missing one — and
+   it is still a hand-written literal on every entry. The witness instrument answers the
+   neighbouring question (does supplying it change the answer); the unanswered one is
+   whether OMITTING it changes the answer by more than some threshold, which is the same
+   sweep with a different verdict and would make `requiredIn` measured rather than asserted.
+4. **DERIVE THE REMAINING LITERAL LISTS.** Seven of twenty-nine multi-state fields are
+   derived now. The ones still typed include `taxableSocialSecurity` (22 states),
+   `netCapitalGain`, `taxExemptInterest`, `propertyTaxPaid` and `rentPaid`. Every one is
+   safe today — the witness test says so in both directions — and every one is a list that
+   drifts the day a state is added. `taxableSocialSecurity` is the one to do first, because
+   it is the longest and because Day 51 found it fifteen states short.
+5. **A `federalBlind` count on the status battery's shapes** — unchanged from Day 52 item 3.
+6. **The site's three self-defined bases** — unchanged from Day 52 item 5.
+7. **Point the accounting instrument at the MCP server's README** — unchanged from Day 52
+   item 6, and today added eight unchecked dollar figures to it.
+8. **The `survivorPension` suggestion order** — unchanged from Days 51 and 52.
+9. **Survivor income for a SECOND deceased spouse** — unchanged from Days 51 and 52.
+10. **Ask whether each unresearched state's survivor treatment matches its own-income
+    treatment** — unchanged from Days 51 and 52. Georgia is still the likeliest to differ.
+11. **Add military retired pay to the differential grid** — unchanged from Days 50 to 52.
+12. **Make the prose instrument report the accounting SOURCE on failure** — unchanged from
+    Days 50 to 52.
+13. **The `$166` question** — unchanged from Days 49 to 52.
+14. **A `provisionalFigures` shape for a PROVISION rather than a figure** — unchanged from
+    Days 49 to 52.
+15. **Model A.R.S. § 43-1022(23)** — unchanged from Days 48 to 52.
+16. **Bound Arizona's credits entry by the family income tax credit's INCOME limit** —
+    unchanged from Days 48 to 52.
+17. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+    Days 47 to 52.
+18. **Record a conformity declaration for the other twenty states** — unchanged from Days 46
+    to 52.
+19. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 to 52.
+20. **The staircase table** — unchanged from Days 45 to 52.
+21. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 to 52.
+22. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days 42
+    to 52, ninth day running, and today is the first day it cost a DESIGN decision rather
+    than only wall-clock: `OWN_AGE_STATES` belongs in the engine and went elsewhere.
+23. **Make the mutation harness refuse to run while its target is changing** — unchanged
+    from Day 52 item 22.
+24. **Select test files per mutant** — unchanged, and today's 60-second file is a reminder of
+    why: it is harmless in `us-tax-mcp` and would be 25 hours in either engine.
+25. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from Days
+    40 to 52.
+26. **The twenty-seventh state.** Sixteen jurisdictions left and **Louisiana** is first on
+    the declared list. **Fifth day running that argues for not rushing to it**: today a
+    state already in produced an `$1,856.25`-a-return defect and seven more, all in the
+    layer between the engine and the caller rather than in any tax rule.
+
+---
+
 ## Day 52 — 2026-10-16
 
 ### What I did

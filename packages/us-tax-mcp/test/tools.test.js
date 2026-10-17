@@ -11,6 +11,7 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
 
+import { STATE_FIELDS } from '../dist/state-fields.js';
 import {
   FEDERAL_FIGURE_PROVENANCE,
   SUPPORTED_YEARS,
@@ -888,7 +889,17 @@ test('state_income_tax carries the Maryland county, and refuses it elsewhere', (
       ...(field === 'stateItemizedDeductions' ? { federalItemized: true } : {}),
     });
     assert.equal(wrong.isError, true, field);
-    assert.match(wrong.content[0].text, new RegExp(`${field} only applies to MD`));
+    // Against the TABLE and not against a literal. Both lists are derived from
+    // the definitions as of Day 53 — `stateItemizedDeductions` gained Arizona
+    // that day, worth `$1,856.25` on one return — and a test that pins the
+    // refusal's first state is a third copy of a list that is supposed to have
+    // exactly one.
+    const declared = STATE_FIELDS.find((f) => f.name === field).states;
+    assert.ok(declared.length > 1, `${field} is declared for more than one state`);
+    for (const state of declared) {
+      assert.match(wrong.content[0].text, new RegExp(`\\b${state}\\b`), `${field} names ${state}`);
+    }
+    assert.doesNotMatch(wrong.content[0].text, /\bNJ\b/, `${field} does not name a state it is not for`);
   }
   // `county` belongs to two states now, so it is refused by naming them.
   const wrongState = call('state_income_tax', {
@@ -1740,7 +1751,7 @@ test('state_income_tax computes Virginia, its 11.5% band and its unreachable cei
   // test passed every day for weeks because it was a test of the code and not of
   // the law, which is the one failure mode a snapshot cannot tell you about.
   // Fifteen states were in that position; the measurement is in
-  // `state-field-gates.test.js`.
+  // `state-field-witnesses.test.js`.
   for (const field of ['lesserSpouseIncome', 'federalPovertyGuideline']) {
     assert.match(
       err('state_income_tax', {
@@ -1898,7 +1909,7 @@ test('state_income_tax rejects a retirement object with neither person', () => {
 // The § 151(b) spouse on a separate return
 // ---------------------------------------------------------------------------
 
-test('state_income_tax carries the § 151(b) spouse through, and only in the four states', () => {
+test('state_income_tax carries the § 151(b) spouse through, and only in the states that declare it', () => {
   // The one fact a separate return cannot answer from its own contents, because
   // the answer lives on a return this one does not contain. A plumbing test:
   // the arithmetic is in `us-state-tax/test/separate-return-spouse.test.js`.
@@ -1933,7 +1944,17 @@ test('state_income_tax carries the § 151(b) spouse through, and only in the fou
     state: 'MI',
   });
   assert.match(refused, /spouseHasNoGrossIncomeAndIsNotADependent/);
-  assert.match(refused, /IL, IN, MD, VA/);
+  // The refusal names the list, and the list is read out of the table rather
+  // than typed here. It said "IL, IN, MD, VA" until Day 53, when the derivation
+  // was widened to the second place the engine looks for the § 151(b) spouse —
+  // Oregon's is an exemption CREDIT, ORS 316.085, worth `$263.00` for 2026 — and
+  // a literal in a test is one more copy of a fact that must agree.
+  const declared = STATE_FIELDS.find(
+    (f) => f.name === 'spouseHasNoGrossIncomeAndIsNotADependent',
+  ).states;
+  assert.match(refused, new RegExp(declared.join(', ')));
+  assert.ok(declared.includes('OR'), 'Oregon reads it through its exemption CREDIT');
+  assert.ok(!declared.includes('MI'), 'Michigan has not been read on the question');
 });
 
 test('a separate return in one of the four is told what the default cost it', () => {

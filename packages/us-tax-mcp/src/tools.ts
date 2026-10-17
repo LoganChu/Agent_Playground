@@ -1365,6 +1365,22 @@ const stateTool: ToolDefinition = {
     const earnedIncome = readNumber(source, 'earnedIncome');
     const investmentIncome = readNumber(source, 'investmentIncome');
     const paIncome = readNumber(source, 'pennsylvaniaTaxableIncome');
+    // PENNSYLVANIA'S TWO TAX-FORGIVENESS FACTS, and until Day 53 this handler
+    // never read either of them. They were in `STATE_FIELDS`, so they were in the
+    // input schema, in `describe_state`'s Pennsylvania section and in the
+    // accepted-argument list the unknown-argument error prints — and then this
+    // function dropped them on the floor. A married claimant filing separately
+    // was computed on Table 1 whatever they supplied, which is the whole of
+    // their Pennsylvania tax where forgiveness is total: `$276.30` on `$9,000`
+    // of eligibility income and `$982.40` on `$32,000` with two dependents.
+    //
+    // **Day 38's defect class — an input key nothing reads — in the one place
+    // this project had never looked for it: between the schema and the engine
+    // rather than between the caller and the schema.** The gate loop below
+    // decides whether a field is ACCEPTED for a state; nothing decided whether
+    // an accepted field was ever USED, and two of forty-seven were not.
+    const paSpouseEligibility = readNumber(source, 'pennsylvaniaSpouseEligibilityIncome');
+    const separatedFromSpouse = readBoolean(source, 'separatedFromSpouse');
     if (paIncome !== undefined && state !== 'PA') {
       throw new ToolInputError(
         `pennsylvaniaTaxableIncome only applies to PA, and ${state} was requested.`,
@@ -1732,6 +1748,10 @@ const stateTool: ToolDefinition = {
       ...(additions !== undefined ? { additions } : {}),
       ...(subtractions !== undefined ? { subtractions } : {}),
       ...(paIncome !== undefined ? { pennsylvaniaTaxableIncome: paIncome } : {}),
+      ...(paSpouseEligibility !== undefined
+        ? { pennsylvaniaSpouseEligibilityIncome: paSpouseEligibility }
+        : {}),
+      ...(separatedFromSpouse !== undefined ? { separatedFromSpouse } : {}),
       ...(njIncome !== undefined ? { newJerseyGrossIncome: njIncome } : {}),
       ...(maIncome !== undefined ? { massachusettsFivePercentIncome: maIncome } : {}),
       ...(shortTermGains !== undefined ? { shortTermCapitalGains: shortTermGains } : {}),

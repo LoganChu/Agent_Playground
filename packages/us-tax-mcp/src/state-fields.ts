@@ -35,6 +35,111 @@ import {
   SUPPORTED_YEARS,
   getStateDefinition,
 } from './state-engine/index.js';
+import type { StateIncomeTaxDefinition } from './state-engine/index.js';
+
+/**
+ * A dotted path into a state definition, with `[]` for "any element of this
+ * array".
+ *
+ * **Day 53's finding is why this exists.** Seven of these lists were literals or
+ * were derived from too few places, and every one of the seven refused a field
+ * that moves a state's tax: `$1,856.25` of Arizona, `$1,598.00` of Missouri,
+ * `$420.00` of New Jersey, `$300.00` of Alabama, `$263.00` of Oregon, `$250.00`
+ * of Connecticut and `$90.00` of South Carolina, on one return each. A list of
+ * states is a second copy of a fact the definitions already hold, so the way to
+ * stop writing it wrong is to stop writing it.
+ *
+ * The compiler proves the FIRST segment is a real key of
+ * {@link StateIncomeTaxDefinition} — which is the guard
+ * `RETIREMENT_READING_RULES` carries in the engine, and whose comment records
+ * the first draft naming `centenarianSubtraction`, a key that does not exist,
+ * and the build refusing it. The rest of a path cannot be typed that way, so
+ * `test/state-field-witnesses.test.js` requires every path in
+ * {@link DERIVATION_PATHS} to occur in at least one state-year. **A misspelt
+ * leaf is a place the derivation does not look, and a place it does not look is
+ * a field this server refuses.**
+ */
+type DefinitionPath = `${keyof StateIncomeTaxDefinition}${string}`;
+
+const PATHS_USED: string[] = [];
+
+/**
+ * Every path any list below reads, so the test can require each to be live.
+ *
+ * Exported rather than internal because the whole point is that it is checkable:
+ * a path nothing matches has silently stopped contributing states.
+ */
+export const DERIVATION_PATHS: readonly string[] = PATHS_USED;
+
+function valueAt(value: unknown, segments: readonly string[]): boolean {
+  if (segments.length === 0) return value !== undefined && value !== null;
+  const head = segments[0];
+  const rest = segments.slice(1);
+  if (head === undefined) return false;
+  if (value === null || typeof value !== 'object') return false;
+  if (head === '[]') return Array.isArray(value) && value.some((element) => valueAt(element, rest));
+  return valueAt((value as Record<string, unknown>)[head], rest);
+}
+
+function segmentsOf(path: string): readonly string[] {
+  return path.split('.').flatMap((part) => (part.endsWith('[]') ? [part.slice(0, -2), '[]'] : [part]));
+}
+
+function read(value: unknown, segments: readonly string[]): unknown {
+  if (segments.length === 0) return value;
+  const head = segments[0];
+  const rest = segments.slice(1);
+  if (head === undefined) return undefined;
+  if (value === null || typeof value !== 'object') return undefined;
+  if (head === '[]') {
+    if (!Array.isArray(value)) return undefined;
+    return value.map((element) => read(element, rest)).find((found) => found !== undefined);
+  }
+  return read((value as Record<string, unknown>)[head], rest);
+}
+
+/**
+ * The states whose definition declares a NON-ZERO, non-`false` value at any of
+ * these paths.
+ *
+ * **A declared `0` or `false` is the state answering no, not asking the
+ * question**, and reading it as a yes is how Missouri got into
+ * {@link DEPENDENT_AGE_STATES}: `exemption.perDependent` is `0` there, cited to
+ * § 143.161.1 granting an exemption "for each exemption to which the taxpayer is
+ * entitled for federal income tax purposes" and § 151(d)(5) having set that to
+ * zero since 2018. The figure is declared because somebody read the statute, and
+ * what they read was that there is none.
+ */
+function declaredBy(...paths: readonly DefinitionPath[]): readonly string[] {
+  return matching((value) => value !== 0 && value !== false, ...paths);
+}
+
+/**
+ * The states whose definition declares a value at any of these paths that
+ * SATISFIES the predicate.
+ *
+ * Presence is not always the question. `separateReturnSpouse` is declared by
+ * nineteen states and says `'claimed'` in five of them; the other fourteen have
+ * been read and answer no, which is the declaration doing its job. A derivation
+ * on presence alone would hand the field to all nineteen.
+ */
+function matching(
+  predicate: (value: unknown) => boolean,
+  ...paths: readonly DefinitionPath[]
+): readonly string[] {
+  for (const path of paths) if (!PATHS_USED.includes(path)) PATHS_USED.push(path);
+  const split = paths.map(segmentsOf);
+  return SUPPORTED_STATES.filter((code) =>
+    SUPPORTED_YEARS.some((year) => {
+      const def = getStateDefinition(code, year);
+      if (def === undefined) return false;
+      return split.some((segments) => {
+        const found = read(def, segments);
+        return found !== undefined && found !== null && predicate(found);
+      });
+    }),
+  );
+}
 
 /**
  * The states that read `blindOrDisabled`, DERIVED from the engine.
@@ -77,12 +182,200 @@ const BLIND_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
  * server agreeing to be told about it. Four states declare `claimed` today and a
  * fifth will need no edit here.
  */
-const SPOUSE_151B_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
-  SUPPORTED_YEARS.some(
-    (year) =>
-      getStateDefinition(code, year)?.exemption?.separateReturnSpouse.spouse === 'claimed',
-  ),
+const SPOUSE_151B_STATES: readonly string[] = matching(
+  (value) => value === 'claimed',
+  'exemption.separateReturnSpouse.spouse',
+  // **Oregon, and the reason this is a list of two paths rather than one.** Its
+  // § 151(b) spouse is an exemption CREDIT, not an exemption — ORS 316.085 and
+  // Form OR-40's exemption boxes — and the engine reads
+  // `exemptionCredit.separateReturnSpouse` in a function of its own. A
+  // derivation that looked only at `exemption` refused Oregon the field for as
+  // long as Oregon has had the rule, which the engine's own comment says it
+  // gained because the differential grid found it `$251.91` out. Worth
+  // `$263.00` for 2026 and `$256.00` for 2025, on a separate return.
+  //
+  // `BLIND_STATES` above carries the same sentence about the same state: *a
+  // derived list is only as wide as the places it looks.* Oregon has now broken
+  // it twice, in two lists, for one reason — it puts rules where no other state
+  // here puts them.
+  'exemptionCredit.separateReturnSpouse.spouse',
 );
+
+/**
+ * The states that read a filer's or a spouse's OWN age, DERIVED from every place
+ * in a definition that names one.
+ *
+ * It was an eighteen-state literal until Day 53 and it was wrong in both
+ * directions at once. **Alabama and Missouri were refused it and both read it
+ * for money** — Ala. Admin. Code r. 810-3-19-.04 taxes a defined CONTRIBUTION
+ * distribution only from 65, so the `$6,000` exclusion is `$300.00` at
+ * Alabama's 5%; Mo. Rev. Stat. § 143.125 exempts the whole taxable Social
+ * Security benefit from 62, which on a `$40,000` benefit is `$1,598.00` at
+ * 2025's 4.7%. **Missouri's own shipped note says *"pass `filerAge` and, on a
+ * joint return, `spouseAge`"* — the engine was telling the caller to supply a
+ * figure this server refused them**, which is Day 51's finding again in a
+ * different field.
+ *
+ * And **Kentucky was in the list and reads no age at all**, which the field's own
+ * documentation said in as many words while the list beside it disagreed. KRS
+ * 141.019(1)'s pension exclusion has no age test, which is the whole reason
+ * Kentucky is the state an early retiree can use.
+ *
+ * The paths are enumerated rather than recalled: the definitions were WALKED for
+ * every key whose name is an age or a birth year, and the result is the list
+ * below less the ones that are a DEPENDENT's age. Utah is why `born` is in that
+ * search — its retirement credit tests a birth YEAR (`bornOnOrBefore: 1952`) and
+ * a search for `age` alone would have dropped it.
+ */
+const OWN_AGE_STATES: readonly string[] = declaredBy(
+  // Age tests that belong to the filer or the spouse.
+  'standardDeductionAgedOrBlindAddition.age',
+  'exemption.seniorAge',
+  'exemptionCredit.seniorAge',
+  'seniorCredit.minimumAge',
+  'agedCredit.minimumAge',
+  'agedIncomeSubtraction.minimumAge',
+  'ageDeduction.minimumAge',
+  'ageDeduction.fullAmountIfBornBefore',
+  'pensionExclusion.minimumAge',
+  'retirementExclusion.minimumAge',
+  'retirementIncomeExclusion.minimumAge',
+  'retirementIncomeExclusion.olderAge',
+  'retirementIncomeExclusionElection.minimumAge',
+  'retirementIncomeSubtractions[].minimumAge',
+  'retirementIncomeSubtractions[].maximumAge',
+  'retirementIncomeSubtractions[].cappedMinimumAge',
+  'retirementIncomeSubtractions[].capByAge',
+  'militaryRetirementExclusion.maximumAge',
+  'militaryRetirementSubtraction.ageThreshold',
+  'planTypeRetirement.definedContributionAge',
+  'reducedBaseRetirementCredit.minimumAge',
+  'stateRetirementDeduction.socialSecurityMinimumAge',
+  'exclusiveRetirementCredits.retirement.bornOnOrBefore',
+  'ownEarnedIncomeCredit.minimumAgeWithoutChildren',
+);
+
+/**
+ * The states that read `dependentAges`, DERIVED — and the one list here where
+ * the right answer is WIDER than "reads an age".
+ *
+ * The field is also how a caller supplies the COUNT, because `dependents`
+ * defaults to `dependentAges.length`. So a state that bands nothing by age still
+ * reads this field, and narrowing the list to the age-readers would refuse a
+ * legal call in nineteen states to protect against nothing.
+ *
+ * What the derivation adds is **Connecticut, which was refused it and loses
+ * `$250.00` REFUNDABLE by the refusal.** Conn. Gen. Stat. § 12-704e's child
+ * bonus pays a flat `$250` to a filer eligible for the Connecticut earned income
+ * credit with at least one qualifying child, and the engine reads
+ * `earnedIncomeCreditChildBonus.maxChildAge` against the ages — `ages.some((age)
+ * => age <= 18)`. With the field refused, `ages` is `undefined`, `some` is never
+ * called and the bonus is zero. A household with two children aged 4 and 8 and a
+ * `$6,000` federal credit was `$250` short; the same household with children of
+ * 19 and 22 is correctly paid nothing, which is how we know the engine reads the
+ * ages rather than the count.
+ */
+const DEPENDENT_AGE_STATES: readonly string[] = declaredBy(
+  // A child's own age.
+  'childCredit.amountByAge',
+  'earnedIncomeCredit.youngChildMaxAge',
+  'earnedIncomeCreditChildBonus.maxChildAge',
+  'exemption.qualifyingChildMaxAge',
+  'exemption.qualifyingChildStudentMaxAge',
+  'ownEarnedIncomeCredit.qualifyingChildMaxAge',
+  'steppedChildCredit.maxAge',
+  'youngChildCredit.ineligibleAge',
+  // And every rule that reads a dependent COUNT, because the count arrives
+  // through this field.
+  'exemption.perDependent',
+  'exemption.perDependentSteps',
+  'exemption.perQualifyingChild',
+  'exemption.perCollegeDependent',
+  'exemption.perSeniorDependent',
+  'exemptionCredit.perDependent',
+  'forgiveness.perDependent',
+  'zeroTaxThreshold.perDependent',
+  'childCredit.maxChildren',
+  'earnedIncomeCredit.childlessMatchRate',
+  'earnedIncomeCredit.matchRateByChildCount',
+  'ownEarnedIncomeCredit.byChildCount',
+);
+
+/**
+ * The states with a state itemized deduction of their own, DERIVED.
+ *
+ * It was a seven-state literal and it was missing **ARIZONA, which is the
+ * largest single figure Day 53 found: `$1,856.25` on one return.** A.R.S.
+ * § 43-1042 lets an Arizona filer itemize whether or not they itemized
+ * federally, and the engine's own shipped note says so — *"this package reads
+ * `stateItemizedDeductions` and takes the larger of that and the standard
+ * deduction"* — while this server told an Arizona caller the field applies to
+ * seven other states. `$90,000` of Arizona itemized deductions against a
+ * `$15,750` standard deduction is `$74,250` at 2.5%.
+ */
+const STATE_ITEMIZED_STATES: readonly string[] = declaredBy(
+  'itemizedDeduction',
+  // Wisconsin's is a CREDIT on the itemized total rather than a deduction of it,
+  // and it is the second place the engine reads the same field.
+  'itemizedDeductionCredit',
+);
+
+/**
+ * The states that read whether the filer itemized FEDERALLY, DERIVED.
+ *
+ * Missing **South Carolina**, whose 2025 return adds back the standard-deduction
+ * increase its frozen Code does not recognize — and
+ * `recognizedStandardDeductionAddBack` returns nothing at all where
+ * `federal.deductionKind !== 'standard'`, because an itemizer took no standard
+ * deduction to add back. With the field refused, every South Carolina ITEMIZER
+ * was charged the add-back anyway: `$45.00` single, `$67.50` head of household,
+ * `$90.00` joint, at the 6% top rate on `$750`, `$1,125` and `$1,500`.
+ */
+const FEDERAL_ITEMIZED_STATES: readonly string[] = declaredBy(
+  // `declaredBy` and not presence, because three states DECLARE
+  // `requiresFederalItemizing: false` — Alabama, Arizona and Oregon let a filer
+  // itemize on the state return whether or not they itemized federally, and a
+  // declared "no" is the answer to the question rather than the asking of it. A
+  // derivation on presence handed the field to all three.
+  'itemizedDeduction.requiresFederalItemizing',
+  'itemizedDeduction.forcedWhenFederalItemizing',
+  'itemizerCredit',
+  'recognizedStandardDeduction',
+);
+
+/**
+ * The states that read `earnedIncome`, DERIVED — plus Ohio, which a derivation
+ * over STATE definitions cannot see.
+ *
+ * Missing **NEW JERSEY, where an OMITTED field is not a zero.** § 54A:6-15's
+ * pension exclusion has a Part II that applies the unused allowance to other
+ * income, but only for a filer with `$3,000` or less of earned income, and the
+ * engine reads `input.earnedIncome === undefined` as failing that test rather
+ * than as passing it — which is the right default, because a caller who said
+ * nothing has not said "none". So a New Jersey retiree who genuinely earns
+ * nothing could not say so: `$420.00` on a single filer of 66 with a `$20,000`
+ * pension, and the cliff is exactly one dollar wide — `$3,000` of earnings is
+ * `$0.00` of tax and `$3,001` is `$420.00`.
+ *
+ * And **Georgia came OUT.** It was in the literal, the field's own documentation
+ * makes no Georgia claim, and no Georgia household this server can build moves
+ * on it.
+ */
+const EARNED_INCOME_STATES: readonly string[] = [
+  ...declaredBy(
+    'povertyLevelCredit',
+    'ownEarnedIncomeCredit',
+    'youngChildCredit',
+    'retirementExclusion.otherIncomeEarnedIncomeLimit',
+  ),
+  // Ohio's reading is in the SCHOOL DISTRICT registry and not in the state
+  // definition: 68 of the 214 districts tax earned income alone, so a filer who
+  // names one needs either this or `qualifyingWages` and the engine throws
+  // without one. A derivation over state definitions is blind to a locality
+  // rule, which is the same shape as Oregon's two misses above and is why this
+  // one is spelled out with its reason instead of being quietly added.
+  'OH',
+];
 
 /**
  * The states that add back interest on OTHER states' municipal obligations,
@@ -337,14 +630,14 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'stateItemizedDeductions',
     schema: number,
-    states: ['MD', 'VA', 'GA', 'MO', 'AL', 'OR', 'WI'],
-    doc: 'Federal Schedule A less the state and local INCOME taxes inside it. Needs federalItemized. Maryland reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate); Virginia and Georgia COMPEL it, so a federal itemizer may not take the state standard deduction even when it is larger. Georgia does NOT require the state income tax to come out — its adjustment is for taxes paid to other states and investment interest on exempt income — so pass the Georgia figure as the IT-511 worksheet computes it.',
+    states: STATE_ITEMIZED_STATES,
+    doc: 'Federal Schedule A less the state and local INCOME taxes inside it. Needs federalItemized in the four states that require it and in none of the others. ARIZONA, ALABAMA and OREGON do NOT: A.R.S. \u00a7 43-1042 lets an Arizona filer itemize whether or not they itemized federally, and Arizona itemized deductions are their own figure \u2014 state income taxes disallowed, and \u00a7 43-1042(D) caps the SALT part at a flat $10,000 from 2026. Leave it out in Arizona and the return takes the standard deduction: $90,000 of Arizona itemized deductions against a $15,750 standard deduction is $1,856.25 of tax at 2.5%. Maryland reduces it by 7.5% of federal AGI over $200,000 ($100,000 separate); Virginia and Georgia COMPEL it, so a federal itemizer may not take the state standard deduction even when it is larger. Georgia does NOT require the state income tax to come out — its adjustment is for taxes paid to other states and investment interest on exempt income — so pass the Georgia figure as the IT-511 worksheet computes it.',
   },
   {
     name: 'federalItemized',
     schema: boolean,
-    states: ['MD', 'VA', 'GA', 'MO'],
-    doc: 'Whether the filer itemized federally. Maryland allows state itemizing only if they did, so the OBBBA standard deduction ended it for many; Virginia and Georgia go further and REQUIRE itemizing on the state return if they did. In GEORGIA this flag is worth money by itself: the eligible itemizer tax credit of O.C.G.A. § 48-7-27.1 pays $300 a taxpayer ($600 joint) for the election alone, with no income test at any level and no state itemized figure needed. At 4.99% that is $6,012 of deduction, so a Georgia filer whose itemized deductions fall that far SHORT of the standard deduction still comes out ahead.',
+    states: FEDERAL_ITEMIZED_STATES,
+    doc: 'Whether the filer itemized federally. SOUTH CAROLINA reads it for the opposite reason from the other four: its 2025 return adds back the standard-deduction increase its frozen Code does not recognize, and an ITEMIZER took no standard deduction to add back \u2014 so the flag switches the add-back OFF and is worth $45.00 single, $67.50 head of household and $90.00 joint at the 6% top rate. Maryland allows state itemizing only if they did, so the OBBBA standard deduction ended it for many; Virginia and Georgia go further and REQUIRE itemizing on the state return if they did. In GEORGIA this flag is worth money by itself: the eligible itemizer tax credit of O.C.G.A. § 48-7-27.1 pays $300 a taxpayer ($600 joint) for the election alone, with no income test at any level and no state itemized figure needed. At 4.99% that is $6,012 of deduction, so a Georgia filer whose itemized deductions fall that far SHORT of the standard deduction still comes out ahead.',
   },
   {
     name: 'netCapitalGain',
@@ -537,41 +830,50 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'earnedIncome',
     schema: number,
-    states: ['CA', 'GA', 'OH', 'MD'],
-    doc: 'Wages plus net self-employment earnings. REQUIRED in practice for a low-income Maryland filer: the poverty level credit is 5% of it against the state tax and the county\'s own rate against the county tax, and between them they take a $15,000 Maryland worker from $160.85 to nothing. Required for California, where the CalEITC and the Young Child Tax Credit are functions of earnings alone rather than of AGI — and CalEITC has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars. REQUIRED for Ohio when schoolDistrict names one of the 68 districts that tax earned income alone: they reach box 1 of the W-2, net of a 401(k) deferral, where the same filer\'s municipality reaches box 5, gross of it.',
+    states: EARNED_INCOME_STATES,
+    refusal:
+      'Four states read earnings as a figure of their own: California for CalEITC and the ' +
+      'Young Child Tax Credit, Maryland for the poverty level credit, New Jersey for the ' +
+      '$3,000 limit on \u00a7 54A:6-15\'s Part II, and Ohio for the 68 school districts that ' +
+      'tax earned income alone. Everywhere else the state reads a federal figure instead, so ' +
+      'there is nothing for this one to do. GEORGIA was on this list until Day 53 and no ' +
+      'Georgia household moves on it.',
+    doc: 'Wages plus net self-employment earnings. REQUIRED for a NEW JERSEY retiree, and this is the one place where an omitted field is not a zero: \u00a7 54A:6-15 lets the unused part of the pension exclusion be applied to OTHER income, but only for a filer with $3,000 or less of earned income, and a field that was not supplied FAILS that test rather than passing it \u2014 which is right, because a caller who said nothing has not said \"none\". So a retiree who genuinely earns nothing has to say so: $420.00 on a single filer of 66 with a $20,000 pension, and the cliff is one dollar wide ($3,000 of earnings is $0.00 of New Jersey tax and $3,001 is $420.00). REQUIRED in practice for a low-income Maryland filer: the poverty level credit is 5% of it against the state tax and the county\'s own rate against the county tax, and between them they take a $15,000 Maryland worker from $160.85 to nothing. Required for California, where the CalEITC and the Young Child Tax Credit are functions of earnings alone rather than of AGI — and CalEITC has no plateau at all, so a single parent faces minus 34% and plus 34% on consecutive dollars. REQUIRED for Ohio when schoolDistrict names one of the 68 districts that tax earned income alone: they reach box 1 of the W-2, net of a 401(k) deferral, where the same filer\'s municipality reaches box 5, gross of it.',
   },
   {
     name: 'dependentAges',
     schema: { type: 'array', items: integer },
-    states: [
-      'NY', 'CA', 'NJ', 'MA', 'MD', 'UT', 'GA', 'IN', 'OR',
-      'AL', 'IL', 'MI', 'MN', 'MS', 'OH', 'PA', 'SC', 'VA', 'WI',
-    ],
-    doc: 'Age of EVERY dependent at year end, not only the children. IN: a dependent CHILD carries $1,500 of exemption that a dependent parent does not, so a count alone costs an Indiana family $74.55 a child in Marion County. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income. OR: TWO credits need it — the Oregon Kids Credit is $1,050 for each dependent UNDER SIX up to five of them, withdrawn across $5,000 of Oregon AGI so that a family with five of them faces an implied marginal rate of 105%; and the earned income credit is 17% of the federal credit where a dependent is under THREE against 14% otherwise. A count of dependents reaches neither, and the result says what that cost.',
+    states: DEPENDENT_AGE_STATES,
+    doc: 'Age of EVERY dependent at year end, not only the children. CT: the $250 child bonus of \u00a7 12-704e is REFUNDABLE and is paid to a filer eligible for the Connecticut earned income credit with at least one qualifying child \u2014 the engine reads it as \"some dependent is 18 or under\", so a count alone pays nothing and two children of 19 and 22 correctly pay nothing either. IN: a dependent CHILD carries $1,500 of exemption that a dependent parent does not, so a count alone costs an Indiana family $74.55 a child in Marion County. Seven states band a credit by age and return ZERO without it, and the result says what that cost. UT: $1,000 for each child under 6, withdrawn at TEN cents on the dollar — 2.2 times the state rate — so a Utah working couple reaches 20% on the next dollar against a headline 4.45%. GA: $250 for each child under 6 from 2026 (HB 136), with no phase-out at any income. OR: TWO credits need it — the Oregon Kids Credit is $1,050 for each dependent UNDER SIX up to five of them, withdrawn across $5,000 of Oregon AGI so that a family with five of them faces an implied marginal rate of 105%; and the earned income credit is 17% of the federal credit where a dependent is under THREE against 14% otherwise. A count of dependents reaches neither, and the result says what that cost.',
   },
   {
     name: 'filerAge',
     schema: integer,
-    states: [
-      'VA', 'NJ', 'MD', 'GA', 'KY', 'UT', 'OH', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA',
-      'MA', 'MN', 'OR', 'SC', 'WI',
-    ],
-    doc: 'Filer age at year end. CA: one MORE personal exemption CREDIT at 65 — $153, worth the same at every rate and every income, and claimed per person, so a couple both 65 claim four personal exemptions rather than two. MS: $1,500 of extra exemption at 65, on the same line as the dependents. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. KY has no age test at all, which is what makes it the one an early retiree can use. Omitted, a retiree return runs far too high.',
+    states: OWN_AGE_STATES,
+    refusal:
+      'Nineteen states read an own age and this one declares no age test anywhere in its ' +
+      'definition. See spouseAge for the same list and the same reason; KENTUCKY is the ' +
+      'common case and its pension exclusion has no age test at all.',
+    doc: 'Filer age at year end. CA: one MORE personal exemption CREDIT at 65 — $153, worth the same at every rate and every income, and claimed per person, so a couple both 65 claim four personal exemptions rather than two. MS: $1,500 of extra exemption at 65, on the same line as the dependents. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. AL: a defined CONTRIBUTION distribution is taxed above $6,000 and only from 65, where a defined BENEFIT payment is exempt in full at any age \u2014 so the $6,000 exclusion is worth exactly $300.00 at Alabama\'s 5% and turning 65 is the whole of it. MO: \u00a7 143.125 deducts the WHOLE taxable Social Security benefit from 62 with no income test, so a $40,000 benefit is $1,598.00 of 2025 tax, and Social Security DISABILITY has no age test at all. KENTUCKY IS NOT ON THIS LIST and that is the point: KRS 141.019(1)\'s pension exclusion has no age test anywhere, which is what makes Kentucky the one an early retiree can use, so the field is refused there rather than accepted and ignored. Omitted, a retiree return runs far too high.',
   },
   {
     name: 'spouseAge',
     schema: integer,
-    states: [
-      'VA', 'NJ', 'MD', 'UT', 'GA', 'KY', 'IL', 'MS', 'MI', 'NY', 'IN', 'CA',
-      'MA', 'MN', 'OH', 'OR', 'SC', 'WI',
-    ],
+    states: OWN_AGE_STATES,
+    refusal:
+      'Nineteen states read an own age and this one declares no age test anywhere in its ' +
+      'definition. KENTUCKY is the state most callers land here with, and its answer is ' +
+      'genuinely age-free: KRS 141.019(1) excludes up to $31,110 of pension income per person ' +
+      'with no age test at all, and retired pay for service before 1998 is uncapped. So there ' +
+      'is nothing for an age to do, and this list is derived from the definitions rather than ' +
+      'typed \u2014 a state that gains an age test gains this field with no edit here.',
     doc: 'Spouse age at year end, joint returns. California and Mississippi both claim their age allowance PER PERSON, so the second spouse at 65 is worth another $153 in California and another $60 of Mississippi tax. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
   },
   {
     name: 'spouseHasNoGrossIncomeAndIsNotADependent',
     schema: boolean,
     states: SPOUSE_151B_STATES,
-    doc: 'SEPARATE returns only: the spouse had NO gross income at all for the year and is not another taxpayer\'s dependent. IRC § 151(b) then allows an exemption for that spouse on a return the spouse is not on — the one sentence in the Code that gives a separate return something a joint one does not, because on a joint return both spouses are already the taxpayer. Four states reach the same result and they reach it two different ways: VIRGINIA (§ 58.1-322.03(1), $930 for each exemption allowable FEDERALLY) and ILLINOIS (35 ILCS 5/204(b), the basic amount for each exemption allowable under § 151) point at the federal provision; MARYLAND (Tax-Gen. § 10-211) and INDIANA (IC 6-3-1-3.5(a)) copy § 151(b)\'s own sentence into their statutes. NEW JERSEY expressly does not, and attaches the same condition to a DOMESTIC PARTNER instead, so this is not a federal rule a state inherits. Worth $3,200 of Maryland exemption — stepped by federal AGI like every other exemption there, so the same spouse is worth $3,200, $1,600, $800 or nothing at four different incomes — $2,850 in Illinois, $930 in Virginia and $1,000 in Indiana. Defaults to FALSE, because nothing else on a return implies it and one dollar of the spouse\'s gross income fails it outright; a separate return that leaves it out is told what it cost. Whether the state\'s aged and blind ADDITIONS follow that spouse is a SECOND question with a different answer in each state, and all four are now read: VIRGINIA and INDIANA adopt § 63(f) by reference (§ 58.1-322.03(2)(b), "each blind or aged taxpayer as defined under § 63(f)"; IC 6-3-1-3.5(a), "each additional amount allowable under Section 63(f)"), ILLINOIS writes the spouse\'s own two $1,000s out in 35 ILCS 5/204(d), and MARYLAND says NO — § 10-211(b)(3) and (b)(4) allow $1,000 "if THE INDIVIDUAL" is 65 or blind where (b)(1) counts "each exemption ... under subsection (a)". So the spouse is worth $1,730 in Virginia, $2,000 in Indiana, $3,850 in Illinois and $3,200 in Maryland on the same return. Indiana\'s further MEANS-TESTED $500 is a THIRD question and is open: it references § 63(f)(1) alone and Indiana\'s bulletin glosses it as joint-only, so this package counts nobody for it.',
+    doc: 'SEPARATE returns only: the spouse had NO gross income at all for the year and is not another taxpayer\'s dependent. IRC § 151(b) then allows an exemption for that spouse on a return the spouse is not on — the one sentence in the Code that gives a separate return something a joint one does not, because on a joint return both spouses are already the taxpayer. FIVE states reach the same result and they reach it three different ways. OREGON\'s is an exemption CREDIT rather than an exemption \u2014 ORS 316.085 and the Form OR-40 exemption boxes, where a separate filer whose spouse has no income checks a second Regular box: $263 for 2026, $256 for 2025, and worth the same at every rate because a credit is. The other four: VIRGINIA (§ 58.1-322.03(1), $930 for each exemption allowable FEDERALLY) and ILLINOIS (35 ILCS 5/204(b), the basic amount for each exemption allowable under § 151) point at the federal provision; MARYLAND (Tax-Gen. § 10-211) and INDIANA (IC 6-3-1-3.5(a)) copy § 151(b)\'s own sentence into their statutes. NEW JERSEY expressly does not, and attaches the same condition to a DOMESTIC PARTNER instead, so this is not a federal rule a state inherits. Worth $3,200 of Maryland exemption — stepped by federal AGI like every other exemption there, so the same spouse is worth $3,200, $1,600, $800 or nothing at four different incomes — $2,850 in Illinois, $930 in Virginia and $1,000 in Indiana. Defaults to FALSE, because nothing else on a return implies it and one dollar of the spouse\'s gross income fails it outright; a separate return that leaves it out is told what it cost. Whether the state\'s aged and blind ADDITIONS follow that spouse is a SECOND question with a different answer in each state, and all four are now read: VIRGINIA and INDIANA adopt § 63(f) by reference (§ 58.1-322.03(2)(b), "each blind or aged taxpayer as defined under § 63(f)"; IC 6-3-1-3.5(a), "each additional amount allowable under Section 63(f)"), ILLINOIS writes the spouse\'s own two $1,000s out in 35 ILCS 5/204(d), and MARYLAND says NO — § 10-211(b)(3) and (b)(4) allow $1,000 "if THE INDIVIDUAL" is 65 or blind where (b)(1) counts "each exemption ... under subsection (a)". So the spouse is worth $1,730 in Virginia, $2,000 in Indiana, $3,850 in Illinois and $3,200 in Maryland on the same return. Indiana\'s further MEANS-TESTED $500 is a THIRD question and is open: it references § 63(f)(1) alone and Indiana\'s bulletin glosses it as joint-only, so this package counts nobody for it.',
   },
   {
     name: 'blindOrDisabled',
