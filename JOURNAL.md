@@ -25,8 +25,11 @@ CI read at the START of the run, the standing item since Day 37: **green on the 
 push** (run 214, `5304bda`), on all seven jobs. One API call, after a `git fetch`, which
 is Day 51's process note and settled a nineteen-commit gap in a second.
 
-**AND `mutation-claims` WILL BE GREEN ON THE DAY'S FIRST PUSH, for the first time in nine
-days**, because nothing in either engine's `src` moved. `check-scores --check` says *"the
+And at the END, which is Day 45's other half: **green on all SEVEN jobs** (run 215,
+`4dc8682`) — on the day's FIRST push, with no second push needed.
+
+**`mutation-claims` WAS GREEN ON THE DAY'S FIRST PUSH, for the first time in nine days**,
+because nothing in either engine's `src` moved. `check-scores --check` says *"the
 record matches this build"* against the Day 52 measurement, so there is no 104-minute
 audit to run and no expected red to read around. **A day spent entirely in the
 distribution surface is a day the audit's subject did not move** — which is worth
@@ -339,6 +342,45 @@ a rule could not be witnessed without them:
   nothing to attach to when every shape puts the retirement income on the filer. Both
   Missouri's `spouseAge` and Alabama's needed this, and `spouse-retiree` is where both were
   found.
+
+### Part 9 — verified through the published tarball, off the artefact a buyer would install
+
+`npm i` from the release URL the READMEs advertise, `us-tax-mcp@0.51.0`, in an empty
+directory, calling `state_income_tax` the way a client does:
+
+```text
+  PA separate, $32,000, 2 dependents, spouse unknown     $982.40
+  PA the same, spouse eligibility income $0                $0.00   <- was unsupplyable
+  AZ single $460,000, no Arizona itemized figure      $11,106.25
+  AZ the same, $90,000 of Arizona itemized             $9,250.00   <- was refused
+  MO single, $40,000 benefit, age unknown              $4,723.81
+  MO the same, filerAge 62                             $3,125.81   <- was refused
+  CT head of household, 2 dependents, no ages         -$2,375.00
+  CT the same, dependentAges [4, 8]                   -$2,625.00   <- was refused
+
+  KY with filerAge: "filerAge applies to AL, CA, GA, IL, IN, MA, MD, MI, MN, MO, MS,
+                     NJ, NY, OH, OR, SC, UT, VA, WI, and KY was requested. … KRS
+                     141.019(1) excludes up to $31,110 of pension income per person
+                     with no age test at all"
+```
+
+The refusal still bites where it should, and it now explains itself with the statute rather
+than with a list. The `Distribute` workflow published the tarball within a minute of the
+push, so the install line in every README resolves to the build that carries this.
+
+### Part 10 — CI, and the expected red that was not there
+
+**Green on all SEVEN jobs on the day's FIRST push** (run 215, `4dc8682`) — the three test
+jobs, `differential`, `counts`, `cross-package` and `mutation-claims`. Read job by job
+rather than by conclusion, which is Day 50's lesson spent rather than re-learned.
+
+**`mutation-claims` has been red from the day's first push until the score was recorded for
+eight days running, and today it was green**, because no file the audit fingerprints
+changed. The fingerprint is doing exactly what it was built to do in both directions: it
+goes red when the measured build is not this build, and it stays green when it is. **Eight
+days of a known red taught me to read around it; the ninth day is the one where reading
+around it would have been wrong**, and the only reason I did not is Day 50's rule about
+reading the job list rather than the conclusion.
 
 ### Process notes
 
