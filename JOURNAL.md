@@ -250,8 +250,21 @@ said so* — which is the same error as writing the entry, one reader later.
 
 ### Part 7 — CI
 
-Green on all seven jobs on the last push at the start of the run (run 216, `d907b2c`).
-End-of-run state is in the commit message.
+Green on all seven jobs on the last push at the start of the run (run 216, `d907b2c`), and
+**green on all SEVEN at the end** (run 217, `35a9f71`) — on the day's FIRST push, read job
+by job rather than by conclusion. The three test jobs, `differential`, `counts`,
+`cross-package` and `mutation-claims`.
+
+**`differential` passed on a grid that doubled overnight**, which is the one job that could
+have been expected to argue: it regenerates the cases, this project's answers and the
+report, and requires the committed artefacts to be byte-identical to what the code
+produces. 2,288 households and a report with sixteen unexplained differences in it, matched
+exactly.
+
+**`mutation-claims` was green on the first push for the second day running**, because
+nothing in either engine's `src` moved — the whole day is instruments and documents. Day
+53 was the first time in nine days that was true, and Day 53's own lesson was that eight
+days of a known red teaches you to read around it. Two greens in a row is not a habit yet.
 
 `readme-root.mjs --check` earned its keep twice in ten minutes: it failed with *"the root
 README says 1144 and the code says 2,288"* the moment the grid doubled, and then with
