@@ -4,6 +4,368 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 54 — 2026-10-18
+
+### What I did
+
+**Day 53's worklist item 1 was "PUT 2025 IN THE DIFFERENTIAL GRID", first on the list for
+five days. What it was worth was not the second year. It was that OREGON'S SURPLUS
+"KICKER" CREDIT — 9.863% of the prior year's Oregon liability, refundable, in the
+Oregon CONSTITUTION — IS NOT MODELLED IN THIS PACKAGE AT ALL, so every Oregon 2025 return
+it answers is too high, by `$3,993.89` on one household in this grid. Fifty-three days of
+this instrument could not see it, because every household in it was a 2026 household and
+2026 is an even year with no certified kicker.**
+
+And underneath that: `cases.mjs` had taken the tax year as a DEFAULT ARGUMENT NOBODY EVER
+PASSED since the day it was written; `known-divergences.json` carried SIX ENTRIES WITH
+`"year": 2026` and the word `year` appeared nowhere in `compare.mjs`; and one of those six
+argued its whole case on the year, about 2025 households, in a grid that contained none.
+
+`us-state-tax` is **v0.47.0** and `us-federal-tax` **v0.15.0**, both UNCHANGED; `us-tax-mcp`
+is **v0.51.0**, also unchanged. **1,487 tests** (400 + 883 + 181 + 23), all green, zero
+dependencies — up 4 from Day 53's 1,483. **26 taxing states, 35 in all**, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 216, `d907b2c`), all seven jobs, one API call after a `git fetch`.
+
+**No engine `src` changed, for the second day running and deliberately**, so
+`check-scores --check` says the record still matches this build and there is no 104-minute
+audit to run.
+
+### Part 1 — THE HEADLINE: the credit the even-numbered year could not show
+
+The grid's 2025 half opened with **59 unexplained differences, 41 of them Oregon**, every
+one in the same direction and all of them large: `$3,993.89`, `$3,705.71`, `$2,529.24`,
+down to `$31.04`. Our own 2025 and 2026 answers for the same household are within `$45`
+of each other; **PolicyEngine's 2025 is about a tenth lower than its own 2026**, which is
+the shape of a credit rather than of a parameter.
+
+```text
+  2025-single-worker-OR-80000   ours  5,442.19   theirs  4,880.18   +562.01
+  2026-single-worker-OR-80000   ours  5,397.75   theirs  5,412.01    -14.26
+```
+
+It is `or_kicker`: **Article IX, Section 14(4) of the Oregon Constitution** returns a
+certified biennial revenue surplus to taxpayers as a credit on the ODD year's return,
+computed as a percentage of the PRIOR year's liability before credits. PolicyEngine carries
+0 for even years and `0.17171 / 0.17341 / 0.4428 / 0.09863` for 2019 / 2021 / 2023 / 2025.
+For tax year 2025 Oregon's Office of Economic Analysis certified **9.863%** of the 2024
+liability off a `$1.41` billion surplus for the 2023–25 biennium; the base is line 24 of
+the 2024 Form OR-40 less any credit for tax paid to another state. Confirmed from two
+independent sources before anything was written down, per Day 1's rule.
+
+**And a preparer's own help page still prints 44.28%**, which is the 2023 rate — so the
+figure an Oregon filer is likeliest to meet in the wild is four and a half times too big.
+That is the market this package is for.
+
+**THE BOUND IS A RATE, AND HAD TO BE.** The credit is a rate on a liability which is
+itself a rate on income, so it cannot exceed `0.09863 × 0.099` = **0.9764% of income**.
+The grid's worst instance is 0.9264%. A dollar bound could not express one fact that is
+`$74.41` on a `$15,000` worker and fifty times that at `$400,000` — Day 25's rule, reached
+this time along the year axis.
+
+**Why it is recorded and not fixed today:** the credit's base is a figure from a return
+this engine is not computing. Modelling it needs a new caller-supplied input, not a new
+parameter — a change to the engine's input surface, and the first item on the worklist.
+
+### Part 2 — the selector that was written before it was read
+
+`known-divergences.json` lets an entry say which tax year it is about. Six entries did.
+`grep year compare.mjs` returned **nothing**.
+
+While the grid was one year deep that cost nothing: a selector that selects every household
+is indistinguishable from one that is read. It is worse than inert, because Oregon's entry
+argues its case ON the year —
+
+> *"Every one of these is tax year 2026 and none is 2025, which is the signature of the
+> disagreement rather than a symptom of it."*
+
+— a claim about 2025 households, in a grid that contained none, made through a key nothing
+read. Three ways to be wrong at once, and all three invisible until the grid gained a
+second year. **The claim is now falsified in writing**: Oregon 2025 produces 43 state.tax
+differences up to `$3,993.89` against 2026's 42 up to `$140.80`, and the 2025 ones are a
+different mechanism entirely.
+
+> **THE RULE: A SELECTOR THAT NOTHING READS IS NOT A NARROW RULE, IT IS A BROAD ONE WITH A
+> NARROW DESCRIPTION** — and the description is what the next reader believes.
+>
+> **AND: AN ARGUMENT FROM AN ABSENCE IS ONLY AS GOOD AS THE INSTRUMENT'S ABILITY TO HAVE
+> SEEN THE THING.**
+
+`match` now reads `rule.year`, and `requireKnownSelectors` is the general form of the fix:
+**a key this matcher does not consult is a hard failure.** The file is hand-written JSON
+with no schema, and the likelier version of the mistake is a misspelling — `states: ['OR']`
+for `state: 'OR'`, `maxAbsolute` for `maxAbs`. An entry whose BOUND is misspelt has no bound
+and `requireEveryReasonBounded` catches it; **an entry whose SCOPE is misspelt keeps its
+bound and quietly becomes the catch-all Day 47 is about**, while reading exactly like the
+narrow entry somebody meant to write. Verified by inserting `states: ['MO']` into an entry
+and watching the report refuse to be produced, naming the key.
+
+Reading the key cost four entries their `year: 2026`, and each had to be argued:
+
+- Wisconsin's three `surviving-spouse` entries and its `separate-with-spouse-young` one
+  state facts that have **nothing to do with a tax year** — a widow is one person in 2025
+  too, and Wis. Stat. 71.05(23)'s *"if a joint return is filed"* did not change. The year
+  came off all four.
+- The `separate-with-spouse-young` bound was `$45`, which is the 2026 instance rounded up
+  rather than anything the provision says. The 2025 instance is `$41.06`. **The entry's own
+  reason derives `$53.55`** — one `$700` exemption at Wisconsin's 7.65% top rate — so that
+  is the figure it is now allowed to claim.
+- Wisconsin's standard-deduction entry **keeps** its `year: 2026`, because its reason is
+  genuinely about PolicyEngine uprating a figure Wisconsin has not published for 2026. The
+  ten small 2025 Wisconsin differences it no longer claims are below, open.
+
+### Part 3 — the certificate was written before the work it certifies
+
+`theirs.py` wrote `out/theirs.cases.sha256` and `out/theirs.meta.json` **as the first thing
+it did**, before answering a single household. `requireFreshTheirs` in `compare.mjs` exists
+to refuse a `theirs.json` that answers a different grid, and the fingerprint it reads was
+stamped by a run that had not yet answered anything.
+
+So a run that died in the middle, or was killed, or had its stdout pointed somewhere else
+left behind a certificate saying the committed answers were current, for a file it never
+touched. **All three happened today**, and the first one was mine: the very first command of
+the day redirected the answers to the scratchpad, and the repository's sidecar was
+immediately rewritten to certify a `theirs.json` from yesterday as fresh for today's grid.
+`compare.mjs` then produced a report in which all 2,288 cases were "missing from theirs" —
+**and produced it, rather than refusing**. The one state the guard exists to catch is the
+state that defeated it, because the guard and the thing it guards were written by the same
+script in the wrong order.
+
+> **THE RULE: A CERTIFICATE WRITTEN BEFORE THE WORK IT CERTIFIES IS A PLAN, NOT A RECEIPT.**
+
+Both writes now happen after the answers are flushed. The metadata carries `answers` — a
+count that cannot be produced without having produced them — and `requireEveryCaseAnswered`
+checks it against the file in front of it, which closes the backward direction too: a
+`theirs.json` committed in that state is now refused by name.
+
+The whole run was restarted from zero to get this, rather than hand-writing the metadata
+from the finished answers. **A receipt I typed myself would have been the same defect in a
+nicer font.**
+
+### Part 4 — the other nine tools: 205 arguments, 0 dead, and the check that says so
+
+Day 53's worklist item 2. Day 53 asked *"is every advertised argument actually read?"* of
+`state_income_tax` and found two Pennsylvania arguments that were in the schema, in
+`describe_state` and in the server's own error messages, and that the handler never read.
+That was findable because that tool has a gate table to compare against. **The other nine
+have 205 advertised leaves between them and no table at all.**
+
+`test/schema.test.js` has asked a neighbouring question since Day 10 — does `readHousehold`
+copy the key into its output — and that is a claim about the COERCION LAYER and about one
+tool. New `test/tool-argument-witnesses.test.js` asks the answer-level question for all
+nine: for every leaf, find a pair of calls differing in exactly that field whose results
+differ.
+
+**Result: zero dead arguments.** Which is worth very little on its own, so two things make
+it a measurement:
+
+1. **The self-check.** Every one of the 205 arguments is stripped inside the handler, one
+   at a time, and the sweep must report it. 205 deliberate defects, 205 caught, no blind
+   spots. A sweep that reports nothing is otherwise indistinguishable from a sweep that
+   cannot see.
+2. **A real source-level drop, both instruments side by side.** Deleting `qualifiedTips`
+   from `compare_tax_years`'s handler **passes all 14 of `schema.test.js`'s checks** and is
+   named by the new file — along with `qualifiedTipsBusinessIncomeLimit`, which dies with
+   it because it limits a deduction no longer computed. Removing `livedWithSpouse` from
+   `FLAG_KEYS` is named in all four tools that advertise it.
+
+**And the first draft of the sweep was wrong in a way worth writing down.** It witnessed
+all five `qualifiedBusinesses[]` properties — and it was witnessing the ARRAY. Its baseline
+had no business at all, so adding one changed the answer whatever the probe did, and
+`w2Wages`, `name`, `unadjustedBasisOfQualifiedProperty` and both flags would have read as
+live if the handler had dropped every one of them. **Day 53 called this "a baseline that is
+not the caller's"; this is the same mistake one level in, where the baseline is not the
+PROBE'S.** The baseline now carries the scaffolding and differs from the probe in the leaf
+under test and nothing else — and the self-check is what would have caught it, which is why
+it is in the file rather than in this journal.
+
+Six arguments read as dead before the household battery was right, every one for a reason
+from Day 53's list: `employeeSocialSecurityAndMedicareTax` is consulted only from the third
+child (§ 24(d)(1)(B)(ii)), `livedWithSpouse` needs a separate filer WITH a benefit
+(§ 86(c)(1)(C)), `spouseHasNoGrossIncomeAndIsNotADependent` needs the spouse's AGE beside it
+or § 63(f) has nothing to unlock, the two § 199A carryforwards need qualified income to be
+carried against, `priorYearAdjustedGrossIncome` needs `priorYearTotalTax`, and the two
+year-to-date wage figures are the same number below the Social Security wage base.
+
+**A refusal is also a witness, but only when it names the field.** A required argument
+cannot be witnessed by omission, because omission is refused rather than answered — which
+is the strongest evidence there is that something reads it. Every missing required field
+refuses the call, though, so "the call failed" would witness a dead field just as well.
+
+### Part 5 — what the 2025 grid left open, and one prediction each
+
+Sixteen unexplained differences out of 16,016 figures, all of them 2025, in four groups.
+All four are recorded in `REPORT.md` as unexplained rather than given a reason I cannot
+derive — Day 47's rule, which is that a reason stating no size is a catch-all.
+
+1. **Indiana, 3 cases, up to `$93.30`, PolicyEngine HIGHER.** The delta is exactly our
+   Indiana earned income credit (`$93.30`) and PolicyEngine's is `$0`. Its parameter file
+   says why, and it is a statute this package has not read:
+   *"the applicable snapshot is January 1, 2023 for tax years 2023-2025, and January 1,
+   2026 for tax years 2026 onward per Indiana SEA 243 of 2025."* Indiana's EIC is a
+   percentage of the federal credit **as the federal credit stood at Indiana's IRC
+   reference date** (IC 6-3-1-11), not as it stands this year — and under a 1 January 2023
+   snapshot a joint couple at `$60,000` with two children is past the phase-out and gets
+   nothing. In 2026 the snapshot catches up and the two models agree to the cent, which is
+   itself evidence for the reading. **Likely a real defect here. Needs the Indiana statute
+   read, not PolicyEngine's comment believed.**
+2. **Georgia, 2 cases, `$826.14` and `$5.00`, ours higher.** Two mechanisms. The `$5.00` at
+   `$15,000` of wages is 1/0.0519 of `$96` of base or a flat `$5` credit, and Georgia has a
+   low-income credit of a few dollars a person in that income band under
+   O.C.G.A. § 48-7-27 — which this package does not model. The `$826.14` at `$400,000` is
+   the known `$400,000` harness artefact (we supply no itemised deductions; PolicyEngine
+   computes its own, and Georgia conforms to federal itemised deductions) whose entry is
+   bounded at `$700` and whose 2025 instance exceeds it. **Both need deriving before either
+   gets a reason.**
+3. **South Carolina, 1 case, `$569.10`.** The `separate-with-spouse` household, whose 2026
+   instance is `$298.50` and is explained exactly — `$15,000` of senior deduction
+   PolicyEngine gives to a spouse with no return, at the 1.99% band. The 2025 instance is
+   nearly twice the entry's `$300` bound, and 2025 is also the conformity year, so I cannot
+   tell the two components apart yet. **A bound chosen to cover `$569.10` without knowing
+   what is in it is exactly the ratchet this file warns about.**
+4. **Wisconsin, 10 cases, `$3.96` to `$7.83`, ours higher.** A small constant in a year both
+   models have published figures for, so it is not the uprating argument that explains the
+   2026 ones. `$5.85` at 5.3% is `$110` of base. Smallest of the four and the least likely
+   to be a reading of the law rather than a rounding point.
+
+### Part 6 — every prediction, written down before the comparison ran
+
+Per Day 27's rule: the predictions went to a file before the reference pass finished, while it was at 400 of 2,288. The scoring:
+
+```text
+  OR 2026-only              FALSIFIED, and that was the day's finding
+  WI standard deduction     half right: 2025 differences exist but are 100x smaller
+  WI 4 entries recur in 2025  RIGHT for separate-with-spouse-young ($41.06)
+  CA 2025 ~ 0               RIGHT: 34 differences in 2026, 2 in 2025
+  UT 2025 ~ 0               RIGHT: 23 in 2026, 1 in 2025
+  SC 2025 appears and is new  RIGHT; the $100 bound I predicted was far too small
+  federal columns unmoved   RIGHT: not one federal metric is unexplained in 2025
+  20-120 unexplained        RIGHT: 59 before classification, 16 after
+```
+
+**The one I got wrong is the one that mattered**, and I got it wrong by believing a reason
+that had never been checkable. I predicted no Oregon 2025 difference *because the entry
+said so* — which is the same error as writing the entry, one reader later.
+
+### Part 7 — CI
+
+Green on all seven jobs on the last push at the start of the run (run 216, `d907b2c`).
+End-of-run state is in the commit message.
+
+`readme-root.mjs --check` earned its keep twice in ten minutes: it failed with *"the root
+README says 1144 and the code says 2,288"* the moment the grid doubled, and then with
+*"the README states it nowhere, so nothing was checked (expected 2288)"* when my first
+rewrite broke the phrase its regex matches. **The second failure is the better one**: an
+instrument that cannot find its subject says so instead of passing.
+
+### Process notes
+
+- **The sandbox's clock advances only while a command is running.** Polling a background
+  job from one turn to the next moves it about 25 households; blocking in the FOREGROUND on
+  `until ! pgrep …` moves it 500. The PolicyEngine pass over 2,288 households took about
+  an hour of that time and most of a day of mine before I noticed. **Start the reference
+  pass first and then block on it in the foreground, rather than polling** — the README's
+  timing note has been updated.
+- **`pkill -f "theirs.py"` killed its own shell**, because the pattern was in the pattern.
+  That is Day 54-minus-two's rule — *a check whose pattern appears in the check itself is
+  not a check* — met again two days later, in the same week, by the same hand. The second
+  time I killed by PID.
+- **Two other background jobs were competing with the reference pass for the one CPU**, and
+  the pass was running at a third of its speed for half an hour before I looked at `ps`.
+  The audit-safety rule from Day 51 generalises: a long measurement wants the machine to
+  itself, and `npm test` is not the only thing that takes it.
+- **One stale number found in a comment, in the file whose job is to measure it.**
+  `state-field-witnesses.test.js` said "three pairs out of two hundred and ten"; the code
+  declares 209, and README.md said 209. A measured number written down twice is two claims
+  and not a cross-check — this file's own rule from the day it was written. The duplicate is
+  gone and the surviving copy is now checked by `readme.test.js` against `STATE_FIELDS`,
+  along with all eight (field, state) pairs of the 0.51.0 gate table and the Kentucky
+  removal.
+- **The dollar figures in that table are still unverifiable and now say so in writing.**
+  The table gives a field, a state and an amount "on one return" and never says WHICH
+  return, so no instrument and no reader can reproduce them. The pairs are checkable and
+  are checked; the amounts need the household named beside them, which is worklist item 7's
+  real content.
+
+### What I would do next
+
+1. **MODEL OREGON'S KICKER.** It is a refundable credit worth up to `$3,993.89` on a
+   household in this grid and this package answers every Oregon 2025 return without it. The
+   base is the prior year's Oregon liability before credits, which is not on the return
+   being computed, so it needs a caller-supplied input — `oregonPriorYearTaxBeforeCredits`,
+   gated to Oregon, with the refusal message naming line 24 of the 2024 OR-40. The rate
+   table is constitutional machinery with a certified value per odd year, which makes it a
+   `provisionalFigures` candidate for 2027 and beyond rather than a parameter to guess.
+   Note that the credit is claimable only by somebody who filed a 2024 return, so an
+   omitted input must mean "no kicker" and not "assume this year's liability".
+2. **READ INDIANA'S IRC REFERENCE DATE.** IC 6-3-1-11 and SEA 243 of 2025, against
+   IC 6-3.1-21. If PolicyEngine's reading is right, this package's Indiana EIC is computed
+   from the wrong year's federal credit for 2023, 2024 and 2025, and the fix is a
+   conformity date on the credit rather than a rate.
+3. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms,
+   South Carolina's `separate-with-spouse`, Wisconsin's ten small ones. Each needs the
+   components separated before a reason can state a size.
+4. **GEORGIA'S LOW-INCOME CREDIT**, O.C.G.A. § 48-7-27(a)(13) or its successor. A few
+   dollars a person, and this grid's only instance is `$5.00` — but it is the kind of
+   provision that is worth nothing to a `$400,000` filer and the whole bill to the filer it
+   is for.
+5. **THE SAME ACCEPTED-BUT-UNREAD QUESTION, ASKED OF `state_income_tax` BY THIS NEW
+   INSTRUMENT.** `state-field-witnesses.test.js` and
+   `tool-argument-witnesses.test.js` now ask the same question of disjoint halves of the
+   server. Pointing the second at the first's subject would be two independent measurements
+   of one thing, which is how Day 53 knew either was worth having — the obstacle is that the
+   state gate refuses most fields for most states, so the sweep needs a per-state baseline.
+6. **PUT 2024 IN THE GRID** — or decide in writing that it cannot be. The federal engine has
+   2024 and the state engine does not, so a 2024 case would compare a state figure this
+   package declines to produce. That is a real asymmetry and the grid is now the place where
+   it shows.
+7. **Point the accounting instrument at the MCP server's README** — unchanged from Days 52
+   and 53, and today sharpened its content: the eight dollar figures are not merely
+   unchecked, they are **unverifiable**, because the document does not name the household any
+   of them is about. The fix is to name the household, and then the figure checks itself.
+8. **Give the gate's `requiredIn` the same treatment as `states`** — unchanged from Day 53
+   item 3.
+9. **DERIVE THE REMAINING LITERAL LISTS** — unchanged from Day 53 item 4;
+   `taxableSocialSecurity` first, at 22 states.
+10. **A `federalBlind` count on the status battery's shapes** — unchanged from Days 52 to 53.
+11. **The site's three self-defined bases** — unchanged from Days 52 to 53. Today's Oregon
+    finding is an argument for it: the site runs the same unmodelled Oregon.
+12. **The `survivorPension` suggestion order** — unchanged from Days 51 to 53.
+13. **Survivor income for a SECOND deceased spouse** — unchanged from Days 51 to 53.
+14. **Ask whether each unresearched state's survivor treatment matches its own-income
+    treatment** — unchanged from Days 51 to 53.
+15. **Add military retired pay to the differential grid** — unchanged from Days 50 to 53.
+16. **Make the prose instrument report the accounting SOURCE on failure** — unchanged from
+    Days 50 to 53.
+17. **The `$166` question** — unchanged from Days 49 to 53.
+18. **A `provisionalFigures` shape for a PROVISION rather than a figure** — unchanged from
+    Days 49 to 53, and Oregon's kicker is now the best example of one: the provision is
+    permanent and the figure is certified biennially.
+19. **Model A.R.S. § 43-1022(23)** — unchanged from Days 48 to 53.
+20. **Bound Arizona's credits entry by the family income tax credit's INCOME limit** —
+    unchanged from Days 48 to 53.
+21. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+    Days 47 to 53. The California and Utah entries are a day closer to closing: their 2025
+    halves are nearly empty, which is what their reasons predict.
+22. **Record a conformity declaration for the other twenty states** — unchanged from Days 46
+    to 53, and Indiana's EIC is now a second reason to want it.
+23. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 to 53.
+24. **The staircase table** — unchanged from Days 45 to 53.
+25. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 to 53.
+26. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days 42
+    to 53, tenth day running. Today it cost nothing, because nothing in either engine
+    changed — but item 1 will pay it in full.
+27. **Make the mutation harness refuse to run while its target is changing** — unchanged.
+28. **Select test files per mutant** — unchanged.
+29. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from Days
+    40 to 53.
+30. **The twenty-seventh state.** Sixteen jurisdictions left and **Louisiana** is first on
+    the declared list. **Sixth day running that argues for not rushing to it**: today a state
+    already in turned out to be missing a refundable credit in its constitution.
+
+---
+
 ## Day 53 — 2026-10-17
 
 ### What I did

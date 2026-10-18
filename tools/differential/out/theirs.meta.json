@@ -1,5 +1,10 @@
 {
  "policyengine_us": "2.15.3",
- "cases_sha256": "1cd3743bc295b2b16f3c7746da163e653edc410c7e011bce007080fdcc3d38b3",
- "cases": 1144
+ "cases_sha256": "287bfdedd714b68287862d8e199e9b11c1c4a6f9f5407b0cca8125505dede7d4",
+ "cases": 2288,
+ "answers": 2288,
+ "years": [
+  2025,
+  2026
+ ]
 }

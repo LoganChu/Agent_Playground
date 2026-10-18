@@ -166,6 +166,35 @@ def main():
     # thread; this is the knot.
     digest = hashlib.sha256(raw).hexdigest()
     out_dir = os.path.dirname(os.path.abspath(sys.argv[1]))
+
+    results = {}
+    for i, case in enumerate(all_cases):
+        results[case["id"]] = run(case)
+        if i % 25 == 0:
+            print(f"{i}/{len(all_cases)}", file=sys.stderr, flush=True)
+    json.dump(results, sys.stdout, indent=1)
+    print()
+    sys.stdout.flush()
+
+    # THE FINGERPRINT IS WRITTEN AFTER THE ANSWERS IT CERTIFIES, and until Day 54
+    # it was written before them.
+    #
+    # The two lines below used to be the first thing this function did. That is
+    # the measurement-certifies-itself failure in the one place it costs the most:
+    # `requireFreshTheirs` in compare.mjs exists to refuse a `theirs.json` that
+    # answers a different grid, and the sidecar it reads was stamped by a run that
+    # had not yet answered anything. So a run that died in the middle, or was
+    # killed, or wrote its answers somewhere else — all three of which happened on
+    # Day 54 — left behind a certificate saying the committed answers were fresh,
+    # for a file the run never touched. The exact state the guard was built to
+    # catch is the state that defeated it.
+    #
+    #   THE RULE: A CERTIFICATE WRITTEN BEFORE THE WORK IT CERTIFIES IS A PLAN,
+    #   NOT A RECEIPT.
+    #
+    # `answers` is the other half: a count that cannot be produced without having
+    # produced the answers, so compare.mjs can require that the file in front of
+    # it holds as many as the run claims to have written.
     with open(os.path.join(out_dir, "theirs.cases.sha256"), "w", encoding="utf-8") as handle:
         handle.write(digest + "\n")
     # And the version of the model that answered. Day 26 spent an hour on a New
@@ -179,19 +208,13 @@ def main():
                 "policyengine_us": version("policyengine-us"),
                 "cases_sha256": digest,
                 "cases": len(all_cases),
+                "answers": len(results),
+                "years": sorted({case["year"] for case in all_cases}),
             },
             handle,
             indent=1,
         )
         handle.write("\n")
-
-    results = {}
-    for i, case in enumerate(all_cases):
-        results[case["id"]] = run(case)
-        if i % 25 == 0:
-            print(f"{i}/{len(all_cases)}", file=sys.stderr, flush=True)
-    json.dump(results, sys.stdout, indent=1)
-    print()
 
 
 if __name__ == "__main__":

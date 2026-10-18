@@ -305,7 +305,7 @@ never been given it either.
 ## Day 50: the one income type this grid cannot carry, and it is the reference model's fault
 
 **Every case in this grid has a wage, a pension, a Social Security benefit, a
-long-term gain or tax-exempt interest, and not one of the 1,144 has military
+long-term gain or tax-exempt interest, and not one of the 2,288 has military
 retired pay.** That is not an oversight about households. It is a property of
 the reference model, and it was found by a defect the grid could therefore never
 have caught: South Carolina's § 12-6-1170(C)(1), which charges the § 12-6-1171
@@ -347,7 +347,7 @@ unaskable is worth exactly as much as one that is wrong.
 **THE RULE: A DIFFERENTIAL GRID'S COVERAGE IS BOUNDED BY THE REFERENCE MODEL'S
 INPUT SURFACE, AND THAT BOUND IS INVISIBLE UNTIL SOMETHING FALLS THROUGH IT.**
 The honest statement of this instrument's reach is therefore narrower than
-"1,144 households across 26 states": it is 1,144 households built from five
+"2,288 households across 26 states": it is 2,288 households built from five
 income types, and a sixth that six states in this package have special rules for
 is outside it. Six — Arizona, Maryland, New York, North Carolina, South Carolina
 and Michigan — all carry military-specific provisions that no row here touches.
@@ -368,6 +368,87 @@ What to do about it, in order of what each costs:
 3. **Report it upstream.** Outside what this project does on its own — see
    `NOTES-FOR-HUMAN.md`.
 
+## Day 54: the grid had one year in it, and a selector written for the other one
+
+For fifty-three days every household in this grid was a 2026 household. The
+generator always took the year — `export function cases(year = 2026)` — and no
+caller ever passed one, so the parameter read like a dimension and behaved like a
+constant. The grid is now `YEARS = [2025, 2026]` deep: **2,288 households**, the
+same 44 shapes across the same 26 states, twice.
+
+Every earlier widening of this grid moved along an axis somebody had chosen and
+then under-used: Day 26 by household SHAPE, Day 27 upward by INCOME, Day 29
+downward by income, Day 30 by the FACTS a status is the only one to read, Day 40
+onto a BOUNDARY. **The year is the axis that was never chosen at all** — it was
+in the generator's signature from the first commit, and nothing ever passed it.
+
+2025 is not 2026 with different numbers. It is the year OBBBA changed
+retroactively in July 2025 after the IRS had already published it; it is the only
+year in which South Carolina's § 12-6-40(A)(1)(a) conformity date leaves the
+state riding a federal standard deduction the federal return no longer uses; and
+**exactly three state definition rules in `us-state-tax` exist in 2025 and not in
+2026, all three South Carolina's.** No case in this grid could reach any of them.
+
+### And the reason it was worth doing is what was already written here
+
+`known-divergences.json` had **six entries carrying `"year": 2026"`** — Oregon's
+two and Wisconsin's four — and the word `year` did not appear anywhere in
+`compare.mjs`. The key was accepted, stored, and consulted by nothing.
+
+While the grid was one year deep that cost nothing, because a selector that
+selects every household is indistinguishable from one that is read. It is worse
+than inert, though, because **Oregon's entry argues its case ON THE YEAR**:
+
+> *"Every one of these is tax year 2026 and none is 2025, which is the signature
+> of the disagreement rather than a symptom of it."*
+
+A claim about 2025 households, in a grid that contained none, expressed through a
+key nothing read. Three ways to be wrong at once, and all three invisible until
+the grid gained a second year.
+
+> **THE RULE: A SELECTOR THAT NOTHING READS IS NOT A NARROW RULE, IT IS A BROAD
+> ONE WITH A NARROW DESCRIPTION** — and the description is what the next reader
+> believes.
+
+`match` now reads `rule.year`, and `requireKnownSelectors` is the general form of
+the fix: **a key this matcher does not consult is a hard failure**, not a comment
+nobody contradicted. `known-divergences.json` is hand-written JSON with no
+schema, and the likelier version of this mistake is a misspelling — `states:
+['OR']` for `state: 'OR'`, or `maxAbsolute` for `maxAbs`. An entry whose BOUND is
+spelled wrong has no bound and `requireEveryReasonBounded` catches it; an entry
+whose SCOPE is spelled wrong keeps its bound and quietly becomes the catch-all
+Day 47 is about, while reading to a human exactly like the narrow entry it was
+meant to be.
+
+### The certificate was written before the work it certifies
+
+`theirs.py` used to write `out/theirs.cases.sha256` and `out/theirs.meta.json` as
+the first thing it did, before answering a single household. So a run that died
+in the middle, or was killed, or had its stdout pointed somewhere else — all
+three happened on Day 54 — left behind a certificate asserting that the committed
+`theirs.json` answers the current grid, for a file the run never touched.
+**`requireFreshTheirs` exists to catch exactly that state, and that state is the
+one that defeated it**, because the guard and the thing it guards were written by
+the same script in the wrong order.
+
+> **THE RULE: A CERTIFICATE WRITTEN BEFORE THE WORK IT CERTIFIES IS A PLAN, NOT A
+> RECEIPT.**
+
+Both writes now happen after the answers are flushed, and the metadata carries an
+`answers` count — a number that cannot be produced without having produced the
+answers — which `requireEveryCaseAnswered` checks against the file in front of
+it. A half-written reference is not a smaller reference; it is a different one.
+
+### The id carries the year FIRST, and that is not cosmetic
+
+Four entries select households by an AMOUNT inside the id — `"-400000-"`,
+`"-450000-"`, `"surviving-spouse-high-MN-300000"` — relying on the dashes either
+side of it. A trailing `-2026` would leave the last amount with a dash on one
+side only, so a later entry written as `idIncludes: "-2025-"` would match nothing
+and report that by matching nothing, which is the quietest failure this file has.
+Leading, every amount keeps both delimiters and every existing selector keeps
+matching exactly what it matched when it was written.
+
 ## Running it
 
 ```bash
@@ -386,12 +467,22 @@ node   tools/differential/ours.mjs          > tools/differential/out/ours.json
 node   tools/differential/compare.mjs       > tools/differential/REPORT.md
 ```
 
-The PolicyEngine pass is the slow one — about two and a half seconds a
-household, so roughly half an hour for the grid. (An earlier note here said "a
-second a household, so eleven minutes"; it was measured on a smaller grid and a
-faster runner, and believing it cost an afternoon of bad scheduling. Start this
-pass FIRST and do the engine work while it runs.) It needs no network once installed: a `Simulation` built
-from a situation dict downloads nothing.
+The PolicyEngine pass is the slow one — about a second and a half a household
+with the machine to itself, so roughly an hour for the 2,288-household grid.
+(An earlier note here said "a second a household, so eleven minutes"; it was
+measured on a smaller grid and a faster runner, and believing it cost an
+afternoon of bad scheduling. Start this pass FIRST and do the engine work while
+it runs.) It needs no network once installed: a `Simulation` built from a
+situation dict downloads nothing.
+
+**Two scheduling facts from Day 54, both of which cost hours.** The pass wants
+the CPU to itself: it ran at a third of its speed for half an hour while
+`test-counts.mjs` and a test suite shared the one core with it, and nothing in
+its output said so — `ps` did. And in an agent sandbox whose clock advances only
+while a command is running, POLLING a background job from one turn to the next
+advances it by a couple of dozen households, where blocking in the foreground on
+`until ! pgrep -f "[d]ifferential/theirs.py"; do sleep 15; done` advances it by
+five hundred. Start it first, then block on it; do not poll it.
 
 ## The version is pinned, and that is not caution
 

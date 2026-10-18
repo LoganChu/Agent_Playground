@@ -575,8 +575,14 @@ const runEngine = (input) => {
 /**
  * The declared pairs with no witness, each with the reason there cannot be one.
  *
- * Three pairs out of two hundred and ten, all one field, and the reason is the
- * same for all three: `federalItemized`'s whole effect in Maryland, Missouri and
+ * Three pairs, all one field, and the reason is the same for all three:
+ *
+ * The DENOMINATOR used to be here too — "three pairs out of two hundred and
+ * ten" — and it was wrong: the code declares 209. A measured number written
+ * down twice is two claims and not a cross-check, which is this file's own rule
+ * from the day it was written, found a week later in its own header. The
+ * surviving copy is the one in README.md, where `readme.test.js` checks it
+ * against `STATE_FIELDS`. `federalItemized`'s whole effect in Maryland, Missouri and
  * Virginia is to unlock `stateItemizedDeductions` — `requiresFederalItemizing`
  * in all three, and Virginia and Georgia go further and COMPEL the state
  * itemized deduction — and `state_income_tax` already refuses

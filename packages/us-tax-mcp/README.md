@@ -1075,7 +1075,7 @@ EITC withdrawal at the § 32 phase-out rate.
 The engines underneath live in the same repository. `packages/us-federal-tax`: **400 tests**
 against hand-computed figures, every parameter cross-checked against two independent
 sources. `packages/us-state-tax`: **883 tests**, every state figure cited to its statute.
-This package adds **177 more** covering the protocol and the tool layer. Those three
+This package adds **181 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

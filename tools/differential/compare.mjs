@@ -111,6 +111,30 @@ function match(rule, caseRow, metric, delta) {
   if (rule.state && rule.state !== caseRow.state) return false;
   if (rule.kind && rule.kind !== caseRow.kind) return false;
   if (rule.idIncludes && !caseRow.id.includes(rule.idIncludes)) return false;
+  // `year` is Day 54's, and it is the one selector in this file that was WRITTEN
+  // BEFORE IT WAS READ.
+  //
+  // Six entries carried `"year": 2026` — Oregon's two and Wisconsin's four — and
+  // the word `year` did not appear anywhere else in this file. The key was
+  // accepted, stored, and never consulted, which cost nothing at all while the
+  // grid was one year deep, because every household in it was 2026 and a
+  // selector that selects everything is indistinguishable from one that is read.
+  //
+  // It is worse than inert. Oregon's entry argues its case ON THE YEAR: *"every
+  // one of these is tax year 2026 and none is 2025, which is the signature of the
+  // disagreement rather than a symptom of it"* — a claim about 2025 households,
+  // in a grid that contained none, expressed through a key nothing read. Three
+  // ways to be wrong at once, and all three invisible until the grid gained a
+  // second year.
+  //
+  //   THE RULE: A SELECTOR THAT NOTHING READS IS NOT A NARROW RULE, IT IS A
+  //   BROAD ONE WITH A NARROW DESCRIPTION — and the description is what the next
+  //   reader believes.
+  //
+  // `requireKnownSelectors` below is the general form of the fix: a key this
+  // matcher does not consult is now a hard failure rather than a comment nobody
+  // contradicted.
+  if (rule.year !== undefined && rule.year !== caseRow.year) return false;
   // `notStates` exists because of what Minnesota's arrival did to three entries
   // scoped by `kind` alone, and it is Day 24's lesson one level further out.
   //
@@ -234,6 +258,44 @@ function requireFreshTheirs() {
     );
   }
   requireExpectedReference();
+  requireEveryCaseAnswered();
+}
+
+/**
+ * The fingerprint says the right QUESTION was asked. This says it was finished.
+ *
+ * `theirs.py` used to write the sidecar and the metadata as the first thing it
+ * did, before answering a single household — so a run that died in the middle,
+ * or was killed, or had its stdout pointed somewhere else, left behind a
+ * certificate asserting that the committed answers were answers to the current
+ * grid, for a file it never touched. **The one state `requireFreshTheirs` exists
+ * to catch is the state that defeated it**, because the guard and the thing it
+ * guards were written by the same run in the wrong order.
+ *
+ * Day 54 moved both writes to after the answers are flushed, which closes it
+ * going forward. This closes it looking backward, at a `theirs.json` that may
+ * have been committed in that state: `answers` is a count that cannot be
+ * produced without having produced the answers, and the file in front of us has
+ * to hold as many as the run claims to have written.
+ */
+function requireEveryCaseAnswered() {
+  const meta = JSON.parse(readFileSync(join(here, 'out/theirs.meta.json'), 'utf8'));
+  const answers = Object.keys(read('out/theirs.json')).length;
+  if (meta.answers === undefined) {
+    throw new Error(
+      'out/theirs.meta.json has no `answers` count, so it was written by a theirs.py from before ' +
+        'Day 54 — which stamped its certificate BEFORE answering anything. Re-run the ' +
+        'PolicyEngine pass (tools/differential/README.md); the current script writes both after ' +
+        'the answers are flushed.',
+    );
+  }
+  if (meta.answers !== answers || meta.cases !== answers) {
+    throw new Error(
+      `out/theirs.json holds ${answers} answers; the run that wrote it claims ${meta.answers} ` +
+        `over a grid of ${meta.cases}. A half-written reference is not a smaller reference, it ` +
+        'is a different one. Re-run the PolicyEngine pass.',
+    );
+  }
 }
 
 /**
@@ -346,12 +408,77 @@ function requireEveryReasonBounded(known) {
   );
 }
 
+/**
+ * Every key in an entry is a key this matcher reads.
+ *
+ * Day 38 named the defect class — an input key nothing reads — at the boundary
+ * between a caller and a tool, and Day 53 found it again one layer in, between a
+ * tool's schema and its handler. This is the third place it was waiting, and the
+ * only one of the three inside an instrument built to catch other people's
+ * mistakes: `known-divergences.json` is hand-written JSON with no schema, so
+ * `year` could be added to six entries, read by nothing, and reported by nothing.
+ *
+ * A misspelling fails the same way and is the likelier version of it. An entry
+ * written with `states: ['OR']` instead of `state: 'OR'`, or `maxAbsolute`
+ * instead of `maxAbs`, loses its scope or its bound ENTIRELY and becomes the
+ * catch-all Day 47 is about — while reading, to a human, exactly like the narrow
+ * entry it was meant to be. `requireEveryReasonBounded` cannot see it either,
+ * because an entry whose bound is spelled wrong has no bound at all and would be
+ * caught, but one whose SCOPE is spelled wrong keeps its bound and quietly
+ * widens.
+ *
+ * So the list below is the matcher's vocabulary, and anything else is a typo
+ * until somebody teaches `match` to read it.
+ */
+const SELECTORS = new Set([
+  // Read by `match`, in the order it reads them.
+  'metric',
+  'state',
+  'kind',
+  'idIncludes',
+  'year',
+  'notStates',
+  'requiresNonZero',
+  'maxAbs',
+  'maxShareOfIncome',
+  'minAbs',
+  'direction',
+  // Read by `requireEveryReasonBounded` and by the report.
+  'unbounded',
+  'reason',
+]);
+
+function requireKnownSelectors(known) {
+  const bad = [];
+  for (const [i, rule] of known.entries()) {
+    for (const key of Object.keys(rule)) {
+      if (!SELECTORS.has(key)) bad.push({ i, key, rule });
+    }
+  }
+  if (bad.length === 0) return;
+  throw new Error(
+    `${bad.length} key(s) in known-divergences.json are not read by anything:\n` +
+      bad
+        .map(
+          ({ i, key, rule }) =>
+            `  [${i}] ${rule.state ?? 'any state'} ${rule.metric} — \`${key}\``,
+        )
+        .join('\n') +
+      '\n\nA key this matcher does not consult does not narrow the entry; it decorates it. ' +
+      'Either teach `match` to read it and add it to SELECTORS, or remove it — and check ' +
+      'first whether it is a misspelling of a selector that WOULD have narrowed the entry, ' +
+      'because that is the version of this mistake that silently widens a reason into a ' +
+      'catch-all.',
+  );
+}
+
 export function compare() {
   requireFreshTheirs();
   const cases = read('out/cases.json');
   const ours = read('out/ours.json');
   const theirs = read('out/theirs.json');
   const known = read('known-divergences.json');
+  requireKnownSelectors(known);
   requireEveryReasonBounded(known);
   const used = new Set();
 
@@ -407,6 +534,7 @@ export function compare() {
         id: c.id,
         state: c.state,
         kind: c.kind,
+        year: c.year,
         metric,
         ours: mine,
         theirs: yours,
@@ -423,7 +551,8 @@ export function compare() {
   // matches nothing is a claim about this project that stopped being true and
   // that nobody will notice, because a report only ever lists what it found.
   const dead = known.filter((k) => !used.has(k));
-  return { compared, agreed, diffs, errors, dead, cases: cases.length };
+  const years = [...new Set(cases.map((c) => c.year))].sort();
+  return { compared, agreed, diffs, errors, dead, cases: cases.length, years };
 }
 
 function money(n) {
@@ -470,6 +599,20 @@ function report(result) {
       `**${unknown.length} are not.**`,
   );
   out.push('');
+  // The year, broken out, because Day 54 is what a dimension nobody could see
+  // costs. Six entries claimed to be about one tax year and the grid could not
+  // have told anyone whether that was true; a report that prints one number over
+  // two years is the same mistake one level out.
+  if (result.years.length > 1) {
+    out.push(`| tax year | differences | explained | unexplained |`);
+    out.push('| --- | ---: | ---: | ---: |');
+    for (const year of result.years) {
+      const rows = result.diffs.filter((d) => d.year === year);
+      const unexplained = rows.filter((d) => d.known === null).length;
+      out.push(`| ${year} | ${rows.length} | ${rows.length - unexplained} | ${unexplained} |`);
+    }
+    out.push('');
+  }
   if (result.errors.length) {
     out.push(`${result.errors.length} cases errored on one side and were not compared.`);
     out.push('');

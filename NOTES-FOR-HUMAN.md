@@ -13,6 +13,66 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 54 nothing is waiting on you except the network ask below, the GitHub Pages
+switch, and the optional report from Day 50 — and today's headline is that I FOUND A
+REFUNDABLE CREDIT IN THE OREGON CONSTITUTION THAT THIS PACKAGE DOES NOT MODEL AT ALL, so
+every Oregon 2025 answer it gives is too high: by `$3,993.89` on one household I tested,
+and by about 0.9% of income on a typical one.**
+
+`us-federal-tax` is v0.15.0, `us-state-tax` v0.47.0 and `us-tax-mcp` v0.51.0, all three
+unchanged today. **1,487 tests**, all passing. No state was added; 26 taxing states and
+35 in all, unchanged.
+
+**A. THE DEFECT, IN ONE PARAGRAPH.** Oregon returns budget surpluses to taxpayers as the
+"kicker" — Article IX, Section 14(4) of the state constitution — as a credit on the
+ODD-numbered year's return, worth a certified percentage of the PRIOR year's Oregon tax.
+For tax year 2025 that percentage is **9.863%** of the 2024 liability, certified off a
+`$1.41` billion surplus, and it is refundable. This package models no kicker, so it
+overstates every Oregon 2025 return by that credit. Two independent sources agree on the
+figure. **It is recorded but NOT fixed today** — the credit is computed from a number that
+is not on the return being calculated (the prior year's Oregon liability), so modelling it
+means adding an input a caller has to supply, which is a change to the package's public
+interface and wants doing carefully rather than quickly. It is the first thing on
+tomorrow's list.
+
+Worth knowing as a user of tax software generally: a major preparer's own help page still
+publishes **44.28%** for the 2025 kicker, which is the 2023 rate. The figure an Oregon
+filer is most likely to meet is four and a half times too large.
+
+**B. WHY IT TOOK FIFTY-THREE DAYS, WHICH IS THE PART I THINK IS ACTUALLY INTERESTING.** The
+strongest check on this project is not its own tests: it is that the same households go
+through these engines and through PolicyEngine-US, an independent model of the same
+statutes maintained by other people, and every answer is compared to the cent. That check
+had **one tax year in it**. The code that builds the households has always taken the year
+as an argument and nothing ever passed one, so it used its default and every household was
+a 2026 household. **2026 is an even year, and there is no kicker in an even year.** The
+grid is now two years deep — 2,288 households instead of 1,144 — and the first thing it
+produced was this.
+
+**C. AND SIX RECORDED REASONS CLAIMED TO BE ABOUT A YEAR NOTHING COULD CHECK.** The file
+that explains known differences lets an entry say which tax year it is about. Six entries
+did. Nothing in the comparison code ever read that field. One of them argued its whole
+case on the year — *"every one of these is tax year 2026 and none is 2025"* — a claim about
+households the grid did not contain, made through a field nothing read, and **it is exactly
+backwards**: the 2025 gap is thirty times the 2026 one, and it is the kicker. The comparison
+now reads the field, and a field it does NOT read is now a hard error rather than a comment
+nobody contradicted.
+
+**D. THREE THINGS THE 2025 HALF LEFT OPEN, one of which looks like a second defect.**
+Indiana's earned income credit is a percentage of the FEDERAL credit, and Indiana freezes
+which year's federal law it reads — the snapshot is 1 January 2023 for tax years 2023
+through 2025. This package uses the current year's federal credit, which gives an Indiana
+family `$93.30` they may not be entitled to. The reading comes from PolicyEngine's citation
+of an Indiana act, not from the statute, so I have NOT changed anything: it needs the law
+read first. Georgia and Wisconsin have smaller open differences, also 2025-only, also
+recorded rather than guessed at.
+
+**E. NOTHING IN THE TAX ENGINES CHANGED TODAY**, for the second day running and
+deliberately. Everything today is in the instruments and the layer between the engine and
+the caller, so the sensitivity audit's number (1,531 deliberately-wrong figures, 1,525
+caught, 99.6%) is still a measurement of exactly this code and did not need its
+104-minute re-run.
+
 **As of Day 53 nothing is waiting on you except the network ask below and the optional
 report from Day 50, and today's headline is that THE MCP SERVER WAS REFUSING EIGHT MORE OF
 ITS OWN ARGUMENTS for states whose tax they move — up to `$1,856.25` on one Arizona

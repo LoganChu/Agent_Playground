@@ -23,6 +23,10 @@ import {
   standardDeduction,
   stateIncomeTax,
 } from '../dist/index.js';
+// Not through `index.js`: `STATE_FIELDS` is the gate table, not part of the
+// package's published surface, and `state-field-witnesses.test.js` reads it the
+// same way.
+import { STATE_FIELDS } from '../dist/state-fields.js';
 
 const README = readFileSync(
   resolve(dirname(fileURLToPath(import.meta.url)), '..', 'README.md'),
@@ -975,4 +979,70 @@ test('every South Carolina figure this README works out is the answer the server
       getStateDefinition('SC', 2025).rate.byStatus.single[2].rate,
   );
   quotes('used to answer `$3,138.30`');
+});
+
+/**
+ * The 0.51.0 gate table, checked against the lists it claims were widened.
+ *
+ * Day 53 shipped eight rows naming a field, a state and a dollar figure, and
+ * Day 53's own process notes flagged what was wrong with them: *"three figures in
+ * the MCP README moved and `readme.test.js` passed through none of them"*. The
+ * dollar amounts are the unverifiable half — the table says "one return" and does
+ * not say WHICH return, so no instrument and no reader can reproduce them (see
+ * the worklist). **The pairs are the verifiable half, and they are the half that
+ * goes stale**: every one of them is now a list DERIVED from the state
+ * definitions, so a definition edit can quietly take a state back out of a list
+ * this document says it was put into.
+ *
+ * So the table is read out of the README rather than restated here, and each row
+ * is checked against `STATE_FIELDS`. A row naming a pair the engine no longer
+ * declares fails, and so does a ninth row nobody checked.
+ */
+test('every pair in the 0.51.0 gate table is declared by STATE_FIELDS', () => {
+  const section = README.slice(README.indexOf('New in 0.51.0'));
+  const table = section.slice(0, section.indexOf('\n\n', section.indexOf('| field | state |')));
+  const rows = [...table.matchAll(/^\| ((?:`[A-Za-z]+`(?: \/ )?)+) \| ([A-Z]{2}) \|/gm)].map((m) => ({
+    fields: m[1].split('/').map((name) => name.trim().replaceAll('`', '')),
+    state: m[2],
+  }));
+  assert.equal(rows.length, 8, `expected the eight rows of the 0.51.0 table, parsed ${rows.length}`);
+  for (const row of rows) {
+    for (const name of row.fields) {
+      const field = STATE_FIELDS.find((candidate) => candidate.name === name);
+      assert.ok(field, `the table names ${name}, which is not a field in STATE_FIELDS`);
+      assert.ok(
+        field.states.includes(row.state),
+        `the README says ${name} was widened to ${row.state} and STATE_FIELDS does not declare ` +
+          `that pair. Declared: ${field.states.join(', ')}`,
+      );
+    }
+  }
+});
+
+/**
+ * And the three numbers in the prose beside it.
+ *
+ * `209` is the count of declared (field, state) pairs, which is what the
+ * witness instrument sweeps and therefore the denominator of its result. It was
+ * written by hand in two places and the two disagreed: this README said 209 and
+ * `state-field-witnesses.test.js`'s own header said "two hundred and ten", in the
+ * file whose job is to measure it. The code says 209. **A measured number
+ * written down twice is two claims, not a cross-check** — this repository's own
+ * rule from Day 53, found this time in a comment rather than in a table — so the
+ * duplicate is gone from that header and the surviving copy is checked here.
+ */
+test('the declared-pair count and the Kentucky removal are the code\'s', () => {
+  const declaredPairs = STATE_FIELDS.reduce((total, field) => total + field.states.length, 0);
+  quotesAcrossLines(`Three pairs out of ${declaredPairs} have no witness`);
+
+  // "Kentucky came OUT of the two age lists", which is a claim about two lists
+  // by name and is the one row of Day 53's findings that REMOVED a pair.
+  for (const name of ['filerAge', 'spouseAge']) {
+    const field = STATE_FIELDS.find((candidate) => candidate.name === name);
+    assert.ok(
+      !field.states.includes('KY'),
+      `the README says Kentucky came out of ${name} and STATE_FIELDS still declares it`,
+    );
+  }
+  quotesAcrossLines('Kentucky came OUT of the two age lists');
 });

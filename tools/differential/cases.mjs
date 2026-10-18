@@ -15,6 +15,32 @@
  * across nineteen states find seven different ones.
  */
 
+/**
+ * Every tax year both models are asked about.
+ *
+ * For fifty-three days this grid was one year deep, and `cases()` took the year
+ * as a DEFAULT ARGUMENT nobody ever passed. So every household in it was a 2026
+ * household, and every claim the report made about what the two models do in
+ * 2025 was a claim about nothing — including the one in
+ * `known-divergences.json` that names 2025 explicitly: Oregon's entry argues
+ * that *"every one of these is tax year 2026 and none is 2025, which is the
+ * signature of the disagreement rather than a symptom of it"*, in a grid that
+ * had never contained a 2025 return.
+ *
+ * `us-state-tax` supports exactly these two years. 2024 is deliberately absent:
+ * the federal engine has it and the state engine does not, so a 2024 case would
+ * compare a state figure this package declines to produce.
+ *
+ * **2025 is not 2026 with different numbers.** It is the year OBBBA changed
+ * retroactively in July 2025, after the IRS had published it; it is the only
+ * year in which South Carolina's § 12-6-40(A)(1)(a) conformity date leaves the
+ * state on a federal standard deduction the federal return no longer uses; and
+ * it is the year the four Schedule 1-A deductions first exist. Three state
+ * definition rules in this package exist in 2025 and not in 2026 and all three
+ * are South Carolina's — and until today no case could reach any of them.
+ */
+export const YEARS = [2025, 2026];
+
 /** Every state in `us-state-tax` that charges an income tax. */
 export const STATES = [
   'AL', 'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
@@ -370,41 +396,56 @@ const COUNTY = {
   IN: { ours: 'Marion County', theirs: 'MARION_COUNTY_IN' },
 };
 
-/** Every case, with a stable id. The order is deterministic. */
-export function cases(year = 2026) {
+/**
+ * Every case, with a stable id. The order is deterministic.
+ *
+ * The year leads the id rather than trailing it, and that is not cosmetic.
+ * `known-divergences.json` selects households with `idIncludes`, and four of its
+ * entries name an AMOUNT — `"-400000-"`, `"-450000-"`, `"surviving-spouse-high-
+ * MN-300000"` — relying on the dashes either side of it. A trailing `-2026`
+ * leaves the last amount with a dash on one side only, so a later entry written
+ * as `idIncludes: "-2025-"` would match nothing and say so by matching nothing,
+ * which is the quietest failure this file has. Leading, every amount keeps both
+ * delimiters and every existing selector keeps matching exactly what it matched
+ * when it was written.
+ */
+export function cases(years = YEARS) {
   const out = [];
-  for (const shape of SHAPES) {
-    for (const state of STATES) {
-      const id = [
-        shape.kind,
-        state,
-        shape.wages ?? 0,
-        shape.pension ?? 0,
-        shape.socialSecurity ?? 0,
-        shape.longTermCapitalGains ?? 0,
-        shape.taxExemptInterest ?? 0,
-      ].join('-');
-      out.push({
-        id,
-        year,
-        state,
-        filingStatus: shape.filingStatus,
-        primaryAge: shape.primaryAge,
-        spouseAge: shape.spouseAge ?? null,
-        childAges: shape.childAges ?? [],
-        wages: shape.wages ?? 0,
-        pension: shape.pension ?? 0,
-        socialSecurity: shape.socialSecurity ?? 0,
-        longTermCapitalGains: shape.longTermCapitalGains ?? 0,
-        taxExemptInterest: shape.taxExemptInterest ?? 0,
-        // How many of the filer and spouse are blind. Deliberately a count
-        // rather than two flags, because that is the shape both models take it
-        // in: this package's `blindOrDisabled` and PolicyEngine's per-person
-        // `is_blind` on the head and then the spouse.
-        blind: shape.blind ?? 0,
-        county: COUNTY[state] ?? null,
-        kind: shape.kind,
-      });
+  for (const year of years) {
+    for (const shape of SHAPES) {
+      for (const state of STATES) {
+        const id = [
+          year,
+          shape.kind,
+          state,
+          shape.wages ?? 0,
+          shape.pension ?? 0,
+          shape.socialSecurity ?? 0,
+          shape.longTermCapitalGains ?? 0,
+          shape.taxExemptInterest ?? 0,
+        ].join('-');
+        out.push({
+          id,
+          year,
+          state,
+          filingStatus: shape.filingStatus,
+          primaryAge: shape.primaryAge,
+          spouseAge: shape.spouseAge ?? null,
+          childAges: shape.childAges ?? [],
+          wages: shape.wages ?? 0,
+          pension: shape.pension ?? 0,
+          socialSecurity: shape.socialSecurity ?? 0,
+          longTermCapitalGains: shape.longTermCapitalGains ?? 0,
+          taxExemptInterest: shape.taxExemptInterest ?? 0,
+          // How many of the filer and spouse are blind. Deliberately a count
+          // rather than two flags, because that is the shape both models take it
+          // in: this package's `blindOrDisabled` and PolicyEngine's per-person
+          // `is_blind` on the head and then the spouse.
+          blind: shape.blind ?? 0,
+          county: COUNTY[state] ?? null,
+          kind: shape.kind,
+        });
+      }
     }
   }
   return out;
