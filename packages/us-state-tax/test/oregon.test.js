@@ -714,3 +714,159 @@ test('every filing status answers, in both years', () => {
     }
   }
 });
+
+// ---------------------------------------------------------------------------
+// The surplus "kicker" — the first credit in this package whose base is not on
+// the return it is claimed on
+// ---------------------------------------------------------------------------
+
+/** 9.863% of the prior year's Oregon tax before credits, by hand. */
+const KICKER_RATE = 0.09863;
+
+test('the kicker is 9.863% of the supplied prior-year base, to the cent', () => {
+  // Two bases rather than one, and neither is a round number: a rate test on
+  // $10,000 cannot tell 9.863% from 9.86% or from 9.9%, and all three figures
+  // are in circulation for this credit. $5,678 x 9.863% = $560.0211 and
+  // $1,234.56 x 9.863% = $121.7647, where 9.86% gives $559.85 and $121.73 and
+  // 9.9% gives $562.12 and $122.22 — so either base separates the three.
+  for (const [base, expected] of [
+    [5_678, 560.0211],
+    [1_234.56, 121.7647],
+  ]) {
+    const r = or({ agi: 80_000, year: 2025, fedTax: 9_000, oregonPriorYearTaxBeforeCredits: base });
+    const line = r.credits.find((c) => c.name === 'Oregon surplus credit ("kicker")');
+    assert.ok(line, `a kicker line for a base of ${base}`);
+    money(line.amount, Math.round(expected * 100) / 100, `kicker on ${base}`);
+    assert.equal(line.refundable, true, 'the kicker is refundable');
+  }
+});
+
+test('the kicker comes off the tax and nothing else', () => {
+  // The credit must not reach Oregon AGI or the tax before credits. It is worth
+  // saying with a test because Oregon's OTHER unusual subtraction — the federal
+  // tax one — DOES sit inside Oregon AGI, and the Kids Credit is withdrawn
+  // against that figure. A kicker that behaved the same way would buy back part
+  // of a different credit.
+  const without = or({ agi: 80_000, year: 2025, fedTax: 9_000 });
+  const with_ = or({
+    agi: 80_000,
+    year: 2025,
+    fedTax: 9_000,
+    oregonPriorYearTaxBeforeCredits: 5_678,
+  });
+  money(without.taxBeforeCredits, with_.taxBeforeCredits, 'tax before credits is unmoved');
+  money(
+    without.stateAdjustedGrossIncome,
+    with_.stateAdjustedGrossIncome,
+    'Oregon AGI is unmoved',
+  );
+  toTheCent(without.tax - with_.tax, 560.02, 'the whole credit comes off the tax');
+});
+
+test('the kicker is REFUNDABLE: it is paid where the Oregon tax is zero', () => {
+  // The constitutional fact. Art. IX § 14(4) returns the surplus whether or not
+  // the filer owes anything this year, so a $5,000 prior-year liability is
+  // $493.15 of refund on a return with no tax at all — and a non-refundable
+  // reading of the same credit would pay nothing.
+  //
+  // $2,000 of wages and not $5,000: Oregon's standard deduction is $2,835, so a
+  // $5,000 single filer still owes $102.84 and the credit would be netted
+  // against it rather than refunded. The state with the smallest standard
+  // deduction in this package is the hardest one in which to find a filer who
+  // owes nothing.
+  const r = stateIncomeTax({
+    state: 'OR',
+    year: 2025,
+    filingStatus: 'single',
+    federal: {
+      adjustedGrossIncome: 2_000,
+      deduction: STD_2025.single,
+      deductionKind: 'standard',
+      taxableIncome: 0,
+      incomeTaxBeforeRefundableCredits: 0,
+    },
+    earnedIncome: 2_000,
+    oregonPriorYearTaxBeforeCredits: 5_000,
+  });
+  money(r.taxBeforeCredits, 0, 'no Oregon tax before credits');
+  money(r.tax, -493.15, 'the kicker is refunded in full');
+});
+
+test('an omitted base is NO kicker, not an estimated one, and the line says so', () => {
+  const r = or({ agi: 80_000, year: 2025, fedTax: 9_000 });
+  const line = r.credits.find((c) => c.name.startsWith('Oregon surplus credit ("kicker")'));
+  assert.ok(line, 'the credit line is present rather than dropped');
+  money(line.amount, 0, 'nothing is estimated');
+  assert.match(line.name, /pass oregonPriorYearTaxBeforeCredits/);
+  const notes = r.notes.join(' ');
+  assert.match(notes, /IS REFUNDABLE AND WAS COMPUTED AS ZERO/);
+  assert.match(notes, /An omitted base is read as NO KICKER/);
+  // The scale figure, and the condition attached to it. This is the number
+  // PolicyEngine-US substitutes silently — its
+  // `or_tax_before_credits_in_prior_year` returns the CURRENT year's tax before
+  // credits — so the note quotes it and says in the same sentence that it is
+  // not this filer's credit.
+  assert.match(notes, /For scale only, and not as an estimate/);
+  assert.match(notes, /\$5,698\.19, the credit would be \$562\.01/);
+});
+
+test('2026 declares no kicker at all, and says the base was ignored', () => {
+  // Absent and not zero. A rate of 0 would be this package asserting that
+  // Oregon certified a surplus of nothing for 2026; the truth is that the
+  // biennium Art. IX § 14 measures had not ended.
+  assert.equal(getStateDefinition('OR', 2026).surplusCredit, undefined);
+  assert.ok(getStateDefinition('OR', 2025).surplusCredit, '2025 declares one');
+  const r = or({ agi: 80_000, year: 2026, fedTax: 9_000, oregonPriorYearTaxBeforeCredits: 5_678 });
+  assert.equal(
+    r.credits.filter((c) => c.name.includes('kicker')).length,
+    0,
+    'no kicker line in an even year',
+  );
+  const notes = r.notes.join(' ');
+  assert.match(notes, /`oregonPriorYearTaxBeforeCredits` was ignored/);
+  assert.match(notes, /no certified surplus credit for 2026/);
+  assert.match(notes, /ODD tax years only/);
+});
+
+test('another state reports the base as ignored rather than dropping it', () => {
+  // Accepted-and-not-read, one level in from `unknown-input.ts`: the key is a
+  // real field of StateIncomeTaxInput, so the typo guard has nothing to say
+  // about it, and a caller who sends an Oregon figure to California would
+  // otherwise watch it vanish.
+  const r = stateIncomeTax({
+    state: 'CA',
+    year: 2025,
+    filingStatus: 'single',
+    federal: {
+      adjustedGrossIncome: 80_000,
+      deduction: STD_2025.single,
+      deductionKind: 'standard',
+      taxableIncome: 64_250,
+      incomeTaxBeforeRefundableCredits: 9_000,
+    },
+    earnedIncome: 80_000,
+    oregonPriorYearTaxBeforeCredits: 5_678,
+  });
+  const notes = r.notes.join(' ');
+  assert.match(notes, /`oregonPriorYearTaxBeforeCredits` was ignored/);
+  assert.match(notes, /California has no surplus credit at all/);
+});
+
+test('a negative prior-year liability is refused by name', () => {
+  assert.throws(
+    () => or({ agi: 80_000, year: 2025, fedTax: 9_000, oregonPriorYearTaxBeforeCredits: -1 }),
+    /oregonPriorYearTaxBeforeCredits must not be negative/,
+  );
+});
+
+test('the definition names the input that feeds the credit', () => {
+  // The rule carries `basisField` so that the DEFINITION is the single place
+  // saying which input this credit reads — which is what lets `us-tax-mcp`
+  // derive both the field name and the states that read it instead of keeping a
+  // second copy of either. Day 53's eight too-narrow gate lists are the bill
+  // for the alternative.
+  assert.equal(
+    getStateDefinition('OR', 2025).surplusCredit.basisField,
+    'oregonPriorYearTaxBeforeCredits',
+  );
+});

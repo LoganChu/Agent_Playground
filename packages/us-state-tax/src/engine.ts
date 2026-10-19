@@ -3869,6 +3869,24 @@ function computeOnce(
     });
   }
 
+  // Oregon's kicker, and the only credit in this package whose base is a figure
+  // from a DIFFERENT return. The name carries the assumption when the base is
+  // absent, because a credit line reading `$0.00` beside a refundable credit
+  // worth thousands is the one place a caller will look for why.
+  if (def.surplusCredit) {
+    const rule = def.surplusCredit;
+    const supplied = input[rule.basisField];
+    const base = nonNegative(supplied, rule.basisField);
+    credits.push({
+      name:
+        supplied === undefined
+          ? `${rule.name} (assumed: no prior-year Oregon liability — pass ${rule.basisField})`
+          : rule.name,
+      amount: rule.rate * base,
+      refundable: rule.refundable,
+    });
+  }
+
   if (def.itemizerCredit) {
     // The whole rule. One `if` on the federal election, and a taxpayer count
     // that is two only on a joint return — a qualifying surviving spouse is one
@@ -4833,6 +4851,51 @@ export function stateIncomeTax(
         `was not supplied, so both halves were computed as zero. Between them they can forgive the ` +
         `WHOLE bill for a filer under the federal poverty guideline — supply earnedIncome, or this ` +
         `return is too high for exactly the household the credit exists for.`,
+    );
+  }
+  // The kicker, in both directions. Said whether or not the base was supplied,
+  // because the two readings of an absent base — "this filer is owed nothing"
+  // and "nobody told me" — produce the same figure and only one of them is an
+  // answer.
+  if (def.surplusCredit) {
+    const rule = def.surplusCredit;
+    if (input[rule.basisField] === undefined) {
+      // Priced off THIS return's own tax before credits, with the counterfactual
+      // named. That figure is not the credit and must not be reported as one: it
+      // is what the credit would be if the prior year's liability equalled this
+      // one's, which is the substitution PolicyEngine-US makes silently and this
+      // package will not make at all. Saying the number WITH its condition is
+      // the only way a caller can tell whether the figure is worth chasing.
+      const before = roundCents(here.taxBeforeCredits);
+      const asThisYear = roundCents(rule.rate * before);
+      dynamic.push(
+        `${def.name}'s ${rule.name} IS REFUNDABLE AND WAS COMPUTED AS ZERO, because its base is ` +
+          `not on this return: it is ${(rule.rate * 100).toFixed(3)}% of the filer's OWN ` +
+          `prior-year Oregon tax before credits. ${rule.cite} Pass \`${rule.basisField}\` — ` +
+          `line 24 of the prior year's Form OR-40, less any credit claimed there for tax paid to ` +
+          `another state. An omitted base is read as NO KICKER rather than as an unknown one, ` +
+          `because the credit requires a prior-year return that showed a liability and a filer ` +
+          `who had none is owed nothing. For scale only, and not as an estimate of this filer's ` +
+          `credit: were the prior year's liability equal to this return's own tax before credits ` +
+          `of $${before.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, ` +
+          `the credit would be $${asThisYear.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
+      );
+    }
+  } else if (input.oregonPriorYearTaxBeforeCredits !== undefined) {
+    // Accepted and not read is the defect `unknown-input.ts` exists for, one
+    // level in: the key is a real key, so the typo guard has nothing to say
+    // about it, and a caller who passes an Oregon figure to an even year or to
+    // another state would otherwise see it vanish.
+    dynamic.push(
+      `\`oregonPriorYearTaxBeforeCredits\` was ignored: ${def.name} ${
+        def.code === 'OR'
+          ? `has no certified surplus credit for ${input.year}. Oregon's kicker lands on ODD tax ` +
+            `years only, because the biennium it measures ends on 30 June of an odd year, and the ` +
+            `rate is certified by the Office of Economic Analysis once the surplus is known rather ` +
+            `than set in advance`
+          : 'has no surplus credit at all. The field is Oregon-only: it is the base of ' +
+            'Or. Const. Art. IX § 14(4), which no other state has'
+      }.`,
     );
   }
   if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit === undefined) {

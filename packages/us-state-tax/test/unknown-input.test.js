@@ -193,7 +193,7 @@ test('a key resembling nothing names the count and the export, and that export e
   const notes = unknownNotes(stateIncomeTax({ ...OH, bookkeepingRef: 'XYZ' }));
   assert.equal(notes.length, 1);
   assert.doesNotMatch(notes[0], /Did you mean/);
-  assert.match(notes[0], /53 field names/);
+  assert.match(notes[0], /54 field names/);
   const quoted = notes[0].match(/`(\w+)`\.$/);
   assert.ok(quoted, 'the note should end by naming an export');
   assert.ok(Array.isArray(pkg[quoted[1]]), `${quoted[1]} is not an exported array`);
@@ -253,7 +253,7 @@ test('the list is exactly the interface, by a source parse independent of the co
     body.replace(/\/\*[\s\S]*?\*\//g, '').match(/^ {2}readonly ([A-Za-z0-9]+)\??:/gm) ?? []
   ).map((line) => line.trim().replace(/^readonly /, '').replace(/\??:$/, ''));
   assert.deepEqual([...declared].sort(), [...KNOWN_STATE_INPUT_FIELDS].sort());
-  assert.equal(declared.length, 53);
+  assert.equal(declared.length, 54);
 });
 
 // The two copies of `src/unknown-input.ts` are compared in `shared-module.test.js`,

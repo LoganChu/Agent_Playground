@@ -27,7 +27,12 @@ import test from 'node:test';
 
 import { TOOLS, ToolInputError } from '../dist/index.js';
 import { STATE_FIELDS, fieldsForState, shortDescription } from '../dist/state-fields.js';
-import { KNOWN_STATE_INPUT_FIELDS } from '../dist/state-engine/index.js';
+import {
+  KNOWN_STATE_INPUT_FIELDS,
+  SUPPORTED_STATES,
+  SUPPORTED_YEARS,
+  getStateDefinition,
+} from '../dist/state-engine/index.js';
 
 const stateTool = TOOLS.find((tool) => tool.name === 'state_income_tax');
 const describeTool = TOOLS.find((tool) => tool.name === 'describe_state');
@@ -89,6 +94,18 @@ function probesFor(state) {
   };
   return [
     {},
+    // AN ODD TAX YEAR, and the reason it is here is Day 54's finding arriving in
+    // a second instrument one day later. Every other probe in this set pins
+    // `year: 2026`, and `{}` takes the server's default, which is also 2026 —
+    // so this sweep could not see a field that is live only in an odd year.
+    // Oregon's kicker is the first: `surplusCredit` is declared for 2025 and
+    // ABSENT for 2026, so `oregonPriorYearTaxBeforeCredits` read as accepted and
+    // never read, in a sweep built precisely to catch that.
+    //
+    // THE RULE, again and in a different file: AN ARGUMENT FROM AN ABSENCE IS
+    // ONLY AS GOOD AS THE INSTRUMENT'S ABILITY TO HAVE SEEN THE THING — and a
+    // probe set is a grid, with every axis a grid has.
+    { year: 2025 },
     { year: 2026, filerAge: 70, spouseAge: 70, retirementIncome: 30_000 },
     { year: 2026, filingStatus: 'marriedFilingJointly', dependents: 2 },
     // A two-earner joint return, for the credits that ask whether the second
@@ -668,4 +685,40 @@ test('every field the ENGINE accepts is exposed by this server, or excused by na
     (name) => !KNOWN_STATE_INPUT_FIELDS.includes(name),
   );
   assert.deepEqual(phantom, [], `excused but not an engine field: ${phantom.join(', ')}`);
+});
+
+test("the surplus-credit field's NAME is the engine's, not this module's", () => {
+  // The gate derives its STATES from the definitions and this derives its NAME
+  // from them too, which is the half Day 53's Pennsylvania defect was missing:
+  // `pennsylvaniaSpouseEligibilityIncome` was advertised by the schema, named in
+  // `describe_state` and never read, and no instrument could tell because the
+  // server's copy of the name and the engine's were two independent strings that
+  // happened to agree. `SurplusCreditRule.basisField` makes them one string.
+  //
+  // Asserted here as well as guarded by a throw in the module, because the throw
+  // fires only when the COUNT is wrong — two states declaring two different
+  // fields — and says nothing about whether the one name is a field the engine
+  // actually accepts.
+  const declared = new Set();
+  for (const state of SUPPORTED_STATES) {
+    for (const year of SUPPORTED_YEARS) {
+      const field = getStateDefinition(state, year)?.surplusCredit?.basisField;
+      if (field !== undefined) declared.add(field);
+    }
+  }
+  assert.equal(declared.size, 1, 'exactly one surplus-credit basis field is declared');
+  const [name] = [...declared];
+  const entry = STATE_FIELDS.find((candidate) => candidate.name === name);
+  assert.ok(entry, `STATE_FIELDS advertises the engine's own ${name}`);
+  assert.ok(
+    KNOWN_STATE_INPUT_FIELDS.includes(name),
+    `${name} is a field StateIncomeTaxInput declares`,
+  );
+  // And the states it is advertised for are exactly the ones that declare the
+  // rule — in ANY year, because the rule is absent in even ones and a gate that
+  // dropped Oregon for that reason would refuse the field in the year it works.
+  const states = SUPPORTED_STATES.filter((state) =>
+    SUPPORTED_YEARS.some((year) => getStateDefinition(state, year)?.surplusCredit !== undefined),
+  );
+  assert.deepEqual([...entry.states].sort(), [...states].sort());
 });

@@ -1125,6 +1125,41 @@ export interface StateIncomeTaxInput {
    */
   readonly pennsylvaniaSpouseEligibilityIncome?: number;
   /**
+   * Oregon only, and only on an ODD tax year: the filer's **own** Oregon income
+   * tax before credits for the PRIOR year, which is the base of Oregon's
+   * surplus "kicker" credit.
+   *
+   * Line 24 of the 2024 Form OR-40 for a tax year 2025 return, **less any
+   * credit claimed there for income tax paid to another state** — the
+   * Department of Revenue defines the base as Oregon income tax "before any
+   * credits, withholding, or payments, other than a credit for income taxes
+   * paid to another state on mutually taxed income", so that one credit comes
+   * off and no other does. Nothing on the 2025 return can do that subtraction
+   * for a caller; the figure has to come off the 2024 return.
+   *
+   * **Omitting it means no kicker, and that is a real answer rather than a
+   * fallback.** The credit requires a 2024 Oregon return that showed a
+   * liability, so a filer who had none — a first-year resident, a non-filer, a
+   * household with no 2024 tax — is owed nothing, and that case is
+   * indistinguishable from a caller who simply did not pass the figure. The
+   * engine therefore credits zero and says so in {@link
+   * StateIncomeTaxResult.notes}, because the other direction pays a refundable
+   * credit to a filer who is not entitled to it.
+   *
+   * It is `0.09863` of this figure for tax year 2025 and there is no kicker at
+   * all for 2026: the credit lands on odd years, because the biennium it
+   * measures ends on 30 June of an odd year. Supplying it for a year or a state
+   * with no certified kicker is reported as ignored rather than dropped
+   * silently.
+   *
+   * A couple whose filing status changed between the two years has a base this
+   * package cannot assemble: the figure is whatever the 2024 return showed, and
+   * which spouse may claim how much of a joint 2024 liability on a separate
+   * 2025 return is a question for the Department of Revenue's own guidance and
+   * not for this input.
+   */
+  readonly oregonPriorYearTaxBeforeCredits?: number;
+  /**
    * Living apart from a spouse at all times during the last six months of the
    * tax year, or separated under a written separation agreement.
    *
@@ -1789,6 +1824,7 @@ export const KNOWN_STATE_INPUT_FIELDS = [
   'pennsylvaniaTaxableIncome',
   'pennsylvaniaEligibilityIncome',
   'pennsylvaniaSpouseEligibilityIncome',
+  'oregonPriorYearTaxBeforeCredits',
   'separatedFromSpouse',
   'newJerseyGrossIncome',
   'massachusettsFivePercentIncome',

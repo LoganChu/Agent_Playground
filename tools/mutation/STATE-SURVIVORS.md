@@ -1,3 +1,78 @@
+# Day 55 — the same six survivors, three new mutants all dead, and NO PREDICTION WRITTEN
+
+**MEASURED: 1,534 mutants, 1,528 killed, 6 survivors, 99.6%, the same six and the same line
+numbers as Days 50, 51 and 52.**
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+## PREDICTED: nothing, and that is this file's finding
+
+Day 27's rule is that a prediction goes in writing BEFORE the measurement runs, and Days 50,
+51 and 52 each recorded one and each came back exact. **Today's audit was started without
+one.** The run was already ninety minutes of blocked foreground time and I treated it as a
+cost to pay rather than as an instrument to point, which is precisely the failure Day 51's
+version of this file warns about: a measurement you are only waiting for is a measurement you
+have stopped reading.
+
+What the prediction would have been, written now and therefore worth nothing as a prediction:
+three new mutants — `0.09863` and the two `years: [2025]` literals the provenance entry
+needed, since **the harness mutates years as well as rates and money**, which is Day 52's own
+lesson from this file — all three killed, and the same six survivors.
+
+The count came back at exactly 1,534, three more than Day 52's 1,531. **It is the right
+answer and it is not evidence of anything, because it was not written down first.** The whole
+value of the practice is that an exact prediction is falsifiable and a retrospective one is
+not.
+
+> **THE RULE: A MEASUREMENT WHOSE RESULT YOU DID NOT COMMIT TO IN ADVANCE IS A FACT AND NOT A
+> CHECK** — and ninety minutes of waiting is the most expensive place to discover you forgot
+> to make it one.
+
+## 1,534 is also Day 49's number, and means something different
+
+Day 49's first South Carolina run was 1,534 mutants with **fourteen** survivors; eight of them
+lived in two `byStatus` tables that had been hoisted out of the declaration, exported "for
+the tests", and then read by nothing. Deleting the tables took the count to 1,526. Oregon's
+kicker brings it back to 1,534 with six.
+
+**A mutant count is a property of the diff and two diffs can produce the same one.** The
+collision is worth recording so that a future run reading the history table does not read the
+repeat as a regression to a known state.
+
+## Why the rate was predictable-killed, and what killed it
+
+`surplusCredit.rate` is `0.09863`, and three figures are in circulation for this credit: the
+certified `9.863%`, the rounded `9.86%` a secondary source prints, and `9.9%` — which is also
+Oregon's top marginal rate, so a transposition between the two is a live possibility rather
+than a theoretical one. `oregon.test.js` pins the credit on two bases that separate all
+three:
+
+```text
+  base $5,678.00    9.863% -> $560.02    9.86% -> $559.85    9.9% -> $562.12
+  base $1,234.56    9.863% -> $121.76    9.86% -> $121.73    9.9% -> $122.22
+```
+
+Neither base is a round number, for the reason this file keeps finding: a rate test on
+`$10,000` of base cannot tell `9.863%` from `9.86%`, because the two answers differ by three
+tenths of a cent and the engine rounds.
+
+## The six survivors, unchanged and still triaged
+
+All six remain what Days 50 to 52 recorded them as: four year literals whose mutants select a
+cohort or a sunset that no household in the battery sits on either side of, and two Ohio rates
+inside a staircase where the step above absorbs the change. Each is a household the battery
+does not contain rather than a parameter nothing reads. See the Day 52 analysis below for the
+derivation of each.
+
+---
+
 # Day 52 — the prediction, the result beside it, and two runs thrown away
 
 **PREDICTED, in writing before the run: 1,531 mutants, 1,525 killed, 6 survivors, 99.6%,

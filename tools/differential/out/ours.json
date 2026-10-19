@@ -488,6 +488,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -1110,6 +1114,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -1734,6 +1742,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -2356,6 +2368,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -2980,6 +2996,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -3602,6 +3622,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -4226,6 +4250,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 325.5
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -4856,6 +4884,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -5488,6 +5520,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -6118,6 +6154,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -6750,6 +6790,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 1050
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -7373,6 +7417,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 1050
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -7996,6 +8044,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -8618,6 +8670,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -9250,6 +9306,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -9880,6 +9940,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -10512,6 +10576,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -11143,6 +11211,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -11765,6 +11837,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -12389,6 +12465,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -13012,6 +13092,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -13630,6 +13714,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -14253,6 +14341,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -14885,6 +14977,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -15515,6 +15611,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -16147,6 +16247,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -16777,6 +16881,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -17409,6 +17517,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -18032,6 +18144,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -18650,6 +18766,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -19274,6 +19394,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -19896,6 +20020,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -20520,6 +20648,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -21142,6 +21274,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -21766,6 +21902,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -22389,6 +22529,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -23008,6 +23152,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -23626,6 +23774,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -24250,6 +24402,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -24872,6 +25028,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -25504,6 +25664,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -26126,6 +26290,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]
@@ -26750,6 +26918,10 @@
     {
      "name": "Oregon Kids Credit",
      "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
+     "amount": 0
     }
    ]
   },
@@ -27372,6 +27544,10 @@
     },
     {
      "name": "Oregon Kids Credit",
+     "amount": 0
+    },
+    {
+     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
      "amount": 0
     }
    ]

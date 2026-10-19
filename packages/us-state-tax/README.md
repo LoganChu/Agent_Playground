@@ -7,6 +7,14 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.48.0: **OREGON RETURNS 9.863% OF THE PRIOR YEAR'S TAX BY CONSTITUTIONAL MANDATE, AND IT IS NOW MODELLED — as a rate that is a parameter and a base that is an INPUT.** Or. Const. Art. IX § 14(4) returns a certified biennial General Fund surplus — the "kicker" — as a **refundable** credit on the following ODD year's return, computed as a percentage of the filer's **own prior-year** Oregon tax before credits. For tax year 2025 the Office of Economic Analysis certified **9.863%** of the 2024 liability off a `$1.41` billion surplus. It is worth `$74.41` to a single filer on `$15,000` of wages, about `$562` on `$80,000`, and `$3,993.89` to one household in this package's differential grid — and it is paid where the 2025 Oregon tax is zero, so it is a refund and not a reduction.
+
+**The base is not on the return, and that is the whole design.** It is line 24 of the 2024 Form OR-40 less any credit claimed there for tax paid to another state, so the new `oregonPriorYearTaxBeforeCredits` is the first input in this package whose value comes off a *different* return. **An omitted base means NO kicker, not an estimated one**: the credit requires a 2024 return that showed a liability, so a non-filer, a first-year resident or a household with no 2024 tax is owed nothing, and that case is indistinguishable from a caller who did not pass the figure. The engine credits zero, says so in a note, and prices the counterfactual with its condition attached rather than quietly substituting it. There is no 2026 kicker at all, because the biennium Art. IX § 14 measures ends on 30 June of an odd year — so `surplusCredit` is **absent** for 2026 rather than zero, and a 2026 return reports the field as ignored instead of multiplying it by zero in silence.
+
+**The alternative is instructive, because the most serious open model of US tax takes it.** `policyengine-us` computes the same credit from `or_tax_before_credits_in_prior_year`, whose formula returns **the current year's** Oregon tax before credits and whose own documentation calls that "a proxy for the prior-year liability", since a microsimulation input covers one year. Across a population the proxy is close to right. On a return it is wrong by the whole credit in both directions: a filer who earned nothing in 2024 and `$400,000` in 2025 is handed `$3,705.71` they are not owed, and one who retired in 2025 is handed almost nothing where the real figure is large. **An average that is right across a population is wrong on every household in it.** The differential grid measures exactly that: of the 44 Oregon 2025 households in it, 43 differ by a dollar or more and **41 of those 43 are explained to within a cent by `0.09863 ×` this package's own Oregon tax before credits**. The two that are not are separate returns whose 2026 counterparts already disagree for a different, recorded reason.
+
+And a preparer's own help page still printed **44.28%** for tax year 2025, which is the 2023 rate — so the figure an Oregon filer is likeliest to meet in the wild is four and a half times too large.
+
 New in 0.47.0: **SOUTH CAROLINA WAS GIVING A 2025 FILER OF 65 NO ADDITIONAL STANDARD DEDUCTION AT ALL, and the reason is one missing `Math.min`.** The state's conformity date is 31 December 2024, so it recognizes the pre-OBBBA § 63(c) amounts and adds back the difference — and the add-back was computed as `federal.deduction - the recognized amount`, uncapped. That expression cancels: the base becomes `AGI - the recognized amount` for every household, so **every part of the federal standard deduction that is not the basic amount disappeared**, and the one that matters is § 63(f)'s additional `$2,000` for a filer who has attained 65, `$1,600` per aged or blind person on a joint return. The One Big Beautiful Bill Act did not touch § 63(f) and the frozen Code carries it in full; the add-back is a FIXED `$750` / `$1,125` / `$1,500`, which is what SC1040 line e prints. **`$120` of tax for a single filer of 65, `$192` for a couple both 65, in the direction nobody reports.** `RecognizedStandardDeductionRule` now requires an `increase` and the add-back is capped by it.
 
 **The instrument that found it was the calculator SITE, and nothing in this package's 880 tests could have.** Every household in `south-carolina.test.js` and in the status sweep's frozen battery was handed a federal standard deduction of exactly the basic amount — including the eighteen households of 65 and over. The engine was never wrong about a figure it is handed; the households could not exist. `site/test/compute.test.js` runs the real federal engine, so it cannot write a federal block no return could produce, and the first South Carolina figure it computed was `$30` away from the one predicted by hand. Both batteries now derive § 63(f) from the ages they already declare, and the status sweep's own reachability check is what proved the new parameter needed them: it asked for a household between the value and twice it, and in a battery with five aged shapes there was none.
@@ -230,8 +238,8 @@ to **17%** where a dependent is under three — so the same household's credit i
 larger in one of the two years this package covers. And Oregon's "kicker" surplus
 credit is a **biennium rather than a schedule**: 9.863% of the filer's own prior-year
 tax for 2025 and *nothing* for 2026, because the biennium it measures ends on 30 June
-of odd years. It is not modelled, because it needs a prior-year return this package
-is never given, and every 2025 Oregon return says so in a note.
+of odd years. It is modelled as of 0.48.0, and the shape is a rate in the parameters
+with its base in `oregonPriorYearTaxBeforeCredits` — see the top of this file.
 
 ---
 
@@ -683,7 +691,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.47.0/us-state-tax-0.47.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.48.0/us-state-tax-0.48.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2901,7 +2909,7 @@ reads, and all 21 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,634 numeric
+was **which document any one figure came from**. Today the ledger covers 4,635 numeric
 figures over 70 state-years, against 484 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
@@ -3174,7 +3182,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **883 tests**. Turning it on, when there were 618 of them, is what
+from all **891 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

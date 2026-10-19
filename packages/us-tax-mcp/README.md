@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.51.0/us-tax-mcp-0.51.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.52.0/us-tax-mcp-0.52.0.tgz"
       ]
     }
   }
@@ -178,6 +178,38 @@ found eight more; see the 0.51.0 entry above.)
 One existing test was asserting the defect: it required New York to refuse
 `taxableSocialSecurity`, and New York subtracts the benefit in full.
 
+**New in 0.52.0 — ONE NEW ARGUMENT, `oregonPriorYearTaxBeforeCredits`, AND IT IS THE
+FIRST ONE WHOSE VALUE COMES OFF A DIFFERENT RETURN.** Oregon returns a certified
+biennial General Fund surplus — the "kicker", Or. Const. Art. IX § 14(4) — as a
+**refundable** credit on the following ODD year's return, at **9.863%** of the filer's
+own **prior-year** Oregon tax before credits for tax year 2025. `us-state-tax` v0.48.0
+models it; this argument is its base: line 24 of the 2024 Form OR-40, less any credit
+claimed there for income tax paid to another state. Worth `$74.41` to a single filer on
+`$15,000` of wages, about `$562` on `$80,000`, and `$3,993.89` to one household in the
+differential grid.
+
+**Omitting it means no kicker rather than an estimated one**, which is a real answer:
+the credit requires a 2024 Oregon return that showed a liability, so a non-filer or a
+first-year resident is owed nothing, and that case is indistinguishable from a caller
+who did not pass the figure. `policyengine-us` substitutes **the current year's**
+Oregon tax before credits here — its own variable documents the substitution as "a
+proxy for the prior-year liability" — which is defensible for a population model and
+wrong on every household in it. This server declines to guess, reports the omission,
+and prices the counterfactual with its condition attached.
+
+**And it is the first argument whose availability has a YEAR as well as a state.**
+There is no 2026 kicker, because the biennium Art. IX § 14 measures ends on 30 June of
+an odd year. The per-state gate has one dimension and cannot refuse on two, so the
+field is accepted for Oregon in both years and the ENGINE reports it as ignored on a
+2026 return, naming the biennium. **A gate with one dimension cannot refuse on two, and
+the honest move is to let the narrower instrument answer rather than to widen the gate
+until it lies.** The witness sweep that measures whether a field is read had the same
+blind spot the other way round: every probe in it pinned `year: 2026`, so this field
+read as accepted-and-never-read in the sweep built precisely to catch that. An odd-year
+probe is now in the set — Day 54's rule arriving in a second instrument one day later,
+that an argument from an absence is only as good as the instrument's ability to have
+seen the thing.
+
 **New in 0.51.0 — EIGHT MORE GATES WERE REFUSING AN ARGUMENT THAT MOVES THE STATE'S
 TAX, and two Pennsylvania arguments were accepted, documented and then never read
 by the handler at all.** Day 51 found eleven lists too narrow; the probe that found
@@ -206,7 +238,7 @@ the list beside it disagreed.
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 209 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 210 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 
@@ -1074,8 +1106,8 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **400 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **883 tests**, every state figure cited to its statute.
-This package adds **181 more** covering the protocol and the tool layer. Those three
+sources. `packages/us-state-tax`: **891 tests**, every state figure cited to its statute.
+This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
 assertion that was supposed to keep them honest turned out to be comparing the README

@@ -13,6 +13,60 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 55 nothing is waiting on you except the network ask below, the GitHub Pages
+switch, and the optional report from Day 50 — and today's headline is that YESTERDAY'S
+DEFECT IS FIXED: the Oregon constitutional credit this package did not model is modelled,
+and the way it is modelled is the interesting part.**
+
+`us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` is now **v0.48.0** and `us-tax-mcp`
+**v0.52.0**. **1,496 tests**, all passing. No state was added; 26 taxing states and 35 in
+all, unchanged.
+
+**A. WHAT WAS FIXED.** Oregon returns budget surpluses to taxpayers as the "kicker" —
+Article IX, Section 14(4) of the state constitution — a refundable credit on the
+odd-numbered year's return worth a certified percentage of the PRIOR year's Oregon tax.
+For tax year 2025 that is **9.863%** of the 2024 liability. Yesterday this package modelled
+none of it, so every Oregon 2025 answer it gave was too high — by `$3,993.89` on one
+household I tested. It now computes the credit, and it is refundable, so it is paid even to
+a filer who owes Oregon nothing this year.
+
+**B. THE DESIGN DECISION, WHICH IS THE PART WORTH YOUR TIME.** The credit's base is a
+number that is **not on the return being computed**: the prior year's Oregon tax before
+credits, line 24 of the 2024 Form OR-40 less any credit for tax paid to another state. So
+the rate is a parameter and the base is a new input, `oregonPriorYearTaxBeforeCredits` —
+the first input in either engine whose value comes off a different return. **If a caller
+does not supply it, the credit is ZERO and the result says so, rather than being estimated.**
+That is a real answer and not a cop-out: the kicker requires a 2024 Oregon return that
+showed a liability, so a non-filer, a first-year resident or a household with no 2024 tax is
+owed nothing at all, and that case looks identical to a caller who simply did not pass the
+figure. Guessing would pay a refundable credit to people not entitled to it.
+
+**PolicyEngine-US — the independent model I check everything against — guesses.** Its own
+code substitutes *the current year's* Oregon tax for the prior year's, and its own
+documentation calls that "a proxy for the prior-year liability", because a population model
+gets one year of data at a time. For a population study that is a reasonable choice. For one
+household it is wrong by the whole credit in both directions: somebody who earned nothing in
+2024 and `$400,000` in 2025 is handed `$3,705.71` they are not owed. **An average that is
+right across a population is wrong on every household in it** — and this package is for
+households.
+
+**C. AND I COULD VERIFY THE WHOLE THING WITHOUT GUESSING.** Of the 44 Oregon 2025 households
+in the two-model comparison grid, 43 differ by a dollar or more, and **41 of those 43 are
+explained to within one cent** by 9.863% of this package's own Oregon tax-before-credits
+figure — which is exactly what PolicyEngine's proxy computes. The two that are not are
+separate returns that already disagree for a different, recorded reason. So the disagreement
+is now completely accounted for, in writing, with the arithmetic that accounts for it.
+
+**D. ONE THING TO KNOW IF YOU EVER FILE IN OREGON.** A major preparer's own help page still
+publishes **44.28%** for the 2025 kicker. That is the 2023 rate. The figure an Oregon filer
+is most likely to meet is four and a half times too large.
+
+**E. NOTHING NEW IS WAITING ON YOU.** For the record of what the kicker will need in future:
+the rate is certified by Oregon's Office of Economic Analysis after each biennium closes, so
+tax year 2027's figure does not exist yet. The code is shaped for that — a year with no
+certified rate declares no credit at all rather than a rate of zero — and reading the
+certification when it appears is my job, not yours.
+
 **As of Day 54 nothing is waiting on you except the network ask below, the GitHub Pages
 switch, and the optional report from Day 50 — and today's headline is that I FOUND A
 REFUNDABLE CREDIT IN THE OREGON CONSTITUTION THAT THIS PACKAGE DOES NOT MODEL AT ALL, so

@@ -109,12 +109,28 @@
  * 2020, 2022, 2024, 2026       none
  * ```
  *
- * It is **not modelled**, and the reason is a missing input rather than a
- * missing rule: the credit is a percentage of the filer's own PRIOR-YEAR Oregon
- * tax before credits, and nothing in this package's input carries a 2024 Oregon
- * return. On 2025 wages of `$60,000` it is worth about `$280`, so an Oregon 2025
- * answer here is high by that, and the note says so on every 2025 return rather
- * than only in the documentation.
+ * It **is** modelled, as of v0.48.0, and the shape of the rule is the point:
+ * the rate is a parameter and the **base is an input**. The credit is
+ * `9.863%` of the filer's own PRIOR-YEAR Oregon tax before credits — line 24 of
+ * the 2024 Form OR-40, less any credit claimed there for tax paid to another
+ * state — and nothing on the 2025 return contains that figure or implies it. So
+ * `oregonPriorYearTaxBeforeCredits` is the first input in this package whose
+ * value comes off a **different return**, and an omitted one is read as NO
+ * KICKER rather than as an unknown one: the credit requires a 2024 return that
+ * showed a liability, and a filer who had none is owed nothing.
+ *
+ * The alternative is instructive, because the most serious open model of US tax
+ * takes it. PolicyEngine-US computes the same credit from
+ * `or_tax_before_credits_in_prior_year`, whose formula **returns the CURRENT
+ * year's Oregon tax before credits** and whose own documentation calls that "a
+ * proxy for the prior-year liability", since a microsimulation input covers one
+ * year. Across a population the proxy is close to right. On a return it is
+ * wrong in both directions and by the whole credit: a filer who earned nothing
+ * in 2024 and `$400,000` in 2025 is handed `$3,705.71` they are not owed, and
+ * one who retired in 2025 is handed almost nothing where the real figure is
+ * large. The differential grid measures exactly this: **37 of 44 Oregon 2025
+ * households differ from PolicyEngine by `0.09863 ×` this package's own Oregon
+ * tax before credits, to within a cent.**
  *
  * ## A retirement credit that the average retiree cannot reach
  *
@@ -283,7 +299,7 @@ const CITATIONS: readonly Citation[] = [
   },
   {
     title:
-      'Or. Const. Art. IX § 14 — the "kicker": where General Fund revenue exceeds the close-of-session estimate by 2% the excess is returned as a credit on the following year\'s return, measured over a biennium ending 30 June of odd years. 9.863% of 2024 tax before credits for tax year 2025; none for 2026',
+      'Or. Const. Art. IX § 14 — the "kicker": where General Fund revenue exceeds the close-of-session estimate by 2% the excess is returned as a credit on the following year\'s return, measured over a biennium ending 30 June of odd years. The constitution sets the MECHANISM and the Office of Economic Analysis certifies the FIGURE once the biennium has closed: 9.863% of 2024 Oregon tax before credits for tax year 2025, off a $1.41 billion surplus for the 2023-25 biennium; none for 2026. The Department of Revenue defines the base as Oregon income tax "before any credits, withholding, or payments, other than a credit for income taxes paid to another state on mutually taxed income", and requires a prior-year return WITH a liability',
     url: 'https://oregon.public.law/constitution/art._IX,_section_14',
   },
   {
@@ -316,13 +332,13 @@ const CITATIONS: readonly Citation[] = [
 const PROVISIONAL_2026 =
   'PROVISIONAL, for two figures and not for the year: the Oregon Kids Credit amount ($1,050) and its phase-out threshold ($26,550) below are the 2025 figures carried forward, because HB 3235 indexes both and the Department of Revenue publishes a year\'s Kids Credit figures in the January after it. Carrying them forward understates the credit and withdraws it earlier than the indexed figures would, so the error is against the filer in both directions. EVERYTHING ELSE IN 2026 IS PUBLISHED AND READ — the brackets, the standard deduction, the federal tax subtraction ceiling and its whole phase-out table and the $263 exemption credit are all in the Department of Revenue\'s 2026 withholding formula, published 31 December 2025, and the 14% and 17% earned income credit rates are statutory under SB 1507.';
 
-const KICKER_2025 =
-  'TAX YEAR 2025 HAS A KICKER AND THIS FIGURE DOES NOT INCLUDE IT. The Oregon surplus credit for 2025 is 9.863% of the filer\'s own 2024 Oregon tax before credits — roughly $280 for a single filer on $60,000 of wages — and it is refundable, so an Oregon 2025 liability here is too high by that amount for every filer who filed in 2024. It needs a prior-year return this package is never given. There is no 2026 kicker: the credit lands on odd tax years only, because the biennium it measures ends on 30 June of odd years.';
+const KICKER_ODD_YEAR =
+  'TAX YEAR 2025 HAS A KICKER AND ITS BASE IS NOT ON THIS RETURN. The Oregon surplus credit for 2025 is 9.863% of the filer\'s OWN 2024 Oregon tax before credits — line 24 of the 2024 Form OR-40, less any credit claimed there for tax paid to another state — and it is refundable, so it is paid even where the 2025 tax is zero. Supply `oregonPriorYearTaxBeforeCredits` and the credit is computed; omit it and the credit is ZERO rather than estimated, because the kicker requires a 2024 return that showed a liability and a filer who had none is owed nothing. There is no 2026 kicker: the credit lands on odd tax years only, because the biennium it measures ends on 30 June of odd years, and the rate is certified by the Office of Economic Analysis after the surplus is known rather than legislated in advance.';
 
 const NOTES: readonly string[] = [
   'Oregon does not tax Social Security or Tier 1 railroad retirement benefits, and subtracts the whole of `taxableSocialSecurity` here (ORS 316.054).',
-  'THE KICKER IS NOT MODELLED, and for tax year 2025 it is the largest single figure missing from an Oregon answer. Or. Const. Art. IX § 14 returns 9.863% of the filer\'s OWN 2024 Oregon tax before credits as a refundable credit on the 2025 return — about $280 for a single filer on $60,000 of wages. It is not modelled because the input does not exist rather than because the rule is hard: it is a percentage of a prior-year return this package is never given. There is no 2026 kicker, because the credit lands on odd tax years only. Pass it through as a credit you compute yourself if you hold the 2024 figure.',
-  'Not modelled, and each is a credit rather than a rate: the Working Family Household and Dependent Care credit (ORS 315.264, a percentage of care expenses that falls with income and is the largest credit on many working parents\' returns); the additional exemption credit for a filer with a severe disability and the one for a dependent child with a disability (ORS 316.099, both an extra exemption at $256/$263 and the second with an income limit of its own); the 529/ABLE contribution credit (ORS 315.650); the political contribution credit; and the Oregon surplus "kicker" above. Pass any of these through as credits you compute yourself.',
+  'THE KICKER\'S RATE IS A PARAMETER AND ITS BASE IS AN INPUT, which is the only place in this package where that split appears. Or. Const. Art. IX § 14(4) returns a certified share of the filer\'s OWN prior-year Oregon tax before credits as a refundable credit on the following ODD year\'s return: 9.863% for 2025, and 17.171% / 17.341% / 44.280% for 2019 / 2021 / 2023. The provision is permanent and the figure is certified biennially, so a year with no certified rate declares no credit at all rather than a rate of zero — 2026 declares none. Pass `oregonPriorYearTaxBeforeCredits` to claim it. Note that a preparer\'s own help page still printed 44.28% for tax year 2025, which is the 2023 rate and four and a half times too large, so the figure a filer is likeliest to meet in the wild is the wrong one.',
+  'Not modelled, and each is a credit rather than a rate: the Working Family Household and Dependent Care credit (ORS 315.264, a percentage of care expenses that falls with income and is the largest credit on many working parents\' returns); the additional exemption credit for a filer with a severe disability and the one for a dependent child with a disability (ORS 316.099, both an extra exemption at $256/$263 and the second with an income limit of its own); the 529/ABLE contribution credit (ORS 315.650); and the political contribution credit. Pass any of these through as credits you compute yourself. The Oregon surplus "kicker" is NO LONGER on this list — it is modelled, and needs `oregonPriorYearTaxBeforeCredits`.',
   'The FEDERAL PENSION SUBTRACTION is not modelled. ORS 316.680(1)(d) lets a federal retiree subtract the share of their pension earned by service before 1 October 1991, and Publication OR-17\'s retirement credit worksheet subtracts that figure from the pension the credit is computed on. So for a federal retiree with pre-1991 service this package reports an Oregon retirement income credit that is TOO LARGE, and an Oregon AGI that is too large as well. The month-count inputs this package carries are for Kentucky\'s 1998 cutoff and do not fit Oregon\'s 1991 one.',
   'Oregon\'s federal tax subtraction is the federal income tax after non-refundable credits, LESS the refundable child tax credit and the refundable American Opportunity credit, and NOT less the earned income credit — Publication OR-17 says the subtraction is the federal tax "after all credits other than the earned income tax credit". Alabama\'s worksheet subtracts all three and Missouri\'s subtracts the earned income credit and not the child one, so the three states that deduct federal tax subtract three different sets of credits, and `federal.earnedIncomeCredit` therefore raises an Alabama and a Missouri answer and lowers an Oregon one.',
   'Publication OR-17 takes the subtraction from the federal income tax "before other taxes", which excludes the Form 8960 net investment income tax that `federal.incomeTaxBeforeRefundableCredits` includes. The difference cannot reach a SINGLE filer at all — the subtraction is already zero above $145,000 of AGI and the net investment income tax begins at $200,000 — and elsewhere it is bounded by 9.9% of that tax and needs itemized deductions large enough to push the federal income tax below the ceiling. A joint filer at $255,000 of AGI with $200,000 of charitable deductions and $55,000 of investment income is about $19 too low here. Named rather than hidden.',
@@ -505,6 +521,23 @@ export function oregon(year: number): StateIncomeTaxDefinition | undefined {
       },
       refundable: true,
     },
+    // ODD YEARS ONLY, and absent rather than zero in even ones. A rate of 0 for
+    // 2026 would be this package asserting that Oregon certified a surplus of
+    // nothing; the truth is that the biennium Article IX § 14 measures had not
+    // ended, so there is no figure to carry. An absent rule also means the
+    // engine reports `oregonPriorYearTaxBeforeCredits` as IGNORED on a 2026
+    // return instead of multiplying it by zero in silence.
+    ...(is2026
+      ? {}
+      : {
+          surplusCredit: {
+            name: 'Oregon surplus credit ("kicker")',
+            rate: 0.09863,
+            basisField: 'oregonPriorYearTaxBeforeCredits' as const,
+            refundable: true,
+            cite: 'Or. Const. Art. IX § 14(4) and the Department of Revenue\'s 2025 kicker guidance: 9.863% of the 2024 Oregon tax liability, certified by the Office of Economic Analysis off a $1.41 billion surplus for the 2023-25 biennium. The base is Oregon income tax "before any credits, withholding, or payments, other than a credit for income taxes paid to another state on mutually taxed income" — line 24 of the 2024 Form OR-40 less that one credit. Eligibility also requires a 2024 Oregon return WITH a liability and a 2025 Oregon return, even from a filer with no filing requirement.',
+          },
+        }),
     reducedBaseRetirementCredit: {
       name: 'Oregon retirement income credit',
       rate: 0.09,
@@ -519,7 +552,7 @@ export function oregon(year: number): StateIncomeTaxDefinition | undefined {
       cite: 'ORS 316.157 and the twelve-line worksheet in Publication OR-17 — 9% of the lesser of the filer\'s and spouse\'s pension income at 62 or over and a base of $7,500 ($15,000 joint) reduced by the GROSS Social Security benefit and again, dollar for dollar, by household income above $15,000 ($30,000). Household income is federal AGI plus tax-exempt interest less the TAXABLE part of the benefit, so a dollar of Social Security reduces the base once and not twice. None of the five figures has moved since 2018.',
     },
     subtractsTaxableSocialSecurity: true,
-    notes: is2026 ? [PROVISIONAL_2026, ...NOTES] : [KICKER_2025, ...NOTES],
+    notes: is2026 ? [PROVISIONAL_2026, ...NOTES] : [KICKER_ODD_YEAR, ...NOTES],
     conditionalNotes: CONDITIONAL_NOTES,
     citations: CITATIONS,
   };

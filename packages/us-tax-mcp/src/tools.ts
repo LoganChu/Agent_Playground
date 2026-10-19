@@ -1386,6 +1386,12 @@ const stateTool: ToolDefinition = {
         `pennsylvaniaTaxableIncome only applies to PA, and ${state} was requested.`,
       );
     }
+    // Oregon's kicker base. Read here, in `readHousehold`'s own output below,
+    // and nowhere else: the per-state gate loop refuses it outside Oregon, and
+    // the ENGINE reports it as ignored on an even Oregon year, because the gate
+    // has a state dimension and no year one. `test/tool-argument-witnesses.test.js`
+    // is what proves this line exists.
+    const orPriorYearTax = readNumber(source, 'oregonPriorYearTaxBeforeCredits');
     const njIncome = readNumber(source, 'newJerseyGrossIncome');
     if (njIncome !== undefined && state !== 'NJ') {
       throw new ToolInputError(
@@ -1752,6 +1758,9 @@ const stateTool: ToolDefinition = {
         ? { pennsylvaniaSpouseEligibilityIncome: paSpouseEligibility }
         : {}),
       ...(separatedFromSpouse !== undefined ? { separatedFromSpouse } : {}),
+      ...(orPriorYearTax !== undefined
+        ? { oregonPriorYearTaxBeforeCredits: orPriorYearTax }
+        : {}),
       ...(njIncome !== undefined ? { newJerseyGrossIncome: njIncome } : {}),
       ...(maIncome !== undefined ? { massachusettsFivePercentIncome: maIncome } : {}),
       ...(shortTermGains !== undefined ? { shortTermCapitalGains: shortTermGains } : {}),

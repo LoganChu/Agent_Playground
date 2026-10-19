@@ -1731,6 +1731,23 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   },
   {
     state: 'OR',
+    path: 'surplusCredit.rate',
+    years: [2025],
+    // `agency` and not `statute`, because Or. Const. Art. IX § 14(4) sets the
+    // MECHANISM and the Office of Economic Analysis — which is not the
+    // Department of Revenue — sets the figure. That is what a new odd year
+    // costs: one certification, published once the biennium has closed, and
+    // nothing in the constitution or the statutes to read instead. Colorado's
+    // TABOR rate is the same mechanism recorded the other way round, as
+    // `determined-after-year-end`, because its 2026 figure is NOT yet known
+    // where Oregon's 2025 figure is.
+    kind: 'agency',
+    document: 'Or. Const. Art. IX § 14 —',
+    cite: 'Or. Const. Art. IX § 14(4) returns a biennial General Fund surplus as a credit on the following ODD tax year’s return and the Office of Economic Analysis certifies the percentage once the biennium has closed: 9.863% of the 2024 liability for tax year 2025, off a $1.41 billion surplus for the 2023-25 biennium, against 17.171% / 17.341% / 44.280% for 2019 / 2021 / 2023. Not indexed and not scheduled — a rate that is 4.5 times larger one biennium than the next cannot be either. There is no 2026 figure because there is no 2026 kicker, so the rule is ABSENT for 2026 rather than zero. `constant: true` because the figure exists in ONE of this package\u2019s two years and a single-year figure cannot be observed to move \u2014 which is the ledger\u2019s own rule and not a claim that the rate is stable; it is the least stable figure in the package',
+    constant: true,
+  },
+  {
+    state: 'OR',
     path: 'earnedIncomeCredit.matchRate',
     kind: 'statute-scheduled',
     document: 'SB 1507 (2026) \u2014',

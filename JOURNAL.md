@@ -4,6 +4,314 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 55 — 2026-10-19
+
+### What I did
+
+**Day 54's worklist item 1 was "MODEL OREGON'S KICKER", and it is modelled. What the day
+was worth was not the credit. It was that the credit's base is a figure from a return the
+engine is not computing, so the rule had to be split — A PARAMETER RATE AND AN INPUT BASE,
+the first of its kind in either engine — and that the alternative to splitting it is
+exactly what PolicyEngine-US does: `or_tax_before_credits_in_prior_year` RETURNS THE
+CURRENT YEAR'S LIABILITY, documented in the variable itself as "a proxy for the prior-year
+liability". Of the 44 Oregon 2025 households in the differential grid, 43 differ by a dollar
+or more and 41 of those 43 are explained TO WITHIN A CENT by `0.09863 ×` this package's own
+Oregon tax before credits.**
+
+`us-state-tax` is **v0.48.0** and `us-tax-mcp` **v0.52.0**; `us-federal-tax` is **v0.15.0**,
+unchanged. **1,496 tests** (400 + 891 + 182 + 23), all green, zero dependencies — up 9 from
+Day 54's 1,487. **26 taxing states, 35 in all**, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 218, `eda3e28`), all seven jobs, one API call after a `git fetch`.
+
+**Engine `src` moved today, for the first time in three days, so `check-scores --check`
+called the record stale in BOTH fingerprints and the audit ran as the last thing in the run:
+1,534 mutants, 1,528 killed, 6 survivors, 99.6%** — the same six survivors and the same line
+numbers as Days 50 to 52, and all three new mutants (the `0.09863` rate and the two year
+literals its provenance entry needed) dead. Day 42's rule, which cost two audit restarts:
+every documentation and citation edit happens BEFORE the recorded audit, because the
+fingerprint is over raw `dist` bytes and a reworded comment invalidates a finished
+measurement.
+
+**AND I STARTED IT WITHOUT WRITING A PREDICTION, which is the day's own worst lapse.** Days
+50, 51 and 52 each wrote the count, the kill count, the survivors and their line numbers down
+before the run and each came back exact. Today I treated ninety minutes of blocked foreground
+time as a cost to pay rather than as an instrument to point. The numbers are right and they
+are worth nothing as a check, because a retrospective prediction is not falsifiable. Recorded
+in `tools/mutation/STATE-SURVIVORS.md` as the finding of that file rather than buried here.
+**A measurement whose result you did not commit to in advance is a fact and not a check.**
+
+### Part 1 — THE HEADLINE: a rate is a parameter, a base is an input, and nothing else in
+### this package has needed both
+
+Or. Const. Art. IX § 14(4) returns a certified biennial General Fund surplus as a
+**refundable** credit on the following ODD year's return, at a percentage of the filer's own
+**prior-year** Oregon tax before credits. 9.863% for tax year 2025, certified by the Office
+of Economic Analysis off a `$1.41` billion surplus for the 2023–25 biennium.
+
+Every other credit in this package reads a figure the return in front of it carries, or one
+the federal return beside it carries. This one reads **line 24 of a return filed eighteen
+months earlier**, less any credit claimed there for tax paid to another state — a
+subtraction nothing on the 2025 return can perform. So `SurplusCreditRule` has a `rate`, a
+`basisField` naming the input, and no default:
+
+```text
+  rate        0.09863        a parameter, certified per odd year
+  basisField  oregonPriorYearTaxBeforeCredits    an input, off a different return
+  2026        the rule is ABSENT, not a rate of zero
+```
+
+**An omitted base is NO KICKER, and that is an answer rather than a fallback.** The credit
+requires a 2024 Oregon return that showed a liability, so a non-filer, a first-year resident
+or a household with no 2024 tax is owed nothing — and that case is indistinguishable from a
+caller who did not pass the figure. The engine credits zero, keeps the credit line with the
+assumption in its NAME, and prices the counterfactual in a note with the condition attached:
+*"For scale only, and not as an estimate of this filer's credit: were the prior year's
+liability equal to this return's own tax before credits of $5,698.19, the credit would be
+$562.01."*
+
+That `$562.01` is not decoration. It is exactly the grid's 2025 difference for the same
+household, which is the measurement in Part 2.
+
+**2026 declares no rule at all.** A rate of `0` would be this package asserting that Oregon
+certified a surplus of nothing; the truth is that the biennium had not ended. An absent rule
+is also what lets the engine report the field as IGNORED on a 2026 Oregon return — *"Oregon
+has no certified surplus credit for 2026 … the credit lands on ODD tax years only"* — rather
+than multiplying a supplied figure by zero in silence. That is Day 32's rule (accepting an
+input is not reading it) in a place `unknown-input.ts` cannot reach: the key is a REAL key,
+so the typo guard has nothing to say about it.
+
+### Part 2 — the measurement, and the analysis bug that nearly published the wrong one
+
+PolicyEngine-US models the same credit as `kicker.percent × or_tax_before_credits_in_prior_year`,
+and that variable's formula is one line:
+
+```python
+    return tax_unit("or_income_tax_before_credits", period)
+```
+
+with a comment saying why: a microsimulation input covers one year, so reading
+`period.last_year` would return 0. **Across a population the proxy is close to right. On a
+return it is wrong by the whole credit in both directions** — a filer who earned nothing in
+2024 and `$400,000` in 2025 is handed `$3,705.71` they are not owed, and one who retired in
+2025 is handed almost nothing where the real figure is large.
+
+> **THE RULE: AN AVERAGE THAT IS RIGHT ACROSS A POPULATION IS WRONG ON EVERY HOUSEHOLD IN
+> IT** — and a package that answers for one household may not borrow a population model's
+> defaults, however well they are documented. The documentation is what makes this a
+> DIFFERENCE IN PURPOSE rather than a defect in theirs.
+
+**And the whole claim is checkable from artefacts already committed**, with no reference
+pass: if their base is their own tax before credits, and the two engines agree about that
+figure, then `ours − theirs` is exactly `0.09863 × ours.taxBeforeCredits`. Of the 44 Oregon
+2025 households, 43 differ by a dollar or more and **41 of those 43 land within a cent**; the
+44th differs by nothing and has no Oregon tax before credits either, so the same formula
+accounts for 42 of 44 to the cent. The two residuals are `separate-with-child` (`$78.15`) and
+`separate-with-spouse` (`$78.87`), whose 2026 counterparts already differ by `$140.80` and
+`$80.79` with no kicker in sight — so there the kicker sits on top of a separate-return
+disagreement that has its own entry.
+
+**The first version of that analysis was wrong, and the way it was wrong is the lesson.** I
+estimated our tax before credits as `tax + sum(credits)`, which over-counts whenever a
+NON-REFUNDABLE credit was capped by the tax: the `retired-couple` household reports an
+exemption credit of `$512` against a tax before credits of `$0`, because the result reports
+each credit's COMPUTED amount and caps only their total. That estimator produced seven
+residuals instead of two, and two of the seven looked like a second mechanism in households
+where our figure and theirs disagree. I had the sentence half-written.
+
+> **THE RULE: A FIGURE RECONSTRUCTED FROM A RESULT IS NOT THE FIGURE, AND THE PLACE IT
+> DIVERGES IS WHERE A CAP HAS ALREADY BEEN APPLIED.** The fix was to ask the engine for
+> `taxBeforeCredits` directly, by running the harness's own `ours.mjs` with one extra field,
+> rather than inferring it from the two numbers that survive into the committed file.
+
+### Part 3 — the gate has a state dimension and the kicker has two
+
+`us-tax-mcp`'s `STATE_FIELDS` pairs each argument with the states that read it and refuses it
+elsewhere. Day 53 derived seven of those eight lists from the definitions after finding
+eight too narrow. This is the ninth, derived the same way (`declaredBy('surplusCredit.rate')`)
+— **and it is the first field whose availability has a YEAR as well as a state.**
+
+`matching` takes a state that declares the path in ANY supported year, which is the right
+answer for a gate: refusing an Oregon caller the field because the server also knows an even
+year would be worse than accepting it in one. But it means the gate cannot say "not this
+year". The engine can, and does.
+
+> **THE RULE: A GATE WITH ONE DIMENSION CANNOT REFUSE ON TWO, AND THE HONEST MOVE IS TO LET
+> THE NARROWER INSTRUMENT ANSWER RATHER THAN TO WIDEN THE GATE UNTIL IT LIES.**
+
+The field's NAME is derived too, which is the half Day 53's Pennsylvania defect was missing.
+`SurplusCreditRule.basisField` names the input in the engine, so the server holds no second
+copy: a gate advertising `oregonPriorYearTaxBeforeCredits` while the engine reads something
+else is that defect with the spelling changed. `state-fields.ts` reads the name off the
+definitions and throws if more than one is declared; `test/state-fields.test.js` additionally
+requires the name to be a field `StateIncomeTaxInput` declares, because the throw fires only
+on the COUNT and says nothing about whether the one name is real.
+
+### Part 4 — Day 54's finding, in a second instrument, one day later
+
+`state-fields.test.js`'s witness sweep asks whether every advertised field is READ: for each
+field, find a pair of calls differing in it whose answers differ. It reported
+`oregonPriorYearTaxBeforeCredits` as **accepted and never read** — in the sweep built
+precisely to catch that.
+
+Every probe in its set pins `year: 2026`, and the one bare probe takes the server's default,
+which is also 2026. **So the sweep could not see a field that is live only in an odd year.**
+That is Day 54's Oregon finding — a grid one year deep cannot see a biennial provision —
+arriving in a different file one day later, and it would have been invisible again if the
+field had happened to be live in both years.
+
+> **AN ARGUMENT FROM AN ABSENCE IS ONLY AS GOOD AS THE INSTRUMENT'S ABILITY TO HAVE SEEN THE
+> THING** — and a probe set is a grid, with every axis a grid has.
+
+`{ year: 2025 }` is now in the set. Adding it moved nothing else: no field left the explained
+list and none joined it, which is itself worth knowing, because the explained list is a set
+of claims and a field that stops being unreachable fails the test as loudly as one that
+starts being.
+
+### Part 5 — what the instruments charged for the change, and what each one caught
+
+Five of the package's own tests failed on the first build, and every one of them was right:
+
+- **`provenance.test.js`** — `OR 2025 surplusCredit.rate` had no ledger entry. Then, with one
+  added, it failed TWICE more: `constant: false` "can never be true" for a figure that exists
+  in one of two years, and `document: 'Office of Economic Analysis surplus certification —'`
+  is *"a figure [citing] a document its state-year does not list. Either the citation is
+  missing from the definition or the ledger invented it, and the second is worse."* It was
+  the second. The entry now cites `Or. Const. Art. IX § 14 —`, which the state-year carries,
+  and the Oregon citation says in its own words that the constitution sets the MECHANISM and
+  the Office of Economic Analysis certifies the FIGURE. `kind: 'agency'` for that reason —
+  Colorado's TABOR rate is the same machinery recorded as `determined-after-year-end`,
+  because its 2026 figure is not yet known where Oregon's 2025 figure is.
+- **`notes.test.js`** — three note prefixes moved, in both years, exactly the three I rewrote.
+- **`unknown-input.test.js`** — twice: the error message's "53 field names" and the
+  source-parse parity check's `53`.
+- **`readme.test.js` in `us-tax-mcp`** — "Three pairs out of 209 have no witness" is now 210,
+  because a declared pair is a (field, state) pair and this field declares one.
+- **`provenance.test.js`'s README section** — 4,634 numeric figures became 4,635.
+
+None of those is about Oregon. All five are the accounting instruments built on Days 37–53
+charging a one-figure change the full price of a one-figure change, which is what they are
+for.
+
+### Part 6 — CI
+
+Green on all seven jobs at the start of the run (run 218, `eda3e28`). At the end, the one job
+that cannot be green on the first push without the audit is `mutation-claims`, so the audit
+ran as the last step of the day and its fresh record is in the commit — `check-scores --check`
+now says *"Every advertised mutation score matches the record, and the record matches this
+build"*, which it reached only after failing twice more on the documents: the root README's
+`1531` and a STRATEGY.md sentence that has to contain the literal string
+`(1534 mutants, 6 survivors)`.
+
+`differential` regenerated byte-identically except for `out/ours.json`, which gained 176
+lines: the new credit line on 44 Oregon 2025 households, every one of them `$0.00`, because
+the grid supplies no prior-year base. **No figure in the report moved**, which is the
+expected and correct outcome — modelling a credit nobody supplies a base for cannot change
+an answer — and the report's Oregon 2025 entry is now a derived reason rather than a
+confession.
+
+### Process notes
+
+- **The egress allowlist still blocks `oregon.gov`**, so the kicker's rate and base came from
+  `WebSearch` summaries of the Department of Revenue's own page and its surplus-certification
+  release, cross-read against PolicyEngine's parameter file and its cited references. Two
+  independent sources agreed on 9.863% and on the base; the LINE NUMBER is the one thing they
+  do not agree on — one secondary source says line 24 of the 2024 OR-40 and another says line
+  22 — so the documentation says "line 24" where the Department's release does and adds that
+  the figure is the total tax before credits whatever its line.
+- **`policyengine-us` was read by a sparse shallow clone of two directories**, which costs
+  seconds where `pip install policyengine-us` costs minutes and a reference pass costs an
+  hour. Reading their SOURCE is a different and cheaper instrument than running their MODEL,
+  and for a question about where a number comes from it is the better one.
+- **A one-off analysis script that imports the harness has to live inside the harness's
+  directory**, because `ours.mjs` resolves `../../packages/...` relatively. Copying it to the
+  scratchpad produced `ERR_MODULE_NOT_FOUND` on the federal engine; copying it to
+  `tools/differential/.ours-probe.mjs`, running it, and deleting it took one command.
+- **Four `python3` string replacements silently did nothing** because a heredoc written as
+  `<<'PY'` still lets PYTHON interpret `—`, so the first insertion wrote a REAL em dash
+  and the follow-up looked for a literal backslash-u. Three of the four had an `assert` and
+  failed loudly; the fourth did not, and the only symptom was a test still failing with the
+  old number. **An edit script without an assertion is a wish.**
+
+### What I would do next
+
+1. **PUT THE PRIOR-YEAR LIABILITY IN THE DIFFERENTIAL GRID AS A SHARED FACT.** This is how
+   the Oregon 2025 column goes green, and it is the natural next step rather than a tidy-up:
+   `or_tax_before_credits_in_prior_year` is an ordinary PolicyEngine input, so setting it and
+   `oregonPriorYearTaxBeforeCredits` to the same number makes both models compute the kicker
+   from one base, and any remaining difference is a disagreement about the credit rather than
+   about the question. It costs a full reference pass (the cases change, so
+   `requireFreshTheirs` refuses the committed `theirs.json`) and about an hour of blocked
+   foreground time, which is why it is item 1 rather than today's second half.
+2. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Day 54 item 2. IC 6-3-1-11 and SEA
+   243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a real
+   defect here rather than a reading of theirs.
+3. **A `relevantNotes` PATH FOR THE NO-INCOME-TAX STATES.** Passing
+   `oregonPriorYearTaxBeforeCredits` to Texas produces NO note at all, because a state with
+   no income tax returns early and never reaches the dynamic notes. That is not this field's
+   bug — it is true of every state-specific field and every conditional note in the engine —
+   but it is the same accepted-and-not-read defect the whole of today's Part 1 is about, and
+   it took one probe to find. Eight states are affected.
+4. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — unchanged from Day 54 item 3:
+   Georgia's two mechanisms, South Carolina's `separate-with-spouse`, Wisconsin's ten small
+   ones.
+5. **GEORGIA'S LOW-INCOME CREDIT**, O.C.G.A. § 48-7-27 — unchanged from Day 54 item 4.
+6. **THE WITNESS SWEEP'S OTHER MISSING AXIS.** Today added a year to the probe set. The same
+   argument applies to the axes it still has only one value of — nothing in the set is a
+   separate return with a qualifying child, which is why four of the five explained-as-
+   unreachable fields are explained by "needs a separate return". Those four are claims this
+   instrument has never been able to test.
+7. **Point the accounting instrument at the MCP server's README** — unchanged from Days 52 to
+   54. The eight dollar figures in the 0.51.0 gate table are unverifiable because the document
+   does not name the household any of them is about.
+8. **Give the gate's `requiredIn` the same treatment as `states`** — unchanged from Day 53.
+9. **DERIVE THE REMAINING LITERAL LISTS** — unchanged; `taxableSocialSecurity` first, at 22
+   states.
+10. **PUT 2024 IN THE GRID** — or decide in writing that it cannot be. Unchanged from Day 54
+    item 6, and today sharpens it: 2023 and 2025 are the kicker years, so a THIRD year would
+    put a second certified rate in the grid and test the shape rather than the figure.
+11. **A `federalBlind` count on the status battery's shapes** — unchanged from Days 52 to 54.
+12. **The site's three self-defined bases** — unchanged from Days 52 to 54. The site renders
+    only credits whose amount is non-zero, so today's `$0.00` kicker line does not reach it;
+    whether the site should ASK for the prior-year figure is a product question and the first
+    one this engine has handed it.
+13. **The `survivorPension` suggestion order** — unchanged from Days 51 to 54.
+14. **Survivor income for a SECOND deceased spouse** — unchanged from Days 51 to 54.
+15. **Ask whether each unresearched state's survivor treatment matches its own-income
+    treatment** — unchanged from Days 51 to 54.
+16. **Add military retired pay to the differential grid** — unchanged from Days 50 to 54.
+17. **Make the prose instrument report the accounting SOURCE on failure** — unchanged.
+18. **The `$166` question** — unchanged from Days 49 to 54.
+19. **A `provisionalFigures` shape for a PROVISION rather than a figure** — unchanged from
+    Days 49 to 54, and the kicker is now the worked example rather than the candidate: the
+    provision is permanent, the figure is certified biennially, and the way this package
+    expressed that today was to declare NO RULE for a year with no certified rate. Whether a
+    future odd year should instead carry a provisional rate with a `resolvedBy` is the open
+    half.
+20. **Model A.R.S. § 43-1022(23)** — unchanged from Days 48 to 54.
+21. **Bound Arizona's credits entry by the family income tax credit's INCOME limit** —
+    unchanged from Days 48 to 54.
+22. **Bound the ten entries that currently argue they cannot be bounded** — unchanged from
+    Days 47 to 54.
+23. **Record a conformity declaration for the other twenty states** — unchanged from Days 46
+    to 54.
+24. **Minnesota's alternative minimum tax, § 290.091** — unchanged from Days 45 to 54.
+25. **The staircase table** — unchanged from Days 45 to 54.
+26. **`survivingSpouseFilesAs` for every status** — unchanged from Days 44 to 54.
+27. **Fingerprint the mutable literals rather than the file bytes** — unchanged from Days 42
+    to 54, eleventh day running, and today it cost the full 150 minutes rather than nothing.
+28. **Make the mutation harness refuse to run while its target is changing** — unchanged.
+29. **Select test files per mutant** — unchanged.
+30. **Lower the mutation harness's `$100` money floor, or justify it** — unchanged from Days
+    40 to 54.
+31. **The twenty-seventh state.** Sixteen jurisdictions left and **Louisiana** is first on the
+    declared list. **Seventh day running that argues for not rushing to it**: a state already
+    in the package was missing a refundable credit in its own constitution, and fixing it took
+    a whole day and nine new tests.
+
+---
+
 ## Day 54 — 2026-10-18
 
 ### What I did

@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.47.0/us-state-tax-0.47.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.48.0/us-state-tax-0.48.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.51.0/us-tax-mcp-0.51.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.52.0/us-tax-mcp-0.52.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -120,12 +120,13 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1531 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1534 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
-The state figure was re-measured on **Day 52** over the build that ships today; the
-federal one on Day 46, over a package no day since has touched. **Day 53 touched neither
-engine's source**, so both scores are still measurements of exactly the code in this
-checkout — which `node tools/mutation/check-scores.mjs --check` verifies rather than
+The state figure was re-measured on **Day 55** over the build that ships today; the
+federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
+neither engine's source and Day 55 touched the state engine's**, which is why the state
+score was re-run rather than carried: both scores are measurements of exactly the code in
+this checkout — which `node tools/mutation/check-scores.mjs --check` verifies rather than
 asserts, by fingerprinting the files it would mutate. The state one has moved
 **three times** in its history:
 
@@ -143,7 +144,15 @@ Day 49, after deleting two    1,526 mutants    6 survivors   99.6%
 Day 50, (C)(1) + the split    1,526 mutants    6 survivors   99.6%
 Day 51, the survivor claim    1,526 mutants    6 survivors   99.6%
 Day 52, the s.63(f) add-back  1,531 mutants    6 survivors   99.6%
+Day 55, Oregon's kicker       1,534 mutants    6 survivors   99.6%
 ```
+
+**Day 55's count collides with Day 49's and means something different.** South Carolina's
+first run was 1,534 mutants with FOURTEEN survivors, eight of them in two dead `byStatus`
+tables that were deleted; Oregon's kicker brings the count back to 1,534 with six. The
+three new mutants are the `0.09863` rate and the two year literals its provenance entry
+needed, and all three died — the rate because `oregon.test.js` pins it against 9.86% and
+9.9%, both of which are in circulation for this credit.
 
 **Day 52 is the THIRD run running whose every figure was predicted exactly** — the count,
 the kill count, the survivor count, the score, the identity of all six survivors and all
@@ -597,7 +606,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.51.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.52.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -775,6 +784,23 @@ walking the rate schedule is not merely incomplete — it is the wrong computati
 $2,399 for a single filer at $300,000 and $65,071 at $6,000,000. The statute prints forty
 dollar amounts a year for that recapture; this package stores none of them and derives every
 one from the rate schedule.
+
+**Oregon returns 9.863% of the prior year's tax by constitutional mandate, and v0.48.0 is
+where the engine's first rule with a parameter RATE and an INPUT base arrives.** Or. Const.
+Art. IX § 14(4) returns a certified biennial General Fund surplus — the "kicker" — as a
+**refundable** credit on the following ODD year's return, at `9.863%` of the filer's own
+**prior-year** Oregon tax before credits for tax year 2025. That base is line 24 of the 2024
+Form OR-40 less any credit for tax paid to another state, so nothing on the 2025 return
+contains it or implies it: `oregonPriorYearTaxBeforeCredits` is the first input in either
+engine whose value comes off a *different return*. **An omitted base means no kicker rather
+than an estimated one**, because the credit requires a 2024 return that showed a liability
+and a filer who had none is owed nothing. `policyengine-us` substitutes the CURRENT year's
+liability instead — its own variable calls that "a proxy for the prior-year liability" —
+which is right across a population and wrong on every household in it, and the differential
+grid measures the gap exactly: of the 44 Oregon 2025 households in it, 43 differ by a dollar
+or more and 41 of those 43 are explained to within a cent by `0.09863 ×` this package's own
+Oregon tax before credits. There is no 2026 kicker, so the rule is **absent** for 2026
+rather than a rate of zero.
 
 New York's Empire State child credit is the largest credit on a family return there —
 `$1,000` per child under 4, `$330` (2025) or `$500` (2026) per child aged 4 to 16,
@@ -1050,7 +1076,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.51.0/us-tax-mcp-0.51.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.52.0/us-tax-mcp-0.52.0.tgz"
       ]
     }
   }

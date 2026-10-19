@@ -302,6 +302,47 @@ const DEPENDENT_AGE_STATES: readonly string[] = declaredBy(
 );
 
 /**
+ * The states with a surplus credit on a prior-year liability, DERIVED — one.
+ *
+ * Derived rather than written `['OR']` for the reason this whole module is
+ * derived, and for one more: this is the only field whose availability has a
+ * YEAR as well as a state. Oregon's kicker lands on odd tax years, so
+ * `surplusCredit` is declared for 2025 and ABSENT for 2026, and `matching`
+ * takes a state that declares the path in ANY supported year. That is the right
+ * answer for a gate — refusing an Oregon caller the field because the server
+ * also knows an even year would be worse than accepting it in one — but it
+ * means the gate cannot say "not this year". The engine does: it reports the
+ * field as IGNORED on a 2026 Oregon return and names the biennium. **A gate
+ * with one dimension cannot refuse on two, and the honest move is to let the
+ * narrower instrument answer rather than to widen this one until it lies.**
+ */
+const SURPLUS_CREDIT_STATES: readonly string[] = declaredBy('surplusCredit.rate');
+
+/**
+ * The input field that feeds that credit, READ OFF THE DEFINITIONS rather than
+ * written here.
+ *
+ * `SurplusCreditRule.basisField` names the input in the engine, so this module
+ * has no business holding a second copy of the name: a gate that advertises
+ * `oregonPriorYearTaxBeforeCredits` while the engine reads something else is
+ * Day 53's Pennsylvania defect with the spelling changed. `test/state-fields.test.js`
+ * requires exactly one distinct value here.
+ */
+const SURPLUS_CREDIT_FIELD: string = (() => {
+  const names = new Set<string>();
+  for (const code of SUPPORTED_STATES) {
+    if (!SURPLUS_CREDIT_STATES.includes(code)) continue;
+    for (const year of SUPPORTED_YEARS) {
+      const field = getStateDefinition(code, year)?.surplusCredit?.basisField;
+      if (field !== undefined) names.add(field);
+    }
+  }
+  /* c8 ignore next -- one state declares one field; the throw is the guard that says so. */
+  if (names.size !== 1) throw new Error(`expected one surplus-credit basis field, got ${names.size}`);
+  return [...names][0]!;
+})();
+
+/**
  * The states with a state itemized deduction of their own, DERIVED.
  *
  * It was a seven-state literal and it was missing **ARIZONA, which is the
@@ -751,6 +792,12 @@ export const STATE_FIELDS: readonly StateField[] = [
     schema: number,
     states: ['PA'],
     doc: 'PA only, and only on a marriedFilingSeparately return: the SPOUSE\'s own eligibility income. Pennsylvania has no separate-return forgiveness table — Schedule SP\'s three claimant boxes are unmarried, separated and married, and a married claimant who files separately is a MARRIED claimant, with a $13,000 allowance rather than $6,500 and the JOINT eligibility income of both spouses. The allowance and the income move together, so this server will not take one without the other: pass this — 0 is a real answer, and it is the answer for a spouse with no income — or the return keeps the smaller allowance, which is too much tax, and the result says what that costs.',
+  },
+  {
+    name: SURPLUS_CREDIT_FIELD,
+    schema: number,
+    states: SURPLUS_CREDIT_STATES,
+    doc: 'OR only, and only on an ODD tax year: the filer\'s OWN Oregon income tax before credits for the PRIOR year, which is the base of Oregon\'s surplus "kicker". Line 24 of the 2024 Form OR-40 for a 2025 return, LESS any credit claimed there for income tax paid to another state \u2014 the Department of Revenue defines the base as Oregon tax "before any credits, withholding, or payments, other than a credit for income taxes paid to another state on mutually taxed income", so that one credit comes off and no other does, and nothing on the 2025 return can do the subtraction for you. The credit is 9.863% of it for 2025 and REFUNDABLE, so it is paid where the 2025 tax is zero: worth $3,993.89 to one household in this package\'s differential grid and about $562 to a single filer on $80,000 of wages. OMITTING IT MEANS NO KICKER RATHER THAN AN ESTIMATED ONE, which is a real answer: the credit requires a 2024 Oregon return that SHOWED A LIABILITY, so a non-filer, a first-year resident or a household with no 2024 tax is owed nothing, and that case is indistinguishable from a caller who did not pass the figure. There is no 2026 kicker at all \u2014 the credit lands on odd years, because the biennium Or. Const. Art. IX \u00a7 14(4) measures ends on 30 June of an odd year \u2014 and a 2026 return reports the field as ignored rather than multiplying it by zero in silence. A couple whose filing status changed between the two years has a base this server cannot assemble; it is whatever the 2024 return showed.',
   },
   {
     name: 'separatedFromSpouse',

@@ -1132,6 +1132,82 @@ export interface AgedCreditRule {
 }
 
 /**
+ * A refundable credit that returns a certified share of the filer's **own
+ * prior-year** liability — Oregon's surplus "kicker", Or. Const. Art. IX § 14(4).
+ *
+ * ## Why this is the first rule in this package whose base is not on the return
+ *
+ * Every other credit here reads a figure the return in front of it contains, or
+ * one the federal return beside it contains. This one reads **line 24 of a
+ * return filed eighteen months earlier**: Oregon returns a biennial General Fund
+ * surplus by crediting each taxpayer a percentage of the tax they themselves
+ * owed in the prior year, before credits. There is no way to derive it and no
+ * way to approximate it that is not a different household's answer, so the rule
+ * names an input and the engine refuses to invent one.
+ *
+ * That refusal is the rule's whole design, and it is worth stating what the
+ * alternative looks like. PolicyEngine-US models the same credit as
+ * `kicker.percent × or_tax_before_credits_in_prior_year`, and its
+ * `or_tax_before_credits_in_prior_year` **defaults to the CURRENT year's Oregon
+ * tax before credits** — documented in the variable itself as "a proxy for the
+ * prior-year liability", because a microsimulation input covers one year and
+ * reading the year before would return zero. That is a defensible choice for a
+ * population model, where the proxy is right on average. It is the wrong choice
+ * for a return: a filer who earned nothing in 2024 and $400,000 in 2025 is
+ * credited `$3,705.71` they are not owed, and a filer who retired in 2025 is
+ * credited almost nothing where the real figure is large. **An average that is
+ * right across a population is wrong on every household in it.**
+ *
+ * The two models' answers for the same Oregon 2025 household therefore differ by
+ * exactly that proxy — verified on the differential grid, where 37 of 44 Oregon
+ * 2025 households are explained to within a cent by `0.09863 ×` this package's
+ * own Oregon tax before credits.
+ *
+ * ## Three facts that are not the rate
+ *
+ * 1. **An omitted base means NO CREDIT, not "assume this year".** The credit
+ *    requires a 2024 Oregon return *with a liability*: a filer who had none
+ *    gets no kicker, and that is indistinguishable from a caller who did not
+ *    pass the figure. The engine takes the direction that cannot pay a credit
+ *    nobody is owed, and says in {@link StateIncomeTaxResult.notes} what it did.
+ * 2. **The base is before credits, less one credit.** The Department of Revenue
+ *    defines it as Oregon income tax "before any credits, withholding, or
+ *    payments, other than a credit for income taxes paid to another state on
+ *    mutually taxed income" — so the other-state credit comes off and nothing
+ *    else does. A caller holding the 2024 return has to do that one subtraction;
+ *    nothing on the 2025 return can do it for them.
+ * 3. **The rate is certified, not legislated, and only in odd years.** The
+ *    provision is permanent and the figure is set biennially by the Office of
+ *    Economic Analysis once the surplus is known, so a year with no certified
+ *    rate declares no rule at all rather than a rate of zero. 2026 declares
+ *    none.
+ */
+export interface SurplusCreditRule {
+  readonly name: string;
+  /**
+   * The certified share of the prior year's liability returned — `0.09863` for
+   * Oregon's tax year 2025.
+   *
+   * Not a parameter with a default. A year whose surplus has not been certified
+   * has no kicker to model, and the rule is absent.
+   */
+  readonly rate: number;
+  /**
+   * The input field carrying the prior year's liability before credits.
+   *
+   * Named here rather than in the engine so that the definition is the single
+   * place that says which input feeds this credit — which is what lets
+   * `us-tax-mcp`'s per-state field gate DERIVE both the field's name and the
+   * states that read it instead of carrying a second copy of either. Day 53's
+   * eight too-narrow gate lists are what that is worth.
+   */
+  readonly basisField: 'oregonPriorYearTaxBeforeCredits';
+  /** Refundable: Oregon pays it to a filer whose current-year tax is zero. */
+  readonly refundable: boolean;
+  readonly cite: string;
+}
+
+/**
  * A flat credit for having elected to itemize federally — Georgia's eligible
  * itemizer credit, O.C.G.A. § 48-7-27.1.
  *
@@ -4255,6 +4331,12 @@ export interface StateIncomeTaxDefinition {
    * {@link StateIncomeTaxInput.spouseAge}, and bands on federal AGI.
    */
   readonly agedCredit?: AgedCreditRule;
+  /**
+   * Oregon's surplus "kicker". Reads
+   * {@link StateIncomeTaxInput.oregonPriorYearTaxBeforeCredits} and nothing
+   * else on the return — see {@link SurplusCreditRule}.
+   */
+  readonly surplusCredit?: SurplusCreditRule;
   readonly recapture?: RecaptureRule;
   /**
    * Connecticut's three-tier tax recapture. A different mechanism from

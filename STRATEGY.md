@@ -88,7 +88,7 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1531 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.6%** (1534 mutants, 6 survivors), **the state
 one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
 SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47
