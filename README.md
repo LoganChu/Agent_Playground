@@ -170,7 +170,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1534 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1543 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 55** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
@@ -195,7 +195,41 @@ Day 50, (C)(1) + the split    1,526 mutants    6 survivors   99.6%
 Day 51, the survivor claim    1,526 mutants    6 survivors   99.6%
 Day 52, the s.63(f) add-back  1,531 mutants    6 survivors   99.6%
 Day 55, Oregon's kicker       1,534 mutants    6 survivors   99.6%
+Day 56, the masker fixed      1,543 mutants    6 survivors   99.6%
 ```
+
+**Day 56's `+9` is the only row here that is not about the tax code at all, and it does not
+decompose the way it looks.** Today's engine change added NO numeric literal. The arithmetic
+is `1,534 − 1 + 10`:
+
+```text
+Day 55's code, old masker   1,534
+Day 56's code, old masker   1,533    one literal flipped from code to MASKED
+Day 56's code, new masker   1,543    ten literals recovered from ${...} interpolations
+```
+
+That middle line is the finding. `maskNonCode` blanks comments and strings before
+enumerating — so a dollar figure in a statute citation is not mistaken for a parameter — and
+it had no notion of a template literal's `${...}` interpolation: it saw a backtick, scanned
+to the next unescaped one, and blanked everything between, interpolated code included. Which
+backtick that scan lands on depends on every quote, comment and escaped backtick EARLIER IN
+THE FILE, so **an edit in one function silently stopped `Math.round(rule.perFilerCap /
+0.0765)` being mutated in another, six hundred lines away.**
+
+> **A MASK WITH A STATE MACHINE IS A GLOBAL PROPERTY OF THE FILE, SO A LOCAL EDIT CAN DELETE
+> A CHECK SOMEWHERE ELSE** — and it fails in the flattering direction, because a mutant that
+> stops existing cannot survive. The score rises while the coverage falls.
+
+It was caught by predicting the count and missing by one. **Six of the ten recovered literals
+survived**, every one a percentage printed mid-sentence in a note —
+`notes.test.js` pins each note's first 72 characters, and these sit past 72 in notes that
+fire only when a caller OMITS a field, which its one standard household always supplies.
+`packages/us-state-tax/test/dynamic-note-figures.test.js` closes all six, which is why the
+score is the same `99.6%` as yesterday over nine more mutants. **A score that holds still
+because the instrument got sharper is the only kind of still worth having.**
+
+`us-federal-tax` was not re-measured and did not need to be: the template-aware masker finds
+exactly 716 there, because that package has no numeric literal inside an interpolation.
 
 **Day 55's count collides with Day 49's and means something different.** South Carolina's
 first run was 1,534 mutants with FOURTEEN survivors, eight of them in two dead `byStatus`

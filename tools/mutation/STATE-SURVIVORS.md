@@ -1,3 +1,127 @@
+# Day 56 — the prediction was wrong by ONE, and the one was a masked line of code
+
+**PREDICTED, in writing before the run: 1,543 mutants, 1,537 killed, 6 survivors, 99.6%, the
+same six and the same line numbers as Days 50 to 55.**
+
+**MEASURED: 1,543 mutants, 1,537 killed, 6 survivors, 99.6%, the same six and the same line
+numbers.** Every figure.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**But that was the THIRD prediction of the day, and the FIRST one is what this entry is
+about.** Day 55's lapse was recorded in this file as *"a measurement whose result you did not
+commit to in advance is a fact and not a check."* So today's was written first:
+
+> **PREDICTED: 1,534 mutants, unchanged.** `mutate.mjs` mutates numeric literals only — money
+> ≥ 100, years 1900–2100, rates strictly between 0 and 1 — and the day's engine change
+> introduces no numeric literal at all. The only digits it adds are `§ 14(4)` and `Day 53`
+> inside a note string and a doc comment, both below 100 and neither a year.
+>
+> **MEASURED: 1,533.**
+
+One mutant short, and nothing in the day's diff could account for it. The missing mutant was
+`0.0765` — the FICA rate, in `Math.round(rule.perFilerCap / 0.0765)`, **six hundred lines
+from anything the day touched.**
+
+It is real, executable code, inside a `${...}` interpolation in a note. `maskNonCode` blanks
+comments and strings before enumerating — the fix for the harness's very first lie, which
+scored `credits.js` at 0% because `§ 164(f)` and `$8,812` live in JSDoc — and it had **no
+notion of an interpolation**: it saw a backtick, scanned forward to the next unescaped
+backtick, and blanked everything between.
+
+Which backtick that scan lands on depends on every quote, every comment and every escaped
+backtick EARLIER IN THE FILE. The day's new function contains backticks and `` \` `` escapes,
+so it shifted the scanner's parse downstream and a literal in a different function stopped
+being mutated.
+
+> **THE RULE: A MASK WITH A STATE MACHINE IS A GLOBAL PROPERTY OF THE FILE, SO A LOCAL EDIT
+> CAN DELETE A CHECK SOMEWHERE ELSE.** And it fails in the direction that LOOKS fine: a mutant
+> that stops existing cannot survive, so the score goes up while the coverage goes down.
+
+The old comment on that function called over-masking *"the safe direction"* and stopped
+there. It is the safe direction and it is not harmless. **Fewer mutants is fewer checks,
+reported as a better number.**
+
+## The arithmetic of the `+9`, which does not decompose the way it looks
+
+```text
+Day 55's code, old masker   1,534
+Day 56's code, old masker   1,533    one literal flipped from code to MASKED
+Day 56's code, new masker   1,543    ten literals recovered from ${...} interpolations
+```
+
+Ten recovered in `us-state-tax`'s `engine.js` and **zero** in `us-federal-tax`, which has no
+numeric literal inside an interpolation anywhere — so the federal record's 716 was never
+stale and that package was not re-measured.
+
+## The second prediction, and the mechanism was right where the number was not
+
+> **PREDICTED: 1,543 mutants, 11 survivors (the known 6 plus 5 of the 10), 99.3%.** All ten
+> are in NOTE TEXT — eight `× 100` percentage conversions plus `0.0765` and `0.025` — so none
+> can change a tax and each changes a figure PRINTED in prose. `notes.test.js` pins the first
+> 72 characters of every note, so a recovered literal dies if its figure falls inside that
+> prefix and survives otherwise. About half.
+>
+> **MEASURED on a targeted `--only engine.js` run: 6 of the 10 survived.**
+
+Off by one, and the cause is sharper than the prediction had it. Every one of the six is a
+percentage printed **mid-sentence in a DYNAMIC note**:
+
+```text
+engine.ts  Maryland's poverty level credit     "is 5% of EARNED income"
+engine.ts  Oregon's surplus kicker             "it is 9.863% of the filer's OWN"
+engine.ts  a state earned income credit        "worth 50% of the federal one"
+engine.ts  the marginalRate caveat             "by 50% of the federal phase-out rate"
+engine.ts  Ohio with no city and no wages      "at 0.45% to 3.00%"   (two mutants)
+```
+
+I had predicted the first of those would DIE, because its percentage sits at about character
+50 and the prefix pin should have reached it. It did not, and that is the finding:
+
+> **A PIN OVER THE PREFIX OF A NOTE CHECKS WHICH NOTES EXIST AND NOT WHAT THEY SAY — AND A
+> FIXTURE OVER ONE HOUSEHOLD CANNOT REACH A NOTE WHOSE WHOLE TRIGGER IS AN ABSENCE.** A
+> dynamic note fires when the caller OMITS a field. `notes.test.js` runs a standard household
+> that supplies a consistent set, so it never sees these notes at any character offset.
+
+Doubling any of those six `100`s makes this package print a percentage twice the rate it
+actually used, in the prose `STRATEGY.md` has named as the differentiator since Day 8, and all
+893 tests stayed green.
+
+`test/dynamic-note-figures.test.js` closes all six in five tests, asserting the rendered
+percentage string and NOT re-deriving the rate — the rate is pinned where it lives, and what
+was unchecked anywhere is the step BETWEEN the stored rate and the sentence: the conversion,
+the decimal places, and whether the sentence is about that rate at all. The Ohio one needed a
+household the suite had never built: that note has a with-wages branch and a without-wages
+branch, every Ohio test gave the filer wages, and a pension-only retiree is the only household
+that reaches the second. Verified by re-running the subset — `engine.js` went from 8 of 14
+killed to **14 of 14**.
+
+**So the score is the same 99.6% as yesterday over nine more mutants, which is the only honest
+way for a score to stay still.**
+
+## And four audit starts, three abandoned, every abandonment right
+
+1. Stopped two minutes in, on realising `suiteFingerprint` covers `test/**` as well — so a
+   TEST edit after the audit starts invalidates the record exactly as a reworded comment does,
+   and the day went on to add a whole test file.
+2. Stopped because the new function had landed BETWEEN `relevantNotes`'s doc comment and
+   `relevantNotes`, so that comment documented the wrong function. Found by reading the diff,
+   since nothing here can fail on a misattached JSDoc — and fixing it moved `dist` again.
+3. Stopped because the masker finding changed the enumeration itself.
+4. Recorded.
+
+> **DAY 42'S RULE IS WIDER THAN DAY 42 STATED IT:** make every documentation **and test** edit
+> before the recorded audit. There are TWO fingerprints and the second one is over the suite.
+
+---
+
 # Day 55 — the same six survivors, three new mutants all dead, and NO PREDICTION WRITTEN
 
 **MEASURED: 1,534 mutants, 1,528 killed, 6 survivors, 99.6%, the same six and the same line

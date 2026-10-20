@@ -23,6 +23,13 @@ package PRINTS mid-sentence in a dynamic note, and all 893 tests were green over
 unchanged. **1,503 tests** (400 + 898 + 182 + 23), all green, zero dependencies — up 7 from
 Day 55's 1,496. **26 taxing states, 35 in all**, unchanged.
 
+**The recorded audit came back EXACTLY as predicted: 1,543 mutants, 1,537 killed, 6
+survivors, 99.6%, the same six at the same line numbers.** The score is the same as
+yesterday's over NINE MORE MUTANTS, six of which did not exist this morning and would have
+survived — which is the only honest way for a score to stay still. The arithmetic of the `+9`
+is `1,534 − 1 + 10`: minus the one literal my own edit flipped into the mask, plus the ten
+the fix recovered. **All seven CI jobs green on the second push.**
+
 CI read at the START of the run, the standing item since Day 37: **green on the last push**
 (run 220, `7514b90`), all seven jobs, read job by job rather than by conclusion.
 
@@ -337,34 +344,60 @@ Verified by re-running the subset: `engine.js` went from 8 of 14 killed to **14 
 
 ### Part 4 — the recorded audit, and CI
 
-**THIS SECTION IS WRITTEN WITH THE AUDIT STILL RUNNING, and the prediction is above in
-Part 3 rather than here, so that it cannot be edited to fit.** It is restated once:
+**PREDICTED, before the run, in Part 3 above: 1,543 mutants, 1,537 killed, 6 survivors,
+99.6%, the same six survivors at the same line numbers.**
 
-> **1,543 mutants, 1,537 killed, 6 survivors, 99.6%** — the same six survivors at the same
-> line numbers as Days 50 to 55, in `states/flat-states.js` (435, 565),
-> `states/new-jersey.js` (104, 229) and `states/ohio.js` (88, 107). None of today's edits
-> touch those three files, so no line number in them shifts.
+**MEASURED: 1,543 mutants, 1,537 killed, 6 survivors, 99.6% — the same six at the same line
+numbers.** Every figure.
 
-`us-federal-tax` is NOT re-run and does not need to be: the template-aware masker finds
-exactly **716** there, the same as before, because that package has no numeric literal inside
-an interpolation. Its `dist` and its `test` directory are both untouched today, so both of
-its fingerprints still match and `check-scores --check` reads it as current.
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
 
-**This work was pushed in two commits on purpose.** The audit takes about two hours on four
-cores — longer today, because the PolicyEngine reference pass had two of them for the first
-twenty minutes of it — and nothing in this sandbox survives a run except what reaches
-`main`. Holding the whole day hostage to a measurement that cannot finish for another hour
-is a worse bet than pushing the work and recording the score behind it, so the first push
-carries everything and leaves `mutation-claims` RED on a stale record, which is a condition
-this project has shipped deliberately before (Day 54 held it red for three hours). The
-second commit carries `tools/mutation/scores.json` and turns it green.
+The recorded fingerprints are `4a90d94d404074a7` and `7af4a532bccba101`, **which are byte for
+byte what CI computed from the pushed source** — checked against the `mutation-claims` log of
+the first push rather than assumed, because `tools/test-counts.mjs` runs `npm test` in all
+four packages and that does `rm -rf dist && tsc` while the audit is reading `dist`. The
+fingerprints matching is the evidence that `tsc` is deterministic here and that the rebuild
+mid-run was harmless.
 
-**If there is no second commit, tomorrow's run should read that as the container having gone
-away mid-audit, not as a measurement that disagreed with the prediction.** The record in
-`scores.json` would then still say 1,534/6 against a build that enumerates 1,543, and
-`check-scores --check` would say so in both fingerprints — which is exactly what that guard
-is for. Re-run `node tools/mutation/mutate.mjs packages/us-state-tax --record
-tools/mutation/scores.json` and compare against the prediction above.
+`us-federal-tax` was NOT re-run and did not need to be: the template-aware masker finds
+exactly **716** there, because that package has no numeric literal inside an interpolation.
+Its `dist` and its `test` directory were untouched all day, so both of its fingerprints still
+match and `check-scores --check` reads it as current.
+
+**And the score holding still is the headline, not a let-off.** 99.6% over 1,543 mutants where
+yesterday was 99.6% over 1,534 — nine more checks, six of which did not exist this morning and
+would have survived. A score that stays still because the instrument got sharper is the only
+kind of still worth having, and the alternative today was 99.2% with six recorded survivors in
+the prose this package sells.
+
+The documents charged for it, which is what they are for: `check-scores --check` refused the
+README's `1534` and then refused `STRATEGY.md` for not containing the literal string
+`(1543 mutants, 6 survivors)`. Both fixed, plus a Day 56 row in the README's mutation history
+and the arithmetic of the `+9`, which does not decompose the way it looks —
+`1,534 − 1 + 10`, where the `−1` is the masked literal and the `+10` is the fix.
+
+**CI, read job by job rather than by conclusion.** The day was pushed in two commits on
+purpose: the audit needed another ninety minutes and nothing in this sandbox survives a run
+except what reaches `main`, so holding the whole day hostage to a measurement that could not
+finish was the worse bet.
+
+- **First push (`e9f3ba5`), run 221: six of seven green.** `mutation-claims` RED, and its log
+  read to confirm the red was only what I expected — *"the score was measured over parameters
+  fingerprinted bb7872ac355ed6f7 and this build is 4a90d94d404074a7"* and the same for the
+  suite. Two stale claims, nothing else, and no complaint about the federal package. Day 45's
+  rule is that an expected red can hide an unexpected one, and the only way to know is to
+  read the log rather than the conclusion.
+- `differential` green on the regenerated artefacts, `counts` green at 1,503 tests, and
+  `cross-package` green **including the lockfile check that would have failed** had I not run
+  CI's own checks locally before committing.
+- **Second push: the record, and all seven green.**
 
 ### Process notes
 
