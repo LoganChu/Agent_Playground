@@ -172,6 +172,25 @@ anything to do with Art. IX § 14.
 > would think to look for. The narrative moved to `tools/differential/README.md`, where
 > nothing matches on it.
 
+**And the report had already been saying so, in a section built for exactly this.** Both
+Oregon survivors were sitting in *"Claimed by more than one reason"* — differences matching
+two or more entries, where the first in FILE ORDER takes the credit. The kicker entry came
+first, so it was credited with `$454.58` and `$402.22` of differences whose mechanisms are
+the § 151(b) spouse and the § 32(d) earned income credit. That section's own prose names the
+tell: *"an entry whose reason names a figure smaller than the difference it is credited
+with"*, with Ohio as the specimen and *"a `$316.09` earned income credit difference whose own
+entry says 'six states' and names six. Ohio is the seventh."*
+
+**Oregon is that same sentence, one count later.** Six → seven → eight → nine, and each time
+the mechanism was identical: a hand-written list in a reason, an entry with no `state` claiming
+a state the prose does not name, and a bigger entry in front of it taking the credit. The
+section went from 78 rows to 76 and both Oregon 2025 rows are gone — credited now to the
+entries that actually explain them.
+
+> **A REPORT THAT NAMES ITS OWN FAILURE MODE IS STILL NOT A CHECK.** This one has described
+> the mis-crediting pattern since Day 24, with a worked example, and it caught nothing: I
+> found Oregon by dividing `$78.15` by `$868.33` and recognising `0.09`.
+
 ### Part 2 — THE SECOND FINDING: a promise in a doc comment, false in nine states
 
 Day 55's worklist item 3 said a `relevantNotes` path was missing for the no-income-tax
