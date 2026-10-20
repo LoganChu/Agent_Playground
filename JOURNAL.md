@@ -4,6 +4,486 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 56 — 2026-10-20
+
+### What I did
+
+**Three findings, and the third one found ME. Day 55's own worst lapse was starting a
+1,534-mutant audit without writing a prediction first, so today's prediction was written
+first — 1,534 mutants, unchanged, because the day's change adds no numeric literal and the
+harness only mutates numbers. THE RUN SAID 1,533. The missing mutant was `0.0765`, six
+hundred lines from anything I touched, and chasing it found that `maskNonCode` had no notion
+of a `${...}` interpolation and had been blanking REAL CODE inside template literals — with
+WHICH code it blanked depending on every quote and backtick earlier in the file, so a local
+edit silently deleted a check somewhere else. Fixing it recovered ten literals in the state
+engine and zero in the federal one. SIX OF THE TEN SURVIVED, every one a percentage this
+package PRINTS mid-sentence in a dynamic note, and all 893 tests were green over all six.**
+
+`us-state-tax` is **v0.49.0** and `us-tax-mcp` **v0.53.0**; `us-federal-tax` is v0.15.0,
+unchanged. **1,503 tests** (400 + 898 + 182 + 23), all green, zero dependencies — up 7 from
+Day 55's 1,496. **26 taxing states, 35 in all**, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 220, `7514b90`), all seven jobs, read job by job rather than by conclusion.
+
+The other two findings:
+
+- **Day 55's worklist item 1, finished.** Oregon's kicker base is now a SHARED FACT in the
+  differential grid, supplied to both models, so the two engines compute
+  Or. Const. Art. IX § 14(4) from one number instead of disagreeing about where the number
+  comes from. That cost a full reference pass over 2,288 households.
+- **Day 55's worklist item 3, finished, and it is nine states rather than the eight the
+  worklist guessed.** `oregonPriorYearTaxBeforeCredits` sent to Texas was accepted and never
+  mentioned, because the sentence that reports an ignored field lives past the
+  `rate.kind === 'none'` early return — so the nine states where NOTHING is read were the
+  nine that could not say so. **And the behaviour was already documented**, in a doc comment
+  that promised exactly this and was false in nine states on the day it was written.
+
+> **THE THREE RULES OF THE DAY, in the order they were learned:**
+>
+> **AN EXPLAINED DIVERGENCE IS A RECORD AND ALSO A BLINDFOLD** — the cure is not a better
+> reason, it is to stop the two models answering different questions.
+>
+> **A PROMISE IN A DOC COMMENT IS AS CHECKABLE AS A PROMISE IN A SCHEMA**, and a TEST THAT
+> PINS ONE MEMBER OF A CLASS CANNOT SEE A HOLE THAT SWALLOWS THE CLASS.
+>
+> **A MASK WITH A STATE MACHINE IS A GLOBAL PROPERTY OF THE FILE, SO A LOCAL EDIT CAN DELETE
+> A CHECK SOMEWHERE ELSE** — and it fails in the flattering direction, because a mutant that
+> stops existing cannot survive. The score goes up while the coverage goes down.
+
+### Part 1 — Day 55's worklist item 1, finished: the kicker's base is a SHARED FACT, and
+### what it was hiding
+
+Or. Const. Art. IX § 14(4) pays a certified share of the filer's own PRIOR-YEAR Oregon tax
+before credits as a refundable credit on the following odd year's return. This package takes
+that base as an input. `policyengine-us` computes it from
+`or_tax_before_credits_in_prior_year`, whose formula returns THIS year's figure and whose own
+documentation calls that *"a proxy for the prior-year liability"*. So the two models were
+answering different questions about 43 of the grid's 44 Oregon 2025 households, and the
+difference — up to `$3,993.89` — was recorded as theirs, with the best-evidenced entry in
+`known-divergences.json` in front of it.
+
+**It is an ordinary PolicyEngine input, so the proxy can be overridden.** `cases.mjs` now
+carries `oregonPriorYearTaxBeforeCredits`, `ours.mjs` passes it and `theirs.py` sets the
+PolicyEngine variable to the same number, so both models compute the credit from ONE base.
+
+**THE AMOUNTS GO THE WRONG WAY ON PURPOSE, and that is the only interesting design decision
+in it.** The figure PolicyEngine substitutes when nobody supplies one is this year's own
+liability — so a basis that rose with income would be approximately the proxy, and the grid
+would be measuring the proxy's BEST case while reporting agreement. The ladder is therefore
+ANTI-correlated: `$4,000` at or above `$100,000` of income and `$24,000` below it.
+
+> **A SHARED FACT CHOSEN TO RESEMBLE THE OTHER MODEL'S GUESS TESTS NOTHING. It has to be
+> chosen where the guess is worst.**
+
+It is also the truthful shape rather than a contrivance: a filer's 2024 liability is a fact
+about 2024 and need not resemble 2025 in the slightest. Somebody who earned `$400,000` in
+2024 and `$15,000` in 2025 is a retirement, a redundancy, or a business that had one good
+year.
+
+Four properties were wanted and the ladder has all four — non-zero, not equal to the
+household's own figure, not one constant, and **bigger than the household's own tax on some
+households, because the kicker is REFUNDABLE and a credit exceeding the tax is the only case
+that separates refundable from capped.** That last one paid better than predicted: **18 of
+the 44 Oregon 2025 households now have a NEGATIVE state tax**, and both models agree to the
+cent on every one of them. The `$15,000` single worker goes from `$470.18` of Oregon tax to
+`-$1,896.94`, in both engines independently.
+
+And it is supplied in **2026** as well, where it must buy nothing: this package declares no
+rule for 2026 and PolicyEngine carries `kicker.percent` of `0`. Passing it anyway turns that
+agreement into something the grid can SEE — a kicker leaking into an even year becomes a
+divergence rather than a silence — which is Day 54's rule about an argument from an absence
+being only as good as the instrument's ability to have seen the thing.
+
+**The diff is the cleanest possible shape for a grid change: `out/cases.json` gained exactly
+one line per case and lost none.** Every household and every id is preserved, so every
+`idIncludes` selector in `known-divergences.json` still matches precisely what it matched
+when it was written. The field is Oregon-only, following `county`'s precedent, and it is
+deliberately NOT in the id — the id is the household and this is a fact about a return from a
+year the household is not in.
+
+**The measurement, against a prediction written before the reference pass started:**
+
+| claim | predicted | measured |
+| --- | --- | --- |
+| non-Oregon answers move | none | **none** — all 2,200 byte-identical, on both sides |
+| Oregon 2026 answers move | none | **none** — all 44 byte-identical |
+| Oregon 2025 `state.tax` differences | 43 → 2 | **43 → 2**, exactly the two shapes named |
+| Oregon 2026 `state.tax` differences | 42, unchanged | **42** |
+| figures agreeing to the dollar | +41 | **14,946 → 14,987** |
+
+Four of the five exact. The fifth — *"the two survivors should land NEAR their 2026
+counterparts rather than at the `$78.15` / `$78.87` residuals"* — **was wrong, and the way it
+was wrong is the best thing in the day.** They landed at `$78.15` and `$87.50`, which is
+essentially the residuals.
+
+`$78.15` is identical to Day 55's figure. `$87.50` differs from Day 55's `$78.87` by exactly
+`0.09863 × $87.50 = $8.63`.
+
+That is not a coincidence and not an error in either engine. Day 55 priced each residual by
+subtracting `0.09863 × OUR tax before credits` from the observed difference — but their proxy
+is **their own** tax before credits, and on this household the two differ by the whole
+`$87.50`. So an estimate built on our figure understates the gap by the rate times the gap:
+`$87.50 − $8.63 = $78.87`, to the cent. The other household's figure did not move because its
+disagreement is entirely in CREDITS, where tax before credits is identical.
+
+> **THE RULE: AN ESTIMATE THAT SUBTRACTS A MODELLED QUANTITY USING YOUR OWN INPUTS IS WRONG
+> BY THE RATE TIMES THE DISAGREEMENT, EXACTLY WHERE THE TWO MODELS DISAGREE** — which is the
+> only place anybody is looking. Day 55's own rule was that a figure reconstructed from a
+> result is not the figure. This is the same rule one level in, for a figure reconstructed
+> from the OTHER model's result.
+
+### And what the blindfold was hiding: a count that had been wrong for days
+
+`separate-with-child`'s `$78.15` **is not an Oregon reading at all.** ORS 315.266 matches the
+federal earned income credit at 9%, the federal § 32(d) difference on that household is
+`$868.33`, and `868.33 × 0.09 = 78.15` — exact.
+
+So I went to the § 32(d) flow-through entry, which says **EIGHT** states in this grid match
+the federal credit as a flat percentage and names eight of them. Oregon is not among them.
+**And that entry carries no `state` and no `year`, so it has been claiming Oregon's difference
+in BOTH years since the day Oregon joined the grid.** It is nine, and Oregon is the only one
+of the nine whose match rate CHANGES between the grid's two years — SB 1507 (2026) raises 9%
+to 14%, which is why 2026's `$140.80` is `$147.51` of flow-through with about `$6.71` of the
+published-against-uprated parameter difference netting the other way.
+
+That entry's own prose records this happening twice before: *"it read 'six' until Day 32 and
+'seven' until Day 49, and each time the next one was invisible for its own reason."* It
+predicted its own next failure and was right.
+
+> **A COUNT IN A REASON IS A CLAIM, AND NOTHING WAS CHECKING THIS ONE.** `us-tax-mcp` derives
+> its state lists from the definitions precisely so a hand-written list cannot drift. The
+> lists in `known-divergences.json` are still hand-written, and this is the bill.
+
+### The entry is DELETED rather than kept, and that is the sharpest call of the day
+
+The convention in this file is to keep a closed entry so it appears under *"Reasons that
+matched nothing"* — because a reason nobody can see go stale is how a report starts lying.
+I did not keep this one, and the reason is its bound.
+
+Its bound is a SHARE OF INCOME (`0.9764%`, derived from `0.09863 × 0.099`). Both survivors
+are well inside it: `$87.50` on `$55,000` is `0.159%` and `$78.15` on `$45,000` is `0.174%`.
+So a "closed" entry would have gone on matching both — absorbing two differences whose
+mechanisms are the § 151(b) spouse and the § 32(d) earned income credit, neither of which has
+anything to do with Art. IX § 14.
+
+> **AN ENTRY WHOSE MECHANISM IS CLOSED BUT WHOSE BOUND STILL MATCHES IS NOT A RECORD, IT IS A
+> CATCH-ALL** — Day 24's defect with a FIXED mechanism behind it, which is the version nobody
+> would think to look for. The narrative moved to `tools/differential/README.md`, where
+> nothing matches on it.
+
+### Part 2 — THE SECOND FINDING: a promise in a doc comment, false in nine states
+
+Day 55's worklist item 3 said a `relevantNotes` path was missing for the no-income-tax
+states, and estimated eight of them. **It is nine — AK, FL, NH, NV, SD, TN, TX, WA, WY —
+and the count being wrong in the worklist is the smaller half of it.**
+
+`stateIncomeTax` reports a field it ACCEPTED AND DID NOT READ. Send
+`oregonPriorYearTaxBeforeCredits` to California and the result says so; send it to Oregon in
+an even year and it says so and names the biennium. **Send it to Texas and, until today,
+nothing was said at all.** Texas returned exactly one note — *"Texas has no individual
+income tax. A 2019 constitutional amendment requires a further amendment to impose one"* —
+true, and silent about the figure it had just been handed. The sentence lived in
+`stateIncomeTax`'s `dynamic` block, and the whole of that block is past the
+`rate.kind === 'none'` early return, so **the nine states where NOTHING is read were the
+nine that could not say so.**
+
+The fix is an extracted `ignoredInputNotes(def, input)` called from both returns, with a
+third branch for a state that levies no tax at all, because the first fact a caller needs
+there is not "Texas has no surplus credit" but "Texas read nothing on this return". The
+division is load-bearing: the three other ignored-field notes PRICE their field by running
+the return a second time, which a state with no tax to compute cannot do — and all three are
+gated on `def.exemption` or `def.ageDeduction`, which no such state declares. So the
+function holds only the half that is true everywhere.
+
+**And the behaviour was already documented.** The doc comment on the field said, and had said
+since v0.48.0:
+
+> *"Supplying it for a year or a state with no certified kicker is reported as ignored rather
+> than dropped silently."*
+
+That was false in nine states on the day it was written. Day 53's defect was a field
+advertised in an MCP schema, described in prose, and never read by the handler. This is the
+same shape with the BEHAVIOUR documented instead of the field.
+
+> **THE RULE: A PROMISE IN A DOC COMMENT IS AS CHECKABLE AS A PROMISE IN A SCHEMA.** This
+> project has spent twenty days learning to check the schema and none learning to check the
+> prose. The sentence is kept in the file verbatim, with the correction beneath it, because
+> the sentence is what found the defect.
+
+**And the test that should have caught it named a state.** `oregon.test.js` asserted that
+CALIFORNIA reports the field as ignored, and it was green throughout. California has an
+income tax, so it reaches the half of the function the sentence was written in.
+
+> **THE RULE: A TEST THAT PINS ONE MEMBER OF A CLASS CANNOT SEE A HOLE THAT SWALLOWS THE
+> CLASS.** The defect was never about California or Texas. It was about which half of a
+> function a sentence had been written in, and only a test that asks EVERY state can know
+> the sentence is reachable from both.
+
+Two tests now do: one sweeps `SUPPORTED_STATES` and requires exactly one such note from each
+of the 34 non-Oregon states — all 34, none of them throwing, because the sweep supplies the
+three self-defined bases Pennsylvania, New Jersey and Massachusetts require — and one asserts
+the LIST of the nine no-tax states, so
+a tenth cannot join in silence. Both were run against the old engine first and both failed —
+exactly those two of 47, with the other 45 green — because a test that has never been seen to
+fail is not known to test anything.
+
+**What is NOT fixed, measured rather than guessed at:** `us-tax-mcp` advertises **47
+state-specific fields** and exactly **four** of them have an engine note for being ignored.
+The other 43 are accepted in silence by every state whose law has no use for them. The
+general fix is the one the server already performs one layer up — derive from the definitions
+which fields a state-year reads, and report anything supplied outside that set — and it is
+item 1 on tomorrow's list rather than a thing to half-do today.
+
+### Part 3 — THE THIRD FINDING, and the only one a prediction could have produced:
+### the mutation harness had been masking real code, and WHICH code depended on the whole file
+
+Day 55's own worst lapse was starting a 1,534-mutant audit without writing a prediction. So
+today's was written first, and it was WRONG, and being wrong is the entire value of it.
+
+> **PREDICTED: 1,534 mutants, unchanged.** The mechanism: `mutate.mjs` mutates numeric
+> literals only — money ≥ 100, years 1900–2100, rates strictly between 0 and 1 — and the
+> day's engine change introduces no numeric literal at all. The only digits it adds are
+> `§ 14(4)` and `Day 53` inside a note string and a doc comment, both below 100 and neither
+> a year.
+>
+> **MEASURED: 1,533.**
+
+One mutant short, and nothing in the day's diff could account for it. The missing mutant was
+`0.0765` — the FICA rate, in `Math.round(rule.perFilerCap / 0.0765)`, **six hundred lines
+from anything the day touched.** It is real, executable code. It lives inside a `${...}`
+interpolation in a note, and `maskNonCode` had no notion of an interpolation: it saw a
+backtick, scanned forward to the next unescaped backtick, and blanked everything between —
+interpolated code included.
+
+Which backtick that scan lands on depends on every quote, every comment and every escaped
+backtick EARLIER IN THE FILE. My new function contains backticks and `` \` `` escapes, so it
+shifted the scanner's parse downstream, and a literal in a different function stopped being
+mutated.
+
+> **THE RULE: A MASK WITH A STATE MACHINE IS A GLOBAL PROPERTY OF THE FILE, SO A LOCAL EDIT
+> CAN DELETE A CHECK SOMEWHERE ELSE.** And it fails in the direction that LOOKS fine: a
+> mutant that stops existing cannot survive, so **the score goes up while the coverage goes
+> down.**
+
+The old comment on that function called over-masking "the safe direction" and stopped there.
+It is the safe direction and it is not harmless. Fewer mutants is fewer checks, reported as a
+better number.
+
+**Measured before fixing, which is what turns "there is a bug" into a day's work with a
+number on it.** A template-aware masker — blank a template's text, walk each `${...}` as code
+tracking brace depth, recurse into nested templates and quotes — finds **ten** more mutable
+literals in `us-state-tax`'s `engine.js` and **zero** in `us-federal-tax`, which has no
+interpolated literal anywhere. So the federal package's recorded 716 never needed
+re-measuring, and its two fingerprints were untouched all day.
+
+**Then the second prediction, and the mechanism was right where the number was not.**
+
+> **PREDICTED: 1,543 mutants, 11 survivors (the known 6 plus 5 of the 10), 99.3%.** All ten
+> recovered literals are in NOTE TEXT — eight `× 100` percentage conversions plus `0.0765`
+> and `0.025` — so none can change a tax and each changes a figure PRINTED in prose.
+> `notes.test.js` pins the first 72 characters of every note, so a recovered literal dies if
+> its figure falls inside that prefix and survives otherwise. About half.
+>
+> **MEASURED, on a targeted `--only engine.js` run: 6 of the 10 survived.**
+
+Off by one on the count and right about the cause, and the cause is sharper than the
+prediction had it. Every one of the six survivors is a percentage printed **mid-sentence in a
+DYNAMIC note** — Maryland's poverty level credit at `5%`, Oregon's kicker at `9.863%`, a
+state earned income credit at `50% of the federal one`, the `marginalRate` caveat at `50% of
+the federal phase-out rate`, and Ohio's municipal range at `0.45% to 3.00%` (two mutants on
+one sentence). I had predicted the first of those would DIE, because its percentage sits at
+about character 50 and the prefix pin should have reached it.
+
+It did not, and the reason is the finding:
+
+> **A PIN OVER THE PREFIX OF A NOTE CHECKS WHICH NOTES EXIST AND NOT WHAT THEY SAY — AND A
+> FIXTURE OVER ONE HOUSEHOLD CANNOT REACH A NOTE WHOSE WHOLE TRIGGER IS AN ABSENCE.** A
+> dynamic note fires when the caller OMITS a field. `notes.test.js` runs a standard household
+> that supplies a consistent set, so it never sees these notes at any character offset.
+
+Doubling any of those six `100`s makes this package print a percentage that is twice the rate
+it actually used, in the prose `STRATEGY.md` has named as the differentiator since Day 8,
+and all 893 tests stayed green.
+
+`test/dynamic-note-figures.test.js` closes all six in five tests, asserting the rendered
+percentage string and not re-deriving the rate — the rate is pinned where it lives, and what
+was unchecked anywhere is the step BETWEEN the stored rate and the sentence: the conversion,
+the decimal places, and whether the sentence is about that rate at all. The Ohio one needed a
+household the suite had never built: the note has a with-wages branch and a without-wages
+branch, every Ohio test gave the filer wages, and a pension-only retiree is the only
+household that reaches the second one.
+
+Verified by re-running the subset: `engine.js` went from 8 of 14 killed to **14 of 14**.
+
+### Part 4 — the recorded audit, and CI
+
+**THIS SECTION IS WRITTEN WITH THE AUDIT STILL RUNNING, and the prediction is above in
+Part 3 rather than here, so that it cannot be edited to fit.** It is restated once:
+
+> **1,543 mutants, 1,537 killed, 6 survivors, 99.6%** — the same six survivors at the same
+> line numbers as Days 50 to 55, in `states/flat-states.js` (435, 565),
+> `states/new-jersey.js` (104, 229) and `states/ohio.js` (88, 107). None of today's edits
+> touch those three files, so no line number in them shifts.
+
+`us-federal-tax` is NOT re-run and does not need to be: the template-aware masker finds
+exactly **716** there, the same as before, because that package has no numeric literal inside
+an interpolation. Its `dist` and its `test` directory are both untouched today, so both of
+its fingerprints still match and `check-scores --check` reads it as current.
+
+**This work was pushed in two commits on purpose.** The audit takes about two hours on four
+cores — longer today, because the PolicyEngine reference pass had two of them for the first
+twenty minutes of it — and nothing in this sandbox survives a run except what reaches
+`main`. Holding the whole day hostage to a measurement that cannot finish for another hour
+is a worse bet than pushing the work and recording the score behind it, so the first push
+carries everything and leaves `mutation-claims` RED on a stale record, which is a condition
+this project has shipped deliberately before (Day 54 held it red for three hours). The
+second commit carries `tools/mutation/scores.json` and turns it green.
+
+**If there is no second commit, tomorrow's run should read that as the container having gone
+away mid-audit, not as a measurement that disagreed with the prediction.** The record in
+`scores.json` would then still say 1,534/6 against a build that enumerates 1,543, and
+`check-scores --check` would say so in both fingerprints — which is exactly what that guard
+is for. Re-run `node tools/mutation/mutate.mjs packages/us-state-tax --record
+tools/mutation/scores.json` and compare against the prediction above.
+
+### Process notes
+
+- **`run_in_background: true` AND `nohup … &` IS DOUBLE-BACKGROUNDING, AND THE INNER PROCESS
+  DIES.** The first `pip install policyengine-us` returned exit 0 in under a second with an
+  empty log and nothing installed: the wrapper exited as soon as the backgrounded shell did,
+  and took the orphaned pip with it. Pass the command plainly and let the tool background it.
+  **An exit code of 0 from a command that did not run is the worst possible receipt.**
+- **DO NOT PIPE A LONG BACKGROUND JOB THROUGH `tail`.** `mutate.mjs … 2>&1 | tail -45` buffers
+  everything until the process ends, so the log was EMPTY for the whole run and the
+  `[mutate] N mutants` line — the one number I needed early, and the one that found today's
+  third finding — was invisible. Redirect to a file and `tail` the file.
+- **DAY 42'S RULE IS WIDER THAN DAY 42 STATED IT.** "Make every documentation edit BEFORE the
+  recorded audit" is about `mutantFingerprint`, over `dist/esm/**/*.js`. There is a SECOND
+  fingerprint, `suiteFingerprint`, over `test/**` with `.js`, `.json` and `.mjs` — so **a
+  TEST edit after the audit starts invalidates the record just as surely as a reworded
+  comment does.** I stopped the first audit two minutes in on realising that, and the day
+  went on to add a whole test file, which would have thrown the run away at the ninety-minute
+  mark instead.
+- **FOUR STARTS, THREE ABANDONED, ONE RECORDED — and every abandonment was right.** The first
+  for the `suiteFingerprint` reason above. The second because the inserted function had
+  landed BETWEEN `relevantNotes`'s doc comment and `relevantNotes`, so that comment
+  documented the wrong function — a real defect found by reading my own diff, since nothing
+  in this repository can fail on a misattached JSDoc, and fixing it moved `dist` again. The
+  third because the masker finding changed the enumeration itself. **The ratio is not waste:
+  the alternative to each restart was recording a measurement of a build that will not
+  ship.**
+- **A JSON FILE REWRITTEN BY A TOOL ADOPTS THE TOOL'S FORMATTING, AND THE DIFF THEN BURIES
+  THE CHANGE.** Editing `known-divergences.json` with `json.dump` produced a 434-line diff for
+  a one-line edit and one deleted entry: Python's default `ensure_ascii=True` escaped 31
+  literal `§` and `—` characters the file had always carried, and `indent=1` re-indented a
+  file written with two spaces. Both fixed, and the diff is now one changed line and eight
+  removed. **A diff nobody can read is a review nobody does**, and in this repository the
+  review is the only thing standing between a reason and a catch-all.
+- **A VERSION BUMP IS THREE FILES, AND THE THIRD ONE IS CHECKED BY CI.** Bumping
+  `package.json` leaves `package-lock.json` behind, and `tools/cross-package/lockfile-
+  versions.mjs` compares both the lock's own `version` and its `packages[""]` entry against
+  the manifest. Running the full CI sweep locally BEFORE committing caught it — two packages
+  `DRIFTED` — and `npm install --package-lock-only` fixes it in a second. **Running the
+  checks CI runs, before the push rather than after, is the whole of why today's push can be
+  the day's first.**
+- **A FIGURE IN A NOTE-TO-THE-HUMAN HAD NOBODY CHECKING IT.** `NOTES-FOR-HUMAN.md` has
+  suggested a GitHub repository description since Day 22 reading "30 states, 1,033
+  localities". It is 35 states and has been for weeks. Every advertised number in the READMEs
+  is enforced by CI and this one is in the file whose whole purpose is to be acted on by a
+  person. Corrected, with the correction left visible.
+- **The three standing asks are all still open**, checked rather than assumed: the repository
+  API reports no `description`, no topics and `has_pages: false`. The Pages WORKFLOW runs and
+  succeeds on every push, which is why this is easy to miss — it builds and uploads the
+  artifact, and nothing serves it.
+- **`or` is a Python keyword, so `system.parameters.gov.states.or` is a SyntaxError** and the
+  parameter tree has to be reached with `getattr(..., 'or')`. Thirty seconds, noted because
+  the next run reading PolicyEngine's Oregon parameters will hit it too.
+- **policyengine-us 2.15.3 installs in about four minutes** and the reference pass over 2,288
+  households takes about 80 minutes on four cores — longer when a mutation audit is using
+  them. Both can run in the background while real work continues, which is the only reason
+  three findings fitted in one day; Day 55 treated ninety minutes of audit as a cost to pay
+  rather than as time to spend.
+
+### What I would do next
+
+1. **REPORT EVERY ACCEPTED-AND-UNREAD STATE FIELD, DERIVED FROM THE DEFINITIONS.** Today
+   closed one field in nine states. The measurement that matters is the other one:
+   `us-tax-mcp` advertises **47 state-specific fields** and exactly **four** have an engine
+   note for being ignored. The remaining 43 vanish in silence in every state whose law has no
+   use for them — `pennsylvaniaTaxableIncome` sent to Texas is accepted, dropped and
+   unmentioned, and so is every Ohio, Virginia, Maryland and Arizona field sent anywhere
+   else. The fix is the move `state-fields.ts` already makes one layer up: derive from the
+   definitions which paths a state-year declares, map each to the input it names, and report
+   anything supplied outside that set. **Do it in the ENGINE and let the server read it**, not
+   the other way round, because Day 55's rule is that the narrower instrument should answer.
+   This is a day's work with a number attached, which is the shape to prefer.
+2. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST.** Today's third finding is that
+   `notes.test.js`'s 72-character prefix pin cannot see a dynamic note at all, because a
+   dynamic note fires on an ABSENCE and the pin runs one household that supplies a consistent
+   set. Six printed percentages were unchecked; five tests closed those six. **Nothing has
+   enumerated the rest.** Every `${...}` in every note is a figure a caller reads and acts on.
+   The cheap version: extend the note fixture with a household per dynamic trigger. The
+   thorough version: have the fixture assert the WHOLE note for the dynamic ones, since those
+   are not the notes that churn.
+3. **GIVE THE MUTATION HARNESS A TEST SUITE — IT HAS NONE.** Today's bug was in about
+   twenty lines of string scanning inside `mutate.mjs`, and those twenty lines decide the
+   headline quality number this project advertises. There is no test for any of it: not for
+   `maskNonCode`, not for `mutantOf`'s three operators, not for the `\d[\d_]*` pattern that
+   Day 34 found was skipping every underscored parameter. **Four of the five lies this
+   harness has told were in the enumerator, and the enumerator is the only part with nothing
+   watching it.** The work is real plumbing rather than a side task: `maskNonCode` is not
+   exported (the file runs on import), nothing in `tools/` has a runner, and the four
+   measured directories do not include it — so it needs a module extraction, a suite and a
+   CI job. Worth a day. The tests that matter are small and obvious: interpolated code
+   survives masking, string text does not, a nested template inside an interpolation is
+   handled, an escaped backtick does not shift the parse, and byte offsets are preserved.
+4. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES.** Already on the worklist in
+   `fingerprint.mjs`'s own comment, and today doubled the argument for it. `mutantFingerprint`
+   is a hash of raw `dist` bytes, so rewording a comment costs a 90-minute audit — and today
+   cost three audit starts. `mutate.mjs` already enumerates the literals; digest the
+   enumeration instead and a comment edit stops invalidating a measurement that is still
+   valid. It would also have made today's one-mutant discrepancy visible as a FINGERPRINT
+   change rather than as a count I happened to have predicted.
+5. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 and 55. IC 6-3-1-11 and SEA
+   243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a real
+   defect here rather than a reading of theirs, and the grid's Indiana differences
+   (`-$93.30`, `-$9.28`, `-$6.93`) are now the largest unexplained block after Georgia's.
+6. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms
+   (`$826.14` and `$5.00`), South Carolina's `separate-with-spouse` (`$569.10`), Wisconsin's
+   ten small ones (`$7.83` and `$5.85`). Unchanged from Days 54 and 55, and now that Oregon
+   2025 is green these are the whole of the unexplained list.
+7. **GEORGIA'S LOW-INCOME CREDIT**, O.C.G.A. § 48-7-27 — unchanged from Days 54 and 55.
+8. **THE WITNESS SWEEP'S OTHER MISSING AXIS** — unchanged from Day 55. Day 55 added a YEAR to
+   the probe set; nothing in it is a separate return with a qualifying child, which is why
+   four of the five explained-as-unreachable fields are explained by "needs a separate
+   return". Those four are claims the instrument has never been able to test.
+9. **A THIRD YEAR IN THE GRID.** Unchanged from Day 55 and sharpened by today: 2023 and 2025
+   are the kicker years, so a third year would put a SECOND certified rate in the grid and
+   test the shape of Or. Const. Art. IX § 14 rather than one figure. The state engine supports
+   2025 and 2026 only, so this is a question about adding a year to the engine, not to the
+   grid.
+10. **ASK WHETHER THE SITE SHOULD REQUEST THE PRIOR-YEAR FIGURE.** Now a live product question
+   rather than a hypothetical: the grid proves the kicker is worth up to `$2,367.12` on a
+   household the site ranks, the site renders only non-zero credits, and it has no input for
+   the base — so the site shows every Oregon 2025 retiree a kicker of nothing. Either it asks,
+   or it says why it is not asking.
+11. **Point the accounting instrument at the MCP server's README** — unchanged from Days 52 to
+    55. The eight dollar figures in the gate table are unverifiable because the document does
+    not name the household any of them is about.
+12. **Give the gate's `requiredIn` the same treatment as `states`** — unchanged from Day 53.
+13. **DERIVE THE REMAINING LITERAL LISTS** — unchanged; `taxableSocialSecurity` first, at 22
+    states.
+14. **A `federalBlind` count on the status battery's shapes** — unchanged from Days 52 to 55.
+15. **The `survivorPension` suggestion order** — unchanged from Days 51 to 55.
+16. **Survivor income for a SECOND deceased spouse** — unchanged from Days 51 to 55.
+17. **Ask whether each unresearched state's survivor treatment matches its own-income
+    treatment** — unchanged from Days 51 to 55.
+18. **Add military retired pay to the differential grid** — unchanged from Days 50 to 55.
+19. **Make the prose instrument report the accounting SOURCE on failure** — unchanged.
+
+---
+
 ## Day 55 — 2026-10-19
 
 ### What I did

@@ -1152,6 +1152,20 @@ export interface StateIncomeTaxInput {
    * with no certified kicker is reported as ignored rather than dropped
    * silently.
    *
+   * **That last sentence was false in nine states for a day, and it is kept
+   * here as written because the sentence is what found the defect.** The
+   * ignored-field note lived in a block of `stateIncomeTax` that runs only
+   * after the `rate.kind === 'none'` early return, so Alaska, Florida, New
+   * Hampshire, Nevada, South Dakota, Tennessee, Texas, Washington and Wyoming
+   * accepted this field and said nothing about it at all — Texas answered with
+   * the single note *"Texas has no individual income tax"* and no mention of
+   * the figure it had just been handed. Day 53's Pennsylvania defect was a
+   * field advertised, documented and never read; this is the same shape with
+   * the BEHAVIOUR documented instead of the field, and a promise in a doc
+   * comment is as checkable as a promise in a schema. `test/oregon.test.js`
+   * now sweeps every supported state rather than naming one, because a test
+   * that pins one member of a class cannot see a hole that swallows the class.
+   *
    * A couple whose filing status changed between the two years has a base this
    * package cannot assemble: the figure is whatever the 2024 return showed, and
    * which spouse may claim how much of a joint 2024 liability on a separate

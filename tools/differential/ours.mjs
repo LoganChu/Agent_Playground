@@ -211,6 +211,15 @@ function one(c) {
     // `known-divergences.json` rather than smoothed over by withholding the field.
     longTermCapitalGainAfter2011: c.longTermCapitalGains || undefined,
     retirement: { filer: person },
+    // Oregon's kicker base, which the GRID supplies because it is a figure off
+    // a return neither model is computing — see `oregonPriorYearBasis` in
+    // `cases.mjs`. Passed in BOTH years on purpose: 2026 declares no surplus
+    // credit here and carries a rate of 0 there, so supplying it makes that
+    // agreement visible instead of leaving it as an untested absence. Supplied
+    // only for Oregon, so no other state's engine reports it as ignored.
+    ...(c.oregonPriorYearTaxBeforeCredits === null
+      ? {}
+      : { oregonPriorYearTaxBeforeCredits: c.oregonPriorYearTaxBeforeCredits }),
     ...(c.county ? { county: c.county.ours } : {}),
     ...stateDefinedBase(c.state, c),
   };

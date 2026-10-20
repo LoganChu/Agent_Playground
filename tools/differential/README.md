@@ -647,3 +647,114 @@ parameters net against it.
 has answered, because the other model has already taken the other side of it.**
 Every previous use of this harness was to find a disagreement where one of the
 two readings is wrong. This is a disagreement where nobody here knows which is.
+
+
+## When the right answer is the thing in the way (Day 56)
+
+`known-divergences.json` is the discipline this harness rests on: every difference
+gets a written reason, every reason a bound, every bound derived from the provision
+rather than from the measurement. Day 24 found that a STALE reason hides defects
+behind it. Day 29 found that a reason can be wrong about the OTHER model, and then
+it manufactures a defect instead of hiding one.
+
+Day 55's Oregon entry was the best reason in this file. It named the mechanism,
+cited the constitution, quoted PolicyEngine's own source for the substitution it
+makes, bounded itself as a RATE rather than a dollar figure because the credit is a
+rate on a liability, and then verified itself: of the 44 Oregon 2025 households, 43
+differed by a dollar or more and 41 of those 43 were `0.09863 ×` a figure both
+models agree about, to within a cent.
+
+It was right. **And being right is what made it a blindfold**, because a reason that
+correctly accounts for a `$3,993.89` difference also absorbs, in silence, every
+smaller difference in the same state-year. Nothing in the report can show that. A
+report lists what it found.
+
+> **THE RULE: AN EXPLAINED DIVERGENCE IS A RECORD AND ALSO A BLINDFOLD, AND THE CURE
+> IS NOT A BETTER REASON. It is to stop the two models answering different questions,
+> so that there is nothing left to explain.**
+
+### What the shared fact is, and why its amounts go the wrong way
+
+`or_tax_before_credits_in_prior_year` is an ordinary PolicyEngine input despite
+having a formula, so setting it overrides the proxy. `cases.mjs` now carries
+`oregonPriorYearTaxBeforeCredits` — Oregon-only, following `county`'s precedent, and
+deliberately NOT part of the case id, because the id is the household and this is a
+fact about a return from a year the household is not in.
+
+The amounts are **anti-correlated with income on purpose**: `$4,000` at or above
+`$100,000` and `$24,000` below it. The figure PolicyEngine substitutes when nobody
+supplies one IS this year's own liability, so a basis that rose with income would be
+approximately the proxy, and the grid would be measuring the proxy's best case while
+reporting agreement.
+
+> **A SHARED FACT CHOSEN TO RESEMBLE THE OTHER MODEL'S GUESS TESTS NOTHING. It has to
+> be chosen where the guess is worst.**
+
+It is also the truthful shape rather than a contrivance. A filer's 2024 liability is
+a fact about 2024 and need not resemble 2025 at all: somebody who earned `$400,000`
+in 2024 and `$15,000` in 2025 is a retirement, a redundancy, or a business that had
+one good year.
+
+Four properties were wanted and the ladder has all four — non-zero, unequal to the
+household's own figure, not one constant, and **larger than the household's own tax
+on some households, because the kicker is REFUNDABLE and a credit exceeding the tax
+is the only case that separates refundable from capped.** That last one paid better
+than expected: **18 of the 44 Oregon 2025 households now have a NEGATIVE state tax**
+and the two models agree to the cent on every one. The `$15,000` single worker goes
+from `$470.18` of Oregon tax to `-$1,896.94` in both engines independently.
+
+It is supplied in **2026** too, where it must buy nothing — this package declares no
+rule and PolicyEngine carries `kicker.percent` of `0`. Passing it anyway turns that
+agreement into something the grid can SEE.
+
+### What it measured, against a prediction written first
+
+| claim | predicted | measured |
+| --- | --- | --- |
+| non-Oregon answers move | none | **none**, all 2,200 byte-identical |
+| Oregon 2026 answers move | none | **none**, all 44 byte-identical |
+| Oregon 2025 `state.tax` differences | 43 → 2 | **43 → 2** |
+| Oregon 2026 `state.tax` differences | 42, unchanged | **42** |
+| figures agreeing to the dollar | +41 | **14,946 → 14,987** |
+
+The two survivors are `separate-with-spouse` at `$87.50` and `separate-with-child` at
+`$78.15`, and both now belong to entries that were already in the file.
+
+**`separate-with-child` is not an Oregon reading at all.** ORS 315.266 matches the
+federal earned income credit at 9%, and the federal § 32(d) difference on that
+household is `$868.33`: `868.33 × 0.09 = 78.15`, exactly the measured figure. Which
+exposed a count that had been wrong for days — the § 32(d) flow-through entry said
+**eight** states and named eight, omitting Oregon, while carrying no `state` and no
+`year` and therefore claiming Oregon in both years all along. It is nine now, and
+Oregon is the only one of the nine whose match rate CHANGES between the grid's two
+years (SB 1507 raises it to 14% for 2026).
+
+> **A COUNT IN A REASON IS A CLAIM, AND THIS FILE'S STATE LISTS ARE STILL
+> HAND-WRITTEN** — which is the thing `us-tax-mcp`'s derived lists exist to prevent
+> one layer up.
+
+### And the residual arithmetic was distorted by the proxy it was measuring
+
+Day 55 priced the two survivors at `$78.15` and `$78.87` by subtracting
+`0.09863 × our tax before credits` from each observed difference. Today's pure
+figures are `$78.15` and `$87.50`.
+
+The first is identical, and the second is off by exactly `0.09863 × $87.50 = $8.63`.
+That is not a coincidence and not an error in either model: their proxy is **their
+own** tax before credits, which on this household differs from ours by the whole
+`$87.50`, so an estimate built on OUR figure understates the gap by the rate times
+the gap. `$87.50 − $8.63 = $78.87`, to the cent.
+
+> **AN ESTIMATE THAT SUBTRACTS A MODELLED QUANTITY USING YOUR OWN INPUTS IS WRONG BY
+> THE RATE TIMES THE DISAGREEMENT, exactly where the two models disagree** — which is
+> the only place anybody is looking. Day 55's own rule was that a figure reconstructed
+> from a result is not the figure; this is the same rule one level in, for a figure
+> reconstructed from the OTHER model's result.
+
+The entry that recorded all of this is **deleted** rather than kept under "Reasons
+that matched nothing", and that is deliberate. Its bound is a share of income, so it
+still matched both survivors — meaning a closed entry would have gone on absorbing
+two differences it cannot explain, which is Day 24's defect with a fixed mechanism
+behind it. **An entry whose mechanism is closed but whose bound still matches is not
+a record, it is a catch-all.** The story lives here instead, where nothing is matching
+on it.

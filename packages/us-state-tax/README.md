@@ -691,7 +691,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.48.0/us-state-tax-0.48.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.49.0/us-state-tax-0.49.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3182,13 +3182,78 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **891 tests**. Turning it on, when there were 618 of them, is what
+from all **898 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of
 them changed an answer — they were all helper options with no field to land on —
 but two real defects were living in the pattern, and one of them was a regression
 test that had stopped being able to fail.
+
+### And a FOURTH answer, for the key that is real and is still not read (v0.49.0)
+
+The three contracts above are about a key `StateIncomeTaxInput` does not have.
+There is a harder case one level in: **a key it does have, supplied to a state
+whose law has no use for it.** The typo guard is silent by construction — the
+name is spelled correctly and `nearestFields` has nothing to suggest — so a
+figure can be accepted, dropped and never mentioned.
+
+`oregonPriorYearTaxBeforeCredits` is the sharpest instance, because it is the
+base of a *refundable* credit worth thousands. Send it to California and the
+engine says so:
+
+```js
+stateIncomeTax({ state: 'CA', year: 2025, /* … */
+                 oregonPriorYearTaxBeforeCredits: 5_678 }).notes;
+// '`oregonPriorYearTaxBeforeCredits` was ignored: California has no surplus
+//  credit at all. The field is Oregon-only: it is the base of
+//  Or. Const. Art. IX § 14(4), which no other state has.'
+```
+
+Send it to Oregon in an even year and it names the biennium instead, because
+there the field is right and the *year* is wrong.
+
+**And for one day it said nothing at all in nine states.** The sentence lived in
+a block of `stateIncomeTax` that runs only after the early return for a state
+with no individual income tax, so Alaska, Florida, New Hampshire, Nevada, South
+Dakota, Tennessee, Texas, Washington and Wyoming accepted the field and answered
+with a single note — *"Texas has no individual income tax"* — and no mention of
+the figure they had just been handed. A caller sweeping fifty states with one
+field wired to the wrong one had no symptom to go on. They now say which of the
+two facts applies first:
+
+```js
+stateIncomeTax({ state: 'TX', year: 2025, /* … */
+                 oregonPriorYearTaxBeforeCredits: 5_678 }).notes;
+// 'Texas has no individual income tax. A 2019 constitutional amendment requires
+//  a further amendment to impose one.'
+// '`oregonPriorYearTaxBeforeCredits` was ignored: Texas has no individual income
+//  tax at all, so no figure supplied to this return was read and the answer is
+//  zero whatever they contain. The field is the base of Or. Const. Art. IX
+//  § 14(4), Oregon's surplus "kicker" credit, which no other state has.'
+```
+
+Two things are worth taking from how that was found, and neither is about Oregon.
+
+**The behaviour was already documented.** The doc comment on the field said
+*"supplying it for a year or a state with no certified kicker is reported as
+ignored rather than dropped silently"* — a promise that was false in nine
+states on the day it was written. v0.48.0's sibling defect was a field
+advertised in a schema, documented in prose and never read by the handler; this
+is the same shape with the BEHAVIOUR documented instead of the field. **A
+promise in a doc comment is as checkable as a promise in a schema, and nothing
+was checking this one.**
+
+**And the test that should have caught it named a state.** There was a test
+asserting California reports the field as ignored, and it passed throughout.
+California has an income tax, so it reaches the half of the function the sentence
+was written in. The test now sweeps `SUPPORTED_STATES` and asserts the count of
+no-income-tax states as well, so a tenth such state cannot join in silence:
+
+> **A test that pins one member of a class cannot see a hole that swallows the
+> class.** The defect was never about California or Texas — it was about which
+> half of a function a sentence had been written in, and only a test that asks
+> every state can know the sentence is reachable from both.
 
 Also exported: `KNOWN_STATE_INPUT_FIELDS` (every field name, proved against the
 interface by the compiler), `nearestFields(key, known)` and

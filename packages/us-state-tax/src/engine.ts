@@ -2323,6 +2323,59 @@ function taxpayerCredit(
 }
 
 /**
+ * The notes that say a field was ACCEPTED AND NOT READ, for the fields whose
+ * answer needs nothing but the definition and the input.
+ *
+ * Extracted on Day 56, and the reason is a hole rather than a tidy-up. These
+ * sentences used to live inline in `stateIncomeTax`'s `dynamic` block, which
+ * runs only AFTER the `rate.kind === 'none'` early return — so for the NINE
+ * states that have no individual income tax (AK, FL, NH, NV, SD, TN, TX, WA,
+ * WY) the engine accepted `oregonPriorYearTaxBeforeCredits` and said nothing
+ * whatever about it. Texas returned exactly one note, *"Texas has no individual
+ * income tax"*, and a caller iterating over all fifty states with an Oregon
+ * figure wired to the wrong one had no symptom to go on.
+ *
+ * That is Day 32's rule — ACCEPTING AN INPUT IS NOT READING IT — in the one
+ * place the typo guard cannot reach, because the key is a REAL key and
+ * `unknown-input.ts` has nothing to say about it. It is also Day 55's finding
+ * about the MCP gate one layer down: the engine is the narrower instrument and
+ * is the thing that must answer, so it had better answer in every state.
+ *
+ * Everything here must depend ONLY on `def` and `input`. The three other
+ * ignored-field notes in the `dynamic` block price their field by running the
+ * return a second time, which a state with no tax to compute cannot do — and
+ * all three are gated on `def.exemption` or `def.ageDeduction`, which no
+ * no-income-tax state declares, so they have nothing to say there anyway. The
+ * division is deliberate: this function is the half that is TRUE EVERYWHERE,
+ * and keeping the priced notes out of it is what makes it safe to call from
+ * both returns.
+ */
+function ignoredInputNotes(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): readonly string[] {
+  const notes: string[] = [];
+  if (def.surplusCredit === undefined && input.oregonPriorYearTaxBeforeCredits !== undefined) {
+    notes.push(
+      `\`oregonPriorYearTaxBeforeCredits\` was ignored: ${def.name} ${
+        def.rate.kind === 'none'
+          ? 'has no individual income tax at all, so no figure supplied to this return was read ' +
+            'and the answer is zero whatever they contain. The field is the base of ' +
+            "Or. Const. Art. IX § 14(4), Oregon's surplus \"kicker\" credit, which no other state has"
+          : def.code === 'OR'
+            ? `has no certified surplus credit for ${input.year}. Oregon's kicker lands on ODD tax ` +
+              `years only, because the biennium it measures ends on 30 June of an odd year, and the ` +
+              `rate is certified by the Office of Economic Analysis once the surplus is known rather ` +
+              `than set in advance`
+            : 'has no surplus credit at all. The field is Oregon-only: it is the base of ' +
+              'Or. Const. Art. IX § 14(4), which no other state has'
+      }.`,
+    );
+  }
+  return notes;
+}
+
+/**
  * The state's notes, less the ones this return cannot be affected by.
  *
  * Every note a result carries is context the caller pays for. Maryland has
@@ -4518,7 +4571,12 @@ export function stateIncomeTax(
       totalTax: 0,
       totalMarginalRate: 0,
       provisional: def.status === 'provisional',
-      notes: [...inputNotes, ...relevantNotes(def, input)],
+      // `ignoredInputNotes` is here because of what it was like WITHOUT it: a
+      // state with no income tax accepted `oregonPriorYearTaxBeforeCredits` and
+      // said nothing whatever about it, because the `dynamic` block that used to
+      // hold that sentence is entirely past this return. See the function's own
+      // comment.
+      notes: [...inputNotes, ...relevantNotes(def, input), ...ignoredInputNotes(def, input)],
       citations: def.citations,
     };
   }
@@ -4881,22 +4939,8 @@ export function stateIncomeTax(
           `the credit would be $${asThisYear.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
       );
     }
-  } else if (input.oregonPriorYearTaxBeforeCredits !== undefined) {
-    // Accepted and not read is the defect `unknown-input.ts` exists for, one
-    // level in: the key is a real key, so the typo guard has nothing to say
-    // about it, and a caller who passes an Oregon figure to an even year or to
-    // another state would otherwise see it vanish.
-    dynamic.push(
-      `\`oregonPriorYearTaxBeforeCredits\` was ignored: ${def.name} ${
-        def.code === 'OR'
-          ? `has no certified surplus credit for ${input.year}. Oregon's kicker lands on ODD tax ` +
-            `years only, because the biennium it measures ends on 30 June of an odd year, and the ` +
-            `rate is certified by the Office of Economic Analysis once the surplus is known rather ` +
-            `than set in advance`
-          : 'has no surplus credit at all. The field is Oregon-only: it is the base of ' +
-            'Or. Const. Art. IX § 14(4), which no other state has'
-      }.`,
-    );
+  } else {
+    dynamic.push(...ignoredInputNotes(def, input));
   }
   if (def.earnedIncomeCredit && input.federal.earnedIncomeCredit === undefined) {
     dynamic.push(

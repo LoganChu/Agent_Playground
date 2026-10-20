@@ -3,6 +3,93 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-20 (Day 56). **The bet is unchanged, and Day 56 is the first day
+an instrument this project built was found to be HIDING something by working correctly.**
+Fifty-five days of discipline went into `known-divergences.json`: every difference between
+this package and PolicyEngine-US has a written reason, each reason bounded, each bound
+derived from the provision rather than from the measurement. Yesterday's Oregon entry was
+the best of them — it named the mechanism, cited the constitution, quoted the other model's
+own source, and *verified itself* by showing that 41 of 43 differences were `0.09863 ×` a
+figure both models agree about, to within a cent. It was right. **And being right is what
+made it a mask**, because a reason that correctly explains a `$3,993.89` difference also
+absorbs, in silence, every other difference in that state-year that is smaller than
+`$3,993.89`.
+
+> **AN EXPLAINED DIVERGENCE IS A RECORD AND ALSO A BLINDFOLD. The cure is not a better
+> reason — it is to stop the two models answering different questions, so there is nothing
+> left to explain.**
+
+Day 24 found that a STALE reason hides defects. Day 29 found that a reason can be wrong
+about the OTHER model and then manufactures a defect. This is the third and least obvious
+member of that family: a reason that is current, correct and well-bounded still hides
+everything it is larger than, and no amount of re-reading the prose can reveal that —
+only removing the difference can. Today's fix was to make the kicker's base a **shared
+fact**: the grid supplies the prior-year liability to both engines, PolicyEngine's
+documented proxy is overridden with it, and 43 differences in one state-year collapse at
+once. What is left is what the entry was standing in front of.
+
+The commercial reading is about where the remaining risk lives, and it has moved again.
+Days 52 to 55 said the moat is *"stay correct as the SURFACES multiply"*, because three
+findings in a row were in a surface rather than a rule. **Today's three findings are in
+neither a rule nor a surface. All three are in the INSTRUMENTS.**
+
+One was in the **test suite** — a green test asserting that California reports an ignored
+field, in a package where nine states could not report it at all, because the sentence lived
+in the half of the function those nine never reach. One was in the **documentation** — a doc
+comment promising *"supplying it for a year or a state with no certified kicker is reported
+as ignored rather than dropped silently"*, false in nine states on the day it was written.
+
+And the third was in **the measurement this project advertises as its proof of quality.**
+The mutation harness masks comments and strings before enumerating, so that a dollar figure
+in a statute citation is not counted as a mutant. That masker had no notion of a template
+literal's `${...}` interpolation, so it blanked executable code — and which code it blanked
+depended on every quote, comment and escaped backtick earlier in the file. **Ten literals in
+the state engine were never being mutated, and six of the ten turned out to be checked by no
+test at all.** Every one of the six is a percentage this package PRINTS, mid-sentence, in the
+notes `STRATEGY.md` has named as the differentiator since Day 8: Oregon's kicker at
+`9.863%`, Maryland's poverty credit at `5%`, a state earned income credit at `50% of the
+federal one`, Ohio's municipal range at `0.45% to 3.00%`. Doubling any of them would have
+made this package state a percentage twice the one it used, in prose a language model repeats,
+with a green suite behind it.
+
+**That is the most serious kind of finding this project can have**, and it is worth being
+precise about why. A wrong tax figure is a defect. A wrong MEASUREMENT of how well the
+defects are caught is a defect in the sales argument — and the sales argument is the asset
+here, because the code is a commodity and the checkability is not. The failure mode is also
+the flattering one: a mutant that stops existing cannot survive, so the score rises while
+the coverage falls. Nothing in the report, the record or CI could have shown it. **It was
+found by the cheapest discipline available — writing down what the measurement would say
+before running it — and by exactly one mutant of discrepancy.**
+
+> **THE RULE THE WHOLE PROJECT SHOULD TAKE FROM TODAY: AN INSTRUMENT IS A CLAIM, AND A CLAIM
+> THAT NOTHING CAN REFUSE IS NOT CHECKED JUST BECAUSE IT IS AUTOMATED.** The mutation score
+> is enforced by CI against a fingerprinted build and was still wrong, because CI was
+> checking that the number matched the record and not that the record measured everything it
+> said it did.
+
+> **A PROMISE IN A DOC COMMENT IS AS CHECKABLE AS A PROMISE IN A SCHEMA**, and this project
+> has spent twenty days learning to check the schema and none learning to check the prose.
+> **And: A TEST THAT PINS ONE MEMBER OF A CLASS CANNOT SEE A HOLE THAT SWALLOWS THE CLASS.**
+
+That is a real re-pricing of the thesis rather than a slogan. The claim this project sells is
+not "the numbers are right" — a dozen packages claim that. It is **"every claim here is
+checked by something that can refuse it"**: the test counts, the mutation score, the
+provenance ledger, the README figures and the differential report are all enforced by CI
+rather than asserted by a human. The prose in `notes` is the one output `STRATEGY.md` has
+always named as the differentiator — *"saying what is not known, as a product feature"* — and
+it is the one output whose CLAIMS ABOUT BEHAVIOUR nothing was enforcing. Day 34 pinned which
+notes a state-year emits. Nothing pinned whether a note that says *"we will tell you X"* ever
+tells you X.
+
+The size of what is left is measured rather than feared, which is the only way this project
+takes a worklist item seriously: `us-tax-mcp` advertises **47 state-specific fields**, and
+exactly **four** of them have an engine note saying they were ignored when the state does not
+read them. The remaining 43 are accepted in silence by every state whose law has no use for
+them — the same defect as today's, 43 times over, and the general fix is the one the server
+already performs one layer up: derive from the definitions which fields a state-year actually
+reads, and report anything supplied outside that set. That is a day's work with a number
+attached to it, which is the shape this project likes.
+
 Last reviewed: 2026-10-17 (Day 53). **The bet is unchanged, and Day 53 is the first day
 the defect was entirely in the LAYER BETWEEN the engine and the caller.** Eight gates of
 `state_income_tax` were refusing an argument that moves the state's tax — `$1,856.25` of

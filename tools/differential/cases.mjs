@@ -397,6 +397,74 @@ const COUNTY = {
 };
 
 /**
+ * Oregon's kicker needs a figure off a return neither model is computing, so the
+ * grid has to SUPPLY it — and that makes this the first fact in this file that
+ * is about a different tax year from the one the case is in.
+ *
+ * Or. Const. Art. IX § 14(4) pays a certified share of the filer's OWN
+ * prior-year Oregon tax before credits as a refundable credit on the following
+ * ODD year's return. This package takes that base as an input; PolicyEngine-US
+ * computes it from `or_tax_before_credits_in_prior_year`, whose formula returns
+ * THIS year's Oregon tax before credits and whose own documentation calls that
+ * "a proxy for the prior-year liability". So for fifty-five days the two models
+ * were answering different questions about 43 of the grid's 44 Oregon 2025
+ * households, and the difference — up to $3,993.89 — was recorded as theirs.
+ *
+ * It is an ORDINARY PolicyEngine INPUT, so the proxy can be overridden by
+ * setting it, and then both models compute the credit from one base and any
+ * difference left over is a disagreement about the CREDIT rather than about the
+ * question. That is the whole of what this field buys.
+ *
+ * ## Why these amounts, and why they go the WRONG way on purpose
+ *
+ * The basis is deliberately ANTI-CORRELATED with the household's own income,
+ * and that is the single most important thing about it. The figure
+ * PolicyEngine substitutes when nobody supplies one is this year's own
+ * liability, so a basis that rose with income would be approximately the proxy
+ * — and the grid would be measuring the proxy's BEST case while reporting
+ * agreement. Inverting it puts every household in the proxy's worst case,
+ * which is the only place the two readings of Art. IX § 14 are distinguishable.
+ *
+ * It is also the truthful shape. A filer's 2024 liability is a fact about 2024
+ * and need not resemble 2025 in the slightest: somebody who earned $400,000 in
+ * 2024 and $15,000 in 2025 is not a contrived household, it is a retirement, a
+ * redundancy or a business that had one good year.
+ *
+ * Four properties were wanted, and this ladder is the cheapest thing that has
+ * all four:
+ *
+ *   1. NON-ZERO, or there is no credit to compare.
+ *   2. NOT EQUAL to the household's own tax before credits — because that is
+ *      the proxy, and an override that silently failed to take would then look
+ *      exactly like agreement.
+ *   3. NOT ONE CONSTANT across the grid, or an engine that hardcoded a single
+ *      basis would pass.
+ *   4. BIGGER than the household's own tax on some households, because the
+ *      kicker is REFUNDABLE and a credit that exceeds the tax is the only case
+ *      that separates refundable from capped. At $24,000 of basis the credit is
+ *      $2,367.12 against an Oregon tax of $470.18 on the $15,000 worker and of
+ *      nothing at all on the retired couple with no pension — both models drive
+ *      `state_income_tax` NEGATIVE there, and they agree to the cent.
+ *
+ * ## And it is supplied in 2026 as well, where it must buy nothing
+ *
+ * 2026 has no certified rate: this package declares no rule at all for it and
+ * PolicyEngine carries `kicker.percent` of 0. Passing the basis anyway turns
+ * that agreement into something the grid can SEE — a kicker leaking into an
+ * even year becomes a divergence rather than a silence — which is Day 54's rule
+ * about an argument from an absence being only as good as the instrument's
+ * ability to have seen the thing.
+ */
+function oregonPriorYearBasis(shape) {
+  const income =
+    (shape.wages ?? 0) +
+    (shape.pension ?? 0) +
+    (shape.socialSecurity ?? 0) +
+    (shape.longTermCapitalGains ?? 0);
+  return income >= 100_000 ? 4_000 : 24_000;
+}
+
+/**
  * Every case, with a stable id. The order is deterministic.
  *
  * The year leads the id rather than trailing it, and that is not cosmetic.
@@ -443,6 +511,16 @@ export function cases(years = YEARS) {
           // `is_blind` on the head and then the spouse.
           blind: shape.blind ?? 0,
           county: COUNTY[state] ?? null,
+          // Oregon only, the way `county` is Maryland and Indiana only: the
+          // field is the base of a provision no other state has, and the two
+          // models name it differently on each side — see
+          // `oregonPriorYearBasis` above for why the amounts invert.
+          //
+          // It is NOT in the id. The id is the household, and this is a fact
+          // about a return from a year the household is not in; putting it
+          // there would also break every `idIncludes` selector in
+          // `known-divergences.json` that leans on the dashes around an amount.
+          oregonPriorYearTaxBeforeCredits: state === 'OR' ? oregonPriorYearBasis(shape) : null,
           kind: shape.kind,
         });
       }

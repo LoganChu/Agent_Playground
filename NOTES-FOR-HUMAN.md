@@ -13,6 +13,72 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 56 nothing is waiting on you except the three standing asks below — the
+repository description and topics, the GitHub Pages switch, and the optional npm publish —
+and today's headline is that I FOUND A DEFECT IN MY OWN QUALITY MEASUREMENT, by predicting
+what it would say and being wrong by one.**
+
+`us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` is **v0.49.0** and `us-tax-mcp`
+**v0.53.0**. **1,503 tests**, all passing. No state was added; 26 taxing states and 35 in
+all, unchanged.
+
+**A. THE ONE THAT MATTERS, AND IT IS ABOUT TRUSTING THE NUMBERS I REPORT TO YOU.** This
+project advertises a "mutation score": it changes one number in the shipped code at a time
+and checks that some test fails. Yesterday's figure was 1,534 changes tried, 6 that no test
+caught, 99.6%. Before re-running it today I wrote down what it would say — 1,534, unchanged,
+because nothing I did today adds a number to the code. **It said 1,533.**
+
+One missing. Chasing it found that the tool had been blanking out real code before it
+measured: it has to ignore numbers that appear in comments and in printed text, and the way
+it found those had no idea that a piece of text can have live code embedded in it. Worse,
+**which code it blanked depended on the whole file**, so an edit in one function silently
+stopped a number in a different function from ever being checked. That fails in the
+flattering direction — a check that stops existing cannot fail — so the score goes UP while
+the coverage goes DOWN.
+
+Fixed. It now finds **ten** numbers in the state engine it had been blind to, and zero in
+the federal engine. **Six of the ten were not checked by any test**, and all six are
+percentages this package PRINTS to whoever is asking: Oregon's kicker at "9.863%",
+Maryland's poverty credit at "5% of earned income", a state earned income credit at "50% of
+the federal one", Ohio's municipal range at "0.45% to 3.00%". Doubling any of them would
+have made the package state a percentage twice the one it actually used, in plain English,
+to a language model that would then repeat it — and every test stayed green. Five new tests
+close all six.
+
+**You do not have to do anything about this.** I am telling you because the whole argument
+for this project is that its quality claims are checked rather than asserted, and today the
+checker was the thing that was wrong. It was found by the cheapest possible discipline:
+write down what the measurement will say before you run it.
+
+**B. NINE STATES WERE SWALLOWING AN INPUT IN SILENCE.** The engine tells a caller when it
+accepted a figure and did not use it — send Oregon's kicker base to California and it says
+so. Send it to Texas and, until today, it said nothing: the sentence lived in a part of the
+code that runs only for states that HAVE an income tax, so the nine states where nothing at
+all is read were the nine that could not say so. Alaska, Florida, New Hampshire, Nevada,
+South Dakota, Tennessee, Texas, Washington, Wyoming. Fixed, and the test now asks every
+state rather than naming one, because the test that should have caught it named California
+and California has an income tax.
+
+The part worth your time: **the behaviour was already documented.** The code's own
+documentation promised exactly this, in writing, and the promise was false in nine states on
+the day it was written. A promise in documentation turns out to be as checkable as anything
+else, and nothing here was checking it.
+
+**C. AND OREGON'S COLUMN IN THE TWO-MODEL COMPARISON IS GREEN.** Yesterday I modelled
+Oregon's constitutional "kicker" credit and recorded that this package and PolicyEngine-US
+disagreed on 43 of 44 Oregon households — not about the credit, but about where its base
+comes from: I require the caller to supply the prior year's Oregon tax, and they substitute
+the current year's. The write-up of that disagreement was the best-evidenced entry in the
+file, and **being right is what made it a problem**: a reason that correctly explains a
+$3,993.89 difference also quietly absorbs every smaller difference in the same state. Today
+both models are given the SAME prior-year figure, so there is nothing left to explain and
+anything still there is visible.
+
+**D. NOTHING NEW IS WAITING ON YOU.** One small correction in this file, though: the
+repository description I have been suggesting since Day 22 says "30 states". It is 35. That
+number had nobody checking it, which is funny in a file that exists to be acted on by a
+person — every number in the public READMEs is enforced automatically and this one was not.
+
 **As of Day 55 nothing is waiting on you except the network ask below, the GitHub Pages
 switch, and the optional report from Day 50 — and today's headline is that YESTERDAY'S
 DEFECT IS FIXED: the Oregon constitutional credit this package did not model is modelled,
@@ -1355,9 +1421,14 @@ this your thirty seconds rather than mine.
 the gear icon beside "About"):
 
 > **Description.** Dependency-free US federal and state income tax engines for
-> JavaScript, plus an MCP server. 30 states, 1,033 localities, two tax years,
+> JavaScript, plus an MCP server. 35 states, 1,033 localities, two tax years,
 > every figure cited to the release it came from and a measured mutation score.
 > MIT.
+
+(That said "30 states" from Day 22 until Day 56, which is a figure this file had
+nobody checking. It is **35 states — 26 of which charge an income tax** — and the
+nine with none are modelled too, because answering "Texas charges you nothing" is
+a different thing from not knowing about Texas.)
 
 > **Topics.** `tax` · `taxes` · `income-tax` · `payroll` · `mcp` ·
 > `model-context-protocol` · `typescript` · `javascript`

@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.48.0/us-state-tax-0.48.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.49.0/us-state-tax-0.49.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.52.0/us-tax-mcp-0.52.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.53.0/us-tax-mcp-0.53.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -105,6 +105,56 @@ Fixing fourteen helpers is not the fix, because the reason a typo survives is th
 nothing fails on it. Both suites now reach their engine through a
 [one-file wrapper](packages/us-state-tax/test/strict.mjs) that defaults
 `strict: true`, which costs one import line per file and nothing at any call site.
+
+### The harder case: a key that is REAL, and nine states where nothing said so (v0.49.0)
+
+Everything above is about a key the engine does not have. The guard that catches
+it works by spelling — `nearestFields` offers `w2Wages` for `wages` — so it is
+silent by construction on the opposite case: **a key the engine does have,
+supplied to a state whose law has no use for it.** The name is right, there is
+nothing to suggest, and the figure is accepted, dropped and never mentioned.
+
+`oregonPriorYearTaxBeforeCredits` is the sharpest instance in either engine,
+because it is the base of a **refundable** credit worth thousands of dollars.
+Sent to California it is reported as ignored; sent to Oregon in an even year it
+is reported as ignored with the biennium named, because there the field is right
+and the *year* is wrong. **Sent to Texas, for one day, it produced no mention of
+itself at all** — and so did Alaska, Florida, New Hampshire, Nevada, South
+Dakota, Tennessee, Washington and Wyoming. Texas answered with one note:
+
+```
+Texas has no individual income tax. A 2019 constitutional amendment requires a
+further amendment to impose one.
+```
+
+True, and silent about the figure it had just been handed. The sentence that
+should have followed lived in a block of `stateIncomeTax` that runs only *after*
+the early return for a state with no income tax, so the nine states that need it
+most — the ones where nothing whatever is read — were the nine that never got it.
+
+Two things about how that was found are worth more than the fix.
+
+**The behaviour was already documented, and the documentation was the bug
+report.** The doc comment on the field read *"supplying it for a year or a state
+with no certified kicker is reported as ignored rather than dropped silently"* —
+a promise that was false in nine states on the day it was written. The previous
+release's sibling defect was a field advertised in an MCP schema, described in
+prose, and never read by the handler. This is the same shape with the
+**behaviour** documented instead of the field:
+
+> **A promise in a doc comment is as checkable as a promise in a schema**, and
+> nothing was checking this one.
+
+**And the test that should have caught it named a state.** A test asserting that
+California reports the field as ignored had been green throughout. California has
+an income tax, so it reaches the half of the function the sentence was written in.
+The test now sweeps every supported state and asserts the *list* of the nine, so a
+tenth cannot join in silence:
+
+> **A test that pins one member of a class cannot see a hole that swallows the
+> class.** The defect was never about California or Texas — it was about which
+> half of a function a sentence had been written in, and only a test that asks
+> every state can know the sentence is reachable from both.
 
 ## How much of this is actually tested
 
@@ -606,7 +656,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.52.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.53.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -797,10 +847,32 @@ than an estimated one**, because the credit requires a 2024 return that showed a
 and a filer who had none is owed nothing. `policyengine-us` substitutes the CURRENT year's
 liability instead — its own variable calls that "a proxy for the prior-year liability" —
 which is right across a population and wrong on every household in it, and the differential
-grid measures the gap exactly: of the 44 Oregon 2025 households in it, 43 differ by a dollar
-or more and 41 of those 43 are explained to within a cent by `0.09863 ×` this package's own
-Oregon tax before credits. There is no 2026 kicker, so the rule is **absent** for 2026
-rather than a rate of zero.
+grid measured the gap exactly: of the 44 Oregon 2025 households in it, 43 differed by a
+dollar or more and 41 of those 43 were explained to within a cent by `0.09863 ×` this
+package's own Oregon tax before credits. There is no 2026 kicker, so the rule is **absent**
+for 2026 rather than a rate of zero.
+
+**As of v0.49.0 the grid supplies that prior-year figure to BOTH models, and the column is
+green: 43 differences became 2.** The base is an ordinary PolicyEngine input despite having
+a formula, so both engines now compute Art. IX § 14(4) from one number and any difference
+left is about the credit rather than about the question. Its amounts are deliberately
+anti-correlated with income — `$4,000` at or above `$100,000` and `$24,000` below — because
+the figure PolicyEngine substitutes IS this year's own liability, so a basis that rose with
+income would be approximately the proxy and the grid would be measuring the proxy's best
+case while reporting agreement. **18 of the 44 households now have a NEGATIVE Oregon tax**
+and the two engines agree to the cent on every one: a refundable credit exceeding the bill
+is the only case that distinguishes refundable from capped, and nothing in the grid had
+tested it.
+
+What was underneath is the point. One of the two survivors, `$78.15` on a separate return
+with a child, is not an Oregon reading at all — ORS 315.266 matches the federal earned
+income credit at 9%, the federal § 32(d) difference on that household is `$868.33`, and
+`868.33 × 0.09 = 78.15` exactly. That exposed a count in the differential's own records
+that had been wrong for days: the § 32(d) flow-through entry said **eight** states match the
+federal credit as a flat percentage, named eight, and omitted Oregon while claiming it. It
+is nine. **An explained divergence is a record and also a blindfold** — a reason that
+correctly accounts for `$3,993.89` absorbs, in silence, everything smaller than it, and the
+cure is not a better reason but removing the difference.
 
 New York's Empire State child credit is the largest credit on a family return there —
 `$1,000` per child under 4, `$330` (2025) or `$500` (2026) per child aged 4 to 16,
@@ -1076,7 +1148,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.52.0/us-tax-mcp-0.52.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.53.0/us-tax-mcp-0.53.0.tgz"
       ]
     }
   }

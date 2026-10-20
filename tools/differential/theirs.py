@@ -102,12 +102,34 @@ def situation(case):
         add(f"child{i}", age)
         marital_units[f"child{i}_marital"] = {"members": [f"child{i}"]}
 
+    # Oregon's kicker base, the one fact in this grid that is about a DIFFERENT
+    # tax year from the one the case is in.
+    #
+    # `or_tax_before_credits_in_prior_year` has a formula here, and that formula
+    # returns THIS year's `or_income_tax_before_credits` — documented in the
+    # variable itself as "a proxy for the prior-year liability", because a
+    # microsimulation input covers one year. It is nonetheless an ordinary input,
+    # so setting it overrides the proxy, and that is what makes both models
+    # compute Or. Const. Art. IX s 14(4) from ONE base. Until this was set, 43 of
+    # the grid's 44 Oregon 2025 households were a difference in the QUESTION.
+    #
+    # Set only where the grid set it, which is Oregon. It is harmless on another
+    # state's household — checked — but a variable nothing reads is noise in a
+    # file whose whole purpose is that both sides were asked the same thing.
+    prior_year = case.get("oregonPriorYearTaxBeforeCredits")
+    kicker_base = (
+        {"or_tax_before_credits_in_prior_year": {year: prior_year}}
+        if prior_year is not None
+        else {}
+    )
+
     return {
         "people": people,
         "tax_units": {
             "tax_unit": {
                 "members": members,
                 "filing_status": {year: STATUS[case["filingStatus"]]},
+                **kicker_base,
             }
         },
         "families": {"family": {"members": members}},

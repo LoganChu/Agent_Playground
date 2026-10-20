@@ -115,7 +115,7 @@ pins, and there are three kinds:
 The report does not distinguish them. A human does, and the distinction is the
 work.
 
-## Three ways this harness lied before it worked
+## Four ways this harness lied before it worked
 
 Worth keeping, because each was silent and each inverted the result.
 
@@ -136,6 +136,35 @@ sibling packages' READMEs, so it cannot pass inside a worker copy. Two failures 
 the baseline would have marked **every mutant killed** and reported a perfect
 score. The harness now refuses to run on a red baseline, which is the only reason
 this was found in a minute rather than believed.
+
+**It masked real code, and which code depended on the whole file.** The fix for
+the first lie above — blank comments and string literals before enumerating — had
+no notion of a template literal's `${...}` interpolation. It saw a backtick,
+scanned to the next unescaped backtick, and blanked everything between, so
+`Math.round(rule.perFilerCap / 0.0765)` inside a note was invisible. Which
+backtick the scan landed on depends on every quote, comment and escaped backtick
+earlier in the file, so **editing one template literal in one function changed
+whether a literal in a different function was mutated at all.**
+
+Day 56 found it by predicting the count. The day's change added no numeric
+literal, so the prediction was 1,534 unchanged; the run said **1,533**, and the
+missing mutant was `0.0765`, six hundred lines from anything the day touched.
+
+> **A MASK WITH A STATE MACHINE IS A GLOBAL PROPERTY OF THE FILE, SO A LOCAL EDIT
+> CAN DELETE A CHECK SOMEWHERE ELSE** — and it fails in the direction that looks
+> fine, because a mutant that stops existing cannot survive. The score goes up
+> while the coverage goes down.
+
+The old comment called over-masking "the safe direction" and treated that as the
+end of the argument. It is the safe direction and it is not harmless: fewer
+mutants is fewer checks, reported as a better number.
+
+`maskNonCode` is now template-aware — it blanks a template's text and walks each
+`${...}` as code, tracking brace depth and recursing into nested templates and
+quotes. That recovered **ten** literals in `us-state-tax`'s `engine.js` and
+**zero** in `us-federal-tax`, which has no interpolated literal at all. **Six of
+the ten survived**, every one a percentage printed mid-sentence in a note, and
+`packages/us-state-tax/test/dynamic-note-figures.test.js` is what closes them.
 
 ## How it works
 

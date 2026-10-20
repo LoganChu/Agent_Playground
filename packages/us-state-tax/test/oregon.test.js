@@ -15,7 +15,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { FILING_STATUSES, getStateDefinition, stateIncomeTax } from './strict.mjs';
+import { FILING_STATUSES, SUPPORTED_STATES, getStateDefinition, stateIncomeTax } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -850,6 +850,89 @@ test('another state reports the base as ignored rather than dropping it', () => 
   const notes = r.notes.join(' ');
   assert.match(notes, /`oregonPriorYearTaxBeforeCredits` was ignored/);
   assert.match(notes, /California has no surplus credit at all/);
+});
+
+test('EVERY state reports the base as ignored — including the nine with no income tax', () => {
+  // The sweep rather than a second named state, and the reason is that a named
+  // state is exactly what was here and exactly what missed this.
+  //
+  // The test above pins California. California has an income tax, so it reaches
+  // `stateIncomeTax`'s `dynamic` block, which is where this note used to live —
+  // and the whole of that block is PAST the `rate.kind === 'none'` early return.
+  // So for the nine states that levy no individual income tax the engine
+  // accepted this field and said nothing whatever about it: Texas answered with
+  // one note, "Texas has no individual income tax", and a caller iterating over
+  // fifty states with an Oregon figure wired to the wrong one had no symptom.
+  //
+  // THE RULE: A TEST THAT PINS ONE MEMBER OF A CLASS CANNOT SEE A HOLE THAT
+  // SWALLOWS THE CLASS. The defect was not about California or Texas, it was
+  // about which half of the function a sentence had been written in, and only a
+  // test that asks every state can be sure the sentence is reachable from both.
+  const silent = [];
+  for (const state of SUPPORTED_STATES) {
+    if (state === 'OR') continue;
+    const r = stateIncomeTax({
+      state,
+      year: 2025,
+      filingStatus: 'single',
+      federal: {
+        adjustedGrossIncome: 80_000,
+        deduction: STD_2025.single,
+        deductionKind: 'standard',
+        taxableIncome: 64_250,
+        incomeTaxBeforeRefundableCredits: 9_000,
+      },
+      earnedIncome: 80_000,
+      // The three states that start from their own base refuse the call without
+      // it, and a state that threw is a state this sweep did not ask.
+      pennsylvaniaTaxableIncome: 80_000,
+      massachusettsFivePercentIncome: 80_000,
+      newJerseyGrossIncome: 80_000,
+      oregonPriorYearTaxBeforeCredits: 5_678,
+    });
+    const said = r.notes.filter((n) => n.includes('`oregonPriorYearTaxBeforeCredits` was ignored'));
+    if (said.length !== 1) silent.push(`${state} (${said.length})`);
+  }
+  assert.deepEqual(silent, [], `states that did not report the field as ignored: ${silent.join(', ')}`);
+});
+
+test('a state with no income tax says so, rather than citing a credit it has not got', () => {
+  // The wording matters as much as the presence. "Texas has no surplus credit at
+  // all" is true and is the wrong lede: what a caller needs first is that Texas
+  // reads NOTHING on this return, so the figure is not the only one that went
+  // unread. The no-tax branch says that and then still names the provision, so
+  // a caller who wired the field by mistake learns both facts at once.
+  const noTax = [];
+  for (const state of SUPPORTED_STATES) {
+    const r = stateIncomeTax({
+      state,
+      year: 2025,
+      filingStatus: 'single',
+      federal: {
+        adjustedGrossIncome: 80_000,
+        deduction: STD_2025.single,
+        deductionKind: 'standard',
+        taxableIncome: 64_250,
+        incomeTaxBeforeRefundableCredits: 9_000,
+      },
+      earnedIncome: 80_000,
+      pennsylvaniaTaxableIncome: 80_000,
+      massachusettsFivePercentIncome: 80_000,
+      newJerseyGrossIncome: 80_000,
+      oregonPriorYearTaxBeforeCredits: 5_678,
+    });
+    if (r.hasIncomeTax) continue;
+    noTax.push(state);
+    const notes = r.notes.join(' ');
+    assert.match(notes, /has no individual income tax at all/, `${state} did not say so`);
+    assert.match(notes, /no figure supplied to this return was read/, `${state} did not say so`);
+    // And it still names the provision the field belongs to.
+    assert.match(notes, /Or\. Const\. Art\. IX § 14\(4\)/, `${state} did not cite the provision`);
+  }
+  // The count is the claim. Nine states levy no individual income tax in this
+  // package, and a tenth appearing — or one of the nine quietly starting to tax
+  // — should fail here rather than slip through as a sweep over an empty list.
+  assert.deepEqual(noTax, ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 'WA', 'WY']);
 });
 
 test('a negative prior-year liability is refused by name', () => {

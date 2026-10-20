@@ -471,7 +471,7 @@
    "earnedIncomeCredit": 313.93
   },
   "state": {
-   "tax": 470.18,
+   "tax": -1896.94,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -490,8 +490,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -1098,7 +1098,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1682.18,
+   "tax": -684.94,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -1117,8 +1117,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -1725,7 +1725,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3222.18,
+   "tax": 855.06,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -1744,8 +1744,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -2352,7 +2352,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5442.19,
+   "tax": 3075.07,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -2371,8 +2371,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -2979,7 +2979,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 12821.84,
+   "tax": 12427.31,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -2998,8 +2998,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -3606,7 +3606,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 37571.84,
+   "tax": 37177.32,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -3625,8 +3625,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -4233,7 +4233,7 @@
    "earnedIncomeCredit": 7152
   },
   "state": {
-   "tax": -484.31,
+   "tax": -2851.42,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -4252,8 +4252,8 @@
      "amount": 325.5
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -4868,7 +4868,7 @@
    "earnedIncomeCredit": 932.98
   },
   "state": {
-   "tax": 3025.91,
+   "tax": 658.79,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -4887,8 +4887,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -5503,7 +5503,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 6317.36,
+   "tax": 5922.84,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -5522,8 +5522,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -6138,7 +6138,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 14616.13,
+   "tax": 14221.61,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -6157,8 +6157,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -6773,7 +6773,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1417.2,
+   "tax": -3784.32,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -6792,8 +6792,8 @@
      "amount": 1050
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -7400,7 +7400,7 @@
    "earnedIncomeCredit": 4064.33
   },
   "state": {
-   "tax": -724.09,
+   "tax": -3091.21,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -7419,8 +7419,8 @@
      "amount": 1050
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -8027,7 +8027,7 @@
    "earnedIncomeCredit": 868.33
   },
   "state": {
-   "tax": 2326.16,
+   "tax": -40.96,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -8046,8 +8046,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -8654,7 +8654,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 0,
+   "tax": -2367.12,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -8673,8 +8673,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -9289,7 +9289,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 144.27,
+   "tax": -2222.84,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -9308,8 +9308,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -9924,7 +9924,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2283.91,
+   "tax": -83.21,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -9943,8 +9943,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -10559,7 +10559,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5328.13,
+   "tax": 4933.6,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -10578,8 +10578,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -11194,7 +11194,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 58.64,
+   "tax": -2308.48,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -11213,8 +11213,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -11821,7 +11821,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2223.28,
+   "tax": -143.84,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -11840,8 +11840,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -12448,7 +12448,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4894.74,
+   "tax": 2527.62,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -12467,8 +12467,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -13075,7 +13075,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 12821.84,
+   "tax": 12427.31,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -13094,8 +13094,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -13698,7 +13698,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4064.06,
+   "tax": 1696.94,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -13717,8 +13717,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -14325,7 +14325,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2991.96,
+   "tax": 2597.44,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -14344,8 +14344,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -14960,7 +14960,7 @@
    "earnedIncomeCredit": 92.85
   },
   "state": {
-   "tax": 608.42,
+   "tax": -1758.7,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -14979,8 +14979,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -15595,7 +15595,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4519.36,
+   "tax": 2152.24,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -15614,8 +15614,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -16230,7 +16230,7 @@
    "earnedIncomeCredit": 6038.98
   },
   "state": {
-   "tax": 379.2,
+   "tax": -1987.92,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -16249,8 +16249,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -16865,7 +16865,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5478.88,
+   "tax": 3111.76,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -16884,8 +16884,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -17500,7 +17500,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 5855.97,
+   "tax": 3488.85,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -17519,8 +17519,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -18127,7 +18127,7 @@
    "earnedIncomeCredit": 2466.33
   },
   "state": {
-   "tax": 1309.53,
+   "tax": -1057.59,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -18146,8 +18146,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -18750,7 +18750,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2773.68,
+   "tax": 406.56,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -18769,8 +18769,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -19377,7 +19377,7 @@
    "earnedIncomeCredit": 868.33
   },
   "state": {
-   "tax": 2231.23,
+   "tax": -135.89,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -19396,8 +19396,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -20004,7 +20004,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 20163.88,
+   "tax": 19769.36,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -20023,8 +20023,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -20631,7 +20631,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 25643.67,
+   "tax": 25249.15,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -20650,8 +20650,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -21258,7 +21258,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 40493.67,
+   "tax": 40099.15,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -21277,8 +21277,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
@@ -21885,7 +21885,7 @@
    "earnedIncomeCredit": 4328
   },
   "state": {
-   "tax": -245.24,
+   "tax": -2612.36,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -21904,8 +21904,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -22512,7 +22512,7 @@
    "earnedIncomeCredit": 3904.53
   },
   "state": {
-   "tax": 332.87,
+   "tax": -2034.25,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -22531,8 +22531,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -23135,7 +23135,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3297.28,
+   "tax": 930.16,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -23154,8 +23154,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -23758,7 +23758,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3370.56,
+   "tax": 1003.44,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -23777,8 +23777,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -24385,7 +24385,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3222.18,
+   "tax": 855.06,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -24404,8 +24404,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -25012,7 +25012,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 4134.36,
+   "tax": 1767.24,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -25031,8 +25031,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -25647,7 +25647,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2368.18,
+   "tax": 1.06,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -25666,8 +25666,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -26274,7 +26274,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1123.19,
+   "tax": -1243.93,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -26293,8 +26293,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -26901,7 +26901,7 @@
    "earnedIncomeCredit": 69.33
   },
   "state": {
-   "tax": 3152.44,
+   "tax": 785.32,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -26920,8 +26920,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 2367.12
     }
    ]
   },
@@ -27528,7 +27528,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 6936.19,
+   "tax": 6541.67,
    "credits": [
     {
      "name": "Oregon retirement income credit",
@@ -27547,8 +27547,8 @@
      "amount": 0
     },
     {
-     "name": "Oregon surplus credit (\"kicker\") (assumed: no prior-year Oregon liability — pass oregonPriorYearTaxBeforeCredits)",
-     "amount": 0
+     "name": "Oregon surplus credit (\"kicker\")",
+     "amount": 394.52
     }
    ]
   },
