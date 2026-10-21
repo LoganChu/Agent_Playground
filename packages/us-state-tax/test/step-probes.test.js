@@ -82,7 +82,12 @@ import {
   probeValues,
   stepCharts,
 } from './step-charts.mjs';
-import { HOUSEHOLDS, digest as sweepDigest, household } from './status-households.mjs';
+import {
+  FIGURE_SWEEP_OPTIONS,
+  HOUSEHOLDS,
+  digest as sweepDigest,
+  household,
+} from './status-households.mjs';
 
 const PINS = JSON.parse(readFileSync(new URL('./step-probes.json', import.meta.url), 'utf8'));
 const SWEEP = JSON.parse(readFileSync(new URL('./status-sweep.json', import.meta.url), 'utf8'));
@@ -110,7 +115,9 @@ test('every pinned probe still answers what it answered', () => {
   assert.equal(PINS.columns.length, 5 + DIGEST_COLUMNS.length);
   for (const row of PINS.rows) {
     const { year, state, chart, filingStatus, probe, expected } = parse(row);
-    const actual = digest(stateIncomeTax(probeInput(chart, probe, state, year, filingStatus)));
+    const actual = digest(
+      stateIncomeTax(probeInput(chart, probe, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
+    );
     assert.deepEqual(
       actual,
       expected,
@@ -273,13 +280,22 @@ test('every number in every staircase moves a pinned answer', () => {
     const probesHere = PINS.rows
       .map(parse)
       .filter((r) => r.year === year && r.state === state)
-      .map((r) => ({ id: `probe|${r.chart}|${r.filingStatus}|${r.probe}`, run: () => digest(stateIncomeTax(probeInput(r.chart, r.probe, r.state, r.year, r.filingStatus))) }));
+      .map((r) => ({ id: `probe|${r.chart}|${r.filingStatus}|${r.probe}`, run: () =>
+          digest(
+            stateIncomeTax(
+              probeInput(r.chart, r.probe, r.state, r.year, r.filingStatus),
+              FIGURE_SWEEP_OPTIONS,
+            ),
+          ) }));
     const sweepHere = [];
     for (const filingStatus of FILING_STATUSES) {
       for (const name of HOUSEHOLDS) {
         sweepHere.push({
           id: `sweep|${filingStatus}|${name}`,
-          run: () => sweepDigest(stateIncomeTax(household(name, state, year, filingStatus))),
+          run: () =>
+            sweepDigest(
+              stateIncomeTax(household(name, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
+            ),
         });
       }
     }

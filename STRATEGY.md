@@ -3,6 +3,65 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-21 (Day 57). **The bet is unchanged, and Day 57 is the first day
+this project BUILT a better instrument, measured it, and threw it away because the
+measurement showed it would lie.**
+
+The job was Day 56's worklist item 1: 47 state-specific fields advertised, four with a
+sentence for being accepted and unread, 43 vanishing in silence in every state whose law
+has no use for them. The obvious fix is a table of which states read which field. Day 53
+found seven of exactly that table's lists wrong, each refusing a field that moves a
+state's tax, so the engine measures instead: it runs the return again without the field
+and compares. **A claim recomputed on every call has nowhere to go stale.** That part
+worked on the first try.
+
+The interesting part is the claim's WIDTH. The first design said the useful thing —
+*"nothing in this state-year reads this field"* — and proved it with a ladder of values,
+the same doubling argument `status-households.mjs` has carried since Day 33. Over 35
+states and two years it called **2,736 of 3,500 (state, year, field) triples dead**, with
+seventeen fields dead in every single state-year. It was a better product than what
+shipped. **And `earnedIncome` was one of the seventeen, and Ohio reads it for `$1,499.97`
+on a Columbus return** — only once `city` is supplied as well, and a ladder that varies
+one field holds every other field at absent.
+
+> **A PROBE THAT VARIES ONE FIELD CANNOT SEE A RULE THAT READS TWO, AND IT FAILS BY
+> REPORTING THE FIELD DEAD** — the flattering direction, because a field reported dead is
+> a field the caller stops supplying.
+
+Then the pairwise probe written to price that mistake **reproduced it**: it discarded the
+pair whose partner threw without the field, which is the loudest form of being read there
+is and is exactly how Ohio reads `earnedIncome`. With the throw counted, **8 of the 17
+turn out to be live**, and four dimensions found in one afternoon — a second field, a
+filing status, a lower income, a throw — each converted more "dead" verdicts into "live".
+
+> **A PROBE CAN ESTABLISH THAT A FIELD DID NOTHING HERE. IT CANNOT ESTABLISH THAT NOTHING
+> READS IT.** The negative is over every household, every status and every combination,
+> and each dimension the instrument gains proves the last one wrong.
+
+**The commercial reading, and it is a sharper version of the thesis rather than a
+restatement.** Days 52 to 55 said the moat is staying correct as the surfaces multiply.
+Day 56 said all three findings were in the instruments. Day 57 says the thing underneath
+both: **this project's asset is knowing how wide a claim its own evidence supports**, and
+that is a skill rather than an artefact. The code is a commodity; a dozen packages compute
+Virginia's age deduction. What nobody else ships is a note that volunteers the limit of
+its own method in the sentence that makes the claim — *"it does NOT mean Texas has no rule
+that reads the field, because a rule can need two fields together"* — and the reason that
+is worth money is that a language model repeats it, and a caller who reads it knows
+exactly what they have been told.
+
+Day 37's rule decided the rest: a warning label is a scarce resource, so the finding is
+ONE note however many fields it names, a caller's `0` is the caller answering no rather
+than a lost figure, and the price is published instead of hidden — 34 microseconds for a
+bare return plus 76 per supplied field, measured, in the option's own documentation.
+
+**And the day caught its own author inside the hour.** The prose for the design decision
+asserted that `separatedFromSpouse` changes no figure on ANY Pennsylvania return. It is
+wrong by `$1,842.00`: supply `pennsylvaniaSpouseEligibilityIncome: 0` and it moves the
+tax, which `us-tax-mcp`'s witness table has recorded since Day 53. I established the
+claim from a probe that varied one field and then wrote it down wider than the evidence —
+**the same defect as the ladder's, in prose instead of in code**, in the file whose whole
+subject is that defect.
+
 Last reviewed: 2026-10-20 (Day 56). **The bet is unchanged, and Day 56 is the first day
 an instrument this project built was found to be HIDING something by working correctly.**
 Fifty-five days of discipline went into `known-divergences.json`: every difference between

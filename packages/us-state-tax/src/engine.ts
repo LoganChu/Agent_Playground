@@ -44,6 +44,7 @@ import { getStateDefinition, isSupported, stateName, supportedYears } from './st
 import { KNOWN_STATE_INPUT_FIELDS, PERSON_RETIREMENT_FIELDS } from './types.js';
 import { nearestFields, unknownInputNotes } from './unknown-input.js';
 import type { UnknownKeyOptions } from './unknown-input.js';
+import { probableInputFields, unreadInputNote, withoutField } from './unread-input.js';
 import type {
   Bracket,
   BracketDetail,
@@ -4493,14 +4494,19 @@ function assertKnownRetirementFields(split: StateIncomeTaxInput['retirement']): 
 }
 
 /**
- * Compute a state's individual income tax.
+ * The whole return, less the one note that is a statement ABOUT the return.
+ *
+ * Everything in `StateIncomeTaxResult` is computed here. `stateIncomeTax` calls
+ * this once for the caller's own household and once more per supplied field, and
+ * the split is what keeps the unread-field probe from recursing into itself:
+ * this function never probes, so a probe of it terminates.
  *
  * @throws {RangeError} when the state or the state-year is not supported. There is
  * no silent fallback to a neighbouring year: the states that changed their rate for
  * 2026 — Georgia, Indiana, Kentucky, Mississippi, North Carolina and Utah all did —
  * are exactly the ones where a fallback would look right and be wrong.
  */
-export function stateIncomeTax(
+function stateIncomeTaxWithoutUnreadNotes(
   asked: StateIncomeTaxInput,
   options: StateIncomeTaxOptions = {},
 ): StateIncomeTaxResult {
@@ -5280,6 +5286,73 @@ export function stateIncomeTax(
     provisional: def.status === 'provisional',
     notes: [...inputNotes, ...dynamic, ...relevantNotes(def, input)],
     citations: def.citations,
+  };
+}
+
+/**
+ * Everything the result reports except the unread-field note, reduced to a string
+ * two returns can be compared on.
+ *
+ * The notes are IN it, less the one note being decided, and that inclusion is not
+ * a nicety. On a Pennsylvania separate return with no
+ * `pennsylvaniaSpouseEligibilityIncome`, `separatedFromSpouse` moves no figure —
+ * `forgivenessClaimants` gives one claimant on their own income either way — and
+ * its whole observable effect there is to switch OFF the note saying the default
+ * was an assumption. A comparison over figures alone calls the field unread,
+ * which is false: it did the only thing it does on that return. (Supply the
+ * spouse's figure and it moves the tax by `$1,842.00`; see `src/unread-input.ts`
+ * for why the wider version of this sentence was wrong.)
+ *
+ * `JSON.stringify` is enough because every figure in a result is a number, a
+ * string, a boolean or an array of those, in an order fixed by the object literal
+ * that builds it — not by key insertion from a loop. `module-graph.test.js`
+ * forbids a dependency that could change that.
+ */
+function comparableResult(result: StateIncomeTaxResult): string {
+  return JSON.stringify(result);
+}
+
+/**
+ * Compute a state's individual income tax.
+ *
+ * Reports, in `notes`, any field the caller supplied that this return spent on
+ * nothing — measured by computing the return again without it. See
+ * `src/unread-input.ts` for why that claim is measured rather than looked up, and
+ * for the ladder-based version of it that was built, measured and thrown away.
+ *
+ * @throws {RangeError} when the state or the state-year is not supported. There is
+ * no silent fallback to a neighbouring year: the states that changed their rate for
+ * 2026 — Georgia, Indiana, Kentucky, Mississippi, North Carolina and Utah all did —
+ * are exactly the ones where a fallback would look right and be wrong.
+ */
+export function stateIncomeTax(
+  asked: StateIncomeTaxInput,
+  options: StateIncomeTaxOptions = {},
+): StateIncomeTaxResult {
+  const result = stateIncomeTaxWithoutUnreadNotes(asked, options);
+  if (options.reportUnreadFields === false) return result;
+  const fields = probableInputFields(asked, KNOWN_STATE_INPUT_FIELDS);
+  if (fields.length === 0) return result;
+
+  const want = comparableResult(result);
+  const unread: string[] = [];
+  for (const field of fields) {
+    let got: string;
+    try {
+      got = comparableResult(stateIncomeTaxWithoutUnreadNotes(withoutField(asked, field), options));
+    } catch {
+      // A return that will not RUN without the field is the loudest form of being
+      // read there is, and it is the form the first pairwise probe of this threw
+      // away: Ohio reads `earnedIncome` only once `city` is supplied, and `city`
+      // refuses to run without it. Counted as read, never as unread.
+      continue;
+    }
+    if (got === want) unread.push(field);
+  }
+  if (unread.length === 0) return result;
+  return {
+    ...result,
+    notes: [...result.notes, ...unreadInputNote(unread, result.stateName, asked.year)],
   };
 }
 

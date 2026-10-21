@@ -63,7 +63,13 @@ import {
   getStateDefinition,
   stateIncomeTax,
 } from './strict.mjs';
-import { DIGEST_COLUMNS, HOUSEHOLDS, digest, household } from './status-households.mjs';
+import {
+  DIGEST_COLUMNS,
+  FIGURE_SWEEP_OPTIONS,
+  HOUSEHOLDS,
+  digest,
+  household,
+} from './status-households.mjs';
 
 const PINS = JSON.parse(readFileSync(new URL('./status-sweep.json', import.meta.url), 'utf8'));
 const TAXING = SUPPORTED_STATES.filter((s) => !NO_INCOME_TAX_STATES.includes(s));
@@ -79,7 +85,9 @@ test('every pinned household still owes what it owed', () => {
   assert.ok(PINS.rows.length > 4_000, 'the fixture is present and not truncated');
   for (const row of PINS.rows) {
     const { year, state, filingStatus, name, expected } = parse(row);
-    const actual = digest(stateIncomeTax(household(name, state, year, filingStatus)));
+    const actual = digest(
+      stateIncomeTax(household(name, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
+    );
     assert.deepEqual(
       actual,
       expected,
@@ -121,7 +129,10 @@ test('a state with no income tax answers zero for every status and household', (
     for (const state of NO_INCOME_TAX_STATES) {
       for (const filingStatus of FILING_STATUSES) {
         for (const name of HOUSEHOLDS) {
-          const result = stateIncomeTax(household(name, state, year, filingStatus));
+          const result = stateIncomeTax(
+            household(name, state, year, filingStatus),
+            FIGURE_SWEEP_OPTIONS,
+          );
           assert.equal(result.hasIncomeTax, false, `${state} ${year}`);
           assert.equal(result.totalTax, 0, `${state} ${year} ${filingStatus} ${name}`);
         }
@@ -292,7 +303,14 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
             for (const filingStatus of FILING_STATUSES) {
               for (const name of HOUSEHOLDS) {
                 const key = `${year}|${state}|${filingStatus}|${name}`;
-                if (digest(stateIncomeTax(household(name, state, year, filingStatus))).join(',') !== pinned.get(key)) {
+                if (
+                  digest(
+                    stateIncomeTax(
+                      household(name, state, year, filingStatus),
+                      FIGURE_SWEEP_OPTIONS,
+                    ),
+                  ).join(',') !== pinned.get(key)
+                ) {
                   moved = true;
                   if (filingStatus === 'qualifyingSurvivingSpouse') movedForWidow = true;
                 }

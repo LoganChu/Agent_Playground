@@ -32,6 +32,7 @@ import {
   stepCharts,
 } from '../../packages/us-state-tax/test/step-charts.mjs';
 import { DRIVERS } from '../../packages/us-state-tax/test/step-charts.mjs';
+import { FIGURE_SWEEP_OPTIONS } from '../../packages/us-state-tax/test/status-households.mjs';
 
 const rows = [];
 for (const year of SUPPORTED_YEARS) {
@@ -41,7 +42,9 @@ for (const year of SUPPORTED_YEARS) {
       if (DRIVERS[driverKey(path)] === undefined) continue;
       for (const filingStatus of driverStatuses(path)) {
         for (const value of probeValues(steps)) {
-          const figures = digest(stateIncomeTax(probeInput(path, value, state, year, filingStatus)));
+          const figures = digest(
+            stateIncomeTax(probeInput(path, value, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
+          );
           rows.push([year, state, path, filingStatus, value, ...figures].join('|'));
         }
       }

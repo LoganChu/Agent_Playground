@@ -791,6 +791,24 @@ const SHAPES = {
 };
 
 /** The battery's keys, in the order the fixture stores them. */
+/**
+ * The options every FIGURE sweep runs under, shared by the tests and their
+ * regenerators so the two cannot disagree about what was measured.
+ *
+ * `reportUnreadFields` is on by default and costs the whole return once more per
+ * supplied field. These households supply eight to fourteen, over 8,320 rows in
+ * the status sweep alone, which took the suite from 18 seconds to 6m09s the first
+ * time it ran — and buys nothing, because every fixture here holds FIGURES and
+ * the note cannot reach one.
+ *
+ * Turning it off in a figure sweep is only safe because something refuses to let
+ * it be unsafe: `unread-input.test.js` asserts over every supported state-year
+ * that the option moves no figure and no other note. Without that assertion this
+ * constant would be a place a figure could change unobserved, which is the shape
+ * of defect this file's own header is about.
+ */
+export const FIGURE_SWEEP_OPTIONS = { reportUnreadFields: false };
+
 export const HOUSEHOLDS = Object.keys(SHAPES);
 
 /** Build one battery input. */

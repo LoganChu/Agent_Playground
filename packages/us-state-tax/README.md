@@ -691,7 +691,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.49.0/us-state-tax-0.49.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.50.0/us-state-tax-0.50.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3182,7 +3182,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **898 tests**. Turning it on, when there were 618 of them, is what
+from all **911 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of
@@ -3255,6 +3255,77 @@ no-income-tax states as well, so a tenth such state cannot join in silence:
 > half of a function a sentence had been written in, and only a test that asks
 > every state can know the sentence is reachable from both.
 
+### A FIFTH answer: every field this return spent on nothing (v0.50.0)
+
+The section above fixed **one** field in nine states. There are 52 non-structural
+fields in `StateIncomeTaxInput`, and before v0.50.0 exactly **four** of them had a
+sentence for being accepted and unread. The other 48 were dropped in silence by
+every state whose law has no use for them.
+
+v0.50.0 reports all of them, in one note:
+
+```js
+stateIncomeTax({ state: 'TX', year: 2025, /* … */
+                 propertyTaxPaid: 6_400, rentPaid: 14_000 }).notes;
+// '2 figures were supplied and spent on nothing: `propertyTaxPaid`, `rentPaid`.
+//  Every figure in this result — and every other note in it — is identical to
+//  the one this return would have had without them. That is MEASURED rather
+//  than looked up: the 2025 Texas return was computed again without each field
+//  and the answers compared. It does NOT mean Texas has no rule that reads the
+//  field, because a rule can need two fields together and the other one may be
+//  the one that is missing — Ohio reads `earnedIncome` only once `city` is
+//  supplied as well. It means nothing on THIS return moved, …'
+```
+
+**It is measured and not looked up, and that is the design rather than a detail.**
+The obvious implementation is a table of which states read which field. This
+repository already has one, in `us-tax-mcp`'s gate, and v0.49.0 found **seven of
+its lists wrong, each refusing a field that moves a state's tax**. A second
+hand-written table, in the engine, is the same bug with a different owner — so the
+engine runs the return again without the field and compares. A claim recomputed on
+every call has nowhere to go stale.
+
+**The note will not say that nothing reads the field**, and that restraint is the
+most expensive thing in the release. The first design said exactly that, and
+established it with a ladder of values per field; over 35 states and two years the
+ladder called **2,736 of 3,500 (state, year, field) triples dead**, seventeen
+fields dead in every state-year. One of the seventeen was `earnedIncome`, which
+Ohio reads for **`$1,499.97`** on a Columbus return — but only once `city` is
+supplied too, and a ladder that varies one field holds every other at absent.
+
+> **A probe that varies one field cannot see a rule that reads two, and it fails by
+> reporting the field dead** — the flattering direction, because a field reported
+> dead is a field the caller stops supplying. **A probe can establish that a field
+> did nothing here. It cannot establish that nothing reads it.**
+
+Two details decide whether it works at all.
+
+**The comparison includes the notes.** On a Pennsylvania separate return with no
+`pennsylvaniaSpouseEligibilityIncome`, `separatedFromSpouse` moves no figure —
+`forgivenessClaimants` gives one claimant on their own income either way, because
+the default is already the Unmarried oval of line 19a — and its whole observable
+effect there is to switch OFF the note saying the default was an assumption. A
+figures-only comparison calls it unread, which is false. (Supply the spouse's
+figure as `0` and the same field moves the tax by **`$1,842.00`**: two claimants
+with a `$13,000` allowance forgive a `$12,000` eligibility income whole, one
+claimant with `$6,500` steps the forgiveness down to nothing. 72 Pa. Stat. § 7304.)
+Including the notes also deduplicates this note against every bespoke one for free,
+because a sentence *about* a field is an observable effect *of* it — which is why
+the Texas example two sections up still reports `oregonPriorYearTaxBeforeCredits`
+in its own priced words and not here.
+
+**A trivial value is the caller answering no.** `0`, `false`, `''` and an empty
+collection are not reported, because no figure was lost. A warning label is a
+scarce resource and spending it on something that is fine is how the label stops
+being read.
+
+**What it costs, published rather than hidden.** The whole return runs once more
+per supplied field: **34 microseconds for a bare return plus about 76 per supplied
+field**, so a ten-field household is 796 instead of 34 — 23.8 times. On by default,
+for the reason `strict` is off by default. `reportUnreadFields: false` turns it off,
+and `test/unread-input.test.js` asserts over every supported state-year that the
+option moves no figure and no other note.
+
 Also exported: `KNOWN_STATE_INPUT_FIELDS` (every field name, proved against the
 interface by the compiler), `nearestFields(key, known)` and
 `unknownInputKeys(input, known)`.
@@ -3268,6 +3339,10 @@ stateIncomeTax(input: StateIncomeTaxInput, options?: StateIncomeTaxOptions): Sta
 `options.strict` throws on an input key this engine does not read instead of
 reporting it in `result.notes` — see **Three contracts, three answers to an
 unknown key** above. It defaults to off.
+
+`options.reportUnreadFields` reports, in `result.notes`, any field the caller
+supplied that this return spent on nothing — see **A FIFTH answer** above. It
+defaults to **on**, and costs the whole return once more per supplied field.
 
 `input.federal` is a structural subset of `us-federal-tax`'s `EstimateResult`, so the
 output of `estimateFederalTax()` can be passed straight in.

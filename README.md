@@ -23,9 +23,9 @@ runtime dependencies**, so `npm pack` produces a self-contained tarball, and npm
 installs a tarball from an https URL without a registry, an account or a token:
 
 ```bash
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.49.0/us-state-tax-0.49.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.50.0/us-state-tax-0.50.0.tgz
 npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.53.0/us-tax-mcp-0.53.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.54.0/us-tax-mcp-0.54.0.tgz
 ```
 
 Every version is on the [releases page](https://github.com/LoganChu/Agent_Playground/releases)
@@ -155,6 +155,113 @@ tenth cannot join in silence:
 > class.** The defect was never about California or Texas — it was about which
 > half of a function a sentence had been written in, and only a test that asks
 > every state can know the sentence is reachable from both.
+
+### And the general case, which was 43 fields wide (v0.50.0)
+
+The section above fixed **one** field in nine states. The measurement that mattered
+was the other one: this project's MCP server advertises **47 state-specific
+arguments** and exactly **four** of them had an engine sentence for being ignored.
+The other 43 vanished in silence in every state whose law has no use for them —
+`pennsylvaniaTaxableIncome` sent to Texas, `ohioBusinessIncome` sent to California,
+every Virginia, Maryland and Arizona field sent anywhere else. There is no typo to
+find and no symptom to notice: the answer comes back complete, confident, and
+computed as though the figure the caller went and looked up had never arrived.
+
+**v0.50.0 reports all of them, and the interesting part is what the sentence is
+allowed to say.**
+
+The obvious implementation is a table: for each field, the states that read it. The
+MCP server's gate is exactly that table — and the previous release found **seven of
+those lists wrong, each one refusing a field that moves a state's tax**, up to
+`$1,856.25` on a single Arizona return. A second hand-written table, in the engine
+this time, is that bug with a different owner.
+
+So nothing is written down. The engine answers by **running the return again
+without the field** and comparing what came back:
+
+```
+A figure was supplied and spent on nothing: `pennsylvaniaTaxableIncome`. Every
+figure in this result — and every other note in it — is identical to the one this
+return would have had without it. That is MEASURED rather than looked up: the 2025
+Texas return was computed again without each field and the answers compared. It
+does NOT mean Texas has no rule that reads the field, because a rule can need two
+fields together and the other one may be the one that is missing — Ohio reads
+`earnedIncome` only once `city` is supplied as well. It means nothing on THIS
+return moved.
+```
+
+A claim recomputed on every call cannot go stale, because there is nowhere for it
+to go stale in.
+
+#### The claim this note is NOT allowed to make, and what it cost to find out
+
+The first design said the stronger and more useful thing — *"nothing in this
+state-year reads this field"* — and established it with a **ladder**: probe the
+field across a spread of values, and if no value anywhere moves a figure, nothing
+reads it. Over 35 states and two years the ladder reported **2,736 of 3,500
+(state, year, field) triples dead**, with seventeen fields dead in every single
+state-year.
+
+`earnedIncome` was one of the seventeen, and Ohio reads it: a municipality taxes
+qualifying wages, and a `$60,000` earner in Columbus owes **`$1,499.97`** that a
+`$1` earner does not. The ladder could not see it because **Ohio reads
+`earnedIncome` only once `city` is supplied too**, and a ladder that varies one
+field at a time holds every other field at absent.
+
+> **A probe that varies one field cannot see a rule that reads two, and it fails by
+> reporting the field DEAD** — which is the flattering direction, because a field
+> reported dead is a field the caller stops supplying.
+
+A pairwise probe was then written to measure how wrong that was, **and the first
+version of it reproduced the same blindness**: it discarded the pair whose partner
+*threw* without the field, which is the strongest form of being read there is, and
+is exactly how Ohio reads `earnedIncome` — `city` refuses to run without it. With
+the throw counted, **8 of the 17 fields the one-field ladder called dead everywhere
+turn out to be live.** Four more dimensions found in one afternoon — a second
+field, a filing status, a lower income, a throw — each converted more "dead"
+verdicts into "live".
+
+> **A probe can establish that a field did nothing HERE. It cannot establish that
+> nothing reads it.** The negative is over every household, every status and every
+> combination of fields, and each dimension a probe gains proves the last one wrong.
+
+So the note makes the narrow claim and says why it is narrow. It is a statement
+about one return, it is exactly true, and it is the fact a caller cannot get any
+other way.
+
+#### Two details that are the whole of whether it works
+
+**The comparison includes the notes.** On a Pennsylvania separate return with no
+`pennsylvaniaSpouseEligibilityIncome`, `separatedFromSpouse` moves no figure at all
+— the engine's default is already the Unmarried oval of line 19a and already the
+safe direction — and its entire observable effect there is to **switch off the note
+saying the default was an assumption.** A comparison over figures alone calls that
+field unread, which is false: it did the only thing it does on that return. The
+same inclusion deduplicates the new note against every bespoke one for free,
+because a sentence *about* a field is an observable effect *of* the field.
+
+**A caller's `0` is the caller answering no.** A trivial value — `0`, `false`, `''`,
+an empty collection — is not reported, because no figure was lost. A warning label
+is a scarce resource, and spending it on something that is fine is how the label
+stops being read.
+
+#### What it costs, published rather than hidden
+
+The engine computes the whole return once more per supplied field. Measured over
+3,000 calls: **34 microseconds for a bare return, plus about 76 for each field the
+caller supplied** — a ten-field household is 796 microseconds instead of 34, which
+is 23.8 times slower. It is **on by default**, for the same reason `strict` is off
+by default: the caller who needs the note is the one who does not know they need
+it. `reportUnreadFields: false` turns it off for a batch, and
+[a test](packages/us-state-tax/test/unread-input.test.js) asserts over every
+supported state-year that the option moves **no figure and no other note**, so a
+figure measured with it off is the figure the default produces.
+
+That test is what makes the option safe to use inside this project's own figure
+sweeps, which is where the cost actually bit: switched on everywhere, it took the
+state suite from 18 seconds to **6m09s**, and the mutation audit from 90 minutes to
+an estimated 3.6 hours. Six sweeps that read figures and nothing else now opt out,
+and the suite is back to 22 seconds.
 
 ## How much of this is actually tested
 
@@ -690,7 +797,7 @@ through their `exports` maps, declare zero runtime dependencies in the installed
 `package.json`, and compute a Maryland joint return in Montgomery County —
 `$8,077.50` of state tax and `$5,443.20` of county tax — with the state engine taking
 the federal engine's own output as its basis. `npx -y` starts the MCP server, which
-answers `initialize` as `us-tax-mcp@0.53.0`, lists its ten tools and serves a
+answers `initialize` as `us-tax-mcp@0.54.0`, lists its ten tools and serves a
 `tools/call`.
 
 And the first call written against the installed package **returned a total tax of
@@ -1182,7 +1289,7 @@ tax figure instead of recalling one. Add it to any MCP client:
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.53.0/us-tax-mcp-0.53.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.54.0/us-tax-mcp-0.54.0.tgz"
       ]
     }
   }

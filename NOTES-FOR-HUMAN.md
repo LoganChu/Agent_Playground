@@ -13,14 +13,72 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 56 nothing is waiting on you except the three standing asks below — the
+**As of Day 57 nothing is waiting on you except the three standing asks below — the
 repository description and topics, the GitHub Pages switch, and the optional npm publish —
-and today's headline is that I FOUND A DEFECT IN MY OWN QUALITY MEASUREMENT, by predicting
-what it would say and being wrong by one.**
+and today's headline is that I BUILT A BETTER FEATURE, MEASURED IT, AND DELETED IT,
+because the measurement showed it would have told callers something false.**
 
-`us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` is **v0.49.0** and `us-tax-mcp`
-**v0.53.0**. **1,503 tests**, all passing. No state was added; 26 taxing states and 35 in
+`us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` is **v0.50.0** and `us-tax-mcp`
+**v0.54.0**. **1,516 tests**, all passing. No state was added; 26 taxing states and 35 in
 all, unchanged.
+
+**A. THE JOB, IN ONE SENTENCE.** If you hand this package a number it has no use for —
+Pennsylvania's taxable income, say, on a Texas return — it used to accept it, throw it
+away, and give you a confident answer that did not contain it. There is nothing to
+notice: no error, no blank, every number in the answer agreeing with every other one.
+There were **48 fields** that could do this and only four that said anything. Now every
+one of them is reported.
+
+**B. AND THE PART THAT IS ACTUALLY WORTH YOUR TIME, WHICH IS ABOUT WHAT I LET MYSELF
+CLAIM.** The useful sentence to print is *"nothing in Texas reads this field"*. I built
+that. The way to establish it is to try the field at many different values and see whether
+any of them changes the answer — and over 35 states and two years, that test said **2,736
+of 3,500 combinations were dead**, with seventeen fields apparently read by no state at
+all.
+
+One of the seventeen was `earnedIncome`. Ohio reads it: a Columbus resident earning
+`$60,000` owes **`$1,499.97`** that a `$1` earner does not. My test could not see it,
+because **Ohio only looks at earnings once you have also told it which city you live in**,
+and a test that changes one thing at a time leaves everything else blank.
+
+So I wrote a second test to find out how bad the first one was — and the second one made
+the same mistake, in a way I would not have predicted: it threw away the cases where the
+engine REFUSED to answer without the field, which is the strongest possible proof that the
+field is being read. With that fixed, **8 of the 17 "dead" fields are alive.** Every time I
+gave the instrument another dimension, more of its confident answers turned out to be
+wrong.
+
+**I deleted the stronger claim.** What ships says only what I can actually show: *"every
+number in this answer is identical to the one you would have got without this field"* —
+true, measured on your own return, re-measured on every call — and then says, in the same
+sentence, why that is not the same as "nothing reads it". **A note that admits the limit of
+its own method is the thing nobody else in this market ships**, and the reason it is worth
+money is that a language model reading the answer repeats it.
+
+**C. AND IT CAUGHT ME WRITING TOO CONFIDENTLY, WITHIN THE HOUR.** Explaining the design, I
+wrote that a particular Pennsylvania field "changes no figure on any Pennsylvania return".
+It is wrong by **`$1,842.00`** — under one condition I had not tested. I had made the
+claim from a one-thing-at-a-time test and then written it down wider than the evidence,
+which is precisely the mistake the whole day was about. Corrected, with the correction left
+visible, and the `$1,842.00` case is now in the test suite so the sentence cannot drift
+again.
+
+**D. ONE HONEST COST, because you should not have to find it yourself.** Checking takes
+real time: the engine computes your whole return once more for each number you gave it. A
+bare return is unchanged at 34 microseconds; a return with ten numbers goes from 34 to 796
+microseconds. That is still over a thousand full state returns a second, and it is **on by
+default** — the person who needs the warning is the person who does not know to ask for it
+— with a documented switch to turn it off for bulk work. Switched on everywhere it took my
+own test suite from 18 seconds to **six minutes**; six internal sweeps that only look at
+numbers now opt out, and the suite is back to 22 seconds.
+
+---
+
+**Day 56's headline, kept for the record: I FOUND A DEFECT IN MY OWN QUALITY MEASUREMENT,
+by predicting what it would say and being wrong by one.**
+
+As of Day 56 it was: `us-federal-tax` v0.15.0, `us-state-tax` **v0.49.0**, `us-tax-mcp`
+**v0.53.0**, **1,503 tests**, 26 taxing states and 35 in all.
 
 **A. THE ONE THAT MATTERS, AND IT IS ABOUT TRUSTING THE NUMBERS I REPORT TO YOU.** This
 project advertises a "mutation score": it changes one number in the shipped code at a time

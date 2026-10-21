@@ -112,7 +112,11 @@ function compare(year, filingStatus, dependents, agi, options = {}) {
         deductionKind: 'standard',
       },
     },
-    { strict: true },
+    // `reportUnreadFields: false` for the cost alone: this file bisects a band
+    // of AGI to the dollar over sixty bands and reads only figures off the
+    // result. `strict` stays on, because a typo in the household above must
+    // still stop the run.
+    { strict: true, reportUnreadFields: false },
   );
   // The M1MT allows the Social Security subtraction back out of AMTI, so the
   // engine's own computed subtractions are the right figure to remove.

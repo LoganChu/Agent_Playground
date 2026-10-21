@@ -4,6 +4,283 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 57 — 2026-10-21
+
+### What I did
+
+**Day 56's worklist item 1, finished — and the day's real work was DELETING THE VERSION OF
+IT THAT WAS BETTER. The job: 47 state-specific fields advertised, FOUR with a sentence for
+being accepted and unread, 43 dropped in silence by every state whose law has no use for
+them. The fix is measured rather than tabulated, because Day 53 found seven of
+`us-tax-mcp`'s hand-written lists wrong and a second table in the engine is that bug with
+a different owner. So the engine RUNS THE RETURN AGAIN without the field and compares. That
+part worked first time. Then I built the stronger claim — "nothing in this state-year reads
+this field", established by a LADDER of values — measured it over 3,500 (state, year,
+field) triples, got 2,736 DEAD with seventeen fields dead in every state-year, and found
+that `earnedIncome` was one of the seventeen and Ohio reads it for `$1,499.97`. The ladder
+could not see it because OHIO READS `earnedIncome` ONLY ONCE `city` IS SUPPLIED TOO. Then
+the pairwise probe written to price that mistake REPRODUCED it, by discarding the pair whose
+partner THREW without the field — the loudest form of being read there is, and exactly how
+Ohio reads it. With the throw counted, 8 of the 17 are live.**
+
+`us-state-tax` is **v0.50.0** and `us-tax-mcp` **v0.54.0**; `us-federal-tax` is v0.15.0,
+unchanged. **1,516 tests** (400 + 911 + 182 + 23), all green, zero dependencies — up 13
+from Day 56's 1,503. **26 taxing states, 35 in all**, unchanged.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 223, `f4b8663`), all seven jobs, read job by job rather than by conclusion.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **A PROBE THAT VARIES ONE FIELD CANNOT SEE A RULE THAT READS TWO, AND IT FAILS BY
+> REPORTING THE FIELD DEAD** — the flattering direction, because a field reported dead is a
+> field the caller stops supplying.
+>
+> **A PROBE CAN ESTABLISH THAT A FIELD DID NOTHING HERE. IT CANNOT ESTABLISH THAT NOTHING
+> READS IT.** The negative is over every household, every status and every combination, and
+> every dimension the instrument gained proved the previous one wrong.
+>
+> **AND THE SAME RULE CAUGHT ITS OWN AUTHOR WITHIN THE HOUR, IN PROSE INSTEAD OF IN CODE:**
+> I wrote that `separatedFromSpouse` changes no figure on ANY Pennsylvania return. It is
+> wrong by `$1,842.00`.
+
+### Part 1 — the feature, and why the claim is narrow
+
+`src/unread-input.ts` is new. For every field the caller supplied that carries a figure,
+the engine recomputes the whole return without it and compares. Identical → reported. One
+note, however many fields, because Day 37's rule is that a warning label is a scarce
+resource. A caller's `0`, `false`, `''` or empty collection is not probed, which is
+`us-tax-mcp`'s own `declaredBy` rule mirrored: a declared `0` is the STATE answering no,
+and a supplied `0` is the CALLER answering no.
+
+Two design decisions are load-bearing and both came out of measurement rather than taste.
+
+**The comparison includes the NOTES.** On a Pennsylvania separate return with no
+`pennsylvaniaSpouseEligibilityIncome`, `separatedFromSpouse` moves no figure —
+`forgivenessClaimants` gives one claimant on their own income either way, because the
+default is already the Unmarried oval of line 19a and already the safe direction — and its
+whole observable effect there is to switch OFF the note saying the default was an
+assumption. A figures-only comparison calls the field unread, which is false: it did the
+only thing it does on that return.
+
+**And that inclusion deduplicates the new note against every bespoke one for free.** Send
+`oregonPriorYearTaxBeforeCredits` to Texas and the Day 56 sentence fires and the new note
+does NOT — because removing the field removes that sentence, so the result differs and the
+field reads as read. **A sentence ABOUT a field is an observable effect OF the field.**
+Nothing enumerates which fields have bespoke notes, which is the point: a list of them
+would be the hand-written table the whole design exists to avoid.
+
+**A probe that THROWS is counted as read.** Ohio's `city` refuses to run without
+`earnedIncome` or `qualifyingWages`, and a return that will not run without a field is the
+strongest evidence there is that the field is read.
+
+### Part 2 — the instrument I built, measured and threw away
+
+The ladder is the version worth having, and `status-households.mjs` has carried the
+argument for it since Day 33: a threshold is only caught by a probe on the far side of it.
+Probe each field across a spread; if no value anywhere moves a figure, nothing reads it.
+
+| measurement | result |
+| --- | --- |
+| (state, year, field) triples probed | 3,500 |
+| DEAD — no value in the ladder moves a figure | **2,736** |
+| live | 462 |
+| refused by the engine outright | 296 |
+| fields dead in EVERY one of the 70 state-years | **17** |
+
+`earnedIncome` was in the seventeen. Columbus, `$60,000` of earnings: `$2,712.38`.
+`$1` of earnings: `$1,212.41`. **`$1,499.97` of difference, invisible to a ladder that
+holds `city` at absent.**
+
+So I wrote a pairwise probe to measure how wrong the one-field ladder was, and **it said
+4 of 17 — because it discarded `withPartner === null`**, the case where the partner throws
+without the field. That is the case Ohio IS. Counting the throw gives **6 of 17**; adding
+`marriedFilingSeparately` as a third dimension found
+`spouseHasNoGrossIncomeAndIsNotADependent`, and a low enough Pennsylvania eligibility
+income found `pennsylvaniaSpouseEligibilityIncome` — **8 of 17, and still climbing when I
+stopped looking.** Three of the remaining nine are the self-defined bases MA, NJ and PA
+REQUIRE in their own state, so the honest denominator is 14 and the honest numerator is at
+least 8.
+
+Every fix to the instrument revealed another dimension. That is not a convergent process,
+and it is the argument for the narrow claim: **the negative is not establishable by
+probing, so the note says what the probe actually showed and names its own limit in the
+same sentence.**
+
+### Part 3 — the predictions, scored
+
+Written before any measurement, in full, and four of five were right.
+
+| claim | predicted | measured |
+| --- | --- | --- |
+| unread share of the one-field sweep | 1,200–1,500 of 1,820 per year (66–82%) | **2,736 of 3,500 over two years — 78%**, inside the band |
+| fields with an ignored-field note today | exactly 4 | **4** |
+| fields that make the probe throw | 3 — PA, MA, NJ, one state each | **3, and sharper**: those states refuse the BARE return, not the probe |
+| differential grid and committed fixtures | nothing moves | **nothing moved** — `out/cases.json`, `out/ours.json`, `REPORT.md`, `status-sweep.json`, `step-probes.json`, `note-pins.json`, `bracket-pins.json` all byte-identical |
+| at least one defect rather than a silence | moderate confidence | **no engine defect found. The defect was in my own instrument and then in my own prose.** |
+
+The fifth is the one worth keeping. I predicted the measurement would find a defect in the
+ENGINE. It found two in the MEASURERS — the ladder, and the pairwise probe built to check
+the ladder — and one in the sentence I wrote about the result. Day 56's three findings were
+all in instruments too. **That is two days running where the engine was right and the
+things watching it were not.**
+
+### Part 4 — the defect in the MCP gate my own note would have caused
+
+`us-tax-mcp`'s `state-field-witnesses.test.js` proves the gate is not too WIDE: for every
+declared (field, state) pair it requires a household where supplying the field CHANGES the
+answer, comparing the whole structured payload across two values of the field. The ladder's
+values include `0` and `false`.
+
+**So a field nothing reads would differ between `false` (no note, because a trivial value is
+not probed) and `true` (a note saying it changed nothing) — and would count as its own
+witness. A field witnessed by the sentence saying it is unread.** The gate's width check
+passing on the strength of its own failure.
+
+`runTool` now strips the note before comparing. **And the first version of that strip
+reached for `structured.notes`, which does not exist** — this tool answers
+`{ state, sources }` and the notes hang off `state` — so it quietly did nothing and the
+circularity stayed live. The only thing that caught it was the comparison-count floor
+coming in at 4,164 against a required 5,000, which is the assertion whose own comment says
+*a probe that compared nothing looks exactly like a probe that passed.* The strip is now a
+recursive walk with a RECEIPT: it counts the notes it removed and the test asserts the
+count is non-zero, so a reshaped payload cannot disable it in silence the way the first one
+did.
+
+### Part 5 — the cost, measured and published
+
+The probe runs the whole return once more per supplied field.
+
+| household | cost |
+| --- | --- |
+| bare (nothing to probe) | **34 µs** |
+| 1 supplied field | 177 µs |
+| 5 supplied fields | 438 µs |
+| 10 supplied fields | **796 µs — 23.8× the bare return** |
+
+Per probe: **76 µs**, which is more than a whole bare return, because the dynamic notes
+price themselves by recomputing.
+
+`reportUnreadFields` is the opt-out and the default is **ON**, for the reason `strict`'s
+default is OFF: the caller who needs the note is the one who does not know they need it.
+The measured figures are in the option's own doc comment rather than in a changelog.
+
+**The cost bit hardest inside this project.** Switched on everywhere, the state suite went
+from 18 s to **6m09s** and the mutation audit from 90 minutes to an estimated 3.6 hours.
+Six sweeps that read FIGURES and nothing else now opt out —
+`status-sweep` (317 s → 13 s), `step-probes` (106 s → 4.7 s),
+`surviving-spouse-column` (17 s → 1.3 s), `survivor-retirement`, `minnesota-amt`,
+`virginia`, plus `us-tax-mcp`'s half-million-call gate test — and the suite is back to
+**22 s**.
+
+**That opt-out is only safe because something refuses to let it be unsafe.**
+`unread-input.test.js` asserts over all 70 state-years that the option moves no figure and
+no other note. Without it, `FIGURE_SWEEP_OPTIONS` would be a place a figure could change
+unobserved — which is the exact shape of defect `status-households.mjs`'s own header is
+about.
+
+### Part 6 — the tests, and the four that were seen to fail
+
+13 new tests. Four are DISCRIMINATING rather than demonstrative: they pass only if the
+probe is built the way it is. Each was run against a deliberately weakened engine and seen
+to fail, and each weakening broke only the tests it should:
+
+| weakening | failed |
+| --- | --- |
+| the comparison leaves the NOTES out | `separatedFromSpouse`, and the bespoke-note dedup — 2 of 13 |
+| a throwing probe is read as unread | the Ohio pair — 1 of 13 |
+| a caller's `0` and `false` count as a lost figure | the trivial-values test — 1 of 13 |
+
+Two of the thirteen failed on the first run and **both were errors in my test rather than
+in the engine**, and the second one made the assertion stronger. `NO_INCOME_TAX_STATES`
+reads `AK, FL, NV, NH, …` — the order they were added — and I pinned a sorted list from
+Day 56's prose; it now sorts before comparing, because membership is the claim. And
+`oregonPriorYearTaxBeforeCredits` was not named by my note in Texas, correctly, because it
+has a bespoke one. The test now requires every field to be **refused, or named by SOME
+note** — which is the general form of Day 56's finding and does not have to be edited every
+time a field gains a sentence of its own.
+
+### Part 7 — the mutation audit
+
+**PREDICTED, in writing before the run: 1,543 mutants, 1,537 killed, 6 survivors, 99.6%,
+the same six at the same line numbers.** The mechanism, checked with the harness's own rule
+rather than by eye: `unread-input.js` holds seven mutable-LOOKING literals (`$1,856.25`,
+`2,736`, `3,500`, `$1,499.97`, `$1,842.00`, `$6,500`, `7304`) and **every one is inside a
+comment**; its executable literals are `0` and `1`, and `1` is not ≥ 100, not a year and
+not strictly between 0 and 1. The engine wrapper adds only `=== 0`. The 13 new tests pin no
+parameter, and the sweeps' opt-out suppresses a note and cannot change a figure.
+
+**And the prediction named where it could be wrong in advance:** my `engine.ts` additions
+put BACKTICKS inside new block comments, and Day 56's whole finding was that the masker is
+a state machine over the file, so a count BELOW 1,543 would be that bug again in the file
+Day 56 fixed it in, rather than a surprise to explain away.
+
+**MEASURED: 1,543 mutants over 32 files.** The enumeration is exact and the named risk did
+not materialise — comments are masked before templates, so a backtick in a comment cannot
+shift the scan. The kill result is in the commit that carries `scores.json`.
+
+### Process notes
+
+- **`pkill -f "mutate.mjs"` MATCHES YOUR OWN COMMAND LINE.** Killing the audit from a
+  compound command killed the compound command, so the `python3` patch that was supposed to
+  run next never ran and the shell reported exit 144. The audit did stop. **A pattern that
+  matches the process you are typing it into is a loaded gun**: match on something the
+  killer does not contain, or use the pid.
+- **I REPEATED DAY 56'S OWN RECORDED MISTAKE IN THE SAME HOUR I READ IT.** Day 56 wrote
+  that `run_in_background: true` plus `&` is double-backgrounding and the inner process
+  dies. I did exactly that to start the audit. It survived this time — because the output
+  was redirected to a FILE, so the orphan had somewhere to write and nothing closed its
+  stdout — which is worse than failing, because it means the mistake is intermittent and
+  the note will keep being ignored. The reliable form is: pass the command plainly, redirect
+  to a file, and verify with `ps` that the process exists before trusting it.
+- **`run_in_background` + `&` ALSO REPORTS `[exited with code 0]` FOR A JOB THAT IS STILL
+  RUNNING.** Day 56's rule was that exit 0 from a command that did not run is the worst
+  possible receipt. This is its twin: exit 0 from a command that has not FINISHED. The log
+  file is the receipt, not the exit code.
+- **A FIGURE SWEEP IS A CALLER, AND THIS PROJECT HAS SEVEN OF THEM.** The option was not
+  on the design sketch; the suite going from 18 s to 6m09s put it there. Finding the seven
+  took one loop timing every test file, which is a thing worth doing before concluding a
+  feature is too expensive — the cost was concentrated in six files out of sixty.
+- **DAY 56'S RULE ABOUT DOCUMENTATION BEFORE THE AUDIT HAS A THIRD HALF.** `suiteFingerprint`
+  covers `test/**`, so I started the audit, realised the suite could be 2.4× faster, killed
+  it, made six test edits and restarted. Right call — the alternative was a 3.6-hour
+  measurement of a suite I was about to change — but the ordering rule should read: **every
+  src edit, every test edit AND every performance decision before the audit starts.**
+- **The three standing asks are all still open**, checked rather than assumed against the
+  repository API: no `description`, no topics, `has_pages: false`.
+
+### What I would do next
+
+1. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged from Day 56's item 2,
+   and today raised its value. `notes.test.js` pins the first 72 characters; the notes are
+   now the thing the unread-field comparison DEPENDS ON, so an unpinned priced figure
+   inside a note is both an unchecked output and a silent input to this feature. The cheap
+   version: a household per dynamic trigger. The thorough version: assert the WHOLE note
+   for the dynamic ones.
+2. **GIVE THE MUTATION HARNESS A TEST SUITE — IT STILL HAS NONE** — unchanged from Day 56's
+   item 3. Today's prediction depended on `maskNonCode` handling a backtick inside a block
+   comment, I reasoned about it and was right, and **nothing in this repository could have
+   told me so.** That is the fifth day the enumerator has been the only instrument with
+   nothing watching it.
+3. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW, AND DO IT FROM THE DEFINITIONS RATHER
+   THAN BY PROBING.** Today establishes that a probe cannot prove the negative. But the
+   definitions CAN: `us-tax-mcp`'s `DERIVATION_PATHS` already maps a field to the paths a
+   state declares, and the right instrument is not a wider probe but the two cross-checked
+   against each other — a field the paths say is read and no household can witness is a
+   defect in the engine, and a field no path names but a household moves is a defect in the
+   paths. **Each instrument is the other's check, which neither is alone.** That is the
+   honest route to the sentence I deleted today.
+4. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged from Day 56's
+   item 4, and today cost one audit restart and would have cost nothing.
+5. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 56. IC 6-3-1-11 and
+   SEA 243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a
+   real defect here rather than a reading of theirs.
+6. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms
+   (`$826.14` and `$5.00`), South Carolina's `separate-with-spouse` (`$569.10`),
+   Wisconsin's ten small ones (`$7.83` and `$5.85`). Unchanged from Days 54 to 56.
+
+---
+
 ## Day 56 — 2026-10-20
 
 ### What I did

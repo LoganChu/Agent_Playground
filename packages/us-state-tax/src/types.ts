@@ -1918,6 +1918,31 @@ export interface StateIncomeTaxOptions {
    * superset, or {@link StateIncomeTaxInput.retirement}, which throws either way.
    */
   readonly strict?: boolean;
+  /**
+   * Report a supplied field this return spent on nothing. **On by default.**
+   *
+   * See `src/unread-input.ts` for what the note claims and why it is measured
+   * rather than looked up. This option exists because the measurement is not
+   * free, and the price is published rather than hidden: the engine computes the
+   * whole return once more per supplied field, so a return costs **34
+   * microseconds plus about 76 for each field the caller supplied** — a bare
+   * return is unchanged and a ten-field household is 796 microseconds instead of
+   * 34, which is 23.8 times slower. Measured on this sandbox's hardware, over
+   * 3,000 calls after 300 warm-up calls, with `node --version` v22.
+   *
+   * The default is ON for the reason {@link strict}'s default is OFF, which is the
+   * same reason in the same direction: **the caller who needs the note is the one
+   * who does not know they need it.** Somebody who looked a figure up, passed it,
+   * and got a confident answer that does not contain it has no symptom to notice
+   * and no reason to go looking for a switch.
+   *
+   * Turn it OFF for a batch: a caller running a million households is paying
+   * twenty-four times over for a sentence about the first one. Nothing else
+   * changes — `test/unread-input.test.js` asserts over every supported state-year
+   * that the option moves NO figure and no other note, so a figure measured with
+   * it off is the figure the default produces.
+   */
+  readonly reportUnreadFields?: boolean;
 }
 
 export interface CreditDetail {

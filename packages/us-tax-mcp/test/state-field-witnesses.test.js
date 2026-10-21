@@ -556,16 +556,71 @@ const set = (object, fieldName, value) => {
   return next;
 };
 
+/**
+ * How much of a note the unread-field note is, so it can be taken out again.
+ *
+ * It HAS to come out, and the reason is a circularity that would have neutered
+ * the width test below in silence. That test witnesses a declared pair by
+ * supplying two different values of the field and requiring the answer to
+ * differ — and the ladder's values include `0` and `false`, which
+ * `src/unread-input.ts` treats as the caller answering no and does not report.
+ * So a field that NOTHING reads would differ between `false` (no note) and
+ * `true` (a note saying it changed nothing), and would count as its own witness.
+ *
+ * **A field would be witnessed by the sentence saying it is unread.** That is
+ * the gate's width check passing on the strength of its own failure.
+ */
+const UNREAD_NOTE_MARKER = 'spent on nothing';
+
+/**
+ * Every `notes` array anywhere in the payload, with the unread-field note taken
+ * out of it.
+ *
+ * A recursive walk rather than a reach for `structured.notes`, because that is
+ * what the first version did and the notes are NOT there: this tool answers
+ * `{ state, sources }` and the notes hang off `state`. The strip quietly did
+ * nothing, the circularity above stayed live, and the only thing that caught it
+ * was the comparison-count floor at the bottom of the width test coming in under
+ * 5,000 — the assertion whose own comment says a probe that compared nothing
+ * looks exactly like a probe that passed.
+ *
+ * {@link stripped} is the receipt. It counts the notes actually removed, and the
+ * width test requires it to be non-zero, so a payload reshaped under this
+ * function cannot disable the strip in silence the way the first one did.
+ */
+let stripped = 0;
+const withoutUnreadNote = (value) => {
+  if (Array.isArray(value)) return value.map(withoutUnreadNote);
+  if (value === null || typeof value !== 'object') return value;
+  const out = {};
+  for (const [key, inner] of Object.entries(value)) {
+    if (key === 'notes' && Array.isArray(inner)) {
+      const kept = inner.filter((n) => !String(n).includes(UNREAD_NOTE_MARKER));
+      stripped += inner.length - kept.length;
+      out[key] = kept;
+    } else {
+      out[key] = withoutUnreadNote(inner);
+    }
+  }
+  return out;
+};
+
 const runTool = (a) => {
   try {
-    return JSON.stringify(tool.run(a).structured);
+    return JSON.stringify(withoutUnreadNote(tool.run(a).structured));
   } catch {
     return null;
   }
 };
 const runEngine = (input) => {
   try {
-    const r = stateIncomeTax(input);
+    // `reportUnreadFields: false` for the cost alone: this test makes over half a
+    // million engine calls and the probe would run the whole return again once
+    // per supplied field on every one of them — 400 seconds and climbing, against
+    // the six this took. It cannot change what is measured here, because this
+    // function reads a FIGURE and `us-state-tax`'s `unread-input.test.js`
+    // asserts over every supported state-year that the option moves none.
+    const r = stateIncomeTax(input, { reportUnreadFields: false });
     return r.totalTax ?? r.tax;
   } catch {
     return null;
@@ -690,6 +745,10 @@ test('every state field DECLARED for a state has a household that witnesses it',
   // which is what the first run of this file actually did, 0 comparisons and no
   // drift reported.
   assert.ok(compared > 5_000, `comparisons made: ${compared}`);
+  // The strip's receipt. Without this the width test can be neutered by a
+  // reshaped payload and still pass, which is exactly what happened to the first
+  // version of `withoutUnreadNote` — see its header.
+  assert.ok(stripped > 0, 'the unread-field note was never found, so it was never stripped');
   assert.deepEqual(unwitnessed, [], 'declared state fields with no household that reads them');
   assert.equal(witnessed + UNWITNESSED.size, pairs, `declared pairs ${pairs}, witnessed ${witnessed}`);
   assert.ok(witnessed > 200, `pairs witnessed: ${witnessed}`);

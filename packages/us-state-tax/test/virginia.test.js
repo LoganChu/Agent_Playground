@@ -103,16 +103,22 @@ test('the published $259 ceiling is $1.50 above anything the worksheet can produ
   let max = 0;
   for (let taxable = 0; taxable <= 250_000; taxable += 131) {
     for (const smaller of [0, 500, 3_000, 5_000, 17_000, 25_000, taxable / 2, taxable / 3]) {
-      const r = stateIncomeTax({
-        state: 'VA',
-        year: 2025,
-        filingStatus: 'marriedFilingJointly',
-        // 17,500 standard deduction + 1,860 of exemptions puts taxable income
-        // exactly where this loop wants it.
-        federal: federal(taxable + 19_360),
-        bothSpousesHaveQualifyingIncome: true,
-        lesserSpouseIncome: smaller,
-      });
+      const r = stateIncomeTax(
+        {
+          state: 'VA',
+          year: 2025,
+          filingStatus: 'marriedFilingJointly',
+          // 17,500 standard deduction + 1,860 of exemptions puts taxable income
+          // exactly where this loop wants it.
+          federal: federal(taxable + 19_360),
+          bothSpousesHaveQualifyingIncome: true,
+          lesserSpouseIncome: smaller,
+        },
+        // A FIGURE sweep over 1,909 taxable incomes times eight splits, reading
+        // one credit off each. See `unread-input.test.js` for why the option
+        // cannot change what this measures.
+        { reportUnreadFields: false },
+      );
       max = Math.max(max, creditNamed(r, 'spouse tax adjustment'));
     }
   }

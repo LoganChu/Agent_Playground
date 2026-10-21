@@ -29,6 +29,7 @@ import {
   SUPPORTED_STATES,
   STATES_READING_RETIREMENT,
 } from './strict.mjs';
+import { FIGURE_SWEEP_OPTIONS } from './status-households.mjs';
 
 const FEDERAL_DEDUCTION = {
   single: 15_750,
@@ -89,8 +90,19 @@ test('exactly one state reads survivor retirement income differently from the fi
               ['employerPlanPension', 'survivorPension'],
             ]) {
               const base = household(state, year, filingStatus, agi, age);
-              const a = stateIncomeTax({ ...base, retirement: { filer: { [own]: 25_000 } } });
-              const b = stateIncomeTax({ ...base, retirement: { filer: { [survivor]: 25_000 } } });
+              // A FIGURE sweep, so the unread-field probe is off for the cost
+              // alone — 35 states x 2 years x 5 statuses x 3 incomes x 4 ages x
+              // 2 pairs of fields, and it reads `.tax` and nothing else.
+              // `unread-input.test.js` asserts over all 70 state-years that the
+              // option moves no figure.
+              const a = stateIncomeTax(
+                { ...base, retirement: { filer: { [own]: 25_000 } } },
+                FIGURE_SWEEP_OPTIONS,
+              );
+              const b = stateIncomeTax(
+                { ...base, retirement: { filer: { [survivor]: 25_000 } } },
+                FIGURE_SWEEP_OPTIONS,
+              );
               comparisons++;
               if (Math.abs(a.tax - b.tax) > 0.005) differ.add(state);
             }

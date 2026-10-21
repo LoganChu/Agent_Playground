@@ -77,7 +77,7 @@ import {
   getStateDefinition,
   stateIncomeTax,
 } from './strict.mjs';
-import { HOUSEHOLDS, household } from './status-households.mjs';
+import { FIGURE_SWEEP_OPTIONS, HOUSEHOLDS, household } from './status-households.mjs';
 
 const TAXING = SUPPORTED_STATES.filter((s) => !NO_INCOME_TAX_STATES.includes(s));
 
@@ -132,7 +132,12 @@ const cents = (n) => Math.round(n * 100);
 function battery(state, year) {
   return HOUSEHOLDS.map((name) => {
     const basis = household(name, state, year, 'qualifyingSurvivingSpouse');
-    const under = (status) => stateIncomeTax({ ...basis, filingStatus: status }).totalTax;
+    // A FIGURE sweep — four statuses times every household times every state —
+    // so it runs with the unread-field probe off, for the cost alone. It reads
+    // `.totalTax` and nothing else, and `unread-input.test.js` asserts over all
+    // 70 state-years that the option moves no figure.
+    const under = (status) =>
+      stateIncomeTax({ ...basis, filingStatus: status }, FIGURE_SWEEP_OPTIONS).totalTax;
     return {
       name,
       qss: under('qualifyingSurvivingSpouse'),

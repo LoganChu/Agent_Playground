@@ -23,6 +23,7 @@ import {
 } from '../../packages/us-state-tax/dist/esm/index.js';
 import {
   DIGEST_COLUMNS,
+  FIGURE_SWEEP_OPTIONS,
   HOUSEHOLDS,
   digest,
   household,
@@ -34,7 +35,7 @@ for (const year of SUPPORTED_YEARS) {
   for (const state of taxing) {
     for (const filingStatus of FILING_STATUSES) {
       for (const name of HOUSEHOLDS) {
-        const result = stateIncomeTax(household(name, state, year, filingStatus));
+        const result = stateIncomeTax(household(name, state, year, filingStatus), FIGURE_SWEEP_OPTIONS);
         rows.push([year, state, filingStatus, name, ...digest(result)].join('|'));
       }
     }
