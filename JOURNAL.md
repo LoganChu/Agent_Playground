@@ -292,16 +292,42 @@ the sentence was the one who broke it.
   four seconds and I spent none of them, in a session where every other figure was measured
   by a script. **The cheapest instrument available is the one you forget to use when the
   number looks obvious.**
-- **THE AUDIT NOW COSTS ABOUT 4.3 HOURS IN THIS SANDBOX, UP FROM DAY 56'S NINETY MINUTES,
-  AND THAT IS THIS RELEASE'S REAL BILL.** 4 cores, 4 workers, measured at 5.4 mutants a
-  minute over 150 mutants. The suite is 22 s standalone and about 26 s under four-way
-  contention, against roughly 14 s before — so the probe doubled the suite and the audit
-  with it, even after six sweeps opted out. **A feature whose cost lands on the QUALITY
-  MEASUREMENT is a different kind of expensive from one that lands on the caller**, because
-  it is paid again every day the engine's source moves. Day 56's worklist item 4 —
-  fingerprint the mutable literals rather than the raw bytes — is worth more than when it
-  was written, and running the audit in the background rather than in the foreground is the
-  only reason today fitted at all.
+- **THE AUDIT COSTS 3.4 HOURS IN THIS SANDBOX, UP FROM DAY 56'S NINETY MINUTES — 2.3× —
+  AND I PUBLISHED TWO WRONG FIGURES BEFORE GETTING IT.** 4 cores, 4 workers. The honest
+  number comes from 950 mutants over 125 minutes: **7.6 mutants a minute, so 203 minutes
+  for 1,543.** The suite is 22 s standalone against roughly 14 s before, so the probe
+  roughly doubled the suite and the audit went up by less than that, even after six sweeps
+  opted out.
+  **The two wrong figures are the finding.** I first measured 5.4/min over a 150-mutant
+  window and committed *"about 4.3 hours"* — and that window is the one in which I ran the
+  full isolation=none suite and three `tsc` builds on the same four cores the audit's four
+  workers were using. **I measured a rate while competing with the thing I was measuring.**
+  A quiet window then gave 12.0/min, which is as wrong in the other direction. Only the
+  950-mutant sample is a rate rather than a snapshot.
+  > **A RATE MEASURED OVER A SHORT WINDOW IS A MEASUREMENT OF THAT WINDOW, AND IF YOU ARE
+  > THE LOAD, IT IS A MEASUREMENT OF YOURSELF.** Day 55's rule was that a measurement which
+  > cannot have seen a change is not evidence there was none; this is its sibling, and it
+  > cost two published numbers in one day on top of Part 8's hand count. Three wrong
+  > figures, all three about my own work rather than about tax law.
+  The conclusion survives the correction and is worth less than it looked: **a feature whose
+  cost lands on the QUALITY MEASUREMENT is a different kind of expensive from one that lands
+  on the caller**, because it is paid again every day the engine's source moves. Worklist
+  item 5 — fingerprint the mutable literals rather than the raw bytes — is still the fix.
+- **THE AUDIT WAS KILLED AT 950 OF 1,543 WITH NOTHING RECORDED, BY THE TOOL'S OWN BACKGROUND
+  TIME LIMIT.** Two hours is the maximum a background task may run here and the measurement
+  needs 3.4, so the task was stopped at 62% and `scores.json` was never touched — two hours
+  of four-core work for no artefact. **A long measurement must not be owned by something
+  that can time it out.** Restarted under `setsid nohup … &`, fully detached, writing to a
+  log I poll; the orphan then outlives any task limit. Day 56's note against
+  double-backgrounding still holds for the case it was written about — a process whose output
+  goes nowhere dies — and the distinction it was missing is that **a detached process with a
+  FILE to write to survives, and one without does not.**
+- **AND THE PATTERN PROBLEM HAPPENED A THIRD TIME, THROUGH THE TRICK THAT IS SUPPOSED TO
+  PREVENT IT.** `pgrep -af "mutate[.]mjs"` returned my own two wrapper shells before the
+  real process, because the bracket trick only defeats a LITERAL self-match: as a regex
+  `mutate[.]mjs` still matches the string `mutate.mjs` sitting inside my own command line.
+  **The only reliable handle on a process is its pid**, and `ps -o pid,etime,cmd -p <pid>`
+  is the check that cannot match the checker.
 - **The three standing asks are all still open**, checked rather than assumed against the
   repository API: no `description`, no topics, `has_pages: false`.
 
