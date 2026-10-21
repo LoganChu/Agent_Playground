@@ -277,6 +277,16 @@ the sentence was the one who broke it.
   it, made six test edits and restarted. Right call — the alternative was a 3.6-hour
   measurement of a suite I was about to change — but the ordering rule should read: **every
   src edit, every test edit AND every performance decision before the audit starts.**
+- **TWO PATTERNS MATCHED THE WRONG THING TODAY, AND BOTH WERE MINE.** `pkill -f
+  "mutate.mjs"` matched the shell command that CONTAINED that string, so killing the audit
+  killed the compound command and the patch queued behind it never ran. Then the monitor
+  waiting for the audit to finish — `until grep -qE "survivors|score|killed"` — matched the
+  harness's own startup banner, *"will record the score in scores.json when the run
+  completes"*, and reported the audit done at 150 of 1,543. **A pattern is a claim about
+  what a string means, and a pattern that can match its own announcement is the day's
+  finding in a third costume.** The fix in both cases is to match on something only the
+  real event produces: the audit's `# Mutation audit` header, not a word that appears in
+  the promise to produce it.
 - **A HAND COUNT IS A MEASUREMENT WITH NO INSTRUMENT, AND I MADE ONE INSIDE A DAY ABOUT
   EXACTLY THAT.** See Part 8. `node -e 'console.log(KNOWN_STATE_INPUT_FIELDS.length)'` is
   four seconds and I spent none of them, in a session where every other figure was measured
@@ -297,18 +307,36 @@ the sentence was the one who broke it.
 
 ### What I would do next
 
-1. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged from Day 56's item 2,
+1. **CHECK THE PERFORMANCE CLAIM THE WAY THE COUNTS ARE CHECKED, AND COUNT INVOCATIONS
+   RATHER THAN MICROSECONDS.** `StateIncomeTaxOptions.reportUnreadFields`'s doc comment
+   now promises *"34 microseconds plus about 76 for each field the caller supplied"*, and
+   the package README and the root README repeat the ratio. **Nothing checks any of it**,
+   and unlike today's measurement of a deleted instrument these figures CAN drift: any
+   change to the engine moves them and the sentence then lies. Day 56's rule is that a
+   promise in a doc comment is as checkable as a promise in a schema, and Part 8 above is
+   today's proof that an unchecked number in this repository is a number that will be
+   wrong.
+   **The honest instrument is not a stopwatch.** A wall-clock assertion in CI is flaky by
+   construction — different hardware, different contention — so the thing to pin is the
+   STRUCTURAL claim the microseconds are evidence for: *the whole return runs once more per
+   supplied field.* Count the computations, not the time, and the check is deterministic and
+   hardware-independent. It needs a seam the engine does not have today (the count has to be
+   observable from outside), so it is a real piece of design rather than a test to dash off:
+   an injected counter, or a `probeCount` on the result, or an exported probe function the
+   test can call directly. Prefer whichever one a CALLER would also want, because a seam
+   that exists only for a test is a second thing to keep true.
+2. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged from Day 56's item 2,
    and today raised its value. `notes.test.js` pins the first 72 characters; the notes are
    now the thing the unread-field comparison DEPENDS ON, so an unpinned priced figure
    inside a note is both an unchecked output and a silent input to this feature. The cheap
    version: a household per dynamic trigger. The thorough version: assert the WHOLE note
    for the dynamic ones.
-2. **GIVE THE MUTATION HARNESS A TEST SUITE — IT STILL HAS NONE** — unchanged from Day 56's
+3. **GIVE THE MUTATION HARNESS A TEST SUITE — IT STILL HAS NONE** — unchanged from Day 56's
    item 3. Today's prediction depended on `maskNonCode` handling a backtick inside a block
    comment, I reasoned about it and was right, and **nothing in this repository could have
    told me so.** That is the fifth day the enumerator has been the only instrument with
    nothing watching it.
-3. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW, AND DO IT FROM THE DEFINITIONS RATHER
+4. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW, AND DO IT FROM THE DEFINITIONS RATHER
    THAN BY PROBING.** Today establishes that a probe cannot prove the negative. But the
    definitions CAN: `us-tax-mcp`'s `DERIVATION_PATHS` already maps a field to the paths a
    state declares, and the right instrument is not a wider probe but the two cross-checked
@@ -316,12 +344,12 @@ the sentence was the one who broke it.
    defect in the engine, and a field no path names but a household moves is a defect in the
    paths. **Each instrument is the other's check, which neither is alone.** That is the
    honest route to the sentence I deleted today.
-4. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged from Day 56's
+5. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged from Day 56's
    item 4, and today cost one audit restart and would have cost nothing.
-5. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 56. IC 6-3-1-11 and
+6. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 56. IC 6-3-1-11 and
    SEA 243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a
    real defect here rather than a reading of theirs.
-6. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms
+7. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms
    (`$826.14` and `$5.00`), South Carolina's `separate-with-spouse` (`$569.10`),
    Wisconsin's ten small ones (`$7.83` and `$5.85`). Unchanged from Days 54 to 56.
 
