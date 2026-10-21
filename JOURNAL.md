@@ -215,9 +215,31 @@ put BACKTICKS inside new block comments, and Day 56's whole finding was that the
 a state machine over the file, so a count BELOW 1,543 would be that bug again in the file
 Day 56 fixed it in, rather than a surprise to explain away.
 
-**MEASURED: 1,543 mutants over 32 files.** The enumeration is exact and the named risk did
-not materialise — comments are masked before templates, so a backtick in a comment cannot
-shift the scan. The kill result is in the commit that carries `scores.json`.
+**MEASURED: 1,543 mutants, 1,537 killed, 6 survivors, 99.6% — the same six at the same line
+numbers.** Every figure. The named risk did not materialise: comments are masked before
+templates, so a backtick in a comment cannot shift the scan.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Recorded against `mutantFingerprint` `5c7b32cb902ead16` and `suiteFingerprint`
+`bcaa00ae8a307968`, **which are byte for byte what CI computed from the pushed source** —
+read out of the first push's `mutation-claims` log rather than assumed. `us-federal-tax` was
+not re-run and did not need to be: nothing in it moved, and both its fingerprints still
+match.
+
+**This is the first row in the README's mutation history where the count was predicted to be
+UNCHANGED and was.** Every other row since Day 42 moved, and the one that did not move
+yesterday moved by nine under the hood. A prediction of "no change" is the easiest kind to
+make and the only kind Day 56 proved can be quietly false — a mutant that stops existing
+cannot survive — so it is the one worth checking against the harness's own rule rather than
+by eye.
 
 ### Part 8 — THE DAY'S OWN RULE A THIRD TIME, and this one was published
 
@@ -292,10 +314,13 @@ the sentence was the one who broke it.
   four seconds and I spent none of them, in a session where every other figure was measured
   by a script. **The cheapest instrument available is the one you forget to use when the
   number looks obvious.**
-- **THE AUDIT COSTS 3.4 HOURS IN THIS SANDBOX, UP FROM DAY 56'S NINETY MINUTES — 2.3× —
-  AND I PUBLISHED TWO WRONG FIGURES BEFORE GETTING IT.** 4 cores, 4 workers. The honest
-  number comes from 950 mutants over 125 minutes: **7.6 mutants a minute, so 203 minutes
-  for 1,543.** The suite is 22 s standalone against roughly 14 s before, so the probe
+- **THE AUDIT COST 3.06 HOURS — 184 MINUTES, 8.4 MUTANTS A MINUTE, 19:48 TO 22:51:45 —
+  AGAINST DAY 56'S NINETY MINUTES, AND I PUBLISHED THREE WRONG FIGURES BEFORE THE RUN GAVE
+  ME THE RIGHT ONE.** 4 cores, 4 workers. The four attempts differ only in how much of my
+  own work was competing with them: **5.4/min → 4.3 h** (measured while running the full
+  suite and three `tsc` builds), **12.0/min → 2.1 h** (a quiet window, a snapshot rather
+  than a rate), **7.6/min → 3.4 h** (950 mutants, still lightly loaded by my doc work), and
+  the completed run at **8.4/min → 3.06 h**, which is the number. The suite is 22 s standalone against roughly 14 s before, so the probe
   roughly doubled the suite and the audit went up by less than that, even after six sweeps
   opted out.
   **The two wrong figures are the finding.** I first measured 5.4/min over a 150-mutant

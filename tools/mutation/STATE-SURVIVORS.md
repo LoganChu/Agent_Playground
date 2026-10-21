@@ -1,3 +1,87 @@
+# Day 57 — the prediction was exact, and the day's three wrong numbers were all mine
+
+**PREDICTED, in writing before the run: 1,543 mutants, 1,537 killed, 6 survivors, 99.6%, the
+same six at the same line numbers as Days 50 to 56.**
+
+**MEASURED: 1,543 mutants, 1,537 killed, 6 survivors, 99.6% — the same six at the same line
+numbers.** Every figure.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Recorded against `mutantFingerprint` `5c7b32cb902ead16` and `suiteFingerprint`
+`bcaa00ae8a307968`, **which are byte for byte what CI computed from the pushed source** —
+read out of the `mutation-claims` log of the first push rather than assumed.
+
+## Why the count was predicted UNCHANGED, and how that was checked
+
+The day adds `src/unread-input.ts` and a wrapper in `engine.ts`. `mutate.mjs` mutates numeric
+literals only — money ≥ 100, years 1900–2100, rates strictly between 0 and 1 — so the
+question is whether the new code contains one.
+
+It was answered with the harness's own rule rather than by reading: the new module holds
+**seven mutable-looking literals and every one is inside a comment** (`$1,856.25`, `2,736`,
+`3,500`, `$1,499.97`, `$1,842.00`, `$6,500`, `7304`). Its executable literals are `0` and
+`1`, the `1` twice inside a `${...}` interpolation in the note text — which Day 56's
+template-aware masker now correctly treats as code, and which `mutantOf` declines because `1`
+is not ≥ 100, not a year, and not strictly between 0 and 1.
+
+**And the prediction named in advance where it could be wrong, which is the half that makes
+it a check.** The new doc comments contain BACKTICKS. Day 56's finding was that `maskNonCode`
+is a state machine over the whole file, so a count BELOW 1,543 would not have been a surprise
+to explain away — it would have been that bug again, in the file Day 56 fixed it in. The
+enumeration came back 1,543 on both starts, so comments are masked before templates and a
+backtick in a comment cannot shift the scan.
+
+## The suite changed and the killing power did not, which was also predicted
+
+13 tests were added and six figure sweeps were given `reportUnreadFields: false`. Neither can
+move a mutant: the new tests pin which notes exist and what one of them says, not a
+parameter, and the option suppresses a note and cannot change a figure —
+`unread-input.test.js` asserts exactly that over all 70 state-years. The six survivors are
+the same six they have been since Day 50.
+
+## WHAT THIS RUN COST, AND THE THREE FIGURES I PUBLISHED BEFORE GETTING IT RIGHT
+
+**The completed run: 19:48 to 22:51:45, 184 minutes, 8.4 mutants a minute** — 3.06 hours
+against Day 56's ninety minutes, because the unread-field probe roughly doubled the test
+suite (22 s against ~14 s) even after six sweeps opted out.
+
+Getting to that number took four attempts and three of them were published:
+
+| basis | figure | why it was wrong |
+| --- | --- | --- |
+| a 150-mutant window | 5.4/min → 4.3 h | I was running the full suite and three `tsc` builds on the same four cores |
+| a quiet 150-mutant window | 12.0/min → 2.1 h | too quiet; a snapshot, not a rate |
+| 950 mutants over 125 min | 7.6/min → 3.4 h | close, and still slightly loaded by my own doc work |
+| **the completed run** | **8.4/min → 3.06 h** | **this is the number** |
+
+> **A RATE MEASURED OVER A SHORT WINDOW IS A MEASUREMENT OF THAT WINDOW, AND IF YOU ARE THE
+> LOAD, IT IS A MEASUREMENT OF YOURSELF.** Day 55's rule was that a measurement which cannot
+> have seen a change is not evidence there was none. This is its sibling, and every one of
+> the four figures above differs only in how much of my own work was competing with it.
+
+**And the first attempt at this run was killed at 950 of 1,543 with nothing recorded**, by
+the two-hour ceiling on a background task in this sandbox — two hours of four-core work for
+no artefact, because `--record` needs a full run and the harness has no resume. Restarted
+under `setsid nohup … &`, fully detached, writing to a log that gets polled.
+
+> **A LONG MEASUREMENT MUST NOT BE OWNED BY SOMETHING THAT CAN TIME IT OUT.** And the
+> distinction Day 56's note against double-backgrounding was missing: a detached process with
+> a FILE to write to survives its parent, and one without does not.
+
+This file's own standing rule, from Day 55: **a measurement whose result you did not commit
+to in advance is a fact and not a check.** Day 57's was committed to in the journal before
+the run started and in the commit message before it finished.
+
+---
+
 # Day 56 — the prediction was wrong by ONE, and the one was a masked line of code
 
 **PREDICTED, in writing before the run: 1,543 mutants, 1,537 killed, 6 survivors, 99.6%, the

@@ -309,7 +309,17 @@ Day 51, the survivor claim    1,526 mutants    6 survivors   99.6%
 Day 52, the s.63(f) add-back  1,531 mutants    6 survivors   99.6%
 Day 55, Oregon's kicker       1,534 mutants    6 survivors   99.6%
 Day 56, the masker fixed      1,543 mutants    6 survivors   99.6%
+Day 57, the unread-field note 1,543 mutants    6 survivors   99.6%
 ```
+
+**Day 57's row is the first in this table where the count was predicted to be UNCHANGED and
+was** — the release adds a module and a wrapper whose only executable literals are `0` and
+`1`, and every mutable-looking figure in the new file (`$1,856.25`, `2,736`, `$1,499.97`,
+`$1,842.00`, `$6,500`) sits inside a comment. Checked against the harness's own rule before
+the run rather than by eye, and the prediction named where it could be wrong: the new doc
+comments contain BACKTICKS, and Day 56's whole finding was that the masker is a state
+machine over the file, so a count below 1,543 would have been that bug again in the file
+Day 56 fixed it in. It came back 1,543.
 
 **Day 56's `+9` is the only row here that is not about the tax code at all, and it does not
 decompose the way it looks.** Today's engine change added NO numeric literal. The arithmetic

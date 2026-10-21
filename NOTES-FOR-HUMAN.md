@@ -84,6 +84,14 @@ survivor is now compared to the code on every push. Shown the wrong number it sa
 root README says 56 and the code says 54"* and fails the build — and I checked that it
 fails, because a check nobody has seen fail is not known to check anything.
 
+**F. AND THE QUALITY NUMBER HELD, EXACTLY WHERE I SAID IT WOULD.** The check that changes
+one number in the shipped code at a time and requires some test to notice: **1,543 changes
+tried, 1,537 caught, 6 not, 99.6%** — the same six as the last seven days, at the same lines.
+Before running it I wrote down that the count would not move and why, and it did not. That
+took 3 hours of the machine's time, up from 90 minutes, because the new checking described
+above roughly doubles how long the test suite takes — which is the honest price of it and is
+written down next to the feature.
+
 ---
 
 **Day 56's headline, kept for the record: I FOUND A DEFECT IN MY OWN QUALITY MEASUREMENT,
