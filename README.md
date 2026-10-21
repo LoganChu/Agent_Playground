@@ -167,6 +167,12 @@ every Virginia, Maryland and Arizona field sent anywhere else. There is no typo 
 find and no symptom to notice: the answer comes back complete, confident, and
 computed as though the figure the caller went and looked up had never arrived.
 
+The engine's own input carries **54 fields in `StateIncomeTaxInput`**, four of them
+structural, and `tools/readme-root.mjs` checks that number against
+`KNOWN_STATE_INPUT_FIELDS` on every push — because the first draft of this release's
+documentation said 56, from a hand count, which is the defect this whole release is
+about wearing a third costume.
+
 **v0.50.0 reports all of them, and the interesting part is what the sentence is
 allowed to say.**
 

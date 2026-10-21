@@ -3257,10 +3257,17 @@ no-income-tax states as well, so a tenth such state cannot join in silence:
 
 ### A FIFTH answer: every field this return spent on nothing (v0.50.0)
 
-The section above fixed **one** field in nine states. There are 52 non-structural
-fields in `StateIncomeTaxInput`, and before v0.50.0 exactly **four** of them had a
-sentence for being accepted and unread. The other 48 were dropped in silence by
-every state whose law has no use for them.
+The section above fixed **one** field in nine states. Before v0.50.0 exactly
+**four** fields of `StateIncomeTaxInput` had a sentence for being accepted and
+unread; every other non-structural field in `KNOWN_STATE_INPUT_FIELDS` was dropped
+in silence by every state whose law has no use for it.
+
+The count is deliberately not written here. The first draft of this paragraph said
+52 non-structural fields and 48 silent ones; it is **50 and 46**, because I counted
+the array by eye. The surviving copy is in the root README, where
+`tools/readme-root.mjs` compares it to `KNOWN_STATE_INPUT_FIELDS.length` and fails
+the build on a drift — which is this repository's standing rule about a measured
+number written down twice.
 
 v0.50.0 reports all of them, in one note:
 

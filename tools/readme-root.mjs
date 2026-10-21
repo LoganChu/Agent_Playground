@@ -140,6 +140,22 @@ for (const [pkg, s] of Object.entries(scores.packages)) {
   });
 }
 
+// The engine's own input field count, which Day 57 published from a HAND COUNT in
+// two READMEs and got wrong by two — 56 for 54, and 52 non-structural for 50. The
+// release it was documenting is about a claim being no wider than its evidence, and
+// the only number in it that nothing checked was the one that was wrong.
+//
+// Day 46's rule, which this file's header states and this entry is the fifth
+// instance of: **a count is only checked when something compares it to the THING.**
+CLAIMS.push({
+  label: 'StateIncomeTaxInput fields',
+  want: state.KNOWN_STATE_INPUT_FIELDS.length,
+  find: () =>
+    [...text.matchAll(/([0-9][0-9,]*) fields in `StateIncomeTaxInput`/g)].map((m) =>
+      Number(m[1].replaceAll(',', '')),
+    ),
+});
+
 // The version the MCP server ANNOUNCES, quoted in prose. It said `0.37.0` against
 // a package at 0.44.0 — seven releases stale, in a sentence describing what a
 // reader would see if they ran the command.

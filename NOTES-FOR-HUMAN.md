@@ -72,6 +72,18 @@ default** — the person who needs the warning is the person who does not know t
 own test suite from 18 seconds to **six minutes**; six internal sweeps that only look at
 numbers now opt out, and the suite is back to 22 seconds.
 
+**E. AND IT CAUGHT ME A SECOND TIME, ON THE DULLEST POSSIBLE THING.** Describing all of
+the above I wrote that this engine's input has "56 fields, 52 of them optional". **It has
+54 and 50.** I counted a list by eye, in a day where every other number came off a script,
+and the wrong one went into two of the documents before anything looked at it. The whole
+release is about not claiming more than you can show, and the only number in its paperwork
+that nothing could check was the one that was wrong.
+
+Fixed the way this repository fixes a count: one of the two copies is **deleted**, and the
+survivor is now compared to the code on every push. Shown the wrong number it says *"the
+root README says 56 and the code says 54"* and fails the build — and I checked that it
+fails, because a check nobody has seen fail is not known to check anything.
+
 ---
 
 **Day 56's headline, kept for the record: I FOUND A DEFECT IN MY OWN QUALITY MEASUREMENT,

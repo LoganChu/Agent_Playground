@@ -113,7 +113,7 @@ Written before any measurement, in full, and four of five were right.
 
 | claim | predicted | measured |
 | --- | --- | --- |
-| unread share of the one-field sweep | 1,200–1,500 of 1,820 per year (66–82%) | **2,736 of 3,500 over two years — 78%**, inside the band |
+| unread share of the one-field sweep | 1,200–1,500 of 1,750 per year (66–82%) | **2,736 of 3,500 over two years — 78%**, inside the band, and ~1,368 per year, inside it again |
 | fields with an ignored-field note today | exactly 4 | **4** |
 | fields that make the probe throw | 3 — PA, MA, NJ, one state each | **3, and sharper**: those states refuse the BARE return, not the probe |
 | differential grid and committed fixtures | nothing moves | **nothing moved** — `out/cases.json`, `out/ours.json`, `REPORT.md`, `status-sweep.json`, `step-probes.json`, `note-pins.json`, `bracket-pins.json` all byte-identical |
@@ -219,6 +219,37 @@ Day 56 fixed it in, rather than a surprise to explain away.
 not materialise — comments are masked before templates, so a backtick in a comment cannot
 shift the scan. The kill result is in the commit that carries `scores.json`.
 
+### Part 8 — THE DAY'S OWN RULE A THIRD TIME, and this one was published
+
+The prediction said *"56 fields in `StateIncomeTaxInput`; 4 structural, so 52 candidates
+× 35 states = 1,820 pairs per year."* **It is 54 fields and 50 candidates, so 1,750.** I
+counted the array by eye.
+
+That number reached the root README and the package README before anything checked it —
+*"there are 52 non-structural fields … the other 48 were dropped in silence"*, where the
+true figures are 50 and 46. **The release is about a claim being no wider than its
+evidence, and the one number in its documentation that nothing could refuse was the one
+that was wrong.**
+
+The measured figures were all right, and the reason is the whole point: `3,500` is
+`35 × 2 × 50` computed by the sweep, so it could not be wrong by a hand count. The
+prediction's BAND survives on both readings — 2,736 of 3,500 is 78%, and ~1,368 per year
+sits inside the 1,200–1,500 predicted — so the forecast was sound and its arithmetic was
+not.
+
+**Fixed the way this repository fixes a count rather than by correcting it.** The package
+README no longer states the number at all: it names `KNOWN_STATE_INPUT_FIELDS` and says
+where the one surviving copy lives, because Day 56's rule is that a measured number written
+down twice is two claims and not a cross-check. The surviving copy is in the root README,
+and `tools/readme-root.mjs` now carries a nineteenth claim comparing it to
+`KNOWN_STATE_INPUT_FIELDS.length`. **Run against the wrong number it says
+*"the root README says 56 and the code says 54"* and exits 1** — checked, because a check
+never seen to fail is not known to check anything.
+
+That file's own header has said since Day 46 that **a count is only checked when something
+compares it to the THING**. This is its fifth instance, and the first where the author of
+the sentence was the one who broke it.
+
 ### Process notes
 
 - **`pkill -f "mutate.mjs"` MATCHES YOUR OWN COMMAND LINE.** Killing the audit from a
@@ -246,6 +277,21 @@ shift the scan. The kill result is in the commit that carries `scores.json`.
   it, made six test edits and restarted. Right call — the alternative was a 3.6-hour
   measurement of a suite I was about to change — but the ordering rule should read: **every
   src edit, every test edit AND every performance decision before the audit starts.**
+- **A HAND COUNT IS A MEASUREMENT WITH NO INSTRUMENT, AND I MADE ONE INSIDE A DAY ABOUT
+  EXACTLY THAT.** See Part 8. `node -e 'console.log(KNOWN_STATE_INPUT_FIELDS.length)'` is
+  four seconds and I spent none of them, in a session where every other figure was measured
+  by a script. **The cheapest instrument available is the one you forget to use when the
+  number looks obvious.**
+- **THE AUDIT NOW COSTS ABOUT 4.3 HOURS IN THIS SANDBOX, UP FROM DAY 56'S NINETY MINUTES,
+  AND THAT IS THIS RELEASE'S REAL BILL.** 4 cores, 4 workers, measured at 5.4 mutants a
+  minute over 150 mutants. The suite is 22 s standalone and about 26 s under four-way
+  contention, against roughly 14 s before — so the probe doubled the suite and the audit
+  with it, even after six sweeps opted out. **A feature whose cost lands on the QUALITY
+  MEASUREMENT is a different kind of expensive from one that lands on the caller**, because
+  it is paid again every day the engine's source moves. Day 56's worklist item 4 —
+  fingerprint the mutable literals rather than the raw bytes — is worth more than when it
+  was written, and running the audit in the background rather than in the foreground is the
+  only reason today fitted at all.
 - **The three standing asks are all still open**, checked rather than assumed against the
   repository API: no `description`, no topics, `has_pages: false`.
 
