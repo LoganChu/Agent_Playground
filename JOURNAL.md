@@ -272,6 +272,38 @@ That file's own header has said since Day 46 that **a count is only checked when
 compares it to the THING**. This is its fifth instance, and the first where the author of
 the sentence was the one who broke it.
 
+### Part 9 — CI, green on all seven jobs, read job by job
+
+Day 45's other half: reading CI at the START of a run is the standing item since Day 37, and
+recording it at the END is the half that says whether the day finished.
+
+**All seven green on `05fca5b` (run 228)** — the three test jobs, `differential`, `counts`,
+`cross-package` and `mutation-claims` — read job by job AND step by step rather than by
+conclusion, because a run reports success when every job does and says nothing at all about
+a job that was skipped.
+
+The day was pushed in **six commits on purpose**, and the shape of that is the day:
+
+| commit | what |
+| --- | --- |
+| `8c2c0a4` | the feature, the deleted ladder, 13 tests, the docs. `mutation-claims` RED on a stale record, deliberately |
+| `ac796d8` | the hand count — 56 fields where there are 54 — corrected, one copy deleted, the survivor given a checker verified to fail |
+| `3fe461c` | the two self-matching patterns, and tomorrow's item 1 |
+| `a40d2e1` | the rate I measured while being the load, corrected; the audit killed at 950 of 1,543; the `setsid` restart |
+| `05fca5b` | the record. 1,543 / 1,537 / 6 / 99.6%, every figure predicted exactly, seven of seven green |
+
+**Four of the first five are corrections of my own published claims**, which is the honest
+summary of the day: the engine was right from the first commit and I was wrong four times
+about my own work.
+
+`mutation-claims` was red for five hours and every minute of it was expected and explained in
+the commit that caused it, which is the only acceptable way for this project's headline claim
+to be stale: **the record said it was measuring a package that no longer existed, and it was
+right.** Both stale-claim messages were read in the LOG rather than inferred from the
+conclusion, per Day 45's rule that an expected red can hide an unexpected one — two stale
+claims, nothing else, and no complaint about the federal package.
+
+
 ### Process notes
 
 - **`pkill -f "mutate.mjs"` MATCHES YOUR OWN COMMAND LINE.** Killing the audit from a
