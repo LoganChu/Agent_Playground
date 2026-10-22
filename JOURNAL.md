@@ -464,6 +464,21 @@ wrong version lived, not only here.
   the `.js`. `README.md` is in NEITHER fingerprint, so it is the one document that can move
   while an audit runs. Knowing which documents are inside the fingerprint and which are
   outside it is what let the day's writing overlap the day's measurement.
+- **I WROTE A TEST COUNT DOWN BEFORE THE COUNT STOPPED MOVING, AND CI CAUGHT IT IN TWO
+  PLACES.** Both READMEs were updated to `920 tests` and then the tenth probe-cost test was
+  added, making it 921. `tools/test-counts.json` was rewritten correctly afterwards; the two
+  prose copies were not. **This is the day's own sequencing rule in the documentation rather
+  than in the audit** — src stops moving before the measurement starts, and a count stops
+  moving before it is written down — and I broke it in the same run that recorded it, which
+  is the third day in a row that has happened.
+- **AND IT WAS ONLY FOUND BY READING CI JOB BY JOB, WHICH IS WHY THAT RULE EXISTS.** The run
+  showed `failure` and I was EXPECTING a failure — `mutation-claims` is deliberately stale
+  until the audit lands. One expected red is the perfect place to hide two unexpected ones,
+  and there were two: the `counts` job and `us-tax-mcp`'s own `readme.test.js`, both naming
+  `920` against a measured `921`. **A conclusion I can explain in advance is the most
+  dangerous kind of green.** Day 45's rule — read job by job and step by step rather than by
+  conclusion — was written for a skipped job and it just paid for itself on an expected
+  failure instead.
 - **THE DAY-42 RULE ABOUT DOCUMENTATION BEFORE THE AUDIT IS NOW PRECISE RATHER THAN
   CONSERVATIVE, AND IT WAS MEASURED MID-AUDIT.** Documentation on a type-only declaration —
   an interface, a type alias — never reaches the emitted `.js`, because tsc erases the
