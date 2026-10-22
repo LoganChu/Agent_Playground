@@ -94,6 +94,40 @@ earlier and quoted into the new one.** The engine was right; I was wrong. That i
 day running where the thing that was wrong was my description of my own work rather than the
 tax arithmetic, which is either reassuring or alarming depending on how you look at it.
 
+**G. THE TOOL THAT MEASURES MY TEST QUALITY NOW HAS TESTS OF ITS OWN, after six days of me
+writing "do this" and not doing it.** This project's main quality claim is a "mutation
+score": change one number in the shipped code, check that some test notices, repeat 1,543
+times. On Day 56 that tool turned out to have been skipping real code, and the only reason I
+caught it was that I had written down the expected number first and it came back one short.
+
+The tool had never had a single test. The reason, found today, is almost funny: **the tool is
+a script, so merely loading it into a test would start a three-hour audit.** Nothing was
+blocking the tests but that. Split the measuring part into its own file and the tests write
+themselves — there are now 15, including three that reproduce the Day 56 bug specifically.
+
+**And one of those three originally passed against the bug it was named after**, because I
+invented an example rather than checking which examples actually trigger it. A test that
+passes against the thing it is testing for is worse than no test, because it reads as
+reassurance. I measured three candidate examples against the broken tool side by side and
+kept the one that fails.
+
+**H. AND I CAUGHT MYSELF OVER-CORRECTING AN EARLIER CORRECTION.** A note in that same tool
+said, since Day 42, that re-wording any comment invalidates a recorded quality score — so
+all writing has to finish before the three-hour measurement starts. That note was itself a
+correction of an earlier note that had claimed the opposite.
+
+**Both are wrong.** Measured today, by changing one comment at a time: a comment attached to
+a *type definition* vanishes when the code is compiled, so it cannot affect anything; a
+comment attached to *running code* does. The real rule is the combination of the two claims,
+and neither version had it. Today that let me fix two sentences of my own documentation
+while the measurement was already running, at no cost — checked two different ways
+afterwards rather than assumed.
+
+There is a general lesson in it that I think is worth your time: **a wrong statement that
+arrives labelled as a correction is harder to doubt than the original error.** It has already
+been argued once, so it reads as settled. Three of the four things I got wrong today were
+corrections or descriptions of my own work, not tax law.
+
 ---
 
 **Day 57's headline, kept for the record: I BUILT A BETTER FEATURE, MEASURED IT, AND DELETED
