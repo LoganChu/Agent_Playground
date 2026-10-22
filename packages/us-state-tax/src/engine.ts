@@ -55,6 +55,7 @@ import type {
   PersonRetirementIncome,
   StateCode,
   StateIncomeTaxInput,
+  StateIncomeTaxMeter,
   StateIncomeTaxOptions,
   StateIncomeTaxResult,
   SurtaxDetail,
@@ -4497,16 +4498,22 @@ function assertKnownRetirementFields(split: StateIncomeTaxInput['retirement']): 
  * The whole return, less the one note that is a statement ABOUT the return.
  *
  * Everything in `StateIncomeTaxResult` is computed here. `stateIncomeTax` calls
- * this once for the caller's own household and once more per supplied field, and
- * the split is what keeps the unread-field probe from recursing into itself:
- * this function never probes, so a probe of it terminates.
+ * this once for the caller's own household and once more for each field it can
+ * probe — which is NARROWER than each field supplied, and the difference is the
+ * structural claim `test/probe-cost.test.js` pins. The split is what keeps the
+ * unread-field probe from recursing into itself: this function never probes, so a
+ * probe of it terminates.
+ *
+ * Reached through {@link stateIncomeTaxWithoutUnreadNotes}, which counts the call
+ * when the caller passed a meter. Nothing calls this directly, so the count is of
+ * every whole return there is.
  *
  * @throws {RangeError} when the state or the state-year is not supported. There is
  * no silent fallback to a neighbouring year: the states that changed their rate for
  * 2026 — Georgia, Indiana, Kentucky, Mississippi, North Carolina and Utah all did —
  * are exactly the ones where a fallback would look right and be wrong.
  */
-function stateIncomeTaxWithoutUnreadNotes(
+function computeWholeReturn(
   asked: StateIncomeTaxInput,
   options: StateIncomeTaxOptions = {},
 ): StateIncomeTaxResult {
@@ -5290,6 +5297,33 @@ function stateIncomeTaxWithoutUnreadNotes(
 }
 
 /**
+ * {@link computeWholeReturn}, counted.
+ *
+ * The count is taken HERE rather than predicted anywhere, which is the whole
+ * point of it: `test/probe-cost.test.js` asserts that the number of returns the
+ * engine computed equals the number of fields it had to probe, and an assertion
+ * against a second expression that re-derives the probe list would be a model of
+ * this function rather than an observation of it. Day 53 found seven of exactly
+ * that kind of second opinion wrong.
+ *
+ * `returnsStarted` is incremented before the work and `returnsCompleted` after
+ * it, so a probe that throws — Ohio's `city` without `earnedIncome` — shows up as
+ * the difference. No try/finally and no cost at all when no meter was passed: the
+ * instrument must not be something the default path pays for.
+ */
+function stateIncomeTaxWithoutUnreadNotes(
+  asked: StateIncomeTaxInput,
+  options: StateIncomeTaxOptions = {},
+): StateIncomeTaxResult {
+  const meter = options.meter;
+  if (meter === undefined) return computeWholeReturn(asked, options);
+  meter.returnsStarted += 1;
+  const result = computeWholeReturn(asked, options);
+  meter.returnsCompleted += 1;
+  return result;
+}
+
+/**
  * Everything the result reports except the unread-field note, reduced to a string
  * two returns can be compared on.
  *
@@ -5308,7 +5342,8 @@ function stateIncomeTaxWithoutUnreadNotes(
  * that builds it — not by key insertion from a loop. `module-graph.test.js`
  * forbids a dependency that could change that.
  */
-function comparableResult(result: StateIncomeTaxResult): string {
+function comparableResult(result: StateIncomeTaxResult, meter?: StateIncomeTaxMeter): string {
+  if (meter !== undefined) meter.resultsCompared += 1;
   return JSON.stringify(result);
 }
 
@@ -5334,12 +5369,15 @@ export function stateIncomeTax(
   const fields = probableInputFields(asked, KNOWN_STATE_INPUT_FIELDS);
   if (fields.length === 0) return result;
 
-  const want = comparableResult(result);
+  const want = comparableResult(result, options.meter);
   const unread: string[] = [];
   for (const field of fields) {
     let got: string;
     try {
-      got = comparableResult(stateIncomeTaxWithoutUnreadNotes(withoutField(asked, field), options));
+      got = comparableResult(
+        stateIncomeTaxWithoutUnreadNotes(withoutField(asked, field), options),
+        options.meter,
+      );
     } catch {
       // A return that will not RUN without the field is the loudest form of being
       // read there is, and it is the form the first pairwise probe of this threw

@@ -1903,6 +1903,65 @@ const FEDERAL_BASIS_FIELDS_ARE_EXHAUSTIVE: Exactly<
 > = true;
 void FEDERAL_BASIS_FIELDS_ARE_EXHAUSTIVE;
 
+/**
+ * A tally of the work one {@link stateIncomeTax} call actually did.
+ *
+ * ## Why this exists, and why it is a COUNT rather than a stopwatch
+ *
+ * {@link StateIncomeTaxOptions.reportUnreadFields} is on by default and is not
+ * free: the engine computes the whole return once more for each supplied field it
+ * can probe, and reduces each answer to a string to compare it. That price used
+ * to be published as microseconds and nothing checked it — and a wall-clock
+ * assertion in a test suite is flaky by construction, because it measures the
+ * hardware and whatever else is running on it. (Day 57 of this project published
+ * three wrong rates in one afternoon, one of them measured while being the load
+ * it was measuring.)
+ *
+ * So the engine publishes the STRUCTURAL claim the microseconds were evidence
+ * for, in units that do not depend on the machine: **how many returns were
+ * computed and how many results were serialized.** `test/probe-cost.test.js`
+ * pins it; a caller can read it on their own workload.
+ *
+ * Pass a fresh object, or reuse one to accumulate across calls — the engine only
+ * ever adds. Counting is OFF unless a meter is passed, and
+ * `test/probe-cost.test.js` requires that passing one moves no figure and no
+ * note, because an instrument that perturbs what it measures is the defect it
+ * was built to find.
+ */
+export interface StateIncomeTaxMeter {
+  /**
+   * Whole returns the engine BEGAN computing, the caller's own included.
+   *
+   * Begun rather than finished, because a probe that THROWS still did the work
+   * and the caller still paid for it. The identity worth knowing is
+   * `returnsStarted === 1 + the number of fields probed`, and it holds whether or
+   * not any probe threw.
+   */
+  returnsStarted: number;
+  /**
+   * How many of those returned a result instead of throwing.
+   *
+   * `returnsStarted - returnsCompleted` is therefore exactly the number of
+   * supplied fields this return **refuses to run without** — the loudest form of
+   * being read there is, and the form the first pairwise probe of the
+   * unread-field feature discarded. Ohio reads `earnedIncome` only once `city` is
+   * supplied, and `city` will not run without it.
+   */
+  returnsCompleted: number;
+  /**
+   * Results reduced to a comparable string by the unread-field probe.
+   *
+   * Counted separately because it is the LARGER half of the price, and the
+   * mechanism published for that price named only the recomputation. On this
+   * project's sandbox a probed field costs about 35 microseconds, of which one
+   * more whole return is 4.5 and one serialization is 19.5 — so the recomputation
+   * the published sentence named is about an eighth of what the caller pays.
+   * Zero when there was nothing to probe, because the engine returns before it
+   * takes the first snapshot.
+   */
+  resultsCompared: number;
+}
+
 /** How {@link stateIncomeTax} should behave, as distinct from what it is given. */
 export interface StateIncomeTaxOptions {
   /**
@@ -1923,12 +1982,38 @@ export interface StateIncomeTaxOptions {
    *
    * See `src/unread-input.ts` for what the note claims and why it is measured
    * rather than looked up. This option exists because the measurement is not
-   * free, and the price is published rather than hidden: the engine computes the
-   * whole return once more per supplied field, so a return costs **34
-   * microseconds plus about 76 for each field the caller supplied** — a bare
-   * return is unchanged and a ten-field household is 796 microseconds instead of
-   * 34, which is 23.8 times slower. Measured on this sandbox's hardware, over
-   * 3,000 calls after 300 warm-up calls, with `node --version` v22.
+   * free, and the price is published rather than hidden — in units that do not
+   * depend on the machine, because the first version of this paragraph published
+   * microseconds and nothing could check them.
+   *
+   * **The price, exactly: one more whole return and one more serialization for
+   * each supplied field the engine can probe, plus one serialization of the
+   * caller's own answer.** Pass a {@link StateIncomeTaxMeter} and read the three
+   * counts off your own workload; `test/probe-cost.test.js` pins both identities
+   * over every supported state-year.
+   *
+   * **"Each field the engine can probe" is narrower than "each field supplied",
+   * and the difference is most of a real input.** A probe is run for a field that
+   * this package knows, that is not one of the four structural ones
+   * (`STRUCTURAL_STATE_INPUT_FIELDS` in `unread-input.ts` — `state`, `year`,
+   * `filingStatus`, `federal`, whose removal asks a question with no answer),
+   * and whose value carries a figure at all: a `0`, `false`, `''` or empty
+   * collection is the caller answering no, and is skipped. So a bare return pays
+   * NOTHING, every field it has being structural; and of the 54 fields
+   * {@link StateIncomeTaxInput} has, 50 are probable, so a caller who fills in
+   * every one of them and answers no to half of those 50 pays for 25 probes and
+   * not 54.
+   *
+   * On this project's sandbox at the time of writing a probed field costs about
+   * 35 microseconds: one more whole return is 4.5 of it and one serialization is
+   * 19.5, so **the serialization is the larger half of a price whose published
+   * mechanism named only the recomputation.** Those figures are hardware, not
+   * arithmetic, and the first version of this paragraph is the reason they are
+   * labelled that way — it published `34` for a bare return and `796` for a
+   * ten-field one, neither of which reproduces here, and a RATIO of `23.8×` that
+   * reproduces at any value between `24×` and `74×` on one machine depending
+   * only on how long the benchmark warmed up. The cheap leg of a ratio is the one
+   * the noise owns. The counts above are the claim.
    *
    * The default is ON for the reason {@link strict}'s default is OFF, which is the
    * same reason in the same direction: **the caller who needs the note is the one
@@ -1936,13 +2021,21 @@ export interface StateIncomeTaxOptions {
    * and got a confident answer that does not contain it has no symptom to notice
    * and no reason to go looking for a switch.
    *
-   * Turn it OFF for a batch: a caller running a million households is paying
-   * twenty-four times over for a sentence about the first one. Nothing else
-   * changes — `test/unread-input.test.js` asserts over every supported state-year
-   * that the option moves NO figure and no other note, so a figure measured with
-   * it off is the figure the default produces.
+   * Turn it OFF for a batch: a caller running a million households is paying for
+   * a sentence about the first one many times over, and a meter will tell them
+   * how many. Nothing else changes — `test/unread-input.test.js` asserts over
+   * every supported state-year that the option moves NO figure and no other note,
+   * so a figure measured with it off is the figure the default produces.
    */
   readonly reportUnreadFields?: boolean;
+  /**
+   * Count the work this call does, into a caller-supplied tally.
+   *
+   * Off unless passed, and passing one changes nothing else about the answer. See
+   * {@link StateIncomeTaxMeter} for what each count means and why the price is
+   * published as counts rather than as microseconds.
+   */
+  readonly meter?: StateIncomeTaxMeter;
 }
 
 export interface CreditDetail {

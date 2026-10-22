@@ -136,6 +136,7 @@ export type {
   StateCode,
   StateDefinedBaseField,
   StateIncomeTaxInput,
+  StateIncomeTaxMeter,
   StateIncomeTaxOptions,
   StateIncomeTaxResult,
   SurtaxDetail,

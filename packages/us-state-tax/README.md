@@ -3182,7 +3182,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **911 tests**. Turning it on, when there were 618 of them, is what
+from all **920 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of
@@ -3326,12 +3326,46 @@ collection are not reported, because no figure was lost. A warning label is a
 scarce resource and spending it on something that is fine is how the label stops
 being read.
 
-**What it costs, published rather than hidden.** The whole return runs once more
-per supplied field: **34 microseconds for a bare return plus about 76 per supplied
-field**, so a ten-field household is 796 instead of 34 — 23.8 times. On by default,
-for the reason `strict` is off by default. `reportUnreadFields: false` turns it off,
-and `test/unread-input.test.js` asserts over every supported state-year that the
-option moves no figure and no other note.
+**What it costs, published as a COUNT rather than as a clock.** Each field the
+engine can probe costs **one more whole return and one more serialization**, plus
+one serialization of your own answer. Pass a `StateIncomeTaxMeter` and read the
+three counts off your own workload:
+
+```ts
+const meter = { returnsStarted: 0, returnsCompleted: 0, resultsCompared: 0 };
+stateIncomeTax(input, { meter });
+// a bare return:            1 / 1 / 0   — every field it has is structural
+// three figures supplied:   4 / 4 / 4
+// Ohio, `city` + earnedIncome:  3 / 2 / 2   — one probe REFUSED to run
+```
+
+`returnsStarted - returnsCompleted` is exactly the number of supplied fields this
+return will not run without, which is the loudest form of being read there is.
+
+**"Each field the engine can probe" is narrower than "each field supplied", and
+the difference is most of a real input.** The four structural fields — `state`,
+`year`, `filingStatus`, `federal` — are never probed, and neither is a `0`,
+`false`, `''` or empty collection, because that is the caller answering no. So a
+bare return pays nothing at all.
+
+`test/probe-cost.test.js` pins both identities over every supported state-year, as
+differences rather than totals, so nothing in it goes stale when a state gains a
+field. On by default, for the reason `strict` is off by default.
+`reportUnreadFields: false` turns it off and costs exactly one return per
+household; `test/unread-input.test.js` asserts over every supported state-year
+that the option moves no figure and no other note.
+
+**Why this is a count and not microseconds, which is worth one paragraph.** Until
+Day 58 the price above read *"34 microseconds for a bare return plus about 76 per
+supplied field — 23.8 times slower for a ten-field household"*, and nothing
+checked any of it. Measured again: a probed field costs about 35 microseconds
+here, of which the recomputation that sentence named is **4.5** and the
+serialization it did not mention is **19.5**. The published mechanism accounted
+for about an eighth of the published price. And the ratio is not a property of
+the engine at all — on one machine it reads anywhere from `24×` to `74×`
+depending only on how long the benchmark warmed up, because the ten-field leg is
+stable near 350 microseconds while the bare leg moves from 15 to 5, and **the
+cheap leg of a ratio is the one the noise owns.**
 
 Also exported: `KNOWN_STATE_INPUT_FIELDS` (every field name, proved against the
 interface by the compiler), `nearestFields(key, known)` and

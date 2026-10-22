@@ -253,15 +253,66 @@ stops being read.
 
 #### What it costs, published rather than hidden
 
-The engine computes the whole return once more per supplied field. Measured over
-3,000 calls: **34 microseconds for a bare return, plus about 76 for each field the
-caller supplied** — a ten-field household is 796 microseconds instead of 34, which
-is 23.8 times slower. It is **on by default**, for the same reason `strict` is off
-by default: the caller who needs the note is the one who does not know they need
-it. `reportUnreadFields: false` turns it off for a batch, and
-[a test](packages/us-state-tax/test/unread-input.test.js) asserts over every
-supported state-year that the option moves **no figure and no other note**, so a
-figure measured with it off is the figure the default produces.
+The price is published as a **count**, in units no machine can move: each field
+the engine can probe costs **one more whole return and one more serialization**,
+plus one serialization of the caller's own answer. Pass a `StateIncomeTaxMeter`
+and read it off your own workload — a bare return computes 1 return and compares
+0; three supplied figures cost 4 and 4; an Ohio return with `city` and
+`earnedIncome` costs 3 returns of which only 2 finish, because removing
+`earnedIncome` makes the return refuse to run, which is the loudest form of being
+read there is.
+
+**"Each field the engine can probe" is narrower than "each field supplied."** The
+four structural fields are never probed, and a `0`, `false`, `''` or empty
+collection is the caller answering no. A bare return pays nothing.
+[`probe-cost.test.js`](packages/us-state-tax/test/probe-cost.test.js) pins both
+identities over every supported state-year as **differences rather than totals**,
+so no number in it can go stale when a state gains a field — a test that
+re-derived "how many fields will be probed" from its own copy of the rule would
+be the second opinion Day 53 found wrong seven times.
+
+It is **on by default**, for the same reason `strict` is off by default: the
+caller who needs the note is the one who does not know they need it.
+`reportUnreadFields: false` turns it off for a batch and costs exactly one return
+per household, and [a test](packages/us-state-tax/test/unread-input.test.js)
+asserts over every supported state-year that the option moves **no figure and no
+other note**, so a figure measured with it off is the figure the default produces.
+
+#### The microseconds this replaced, and why a ratio was the worst of them
+
+Until Day 58 the paragraph above read **"34 microseconds for a bare return, plus
+about 76 for each field the caller supplied — 23.8 times slower for a ten-field
+household"**, measured over 3,000 calls after 300 warm-up calls, and **nothing in
+this repository checked a single figure in it.** Three things were wrong with it,
+in rising order of interest.
+
+It said *"each field the caller supplied"*, and the engine probes neither the
+structural fields nor a trivial value — the same sentence then noted that a bare
+return, which supplies four fields, pays nothing.
+
+It named a mechanism that does not account for the price. Re-measured: a probed
+field costs about **35 microseconds**, of which the recomputation the sentence
+named is **4.5** and the serialization it never mentioned is **19.5**. The
+published mechanism explained about an eighth of the published cost, and the
+larger half of that cost had no sentence anywhere.
+
+And the ratio — the figure that looked like the hardware-independent one — is the
+least stable number of the three. On one machine, changing nothing but the
+benchmark's warm-up, it reads:
+
+```
+    50 warm-ups:  bare  15.02 us   ten  362.8 us   ratio 24.2x
+   300 warm-ups:  bare   5.86 us   ten  355.4 us   ratio 60.7x
+  5000 warm-ups:  bare   4.69 us   ten  345.6 us   ratio 73.6x
+```
+
+The expensive leg is stable to within 5%. Only the cheap leg moves, by 3×, and it
+is the denominator.
+
+> **A RATIO IS NOT MORE HARDWARE-INDEPENDENT THAN THE TIMINGS IT IS BUILT FROM.
+> IT IS LESS, BECAUSE THE CHEAP LEG OWNS IT — AND THE CHEAP LEG IS WHERE THE
+> NOISE LANDS.** `23.8×` reproduces here only at a warm-up shorter than the one
+> its own note records. A count cannot do this.
 
 That test is what makes the option safe to use inside this project's own figure
 sweeps, which is where the cost actually bit: switched on everywhere, it took the
