@@ -23,11 +23,19 @@
 // opinion wrong, each refusing a field that moves a state's tax. A list of
 // expected counts per state-year would be worse: a table that goes stale.
 //
-// So nothing here states a total. Each test adds ONE field to an input and
-// requires the counts to move by exactly the amount that field is worth: one for
-// a figure, zero for a `0`, zero for a key this package does not have. The
-// absolute numbers are never named, which is why nothing here needs editing when
-// a state gains a field.
+// So the central claim — that the price is LINEAR in the number of probed fields
+// — is asserted only as a difference. Each step adds ONE field to an input and
+// requires the counts to move by exactly what that field is worth: one for a
+// figure, zero for a `0`, zero for a key this package does not have.
+//
+// Absolutes DO appear, and the first draft of this paragraph claimed they did
+// not — "the absolute numbers are never named", written three tests before the
+// ones that name them. What is true is narrower and is the property that
+// actually matters: **no count asserted here can be changed by a state gaining a
+// field.** The absolutes are structural constants — one return for a household
+// with nothing to probe, two for the three states that refuse without their own
+// base field, three for an Ohio return with two probable fields — and each is
+// pinned beside the premise that makes it true.
 //
 // Three of the tests are DISCRIMINATING, and each was run against a deliberately
 // weakened engine first and seen to fail:

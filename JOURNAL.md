@@ -431,6 +431,34 @@ documentation on anything that survives to runtime is not.** That is most of wha
 actually reads, so it is not a small exemption. Recorded in `fingerprint.mjs` where the
 wrong version lived, not only here.
 
+**And the same question came up again an hour later for the SUITE fingerprint, where the
+answer is different and had to be established differently.** Re-reading
+`probe-cost.test.js`'s own header found a false sentence in it — *"nothing here states a
+total ... the absolute numbers are never named"* — written three tests before the ones that
+name them. Tests 1, 6 and 7 all assert absolutes. What is actually true is narrower and is
+the property that matters: **no count asserted in that file can be changed by a state
+gaining a field**, because every absolute in it is a structural constant with its premise
+pinned beside it.
+
+Fixing it meant editing a file under `test/`, which `suiteFingerprint` covers — and unlike
+the interface JSDoc, **this one really does move the fingerprint**: `827ed0309a269483` →
+`88b8d2425f112189`. There is no erasure to hide behind; a comment in a test file is bytes in
+a test file.
+
+So the soundness argument is a different one, and it is checkable rather than plausible: the
+audit records `suiteFingerprint` at the END from the live tree, so the record will name the
+shipped suite; and the measurement stays valid because **the suite does exactly what it did
+when the audit started.** Proven, not asserted — `git diff -U0` on the file, every changed
+line passed through a filter for anything that is not a comment, and the count of
+non-comment changes is **zero**. 921 tests before, 921 after, all green.
+
+> **TWO FINGERPRINTS, TWO DIFFERENT ARGUMENTS, AND NEITHER IS "A COMMENT IS HARMLESS".** For
+> the mutant fingerprint the edit was invisible because the compiler erases type-only
+> declarations. For the suite fingerprint the edit is visible and is sound anyway, because
+> the record is written at the end and the behaviour did not change. Getting the right answer
+> for the wrong reason would have been easy here, and it is the thing `fingerprint.mjs` has
+> now been wrong about twice.
+
 ### Process notes
 
 - **I MEASURED THE OLD CLAIM BEFORE I BUILT THE NEW INSTRUMENT, AND THAT ORDERING IS THE
