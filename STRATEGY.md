@@ -3,6 +3,67 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-22 (Day 58). **The bet is unchanged, and Day 58 is the day a
+published PRICE turned out to be measured correctly and attributed to the wrong cause.**
+
+The job was Day 57's worklist item 1. `reportUnreadFields` is on by default and costs real
+time, and the price was published in the option's own doc comment and in both READMEs as
+*"34 microseconds plus about 76 for each field the caller supplied"* — with nothing checking
+a single figure in it. The fix was never a stopwatch: a wall-clock assertion in CI measures
+the hardware and whatever else is running on it. So the engine now publishes the STRUCTURAL
+claim the microseconds were evidence for, as counts a caller can read off their own
+workload — returns begun, returns finished, results serialized — and `probe-cost.test.js`
+pins it over every supported state-year.
+
+Then re-measuring the old sentence found it wrong three ways, and the order matters because
+it is the order of increasing commercial interest.
+
+It said *"each field the caller supplied"* where the engine probes neither the structural
+fields nor a trivial value — the kind of looseness that makes a caller distrust the next
+sentence too.
+
+It named a mechanism that is about an eighth of the price it named: a probed field costs ~35
+microseconds, the recomputation it named is 4.5, and the `JSON.stringify` it never mentioned
+is 19.5. **The larger half of the cost had no sentence anywhere in the repository.**
+
+And the RATIO — the figure that looks like the portable one — is the least stable of the
+three. On one machine, one build, changing nothing but the benchmark's warm-up, `23.8×`
+reads anywhere from `24×` to `74×`, because the expensive leg is stable to within 5% and
+only the cheap leg moves, by 3.2×, and the cheap leg is the denominator.
+
+> **A RATIO IS NOT MORE HARDWARE-INDEPENDENT THAN THE TIMINGS IT IS BUILT FROM. IT IS LESS,
+> BECAUSE THE CHEAP LEG OWNS IT — AND THE CHEAP LEG IS WHERE THE NOISE LANDS.**
+
+**The commercial reading, and it sharpens the thesis rather than restating it.** Day 57 said
+this project's asset is *knowing how wide a claim its own evidence supports*. Day 58 says
+the thing that sits underneath it: **a claim needs a UNIT that survives leaving this
+machine.** Every defect above is the same defect in a different coat — a number that was
+true where it was measured and is not a fact about the product. A microsecond figure is
+about the sandbox. A ratio is about the warm-up. A count of recomputations is about the
+engine, and it is the only one of the three a caller on different hardware can act on.
+
+That is worth money for the same reason the notes are. The competition ships a number in a
+README that nobody can check and that was true once on somebody's laptop. What this ships
+is a number the caller can reproduce on their own input, in their own process, with an
+assertion in the package's own suite standing behind it — and a sentence that says which
+part is arithmetic and which part is hardware. **A price published as a count is a price a
+buyer can budget against.**
+
+**And the day's accidental finding is the better advertisement for the discipline.** A
+benchmark I wrote with six field names the engine does not have measured the unknown-key
+guard instead of the probe. Chasing that nonsense number found a real, unpublished cost on a
+real path: **one misspelled input key costs 1,152 microseconds — 232 times a bare return —
+all of it in 54 edit-distance calls that each allocate an array-of-arrays per row**, in a
+module both packages ship byte for byte identical. Three of five realistic federal typos
+spend 600 to 1,056 microseconds to return no suggestion at all. Nothing in six days of
+worklists had asked the question; a broken instrument asked it by accident.
+
+> **A BENCHMARK THAT MEASURES THE WRONG THING CAN STILL MEASURE SOMETHING WORTH KNOWING** —
+> and the second rule beside it, learned the same afternoon: **a benchmark that REPRODUCES
+> the figure you are checking is the one to audit hardest.** With 300 warm-ups mine returned
+> `24.1×` against the published `23.8×` and I nearly filed it as corroboration. Agreement
+> between a new measurement and an old one is first evidence that they share a method.
+
 Last reviewed: 2026-10-21 (Day 57). **The bet is unchanged, and Day 57 is the first day
 this project BUILT a better instrument, measured it, and threw it away because the
 measurement showed it would lie.**

@@ -13,10 +13,91 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 57 nothing is waiting on you except the three standing asks below — the
+**As of Day 58 nothing is waiting on you except the three standing asks below — the
 repository description and topics, the GitHub Pages switch, and the optional npm publish —
-and today's headline is that I BUILT A BETTER FEATURE, MEASURED IT, AND DELETED IT,
-because the measurement showed it would have told callers something false.**
+and today's headline is that A PRICE I PUBLISHED WAS MEASURED CORRECTLY AND BLAMED ON THE
+WRONG THING, which I found by trying to reproduce my own number.**
+
+`us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` **v0.50.0** and `us-tax-mcp`
+**v0.54.0** — no version moved today, because nothing a caller passes or reads changed
+shape. **1,526 tests**, all passing, up 10. No state figure moved; 26 taxing states and 35
+in all, unchanged.
+
+**A. WHAT I SET OUT TO DO.** This package has a feature that tells you when you handed it a
+number it had no use for — Pennsylvania's taxable income on a Texas return, say. It works by
+computing your whole return a second time without that number and checking nothing changed,
+so it costs real time, and I published what it costs: *"34 microseconds for a bare return
+plus about 76 for each field you supplied."* **Nothing anywhere checked that sentence**, and
+unlike most of my claims it is the kind that drifts on its own — any change to the engine
+moves it. So the job was to make it checkable.
+
+**B. THE FIX IS TO STOP PUBLISHING TIME AND PUBLISH WORK INSTEAD.** A test that asserts "this
+took 34 microseconds" fails on a faster machine, a slower machine, or a busy one. It is not
+a test, it is a weather report. So the engine now hands you a counter if you ask for one, and
+it counts the things that do not change between machines: **how many times it computed your
+return, and how many times it took a snapshot to compare.** A bare return: 1 and 0. Three
+numbers supplied: 4 and 4. That is now asserted for every state and every year, and it
+cannot go stale, because the test checks *differences* — add one number, require the count to
+go up by exactly one — rather than any total.
+
+**C. AND THEN I TRIED TO REPRODUCE MY OWN FIGURE, WHICH IS WHERE THE DAY ACTUALLY WENT.**
+Three things were wrong with that sentence.
+
+It said *"each field you supplied"*, and the engine does not charge you for all of them — not
+for the four that identify the return, and not for a `0`, which is you answering no. The same
+sentence then says a bare return is free, and a bare return supplies four fields. It
+contradicted itself and I did not notice for a day.
+
+**It named the wrong cause.** I said the cost was computing your return again. Re-measured: a
+charged field costs about 35 microseconds, of which computing the return again is **4.5** and
+turning the answer into text to compare it is **19.5**. The expensive half had no explanation
+published anywhere. The number was roughly right and the reason was mostly wrong, which is a
+worse failure than being wrong about the number — somebody reading it would optimise the
+wrong thing.
+
+**And the "23.8 times slower" figure, which looked like the solid one, is the softest number
+of the three.** On one machine, changing nothing but how long the benchmark warmed up first,
+it reads anywhere from 24 to 74. The expensive case is steady to within 5%; only the cheap
+case moves, and it is the one on the bottom of the fraction. A ratio feels portable and is
+not.
+
+**D. TWO OF MY OWN BENCHMARKS MEASURED THE WRONG THING, AND THE SECOND ONE NEARLY FOOLED ME.**
+The first used six field names the engine does not have, so it was timing the typo-detector
+rather than the feature. The second one, properly written but warmed up too briefly, came
+back at **24.1 times** against my published **23.8** — and I very nearly wrote that down as
+confirmation. It was the same mistake arriving at the same wrong answer by the same route.
+**Agreement between a new measurement and an old one is first evidence that they share a
+method, and only then evidence that the figure is right.**
+
+**E. THE BROKEN BENCHMARK FOUND A REAL PROBLEM, AND THIS IS THE ONE WORTH YOUR ATTENTION.**
+Chasing the nonsense number from the first benchmark found something nobody had asked about:
+**if you misspell a field name, that one call costs about 1,152 microseconds — 232 times a
+normal return.** The package is trying to guess what you meant, and it compares your typo
+against all 54 field names using an algorithm that rebuilds a scratch table for each one.
+
+Both packages have it, identically. In the federal one, three of five realistic typos
+(`dependnts`, `capitlGains`, `qualifedDividends`) spend **600 to 1,056 microseconds and then
+return no suggestion at all**. `itemisedDeductions` — the British spelling of a real field —
+costs 1.1 milliseconds.
+
+**Nothing is wrong with the answers** and nobody has reported it; it only costs you anything
+on a call that already contains a mistake. I did not fix it today because the three-hour
+quality audit was already running and the rule here is that code stops changing once it
+starts. It is written up with a measured diagnosis and a fix whose correctness I can prove
+rather than argue — the first thing on tomorrow's list.
+
+**F. AND MY TEST WAS WRONG ABOUT THREE STATES BEFORE THE ENGINE WAS.** I asserted that a bare
+Massachusetts, New Jersey or Pennsylvania return computes itself twice. It does not:
+all three REFUSE to run without their own income figure, so the second attempt fails and the
+counter shows it. **The comment explaining exactly that was in a file I had read an hour
+earlier and quoted into the new one.** The engine was right; I was wrong. That is the fourth
+day running where the thing that was wrong was my description of my own work rather than the
+tax arithmetic, which is either reassuring or alarming depending on how you look at it.
+
+---
+
+**Day 57's headline, kept for the record: I BUILT A BETTER FEATURE, MEASURED IT, AND DELETED
+IT, because the measurement showed it would have told callers something false.**
 
 `us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` is **v0.50.0** and `us-tax-mcp`
 **v0.54.0**. **1,516 tests**, all passing. No state was added; 26 taxing states and 35 in

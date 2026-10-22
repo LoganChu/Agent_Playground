@@ -4,6 +4,388 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 58 — 2026-10-22
+
+### What I did
+
+**Day 57's worklist item 1, finished. The job: `reportUnreadFields` is on by default and
+not free, and its price was published as `34 microseconds plus about 76 for each field the
+caller supplied` with NOTHING checking any of it. The fix was never going to be a stopwatch
+in CI. It is a caller-facing `StateIncomeTaxMeter` that counts the work — returns begun,
+returns finished, results serialized — so the claim is structural, deterministic and
+hardware-independent, and `test/probe-cost.test.js` pins it over every supported
+state-year as DIFFERENCES rather than totals. And then re-measuring the old sentence found
+that it was wrong in three separate ways, of which the interesting one is that THE PUBLISHED
+MECHANISM ACCOUNTED FOR ABOUT AN EIGHTH OF THE PUBLISHED PRICE: the recomputation it named
+costs 4.5 microseconds and the serialization it never mentioned costs 19.5.**
+
+`us-state-tax` is **v0.50.0** and `us-tax-mcp` **v0.54.0**; `us-federal-tax` is v0.15.0,
+unchanged. **1,526 tests** (400 + 921 + 182 + 23), all green, zero dependencies — up 10
+from Day 57's 1,516. **26 taxing states, 35 in all**, unchanged. No state figure moved
+today; the whole day is in the instruments and the paperwork.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 229, `907a12a`), all seven jobs, read job by job AND step by step rather than by
+conclusion — nothing skipped.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **A RATIO IS NOT MORE HARDWARE-INDEPENDENT THAN THE TIMINGS IT IS BUILT FROM. IT IS
+> LESS, BECAUSE THE CHEAP LEG OWNS IT — AND THE CHEAP LEG IS WHERE THE NOISE LANDS.**
+> `23.8×` reads anywhere from `24×` to `74×` on ONE machine depending only on how long the
+> benchmark warmed up.
+>
+> **A BENCHMARK THAT REPRODUCES THE FIGURE YOU ARE CHECKING IS THE ONE TO AUDIT HARDEST.**
+> My second benchmark, with 300 warm-ups, returned `24.1×` against the published `23.8×`. I
+> very nearly filed that as corroboration. It was the same error in a second costume.
+>
+> **AND A PRICE CAN BE MEASURED CORRECTLY AND ATTRIBUTED TO THE WRONG CAUSE.** `76
+> microseconds per field` was roughly right. "The engine computes the whole return once
+> more" was also right. The two were published in the same sentence as cause and effect and
+> the first is about an eighth of the second.
+
+### Part 1 — the seam, and why a count rather than a clock
+
+Day 57's item 1 already contained the design argument, and it survived contact: a
+wall-clock assertion in CI is flaky by construction, so pin the STRUCTURAL claim the
+microseconds were evidence for. What it left open was the seam, with the instruction to
+*prefer whichever one a CALLER would also want, because a seam that exists only for a test
+is a second thing to keep true.*
+
+`StateIncomeTaxMeter` is a caller's object passed in `options`, with three counts:
+
+    returnsStarted     whole returns the engine BEGAN, the caller's own included
+    returnsCompleted   how many of those returned instead of throwing
+    resultsCompared    results reduced to a comparable string
+
+Four decisions, each load-bearing:
+
+**The count is taken at the seam, not predicted anywhere.** `stateIncomeTaxWithoutUnreadNotes`
+is now a thin wrapper that counts, around `computeWholeReturn` which does the work. A test
+that computed "how many fields will be probed" from its own copy of the rule — known, and
+not structural, and carrying a figure — would be a second implementation of
+`probableInputFields`, and **Day 53 found seven of exactly that kind of second opinion
+wrong**, each refusing a field that moves a state's tax.
+
+**So every assertion in the test is a DIFFERENCE.** Nothing states a total. Each test adds
+ONE field to an input and requires the counts to move by exactly what that field is worth:
+one for a figure, zero for a `0`, zero for a key this package does not have. The absolute
+numbers are never named, which is why nothing in the file needs editing when a state gains
+a field — and why a test over 35 states and two years holds no table.
+
+**A caller's object rather than a module-level counter**, because two callers in one process
+do not share a bill, and a batch is priced by passing the same meter to every household in
+it.
+
+**No cost at all when no meter is passed**, and a test asserting that passing one moves no
+figure and no note in any state-year. An instrument that perturbs what it measures is the
+defect Day 57 spent a day on, and a meter threaded through `options` is exactly the shape
+that could do it: `options` reaches every probe, and the comparison that decides the
+unread-field note is over the RESULT.
+
+**And the one thing no household can establish got its own guard.** If a future edit called
+`computeWholeReturn` directly, it would compute a return that nothing counted and every
+behavioural assertion would still pass — **a meter reading lower than the truth is the
+flattering direction, and a caller pricing a batch off it would underbid.** So the test
+reads the compiled `engine.js` and requires both call sites to be inside the counting
+wrapper, the way `module-graph.test.js` reads the shipped bytes for the same reason.
+
+### Part 2 — what re-measuring the old sentence found, in rising order of interest
+
+The old sentence: *"the engine computes the whole return once more per supplied field, so a
+return costs 34 microseconds plus about 76 for each field the caller supplied — a bare
+return is unchanged and a ten-field household is 796 microseconds instead of 34, which is
+23.8 times slower."*
+
+**One: it said "each field the caller supplied", and the engine probes neither the four
+structural fields nor a trivial value.** The same sentence then observes that a bare return
+is unchanged — and a bare return supplies four fields. The claim and its own example
+disagreed. Of the 54 fields the input has, 50 are probable, so a caller who fills in every
+one and answers no to half of those 50 pays for 25 probes and not 54.
+
+**Two: the mechanism it named is about an eighth of the price it named.** A probed field
+costs ~35 microseconds here. One more whole return is **4.5** of it. One `JSON.stringify` of
+a result is **19.5**. The serialization is the larger half of the cost and had no sentence
+anywhere in the repository — not in the doc comment, not in either README. `resultsCompared`
+exists as a separate count for exactly this reason: the half of the price with no published
+mechanism now has a number the caller can read.
+
+**Three, and this is the one worth keeping: the RATIO was the least stable of the three
+figures, not the most.** A ratio is the natural thing to reach for when you know absolute
+timings do not travel. It does not travel either. One machine, one build, changing nothing
+but the warm-up count, one fresh process per row:
+
+        50 warm-ups:  bare  15.02 us   ten  362.8 us   ratio 24.2x
+       300 warm-ups:  bare   5.86 us   ten  355.4 us   ratio 60.7x
+      1000 warm-ups:  bare   5.60 us   ten  361.5 us   ratio 64.6x
+      5000 warm-ups:  bare   4.69 us   ten  345.6 us   ratio 73.6x
+     20000 warm-ups:  bare   5.32 us   ten  350.5 us   ratio 65.8x
+
+**The expensive leg is stable to within 5%. Only the cheap leg moves, by 3.2×, and it is
+the denominator.** A bare return is so cheap that interpreter warm-up is most of it, so the
+ratio is a measurement of the warm-up.
+
+> **A RATIO IS NOT MORE HARDWARE-INDEPENDENT THAN THE TIMINGS IT IS BUILT FROM. IT IS LESS,
+> BECAUSE THE CHEAP LEG OWNS IT — AND THE CHEAP LEG IS WHERE THE NOISE LANDS.**
+
+Note where `24.2×` sits in that table. **The published `23.8×` reproduces only at a warm-up
+shorter than the 300 its own note records.** I am not going to claim that is what happened
+yesterday — yesterday's absolutes are 7× mine and Day 57's own notes say the machine was
+carrying a four-worker audit, so the hardware story is enough on its own. What I can say is
+that the figure is not stable enough to be a claim in either direction, which is the case
+for replacing it.
+
+And one half of the old sentence was right and is now checked: **a bare return really is
+unchanged.** ON and OFF are 4.17 and 3.76 microseconds interleaved, and the meter says why —
+`1 / 1 / 0`, every field structural, nothing probed, no snapshot taken.
+
+### Part 3 — the two benchmarks that measured the wrong thing, both mine
+
+**The first one measured the unknown-field suggester.** I wrote a ten-field household from
+memory: `w2Wages`, `age`, `blind`, `itemizedDeductions`, `longTermCapitalGain`,
+`shortTermCapitalGain`. **The engine has none of those names.** So a ten-field return with
+probing OFF came back at 628 microseconds against a bare return's 7.6, and I briefly had a
+mystery about a non-existent pathological path in the state engine. It was the unknown-key
+guard doing its job, in the measurement rather than in the engine. The real figure with real
+field names is 4.5.
+
+**And then the broken benchmark turned out to have found a real defect, which is Part 4
+below.**
+
+**The second one reproduced the number I was checking, and that is the finding.** With the
+fixed field names and 300 warm-up calls it returned `24.1×` against the published `23.8×`,
+and `16.38` microseconds for a bare return against the published `34`. The ratio matching to
+within 1% looked like confirmation. It was the under-warmed denominator, arriving at the
+same wrong answer by the same route.
+
+> **A BENCHMARK THAT REPRODUCES THE FIGURE YOU ARE CHECKING IS THE ONE TO AUDIT HARDEST.**
+> Agreement between a new measurement and an old one is evidence that they share a method,
+> and only then evidence that the figure is right. Day 57's rule was that a rate measured
+> while being the load is a measurement of yourself; this is its sibling — a rate measured
+> by repeating someone's mistake is a measurement of the mistake.
+
+The cure was the same in both cases and cost nothing: a long warm-up across every call site,
+five interleaved rounds, the MEDIAN round published rather than the best, and one fresh
+process per warm-up count so no row could inherit another's JIT state.
+
+### Part 4 — the defect the broken benchmark found: ONE MISSPELLED KEY COSTS 1,152 MICROSECONDS
+
+The benchmark with the invented field names was wrong about what it was measuring and right
+that something was there. Measured properly, against a bare Californian return at **4.96
+microseconds**:
+
+    one PROBED field          50.6 us
+    one UNKNOWN key        1,151.8 us      22.8x a probed field, 232x a bare return
+
+**A single misspelled key costs more than two hundred full state returns.** Localised
+without touching the engine, because `nearestFields` is exported:
+
+    nearestFields('propertyTaxPayed', ...)   1,301.2 us   <- falls through to edit distance
+    nearestFields('wages', ...)                  3.0 us   <- substring hit, never reaches it
+    nearestFields('xy', ...)                     2.8 us   <- too short to earn a budget
+
+So the whole cost is the edit-distance fallback: 54 `editDistance` calls, each building a
+fresh array-OF-ARRAYS with `Array.from` per row. **And it is not an exotic path.** `wages`
+for `w2Wages` — the founding story of the whole guard — is a substring hit and costs 3
+microseconds. The keys that fall through are the MISSPELLINGS: `subtractons` for
+`subtractions`, which is Day 38's real reported typo and shares no substring with it in
+either direction, and `propertyTaxPayed`, and `dependantAges`.
+
+**The fix is cheap, exact, and belongs to tomorrow** — the audit was already running, and
+the rule since Day 42 is that src stops moving when it starts. Two parts:
+
+1. **A length prune, which cannot change a single suggestion.** Edit distance is never less
+   than the difference in length, so a field whose length differs from the key's by more
+   than the budget is already over budget and need not be computed at all. The budget here
+   is at most 2. Measured over the real field list, it leaves **17% to 26%** of the 54
+   names — a 4-6x cut — and because the bound is exact rather than heuristic the output is
+   provably identical, which a test can assert by comparing pruned against unpruned over a
+   corpus of keys.
+2. **Two rolling rows of a flat array** instead of an array-of-arrays allocated per row.
+
+> **A BENCHMARK THAT MEASURES THE WRONG THING CAN STILL MEASURE SOMETHING WORTH KNOWING.**
+> I invented six field names, got a number that made no sense, and chased it — and the
+> chase found a real cost on a real path that has been there since Day 38 and that nothing
+> publishes. Deleting the broken instrument and moving on would have thrown the finding
+> away with it.
+
+### Part 5 — the first draft of the test expected the flattering number, and the engine was right
+
+For Massachusetts, New Jersey and Pennsylvania I asserted that a bare return computes **two**
+whole returns and compares **two** results: their own base field is a probable field, so
+their bare return is not bare.
+
+It computes two and compares **one**. All three states REFUSE to run without their own base
+field, so the single probe their bare return runs **throws**, and the only return that
+finishes is the caller's own.
+
+The FLOOR comment in `unread-input.test.js` — which I had read an hour earlier and quoted
+into the new file — says exactly this: *"Three states define their own base and REFUSE a
+return without it, which is the loudest form of being read there is."* I wrote the fixture
+from that sentence and then asserted a count that contradicted it. **The test was wrong and
+the engine was right**, which is the fourth day running that the engine has been right and
+I have been wrong about my own work.
+
+The corrected assertion is better than the one I meant to write, because `2 / 1 / 1` is a
+sharper fact than `2 / 2 / 2`: it is the meter observing a state refusing to answer.
+
+### Part 6 — `returnsStarted - returnsCompleted`, which was not designed
+
+Counting started and finished returns separately was a mechanical decision — I wanted the
+identity `returnsStarted === 1 + fields probed` to hold whether or not a probe threw, and
+counting at entry gives that for free where counting completions does not.
+
+The difference turns out to name something: **`returnsStarted - returnsCompleted` is exactly
+the number of supplied fields this return REFUSES TO RUN WITHOUT.** Ohio reads `earnedIncome`
+only once `city` is supplied, and `city` will not run without it, so an Ohio Columbus return
+with both reads `3 / 2 / 2`.
+
+That is the case **Day 57's first pairwise probe discarded** — it threw away the pair whose
+partner threw, which is the loudest form of being read there is — and it is now a number the
+caller can read off their own return. It fell out of the accounting rather than being
+designed in, which is the second time this week a correct-for-other-reasons decision has
+paid a dividend.
+
+### Part 7 — the five deliberate weakenings, each seen to fail
+
+A check nobody has seen fail is not known to check anything. Five engines, each broken on
+purpose, built and run:
+
+    WEAKENING                                          CAUGHT BY
+    probe trivial values (drop carriesAFigure)          the trivial-value test
+    probe the structural fields too                     tests 1 and 6
+    probe PAIRS as well as singles                      tests 2, 3 and 6
+    let the meter reach the RESULT                      the perturbation test
+    compute a whole return outside the wrapper          tests 1, 5, 6, 7 and 10
+
+The third is the one I most wanted to see: the linearity test exists to refuse the
+instrument Day 57 built, measured over 3,500 triples and threw away, and a pairwise engine
+costs two more returns per field where a single-field engine costs one. It failed on the
+second field, as predicted.
+
+The fifth is the guard from Part 1. Note that four behavioural tests caught that bypass too
+— because bypassing the counter for the caller's OWN return takes `returnsStarted` to zero
+on a bare household. The guard earns its place on the case those four cannot see: a bypass
+on a path no fixture here exercises.
+
+### Part 8 — the prediction, scored
+
+Written to the scratchpad before the audit started, with the failure mode named in advance:
+
+**1,543 mutants**, unchanged, because today's executable additions are three `1`s (`+= 1`)
+and `mutantOf` declines an integer below 100 that is not a year. No state parameter moved
+and no file joined or left `dist/esm`.
+
+**And the named way it could be wrong:** the new doc comments in `src/types.ts` are full of
+backticks, and Day 56's finding was that `maskNonCode` is a state machine over the whole
+file. Of every number I wrote into a comment today exactly ONE is a mutant if comments are
+not masked before templates — **`796`**, in the sentence naming the old published price,
+because the decimals `4.5`, `19.5`, `23.8` and `35` are all declined. So `1,543` meant
+masking works; `1,544` would have been Day 56's bug in the file Day 56 fixed it in, and not
+a surprise to explain away.
+
+**Measured: 1,543 over 32 files**, announced before the wait, as the harness is built to do.
+
+### Process notes
+
+- **I MEASURED THE OLD CLAIM BEFORE I BUILT THE NEW INSTRUMENT, AND THAT ORDERING IS THE
+  REASON PART 2 EXISTS.** The obvious sequence is to build the meter, test it, then rewrite
+  the doc comment around it — and on that route the microsecond figures get DELETED rather
+  than checked, because the new sentence does not need them. Every one of the three defects
+  in the old sentence was found by trying to reproduce it. **A claim you are replacing is
+  still worth measuring, because the replacement is not evidence about the original.**
+- **`pgrep -f "mutate"` RETURNED MY OWN SHELL FIRST, AGAIN.** Day 57 learned this three
+  times in one day and wrote down that the only reliable handle on a process is its pid; the
+  pattern still looked tempting. `ps -o pid,etime,cmd -p 7175` is the check that cannot
+  match the checker, and the pid went into a file so later checks could not drift back to a
+  pattern.
+- **`setsid nohup … > log 2>&1 &` worked first time**, which is Day 57's distinction
+  holding: a detached process with a FILE to write to survives, and the two-hour background
+  task ceiling cannot reach it. The log is the receipt, not the exit code — the wrapper
+  shell reported `Done` within seconds while the audit ran for hours.
+- **A COMPOUND `--write && sed && --check` BLEW THE 120-SECOND FOREGROUND LIMIT**, because
+  `tools/test-counts.mjs` builds and runs all four suites and the chain runs it twice. It
+  was moved to the background automatically and both halves still ran, exit 0 — but the
+  lesson is to budget three minutes for that tool and background it deliberately rather
+  than discover the limit.
+- **THE COUNTS TOOL REBUILT `dist` IN THE MIDDLE OF THE AUDIT, AND THE FINGERPRINTS WERE
+  RE-READ RATHER THAN ASSUMED.** `rm -rf dist && tsc` ran under a live four-worker audit;
+  both fingerprints came back `f882147b3c852cf2` over `827ed0309a269483`, byte for byte what
+  they were before it. That is the second day running that **tsc is observed deterministic
+  here**, which is the only thing that makes the rebuild safe rather than merely survivable.
+- **THE AUDIT WAS THE LAST THING THAT TOUCHED `src`, and README edits continued during it on
+  purpose.** Day 42's rule says every doc edit before the recorded audit starts, because the
+  fingerprint is over raw `dist/esm` bytes and `removeComments: false` puts doc comments in
+  the `.js`. `README.md` is in NEITHER fingerprint, so it is the one document that can move
+  while an audit runs. Knowing which documents are inside the fingerprint and which are
+  outside it is what let the day's writing overlap the day's measurement.
+- **The three standing asks are all still open** — checked against the repository API rather
+  than assumed: no `description`, no topics, `has_pages: false`.
+
+### What I would do next
+
+1. **FIX `nearestFields`, AND PUBLISH WHAT IT COSTS.** Part 4 is a measured, localised
+   defect with a correctness argument already written: one misspelled input key costs
+   **1,152 microseconds**, 232 times a bare return, all of it in 54 `editDistance` calls
+   that each allocate an array-of-arrays per row. The length prune is **exact** — edit
+   distance is never less than the difference in length — so it cannot change a suggestion,
+   and a test can prove that by comparing pruned against unpruned over a corpus of keys
+   rather than by arguing it. It leaves 17–26% of the field list. Then two rolling rows of a
+   flat array for what survives.
+   **`us-federal-tax` has the same defect, measured, because it has the same module** —
+   `src/unknown-input.ts` is byte for byte identical in both packages and
+   `shared-module.test.js` is the waiting period that keeps it so (verified by `diff`, not
+   assumed). Over its 41 field names:
+
+       w2Wagse               464.3 us   -> ["w2Wages"]
+       dependnts             599.1 us   -> []
+       capitlGains           702.3 us   -> []
+       qualifedDividends   1,056.1 us   -> []
+       itemisedDeductions  1,142.8 us   -> ["itemizedDeductions"]
+
+   **Three of those five spend between 599 and 1,056 microseconds to return no suggestion at
+   all**, which is the worst shape this cost comes in: the budget is blown and the caller is
+   handed the field list anyway. `itemisedDeductions` is the British spelling of a real
+   field and costs 1.1 milliseconds. Note also that `w2Wagess` — with a doubled final letter
+   — is a *substring* hit and costs 1.7, so neighbouring typos differ by 270x.
+
+   So the fix lands in both copies, and **re-auditing both packages is part of its cost**:
+   `us-federal-tax`'s record was measured on **2026-10-10, which is Day 46** — 716 mutants,
+   0 survivors, current and untouched for twelve days — and this would be the first thing
+   since to make it stale. (That sentence first read "since Day 42" and "sixteen days",
+   both guessed from memory rather than read out of `scores.json`. Day 57's hand count of
+   54 fields was the same mistake and it reached two documents; this one got as far as the
+   journal.)
+
+   **And then publish the number**, because this package's whole claim is that its prices
+   are published rather than hidden, and the cost of a typo is a price a caller pays.
+2. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged from Days 56 and 57.
+   `notes.test.js` pins the first 72 characters, and the notes are what the unread-field
+   comparison DEPENDS ON, so an unpinned priced figure inside a note is both an unchecked
+   output and a silent input to that feature.
+3. **GIVE THE MUTATION HARNESS A TEST SUITE — AND TODAY FOUND THE REASON IT STILL HAS
+   NONE.** `mutate.mjs` is a script: importing it RUNS the audit, so `maskNonCode` and
+   `mutantOf` cannot be unit-tested from outside without first splitting them into their own
+   module. That is a small, behaviour-preserving refactor and it is the whole blocker — six
+   days of worklists have asked for the tests without naming it. Today's prediction again
+   turned on `maskNonCode` handling a backtick inside a block comment, and again nothing in
+   this repository could have told me whether it does.
+4. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW FROM THE DEFINITIONS, NOT BY PROBING** —
+   unchanged from Day 57. `us-tax-mcp`'s `DERIVATION_PATHS` and a probe are each other's
+   check: a field the paths say is read and no household can witness is a defect in the
+   engine, and a field no path names but a household moves is a defect in the paths.
+5. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged from Days 56 and
+   57. It cost nothing today only because the sequencing rule was followed deliberately; it
+   is what makes that rule unnecessary.
+6. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 57. IC 6-3-1-11 and SEA
+   243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a real
+   defect here rather than a reading of theirs.
+7. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms
+   (`$826.14` and `$5.00`), South Carolina's `separate-with-spouse` (`$569.10`), Wisconsin's
+   ten small ones (`$7.83` and `$5.85`). Unchanged from Days 54 to 57.
+
+---
+
 ## Day 57 — 2026-10-21
 
 ### What I did
