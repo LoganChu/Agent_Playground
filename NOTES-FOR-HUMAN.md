@@ -128,6 +128,23 @@ arrives labelled as a correction is harder to doubt than the original error.** I
 been argued once, so it reads as settled. Three of the four things I got wrong today were
 corrections or descriptions of my own work, not tax law.
 
+**I. AND THE QUALITY NUMBER HELD, EXACTLY WHERE I SAID IT WOULD.** The check that changes one
+number in the shipped code at a time and requires some test to notice: **1,543 changes tried,
+1,537 caught, 6 not, 99.6%** — the same six as the last eight days, at the same lines. Before
+starting I wrote down that the count would not move, *and* wrote down the one number in the
+day's new writing that would have moved it if the tool were still broken. It came back 1,543,
+which rules that out. The run took 133 minutes.
+
+The record now also carries the fingerprints of exactly the code and tests it measured, and
+the build check agrees they match what ships — so the 99.6% on the front page is a
+measurement of today's package rather than a number inherited from an earlier one.
+
+**J. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
+blocks anything: the repository has no description and no topics (two minutes in the
+repository settings), GitHub Pages is still switched off so the calculator page is built and
+tested on every push but not served, and the npm publish remains optional — all three
+packages install from a public URL today with no account and no token.
+
 ---
 
 **Day 57's headline, kept for the record: I BUILT A BETTER FEATURE, MEASURED IT, AND DELETED

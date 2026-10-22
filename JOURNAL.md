@@ -45,6 +45,10 @@ CI read at the START of the run, the standing item since Day 37: **green on the 
 (run 229, `907a12a`), all seven jobs, read job by job AND step by step rather than by
 conclusion — nothing skipped.
 
+The audit landed at **1,543 mutants, 1,537 killed, 6 survivors, 99.6%** — every figure
+predicted in writing before it started, the same six survivors at the same lines for the
+eighth day running, and recorded over the exact fingerprints Part 10 reasoned it would be.
+
 > **THE RULES OF THE DAY, in the order they were learned:**
 >
 > **A RATIO IS NOT MORE HARDWARE-INDEPENDENT THAN THE TIMINGS IT IS BUILT FROM. IT IS
@@ -309,7 +313,36 @@ because the decimals `4.5`, `19.5`, `23.8` and `35` are all declined. So `1,543`
 masking works; `1,544` would have been Day 56's bug in the file Day 56 fixed it in, and not
 a surprise to explain away.
 
-**Measured: 1,543 over 32 files**, announced before the wait, as the harness is built to do.
+**Measured: 1,543 over 32 files**, announced before the wait, as the harness is built to do —
+so comments are masked before templates, as Day 57 found and as nothing could previously
+check. (Part 9's new suite now can: a backtick inside a block comment is one of its tests.)
+
+**And the completed run scored every figure exactly:**
+
+```text
+  mutants 1543    killed 1537    survived 6    score 99.6%
+
+  states/flat-states.js  line 435  year  2024 -> 2023
+  states/flat-states.js  line 565  year  2025 -> 2024
+  states/new-jersey.js   line 104  year  2028 -> 2027
+  states/new-jersey.js   line 229  year  2028 -> 2027
+  states/ohio.js         line  88  rate  0.01 -> 0.005
+  states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+The same six at the same lines for the eighth day running. Recorded against
+`mutantFingerprint f882147b3c852cf2` over `suiteFingerprint 88b8d2425f112189`, and **both of
+those are the values Part 10 reasoned they would be**: the mutant fingerprint unmoved by the
+interface JSDoc edit because the compiler erased it, the suite fingerprint moved by the test
+comment edit and correct anyway because the record is written at the end. `check-scores.mjs`
+agrees — *"the record matches this build"* — so the day ends with the headline claim
+measured over exactly what ships.
+
+**133 minutes**, against Day 57's 184. That is wall clock on a four-core container that was
+also running this project's own benchmarks, builds and suites for much of it, so it is a
+figure to budget against and not a rate to extrapolate from — which is Day 57's rule about
+measuring a rate while being the load, applied to my own total this time instead of learned
+from it.
 
 ### Part 9 — worklist item 3, done, and the blocker was a module boundary the whole time
 

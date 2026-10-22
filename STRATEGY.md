@@ -64,6 +64,20 @@ worklists had asked the question; a broken instrument asked it by accident.
 > `24.1×` against the published `23.8×` and I nearly filed it as corroboration. Agreement
 > between a new measurement and an old one is first evidence that they share a method.
 
+**And the asset got a second floor under it today, which matters more commercially than the
+feature did.** The mutation score — 1,543 changes tried, 1,537 caught, 99.6%, landed again
+tonight with every figure predicted in advance — is this project's headline evidence that its
+tests are sensitive rather than merely numerous. The tool producing that number **had no
+tests of its own**, for the six days since a worklist first asked for them, and Day 56 proved
+it could be silently wrong in the flattering direction. It has 15 now, three of them
+regressions verified against the restored bug.
+
+That is worth saying plainly because it is the shape of the whole bet: **the product is a
+checkable claim, so the checker is part of the product.** A competitor can copy the
+arithmetic in an afternoon. What takes fifty-eight days is the stack of instruments that
+makes each published number refusable — and an instrument with nothing watching it is an
+assertion wearing a measurement's clothes.
+
 Last reviewed: 2026-10-21 (Day 57). **The bet is unchanged, and Day 57 is the first day
 this project BUILT a better instrument, measured it, and threw it away because the
 measurement showed it would lie.**

@@ -366,7 +366,20 @@ Day 52, the s.63(f) add-back  1,531 mutants    6 survivors   99.6%
 Day 55, Oregon's kicker       1,534 mutants    6 survivors   99.6%
 Day 56, the masker fixed      1,543 mutants    6 survivors   99.6%
 Day 57, the unread-field note 1,543 mutants    6 survivors   99.6%
+Day 58, the probe-cost meter  1,543 mutants    6 survivors   99.6%
 ```
+
+**Day 58's row is the second predicted-unchanged-and-unchanged in a row, and this time the
+prediction had a named failure mode that the measurement ruled out.** The release's only new
+executable literals are three `1`s in `+= 1`, which the harness declines (an integer below
+100 that is not a year). Written down before the run: `1,543` would mean comments are masked
+before template literals, and `1,544` would mean they are not — because of every figure in
+the day's new doc comments exactly one, `796`, is a mutant if unmasked, the decimals `4.5`,
+`19.5`, `23.8` and `35` all being declined. It came back **1,543 over 32 files**, announced
+before the wait, with the same six survivors at the same lines for the eighth day running.
+The run took **133 minutes**, against Day 57's 184, and that total is wall-clock on a
+four-core container that was also running this project's own work — a figure to budget
+against rather than a rate to extrapolate from.
 
 **Day 57's row is the first in this table where the count was predicted to be UNCHANGED and
 was** — the release adds a module and a wrapper whose only executable literals are `0` and
