@@ -317,8 +317,13 @@ is the denominator.
 That test is what makes the option safe to use inside this project's own figure
 sweeps, which is where the cost actually bit: switched on everywhere, it took the
 state suite from 18 seconds to **6m09s**, and the mutation audit from 90 minutes to
-an estimated 3.6 hours. Six sweeps that read figures and nothing else now opt out,
-and the suite is back to 22 seconds.
+**a measured 184 minutes — 3.06 hours, at 8.4 mutants a minute.** Six sweeps that
+read figures and nothing else now opt out, and the suite is back to 22 seconds.
+
+*(That figure read "an estimated 3.6 hours" until Day 58. The estimate came from a
+950-mutant sample and the completed run measured 3.06, so the sentence was carrying
+a projection one day after the thing it projected had been measured — which is the
+smaller cousin of everything this section is about.)*
 
 ## How much of this is actually tested
 
