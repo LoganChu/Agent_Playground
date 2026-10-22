@@ -159,6 +159,24 @@ jobs:
           done
       - name: Check every advertised mutation score against the record and this build
         run: node tools/mutation/check-scores.mjs --check
+      # The ENUMERATOR's own suite, which did not exist until Day 58 and is the
+      # reason the step above can be trusted. The harness's failures are
+      # invisible by construction: a broken enumerator produces FEWER mutants,
+      # and a mutant that stops existing cannot survive, so the score rises while
+      # the coverage falls and nothing in the repository disagrees. Day 56 caught
+      # exactly that by predicting 1,534 and measuring 1,533.
+      #
+      # It runs here, after `check-scores.mjs`, because that script builds both
+      # packages and the golden-sample test enumerates the real `dist/esm`. It
+      # asserts the build is present rather than skipping without it — a test
+      # that skips is a test that does not run, which is this job's own history.
+      #
+      # Not in `tools/test-counts.mjs`'s PACKAGES, because that tool runs
+      # `npm test` per directory and `tools/` is not a package. So these 15 tests
+      # are run but not counted, and the advertised totals say "the four
+      # published suites" rather than "every test here".
+      - name: The mutation enumerator's own tests
+        run: node --test tools/mutation/*.test.mjs
 
   # Does this repository agree with ITSELF about what federal law did?
   #
