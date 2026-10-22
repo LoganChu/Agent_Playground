@@ -157,26 +157,37 @@ jobs:
           for dir in packages/us-federal-tax packages/us-state-tax; do
             (cd "$dir" && npm install)
           done
-      - name: Check every advertised mutation score against the record and this build
-        run: node tools/mutation/check-scores.mjs --check
-      # The ENUMERATOR's own suite, which did not exist until Day 58 and is the
-      # reason the step above can be trusted. The harness's failures are
-      # invisible by construction: a broken enumerator produces FEWER mutants,
-      # and a mutant that stops existing cannot survive, so the score rises while
-      # the coverage falls and nothing in the repository disagrees. Day 56 caught
-      # exactly that by predicting 1,534 and measuring 1,533.
+      # The ENUMERATOR's own suite, which did not exist until Day 58, and it runs
+      # BEFORE the score is checked rather than after, which was the first
+      # arrangement and was wrong.
       #
-      # It runs here, after `check-scores.mjs`, because that script builds both
-      # packages and the golden-sample test enumerates the real `dist/esm`. It
-      # asserts the build is present rather than skipping without it — a test
-      # that skips is a test that does not run, which is this job's own history.
+      # A step placed after `check-scores.mjs` does not run at all on any push
+      # where the record is stale -- and the record is DELIBERATELY stale on the
+      # first push of a day whose src moved, which is exactly when the harness
+      # has just been edited. The tests would have been silently absent on the
+      # pushes that needed them most. That is this repository's oldest shape of
+      # defect (Day 37: a counts job red for five pushes with nobody looking),
+      # and the fix is ordering rather than vigilance.
       #
-      # Not in `tools/test-counts.mjs`'s PACKAGES, because that tool runs
-      # `npm test` per directory and `tools/` is not a package. So these 15 tests
-      # are run but not counted, and the advertised totals say "the four
-      # published suites" rather than "every test here".
+      # It also reads correctly now: the enumerator's correctness is a
+      # PRECONDITION for the score meaning anything. A broken enumerator
+      # produces fewer mutants, and a mutant that stops existing cannot survive,
+      # so the score rises while the coverage falls and nothing in the repository
+      # disagrees. Day 56 caught that by predicting 1,534 and measuring 1,533.
+      #
+      # The build is explicit here because the golden-sample test enumerates the
+      # real `dist/esm`; it asserts the build is present rather than skipping
+      # without it, because a test that skips is a test that does not run.
+      - name: Build the package the enumerator's golden sample reads
+        run: (cd packages/us-state-tax && npm run build)
       - name: The mutation enumerator's own tests
         run: node --test tools/mutation/*.test.mjs
+      # Not in `tools/test-counts.mjs`'s PACKAGES, because that tool runs
+      # `npm test` per directory and `tools/` is not a package. So those tests
+      # are run but not counted, and the advertised totals say "the four
+      # published suites" rather than "every test here".
+      - name: Check every advertised mutation score against the record and this build
+        run: node tools/mutation/check-scores.mjs --check
 
   # Does this repository agree with ITSELF about what federal law did?
   #

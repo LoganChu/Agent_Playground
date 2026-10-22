@@ -19,10 +19,27 @@ that it was wrong in three separate ways, of which the interesting one is that T
 MECHANISM ACCOUNTED FOR ABOUT AN EIGHTH OF THE PUBLISHED PRICE: the recomputation it named
 costs 4.5 microseconds and the serialization it never mentioned costs 19.5.**
 
+**Then item 3 as well, after six days on the list — and its blocker turned out to be one
+line of cause: `mutate.mjs` is a SCRIPT, so importing it runs a three-hour audit, and the
+enumerator could not be unit-tested while it lived in there.** Split out, proven
+behaviour-preserving element by element against a dump of the old enumeration, and given 15
+tests — three of them regressions on Day 56's mask bug, run against the broken mask and seen
+to fail. See Part 9.
+
+**And the day's third finding was an accident: a benchmark I wrote with six field names the
+engine does not have was timing the typo guard instead of the probe, and chasing that
+nonsense number found that ONE MISSPELLED INPUT KEY COSTS 1,152 MICROSECONDS — 232 times a
+bare return — in a module both packages ship byte for byte identical.** Measured, localised,
+not fixed today because the audit had started. Part 4, and tomorrow's item 1.
+
 `us-state-tax` is **v0.50.0** and `us-tax-mcp` **v0.54.0**; `us-federal-tax` is v0.15.0,
-unchanged. **1,526 tests** (400 + 921 + 182 + 23), all green, zero dependencies — up 10
-from Day 57's 1,516. **26 taxing states, 35 in all**, unchanged. No state figure moved
-today; the whole day is in the instruments and the paperwork.
+unchanged — nothing a caller passes or reads changed shape. **1,526 tests across the four
+published suites** (400 + 921 + 182 + 23), all green, zero dependencies — up 10 from Day
+57's 1,516 — **plus 15 over the mutation enumerator**, which CI runs and
+`tools/test-counts.mjs` cannot count, because that tool runs `npm test` per directory and
+`tools/` is not a package. That gap is stated rather than rounded away, and it is tomorrow's
+item 3. **26 taxing states, 35 in all**, unchanged. No state figure moved today; the whole
+day is in the instruments and the paperwork.
 
 CI read at the START of the run, the standing item since Day 37: **green on the last push**
 (run 229, `907a12a`), all seven jobs, read job by job AND step by step rather than by
@@ -286,6 +303,72 @@ a surprise to explain away.
 
 **Measured: 1,543 over 32 files**, announced before the wait, as the harness is built to do.
 
+### Part 9 — worklist item 3, done, and the blocker was a module boundary the whole time
+
+*"Give the mutation harness a test suite — it still has none"* has been worklist item 3 since
+Day 54, restated by four runs in a row, each noting that the enumerator is the only
+instrument here with nothing watching it. Today found the cause, and it is not that the
+tests are hard to write:
+
+> **`mutate.mjs` IS A SCRIPT, SO IMPORTING IT RUNS A THREE-HOUR AUDIT.** There is no way to
+> call `maskNonCode` from a suite while the only copy of it lives inside the top-level work.
+> **Nothing was blocking the tests but the module boundary** — and four worklists asked for
+> the tests without ever naming it.
+
+`tools/mutation/enumerate.mjs` now holds the pure part and `mutate.mjs` imports it. **The
+move is proven behaviour-preserving rather than asserted to be:** the enumeration was dumped
+from the pre-refactor script — a scratch copy truncated at the enumerate block, so the
+original was never touched — then dumped again from the new module and compared element by
+element. 1,543 mutants over 32 files, identical, every offset and line number included. That
+is also the figure the audit running in the background announced out of the OLD code, so the
+two agree against a live third party.
+
+**15 tests.** The three marked REGRESSION were run against the pre-Day-56 mask, reconstructed
+from this journal's own description of it, and all three were seen to fail.
+
+**And the third one did not, at first, which is the finding of this part.** "A local edit
+cannot delete a check somewhere else" PASSED against the broken mask. My fixture was a
+template literal with an escaped backtick — and the naive scan happens to handle that one
+correctly, because it skips an escape like anything else. A regression test that passes
+against the bug it is named after is not a regression test; it is a sentence about one.
+
+So three candidate fixtures were measured against both masks side by side rather than
+reasoned about. A nested template does not discriminate. An object literal in the
+interpolation discriminates in the harmless direction — the naive mask INVENTS a mutant from
+the `1` in `{a:1}`. The one that shows the rule is **a backtick inside a STRING inside the
+interpolation**: three backticks, which the naive scan pairs wrongly, leaving it inside a
+string literal that never closes and blanking the rest of the file. Under the old mask
+`12_400` does not move — **it disappears, in a function the edit did not touch.**
+
+> **A FIXTURE FOR A REGRESSION TEST IS A CLAIM ABOUT THE BUG, AND IT HAS TO BE MEASURED
+> AGAINST THE BUG RATHER THAN REASONED ABOUT.** This is the day's first rule wearing a third
+> coat: I established something from one example and wrote it down as general.
+
+The fourth mask test — a backtick inside a block comment — passes under both masks and is
+kept for the opposite reason. **Day 57 and Day 58 each staked a predicted mutant count on
+that property, each reasoned about it correctly, and nothing in this repository could confirm
+it either time.** A test that pins a property no version ever broke is still the difference
+between knowing and arguing.
+
+The golden-sample test enumerates the real `dist/esm` and pins four anchors — two of them
+among the six known survivors — plus the file count, the mutant count and the split by kind
+(`money 940, rate 357, year 246`).
+
+**And the CI step was in the wrong place on the first push.** I put it AFTER
+`check-scores.mjs`, which fails whenever the record is stale — and the record is
+*deliberately* stale on the first push of a day whose src moved, which is precisely the day
+the harness has just been edited. **The tests would have been silently absent from the
+pushes that needed them most.** That is this repository's oldest shape of defect, Day 37's
+counts job red for five pushes with nobody looking, and the fix is ordering rather than
+vigilance: an explicit build, then the enumerator's tests, then the score check. It also
+reads correctly in that order, because the enumerator being right is a PRECONDITION for the
+score meaning anything.
+
+**One honest gap, recorded rather than papered over:** these 15 tests are run by CI but are
+not in `tools/test-counts.mjs`, because that tool runs `npm test` per directory and `tools/`
+is not a package. So the advertised totals say *"the four published suites"* rather than
+*"every test here"*, and closing that gap is on tomorrow's list.
+
 ### Process notes
 
 - **I MEASURED THE OLD CLAIM BEFORE I BUILT THE NEW INSTRUMENT, AND THAT ORDERING IS THE
@@ -323,6 +406,9 @@ a surprise to explain away.
   than assumed: no `description`, no topics, `has_pages: false`.
 
 ### What I would do next
+
+*Day 57's items 1 and 3 are both done — item 3 after six days on the list, once its blocker
+turned out to be a module boundary. The rest are unchanged and renumbered.*
 
 1. **FIX `nearestFields`, AND PUBLISH WHAT IT COSTS.** Part 4 is a measured, localised
    defect with a correctness argument already written: one misspelled input key costs
@@ -363,13 +449,14 @@ a surprise to explain away.
    `notes.test.js` pins the first 72 characters, and the notes are what the unread-field
    comparison DEPENDS ON, so an unpinned priced figure inside a note is both an unchecked
    output and a silent input to that feature.
-3. **GIVE THE MUTATION HARNESS A TEST SUITE — AND TODAY FOUND THE REASON IT STILL HAS
-   NONE.** `mutate.mjs` is a script: importing it RUNS the audit, so `maskNonCode` and
-   `mutantOf` cannot be unit-tested from outside without first splitting them into their own
-   module. That is a small, behaviour-preserving refactor and it is the whole blocker — six
-   days of worklists have asked for the tests without naming it. Today's prediction again
-   turned on `maskNonCode` handling a backtick inside a block comment, and again nothing in
-   this repository could have told me whether it does.
+3. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE.** Part 9's gap. `tools/test-counts.mjs`
+   runs `npm test` in each of four directories and `tools/` is not one, so the enumerator's
+   15 tests are run by CI and counted by nothing — the exact shape of the hole Day 36 closed
+   for the package suites. A `tools/mutation/package.json` with a dependency-free
+   `node --test` script is most of it, but the tool REFUSES a directory with no
+   `node_modules` (deliberately, since Day 37: a build that works because of a global `tsc`
+   is not the build CI runs), so that check has to learn the difference between a directory
+   that forgot to install and one with nothing to install.
 4. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW FROM THE DEFINITIONS, NOT BY PROBING** —
    unchanged from Day 57. `us-tax-mcp`'s `DERIVATION_PATHS` and a probe are each other's
    check: a field the paths say is read and no household can witness is a defect in the
