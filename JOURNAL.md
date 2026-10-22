@@ -492,6 +492,44 @@ non-comment changes is **zero**. 921 tests before, 921 after, all green.
 > for the wrong reason would have been easy here, and it is the thing `fingerprint.mjs` has
 > now been wrong about twice.
 
+### Part 11 — CI, green on all seven jobs, read job by job and step by step
+
+Day 45's other half: reading CI at the START of a run is the standing item since Day 37, and
+recording it at the END is the half that says whether the day finished.
+
+**Run 239 on `922662b`: all seven green, every step, nothing skipped** — the three test jobs
+(400 + 921 + 182), `counts`, `differential`, `cross-package` and `mutation-claims`. Read job
+by job and step by step rather than by conclusion, which today was not a formality: see the
+process note below about run 234, where one red I had predicted myself was sitting in front
+of two I had not.
+
+The step worth naming is `mutation-claims` step 6, **"The mutation enumerator's own tests" —
+success**, followed by step 7, the score check, also success. Those are the 15 tests that did
+not exist this morning, running in the job whose number they underwrite, in the order that
+makes them run even when the score check fails.
+
+The day's eight pushes:
+
+```text
+  2eb7090  the meter, the 10 tests, the five weakenings, both READMEs
+  a7dafe1  the day's record: JOURNAL, STRATEGY, NOTES-FOR-HUMAN
+  a1fbc2e  the enumerator split out, 15 tests, three regressions verified
+  beb360a  the CI step reordered -- it was behind a step that is deliberately red
+  cfd03e0  the README's "estimated 3.6 hours", superseded by a measurement the same day
+  107d073  two over-wide sentences of my own narrowed; fingerprint.mjs wrong in both directions
+  dbd0f98  the test count written down before the count stopped moving
+  7369525  the suite fingerprint, where the same question has a different answer
+  922662b  the score: 1,543 / 1,537 / 6 / 99.6%, every figure predicted
+```
+
+**FIVE OF THE NINE ARE CORRECTIONS OF MY OWN PUBLISHED OR JUST-WRITTEN CLAIMS**, which is the
+honest summary of the day for the second day running: the engine's arithmetic did not move
+once, and I was wrong five times about my own work — a mechanism published as cause when it
+is an eighth of the effect, a regression fixture that passed against its own bug, a test that
+expected the flattering count for three states, a test count written down before the count
+stopped moving, and a false sentence in the header of the test file I had just written to
+stop exactly that.
+
 ### Process notes
 
 - **I MEASURED THE OLD CLAIM BEFORE I BUILT THE NEW INSTRUMENT, AND THAT ORDERING IS THE
