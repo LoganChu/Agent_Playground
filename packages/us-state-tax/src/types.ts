@@ -1932,20 +1932,25 @@ export interface StateIncomeTaxMeter {
   /**
    * Whole returns the engine BEGAN computing, the caller's own included.
    *
-   * Begun rather than finished, because a probe that THROWS still did the work
-   * and the caller still paid for it. The identity worth knowing is
-   * `returnsStarted === 1 + the number of fields probed`, and it holds whether or
-   * not any probe threw.
+   * Begun rather than finished, because a probe that THROWS has still done part
+   * of the work and the caller has still paid for that part. The identity worth
+   * knowing is `returnsStarted === 1 + the number of fields probed`, and it holds
+   * whether or not any probe threw.
    */
   returnsStarted: number;
   /**
    * How many of those returned a result instead of throwing.
    *
    * `returnsStarted - returnsCompleted` is therefore exactly the number of
-   * supplied fields this return **refuses to run without** — the loudest form of
+   * PROBED fields this return **refuses to run without** — the loudest form of
    * being read there is, and the form the first pairwise probe of the
    * unread-field feature discarded. Ohio reads `earnedIncome` only once `city` is
    * supplied, and `city` will not run without it.
+   *
+   * Probed, not supplied, and the distinction is the one this whole release is
+   * about: the four structural fields are also fields the return will not run
+   * without, and they are never probed, so they never appear in this difference.
+   * A count is of what was counted.
    */
   returnsCompleted: number;
   /**

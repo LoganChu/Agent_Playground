@@ -32,15 +32,47 @@
  * Only `dist/esm/**` + `.js`, because that is precisely the set `mutate.mjs`
  * walks.
  *
- * **This comment used to claim that rewording a doc comment does NOT change the
+ * **This comment has now been wrong in BOTH directions, and the second version
+ * was harder to catch than the first because it arrived labelled as a fix.**
+ *
+ * Version one claimed that rewording a doc comment does NOT change the
  * fingerprint, because the comment "lands in the `.d.ts` and not in the `.js`".
- * That is false for this repository and was false when it was written.** Both
- * packages set `"removeComments": false`, so tsc copies every doc comment into
- * the emitted `.js`, and a `cite:` string is a string literal in the `.js`
- * whatever the compiler does with comments. The fingerprint is a hash of raw
- * bytes, so **rewording a comment or correcting a citation invalidates a
- * recorded score**, and Day 42 found this out by editing one Oregon citation
- * while a 1,267-mutant audit was 25 minutes in.
+ * Day 42 disproved that by editing one Oregon citation while a 1,267-mutant audit
+ * was 25 minutes in.
+ *
+ * Version two, written that day, said the opposite and said it too widely: that
+ * because both packages set `"removeComments": false`, **tsc copies every doc
+ * comment into the emitted `.js`**, so any comment edit invalidates a recorded
+ * score. Day 58 measured it, by rewording one comment at a time and rebuilding:
+ *
+ * ```text
+ *   JSDoc on an INTERFACE (type-only)   fingerprint f882147b3c852cf2 -> unchanged
+ *   JSDoc on an exported CONST          fingerprint f882147b3c852cf2 -> eb33d18409a62387
+ * ```
+ *
+ * **A doc comment reaches the emitted `.js` only if the declaration it documents
+ * does.** `removeComments: false` keeps the comments attached to code that
+ * survives; an interface, a type alias and the rest of the type-only
+ * declarations are ERASED, and their documentation goes with them. A `cite:`
+ * string is a different matter and the old sentence was right about it: that is a
+ * string literal in runtime code whatever the compiler does with comments.
+ *
+ * > **THE RULE: A CORRECTION CAN OVERSHOOT, AND THE OVERSHOOT IS HARDER TO SEE
+ * > THAN THE ORIGINAL ERROR, BECAUSE IT ARRIVES LABELLED AS A FIX.** Day 42's
+ * > claim was wrong, Day 42's correction was also wrong, and the truth is the
+ * > conjunction of the two rather than either one.
+ *
+ * The operational rule this refines, from Day 42 and restated by Days 56 and 57
+ * ("every src edit, every test edit AND every performance decision before the
+ * audit starts"), is now precise rather than conservative: **documentation on
+ * type-only declarations is free to edit while an audit is in flight, and
+ * documentation on anything that survives to runtime is not.** Day 58 used that
+ * — two over-wide sentences in `StateIncomeTaxMeter`'s JSDoc were narrowed with
+ * a 1,543-mutant audit two hundred mutants in, and the fingerprint and the
+ * enumerated mutant list were both checked afterwards and both were unchanged.
+ *
+ * The fingerprint is still a hash of raw bytes, so it is STRICTER than the thing
+ * it stands in for and can still reject a score that is in fact valid.
  *
  * The claim is worth keeping as a correction rather than deleting, because the
  * argument behind it was right and only the mechanism was wrong. "A string is

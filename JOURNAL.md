@@ -60,6 +60,14 @@ conclusion — nothing skipped.
 > microseconds per field` was roughly right. "The engine computes the whole return once
 > more" was also right. The two were published in the same sentence as cause and effect and
 > the first is about an eighth of the second.
+>
+> **A FIXTURE FOR A REGRESSION TEST IS A CLAIM ABOUT THE BUG, AND IT HAS TO BE MEASURED
+> AGAINST THE BUG RATHER THAN REASONED ABOUT.** One of the three regression tests written
+> for Day 56's mask bug passed against that bug. See Part 9.
+>
+> **A CORRECTION CAN OVERSHOOT, AND THE OVERSHOOT IS HARDER TO SEE THAN THE ORIGINAL ERROR,
+> BECAUSE IT ARRIVES LABELLED AS A FIX.** `fingerprint.mjs` has now been wrong in both
+> directions about which doc comments reach the compiled output. See Part 10.
 
 ### Part 1 — the seam, and why a count rather than a clock
 
@@ -369,6 +377,60 @@ not in `tools/test-counts.mjs`, because that tool runs `npm test` per directory 
 is not a package. So the advertised totals say *"the four published suites"* rather than
 *"every test here"*, and closing that gap is on tomorrow's list.
 
+### Part 10 — a correction that overshot, and it was mine twice over
+
+Reviewing my own new `StateIncomeTaxMeter` documentation an hour after writing it, two
+sentences were wider than their evidence — **in a release whose entire subject is claims
+being no wider than their evidence.**
+
+> *"`returnsStarted - returnsCompleted` is therefore exactly the number of SUPPLIED fields
+> this return refuses to run without."*
+
+The four structural fields are also fields the return will not run without, and they are
+never probed, so they never appear in that difference. The count is of PROBED fields. "A
+count is of what was counted" is now in the doc comment.
+
+> *"a probe that THROWS still did the work and the caller still paid for it"*
+
+A probe that throws did PART of the work. Narrowed.
+
+**And fixing them should have cost a three-hour audit, which is where the real finding is.**
+Day 42's rule — restated by Days 56 and 57 — is that every documentation edit must happen
+before the recorded audit starts, because `mutantFingerprint` hashes raw `dist/esm` bytes and
+`removeComments: false` puts doc comments in the emitted `.js`. The audit was 200 mutants in.
+
+So I measured instead of either guessing or waiting. One comment reworded at a time, rebuild,
+read the fingerprint:
+
+```text
+  JSDoc on an INTERFACE (type-only)   f882147b3c852cf2 -> f882147b3c852cf2   unchanged
+  JSDoc on an exported CONST          f882147b3c852cf2 -> eb33d18409a62387   changed
+```
+
+**A doc comment reaches the emitted `.js` only if the declaration it documents does.**
+`removeComments: false` keeps comments attached to code that survives; an interface is
+ERASED and its documentation goes with it. `StateIncomeTaxMeter` is an interface, so both
+corrections were free — confirmed twice, by the fingerprint and by re-enumerating the mutant
+list with today's new module and comparing it element by element to the dump taken before
+the edit. 1,543, identical, offsets included.
+
+**`fingerprint.mjs`'s own header has now been wrong in both directions.** Version one said a
+doc comment does not change the fingerprint because it "lands in the `.d.ts` and not in the
+`.js`". Day 42 disproved that the hard way. Version two, written the same day, said the
+opposite and said it too widely: that tsc copies EVERY doc comment into the `.js`.
+
+> **THE RULE: A CORRECTION CAN OVERSHOOT, AND THE OVERSHOOT IS HARDER TO SEE THAN THE
+> ORIGINAL ERROR, BECAUSE IT ARRIVES LABELLED AS A FIX.** The truth here is the conjunction
+> of the two claims rather than either one. Day 24 found that a stale reason hides defects
+> and Day 56 that a correct reason can hide them too; this is the third member of that
+> family — **a reason that is a correction gets read as settled.**
+
+The operational payoff is a standing rule made precise instead of conservative:
+**documentation on type-only declarations is free to edit while an audit is in flight, and
+documentation on anything that survives to runtime is not.** That is most of what a consumer
+actually reads, so it is not a small exemption. Recorded in `fingerprint.mjs` where the
+wrong version lived, not only here.
+
 ### Process notes
 
 - **I MEASURED THE OLD CLAIM BEFORE I BUILT THE NEW INSTRUMENT, AND THAT ORDERING IS THE
@@ -402,6 +464,18 @@ is not a package. So the advertised totals say *"the four published suites"* rat
   the `.js`. `README.md` is in NEITHER fingerprint, so it is the one document that can move
   while an audit runs. Knowing which documents are inside the fingerprint and which are
   outside it is what let the day's writing overlap the day's measurement.
+- **THE DAY-42 RULE ABOUT DOCUMENTATION BEFORE THE AUDIT IS NOW PRECISE RATHER THAN
+  CONSERVATIVE, AND IT WAS MEASURED MID-AUDIT.** Documentation on a type-only declaration —
+  an interface, a type alias — never reaches the emitted `.js`, because tsc erases the
+  declaration and the comment with it, so it cannot move `mutantFingerprint`. Documentation
+  on anything that survives to runtime does. Two over-wide sentences were therefore narrowed
+  with the audit 200 mutants in, at no cost, and both the fingerprint and the enumerated
+  mutant list were re-checked afterwards rather than assumed. See Part 10.
+- **AND THE WAY TO ANSWER THAT QUESTION WAS AN EXPERIMENT, NOT A READ OF THE COMPILER
+  DOCS.** Two comment rewordings, one rebuild each, fingerprint read each time, both
+  reverted, and the restored fingerprint checked back to `f882147b3c852cf2`. Four minutes.
+  The alternative was reasoning about `removeComments` and being wrong in whichever
+  direction `fingerprint.mjs` was already wrong in.
 - **The three standing asks are all still open** — checked against the repository API rather
   than assumed: no `description`, no topics, `has_pages: false`.
 
