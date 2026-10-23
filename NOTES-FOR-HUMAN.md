@@ -13,12 +13,96 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 58 nothing is waiting on you except the three standing asks below — the
+**As of Day 59 nothing is waiting on you except the three standing asks below — the
 repository description and topics, the GitHub Pages switch, and the optional npm publish —
-and today's headline is that A PRICE I PUBLISHED WAS MEASURED CORRECTLY AND BLAMED ON THE
-WRONG THING, which I found by trying to reproduce my own number.**
+and today's headline is that MISSPELLING ONE FIELD NAME USED TO COST A MILLISECOND AND NOW
+COSTS THIRTY MICROSECONDS, and that my own plan for fixing it had the two halves the wrong
+way round.**
 
-`us-federal-tax` is v0.15.0 (unchanged), `us-state-tax` **v0.50.0** and `us-tax-mcp`
+`us-state-tax` is now **v0.51.0**, `us-federal-tax` **v0.16.0** and `us-tax-mcp` **v0.55.0**
+— **all three released today**, which is unusual and deliberate: see point E. **1,541 tests**
+across the four suites, all passing, up 15. No state figure moved; 26 taxing states and 35 in
+all, unchanged.
+
+**A. WHAT WAS WRONG.** If you hand either package a field name with a typo in it, it tries to
+guess what you meant — `subtractions` for `subtractons` — and tells you in the result. That
+guess was costing **about a millisecond for a single misspelled key, roughly two hundred
+times what computing a whole state tax return costs.** Nothing was wrong with the answers,
+and nobody had reported it; it only costs you anything on a call that already contains a
+mistake. I found it yesterday by accident, chasing a benchmark that was measuring the wrong
+thing.
+
+**B. WHAT FIXED IT, AND THE PART WHERE I WAS WRONG.** Two changes. The first: the guess
+compares your typo against every field name using an algorithm that counts how many
+single-letter edits apart two words are, and **you can never get from a 6-letter word to a
+20-letter word in two edits** — each edit changes the length by at most one. So most of the
+field names can be skipped without looking at them, and skipping them cannot change the
+answer, because they were never going to be close enough. The second: that algorithm builds a
+scratch table, and it was building the whole table to read one corner of it.
+
+Yesterday I wrote the plan down as "the first change is the fix, and here is a second small
+one for what's left". **Measured separately, the second one is the bigger of the two in
+`us-state-tax` and the smaller in `us-federal-tax` — from the same source file.** Which half
+matters depends on how long your field names happen to be, so neither is "the fix". Together
+they are 36 times faster.
+
+**C. THE ANSWERS DO NOT CHANGE, AND THAT IS NOT A PROMISE, IT IS A TEST.** Both changes are
+only worth making if they cannot alter a single suggestion. So there is now a test that takes
+**every field name in both packages, makes every possible one-letter typo in it — deletions,
+insertions, substitutions, swapped pairs, 20,596 keys in all — and requires the fast version
+and a deliberately slow, obviously-correct version to give the same answer for every one of
+them.** They do.
+
+**D. AND THE THING WORTH YOUR ATTENTION: TWO OF MY FIVE SABOTAGE TESTS CHANGED NOTHING.** I
+always break my own work on purpose to see whether the tests notice. I broke this five ways.
+Three were caught. **The other two — deleting the skip-most-of-the-names rule entirely, and
+putting the slow table-building back — produced identical answers to all 20,596 keys.** Of
+course they did: the whole point of both changes is that they are invisible. They just make
+the thing a thousand times slower again.
+
+That is a category of mistake that no amount of testing the *behaviour* can ever find, and it
+is worth knowing about: a future version of me could quietly undo this afternoon's work and
+every test here would still pass. So there is now an assertion that reads the **compiled
+output** and requires both changes to still be present in it. The two sabotage runs are what
+earned it its place, rather than me arguing it was a good idea.
+
+**E. WHY ALL THREE PACKAGES GOT A NEW VERSION, WHICH I NORMALLY AVOID.** My own rule is that
+the version only moves when something you pass in or read out changes shape, and nothing did.
+But people install these from a release file at a URL with the version number in it, and a
+new release only gets built when the version changes. **A 36x speedup that only reaches
+someone who builds from source has not actually shipped.** So all three moved — the MCP
+server too, because it copies both engines in when it builds.
+
+**F. AND I WROTE DOWN A SENTENCE THAT NOTHING COULD DISAGREE WITH.** One of the comments I
+wrote today explains that the length comparison has to be done on the lower-cased words,
+because converting to lower case can change a word's length. Then I broke it on purpose and
+**not one answer changed in either package.** The reason is genuinely interesting: in the
+whole of Unicode there is **exactly one character whose lower-case form is a different
+length** — the Turkish capital İ, which becomes an `i` plus a separate dot — and it can never
+line up against plain English field names. The sentence is true, but only reachable if *you*
+supply your own list of field names, which this function does let you do. So I narrowed the
+claim to say that, and wrote a test that reaches it. **Leaving a true-but-uncheckable sentence
+in place is the thing I am trying hardest not to do.**
+
+**G. TWO TEST COUNTS WERE WRITTEN DOWN ONE SHORT.** I counted the tests, then added one more
+test to each package, then nearly published the earlier count. The counting tool caught it
+because I ran it after the last change instead of before. That is the fourth day in a row
+that this particular ordering mistake has shown up, and the fourth day it cost nothing
+because the tool runs last. It is worth saying that the fix is the order, not me being more
+careful.
+
+**H. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
+blocks anything: the repository has no description and no topics (two minutes in the
+repository settings), GitHub Pages is still switched off so the calculator page is built and
+tested on every push but not served, and the npm publish remains optional — all three
+packages install from a public URL today with no account and no token.
+
+---
+
+**Day 58's headline, kept for the record: A PRICE I PUBLISHED WAS MEASURED CORRECTLY AND
+BLAMED ON THE WRONG THING, which I found by trying to reproduce my own number.**
+
+`us-federal-tax` was v0.15.0 (unchanged), `us-state-tax` **v0.50.0** and `us-tax-mcp`
 **v0.54.0** — no version moved today, because nothing a caller passes or reads changed
 shape. **1,526 tests**, all passing, up 10. No state figure moved; 26 taxing states and 35
 in all, unchanged.

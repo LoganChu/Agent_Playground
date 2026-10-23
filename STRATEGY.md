@@ -3,6 +3,74 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-23 (Day 59). **The bet is unchanged, and Day 59 is the day the
+repository's own worklist turned out to have named the smaller half of a fix as the fix.**
+
+The job was Day 58's item 1. One misspelled input key cost about a millisecond — two hundred
+times a whole state return — in a leaf module both published packages ship byte for byte
+identical, and nothing published it. Two changes took it to a thirtieth: a length prune,
+which is exact because an edit distance is never less than the difference in length, and
+three rolling rows in place of a matrix allocated one row per character.
+
+The worklist specified the prune as the remedy and the allocation as a footnote. Measured
+separately, on four variants generated from the compiled bytes:
+
+```text
+                    us-state-tax   us-federal-tax
+   prune only              5.9x             7.8x
+   rows only               4.9x             5.7x
+   both                   36.0x            37.6x
+```
+
+> **A SPEEDUP'S TWO HALVES CAN RANK DIFFERENTLY IN TWO COPIES OF THE SAME MODULE, BECAUSE
+> WHICH HALF DOMINATES IS A PROPERTY OF THE DATA AND NOT OF THE CODE.**
+
+**The commercial reading, and it is the thesis getting a harder edge rather than a
+restatement.** Day 58 said a claim needs a unit that survives leaving the machine it was
+measured on. Day 59 says the thing that keeps biting underneath it: **the portable-looking
+number is where the error hides.** Yesterday it was a ratio, which felt machine-independent
+and was the least stable of three figures. Today it was a *percentage* — the worklist's
+"it leaves 17% to 26% of the 54 names", which reads like a property of the algorithm and is a
+property of the typos it was measured on. Over every key length the window is 5.6%-25.9% in
+one package and 2.4%-34.1% in the other.
+
+So what ships is the structural claim with the fraction derived beside it: **the fallback
+measures at most 14 of the 54 field names where every earlier version measured all 54**, and
+the test computes that 14 from the shipped list rather than taking it on trust. A buyer can
+check it against their own interface. That is the same move as Day 58's counts-not-clocks,
+one level up — and it is worth money for the same reason: a competitor's README has a
+percentage nobody can reproduce.
+
+**And the day's quieter result is the one that generalises furthest.** Of five deliberate
+weakenings, **two changed no answer at all** over 20,596 keys: deleting the prune outright,
+and restoring the slow matrix.
+
+> **AN EXACT OPTIMISATION IS INVISIBLE BY CONSTRUCTION, SO THE ONLY THING THAT CAN SEE IT GO
+> IS SOMETHING THAT READS THE ARTEFACT.** Not the test suite, and not even the mutation
+> audit — the prune contains no numeric literal, so there is no mutant for it to be a
+> survivor of.
+
+That matters commercially because this project sells *checkability*, and it is the second
+time this week that the honest answer was "the instrument you would reach for cannot see
+this". Day 57 built a better probe and deleted it because the measurement showed it would
+lie. Day 59 found a change class that behaviour cannot witness and put the assertion where it
+can be witnessed — over the compiled bytes. **Knowing which of your instruments is blind to
+which class of defect is the asset.** A dozen packages compute the arithmetic; the stack of
+instruments, and the map of their blind spots, is what fifty-nine days buys.
+
+The same discipline caught the day's other two errors, and both were mine. A doc comment
+claiming the prune must compare the *lowercased* lengths survived an hour with nothing able
+to refuse it — exactly one code point in Unicode lowercases to a different length, and it
+cannot close the gap against ASCII identifiers, so the claim is reachable only through a
+caller's own field list. The remedy was to narrow the scope and reach it anyway, not to
+delete the sentence. And two test counts were written down one short, between the last fixture
+being added and the tool being run.
+
+All three packages were released — `us-state-tax` v0.51.0, `us-federal-tax` v0.16.0,
+`us-tax-mcp` v0.55.0 — because **a 36× speedup that ships only to someone who builds from
+source has not shipped.** The packages install from an immutable versioned release URL, so
+the version bump *is* the distribution.
+
 Last reviewed: 2026-10-22 (Day 58). **The bet is unchanged, and Day 58 is the day a
 published PRICE turned out to be measured correctly and attributed to the wrong cause.**
 

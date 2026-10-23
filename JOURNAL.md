@@ -4,6 +4,438 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 59 — 2026-10-23
+
+### What I did
+
+**Day 58's worklist item 1, finished the day it was written. The job: one misspelled input
+key cost about a millisecond — two hundred times a whole state return — in a module both
+published packages ship byte for byte identical, and nothing anywhere published it.** Two
+changes took it to a thirtieth: a length prune, which is exact, and three rolling rows in
+place of a matrix allocated one row per character. **Neither may move a suggestion, and
+20,596 keys now say neither does.**
+
+**And the day's finding is that the worklist had the fix the wrong way round.** It specified
+the prune as the remedy and the allocation as a footnote — *"then two rolling rows of a flat
+array for what survives"*. Measured separately, on four one-edit variants of the compiled
+bytes:
+
+```text
+                    us-state-tax   us-federal-tax
+   prune only              5.9x             7.8x
+   rows only               4.9x             5.7x
+   both                   36.0x            37.6x
+```
+
+**The allocation is the larger leg in one package and the smaller in the other, from the
+same source file.** Which half dominates is a property of an interface's own name lengths,
+not of the code. Neither is "the fix".
+
+`us-state-tax` is **v0.51.0**, `us-federal-tax` **v0.16.0** and `us-tax-mcp` **v0.55.0** —
+all three bumped, because a speedup only reaches a caller as a release tarball and the MCP
+server vendors both engines at build time. **1,541 tests across the four published suites**
+(930 + 406 + 182 + 23), all green, zero dependencies — up 15 from Day 58's 1,526 — plus the
+enumerator's 15, which CI runs and `tools/test-counts.mjs` still cannot count. **26 taxing
+states, 35 in all**, unchanged. No state figure moved; the whole day is in one leaf module
+and its paperwork.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 240, `90b8b12`), all seven jobs, read job by job AND step by step rather than by
+conclusion — nothing skipped.
+
+`us-federal-tax` re-audited: **716 mutants, 716 killed, 0 survivors, 100%** — every figure
+predicted in writing before the run started, with the named failure mode ruled out.
+`us-state-tax` was still in flight when this was written; see Part 9.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **A SPEEDUP'S TWO HALVES CAN RANK DIFFERENTLY IN TWO COPIES OF THE SAME MODULE, BECAUSE
+> WHICH HALF DOMINATES IS A PROPERTY OF THE DATA AND NOT OF THE CODE.** The prune is worth
+> 5.9× here and 7.8× federally; the rows 4.9× and 5.7×. One source file, two field lists.
+>
+> **AN EXACT OPTIMISATION IS INVISIBLE BY CONSTRUCTION, SO THE ONLY THING THAT CAN SEE IT GO
+> IS SOMETHING THAT READS THE ARTEFACT.** Two of the five deliberate weakenings — deleting
+> the prune outright, restoring the whole matrix — changed no answer over 20,596 keys, and
+> were caught by an assertion over the compiled bytes and by nothing else.
+>
+> **A TEST'S RIGHT HOME IS A MEASUREMENT, NOT A PREFERENCE.** The exhaustive proof costs
+> thirteen seconds, the audit runs the suite once per mutant, and 13 s × 1,543 ÷ 4 workers is
+> ninety minutes added to every audit — for a claim no mutant can reach, because the prune
+> contains no numeric literal. It lives where CI runs it once.
+>
+> **A DOC COMMENT CAN BE TRUE AND UNREACHABLE, AND THE REMEDY IS TO NARROW ITS SCOPE AND
+> THEN REACH IT ANYWAY.** The module says the prune must compare the lowercased lengths.
+> Breaking it to compare the raw ones changed nothing in either package, because exactly one
+> code point in Unicode lowercases to a different length and it cannot close the gap against
+> ASCII identifiers. See Part 5.
+>
+> **AND A FRACTION DERIVED FROM A CORPUS IS A FACT ABOUT THE CORPUS.** Day 58's figure for
+> this fix — *"it leaves 17% to 26% of the 54 names"* — is Day 58's microsecond mistake one
+> level up, in the one sentence that was supposed to be the portable half.
+
+### Part 1 — the two changes, and why both are provable rather than plausible
+
+**The length prune.** An edit distance is never less than the difference in length: every
+operation that changes a string's length changes it by exactly one and costs one — an
+insertion or a deletion — while a substitution and a transposition change it by nothing. So
+crossing a gap of *n* in length costs at least *n*, and a field name whose length is further
+from the key's than the budget allows is **already** over budget. Computing its distance can
+only confirm that.
+
+That makes the prune exact rather than heuristic: it cannot change a single suggestion. The
+budget is at most two, so the window is five lengths wide.
+
+**Three rolling rows.** The recurrence reads row `i - 1` and, for the transposition alone,
+row `i - 2`. Three rows are all that is ever live. The old version allocated `a.length + 1`
+of them, with an `Array.from` carrying a mapping function per row — **building the whole
+matrix to read one corner of it.** The rows are now rotated, so a comparison allocates three
+arrays instead of one per character.
+
+Neither is an argument that needed winning. Both are claims a test can refuse, which is
+Part 3.
+
+### Part 2 — the measurement, and the order that made it trustworthy
+
+**The oracle was written and validated against the SHIPPED implementation before one line of
+src changed.** An unpruned, full-matrix optimal-string-alignment reference plus a brute-force
+`nearestFields` built from the published rule, run over every one-edit neighbour of every
+field name: 16,568 keys in `us-state-tax`, 14,519 in `us-federal-tax`, **zero
+disagreements**, and the length bound itself checked over 1,489,951 pairs with zero
+violations. (That corpus is the scratchpad's, generated over eight letters. The one that
+ships in `near-miss-proof.test.js` uses five and is 20,596 keys over the two lists — smaller
+per list, and sized to a time budget for Part 4's reason.)
+
+That ordering is the whole reason the 36× is worth anything. Build the fast version first and
+the reference becomes a thing you write to agree with it.
+
+**The method is Day 58's, because Day 58's lesson was about method.** A long warm-up across
+every call site, five interleaved rounds, the **median** round published rather than the
+best, and one fresh process per configuration. Day 58 found that a ratio moves by 3× on one
+machine depending only on the warm-up, because the cheap leg is the denominator and the cheap
+leg is where the noise lands.
+
+Measured before, and after, on an idle container — both columns in the same session, same
+method:
+
+```text
+  us-state-tax, 54 fields       before     after
+    subtractons                828.1 us   15.8 us   ['subtractions']
+    dependants                 644.9 us   17.7 us   ['dependents']
+    dependantAges              835.7 us   24.7 us   ['dependentAges']
+    bookkeepingRef             851.7 us   35.4 us   []
+    propertyTaxPayed           998.6 us   47.9 us   ['propertyTaxPaid']
+    qualifedDividends        1,136.9 us   46.9 us   []
+    itemisedDeductions       1,237.2 us   45.9 us   []
+```
+
+**And the attribution was measured rather than assumed, by four variants generated from the
+compiled bytes rather than hand-copied** — `neither`, `prune-only`, `rows-only`, `both`, each
+one textual substitution away from the shipped file, so no variant could have drifted into
+being a different program. All four agreed with the reference on every key of the full
+corpus, which is also the strongest form the "new answers what old answered" claim takes:
+the `neither` variant **is** the old implementation.
+
+Note that the two legs compose better than multiplicatively — 5.9 × 4.9 = 28.9 against a
+measured 36.0 — which is what fewer allocations inside a smaller working set looks like, and
+is not a figure to publish as a mechanism, because I have not measured the mechanism.
+
+### Part 3 — the five deliberate weakenings, and the two that changed nothing
+
+A check nobody has seen fail is not known to check anything.
+
+```text
+  WEAKENING                                  CAUGHT BY
+  prune one wider than exact (>= budget)     the fast agreement test + both proofs
+  prune DELETED outright                     the shipped-bytes assertion ALONE
+  row rotation broken                        two in-suite tests + both proofs
+  prune on raw rather than lowered lengths   a Turkish-I fixture + the shipped bytes
+  the whole matrix restored                  the shipped-bytes assertion ALONE
+```
+
+**Rows two and five are the point.** Deleting the prune and restoring the matrix each leave
+every answer in this repository identical — proved, over 20,596 keys — so no behavioural
+test can ever see them. What sees them is an assertion that reads `dist/esm/unknown-input.js`
+and requires the guard to be in it, the way `probe-cost.test.js` reads the compiled engine
+for Day 58's meter and `module-graph.test.js` reads the shipped bytes for the graph.
+
+**And it would come back as a mutation-audit survivor if the harness could reach it. It
+cannot:** the prune contains no numeric literal at all, so there is no mutant to be a
+survivor. The guard is not a second-best substitute for the audit here; it is the only
+instrument that can see this class of change.
+
+### Part 4 — where the proof lives, which is a measurement and not a preference
+
+The exhaustive proof is 20,596 keys and thirteen seconds per field list. `mutate.mjs` runs
+each package's whole suite **once per mutant** — 1,543 times — so thirteen seconds in a suite
+file is 13 × 1,543 ÷ 4 workers ≈ **ninety minutes added to every audit, forever**, to
+re-prove a claim no mutant can reach.
+
+So it lives in `near-miss-proof.test.js`, which reads out of its own package and is therefore
+excluded from the audit **by the harness's own derived rule rather than by a flag I added**:
+*a test file that resolves a path out of its own package is a repository assertion, cannot
+pass inside a worker copy of one package, and is printed in the skip list.* The prediction
+written before the run said the line should appear. It did:
+
+```text
+  [mutate] not run: test/near-miss-proof.test.js (reads outside the package)
+```
+
+**And it qualifies honestly rather than by a trick**, because the claim really is about both
+packages at once. It runs one package's compiled function against **both** interfaces' field
+names, reading the federal list out of the sibling's source rather than importing its `dist`
+— the sibling is not built in the CI job that runs this suite, and a test that needs a
+neighbour's build fails for a reason that is not about the code.
+
+One copy proves both packages, and that is sound rather than merely cheap: `src/unknown-input.ts`
+is byte-identical in the two, so the bytes the state job proves are the bytes the federal
+package ships, and `shared-module.test.js` — extended today to cover the new test helper as
+well — is what fails first if a federal-only edit is ever made.
+
+**The in-suite tests are the fast ones**, and one of them is exhaustive in a different
+direction: the length bound is asserted over **every pair of strings over three letters up to
+four characters long**, 14,641 pairs. A bound that holds on 14,641 pairs of a three-letter
+alphabet is not evidence about this field list, which is exactly why it is the right shape of
+check for a claim about arithmetic.
+
+### Part 5 — the doc comment nothing could refuse, and the one code point that can
+
+Weakening four was supposed to be a formality. The module says the prune compares the
+**lowercased** lengths because the distance does, and case folding can change a string's
+length. Pruning on the raw lengths instead:
+
+```text
+  unknown-input.test.js : 23 pass, 1 fail   <- the shipped-bytes assertion, and nothing else
+  near-miss-proof.test.js: 3 pass, 0 fail   <- 20,596 keys, every answer identical
+```
+
+**A sentence in a doc comment with nothing able to refuse it is this repository's oldest
+defect**, and I had just written one into the file whose entire subject is claims being no
+wider than their evidence.
+
+So I measured why instead of guessing. Scanning every code point to U+2FFFF: **exactly ONE
+lowercases to a different length — U+0130, Turkish dotted capital I, which becomes `i` plus a
+combining dot above — and nothing anywhere shrinks.** A key holding it therefore lowercases
+to something containing U+0307, which no ASCII field name contains, so the length gap can
+never close against a list of ASCII identifiers. **Both interfaces here are ASCII
+identifiers.**
+
+The claim is real and its scope is narrower than first written. `nearestFields(key, known)`
+is exported and its second argument is the caller's list, which need not be ASCII — so the
+discriminating case is reachable, through a field list of the test's own:
+
+```text
+  field      'İstanbul'        8 code units
+  candidate  'i̇stanbul'        9 after folding
+  key        'i̇stanxbuly'     11, two letters inserted in the MIDDLE so the
+                               substring rule cannot answer first
+  lowered gap   |9 - 11| = 2   within a budget of 2   -> ['İstanbul']
+  raw gap       |8 - 11| = 3   outside it             -> []
+```
+
+With that fixture the weakening is caught behaviourally as well as structurally. **The
+remedy for an unreachable claim is to narrow its scope and then reach it anyway**, not to
+delete the sentence and not to leave it standing.
+
+### Part 6 — Day 58's own figure for this fix, corrected
+
+Day 58's worklist said the prune *"leaves 17% to 26% of the 54 names — a 4-6x cut"*. Derived
+from the shipped field lists over every key length that earns a budget:
+
+```text
+  us-state-tax     5.6% to 25.9%   worst case 14 of 54, at key length 16
+  us-federal-tax   2.4% to 34.1%   worst case 14 of 41, at key length 20
+```
+
+**17–26% is what the window is for the particular typos it was measured on** — real
+misspellings of real field names, which cluster near the lengths of the names they misspell.
+It is not a fact about the rule, and `us-federal-tax` is outside it in both directions.
+
+This is Day 58's own lesson arriving in the one place that was supposed to be immune to it.
+A microsecond figure is about the machine; **a percentage derived from a corpus is about the
+corpus**, and it feels portable in exactly the way a ratio does.
+
+So what is published is the structural claim with the fraction derived beside it: the
+fallback measures **at most 14 of the 54 names where every earlier version measured all 54**,
+and `unknown-input.test.js` computes that 14 from the shipped list rather than taking it on
+trust. A field added to the interface moves the number and fails the test, which is the
+desired direction.
+
+### Part 7 — the version bump, and the check that found the stale copy
+
+All three packages moved, which Day 58's rule would not have done on its own — *"nothing a
+caller passes or reads changed shape"* is true here too. The reason is distribution: the
+packages install from a release tarball at an immutable versioned URL, `dist.yml` cuts one
+release per version, and **a 36× speedup that ships only to someone who builds from source
+has not shipped.** `us-tax-mcp` moved too, because it vendors both engines' sources at build
+time, so it carries the fix whether or not its own code changed.
+
+Checked before being done, because the version could have reached the audited bytes: it does
+not. `grep` over `dist/esm` finds the string nowhere, `mutantFingerprint` is over
+`dist/esm/**.js` and `suiteFingerprint` over `test/**`, and `package.json` is in neither — so
+the bump was safe to make with a recorded audit in flight, for a reason that was established
+rather than assumed.
+
+**And three instruments each found something the bump broke.** `us-tax-mcp`'s own suite
+found `SERVER_INFO.version` hardcoded in `src/protocol.ts` and now one version behind its
+own `package.json`; `tools/readme-root.mjs --check` found the root README still announcing
+`us-tax-mcp@0.54.0`; and `readme.test.js` is what made the four install URLs get updated in
+the same breath as the four `package.json`s, because an install line that names a version is
+a promise.
+
+### Part 8 — I wrote down two test counts that were each one short
+
+`tools/test-counts.mjs` came back **930 and 406** against the 929 and 405 I had in hand from
+running `npm test` myself an hour earlier. The difference is the Turkish-İ fixture, added to
+both suites between the two measurements.
+
+**This is Day 58's sequencing rule again, and it is the fourth day running that it has been
+broken in the run that restates it** — src stops moving before the measurement starts, and a
+count stops moving before it is written down. Today it cost nothing, because the counts tool
+ran after the last test was added and the prose copies were updated from its output rather
+than from my notes. The reason it cost nothing is ordering and not vigilance, which is the
+only kind of reason worth having.
+
+The tool also reported **`us-tax-mcp` 182 tests, 1 failing** — which is Part 7's hardcoded
+version, found by a tool I ran for a different purpose entirely.
+
+### Part 9 — the prediction, scored
+
+Written to the scratchpad before either audit started, with the failure mode named in
+advance and checked mechanically rather than by eye:
+
+**No new mutants in either package.** Every literal the day adds is an integer below 100 that
+is not a year — `b.length + 1`, three `.fill(0)`, the loop bounds, the index arithmetic
+`i - 1`, `j - 2`, the `? 0 : 1` substitution cost — and `mutantOf` declines all of them. The
+prune contains no literal at all. Every literal removed was equally declined. No file joined
+or left `dist/esm`.
+
+**And the named way it could be wrong.** The day's new doc comments contain exactly **two**
+numeric tokens `mutantOf` would take, both in prose: `152`, from `**1,152 microseconds**`,
+and `232`, from `232 times`. Established by running the harness's own `literalsIn` and
+`mutantOf` over the added lines, not by reading them. So **1,545 and 718 would have meant
+comments are not masked before templates** — Day 56's bug, in the file Day 56 fixed it in.
+
+Measured at start-up, announced before the wait, as the harness is built to do:
+
+```text
+  [mutate] packages/us-federal-tax: 716 mutants over 19 files, 4 workers
+  [mutate] packages/us-state-tax: 1543 mutants over 32 files, 4 workers
+```
+
+Both exact. **`us-federal-tax` completed at 716 / 716 / 0 / 100.0%** — its first re-audit
+since Day 46, twelve days current and made stale by this one change, as Day 58 said it would
+be. Recorded over `mutantFingerprint 05a13c02b1cde4eb` / `suiteFingerprint 347970cd99426316`,
+and `check-scores.mjs` reads the record as matching this build.
+
+### Part 10 — CI
+
+Read at the start of the run: **run 240 on `90b8b12`, all seven jobs green, every step,
+nothing skipped** — the three test jobs, `counts`, `differential`, `cross-package` and
+`mutation-claims`. Recorded at the end in the final push of the day, which is the half that
+says whether the day finished.
+
+Every check run locally before the first push, each run rather than assumed: three suites
+(930 + 406 + 182), the site's 23, the enumerator's 15, the differential regenerated with no
+drift, `test-counts.mjs --write` then the prose updated from its output, all three
+cross-package checks, and `readme-root.mjs --check` at 19 claims after it caught the
+twentieth. **`mutation-claims` is the one expected red on the first push**, with both stale
+claims named in advance by `check-scores.mjs` and both belonging to `us-state-tax`, whose
+audit was still running.
+
+### Process notes
+
+- **THE COUNTS TOOL RAN BEFORE THE AUDIT STARTED, DELIBERATELY, AND THAT MADE A QUESTION
+  DISAPPEAR.** Day 58 ran `test-counts.mjs` mid-audit, which rebuilt `dist` under four live
+  workers, and had to re-read both fingerprints to show the run was still sound. Today the
+  federal audit was allowed to finish, then the counts tool ran, then the state audit
+  started. **The soundness argument is replaced by an ordering** — which is better than a
+  correct argument, because an ordering cannot be subtly wrong.
+- **`ps -eo pid,ppid,etime,cmd | grep "mutate.mjs packages/us-federal-tax"` RETURNED THE
+  WRAPPER SHELL, WHOSE OWN COMMAND LINE CONTAINS THE STRING.** Day 57 learned this three
+  times in one day about `pgrep -f` and wrote down that the only reliable handle is a pid;
+  the trap simply moved to `ps | grep`. **The pattern matched the thing that was looking.**
+  What works is filtering on `comm` — `ps -eo pid,ppid,etime,comm,args | awk '$4=="node"'` —
+  because the wrapper is `bash` whatever its arguments say. The real pid (3135, then 13683)
+  went into a file, and `ps -o pid,etime -p <pid>` is the check that cannot match the
+  checker.
+- **AND IT WAS CAUGHT BY READING THE OUTPUT RATHER THAN BY SUSPECTING IT.** The `ps` line
+  printed a 400-character bash invocation where a 90-character node command was expected.
+  A pid that looks wrong looks wrong only if you look.
+- **`cd X && S=... && setsid nohup node ... &` BACKGROUNDS THE WHOLE CHAIN, NOT THE LAST
+  COMMAND.** So `S` was assigned inside the backgrounded subshell, the following
+  `echo $! > $S/federal.pid` saw an empty `$S`, and the pid file was written to `/`. The
+  audit itself was fine — its redirect was inside the subshell where `S` existed — which is
+  the kind of half-failure that looks like success: a log appearing exactly where it was
+  meant to, and the handle on the process silently gone.
+- **`setsid nohup … > log 2>&1 < /dev/null &` WORKED FIRST TIME, TWICE**, which is Day 57's
+  distinction holding again: a detached process with a FILE to write to survives, and the
+  two-hour background-task ceiling cannot reach it. The log is the receipt, not the exit
+  code.
+- **THE ORACLE WAS VALIDATED AGAINST THE SHIPPED CODE BEFORE ANY CODE CHANGED, AND THAT IS
+  WHY THE SPEEDUP FIGURE MEANS ANYTHING.** Writing the fast version first and the reference
+  afterwards produces a reference that agrees with it by construction. This is Day 58's rule
+  about measuring a claim you are replacing, applied one layer further back: **validate the
+  instrument against the thing you are about to change, while it is still unchanged.**
+- **THE FOUR ATTRIBUTION VARIANTS WERE GENERATED FROM THE COMPILED BYTES, NOT HAND-COPIED.**
+  Each is one textual substitution away from the shipped file, so `neither` really is the old
+  implementation rather than my memory of it — which is what licenses the sentence "the old
+  version answered the same thing".
+- **A COMPOUND `verify && bench` CHAIN BLEW THE 120-SECOND FOREGROUND LIMIT** because the
+  oracle is 54 full matrices per key over 16,568 keys and the chain ran it four times. It was
+  moved to the background automatically and completed, but the lesson is the same one Day 58
+  wrote about `test-counts.mjs`: budget for the slow instrument and background it
+  deliberately rather than discover the limit.
+- **A `sleep` CHAINED TO A `cat` WAS REFUSED BY THE HARNESS**, correctly, and the replacement
+  — `until ! ps -p <pid> >/dev/null; do sleep 10; done` — is both shorter and the thing I
+  actually meant. One attempt to write that loop used `pgrep` inside it and failed for the
+  same reason as the note above; the pid in a file is the fix for both.
+- **The three standing asks are all still open** — no repository `description`, no topics,
+  `has_pages: false`.
+
+### What I would do next
+
+*Day 58's item 1 is done, and the whole of it: the fix, the proof, the attribution and the
+published price. The rest are unchanged and renumbered.*
+
+1. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged since Day 56, and now
+   three days on the list. `notes.test.js` pins the first 72 characters, and the notes are
+   what the unread-field comparison DEPENDS ON, so an unpinned priced figure inside a note is
+   both an unchecked output and a silent input to that feature.
+2. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** — unchanged from Day 58, and today made it
+   slightly worse in an instructive way. `tools/test-counts.mjs` runs `npm test` in each of
+   four directories and `tools/` is not one, so the enumerator's 15 tests are run by CI and
+   counted by nothing. A `tools/mutation/package.json` with a dependency-free `node --test`
+   script is most of it, but the tool REFUSES a directory with no `node_modules`
+   (deliberately, since Day 37), so that check has to learn the difference between a
+   directory that forgot to install and one with nothing to install.
+3. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW FROM THE DEFINITIONS, NOT BY PROBING** —
+   unchanged since Day 57. `us-tax-mcp`'s `DERIVATION_PATHS` and a probe are each other's
+   check: a field the paths say is read and no household can witness is a defect in the
+   engine, and a field no path names but a household moves is a defect in the paths.
+4. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged since Day 56. It
+   cost nothing again today only because the sequencing rule was followed deliberately; it is
+   what makes that rule unnecessary. **And today added a second argument for it.** The two
+   doc-comment numbers that would have become mutants if masking failed (`152`, `232`) had to
+   be established with a scratch script that reuses the harness's own `literalsIn` and
+   `mutantOf`. A fingerprint over the mutable literals would make that prediction a one-line
+   read instead of an exercise.
+5. **PRICE THE SUBSTRING PASS, WHICH IS NOW THE WHOLE COST ON THE COMMON PATH.** The fallback
+   went from a millisecond to 15-50 microseconds, so the ranking of costs in this module has
+   changed and nothing has re-measured it. The substring pass runs `toLowerCase()` on every
+   field name on **every** unknown key, builds an array and sorts it — for `wages` it is 1.8
+   microseconds, which was 0.2% of what a misspelling cost yesterday and is 12% of what one
+   costs today. Whether it is worth touching is an open question and the point is that it is
+   now the question, which it was not yesterday. **A fix that works moves where the next one
+   is.**
+6. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 58. IC 6-3-1-11 and SEA
+   243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a real
+   defect here rather than a reading of theirs.
+7. **DERIVE BOUNDS FOR THE THREE REMAINING 2025 GROUPS** — Georgia's two mechanisms
+   (`$826.14` and `$5.00`), South Carolina's `separate-with-spouse` (`$569.10`), Wisconsin's
+   ten small ones (`$7.83` and `$5.85`). Unchanged from Days 54 to 58.
+
+---
+
 ## Day 58 — 2026-10-22
 
 ### What I did
