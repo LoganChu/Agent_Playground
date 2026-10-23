@@ -106,6 +106,48 @@ nothing fails on it. Both suites now reach their engine through a
 [one-file wrapper](packages/us-state-tax/test/strict.mjs) that defaults
 `strict: true`, which costs one import line per file and nothing at any call site.
 
+### And what that guard cost, which nobody asked for a year (v0.51.0 / v0.16.0)
+
+The guard only runs on a call that already contains a mistake, so its price was easy not to
+ask about. A benchmark written with field names the engine does not have asked by accident,
+and the answer was **about a millisecond for one misspelled key — two hundred times a whole
+state return** — all of it in the edit distance, in a leaf module both packages ship byte for
+byte identical.
+
+Two changes, and the interesting part is which of them mattered:
+
+```text
+                    us-state-tax   us-federal-tax
+   prune only              5.9x             7.8x     an edit distance is never less than
+                                                     the difference in length, so most names
+                                                     need not be measured at all
+   rows only               4.9x             5.7x     three live rows instead of a matrix
+                                                     allocated one row per character
+   both                   36.0x            37.6x
+```
+
+**The worklist that specified this fix named the prune as the remedy and the allocation as a
+footnote.** The allocation is the larger leg in one package and the smaller in the other,
+from the same source file, because which half dominates is a property of an interface's own
+name lengths.
+
+Both changes are only worth making if they cannot alter a suggestion, so neither is argued.
+`near-miss-proof.test.js` runs **20,596 keys** — every one-edit neighbour of every field name
+in both interfaces, in the four shapes the distance is built to catch — through the shipped
+function and through an unpruned full-matrix reference, and requires them to agree key by
+key.
+
+**And two of the five deliberate weakenings changed no answer at all.** Deleting the prune
+outright, and putting the slow matrix back, are identical over all 20,596 keys — because the
+whole point of an exact optimisation is that it is invisible. Neither the suite nor the
+mutation audit can witness that class of change: the prune contains no numeric literal, so
+there is no mutant for it to be a survivor of. What witnesses it is an assertion that reads
+the compiled bytes, and those two weakenings are what earned it its place.
+
+What is published is a count rather than a clock, which is the previous day's lesson applied: the
+fallback now measures **at most 14 of the 54 state field names where every earlier version
+measured all 54**, and the test derives that 14 from the shipped list.
+
 ### The harder case: a key that is REAL, and nine states where nothing said so (v0.49.0)
 
 Everything above is about a key the engine does not have. The guard that catches
