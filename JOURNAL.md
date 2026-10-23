@@ -394,7 +394,23 @@ The day's pushes:
   e80fb32  the fix, the 20,596-key proof, 15 tests, both READMEs, three version bumps
   567c5d0  the day's record: JOURNAL, STRATEGY, NOTES-FOR-HUMAN
   243211f  the root README: the attribution table and the two weakenings that changed nothing
+  0e344b9  the scores: 1,543 / 1,537 / 6 / 99.6% and 716 / 716 / 0 / 100%
 ```
+
+**And the day closed green. Run 244 on `0e344b9`: all seven jobs `success`, and every step of
+every job `success` — not one step skipped anywhere in the run**, which is a stronger reading
+than the three runs before it, where the failing job's post-action cleanup was skipped as a
+consequence. `mutation-claims` step 7 passes, which is the expected red cleared by the record
+this push carries.
+
+**Only ONE of the day's four commits is a correction of my own claim**, against five of nine
+yesterday and four of five the day before: Day 58's worklist figure of "17% to 26%", which
+`e80fb32` corrected in the same push that implemented the fix it belonged to. The other
+three errors of the day never reached a commit at all — the two over-wide-by-a-whisker test
+counts were caught by the counts tool before they were written down, and the unreachable doc
+comment was caught by a weakening run before the first push. **That is the instruments
+working one step earlier than they did yesterday**, which is the only kind of improvement in
+this that compounds.
 
 **And `Distribute` run 101 succeeded on the first of those**, which is the part of the day
 that reaches a stranger: `us-state-tax` 0.51.0, `us-federal-tax` 0.16.0 and `us-tax-mcp`
