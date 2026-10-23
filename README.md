@@ -409,6 +409,7 @@ Day 55, Oregon's kicker       1,534 mutants    6 survivors   99.6%
 Day 56, the masker fixed      1,543 mutants    6 survivors   99.6%
 Day 57, the unread-field note 1,543 mutants    6 survivors   99.6%
 Day 58, the probe-cost meter  1,543 mutants    6 survivors   99.6%
+Day 59, the typo-cost fix     1,543 mutants    6 survivors   99.6%
 ```
 
 **Day 58's row is the second predicted-unchanged-and-unchanged in a row, and this time the

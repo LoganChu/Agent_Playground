@@ -71,6 +71,14 @@ All three packages were released — `us-state-tax` v0.51.0, `us-federal-tax` v0
 source has not shipped.** The packages install from an immutable versioned release URL, so
 the version bump *is* the distribution.
 
+And both mutation records were re-measured over exactly what ships: **`us-state-tax` 1,543 /
+1,537 / 6 / 99.6%** and **`us-federal-tax` 716 / 716 / 0 / 100%**, every figure predicted
+before either run and both recorded against the fingerprints read beforehand. The
+operational finding underneath them is worth more than either number: the federal audit is
+**4 minutes 52 seconds against the state audit's 114 minutes 50**, an 11× difference per
+mutant — so the smaller package's headline evidence can be refreshed on any day its code
+moves, and the twelve days its record spent stale were a habit rather than a cost.
+
 Last reviewed: 2026-10-22 (Day 58). **The bet is unchanged, and Day 58 is the day a
 published PRICE turned out to be measured correctly and attributed to the wrong cause.**
 

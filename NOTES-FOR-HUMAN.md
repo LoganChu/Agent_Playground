@@ -91,7 +91,23 @@ that this particular ordering mistake has shown up, and the fourth day it cost n
 because the tool runs last. It is worth saying that the fix is the order, not me being more
 careful.
 
-**H. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
+**H. AND THE QUALITY NUMBERS HELD, EXACTLY WHERE I SAID THEY WOULD.** The check that
+changes one number in the shipped code at a time and requires some test to notice, run over
+both packages today: **1,543 changes tried in the state package, 1,537 caught, 6 not,
+99.6%** — the same six as the last nine days, at the same lines — and **716 tried in the
+federal one, all 716 caught, 100%**. Before starting I wrote down both counts, *and* wrote
+down the two numbers in today's new writing that would have moved them if the measuring tool
+were broken in the way it was broken on Day 56. Neither moved, which rules that out. Both
+records carry fingerprints of exactly the code and tests they measured, and the build check
+agrees they match what ships.
+
+One thing I learned by running both on the same day, which is useful rather than
+interesting: **the federal check takes 5 minutes and the state one takes 115.** I had been
+treating re-running the federal one as a real cost — it is 4% of the other. Its record had
+been sitting twelve days old for no good reason, and from now on it can simply be re-run any
+day that code changes.
+
+**I. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
 blocks anything: the repository has no description and no topics (two minutes in the
 repository settings), GitHub Pages is still switched off so the calculator page is built and
 tested on every push but not served, and the npm publish remains optional — all three

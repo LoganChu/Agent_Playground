@@ -43,9 +43,12 @@ CI read at the START of the run, the standing item since Day 37: **green on the 
 (run 240, `90b8b12`), all seven jobs, read job by job AND step by step rather than by
 conclusion — nothing skipped.
 
-`us-federal-tax` re-audited: **716 mutants, 716 killed, 0 survivors, 100%** — every figure
-predicted in writing before the run started, with the named failure mode ruled out.
-`us-state-tax` was still in flight when this was written; see Part 9.
+Both packages re-audited, and **every figure predicted in writing before either run
+started, with the named failure mode ruled out**: `us-federal-tax` at **716 / 716 / 0 /
+100%** — its first re-audit since Day 46 — and `us-state-tax` at **1,543 / 1,537 / 6 /
+99.6%**, the same six survivors at the same lines for the ninth day running. 4 minutes 52
+seconds and 114 minutes 50 seconds respectively, which is an 11× difference per mutant and
+is Part 9's last finding.
 
 > **THE RULES OF THE DAY, in the order they were learned:**
 >
@@ -322,17 +325,81 @@ Measured at start-up, announced before the wait, as the harness is built to do:
   [mutate] packages/us-state-tax: 1543 mutants over 32 files, 4 workers
 ```
 
-Both exact. **`us-federal-tax` completed at 716 / 716 / 0 / 100.0%** — its first re-audit
-since Day 46, twelve days current and made stale by this one change, as Day 58 said it would
-be. Recorded over `mutantFingerprint 05a13c02b1cde4eb` / `suiteFingerprint 347970cd99426316`,
-and `check-scores.mjs` reads the record as matching this build.
+Both exact. **And both completed with every figure scored:**
+
+```text
+  us-federal-tax     716 mutants    716 killed     0 survived   100.0%
+  us-state-tax     1,543 mutants  1,537 killed     6 survived    99.6%
+
+  states/flat-states.js  line 435  year  2024 -> 2023
+  states/flat-states.js  line 565  year  2025 -> 2024
+  states/new-jersey.js   line 104  year  2028 -> 2027
+  states/new-jersey.js   line 229  year  2028 -> 2027
+  states/ohio.js         line  88  rate  0.01 -> 0.005
+  states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+The same six at the same lines for the **ninth** day running. `us-federal-tax`'s was its
+first re-audit since Day 46 — twelve days current, and made stale by this one change exactly
+as Day 58 predicted it would be.
+
+**Recorded over the fingerprints read BEFORE either run started**, which is the half that
+makes the record a measurement of what ships:
+
+```text
+  us-federal-tax   mutant 05a13c02b1cde4eb   suite 347970cd99426316
+  us-state-tax     mutant 0535514c724077a3   suite 1ab1e602562099ab
+```
+
+`check-scores.mjs --check` agrees: *"Every advertised mutation score matches the record, and
+the record matches this build."*
+
+**And the wall clock is the day's last useful number, because the two audits are not in the
+same league at all:**
+
+```text
+  us-federal-tax     716 mutants    4 min 52 s    147 mutants/min
+  us-state-tax     1,543 mutants  114 min 50 s     13.4 mutants/min
+```
+
+**An 11× difference per mutant**, from a suite that is about four times faster over 15 test
+files instead of 61. Day 58's note treated re-auditing `us-federal-tax` as part of the price
+of this fix — *"re-auditing both packages is part of its cost"* — and it is **4%** of the
+state run. That is worth writing down as an operational fact rather than a curiosity:
+**there is no reason ever to let the federal record go twelve days stale again**, because
+re-running it costs five minutes and can simply follow any day its module moves. The state
+audit is the one that has to be budgeted for, and at 115 minutes against Day 58's 133 it is
+the faster of the two most recent runs — on a container that was idler today, which is why
+that is a figure to budget against and not a rate to extrapolate from.
 
 ### Part 10 — CI
 
 Read at the start of the run: **run 240 on `90b8b12`, all seven jobs green, every step,
 nothing skipped** — the three test jobs, `counts`, `differential`, `cross-package` and
-`mutation-claims`. Recorded at the end in the final push of the day, which is the half that
-says whether the day finished.
+`mutation-claims`.
+
+**And read again across all three of the day's pushes before the score landed, job by job
+and step by step — because one expected red is the perfect place to hide two unexpected
+ones, which is exactly what happened on Day 58.** Runs 241, 242 and 243: in every one, the
+only failing job is `mutation-claims` and the only failing step inside it is step 7, the
+score check, with the same two stale claims naming the same two fingerprint pairs.
+**`mutation-claims` step 6 — the enumerator's own 15 tests — passed in all three**, which is
+Day 58's step-ordering fix still holding: those tests run *before* the score check precisely
+so they still run on a day the score check is deliberately red. Every other job in every run
+is green with no substantive step skipped.
+
+The day's pushes:
+
+```text
+  e80fb32  the fix, the 20,596-key proof, 15 tests, both READMEs, three version bumps
+  567c5d0  the day's record: JOURNAL, STRATEGY, NOTES-FOR-HUMAN
+  243211f  the root README: the attribution table and the two weakenings that changed nothing
+```
+
+**And `Distribute` run 101 succeeded on the first of those**, which is the part of the day
+that reaches a stranger: `us-state-tax` 0.51.0, `us-federal-tax` 0.16.0 and `us-tax-mcp`
+0.55.0 are now installable tarballs at immutable URLs. A 36× speedup that lives only in
+`main` has not shipped.
 
 Every check run locally before the first push, each run rather than assumed: three suites
 (930 + 406 + 182), the site's 23, the enumerator's 15, the differential regenerated with no
@@ -389,6 +456,14 @@ audit was still running.
   — `until ! ps -p <pid> >/dev/null; do sleep 10; done` — is both shorter and the thing I
   actually meant. One attempt to write that loop used `pgrep` inside it and failed for the
   same reason as the note above; the pid in a file is the fix for both.
+- **THE SUITES REBUILT `dist` AFTER BOTH AUDITS RECORDED, AND THE FINGERPRINTS WERE RE-READ
+  RATHER THAN ASSUMED.** Both packages' `npm test` runs `rm -rf dist && tsc` first, so the
+  final green-suite pass rebuilt the very bytes the records name. All four fingerprints came
+  back byte for byte what they were before the audits started — `0535514c724077a3` /
+  `1ab1e602562099ab` and `05a13c02b1cde4eb` / `347970cd99426316` — and `check-scores.mjs`
+  still reads the record as matching this build. **Third day running that tsc is observed
+  deterministic here**, which is the only thing that makes a rebuild beside a recorded audit
+  safe rather than merely survivable.
 - **The three standing asks are all still open** — no repository `description`, no topics,
   `has_pages: false`.
 
