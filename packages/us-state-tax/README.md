@@ -691,7 +691,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.50.0/us-state-tax-0.50.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.51.0/us-state-tax-0.51.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3182,13 +3182,74 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **921 tests**. Turning it on, when there were 618 of them, is what
+from all **930 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of
 them changed an answer — they were all helper options with no field to land on —
 but two real defects were living in the pattern, and one of them was a regression
 test that had stopped being able to fail.
+
+### What a typo costs, as a count rather than a clock (v0.51.0)
+
+The guard above runs on a call that already contains a mistake, so its price is
+easy not to ask about. Day 58 asked by accident — a benchmark written with six
+field names this engine does not have was timing the typo guard instead of the
+feature it meant to measure — and the answer was **about a millisecond for one
+misspelled key, two hundred times a whole state return.** Before and after:
+
+```text
+                              before     after    answer
+  subtractons                828.1 us   15.8 us   ['subtractions']
+  dependants                 644.9 us   17.7 us   ['dependents']
+  dependantAges              835.7 us   24.7 us   ['dependentAges']
+  bookkeepingRef             851.7 us   35.4 us   []
+  propertyTaxPayed           998.6 us   47.9 us   ['propertyTaxPaid']
+  qualifedDividends        1,136.9 us   46.9 us   []
+  itemisedDeductions       1,237.2 us   45.9 us   []
+```
+
+Both columns are one machine, one build, a long warm-up over every call site,
+five interleaved rounds with the median round published, and one fresh process
+per column. That method is itself a correction: Day 58 found that the ratio
+between a cheap call and an expensive one moves by 3× on one machine depending
+only on how long the benchmark warmed up, because the cheap leg is the
+denominator and the cheap leg is where the noise lands. The same reasoning is why
+the sentence above says *about* a millisecond.
+
+Two changes took that to a thirtieth, and neither may move a single suggestion:
+
+| | | |
+| --- | --- | --- |
+| **the length prune** | an edit distance is never less than the difference in length, so a field name whose length is further from the key's than the budget allows cannot be within it and is never measured | **5.9×** |
+| **three rolling rows** | the distance reads row `i - 1` and, for the transposition, row `i - 2`; the first version allocated one row per character of the key to read one corner of the matrix | **4.9×** |
+| **both** | | **36×** |
+
+**The honest unit is the middle column of that table, not the right-hand one.**
+Microseconds are a fact about the machine that measured them; what travels is the
+work. So the claim this package publishes is a COUNT: the fallback now measures
+the key against **at most 14 of the 54 field names, where every version before
+v0.51.0 measured all 54**, and `unknown-input.test.js` derives that 14 from the
+shipped field list rather than taking it on trust. Most keys do far fewer — the
+window is five lengths wide, because the budget is two edits and an edit changes
+a length by at most one.
+
+And the figure Day 58 put in the worklist for this fix — *"it leaves 17% to 26%
+of the 54 names"* — **was true of the typos it was measured on and not of the
+rule.** Over every key length the window runs from 5.6% to 25.9% here, and from
+2.4% to 34.1% in `us-federal-tax`, because what falls inside five lengths is a
+property of an interface's own name lengths and not of the prune. That is the
+same mistake as a microsecond figure, one level up.
+
+The suggestions are unchanged, and that is proved rather than argued.
+`near-miss-proof.test.js` runs **20,596 keys** — every one-edit neighbour of
+every field name in both packages' interfaces, in the four shapes the distance
+is built to catch — through the shipped function and through an unpruned,
+full-matrix reference, and requires them to agree key by key. Five deliberate
+weakenings were built and run, and **two of them changed no answer at all**:
+restoring the slow matrix, and deleting the prune outright. An exact
+optimisation is invisible by construction, so the only thing that can notice it
+has gone is an assertion that reads the compiled bytes, and there is one.
 
 ### And a FOURTH answer, for the key that is real and is still not read (v0.49.0)
 

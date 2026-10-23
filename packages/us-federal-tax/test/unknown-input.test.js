@@ -14,6 +14,10 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  referenceEditDistance,
+  referenceNearestFields,
+} from './near-miss-reference.mjs';
+import {
   KNOWN_ESTIMATE_INPUT_FIELDS,
   estimateFederalTax,
   nearestFields,
@@ -268,6 +272,172 @@ test('the obvious pattern for that parse is WRONG, which is why the compiler hol
     assert.ok(KNOWN_ESTIMATE_INPUT_FIELDS.includes(missed), missed);
     assert.doesNotMatch(body, new RegExp(`^ {2}[a-zA-Z]+\\??: .*${missed}`, 'm'));
   }
+});
+
+// ---------------------------------------------------------------------------
+// Day 59: the fallback got 36x faster, and neither change may move an answer
+// ---------------------------------------------------------------------------
+//
+// Day 58 measured the fallback at **1,152 microseconds for one misspelled key**,
+// 232 times a whole return, and two changes took it to a thirtieth of that: a
+// LENGTH PRUNE, and THREE ROLLING ROWS in place of the whole matrix. Both are
+// supposed to be invisible, so "invisible" is what these tests are about — and
+// the three of them check three different things, because no one of them is
+// enough on its own.
+
+test('an edit distance is never less than the difference in length', () => {
+  // THE PREMISE THE PRUNE RESTS ON, and the only one of the three claims here
+  // that is about arithmetic rather than about this package. Every operation
+  // that changes a string's length changes it by exactly one and costs one; a
+  // substitution and a transposition change it by nothing. So crossing a gap of
+  // n in length costs at least n, and a name whose length is more than `budget`
+  // away from the key's cannot be within budget however it is spelt.
+  //
+  // Asserted EXHAUSTIVELY rather than on examples: every pair of strings over
+  // three letters up to four characters long, which is 121 strings and 14,641
+  // pairs, including both empty ones. A bound that holds on 14,641 pairs of a
+  // three-letter alphabet is not evidence about this field list, which is
+  // exactly why it is the right shape of check for a claim about the algorithm.
+  const alphabet = ['', 'a', 'b', 'c'];
+  let strings = [''];
+  for (let n = 0; n < 4; n += 1) {
+    strings = [...new Set(strings.flatMap((s) => alphabet.map((c) => s + c)))];
+  }
+  assert.equal(strings.length, 121);
+  let pairs = 0;
+  for (const a of strings)
+    for (const b of strings) {
+      pairs += 1;
+      assert.ok(
+        referenceEditDistance(a, b) >= Math.abs(a.length - b.length),
+        `${JSON.stringify(a)} -> ${JSON.stringify(b)}`,
+      );
+    }
+  assert.equal(pairs, 14_641);
+});
+
+test('the pruned fallback answers exactly what an unpruned full matrix does', () => {
+  // The end-to-end check, over the field names themselves and every typo this
+  // suite names anywhere. It is the FAST version on purpose: the exhaustive one
+  // — every one-edit neighbour of every field name, in both packages' field
+  // lists, about twenty thousand keys — lives in `near-miss-proof.test.js`,
+  // which reads out of this package and is therefore run once per push by CI
+  // and left out of the mutation audit. THAT ORDERING IS DELIBERATE. The audit
+  // runs this suite once per mutant, so a thirteen-second proof in here would
+  // cost an hour and a half of audit for nothing: the prune adds no literal the
+  // harness can mutate, so no mutant can ever reach it.
+  const keys = [...KNOWN_ESTIMATE_INPUT_FIELDS, ...KNOWN_ESTIMATE_INPUT_FIELDS.map((f) => f.toUpperCase()), ...[
+    'wages', 'w2Wagse', 'w2Wagess', 'dependnts', 'capitlGains', 'qualifedDividends',
+    'itemisedDeductions', 'propertyTaxPayed', 'dependantAges', 'bookkeepingRef',
+    'subtractons', 'dependants', 'filerAeg', 'blnid', 'sub', 'ag', 'yeax', 'yeaxy',
+    'xy', 'x', '', 'İstanbul', 'straße',
+  ]];
+  for (const key of keys) {
+    assert.deepEqual(
+      [...nearestFields(key, KNOWN_ESTIMATE_INPUT_FIELDS)],
+      [...referenceNearestFields(key, KNOWN_ESTIMATE_INPUT_FIELDS)],
+      key,
+    );
+  }
+  assert.ok(keys.length > 41 * 2);
+});
+
+test('the window is five lengths wide, and what it is worth is read off the list', () => {
+  // What the prune BUYS, derived from the shipped field list rather than typed
+  // in. The budget is at most two, so the window is at most five lengths wide,
+  // and how many names fall inside it is a property of this interface's own
+  // length histogram — not a portable figure, which is why the one sentence
+  // Day 58 wrote about it ("17% to 26% of the 54 names") was true of the corpus
+  // it was measured on and not of the rule.
+  const lengths = KNOWN_ESTIMATE_INPUT_FIELDS.map((f) => f.toLowerCase().length);
+  let worst = -1;
+  let worstAt = -1;
+  for (let keyLength = 1; keyLength <= 80; keyLength += 1) {
+    const budget = Math.min(2, Math.floor(keyLength / 4));
+    if (budget === 0) continue;
+    const window = lengths.filter((n) => Math.abs(n - keyLength) <= budget).length;
+    if (window > worst) {
+      worst = window;
+      worstAt = keyLength;
+    }
+  }
+  // So the worst a key can do is 14 comparisons where every version before
+  // Day 59 did 41, and most keys do far fewer.
+  assert.equal(worst, 14, 'the worst-case window over this field list');
+  assert.equal(worstAt, 20, 'and the key length that reaches it');
+  assert.equal(KNOWN_ESTIMATE_INPUT_FIELDS.length, 41, 'the premise: what the old version measured');
+});
+
+test('the prune compares the LOWERCASED lengths, and one code point proves it', () => {
+  // THIS TEST EXISTS BECAUSE THE SENTENCE IT CHECKS WAS UNVERIFIED FOR AN HOUR.
+  // `src/unknown-input.ts` says the prune has to measure the lowercased lengths
+  // because the distance does, and case folding can change a string's length.
+  // Breaking the module on purpose — pruning on `field.length` and `key.length`
+  // instead — changed no answer in either package, so the only thing that
+  // noticed was the assertion that reads the shipped bytes. **A doc comment
+  // nothing can refuse is this repository's oldest defect**, so here is what
+  // refuses it.
+  //
+  // Why nothing behavioural caught it: in the whole of Unicode exactly ONE code
+  // point lowercases to a different length — U+0130, Turkish dotted capital I,
+  // which becomes `i` plus a combining dot above — and it only ever grows.
+  // A key holding it therefore lowercases to something containing U+0307, which
+  // no ASCII field name contains, so the gap can never close against a list of
+  // ASCII identifiers. BOTH INTERFACES HERE ARE ASCII IDENTIFIERS.
+  //
+  // But `nearestFields(key, known)` is exported, and its second argument is the
+  // caller's list, which need not be. So the discriminating case is reached with
+  // a field list of the test's own — which is the honest scope of the claim, and
+  // narrower than the doc comment first stated it.
+  const field = '\u0130stanbul';
+  const candidate = field.toLowerCase();
+  assert.equal(field.length, 8, 'the premise: eight code units');
+  assert.equal(candidate.length, 9, 'the premise: case folding grew it by one');
+
+  // Two characters inserted in the MIDDLE, so the substring rule cannot answer
+  // first and the fallback is really reached.
+  const key = candidate.replace('bul', 'xbuly');
+  assert.equal(key.length, 11);
+  assert.ok(!candidate.includes(key) && !key.includes(candidate), 'no substring hit');
+  assert.equal(Math.min(2, Math.floor(key.length / 4)), 2, 'the premise: a budget of two');
+
+  // The lowercased gap is 2 and within budget; the RAW gap is 3 and is not. So a
+  // prune measuring the raw lengths drops a field that is two edits away, and
+  // this is the suggestion it drops.
+  assert.equal(Math.abs(candidate.length - key.length), 2);
+  assert.equal(Math.abs(field.length - key.length), 3);
+  assert.deepEqual([...nearestFields(key, [field])], [field]);
+  assert.deepEqual([...referenceNearestFields(key, [field])], [field]);
+});
+
+test('the shipped bytes carry the prune, which no answer can see', () => {
+  // THE REASON THIS TEST EXISTS, and it is the same reason Day 58's meter has a
+  // call-site guard: delete the prune and every behavioural assertion in this
+  // repository still passes. An exact optimisation is invisible by definition,
+  // so the only thing that can notice its absence is something that looks at the
+  // artefact — and the artefact is the compiled bytes, not the TypeScript.
+  //
+  // It would come back as a mutation-audit survivor if the harness could mutate
+  // it. It cannot: the prune contains no literal the harness takes.
+  const compiled = readFileSync(
+    resolve(here, '..', 'dist', 'esm', 'unknown-input.js'),
+    'utf8',
+  );
+  const body = compiled.slice(compiled.indexOf('export function nearestFields'));
+  assert.ok(body.length > 0, 'the premise: the function is still exported under this name');
+  assert.match(
+    body,
+    /Math\.abs\(candidate\.length - lower\.length\) > budget/,
+    'the length prune is gone from the shipped fallback, and no answer changes when it goes',
+  );
+  // And the rolling rows, for the same reason: three live rows instead of a
+  // matrix is also an answer-preserving rewrite.
+  assert.match(compiled, /twoBack/, 'the rolling rows are gone from the shipped distance');
+  assert.doesNotMatch(
+    compiled,
+    /Array\.from\(\{ length: b\.length \+ 1 \}/,
+    'the per-row allocation is back',
+  );
 });
 
 // The two copies of `src/unknown-input.ts` are compared in `shared-module.test.js`,

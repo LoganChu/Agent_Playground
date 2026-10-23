@@ -87,30 +87,55 @@ const CHARACTERS_PER_EDIT = 4;
  * charging it two puts it outside the budget of every name short enough for the
  * swap to be the likely mistake.
  *
- * Only ever computed against a name that already failed the substring test, so
- * the cost is bounded by the field count.
+ * ## Three rolling rows, because the first version of this was the whole cost
+ *
+ * The recurrence reads row `i - 1` and, for the transposition alone, row
+ * `i - 2`. Three rows are therefore all that is ever live, and the first version
+ * of this function allocated `a.length + 1` of them with an `Array.from` per
+ * row — building the entire matrix to read one corner of it.
+ *
+ * Day 58 measured what that cost on a path a caller really reaches: **one
+ * misspelled input key took 1,152 microseconds**, 232 times a whole state
+ * return, essentially all of it in here. The rows are now rotated rather than
+ * reallocated, so a comparison allocates three arrays instead of one per
+ * character of `a`.
+ *
+ * Only ever computed against a name that already failed the substring test AND
+ * survived the length prune in {@link nearestFields}, so the cost is bounded by
+ * the number of field names whose length is within the budget of the key's.
  */
 function editDistance(a: string, b: string): number {
-  const rows: number[][] = [];
-  for (let i = 0; i <= a.length; i += 1) {
-    rows.push(Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : 0)));
-    (rows[i] as number[])[0] = i;
-  }
+  const width = b.length + 1;
+  // Filled rather than left holey: a sparse array is a different kind of object
+  // to the engine, and this one is indexed in a hot loop.
+  let twoBack = new Array<number>(width).fill(0);
+  let oneBack = new Array<number>(width).fill(0);
+  let row = new Array<number>(width).fill(0);
+  for (let j = 0; j < width; j += 1) oneBack[j] = j;
   for (let i = 1; i <= a.length; i += 1) {
-    for (let j = 1; j <= b.length; j += 1) {
+    row[0] = i;
+    for (let j = 1; j < width; j += 1) {
       const substitution = a[i - 1] === b[j - 1] ? 0 : 1;
       let best = Math.min(
-        ((rows[i - 1] as number[])[j] as number) + 1,
-        ((rows[i] as number[])[j - 1] as number) + 1,
-        ((rows[i - 1] as number[])[j - 1] as number) + substitution,
+        (oneBack[j] as number) + 1,
+        (row[j - 1] as number) + 1,
+        (oneBack[j - 1] as number) + substitution,
       );
       if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
-        best = Math.min(best, ((rows[i - 2] as number[])[j - 2] as number) + 1);
+        best = Math.min(best, (twoBack[j - 2] as number) + 1);
       }
-      (rows[i] as number[])[j] = best;
+      row[j] = best;
     }
+    // Rotate. The row that falls out of the window is reused as the next one,
+    // and every cell of it is written before it is read.
+    const spare = twoBack;
+    twoBack = oneBack;
+    oneBack = row;
+    row = spare;
   }
-  return (rows[a.length] as number[])[b.length] as number;
+  // `oneBack` is the last row written — or, when `a` is empty, the initial one,
+  // which is why that case needs no branch of its own.
+  return oneBack[b.length] as number;
 }
 
 /**
@@ -130,6 +155,33 @@ function editDistance(a: string, b: string): number {
  *
  * Length difference and then alphabetical order settle what is left, so the
  * message a caller reads is deterministic.
+ *
+ * ## The fallback measures only the names it could possibly be close to
+ *
+ * **An edit distance is never less than the difference in length.** Every
+ * operation that changes the length changes it by exactly one and costs one —
+ * an insertion or a deletion — while a substitution and a transposition change
+ * it by nothing, so getting from a name of one length to a name of another
+ * costs at least the gap between them.
+ *
+ * So a field name whose length differs from the key's by more than the budget is
+ * *already* over budget, and computing its distance can only confirm that. The
+ * prune is therefore **exact rather than a heuristic: it cannot change a single
+ * suggestion**, and that is a claim `unknown-input.test.js` checks by comparing
+ * this function against a full, unpruned reference over every one-edit
+ * neighbour of every field name — some sixteen thousand keys — rather than by
+ * arguing it here.
+ *
+ * Its worth is measured in the same file: the budget is at most two, so the
+ * window is five lengths wide, and over this interface's field names that is
+ * **between 17% and 26% of them**. Nothing a behavioural test can see changes
+ * when the prune is deleted, which is why there is also an assertion that reads
+ * the shipped bytes.
+ *
+ * The lengths compared are the LOWERCASED ones, which is not pedantry: `String`
+ * case folding can change a string's length — Turkish dotted `İ` lowercases to
+ * two code units — and the distance is computed between the lowercased forms,
+ * so the bound has to be about the same strings the distance is.
  */
 export function nearestFields(key: string, known: readonly string[]): readonly string[] {
   const lower = key.toLowerCase();
@@ -149,9 +201,16 @@ export function nearestFields(key: string, known: readonly string[]): readonly s
 
   const budget = Math.min(MAX_EDITS, Math.floor(key.length / CHARACTERS_PER_EDIT));
   if (budget === 0) return [];
-  return known
-    .map((field) => ({ field, distance: editDistance(lower, field.toLowerCase()) }))
-    .filter(({ distance }) => distance <= budget)
+  const near: { field: string; distance: number }[] = [];
+  for (const field of known) {
+    const candidate = field.toLowerCase();
+    // The exact prune. `continue` here is a distance that was never computed,
+    // not a distance that was computed and discarded.
+    if (Math.abs(candidate.length - lower.length) > budget) continue;
+    const distance = editDistance(lower, candidate);
+    if (distance <= budget) near.push({ field, distance });
+  }
+  return near
     .sort((a, b) => (a.distance !== b.distance ? a.distance - b.distance : a.field.localeCompare(b.field)))
     .map(({ field }) => field)
     .slice(0, SUGGESTION_LIMIT);

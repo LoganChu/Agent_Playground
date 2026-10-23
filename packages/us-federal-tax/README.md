@@ -136,7 +136,7 @@ by a differential test against PolicyEngine-US, in
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.15.0/us-federal-tax-0.15.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-federal-tax-v0.16.0/us-federal-tax-0.16.0.tgz
 ```
 
 - **Zero dependencies.** Runs in Node, the browser, Bun, Deno, and edge runtimes.
@@ -909,7 +909,7 @@ estimateFederalTax({ filingStatus: 'single', wages: 1 }, { strict: true });
 ```
 
 Pass `strict: true` from a test suite, where a typo should stop the run. This
-package's own suite does, from every one of its **400 tests**.
+package's own suite does, from every one of its **406 tests**.
 
 Three details that are decisions rather than accidents:
 
@@ -925,6 +925,70 @@ Three details that are decisions rather than accidents:
   `w2Wges`, because deleting a character from the middle of a name breaks
   containment in both directions at once, so a bounded edit distance runs when the
   substring rule finds nothing. A transposition costs one edit, not two.
+
+### What a typo costs, as a count rather than a clock (v0.16.0)
+
+This guard only runs on a call that already contains a mistake, which is why
+nobody asked what it cost until Day 58 asked by accident: a benchmark written
+with field names this engine does not have was timing the typo guard instead of
+the feature it meant to measure. Over this interface's 41 names, before and
+after:
+
+```text
+                        before     after    answer
+  w2Wagse              386.1 us    3.2 us   ['w2Wages']
+  dependnts            479.5 us    4.5 us   []
+  capitlGains          567.1 us    8.7 us   []
+  qualifedDividends    906.9 us   55.1 us   []
+  itemisedDeductions   977.4 us   56.1 us   ['itemizedDeductions']
+```
+
+**Three of those five spent between 479 and 907 microseconds to return no
+suggestion at all**, which is the worst shape this cost comes in — the budget is
+blown and the caller is handed the field list anyway. `itemisedDeductions` is the
+British spelling of a real field and cost very nearly a millisecond.
+
+Both columns are one machine, one build, a long warm-up over every call site,
+five interleaved rounds with the median round published and one fresh process
+per column. That method is itself a correction: Day 58 found that the ratio
+between a cheap call and an expensive one moves by 3× on one machine depending
+only on how long the benchmark warmed up, because the cheap leg is the
+denominator and the cheap leg is where the noise lands.
+
+Note also what is NOT in that table. `w2Wagess`, with a doubled final letter,
+*contains* `w2Wages`, so the substring rule answers it and the fallback is never
+reached at all — two neighbouring misspellings of one field take two completely
+different paths, and only one of them was ever expensive.
+
+Two changes took the whole corpus to a thirty-seventh, and neither may move a
+single suggestion:
+
+| | | |
+| --- | --- | --- |
+| **the length prune** | an edit distance is never less than the difference in length, so a field name whose length is further from the key's than the budget allows cannot be within it and is never measured | **7.8×** |
+| **three rolling rows** | the distance reads row `i - 1` and, for the transposition, row `i - 2`; the first version allocated one row per character of the key to read one corner of the matrix | **5.7×** |
+| **both** | | **37.6×** |
+
+**The honest unit is the middle column, not the right-hand one.** Microseconds
+are a fact about the machine that measured them; what travels is the work. So the
+claim this package publishes is a COUNT: the fallback now measures the key
+against **at most 14 of the 41 field names, where every version before v0.16.0
+measured all 41**, and `unknown-input.test.js` derives that 14 from the shipped
+field list rather than taking it on trust.
+
+Note that the two legs rank differently here than in `us-state-tax`, where the
+prune is worth 5.9× and the rows 4.9×. **Which half of this cost is the bigger
+one is a property of an interface's own name lengths**, so neither is "the fix"
+with the other a footnote — and the worklist that specified this change had it
+the other way round.
+
+The suggestions are unchanged, and that is proved rather than argued.
+`us-state-tax`'s `near-miss-proof.test.js` runs **20,596 keys** — every one-edit
+neighbour of every field name in both interfaces, this one included — through the
+shipped function and through an unpruned, full-matrix reference, and requires
+them to agree key by key. It can speak for this package because
+`src/unknown-input.ts` is byte-identical in the two, which
+`shared-module.test.js` is the waiting period for.
 
 `KNOWN_ESTIMATE_INPUT_FIELDS` is the field list the message points at, and the
 compiler proves it is exactly `keyof EstimateInput` — a field added to the
