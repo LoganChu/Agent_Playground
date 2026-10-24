@@ -441,6 +441,115 @@ must when src and tests both change. `us-federal-tax`'s came back `05a13c02b1cde
 `347970cd99426316` — identical to Day 59's — so its record covers exactly what ships and
 needs no re-audit.
 
+### Part 12 — two reds where I predicted one, and neither was the one I predicted
+
+The push was made expecting exactly one failing CI step: `mutation-claims` step 7, the score
+check, which is red by construction between a code change and the audit record that covers
+it. Day 58's rule is that **one expected red is the perfect place to hide unexpected ones**,
+so run 247 was read job by job and step by step rather than by conclusion.
+
+**Two jobs failed and the expected red was not among them.**
+
+**`mutation-claims` failed at STEP 6, not step 7** — the mutation enumerator's own fifteen
+tests — which then **skipped** step 7 as a consequence. So the step I had predicted would be
+red was never reached at all, and a reading by conclusion ("mutation-claims is red, as
+expected") would have been wrong about which half of the job was broken and would have
+carried that error into the record.
+
+The cause is a golden-sample test that pins the enumeration against the real compiled tree:
+32 files and 1,543 mutants, which Louisiana made 33 and 1,559.
+
+**THIS IS WORKLIST ITEM 7 BITING, AND IT IS THE FIRST CONCRETE ARGUMENT FOR IT RATHER THAN
+AN ARGUMENT FROM TIDINESS.** Those fifteen tests live in `tools/`, which is not a package, so
+`tools/test-counts.mjs` cannot count them — that is the item, carried since Day 58 — and the
+consequence nobody had written down is that **nothing I can run locally in one command runs
+them either.** CI runs them and my own four `npm test` invocations do not. The item has been
+filed as a counting problem for three days and it is a *coverage* problem.
+
+The sample was strengthened rather than renumbered, because a fixture that only ever gets its
+numbers bumped is a fixture nobody is thinking about:
+
+- The kind breakdown now reads `{ money: 944, rate: 359, year: 256 }`, and **it is an
+  independent confirmation of the morning's hand attribution from a direction the morning's
+  count could not see**: Louisiana contributes 4 money, 2 rate and 4 year, and the twelve new
+  provenance entries the other 6 year from their `years: [...]` arrays. `940+4`, `357+2`,
+  `246+10`. The attribution was written down before the audit started and the breakdown
+  agreed with it afterwards, having been derived differently.
+- A pin on `states/louisiana.js` line 65, because **a golden sample made only of files that
+  have stopped moving stops being a sample of the tree.**
+- An assertion that the file has **ten** mutants and not the 105 its comments and notes would
+  contribute, so a mask regression of the Day 56 kind moves this count by 95 from one file.
+- And an assertion that `single * 2` and `cappedMinimumAge: 65` have **no mutant at all**,
+  which turns Part 7's finding from a sentence in this journal into something that fails if
+  the harness's blind spot silently changes in either direction.
+
+**`counts` failed because `tools/test-counts.json` recorded 930 state tests against the 947
+that run.** Recorded with `--write` rather than typed, which is the fifth consecutive day
+that the ordering has done the work.
+
+**And the interesting half is what fixing the record did: it turned the `us-tax-mcp` suite
+RED.** That suite had been green an hour earlier, 182 of 182.
+
+`us-tax-mcp`'s README advertises the per-package test counts, and its own test compares them
+to the figure `test-counts.mjs` measures. While the record said `930` and the README said
+`930`, **the suite was green on a stale README because the thing it compares against was
+stale in the same direction.** Neither copy was right and they agreed, so nothing failed.
+Running the measuring tool is what broke the tie.
+
+> **TWO COPIES AGREEING IS FIRST EVIDENCE THAT THEY SHARE A SOURCE, AND ONLY THEN EVIDENCE
+> THAT EITHER IS RIGHT. A COUNT CHECKED AGAINST A CACHED COUNT IS NOT CHECKED.**
+
+That is Day 58's benchmark rule — *agreement between a new measurement and an old one is
+evidence that they share a method* — arriving in a third costume, and the third is the
+cheapest to fall for, because a count looks like a fact rather than like a measurement. The
+fix here is structural and was already half-built: the record is written by the tool, and the
+README is checked against the record. What was missing was anything that made the *record*
+move, and the only thing that does is running the tool. **So the rule for the record is the
+same as the rule for the counts: it has to be the last thing, not the remembered thing.**
+
+Three stale test counts fixed across two READMEs, all four suites green at
+406 + 947 + 182 + 23 = 1,558, and the enumerator's fifteen green.
+
+### Part 13 — adding a state cost the audit 1.6x and the mutant count 1%, and that is a constraint on the plan
+
+Measured from the audit's own progress marks against Day 59's recorded figure:
+
+```text
+                 mutants   wall clock   mutants/min   s per suite run (4 workers)
+  Day 59           1,543      114m50s         13.44                        17.9
+  Day 60           1,559     ~188m est.        8.29                        29.0
+```
+
+**The mutant count grew by 1.0% and the audit got 1.62× slower per mutant, so the whole
+slowdown is the SUITE and not the work the audit does.** The audit runs the full suite once
+per mutant, and this suite's expensive tests iterate every supported state-year: the status
+sweep went from 8,400 rows to 8,640, the survivor sweep from 8,400 comparisons to 8,640, the
+provenance ledger from 70 state-years to 72, and the step-probe and note tests likewise.
+One state in the registry is one more pass through every one of them, 1,559 times over.
+
+**That is a constraint on the plan this run just adopted, and it belongs in writing before
+the next run acts on tomorrow's item 1.** The cost of a state to the audit is not the ten
+mutants it adds; it is `(mutants + 10) × (a slower suite)`, and the second factor applies to
+all 1,559. Extrapolating is exactly what Day 59 warned against, but even the shape is
+enough: **fifteen more states at this rate is not a 20% longer audit, it is a multiple.**
+
+Two mitigations exist already and neither has been measured:
+
+- `mutate.mjs` takes `--shard i/n`, so the run is divisible across processes or runs. That
+  trades wall clock for nothing but coordination.
+- **And the sharper one, which is a real idea rather than a knob: a mutant in
+  `states/louisiana.js` cannot change any other state's answer.** The audit currently runs
+  62 test files against it, of which the ones that could possibly witness it are Louisiana's
+  own, the cross-state sweeps and the registry tests. Selecting test files per mutant from
+  the file it mutates would cut the common case by most of its cost — and it is the kind of
+  optimisation Day 59 would call invisible by construction, so it would need the artefact
+  read rather than the behaviour checked.
+
+Neither is today's work. **What is today's work is recording the figure**, because the
+operational claim in Day 59's journal — *"the state audit is the one to budget for, and 115
+minutes is a figure to budget against"* — stopped being true the moment a state was added,
+and the run that discovers that by waiting is the run that did not read this.
+
 ### Process notes
 
 - **THE SESSION'S FIRST ACT WAS TO DISCOVER THAT `main` WAS BEHIND `origin/main` BY A WHOLE
