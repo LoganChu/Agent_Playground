@@ -206,8 +206,8 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 32, 'files walked');
-  assert.equal(mutants.length, 1_543, 'mutants — the figure tools/mutation/scores.json records');
+  assert.equal(files.length, 33, 'files walked');
+  assert.equal(mutants.length, 1_559, 'mutants — the figure tools/mutation/scores.json records');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -217,6 +217,33 @@ test('the state engine enumerates what the recorded audit measured', () => {
     rel: 'states/flat-states.js', offset: 49_830, from: '2024', to: '2023', kind: 'year', line: 435,
   });
 
+  // LOUISIANA, pinned on Day 60 — the newest state in the package, because a
+  // golden sample made only of files that have stopped moving stops being a
+  // sample of the tree. THIS FILE IS ALSO WHERE THE MASK IS MOST LOAD-BEARING:
+  // `states/louisiana.js` holds 105 mutable-looking literals and exactly 10 of
+  // them are code, so if `maskNonCode` ever regressed the way it did on Day 56
+  // the count above would move by 95 from this one file.
+  assert.deepEqual(at('states/louisiana.js', 65), {
+    rel: 'states/louisiana.js', offset: 5_948, from: '2025', to: '2024', kind: 'year', line: 65,
+  });
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/louisiana.js').length,
+    10,
+    'Louisiana has ten mutants and not the 105 its comments and notes would add',
+  );
+  // And the two parameters that have NO mutant, asserted as absent rather than
+  // left to be noticed: R.S. 47:294(A)(2)'s `single * 2` and R.S. 47:44.1's
+  // `cappedMinimumAge: 65` are integers below 100, which this harness does not
+  // mutate. They are Louisiana's two most distinctive rules and the audit is
+  // blind to both, which is a fact about the harness worth failing on if it
+  // silently changes in either direction.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/louisiana.js' && (m.from === '2' || m.from === '65'))
+      .length,
+    0,
+    'the 200% relation and the age-65 gate have no mutant',
+  );
+
   // And one of the ten literals Day 56 recovered from inside a `${...}`, so the
   // regression above is pinned on the real tree and not only on a fixture: the
   // FICA rate in a California note.
@@ -225,7 +252,13 @@ test('the state engine enumerates what the recorded audit measured', () => {
   });
 
   // The shape of the whole enumeration, which a change to any operator moves.
+  //
+  // Day 60's +16 is visible here as an attribution rather than a total, which is
+  // why this assertion is worth more than the count above: Louisiana contributes
+  // 4 money (12,500 / 12,838 / 12,000 / 12,324), 2 rate (0.03 / 0.05) and 4 year,
+  // and the twelve new provenance entries contribute the other 6 year, from their
+  // `years: [2025]` and `years: [2026]` arrays. 940+4, 357+2, 246+10.
   const byKind = {};
   for (const m of mutants) byKind[m.kind] = (byKind[m.kind] ?? 0) + 1;
-  assert.deepEqual(byKind, { money: 940, rate: 357, year: 246 });
+  assert.deepEqual(byKind, { money: 944, rate: 359, year: 256 });
 });
