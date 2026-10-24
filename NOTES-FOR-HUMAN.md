@@ -120,7 +120,26 @@ release agrees with me on both. I also re-ran the other 2,288 households rather 
 new ones, and **every single one came back identical** — which nothing had ever checked
 before. The pinned version was a promise until today and is now a measurement.
 
-**J. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
+**J. AND THE QUALITY NUMBERS HELD, EXACTLY WHERE I SAID THEY WOULD.** The check that changes
+one number at a time in the shipped code and requires some test to notice, re-run over the
+state package today because its code changed: **1,559 changes tried, 1,553 caught, 6 not,
+99.6%** — the same six as the last ten days, at the same lines, and all sixteen of
+Louisiana's new ones caught. Every figure was written down before the three-hour run started,
+including the number that would have appeared if the measuring tool were broken in the way it
+was broken on Day 56 (it would have been about 1,300 higher). The federal package was not
+touched, and its fingerprints are identical to yesterday's, so its 716-out-of-716 record
+still covers exactly what ships.
+
+**One correction I made to my own figure rather than leaving it.** I measured the audit's
+speed eighteen minutes in, wrote down that it was 1.62 times slower per change than
+yesterday's and would take 188 minutes, and committed that. It took **149 minutes** and is
+1.29 times slower. Eighteen minutes of a three-hour run is still the warm-up, and it felt
+long enough not to be. The underlying point survives and is worth your knowing if the plan
+is more states: **each state makes this check slower for every other state too**, because it
+re-runs the whole test suite once per change and the suite walks every state. It is
+manageable for a few more and worth re-measuring rather than projecting.
+
+**K. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
 blocks anything: the repository has no description and no topics (two minutes in the
 repository settings), GitHub Pages is still switched off so the calculator page is built and
 tested on every push but not served, and the npm publish remains optional — all three

@@ -125,6 +125,28 @@ and nothing had ever checked that the same version answers the same way. **"This
 answered" and "this version answers the same way" are two claims and only one had
 evidence.** Now both do, and that is the sentence that makes the pin worth having.
 
+**Both mutation records now cover exactly what ships, and both were predicted before they
+ran**: `us-state-tax` at **1,559 / 1,553 / 6 / 99.6%**, the same six survivors at the same
+lines for the tenth day running, recorded over fingerprints read beforehand; and
+`us-federal-tax` at **716 / 716 / 0 / 100%**, untouched today and verified untouched rather
+than assumed, its fingerprints byte for byte yesterday's.
+
+**And the audit produced an operational finding that constrains the coverage plan this
+review just adopted.** 1,559 mutants against 1,543 is 1.0% more work and the run was
+**1.29× slower per mutant** — 149m34s against 114m50s — because the audit runs the whole
+suite once per mutant and the suite's sweeps iterate every state-year. **The cost of a state
+to this instrument is `(mutants + 10) × (a slower suite)`, and the second factor applies to
+every mutant.** That is manageable for a few more states and is not a reason to stop; it is a
+reason to re-measure after each one rather than extrapolate, and to treat per-mutant test
+selection as the mitigation worth building before the audit stops fitting in a day.
+
+The figure also cost a small correction worth recording in the document that sets direction:
+I measured the rate eighteen minutes into the run, published `1.62×` and a projected 188
+minutes, and both were measurements of the start-up. **A rate taken from the opening of a
+long run is a measurement of its warm-up, and eighteen minutes felt long enough to be safe.**
+That is Day 58's benchmark rule arriving at a scale where it no longer looks like the same
+mistake.
+
 Louisiana's five differences against that reference are fully attributed to two parameter
 vintages, and the reference's own later release agrees with this package on both. The entry
 in `known-divergences.json` is bounded from the mechanism rather than from the observations,
@@ -514,7 +536,7 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1543 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.6%** (1559 mutants, 6 survivors), **the state
 one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
 SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47

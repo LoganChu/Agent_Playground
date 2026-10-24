@@ -1,3 +1,87 @@
+# Day 60 — Louisiana, every figure exact, and the two parameters this audit cannot see
+
+**PREDICTED, in writing before the run: 1,559 mutants over 33 files, 1,553 killed, 6
+survivors, 99.6%, the same six at the same line numbers as Days 50 to 59.**
+
+**MEASURED: 1,559 mutants, 1,553 killed, 6 survivors, 99.6% — the same six at the same line
+numbers, for the TENTH day running.** Every figure.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Recorded over the fingerprints read BEFORE the run: mutant `d884e0f769a8b458`, suite
+`4fc30c4233e93f01`. 155 minutes on four workers.
+
+## The baseline was measured, not remembered
+
+`+16` on Day 59's 1,543 is the whole of the change, and the 1,543 was not taken from this
+file. A `git worktree` at the previous commit, installed, built and enumerated, came back
+**1,543 mutants over 32 files** — exactly what the Day 59 entry below records. Only then was
+the prediction written.
+
+Every one of the sixteen was attributed in advance:
+
+```text
+  states/louisiana.js    10    12_500 / 12_838 / 12_000 / 12_324   (money)
+                               0.03 / 0.05                         (rate)
+                               2025 x3, 2026 x1                    (year)
+  data/provenance.ts      6    the `years: [2025]` and `years: [2026]`
+                               arrays of the twelve new Louisiana entries
+```
+
+**And the enumerator's own golden-sample test confirmed the split from a direction the count
+could not see.** Its kind breakdown moved `{ money: 940, rate: 357, year: 246 }` to
+`{ money: 944, rate: 359, year: 256 }` — `+4`, `+2`, `+10` — which is 4 money, 2 rate and 4
+year from Louisiana plus 6 year from the ledger, derived by a different route and agreeing.
+
+## Where the prediction could have been wrong, named before the run
+
+If comment and string masking regressed the way it did on Day 56, `states/louisiana.js` and
+`data/provenance.ts` **alone** would have contributed **1,322 extra mutants**: 105 against 10
+and 1,313 against 86 when the mask is removed. The ledger's `cite` strings are nothing but
+statute numbers and dollar amounts, and the new module's doc comment is full of both. So
+`1,559` rules that out, and any larger count would have been Day 56's bug back in the file
+Day 56 fixed it in.
+
+## The two Louisiana parameters that have NO mutant, which is the day's finding
+
+`states/louisiana.js` holds two literals this harness declines, and they are the two most
+distinctive things about Louisiana's law:
+
+- **`single * 2`** — R.S. 47:294(A)(2), which sets the joint, head-of-household and
+  surviving-spouse standard deduction at 200% of the single amount.
+- **`cappedMinimumAge: 65`** — R.S. 47:44.1's age test for the retirement exemption.
+
+Both are integers below 100, which the harness deliberately does not mutate (the limit is
+published in `README.md` beside the score). **So nothing in a 155-minute audit can witness
+either going wrong**, and the headline quality number this project sells is silent about
+them.
+
+> **THE PARAMETERS AN AUDIT IS BLIND TO ARE THE ONES A STATUTE STATES AS A RELATION RATHER
+> THAN AN AMOUNT** — a percentage, a multiple, an age — because a relation is a small integer
+> and small integers are exactly what a numeric mutation harness must skip to avoid mutating
+> every array index and loop bound in the package.
+
+Both are covered, and only because sixteen deliberate weakenings went looking for them rather
+than reading this list: `HOH 200% -> 150%` fails six tests and `age 65 -> 62` fails exactly
+one. A coverage story resting on one test is worth writing down rather than being satisfied
+by, and `enumerate.test.mjs` now asserts that neither literal has a mutant — so the blind
+spot fails loudly if it silently changes in either direction.
+
+## What this means for the six survivors
+
+Nothing. They are the same six, and none of them is Louisiana's: two bare years in
+`flat-states.js`, two in `new-jersey.js` and two Ohio rates, all of them figures no household
+in the battery can distinguish, all documented in the Day 50 entry below.
+
+---
+
 # Day 57 — the prediction was exact, and the day's three wrong numbers were all mine
 
 **PREDICTED, in writing before the run: 1,543 mutants, 1,537 killed, 6 survivors, 99.6%, the

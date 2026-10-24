@@ -382,7 +382,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1543 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1559 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 55** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
@@ -411,7 +411,35 @@ Day 56, the masker fixed      1,543 mutants    6 survivors   99.6%
 Day 57, the unread-field note 1,543 mutants    6 survivors   99.6%
 Day 58, the probe-cost meter  1,543 mutants    6 survivors   99.6%
 Day 59, the typo-cost fix     1,543 mutants    6 survivors   99.6%
+Day 60, LOUISIANA             1,559 mutants    6 survivors   99.6%
 ```
+
+**Day 60's row is the first in this table that is a COVERAGE change rather than an
+instrument change, and its `+16` was attributed before the run rather than explained after
+it.** Louisiana's own module contributes ten mutants — `12,500` / `12,838` / `12,000` /
+`12,324` as money, `0.03` and `0.05` as rates, and four bare years — and the twelve new
+provenance ledger entries contribute the other six, from their `years: [2025]` and
+`years: [2026]` arrays. The **baseline was measured rather than remembered**: a `git
+worktree` at the previous commit, built and enumerated, came back `1,543` over 32 files,
+exactly what the Day 59 row records.
+
+The prediction named where it could be wrong, which is the half that makes it a check. If
+comment and string masking regressed the way it did on Day 56, `states/louisiana.js` and
+`data/provenance.ts` alone would add **1,322 extra mutants** — 105 against 10 and 1,313
+against 86 unmasked — because the ledger's citations are nothing but statute numbers and
+dollar amounts. So `1,559` rules that out. It came back **1,559 over 33 files** at start-up,
+announced before the wait, with the same six survivors at the same lines for the **tenth day
+running**, and the run took **149 minutes 34 seconds**.
+
+**And the row's hidden cost is the wall clock rather than the count.** 1,559 mutants against
+1,543 is 1.0% more work, and the run was **1.29× slower per mutant** — 23.0 seconds a suite
+against 17.9 — because the audit runs the whole suite once per mutant and this suite's
+sweeps iterate every supported state-year. **One more state is one more pass through all of
+them, 1,559 times over**, which makes the cost of coverage to this instrument
+`(mutants + 10) × (a slower suite)` rather than the ten mutants it looks like. (That ratio
+was first written down as `1.62×` from the run's first eighteen minutes, with a projected
+188 minutes; both were measurements of the start-up, and the run converged upward from 8.3
+to 10.4 mutants a minute. **Eighteen minutes felt long enough to be safe and was not.**)
 
 **Day 58's row is the second predicted-unchanged-and-unchanged in a row, and this time the
 prediction had a named failure mode that the measurement ruled out.** The release's only new

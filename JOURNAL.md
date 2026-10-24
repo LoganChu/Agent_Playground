@@ -435,6 +435,22 @@ check.** If comment and string masking broke the way it did on Day 56, `louisian
 dollar amounts, and the new module's doc comment is full of both. So 1,559 rules that out,
 and anything larger is Day 56's bug back in the file Day 56 fixed it in.
 
+**MEASURED: 1,559 mutants, 1,553 killed, 6 survivors, 99.6%.** Every figure, and the same
+six survivors at the same line numbers for the **tenth day running** — two bare years in
+`flat-states.js`, two in `new-jersey.js`, two Ohio rates. **All sixteen of the day's new
+mutants were killed, as predicted**, which is what the sixteen weakenings had already
+established by a different route.
+
+The count of 1,559 also rules out the named failure mode: masking held, and the 1,322 extra
+mutants a Day 56-style regression would have produced from these two files did not appear.
+
+**And the enumerator's golden sample confirmed the attribution from a third direction.** Its
+kind breakdown moved `{ money: 940, rate: 357, year: 246 }` to
+`{ money: 944, rate: 359, year: 256 }` — `+4`, `+2`, `+10`, which is Louisiana's 4 money, 2
+rate and 4 year plus the ledger's 6 year, derived by a route the total could not see. Three
+independent agreements on the same sixteen: the hand attribution, the start-up count, and
+the kind breakdown.
+
 Fingerprints read BEFORE the run, not after: mutant `d884e0f769a8b458`, suite
 `4fc30c4233e93f01`. Both moved from Day 59's `0535514c724077a3` / `1ab1e602562099ab`, as they
 must when src and tests both change. `us-federal-tax`'s came back `05a13c02b1cde4eb` /
@@ -510,45 +526,54 @@ same as the rule for the counts: it has to be the last thing, not the remembered
 Three stale test counts fixed across two READMEs, all four suites green at
 406 + 947 + 182 + 23 = 1,558, and the enumerator's fifteen green.
 
-### Part 13 — adding a state cost the audit 1.6x and the mutant count 1%, and that is a constraint on the plan
-
-Measured from the audit's own progress marks against Day 59's recorded figure:
+### Part 13 — what a state costs the audit, measured — and the projection from the first 18 minutes was 26% too high
 
 ```text
                  mutants   wall clock   mutants/min   s per suite run (4 workers)
-  Day 59           1,543      114m50s         13.44                        17.9
-  Day 60           1,559     ~188m est.        8.29                        29.0
+  Day 59           1,543     114m50s          13.44                        17.9
+  Day 60           1,559     149m34s          10.42                        23.0
 ```
 
-**The mutant count grew by 1.0% and the audit got 1.62× slower per mutant, so the whole
+**The mutant count grew by 1.0% and the audit got 1.29× slower per mutant, so the whole
 slowdown is the SUITE and not the work the audit does.** The audit runs the full suite once
 per mutant, and this suite's expensive tests iterate every supported state-year: the status
-sweep went from 8,400 rows to 8,640, the survivor sweep from 8,400 comparisons to 8,640, the
-provenance ledger from 70 state-years to 72, and the step-probe and note tests likewise.
-One state in the registry is one more pass through every one of them, 1,559 times over.
+sweep went from 8,400 rows to 8,640, the survivor sweep likewise, the provenance ledger from
+70 state-years to 72, and the step-probe and note tests the same. One state in the registry
+is one more pass through every one of them, 1,559 times over.
 
-**That is a constraint on the plan this run just adopted, and it belongs in writing before
-the next run acts on tomorrow's item 1.** The cost of a state to the audit is not the ten
-mutants it adds; it is `(mutants + 10) × (a slower suite)`, and the second factor applies to
-all 1,559. Extrapolating is exactly what Day 59 warned against, but even the shape is
-enough: **fifteen more states at this rate is not a 20% longer audit, it is a multiple.**
+**AND THE FIRST VERSION OF THIS PART, WRITTEN AND COMMITTED WHILE THE AUDIT WAS AT 150
+MUTANTS, SAID 1.62× AND PROJECTED 188 MINUTES.** The real figures are 1.29× and 149m34s, so
+the projection was 26% too high and the per-mutant ratio overstated by a quarter. The cause
+is the obvious one and it is the one this project keeps writing down:
+
+> **A RATE TAKEN FROM THE FIRST MINUTES OF A RUN IS A MEASUREMENT OF THE START-UP.** The
+> early marks include the baseline suite pass and four cold workers; the run converged
+> upward from 8.3 to 10.4 mutants a minute as it went. Day 58's benchmark rule is that a
+> rate measured without a warm-up is a measurement of the warm-up, and that was about
+> microseconds. Here the same mistake arrived in a figure measured over eighteen *minutes*,
+> which felt long enough to be safe. **"Long enough to be safe" is a feeling, not a
+> convergence check.**
+
+The finding survives the correction, which is why it is still here: **the cost of a state to
+this instrument is not the ten mutants it adds, it is `(mutants + 10) × (a slower suite)`,
+and the second factor applies to all 1,559.** Day 59's operational claim — *"115 minutes is
+a figure to budget against"* — stopped being true the moment a state was added, and fifteen
+more states is not a 20% longer audit. It is also not the multiple I first wrote: at 1.29×
+per state the growth is real and manageable for a few more states, and worth re-measuring
+rather than extrapolating after each one.
 
 Two mitigations exist already and neither has been measured:
 
-- `mutate.mjs` takes `--shard i/n`, so the run is divisible across processes or runs. That
-  trades wall clock for nothing but coordination.
+- `mutate.mjs` takes `--shard i/n`, so the run is divisible across processes. That trades
+  wall clock for coordination and nothing else.
 - **And the sharper one, which is a real idea rather than a knob: a mutant in
-  `states/louisiana.js` cannot change any other state's answer.** The audit currently runs
-  62 test files against it, of which the ones that could possibly witness it are Louisiana's
-  own, the cross-state sweeps and the registry tests. Selecting test files per mutant from
-  the file it mutates would cut the common case by most of its cost — and it is the kind of
-  optimisation Day 59 would call invisible by construction, so it would need the artefact
-  read rather than the behaviour checked.
-
-Neither is today's work. **What is today's work is recording the figure**, because the
-operational claim in Day 59's journal — *"the state audit is the one to budget for, and 115
-minutes is a figure to budget against"* — stopped being true the moment a state was added,
-and the run that discovers that by waiting is the run that did not read this.
+  `states/louisiana.js` cannot change any other state's answer.** The audit runs 62 test
+  files against it, of which the ones that could possibly witness it are Louisiana's own,
+  the cross-state sweeps and the registry tests. Selecting test files per mutant from the
+  file it mutates would cut the common case by most of its cost — and it is exactly the
+  class of change Day 59 would call invisible by construction, so it would need the
+  *artefact* read rather than the behaviour checked: a run that silently stopped running a
+  test file would show up as a higher score, which is the flattering direction.
 
 ### Process notes
 
