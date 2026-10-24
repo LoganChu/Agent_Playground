@@ -44,6 +44,7 @@ export type StateCode =
   | 'IL'
   | 'IN'
   | 'KY'
+  | 'LA'
   | 'MA'
   | 'MD'
   | 'MI'

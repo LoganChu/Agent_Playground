@@ -511,14 +511,14 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('35 states');
-  assert.equal(SUPPORTED_STATES.length, 35);
+  quotes('36 states');
+  assert.equal(SUPPORTED_STATES.length, 36);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 26);
-  quotes('Eight of the twenty-six taxing states cut their rate for 2026');
+  assert.equal(taxing.length, 27);
+  quotes('Eight of the twenty-seven taxing states cut their rate for 2026');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
@@ -636,7 +636,10 @@ test('README: the New York City and Yonkers figures', () => {
         massachusettsFivePercentIncome: 100_000,
       }).tax < 3174.69,
   );
-  assert.equal(cheaper.length, 13);
+  // 14 from Day 60. LOUISIANA is the cheapest taxing state on this list:
+  // (100,000 - 12,500) x 3% = $2,625, against the $3,174.69 a New Yorker on the
+  // same income pays THE CITY ALONE, before a dollar of New York State tax.
+  assert.equal(cheaper.length, 14);
 
   // 2.7% x 1.14 = 3.078%, to the last digit.
   quotesAcrossLines('2.7% x 1.14 = 3.078% to the last digit');

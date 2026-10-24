@@ -347,7 +347,8 @@ unaskable is worth exactly as much as one that is wrong.
 **THE RULE: A DIFFERENTIAL GRID'S COVERAGE IS BOUNDED BY THE REFERENCE MODEL'S
 INPUT SURFACE, AND THAT BOUND IS INVISIBLE UNTIL SOMETHING FALLS THROUGH IT.**
 The honest statement of this instrument's reach is therefore narrower than
-"2,288 households across 26 states": it is 2,288 households built from five
+"2,288 households across 26 states" — 2,376 across 27 since Day 60: it is that
+many households built from five
 income types, and a sixth that six states in this package have special rules for
 is outside it. Six — Arizona, Maryland, New York, North Carolina, South Carolina
 and Michigan — all carry military-specific provisions that no row here touches.
@@ -449,6 +450,48 @@ and report that by matching nothing, which is the quietest failure this file has
 Leading, every amount keeps both delimiters and every existing selector keeps
 matching exactly what it matched when it was written.
 
+## Day 60: Louisiana, and the hour that re-verified the pin
+
+The grid is **2,376 households across 27 states** — 44 shapes, two tax years, with
+Louisiana's 88 cases added the day the state shipped.
+
+**Running the whole pass rather than only the new rows bought a result worth more
+than the hour it cost.** The 88 Louisiana cases could have been answered on their
+own and merged, because `theirs.json` is keyed by a content-derived id
+(`2025-single-worker-AL-15000-0-0-0-0`) and not by position, so a merge was
+available and sound. The full run was chosen instead, and of the **2,288 answers
+that were already committed, 0 differ** on a fresh install of the pinned 2.15.3.
+**The version pin is now a verified claim rather than a hope** — until Day 60 the
+record said which version answered and nothing had ever checked that the same
+version answers the same way.
+
+**And the five Louisiana differences are a parameter-vintage disagreement that
+closes to the cent, which is the most useful shape a divergence can have.** Both
+are 2026 figures, and 2026 is the first year Louisiana has one: R.S. 47:294(B)
+first indexes the standard deduction on 1 January 2026, so 2025 is a statutory
+amount both models hold identically.
+
+The standard deduction is `$12,838` here and `$12,835` there, and **the `$3` is
+two honest readings of the same four words.** The statute adjusts by "the
+percentage increase in the Consumer Price Index". RIB 26-019 uses the *published
+percentage* — the 2.7% BLS printed for the twelve months ending December 2025 —
+giving `12,500 × 1.027 = 12,837.50`. policyengine-us uses the *ratio of the two
+index levels*, `324.054 / 315.605 = 1.0267706`, giving `12,834.63`. Its own
+parameter comment says so. The published figure is the one a return is filed on.
+
+The retirement exemption is `$12,324` here and `$12,000` there, and that one **is
+a carry-forward rather than a reading**: 2.15.3 has no 2026 value for it, because
+its `uprating` metadata sits on the standard deduction and not on this parameter.
+Its own later releases agree with this package — 2.62.8 carries `$12,324`, citing
+the same bulletin. So it is the vintage of the pin, not a defect in their model,
+and it is exactly the distinction `STATE_FIGURE_PROVENANCE` was built to draw.
+
+`known-divergences.json` bounds the entry at `$10` from the mechanism rather than
+from the observations: `$324` per person over 65 plus `$3` or `$6` of deduction at
+3% is `$9.81` single, `$9.90` for a couple whose pension is in one name, `$19.62`
+for a couple who split it — a shape this grid does not have, because it puts a
+couple's pension on the primary.
+
 ## Running it
 
 ```bash
@@ -468,7 +511,11 @@ node   tools/differential/compare.mjs       > tools/differential/REPORT.md
 ```
 
 The PolicyEngine pass is the slow one — about a second and a half a household
-with the machine to itself, so roughly an hour for the 2,288-household grid.
+with the machine to itself, so roughly an hour for the 2,376-household grid.
+(Measured again on Day 60, on the 27-state grid: **54 minutes for 2,376
+households**, about 1.4 s each — redirect opened at 16:54 and the sidecar written
+at 17:47:54 — on a container that was running a short build and two fast suites
+alongside it. Day 54's warning holds and this is the figure to budget against.)
 (An earlier note here said "a second a household, so eleven minutes"; it was
 measured on a smaller grid and a faster runner, and believing it cost an
 afternoon of bad scheduling. Start this pass FIRST and do the engine work while

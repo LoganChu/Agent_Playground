@@ -226,8 +226,8 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
-    'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD', 'MI', 'MS',
-    'MO', 'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
+    'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MI',
+    'MS', 'MO', 'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
   ] as const
 ).map((state) => ({
   state,
@@ -864,6 +864,115 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     constant: true,
   },
 
+  // =========================================================================
+  // LOUISIANA — nine figures a year, and the ledger's vocabulary happens to
+  // answer this state's hardest question for free. R.S. 47:294(A)(2) sets the
+  // joint, head-of-household and surviving-spouse deduction at 200% OF THE
+  // SINGLE AMOUNT rather than printing a figure, so those three are `derived`
+  // and the single amount is the only standard deduction parameter Louisiana
+  // has. That is also why its 2026 joint figure is $25,676 and not $25,675:
+  // `derived` says the doubling happens AFTER the indexed single figure is
+  // rounded, and nothing else in this file could have said which order.
+  // =========================================================================
+  {
+    state: 'LA',
+    path: 'rate.rate',
+    kind: 'statute',
+    document: 'R.S. 47:32(A) —',
+    cite: 'La. R.S. 47:32(A) as amended by Act 11 of the 2024 Third Extraordinary Session — the flat 3% rate, which replaced a graduated 1.85% / 3.5% / 4.25% schedule for taxable periods beginning on or after 1 January 2025. One printed figure, no indexation provision and no revenue trigger between the two years here',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.single',
+    years: [2025],
+    kind: 'statute',
+    document: 'R.S. 47:294 —',
+    cite: 'La. R.S. 47:294(A)(1) as enacted by Act 11 — $12,500 for a single individual. PRINTED IN THE STATUTE for 2025: subsection (B) does not index the amount until 1 January 2026, so the first year of the new deduction is the only year it is a statutory figure rather than a published one',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.marriedFilingSeparately',
+    years: [2025],
+    kind: 'statute',
+    document: 'R.S. 47:294 —',
+    cite: 'La. R.S. 47:294(A)(1) — the same $12,500. The statute and the IT-540 instructions print ONE row for "Single Individual/Married Filing Separately", so this is that row read again and not a half of the joint amount, which is why it is `statute` here and `derived` for the three doubled statuses',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.single',
+    years: [2026],
+    kind: 'indexed',
+    document: 'Revenue Information Bulletin 26-019',
+    cite: "LDR Revenue Information Bulletin 26-019 (28 September 2026) — $12,838, which is R.S. 47:294(B)'s CPI-U adjustment applied to the 2025 amount: 12,500 x 1.027 = 12,837.50, rounded to the nearest dollar, where 2.7% is the all-items CPI-U increase BLS published for the twelve months ending December 2025. INDEXED AND READ, not carried forward. The bulletin could not be opened from this sandbox (dam.ldr.la.gov does not resolve); the figure is from two independent third-party quotations of it and is checked against the 2025 base and the BLS release, both of which this state-year cites",
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.marriedFilingSeparately',
+    years: [2026],
+    kind: 'indexed',
+    document: 'Revenue Information Bulletin 26-019',
+    cite: 'LDR Revenue Information Bulletin 26-019 — the same $12,838, on the same single/separate row the statute prints as one',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.marriedFilingJointly',
+    kind: 'derived',
+    cite: "La. R.S. 47:294(A)(2) — 200% of the amount provided for a single individual. NOT A FIGURE IN ANY DOCUMENT: the statute states a percentage, so a new tax year costs this figure nothing beyond the single amount it is twice of. It is also the entry that settles the rounding order, because 2 x 12,838 = 25,676 while indexing the 2025 joint amount directly gives 25,675 — a dollar of deduction and three cents of tax that only the order of operations decides, and the order is this relation",
+    constant: false,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.headOfHousehold',
+    kind: 'derived',
+    cite: "La. R.S. 47:294(A)(2) — 200% of the single amount, the same relation as the joint figure. LOUISIANA'S HEAD OF HOUSEHOLD IS NOT GIVEN ONE AND A HALF TIMES THE SINGLE DEDUCTION, which is what most states in this package do and what a scaling model would assume: the statute names head of household in the same clause as a joint return, so the figure is $25,000 and not $18,750",
+    constant: false,
+  },
+  {
+    state: 'LA',
+    path: 'deduction.amounts.qualifyingSurvivingSpouse',
+    kind: 'derived',
+    cite: 'La. R.S. 47:294(A)(2) — 200% of the single amount; the statute names a qualified surviving spouse in the same clause as a joint return and a head of household, so Louisiana needs no `survivingSpouseFilesAs` translation and the `byStatus` default happens to be right for the statutory reason rather than by the helper falling back',
+    constant: false,
+  },
+  {
+    state: 'LA',
+    path: 'retirementIncomeSubtractions.0.cappedMinimumAge',
+    kind: 'statute',
+    document: 'R.S. 47:44.1(A) —',
+    cite: 'La. R.S. 47:44.1(A) — the exemption is for annual retirement income received by an individual SIXTY-FIVE YEARS OF AGE OR OLDER. The age has not moved since the provision was written and Act 11 did not touch it; what Act 11 doubled was the amount. It is `cappedMinimumAge` rather than `minimumAge` because R.S. 47:44.2 exempts government retirement benefits with no age test at all',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'retirementIncomeSubtractions.0.cap',
+    years: [2025],
+    kind: 'statute',
+    document: 'R.S. 47:44.1(A) —',
+    cite: 'La. R.S. 47:44.1(A) as amended by Act 11 of the 2024 Third Extraordinary Session — $12,000, doubled from $6,000 for taxable periods beginning on or after 1 January 2025. Printed in the statute for 2025 for the same reason as the standard deduction: the indexation in the same subsection begins 1 January 2026',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'retirementIncomeSubtractions.0.cap',
+    years: [2026],
+    kind: 'indexed',
+    document: 'Revenue Information Bulletin 26-019',
+    cite: 'LDR Revenue Information Bulletin 26-019 (28 September 2026) — $12,324, which is 12,000 x 1.027 EXACTLY, with no rounding to do. That exactness is worth recording: of the three 2026 Louisiana figures taken from a bulletin this sandbox cannot open, this is the one whose arithmetic leaves no room for a rounding convention, so it is the strongest of the three corroborations and the joint deduction is the one that discriminates between two conventions',
+    constant: true,
+  },
+  {
+    state: 'LA',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: 'R.S. 47:297.8 —',
+    cite: 'La. R.S. 47:297.8(A) — 5% of the federal earned income credit, from tax year 2019; it was 3.5% from 2018. Subsection (B) makes it refundable, which is the half that matters to a low-income Louisiana return, and the rate is a printed figure no indexation moves',
+    constant: true,
+  },
   // =========================================================================
   // MASSACHUSETTS — one indexed figure in the whole return, and the
   // Department of Revenue certified it for 2026. Everything else is a fixed

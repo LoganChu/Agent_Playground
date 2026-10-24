@@ -1,11 +1,25 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **35
-states** including **SOUTH CAROLINA**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **36
+states** including **LOUISIANA**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.52.0: **LOUISIANA, AND THE HALF OF ITS 2025 REFORM THAT NO SUMMARY LEADS WITH — Act 11 of the 2024 Third Extraordinary Session did not only flatten the rate to 3%, it REPEALED EVERY EXEMPTION THE STATE HAD.** The `$4,500`/`$9,000` personal exemption, the `$1,000` per dependent, the `$1,000` for a filer of 65 and the `$1,000` for a blind filer are all gone, replaced by a standard deduction of `$12,500`/`$25,000`. So a 2025 Louisiana return has **no per-dependent allowance of any kind** and no addition for age or blindness, and this package carries no `exemption` rule for Louisiana at all — the only state here that reached zero exemptions by repealing them rather than by never having had any. A table still printing Louisiana's `$4,500` personal exemption is describing law that was repealed before the tax year began.
+
+**And the head of household gets the FULL joint deduction, which is the figure a scaling model gets wrong.** R.S. 47:294(A)(2) does not print a head-of-household amount: it sets the joint, head-of-household and qualified-surviving-spouse figure at **200% of the single amount**. Most states in this package give a head of household one and a half times the single figure, and that assumption hands a Louisiana head of household `$18,750` against the statute's `$25,000` — **`$187.50` of tax**. This module therefore stores ONE standard deduction figure a year and multiplies it, because the relation is what the statute states.
+
+**Which is also why Louisiana's 2026 joint deduction is `$25,676` and not `$25,675`.** R.S. 47:294(B) first indexes the deduction on 1 January 2026, and RIB 26-019 applies the 2.7% CPI-U increase BLS published for the twelve months ending December 2025: `12,500 × 1.027 = 12,837.50`, rounded to `$12,838`, and then doubled. Indexing the `$25,000` joint figure directly and rounding gives `$25,675` instead. **A dollar of deduction and three cents of tax, decided by nothing but which of the two sentences in R.S. 47:294 is the parameter** — and `derived` in the provenance ledger is what records that the doubling happens second.
+
+**Louisiana publishes TWO different 2026 standard deductions and both are correct.** The return's is RIB 26-019's `$12,838`/`$25,676`. The 2026 WITHHOLDING tables proposed at LAC 61:I.1501 carry `$12,875`/`$25,750` — the same statutory index read over the twelve months ending **September** 2025, which BLS reported as 3.0%, because a withholding table has to exist before the year it withholds for and **no October 2025 index was ever published**: BLS collected no prices that month during the lapse in appropriations. The gap is `$37` of deduction for a single filer and `$74` on a joint return, so `$1.11` and `$2.22` of tax. This package computes the return, and a payroll product reconciling withholding to liability in Louisiana should expect the difference rather than treat it as an error in either source.
+
+**A fourth candidate figure comes from the arithmetic rather than the law, and it is the one a reimplementation will hit.** `12_500 * 1.027` is `12837.499999999998` in binary floating point, so rounding it gives **`$12,837`**. The single deduction's derivation lands exactly on a rounding boundary — the one place a decimal literal's representation error can change the answer — and of Louisiana's three 2026 figures it is the only one that does: the other two products are a hair low as well and round to `$12,324` and `$25,675` either way. `test/louisiana.test.js` indexes with the exact rational `1027 / 1000` and asserts the literal's answer as the **wrong** one. If you index this figure yourself, multiply by 1027 and divide by 1000.
+
+Also new: the retirement exemption of R.S. 47:44.1 **doubled from `$6,000` to `$12,000`** for 2025 and is `$12,324` for 2026, available from 65 and claimed **by the person who received the income** — so a couple both over 65 whose `$40,000` of pension is all in one spouse's name exclude `$12,000` and pay `$90`, where the same couple with `$20,000` each exclude `$24,000` and pay nothing. Retired pay from Louisiana's own systems or from the United States, **military retired pay included**, is exempt in full under R.S. 47:44.2 with no age test and no ceiling, and it does not consume the `$12,000`: a Louisiana trooper who retired at 48 pays nothing on that pension and still has the whole `$12,000` waiting at 65 for an IRA. **Only Louisiana and federal systems qualify** — another state's public pension is ordinary retirement income here, which `policyengine-us` does not distinguish.
+
+And one defect in this file, found while writing the above: the **"what this does not do"** section named Minnesota, Wisconsin and South Carolina as states this package does not cover, and claimed 32 states, eleven releases out of date. `UNCOVERED_TAXING_JURISDICTIONS` exists precisely so that a prose list cannot drift from the registry, and `registry.test.js` has checked the ERROR MESSAGE against it since Day 18 — nothing pointed the same check at the README. It does now, in both directions. **A declared list only guards the sentences somebody pointed at it.**
 
 New in 0.48.0: **OREGON RETURNS 9.863% OF THE PRIOR YEAR'S TAX BY CONSTITUTIONAL MANDATE, AND IT IS NOW MODELLED — as a rate that is a parameter and a base that is an INPUT.** Or. Const. Art. IX § 14(4) returns a certified biennial General Fund surplus — the "kicker" — as a **refundable** credit on the following ODD year's return, computed as a percentage of the filer's **own prior-year** Oregon tax before credits. For tax year 2025 the Office of Economic Analysis certified **9.863%** of the 2024 liability off a `$1.41` billion surplus. It is worth `$74.41` to a single filer on `$15,000` of wages, about `$562` on `$80,000`, and `$3,993.89` to one household in this package's differential grid — and it is paid where the 2025 Oregon tax is zero, so it is a refund and not a reduction.
 
@@ -691,7 +705,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.51.0/us-state-tax-0.51.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.52.0/us-state-tax-0.52.0.tgz
 ```
 
 ## The rate is the easy part
@@ -2884,7 +2898,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **695** notes every
+`test/notes.test.js` pins the first 72 characters of all **717** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2909,8 +2923,8 @@ reads, and all 21 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,635 numeric
-figures over 70 state-years, against 484 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,655 numeric
+figures over 72 state-years, against 508 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2956,14 +2970,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,315 figures of tax year
+The `kind` field answers one operational question. Over the 2,325 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,884** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,891** |
 | the statute's own schedule (`statute-scheduled`) | **113** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **311** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **314** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -3031,7 +3045,10 @@ Virginia's graduation is worth `$257.50` to every filer at every income, forever
 its top bracket begins at `$17,000` for a single filer and at `$17,000` on a joint return
 and has since 1990.
 **Flat rate:** Arizona, Colorado, Georgia, Idaho, Illinois, Indiana, Kentucky,
-Massachusetts, Michigan, North Carolina, Pennsylvania, Utah.
+**Louisiana**, Massachusetts, Michigan, North Carolina, Pennsylvania, Utah — twelve of
+them now, which makes flat the larger column, and Louisiana arrived in it rather than
+moving into it: Act 11 of the 2024 Third Extraordinary Session replaced its graduated
+1.85% / 3.5% / 4.25% schedule with a single 3% rate before tax year 2025 began.
 **A constant plus a rate:** Ohio, whose schedule is neither of the above and cannot be
 written as either — see below.
 **Rated by kind of income:** Massachusetts, which is in the flat list above and does not
@@ -3045,14 +3062,26 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.40.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.52.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **Only 32 states.** No Minnesota, Wisconsin,
-  South Carolina, Louisiana, Oklahoma, Iowa, or the District of Columbia.
+- **27 of the 42 taxing jurisdictions, so 36 states in all.** The fifteen that are
+  missing: Oklahoma, Iowa, Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
+  Rhode Island, Vermont, Delaware, Hawaii, North Dakota, West Virginia, and the
+  District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a
   declared list of the uncovered jurisdictions rather than from a sentence — because
   the sentence named Connecticut as uncovered on the day Connecticut shipped.
+
+  **And until Day 60 this bullet was that same defect, one level up.** It read
+  *"Only 32 states. No Minnesota, Wisconsin, South Carolina, Louisiana, Oklahoma,
+  Iowa, or the District of Columbia"* — naming THREE states the package covers, and
+  a count eleven releases out of date. `registry.test.js` has asserted since Day 18
+  that the error message cannot name a covered state, and the README is a second
+  prose copy of the same list that nothing compared to anything. The list above is
+  now checked against `UNCOVERED_TAXING_JURISDICTIONS` name by name, in both
+  directions, by `readme.test.js`. **A declared list only guards the sentences
+  somebody pointed at it.**
 - **Alabama's municipal occupational licence taxes are not modelled.** Birmingham
   charges 1% of gross wages, Gadsden 2%, and about two dozen more something between —
   on gross compensation, with no deduction and no reference to the return. They are

@@ -24,10 +24,12 @@ import {
   NO_INCOME_TAX_STATES,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
+  UNCOVERED_TAXING_JURISDICTIONS,
   getStateDefinition,
   michiganCities,
   nycRate,
   stateIncomeTax,
+  stateName,
 } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
@@ -53,11 +55,14 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 35 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 35);
+test('README: 36 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 36);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Twelve graduated, eleven flat, one on a schedule of its own, nine with none.
+  // Twelve graduated, TWELVE flat, one on a schedule of its own, nine with none.
+  // Louisiana made the flat column the larger of the two on Day 60: Act 11 of the
+  // 2024 Third Extraordinary Session replaced its graduated 1.85/3.5/4.25 schedule
+  // with a single 3% rate, so the state arrived here already flat.
   const graduated = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).rate.kind === 'brackets',
   );
@@ -77,21 +82,21 @@ test('README: 35 states, 2025 and 2026, nine with no income tax', () => {
   // here whose bracket count changes between the two supported years.
   assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'NJ', 'NY', 'OR', 'SC', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
-  assert.equal(flat.length, 11);
+  assert.equal(flat.length, 12);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    35,
+    36,
   );
-  // Twenty-six taxing states — nineteen of them when the README says seven cut
+  // Twenty-seven taxing states — nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 26);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 27);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -688,7 +693,12 @@ test('README: the provisional and published lists for 2026', () => {
   // paid, and it is the first state to do so: § 270C.22 subd. 1 requires the
   // adjusted amounts by 1 December of the preceding year, so its 2026 column
   // existed before the tax year began and every one of its 96 figures was read.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'MA', 'MD', 'MN', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
+  // LOUISIANA joins the published list on arrival, and for a reason no state
+  // here has had before: BOTH its years are published because its indexation
+  // provision is new. R.S. 47:294(B) first adjusts the standard deduction on
+  // 1 January 2026, so 2025 is a statutory figure with nothing to index and 2026
+  // is a released one — there has never been a Louisiana figure to carry forward.
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -704,7 +714,8 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  for (const state of ['IA', 'LA', 'OK', 'AR', 'DC', 'HI']) {
+  // LOUISIANA left this list on Day 60, the day it shipped.
+  for (const state of ['IA', 'OK', 'AR', 'DC', 'HI']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -754,10 +765,13 @@ test('README: the New York City quick-start figures', () => {
     });
     return result.tax < 3174.69;
   });
-  assert.equal(cheaper.length, 13);
+  // LOUISIANA joined on Day 60 and is the cheapest taxing state on this list:
+  // (100,000 - 12,500) x 3% = $2,625, against the $3,174.69 a New Yorker on the
+  // same income pays THE CITY ALONE, before a dollar of New York State tax.
+  assert.equal(cheaper.length, 14);
   assert.deepEqual(
     cheaper.filter((s) => !NO_INCOME_TAX_STATES.includes(s)),
-    ['AZ', 'IN', 'OH', 'PA'],
+    ['AZ', 'IN', 'LA', 'OH', 'PA'],
   );
 });
 
@@ -1506,10 +1520,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 35 states',
+    'us-state-tax: 36 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 35 states',
+    'us-tax-mcp: 36 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
@@ -1701,4 +1715,57 @@ test('README: the unknown-key note, quoted, and the three contracts beside it', 
     '`federal` is a documented superset and is not checked',
   );
   assert.throws(() => lenientStateIncomeTax(input, { strict: true }), { name: 'RangeError' });
+});
+
+test("README: the gap list cannot name a state this package covers", () => {
+  // THE DEFECT THIS CLOSES WAS IN THIS FILE'S OWN README, FOR ELEVEN RELEASES.
+  // The "what this does not do" bullet read "Only 32 states. No Minnesota,
+  // Wisconsin, South Carolina, Louisiana, Oklahoma, Iowa, or the District of
+  // Columbia" — three of those seven are covered, and the count was eleven
+  // versions stale.
+  //
+  // `UNCOVERED_TAXING_JURISDICTIONS` was declared on Day 18 precisely because a
+  // prose list of what the package lacks drifts from the registry, and
+  // `registry.test.js` has asserted ever since that the ERROR MESSAGE cannot name
+  // a covered state. Nothing pointed the same check at the README, which is a
+  // second prose copy of the identical fact and the one a reader meets first.
+  //
+  // **A DECLARED LIST ONLY GUARDS THE SENTENCES SOMEBODY POINTED AT IT.**
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  // Newlines collapsed first: the bullet is wrapped, so "The fifteen that are
+  // missing:" straddles a line break and a literal pattern misses it. This file's
+  // first draft of this test did exactly that and reported the sentence absent,
+  // which is the failure mode a check on prose has that a check on code does not.
+  const readme = readFileSync(join(root, 'README.md'), 'utf8').replace(/\s+/g, ' ');
+
+  // The live sentence, bounded so the historical quotation in the same bullet —
+  // which deliberately still contains the three wrong names — is out of scope.
+  const hit = readme.match(/The fifteen that are missing:([^.]*)\./);
+  assert.ok(hit, 'the README no longer carries the gap list in the form this checks');
+  const listed = hit[1]
+    .split(/,| and /)
+    .map((part) => part.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+
+  // Both directions. A name the engine calls uncovered must be here, and nothing
+  // here may be a state the engine covers.
+  for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
+    assert.ok(listed.includes(name), `the README gap list omits ${name}`);
+  }
+  const covered = new Set(SUPPORTED_STATES.map((code) => stateName(code)));
+  for (const name of listed) {
+    assert.ok(!covered.has(name), `the README gap list names ${name}, which is covered`);
+    assert.ok(
+      UNCOVERED_TAXING_JURISDICTIONS.includes(name),
+      `the README gap list names ${name}, which the engine does not call uncovered`,
+    );
+  }
+  assert.equal(listed.length, UNCOVERED_TAXING_JURISDICTIONS.length);
+
+  // And the two counts in the same bullet, against the engine rather than each other.
+  const taxing = SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length;
+  assert.ok(
+    readme.includes(`**${taxing} of the 42 taxing jurisdictions, so ${SUPPORTED_STATES.length} states in all.**`),
+    `the bullet no longer states ${taxing} of 42 and ${SUPPORTED_STATES.length} states`,
+  );
 });

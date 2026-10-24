@@ -43,7 +43,7 @@ export const YEARS = [2025, 2026];
 
 /** Every state in `us-state-tax` that charges an income tax. */
 export const STATES = [
-  'AL', 'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'MA', 'MD',
+  'AL', 'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD',
   'MI', 'MN', 'MO', 'MS', 'NC', 'NJ', 'NY', 'OH', 'OR', 'PA', 'SC', 'UT', 'VA', 'WI',
 ];
 

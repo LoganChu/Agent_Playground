@@ -149,6 +149,21 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-15000-0-0-0-0": {
+  "id": "2025-single-worker-LA-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 313.92999267578125
+  },
+  "state": {
+   "tax": 59.30350112915039
+  },
+  "error": null
+ },
  "2025-single-worker-MA-15000-0-0-0-0": {
   "id": "2025-single-worker-MA-15000-0-0-0-0",
   "federal": {
@@ -536,6 +551,21 @@
   },
   "state": {
    "tax": 1069.199951171875
+  },
+  "error": null
+ },
+ "2025-single-worker-LA-30000-0-0-0-0": {
+  "id": "2025-single-worker-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 14250.0,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 525.0
   },
   "error": null
  },
@@ -929,6 +959,21 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-50000-0-0-0-0": {
+  "id": "2025-single-worker-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1125.0
+  },
+  "error": null
+ },
  "2025-single-worker-MA-50000-0-0-0-0": {
   "id": "2025-single-worker-MA-50000-0-0-0-0",
   "federal": {
@@ -1316,6 +1361,21 @@
   },
   "state": {
    "tax": 3069.199951171875
+  },
+  "error": null
+ },
+ "2025-single-worker-LA-80000-0-0-0-0": {
+  "id": "2025-single-worker-LA-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 64250.0,
+   "incomeTaxBeforeCredits": 9049.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2025.0
   },
   "error": null
  },
@@ -1709,6 +1769,21 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-150000-0-0-0-0": {
+  "id": "2025-single-worker-LA-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 25067.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4125.0
+  },
+  "error": null
+ },
  "2025-single-worker-MA-150000-0-0-0-0": {
   "id": "2025-single-worker-MA-150000-0-0-0-0",
   "federal": {
@@ -2096,6 +2171,21 @@
   },
   "state": {
    "tax": 15869.19921875
+  },
+  "error": null
+ },
+ "2025-single-worker-LA-400000-0-0-0-0": {
+  "id": "2025-single-worker-LA-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 384250.0,
+   "incomeTaxBeforeCredits": 104034.75,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 11625.0
   },
   "error": null
  },
@@ -2489,6 +2579,21 @@
   },
   "error": null
  },
+ "2025-couple-two-children-LA-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7152.0
+  },
+  "state": {
+   "tax": -207.60000610351562
+  },
+  "error": null
+ },
  "2025-couple-two-children-MA-30000-0-0-0-0": {
   "id": "2025-couple-two-children-MA-30000-0-0-0-0",
   "federal": {
@@ -2876,6 +2981,21 @@
   },
   "state": {
    "tax": 2269.199951171875
+  },
+  "error": null
+ },
+ "2025-couple-two-children-LA-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 28500.0,
+   "incomeTaxBeforeCredits": 2943.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 932.98193359375
+  },
+  "state": {
+   "tax": 1003.3508911132812
   },
   "error": null
  },
@@ -3269,6 +3389,21 @@
   },
   "error": null
  },
+ "2025-couple-two-children-LA-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 68500.0,
+   "incomeTaxBeforeCredits": 7743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2250.0
+  },
+  "error": null
+ },
  "2025-couple-two-children-MA-100000-0-0-0-0": {
   "id": "2025-couple-two-children-MA-100000-0-0-0-0",
   "federal": {
@@ -3656,6 +3791,21 @@
   },
   "state": {
    "tax": 7869.19970703125
+  },
+  "error": null
+ },
+ "2025-couple-two-children-LA-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 168500.0,
+   "incomeTaxBeforeCredits": 26898.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5250.0
   },
   "error": null
  },
@@ -4049,6 +4199,21 @@
   },
   "error": null
  },
+ "2025-single-parent-LA-12000-0-0-0-0": {
+  "id": "2025-single-parent-LA-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -204.0
+  },
+  "error": null
+ },
  "2025-single-parent-MA-12000-0-0-0-0": {
   "id": "2025-single-parent-MA-12000-0-0-0-0",
   "federal": {
@@ -4436,6 +4601,21 @@
   },
   "state": {
    "tax": 434.5999755859375
+  },
+  "error": null
+ },
+ "2025-single-parent-LA-25000-0-0-0-0": {
+  "id": "2025-single-parent-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 1375.0,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.330078125
+  },
+  "state": {
+   "tax": -203.2165069580078
   },
   "error": null
  },
@@ -4829,6 +5009,21 @@
   },
   "error": null
  },
+ "2025-single-parent-LA-45000-0-0-0-0": {
+  "id": "2025-single-parent-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 21375.0,
+   "incomeTaxBeforeCredits": 2225.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 556.58349609375
+  },
+  "error": null
+ },
  "2025-single-parent-MA-45000-0-0-0-0": {
   "id": "2025-single-parent-MA-45000-0-0-0-0",
   "federal": {
@@ -5206,6 +5401,21 @@
  },
  "2025-retired-couple-KY-0-0-40000-0-0": {
   "id": "2025-retired-couple-KY-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-LA-0-0-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-0-40000-0-0",
   "federal": {
    "adjustedGrossIncome": 0.0,
    "taxableIncome": 0.0,
@@ -5609,6 +5819,21 @@
   },
   "error": null
  },
+ "2025-retired-couple-LA-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
  "2025-retired-couple-MA-0-20000-40000-0-0": {
   "id": "2025-retired-couple-MA-0-20000-40000-0-0",
   "federal": {
@@ -5996,6 +6221,21 @@
   },
   "state": {
    "tax": 544.7999877929688
+  },
+  "error": null
+ },
+ "2025-retired-couple-LA-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 31400.0,
+   "incomeTaxBeforeCredits": 3291.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 390.0
   },
   "error": null
  },
@@ -6389,6 +6629,21 @@
   },
   "error": null
  },
+ "2025-retired-couple-LA-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 77300.0,
+   "incomeTaxBeforeCredits": 8799.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1590.0
+  },
+  "error": null
+ },
  "2025-retired-couple-MA-0-90000-40000-0-0": {
   "id": "2025-retired-couple-MA-0-90000-40000-0-0",
   "federal": {
@@ -6766,6 +7021,21 @@
  },
  "2025-single-retiree-KY-0-10000-24000-0-0": {
   "id": "2025-single-retiree-KY-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-retiree-LA-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-LA-0-10000-24000-0-0",
   "federal": {
    "adjustedGrossIncome": 10000.0,
    "taxableIncome": 0.0,
@@ -7169,6 +7439,21 @@
   },
   "error": null
  },
+ "2025-single-retiree-LA-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-LA-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 465.0
+  },
+  "error": null
+ },
  "2025-single-retiree-MA-0-40000-24000-0-0": {
   "id": "2025-single-retiree-MA-0-40000-24000-0-0",
   "federal": {
@@ -7556,6 +7841,21 @@
   },
   "state": {
    "tax": 2669.199951171875
+  },
+  "error": null
+ },
+ "2025-investor-LA-50000-0-0-20000-0": {
+  "id": "2025-investor-LA-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 54250.0,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1725.0
   },
   "error": null
  },
@@ -7949,6 +8249,21 @@
   },
   "error": null
  },
+ "2025-investor-LA-50000-0-0-100000-0": {
+  "id": "2025-investor-LA-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4125.0
+  },
+  "error": null
+ },
  "2025-investor-MA-50000-0-0-100000-0": {
   "id": "2025-investor-MA-50000-0-0-100000-0",
   "federal": {
@@ -8336,6 +8651,21 @@
   },
   "state": {
    "tax": 2269.199951171875
+  },
+  "error": null
+ },
+ "2025-separate-LA-60000-0-0-0-0": {
+  "id": "2025-separate-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 44250.0,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1425.0
   },
   "error": null
  },
@@ -8729,6 +9059,21 @@
   },
   "error": null
  },
+ "2025-muni-retiree-LA-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-LA-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 47300.0,
+   "incomeTaxBeforeCredits": 5199.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 690.0
+  },
+  "error": null
+ },
  "2025-muni-retiree-MA-0-60000-40000-0-10000": {
   "id": "2025-muni-retiree-MA-0-60000-40000-0-10000",
   "federal": {
@@ -9116,6 +9461,21 @@
   },
   "state": {
    "tax": 434.5999755859375
+  },
+  "error": null
+ },
+ "2025-couple-no-children-LA-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 92.84503173828125
+  },
+  "state": {
+   "tax": -4.642251491546631
   },
   "error": null
  },
@@ -9509,6 +9869,21 @@
   },
   "error": null
  },
+ "2025-couple-no-children-LA-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-LA-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 43500.0,
+   "incomeTaxBeforeCredits": 4743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1500.0
+  },
+  "error": null
+ },
  "2025-couple-no-children-MA-75000-0-0-0-0": {
   "id": "2025-couple-no-children-MA-75000-0-0-0-0",
   "federal": {
@@ -9896,6 +10271,21 @@
   },
   "state": {
    "tax": 1028.43994140625
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-LA-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 8500.0,
+   "incomeTaxBeforeCredits": 850.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5950.0,
+   "earnedIncomeCredit": 6038.98193359375
+  },
+  "state": {
+   "tax": 148.0509033203125
   },
   "error": null
  },
@@ -10289,6 +10679,21 @@
   },
   "error": null
  },
+ "2025-mixed-dependents-LA-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 58500.0,
+   "incomeTaxBeforeCredits": 6543.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1950.0
+  },
+  "error": null
+ },
  "2025-mixed-dependents-MA-90000-0-0-0-0": {
   "id": "2025-mixed-dependents-MA-90000-0-0-0-0",
   "federal": {
@@ -10676,6 +11081,21 @@
   },
   "state": {
    "tax": 3469.199951171875
+  },
+  "error": null
+ },
+ "2025-single-parent-high-LA-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 66375.0,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1950.0
   },
   "error": null
  },
@@ -11069,6 +11489,21 @@
   },
   "error": null
  },
+ "2025-single-parent-teen-LA-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-LA-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 11375.0,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2466.330078125
+  },
+  "state": {
+   "tax": 176.68350219726562
+  },
+  "error": null
+ },
  "2025-single-parent-teen-MA-35000-0-0-0-0": {
   "id": "2025-single-parent-teen-MA-35000-0-0-0-0",
   "federal": {
@@ -11456,6 +11891,21 @@
   },
   "state": {
    "tax": 1669.199951171875
+  },
+  "error": null
+ },
+ "2025-separate-with-child-LA-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 29250.0,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 931.58349609375
   },
   "error": null
  },
@@ -11849,6 +12299,21 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-LA-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 13500.0,
+   "incomeTaxBeforeCredits": 1350.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 556.58349609375
+  },
+  "error": null
+ },
  "2025-surviving-spouse-MA-45000-0-0-0-0": {
   "id": "2025-surviving-spouse-MA-45000-0-0-0-0",
   "federal": {
@@ -12236,6 +12701,21 @@
   },
   "state": {
    "tax": 9869.2001953125
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-LA-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-LA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 218500.0,
+   "incomeTaxBeforeCredits": 38134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6750.0
   },
   "error": null
  },
@@ -12629,6 +13109,21 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-LA-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-LA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 268500.0,
+   "incomeTaxBeforeCredits": 50134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 8250.0
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-MA-300000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-MA-300000-0-0-0-0",
   "federal": {
@@ -13016,6 +13511,21 @@
   },
   "state": {
    "tax": 17869.19921875
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-LA-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-LA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 418500.0,
+   "incomeTaxBeforeCredits": 88046.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 12750.0
   },
   "error": null
  },
@@ -13409,6 +13919,21 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-low-LA-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-LA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4328.0
+  },
+  "state": {
+   "tax": -216.40000915527344
+  },
+  "error": null
+ },
  "2025-surviving-spouse-low-MA-18000-0-0-0-0": {
   "id": "2025-surviving-spouse-low-MA-18000-0-0-0-0",
   "federal": {
@@ -13796,6 +14321,21 @@
   },
   "state": {
    "tax": 545.5199584960938
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-LA-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-LA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 3904.530029296875
+  },
+  "state": {
+   "tax": -165.22650146484375
   },
   "error": null
  },
@@ -14189,6 +14729,21 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-LA-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 915.0
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-MA-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-MA-0-55000-0-0-0",
   "federal": {
@@ -14576,6 +15131,21 @@
   },
   "state": {
    "tax": 824.7999877929688
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-young-LA-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 39250.0,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1275.0
   },
   "error": null
  },
@@ -14969,6 +15539,21 @@
   },
   "error": null
  },
+ "2025-early-retiree-LA-0-50000-0-0-0": {
+  "id": "2025-early-retiree-LA-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1125.0
+  },
+  "error": null
+ },
  "2025-early-retiree-MA-0-50000-0-0-0": {
   "id": "2025-early-retiree-MA-0-50000-0-0-0",
   "federal": {
@@ -15356,6 +15941,21 @@
   },
   "state": {
    "tax": 1424.7999267578125
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-LA-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-LA-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 38500.0,
+   "incomeTaxBeforeCredits": 4143.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1350.0
   },
   "error": null
  },
@@ -15749,6 +16349,21 @@
   },
   "error": null
  },
+ "2025-blind-worker-LA-40000-0-0-0-0": {
+  "id": "2025-blind-worker-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 22250.0,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 825.0
+  },
+  "error": null
+ },
  "2025-blind-worker-MA-40000-0-0-0-0": {
   "id": "2025-blind-worker-MA-40000-0-0-0-0",
   "federal": {
@@ -16136,6 +16751,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-blind-senior-LA-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-LA-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4600.0,
+   "incomeTaxBeforeCredits": 460.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 15.0
   },
   "error": null
  },
@@ -16529,6 +17159,21 @@
   },
   "error": null
  },
+ "2025-on-the-boundary-LA-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 69.330078125
+  },
+  "state": {
+   "tax": 1121.533447265625
+  },
+  "error": null
+ },
  "2025-on-the-boundary-MA-50000-0-0-0-0": {
   "id": "2025-on-the-boundary-MA-50000-0-0-0-0",
   "federal": {
@@ -16916,6 +17561,21 @@
   },
   "state": {
    "tax": 3869.199951171875
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-LA-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 84250.0,
+   "incomeTaxBeforeCredits": 13449.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2625.0
   },
   "error": null
  },
@@ -17309,6 +17969,21 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-15000-0-0-0-0": {
+  "id": "2026-single-worker-LA-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 347.2900085449219
+  },
+  "state": {
+   "tax": 47.58549499511719
+  },
+  "error": null
+ },
  "2026-single-worker-MA-15000-0-0-0-0": {
   "id": "2026-single-worker-MA-15000-0-0-0-0",
   "federal": {
@@ -17696,6 +18371,21 @@
   },
   "state": {
    "tax": 932.9562377929688
+  },
+  "error": null
+ },
+ "2026-single-worker-LA-30000-0-0-0-0": {
+  "id": "2026-single-worker-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 13900.0,
+   "incomeTaxBeforeCredits": 1420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 514.9500122070312
   },
   "error": null
  },
@@ -18089,6 +18779,21 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-50000-0-0-0-0": {
+  "id": "2026-single-worker-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1114.949951171875
+  },
+  "error": null
+ },
  "2026-single-worker-MA-50000-0-0-0-0": {
   "id": "2026-single-worker-MA-50000-0-0-0-0",
   "federal": {
@@ -18476,6 +19181,21 @@
   },
   "state": {
    "tax": 2682.956298828125
+  },
+  "error": null
+ },
+ "2026-single-worker-LA-80000-0-0-0-0": {
+  "id": "2026-single-worker-LA-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 63900.0,
+   "incomeTaxBeforeCredits": 8770.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2014.949951171875
   },
   "error": null
  },
@@ -18869,6 +19589,21 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-150000-0-0-0-0": {
+  "id": "2026-single-worker-LA-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 24734.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4114.94970703125
+  },
+  "error": null
+ },
  "2026-single-worker-MA-150000-0-0-0-0": {
   "id": "2026-single-worker-MA-150000-0-0-0-0",
   "federal": {
@@ -19256,6 +19991,21 @@
   },
   "state": {
    "tax": 13882.95703125
+  },
+  "error": null
+ },
+ "2026-single-worker-LA-400000-0-0-0-0": {
+  "id": "2026-single-worker-LA-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 383900.0,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 11614.9501953125
   },
   "error": null
  },
@@ -19649,6 +20399,21 @@
   },
   "error": null
  },
+ "2026-couple-two-children-LA-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7316.0
+  },
+  "state": {
+   "tax": -235.9000244140625
+  },
+  "error": null
+ },
  "2026-couple-two-children-MA-30000-0-0-0-0": {
   "id": "2026-couple-two-children-MA-30000-0-0-0-0",
   "federal": {
@@ -20036,6 +20801,21 @@
   },
   "state": {
    "tax": 1982.9561767578125
+  },
+  "error": null
+ },
+ "2026-couple-two-children-LA-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 27800.0,
+   "incomeTaxBeforeCredits": 2840.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 1242.2958984375
+  },
+  "state": {
+   "tax": 967.7852172851562
   },
   "error": null
  },
@@ -20429,6 +21209,21 @@
   },
   "error": null
  },
+ "2026-couple-two-children-LA-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 67800.0,
+   "incomeTaxBeforeCredits": 7640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2229.89990234375
+  },
+  "error": null
+ },
  "2026-couple-two-children-MA-100000-0-0-0-0": {
   "id": "2026-couple-two-children-MA-100000-0-0-0-0",
   "federal": {
@@ -20816,6 +21611,21 @@
   },
   "state": {
    "tax": 6882.9560546875
+  },
+  "error": null
+ },
+ "2026-couple-two-children-LA-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 167800.0,
+   "incomeTaxBeforeCredits": 26340.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5229.89990234375
   },
   "error": null
  },
@@ -21209,6 +22019,21 @@
   },
   "error": null
  },
+ "2026-single-parent-LA-12000-0-0-0-0": {
+  "id": "2026-single-parent-LA-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -204.0
+  },
+  "error": null
+ },
  "2026-single-parent-MA-12000-0-0-0-0": {
   "id": "2026-single-parent-MA-12000-0-0-0-0",
   "federal": {
@@ -21596,6 +22421,21 @@
   },
   "state": {
    "tax": 303.1824645996094
+  },
+  "error": null
+ },
+ "2026-single-parent-LA-25000-0-0-0-0": {
+  "id": "2026-single-parent-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 850.0,
+   "incomeTaxBeforeCredits": 85.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1785.0,
+   "earnedIncomeCredit": 4249.6220703125
+  },
+  "state": {
+   "tax": -212.48110961914062
   },
   "error": null
  },
@@ -21989,6 +22829,21 @@
   },
   "error": null
  },
+ "2026-single-parent-LA-45000-0-0-0-0": {
+  "id": "2026-single-parent-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 20850.0,
+   "incomeTaxBeforeCredits": 2148.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 527.2188720703125
+  },
+  "error": null
+ },
  "2026-single-parent-MA-45000-0-0-0-0": {
   "id": "2026-single-parent-MA-45000-0-0-0-0",
   "federal": {
@@ -22366,6 +23221,21 @@
  },
  "2026-retired-couple-KY-0-0-40000-0-0": {
   "id": "2026-retired-couple-KY-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-LA-0-0-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-0-40000-0-0",
   "federal": {
    "adjustedGrossIncome": 0.0,
    "taxableIncome": 0.0,
@@ -22769,6 +23639,21 @@
   },
   "error": null
  },
+ "2026-retired-couple-LA-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
  "2026-retired-couple-MA-0-20000-40000-0-0": {
   "id": "2026-retired-couple-MA-0-20000-40000-0-0",
   "federal": {
@@ -23156,6 +24041,21 @@
   },
   "state": {
    "tax": 464.10626220703125
+  },
+  "error": null
+ },
+ "2026-retired-couple-LA-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 30600.0,
+   "incomeTaxBeforeCredits": 3176.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 369.8999938964844
   },
   "error": null
  },
@@ -23549,6 +24449,21 @@
   },
   "error": null
  },
+ "2026-retired-couple-LA-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 76500.0,
+   "incomeTaxBeforeCredits": 8684.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1569.9000244140625
+  },
+  "error": null
+ },
  "2026-retired-couple-MA-0-90000-40000-0-0": {
   "id": "2026-retired-couple-MA-0-90000-40000-0-0",
   "federal": {
@@ -23926,6 +24841,21 @@
  },
  "2026-single-retiree-KY-0-10000-24000-0-0": {
   "id": "2026-single-retiree-KY-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-retiree-LA-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-LA-0-10000-24000-0-0",
   "federal": {
    "adjustedGrossIncome": 10000.0,
    "taxableIncome": 0.0,
@@ -24329,6 +25259,21 @@
   },
   "error": null
  },
+ "2026-single-retiree-LA-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-LA-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 35650.0,
+   "incomeTaxBeforeCredits": 4030.0,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 454.9499816894531
+  },
+  "error": null
+ },
  "2026-single-retiree-MA-0-40000-24000-0-0": {
   "id": "2026-single-retiree-MA-0-40000-24000-0-0",
   "federal": {
@@ -24716,6 +25661,21 @@
   },
   "state": {
    "tax": 2332.956298828125
+  },
+  "error": null
+ },
+ "2026-investor-LA-50000-0-0-20000-0": {
+  "id": "2026-investor-LA-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 53900.0,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1714.949951171875
   },
   "error": null
  },
@@ -25109,6 +26069,21 @@
   },
   "error": null
  },
+ "2026-investor-LA-50000-0-0-100000-0": {
+  "id": "2026-investor-LA-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4114.94970703125
+  },
+  "error": null
+ },
  "2026-investor-MA-50000-0-0-100000-0": {
   "id": "2026-investor-MA-50000-0-0-100000-0",
   "federal": {
@@ -25496,6 +26471,21 @@
   },
   "state": {
    "tax": 1982.9561767578125
+  },
+  "error": null
+ },
+ "2026-separate-LA-60000-0-0-0-0": {
+  "id": "2026-separate-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 43900.0,
+   "incomeTaxBeforeCredits": 5020.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1414.949951171875
   },
   "error": null
  },
@@ -25889,6 +26879,21 @@
   },
   "error": null
  },
+ "2026-muni-retiree-LA-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-LA-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 46500.0,
+   "incomeTaxBeforeCredits": 5084.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 669.8999633789062
+  },
+  "error": null
+ },
  "2026-muni-retiree-MA-0-60000-40000-0-10000": {
   "id": "2026-muni-retiree-MA-0-60000-40000-0-10000",
   "federal": {
@@ -26276,6 +27281,21 @@
   },
   "state": {
    "tax": 303.1824645996094
+  },
+  "error": null
+ },
+ "2026-couple-no-children-LA-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 139.21002197265625
+  },
+  "state": {
+   "tax": -6.960501194000244
   },
   "error": null
  },
@@ -26669,6 +27689,21 @@
   },
   "error": null
  },
+ "2026-couple-no-children-LA-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-LA-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 42800.0,
+   "incomeTaxBeforeCredits": 4640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1479.9000244140625
+  },
+  "error": null
+ },
  "2026-couple-no-children-MA-75000-0-0-0-0": {
   "id": "2026-couple-no-children-MA-75000-0-0-0-0",
   "federal": {
@@ -27056,6 +28091,21 @@
   },
   "state": {
    "tax": 769.773681640625
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-LA-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 7800.0,
+   "incomeTaxBeforeCredits": 780.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5880.0,
+   "earnedIncomeCredit": 6369.2958984375
+  },
+  "state": {
+   "tax": 111.4351806640625
   },
   "error": null
  },
@@ -27449,6 +28499,21 @@
   },
   "error": null
  },
+ "2026-mixed-dependents-LA-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 57800.0,
+   "incomeTaxBeforeCredits": 6440.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1929.89990234375
+  },
+  "error": null
+ },
  "2026-mixed-dependents-MA-90000-0-0-0-0": {
   "id": "2026-mixed-dependents-MA-90000-0-0-0-0",
   "federal": {
@@ -27836,6 +28901,21 @@
   },
   "state": {
    "tax": 3032.956298828125
+  },
+  "error": null
+ },
+ "2026-single-parent-high-LA-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 65850.0,
+   "incomeTaxBeforeCredits": 7548.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1929.89990234375
   },
   "error": null
  },
@@ -28229,6 +29309,21 @@
   },
   "error": null
  },
+ "2026-single-parent-teen-LA-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-LA-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 10850.0,
+   "incomeTaxBeforeCredits": 1085.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2651.6220703125
+  },
+  "state": {
+   "tax": 147.3188934326172
+  },
+  "error": null
+ },
  "2026-single-parent-teen-MA-35000-0-0-0-0": {
   "id": "2026-single-parent-teen-MA-35000-0-0-0-0",
   "federal": {
@@ -28616,6 +29711,21 @@
   },
   "state": {
    "tax": 1457.9561767578125
+  },
+  "error": null
+ },
+ "2026-separate-with-child-LA-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 28900.0,
+   "incomeTaxBeforeCredits": 3220.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 912.2688598632812
   },
   "error": null
  },
@@ -29009,6 +30119,21 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-LA-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 12800.0,
+   "incomeTaxBeforeCredits": 1280.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 527.2188720703125
+  },
+  "error": null
+ },
  "2026-surviving-spouse-MA-45000-0-0-0-0": {
   "id": "2026-surviving-spouse-MA-45000-0-0-0-0",
   "federal": {
@@ -29396,6 +30521,21 @@
   },
   "state": {
    "tax": 8632.9560546875
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-LA-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-LA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 217800.0,
+   "incomeTaxBeforeCredits": 37468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6729.89990234375
   },
   "error": null
  },
@@ -29789,6 +30929,21 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-LA-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-LA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 267800.0,
+   "incomeTaxBeforeCredits": 49468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 8229.8994140625
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-MA-300000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-MA-300000-0-0-0-0",
   "federal": {
@@ -30176,6 +31331,21 @@
   },
   "state": {
    "tax": 15632.95703125
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-LA-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-LA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 417800.0,
+   "incomeTaxBeforeCredits": 86608.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 12729.8994140625
   },
   "error": null
  },
@@ -30569,6 +31739,21 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-low-LA-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-LA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -221.35000610351562
+  },
+  "error": null
+ },
  "2026-surviving-spouse-low-MA-18000-0-0-0-0": {
   "id": "2026-surviving-spouse-low-MA-18000-0-0-0-0",
   "federal": {
@@ -30956,6 +32141,21 @@
   },
   "state": {
    "tax": 475.77374267578125
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-LA-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-LA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -194.5911102294922
   },
   "error": null
  },
@@ -31349,6 +32549,21 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-LA-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 904.949951171875
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-MA-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-MA-0-55000-0-0-0",
   "federal": {
@@ -31736,6 +32951,21 @@
   },
   "state": {
    "tax": 719.1062622070312
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-young-LA-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1264.949951171875
   },
   "error": null
  },
@@ -32129,6 +33359,21 @@
   },
   "error": null
  },
+ "2026-early-retiree-LA-0-50000-0-0-0": {
+  "id": "2026-early-retiree-LA-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1114.949951171875
+  },
+  "error": null
+ },
  "2026-early-retiree-MA-0-50000-0-0-0": {
   "id": "2026-early-retiree-MA-0-50000-0-0-0",
   "federal": {
@@ -32516,6 +33761,21 @@
   },
   "state": {
    "tax": 1244.106201171875
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-LA-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-LA-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 37800.0,
+   "incomeTaxBeforeCredits": 4040.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1329.9000244140625
   },
   "error": null
  },
@@ -32909,6 +34169,21 @@
   },
   "error": null
  },
+ "2026-blind-worker-LA-40000-0-0-0-0": {
+  "id": "2026-blind-worker-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 21850.0,
+   "incomeTaxBeforeCredits": 2374.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 814.9500122070312
+  },
+  "error": null
+ },
  "2026-blind-worker-MA-40000-0-0-0-0": {
   "id": "2026-blind-worker-MA-40000-0-0-0-0",
   "federal": {
@@ -33296,6 +34571,21 @@
   },
   "state": {
    "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-blind-senior-LA-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-LA-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4150.0,
+   "incomeTaxBeforeCredits": 415.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 4.949999809265137
   },
   "error": null
  },
@@ -33689,6 +34979,21 @@
   },
   "error": null
  },
+ "2026-on-the-boundary-LA-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1102.2188720703125
+  },
+  "error": null
+ },
  "2026-on-the-boundary-MA-50000-0-0-0-0": {
   "id": "2026-on-the-boundary-MA-50000-0-0-0-0",
   "federal": {
@@ -34076,6 +35381,21 @@
   },
   "state": {
    "tax": 3382.956298828125
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-LA-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2614.949951171875
   },
   "error": null
  },

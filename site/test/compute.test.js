@@ -138,9 +138,10 @@ test('what a household receives is not what the return calls income', () => {
   assert.equal(model.received - model.federal.grossIncome, 15_150);
 });
 
-test('four states charge a different tax on the same household totals', () => {
+test('five states charge a different tax on the same household totals', () => {
   // The reason the form asks whose name the retirement income is in. Georgia,
-  // Maryland, Kentucky and — from v0.19.0 — New York all claim their retirement
+  // Maryland, Kentucky, New York from v0.19.0 and LOUISIANA from v0.52.0 all
+  // claim their retirement
   // exclusion PER PERSON, so a couple's totals do not determine their state tax,
   // and the federal return cannot see the difference at all, which is why
   // nothing warns you.
@@ -159,7 +160,12 @@ test('four states charge a different tax on the same household totals', () => {
     const other = oneName.states.find((s) => s.state === state.state);
     if (other.tax !== state.tax) moved[state.state] = [state.tax, other.tax];
   }
-  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'MD', 'NY']);
+  // LOUISIANA joined the list the day it shipped, not by changing: R.S. 47:44.1
+  // gives its exemption to "the individual who received" the income, so the
+  // couple's $12,324 of 2026 exemption is bought twice when the pension is split
+  // and once when it is not — $369.72 either way, which is the whole cap at 3%.
+  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'LA', 'MD', 'NY']);
+  assert.deepEqual(moved.LA, [2_090.28, 2_460]);
   assert.deepEqual(moved.GA, [0, 1_247.5]);
   assert.deepEqual(moved.MD, [273.25, 2_201.75]);
   // $3.15 lower on both sides than before v0.28.0: Kentucky's 2026 standard
@@ -170,11 +176,13 @@ test('four states charge a different tax on the same household totals', () => {
   assert.deepEqual(moved.KY, [1_904.7, 2_993.55]);
   assert.deepEqual(moved.NY, [3_120.8, 4_200.8]);
 
-  // All four move the same way — concentrating the income wastes the absent
-  // spouse's allowance — and together they are worth $5,344.85 on a decision
-  // that is usually made for reasons that have nothing to do with tax.
+  // All five move the same way — concentrating the income wastes the absent
+  // spouse's allowance — and together they are worth $5,714.57 on a decision
+  // that is usually made for reasons that have nothing to do with tax. It was
+  // $5,344.85 before Louisiana, and the $369.72 it added is the whole of its
+  // 2026 exemption at the flat 3%.
   const swing = Object.values(moved).reduce((total, [a, b]) => total + (b - a), 0);
-  assert.equal(Number(swing.toFixed(2)), 5_344.85);
+  assert.equal(Number(swing.toFixed(2)), 5_714.57);
 });
 
 test('the form cannot be made to throw', () => {
@@ -343,16 +351,18 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
-  // 30 from Day 49, because SOUTH CAROLINA slotted in above Utah at $75.82 for
-  // this couple: it exempts the whole taxable Social Security benefit, deducts
-  // $10,000 of the pension for each spouse over 65 and then tops each of them up
-  // to $15,000 under § 12-6-1170(B). The ranking is the point of the page and
-  // Utah's PLACE moving while its tax does not is exactly what this test is for.
-  assert.equal(place, 30, `Utah ranks ${place}`);
+  // 31 from Day 60, because LOUISIANA slotted in above Utah at $290.28 for this
+  // couple — twenty-fifth of thirty-six — on a flat 3% with $25,676 of standard
+  // deduction, the whole taxable Social Security benefit exempt and $12,324 of
+  // pension exempt for each spouse over 65. It was 30 from Day 49, when SOUTH
+  // CAROLINA slotted in at $75.82 for the same reasons under § 12-6-1170(B).
+  // The ranking is the point of the page and Utah's PLACE moving while its tax
+  // does not is exactly what this test is for.
+  assert.equal(place, 31, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // And Wisconsin's is a ZERO that the election produces rather than an
@@ -418,8 +428,8 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(model.allocation.alternative, 'filer');
   assert.deepEqual(
     model.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'MD', 'NY'],
-    'exactly four states move, and they are the four that cap per person',
+    ['GA', 'KY', 'LA', 'MD', 'NY'],
+    'exactly five states move, and they are the five that cap per person',
   );
   // Widest first, and Maryland's is the widest of the three on these figures.
   assert.equal(model.allocation.widest.state, 'MD');
@@ -434,10 +444,10 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(other.allocation.alternative, 'even');
   assert.deepEqual(
     other.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'MD', 'NY'],
+    ['GA', 'KY', 'LA', 'MD', 'NY'],
   );
   assert.ok(Math.abs(other.allocation.widest.difference + 2_842) < 0.005);
-  assert.equal(other.allocation.cheaperElsewhere.length, 4, 'every one is cheaper split');
+  assert.equal(other.allocation.cheaperElsewhere.length, 5, 'every one is cheaper split');
 });
 
 test('a single filer has no allocation to swing', () => {

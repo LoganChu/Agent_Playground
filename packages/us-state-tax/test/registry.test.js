@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 35);
+  assert.equal(SUPPORTED_STATES.length, 36);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -47,23 +47,24 @@ test('an unsupported year is an error, not a silent fallback', () => {
 
 const getMissingStatesMessage = () => {
   try {
-    getStateDefinition('LA', 2026);
+    getStateDefinition('OK', 2026);
   } catch (e) {
     return e.message;
   }
-  throw new Error('LA resolved');
+  throw new Error('OK resolved');
 };
 
 test('an unsupported state names what is missing rather than returning zero', () => {
-  // The example has now moved FIVE times — Ohio on Day 16, Virginia on Day 17,
-  // Minnesota on Day 45, South Carolina on Day 49 — and each move is the point
+  // The example has now moved SIX times — Ohio on Day 16, Virginia on Day 17,
+  // Minnesota on Day 45, South Carolina on Day 49, LOUISIANA ON DAY 60 — and each
+  // move is the point
   // of the test: a state used here as the stand-in for "absent" has to be
   // replaced the day it ships, or the assertion starts proving something about
   // a state that is present.
-  assert.throws(() => getStateDefinition('LA', 2026), /not supported/);
+  assert.throws(() => getStateDefinition('OK', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('LA', 2026), /Louisiana/);
+  assert.throws(() => getStateDefinition('OK', 2026), /Oklahoma/);
   // New York, New Jersey and Massachusetts were all on this list until they were
   // not. When a state moves from the gap list into the registry, this is where
   // the two have to be kept in step — and the message must stop naming it.
@@ -81,7 +82,8 @@ test('an unsupported state names what is missing rather than returning zero', ()
   // Day 16 and Virginia until Day 17, which is the point: the example has to
   // move as the gap closes, and it has now moved twice.
   const gaps = getMissingStatesMessage().split('—')[1] ?? '';
-  assert.match(gaps, /Louisiana/);
+  // Louisiana left this list on Day 60; Oklahoma is the stand-in now.
+  assert.match(gaps, /Oklahoma/);
   // Compared as whole list ITEMS and not as substrings, which is the Day 37
   // citation rule in a second place: `/Virginia/` matched this message for a
   // covered state the day West Virginia joined the gap list, and the assertion
@@ -99,6 +101,7 @@ test('an unsupported state names what is missing rather than returning zero', ()
     'Alabama',
     'Minnesota',
     'South Carolina',
+    'Louisiana',
   ]) {
     assert.ok(!named.includes(covered), `the gap list names ${covered}, which is covered`);
   }
@@ -116,15 +119,15 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // twenty-six of them — thirty-five supported states less the nine with no
-  // income tax at all — so the uncovered list has the other sixteen.
+  // twenty-seven of them — thirty-six supported states less the nine with no
+  // income tax at all — so the uncovered list has the other fifteen.
   //
   // The three figures are asserted together on purpose: the identity
   // `covered + uncovered = 42` is the only thing that catches a state added to
   // the registry and left in the gap list, which is the defect the list was
   // declared for in the first place.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 16);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 26);
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 15);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 27);
   assert.equal(
     SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length + UNCOVERED_TAXING_JURISDICTIONS.length,
     42,

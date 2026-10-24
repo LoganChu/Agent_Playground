@@ -213,6 +213,27 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-15000-0-0-0-0": {
+  "id": "2025-single-worker-LA-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 313.93
+  },
+  "state": {
+   "tax": 59.3,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 15.7
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-MA-15000-0-0-0-0": {
   "id": "2025-single-worker-MA-15000-0-0-0-0",
   "federal": {
@@ -837,6 +858,27 @@
   "state": {
    "tax": 1069.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-worker-LA-30000-0-0-0-0": {
+  "id": "2025-single-worker-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 14250,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 525,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -1467,6 +1509,27 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-50000-0-0-0-0": {
+  "id": "2025-single-worker-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1125,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-MA-50000-0-0-0-0": {
   "id": "2025-single-worker-MA-50000-0-0-0-0",
   "federal": {
@@ -2091,6 +2154,27 @@
   "state": {
    "tax": 3069.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-worker-LA-80000-0-0-0-0": {
+  "id": "2025-single-worker-LA-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 64250,
+   "incomeTaxBeforeCredits": 9049,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2025,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -2721,6 +2805,27 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-150000-0-0-0-0": {
+  "id": "2025-single-worker-LA-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 134250,
+   "incomeTaxBeforeCredits": 25067,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4125,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-MA-150000-0-0-0-0": {
   "id": "2025-single-worker-MA-150000-0-0-0-0",
   "federal": {
@@ -3348,6 +3453,27 @@
   },
   "error": null
  },
+ "2025-single-worker-LA-400000-0-0-0-0": {
+  "id": "2025-single-worker-LA-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 384250,
+   "incomeTaxBeforeCredits": 104034.75,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11625,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-MA-400000-0-0-0-0": {
   "id": "2025-single-worker-MA-400000-0-0-0-0",
   "federal": {
@@ -3972,6 +4098,27 @@
   "state": {
    "tax": 1069.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-couple-two-children-LA-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7152
+  },
+  "state": {
+   "tax": -207.6,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 357.6
+    }
+   ]
   },
   "error": null
  },
@@ -4610,6 +4757,27 @@
   },
   "error": null
  },
+ "2025-couple-two-children-LA-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 28500,
+   "incomeTaxBeforeCredits": 2943,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 932.98
+  },
+  "state": {
+   "tax": 1003.35,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 46.65
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-two-children-MA-60000-0-0-0-0": {
   "id": "2025-couple-two-children-MA-60000-0-0-0-0",
   "federal": {
@@ -5242,6 +5410,27 @@
   "state": {
    "tax": 3869.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-couple-two-children-LA-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 68500,
+   "incomeTaxBeforeCredits": 7743,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2250,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -5880,6 +6069,27 @@
   },
   "error": null
  },
+ "2025-couple-two-children-LA-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-LA-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 168500,
+   "incomeTaxBeforeCredits": 26898,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5250,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-two-children-MA-200000-0-0-0-0": {
   "id": "2025-couple-two-children-MA-200000-0-0-0-0",
   "federal": {
@@ -6515,6 +6725,27 @@
   },
   "error": null
  },
+ "2025-single-parent-LA-12000-0-0-0-0": {
+  "id": "2025-single-parent-LA-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -204,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 204
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-MA-12000-0-0-0-0": {
   "id": "2025-single-parent-MA-12000-0-0-0-0",
   "federal": {
@@ -7139,6 +7370,27 @@
   "state": {
    "tax": 869.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-parent-LA-25000-0-0-0-0": {
+  "id": "2025-single-parent-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 1375,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.33
+  },
+  "state": {
+   "tax": -203.22,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 203.22
+    }
+   ]
   },
   "error": null
  },
@@ -7769,6 +8021,27 @@
   },
   "error": null
  },
+ "2025-single-parent-LA-45000-0-0-0-0": {
+  "id": "2025-single-parent-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 21375,
+   "incomeTaxBeforeCredits": 2225,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 868.33
+  },
+  "state": {
+   "tax": 556.58,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 43.42
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-MA-45000-0-0-0-0": {
   "id": "2025-single-parent-MA-45000-0-0-0-0",
   "federal": {
@@ -8393,6 +8666,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-retired-couple-LA-0-0-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -9031,6 +9325,27 @@
   },
   "error": null
  },
+ "2025-retired-couple-LA-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-retired-couple-MA-0-20000-40000-0-0": {
   "id": "2025-retired-couple-MA-0-20000-40000-0-0",
   "federal": {
@@ -9663,6 +9978,27 @@
   "state": {
    "tax": 624.8,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-retired-couple-LA-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 31400,
+   "incomeTaxBeforeCredits": 3291,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 390,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -10301,6 +10637,27 @@
   },
   "error": null
  },
+ "2025-retired-couple-LA-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-LA-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 77300,
+   "incomeTaxBeforeCredits": 8799,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1590,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-retired-couple-MA-0-90000-40000-0-0": {
   "id": "2025-retired-couple-MA-0-90000-40000-0-0",
   "federal": {
@@ -10936,6 +11293,27 @@
   },
   "error": null
  },
+ "2025-single-retiree-LA-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-LA-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-retiree-MA-0-10000-24000-0-0": {
   "id": "2025-single-retiree-MA-0-10000-24000-0-0",
   "federal": {
@@ -11560,6 +11938,27 @@
   "state": {
    "tax": 224.8,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-retiree-LA-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-LA-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 36050,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 465,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -12190,6 +12589,27 @@
   },
   "error": null
  },
+ "2025-investor-LA-50000-0-0-20000-0": {
+  "id": "2025-investor-LA-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 54250,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1725,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-investor-MA-50000-0-0-20000-0": {
   "id": "2025-investor-MA-50000-0-0-20000-0",
   "federal": {
@@ -12814,6 +13234,27 @@
   "state": {
    "tax": 5869.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-investor-LA-50000-0-0-100000-0": {
+  "id": "2025-investor-LA-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 134250,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4125,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -13444,6 +13885,27 @@
   },
   "error": null
  },
+ "2025-separate-LA-60000-0-0-0-0": {
+  "id": "2025-separate-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 44250,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1425,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-MA-60000-0-0-0-0": {
   "id": "2025-separate-MA-60000-0-0-0-0",
   "federal": {
@@ -14064,6 +14526,27 @@
   "state": {
    "tax": 1024.8,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-muni-retiree-LA-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-LA-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 47300,
+   "incomeTaxBeforeCredits": 5199,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 690,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -14702,6 +15185,27 @@
   },
   "error": null
  },
+ "2025-couple-no-children-LA-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 92.85
+  },
+  "state": {
+   "tax": -4.64,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 4.64
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-no-children-MA-25000-0-0-0-0": {
   "id": "2025-couple-no-children-MA-25000-0-0-0-0",
   "federal": {
@@ -15334,6 +15838,27 @@
   "state": {
    "tax": 2869.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-couple-no-children-LA-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-LA-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 43500,
+   "incomeTaxBeforeCredits": 4743,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1500,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -15972,6 +16497,27 @@
   },
   "error": null
  },
+ "2025-mixed-dependents-LA-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 8500,
+   "incomeTaxBeforeCredits": 850,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5950,
+   "earnedIncomeCredit": 6038.98
+  },
+  "state": {
+   "tax": 148.05,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 301.95
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-mixed-dependents-MA-40000-0-0-0-0": {
   "id": "2025-mixed-dependents-MA-40000-0-0-0-0",
   "federal": {
@@ -16604,6 +17150,27 @@
   "state": {
    "tax": 3469.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-LA-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 58500,
+   "incomeTaxBeforeCredits": 6543,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1950,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -17242,6 +17809,27 @@
   },
   "error": null
  },
+ "2025-single-parent-high-LA-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 66375,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1950,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-high-MA-90000-0-0-0-0": {
   "id": "2025-single-parent-high-MA-90000-0-0-0-0",
   "federal": {
@@ -17866,6 +18454,27 @@
   "state": {
    "tax": 1269.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-parent-teen-LA-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-LA-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 11375,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2466.33
+  },
+  "state": {
+   "tax": 176.68,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 123.32
+    }
+   ]
   },
   "error": null
  },
@@ -18496,6 +19105,27 @@
   },
   "error": null
  },
+ "2025-separate-with-child-LA-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 29250,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 975,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-child-MA-45000-0-0-0-0": {
   "id": "2025-separate-with-child-MA-45000-0-0-0-0",
   "federal": {
@@ -19116,6 +19746,27 @@
   "state": {
    "tax": 1669.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-LA-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 13500,
+   "incomeTaxBeforeCredits": 1350,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 868.33
+  },
+  "state": {
+   "tax": 556.58,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 43.42
+    }
+   ]
   },
   "error": null
  },
@@ -19746,6 +20397,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-LA-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-LA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 218500,
+   "incomeTaxBeforeCredits": 38134,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6750,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-MA-250000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-MA-250000-0-0-0-0",
   "federal": {
@@ -20370,6 +21042,27 @@
   "state": {
    "tax": 11869.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-LA-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-LA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 268500,
+   "incomeTaxBeforeCredits": 50134,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8250,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -21000,6 +21693,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-LA-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-LA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 418500,
+   "incomeTaxBeforeCredits": 88046,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12750,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-MA-450000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-MA-450000-0-0-0-0",
   "federal": {
@@ -21624,6 +22338,27 @@
   "state": {
    "tax": 589.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-LA-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-LA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4328
+  },
+  "state": {
+   "tax": -216.4,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 216.4
+    }
+   ]
   },
   "error": null
  },
@@ -22254,6 +22989,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-low-LA-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-LA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 3904.53
+  },
+  "state": {
+   "tax": -165.23,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 195.23
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-low-MA-26000-0-0-0-0": {
   "id": "2025-surviving-spouse-low-MA-26000-0-0-0-0",
   "federal": {
@@ -22881,6 +23637,27 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-LA-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 36050,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 915,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-MA-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-MA-0-55000-0-0-0",
   "federal": {
@@ -23504,6 +24281,27 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-young-LA-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 39250,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1275,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-young-MA-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-young-MA-0-55000-0-0-0",
   "federal": {
@@ -24124,6 +24922,27 @@
   "state": {
    "tax": 624.8,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-early-retiree-LA-0-50000-0-0-0": {
+  "id": "2025-early-retiree-LA-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1125,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -24751,6 +25570,27 @@
   "state": {
    "tax": 1424.8,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-LA-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-LA-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 38500,
+   "incomeTaxBeforeCredits": 4143,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1350,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -25389,6 +26229,27 @@
   },
   "error": null
  },
+ "2025-blind-worker-LA-40000-0-0-0-0": {
+  "id": "2025-blind-worker-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 22250,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 825,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-blind-worker-MA-40000-0-0-0-0": {
   "id": "2025-blind-worker-MA-40000-0-0-0-0",
   "federal": {
@@ -26013,6 +26874,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-blind-senior-LA-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-LA-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4600,
+   "incomeTaxBeforeCredits": 460,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 15,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -26643,6 +27525,27 @@
   },
   "error": null
  },
+ "2025-on-the-boundary-LA-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 69.33
+  },
+  "state": {
+   "tax": 1121.53,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 3.47
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-on-the-boundary-MA-50000-0-0-0-0": {
   "id": "2025-on-the-boundary-MA-50000-0-0-0-0",
   "federal": {
@@ -27267,6 +28170,27 @@
   "state": {
    "tax": 3869.2,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-LA-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 84250,
+   "incomeTaxBeforeCredits": 13449,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2625,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -27901,6 +28825,27 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-15000-0-0-0-0": {
+  "id": "2026-single-worker-LA-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": 47.5,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 17.36
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-MA-15000-0-0-0-0": {
   "id": "2026-single-worker-MA-15000-0-0-0-0",
   "federal": {
@@ -28525,6 +29470,27 @@
   "state": {
    "tax": 932.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-worker-LA-30000-0-0-0-0": {
+  "id": "2026-single-worker-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 514.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -29155,6 +30121,27 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-50000-0-0-0-0": {
+  "id": "2026-single-worker-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1114.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-MA-50000-0-0-0-0": {
   "id": "2026-single-worker-MA-50000-0-0-0-0",
   "federal": {
@@ -29779,6 +30766,27 @@
   "state": {
    "tax": 2682.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-worker-LA-80000-0-0-0-0": {
+  "id": "2026-single-worker-LA-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2014.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -30409,6 +31417,27 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-150000-0-0-0-0": {
+  "id": "2026-single-worker-LA-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4114.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-MA-150000-0-0-0-0": {
   "id": "2026-single-worker-MA-150000-0-0-0-0",
   "federal": {
@@ -31036,6 +32065,27 @@
   },
   "error": null
  },
+ "2026-single-worker-LA-400000-0-0-0-0": {
+  "id": "2026-single-worker-LA-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11614.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-MA-400000-0-0-0-0": {
   "id": "2026-single-worker-MA-400000-0-0-0-0",
   "federal": {
@@ -31660,6 +32710,27 @@
   "state": {
    "tax": 932.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-couple-two-children-LA-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": -236.08,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 365.8
+    }
+   ]
   },
   "error": null
  },
@@ -32298,6 +33369,27 @@
   },
   "error": null
  },
+ "2026-couple-two-children-LA-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 967.61,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 62.12
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-two-children-MA-60000-0-0-0-0": {
   "id": "2026-couple-two-children-MA-60000-0-0-0-0",
   "federal": {
@@ -32930,6 +34022,27 @@
   "state": {
    "tax": 3382.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-couple-two-children-LA-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2229.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -33568,6 +34681,27 @@
   },
   "error": null
  },
+ "2026-couple-two-children-LA-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-LA-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5229.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-two-children-MA-200000-0-0-0-0": {
   "id": "2026-couple-two-children-MA-200000-0-0-0-0",
   "federal": {
@@ -34203,6 +35337,27 @@
   },
   "error": null
  },
+ "2026-single-parent-LA-12000-0-0-0-0": {
+  "id": "2026-single-parent-LA-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -204,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 204
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-MA-12000-0-0-0-0": {
   "id": "2026-single-parent-MA-12000-0-0-0-0",
   "federal": {
@@ -34827,6 +35982,27 @@
   "state": {
    "tax": 757.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-parent-LA-25000-0-0-0-0": {
+  "id": "2026-single-parent-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": -212.48,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 212.48
+    }
+   ]
   },
   "error": null
  },
@@ -35457,6 +36633,27 @@
   },
   "error": null
  },
+ "2026-single-parent-LA-45000-0-0-0-0": {
+  "id": "2026-single-parent-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 527.04,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 52.68
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-MA-45000-0-0-0-0": {
   "id": "2026-single-parent-MA-45000-0-0-0-0",
   "federal": {
@@ -36081,6 +37278,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-retired-couple-LA-0-0-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -36719,6 +37937,27 @@
   },
   "error": null
  },
+ "2026-retired-couple-LA-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-retired-couple-MA-0-20000-40000-0-0": {
   "id": "2026-retired-couple-MA-0-20000-40000-0-0",
   "federal": {
@@ -37351,6 +38590,27 @@
   "state": {
    "tax": 543.55,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-retired-couple-LA-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 360,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -37989,6 +39249,27 @@
   },
   "error": null
  },
+ "2026-retired-couple-LA-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-LA-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1560,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-retired-couple-MA-0-90000-40000-0-0": {
   "id": "2026-retired-couple-MA-0-90000-40000-0-0",
   "federal": {
@@ -38624,6 +39905,27 @@
   },
   "error": null
  },
+ "2026-single-retiree-LA-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-LA-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-retiree-MA-0-10000-24000-0-0": {
   "id": "2026-single-retiree-MA-0-10000-24000-0-0",
   "federal": {
@@ -39248,6 +40550,27 @@
   "state": {
    "tax": 193.55,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-retiree-LA-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-LA-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 445.14,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -39878,6 +41201,27 @@
   },
   "error": null
  },
+ "2026-investor-LA-50000-0-0-20000-0": {
+  "id": "2026-investor-LA-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1714.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-investor-MA-50000-0-0-20000-0": {
   "id": "2026-investor-MA-50000-0-0-20000-0",
   "federal": {
@@ -40502,6 +41846,27 @@
   "state": {
    "tax": 5132.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-investor-LA-50000-0-0-100000-0": {
+  "id": "2026-investor-LA-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 4114.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -41132,6 +42497,27 @@
   },
   "error": null
  },
+ "2026-separate-LA-60000-0-0-0-0": {
+  "id": "2026-separate-LA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1414.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-MA-60000-0-0-0-0": {
   "id": "2026-separate-MA-60000-0-0-0-0",
   "federal": {
@@ -41752,6 +43138,27 @@
   "state": {
    "tax": 893.55,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-muni-retiree-LA-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-LA-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 660,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -42390,6 +43797,27 @@
   },
   "error": null
  },
+ "2026-couple-no-children-LA-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-LA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": -6.96,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 6.96
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-no-children-MA-25000-0-0-0-0": {
   "id": "2026-couple-no-children-MA-25000-0-0-0-0",
   "federal": {
@@ -43022,6 +44450,27 @@
   "state": {
    "tax": 2507.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-couple-no-children-LA-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-LA-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1479.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -43660,6 +45109,27 @@
   },
   "error": null
  },
+ "2026-mixed-dependents-LA-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": 111.25,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 318.47
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-mixed-dependents-MA-40000-0-0-0-0": {
   "id": "2026-mixed-dependents-MA-40000-0-0-0-0",
   "federal": {
@@ -44292,6 +45762,27 @@
   "state": {
    "tax": 3032.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-LA-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1929.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -44930,6 +46421,27 @@
   },
   "error": null
  },
+ "2026-single-parent-high-LA-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-LA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1929.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-high-MA-90000-0-0-0-0": {
   "id": "2026-single-parent-high-MA-90000-0-0-0-0",
   "federal": {
@@ -45554,6 +47066,27 @@
   "state": {
    "tax": 1107.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-parent-teen-LA-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-LA-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": 147.14,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 132.58
+    }
+   ]
   },
   "error": null
  },
@@ -46184,6 +47717,27 @@
   },
   "error": null
  },
+ "2026-separate-with-child-LA-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 964.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-child-MA-45000-0-0-0-0": {
   "id": "2026-separate-with-child-MA-45000-0-0-0-0",
   "federal": {
@@ -46804,6 +48358,27 @@
   "state": {
    "tax": 1457.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-LA-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-LA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 527.04,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 52.68
+    }
+   ]
   },
   "error": null
  },
@@ -47434,6 +49009,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-LA-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-LA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6729.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-MA-250000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-MA-250000-0-0-0-0",
   "federal": {
@@ -48058,6 +49654,27 @@
   "state": {
    "tax": 10382.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-LA-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-LA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8229.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -48688,6 +50305,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-LA-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-LA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12729.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-MA-450000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-MA-450000-0-0-0-0",
   "federal": {
@@ -49312,6 +50950,27 @@
   "state": {
    "tax": 512.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-LA-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-LA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -221.35,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 221.35
+    }
+   ]
   },
   "error": null
  },
@@ -49942,6 +51601,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-low-LA-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-LA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -194.77,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 204.49
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-low-MA-26000-0-0-0-0": {
   "id": "2026-surviving-spouse-low-MA-26000-0-0-0-0",
   "federal": {
@@ -50569,6 +52249,27 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-LA-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 895.14,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-MA-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-MA-0-55000-0-0-0",
   "federal": {
@@ -51192,6 +52893,27 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-young-LA-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-LA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1264.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-young-MA-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-young-MA-0-55000-0-0-0",
   "federal": {
@@ -51812,6 +53534,27 @@
   "state": {
    "tax": 543.55,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-early-retiree-LA-0-50000-0-0-0": {
+  "id": "2026-early-retiree-LA-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1114.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -52439,6 +54182,27 @@
   "state": {
    "tax": 1243.55,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-LA-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-LA-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1329.72,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -53077,6 +54841,27 @@
   },
   "error": null
  },
+ "2026-blind-worker-LA-40000-0-0-0-0": {
+  "id": "2026-blind-worker-LA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 814.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-blind-worker-MA-40000-0-0-0-0": {
   "id": "2026-blind-worker-MA-40000-0-0-0-0",
   "federal": {
@@ -53701,6 +55486,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-blind-senior-LA-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-LA-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -54331,6 +56137,27 @@
   },
   "error": null
  },
+ "2026-on-the-boundary-LA-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-LA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 254.62
+  },
+  "state": {
+   "tax": 1102.13,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 12.73
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-on-the-boundary-MA-50000-0-0-0-0": {
   "id": "2026-on-the-boundary-MA-50000-0-0-0-0",
   "federal": {
@@ -54955,6 +56782,27 @@
   "state": {
    "tax": 3382.4,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-LA-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-LA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 83900,
+   "incomeTaxBeforeCredits": 13170,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2614.86,
+   "credits": [
+    {
+     "name": "Louisiana earned income credit",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },

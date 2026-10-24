@@ -129,7 +129,8 @@ test('every state whose definition carries an earned income credit pays its matc
     }
   }
   assert.deepEqual(withCredit.sort(), [
-    'CO', 'CT', 'IL', 'IN', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'SC', 'UT', 'VA', 'WI',
+    'CO', 'CT', 'IL', 'IN', 'LA', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'SC', 'UT', 'VA',
+    'WI',
   ]);
 });
 

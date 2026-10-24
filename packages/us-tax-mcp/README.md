@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.55.0/us-tax-mcp-0.55.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.56.0/us-tax-mcp-0.56.0.tgz"
       ]
     }
   }
@@ -238,7 +238,7 @@ the list beside it disagreed.
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 210 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 215 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 
@@ -949,7 +949,7 @@ The same dollar, deferred out of the same paycheck, is inside one local wage tax
 the other — worth `$612.50` to Columbus and saving `$306.25` from the district. A model that
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
-Eight of the twenty-six taxing states cut their rate for 2026, so an unsupported year is an
+Eight of the twenty-seven taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and ten of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud. Illinois came
 off that list in 0.27.0, and Kentucky and Maryland in 0.28.0: Kentucky's 2026 standard
@@ -1145,10 +1145,10 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **16 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 35 states — AK, AL, AZ, CA, CO, CT, FL, GA, ID, IL, IN, KY,
-  MA, MD, MI, MN, MO, MS, NC, NH, NJ, NV, NY, OH, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
-  nothing else. Louisiana, Oklahoma and Iowa are absent, and asking for one is an error
+- **15 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 36 states — AK, AL, AZ, CA, CO, CT, FL, GA, ID, IL, IN, KY,
+  LA, MA, MD, MI, MN, MO, MS, NC, NH, NJ, NV, NY, OH, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
+  nothing else. Oklahoma, Iowa and Arkansas are absent, and asking for one is an error
   rather than a zero. Alabama's municipal occupational licence taxes — Birmingham's 1% of
   gross wages, Gadsden's 2% — are not modelled either. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
   Indiana's 92 counties, Michigan's 24 cities, Ohio's 679 municipalities and Ohio's 214

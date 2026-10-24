@@ -36,7 +36,8 @@
  * established it with a LADDER: probe the field across a spread of values, and if
  * no value anywhere moves a figure, nothing reads it. The argument is
  * `test/status-households.mjs`'s own — a threshold is only caught by a probe on
- * the far side of it — and over 35 states and two years the ladder reported
+ * the far side of it — and over the 35 states the package held at the time, across
+ * two years, the ladder reported
  * **2,736 of 3,500 (state, year, field) triples dead**, with SEVENTEEN fields
  * dead in every single state-year.
  *

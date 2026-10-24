@@ -202,7 +202,17 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // same way in both years with different numbers; South Carolina does not
   // compute the same way, which is the strongest possible case for refusing to
   // fall back to the nearest supported year.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'MI', 'MN', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  //
+  // LOUISIANA joins for a SEVENTH reason, and it is the only one on this list
+  // that could not have applied in any earlier year: its INDEXATION PROVISION
+  // ITSELF BEGINS IN 2026. R.S. 47:294(B), enacted by Act 11 alongside the
+  // deduction it adjusts, first moves the figure on 1 January 2026 — so the rate
+  // is the same 3% in both years and the answer differs anyway, by the $338 the
+  // single deduction gained. Illinois and Michigan joined this list because
+  // somebody read a notice that already existed and Minnesota because the notice
+  // arrived in time; Louisiana is on it because before 2026 there was no notice
+  // to read and nothing that could have been carried forward.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

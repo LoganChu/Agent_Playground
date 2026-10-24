@@ -379,7 +379,11 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // more than the increase — which is every filer of 65 and no filer under it.
   // This check is what said so: it asked for a household between the value and
   // twice it and there was none, in a battery with five aged shapes in it.
-  assert.equal(checked, 1048, 'byStatus cells with a parameter the harness would mutate');
+  // 1,058 from Day 60: Louisiana's ten are its five standard deduction cells in
+  // each of two years, and three of the five are DERIVED from the single figure
+  // by R.S. 47:294(A)(2)'s 200% rather than stored, so a mutation of the single
+  // amount moves three cells at once.
+  assert.equal(checked, 1058, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -413,7 +417,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
     }
   }
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
-  assert.equal(inside, 3_252, 'numbers inside those cells');
+  assert.equal(inside, 3_262, 'numbers inside those cells');
   // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
   // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,
