@@ -575,6 +575,66 @@ Two mitigations exist already and neither has been measured:
   *artefact* read rather than the behaviour checked: a run that silently stopped running a
   test file would show up as a higher score, which is the flattering direction.
 
+### Part 14 — CI, green on all seven jobs, read job by job and step by step
+
+Day 45's other half: reading CI at the START of a run is the standing item since Day 37, and
+recording it at the END is the half that says whether the day finished.
+
+**Run 250 on `c958568`: all seven jobs success, and every step of every job success — not one
+step skipped anywhere in the run.** `mutation-claims` step 7 passes, which is the expected
+red cleared by the record this push carries, and step 6 — the enumerator's own fifteen tests
+— passes with it.
+
+Read across all five of the day's pushes rather than only the last, which is what the day
+earned:
+
+```text
+  run 246  107cb9f  Louisiana                     mutation-claims red (not read; superseded)
+  run 247  e0ae00c  the day's record              TWO reds, NEITHER the expected one
+  run 248  48d7bc4  the two unexpected reds        ONE red, and it IS the expected one
+  run 249  0db309d  Parts 12 and 13                (same, in flight when 250 superseded it)
+  run 250  c958568  the audit record              ALL SEVEN GREEN, every step
+```
+
+**Run 247 is the day's cheapest lesson and it cost nothing because the reading was by step.**
+I had announced one red — `mutation-claims` step 7 — and there were two failing jobs, with
+step 7 never reached because step 6 failed first and skipped it. A reading by conclusion
+would have said "mutation-claims is red, as expected" and been wrong about which half of the
+job was broken. Day 58 wrote that rule after finding two unexpected reds behind one expected
+one; today it found two unexpected reds behind an expected one that **was not there at all.**
+
+### Part 15 — the day's corrections, counted
+
+**Two of the day's five commits carry a correction of my own published claim**, both of them
+corrections made within hours rather than days:
+
+- `48d7bc4` corrected the enumerator's golden sample and the test-count record, both of
+  which I had left stale by shipping Louisiana — and the second of those exposed the
+  stale-record-agreeing-with-stale-README finding that is Part 12's rule.
+- `c958568` corrected Part 13's own figures: `1.62×` and a projected 188 minutes, published
+  two hours earlier from the first eighteen minutes of the run, against a measured `1.29×`
+  and 149m34s.
+
+**And six more things I got wrong today never reached a commit, which is the number worth
+watching**, because it is the instruments working one step earlier:
+
+- the worklist's Iowa and Kansas rate schedules, asserted from memory and contradicted by
+  one search before the file was written
+- `12_500 * 1.027` rounding to `$12,837`, caught by my own test failing against the
+  published figure — and it turned into the day's fourth candidate deduction rather than a
+  silent wrong number
+- `earnedIncomeCredit` passed at the top level of the engine's input where it belongs inside
+  `federal`, refused by `strict.mjs` exactly as Day 38 designed it to be
+- two note field names, `retirement.<person>.ira` and `pension`, refused by the engine's own
+  typo guard with the right suggestions
+- `known-divergences.json` reformatted by `json.dump` into 442 insertions and 434 deletions
+  for one added entry, caught by reading the diff before committing and redone as 8 and 0
+- and the differential README's new timing note, written as "46 minutes" from a
+  half-remembered `etime` and corrected to the 54 the file timestamps give
+
+Four of those six were caught by a test, a guard or a search rather than by my re-reading my
+own work, which is the direction that compounds.
+
 ### Process notes
 
 - **THE SESSION'S FIRST ACT WAS TO DISCOVER THAT `main` WAS BEHIND `origin/main` BY A WHOLE
