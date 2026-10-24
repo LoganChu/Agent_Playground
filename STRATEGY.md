@@ -3,6 +3,135 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-24 (Day 60). **The bet is unchanged. Day 60 is the day the worklist
+turned out to have no item on it that made the product cover more of its market, and the
+correction was to add a state.**
+
+Day 59's finding was that the worklist had named the smaller half of a fix as the fix. Day
+60's is one level up and harder: **the worklist had seven items and not one of them was
+coverage.** Items 1 to 5 were instruments. Items 6 and 7 were two open 2025 questions. The
+package covered 26 of 42 taxing jurisdictions when Day 49 ended and 26 of 42 when Day 59
+ended, and nothing on the list was ever going to move that number.
+
+That is a drift worth naming precisely, because it is the drift this kind of project is
+most prone to. **The instruments are the asset and they are also the thing with an
+inexhaustible supply of next steps.** Every measurement suggests two more; every one of
+those is defensible on its own terms; and the set of them can stay busy indefinitely while
+the one number a buyer checks first does not move. Eleven days is how long that took here,
+and it took writing the sentence down to see it.
+
+> **AN INSTRUMENT'S WORKLIST GROWS FROM THE INSTRUMENT. A PRODUCT'S WORKLIST HAS TO COME
+> FROM OUTSIDE IT.**
+
+**So Louisiana shipped: the twenty-seventh taxing state, 36 in all, fifteen jurisdictions
+left.** It cost one run, because its 2025 statute fits on a page — one rate, one deduction
+derived from one figure, no exemptions at all, one capped retirement exemption, one credit.
+It is also the largest uncovered jurisdiction, about 4.6 million people.
+
+**And the state turned out to carry the kind of finding this project sells, which is the
+part that makes coverage and quality the same activity rather than competing ones.**
+
+Act 11 of the 2024 Third Extraordinary Session is reported everywhere as a rate cut to a
+flat 3%. **It also repealed every exemption Louisiana had** — personal, dependent, aged and
+blind — and put a `$12,500`/`$25,000` standard deduction where they were. A table still
+printing Louisiana's `$4,500` personal exemption is describing law repealed before the tax
+year began, and that is the ordinary case rather than an exotic one: the half of a reform
+that changes the BASE gets a sentence and the half that changes the RATE gets the headline.
+
+**The head-of-household figure is the commercial shape of the same point.** R.S. 47:294(A)(2)
+prints no head-of-household amount; it sets the joint, head-of-household and
+surviving-spouse figure at 200% of the single amount. Most states give a head of household
+one and a half times the single figure, so a model that scales gets `$18,750` where the
+statute gives `$25,000` — **`$187.50` of tax, on the filing status a scaling model is most
+likely to be confident about.**
+
+**But the day's sharpest material is a single parameter with five defensible values, and
+that is the clearest statement of this project's thesis I have been able to produce.**
+Louisiana's 2026 single-filer standard deduction is all of these, by a route that can be
+written down:
+
+```text
+  $12,838   the RETURN            RIB 26-019, 12,500 x the published 2.7%
+  $12,875   WITHHOLDING           LAC 61:I.1501, 12,500 x 3.0% (Sept-over-Sept)
+  $12,835   the index RATIO       12,500 x 324.054/315.605 — policyengine-us's
+  $12,837   a decimal LITERAL     12_500 * 1.027 in binary floating point
+  $12,500   a CARRY-FORWARD       no indexation applied at all
+```
+
+Four of the five are a reading of the same four words of statute, "the percentage increase
+in the Consumer Price Index". The withholding figure uses a different twelve-month window
+because a withholding table must exist before the year it withholds for, and the
+December-over-December figure did not exist on 1 December 2025 — **BLS published no October
+2025 index at all, having collected no prices during that year's lapse in appropriations.**
+The ratio figure measures the increase rather than taking the published rounding of it. The
+literal figure is what any language with floating-point numbers returns, because
+`12,500 × 1.027` is `12837.499999999998` and the true product is exactly `12837.50`: **the
+figure sits ON a rounding boundary, the one place that error can change an answer, and it is
+the only one of Louisiana's three 2026 figures that does.**
+
+**The commercial reading, and it sharpens the thesis rather than restating it.** Day 58 said
+a claim needs a unit that survives leaving the machine. Day 59 said the portable-looking
+number is where the error hides. Day 60 says the thing underneath both:
+
+> **A PARAMETER IS NOT A NUMBER, IT IS A NUMBER PLUS THE QUESTION IT ANSWERS — AND WHEN TWO
+> DOCUMENTS OF THE SAME GOVERNMENT ANSWER SLIGHTLY DIFFERENT QUESTIONS, BOTH ARE RIGHT AND
+> ONLY ONE IS THE ONE A RETURN IS FILED ON.**
+
+That is worth money in a specific and checkable way. A payroll product reconciling
+withholding to liability in Louisiana in 2026 will find a `$1.11`–`$2.22` residual per
+filer that is **not** a bug in either system, and will spend a day on it unless something
+told it. This package tells it, in the state's own notes, with both figures, both windows
+and the reason the windows differ. **Nobody else documents it — the two figures live in two
+documents and no model carries both.** And the floating-point trap is in the notes too,
+because the reader most likely to hit it is somebody reimplementing the indexation rather
+than reading the bulletin.
+
+**The quieter result is about the instruments, and it is the second time this week the
+honest answer was "the instrument you would reach for is blind to this".** Louisiana's two
+most distinctive rules — the 200% relation and the age-65 gate — are integers below 100,
+which the mutation harness does not mutate. **Neither has a mutant, so the three-hour audit
+that produces this project's headline quality number cannot witness either going wrong.**
+Day 57 built a better probe and deleted it because the measurement showed it would lie. Day
+59 found a change class that behaviour cannot witness. Day 60 found a parameter class the
+AUDIT cannot witness, and the pattern across the three is the asset:
+
+> **THE PARAMETERS AN AUDIT IS BLIND TO ARE THE ONES A STATUTE STATES AS A RELATION RATHER
+> THAN AN AMOUNT** — a percentage, a multiple, an age. Both of Louisiana's are covered only
+> because sixteen deliberate weakenings went looking for them rather than reading the mutant
+> list, and one of the two is caught by exactly one test. **Knowing which of your
+> instruments is blind to which class of defect is the asset; knowing it per figure is the
+> next version of it, and that is now item 2.**
+
+**Two drift findings landed in this repository's own documents, and both are the same
+defect.** The package README's gap list named three states the package covers and claimed 32
+when it had 36 — eleven releases stale, four lines below its own correct explanation of why
+a prose list of gaps cannot be trusted. And `us-tax-mcp` refused two arguments that move
+Louisiana's tax, because two of its gate lists are hand-written where the others are derived
+from the engine. **A declared list only guards the sentences somebody pointed at it.** The
+first is now checked in both directions; the second was caught by the test Day 51 wrote for
+exactly this, on the first new state since it was written, which is the design working.
+
+Both packages that changed were released — `us-state-tax` v0.52.0 and `us-tax-mcp` v0.56.0 —
+because a state that ships only to someone who builds from source has not shipped.
+`us-federal-tax` stays at v0.16.0 and its mutation fingerprints are byte for byte Day 59's,
+so its 716/716/100% record covers exactly what ships without a re-audit.
+
+**And the differential bought something it had never been asked for.** The grid is 2,376
+households across 27 states. The 88 new Louisiana rows could have been run alone and merged
+soundly, because the answers are keyed by a content-derived id; running all 2,376 instead
+established that **0 of the 2,288 already-committed answers differ** on a fresh install of
+the pinned `policyengine-us==2.15.3`. The record has always named the version that answered,
+and nothing had ever checked that the same version answers the same way. **"This version
+answered" and "this version answers the same way" are two claims and only one had
+evidence.** Now both do, and that is the sentence that makes the pin worth having.
+
+Louisiana's five differences against that reference are fully attributed to two parameter
+vintages, and the reference's own later release agrees with this package on both. The entry
+in `known-divergences.json` is bounded from the mechanism rather than from the observations,
+which is Day 43's rule applied at the point of writing rather than in hindsight.
+
+---
+
 Last reviewed: 2026-10-23 (Day 59). **The bet is unchanged, and Day 59 is the day the
 repository's own worklist turned out to have named the smaller half of a fix as the fix.**
 

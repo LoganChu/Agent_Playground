@@ -13,6 +13,124 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 60 nothing is waiting on you except the three standing asks below — the
+repository description and topics, the GitHub Pages switch, and the optional npm publish —
+and today's headline is that LOUISIANA IS IN, which takes the package to 27 of the 42
+jurisdictions that tax income, and that the reason I added a state today is that MY OWN
+LIST OF NEXT JOBS HAD SEVEN ITEMS ON IT AND NOT ONE OF THEM MADE THE PACKAGE COVER MORE
+STATES.**
+
+`us-state-tax` is now **v0.52.0** and `us-tax-mcp` **v0.56.0** — both released today;
+`us-federal-tax` stays at **v0.16.0** because nothing federal changed. **1,558 tests** across
+the four suites, all passing, up 17. **27 taxing states and 36 in all**, up one; fifteen
+jurisdictions left.
+
+**A. WHY A STATE, AND WHY TODAY.** Each of these runs leaves a list of next jobs for the
+next run. This morning's list had seven things on it: five were improvements to the tools I
+use to check my own work, and two were open questions about particular states' 2025 rules.
+Every one of them was worth doing. **But the package had covered 26 of the 42 taxing
+jurisdictions for eleven days, and nothing on that list would ever have changed it.** The
+tools suggest more tools; that supply never runs out; and meanwhile the first question
+anybody evaluating this would ask — *do you do all the states?* — had the same answer it had
+eleven days ago. So today went on coverage, and tomorrow's list starts with another state.
+
+**B. WHAT LOUISIANA ACTUALLY DID IN 2025, WHICH IS NOT WHAT IS REPORTED.** Every summary
+says Louisiana replaced its graduated tax with a flat 3% for 2025. True, and it is the less
+important half. **The same act abolished every exemption the state had** — the $4,500
+personal exemption ($9,000 joint), the $1,000 per dependent, the $1,000 for a filer aged 65
+or over and the $1,000 for a blind filer — and put a standard deduction of $12,500
+($25,000 joint) where they used to be. So a 2025 Louisiana return gives you **nothing at all
+for a dependent**, and nothing for being 65 or blind. Any table still printing Louisiana's
+$4,500 personal exemption is describing law that was repealed before the tax year started.
+
+**C. AND A LOUISIANA HEAD OF HOUSEHOLD GETS THE WHOLE JOINT DEDUCTION, WHICH IS UNUSUAL.**
+Most states give a single parent about one and a half times what they give a single person.
+Louisiana's statute does not print a figure for a single parent at all — it says the joint,
+single-parent and widowed amounts are **200% of the single amount**. Guess 1.5× instead and
+you give a Louisiana single parent $18,750 where the law gives $25,000, and overstate their
+tax by **$187.50**. The package stores one figure a year and doubles it, because doubling is
+what the statute says.
+
+**D. THE THING WORTH YOUR ATTENTION: LOUISIANA PUBLISHES TWO DIFFERENT 2026 STANDARD
+DEDUCTIONS AND BOTH ARE CORRECT.** The figure your **tax return** uses is $12,838. The
+figure the state's own **payroll withholding tables** use is $12,875. Both come from the
+same law, which says the amount goes up by "the percentage increase in the Consumer Price
+Index" — and both are honest, because they are measured over different twelve-month windows.
+
+The return uses the 2.7% rise in the year to **December** 2025. A withholding table has to
+exist before the year it withholds for, and on 1 December 2025 the December figure did not
+exist yet; the most recent one that did was **September's**, 3.0%. And the reason September
+was the most recent is worth knowing: **there is no October 2025 inflation figure at all,
+because the government shutdown stopped the Bureau of Labor Statistics collecting prices
+that month.**
+
+The practical size is small — $37 of deduction, so about $1.11 of tax for a single filer. The
+practical point is not: anyone building payroll software who tries to reconcile what was
+withheld against what is owed in Louisiana will find a dollar or two per person that is not a
+mistake in either system, and will spend a day looking for it. This package now says so, with
+both figures and both windows, in the result you get back. **Nobody else does, because the
+two numbers live in two different documents.**
+
+**E. AND A FOURTH VERSION OF THE SAME NUMBER COMES FROM COMPUTERS RATHER THAN FROM LAW — MY
+OWN TEST CAUGHT IT BY FAILING.** The 2026 figure is the 2025 one times 1.027. Written that
+way in any programming language, the answer comes out $12,837 and not $12,838, because
+computers cannot represent 1.027 exactly and `12,500 × 1.027` lands at 12837.4999999 instead
+of exactly 12837.50 — and 12837.50 is precisely the point where rounding goes up rather than
+down. **Of the three Louisiana figures for 2026, this is the only one sitting exactly on that
+knife-edge, and so the only one where it matters.** I wrote the test the natural way first, it
+disagreed with the published figure, and for a minute I thought the published figure was
+wrong. The test now does the arithmetic the exact way and also records the wrong answer *as*
+the wrong answer, so nobody re-derives it by accident. There are now **five** defensible
+values for that one number and only one of them is the one a return is filed on.
+
+**F. I BROKE THE NEW STATE SIXTEEN DIFFERENT WAYS ON PURPOSE AND EVERY ONE WAS CAUGHT.** That
+is better than last time, when two of five sabotages went unnoticed — and the honest reason
+is not that the tests got better overnight. Yesterday's changes were speed improvements that
+*cannot* change an answer, so no test of the answers could ever see them being undone.
+Today's were all actual numbers, and a number is the one thing a test case notices. Worth
+being clear about, because "16 out of 16" invites the wrong conclusion.
+
+**G. BUT TWO OF LOUISIANA'S RULES ARE INVISIBLE TO MY MAIN QUALITY CHECK, AND THEY ARE THE
+TWO MOST DISTINCTIVE ONES.** The check that changes one number at a time in the shipped code
+deliberately skips small numbers — otherwise it would spend hours changing array positions
+and loop counters. Louisiana's "200% of the single amount" and its "aged 65 or over" are both
+small numbers. **So the three-hour check that produces this project's headline quality score
+cannot see either of them going wrong.** Both are covered, but only because the sixteen
+sabotages went looking rather than reading the check's own list — and one of the two is caught
+by exactly one test, which is thin. Measuring that blind spot properly, for every state, is
+the second thing on tomorrow's list.
+
+**H. TWO MISTAKES IN THIS PROJECT'S OWN PAPERWORK, FOUND BY ADDING THE STATE.** The package's
+README, in a section listing what it does *not* cover, named Minnesota, Wisconsin and South
+Carolina — all three of which it has covered for weeks — and said "only 32 states" when it
+had 36. The sentence directly after it explains, correctly, why a hand-written list of gaps
+cannot be trusted and why the error message is built from a declared list instead. **The
+identical mistake had been sitting four lines below its own explanation for eleven releases**,
+because the check was pointed at the error message and not at the README. It is now checked
+both ways. And separately, the MCP server refused two inputs that genuinely change Louisiana's
+tax, telling the caller they did not apply — which is worse than ignoring them, because the
+caller stops looking. That one was caught automatically by a test written in September for
+exactly this, on the first new state since.
+
+**I. THE CROSS-CHECK AGAINST THE BIG RESEARCH MODEL, AND A FREE RESULT.** Every figure is
+compared against PolicyEngine-US, a funded fifty-state model, over 2,376 households — up from
+2,288 with Louisiana's added. Louisiana produced five small disagreements and all five are
+explained to the cent by two numbers where their copy is older than mine; their own current
+release agrees with me on both. I also re-ran the other 2,288 households rather than only the
+new ones, and **every single one came back identical** — which nothing had ever checked
+before. The pinned version was a promise until today and is now a measurement.
+
+**J. NOTHING NEW IS WAITING ON YOU.** The same three things as every day, and none of them
+blocks anything: the repository has no description and no topics (two minutes in the
+repository settings), GitHub Pages is still switched off so the calculator page is built and
+tested on every push but not served, and the npm publish remains optional — all three
+packages install from a public URL today with no account and no token.
+
+---
+
+**Day 59's headline, kept for the record: MISSPELLING ONE FIELD NAME USED TO COST A
+MILLISECOND.** The full entry follows.
+
 **As of Day 59 nothing is waiting on you except the three standing asks below — the
 repository description and topics, the GitHub Pages switch, and the optional npm publish —
 and today's headline is that MISSPELLING ONE FIELD NAME USED TO COST A MILLISECOND AND NOW

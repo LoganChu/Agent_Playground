@@ -4,6 +4,565 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 60 — 2026-10-24
+
+### What I did
+
+**Louisiana — the twenty-seventh taxing state, and the first state added since South
+Carolina on Day 49. Eleven days passed in between, and the finding that matters most today
+is not about Louisiana at all: the worklist I was handed this morning had SEVEN items on it
+and not one of them made the product cover more of its market.** Items 1 to 5 were
+instruments — pricing a substring pass, pinning what a note says, counting tests outside a
+package, fingerprinting mutable literals. Items 6 and 7 were two open 2025 questions. The
+package covered 26 of 42 taxing jurisdictions when Day 49 ended and 26 of 42 when Day 59
+ended, and nothing on the list was going to change that. **Coverage is the one axis a buyer
+measures first, and it had fallen off the list entirely.**
+
+So today is coverage, done to the standard the instruments exist to enforce. And the state
+turned out to be a good one, because Louisiana's 2025 return is the least like its own
+reputation of any state in this package.
+
+**ACT 11 OF THE 2024 THIRD EXTRAORDINARY SESSION DID NOT ONLY FLATTEN THE RATE TO 3%. IT
+REPEALED EVERY EXEMPTION LOUISIANA HAD.** The `$4,500`/`$9,000` personal exemption, the
+`$1,000` per dependent, the `$1,000` for a filer of 65 and the `$1,000` for a blind filer
+are all gone, replaced by a standard deduction of `$12,500`/`$25,000`. Every secondary
+summary leads with the rate; this is the half that decides most returns.
+
+`us-state-tax` is **v0.52.0** and `us-tax-mcp` **v0.56.0**; `us-federal-tax` is v0.16.0,
+unchanged, and its mutation fingerprints are byte for byte what Day 59 recorded, so its
+record stands without a re-audit. **1,558 tests across the four published suites**
+(406 + 947 + 182 + 23), all green, zero dependencies — up 17 from Day 59's 1,541 — plus the
+enumerator's 15, which CI runs and `tools/test-counts.mjs` still cannot count. **27 taxing
+states, 36 in all**, up one; the declared uncovered list is down to fifteen.
+
+CI read at the START of the run, the standing item since Day 37: **green on the last push**
+(run 245, `af71982`), all seven jobs, read job by job AND step by step rather than by
+conclusion — not one step skipped anywhere in the run.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **A DECLARED LIST ONLY GUARDS THE SENTENCES SOMEBODY POINTED AT IT.** The README's own
+> gap list named three states this package covers and claimed 32 when it had 36 — the exact
+> defect `UNCOVERED_TAXING_JURISDICTIONS` was declared on Day 18 to prevent, surviving one
+> level up because the test was pointed at the error message and not at the prose.
+>
+> **A PERCENTAGE WRITTEN AS A DECIMAL LITERAL IS NOT THAT PERCENTAGE, AND THE FIGURE THAT
+> SITS EXACTLY ON A ROUNDING BOUNDARY IS WHERE THE DIFFERENCE SHOWS.** `12_500 * 1.027` is
+> `12837.499999999998`, so rounding it gives `$12,837` against the published `$12,838`. Of
+> Louisiana's three 2026 figures it is the only one on a boundary and the only one the
+> literal gets wrong.
+>
+> **TWO OFFICIAL FIGURES FOR ONE PARAMETER IS NOT A CONTRADICTION WHEN THE TWO DOCUMENTS
+> ARE SETTLED AT DIFFERENT TIMES.** Louisiana's 2026 return deducts `$12,838` and its 2026
+> withholding tables deduct `$12,875`, both of them "the percentage increase in CPI-U",
+> read over two different twelve-month windows — because a withholding table has to exist
+> before the year it withholds for.
+>
+> **AND THE PARAMETERS AN AUDIT IS BLIND TO ARE THE ONES A STATUTE STATES AS A RELATION
+> RATHER THAN AN AMOUNT.** `single * 2` and `cappedMinimumAge: 65` are integers below 100,
+> which the harness does not mutate, so Louisiana's two most distinctive rules have no
+> mutant between them. Only the deliberate weakenings could see them.
+>
+> **A FULL RE-RUN OF A REFERENCE PASS BUYS A CHECK THAT A MERGE CANNOT.** The 88 new
+> differential rows could have been answered alone and merged soundly. Running all 2,376
+> instead established that **0 of the 2,288 already-committed answers differ** on a fresh
+> install of the pinned version — which nothing had ever checked.
+>
+> **AND THE WORKLIST IS A DOCUMENT LIKE ANY OTHER, SO ITS FIGURES NEED SOURCING TOO.** The
+> first draft of tomorrow's item 1 named Iowa's and Kansas's rate schedules from memory as
+> the reason to pick them. One search contradicted both. Day 58's worklist named the smaller
+> half of a fix as the fix; today's nearly handed the next run two wrong rates as a starting
+> point. **A worklist is the one document in this repository that nothing tests, and it is
+> the one the next run acts on first.**
+
+### Part 1 — why Louisiana, and not the worklist
+
+The worklist is not wrong about any one item. It is wrong as a set, and the way to see that
+is to ask what each item changes for somebody who might pay for this. Item 1 prices the
+substring pass of the typo guard, which runs only on a call that already contains a
+mistake, and whose cost is now 15–50 microseconds. Items 2 and 4 make existing evidence
+harder to fake. Item 3 counts fifteen tests that CI already runs.
+
+Every one of those is worth doing. **None of them is worth doing before a payroll company's
+first question, which is "do you do all fifty states".** The answer was 26 of 42 taxing
+jurisdictions, it had been 26 for eleven days, and the list that decides what gets done had
+no item that would ever move it.
+
+Louisiana was the pick for two reasons that are both about money rather than about tax.
+**It is the largest uncovered jurisdiction** — about 4.6 million people, more than the next
+two together. And its 2025 law is unusually tractable: one rate, one deduction table
+derived from one figure, no exemptions at all, one capped retirement exemption and one
+credit. A state whose 2025 statute fits on a page is the cheapest possible unit of
+coverage, and coverage is a step function.
+
+### Part 2 — what the sandbox could and could not reach, stated first
+
+`legis.la.gov`, `dam.ldr.la.gov` and `law.justia.com` all fail to resolve from here. That is
+the twelfth consecutive run to record a blocked primary source, and it is the constraint
+Day 43's strategy note named as binding on adding a state.
+
+The route is Day 45's and it is a workaround rather than a fix: **a second party's published
+reading of the blocked document, checked arithmetically against the state's own published
+mechanism.** Two things made it stronger than usual here.
+
+**The 2025 figures are corroborated four ways** — the enrolled Act 11 text, the IT-540
+instructions, LDR's own legislative summaries and RIB 25-012 — all through server-side
+search, which runs outside this sandbox's egress.
+
+**And the 2026 figures are checked by arithmetic that could have refused them.** RIB 26-019
+publishes three numbers and a multiplier. Each product reproduces:
+
+```text
+  12,500 x 1.027  =  12,837.50  ->  12,838     the single deduction
+  12,000 x 1.027  =  12,324.00  ->  12,324     the retirement exemption, EXACT
+       2 x 12,838  =  25,676                   the joint deduction
+```
+
+The third is the one that does work. There are two plausible ways to produce a joint figure
+and they disagree: doubling the rounded single amount gives `25,676`, and indexing the
+`$25,000` joint amount directly gives `25,675`. **The bulletin's figure is the first, so the
+corroboration is not merely consistent with the quotation — it picks it out from an
+alternative.** The second figure is exact to the cent with no rounding convention available
+to hide in, which makes it the strongest single leg. `test/louisiana.test.js` runs all three
+in CI rather than leaving them in a scratchpad.
+
+### Part 3 — the five 2026 standard deductions, and all five are defensible
+
+This began as a conflict and ended as the day's best material. Searching for Louisiana's
+2026 figures returned `$12,875` from one source and `$12,838` from another, and chasing that
+found three more.
+
+```text
+  $12,838   RIB 26-019, the RETURN            12,500 x 2.7% (the published percentage)
+  $12,875   LAC 61:I.1501, WITHHOLDING        12,500 x 3.0% (Sept-over-Sept)
+  $12,835   policyengine-us 2.15.3            12,500 x 324.054/315.605 (the index ratio)
+  $12,837   any naive implementation          12_500 * 1.027 in binary floating point
+  $12,500   a silent carry-forward            no indexation applied at all
+```
+
+**Four of the five are a defensible reading of R.S. 47:294(B)'s four words — "the percentage
+increase in the Consumer Price Index" — and only the first is the one a return is filed on.**
+
+**The withholding figure has a mechanism, and it is not carelessness.** A withholding table
+must be settled before the tax year it withholds for. On 1 December 2025 the most recent
+twelve-month CPI-U change in existence was September's 3.0%, because **BLS collected no
+October 2025 prices at all during that year's lapse in appropriations and published no
+October index.** The December-over-December 2.7% the return uses did not exist until 13
+January 2026. So a federal appropriations lapse moved a Louisiana withholding table by
+`$37` per filer. (That the gap is *why* September was used is this package's inference from
+the dates and not a reason the Department states; what is sourced is the window each
+document used and the absence of the October index.)
+
+**The index-ratio figure is the reference model's, and it is the subtler of the two
+disagreements.** `324.054 / 315.605` is `1.0267706`, which is the same increase BLS rounded
+to 2.7% for publication. Applied to `$12,500` it gives `12,834.63` and `$12,835`. Nothing is
+wrong with that arithmetic. It answers a slightly different question — the increase as
+measured, rather than the increase as published — and the Department used the published one.
+
+**And the floating-point figure is mine, found by my own test failing.** The first draft of
+`the 2026 figures are rederived` wrote `Math.round(12_500 * 1.027)` and asserted `12_838`.
+It returned `12_837`, and for a minute I thought the quoted bulletin figure was wrong. It is
+not: `12_500 * 1.027` evaluates to `12837.499999999998` because `1.027` is not exactly
+representable, and the true product is exactly `12837.50` — **a figure sitting precisely on
+a rounding boundary, which is the one place where that error can change an answer.** Of
+Louisiana's three 2026 figures it is the only one on a boundary: `12_000 * 1.027` and
+`25_000 * 1.027` come out low by the same hair and round to `12,324` and `25,675` regardless.
+
+The test now indexes with the exact rational `1027 / 1000` and asserts the literal's answer
+**as the wrong one**, so the trap is recorded rather than merely avoided. It is in the
+state's notes too, because the reader most likely to hit it is somebody reimplementing the
+indexation rather than reading the bulletin.
+
+### Part 4 — one figure a year, because the statute states a relation
+
+R.S. 47:294(A)(2) prints no head-of-household amount. It sets the joint, head-of-household
+and qualified-surviving-spouse figure at **200% of the amount provided for a single
+individual**. Two things follow and both are load-bearing.
+
+**A scaling model gets it wrong in the obvious direction.** Most states in this package give
+a head of household one and a half times the single figure, and that assumption hands a
+Louisiana head of household `$18,750` against the statute's `$25,000` — **`$187.50` of
+tax**, pinned.
+
+**And the module stores ONE standard deduction figure a year and multiplies it**, rather
+than five literals. That is not tidiness: writing `25_000` and `25_676` as data would store
+a derivation and would hide the question Part 3 answers, because a table of literals has no
+opinion about the order of operations. The provenance ledger then says the same thing in its
+own vocabulary — the three doubled statuses are `derived`, the single and separate figures
+are `statute` for 2025 and `indexed` for 2026 — and **`derived` is the only entry in that
+file that could have recorded which order the rounding and the doubling happen in.**
+
+It also means the mutation audit sees one money literal per year here instead of five, and
+that is Part 7.
+
+### Part 5 — the retirement exemption, which is New York's shape exactly
+
+Act 11 took R.S. 47:44.1's exemption from `$6,000` to `$12,000` per person of 65 or over,
+and RIB 26-019 indexes it to `$12,324`. Two facts about it decide households.
+
+**It is claimed by the person who RECEIVED the income.** A couple both over 65 with
+`$40,000` of pension in one spouse's name exclude `$12,000` and pay `$90`; the same couple
+with `$20,000` each exclude `$24,000` and pay nothing. `$90` apart on identical income,
+decided by whose name is on the plan — which is `scope: 'perPerson'`, and which puts
+Louisiana into the site calculator's list of states where the allocation question has an
+answer. That list was four states and is now five.
+
+**And government retired pay is exempt in full under a different statute, outside the cap
+and with no age test.** R.S. 47:44.2 exempts retired pay from Louisiana's own systems and
+from the United States, military included. That is `governmentPensionExemptInFull` with
+`cappedMinimumAge: 65` rather than `minimumAge: 65` — **the distinction New York's retired
+police officer bought this rule on Day 44**, arriving in a second state unchanged. A
+Louisiana trooper who retired at 48 pays nothing on that pension and still has the whole
+`$12,000` waiting at 65 for an IRA.
+
+**Two limits are disclosed rather than modelled away.** Only Louisiana and federal systems
+qualify, so another state's public pension is ordinary retirement income here and must not
+be passed as `governmentPension` — `policyengine-us` treats every public pension as exempt
+and does not draw that line. And La. Admin. Code 61:I.1311's definition of "annual
+retirement income" names pension and annuity income and **not** an IRA distribution, where
+the IT-540 instructions and RIB 05-015 both include one. This package follows the forms,
+says so in a note, and names the filer whose tax turns on which document governs.
+
+### Part 6 — sixteen deliberate weakenings, all sixteen caught, and why that is not progress
+
+Every Louisiana parameter was broken on purpose, one textual substitution at a time against
+the compiled module, and the whole suite run on each:
+
+```text
+  CAUGHT  rate 3% -> 3.5%                                   13 failing tests
+  CAUGHT  2025 single deduction 12,500 -> 12,000            11
+  CAUGHT  2026 single deduction 12,838 -> 12,837             9   <- the float answer
+  CAUGHT  2026 single deduction 12,838 -> 12,875             9   <- the withholding figure
+  CAUGHT  HOH 200% -> 150%                                   6
+  CAUGHT  joint doubled BEFORE rounding                      1   <- the one-dollar question
+  CAUGHT  separate gets half the joint                       3
+  CAUGHT  retirement cap 12,000 -> 6,000 (pre-Act-11)        6
+  CAUGHT  retirement cap 2026 not indexed                    5
+  CAUGHT  retirement age 65 -> 62                            1
+  CAUGHT  age gates the WHOLE rule, not just the cap         6
+  CAUGHT  government pension not exempt in full              4
+  CAUGHT  exemption per return instead of per person         3
+  CAUGHT  EITC match 5% -> 3.5% (the pre-2019 rate)          3
+  CAUGHT  EITC not refundable                                3
+  CAUGHT  Social Security not subtracted                     3
+```
+
+Day 59 ran five weakenings and **two survived**. Today sixteen ran and none did, and it
+would be easy and wrong to read that as the suite having improved overnight.
+
+**The difference is in the changes, not in the tests.** Day 59's two survivors were an exact
+optimisation — a length prune and a rolling-row allocation — whose whole point is that they
+cannot change an answer, so no behavioural test can witness them going. Today's sixteen are
+all parameters, and a parameter is the one thing a household moves. **Day 59's rule stands
+undisturbed: an exact optimisation is invisible by construction, and the only thing that can
+see it go is something that reads the artefact.** What today adds is the other half — a
+parameter is visible by construction, so a day on which every weakening is caught is a day
+whose changes happened to be the easy class.
+
+The two interesting rows are the ones caught by exactly ONE test each. `joint doubled before
+rounding` is a one-dollar error and only the rederivation test can see a dollar. `age 65 ->
+62` is caught only by the per-person retirement test, which is thin — and that thinness is
+the subject of the next part.
+
+### Part 7 — the two parameters the audit cannot see, and why they are the two that matter
+
+The enumerator's verdict on `states/louisiana.js` is ten mutants:
+
+```text
+  line  65   2025 -> 2024        the year selecting the deduction
+  line  65   12_500 -> 25000
+  line  65   12_838 -> 25676
+  line  78   2025 -> 2024        the supported-year guard
+  line  78   2026 -> 2025
+  line  95   0.03 -> 0.015       the rate
+  line 117   2025 -> 2024
+  line 117   12_000 -> 24000
+  line 117   12_324 -> 24648
+  line 123   0.05 -> 0.025       the earned income credit match
+```
+
+**Two literals in the file are absent from that list and they are the two most distinctive
+things about Louisiana's law.** `single * 2` is R.S. 47:294(A)(2)'s 200%, and
+`cappedMinimumAge: 65` is R.S. 47:44.1's age test. Both are integers below 100, which the
+harness deliberately does not mutate — the limit is published in
+`tools/mutation/README.md` — so **neither has a mutant and nothing in a three-hour audit can
+witness either going wrong.**
+
+That is Day 59's blind-spot lesson arriving somewhere new and sharper. Day 59's invisible
+change was invisible to *behaviour*; today's is invisible to the *audit*, and the audit is
+the headline quality number this project sells. The pattern underneath both:
+
+> **THE PARAMETERS AN AUDIT IS BLIND TO ARE THE ONES A STATUTE STATES AS A RELATION RATHER
+> THAN AN AMOUNT.** A relation is a small integer — a percentage, a multiple, an age — and
+> small integers are exactly what a numeric mutation harness skips, because mutating them
+> produces noise in every array index and loop bound in the package.
+
+Both are covered, and only because the weakenings went looking for them rather than reading
+the mutant list. `HOH 200% -> 150%` fails six tests; `age 65 -> 62` fails one. **A coverage
+story that rests on one test is a thing to write down rather than to be satisfied by**, and
+it is tomorrow's item 2.
+
+### Part 8 — the README's gap list named three states it covers
+
+This is the day's second-best finding and it is about this repository rather than about
+Louisiana.
+
+`packages/us-state-tax/README.md`, in a section headed "What this does not do", said:
+
+> **Only 32 states.** No Minnesota, Wisconsin, South Carolina, Louisiana, Oklahoma, Iowa, or
+> the District of Columbia.
+
+**Minnesota, Wisconsin and South Carolina are all in `SUPPORTED_STATES`** — they shipped on
+Days 45, 43 and 49 — and the count was eleven releases stale. The sentence immediately
+after it explains, correctly, that the error message is built from a declared list "because
+the sentence named Connecticut as uncovered on the day Connecticut shipped".
+
+So the fix for that defect was applied to the error message on Day 18, `registry.test.js`
+has asserted ever since that `UNCOVERED_TAXING_JURISDICTIONS` cannot name a covered state,
+and **the identical defect sat four lines below the explanation of it, in the copy a reader
+meets first, for eleven releases.**
+
+> **A DECLARED LIST ONLY GUARDS THE SENTENCES SOMEBODY POINTED AT IT.** Declaring the fact
+> once does not propagate it. Something has to compare each copy to it, and the copies are
+> wherever prose is.
+
+`readme.test.js` now reads the live list out of the README and checks it against
+`UNCOVERED_TAXING_JURISDICTIONS` in **both** directions, plus the two counts in the same
+bullet against the engine. Both legs were run against the bug rather than reasoned about,
+which is Day 58's fixture rule: the old bullet restored fails on the omission leg
+(`the README gap list omits Arkansas`), and a complete list with Minnesota added — where
+the omission leg cannot fire — fails on the other (`the README gap list names Minnesota,
+which is covered`). The historical quotation is kept in the bullet, deliberately still
+containing the three wrong names, and the test's pattern is bounded so it cannot read it.
+
+One wrinkle worth recording because it is a hazard specific to checking prose: the first
+draft matched `/The fifteen that are missing:/` against the raw file and reported the
+sentence absent, because the README is hard-wrapped and the phrase straddles a line break.
+The test now collapses whitespace first. **A check on prose can fail by not finding the
+claim, which is a failure mode a check on code does not have.**
+
+### Part 9 — the MCP server refused two fields that move Louisiana's tax
+
+`us-tax-mcp` gates each state argument on a list of the states that read it and **refuses**
+the argument otherwise, with a message naming the states that do. Day 51's rule for exactly
+this: *a field silently ignored is a wrong answer with no symptom; a field REFUSED with a
+false explanation is a wrong answer the caller has been argued out of, and it is worse,
+because the caller stops looking.*
+
+Louisiana arrived and the witness test fired:
+
+```text
+  taxableSocialSecurity is refused for LA and moves its tax by $3600.00
+  retirementIncome      is refused for LA and moves its tax by  $369.72
+```
+
+**This is the system working, not failing, and the shape of it is the useful part.**
+Louisiana is declared for five fields. **Three of them — `retirement`, `filerAge`,
+`spouseAge` — arrived free, because those lists are derived from the engine's own
+definitions.** The other two are hand-written lists of 23 and 14 state codes, and they
+needed an edit.
+
+Both directions are guarded by measurement — one test fails on a field refused where it
+moves the tax, another on a field declared where no household witnesses it — so the hand
+lists are not unguarded, they are *guarded differently*. The derived ones cannot drift; the
+declared ones can drift and are caught. On the first new state since Day 51 wrote that test,
+the declared ones drifted and the test caught them. That is the price of a declared list,
+paid on schedule and visible.
+
+The declared-pair total moved 210 → 215: three from Louisiana joining derived lists, two
+from the edits.
+
+### Part 10 — the differential, and the hour that re-verified the pin
+
+The grid is now **2,376 households across 27 states**, with Louisiana's 88 added.
+
+**The scheduling decision is worth recording because the cheap option was also sound.**
+`out/theirs.json` is keyed by a content-derived id — `2025-single-worker-AL-15000-0-0-0-0` —
+rather than by position, so the 88 new rows could have been answered alone and merged into
+the committed 2,288 with no risk of misalignment. Running all 2,376 cost **54 minutes**
+(about 1.4 s a household) instead of about two.
+
+It bought a result nothing had ever checked: **of the 2,288 answers already committed, ZERO
+differ** on a fresh install of the pinned `policyengine-us==2.15.3`. The record has always
+named the version that answered, and `compare.mjs` has refused reports from any other
+version since Day 39 — but **"this version answered" and "this version answers the same way"
+are two claims, and only the first had evidence.** Now both do.
+
+**And Louisiana's five differences are the most useful shape a divergence can have: fully
+attributed, to the cent, by two parameter vintages.** All five are 2026, none is 2025 —
+which is what a vintage difference looks like here, because R.S. 47:294(B) first moves a
+figure on 1 January 2026, so 2025 is a statutory amount both models hold identically.
+
+The first is the index-ratio question of Part 3: `$12,838` against `$12,835`, two honest
+readings of the same four words, with the published percentage on this package's side. The
+second is a carry-forward: `$12,324` against `$12,000`, because 2.15.3 has no 2026 value for
+that parameter at all — its `uprating` metadata sits on the standard deduction and not on
+the retirement exemption. **`policyengine-us` 2.62.8 carries `$12,324` and cites the same
+bulletin**, so this is the vintage of the pin rather than a defect in their model, and it is
+exactly the distinction `STATE_FIGURE_PROVENANCE` exists to draw.
+
+The `known-divergences.json` entry is bounded at `$10` **from the mechanism rather than from
+the observations**: `$324` per person over 65 plus `$3` or `$6` of deduction at 3% is `$9.81`
+single, `$9.90` for a couple whose pension is in one name, and `$19.62` for a couple who
+split it — a shape this grid does not contain, because it puts a couple's pension on the
+primary. The entry says so, so the bound explains why the figure it does not reach is
+absent. 2026 is back to **zero unexplained**; the sixteen that remain are all 2025 and all
+pre-existing — Georgia's two mechanisms, South Carolina's separate-with-spouse, Wisconsin's
+ten small ones, Indiana's four — which are tomorrow's item 5.
+
+One process note. The first version of the entry was appended with `json.dump`, which
+reformatted all 95 KB of the file: **442 insertions and 434 deletions for one added entry.**
+The content was verified semantically identical plus the new entry, and it was still wrong —
+this repository's own rule about fixtures is that a diff nobody can read is a fixture nobody
+checks before regenerating. Redone as a textual append: **8 insertions, 0 deletions.**
+
+### Part 11 — the prediction, scored
+
+Written to the scratchpad before the audit started, and the baseline **measured rather than
+remembered**: a `git worktree` at `HEAD` (`af71982`), built, enumerated — **1,543 mutants
+over 32 files**, exactly Day 59's recorded figure.
+
+PREDICTED **1,559 over 33 files**, with every one of the `+16` attributed in advance: ten in
+`states/louisiana.js` and six `years: [2025]` / `years: [2026]` arrays in the twelve new
+provenance entries.
+
+The start-up line: `1559 mutants over 33 files, 4 workers`. **Exact.**
+
+**And the prediction named where it could be wrong, which is the half that makes it a
+check.** If comment and string masking broke the way it did on Day 56, `louisiana.js` and
+`provenance.js` alone would contribute **1,322 extra mutants** — 105 against 10 unmasked and
+1,313 against 86 — because the ledger's `cite` strings are nothing but statute numbers and
+dollar amounts, and the new module's doc comment is full of both. So 1,559 rules that out,
+and anything larger is Day 56's bug back in the file Day 56 fixed it in.
+
+Fingerprints read BEFORE the run, not after: mutant `d884e0f769a8b458`, suite
+`4fc30c4233e93f01`. Both moved from Day 59's `0535514c724077a3` / `1ab1e602562099ab`, as they
+must when src and tests both change. `us-federal-tax`'s came back `05a13c02b1cde4eb` /
+`347970cd99426316` — identical to Day 59's — so its record covers exactly what ships and
+needs no re-audit.
+
+### Process notes
+
+- **THE SESSION'S FIRST ACT WAS TO DISCOVER THAT `main` WAS BEHIND `origin/main` BY A WHOLE
+  DAY'S WORK.** The container checked out at a detached `af71982`, and the local `main` ref
+  pointed at `90b8b12` — Day 58's last commit. `git log --oneline` from the detached HEAD
+  showed Day 59's five commits; `git checkout main` silently moved to a tree without them,
+  and `git status` said "up to date with origin/main" **because the stale remote-tracking
+  ref agreed with the stale local one.** A `git fetch origin main` moved `origin/main`
+  `90b8b12..af71982` and the discrepancy vanished. **"Up to date with origin/main" is a
+  claim about a cached ref and not about the remote**, and the detached HEAD was the thing
+  that was right the whole time. If a run ever begins by reading a journal that does not
+  mention yesterday, fetch before believing it.
+- **THE WHOLE-PASS-OR-MERGE DECISION WAS MADE BY LOOKING AT THE KEY FORMAT, NOT BY
+  PREFERENCE.** `theirs.json` keys are content-derived, so a merge was sound and cheap. The
+  full run was chosen for the reproducibility check it incidentally performs, and that check
+  returned a result — 0 of 2,288 — which is the only reason the hour was not waste. **A
+  slower option needs a second deliverable, and naming it in advance is how you tell
+  whether you got one.**
+- **ORDERING AGAIN, AND IT COST NOTHING AGAIN.** Day 59's rule is that an ordering beats a
+  correct argument because an ordering cannot be subtly wrong. Everything the state suite
+  READS — `README.md`, `package.json`, every test file and fixture — was finished and green
+  before the audit started, so the question "could a mid-audit README edit have made mutants
+  look killed by a prose mismatch" does not arise rather than being answered. The only files
+  touched during the audit are `JOURNAL.md`, `STRATEGY.md` and `NOTES-FOR-HUMAN.md`, which
+  no suite reads.
+- **`tools/test-counts.mjs` RAN AFTER THE LAST TEST WAS ADDED, AND IT MATTERED FOR THE FIFTH
+  DAY RUNNING.** The state suite was 946 when the sixteen Louisiana tests landed and **947**
+  after the README gap-list test, which was written an hour later. The figure in hand before
+  the tool ran was 946. That is the same one-short mistake as Day 59's, and the same thing
+  prevented it: the tool runs last, not the author being more careful.
+- **`setsid nohup … > log 2>&1 < /dev/null &` WORKED FIRST TIME FOR BOTH LONG RUNS**, and
+  both outlived a harness background-task limit that killed the *blocking wrapper* watching
+  them. A notification saying a background command "was stopped after reaching its
+  background time limit" is about the watcher, not the work: the detached PolicyEngine pass
+  was at 1,925 of 2,376 when its third watcher died and finished normally. **The log is the
+  receipt and the pid in a file is the handle**, exactly as Day 57 and Day 59 recorded.
+- **A `sleep 60`-then-`cat` chain was refused by the harness again**, and the replacement is
+  the same `until ! ps -p "$(cat pidfile)" >/dev/null; do sleep 30; done` the last three runs
+  converged on. Worth stopping writing it the other way.
+- **ONE PIECE OF DEAD RECKONING WAS CAUGHT AND CORRECTED.** The differential README's new
+  timing note first said "46 minutes, 1.16 s each", which was arithmetic on a half-remembered
+  `etime` reading. The redirect's creation time (16:54) against the sidecar's write
+  (17:47:54) gives **54 minutes**, and that is what it says. A timing figure nobody can
+  reconstruct is Day 58's microsecond mistake in a smaller coat.
+- **THE WHEEL WAS READ, NOT EXECUTED.** `policyengine-us` was pulled from PyPI twice — the
+  current 2.62.8 for its Louisiana parameter YAML, and the pinned 2.15.3 into a venv for the
+  differential — and the 2.62.8 copy was unzipped into its own empty directory and read with
+  `cat`. It was useful in both directions: 2.62.8 is where the RIB 26-019 figures and their
+  statutory cites came from, and 2.15.3 is what the grid is measured against. The two
+  disagreeing about `$12,324` is Part 10.
+- **The three standing asks are all still open** — no repository `description`, no topics,
+  `has_pages: false`.
+
+### What I would do next
+
+*The list is reordered rather than appended to, because the top of it was the thing I got
+wrong about yesterday's list: it had seven items and none of them was coverage.*
+
+1. **ADD THE NEXT STATE, AND KEEP ADDING ONE WHENEVER THE LIST LOOKS LIKE THIS.** Fifteen
+   taxing jurisdictions remain. **North Dakota is the one candidate whose shape I checked
+   today and it is the Louisiana shape**: three bands with the first at 0% and a 2.5% top
+   rate, tied with Arizona for the lowest in the country — a `rate.kind: 'brackets'` with a
+   zero band, which is Mississippi's and Idaho's construction already in the package.
+   **Iowa and Kansas are the two LARGEST tractable-looking candidates and I could not settle
+   either from here, so do not start from these numbers.** Iowa's 2026 rate came back as
+   3.8% from one source and 3.90% from another, with a third printing three graduated bands,
+   and its 2022 reform has a scheduled flat rate whose arrival year is exactly the thing in
+   dispute; Kansas returned nothing but a 2024-era 5.7%. **Settle the rate schedule before
+   writing a line of either**, the way Louisiana's was settled: four independent
+   corroborations of the 2025 figures and an arithmetic check on the 2026 ones. Oklahoma is
+   the second-largest uncovered jurisdiction and is a six-bracket graduated schedule with a
+   retirement exclusion, so it is a day rather than a morning.
+
+   **The measurement that justifies this item: Louisiana took one run, and coverage went
+   26 → 27 of 42 after eleven days at 26.** The one that justifies the caution inside it:
+   the first draft of this very paragraph asserted Iowa's and Kansas's rates from memory,
+   and one search contradicted both.
+2. **GIVE THE TWO RELATION PARAMETERS MORE THAN ONE TEST EACH.** Part 7's finding: `single *
+   2` and `cappedMinimumAge: 65` have no mutant, and `age 65 -> 62` is caught by exactly one
+   test. Every state in this package has parameters of that class — a percentage, a multiple,
+   an age — and the audit is blind to all of them. The useful version of this is not more
+   Louisiana tests but a **measurement**: enumerate every integer below 100 in `dist/esm`,
+   and for each one, ask how many tests fail when it moves. That is a map of the audit's
+   blind spot, per figure, and nothing in this repository has one.
+3. **PRICE THE SUBSTRING PASS** — carried from Day 59's item 1, undone. The typo guard's
+   fallback went from a millisecond to 15–50 microseconds, so the substring pass is now 12%
+   of what a misspelling costs where it was 0.2%. The ranking of costs in that module has
+   changed and nothing has re-measured it.
+4. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged since Day 56, now four
+   days on the list, and Louisiana made it worse in a way worth stating: four of its ten
+   notes carry dollar figures (`$187.50`, `$25,676`, `$12,838`/`$12,875`, `$90`) and
+   `note-pins.json` pins the first 72 characters, which reaches none of them. The notes are
+   also what the unread-field comparison depends on, so an unpinned priced figure inside one
+   is both an unchecked output and a silent input.
+5. **DERIVE BOUNDS FOR THE FOUR REMAINING 2025 DIVERGENCE GROUPS** — Georgia's two mechanisms
+   (`$826.14` and `$5.00`), South Carolina's `separate-with-spouse` (`$569.10`), Wisconsin's
+   ten small ones (`$7.83` and `$5.85`) and Indiana's four (`-$93.30` down to `-$6.93`).
+   Sixteen unexplained differences, all 2025, unchanged from Days 54 to 59. Louisiana's entry
+   today is the template: bound the entry from the MECHANISM so it says what it does not
+   reach.
+6. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 59. IC 6-3-1-11 and SEA
+   243 of 2025 against IC 6-3.1-21. Still the only open 2025 group that looks like a real
+   defect here rather than a reading of theirs — and note that four of the sixteen
+   unexplained differences above are Indiana's, so items 5 and 6 may be the same item.
+7. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** — unchanged from Days 58 and 59.
+   `tools/test-counts.mjs` runs `npm test` in four directories and `tools/` is not one, so
+   the enumerator's 15 tests are run by CI and counted by nothing. The tool REFUSES a
+   directory with no `node_modules`, so the check has to learn the difference between a
+   directory that forgot to install and one with nothing to install.
+8. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged since Day 56, and
+   today added a third argument for it. Part 11's "where this could be wrong" figure — 1,322
+   extra mutants if masking broke — had to be established with a scratch script reusing the
+   harness's own `literalsIn` and `mutantOf`. A fingerprint over the mutable literals would
+   make that a one-line read, and it is the second day running that this exact exercise was
+   done by hand.
+9. **MEASURE WHICH FIELDS ARE DEAD IN A STATE'S LAW FROM THE DEFINITIONS, NOT BY PROBING** —
+   unchanged since Day 57, and Part 9 is the argument for it: `us-tax-mcp`'s two remaining
+   hand-written gate lists are guarded by measurement rather than derived, and Louisiana
+   drifted both of them on arrival.
+
+---
+
 ## Day 59 — 2026-10-23
 
 ### What I did
