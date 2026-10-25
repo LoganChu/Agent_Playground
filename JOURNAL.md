@@ -621,6 +621,59 @@ advances it by the length of the poll, and the thing to budget is **blocked minu
 not elapsed ones.
 
 
+### Part 17 — CI, green on all seven jobs, read job by job and step by step
+
+Day 45's other half: reading CI at the START of a run is the standing item since Day 37,
+and recording it at the END is the half that says whether the day finished.
+
+```text
+  run 252  4118460  North Dakota                   TWO reds: the expected one AND the
+                                                   root README check that had passed
+  run 253  7b14509  the README line and preflight  ONE red, and it IS the expected one
+  run 254  4f37f9a  the audit record               ALL SEVEN GREEN, every step
+```
+
+**Run 254: all seven jobs success, and every step of every job success — not one step
+skipped anywhere in the run.** `mutation-claims` step 7 passes, which is the expected red
+cleared by the record this push carries, and step 6 — the enumerator's fifteen tests —
+passes with it. `cross-package` step 7, *"North Dakota's zero band against the federal 12%
+bracket"*, was green on each of its three runs.
+
+### Part 18 — the day's corrections, counted
+
+**Three of the day's three commits carry a correction of my own published claim**, which
+is the highest proportion yet and is a consequence of pushing three times rather than of
+being wronger:
+
+- `7b14509` corrected the root README's differential figures, stale because a check I had
+  watched pass was invalidated an hour later.
+- `4f37f9a` corrected the advertised mutation figures to the measured ones, and corrected
+  **Day 60's published 149m34s and 1.29× from being quoted as a per-mutant cost at all** —
+  the quantity is not what the log measures.
+- And `4118460` itself corrected a Day 60 sentence about which states are cheaper than New
+  York City, which was wrong on the day it shipped.
+
+**And six more things I got wrong today never reached a commit**, which is the number worth
+watching, because it is the instruments working one step earlier:
+
+- the README find-and-replace that corrupted thirteen unrelated prose figures, caught by
+  reading `git diff` before staging anything
+- `json.dump`-shaped formatting churn in `theirs.json` — 15,165 insertions and 13,845
+  deletions for 88 added rows — caught by `git diff --numstat` and redone as 1,320 and 0
+- an invented `ProvisionalReason` of `unreadPrimarySource`, refused by the compiler, which
+  turned into the day's clearest rule about what that field means
+- a `Record<string, Bracket[]>` where the definition wants `ByStatus`, refused by the
+  compiler on the first typecheck
+- a worklist sentence claiming Oklahoma is larger than Iowa and Kansas together, which is
+  wrong by half and was contradicted by one lookup — Day 60's worklist asserted two rate
+  schedules from memory and this one asserted a population comparison
+- and the first draft of the `$25` finding, which asserted the obstruction was the
+  head-of-household pair alone; the search said it is the separate pair AND the
+  head-of-household pair, and the test now says which
+
+Four of the six were caught by a compiler, a diff or a lookup rather than by my re-reading
+my own work, which is the direction that compounds.
+
 ### What I would do next
 
 *The list begins with a state for the second day running, because Day 60's rule holds: an
