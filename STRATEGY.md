@@ -98,6 +98,22 @@ it to the sentence. And the fifth is the one worth the paragraph:
 > and a grid the same size as yesterday's. Every other stale list in this repository
 > announced itself by refusing something or printing something wrong.
 
+**The mutation record is 1,585 / 1,579 / 6 / 99.6%, every figure predicted before the run,
+and the figure worth more than the score is that the SAME SIX SURVIVORS have been the same
+six at the same line numbers for ELEVEN DAYS** — across four new states, a new input field,
+a new rule family and three new instruments. A score that holds while the tree underneath
+it moves is a different claim from a score that holds because nothing changed.
+
+**And one measurement this project has been quoting turns out not to mean what it says.**
+Day 60 recorded the audit at 149m34s and called it a figure to budget against. This
+container's clock advances only while a command is running — Day 54 recorded that about
+the PolicyEngine pass and nothing had applied it here — so an audit's "wall clock" is the
+sum of the time something was blocking in the foreground, and nothing in the log
+distinguishes that from elapsed time. Today's log spans 89 minutes for MORE mutants on a
+LONGER suite, which is impossible, and the direct measurement is 20 to 30 mutants a minute
+while blocked. **A rate measured on a clock that stops is worse than no rate, because it
+looks like one.** What to budget is blocked minutes.
+
 Both packages that changed were released — `us-state-tax` v0.53.0 and `us-tax-mcp`
 v0.57.0 — because a state that ships only to someone who builds from source has not
 shipped. `us-federal-tax` stays at v0.16.0 and its mutation fingerprints were read before
@@ -636,7 +652,7 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1559 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.6%** (1585 mutants, 6 survivors), **the state
 one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
 SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47

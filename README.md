@@ -215,6 +215,19 @@ structural, and `tools/readme-root.mjs` checks that number against
 documentation said 56, from a hand count, which is the defect this whole release is
 about wearing a third costume.
 
+> **`node tools/preflight.mjs` runs every one of these checks at once**, which is a
+> Day 61 finding rather than a convenience. `tools/readme-root.mjs --check` was run,
+> printed *"ok — 19 claims in the root README all match the code"*, and an hour later a
+> different change took the differential grid from 2,376 households to 2,464 and made
+> the sentence it had just approved wrong. **A CHECK THAT PASSED IS A STATEMENT ABOUT
+> THE TREE AT THE MOMENT IT RAN.** The repository already had that rule for
+> `tools/test-counts.mjs`, whose own documentation says to run it LAST rather than when
+> convenient; nothing had generalised it. The gate runs the four suites, the
+> enumerator's own tests, the four cross-package checks, the root README, the test-count
+> record and the differential's reproducibility — everything CI runs except the
+> three-hour mutation audit — and prints what each one PROVED rather than only that it
+> exited zero.
+
 **v0.50.0 reports all of them, and the interesting part is what the sentence is
 allowed to say.**
 
@@ -382,7 +395,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1559 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1585 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 55** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
@@ -412,7 +425,28 @@ Day 57, the unread-field note 1,543 mutants    6 survivors   99.6%
 Day 58, the probe-cost meter  1,543 mutants    6 survivors   99.6%
 Day 59, the typo-cost fix     1,543 mutants    6 survivors   99.6%
 Day 60, LOUISIANA             1,559 mutants    6 survivors   99.6%
+Day 61, NORTH DAKOTA          1,585 mutants    6 survivors   99.6%
 ```
+
+**Day 61's `+26` was attributed before the run, as Day 60's was, and the breakdown was
+confirmed from a direction the total cannot see.** `states/north-dakota.js` contributes
+24 — sixteen money (eight published thresholds in each of two years), four rate (`0.0195`,
+`0.025` and the two `0.4` shares) and four year (two `year === 2025` selectors and the two
+in its supported-year guard) — and the two new provenance entries contribute the other two
+from their `years:` arrays. The enumerator's kind breakdown moved
+`{ money: 944, rate: 359, year: 256 }` to `{ money: 960, rate: 363, year: 262 }`: `+16`,
+`+4`, `+6`, exact in all three.
+
+The named failure mode was measured rather than estimated. `states/north-dakota.js` holds
+**296** mutable-looking literals and exactly **24** are code — its doc comment is four
+published rate schedules, a worked indexation search and a table of federal bracket
+ceilings — so it is now the file in this tree where comment and string masking is most
+load-bearing, and a Day 56-style regression would move the total by **272 from one file**,
+against Louisiana's 95. `1,585` rules that out.
+
+**AND THE SIX SURVIVORS HAVE BEEN THE SAME SIX, AT THE SAME LINE NUMBERS, FOR ELEVEN
+DAYS** — across four new states, a new input field, a new rule family and three new
+instruments.
 
 **Day 60's row is the first in this table that is a COVERAGE change rather than an
 instrument change, and its `+16` was attributed before the run rather than explained after

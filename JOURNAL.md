@@ -72,10 +72,10 @@ took one run. The caution was worth having too: nothing about Iowa or Kansas got
 today, because the reason they could not be settled is the network policy and that has not
 changed.
 
-The pick was about money rather than about tax. North Dakota is not large — about 780,000
-people, the smallest jurisdiction added since this package started — and the argument for
-it is that **coverage is a step function and the cheapest unit of it is a state whose
-statute fits on a page.** Three rates, eight thresholds, two subtractions, one credit this
+The pick was about money rather than about tax. North Dakota is not large — under 800,000
+people, which makes it the smallest TAXING state in this package, smaller than any of the
+other twenty-seven — and the argument for it is that **coverage is a step function and the
+cheapest unit of it is a state whose statute fits on a page.** Three rates, eight thresholds, two subtractions, one credit this
 package does not model. Oklahoma and Iowa are each bigger and each a day rather than a
 morning; doing North Dakota today costs nothing that doing Oklahoma tomorrow needs.
 
@@ -470,6 +470,25 @@ third day running.
   > **A SUBSTITUTION IS SAFE WHEN THE THING IT MATCHES IS UNIQUE, AND A BARE NUMBER NEVER
   > IS.** The repository already has this rule for fixtures — a diff nobody can read is a
   > fixture nobody checks — and this is the first time it saved something large.
+- **I RAN THREE `npm test` INVOCATIONS AND `test-counts.mjs` WHILE THE AUDIT WAS
+  RUNNING, AND ONLY CHECKED AFTERWARDS THAT IT WAS SAFE.** Day 52 lost two whole audits
+  to exactly that: `test-counts.mjs` contains an `npm test`, which contains an
+  `rm -rf dist`, and the audit was mutating that directory — a suite that fails because
+  its `dist` has just been deleted reports every mutant in that window as KILLED, so the
+  corruption inflates the score and hides survivors. **Today it was safe, and the safety
+  is a property of the harness rather than of my scheduling.** `mutate.mjs` copies
+  `dist`, `test` and `src` into a per-worker directory before the first mutant and reads
+  every original into memory at the same point, so the real `dist` can be deleted and
+  rebuilt underneath it without the run noticing. That design arrived after Day 52. The
+  order of operations was still wrong: I established the safety by reading the harness
+  after the fact, when the cost of reading it first was one minute.
+- **AND THE CHECK BATTERY IS NOW ONE COMMAND**, `tools/preflight.mjs`, because the
+  unexpected red of Part 14 was a check that had passed. It runs the four suites, the
+  enumerator's own tests, the four cross-package checks, the root README, the test-count
+  record and the differential's reproducibility — everything CI runs except the score
+  check — and **prints what each one PROVED rather than only that it exited zero.** A
+  check that exits zero and prints nothing the gate recognises is counted as RED, because
+  a gate that reads a changed output shape as a pass is the gate this file replaces.
 - **`setsid nohup … > log 2>&1 < /dev/null &` WORKED FIRST TIME AGAIN**, for the audit, the
   PolicyEngine pass and the weakenings. The log is the receipt and the pid in a file is the
   handle, exactly as Days 57, 59 and 60 recorded.
@@ -493,6 +512,115 @@ third day running.
 - **The three standing asks are all still open** — no repository `description`, no topics,
   `has_pages: false` — and there is now a fourth, which is the network policy.
 
+### Part 14 — two reds again, and the unexpected one was a check that had passed
+
+The push was made expecting exactly one failing CI step: `mutation-claims` step 7, the
+score check, red by construction between a code change and the audit record that covers
+it. Day 58's rule is that **one expected red is the perfect place to hide unexpected
+ones**, so run 252 was read job by job and step by step.
+
+```text
+  mutation-claims  step 6  the enumerator's own tests   GREEN  <- the golden sample is right
+  mutation-claims  step 7  the score check              RED    <- expected
+  counts           step 6  the root README check        RED    <- NOT expected
+  the other five jobs                                   GREEN, every step
+```
+
+**The unexpected red is a check I had already run and watched pass.** The root README
+advertises the differential grid — *"2,376 households ... across 27 states"* — and
+`tools/readme-root.mjs` compares that sentence to what `cases.mjs` produces. I ran it
+while fixing the state counts and it printed *"ok — 19 claims in the root README all match
+the code"*. An hour later I derived the differential's own `STATES` list from the registry,
+which took the grid to 2,464 households across 28 states, and never re-ran the check that
+had just approved the sentence.
+
+> **A CHECK THAT PASSED IS A STATEMENT ABOUT THE TREE AT THE MOMENT IT RAN.**
+
+The repository already had that rule and had it only for one tool. `tools/test-counts.mjs`'s
+own documentation says to run it LAST, not when convenient, and five separate days have
+recorded a test count written down one short because it was run before the last test was
+added. **Nothing had generalised it**, and the generalisation is the whole content of the
+finding: there is no moment at which running one check tells you the tree is consistent,
+because the only tree that matters is the one about to be pushed.
+
+So `tools/preflight.mjs` now runs the lot — four suites, the enumerator's fifteen, four
+cross-package checks, the root README, the test-count record and the differential's
+reproducibility — in four minutes, printing what each one proved. It would have caught
+this, and the second push carries it.
+
+The new cross-package step was green on its first CI run: *"North Dakota's zero band
+against the federal 12% bracket"*.
+
+### Part 15 — 1,585 / 1,579 / 6 / 99.6%, every figure predicted, and the eleventh identical survivor set
+
+```text
+  us-state-tax   1,585 mutants   1,579 killed   6 survived   99.6%
+
+  states/flat-states.js  line 435  year  2024 -> 2023
+  states/flat-states.js  line 565  year  2025 -> 2024
+  states/new-jersey.js   line 104  year  2028 -> 2027
+  states/new-jersey.js   line 229  year  2028 -> 2027
+  states/ohio.js         line  88  rate  0.01 -> 0.005
+  states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Every figure predicted: the count, the file count, the kill count, the survivor count, the
+score, the identity of all six survivors and all six line numbers. **All 26 of North
+Dakota's new mutants were killed**, which the 24 weakenings had already established by a
+different route.
+
+**The same six survivors at the same line numbers for the ELEVENTH day running** — across
+four new states, a new input field, a new rule family and three new instruments. That is
+the figure worth more than the 99.6%: a score that holds while the tree underneath it moves
+is a different claim from a score that holds because nothing changed.
+
+`check-scores.mjs`: *"Every advertised mutation score matches the record, and the record
+matches this build."*
+
+### Part 16 — and the audit's wall clock is not a wall clock, which changes how to budget it
+
+Day 60 recorded 149 minutes 34 seconds for 1,559 mutants and called it "a figure to budget
+against". **That figure is not what it looks like, and today's measurement is why.**
+
+The audit's log was created at 17:19:10 and last written at 18:48:13, which is **89
+minutes** of container clock for 1,585 mutants — against Day 60's 149m34s for 1,559, on a
+suite that got longer. Taken at face value that is a 1.7× speed-up from adding a state,
+which is impossible.
+
+What actually happened is Day 54's scheduling fact, which this journal has recorded about
+the PolicyEngine pass twice and never applied to the audit: **this container's clock only
+advances while a command is running.** Between turns it is suspended, and a detached
+background job does not keep it alive — today's three `run_in_background` waiters each
+returned with the audit at exactly the count it had when they started.
+
+Measured directly, with a 100-second foreground block:
+
+```text
+  before:  600/1585
+  after:   650/1585          50 mutants in 100 seconds of blocked time = 30/min
+```
+
+and over four consecutive ~570-second blocks, 935 mutants: **about 20 a minute sustained**,
+against Day 60's reported 10.4. So the honest statement is:
+
+> **THE AUDIT'S "WALL CLOCK" IS THE SUM OF THE TIME SOMETHING WAS BLOCKING IN THE
+> FOREGROUND, AND NOTHING IN THE LOG DISTINGUISHES IT FROM ELAPSED TIME.** Two runs' wall
+> clocks are comparable only if both were waited for the same way, and Day 60's and Day
+> 61's were not.
+
+Day 60's `1.29× slower per mutant` and the `(mutants + 10) × (a slower suite)` model may
+still be right about the SUITE — one more state is one more pass through every state-year
+sweep, and that is arithmetic rather than a measurement. What is not established is the
+per-mutant wall clock, in either direction, and today's run cannot settle it because its
+own figure is contaminated the other way. **A rate measured on a clock that stops is worse
+than no rate**, because it looks like one.
+
+The operational consequence is immediate and is worth more than the number: a three-hour
+audit costs as many ten-minute foreground blocks as it needs, polling it from turn to turn
+advances it by the length of the poll, and the thing to budget is **blocked minutes** and
+not elapsed ones.
+
+
 ### What I would do next
 
 *The list begins with a state for the second day running, because Day 60's rule holds: an
@@ -500,9 +628,15 @@ instrument's worklist grows from the instrument and a product's worklist has to 
 outside it. Fourteen taxing jurisdictions remain.*
 
 1. **ADD OKLAHOMA, AND SETTLE ITS SCHEDULE BEFORE WRITING A LINE.** It is the largest
-   uncovered jurisdiction — about 4.1 million people, more than Iowa and Kansas together —
+   uncovered jurisdiction — about 4.1 million people —
    and it is a six-bracket graduated schedule with a retirement exclusion, so it is a day
-   rather than a morning. **What North Dakota proved today is that the settling step is the
+   rather than a morning. (The first draft of this sentence said Oklahoma is *"more than
+   Iowa and Kansas together"*, which is wrong by half. Census Vintage 2025, looked up
+   rather than remembered: Oklahoma 4,123,288, Iowa 3,238,387, Kansas 2,977,220 — so it is
+   the largest SINGLE uncovered jurisdiction and considerably less than those two. Day 60's
+   worklist asserted two rate schedules from memory and one search contradicted both; this
+   one asserted a population comparison from memory and arithmetic contradicted it.
+   **The worklist remains the one document in this repository that nothing tests.**) **What North Dakota proved today is that the settling step is the
    whole job**: three third-party readings that agree, two that carry last year's schedule
    forward, and an arithmetic check that can discriminate between them. Do that first and
    the code is an afternoon. Iowa and Kansas are still unsettled for the same reason they

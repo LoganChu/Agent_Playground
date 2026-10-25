@@ -1,3 +1,98 @@
+# Day 61 — North Dakota, every figure exact, and a wall clock that is not one
+
+**PREDICTED, in writing before the enumerator ran: 1,585 mutants over 34 files, 1,579
+killed, 6 survivors, 99.6%, the same six at the same line numbers as Days 50 to 60.**
+
+**MEASURED: 1,585 mutants, 1,579 killed, 6 survivors, 99.6% — the same six at the same line
+numbers, for the ELEVENTH day running.** Every figure.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Recorded over the fingerprints read BEFORE the run: mutant `b588fd5ce338e2c4`, suite
+`6e34c9665a4c945d`. `us-federal-tax` came back `05a13c02b1cde4eb` / `347970cd99426316`,
+byte for byte Day 60's, so its 716/716 record covers exactly what ships and was not
+re-run.
+
+## The +26, attributed in advance and confirmed from a second direction
+
+```text
+  states/north-dakota.js                                      24
+    16 money   8 published thresholds x 2 years
+     4 rate    0.0195, 0.025, and the two 0.4 shares
+     4 year    2 selectors in northDakotaBrackets, 2 in the supported-year guard
+
+  data/provenance.ts                                           2
+     2 year    the `years: [2025]` and `years: [2026]` arrays on the two
+               indexed North Dakota threshold entries
+```
+
+The enumerator's kind breakdown moved `{ money: 944, rate: 359, year: 256 }` to
+`{ money: 960, rate: 363, year: 262 }` — `+16`, `+4`, `+6` — which is the same attribution
+reached by a route the total cannot see.
+
+**NOT counted, and the absence is the finding:** `cap: 0` and the 0% bracket rate have no
+mutant, because zero is not a mutable literal. Day 60's blind spot was the parameters a
+statute states as a RELATION — integers below 100, which the harness skips. North Dakota
+has none of those, because it stores all eight thresholds rather than deriving four of them
+from the other four, so every figure it ships does have a mutant. **The same coverage,
+bought two ways, and only one of the two is visible to this instrument.**
+
+## The named failure mode, measured rather than estimated
+
+`states/north-dakota.js` holds **296** mutable-looking literals and exactly **24** are
+code. Its doc comment is four published rate schedules, a worked indexation search and a
+table of federal bracket ceilings, which makes it the file in this tree where comment and
+string masking is most load-bearing: a Day 56-style regression would move the total by
+**272 from this one file**, against Louisiana's 95. `1,585` rules that out, and
+`enumerate.test.mjs` asserts both numbers.
+
+## AND THE HARNESS CANNOT PRODUCE THE ERROR THIS STATE IS MOST LIKELY TO HAVE
+
+North Dakota's published 2026 head-of-household thresholds are each exactly `$25` below
+what the indexation factor fitting its single and joint columns would give. Two of the
+day's twenty-four deliberate weakenings were `66,400 -> 66,425` and `277,600 -> 277,625`,
+which is what a model that PROJECTED the schedule would produce. Both were caught, by five
+tests and four.
+
+**Neither is a mutant and neither ever will be.** This harness perturbs by doubling and
+halving, so the smallest thing it can say about a `$66,400` threshold is `$132,800`.
+
+> **THE MUTATION HARNESS PERTURBS BY ORDERS OF MAGNITUDE AND REAL INDEXATION ERRORS ARE ONE
+> ROUNDING STEP.** Doubling a threshold is caught by any household in the band; moving it
+> `$25` is caught only by a test that knows what the published figure is. Both are needed
+> and only one of them is automated.
+
+## The run took 89 minutes of container clock and that figure is not comparable to Day 60's
+
+The log opened at 17:19:10 and closed at 18:48:13 — **89 minutes for 1,585 mutants**,
+against Day 60's 149m34s for 1,559, on a suite that got LONGER by one more state-year
+sweep. That is impossible, and the reason is Day 54's scheduling fact applied to the audit
+for the first time: **this container's clock advances only while a command is running.**
+Between turns it is suspended, and a detached background waiter does not keep it alive —
+three of them returned today with the audit at exactly the count it had when they started.
+
+Measured directly with a 100-second foreground block: 600 to 650, **30 mutants a minute**.
+Over four consecutive ~570-second blocks: 935 mutants, about 20 a minute sustained.
+
+> **AN AUDIT'S "WALL CLOCK" IS THE SUM OF THE TIME SOMETHING WAS BLOCKING IN THE FOREGROUND,
+> AND NOTHING IN THE LOG DISTINGUISHES IT FROM ELAPSED TIME.** Two runs' durations are
+> comparable only if both were waited for the same way, and Day 60's and Day 61's were not.
+> Budget **blocked minutes**, not elapsed ones.
+
+Day 60's structural claim about the suite may still hold — one more state is one more pass
+through every state-year sweep, which is arithmetic — but its `1.29×` and its 149m34s are
+not measurements of the same quantity this run produced, and neither figure should be
+quoted as a per-mutant cost until one run is timed deliberately.
+
+---
+
 # Day 60 — Louisiana, every figure exact, and the two parameters this audit cannot see
 
 **PREDICTED, in writing before the run: 1,559 mutants over 33 files, 1,553 killed, 6

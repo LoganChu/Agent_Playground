@@ -143,10 +143,14 @@ and a grid the same size it was yesterday. I found it because I checked the case
 before trusting it. Three of the five lists are now derived from the engine rather than
 written by hand, including that one.
 
-**H. THE QUALITY NUMBERS.** 1,577 tests across the four suites, all green. The three-hour
-check that changes one number at a time in the shipped code and requires some test to
-notice was re-run over the state package because its code changed; the figures are in the
-journal. Every figure was written down before it ran, including the one that would have
+**H. THE QUALITY NUMBERS.** 1,577 tests across the four suites, all green. The check that
+changes one number at a time in the shipped code and requires some test to notice was
+re-run over the state package because its code changed: **1,585 changes tried, 1,579
+caught, 6 not, 99.6%** — and all 26 of North Dakota's were caught. The six that are not
+caught have been **the same six, at the same six lines, for eleven days**, through four new
+states and three new tools, which is worth more than the percentage: a score that holds
+while the thing underneath it changes is a different claim from one that holds because
+nothing moved. Every figure was written down before it ran, including the one that would have
 appeared if the measuring tool were broken in the way it was broken on Day 56. The federal
 package was not touched and its fingerprints are identical to yesterday's, so its
 716-out-of-716 record still covers exactly what ships.
