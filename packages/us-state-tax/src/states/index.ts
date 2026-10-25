@@ -18,6 +18,7 @@ import { minnesota } from './minnesota.js';
 import { missouri } from './missouri.js';
 import { newJersey } from './new-jersey.js';
 import { newYork } from './new-york.js';
+import { northDakota } from './north-dakota.js';
 import { ohio } from './ohio.js';
 import { oregon } from './oregon.js';
 import { southCarolina } from './south-carolina.js';
@@ -45,6 +46,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const mo = missouri(year);
   const nj = newJersey(year);
   const ny = newYork(year);
+  const nd = northDakota(year);
   const oh = ohio(year);
   const or = oregon(year);
   const sc = southCarolina(year);
@@ -64,6 +66,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(mn ? [mn] : []),
     ...(mo ? [mo] : []),
     ...(nj ? [nj] : []),
+    ...(nd ? [nd] : []),
     ...(ny ? [ny] : []),
     ...(oh ? [oh] : []),
     ...(or ? [or] : []),
@@ -182,7 +185,6 @@ export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
   'Vermont',
   'Delaware',
   'Hawaii',
-  'North Dakota',
   'West Virginia',
   'the District of Columbia',
 ];

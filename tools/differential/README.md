@@ -492,6 +492,69 @@ from the observations: `$324` per person over 65 plus `$3` or `$6` of deduction 
 for a couple who split it — a shape this grid does not have, because it puts a
 couple's pension on the primary.
 
+## Day 61: North Dakota, the first state to produce no difference at all, and a merge
+
+**All 88 North Dakota households agree with PolicyEngine-US on every figure, in both
+years.** Not one `state.tax` difference, explained or unexplained — the first state added
+to this grid for which that is true. The 2,464-household report gains six differences over
+Day 60's 2,376 and every one of them is FEDERAL: four surviving-spouse child tax credit
+rows and two § 32(d) rows, both already-explained entries that simply have more households
+to match now.
+
+Two things that result rests on, and the second is worth more than the first.
+
+**The pinned reference already knew North Dakota's 2026 schedule.** `policyengine-us`
+2.15.3 — the version this grid is pinned to, many releases old — carries the 2026
+thresholds as hardcoded values rather than projecting them, and they are the same eight
+figures 2.63.3 carries today and the same eight this package ships. So the pin is not
+merely a stable yardstick here; it is a **second, temporally separated reading of a form
+this sandbox could not open**. That has not happened before: on every earlier state the pin
+could only be compared against, never consulted.
+
+**It also means the $25 head-of-household anomaly is not a transcription error of mine.**
+`states/north-dakota.ts` records that no single indexation factor reaches all eight
+published 2026 thresholds, and that the obstruction is the head-of-household pair, each
+`$25` below what the single and joint columns fix. Both PolicyEngine snapshots carry the
+same two figures, from a parameter file citing the Tax Commissioner's own Form ND-1ES. Two
+independent snapshots of the reference and two commercial tables agree on the anomaly, so
+it is the published table rather than a typo in this package.
+
+### The 88 rows were answered alone and merged, and Day 60 decided the other way
+
+Day 60 ran the whole grid rather than the new rows, and bought a result with the extra
+hour: of the 2,288 already-committed answers, zero differed on a fresh install of the pin.
+**That check does not need repeating, and a slower option with no second deliverable is
+just a slower option.** The mutation audit owned all four cores today, so a full pass would
+have been slower still and would have slowed the audit with it.
+
+The merge is sound for the reason Day 60 established: `theirs.json` is keyed by a
+content-derived id (`2025-single-worker-ND-15000-0-0-0-0`), so position means nothing and
+two files cannot be misaligned. The merge script asserted all three properties before
+writing — 2,376 existing keys, 88 new ones, **no overlap**, and the union exactly equal to
+the id set of the current `cases.json`.
+
+**What is weaker, stated plainly: the certificate now covers two runs.** `theirs.cases.sha256`
+and `theirs.meta.json` assert that the committed answers are answers to the current grid.
+After a merge they assert it of 2,376 rows written on Day 60 and 88 written on Day 61,
+under the same pinned version. That is a real difference from a single pass and it is the
+thing a reader should know; it is also exactly the shape of the hazard this file's Day 54
+section describes, which is why the merge is recorded here rather than left to the diff.
+
+### And the grid's own state list was a literal, which fails SILENTLY
+
+`cases.mjs` carried `STATES` as a hand-written array of 27 codes. Louisiana was added to it
+by hand on Day 60 and North Dakota would have been missed on Day 61 — and **nothing would
+have failed.** No refusal, no wrong number, no test: the grid would simply have been the
+same 2,376 households it was yesterday, with the new state never compared to anything.
+
+> **A LIST THAT GOES STALE BY REFUSING SOMETHING GETS FOUND. A LIST THAT GOES STALE BY NOT
+> ASKING DOES NOT.** Every other stale list this repository has found announced itself —
+> the README's gap bullet printed a wrong count, the MCP server's gates refused a field
+> that moves a state's tax, the OBBBA table dropped a row the cross-package check demanded.
+> This one would have been found only by somebody who noticed the case count had not moved.
+
+It is now derived from `SUPPORTED_STATES` and each state's own `rate.kind`.
+
 ## Running it
 
 ```bash

@@ -351,6 +351,15 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   const utah = model.states.find((row) => row.state === 'UT');
   assert.ok(Math.abs(utah.total - 1_388.46) < 0.005, `Utah is ${utah.total}`);
   const place = model.states.indexOf(utah) + 1;
+  // 32 from Day 61, because NORTH DAKOTA charges this couple NOTHING AT ALL and
+  // joins the twenty states tied at zero. The three reasons compose and none of
+  // them is a pension exclusion: the base is federal TAXABLE income, so the
+  // couple's federal standard deduction is already spent before North Dakota
+  // starts; the taxable part of their Social Security comes straight back out
+  // at line 15; and what is left is far inside an $82,800 zero bracket. A state
+  // with no retirement provision worth the name reaches $0 by having a wide
+  // enough first band.
+  //
   // 31 from Day 60, because LOUISIANA slotted in above Utah at $290.28 for this
   // couple — twenty-fifth of thirty-six — on a flat 3% with $25,676 of standard
   // deduction, the whole taxable Social Security benefit exempt and $12,324 of
@@ -358,11 +367,11 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // CAROLINA slotted in at $75.82 for the same reasons under § 12-6-1170(B).
   // The ranking is the point of the page and Utah's PLACE moving while its tax
   // does not is exactly what this test is for.
-  assert.equal(place, 31, `Utah ranks ${place}`);
+  assert.equal(place, 32, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // And Wisconsin's is a ZERO that the election produces rather than an

@@ -385,6 +385,53 @@ const FEDERAL_ITEMIZED_STATES: readonly string[] = declaredBy(
 );
 
 /**
+ * The states that read the net capital gain, DERIVED.
+ *
+ * Hand-written as `['MD', 'MO', 'AZ', 'SC', 'WI']` until Day 61, which is the
+ * second consecutive new state to need it edited: Louisiana did not, North
+ * Dakota did. Day 53 already found this list wrong twice — South Carolina's 44%
+ * deduction and Wisconsin's 30% exclusion were both refused the figure they are
+ * computed from — and Day 48 found Arizona's whole gate unreachable without it.
+ * Four corrections to one literal is the argument for deleting it.
+ *
+ * Two paths, because the two rules want the same number for opposite reasons:
+ * a state that SUBTRACTS a share of the gain, and Maryland, which SURTAXES it.
+ */
+const NET_CAPITAL_GAIN_STATES: readonly string[] = declaredBy(
+  'capitalGainsSubtraction.share',
+  'capitalGainsSurtax.rate',
+);
+
+/**
+ * The states that read the SHORT-TERM half, DERIVED — and the list was wrong in
+ * three states before North Dakota arrived.
+ *
+ * It read `['MA']`, which is where Massachusetts taxes the short-term half at
+ * 8.5% on a line of its own. But `capitalGainsSubtraction.basis.kind ===
+ * 'longTermNetted'` reads the same field to take the short-term items back OUT
+ * of the long-term base, and Wisconsin and South Carolina have had that basis
+ * since Day 43 and Day 49. Both were refused a figure that moves their tax, and
+ * the message told the caller it applied to Massachusetts.
+ *
+ * **IT SURVIVED THE WITNESS TEST THAT EXISTS TO CATCH EXACTLY THIS, and the
+ * reason is Day 56's rule arriving in the guard rather than in the engine:** a
+ * probe that varies one field cannot see a rule that reads two. The short-term
+ * figure moves nothing unless `netCapitalGain` is supplied beside it, so every
+ * single-field witness found it dead in all three states and reported the
+ * refusal harmless. North Dakota is the fourth state to read it and was found
+ * by reading the engine rather than by any probe.
+ */
+const SHORT_TERM_CAPITAL_GAIN_STATES: readonly string[] = [
+  ...new Set([
+    // Massachusetts: taxed at its own rate, so the figure is an amount here.
+    ...declaredBy('separatelyRatedIncome[].rate'),
+    // Wisconsin, South Carolina, North Dakota: the figure is a REDUCTION of the
+    // base the share is taken of.
+    ...matching((kind) => kind === 'longTermNetted', 'capitalGainsSubtraction.basis.kind'),
+  ]),
+].sort();
+
+/**
  * The states that read `earnedIncome`, DERIVED — plus Ohio, which a derivation
  * over STATE definitions cannot see.
  *
@@ -582,8 +629,8 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'shortTermCapitalGains',
     schema: number,
-    states: ['MA'],
-    doc: 'Net gains on assets held one year or less, taxed at 8.5% rather than 5%. Do not also include them in massachusettsFivePercentIncome. This is the reason every table that reports Massachusetts as a flat 5% is wrong about it.',
+    states: SHORT_TERM_CAPITAL_GAIN_STATES,
+    doc: 'Net gains on assets held one year or less, and FOUR STATES READ IT FOR TWO OPPOSITE REASONS. MASSACHUSETTS taxes them at 8.5% rather than 5% on a line of their own — do not also include them in massachusettsFivePercentIncome — and this is the reason every table that reports Massachusetts as a flat 5% is wrong about it. WISCONSIN, SOUTH CAROLINA and NORTH DAKOTA read it as a SUBTRACTION: each takes a share of the long-term gain (30%, 44% and 40%), and each statute reaches that base by netting the short-term items out first, so this figure makes the exclusion SMALLER. In all three it is read only alongside netCapitalGain, which is why leaving it out never throws: Form 1040 line 7 is already netted, so the engine treats the whole net gain as long-term and the exclusion comes back too LARGE for a filer with short-term gains. $50,000 of long-term gain beside a $10,000 short-term gain excludes $20,000 in North Dakota with this field and $24,000 without it.',
   },
   {
     name: 'collectiblesGains',
@@ -683,7 +730,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'netCapitalGain',
     schema: number,
-    states: ['MD', 'MO', 'AZ', 'SC', 'WI'],
+    states: NET_CAPITAL_GAIN_STATES,
     doc:
       "Net capital gain, Form 1040 line 7, and THREE STATES READ IT FOR THREE DIFFERENT PURPOSES. MARYLAND surtaxes it 2% when federal AGI exceeds $350,000; the threshold is a test rather than a floor, so one dollar of AGI at $350,000 can cost $6,933.08, and you should exclude a principal residence sold for $1.5M or less, § 179 property and retirement-account gains. MISSOURI subtracts 100% of it, short-term gain included (§ 143.121.3(14)), so pass the whole line. ARIZONA reads it as a TEST AND NOT AS AN AMOUNT: § 43-1022(22) subtracts a quarter of the long-term gain only where there is a net capital gain overall, so this field is the gate on longTermCapitalGainAfter2011 and Arizona subtracts nothing without it. One field, three mechanisms, and the figure to pass is the same one.",
   },
@@ -695,6 +742,12 @@ export const STATE_FIELDS: readonly StateField[] = [
       "Net LONG-TERM capital gain from assets acquired after 31 December 2011 — Arizona only, and the figure Form 140 asks for on a line of its own. A.R.S. § 43-1022(22) subtracts 25% of it, which is 0.625% of the gain in tax: $625.00 on $100,000, and an effective Arizona rate of 1.875% on a qualifying long-term gain against 2.5% on a wage. It cannot be derived from netCapitalGain: Form 1040 line 7 is already netted short against long, Schedule D splits the halves but not the vintages, and nothing on a federal return records when an asset was bought. SHORT-TERM ITEMS DO NOT BELONG HERE, as gains or as losses — the Form 140 worksheet says “do not include any short-term capital gains or (losses) in this worksheet”, which is where Arizona parts company with Wisconsin, whose statute nets them in first. Pass it ALONGSIDE netCapitalGain: the subtraction is allowed only where there is a net capital gain overall, because § 43-1022(22) reaches only gain included in federal AGI and a year that nets to a loss includes none, so a $50,000 long-term gain behind a $100,000 short-term loss subtracts nothing. Leave it out and an Arizona answer with long-term gains comes back too high.",
   },
   {
+    name: 'qualifiedDividends',
+    schema: number,
+    states: declaredBy('qualifiedDividendSubtraction.share'),
+    doc: "QUALIFIED dividends — Form 1040 line 3a, not line 3b — which North Dakota subtracts 40% of on Form ND-1 line 13 under N.D.C.C. § 57-38-30.3(2)(d)(2). THE LARGER FIGURE IS THE WRONG ONE: line 3b is ordinary dividends and line 3a is the qualified subset of it, while a 1099-DIV reports ordinary in box 1a and qualified in box 1b, so the two documents number them the opposite way round. North Dakota spends the same forty percent on this and on the net long-term capital gain, and the two cannot be combined: a qualified dividend is ordinary income on a federal return and is nowhere inside Form 1040 line 7, so netCapitalGain cannot reach it and a filer with dividends and no gains has a subtraction the capital-gain fields produce nothing for. Leave it out and a North Dakota answer is too HIGH by 0.78% of the dividends in the 1.95% band — $78.00 on $10,000 — and 1.00% in the 2.50% band.",
+  },
+  {
     name: 'taxExemptInterest',
     schema: number,
     states: ['UT', 'CT', 'OR'],
@@ -704,8 +757,22 @@ export const STATE_FIELDS: readonly StateField[] = [
     name: 'taxableSocialSecurity',
     schema: number,
     states: [
+      // THE LAST HAND-WRITTEN GATE LIST IN THIS FILE, and the second
+      // consecutive new state to need it edited — Louisiana on Day 60, North
+      // Dakota on Day 61. The two capital-gain lists beside it were derived on
+      // Day 61 and this one was not, because the field is read by eight
+      // different rules (an outright subtraction, Virginia's age-deduction
+      // income test, Connecticut's benefit adjustment, Utah's two credits,
+      // Missouri's Section C, Maryland's pension exclusion offset, Kentucky's
+      // and Georgia's) and a derivation that misses one of them REFUSES a field
+      // that moves a state's tax, which is the defect this whole file exists to
+      // prevent. Deriving it needs the eight paths established one at a time;
+      // adding a state to it needs a line, and the witness test catches the
+      // omission on the first new state every time. Day 60 said the same thing
+      // and the cost arrived again on schedule.
       'VA', 'MD', 'GA', 'KY', 'UT', 'CT', 'MO',
-      'AL', 'AZ', 'CA', 'ID', 'IL', 'IN', 'LA', 'MI', 'MN', 'MS', 'NC', 'NY', 'OH', 'OR', 'SC', 'WI',
+      'AL', 'AZ', 'CA', 'ID', 'IL', 'IN', 'LA', 'MI', 'MN', 'MS', 'NC', 'ND', 'NY', 'OH', 'OR', 'SC',
+      'WI',
     ],
     doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement. CONNECTICUT subtracts the WHOLE of it below $75,000 of federal AGI ($100,000 joint and for a qualifying surviving spouse) and at the threshold replaces that subtraction rather than tapering it \u2014 one dollar of income can cost a couple with $40,000 of benefits $405 \u2014 so a Connecticut retiree without this figure comes back far too high. Connecticut needs the GROSS benefit as well, in retirement.socialSecurityBenefits.',
   },

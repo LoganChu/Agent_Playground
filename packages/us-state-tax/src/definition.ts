@@ -3865,6 +3865,39 @@ export interface CapitalGainsSubtractionRule {
 }
 
 /**
+ * A share of **qualified dividend income** subtracted from the state's base —
+ * North Dakota's, N.D.C.C. § 57-38-30.3(2)(d)(2), Form ND-1 line 13.
+ *
+ * It is a rule of its own rather than a second
+ * {@link CapitalGainsSubtractionBasis} for one reason, and the reason is the
+ * whole point of {@link CapitalGainsSubtractionBasis}'s own rule: **a share and
+ * a base are two parameters.** North Dakota writes ONE share — forty percent —
+ * and spends it on two bases that live in different parts of a federal return.
+ * Line 6's base is net long-term capital gain over net short-term capital loss,
+ * which is Schedule D arithmetic. Line 13's base is Form 1040 line 3a, which is
+ * ORDINARY INCOME that was never in Schedule D at all and is not reachable by
+ * any combination of the capital-gain fields.
+ *
+ * So the two provisions look like one 40% exclusion and are two, and a model
+ * that implements "North Dakota excludes 40% of investment income" by widening
+ * the capital-gains base gets a filer with dividends and no gains exactly
+ * wrong — it finds no base to apply the share to.
+ *
+ * **The second half of a filer's error is the federal line number.** A 1099-DIV
+ * reports ordinary dividends in box 1a and the qualified subset in box 1b, and
+ * Form 1040 carries them the other way round: line 3a is qualified and line 3b
+ * is ordinary. The larger figure is the wrong one, and a return that takes 40%
+ * of it claims a subtraction the state does not allow. See
+ * {@link StateIncomeTaxInput.qualifiedDividends}.
+ */
+export interface QualifiedDividendSubtractionRule {
+  readonly name: string;
+  /** The share subtracted — North Dakota's 0.4. */
+  readonly share: number;
+  readonly cite: string;
+}
+
+/**
  * Missouri's Form MO-A Part 3 — the three retirement sections that are read in
  * the order C, A, B because each one needs the answer to the last.
  *
@@ -4232,6 +4265,12 @@ export interface StateIncomeTaxDefinition {
    * see {@link CapitalGainsSubtractionRule}.
    */
   readonly capitalGainsSubtraction?: CapitalGainsSubtractionRule;
+  /**
+   * A share of qualified dividend income, out of the state's base. North Dakota
+   * only — see {@link QualifiedDividendSubtractionRule}, which carries the
+   * reason it is not a second capital-gains basis.
+   */
+  readonly qualifiedDividendSubtraction?: QualifiedDividendSubtractionRule;
   /**
    * Missouri's Form MO-A Part 3 retirement deductions, which sit BELOW state
    * AGI rather than inside it — see {@link StateRetirementDeductionRule}.

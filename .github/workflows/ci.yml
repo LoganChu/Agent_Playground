@@ -227,6 +227,14 @@ jobs:
       # has no guard on it; this is the guard.
       - name: Arizona's own deduction still equals the federal basic one
         run: node tools/cross-package/arizona-deduction.mjs --check
+      # Day 61. North Dakota's zero band WAS the federal 12% bracket in 2023,
+      # 2024 and 2025 and is $825 below it in 2026, because OBBBA § 70101 gave
+      # the federal 10% and 12% brackets an extra year of indexation and left
+      # N.D.C.C. § 57-38-30.3(1)(e) alone. A coincidence that held for three
+      # years looks exactly like a rule, and neither package can check it from
+      # inside itself.
+      - name: North Dakota's zero band against the federal 12% bracket
+        run: node tools/cross-package/north-dakota-zero-band.mjs --check
       # Day 48 queued this and Day 50 found us-tax-mcp's lockfile already two
       # versions stale. The lockfile ships inside the tarball, so a consumer
       # running `npm ci` resolves the version IT names rather than the one

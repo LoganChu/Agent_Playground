@@ -3309,6 +3309,23 @@ function computeOnce(
       });
     }
   }
+  // North Dakota's other forty percent, and the reason it is a second rule
+  // rather than a second basis above: § 57-38-30.3(2)(d) spends ONE share on
+  // two bases, and this one is Form 1040 line 3a — ordinary income that never
+  // entered Schedule D, so no arithmetic on the capital-gain fields can reach
+  // it. A filer with dividends and no gains has a subtraction here and none
+  // above.
+  let qualifiedDividendSubtraction = 0;
+  if (def.qualifiedDividendSubtraction) {
+    const qualified = nonNegative(input.qualifiedDividends, 'qualifiedDividends');
+    qualifiedDividendSubtraction = qualified * def.qualifiedDividendSubtraction.share;
+    if (qualifiedDividendSubtraction > 0) {
+      computedSubtractions.push({
+        name: def.qualifiedDividendSubtraction.name,
+        amount: qualifiedDividendSubtraction,
+      });
+    }
+  }
   // Virginia takes the taxable Social Security inside federal AGI straight back
   // out, and needs the same figure again for the age deduction's income test —
   // which is why it is an input here rather than something the caller nets into
@@ -3444,6 +3461,7 @@ function computeOnce(
     exclusion +
     businessDeduction +
     capitalGainsSubtraction +
+    qualifiedDividendSubtraction +
     socialSecuritySubtraction +
     connecticutSubtractions +
     planType.total +

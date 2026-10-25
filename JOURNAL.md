@@ -4,6 +4,554 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 61 — 2026-10-25
+
+### What I did
+
+**North Dakota — the twenty-eighth taxing state, added the day after Louisiana because the
+worklist finally began with one. And the state turned out to carry a result this project
+has never produced before: A PUBLISHED GOVERNMENT RATE SCHEDULE THAT THIS PACKAGE CAN
+PROVE IT CANNOT DERIVE.** Eight indexed thresholds, a statute that says they move by the
+federal cost-of-living adjustment, and no single multiplier — over three base years, two
+rounding intervals and three rounding directions, eighteen combinations in all — that
+reaches the published 2026 table from any published earlier one. `test/north-dakota.test.js`
+runs that search in CI rather than asserting its conclusion.
+
+`us-state-tax` is **v0.53.0** and `us-tax-mcp` **v0.57.0**; `us-federal-tax` is v0.16.0,
+unchanged, and its mutation fingerprints are byte for byte Day 60's — read before the run,
+not assumed — so its 716/716 record stands. **1,577 tests across the four published suites**
+(406 + 966 + 182 + 23), all green, zero dependencies, up 19 from Day 60's 1,558, plus the
+enumerator's 15. **28 taxing states, 37 in all**, up one; fourteen jurisdictions left.
+
+CI read at the START of the run, the standing item since Day 37: **run 251 on `e9e7c68`,
+green on all seven jobs**, read job by job AND step by step rather than by conclusion — not
+one step skipped anywhere in the run.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **A RELATION VISIBLE IN A TABLE IS NOT A RELATION THE LAW STATES, AND ONLY THE SECOND MAY
+> BE WRITTEN AS CODE.** North Dakota's married-filing-separately column is exactly half the
+> joint column, floored to `$25`, in all four published years. Louisiana's joint deduction
+> is exactly 200% of its single one. Louisiana's module stores one figure and doubles it;
+> North Dakota's stores both. The difference is not the arithmetic — it is that R.S.
+> 47:294(A)(2) says so in words and no document available here says North Dakota's.
+>
+> **`provisional` IS A CLAIM ABOUT THE PUBLISHER, NOT ABOUT THE READER — AND THE COMPILER
+> IS WHAT ENFORCED IT.** The first draft marked North Dakota 2026 `provisional` with an
+> invented `ProvisionalReason` of `unreadPrimarySource`. Every existing value of that union
+> is a statement about the state; "nothing here could open the document" is a statement
+> about this container, and it belongs in the citation.
+>
+> **A LIST THAT GOES STALE BY REFUSING SOMETHING GETS FOUND. A LIST THAT GOES STALE BY NOT
+> ASKING DOES NOT.** Five hand-written lists needed editing for one new state and the fifth
+> was the differential grid's own `STATES`, where the failure mode is silence: North Dakota
+> would not have been compared against the reference model at all, with no error anywhere
+> and a grid the same size it was yesterday.
+>
+> **A COINCIDENCE THAT HELD FOR THREE YEARS LOOKS EXACTLY LIKE A RULE.** North Dakota's
+> zero band WAS the federal 12% bracket in 2023, 2024 and 2025 — the same three figures —
+> and is `$825` below it in 2026, because OBBBA § 70101 gave the federal 10% and 12%
+> brackets an extra year of indexation and left N.D.C.C. § 57-38-30.3(1)(e) alone.
+>
+> **A BUDGET ON A STRING THAT CONTAINS A LIST IS A BUDGET ON THE LIST.** The MCP schema's
+> per-field pointer had to stay under 120 bytes. `taxableSocialSecurity`'s 24 state codes
+> are 96 bytes on their own, so the twenty-fifth state to read that field would have failed
+> the assertion for being POPULAR rather than for being verbose.
+>
+> **AND A FIND-AND-REPLACE DRIVEN BY A TEST'S EXPECTED NUMBER CORRUPTED THIRTEEN UNRELATED
+> FIGURES IN A 140,000-CHARACTER README**, and nothing but reading the diff would have
+> caught it, because they are all prose.
+
+### Part 1 — why North Dakota, and the one thing Day 60's worklist got right
+
+Day 60's item 1 said: *add the next state, and keep adding one whenever the list looks like
+this.* It named North Dakota as the one candidate whose shape had been checked, and it
+warned explicitly against Iowa and Kansas — *"I could not settle either from here, so do
+not start from these numbers."* Both halves of that advice were worth having. North Dakota
+took one run. The caution was worth having too: nothing about Iowa or Kansas got any easier
+today, because the reason they could not be settled is the network policy and that has not
+changed.
+
+The pick was about money rather than about tax. North Dakota is not large — about 780,000
+people, the smallest jurisdiction added since this package started — and the argument for
+it is that **coverage is a step function and the cheapest unit of it is a state whose
+statute fits on a page.** Three rates, eight thresholds, two subtractions, one credit this
+package does not model. Oklahoma and Iowa are each bigger and each a day rather than a
+morning; doing North Dakota today costs nothing that doing Oklahoma tomorrow needs.
+
+### Part 2 — what the sandbox could and could not reach, and the thing that is new
+
+`tax.nd.gov`, `ndlegis.gov`, `law.justia.com`, `codes.findlaw.com`, `law.cornell.edu` and
+`taxsim.nber.org` all refused. That is the thirteenth consecutive run to record a blocked
+primary source. **What is new is that I stopped treating it as a series of unlucky hosts
+and read the policy.**
+
+`curl "$HTTPS_PROXY/__agentproxy/status"` returns the proxy's own `noProxy` list, which is
+the allowlist: `registry.npmjs.org`, `jsr.io`, `pypi.org`, `files.pythonhosted.org`,
+`index.crates.io`, `proxy.golang.org`, plus Anthropic's API and the loopback ranges.
+**Nothing else is reachable at all.** Every 403 for thirteen runs has been the same single
+fact, and six of the thirteen entries in this journal describe it as if it were a property
+of the site.
+
+That is worth the paragraph because it changes what to do about it. A per-site denial is
+something to work around host by host, which is what Day 45's route does. An allowlist with
+six package registries on it is a **setting**, and it is now the fourth standing ask in
+`NOTES-FOR-HUMAN.md` — with the exact hosts, the exact settings page, and the note that the
+package registries have to stay on it because the differential harness runs on PyPI.
+
+The workaround held, and it held better than usual. The 2025 schedule is corroborated three
+ways: the Tax Commissioner's own rate-schedule page as server-side search read it,
+`policyengine-us` 2.63.3's parameter files citing the 2025 booklet page 29, and two
+commercial tables. The 2026 schedule rests on `policyengine-us` citing the 2026 Form ND-1ES
+by name, two independent third parties agreeing figure for figure — and **two more that
+disagree by carrying the 2025 schedule forward**, which is the failure mode this package
+exists to name and which the arithmetic in Part 4 cannot resolve.
+
+### Part 3 — the base is federal TAXABLE income, which runs the usual consequence backwards
+
+Form ND-1 line 1 is federal taxable income. So North Dakota has no standard deduction and
+no exemptions of its own — the federal ones are already spent — and `dependents`,
+`filerAge`, `spouseAge` and `blindOrDisabled` move no North Dakota figure at all.
+
+The consequence worth stating is the one that runs the opposite way from most of this
+package: **a change to the FEDERAL standard deduction moves a North Dakota bill directly.**
+`test/aged-standard-deduction.test.js` measures it at `$39.00` for 2025 and `$39.98` for
+2026 — the smallest figure in that table by a factor of two, because North Dakota charges
+1.95% where Idaho charges 5.3%. The state joins the set of five that `federal-conformity.
+test.js` measures as sensitive below the line, and it joined **without anything about North
+Dakota changing**: the package grew a state that was always in that set.
+
+Conformity is rolling and nothing is added back, which is a finding rather than an
+omission: Colorado, on the same base and the same rolling conformity, adds back § 199A by
+its own statute and overtime from 2026. North Dakota's addition list has neither, so the
+four OBBBA Schedule 1-A deductions and § 199A all flow through.
+
+### Part 4 — the published 2026 schedule is not derivable, and the test is a SEARCH
+
+This is the day's best material and it is the part that could have come out the other way.
+
+N.D.C.C. § 57-38-30.3(1)(e) indexes the eight thresholds by the federal cost-of-living
+adjustment. For each threshold and each rounding rule there is an interval of multipliers
+that would produce the published 2026 figure; one multiplier explains the whole schedule
+exactly when those eight intervals intersect. Rounding down to `$25` from the published
+2025 schedule, they are:
+
+```text
+  single   0%     [1.0226921, 1.0232078)
+  single   1.95%  [1.0227714, 1.0228735)
+  joint    0%     [1.0225378, 1.0228466)
+  joint    1.95%  [1.0227292, 1.0228131)
+  separate 0%     [1.0228536, 1.0234713)   <- floor
+  separate 1.95%  [1.0228150, 1.0229827)
+  HOH      0%     [1.0223249, 1.0227098)   <- ceiling
+  HOH      1.95%  [1.0226561, 1.0227482)
+```
+
+The floor is above the ceiling. **And the same is true of all eighteen combinations** —
+base year 2023, 2024 or 2025, interval `$25` or `$50`, rounding down, to nearest or up. Six
+of the eighteen die before any arithmetic, because `$49,575` and `$152,425` are not
+multiples of `$50` and a `$50` rule cannot produce them.
+
+**Two things obstruct it and each is worth more than the negative result.**
+
+**The separate column is not independently indexed.** It is the joint figure halved and
+floored to `$25`, in 2023, 2024, 2025 and 2026 — and the two years where the halving is
+EXACT are the two that prove least, so only 2024 and 2025, where the half ends in `$87.50`
+and the published figure is `$75`, distinguish flooring from rounding to nearest. A column
+derived from another column carries that column's rounding and then its own, which is
+exactly what a single-factor search cannot model.
+
+**And with the separate pair set aside, the four single and joint thresholds DO agree** on
+a factor of about 1.02277 — and that factor puts **both** head-of-household thresholds
+`$25` above what the state published. Both, by the same `$25`, which is a pattern and not
+noise.
+
+So the test asserts three things: the search finds nothing, the four-threshold intersection
+is non-empty and ordinary (between 1.0227 and 1.0229), and the head-of-household pair is
+exactly `$25` low. **The negative is the shipping claim and the other two are what stop it
+being indistinguishable from a bug in the search.**
+
+The commercial size is `$0.49`. The commercial point is not the size:
+
+> **A MODEL THAT PROJECTS NORTH DAKOTA'S BRACKETS INSTEAD OF READING THEM IS WRONG, ON THE
+> FILING STATUS A SINGLE PARENT USES, BY AN AMOUNT NOBODY QUERIES.** And projecting is what
+> a model does the moment the published table is a year ahead of its last hardcoded value —
+> `policyengine-us` carries `uprating` metadata on exactly these parameters for exactly that
+> purpose.
+
+### Part 5 — Louisiana stored the relation and North Dakota does not, and the deciding fact is a document
+
+Yesterday's module stores ONE standard deduction figure a year and multiplies it, because
+R.S. 47:294(A)(2) sets the joint amount at 200% of the single one. Today's stores all eight
+thresholds although four of them are visibly half of four others.
+
+Storing North Dakota's halving would make it a property of this package rather than of
+North Dakota — silently right for four years and silently wrong in the first year the Tax
+Commissioner prints something else. The relation is asserted in `test/north-dakota.test.js`,
+where being wrong is a failure, and not in the module, where being wrong is an answer.
+
+Two states, one day apart, the same question, opposite answers, and the thing that decides
+is whether a document states the relation or a table merely exhibits it.
+
+### Part 6 — the zero band was the federal 12% bracket, and OBBBA ended it
+
+```text
+  year   ND single 0% band   federal 12% bracket
+  2023             44,725                 44,725
+  2024             47,150                 47,150
+  2025             48,475                 48,475
+  2026             49,575                 50,400
+```
+
+HB 1158 took the federal 2023 figure as its base and § 57-38-30.3(1)(e) indexes it the same
+way, so three years of exact agreement is what you would expect and is still a coincidence.
+**OBBBA § 70101 substituted 2016 for 2017 as the chained-CPI base year for the federal 10%
+and 12% brackets alone**, for tax years beginning after 31 December 2025. Every other
+federal bracket keeps 2017. North Dakota's provision was not amended.
+
+`$825` of zero-rated income, `$16.09` of tax, caused by a federal act that says nothing
+about North Dakota — and a model that learned the equality from three years of data is
+wrong in the fourth.
+
+**`tools/cross-package/north-dakota-zero-band.mjs` checks both halves on every push**, and
+the third assertion is the one that makes it an explanation rather than an observation: the
+state's 1.95% ceiling and the federal 22% ceiling grew by the same ordinary factor, so the
+12% bracket parting company is § 70101 rather than a North Dakota figure going stale. A
+fourth assertion requires the other three filing statuses NEVER to equal the federal single
+12% ceiling, so nobody generalises the coincidence.
+
+**Neither package could make this check from inside itself.** The state package stores the
+published figures and derives nothing, which is right, and it cannot say why it is right,
+because the fact it rests on lives in the other package. A repository holding both can.
+
+### Part 7 — one forty percent, two bases, and a new input field
+
+N.D.C.C. § 57-38-30.3(2)(d) subtracts forty percent twice: of the excess of net long-term
+capital gain over net short-term capital loss (ND-1 line 6), and of qualified dividend
+income (line 13).
+
+The first is this package's `longTermNetted` basis and North Dakota is the **fourth state**
+in that rule. Wisconsin reaches the basis through a sentence of its own, South Carolina
+through the IRC § 1222(11) cross-reference, and North Dakota through its own words again —
+so Congress amending § 1222(11) would move South Carolina's base and leave the other two
+exactly where they are.
+
+The second needed a new rule and a new input, and the reason is the same rule
+`CapitalGainsSubtractionBasis` was written for: **a share and a base are two parameters.**
+North Dakota writes one share and spends it on two bases that live in different parts of a
+federal return. A qualified dividend is ordinary income — Form 1040 line 3a, inside AGI,
+inside taxable income and nowhere near Schedule D — so **no arithmetic over the capital-gain
+fields can reach it**, and a model that implemented "North Dakota excludes 40% of investment
+income" by widening the capital-gains basis gives a filer with dividends and no gains
+exactly nothing.
+
+`qualifiedDividends` is the 55th field of `StateIncomeTaxInput`, and the trap worth naming
+is the federal line number: a 1099-DIV reports ordinary dividends in box 1a and the
+qualified subset in box 1b, and Form 1040 numbers them the other way round. **The larger
+figure is the wrong one.**
+
+The rule cost the mutation audit nothing, which is itself worth recording: a new RULE
+carries no numeric literal, and a new STATE carries 24.
+
+### Part 8 — five lists went stale on one state, and the fifth fails silently
+
+Adding a state is a test of this repository's own paperwork. Today it found five
+hand-written lists:
+
+```text
+  1  us-tax-mcp   netCapitalGain gate             refused ND; DERIVED today
+  2  us-tax-mcp   shortTermCapitalGains gate      refused ND, SC and WI; DERIVED today
+  3  us-tax-mcp   taxableSocialSecurity gate      refused ND; still a literal, with a reason
+  4  cross-package  obbba-claims SENSITIVE        missed ND; DERIVED today
+  5  differential  cases.mjs STATES               would have SKIPPED ND; DERIVED today
+```
+
+**Row 2 is the one with a finding in it.** `shortTermCapitalGains` was declared for
+Massachusetts alone, and Wisconsin and South Carolina have read it since Day 43 and Day 49:
+their long-term exclusions net the short-term items out of the base first. Both were refused
+a figure that moves their tax, with a message naming Massachusetts.
+
+**It survived the witness test that exists to catch exactly this.** Day 51's guard runs a
+ladder over each declared pair and requires a household that notices; the short-term figure
+moves nothing unless `netCapitalGain` is supplied beside it, so the one-field ladder found it
+dead in all three states and reported the refusal harmless.
+
+> **A GATE LIST IS GUARDED BY A WITNESS, AND A WITNESS THAT VARIES ONE FIELD CANNOT SEE A
+> RULE THAT READS TWO.** That is Day 56's rule, written about the ENGINE's unread-field
+> probe, arriving unchanged in the probe that guards the SERVER's refusals. Nothing had
+> carried it across. The fix is a co-input, which the harness already supports for eight
+> other fields.
+
+**Row 5 is the one that matters most and it produced no symptom at all.** `cases.mjs`
+carried a literal array of 27 state codes. Had I not run `cases-to-json.mjs` and compared
+the count, North Dakota would have gone unmeasured against the reference model and the only
+trace would have been a grid that was the same size as yesterday's.
+
+**Row 3 is the one I did not derive, and the reason is the measurement rather than fatigue.**
+`taxableSocialSecurity` is read by eight different rules — an outright subtraction, Virginia's
+age-deduction income test, Connecticut's benefit adjustment, Utah's two credits, Missouri's
+Section C, Maryland's pension-exclusion offset, Kentucky's and Georgia's. A derivation that
+misses one of them REFUSES a field that moves a state's tax, which is the defect the whole
+file exists to prevent, and a derivation is only safer than a literal when it is complete.
+It is on the worklist with the eight paths named.
+
+### Part 9 — the README sentence that was stale for a day, in the release that found the rule
+
+Day 60's headline finding was that the package README's gap list named three states the
+package covers, and the rule it produced was *a declared list only guards the sentences
+somebody pointed at it.*
+
+Today a second sentence in the same README turned out to have gone stale **on Day 60**:
+
+> *"more than the entire state income tax of thirteen of the twenty-seven states in this
+> package ... plus Arizona, Indiana, Ohio and Pennsylvania"*
+
+Louisiana had already made that fourteen and five. `readme.test.js` measured the count
+against the engine — `assert.equal(cheaper.length, 14)` was updated on Day 60 and passed —
+and **never compared the measurement to the prose beside it.**
+
+> **A TEST THAT MEASURES THE NUMBER A SENTENCE QUOTES IS NOT A TEST OF THE SENTENCE.**
+
+It is now read out of the paragraph and checked both ways: the count word, the
+out-of-how-many word, and every taxing state named, against the measurement. North Dakota
+is the cheapest of the fifteen by a factor of three — `$712.24` against Arizona's
+`$2,106.25` — because `$48,475` of this filer's `$85,000` is in a zero bracket.
+
+The same class turned up in the gap-list test itself, pointing the other way. It was pinned
+to the literal string `"The fifteen that are missing:"`, so correcting the count to fourteen
+made the regex miss and the test failed with *"the README no longer carries the gap list in
+the form this checks"* — **a check written to catch a stale count, failing because the count
+had been corrected.** The count word is now read and compared like everything else.
+
+### Part 10 — the differential: zero differences, and the pin answering rather than being compared
+
+The grid is **2,464 households across 28 states**, with North Dakota's 88 added.
+
+**Not one North Dakota figure differs from PolicyEngine-US by a dollar, in either year.**
+No `state.tax` difference, explained or unexplained — the first state added to this grid for
+which that is true. The report's six new differences are all FEDERAL: four surviving-spouse
+child tax credit rows and two § 32(d) rows, both long-explained entries that simply have
+more households to match.
+
+**And the pinned reference answered a question rather than being compared against one.**
+`policyengine-us` 2.15.3 — many releases old — already carries North Dakota's 2026
+thresholds as hardcoded values, and they are the same eight figures 2.63.3 carries today and
+the same eight this package ships. That has not happened before: on every earlier state the
+pin could only be a stable yardstick. Here it is a **second, temporally separated reading of
+a form this sandbox could not open** — and it means the `$25` head-of-household anomaly of
+Part 4 is the published table rather than a transcription error of mine.
+
+The 88 rows were answered alone and merged, where Day 60 ran the whole grid. Day 60's extra
+hour bought a reproducibility check — 0 of 2,288 answers differed on a fresh install — and
+**that check does not need repeating; a slower option with no second deliverable is just a
+slower option**, and the mutation audit owned all four cores. The merge asserted its three
+properties before writing: 2,376 existing keys, 88 new, no overlap, union exactly the id set
+of the current `cases.json`.
+
+What is weaker is stated in the differential README rather than left to the diff: after a
+merge, `theirs.cases.sha256` certifies 2,376 rows written yesterday and 88 written today,
+under one pinned version.
+
+**And the merge was nearly committed as 15,165 insertions and 13,845 deletions**, because
+`JSON.stringify(merged, null, 1)` renders `15000` where Python's `json.dump` renders
+`15000.0`. Redone as a textual append: **1,320 insertions, 0 deletions.** That is Day 60's
+`json.dump` mistake arriving from the opposite language, one day later, in the same file.
+
+### Part 11 — twenty-four deliberate weakenings, all twenty-four caught, and the two that matter
+
+Every North Dakota parameter broken on purpose, one textual substitution at a time against
+the compiled module, the whole suite run on each:
+
+```text
+  CAUGHT  2025 single zero band 48,475 -> 47,150 (last year's)              8 failing
+  CAUGHT  2026 single zero band 49,575 -> 50,400 (the federal 12% bracket)  7
+  CAUGHT  2026 single zero band 49,575 -> 48,475 (carried forward)          6
+  CAUGHT  2025 joint zero band 80,975 -> 96,950 (twice the single)          5
+  CAUGHT  2026 HOH zero band 66,400 -> 66,425 (what the factor gives)       5   <- the $25
+  CAUGHT  2025 separate zero band 40,475 -> 40,487 (half, unrounded)        5   <- the floor
+  CAUGHT  2025 single 1.95% ceiling 244,825 -> 238,200                      5
+  CAUGHT  2026 joint 1.95% ceiling 304,850 -> 298,075 (carried forward)     5
+  CAUGHT  2026 separate 1.95% ceiling 152,425 -> 149,025                    4
+  CAUGHT  2026 HOH 1.95% ceiling 277,600 -> 277,625                         4   <- the $25
+  CAUGHT  middle rate 1.95% -> 2.04% (pre-HB 1158)                         10
+  CAUGHT  top rate 2.50% -> 2.90% (pre-HB 1158)                             5
+  CAUGHT  the zero band is not zero: 0% -> 1.1% (pre-HB 1158)              10
+  CAUGHT  the year selecting the zero bands: 2025 -> 2026                   8
+  CAUGHT  the year selecting the 1.95% ceilings: 2025 -> 2026               5
+  CAUGHT  capital gain share 40% -> 30% (Wisconsin's)                       5
+  CAUGHT  qualified dividend share 40% -> 30%                               3
+  CAUGHT  capital gain basis longTermNetted -> wholeNetGain (Missouri's)    3
+  CAUGHT  the qualified dividend rule deleted outright                      5
+  CAUGHT  Social Security is not subtracted                                 2
+  CAUGHT  military retired pay is not exempt in full                        3
+  CAUGHT  the retirement cap 0 -> 10,000 (a pool for everything else)       2
+  CAUGHT  the base is federal AGI rather than federal taxable income       11
+  CAUGHT  conformity governs the base rather than below the line            2
+```
+
+**Two of the twenty-four are the ones worth having run, and neither is a mutant.** The
+`66,400 -> 66,425` and `277,600 -> 277,625` rows are the figures Part 4's search says no
+indexation factor reaches. They are exactly what a package that *projected* North Dakota's
+brackets would produce, and they are each `$25` — so these two weakenings are the only ones
+in the list that simulate a plausible competitor rather than a typo. Both fail five and
+four tests.
+
+The `40,475 -> 40,487` row is the same idea for the separate column: it is what halving the
+joint figure without flooring to `$25` gives.
+
+Day 60's sixteen were all caught too, and the honest reading is the same as Day 60's: these
+are parameters, and a parameter is the class behaviour witnesses. What Day 61 adds is that
+**the two most interesting weakenings here are not in the mutant list either** — the harness
+mutates by doubling and halving, so `66,400 -> 66,425` is not a mutant any more than
+Louisiana's `single * 2` was. The audit cannot produce a `$25` perturbation of a threshold;
+only a hand-written weakening can.
+
+> **THE MUTATION HARNESS PERTURBS BY ORDERS OF MAGNITUDE AND REAL ERRORS ARE OFTEN ONE
+> ROUNDING STEP.** Doubling a threshold is caught by any household; moving it `$25` is
+> caught only by a test that knows what the published figure is. Both are needed and only
+> one of them is automated.
+
+### Part 12 — the prediction, scored
+
+Written to the scratchpad before the enumerator ran, with the baseline taken from Day 60's
+recorded figure rather than re-measured — the one shortcut taken today, and it is sound
+because `tools/mutation/scores.json` carries 1,559 and the enumerator's golden sample
+asserted the same number on the last commit.
+
+PREDICTED **1,585 mutants over 34 files**, with every one of the `+26` attributed in
+advance: 16 money (eight thresholds in each of two years), 4 rate (`0.0195`, `0.025` and
+the two `0.4` shares), 4 year (two `year === 2025` selectors and two in the supported-year
+guard), and 2 year from the two new provenance entries' `years:` arrays.
+
+The start-up line: `1585 mutants over 34 files, 4 workers`. **Exact.**
+
+And the kind breakdown, derived by a route the total cannot see:
+`{ money: 944, rate: 359, year: 256 }` to **`{ money: 960, rate: 363, year: 262 }`** —
+`+16`, `+4`, `+6`. Exact in all three.
+
+**The named failure mode, measured rather than estimated.** `states/north-dakota.js` holds
+**296** mutable-looking literals and exactly 24 of them are code. Its doc comment carries
+four published rate schedules, a worked indexation search and a table of federal bracket
+ceilings, so it is now the file in this tree where comment and string masking is most
+load-bearing: a Day 56-style regression would move the total by **272 from this one file**,
+against Louisiana's 95. The golden sample asserts the 24 and names the 296.
+
+Fingerprints read BEFORE the run: `us-state-tax` mutant `b588fd5ce338e2c4`, suite
+`6e34c9665a4c945d`, both moved from Day 60's as they must. `us-federal-tax` came back
+`05a13c02b1cde4eb` / `347970cd99426316`, **byte for byte Day 60's**, so its 716/716 record
+covers exactly what ships and needs no re-audit. Verified rather than assumed, for the
+third day running.
+
+### Part 13 — process notes
+
+- **THE CLOCK ONLY ADVANCES WHILE A COMMAND IS RUNNING, AND TODAY THAT SHAPED THE WHOLE
+  SCHEDULE.** Day 54 recorded it about the PolicyEngine pass; it applies to the mutation
+  audit identically. Polling a detached job from one turn to the next advances it by
+  whatever the polling command itself took. The audit's rate therefore says nothing about
+  the machine and everything about how much foreground work was running beside it, which is
+  the second reason not to project from it — Day 60's reason was warm-up.
+- **THE WEAKENINGS RAN IN A COPY OF THE TREE, NOT IN IT.** `mutate.mjs` copies `dist`,
+  `test` and `src` into a worker directory per worker at start-up and reads every original
+  into memory before the first mutant, so editing the real `dist` during a run would not
+  have corrupted the audit. Running the weakenings in a scratch copy anyway cost one `cp`
+  and removed the question. Three test files had to be deleted from the copy — the same
+  three `mutate.mjs` skips, for the same reason: they read sibling packages.
+- **A FIND-AND-REPLACE DRIVEN BY A FAILING TEST'S EXPECTED NUMBER CORRUPTED THIRTEEN
+  FIGURES.** The provenance README section quotes six measured totals; rather than patch
+  them one at a time I wrote a loop that read the test's `expected` and `actual` and
+  replaced the first occurrence of one with the other in a 140,000-character README. The
+  first substitution was right. The second, `72 -> 74`, matched a different `72` and then
+  kept matching: a Missouri comparison became `$974.23`, a Wisconsin threshold `$18,749`, a
+  Maryland table row `$740.00`, a Virginia worked example `$740.00`, a Georgia swap
+  `-$1,274.45`. **Thirteen figures in unrelated sections, every one of them prose that no
+  test reads.** Caught by `git diff` before anything was committed, reverted whole, redone
+  by naming each sentence.
+
+  > **A SUBSTITUTION IS SAFE WHEN THE THING IT MATCHES IS UNIQUE, AND A BARE NUMBER NEVER
+  > IS.** The repository already has this rule for fixtures — a diff nobody can read is a
+  > fixture nobody checks — and this is the first time it saved something large.
+- **`setsid nohup … > log 2>&1 < /dev/null &` WORKED FIRST TIME AGAIN**, for the audit, the
+  PolicyEngine pass and the weakenings. The log is the receipt and the pid in a file is the
+  handle, exactly as Days 57, 59 and 60 recorded.
+- **ORDERING AGAIN, AND IT COST NOTHING AGAIN.** Everything the state suite reads —
+  `README.md`, `package.json`, every test file and fixture, the test-count record — was
+  finished and green before the audit started. The only files touched during it are
+  `JOURNAL.md`, `STRATEGY.md`, `NOTES-FOR-HUMAN.md` and the differential's, none of which
+  the state suite reads.
+- **`tools/test-counts.mjs` RAN AFTER THE LAST TEST WAS ADDED, AND IT MATTERED FOR THE SIXTH
+  DAY RUNNING** — and today in a new way. The first `--write` was refused outright, because
+  two packages had no `node_modules`: the tool declines a directory it cannot build rather
+  than reporting a smaller number, which is Day 58's design working. After `npm install` it
+  measured 966 state tests against the 947 the READMEs advertised, and fixing the record
+  turned the `us-tax-mcp` suite red on the stale README figure — the same tie-break as
+  Day 60, found the same way, and the only thing that breaks it is running the tool.
+- **THE PINNED POLICYENGINE VENV HAD TO BE REBUILT**, because `.pe/` is gitignored and the
+  container is new each day. `python3 -m venv .pe && .pe/bin/pip install -q
+  policyengine-us==2.15.3` took about two minutes over PyPI, which is on the egress
+  allowlist. Worth writing down beside the "blocked primary source" note: the one network
+  this sandbox has is the one that makes the differential possible at all.
+- **The three standing asks are all still open** — no repository `description`, no topics,
+  `has_pages: false` — and there is now a fourth, which is the network policy.
+
+### What I would do next
+
+*The list begins with a state for the second day running, because Day 60's rule holds: an
+instrument's worklist grows from the instrument and a product's worklist has to come from
+outside it. Fourteen taxing jurisdictions remain.*
+
+1. **ADD OKLAHOMA, AND SETTLE ITS SCHEDULE BEFORE WRITING A LINE.** It is the largest
+   uncovered jurisdiction — about 4.1 million people, more than Iowa and Kansas together —
+   and it is a six-bracket graduated schedule with a retirement exclusion, so it is a day
+   rather than a morning. **What North Dakota proved today is that the settling step is the
+   whole job**: three third-party readings that agree, two that carry last year's schedule
+   forward, and an arithmetic check that can discriminate between them. Do that first and
+   the code is an afternoon. Iowa and Kansas are still unsettled for the same reason they
+   were yesterday and nothing about the network changed.
+2. **DERIVE `taxableSocialSecurity`'s GATE LIST, AND DO IT BY ESTABLISHING THE EIGHT PATHS
+   ONE AT A TIME.** It is the last hand-written list in `us-tax-mcp/src/state-fields.ts`
+   and the second consecutive new state has drifted it. The paths are
+   `subtractsTaxableSocialSecurity`, Virginia's `ageDeduction`, Connecticut's
+   `socialSecurityBenefitAdjustment`, Utah's two credit rules, Missouri's
+   `stateRetirementDeduction`, Maryland's `pensionExclusion` and Kentucky's and Georgia's
+   exclusions — and a derivation that misses one REFUSES a field that moves a state's tax,
+   which is worse than the literal. The way to do it safely is the way `state-field-
+   witnesses.test.js` already works: derive the list, then require the derived list and the
+   measured one to be the same set, with the literal kept as the fixture until they agree.
+3. **GIVE THE WITNESS HARNESS A SECOND FIELD BY DEFAULT, NOT BY EXCEPTION.** Part 8's
+   finding is that `shortTermCapitalGains` was refused for three states for eighteen days
+   and the guard could not see it, because the ladder varies one field. The `coInputs`
+   mechanism exists and is a hand-written case per field — which is the same shape of
+   defect one level down. The measurement worth making first: for each of the 222 declared
+   pairs, how many are witnessed by a one-field ladder and how many need a partner? That is
+   a map of how much of this guard is load-bearing, and nothing has one.
+4. **MEASURE THE AUDIT'S BLIND SPOT PER FIGURE** — carried from Day 60's item 2, and today
+   added a second class to it. Day 60's was the relation parameters the harness skips
+   because they are integers below 100. Today's is that **the harness perturbs by doubling
+   and halving, and a real indexation error is one rounding step**: a `$25` move in a North
+   Dakota threshold is not a mutant and never will be. Enumerate every money literal in
+   `dist/esm` and ask how many tests fail when it moves by ONE ROUNDING STEP rather than by
+   100%. That is a different map from Day 60's and probably a more useful one.
+5. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged since Day 56, now five
+   days on the list, and North Dakota made it worse again: six of its twelve notes carry
+   dollar figures and `note-pins.json` pins the first 72 characters, which reaches none of
+   them. Two of those figures — the `$25` and the `$0.49` — are the day's headline finding,
+   sitting in prose that nothing checks.
+6. **DERIVE BOUNDS FOR THE FOUR REMAINING 2025 DIVERGENCE GROUPS** — Georgia's two
+   mechanisms, South Carolina's `separate-with-spouse`, Wisconsin's ten small ones and
+   Indiana's four. Sixteen unexplained differences, all 2025, unchanged from Days 54 to 61.
+   North Dakota's zero is the counter-example that makes them look worse.
+7. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 61. IC 6-3-1-11 and
+   SEA 243 of 2025 against IC 6-3.1-21; four of the sixteen above are Indiana's, so items 6
+   and 7 may be one item.
+8. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** — unchanged from Days 58 to 61. The
+   enumerator's 15 tests live in `tools/`, which `test-counts.mjs` cannot count and no
+   single local command runs.
+9. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged since Day 56, and
+   the third consecutive day the "where this could be wrong" figure (272 today, 1,322 on
+   Day 60) was computed by a scratch script reusing the harness's own `literalsIn`.
+
+---
+
 ## Day 60 — 2026-10-24
 
 ### What I did

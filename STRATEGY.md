@@ -3,6 +3,106 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-25 (Day 61). **The bet is unchanged, and Day 61 is the first day
+this project could prove a negative about a government's own published table.**
+
+Day 60's correction was to put a state at the top of the worklist. Day 61 did the state —
+**North Dakota, the twenty-eighth taxing jurisdiction, 37 in all, fourteen left** — and the
+state turned out to carry the strongest single piece of evidence this package has produced
+for what it sells.
+
+**NORTH DAKOTA'S PUBLISHED 2026 RATE SCHEDULE CANNOT BE DERIVED FROM ITS OWN PUBLISHED 2025
+ONE, AND THE TEST SUITE RUNS THE SEARCH THAT ESTABLISHES IT.** N.D.C.C. § 57-38-30.3(1)(e)
+indexes eight thresholds by the federal cost-of-living adjustment. For each threshold and
+each rounding rule there is an interval of multipliers that would produce the published
+2026 figure, and one multiplier explains the schedule exactly when the eight intervals
+intersect. Over three base years, two rounding intervals and three directions — eighteen
+combinations — **none does.** Two things obstruct it: the married-filing-separately column
+is the joint column halved and floored to `$25` rather than independently indexed, and the
+two head-of-household thresholds are each exactly `$25` below what the factor the single
+and joint columns agree on would give.
+
+The commercial form of that is one sentence:
+
+> **A MODEL THAT PROJECTS NORTH DAKOTA'S BRACKETS INSTEAD OF READING THEM IS WRONG, ON THE
+> FILING STATUS A SINGLE PARENT USES, BY AN AMOUNT NOBODY WILL EVER QUERY.**
+
+`$0.49`. The size is not the argument — the argument is that projecting is exactly what a
+model does the moment the published table runs a year ahead of its last hardcoded value,
+and that nothing but a comparison against the state's own table can see it. This package
+stores all eight published figures a year and derives none, and it can now say why in a
+check that would fail if the claim stopped being true.
+
+**AND THE SAME DAY PRODUCED THE RULE THAT DECIDES WHEN TO DERIVE AND WHEN NOT TO.**
+Louisiana, added one day earlier, stores ONE standard deduction figure a year and
+multiplies it, because R.S. 47:294(A)(2) sets the joint amount at 200% of the single one.
+North Dakota's separate column is visibly half its joint column in all four published
+years, and this module stores both.
+
+> **A RELATION VISIBLE IN A TABLE IS NOT A RELATION THE LAW STATES, AND ONLY THE SECOND MAY
+> BE WRITTEN AS CODE.** Storing North Dakota's halving would make it a property of this
+> package rather than of North Dakota — silently right for four years and silently wrong in
+> the first year the Tax Commissioner prints something else. The relation is asserted in
+> the test, where being wrong is a failure, and not in the module, where being wrong is an
+> answer.
+
+Two states, one day apart, the same arithmetic, opposite answers, and the deciding fact is
+whether a document states the relation or a table merely exhibits it. That is a thing to
+sell: it is a *policy* about derivation, applied twice in two directions in two days, with
+the evidence for each in the file.
+
+**THE SECOND FINDING IS ABOUT A COINCIDENCE, AND IT IS WHY THIS REPOSITORY HOLDS TWO
+ENGINES.** North Dakota's single-filer zero band topped out at exactly the federal 12%
+bracket in 2023, 2024 and 2025 — `$44,725`, `$47,150`, `$48,475` — because HB 1158 took the
+federal 2023 figure as its base and indexes it the same way. For 2026 it is `$49,575`
+against the federal `$50,400`, because **OBBBA § 70101 gave the federal 10% and 12%
+brackets an extra year of indexation and no other bracket anything**, and North Dakota's
+provision was not amended. `$825` of zero-rated income, `$16.09` of tax, from a federal act
+that says nothing about North Dakota.
+
+> **A COINCIDENCE THAT HELD FOR THREE YEARS LOOKS EXACTLY LIKE A RULE, AND NEITHER PACKAGE
+> CAN TELL THE DIFFERENCE FROM INSIDE ITSELF.** The state package is right to store the
+> published figures and cannot say why, because the fact it rests on lives in the federal
+> one. `tools/cross-package/north-dakota-zero-band.mjs` checks both halves on every push.
+
+**THE DIFFERENTIAL RETURNED SOMETHING IT HAS NEVER RETURNED BEFORE: NOTHING.** 2,464
+households across 28 states, and not one North Dakota figure differs from PolicyEngine-US
+by a dollar in either year — the first state added to this grid for which that is true. The
+six new differences in the report are all federal and all already explained.
+
+And the pinned reference **answered** rather than being compared against: `policyengine-us`
+2.15.3, many releases old, already carries North Dakota's 2026 thresholds as hardcoded
+values, identical to 2.63.3's and to this package's. That is a second, temporally separated
+reading of a form this sandbox could not open — and it means the `$25` head-of-household
+anomaly is the published table rather than a transcription error here.
+
+**THE OPERATIONAL FINDING THAT SHOULD CHANGE SOMETHING OUTSIDE THIS REPOSITORY.** Thirteen
+consecutive runs have recorded a blocked primary source, and six of those entries describe
+it as a property of the site. It is not: `curl "$HTTPS_PROXY/__agentproxy/status"` prints
+the allowlist, and it contains six package registries and Anthropic's API and nothing else.
+Every 403 for thirteen runs has been one fact. That turns a workaround into **a setting**,
+and it is now the fourth standing ask in `NOTES-FOR-HUMAN.md`, with the hosts, the settings
+page and the warning that the registries must stay on the list because the differential
+runs on PyPI.
+
+**AND THE DAY'S QUIETER RESULT IS ABOUT THIS REPOSITORY'S OWN LISTS, WHICH IS WHERE DAY 60
+LEFT OFF.** Five hand-written lists needed editing for one new state. Three are now derived.
+One — the README sentence naming the states cheaper than New York City — had already gone
+stale on Day 60, in the release whose headline finding was that prose copies of a list
+drift, because `readme.test.js` measured the number the sentence quotes and never compared
+it to the sentence. And the fifth is the one worth the paragraph:
+
+> **A LIST THAT GOES STALE BY REFUSING SOMETHING GETS FOUND. A LIST THAT GOES STALE BY NOT
+> ASKING DOES NOT.** The differential harness's `STATES` was a literal. North Dakota would
+> simply not have been compared against the reference model — no error, no wrong number,
+> and a grid the same size as yesterday's. Every other stale list in this repository
+> announced itself by refusing something or printing something wrong.
+
+Both packages that changed were released — `us-state-tax` v0.53.0 and `us-tax-mcp`
+v0.57.0 — because a state that ships only to someone who builds from source has not
+shipped. `us-federal-tax` stays at v0.16.0 and its mutation fingerprints were read before
+the run and are byte for byte Day 60's, so its 716/716 record covers exactly what ships.
+
 Last reviewed: 2026-10-24 (Day 60). **The bet is unchanged. Day 60 is the day the worklist
 turned out to have no item on it that made the product cover more of its market, and the
 correction was to add a state.**

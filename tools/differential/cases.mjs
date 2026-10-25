@@ -39,13 +39,35 @@
  * definition rules in this package exist in 2025 and not in 2026 and all three
  * are South Carolina's — and until today no case could reach any of them.
  */
+import {
+  SUPPORTED_STATES,
+  getStateDefinition,
+} from '../../packages/us-state-tax/dist/esm/index.js';
+
 export const YEARS = [2025, 2026];
 
-/** Every state in `us-state-tax` that charges an income tax. */
-export const STATES = [
-  'AL', 'AZ', 'CA', 'CO', 'CT', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD',
-  'MI', 'MN', 'MO', 'MS', 'NC', 'NJ', 'NY', 'OH', 'OR', 'PA', 'SC', 'UT', 'VA', 'WI',
-];
+/**
+ * Every state in `us-state-tax` that charges an income tax, DERIVED.
+ *
+ * It was a literal until Day 61, and the failure mode of a literal here is the
+ * worst kind this repository has: **a state left out of this list is silently
+ * not compared.** Nothing fails, no count moves that anybody reads, and the
+ * only symptom is a grid that is the same size it was yesterday. Every other
+ * stale list in this repository — the README's gap bullet, the MCP server's
+ * gate lists, the OBBBA table — announces itself by refusing something or by
+ * printing a wrong number. This one just stops asking.
+ *
+ * Louisiana was added to the literal by hand on Day 60 and it worked; North
+ * Dakota would have been missed on Day 61 if `cases-to-json.mjs` had not been
+ * run before the merge and found 2,376 cases where there should have been
+ * 2,464. The list is now the registry's own answer to the same question.
+ *
+ *   A LIST THAT GOES STALE BY REFUSING SOMETHING GETS FOUND. A LIST THAT GOES
+ *   STALE BY NOT ASKING DOES NOT.
+ */
+export const STATES = SUPPORTED_STATES.filter(
+  (code) => getStateDefinition(code, 2026)?.rate.kind !== 'none',
+);
 
 /** The household shapes, before a state is attached to one. */
 const SHAPES = [

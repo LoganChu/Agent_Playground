@@ -511,13 +511,13 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('36 states');
-  assert.equal(SUPPORTED_STATES.length, 36);
+  quotes('37 states');
+  assert.equal(SUPPORTED_STATES.length, 37);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 27);
+  assert.equal(taxing.length, 28);
   quotes('Eight of the twenty-seven taxing states cut their rate for 2026');
 
   const provisional = SUPPORTED_STATES.filter(
@@ -620,9 +620,9 @@ test('README: the New York City and Yonkers figures', () => {
     federal: stateFed(100_000, 92_000, 8_000),
   });
   assert.equal(nyc.localTaxes[0].tax, 3174.69);
-  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **thirteen of these twenty-seven states**');
+  quotesAcrossLines('**$3,174.69** — more than the entire state income tax of **fifteen of these twenty-eight taxing states**');
 
-  // "thirteen of these twenty-seven states", checked against every one of them.
+  // "fifteen of these twenty-eight taxing states", checked against every one.
   const federal = stateFed(100_000, 85_000, 15_000);
   const cheaper = SUPPORTED_STATES.filter(
     (state) =>
@@ -636,10 +636,13 @@ test('README: the New York City and Yonkers figures', () => {
         massachusettsFivePercentIncome: 100_000,
       }).tax < 3174.69,
   );
+  // 15 from Day 61. NORTH DAKOTA is now the cheapest taxing state on this
+  // list by a factor of three, at $712.24, because $48,475 of this filer's
+  // $85,000 sits in a zero bracket.
   // 14 from Day 60. LOUISIANA is the cheapest taxing state on this list:
   // (100,000 - 12,500) x 3% = $2,625, against the $3,174.69 a New Yorker on the
   // same income pays THE CITY ALONE, before a dollar of New York State tax.
-  assert.equal(cheaper.length, 14);
+  assert.equal(cheaper.length, 15);
 
   // 2.7% x 1.14 = 3.078%, to the last digit.
   quotesAcrossLines('2.7% x 1.14 = 3.078% to the last digit');

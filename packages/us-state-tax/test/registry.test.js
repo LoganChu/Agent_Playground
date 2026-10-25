@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 36);
+  assert.equal(SUPPORTED_STATES.length, 37);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -119,15 +119,15 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // twenty-seven of them — thirty-six supported states less the nine with no
-  // income tax at all — so the uncovered list has the other fifteen.
+  // twenty-eight of them — thirty-seven supported states less the nine with no
+  // income tax at all — so the uncovered list has the other fourteen.
   //
   // The three figures are asserted together on purpose: the identity
   // `covered + uncovered = 42` is the only thing that catches a state added to
   // the registry and left in the gap list, which is the defect the list was
   // declared for in the first place.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 15);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 27);
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 14);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 28);
   assert.equal(
     SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length + UNCOVERED_TAXING_JURISDICTIONS.length,
     42,
@@ -412,7 +412,14 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
   // state's other printed label, 'Senior deduction (age 65)', holds no % or $
   // token and is deliberately not counted — an age is a LABEL and this test
   // reads money and rates.
-  assert.equal(checked, 21, 'rates and thresholds printed in rule names');
+  //
+  // 25 from Day 61: North Dakota prints '(40%)' in BOTH of its 40% rules, in
+  // both years, and each is checked against its own `share`. The pair is the
+  // most useful thing this test has ever been pointed at, because the two names
+  // differ only in the words around an identical number — a transposition that
+  // put the capital-gain share on the dividend rule would leave both names
+  // true, and only the engine's answer would move.
+  assert.equal(checked, 25, 'rates and thresholds printed in rule names');
 });
 
 test("a threshold the engine cannot apply is quoted in the note that asks the caller to apply it", () => {

@@ -234,10 +234,30 @@ test('every per-state field is in the schema, typed, and points at describe_stat
       `${field.name} does not say where its documentation is`,
     );
     assert.equal(property.description, shortDescription(field), `${field.name} pointer`);
-    // The pointer has to be short, or it is the thing it replaced.
+    // The pointer has to be short, or it is the thing it replaced — and on
+    // Day 61 the flat 120-byte budget stopped being a statement about that.
+    //
+    // `taxableSocialSecurity` is read by 24 states. Their codes and separators
+    // are 96 bytes on their own, so a budget of 120 leaves 24 for everything
+    // else, and the twenty-fifth state to read the field would fail this
+    // assertion for being POPULAR rather than for being verbose. The schema's
+    // whole contract is that it names the field, its type and the states it
+    // belongs to, so the list is not the part that can be trimmed.
+    //
+    //   THE RULE: A BUDGET ON A STRING THAT CONTAINS A LIST IS A BUDGET ON THE
+    //   LIST, AND SAYS NOTHING ABOUT THE PROSE IT WAS WRITTEN TO FORBID.
+    //
+    // So the budget is on the part that is not the list. Everything around the
+    // state codes — "only.", the required-in clause and the pointer at
+    // describe_state — must stay inside 60 bytes, which is where the real
+    // regression would show: a sentence of documentation creeping back in.
+    // `test/schema.test.js` keeps the whole tools/list payload under 45,000
+    // bytes, which is what bounds the lists themselves.
+    const listBytes = field.states.join(', ').length;
     assert.ok(
-      property.description.length < 120,
-      `${field.name} pointer is ${property.description.length} bytes; it is prose again`,
+      property.description.length - listBytes < 60,
+      `${field.name} pointer carries ${property.description.length - listBytes} bytes that are not ` +
+        `the state list; it is prose again`,
     );
   }
 });

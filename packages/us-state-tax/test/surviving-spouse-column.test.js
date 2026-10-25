@@ -98,6 +98,7 @@ const OFFERS_THE_STATUS = {
   MN: 'Minn. Stat. § 290.06, subd. 2c(1) writes ONE rate schedule for "married individuals filing joint returns and surviving spouses", and Form M1 carries the status as its own box — so Minnesota names the status IN THE STATUTE and sets its figures at the married-filing-jointly figure by the same sentence, which is the strongest form this evidence takes in any of the ten. The Department of Revenue bracket releases print the two together in one column.',
   MO: 'Form MO-1040 carries "Qualifying widow(er)" as its own status, and this package stores Missouri figures against it explicitly rather than by default — see `missouri.ts`.',
   NC: 'D-400 carries "Qualifying Widow(er)/Surviving Spouse"; its 2025 standard deduction of $25,500 is the married-filing-jointly figure.',
+  ND: 'Form ND-1 (2025) carries "Qualifying surviving spouse" as the fifth of its five filing-status boxes, beside a separate field for the status used on the federal return; the 2021 form called the same box "Qualifying widow(er)". The Tax Commissioner publishes a rate schedule for the status and it is the married-filing-jointly figure in every band of every published year — $80,975 and $298,075 for 2025, $82,800 and $304,850 for 2026 — so the status exists AND its column is named, which is the stronger of the two forms of evidence in this list.',
   NY: 'IT-201 filing status 5; the instructions put its standard deduction at $16,050 for 2025, THE SAME AS MARRIED FILING JOINTLY.',
   OR: 'Form OR-40 carries the status, and this package stores Oregon figures against it explicitly — see `oregon.ts`.',
   SC: 'SC1040 instructions, every year from 2015 to 2025: "choose the same filing status that you used on your federal return. Check only one box." So the federal status carries across and South Carolina writes no schedule of its own against it — which is the same evidence Colorado, Idaho and Utah are here on, and it is the WEAKEST of the three forms in this list. What was NOT read: the box label on the 2026 SC1040, and the 2025 booklet qualifies the rule with "generally will match your federal return" without naming the exception. What supports it beyond the instructions is that Act 110\u2019s SCIAD table carries a figure for the status at the joint amount ($30,000), which is the joint column this package reads for it.',
@@ -158,7 +159,7 @@ function battery(state, year) {
 // surviving spouses under one schedule, so the status's existence and its
 // figure are the same sentence. The other nine are read off a form box or an
 // instruction that sends the filer to the federal status.
-test('the ledger of states that offer the status is the eleven the READMEs claim', () => {
+test('the ledger of states that offer the status is the twelve the READMEs claim', () => {
   assert.deepEqual(Object.keys(OFFERS_THE_STATUS).sort(), [
     'CA',
     'CO',
@@ -167,6 +168,7 @@ test('the ledger of states that offer the status is the eleven the READMEs claim
     'MN',
     'MO',
     'NC',
+    'ND',
     'NY',
     'OR',
     'SC',
@@ -175,7 +177,7 @@ test('the ledger of states that offer the status is the eleven the READMEs claim
   const namesTheJointFigure = Object.entries(OFFERS_THE_STATUS)
     .filter(([, cite]) => /SAME AS MARRIED FILING JOINTLY|married-filing-jointly figure/i.test(cite))
     .map(([state]) => state);
-  assert.deepEqual(namesTheJointFigure, ['CT', 'MN', 'NC', 'NY']);
+  assert.deepEqual(namesTheJointFigure, ['CT', 'MN', 'NC', 'ND', 'NY']);
   // Every entry says what was read, not just that something was.
   for (const [state, cite] of Object.entries(OFFERS_THE_STATUS)) {
     assert.ok(cite.length > 80, `${state}'s citation is too short to be one`);

@@ -1430,6 +1430,7 @@ const stateTool: ToolDefinition = {
     const itemized = readNumber(source, 'stateItemizedDeductions');
     const capitalGain = readNumber(source, 'netCapitalGain');
     const arizonaLongTermGain = readNumber(source, 'longTermCapitalGainAfter2011');
+    const qualifiedDividends = readNumber(source, 'qualifiedDividends');
     const federalItemized = source['federalItemized'];
     if (federalItemized !== undefined && typeof federalItemized !== 'boolean') {
       throw new ToolInputError('federalItemized must be true or false.');
@@ -1450,6 +1451,7 @@ const stateTool: ToolDefinition = {
       ['stateItemizedDeductions', itemized],
       ['netCapitalGain', capitalGain],
       ['longTermCapitalGainAfter2011', arizonaLongTermGain],
+      ['qualifiedDividends', qualifiedDividends],
       ['federalItemized', federalItemized],
     ] as const) {
       if (value === undefined) continue;
@@ -1807,6 +1809,7 @@ const stateTool: ToolDefinition = {
       ...(arizonaLongTermGain !== undefined
         ? { longTermCapitalGainAfter2011: arizonaLongTermGain }
         : {}),
+      ...(qualifiedDividends !== undefined ? { qualifiedDividends } : {}),
       ...(locality !== undefined ? { locality: locality as LocalityCode } : {}),
       ...(yonkersEarnings !== undefined ? { yonkersNonresidentEarnings: yonkersEarnings } : {}),
       ...(qbi !== undefined || overtime !== undefined || tips !== undefined

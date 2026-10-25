@@ -368,7 +368,11 @@ test('every number in every staircase moves a pinned answer', () => {
   // phase-out start and the denominator across the statuses that differ, plus
   // the $10 the reduction is rounded down to. Every one is reached by a probe,
   // which is the assertion above rather than this count.
-  assert.equal(checked, 1_575, 'numbers inside the staircases this package ships');
+  // 1,615 from Day 61: North Dakota's rate schedule contributes forty — two
+  // thresholds and three rates in each of five statuses, in each of two years —
+  // and none of them is a staircase in the Connecticut sense, which is why the
+  // exempt count below does not move with them.
+  assert.equal(checked, 1_615, 'numbers inside the staircases this package ships');
   assert.equal(exempt.length, 14, 'staircase rows nothing can reach — four rows, both years, Connecticut\'s in two columns and Oregon\'s in three, all documented');
 });
 

@@ -77,7 +77,7 @@ function federalFields() {
 }
 
 const LISTS = [
-  ['StateIncomeTaxInput', [...KNOWN_STATE_INPUT_FIELDS], 54],
+  ['StateIncomeTaxInput', [...KNOWN_STATE_INPUT_FIELDS], 55],
   ['EstimateInput', federalFields(), 41],
 ];
 

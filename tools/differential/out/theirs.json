@@ -35638,5 +35638,1325 @@
    "tax": 4396.013671875
   },
   "error": null
+ },
+ "2025-single-worker-ND-15000-0-0-0-0": {
+  "id": "2025-single-worker-ND-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 313.92999267578125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-worker-ND-30000-0-0-0-0": {
+  "id": "2025-single-worker-ND-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 14250.0,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-worker-ND-50000-0-0-0-0": {
+  "id": "2025-single-worker-ND-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-worker-ND-80000-0-0-0-0": {
+  "id": "2025-single-worker-ND-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 64250.0,
+   "incomeTaxBeforeCredits": 9049.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 307.61248779296875
+  },
+  "error": null
+ },
+ "2025-single-worker-ND-150000-0-0-0-0": {
+  "id": "2025-single-worker-ND-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 25067.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1672.612548828125
+  },
+  "error": null
+ },
+ "2025-single-worker-ND-400000-0-0-0-0": {
+  "id": "2025-single-worker-ND-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 384250.0,
+   "incomeTaxBeforeCredits": 104034.75,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7314.4501953125
+  },
+  "error": null
+ },
+ "2025-couple-two-children-ND-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-ND-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7152.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-couple-two-children-ND-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-ND-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 28500.0,
+   "incomeTaxBeforeCredits": 2943.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 932.98193359375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-couple-two-children-ND-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-ND-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 68500.0,
+   "incomeTaxBeforeCredits": 7743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-couple-two-children-ND-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-ND-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 168500.0,
+   "incomeTaxBeforeCredits": 26898.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1706.737548828125
+  },
+  "error": null
+ },
+ "2025-single-parent-ND-12000-0-0-0-0": {
+  "id": "2025-single-parent-ND-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-parent-ND-25000-0-0-0-0": {
+  "id": "2025-single-parent-ND-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 1375.0,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.330078125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-parent-ND-45000-0-0-0-0": {
+  "id": "2025-single-parent-ND-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 21375.0,
+   "incomeTaxBeforeCredits": 2225.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-ND-0-0-40000-0-0": {
+  "id": "2025-retired-couple-ND-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-ND-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-ND-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-ND-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-ND-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 31400.0,
+   "incomeTaxBeforeCredits": 3291.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-ND-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-ND-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 77300.0,
+   "incomeTaxBeforeCredits": 8799.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-retiree-ND-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-ND-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-retiree-ND-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-ND-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-investor-ND-50000-0-0-20000-0": {
+  "id": "2025-investor-ND-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 54250.0,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-investor-ND-50000-0-0-100000-0": {
+  "id": "2025-investor-ND-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 892.6124877929688
+  },
+  "error": null
+ },
+ "2025-separate-ND-60000-0-0-0-0": {
+  "id": "2025-separate-ND-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 44250.0,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 73.61250305175781
+  },
+  "error": null
+ },
+ "2025-muni-retiree-ND-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-ND-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 47300.0,
+   "incomeTaxBeforeCredits": 5199.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-couple-no-children-ND-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-ND-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 92.84503173828125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-couple-no-children-ND-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-ND-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 43500.0,
+   "incomeTaxBeforeCredits": 4743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-ND-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-ND-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 8500.0,
+   "incomeTaxBeforeCredits": 850.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5950.0,
+   "earnedIncomeCredit": 6038.98193359375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-ND-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-ND-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 58500.0,
+   "incomeTaxBeforeCredits": 6543.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-parent-high-ND-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-ND-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 66375.0,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 27.787500381469727
+  },
+  "error": null
+ },
+ "2025-single-parent-teen-ND-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-ND-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 11375.0,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2466.330078125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-separate-with-child-ND-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-ND-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 29250.0,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-ND-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-ND-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 13500.0,
+   "incomeTaxBeforeCredits": 1350.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-ND-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-ND-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 218500.0,
+   "incomeTaxBeforeCredits": 38134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2681.737548828125
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-ND-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-ND-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 268500.0,
+   "incomeTaxBeforeCredits": 50134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3656.737548828125
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-ND-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-ND-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 418500.0,
+   "incomeTaxBeforeCredits": 88046.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7244.0751953125
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-ND-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-ND-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4328.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-ND-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-ND-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 3904.530029296875
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-ND-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-ND-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-young-ND-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-ND-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 39250.0,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-early-retiree-ND-0-50000-0-0-0": {
+  "id": "2025-early-retiree-ND-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-ND-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-ND-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 38500.0,
+   "incomeTaxBeforeCredits": 4143.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-blind-worker-ND-40000-0-0-0-0": {
+  "id": "2025-blind-worker-ND-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 22250.0,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-blind-senior-ND-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-ND-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4600.0,
+   "incomeTaxBeforeCredits": 460.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-ND-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-ND-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 69.330078125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-ND-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-ND-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 84250.0,
+   "incomeTaxBeforeCredits": 13449.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 697.6124877929688
+  },
+  "error": null
+ },
+ "2026-single-worker-ND-15000-0-0-0-0": {
+  "id": "2026-single-worker-ND-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 347.2900085449219
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-worker-ND-30000-0-0-0-0": {
+  "id": "2026-single-worker-ND-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 13900.0,
+   "incomeTaxBeforeCredits": 1420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-worker-ND-50000-0-0-0-0": {
+  "id": "2026-single-worker-ND-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-worker-ND-80000-0-0-0-0": {
+  "id": "2026-single-worker-ND-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 63900.0,
+   "incomeTaxBeforeCredits": 8770.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 279.3374938964844
+  },
+  "error": null
+ },
+ "2026-single-worker-ND-150000-0-0-0-0": {
+  "id": "2026-single-worker-ND-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 24734.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1644.3375244140625
+  },
+  "error": null
+ },
+ "2026-single-worker-ND-400000-0-0-0-0": {
+  "id": "2026-single-worker-ND-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 383900.0,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7253.58740234375
+  },
+  "error": null
+ },
+ "2026-couple-two-children-ND-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-ND-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7316.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-couple-two-children-ND-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-ND-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 27800.0,
+   "incomeTaxBeforeCredits": 2840.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 1242.2958984375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-couple-two-children-ND-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-ND-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 67800.0,
+   "incomeTaxBeforeCredits": 7640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-couple-two-children-ND-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-ND-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 167800.0,
+   "incomeTaxBeforeCredits": 26340.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1657.5
+  },
+  "error": null
+ },
+ "2026-single-parent-ND-12000-0-0-0-0": {
+  "id": "2026-single-parent-ND-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-parent-ND-25000-0-0-0-0": {
+  "id": "2026-single-parent-ND-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 850.0,
+   "incomeTaxBeforeCredits": 85.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1785.0,
+   "earnedIncomeCredit": 4249.6220703125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-parent-ND-45000-0-0-0-0": {
+  "id": "2026-single-parent-ND-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 20850.0,
+   "incomeTaxBeforeCredits": 2148.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-ND-0-0-40000-0-0": {
+  "id": "2026-retired-couple-ND-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-ND-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-ND-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-ND-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-ND-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 30600.0,
+   "incomeTaxBeforeCredits": 3176.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-ND-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-ND-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 76500.0,
+   "incomeTaxBeforeCredits": 8684.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-retiree-ND-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-ND-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-retiree-ND-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-ND-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 35650.0,
+   "incomeTaxBeforeCredits": 4030.0,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-investor-ND-50000-0-0-20000-0": {
+  "id": "2026-investor-ND-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 53900.0,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-investor-ND-50000-0-0-100000-0": {
+  "id": "2026-investor-ND-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 864.3375244140625
+  },
+  "error": null
+ },
+ "2026-separate-ND-60000-0-0-0-0": {
+  "id": "2026-separate-ND-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 43900.0,
+   "incomeTaxBeforeCredits": 5020.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 48.75
+  },
+  "error": null
+ },
+ "2026-muni-retiree-ND-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-ND-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 46500.0,
+   "incomeTaxBeforeCredits": 5084.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-couple-no-children-ND-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-ND-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 139.21002197265625
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-couple-no-children-ND-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-ND-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 42800.0,
+   "incomeTaxBeforeCredits": 4640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-ND-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-ND-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 7800.0,
+   "incomeTaxBeforeCredits": 780.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5880.0,
+   "earnedIncomeCredit": 6369.2958984375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-ND-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-ND-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 57800.0,
+   "incomeTaxBeforeCredits": 6440.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-parent-high-ND-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-ND-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 65850.0,
+   "incomeTaxBeforeCredits": 7548.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-parent-teen-ND-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-ND-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 10850.0,
+   "incomeTaxBeforeCredits": 1085.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2651.6220703125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-separate-with-child-ND-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-ND-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 28900.0,
+   "incomeTaxBeforeCredits": 3220.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-ND-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-ND-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 12800.0,
+   "incomeTaxBeforeCredits": 1280.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-ND-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-ND-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 217800.0,
+   "incomeTaxBeforeCredits": 37468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2632.5
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-ND-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-ND-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 267800.0,
+   "incomeTaxBeforeCredits": 49468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3607.5
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-ND-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-ND-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 417800.0,
+   "incomeTaxBeforeCredits": 86608.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7153.72509765625
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-ND-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-ND-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-ND-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-ND-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-ND-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-ND-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-young-ND-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-ND-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-early-retiree-ND-0-50000-0-0-0": {
+  "id": "2026-early-retiree-ND-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-ND-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-ND-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 37800.0,
+   "incomeTaxBeforeCredits": 4040.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-blind-worker-ND-40000-0-0-0-0": {
+  "id": "2026-blind-worker-ND-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 21850.0,
+   "incomeTaxBeforeCredits": 2374.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-blind-senior-ND-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-ND-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4150.0,
+   "incomeTaxBeforeCredits": 415.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-ND-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-ND-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-ND-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-ND-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 669.3375244140625
+  },
+  "error": null
  }
 }

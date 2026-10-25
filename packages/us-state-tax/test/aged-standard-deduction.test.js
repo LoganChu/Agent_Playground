@@ -101,6 +101,14 @@ const MOVERS = {
   'ID:2026': 108.65,
   'MO:2025': 94,
   'MO:2026': 96.35,
+  // NORTH DAKOTA, added Day 61, and the smallest figure in this table by a
+  // factor of two: $39.00 against Idaho's $106.00 on the same $2,000 of § 63(f)
+  // addition, because North Dakota charges 1.95% where Idaho charges 5.3%. It
+  // is here for the structural reason rather than the size of it — the base is
+  // federal TAXABLE income and nothing is added back, so every federal
+  // deduction reaches the state return at the state's own rate.
+  'ND:2025': 39,
+  'ND:2026': 39.98,
   'SC:2025': 120,
   'UT:2025': 120,
   'UT:2026': 123,

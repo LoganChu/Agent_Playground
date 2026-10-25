@@ -48,9 +48,26 @@ transcribed instead of imported.
 ## Usage
 
 ```bash
-node tools/cross-package/obbba-claims.mjs          # print every figure and its source
-node tools/cross-package/obbba-claims.mjs --check   # exit 1 on any disagreement
+node tools/cross-package/obbba-claims.mjs                # print every figure and its source
+node tools/cross-package/obbba-claims.mjs --check        # exit 1 on any disagreement
+node tools/cross-package/arizona-deduction.mjs --check   # a number right for the wrong reason
+node tools/cross-package/north-dakota-zero-band.mjs --check
+node tools/cross-package/lockfile-versions.mjs --check
 ```
+
+**`north-dakota-zero-band.mjs` is the clearest statement of why this directory exists.**
+North Dakota's zero bracket topped out at exactly the federal 12% bracket in 2023, 2024
+and 2025 — `$44,725`, `$47,150`, `$48,475`, the same three figures — because HB 1158
+(2023) took the federal figure as its base and N.D.C.C. § 57-38-30.3(1)(e) indexes it the
+same way. In 2026 they part, by `$825`, and **nothing about North Dakota changed**: OBBBA
+§ 70101 gave the federal 10% and 12% brackets an extra year of indexation and no other
+bracket anything.
+
+> **A COINCIDENCE THAT HELD FOR THREE YEARS LOOKS EXACTLY LIKE A RULE, AND NEITHER PACKAGE
+> CAN TELL THE DIFFERENCE FROM INSIDE ITSELF.** The state package stores the published
+> figures and derives nothing, which is right — and it cannot say *why* that is right,
+> because the fact it rests on is in the other package. A repository holding both can
+> check it on every push. A reader holding one cannot.
 
 Both engines must be built; the tool says so if they are not. It runs them rather than
 reading their source, so an advertised figure is checked against an **answer** and not

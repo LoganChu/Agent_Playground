@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.56.0/us-tax-mcp-0.56.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.57.0/us-tax-mcp-0.57.0.tgz"
       ]
     }
   }
@@ -238,7 +238,7 @@ the list beside it disagreed.
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 215 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 222 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 
@@ -608,7 +608,7 @@ question that decides the answer, and it is different in every state — which i
 describing the household a second time.
 
 **The One Big Beautiful Bill Act cut 2025 tax in states that never voted on it**, each by a
-different route, because each reaches under federal AGI somewhere. Four of them still read
+different route, because each reaches under federal AGI somewhere. Five of them still read
 the federal figure; Arizona stopped on 13 June 2026 and kept the same answer. The increase
 was $750 for a single filer — $15,000 to $15,750, Rev. Proc. 2024-40 superseded by
 OBBBA § 70102:
@@ -618,6 +618,7 @@ OBBBA § 70102:
 | Colorado | Starts from federal **taxable** income | $33.00 | rolling |
 | Idaho | Starts from federal **taxable** income | $39.75 | **static, 2026-01-01** |
 | Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | $35.25 | rolling |
+| North Dakota | Starts from federal **taxable** income | $14.63 | rolling |
 | Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $45.00 | rolling |
 | ~~Arizona~~ | **No longer reads it.** § 43-1041(A) carried the federal figure by cross-reference until HB 4168 replaced it with Arizona's own amounts, retroactive to 2025 | $18.75, from Arizona's own statute | **static, 2025-01-01**, and it no longer decides the deduction |
 
@@ -666,8 +667,8 @@ of bracket tax, pays $215.40 more supplemental tax, and owes **exactly the same*
 
 **New York City is bigger than most states, and it is not a state.** Pass `locality: "NYC"`
 and the city tax comes back beside the state one. A single filer at $100,000 owes the city
-**$3,174.69** — more than the entire state income tax of **thirteen of these twenty-seven
-states** at the same income. The published city rates are derived rather than stored:
+**$3,174.69** — more than the entire state income tax of **fifteen of these twenty-eight
+taxing states** at the same income, North Dakota's `$712.24` included. The published city rates are derived rather than stored:
 N.Y.C. Admin. Code § 11-1701 imposes 2.7% / 3.3% / 3.35% / 3.4%, § 11-1704.1 adds a tax of
 **14% of that tax**, and 2.7% x 1.14 = 3.078% to the last digit. The city earned income
 credit has been a sliding **30% to 10%** of the federal one since 2022, not the flat 5% it
@@ -1106,7 +1107,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **947 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **966 tests**, every state figure cited to its statute.
 This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
@@ -1145,9 +1146,9 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **15 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 36 states — AK, AL, AZ, CA, CO, CT, FL, GA, ID, IL, IN, KY,
-  LA, MA, MD, MI, MN, MO, MS, NC, NH, NJ, NV, NY, OH, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
+- **14 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 37 states — AK, AL, AZ, CA, CO, CT, FL, GA, ID, IL, IN, KY,
+  LA, MA, MD, MI, MN, MO, MS, NC, ND, NH, NJ, NV, NY, OH, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
   nothing else. Oklahoma, Iowa and Arkansas are absent, and asking for one is an error
   rather than a zero. Alabama's municipal occupational licence taxes — Birmingham's 1% of
   gross wages, Gadsden's 2% — are not modelled either. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,

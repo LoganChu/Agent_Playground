@@ -52,6 +52,7 @@ export type StateCode =
   | 'MO'
   | 'MS'
   | 'NC'
+  | 'ND'
   | 'NH'
   | 'NJ'
   | 'NV'
@@ -1616,6 +1617,31 @@ export interface StateIncomeTaxInput {
    */
   readonly longTermCapitalGainAfter2011?: number;
   /**
+   * **Qualified** dividends — Form 1040 line 3a, not line 3b — for North
+   * Dakota, which subtracts 40% of them on Form ND-1 line 13.
+   *
+   * N.D.C.C. § 57-38-30.3(2)(d)(2) gives qualified dividend income the same 40%
+   * North Dakota gives a long-term capital gain, and the pairing is the reason
+   * this is a field rather than something the caller nets into
+   * {@link subtractions}: **the two halves of that one provision read two
+   * different federal figures, and only one of them is anywhere in
+   * {@link netCapitalGain}.** A qualified dividend is ordinary income on a
+   * federal return — inside AGI, inside taxable income, and nowhere near
+   * Schedule D — so no arithmetic on the capital-gain fields can reach it.
+   *
+   * Line 3a and line 3b are the trap worth naming, because the larger figure is
+   * the wrong one. Line 3b is ORDINARY dividends and line 3a is the qualified
+   * subset of it; a 1099-DIV reports both and box 1a is the larger. Passing the
+   * ordinary figure overstates the subtraction by 40% of the difference, which
+   * is a North Dakota refund the filer is not owed.
+   *
+   * Treated as zero when absent, which leaves a North Dakota answer **too
+   * high**: 40% at the 1.95% band is 0.78% of the dividend, so `$10,000` of
+   * qualified dividends unsupplied is `$78.00` of North Dakota tax. The state's
+   * notes say so.
+   */
+  readonly qualifiedDividends?: number;
+  /**
    * Wages earned inside Yonkers by a filer who does **not** live there, Form
    * Y-203. Yonkers charges non-residents 0.5% of Yonkers-source earnings.
    *
@@ -1868,6 +1894,7 @@ export const KNOWN_STATE_INPUT_FIELDS = [
   'stateItemizedDeductions',
   'netCapitalGain',
   'longTermCapitalGainAfter2011',
+  'qualifiedDividends',
   'yonkersNonresidentEarnings',
   'city',
   'cityIncome',
@@ -2005,10 +2032,10 @@ export interface StateIncomeTaxOptions {
    * `filingStatus`, `federal`, whose removal asks a question with no answer),
    * and whose value carries a figure at all: a `0`, `false`, `''` or empty
    * collection is the caller answering no, and is skipped. So a bare return pays
-   * NOTHING, every field it has being structural; and of the 54 fields
-   * {@link StateIncomeTaxInput} has, 50 are probable, so a caller who fills in
-   * every one of them and answers no to half of those 50 pays for 25 probes and
-   * not 54.
+   * NOTHING, every field it has being structural; and of the 55 fields
+   * {@link StateIncomeTaxInput} has, 51 are probable, so a caller who fills in
+   * every one of them and answers no to half of those 51 pays for 26 probes and
+   * not 55.
    *
    * On this project's sandbox at the time of writing a probed field costs about
    * 35 microseconds: one more whole return is 4.5 of it and one serialization is

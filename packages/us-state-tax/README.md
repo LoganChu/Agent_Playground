@@ -1,11 +1,23 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **36
-states** including **LOUISIANA**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **37
+states** including **NORTH DAKOTA**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.53.0: **NORTH DAKOTA, AND THE PUBLISHED RATE SCHEDULE THIS PACKAGE CAN PROVE IT CANNOT DERIVE.** The twenty-eighth taxing state: three bands at **0%, 1.95% and 2.50%** under HB 1158 (2023), on a base of federal **taxable** income, with a top rate that ties Arizona's for the lowest in the country. A single filer's first `$48,475` of 2025 taxable income is untaxed and a joint return's first `$80,975`; for 2026 it is `$49,575` and `$82,800`.
+
+**The eight indexed thresholds cannot be reproduced from last year's by any single multiplier, and `test/north-dakota.test.js` runs the search rather than asserting the conclusion.** N.D.C.C. § 57-38-30.3(1)(e) indexes them by the federal cost-of-living adjustment, so the obvious check on a published table is whether one factor reaches it. Over every combination of base year (2023, 2024, 2025), rounding interval (`$25`, `$50`) and direction (down, nearest, up) — eighteen in all — **none does**. Two things obstruct it and each is worth knowing on its own: married filing separately is not independently indexed (it is the joint figure halved and floored to `$25`, in all four published years), and the two head-of-household thresholds are each exactly `$25` below what the factor the single and joint columns agree on would give. **So a model that projects North Dakota's brackets instead of reading them is wrong, by `$0.49` of tax, in the direction nothing queries.** This package stores all eight figures a year and derives none.
+
+**And the zero band WAS the federal 12% bracket for three years, and in 2026 it is not.** `$44,725`, `$47,150`, `$48,475` — North Dakota's single-filer zero band and the federal 12% bracket, the same three figures, because HB 1158 took the federal 2023 number as its base. For 2026 North Dakota's is `$49,575` and the federal one is `$50,400`, because **OBBBA § 70101 moved the chained-CPI base year from 2017 to 2016 for the federal 10% and 12% brackets alone** and left N.D.C.C. § 57-38-30.3(1)(e) untouched. `$825` of zero-rated income and `$16.09` of tax, caused by a federal act that says nothing about North Dakota — and a model that learned the equality from three years of data is wrong in the fourth. `tools/cross-package/north-dakota-zero-band.mjs` checks both halves against `us-federal-tax`'s own tables on every push, because **neither package can check it from inside itself.**
+
+**One forty percent, two bases, and the second is not a capital gain at all.** § 57-38-30.3(2)(d) subtracts 40% of the excess of net long-term capital gain over net short-term capital loss (ND-1 line 6) **and** 40% of qualified dividend income (line 13). The first is this package's `longTermNetted` basis, which North Dakota reaches by its own words as Wisconsin does and South Carolina by a federal cross-reference — so Congress amending IRC § 1222(11) would move South Carolina's base and leave the other two where they are. The second needs a new input, **`qualifiedDividends`**, because a qualified dividend is ordinary income on a federal return and is nowhere inside Form 1040 line 7: a filer with `$20,000` of dividends and no gains has an `$8,000` subtraction that no capital-gain field can produce. **Form 1040 line 3a, not 3b** — a 1099-DIV numbers them the other way round and the larger figure is the wrong one.
+
+**Social Security out in full with no income test, military retired pay out in full at any age, and nothing else out at all.** North Dakota is grouped with the retiree-friendly states on the strength of those two, and for a retired civil servant it is an ordinary taxing state: a federal civilian pension, a state pension, a 401(k) draw and an IRA distribution are taxed in full. It still charges a 70-year-old couple with `$40,000` of Social Security and `$60,000` of pension **nothing**, and the reason is the shape of the schedule rather than any retirement provision — the federal standard deduction is already spent inside line 1, the taxable benefit comes back out, and what is left is far inside an `$82,800` zero bracket.
+
+**`provisional` is a claim about the publisher, not about the reader, and the compiler is what settled it.** North Dakota's 2026 schedule rests on a Tax Commissioner form this sandbox could not open. The first draft marked the state-year `provisional` with an invented reason of `unreadPrimarySource`; every value of that union is a statement about the STATE — the figure is not out yet, the law cannot settle it until the year ends, it is derived under a bound — and "nothing here could open the document" is none of them. Both years ship `published` and the citation says NOT OPENED FROM THIS SANDBOX in its own words.
 
 New in 0.52.0: **LOUISIANA, AND THE HALF OF ITS 2025 REFORM THAT NO SUMMARY LEADS WITH — Act 11 of the 2024 Third Extraordinary Session did not only flatten the rate to 3%, it REPEALED EVERY EXEMPTION THE STATE HAD.** The `$4,500`/`$9,000` personal exemption, the `$1,000` per dependent, the `$1,000` for a filer of 65 and the `$1,000` for a blind filer are all gone, replaced by a standard deduction of `$12,500`/`$25,000`. So a 2025 Louisiana return has **no per-dependent allowance of any kind** and no addition for age or blindness, and this package carries no `exemption` rule for Louisiana at all — the only state here that reached zero exemptions by repealing them rather than by never having had any. A table still printing Louisiana's `$4,500` personal exemption is describing law that was repealed before the tax year began.
 
@@ -705,7 +717,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.52.0/us-state-tax-0.52.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.53.0/us-state-tax-0.53.0.tgz
 ```
 
 ## The rate is the easy part
@@ -869,14 +881,15 @@ two rounded figures is not the factor.
 
 OBBBA raised the 2025 federal standard deduction from `$15,000` to `$15,750` for a single
 filer in July 2025 — an increase of **`$750`** (`$1,500` joint, `$1,125` head of
-household). **Four** of the states here pass that through — five until 13 June 2026, when
-Arizona stopped:
+household). **Five** of the states here pass that through — four until North Dakota
+arrived on Day 61, and five before 13 June 2026, when Arizona stopped:
 
 | State | How it reads the federal figure | Cut, single | Conformity |
 | --- | --- | --- | --- |
 | Colorado | Starts from federal taxable income | `$33.00` | rolling |
 | Idaho | Starts from federal taxable income | `$39.75` | **static, 2026-01-01** |
 | Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | `$35.25` | rolling |
+| North Dakota | Starts from federal taxable income | `$14.63` | rolling |
 | Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | `$45.00` | rolling |
 | ~~Arizona~~ | **No longer reads it at all.** § 43-1041(A) carried the federal figure by cross-reference until HB 4168 replaced it with Arizona's own amounts, retroactive to 2025 | `$18.75`, but from Arizona's own statute | **static, 2025-01-01**, and it no longer decides the deduction |
 
@@ -886,8 +899,12 @@ Illinois and Michigan, on federal AGI, got nothing.
 five figures agree about what happened and disagree completely about *why*, and the
 difference is what a reader actually has to trust:
 
-- **Colorado, Missouri and Utah** read the Code as it stands. The increase arrived with no
-  state act, no state form change and no state announcement.
+- **Colorado, Missouri, North Dakota and Utah** read the Code as it stands. The increase
+  arrived with no state act, no state form change and no state announcement.
+- **North Dakota is the smallest cut in the table and the clearest case of the mechanism**,
+  because it has nothing else going on: no state deduction, no exemption, no cross-
+  reference to maintain. The federal `$750` lands in a 1.95% bracket and that is the whole
+  of it. The figure is small because the rate is, not because the state did anything.
 - **Idaho** was frozen at 1 January 2025 when OBBBA passed on 4 July 2025, so Idaho's 2025
   answer was the *pre-OBBBA* one until **HB 559 was signed on 10 February 2026** and
   backdated the new conformity date to 1 January 2025. The answer in the table became
@@ -1004,10 +1021,22 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of thirteen of the twenty-seven
-states in this package** at the same income — every one of the nine with no income tax,
-plus Arizona, Indiana, Ohio and Pennsylvania. Omit the locality on a New York return and the
-result says so, and says what it would have cost this filer.
+That `$3,174.69` is **more than the entire state income tax of fifteen of the twenty-eight
+taxing states in this package** at the same income — every one of the nine with no income
+tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. Omit the
+locality on a New York return and the result says so, and says what it would have cost this
+filer.
+
+**North Dakota is the cheapest of the fifteen by a factor of three: `$712.24`**, against
+Arizona's `$2,106.25`, because `$48,475` of this filer's `$85,000` is in a zero bracket and
+the rest is taxed at 1.95%. A New York City resident on `$100,000` pays their city more
+than four times what North Dakota charges for the whole state.
+
+This sentence was stale for a day and nothing failed. It said *thirteen of the twenty-seven*
+and named four taxing states when Louisiana had already made it fourteen and five —
+`readme.test.js` measured the count against the engine and never compared it to the prose
+beside it, which is the Day 60 gap-list defect one section over, introduced on the day the
+rule was written. It is now read out of this paragraph and checked in both directions.
 
 **The published city rates are derived, not stored.** N.Y.C. Admin. Code § 11-1701 imposes
 2.7% / 3.3% / 3.35% / 3.4%; nobody has ever paid those, because § 11-1704.1 adds a tax of
@@ -2865,7 +2894,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,575 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,615 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2898,7 +2927,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **717** notes every
+`test/notes.test.js` pins the first 72 characters of all **743** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2918,13 +2947,13 @@ and a disagreement is checkable without knowing which is right.
 And a rule's `name` is now checked against the rule. A name travels in the result
 object — `"Michigan retirement and pension benefits deduction (phased in, 75% for
 2025)"` — so a percentage or a dollar figure printed in one is a claim a caller
-reads, and all 21 of them are now required to equal a figure the rule actually holds.
+reads, and all 25 of them are now required to equal a figure the rule actually holds.
 
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,655 numeric
-figures over 72 state-years, against 508 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,723 numeric
+figures over 74 state-years, against 528 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2970,14 +2999,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,325 figures of tax year
+The `kind` field answers one operational question. Over the 2,359 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,891** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,915** |
 | the statute's own schedule (`statute-scheduled`) | **113** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **314** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **324** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -3062,12 +3091,12 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.52.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.53.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **27 of the 42 taxing jurisdictions, so 36 states in all.** The fifteen that are
+- **28 of the 42 taxing jurisdictions, so 37 states in all.** The fourteen that are
   missing: Oklahoma, Iowa, Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
-  Rhode Island, Vermont, Delaware, Hawaii, North Dakota, West Virginia, and the
+  Rhode Island, Vermont, Delaware, Hawaii, West Virginia, and the
   District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a
   declared list of the uncovered jurisdictions rather than from a sentence — because
@@ -3211,7 +3240,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **947 tests**. Turning it on, when there were 618 of them, is what
+from all **966 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

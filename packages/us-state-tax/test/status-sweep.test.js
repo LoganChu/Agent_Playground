@@ -383,7 +383,13 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // each of two years, and three of the five are DERIVED from the single figure
   // by R.S. 47:294(A)(2)'s 200% rather than stored, so a mutation of the single
   // amount moves three cells at once.
-  assert.equal(checked, 1058, 'byStatus cells with a parameter the harness would mutate');
+  // 1,068 from Day 61: North Dakota's ten are its two bracket CEILINGS in each
+  // of five statuses, in each of two years — twenty cells, of which the ten
+  // this check counts are the ones in a `byStatus` table the harness mutates.
+  // Unlike Louisiana's, not one of them is derived: every figure is read off a
+  // published schedule, which is the finding `test/north-dakota.test.js`
+  // establishes by failing to derive them.
+  assert.equal(checked, 1068, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -417,7 +423,9 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
     }
   }
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
-  assert.equal(inside, 3_262, 'numbers inside those cells');
+  // 3,302 from Day 61: North Dakota's forty are its five statuses x two
+  // thresholds x two years, each sitting in a `byStatus` bracket table.
+  assert.equal(inside, 3_302, 'numbers inside those cells');
   // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
   // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,

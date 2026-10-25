@@ -413,6 +413,25 @@ function coInputs(name, state) {
     case 'netCapitalGain':
       out.push({ longTermCapitalGainAfter2011: 40_000 });
       break;
+    // DAY 61, AND THIS CASE IS THE FINDING RATHER THAN THE FIX. The short-term
+    // figure is an AMOUNT in Massachusetts, which taxes it at 8.5% on a line of
+    // its own, and a REDUCTION in Wisconsin, South Carolina and North Dakota,
+    // whose long-term exclusions net the short-term items out of their base
+    // first. In those three it moves nothing at all unless `netCapitalGain` is
+    // supplied beside it, because Form 1040 line 7 is where the long-term half
+    // is read from — so the one-field ladder found the field dead in all three,
+    // and the gate list that refused it to all three looked harmless for
+    // eighteen days. `shortTermCapitalGains` was declared for Massachusetts
+    // alone until Day 61.
+    //
+    //   A GATE LIST IS GUARDED BY A WITNESS, AND A WITNESS THAT VARIES ONE
+    //   FIELD CANNOT SEE A RULE THAT READS TWO. The rule is Day 56's, written
+    //   about the engine's unread-field probe; it applies unchanged to the
+    //   probe that guards this server's refusals, and nothing had carried it
+    //   across.
+    case 'shortTermCapitalGains':
+      out.push({ netCapitalGain: 60_000 });
+      break;
     case 'stateItemizedDeductions':
       out.push({ federalItemized: true });
       break;

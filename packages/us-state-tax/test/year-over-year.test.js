@@ -212,7 +212,18 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // somebody read a notice that already existed and Minnesota because the notice
   // arrived in time; Louisiana is on it because before 2026 there was no notice
   // to read and nothing that could have been carried forward.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'NY', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  //
+  // NORTH DAKOTA joins for an EIGHTH reason, and it is the one that most
+  // resembles ordinary indexation and is not: its rate schedule is indexed
+  // annually and the 2026 figures were read off the state's own published
+  // schedule, so far it is Minnesota's story — but North Dakota is also the
+  // first state here whose published figures CANNOT BE DERIVED from its own
+  // previous ones. No single multiplier, under any rounding, carries its eight
+  // 2025 thresholds to its eight 2026 ones. Wisconsin joined this list because
+  // arithmetic could reach a figure nobody had published; North Dakota is on it
+  // because arithmetic could NOT reach figures somebody had, and the only way
+  // onto the list was to read them.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

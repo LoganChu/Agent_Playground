@@ -227,7 +227,8 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
     'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MI',
-    'MS', 'MO', 'NC', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA', 'WY',
+    'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA',
+    'WY',
   ] as const
 ).map((state) => ({
   state,
@@ -1400,6 +1401,92 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'retirementIncomeSubtractions.*.cap',
     kind: 'sentinel',
     cite: 'zero, which together with `militaryReducesCap` exempts military retired pay in full and leaves nothing else in the pool. It encodes "North Carolina taxes every other pension in full" rather than being a figure read from a document',
+    constant: true,
+  },
+
+  // =========================================================================
+  // NORTH DAKOTA — twenty-nine figures a year and only two kinds between them,
+  // which makes this the cleanest statement in the ledger of the distinction
+  // the whole file exists to draw. Three RATES, legislated once in 2023 and
+  // untouched since. Twenty-four THRESHOLDS, indexed every year and read off a
+  // published schedule, never carried forward: all eight moved between 2025 and
+  // 2026, which is why the `indexed` entries below can claim `constant: false`
+  // and need no `why`.
+  //
+  // AND THE LEDGER CANNOT SAY WHAT THIS STATE'S INDEXATION *IS*, which is the
+  // entry worth reading. § 57-38-30.3(1)(e) indexes the thresholds by the
+  // federal cost-of-living adjustment, and no single multiplier under any
+  // rounding carries the published 2025 schedule to the published 2026 one —
+  // see `states/north-dakota.ts` and `test/north-dakota.test.js`, which runs
+  // the search. So `indexed` here means "the state indexed it and published the
+  // result", and emphatically not "this package could reproduce it". Nothing is
+  // `derived`: the married-filing-separately column IS half the joint one in
+  // all four published years and that relation is asserted in the test rather
+  // than applied in the module, because no document available here states it.
+  // =========================================================================
+  {
+    state: 'ND',
+    path: 'rate.byStatus.*.0.rate',
+    kind: 'statute',
+    document: '§ 57-38-30.3(1)',
+    cite: 'N.D.C.C. § 57-38-30.3(1) as amended by HB 1158 (2023) — the first bracket is taxed at 0%, which is the definition of the bracket rather than a figure published for a year',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'rate.byStatus.*.1.rate',
+    kind: 'statute',
+    document: '§ 57-38-30.3(1)',
+    cite: 'N.D.C.C. § 57-38-30.3(1) as amended by HB 1158 (2023) — 1.95%, the middle of three rates that replaced a five-bracket schedule topping out at 2.9%. A printed figure with no indexation provision and no revenue trigger between the two years here',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'rate.byStatus.*.2.rate',
+    kind: 'statute',
+    document: '§ 57-38-30.3(1)',
+    cite: 'N.D.C.C. § 57-38-30.3(1) as amended by HB 1158 (2023) — 2.50%, the top rate, which ties Arizona for the lowest in the country among states that tax wage income',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'rate.byStatus.*.*.upTo',
+    years: [2025],
+    kind: 'indexed',
+    document: '2025 North Dakota Individual Income Tax booklet',
+    cite: 'the 2025 rate schedules on page 29 of the instruction booklet — $48,475 and $244,825 single, $80,975 and $298,075 joint and surviving spouse, $40,475 and $149,025 separate, $64,950 and $271,450 head of household, indexed under § 57-38-30.3(1)(e) from the 2023 figures HB 1158 printed. NOT OPENED FROM THIS SANDBOX: tax.nd.gov does not resolve here, and the figures are the Tax Commissioner\'s own rate-schedule page as server-side search read it, agreed by policyengine-us 2.63.3 and two commercial tables',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'rate.byStatus.*.*.upTo',
+    years: [2026],
+    kind: 'indexed',
+    document: '2026 Form ND-1ES',
+    cite: 'the 2026 estimated-tax rate schedules on page 2 of Form ND-1ES — $49,575 and $250,400 single, $82,800 and $304,850 joint and surviving spouse, $41,400 and $152,425 separate, $66,400 and $277,600 head of household. INDEXED AND READ, not carried forward: every one of the eight moved. NOT OPENED FROM THIS SANDBOX; the figures are policyengine-us 2.63.3\'s, which cites this form, corroborated figure for figure by two independent third parties against two more that simply carry 2025 forward. All eight moved from 2025, which `test/north-dakota.test.js` asserts figure by figure rather than this entry claiming it: a one-year entry cannot carry a `constant: false`',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: '§ 57-38-30.3(2)(d)',
+    cite: 'N.D.C.C. § 57-38-30.3(2)(d)(1) — forty percent of the excess of net long-term capital gain over net short-term capital loss. Raised from thirty percent in 2013 and unmoved since',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'qualifiedDividendSubtraction.share',
+    kind: 'statute',
+    document: '§ 57-38-30.3(2)(d)',
+    cite: 'N.D.C.C. § 57-38-30.3(2)(d)(2) — forty percent of qualified dividend income. The SAME percentage as the capital gain exclusion above, spent on a different base: Form 1040 line 3a, which is ordinary income and is not on Schedule D at all',
+    constant: true,
+  },
+  {
+    state: 'ND',
+    path: 'retirementIncomeSubtractions.*.cap',
+    kind: 'sentinel',
+    cite: 'zero, which together with `militaryReducesCap` exempts military retired pay in full and leaves nothing else in the pool. North Carolina\'s construction exactly, and the same encoding of "every other pension is taxed in full" rather than a figure read from a document',
     constant: true,
   },
 

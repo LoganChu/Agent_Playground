@@ -96,7 +96,7 @@ const fail = (...lines) => {
  * its own in `arizona-deduction.mjs` — which is where Arizona's $18.75 is
  * asserted now that it cannot be measured by moving the federal figure.
  */
-const SENSITIVE = ['CO', 'ID', 'MO', 'UT'];
+const SENSITIVE_HAND_LIST_UNTIL_DAY_61 = ['CO', 'ID', 'MO', 'UT'];
 
 /**
  * Utah's cut has to be measured where its Taxpayer Tax Credit is still live —
@@ -171,7 +171,37 @@ const cut = (code, from, to) => {
   return at(from) - at(to);
 };
 
-const NAMES = { CO: 'Colorado', ID: 'Idaho', MO: 'Missouri', UT: 'Utah' };
+/**
+ * And the list, DERIVED — because the hand-written one above went stale on the
+ * first new state that joined the set.
+ *
+ * North Dakota's base is federal TAXABLE income and it adds nothing back, so it
+ * reads the federal standard deduction in full and belongs here; the literal
+ * said four states and the engine had five. The derivation is the state's own
+ * `federalConformity.governs`, which `test/federal-conformity.test.js` already
+ * requires to be `belowTheLine` exactly where the tax MEASURABLY moves with the
+ * federal figure — so this list is now downstream of a measurement rather than
+ * of a memory.
+ */
+const SENSITIVE = state.SUPPORTED_STATES.filter(
+  (code) => state.getStateDefinition(code, 2025)?.federalConformity?.governs === 'belowTheLine',
+);
+
+const NAMES = {
+  CO: 'Colorado',
+  ID: 'Idaho',
+  MO: 'Missouri',
+  ND: 'North Dakota',
+  UT: 'Utah',
+};
+
+if (SENSITIVE.some((code) => !NAMES[code])) {
+  fail(
+    `the derived sensitive set names a state this tool has no name for: ${SENSITIVE.filter((c) => !NAMES[c]).join(', ')}.`,
+    'Add it to NAMES and to the OBBBA table in both READMEs; the table below is what',
+    'the READMEs are checked against.',
+  );
+}
 
 const rows = SENSITIVE.map((code) => ({
   code,

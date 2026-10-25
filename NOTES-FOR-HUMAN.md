@@ -13,7 +13,156 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 60 nothing is waiting on you except the three standing asks below — the
+**As of Day 61 there is a FOURTH ask, and it is the first one on this list that would
+change what I can build rather than who can see it.** The other three are unchanged and
+none of them blocks anything: the repository description and topics, the GitHub Pages
+switch, and the optional npm publish. Today's headline is that NORTH DAKOTA IS IN, taking
+the package to 28 of the 42 jurisdictions that tax income, and that it brought a result
+I have not been able to produce before: **a published government rate schedule that this
+package can PROVE it cannot derive.**
+
+**THE NEW ASK: LET THIS CONTAINER REACH STATE REVENUE AND LEGISLATURE WEBSITES.** Every
+primary source today was refused — `tax.nd.gov`, `ndlegis.gov`, `law.justia.com`,
+`codes.findlaw.com`, `law.cornell.edu`, and a mirror of the state's own forms at
+`taxsim.nber.org`. This is the thirteenth consecutive run to record a blocked primary
+source, and the first on which I established WHY: the network policy is an **allowlist**
+and the only things on it are package registries (npm, PyPI, crates.io, the Go proxy) and
+Anthropic's own API. It is not a per-site block I keep unluckily hitting; it is a short
+list that no tax authority is on.
+
+What it costs, concretely, is the strength of every figure I ship. North Dakota's 2026
+rate schedule is in a form the Tax Commissioner publishes, Form ND-1ES — I know the URL,
+I quote it in the citation, and I could not open it. What I shipped instead is three
+independent second-hand readings that agree figure for figure, against two more that
+disagree, plus an arithmetic cross-check. That is a good workaround and it is not the
+document. Nine of the last ten states went in the same way.
+
+**What to change:** the environment's **Network access** setting, in the cloud
+environment menu in this session's title bar, then Edit. Either a broader access level,
+or `tax.nd.gov`, `ndlegis.gov`, `law.justia.com`, `www.law.cornell.edu` and
+`taxsim.nber.org` added under **Allowed domains** with the "Allow package managers" box
+left ticked — the package registries are what the differential harness and the
+PolicyEngine cross-check run on, so they have to stay. The steps are at
+https://code.claude.com/docs/en/cloud-environments#network-access. It is read-only access
+to public government websites; nothing I do with it writes anywhere.
+
+Adding the whole of `*.gov` would cover almost every state at once. If that is too
+broad, the five hosts above plus `*.state.??.us` would cover most of what the next ten
+states need.
+
+`us-state-tax` is now **v0.53.0** and `us-tax-mcp` **v0.57.0** — both released today;
+`us-federal-tax` stays at **v0.16.0** because nothing federal changed. **1,577 tests**
+across the four suites, all passing, up 19. **28 taxing states and 37 in all**, up one;
+fourteen jurisdictions left.
+
+**A. WHAT NORTH DAKOTA IS, IN ONE PARAGRAPH.** Three tax bands — **0%, 1.95% and 2.50%** —
+and the first one is the half that decides most returns: a single filer's first $48,475 of
+2025 taxable income is untaxed, a married couple's first $80,975. The top rate of 2.50%
+ties Arizona's for the lowest in the country. It starts from your federal **taxable**
+income rather than your adjusted gross income, which means your federal standard deduction
+is already spent before North Dakota looks at anything, and the state adds no deduction and
+no exemptions of its own. A dependent is worth nothing on a North Dakota return and so is
+a sixty-fifth birthday.
+
+**B. THE FINDING I AM MOST PLEASED WITH: THE STATE'S OWN 2026 TABLE CANNOT BE WORKED OUT
+FROM ITS 2025 ONE.** North Dakota's eight thresholds (four filing statuses, two bands each)
+go up with inflation every year, by the federal inflation factor, so the obvious way to
+check a published table is to ask whether one multiplier produces it. **No multiplier
+does** — not from 2025, not from 2024, not from the original 2023 figures, under any
+rounding to $25 or $50 in any direction. I tried all eighteen combinations and the test
+suite runs that search on every push rather than just asserting the conclusion.
+
+Two things get in the way and both are worth knowing. The married-filing-separately column
+is not independently adjusted at all: it is exactly the joint figure halved and rounded
+down to $25, in all four published years. And the two head-of-household figures are each
+exactly **$25 below** what the multiplier that fits the single and joint columns would give.
+
+The practical meaning: **anybody who projects North Dakota's brackets instead of reading
+them will be wrong**, by $25 of untaxed income and 49 cents of tax, on the filing status a
+single parent uses. Small, systematic, and invisible to anything that does not compare
+against the state's own table. So this package stores all eight published figures a year
+and works out none of them.
+
+**C. AND A THREE-YEAR COINCIDENCE THAT BROKE BECAUSE OF A FEDERAL LAW.** North Dakota's 0%
+band for a single filer topped out at $44,725 in 2023, $47,150 in 2024 and $48,475 in
+2025 — which are, to the dollar, the top of the **federal 12% bracket** in those three
+years, because the state took the federal 2023 figure as its starting point and indexes it
+the same way. For 2026 North Dakota's is $49,575 and the federal one is $50,400.
+
+The reason is a federal act that says nothing about North Dakota: the One Big Beautiful
+Bill Act gave the federal 10% and 12% brackets — and no others — an extra year of inflation
+adjustment from 2026. **A model that learned the equality from three years of data is wrong
+in the fourth**, by $825 of untaxed income and $16.09 of tax. This repository holds both the
+federal and the state engine, so it can check both halves of that on every push; anybody
+holding one of them cannot.
+
+**D. ONE FORTY PERCENT, TWO DIFFERENT THINGS, AND THE SECOND NEEDED A NEW INPUT.** North
+Dakota takes 40% off a long-term capital gain and 40% off **qualified dividends**. Those
+look like one rule and are two, because a qualified dividend is ordinary income on a federal
+return and is nowhere inside the capital-gains line — so a filer with dividends and no gains
+gets a subtraction that no amount of arithmetic on the capital-gains figures can produce.
+The package has a new input, `qualifiedDividends`, for exactly that. **It is Form 1040 line
+3a, not line 3b**, and the larger figure is the wrong one: a 1099-DIV numbers the two the
+opposite way round from the tax return.
+
+**E. NORTH DAKOTA CHARGES A RETIRED COUPLE ON $100,000 NOTHING, AND NOT FOR THE REASON
+PEOPLE SAY.** It is grouped with the retiree-friendly states, and for a retired civil
+servant it is an ordinary taxing state: a government pension, a 401(k) draw and an IRA
+distribution are all taxed in full. Only two things come out — Social Security, in full and
+with no income test, and military retired pay, in full and at any age. The calculator page's
+couple at 70 with $40,000 of Social Security and $60,000 of pension still pays **$0**, and
+the reason is the shape of the brackets rather than any retirement provision: the federal
+deduction is already spent, the benefit comes back out, and what is left is far inside an
+$82,800 zero band.
+
+**F. A WORD THIS PACKAGE USES, AND WHAT THE COMPILER TAUGHT ME ABOUT IT TODAY.** Each
+state-year here is marked `published` or `provisional`. North Dakota's 2026 schedule
+exists — the Tax Commissioner publishes it on Form ND-1ES — and I could not open the form.
+My first instinct was to mark the year `provisional` and invent a reason called "primary
+source unread". **The compiler refused the word, and it was right to.** Every existing
+reason is a statement about the STATE: the figure is not out yet, the law cannot settle it
+until the year ends, it was computed under a known bound. "I could not open the document"
+is a statement about this container, and it belongs in the citation, which now says NOT
+OPENED FROM THIS SANDBOX in those words. `provisional` is a claim about the publisher, not
+about the reader.
+
+**G. FIVE LISTS IN THIS REPOSITORY WENT STALE ON ONE NEW STATE, AND THE WORST ONE WENT
+STALE SILENTLY.** Adding a state is also a test of this repository's own paperwork, and
+today it found five hand-written lists that needed editing: two in the MCP server's
+argument gates, one in the cross-package check that verifies the OBBBA table, one in the
+package README's list of states cheaper than New York City — which Louisiana had already
+made wrong yesterday, in the same release whose headline was that prose copies of a list
+go stale — and one in the differential harness that compares every figure against
+PolicyEngine.
+
+**The last one is the one worth your attention, because it fails differently.** Every other
+stale list announces itself: it refuses an input, or prints a wrong number, and something
+notices. The differential's list of states just **stops asking** — North Dakota would
+simply not have been compared against the reference model at all, with no error anywhere
+and a grid the same size it was yesterday. I found it because I checked the case count
+before trusting it. Three of the five lists are now derived from the engine rather than
+written by hand, including that one.
+
+**H. THE QUALITY NUMBERS.** 1,577 tests across the four suites, all green. The three-hour
+check that changes one number at a time in the shipped code and requires some test to
+notice was re-run over the state package because its code changed; the figures are in the
+journal. Every figure was written down before it ran, including the one that would have
+appeared if the measuring tool were broken in the way it was broken on Day 56. The federal
+package was not touched and its fingerprints are identical to yesterday's, so its
+716-out-of-716 record still covers exactly what ships.
+
+**I. ONE THING I BROKE AND CAUGHT.** While updating the package README's counts I ran a
+find-and-replace driven by a failing test's expected number, over a 140,000-character
+file, and it corrupted **thirteen unrelated figures** — a Missouri comparison, a Wisconsin
+threshold, a Maryland table, a Virginia worked example. Nothing in the test suite would
+have caught most of them, because they are prose. I found it by reading the diff before
+committing, threw the whole edit away and redid it by naming each sentence. Worth telling
+you because the repository's own rule is that a diff nobody reads is a diff nobody checks,
+and this is the first time that rule has saved something large.
+
+---
+
+**As of Day 60 nothing was waiting on you except the three standing asks below — the
 repository description and topics, the GitHub Pages switch, and the optional npm publish —
 and today's headline is that LOUISIANA IS IN, which takes the package to 27 of the 42
 jurisdictions that tax income, and that the reason I added a state today is that MY OWN

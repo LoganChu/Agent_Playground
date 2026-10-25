@@ -206,8 +206,8 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 33, 'files walked');
-  assert.equal(mutants.length, 1_559, 'mutants — the figure tools/mutation/scores.json records');
+  assert.equal(files.length, 34, 'files walked');
+  assert.equal(mutants.length, 1_585, 'mutants — the figure tools/mutation/scores.json records');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -244,6 +244,55 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'the 200% relation and the age-65 gate have no mutant',
   );
 
+  // NORTH DAKOTA, pinned on Day 61 for the reason Louisiana was pinned on
+  // Day 60 and one more: this is now the file where the mask is most
+  // load-bearing in the whole tree. `states/north-dakota.js` holds 296
+  // mutable-looking literals and exactly 24 of them are code, because its doc
+  // comment is four published rate schedules, a worked indexation search and a
+  // table of federal bracket ceilings. A Day 56-style mask regression would
+  // move the total above by 272 FROM THIS ONE FILE, against Louisiana's 95.
+  assert.deepEqual(at('states/north-dakota.js', 59), {
+    rel: 'states/north-dakota.js', offset: 4_962, from: '48_475', to: '96950', kind: 'money', line: 59,
+  });
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/north-dakota.js').length,
+    24,
+    'North Dakota has 24 mutants and not the 296 its doc comment would add',
+  );
+  // AND THE CONTRAST WITH LOUISIANA, WHICH IS THE POINT OF HAVING BOTH PINNED.
+  // Louisiana stores ONE standard deduction a year and multiplies it, because
+  // R.S. 47:294(A)(2) states the relation — so two of its parameters are
+  // integers below 100 and the audit is blind to them. North Dakota stores all
+  // eight published thresholds and derives nothing, so it has NO relation
+  // parameter at all and every figure it ships has a mutant. The same coverage,
+  // bought two different ways, and only one of them is visible to this harness.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/north-dakota.js').length,
+    [
+      ...new Set(
+        mutants.filter((m) => m.rel === 'states/north-dakota.js').map((m) => `${m.line}:${m.from}`),
+      ),
+    ].length,
+    'no two North Dakota mutants are the same literal on the same line',
+  );
+  // Both 40% shares are mutants and they are two, which is what makes a
+  // transposition between the capital-gain rule and the dividend rule visible
+  // to the audit at all: one share moving is one failing test file.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/north-dakota.js' && m.from === '0.4').length,
+    2,
+    "North Dakota's two forty percents are two literals and not one constant",
+  );
+  // And `cap: 0` has no mutant, which is the same blind spot Louisiana's age
+  // gate has, reached by a different route: zero is not a mutable literal
+  // anywhere in this harness. North Carolina's identical `cap: 0` is invisible
+  // for the same reason and has been since Day 19.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/north-dakota.js' && m.from === '0').length,
+    0,
+    'the zero cap and the zero bracket rate have no mutant',
+  );
+
   // And one of the ten literals Day 56 recovered from inside a `${...}`, so the
   // regression above is pinned on the real tree and not only on a fixture: the
   // FICA rate in a California note.
@@ -258,7 +307,13 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // 4 money (12,500 / 12,838 / 12,000 / 12,324), 2 rate (0.03 / 0.05) and 4 year,
   // and the twelve new provenance entries contribute the other 6 year, from their
   // `years: [2025]` and `years: [2026]` arrays. 940+4, 357+2, 246+10.
+  //
+  // Day 61's +26 is 944+16, 359+4, 256+6: North Dakota's eight thresholds in
+  // each of two years (16 money), its two rates and its two 40% shares (4
+  // rate), the two `year === 2025` selectors and the two years in its guard (4
+  // year), and the two new provenance entries' `years:` arrays (2 year). Every
+  // one of those twenty-six was written down before the enumerator ran.
   const byKind = {};
   for (const m of mutants) byKind[m.kind] = (byKind[m.kind] ?? 0) + 1;
-  assert.deepEqual(byKind, { money: 944, rate: 359, year: 256 });
+  assert.deepEqual(byKind, { money: 960, rate: 363, year: 262 });
 });

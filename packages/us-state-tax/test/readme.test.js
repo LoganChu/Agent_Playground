@@ -55,8 +55,8 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 36 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 36);
+test('README: 37 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 37);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
   // Twelve graduated, TWELVE flat, one on a schedule of its own, nine with none.
@@ -80,23 +80,29 @@ test('README: 36 states, 2025 and 2026, nine with no income tax', () => {
   // SOUTH CAROLINA IS THE FOURTEENTH AND IS GRADUATED IN BOTH YEARS BY DIFFERENT
   // SCHEDULES — three bands in 2025 and two from 2026 — and it is the only state
   // here whose bracket count changes between the two supported years.
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'NJ', 'NY', 'OR', 'SC', 'VA', 'WI']);
+  //
+  // NORTH DAKOTA IS THE FIFTEENTH and is the second state here whose schedule
+  // begins at ZERO — Idaho and Mississippi are the others — so like Idaho it is
+  // stored as brackets and has only two positive rates. It is also the state
+  // with the lowest top rate of all fifteen, 2.50%, which ties the flat rate
+  // Arizona charges on a wage.
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OR', 'SC', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 12);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    36,
+    37,
   );
-  // Twenty-seven taxing states — nineteen of them when the README says seven cut
+  // Twenty-eight taxing states — nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 27);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 28);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -698,7 +704,15 @@ test('README: the provisional and published lists for 2026', () => {
   // provision is new. R.S. 47:294(B) first adjusts the standard deduction on
   // 1 January 2026, so 2025 is a statutory figure with nothing to index and 2026
   // is a released one — there has never been a Louisiana figure to carry forward.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'NJ', 'NY', 'PA', 'VA']);
+  // NORTH DAKOTA joins on arrival for a third reason, and it is the one this
+  // list most needed stating: its 2026 rate schedule IS published — the Tax
+  // Commissioner's own Form ND-1ES carries it — and nothing in this sandbox
+  // could open the form. `provisional` is a claim about the publisher and not
+  // about the reader, so the state-year is `published` and the citation says
+  // NOT OPENED FROM THIS SANDBOX in its own words. The first draft of
+  // `north-dakota.ts` got this wrong and the compiler refused the invented
+  // `ProvisionalReason` it needed.
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -765,14 +779,48 @@ test('README: the New York City quick-start figures', () => {
     });
     return result.tax < 3174.69;
   });
-  // LOUISIANA joined on Day 60 and is the cheapest taxing state on this list:
-  // (100,000 - 12,500) x 3% = $2,625, against the $3,174.69 a New Yorker on the
-  // same income pays THE CITY ALONE, before a dollar of New York State tax.
-  assert.equal(cheaper.length, 14);
-  assert.deepEqual(
-    cheaper.filter((s) => !NO_INCOME_TAX_STATES.includes(s)),
-    ['AZ', 'IN', 'LA', 'OH', 'PA'],
+  // LOUISIANA joined on Day 60 and NORTH DAKOTA on Day 61, and North Dakota is
+  // the cheapest taxing state on this list by a factor of three: $712.24,
+  // because $48,475 of this filer's $85,000 is in a zero bracket. Against the
+  // $3,174.69 a New Yorker on the same income pays THE CITY ALONE, before a
+  // dollar of New York State tax.
+  assert.equal(cheaper.length, 15);
+  const taxingAndCheaper = cheaper.filter((s) => !NO_INCOME_TAX_STATES.includes(s));
+  assert.deepEqual(taxingAndCheaper, ['AZ', 'IN', 'LA', 'ND', 'OH', 'PA']);
+
+  // AND THE README SENTENCE, CHECKED AGAINST THE SAME MEASUREMENT RATHER THAN
+  // BESIDE IT. Everything above was already here on Day 60 and the paragraph it
+  // describes still said "thirteen of the twenty-seven states ... plus Arizona,
+  // Indiana, Ohio and Pennsylvania" — stale by one state for a day, in the same
+  // release whose headline finding was that a prose copy of a list drifts from
+  // the registry unless something compares them.
+  //
+  //   A TEST THAT MEASURES THE NUMBER A SENTENCE QUOTES IS NOT A TEST OF THE
+  //   SENTENCE.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = readFileSync(join(root, 'README.md'), 'utf8').replace(/\s+/g, ' ');
+  const WORDS = {
+    twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+    'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29,
+  };
+  const hit = readme.match(
+    /more than the entire state income tax of ([\w-]+) of the ([\w-]+) taxing states in this package\*\* at the same income — ([^.]*)\./,
   );
+  assert.ok(hit, 'the README no longer carries the NYC comparison in the form this checks');
+  assert.equal(WORDS[hit[1]], cheaper.length, 'the sentence counts the states this measured');
+  assert.equal(
+    WORDS[hit[2]],
+    SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length,
+    'and the taxing states it is out of',
+  );
+  for (const code of taxingAndCheaper) {
+    assert.match(hit[3], new RegExp(stateName(code)), `the sentence omits ${stateName(code)}`);
+  }
+  // The other direction: a state named in the sentence that is not cheaper.
+  const named = SUPPORTED_STATES.filter(
+    (code) => !NO_INCOME_TAX_STATES.includes(code) && new RegExp(stateName(code)).test(hit[3]),
+  );
+  assert.deepEqual(named, taxingAndCheaper, 'the sentence names exactly the taxing states that are cheaper');
 });
 
 test('README: the city rate identity and the Yonkers ordering', () => {
@@ -1520,10 +1568,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 36 states',
+    'us-state-tax: 37 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 36 states',
+    'us-tax-mcp: 37 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
@@ -1740,9 +1788,26 @@ test("README: the gap list cannot name a state this package covers", () => {
 
   // The live sentence, bounded so the historical quotation in the same bullet —
   // which deliberately still contains the three wrong names — is out of scope.
-  const hit = readme.match(/The fifteen that are missing:([^.]*)\./);
+  //
+  // THE COUNT WORD IS READ RATHER THAN WRITTEN INTO THE PATTERN, and Day 61 is
+  // why. This test was pinned to the literal "The fifteen that are missing:",
+  // so the day the list became fourteen the pattern stopped matching and the
+  // test failed with "the README no longer carries the gap list in the form
+  // this checks" — a message about the test's own shape, from a check written
+  // to catch a stale count, failing BECAUSE the count had been corrected. One
+  // more spelled-out copy of a number this file already owns.
+  const hit = readme.match(/The (\w+) that are missing:([^.]*)\./);
   assert.ok(hit, 'the README no longer carries the gap list in the form this checks');
-  const listed = hit[1]
+  const WORDS = {
+    ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15,
+    sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,
+  };
+  assert.equal(
+    WORDS[hit[1]],
+    UNCOVERED_TAXING_JURISDICTIONS.length,
+    `the bullet says "${hit[1]}" and the engine has ${UNCOVERED_TAXING_JURISDICTIONS.length} uncovered jurisdictions`,
+  );
+  const listed = hit[2]
     .split(/,| and /)
     .map((part) => part.replace(/\s+/g, ' ').trim())
     .filter(Boolean);

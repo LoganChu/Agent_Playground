@@ -294,7 +294,7 @@ test('NO field is accepted in silence by a state with no income tax', () => {
     federalDeductions: { qualifiedBusinessIncome: 4_000 },
     federalOneDollarHigher: { adjustedGrossIncome: 62_001, taxableIncome: 46_401 },
     stateItemizedDeductions: 17_000, netCapitalGain: 5_000,
-    longTermCapitalGainAfter2011: 4_000, yonkersNonresidentEarnings: 30_000,
+    longTermCapitalGainAfter2011: 4_000, qualifiedDividends: 3_000, yonkersNonresidentEarnings: 30_000,
     locality: 'NYC', county: 'ALLEN', city: 'DETROIT', cityIncome: 55_000,
     workCity: 'DETROIT', workCityEarnings: 40_000, qualifyingWages: 52_000,
     businessIncome: 9_000, bothSpousesHaveQualifyingIncome: true,
