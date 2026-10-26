@@ -13,6 +13,103 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 62 the four asks are unchanged and none of them blocks anything.** Three are
+small and cosmetic — the repository description and topics, the GitHub Pages switch, the
+optional npm publish — and the fourth is the one that would change what I can build: the
+network policy. Day 61's entry below has the exact hosts and the exact settings page, and
+today added one fact to it: **`WebFetch` is not a way round it either.** That tool reads a
+URL and summarises it, which looks like it happens on a server; it does not. It resolves DNS
+in this container, so it fails with `ENOTFOUND` on the same hosts `curl` fails on. I tested
+it on the Oklahoma Tax Commission's own Form 511 packet. Server-side SEARCH still works, and
+that is the whole of the route.
+
+`us-state-tax` is now **v0.54.0** and `us-tax-mcp` **v0.58.0**; `us-federal-tax` stays at
+**v0.16.0**. **1,593 tests** across the four suites, all passing, up 16. **29 taxing states
+and 38 in all**, up one; thirteen jurisdictions left.
+
+**OKLAHOMA IS IN, AND IT BROUGHT THE MOST USEFUL THING I HAVE FOUND FOR EXPLAINING WHAT THIS
+PACKAGE IS FOR.** If you only read one item in this file, read A.
+
+**A. OKLAHOMA'S EARNED INCOME CREDIT IS FIVE PER CENT OF A FEDERAL CREDIT FROZEN IN 2020,
+AND THE MISTAKE GETS BIGGER EVERY YEAR.** The Oklahoma statute (68 O.S. § 2357.43) says the
+state credit is 5% of the federal earned income credit — and then says *which* federal
+credit: the one worked out under federal law **as it stood on 31 December 2020.** The federal
+credit goes up with inflation every year. Oklahoma's starting point is a date in the past.
+
+So anybody who implements "5% of the federal earned income credit" — which is what the
+sentence plainly says, and what I would have done without reading the rest of it — pays an
+Oklahoma family too much:
+
+| children | Oklahoma owes | "5% of the federal credit" gives (2025) | and in 2026 |
+| --- | --- | --- | --- |
+| one | $179.20 | $216.40 | $221.35 |
+| three or more | $333.00 | $402.30 | $411.55 |
+
+That is **20.8% too much in 2025 and 23.6% too much in 2026**, and the gap widens every
+single year without anybody changing a line of code, because one side of the comparison is
+indexed and the other is a date. This is a **refundable** credit, so it is money going to the
+households the credit exists for, and getting it wrong is a wrong refund rather than a wrong
+bill.
+
+**What I did about it is the part I would want you to see.** Writing the rule would have been
+two lines and it would have fitted the package's existing machinery exactly. I did not write
+it. Oklahoma ships with **no** earned income credit at all, an Oklahoma answer from this
+package is too high by at most the whole $333.00, and the note on the result says so with the
+table above in it. A check that runs on every push compares the frozen 2020 figures against
+the real federal ones in the other half of this repository and **fails if the gap ever stops
+growing** — which would mean either Congress cut the credit or Oklahoma amended the statute,
+and both are things somebody would want to know.
+
+And then something happened that I did not expect: **an independent model confirmed the
+frozen figure to the cent.** PolicyEngine-US — a microsimulation model maintained by people
+who have nothing to do with this project — gives one Oklahoma household in my comparison grid
+a refund of $259.20, which is $179.20 of earned income credit plus $80.00 of sales tax
+credit. $179.20 is exactly 5% of $3,584, the one-child federal maximum **for 2020**. It is
+the same $259.20 in 2026, where 5% of that year's credit would be $221.35. A second group of
+people read the same statute and got the same frozen number, and proved it was frozen by not
+moving.
+
+**B. THE SECOND FINDING IS BIGGER IN DOLLARS AND SIMPLER TO STATE: OKLAHOMA'S STANDARD
+DEDUCTION HAS NOT MOVED SINCE 2017.** It is $6,350 for a single filer, $12,700 for a married
+couple and $9,350 for a head of household. Those are the **federal** amounts from 2017 —
+Oklahoma decided not to follow when the 2017 federal tax act nearly doubled them, and has
+never adjusted them for inflation since.
+
+The federal single-filer deduction is $15,750 for 2025 and $16,100 for 2026. So a published
+tax guide that says "Oklahoma uses the federal standard deduction" — and at least one does,
+printing those exact federal numbers — understates an Oklahoma filer's tax by **$446.50 for
+2025 and $438.75 for 2026.** Yesterday's headline finding was worth 49 cents. This one is
+worth nine hundred times that, and it is the same mistake: assuming a state figure still
+tracks a federal one it used to track.
+
+**C. AND THE STATE'S OWN 2026 RATE TABLE HAS FOUR ROWS WHERE EVERY SUMMARY OF THE LAW SAYS
+THREE.** House Bill 2764, signed in 2025, is described everywhere — including by the Oklahoma
+Senate's own press release — as cutting the top rate from 4.75% to 4.5% and "consolidating
+six income tax brackets into three". Both halves are true. The published table has four rows,
+and the fourth is a **0% band**: a single filer's first $3,750 of Oklahoma taxable income is
+untaxed, and a married couple's or single parent's first $7,500. In 2025 that same $3,750
+cost $35.63.
+
+"Three brackets" counts the rows that charge something. A filer reads the row that charges
+nothing. Anybody building from the press release puts 2.5% on the first dollar.
+
+**D. TWO SMALLER THINGS THAT ARE WORTH KNOWING IF YOU EVER LIVE THERE.** Oklahoma's $10,000
+retirement income exclusion has **no age test** — several published guides say it is for
+retirees 65 and older and one says it is $25,000; it is $10,000, per person, and a 45-year-old
+with a pension gets it. And military retired pay is **100% exempt and does not use up that
+$10,000**, so a retired service member with a military pension and an IRA gets both, which is
+worth $475 a year and is the opposite of how South Carolina does it.
+
+**E. A SINGLE PARENT IN OKLAHOMA FILES ON THE MARRIED-COUPLE RATE TABLE.** The statute puts
+joint filers, surviving spouses and heads of household in one subsection, so a single parent
+gets the wide brackets — and then gets a smaller standard deduction ($9,350 against $12,700)
+and a lower income limit for the age-65 exemption ($19,000 against $25,000). Three tables,
+and that filing status is treated differently on each one. A model that decides what a head of
+household is once, at the top, gets two of the three wrong.
+
+**Nothing in A to E needs anything from you.** They are the kind of thing I would want in
+front of me if somebody asked what this repository is worth.
+
 **As of Day 61 there is a FOURTH ask, and it is the first one on this list that would
 change what I can build rather than who can see it.** The other three are unchanged and
 none of them blocks anything: the repository description and topics, the GitHub Pages

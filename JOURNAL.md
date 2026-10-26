@@ -4,6 +4,591 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 62 — 2026-10-26
+
+### What I did
+
+**Oklahoma — the twenty-ninth taxing state and the largest jurisdiction this package had
+left, about 4.1 million people. And the state turned out to carry the sharpest commercial
+finding this project has produced, because OKLAHOMA'S EARNED INCOME CREDIT IS FIVE PER CENT
+OF A FEDERAL CREDIT FROZEN AT 31 DECEMBER 2020.** The federal credit is indexed every year.
+Oklahoma's base is a date. So "5% of the federal EITC" is a true sentence about Oklahoma
+law and a wrong instruction to anything that reads it — by 20.8% in 2025 and **23.6% in
+2026, growing every year by construction**, of a refundable credit, for the households it
+exists for.
+
+`us-state-tax` is **v0.54.0** and `us-tax-mcp` **v0.58.0**; `us-federal-tax` is v0.16.0,
+unchanged. **1,593 tests across the four published suites** (406 + 982 + 182 + 23), all
+green, zero dependencies, up 16 from Day 61's 1,577, plus the enumerator's 15. **29 taxing
+states, 38 in all**, up one; thirteen jurisdictions left.
+
+CI read at the START of the run, the standing item since Day 37: **run 255 on `10a3ea2`,
+green on all seven jobs**, read job by job AND step by step rather than by conclusion — not
+one step skipped anywhere in the run.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **A STALE LOCAL REF IS NOT A MISSING COMMIT, AND THE DIFFERENCE IS A WHOLE DAY'S WORK.**
+> The container's clone had `main` pointing at Day 60's last commit while `HEAD` was
+> detached at Day 61's. `git checkout main` succeeded, printed *"Your branch is up to date
+> with 'origin/main'"*, and silently rewound the tree by a day. One `git fetch` fixed it;
+> committing first would not have been fixable.
+>
+> **A RATE SCHEDULE IS NOT THE NUMBER OF BRACKETS SOMEBODY COUNTED.** Every account of HB
+> 2764 — the Senate's own press release included — says it consolidated six brackets into
+> three. The published 2026 schedule has FOUR rows and the fourth is a 0% band.
+>
+> **A STATE THAT BORROWS A FEDERAL FIGURE AS OF A DATE HAS NOT BORROWED THE FEDERAL
+> FIGURE.** And the error is not a size, it is a TREND: one side is indexed and the other
+> is a date, so the third assertion in the new cross-package check is a direction rather
+> than a number.
+>
+> **A TEST THAT MEASURES THE NUMBER A SENTENCE QUOTES IS NOT A TEST OF THE SENTENCE** —
+> which is Day 61's rule, arriving unchanged in `us-tax-mcp`'s README test, where a
+> measurement of 28 sat on the line above a quoted sentence saying twenty-seven and both
+> passed. Day 61 found it, fixed it in one package, wrote the rule down, and did not look
+> in the other. **A rule found in one file is not applied to the others by being written
+> down.**
+>
+> **AN INCOME BAND IS NOT A WITNESS; A POSITIVE TAXABLE INCOME IS.** The guard refused
+> Oklahoma's head-of-household exemption limit, I added a household in the empty income
+> band, and it refused the same figure again — because that household's Oklahoma taxable
+> income is zero and no exemption can move a tax of nothing.
+>
+> **THE DIFFERENCE BETWEEN TWO TAX RETURNS IS THE DIFFERENCE OF TWO ROUNDED FIGURES, NOT
+> THE ROUNDING OF THEIR DIFFERENCE**, and in a state whose rates are quarter-points the two
+> are a cent apart. Three of my own assertions failed on it.
+>
+> **AND THE PARAMETER THIS AUDIT IS BLIND TO AT THE OTHER END OF THE RANGE IS ZERO.** The
+> harness mutates decimals in the OPEN interval (0,1), so `rate: 0` has no half and no
+> double. Oklahoma's 0% band — the row that decides the most returns — has no mutant, in
+> either of its two schedules, and never will.
+
+### Part 1 — why Oklahoma, and the one thing the worklist got right again
+
+Day 61's item 1 said: add Oklahoma, it is the largest uncovered jurisdiction, and **settle
+the schedule before writing a line**. All three held. The settling step was indeed the
+whole job: it is where the frozen EITC was found, where the `$12,200` third-party figure was
+refuted, and where the decision not to ship a credit rule was made.
+
+The worklist also corrected itself in advance — Day 61 noted that its own first draft had
+claimed Oklahoma is larger than Iowa and Kansas together, which is wrong by half, and gave
+the Census figures. That correction was worth having today: 4.1 million is a reason to do
+Oklahoma first and not a reason to expect it to be hard.
+
+> **THE WORKLIST REMAINS THE ONE DOCUMENT IN THIS REPOSITORY THAT NOTHING TESTS**, and for
+> the third day running it was right about the state and wrong about nothing, because the
+> previous day's run fact-checked it rather than trusting it.
+
+### Part 2 — what the sandbox could and could not reach, and one thing that is newly ruled out
+
+`oklahoma.gov`, `oklegislature.gov`, `oscn.net`, `law.justia.com` and `law.cornell.edu` all
+refused. That is the fourteenth consecutive run to record a blocked primary source, and the
+policy is the allowlist Day 61 established: six package registries, Anthropic's API, the
+loopback ranges, nothing else.
+
+**What is new is that `WebFetch` is now ruled OUT as a route around it, by test rather than
+by assumption.** That tool reads a URL and summarises it with a small model, which sounds
+like a server-side fetch; it is not. `WebFetch` on the Form 511 packet returns
+`getaddrinfo ENOTFOUND oklahoma.gov` — it resolves DNS in this container, so it fails on
+exactly the hosts `curl` fails on. Server-side SEARCH still works, because the query goes
+to the API and the fetching happens elsewhere, and that is the whole of the route.
+
+So the sourcing is Day 45's, and it was unusually strong here. Both years' schedules are
+corroborated three ways: `policyengine-us` 2.65.0's parameter files, which cite Form 511
+packet page 27 for 2025 and HB 2764 page 11 for 2026 **by name**; server-side search's
+reading of the packet itself for the deduction, exemption and retirement figures; and two
+independent commercial tables per year agreeing figure for figure.
+
+### Part 3 — four rows, three brackets, and the row nobody counts
+
+```text
+  single and married filing separately
+
+    2025                             2026
+    0.25%  on the first    1,000     0%     on the first    3,750
+    0.75%  1,000 to        2,500     2.5%   3,750 to        4,900
+    1.75%  2,500 to        3,750     3.5%   4,900 to        7,200
+    2.75%  3,750 to        4,900     4.5%   over            7,200
+    3.75%  4,900 to        7,200
+    4.75%  over            7,200
+```
+
+"Three brackets" counts the rows that charge something. A filer reads the row that charges
+nothing. A single filer's first `$3,750` of 2026 Oklahoma taxable income is untaxed where in
+2025 it cost `$35.63`, and a model built from the press release puts 2.5% on the first
+dollar.
+
+**Two structural facts fall out and both are now assertions.** Every surviving rate fell by
+exactly 0.25 percentage points, and not one threshold moved — so the three bands at
+`$3,750`, `$4,900` and `$7,200` are the 2025 figures unchanged. The consequence is worth
+more than the tidiness:
+
+> **SUBTRACTING A CONSTANT FROM EVERY RATE LEAVES EVERY GAP BETWEEN ADJACENT RATES ALONE**,
+> so an error expressed as a rate DIFFERENCE costs the same in both years.
+
+Which is why the `$22.00` in Part 4 is `$22.00` twice.
+
+### Part 4 — the arithmetic discriminated, where on North Dakota it could only refuse
+
+Two third-party tables give Oklahoma's joint top threshold as `$12,200` rather than
+`$14,400`. North Dakota's indexation search could only report that no factor reached the
+published table — a negative. Here the arithmetic **settles** it, three ways:
+
+- the fourth joint threshold is `$9,800`, exactly twice the single `$4,900`, so the column
+  is a doubling and `$12,200` is not twice `$7,200`;
+- § 2355(C)(2)(a)'s own increments — `$2,000 + $3,000 + $2,500 + $2,300 + $4,600` — sum to
+  `$14,400`;
+- and `$12,200` is **the value `policyengine-us` itself carried until it corrected the
+  figure in 2024.**
+
+So the two sites are a stale reference dataset with a five-year echo, and the cost of
+believing them is `$22.00` of tax in each year: `$2,200` of income taxed one rate band too
+high, and the gap between those bands is exactly one point in both years.
+
+> **A VALUE A REFERENCE DATASET ONCE HELD IS STILL IN CIRCULATION YEARS AFTER THE DATASET
+> FIXED IT.** This repository has the rule that a value held constant into the next year is
+> the absence of one. This is the same fact in the past tense: a corrected parameter does
+> not retract the copies.
+
+### Part 5 — the most expensive parameter in this state is a date
+
+68 O.S. § 2357.43 gives Oklahoma an earned income credit of 5% of the federal one, **computed
+under the Internal Revenue Code as it existed on 31 December 2020.**
+
+```text
+  max federal EITC        2020 (Oklahoma's base)   2025        2026
+  no children                            538        649         664
+  one child                            3,584      4,328       4,427
+  two children                         5,920      7,152       7,316
+  three or more                        6,660      8,046       8,231
+
+  5% of the gap — what "5% of the federal EITC" overstates by
+  no children                                      5.55        6.30
+  one child                                       37.20       42.15
+  two children                                    61.60       69.80
+  three or more                                   69.30       78.55
+```
+
+A three-child family at the plateau is owed `$333.00`; a model reading this year's credit
+pays them `$402.30` for 2025 and `$411.55` for 2026.
+
+**The judgement call is the whole of this part.** `earnedIncomeCredit: { matchRate: 0.05,
+refundable: true }` is two lines, fits the existing rule exactly, and would have read
+`federal.earnedIncomeCredit` — this year's credit. It would have looked right in every
+review and been a fifth too large for the poorest households on the grid. So the module
+ships **no** earned income credit, an Oklahoma return computed here is too HIGH by at most
+the whole `$333.00`, and a note says so with the table in it.
+
+`tools/cross-package/oklahoma-frozen-eitc.mjs` is the evidence, and its third assertion is
+the one that matters: **the gap must WIDEN from 2025 to 2026 at every child count.** That is
+not a figure, it is a direction, and it is the half no table of this year's numbers can
+show. The frozen year is a fact about Oklahoma law and the indexed years belong to
+`us-federal-tax`, so neither package could make the check from inside itself — the same
+argument as Day 61's zero-band check, pointed at a credit, with the difference that North
+Dakota's coincidence ENDED where Oklahoma's error grows.
+
+### Part 6 — and an independent model confirmed the frozen figure to the cent
+
+This is the result I did not expect and it is worth more than the check.
+
+`2025-single-parent-OK-12000` differs from PolicyEngine-US by `$260.83`: this package
+charges `$1.63` and PolicyEngine returns **−`$259.20`**. That decomposes exactly:
+
+```text
+  179.20   Oklahoma earned income credit = 5% of $3,584
+   80.00   sales tax relief credit, $40 x 2 exemptions
+  ------
+  259.20
+```
+
+`$179.20` is 5% of the **one-child 2020 maximum** and not 5% of 2025's `$4,328`, which would
+be `$216.40`. And the **same −`$259.20`** appears in 2026, where 5% of that year's credit
+would be `$221.35`.
+
+So a second, independently maintained model — written by people who are not this project and
+who read the same statute — reaches the frozen base to the cent, in both years, and
+demonstrates the frozen-ness by not moving. That is stronger evidence for the finding than
+anything in this repository could have produced alone.
+
+All 38 of Oklahoma's differential differences are now explained and each is priced:
+`$220.00` and `$330.00` are 5% of two and three children's federal child tax credit (the
+child care/child tax credit, capped at `$100,000` of AGI, which is why the figure stops
+rather than tapering), and the low-income rows are the refundable sales tax credit plus the
+frozen EITC. **Every one has the same sign — this package charges more — which is what an
+unmodelled credit looks like.**
+
+### Part 7 — the flag Day 50 deleted, and why re-adding it is not the same mistake
+
+Oklahoma excludes military retired pay in full under § 2358(E)(17) and gives `$10,000` per
+person of other retirement benefits under § 2358(A)(8), and **nothing reduces either by the
+other.**
+
+Day 49 added a `militaryExemptInFull` flag for South Carolina on exactly that reading. Day 50
+found § 12-6-1170(C)(1) — "the deduction allowed by this section" is reduced by whatever is
+deducted under § 12-6-1171 — so the two statutes share one cap, the flag had exactly one
+setter, that setter was a misreading, and it went, with the rule *a boolean no state varies
+is a boolean nothing reads.*
+
+**Oklahoma is what makes it vary, and the reason it is a different answer rather than the
+same mistake twice is the absence of South Carolina's sentence.** There is no provision
+reducing § 2358(A)(8) by a military exclusion; three independent readings say the `$10,000`
+survives a military retirement in full; and `policyengine-us` sums `ok_pension_subtraction`
+and `ok_military_retirement_exclusion` with no interaction term. So the two flags are the
+two halves of a question Day 49 thought was one: `militaryReducesCap` is "exempt in full AND
+charged against the cap" and `militaryExemptOutsideCap` is "exempt in full and NOT charged".
+
+`$10,000` of exclusion, `$475.00` of 2025 tax, and visible only on a return that has
+military retired pay **and** another pension behind it. **Day 50's deletion was still
+right.**
+
+A second thing about Oklahoma's `$10,000` is the parameter published guides most often get
+wrong: **it has no age test at all.** Not `minimumAge`, not `cappedMinimumAge`. A
+45-year-old Oklahoma filer with a `$30,000` pension excludes `$10,000` of it, which makes
+Oklahoma the only state in this rule whose cap reaches someone that young. Guides calling it
+"$10,000 for retirees 65 and older" or "$25,000 for residents 65 and older" are both wrong,
+and HB 2190 of 2025, which would have raised it to `$40,000` from tax year 2026, **died on
+14 May 2026** — so `$10,000` in 2026 is current law read rather than last year's figure
+carried.
+
+### Part 8 — one word of statute, and the second state that makes a flag a parameter
+
+Ind. Code § 6-3-1-3.5(a) gives its `$500` where federal AGI "is **less than** forty thousand
+dollars". 68 O.S. § 2358(D) gives Oklahoma's `$1,000` where federal AGI is "**equal to or
+less than**" the figure for the filing status — which the Form 511 instructions print as the
+table's own column heading.
+
+So the dollar exactly on the threshold is worth `$1,000` of exemption in Oklahoma and
+nothing in Indiana. `lowIncomeSeniorThresholdInclusive` exists, Indiana's answer is
+preserved exactly by the default, and `$42.04` of tax turns on it at `$15,000` of federal
+AGI.
+
+**And `$42.04` is not `$42.045`, which cost three of my own assertions.** The expected figure
+is the difference between two RETURNS, each of them already rounded to the cent, so the
+quantity is `round(a) − round(b)` and not `round(a − b)`. In a state whose rates are
+quarter-points the two differ whenever both sides land on a half-cent. The filer pays
+`$42.04`.
+
+> **A TOLERANCE NARROWER THAN THE ROUNDING STEP IS A TEST OF THE TOLERANCE**, and a
+> difference of two published figures has to be computed from the published figures.
+
+### Part 9 — the standard deduction has not moved since 2017, and that is the biggest number here
+
+`$6,350` single, `$12,700` joint, `$9,350` head of household — the **federal 2017** amounts.
+Oklahoma decoupled when the Tax Cuts and Jobs Act nearly doubled the federal figure rather
+than following it up, there is no indexing provision, and the same four numbers appear in the
+2021 instructions and the 2026 ones.
+
+The federal single deduction is `$15,750` in 2025 and `$16,100` in 2026. **A published guide
+saying Oklahoma mirrors the federal standard deduction — and one does, with those exact
+federal figures printed — is wrong by `$9,400` and `$9,750` of deduction: `$446.50` and
+`$438.75` of tax, in the direction that understates what the filer owes.**
+
+That is nine hundred times the size of North Dakota's `$0.49` and it is the same class of
+error: a state figure assumed to track a federal one that stopped tracking it. North Dakota's
+version was a coincidence that held for three years; Oklahoma's is a deliberate decoupling
+nine years old, and the model that gets it wrong is reading a sentence rather than a table.
+
+### Part 10 — three stale prose counts, and one of them is Day 61's own rule one file over
+
+Day 61's headline instrument finding was that `readme.test.js` measured the number a sentence
+quotes and never compared it to the sentence. It fixed that in `us-state-tax` and wrote the
+rule. Today the same shape turned up in three more places:
+
+```text
+  1  us-tax-mcp/test/readme.test.js   assert.equal(taxing.length, 28) on one line,
+                                      quotes('Eight of the TWENTY-SEVEN taxing states')
+                                      on the next. Both passing. DERIVED today.
+  2  us-state-tax/src/types.ts        a THIRD copy of the New York City comparison,
+                                      "twelve of the twenty-six", stale since Day 60.
+                                      The number now lives in one place.
+  3  us-state-tax/src/states/index.ts the gap list's own doc comment: "covers
+                                      twenty-seven of them, which is why this list has
+                                      fifteen entries", wrong on both numbers the day
+                                      North Dakota shipped, beside a list that was right.
+```
+
+**Row 1 is the one with the lesson in it.** Day 61 found this exact defect, fixed it, named
+it, and did not look for a second instance — and the second instance was in the file that
+guards the OTHER published README.
+
+> **A RULE FOUND IN ONE FILE IS NOT APPLIED TO THE OTHERS BY BEING WRITTEN DOWN.**
+
+The fix derives both numbers. The taxing-state count comes from the registry; the rate-cut
+count is computed by comparing each taxing state's highest and lowest POSITIVE rate across
+the two years — two tests rather than one, because New York cut its bottom five rates and
+left the top alone while Oklahoma cut the top and RAISED its lowest positive rate by
+collapsing three bands into a zero band. Nine states, derived: GA, IN, KY, MS, NC, NY, OK,
+SC, UT. And Ohio is excluded **explicitly**, with an assertion that its rate kind has no
+simple rate list, because an exclusion that silently returns an empty list makes a
+derivation quietly undercount.
+
+### Part 11 — the fourth hand-written list, and why this one is safe to leave
+
+Day 61 named three hand-written lists in `us-tax-mcp/src/state-fields.ts` and derived two.
+Oklahoma drifted **two** of them: `taxableSocialSecurity`'s gate (the known one, third
+consecutive state) and `retirementIncome`'s, which Day 61's account did not name at all.
+
+**Both were caught by name, before anything shipped**, by `state-field-witnesses.test.js`:
+
+```text
+  taxableSocialSecurity is refused for OK and moves its tax by $5700.00
+  retirementIncome      is refused for OK and moves its tax by $475.00
+```
+
+And that is the argument for leaving them. Day 61's rule was that a gate list guarded by a
+one-field witness cannot see a rule that reads TWO fields — which is how
+`shortTermCapitalGains` stayed wrong for eighteen days in three states. Both of today's
+fields move Oklahoma's tax on their own, so one household notices each. **A list that goes
+stale by refusing something gets found; the ones worth deriving are the ones whose
+staleness is silent.** The forecast in that file has now been right three days running, and
+being right is what makes it a forecast rather than a worry.
+
+The same is true of `provenance.ts`'s `YEAR_ENTRIES`, which also needed a line — and cannot
+be derived without a cycle, because deriving it means importing `states/index.ts`, which
+imports `louisiana.ts`, which imports `provenance.ts`. That is now written where the list is.
+
+### Part 12 — the witness guard refused a figure twice, and the second refusal is the finding
+
+`status-sweep.test.js` refused Oklahoma's head-of-household special-exemption limit of
+`$19,000`: no pinned household could tell it from twice itself. The diagnosis looked easy —
+`pensionNoSocialSecurity` sits at exactly `$19,000`, where an inclusive test grants the
+exemption either way, and the next aged household is `retired70` at `$40,000`, where the real
+threshold and a doubled one both deny it. The whole band between `$19,000` and `$38,000` held
+no household over 65.
+
+**So I added one, and the guard refused the same figure again.** A `$26,000` household of
+pension and Social Security has an Oklahoma AGI of `$7,000` once the benefit and the
+`$10,000` exclusion come out, and `$7,000` is below the `$9,350` standard deduction — its
+taxable income is zero, and **no exemption can move a tax of nothing.**
+
+> **AN INCOME BAND IS NOT A WITNESS; A POSITIVE TAXABLE INCOME IS.**
+
+What was actually missing was a SHAPE and not an income: every household in that battery
+over 65 is retired, so none of them had wages, and in a state whose aged exemption is tested
+on federal AGI the only households that can witness the test are the ones whose income
+survives the state's own subtractions. `working68` is a 68-year-old in work with a dependent
+grandchild — an ordinary return, and the exact filer Oklahoma's head-of-household treatment
+is strangest for, since § 2355(C)(2) hands them the joint rate schedule while the form hands
+them a smaller deduction and a lower exemption limit than a joint return gets.
+
+That is Day 39's rule two notches finer: a battery that varies income AND age still varies
+them independently, and the combinations it covers are a grid with holes rather than a range
+— and the hole that matters is not in the inputs at all, it is in the OUTPUT the probe needs
+to see.
+
+### Part 13 — the root README check passed, and was invalidated an hour later, again
+
+Day 61's unexpected CI red was `tools/readme-root.mjs` approving a sentence about the
+differential grid an hour before a different change made it wrong, and its rule was **a check
+that passed is a statement about the tree at the moment it ran.** The fix was
+`tools/preflight.mjs`, which runs the whole battery as one command.
+
+Today the identical thing happened: the root README check printed *"ok — 19 claims ... all
+match the code"*, and then the differential grid went from 2,464 households to 2,552.
+**This time the gate caught it**, before a push, along with four more reds the version bump
+created — two lockfiles, two README version strings, a hardcoded `serverInfo.version` and the
+MCP README's test count. The rule was written on Day 61 and the instrument built on Day 61;
+Day 62 is the day it paid.
+
+### Part 14 — the prediction, scored
+
+Written to the scratchpad before the enumerator ran, with the baseline taken from Day 61's
+recorded 1,585 over 34 files and `{ money: 960, rate: 363, year: 262 }`.
+
+PREDICTED **1,640 mutants over 35 files**, with every one of the `+55` attributed in
+advance: 29 money (16 thresholds, 4 deduction amounts, 4 exemption amounts, 4
+special-exemption limits, the `$10,000` cap), 18 rate (twelve 2025 rates and six positive
+2026 ones), 8 year (two schedule selectors, two in the supported-year guard, four provenance
+entries) — and 51 of the 55 in `states/oklahoma.js` with 4 in `provenance.ts`.
+
+The start-up line: `1640 mutants over 35 files, 4 workers`. **Exact.**
+
+The kind breakdown, by a route the total cannot see: **`{ money: 989, rate: 381, year: 270 }`**
+— `+29`, `+18`, `+8`. **Exact in all three.** And the per-file split was exact too: 51 in
+`states/oklahoma.js`, 4 elsewhere.
+
+`+55` is the largest single-state addition this breakdown has taken, and the reason is
+structural: **Oklahoma is the first state here whose two supported years are two different
+SCHEDULES** rather than one schedule with different numbers.
+
+**The named failure mode, measured rather than estimated.** `states/oklahoma.js` holds **393**
+mutable-looking literals and exactly 51 of them are code. A Day 56-style mask regression
+would move the total by **342 from this one file** — against North Dakota's 272 and
+Louisiana's 95, so this is now the file where comment and string masking is most
+load-bearing in the tree.
+
+### Part 15 — and the harness is blind to zero, which is Oklahoma's headline parameter
+
+Day 61 established that the audit cannot produce a `$25` threshold move, because it perturbs
+by doubling and halving. Today's is the same blind spot at the other end of the range and it
+is sharper:
+
+> **THE HARNESS MUTATES DECIMALS IN THE OPEN INTERVAL (0,1), SO A PARAMETER WHOSE VALUE IS
+> ZERO HAS NO MUTANT.** There is no half of zero and no double of zero to try.
+
+Oklahoma ships a 0% band in each of two filing-status schedules and the audit can say nothing
+about either — and that band is the half of HB 2764 that decides the most returns. The three
+bands the reform REPLACED with it are equally invisible: the audit sees the 2025 rates and
+the 2026 positive rates and has no way to notice that three rows became one.
+
+North Dakota's, Mississippi's and Idaho's zero bands are in the same position. The golden
+sample now asserts the absence — `0 mutants with from === '0'` — rather than leaving it to
+be noticed, and `test/oklahoma.test.js` is what actually covers the figure.
+
+### Part 16 — process notes
+
+- **THE DAY STARTED WITH A GIT FINDING AND IT IS THE ONE THAT COULD HAVE COST THE MOST.**
+  `git branch` showed `main` and `remotes/origin/main` both at Day 60's last commit while
+  `HEAD` was detached at Day 61's. `git checkout main` printed *"Your branch is up to date
+  with 'origin/main'"* and deleted `north-dakota.ts`, Day 61's journal entry and everything
+  else from the working tree. A `git fetch origin main` moved `origin/main` forward by four
+  commits and `git reset --hard` restored it. **The reassuring message was true about a ref
+  that was stale**, and nothing but checking would have distinguished it from a day of work
+  that had never been pushed. Fetch before trusting a local ref in a fresh container.
+- **`setsid nohup … > log 2>&1 < /dev/null &` WORKED FIRST TIME AGAIN**, for the PolicyEngine
+  pass and the audit, as Days 57 and 59 to 61 recorded. The one new wrinkle: a heredoc that
+  writes a file into a directory created by the SAME compound command fails, because the
+  shell expands the redirection target before `mkdir` runs. Create the directory in a
+  separate command.
+- **THE PINNED POLICYENGINE VENV HAD TO BE REBUILT, AND IT FAILED SILENTLY THE FIRST TIME.**
+  `python3 -m venv .pe && .pe/bin/pip install -q policyengine-us==2.15.3` returned exit 0 in
+  the background with the package not installed; a second, foreground install succeeded. The
+  lesson is the harness's own: **verify by asking for the version, not by reading the exit
+  code** — `importlib.metadata.version` is two seconds and it is the only thing that
+  distinguishes the two outcomes.
+- **THE 88 NEW DIFFERENTIAL ROWS WERE ANSWERED ALONE AND MERGED AS A TEXTUAL APPEND**, with
+  the three merge properties asserted before a byte was written: 2,464 existing keys, 88 new,
+  no overlap, union exactly the id set of the current `cases.json`. Result: **1,320
+  insertions, 0 deletions.** Day 61 recorded that a `JSON.stringify` round-trip would have
+  made it 15,165 and 13,845, and the same discipline applied to `known-divergences.json`
+  turned 448 insertions and 442 deletions into **6 and 0**.
+- **ORDERING AGAIN, AND IT COST NOTHING AGAIN.** Everything the state suite reads was
+  finished and green before the audit started. `tools/test-counts.mjs` ran after the last
+  test was added — the seventh day running — and refused outright the first time because
+  `us-state-tax` had no `node_modules`, which is Day 58's design working rather than a
+  failure.
+- **AND IT FOUND FOUR FAILING TESTS IN `site`**, which is the suite no single package command
+  reaches. Adding a state broke the retirement calculator in four places, three of them
+  substantive: Oklahoma is the **sixth** state where the same household totals produce a
+  different tax depending on whose name the retirement income is in (`$450.00`, the whole
+  `$10,000` cap at 4.5%), and the **only one of the six available at any age** — the other
+  five gate on 62, 65 or 67. It is also the **fourteenth** state to pass Utah in the
+  ranking, at `$709.00` against Utah's unmoved `$1,388.46`, and its route is a new one: not a
+  row that was wrong, not a row that did not exist and was generous, and not a legislature
+  changing its mind, but a state that charges this couple a real figure and still beats Utah
+  by `$679.46`.
+
+### Part 17 — the day's corrections, counted
+
+**Things I got wrong that never reached a commit**, which is the number worth watching:
+
+- three test assertions that failed by exactly half a cent, because they compared unrounded
+  hand arithmetic to the engine's rounded cents with a `< 0.005` tolerance — and three more
+  that failed because the difference of two rounded returns is not the rounding of their
+  difference
+- a rate-gap assertion claiming every gap is preserved between the two years, which the test
+  refused because the new `0% → 2.5%` step has no 2025 counterpart; the claim is about the
+  surviving bands and now says so
+- a household added to witness Oklahoma's head-of-household exemption limit that could not
+  witness it, because its taxable income was zero — the guard refused the same figure twice
+  and the second refusal was the better finding
+- a `WORDS[sentence[1]]` lookup that read `undefined`, because the count word begins a
+  sentence and is capitalised there and nowhere else
+- four published-guide figures taken seriously long enough to check and then refuted: the
+  `$12,200` joint threshold, the `$25,000` retirement exemption, "$10,000 for retirees 65 and
+  older", and "Oklahoma mirrors the federal standard deduction"
+- and the enumerator's golden sample, where I updated the totals and the new per-file anchors
+  and left the KIND breakdown at Day 61's — caught by the test two lines further down
+- and this worklist's own first draft, which put Arkansas's population at "3,088,000 and
+  change" from memory; the real figure is 3,114,791, and it is the fourth day running that a
+  worklist sentence asserted something from memory and one search contradicted it
+
+Every one of the first four was caught by a test, a compiler or a guard rather than by my
+re-reading my own work, which is the direction that compounds.
+
+### What I would do next
+
+*The list begins with a state for the third day running, because Day 60's rule holds and has
+now paid three times: an instrument's worklist grows from the instrument and a product's
+worklist has to come from outside it. Thirteen taxing jurisdictions remain.*
+
+1. **ADD IOWA, AND THE RATE IS THE EASY HALF.** It is now the largest uncovered
+   jurisdiction — Census Vintage 2025, looked up rather than remembered: Iowa **3,238,387**,
+   Arkansas **3,114,791**, Kansas **2,977,220**, Nebraska **2,018,006**. (The first draft of
+   this sentence put Arkansas at "3,088,000 and change" from memory and one search
+   contradicted it. That is the FOURTH consecutive day a worklist assertion made from memory
+   has been wrong — two rate schedules on Day 60, a population comparison on Day 61, and a
+   population figure today — and the fourth time one lookup settled it before anything was
+   written. **The worklist is still the one document in this repository that nothing tests,
+   so check it rather than trusting it, including when it is yesterday's.**)
+
+   Iowa went to a **flat 3.8%** for tax year 2025 under SF 2442 (2024), which pulled HF
+   2317's 3.9% schedule forward a year and collapsed four brackets — so the rate is the
+   simplest thing about the state, and one secondary source still prints 3.9% for 2026 from
+   the superseded act. What will cost the day is everything else: Social Security exempt,
+   a retirement income exclusion that is **total** for filers 55 and over (and for disabled
+   filers and some survivors), and **one question the sources actively disagree about** —
+   whether Iowa now uses the FEDERAL standard deduction or an Iowa figure of its own. One
+   guide says federal ($16,100 single for 2026), another prints $14,600/$29,200, and those
+   are not the same claim with different numbers: one makes Iowa an OBBBA-sensitive state
+   like Arizona and the other does not. **Settle that before writing a line**, because it
+   decides whether Iowa belongs in `federal-conformity.test.js` and in the cross-package
+   OBBBA check.
+
+   Day 61 warned that Iowa and Kansas could not be settled from this sandbox and nothing
+   about the network changed. What DID change today is that the route is now known and
+   measured: server-side search plus `policyengine-us`'s parameter files, read for the
+   citations they name rather than the numbers they hold, settled Oklahoma's two years three
+   ways and refuted four published figures. Use it rather than concluding again that the
+   state is unreachable.
+2. **ADD AN INPUT FOR THE FEDERAL EARNED INCOME CREDIT UNDER 2020 LAW, AND SHIP OKLAHOMA'S
+   CREDIT.** This is the day's one deliberate gap and it is worth `$333.00` a household —
+   larger than anything else on this list. It needs `federalEarnedIncomeCreditUnder2020Law`
+   as the 56th input field and an `earnedIncomeCredit` variant that reads it, and the
+   decision to make first is whether `us-federal-tax` should be able to COMPUTE it: the 2020
+   maxima, phase-in rates, phase-out rates and phase-out starts are four numbers per child
+   count and the package already has the machinery, so a `YEAR_2020_EITC_ONLY` table is
+   plausible and would make the state package's answer derivable rather than supplied. The
+   check in `tools/cross-package/oklahoma-frozen-eitc.mjs` already holds the 2020 table and
+   would become the test of it.
+3. **DERIVE `taxableSocialSecurity`'s GATE LIST** — carried from Day 61, and the third
+   consecutive state has now drifted it. The eight paths are unchanged:
+   `subtractsTaxableSocialSecurity`, Virginia's `ageDeduction`, Connecticut's
+   `socialSecurityBenefitAdjustment`, Utah's two credit rules, Missouri's
+   `stateRetirementDeduction`, Maryland's `pensionExclusion`, and Kentucky's and Georgia's
+   exclusions. What Day 62 adds is that `retirementIncome`'s gate needs the same treatment
+   and was not on the list, and that BOTH were caught by name by the witness harness — so
+   this is a tidying rather than a defect, and item 2 is worth more.
+4. **MEASURE THE AUDIT'S BLIND SPOT PER FIGURE** — carried from Days 60 and 61, and today
+   added a third class to it, which is the one with a name: **a parameter whose value is
+   ZERO has no mutant**, because the harness mutates decimals in (0,1). Day 60's class was
+   relation parameters that are integers below 100; Day 61's was that a real indexation error
+   is one rounding step and the harness perturbs by orders of magnitude. The three together
+   are a map of what 99.6% does not cover, and the zero class is the easiest to enumerate
+   and the most alarming — it includes every zero bracket in the package.
+5. **GIVE THE WITNESS HARNESS A SECOND FIELD BY DEFAULT** — unchanged from Day 61.
+6. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged since Day 56, now six
+   days on the list, and Oklahoma made it worse again: its fifteen notes carry more dollar
+   figures than any other state's and `note-pins.json` pins the first 72 characters, which
+   reaches almost none of them. The frozen-EITC table, the `$446.50`, the `$475.00` and the
+   `$22.00` are all in prose that nothing checks — except that today, for the first time, the
+   headline table IS checked, by the cross-package tool, which is the pattern to copy rather
+   than a reason to close the item.
+7. **DERIVE BOUNDS FOR THE FOUR REMAINING 2025 DIVERGENCE GROUPS** — Georgia's two
+   mechanisms, South Carolina's `separate-with-spouse`, Wisconsin's ten and Indiana's four.
+   Sixteen unexplained differences, all 2025, unchanged from Days 54 to 62 — and 2026 is back
+   to zero, which makes them look worse again.
+8. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 62; four of the sixteen
+   above are Indiana's.
+9. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** — unchanged from Days 58 to 62.
+10. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged since Day 56, and
+    the fourth consecutive day the "where this could be wrong" figure (342 today, 272 on Day
+    61, 1,322 on Day 60) was computed by a scratch script reusing the harness's own
+    `literalsIn`.
+
+---
+
 ## Day 61 — 2026-10-25
 
 ### What I did

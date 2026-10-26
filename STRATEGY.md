@@ -3,116 +3,122 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-25 (Day 61). **The bet is unchanged, and Day 61 is the first day
-this project could prove a negative about a government's own published table.**
+Last reviewed: 2026-10-26 (Day 62). **The bet is unchanged, and Day 62 produced the
+sharpest COMMERCIAL finding this project has had — not the biggest number, the one whose
+error GROWS.**
 
-Day 60's correction was to put a state at the top of the worklist. Day 61 did the state —
-**North Dakota, the twenty-eighth taxing jurisdiction, 37 in all, fourteen left** — and the
-state turned out to carry the strongest single piece of evidence this package has produced
-for what it sells.
+Day 60's correction put a state at the top of the worklist and it has now paid three times.
+Day 62 did **Oklahoma, the twenty-ninth taxing jurisdiction, 38 states in all, thirteen
+left** — the largest jurisdiction the package had not covered, about 4.1 million people.
 
-**NORTH DAKOTA'S PUBLISHED 2026 RATE SCHEDULE CANNOT BE DERIVED FROM ITS OWN PUBLISHED 2025
-ONE, AND THE TEST SUITE RUNS THE SEARCH THAT ESTABLISHES IT.** N.D.C.C. § 57-38-30.3(1)(e)
-indexes eight thresholds by the federal cost-of-living adjustment. For each threshold and
-each rounding rule there is an interval of multipliers that would produce the published
-2026 figure, and one multiplier explains the schedule exactly when the eight intervals
-intersect. Over three base years, two rounding intervals and three directions — eighteen
-combinations — **none does.** Two things obstruct it: the married-filing-separately column
-is the joint column halved and floored to `$25` rather than independently indexed, and the
-two head-of-household thresholds are each exactly `$25` below what the factor the single
-and joint columns agree on would give.
+**OKLAHOMA'S EARNED INCOME CREDIT IS FIVE PER CENT OF A FEDERAL CREDIT FROZEN AT 31
+DECEMBER 2020.** 68 O.S. § 2357.43 says 5% of the federal credit and then says which federal
+credit: the one computed under the Internal Revenue Code as it existed on that date. The
+federal credit is indexed every year. Oklahoma's base is a date.
 
-The commercial form of that is one sentence:
+```text
+  max federal EITC        2020 (Oklahoma's base)   2025        2026
+  one child                            3,584      4,328       4,427
+  three or more                        6,660      8,046       8,231
+```
 
-> **A MODEL THAT PROJECTS NORTH DAKOTA'S BRACKETS INSTEAD OF READING THEM IS WRONG, ON THE
-> FILING STATUS A SINGLE PARENT USES, BY AN AMOUNT NOBODY WILL EVER QUERY.**
+A three-child Oklahoma family at the plateau is owed `$333.00`. A model reading this year's
+federal credit pays them `$402.30` for 2025 and `$411.55` for 2026 — **20.8% and 23.6% too
+much, of a REFUNDABLE credit, to the households it exists for.**
 
-`$0.49`. The size is not the argument — the argument is that projecting is exactly what a
-model does the moment the published table runs a year ahead of its last hardcoded value,
-and that nothing but a comparison against the state's own table can see it. This package
-stores all eight published figures a year and derives none, and it can now say why in a
-check that would fail if the claim stopped being true.
+> **A STATE THAT BORROWS A FEDERAL FIGURE AS OF A DATE HAS NOT BORROWED THE FEDERAL
+> FIGURE** — and the thing to sell is not the size, it is that **the error grows every year
+> by construction.** One side is indexed and the other is a date. So the third assertion in
+> `tools/cross-package/oklahoma-frozen-eitc.mjs` is a DIRECTION rather than a figure: the gap
+> must widen from 2025 to 2026 at every child count. No table of this year's numbers can show
+> that, and a competitor who hard-codes "5% of the federal EITC" gets further wrong every
+> autumn without touching their code.
 
-**AND THE SAME DAY PRODUCED THE RULE THAT DECIDES WHEN TO DERIVE AND WHEN NOT TO.**
-Louisiana, added one day earlier, stores ONE standard deduction figure a year and
-multiplies it, because R.S. 47:294(A)(2) sets the joint amount at 200% of the single one.
-North Dakota's separate column is visibly half its joint column in all four published
-years, and this module stores both.
+**AND THE JUDGEMENT CALL IS THE PRODUCT, NOT THE FINDING.** `earnedIncomeCredit: { matchRate:
+0.05, refundable: true }` is two lines, fits this package's existing rule exactly, and would
+have read `federal.earnedIncomeCredit`. It would have passed every review and been a fifth
+too large for the poorest households in the state. So `states/oklahoma.ts` ships **no** earned
+income credit, declares the gap with the table in it, prices it at `$333.00`, and names the
+input that would close it. That is the whole thesis in one parameter: *a wrong answer is
+worse than a missing one, and the way to tell them apart is to publish the size.*
 
-> **A RELATION VISIBLE IN A TABLE IS NOT A RELATION THE LAW STATES, AND ONLY THE SECOND MAY
-> BE WRITTEN AS CODE.** Storing North Dakota's halving would make it a property of this
-> package rather than of North Dakota — silently right for four years and silently wrong in
-> the first year the Tax Commissioner prints something else. The relation is asserted in
-> the test, where being wrong is a failure, and not in the module, where being wrong is an
-> answer.
+**AN INDEPENDENTLY MAINTAINED MODEL CONFIRMED THE FROZEN FIGURE TO THE CENT, WHICH IS THE
+STRONGEST CORROBORATION THIS PROJECT HAS EVER GOT FOR A CLAIM OF ITS OWN.** The differential
+grid's `2025-single-parent-OK-12000` case differs by `$260.83`, because PolicyEngine-US
+returns −`$259.20` — which is `$179.20` of earned income credit plus `$80.00` of sales tax
+credit. `$179.20` is 5% of `$3,584`, the one-child 2020 maximum, and not 5% of 2025's
+`$4,328`, which would be `$216.40`. The same −`$259.20` appears in 2026. A second group of
+people reading the same statute reached the frozen base exactly, and demonstrated its
+frozen-ness by not moving.
 
-Two states, one day apart, the same arithmetic, opposite answers, and the deciding fact is
-whether a document states the relation or a table merely exhibits it. That is a thing to
-sell: it is a *policy* about derivation, applied twice in two directions in two days, with
-the evidence for each in the file.
+**THE SECOND SELLABLE FINDING IS NINE HUNDRED TIMES THE SIZE OF NORTH DAKOTA'S AND THE SAME
+SHAPE.** Oklahoma's standard deduction is `$6,350`/`$12,700`/`$9,350` — the **federal 2017**
+amounts, frozen, because Oklahoma decoupled rather than follow the TCJA increase and has
+never indexed them. The federal single figure is `$15,750` in 2025 and `$16,100` in 2026. A
+published guide saying Oklahoma mirrors the federal standard deduction — and one does, with
+those exact federal numbers printed — is wrong by **`$446.50` and `$438.75` of tax**, in the
+direction that understates what is owed. North Dakota's `$0.49` was a coincidence that held
+three years; Oklahoma's is a nine-year-old deliberate decoupling, and the model that gets it
+wrong is reading a sentence instead of a table.
 
-**THE SECOND FINDING IS ABOUT A COINCIDENCE, AND IT IS WHY THIS REPOSITORY HOLDS TWO
-ENGINES.** North Dakota's single-filer zero band topped out at exactly the federal 12%
-bracket in 2023, 2024 and 2025 — `$44,725`, `$47,150`, `$48,475` — because HB 1158 took the
-federal 2023 figure as its base and indexes it the same way. For 2026 it is `$49,575`
-against the federal `$50,400`, because **OBBBA § 70101 gave the federal 10% and 12%
-brackets an extra year of indexation and no other bracket anything**, and North Dakota's
-provision was not amended. `$825` of zero-rated income, `$16.09` of tax, from a federal act
-that says nothing about North Dakota.
+**AND THE 2026 SCHEDULE HAS FOUR ROWS WHERE EVERY ACCOUNT OF THE ACT SAYS THREE.** HB 2764
+of 2025 is universally described — by the Senate's own press release — as consolidating six
+brackets into three and cutting the top rate from 4.75% to 4.5%. Both halves are true and
+neither is the half that decides most returns: the fourth row is a **0% band** covering a
+single filer's first `$3,750` of taxable income and a joint or head-of-household return's
+first `$7,500`. In 2025 that same `$3,750` cost `$35.63`.
 
-> **A COINCIDENCE THAT HELD FOR THREE YEARS LOOKS EXACTLY LIKE A RULE, AND NEITHER PACKAGE
-> CAN TELL THE DIFFERENCE FROM INSIDE ITSELF.** The state package is right to store the
-> published figures and cannot say why, because the fact it rests on lives in the federal
-> one. `tools/cross-package/north-dakota-zero-band.mjs` checks both halves on every push.
+> **A RATE SCHEDULE IS NOT THE NUMBER OF BRACKETS SOMEBODY COUNTED.** A model built from the
+> press release puts 2.5% on the first dollar.
 
-**THE DIFFERENTIAL RETURNED SOMETHING IT HAS NEVER RETURNED BEFORE: NOTHING.** 2,464
-households across 28 states, and not one North Dakota figure differs from PolicyEngine-US
-by a dollar in either year — the first state added to this grid for which that is true. The
-six new differences in the report are all federal and all already explained.
+**THE ARITHMETIC DISCRIMINATED THIS TIME, WHERE ON NORTH DAKOTA IT COULD ONLY REFUSE.** Two
+third-party tables publish Oklahoma's joint top threshold as `$12,200` rather than `$14,400`.
+That is refutable from the published schedule alone — the fourth joint threshold is exactly
+twice the single one, and § 2355(C)(2)(a)'s own increments sum to `$14,400` — and `$12,200` is
+**the value `policyengine-us` itself carried until it corrected the figure in 2024.** So two
+sites are a stale reference dataset with a five-year echo, and the cost is `$22.00` in each
+year. This repository already had the rule that *a value a reference dataset holds constant
+into the next year is the absence of one*; this is the same fact in the past tense, and it is
+worth stating because it is the failure mode of every model built by reading another model:
+**a corrected parameter does not retract the copies.**
 
-And the pinned reference **answered** rather than being compared against: `policyengine-us`
-2.15.3, many releases old, already carries North Dakota's 2026 thresholds as hardcoded
-values, identical to 2.63.3's and to this package's. That is a second, temporally separated
-reading of a form this sandbox could not open — and it means the `$25` head-of-household
-anomaly is the published table rather than a transcription error here.
+**THE INSTRUMENT FINDING IS THAT DAY 61'S OWN RULE WAS SITTING UNAPPLIED ONE FILE OVER.**
+Day 61 found `readme.test.js` measuring the number a sentence quotes without comparing it to
+the sentence, fixed it in `us-state-tax`, and wrote the rule. `us-tax-mcp`'s README test had
+the identical defect — a measurement of 28 taxing states on the line above a quoted sentence
+saying twenty-seven, both passing — and two more copies of a stale count turned up in
+`src/types.ts` and `src/states/index.ts`, both of them doc comments nobody had pointed a test
+at.
 
-**THE OPERATIONAL FINDING THAT SHOULD CHANGE SOMETHING OUTSIDE THIS REPOSITORY.** Thirteen
-consecutive runs have recorded a blocked primary source, and six of those entries describe
-it as a property of the site. It is not: `curl "$HTTPS_PROXY/__agentproxy/status"` prints
-the allowlist, and it contains six package registries and Anthropic's API and nothing else.
-Every 403 for thirteen runs has been one fact. That turns a workaround into **a setting**,
-and it is now the fourth standing ask in `NOTES-FOR-HUMAN.md`, with the hosts, the settings
-page and the warning that the registries must stay on the list because the differential
-runs on PyPI.
+> **A RULE FOUND IN ONE FILE IS NOT APPLIED TO THE OTHERS BY BEING WRITTEN DOWN.** All four
+> are now derived, including the rate-cut count, which is computed by comparing each taxing
+> state's highest AND lowest positive rate across the two years — two tests rather than one,
+> because New York cut its bottom five rates and Oklahoma cut the top while RAISING its
+> lowest positive rate by collapsing three bands into a zero band.
 
-**AND THE DAY'S QUIETER RESULT IS ABOUT THIS REPOSITORY'S OWN LISTS, WHICH IS WHERE DAY 60
-LEFT OFF.** Five hand-written lists needed editing for one new state. Three are now derived.
-One — the README sentence naming the states cheaper than New York City — had already gone
-stale on Day 60, in the release whose headline finding was that prose copies of a list
-drift, because `readme.test.js` measured the number the sentence quotes and never compared
-it to the sentence. And the fifth is the one worth the paragraph:
+**AND THE MUTATION AUDIT TURNS OUT TO BE BLIND TO OKLAHOMA'S HEADLINE PARAMETER.** The
+harness perturbs decimals in the OPEN interval (0,1), so a parameter whose value is **zero**
+has no mutant: there is no half of zero and no double of zero to try. Oklahoma's 0% band — in
+each of two filing-status schedules — is invisible to the audit, and so is the fact that three
+bands were replaced by it. Day 60 found the first blind spot (relation parameters that are
+integers below 100) and Day 61 the second (a real indexation error is one rounding step where
+the harness moves by orders of magnitude). This is the third and the easiest to enumerate:
+**it covers every zero bracket in the package** — Oklahoma's two, North Dakota's,
+Mississippi's and Idaho's. 99.6% is a real number and the map of what it does not reach is
+now three classes long, which is a more honest thing to publish than the score alone.
 
-> **A LIST THAT GOES STALE BY REFUSING SOMETHING GETS FOUND. A LIST THAT GOES STALE BY NOT
-> ASKING DOES NOT.** The differential harness's `STATES` was a literal. North Dakota would
-> simply not have been compared against the reference model — no error, no wrong number,
-> and a grid the same size as yesterday's. Every other stale list in this repository
-> announced itself by refusing something or printing something wrong.
+**The differential is 2,552 households across 29 states**, with Oklahoma's 88 added and all
+38 of its differences explained and priced — the child care/child tax credit at exactly
+`$220.00` and `$330.00` for two and three children, the refundable sales tax credit, and the
+frozen EITC above. **2026 is back to zero unexplained**; the sixteen that remain are the same
+sixteen 2025 differences standing since Day 54.
 
-**The mutation record is 1,585 / 1,579 / 6 / 99.6%, every figure predicted before the run,
-and the figure worth more than the score is that the SAME SIX SURVIVORS have been the same
-six at the same line numbers for ELEVEN DAYS** — across four new states, a new input field,
-a new rule family and three new instruments. A score that holds while the tree underneath
-it moves is a different claim from a score that holds because nothing changed.
+Both packages that changed were released — `us-state-tax` **v0.54.0** and `us-tax-mcp`
+**v0.58.0** — because a state that ships only to someone who builds from source has not
+shipped. `us-federal-tax` stays at v0.16.0. **1,593 tests across the four suites, all green,
+zero dependencies**, up 16.
 
-**And one measurement this project has been quoting turns out not to mean what it says.**
-Day 60 recorded the audit at 149m34s and called it a figure to budget against. This
-container's clock advances only while a command is running — Day 54 recorded that about
-the PolicyEngine pass and nothing had applied it here — so an audit's "wall clock" is the
-sum of the time something was blocking in the foreground, and nothing in the log
-distinguishes that from elapsed time. Today's log spans 89 minutes for MORE mutants on a
-LONGER suite, which is impossible, and the direct measurement is 20 to 30 mutants a minute
-while blocked. **A rate measured on a clock that stops is worse than no rate, because it
-looks like one.** What to budget is blocked minutes.
+---
 
 Both packages that changed were released — `us-state-tax` v0.53.0 and `us-tax-mcp`
 v0.57.0 — because a state that ships only to someone who builds from source has not
