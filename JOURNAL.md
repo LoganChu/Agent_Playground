@@ -594,10 +594,17 @@ machine, and what to budget is blocked minutes **spent the right way**.
   run 256  c46e43d  Oklahoma                 TWO reds: the expected one AND the
                                              test-count check, because the gate ran
                                              a different command from CI
-  run 257  fdc6c8e  the day's record         (documents only)
+  run 257  fdc6c8e  the day's record         ONE red, and it IS the expected one
   run 258  55cd271  the gate fix             ONE red, and it IS the expected one
-  run 259  the audit record                  expected ALL SEVEN GREEN
+  run 259  35a51cf  the audit record         ALL SEVEN GREEN, every step
 ```
+
+**Run 259: all seven jobs success, and every step of every job success — not one step
+skipped anywhere in the run.** `mutation-claims` step 7 passes, which is the expected red
+cleared by the record this push carries, and step 6 — the enumerator's fifteen tests —
+passes with it. `counts` step 5 and step 6 both pass, which is the unexpected red of run 256
+closed. `cross-package` step 8, *"Oklahoma's earned income credit base is frozen at 2020,
+and the gap is growing"*, was green on each of its four runs.
 
 `cross-package` step 8 — *"Oklahoma's earned income credit base is frozen at 2020, and the
 gap is growing"* — was green on its first CI run and on every run since.
