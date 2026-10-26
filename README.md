@@ -395,7 +395,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1585 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1640 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 55** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
@@ -426,27 +426,45 @@ Day 58, the probe-cost meter  1,543 mutants    6 survivors   99.6%
 Day 59, the typo-cost fix     1,543 mutants    6 survivors   99.6%
 Day 60, LOUISIANA             1,559 mutants    6 survivors   99.6%
 Day 61, NORTH DAKOTA          1,585 mutants    6 survivors   99.6%
+Day 62, OKLAHOMA              1,640 mutants    6 survivors   99.6%
 ```
 
-**Day 61's `+26` was attributed before the run, as Day 60's was, and the breakdown was
-confirmed from a direction the total cannot see.** `states/north-dakota.js` contributes
-24 — sixteen money (eight published thresholds in each of two years), four rate (`0.0195`,
-`0.025` and the two `0.4` shares) and four year (two `year === 2025` selectors and the two
-in its supported-year guard) — and the two new provenance entries contribute the other two
-from their `years:` arrays. The enumerator's kind breakdown moved
-`{ money: 944, rate: 359, year: 256 }` to `{ money: 960, rate: 363, year: 262 }`: `+16`,
-`+4`, `+6`, exact in all three.
+**Day 62's `+55` was attributed before the run, as Day 60's and Day 61's were, and the
+breakdown was confirmed from a direction the total cannot see.** It is the largest
+single-state addition this record has taken, because Oklahoma is the first state here whose
+two supported years are two different **schedules** rather than one schedule with different
+numbers. `states/oklahoma.js` contributes 51 — 29 money (sixteen bracket thresholds across
+the two subsections and two years, four standard deduction amounts, four exemption amounts,
+the four special-exemption income limits and the `$10,000` retirement cap), 18 rate (twelve
+2025 rates and six positive 2026 ones) and 4 year (two schedule selectors and two in its
+supported-year guard) — and four new provenance entries contribute the rest from their
+`years:` arrays. The enumerator's kind breakdown moved
+`{ money: 960, rate: 363, year: 262 }` to `{ money: 989, rate: 381, year: 270 }`: `+29`,
+`+18`, `+8`, exact in all three, and the per-file split of 51 and 4 was exact too.
 
-The named failure mode was measured rather than estimated. `states/north-dakota.js` holds
-**296** mutable-looking literals and exactly **24** are code — its doc comment is four
-published rate schedules, a worked indexation search and a table of federal bracket
-ceilings — so it is now the file in this tree where comment and string masking is most
-load-bearing, and a Day 56-style regression would move the total by **272 from one file**,
-against Louisiana's 95. `1,585` rules that out.
+The named failure mode was measured rather than estimated. `states/oklahoma.js` holds
+**393** mutable-looking literals and exactly **51** are code — its doc comment is two rate
+schedules in each of two shapes, a frozen earned-income-credit table across three tax years
+and a worked price for every parameter in it — so it takes North Dakota's place as the file
+where comment and string masking is most load-bearing, and a Day 56-style regression would
+move the total by **342 from one file**, against North Dakota's 272 and Louisiana's 95.
+`1,640` rules that out.
 
-**AND THE SIX SURVIVORS HAVE BEEN THE SAME SIX, AT THE SAME LINE NUMBERS, FOR ELEVEN
-DAYS** — across four new states, a new input field, a new rule family and three new
-instruments.
+**AND THE PARAMETER THIS AUDIT IS BLIND TO IS OKLAHOMA'S HEADLINE ONE.** The harness
+mutates decimals in the **open** interval (0,1), so a parameter whose value is zero has no
+mutant: there is no half of zero and no double of zero to try. Oklahoma's 0% band — the row
+that decides the most returns, in each of two filing-status schedules — is invisible to the
+audit, and so is the fact that HB 2764 replaced three bands with it. That is the third
+documented class of blind spot, after relation parameters that are integers below 100 and
+real errors that are one rounding step rather than a doubling, and it covers **every zero
+bracket in the package**: Oklahoma's two, North Dakota's, Mississippi's and Idaho's. The
+golden sample asserts the absence rather than leaving it to be noticed.
+
+**AND THE SIX SURVIVORS HAVE BEEN THE SAME SIX, AT THE SAME LINE NUMBERS, FOR TWELVE
+DAYS** — across five new states, two new input fields, two new rule flags and several new
+instruments. All 55 of Oklahoma's new mutants were killed. A score that holds while the
+tree underneath it moves is a different claim from a score that holds because nothing
+changed.
 
 **Day 60's row is the first in this table that is a COVERAGE change rather than an
 instrument change, and its `+16` was attributed before the run rather than explained after

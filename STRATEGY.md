@@ -107,6 +107,12 @@ the harness moves by orders of magnitude). This is the third and the easiest to 
 Mississippi's and Idaho's. 99.6% is a real number and the map of what it does not reach is
 now three classes long, which is a more honest thing to publish than the score alone.
 
+**The mutation record is 1,640 / 1,634 / 6 / 99.6%, every figure predicted before the run,
+and the figure worth more than the score is that the SAME SIX SURVIVORS have been the same
+six at the same line numbers for TWELVE DAYS** — now across five new states, two new input
+fields, two new rule flags and several new instruments. All 55 of Oklahoma's new mutants were
+killed.
+
 **The differential is 2,552 households across 29 states**, with Oklahoma's 88 added and all
 38 of its differences explained and priced — the child care/child tax credit at exactly
 `$220.00` and `$330.00` for two and three children, the refundable sales tax credit, and the
@@ -658,7 +664,7 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1585 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.6%** (1640 mutants, 6 survivors), **the state
 one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
 SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47

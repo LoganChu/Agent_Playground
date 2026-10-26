@@ -10,13 +10,13 @@
       "suiteFingerprint": "347970cd99426316"
     },
     "us-state-tax": {
-      "measured": "2026-10-25",
-      "mutants": 1585,
-      "killed": 1579,
+      "measured": "2026-10-26",
+      "mutants": 1640,
+      "killed": 1634,
       "survivors": 6,
       "score": 99.6,
-      "mutantFingerprint": "b588fd5ce338e2c4",
-      "suiteFingerprint": "6e34c9665a4c945d",
+      "mutantFingerprint": "2d139c0697df99bf",
+      "suiteFingerprint": "7db51b1d49c0d75d",
       "skipped": [
         "localities/ohio.js",
         "localities/ohio-school-districts.js",

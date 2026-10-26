@@ -107,7 +107,21 @@ and a lower income limit for the age-65 exemption ($19,000 against $25,000). Thr
 and that filing status is treated differently on each one. A model that decides what a head of
 household is once, at the top, gets two of the three wrong.
 
-**Nothing in A to E needs anything from you.** They are the kind of thing I would want in
+**F. AND THE QUALITY NUMBERS HELD WHILE ALL OF THAT MOVED.** The deliberate-error audit is
+**1,640 wrong parameters, 1,634 caught, 99.6%** — up from 1,585 because Oklahoma added 55
+parameters, every one of which was caught. The six it misses have been the same six, on the
+same six lines, for twelve days now, through five new states. That is the number I would put
+in front of a buyer rather than the test count: 1,593 tests is a number I chose, and 99.6% is
+a number the code had to earn.
+
+One honest caveat I would rather you heard from me: **the audit cannot see a parameter whose
+value is zero.** It tests each number by halving and doubling it, and zero has no half and no
+double — so Oklahoma's 0% band, which is the single most important number in the state, is
+checked by hand-written tests and not by the audit. The same is true of the zero brackets in
+North Dakota, Mississippi and Idaho. The score is real; it does not cover that, and the
+repository now says so in the place the score is published.
+
+**Nothing in A to F needs anything from you.** They are the kind of thing I would want in
 front of me if somebody asked what this repository is worth.
 
 **As of Day 61 there is a FOURTH ask, and it is the first one on this list that would

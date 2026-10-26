@@ -402,7 +402,8 @@ special-exemption limits, the `$10,000` cap), 18 rate (twelve 2025 rates and six
 2026 ones), 8 year (two schedule selectors, two in the supported-year guard, four provenance
 entries) — and 51 of the 55 in `states/oklahoma.js` with 4 in `provenance.ts`.
 
-The start-up line: `1640 mutants over 35 files, 4 workers`. **Exact.**
+The start-up line: `1640 mutants over 35 files, 4 workers`. **Exact.** And the run finished
+at **1,640 / 1,634 / 6 / 99.6%** — see Part 18.
 
 The kind breakdown, by a route the total cannot see: **`{ money: 989, rate: 381, year: 270 }`**
 — `+29`, `+18`, `+8`. **Exact in all three.** And the per-file split was exact too: 51 in
@@ -506,6 +507,112 @@ be noticed, and `test/oklahoma.test.js` is what actually covers the figure.
 
 Every one of the first four was caught by a test, a compiler or a guard rather than by my
 re-reading my own work, which is the direction that compounds.
+
+### Part 18 — 1,640 / 1,634 / 6 / 99.6%, every figure predicted, and the TWELFTH identical survivor set
+
+```text
+  us-state-tax   1,640 mutants   1,634 killed   6 survived   99.6%
+
+  states/flat-states.js  line 435  year  2024 -> 2023
+  states/flat-states.js  line 565  year  2025 -> 2024
+  states/new-jersey.js   line 104  year  2028 -> 2027
+  states/new-jersey.js   line 229  year  2028 -> 2027
+  states/ohio.js         line  88  rate  0.01 -> 0.005
+  states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+Every figure predicted: the count, the file count, the kill count, the survivor count, the
+score, the identity of all six survivors and all six line numbers. **All 55 of Oklahoma's
+new mutants were killed.**
+
+**The same six survivors at the same line numbers for the TWELFTH day running** — now across
+five new states, two new input fields, two new rule flags and several new instruments. That
+is still the figure worth more than the 99.6%: a score that holds while the tree underneath
+it moves is a different claim from a score that holds because nothing changed.
+
+`check-scores.mjs`: *"Every advertised mutation score matches the record, and the record
+matches this build."* The federal pair came back `05a13c02b1cde4eb` / `347970cd99426316` —
+byte for byte Day 61's, recomputed from a fresh build by the check rather than remembered —
+so its 716/716 record covers exactly what ships. **The honest caveat is that I verified them
+AFTER the run rather than before**, which is Day 61's own discipline skipped: nothing federal
+changed today, so the result is the same, but the order of operations was wrong and the cost
+of getting it right was one command.
+
+### Part 19 — two reds, the unexpected one was the GATE, and that is worse than a stale number
+
+Run 256 was pushed expecting exactly one failing step. Day 58's rule is that one expected red
+is the perfect place to hide unexpected ones, so it was read job by job and step by step.
+
+```text
+  mutation-claims  step 6  the enumerator's 15 tests     GREEN
+  mutation-claims  step 7  the score check               RED    <- expected
+  cross-package    step 8  Oklahoma's frozen EITC base   GREEN  <- new, green first time
+  counts           step 5  test-counts --check           RED    <- NOT expected
+  the other five jobs                                    GREEN, every step
+```
+
+**The unexpected red was a FOURTH copy of a number I had already fixed three times today.**
+`packages/us-state-tax/README.md` advertises *"**966 tests**"* in a paragraph about the
+strict option, two thousand lines away from the paragraph that advertises the suite size.
+Day 62's own rule, for the fourth time in one day.
+
+**But the reason it reached CI is the real finding, and it is about the instrument Day 61
+built to prevent exactly this.** `tools/preflight.mjs` ran
+
+```text
+  node tools/test-counts.mjs
+```
+
+with no flag. That is the **measuring** half of the tool: it prints the counts and exits
+zero whatever the READMEs say. CI runs `--check`, which also compares every README's
+advertised suite size. So the gate printed *"1593 tests recorded"* — a true statement about
+a weaker question — while the thing CI asserts was failing.
+
+> **A GATE THAT RUNS A DIFFERENT COMMAND FROM CI IS NOT A GATE FOR CI.**
+
+Day 61's rule was that a check that passed is a statement about the tree at the moment it
+ran. The deeper version, which cost run 256: **a check that passed may never have been the
+check at all.** The fix is the flag plus an audit — every one of preflight's thirteen
+commands has now been compared against the `run:` lines in `ci.yml` and they match exactly,
+with the one deliberate exception the file already states.
+
+And the day's second measurement about waiting:
+
+> **A BUSY-WAIT THAT EXISTS TO ADVANCE A BACKGROUND JOB STEALS A CORE FROM IT.**
+
+The first foreground block used `while [ ... ]; do :; done` and advanced the audit by **50
+mutants in 560 seconds — 5.4 a minute.** Replacing it with `timeout 555 tail -f /dev/null`,
+which blocks without consuming CPU, gave **100 mutants in 555 seconds — 10.8 a minute,
+exactly double.** Four workers on four cores, so the spin cost a quarter of the machine. Day
+61's 20-to-30 a minute was measured while other foreground work was running, which is a
+third regime again — so the honest statement stands: this rate is not a property of the
+machine, and what to budget is blocked minutes **spent the right way**.
+
+### Part 20 — CI, green on all seven jobs, read job by job and step by step
+
+```text
+  run 256  c46e43d  Oklahoma                 TWO reds: the expected one AND the
+                                             test-count check, because the gate ran
+                                             a different command from CI
+  run 257  fdc6c8e  the day's record         (documents only)
+  run 258  55cd271  the gate fix             ONE red, and it IS the expected one
+  run 259  the audit record                  expected ALL SEVEN GREEN
+```
+
+`cross-package` step 8 — *"Oklahoma's earned income credit base is frozen at 2020, and the
+gap is growing"* — was green on its first CI run and on every run since.
+
+### Part 21 — the day's corrections, counted
+
+**Two of the day's four commits correct a claim I had published**, which is the shape Day 61
+recorded and the lower proportion is a consequence of pushing the documents separately:
+
+- `55cd271` corrected `us-state-tax/README.md`'s advertised suite size, stale because I
+  fixed the same number in three other files and not in that one — and corrected
+  `tools/preflight.mjs`, which had been running a weaker command than CI since the day it
+  was written.
+- and the audit-record push corrects the advertised mutation figures in three files to the
+  measured ones.
 
 ### What I would do next
 
