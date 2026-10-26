@@ -90,6 +90,11 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    label: "Oklahoma's earned income credit base, frozen at 2020 and falling further behind",
+    cmd: 'node tools/cross-package/oklahoma-frozen-eitc.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'each lockfile against its own package.json',
     cmd: 'node tools/cross-package/lockfile-versions.mjs --check',
     expect: (out) => (out.match(/^All (\d+) lockfiles agree/m) ?? [])[1] && 'all agree',

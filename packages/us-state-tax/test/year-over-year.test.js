@@ -223,7 +223,17 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // arithmetic could reach a figure nobody had published; North Dakota is on it
   // because arithmetic could NOT reach figures somebody had, and the only way
   // onto the list was to read them.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  //
+  // OKLAHOMA joins for a NINTH reason and it is the plainest one on the list:
+  // an act of the legislature, passed in 2025, that takes effect in 2026. HB
+  // 2764 replaced six brackets with four — three positive rates each exactly
+  // 0.25 points lower, and the bottom three bands collapsed into one at zero —
+  // without moving a single threshold. Georgia, Indiana, Kentucky, Mississippi,
+  // North Carolina and Utah are here on rate changes too, so what distinguishes
+  // Oklahoma is the SHAPE of its change: the others altered a number in a
+  // schedule and Oklahoma altered how many rows the schedule has. A fallback to
+  // 2025 would not be a stale figure, it would be the wrong number of brackets.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

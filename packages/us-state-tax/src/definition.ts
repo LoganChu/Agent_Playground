@@ -506,6 +506,26 @@ export interface ExemptionRule {
    * Indiana's is `$40,000`, halved to `$20,000` for a separate return.
    */
   readonly lowIncomeSeniorThreshold?: ByStatus;
+  /**
+   * Whether {@link lowIncomeSeniorThreshold} is a **ceiling the filer may sit
+   * on** rather than one they must be under.
+   *
+   * Two states have this exemption and they write the boundary differently.
+   * Ind. Code § 6-3-1-3.5(a) gives its `$500` where federal AGI "is **less
+   * than** forty thousand dollars"; 68 O.S. § 2358(D) gives Oklahoma's `$1,000`
+   * where federal AGI is "**equal to or less than**" the figure in its table,
+   * which the Form 511 instructions print in those words in the column heading.
+   *
+   * So the dollar at the threshold is worth `$1,000` of exemption in Oklahoma
+   * and nothing in Indiana, and this package would have given Oklahoma
+   * Indiana's answer for a filer whose federal AGI is exactly `$15,000`,
+   * `$19,000`, `$25,000` or `$12,500` — about `$7.50` of tax, on four incomes
+   * that a round-number test case lands on far more often than a real return
+   * does.
+   *
+   * Absent means strictly below, which is Indiana's and preserves it exactly.
+   */
+  readonly lowIncomeSeniorThresholdInclusive?: boolean;
   /** An additional exemption for each blind or disabled filer or spouse. */
   readonly perBlindOrDisabledFiler?: number;
   /**
@@ -3192,6 +3212,40 @@ export interface RetirementIncomeSubtractionRule {
    * flag but a second NAME: see {@link exemptInFullName}.
    */
   readonly militaryReducesCap?: boolean;
+  /**
+   * Military retired pay is subtracted **in full and does NOT touch the cap**
+   * that everything else shares — Oklahoma's 68 O.S. § 2358(E)(17) against the
+   * `$10,000` of § 2358(A)(8), on two different Schedule 511-A lines with no
+   * cross-reduction between them.
+   *
+   * ## This is the flag Day 50 deleted, and the deletion was right
+   *
+   * Day 49 added a `militaryExemptInFull` for South Carolina, on the reading
+   * that § 12-6-1171 sits outside § 12-6-1170(A)'s cap because it is a separate
+   * statute with its own form line. Day 50 found § 12-6-1170(C)(1) — "the
+   * deduction allowed by this section" is reduced by whatever is deducted under
+   * § 12-6-1171 — so the two statutes share one cap after all, the flag had
+   * exactly one setter and that setter was a misreading, and it went.
+   *
+   * The rule Day 50 wrote for itself was **a boolean no state varies is a
+   * boolean nothing reads**. Oklahoma is what makes it vary, and the reason it
+   * is a different answer rather than the same mistake twice is that the thing
+   * South Carolina has, Oklahoma does not have: there is no provision reducing
+   * the § 2358(A)(8) exclusion by a military one. Three independent readings say
+   * the `$10,000` survives a military retirement in full, and `policyengine-us`
+   * sums `ok_pension_subtraction` and `ok_military_retirement_exclusion` with no
+   * interaction term.
+   *
+   * So the two flags are the two halves of a question Day 49 thought was one:
+   * {@link militaryReducesCap} is "exempt in full AND charged against the cap"
+   * (Michigan, South Carolina) and this is "exempt in full and NOT charged"
+   * (Oklahoma). The difference is `$10,000` of exclusion — `$475` of Oklahoma
+   * tax in 2025 — and it is visible only on a return that has military retired
+   * pay **and** another pension behind it.
+   *
+   * Setting both is a contradiction and `test/registry.test.js` refuses it.
+   */
+  readonly militaryExemptOutsideCap?: boolean;
   /**
    * A **second, independent claim** under the same rule, for retirement income
    * the filer receives as a **surviving spouse** on a deceased spouse's behalf —

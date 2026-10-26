@@ -164,7 +164,17 @@ test('five states charge a different tax on the same household totals', () => {
   // gives its exemption to "the individual who received" the income, so the
   // couple's $12,324 of 2026 exemption is bought twice when the pension is split
   // and once when it is not — $369.72 either way, which is the whole cap at 3%.
-  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'LA', 'MD', 'NY']);
+  // OKLAHOMA IS THE SIXTH, and it joined on Day 62 the same way Louisiana and
+  // New York did — by being modelled, not by changing. 68 O.S. § 2358(A)(8)
+  // gives "each individual" up to $10,000 of retirement benefits and unused
+  // room is lost, so this couple's $120,000 of pension buys the cap twice when
+  // it is split and once when it is not: $450.00 either way, which is the whole
+  // $10,000 at the 2026 top rate of 4.5%. And Oklahoma's is the only one of the
+  // six available to a filer of ANY AGE — the other five all gate on 62, 65 or
+  // 67 — so it is the one row on this page where a couple in their forties can
+  // be charged for whose name the pension is in.
+  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'LA', 'MD', 'NY', 'OK']);
+  assert.deepEqual(moved.OK, [3_409, 3_859]);
   assert.deepEqual(moved.LA, [2_090.28, 2_460]);
   assert.deepEqual(moved.GA, [0, 1_247.5]);
   assert.deepEqual(moved.MD, [273.25, 2_201.75]);
@@ -176,13 +186,14 @@ test('five states charge a different tax on the same household totals', () => {
   assert.deepEqual(moved.KY, [1_904.7, 2_993.55]);
   assert.deepEqual(moved.NY, [3_120.8, 4_200.8]);
 
-  // All five move the same way — concentrating the income wastes the absent
-  // spouse's allowance — and together they are worth $5,714.57 on a decision
+  // All six move the same way — concentrating the income wastes the absent
+  // spouse's allowance — and together they are worth $6,164.57 on a decision
   // that is usually made for reasons that have nothing to do with tax. It was
-  // $5,344.85 before Louisiana, and the $369.72 it added is the whole of its
-  // 2026 exemption at the flat 3%.
+  // $5,344.85 before Louisiana, $5,714.57 before Oklahoma, and the $450.00
+  // Oklahoma added is the whole of its $10,000 per-person cap at the 2026 top
+  // rate of 4.5%.
   const swing = Object.values(moved).reduce((total, [a, b]) => total + (b - a), 0);
-  assert.equal(Number(swing.toFixed(2)), 5_714.57);
+  assert.equal(Number(swing.toFixed(2)), 6_164.57);
 });
 
 test('the form cannot be made to throw', () => {
@@ -367,11 +378,21 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // CAROLINA slotted in at $75.82 for the same reasons under § 12-6-1170(B).
   // The ranking is the point of the page and Utah's PLACE moving while its tax
   // does not is exactly what this test is for.
-  assert.equal(place, 32, `Utah ranks ${place}`);
+  // 33 from Day 62, because OKLAHOMA slotted in above Utah at $709.00 for this
+  // couple — twenty-ninth of thirty-eight — and it is the FOURTEENTH state to
+  // pass Utah. Its route is a third one again: not a row that was wrong, not a
+  // row that did not exist and was generous, and not a legislature changing its
+  // mind, but a state that charges this couple a real figure and still beats
+  // Utah by $679.46. The whole taxable Social Security benefit comes out under
+  // Schedule 511-A, $10,000 of the pension comes out for each spouse with no
+  // age test at all, and what is left meets a top rate of 4.5%. Oklahoma is in
+  // no list of retiree-friendly states and it is cheaper here than Utah, which
+  // is in several.
+  assert.equal(place, 33, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND', 'OK']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // And Wisconsin's is a ZERO that the election produces rather than an
@@ -437,8 +458,8 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(model.allocation.alternative, 'filer');
   assert.deepEqual(
     model.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'LA', 'MD', 'NY'],
-    'exactly five states move, and they are the five that cap per person',
+    ['GA', 'KY', 'LA', 'MD', 'NY', 'OK'],
+    'exactly six states move, and they are the six that cap per person',
   );
   // Widest first, and Maryland's is the widest of the three on these figures.
   assert.equal(model.allocation.widest.state, 'MD');
@@ -449,14 +470,16 @@ test('the allocation swing is computed and priced without being asked for', () =
   const other = compute({ ...household, allocation: 'filer' });
   assert.equal(other.federal.totalTax, model.federal.totalTax);
   // And the swing is symmetric: reading it from the other side names the same
-  // three states and the same sizes, with the signs reversed.
+  // SIX states and the same sizes, with the signs reversed. (This comment said
+  // "three" from the day there were three until Day 62, through two states
+  // joining the list — a count in a comment beside a list that is asserted.)
   assert.equal(other.allocation.alternative, 'even');
   assert.deepEqual(
     other.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'LA', 'MD', 'NY'],
+    ['GA', 'KY', 'LA', 'MD', 'NY', 'OK'],
   );
   assert.ok(Math.abs(other.allocation.widest.difference + 2_842) < 0.005);
-  assert.equal(other.allocation.cheaperElsewhere.length, 5, 'every one is cheaper split');
+  assert.equal(other.allocation.cheaperElsewhere.length, 6, 'every one is cheaper split');
 });
 
 test('a single filer has no allocation to swing', () => {

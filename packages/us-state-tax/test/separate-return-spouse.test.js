@@ -80,7 +80,7 @@ test('every state with an exemption declares what it does with a separate filer�
   // default is what kept fourteen states counting a dead spouse for 27 days,
   // and the default here would have been "counts nobody" in all twelve — which
   // is right in eight of them and wrong in four.
-  assert.equal(WITH_EXEMPTIONS.length, 17);
+  assert.equal(WITH_EXEMPTIONS.length, 18);
   for (const code of WITH_EXEMPTIONS) {
     const rule = declarationOf(code);
     assert.ok(rule, `${code} has an exemption rule and must declare separateReturnSpouse`);
@@ -108,7 +108,13 @@ test('the answer today: four states count the spouse, four say no, four have not
   // claim or forgo. Georgia, Minnesota and New York reach the same answer from
   // three different directions.
   assert.deepEqual(by('noFilerExemption'), ['GA', 'MN', 'NY', 'SC']);
-  assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH', 'WI']);
+  // OKLAHOMA joined this list on Day 62. Its Form 511 exemption boxes are
+  // "Yourself" and "Spouse" and nothing readable from this sandbox says whether
+  // a separate return may count a spouse with no gross income the way IRC
+  // § 151(b) lets a federal one. The reference model counts nobody — its spouse
+  // exemptions are gated on the JOINT status alone — and this package follows
+  // it, which keeps the answer identical and records that nobody has read it.
+  assert.deepEqual(by('unresolved'), ['MA', 'MI', 'MS', 'OH', 'OK', 'WI']);
   // And the second claim is now answered in all four, by THREE different
   // mechanisms and in two directions. Written out for the same reason as the
   // first list: a state moving between them is a diff.
@@ -116,6 +122,13 @@ test('the answer today: four states count the spouse, four say no, four have not
   assert.deepEqual(aged('follows'), ['IL', 'IN', 'VA']);
   assert.deepEqual(aged('doesNotFollow'), ['MD']);
   assert.deepEqual(aged('unresolved'), ['MA', 'MI', 'MS']);
+  // OKLAHOMA is `notApplicable` on the aged half while being `unresolved` on
+  // the first, and it is the first state in this file for which that pairing is
+  // PROVABLE rather than a gap. § 2358(D) gives no untested age addition and no
+  // § 63(f)-style blind increment — Oklahoma's blind filer counts as a SECOND
+  // WHOLE EXEMPTION and its age addition is means-tested — so there is nothing
+  // for a separate return's spouse to follow on that half, whatever the answer
+  // to the first half turns out to be.
   assert.deepEqual(aged('notApplicable'), [
     'AL',
     'CT',
@@ -125,6 +138,7 @@ test('the answer today: four states count the spouse, four say no, four have not
     'NJ',
     'NY',
     'OH',
+    'OK',
     'SC',
     'WI',
   ]);
@@ -177,14 +191,29 @@ test('the means-tested figure is declared where it exists, and only there', () =
     assert.notEqual(rule.lowIncomeSeniorCite, rule.agedAndBlindCite);
     assert.notEqual(rule.lowIncomeSeniorCite, rule.cite);
   }
-  // Indiana is the only state with one, and the two claims disagree — which is
-  // the whole reason the field exists.
+  // TWO STATES HAVE ONE AS OF DAY 62, AND THEY WRITE THE BOUNDARY DIFFERENTLY,
+  // which is what retired this field from being a one-state curiosity. Indiana's
+  // § 6-3-1-3.5(a) gives its $500 where federal AGI "is LESS THAN $40,000";
+  // Oklahoma's § 2358(D) gives its $1,000 where federal AGI is "EQUAL TO OR
+  // LESS THAN" the figure for the status, which the Form 511 instructions print
+  // as the table's own column heading. So the dollar exactly on the threshold is
+  // worth the exemption in one state and nothing in the other.
   assert.deepEqual(
     WITH_EXEMPTIONS.filter((c) => declarationOf(c).lowIncomeSenior !== undefined),
-    ['IN'],
+    ['IN', 'OK'],
   );
   assert.equal(declarationOf('IN').agedAndBlind, 'follows');
   assert.equal(declarationOf('IN').lowIncomeSenior, 'unresolved');
+  assert.equal(declarationOf('OK').agedAndBlind, 'notApplicable');
+  assert.equal(declarationOf('OK').lowIncomeSenior, 'unresolved');
+  // And the boundary itself, which is the thing a declaration cannot express
+  // and the engine has to honour.
+  assert.equal(
+    getStateDefinition('IN', YEAR).exemption.lowIncomeSeniorThresholdInclusive,
+    undefined,
+    'Indiana\'s "less than" is this package\'s default',
+  );
+  assert.equal(getStateDefinition('OK', YEAR).exemption.lowIncomeSeniorThresholdInclusive, true);
 });
 
 test('the means-tested $500 does NOT follow the spouse, and the engine proves it', () => {

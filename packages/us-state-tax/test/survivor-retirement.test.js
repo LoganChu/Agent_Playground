@@ -114,9 +114,10 @@ test('exactly one state reads survivor retirement income differently from the fi
   // The count is asserted because a sweep that silently stopped comparing would
   // pass this test perfectly — Day 47's "an announcement at start-up is not a
   // guard" in sweep form.
-  // 8,880 from Day 61: 37 states x 2 years x 5 statuses x 3 incomes x 4 ages x 2
-  // field pairs. Louisiana added 240 on Day 60 and North Dakota 240 more.
-  assert.equal(comparisons, 8_880, 'comparisons made');
+  // 9,120 from Day 62: 38 states x 2 years x 5 statuses x 3 incomes x 4 ages x 2
+  // field pairs. Louisiana added 240 on Day 60, North Dakota 240 on Day 61 and
+  // Oklahoma 240 on Day 62 — one state is 240 comparisons, every time.
+  assert.equal(comparisons, 9_120, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 
@@ -252,7 +253,7 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
     assert.ok(moved.has(state), `${state} tax moves on retirement`);
     assert.ok(STATES_READING_RETIREMENT.includes(state), `${state} is in the derived list`);
   }
-  assert.equal(STATES_READING_RETIREMENT.length, 18, 'states reading retirement');
+  assert.equal(STATES_READING_RETIREMENT.length, 19, 'states reading retirement');
 });
 
 // ---------------------------------------------------------------------------

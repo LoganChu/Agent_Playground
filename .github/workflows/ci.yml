@@ -235,6 +235,17 @@ jobs:
       # inside itself.
       - name: North Dakota's zero band against the federal 12% bracket
         run: node tools/cross-package/north-dakota-zero-band.mjs --check
+      # Day 62. 68 O.S. § 2357.43 gives Oklahoma 5% of the federal earned income
+      # credit computed under the Internal Revenue Code AS IT EXISTED ON 31
+      # DECEMBER 2020, and the federal credit is indexed every year. So "5% of
+      # the federal EITC" is a true sentence about Oklahoma and a wrong
+      # instruction to a model, by 20.8% in 2025 and 23.6% in 2026 for a
+      # three-child family — and the gap WIDENS every year by construction,
+      # which is the half a snapshot of either year cannot show. The frozen
+      # table is a fact about Oklahoma law and the indexed ones belong to the
+      # federal package, so only a repository holding both can price it.
+      - name: Oklahoma's earned income credit base is frozen at 2020, and the gap is growing
+        run: node tools/cross-package/oklahoma-frozen-eitc.mjs --check
       # Day 48 queued this and Day 50 found us-tax-mcp's lockfile already two
       # versions stale. The lockfile ships inside the tarball, so a consumer
       # running `npm ci` resolves the version IT names rather than the one

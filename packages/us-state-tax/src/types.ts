@@ -58,6 +58,7 @@ export type StateCode =
   | 'NV'
   | 'NY'
   | 'OH'
+  | 'OK'
   | 'OR'
   | 'PA'
   | 'SC'
@@ -74,10 +75,19 @@ export type StateCode =
  * A locality that levies its own income tax on a state return this package knows.
  *
  * A local income tax is not a rounding error. New York City's costs a resident
- * more than the entire state income tax of twelve of the twenty-six states here
- * — every one of the nine with no income tax, plus Arizona, Indiana and
- * Pennsylvania — and it appears in no table of state tax rates because it is not
- * one.
+ * more than the entire state income tax of most of the states in this package,
+ * and it appears in no table of state tax rates because it is not one. The
+ * count and the list of states live in `README.md`, where `readme.test.js`
+ * measures both against the engine.
+ *
+ * **THEY USED TO LIVE HERE TOO, AND THIS COPY WAS WRONG FOR TWO DAYS.** It said
+ * "twelve of the twenty-six states here — every one of the nine with no income
+ * tax, plus Arizona, Indiana and Pennsylvania", which Louisiana made stale on
+ * Day 60 and North Dakota again on Day 61. Day 61 found and fixed the README's
+ * copy and the test that reads it, and recorded the rule that a test measuring
+ * the number a sentence quotes is not a test of the sentence — and did not look
+ * for a THIRD copy, which was in this file, in a doc comment nothing points at.
+ * A number is now kept in exactly one place.
  */
 export type LocalityCode = 'NYC' | 'YONKERS';
 

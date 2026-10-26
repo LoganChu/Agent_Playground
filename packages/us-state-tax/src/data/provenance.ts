@@ -223,11 +223,21 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  * `year` is the tax year the definition describes. It is not a figure read from
  * a document — it is the key the document was chosen by — so every state gets
  * one entry for it and the coverage test is not weakened by an exclusion list.
+ *
+ * **THE LIST OF STATES IS STILL HAND-WRITTEN, AND IT IS THE ONE HAND-WRITTEN
+ * LIST IN THIS REPOSITORY THAT IT IS SAFE TO LEAVE SO.** Four states — MN, OR,
+ * SC, WI — are deliberately absent because they carry a `year` entry of their
+ * own further down, so the list cannot be "every state"; and a state missing
+ * from it FAILS the coverage test by name on the first run, which is Day 61's
+ * distinction between a list that goes stale by refusing something and one that
+ * goes stale by not asking. Deriving it from `SUPPORTED_STATES` would import
+ * `states/index.ts`, which imports `louisiana.ts`, which imports this file.
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
     'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MI',
-    'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'PA', 'SD', 'TN', 'TX', 'UT', 'VA', 'WA',
+    'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'OK', 'PA', 'SD', 'TN', 'TX', 'UT',
+    'VA', 'WA',
     'WY',
   ] as const
 ).map((state) => ({
@@ -1487,6 +1497,122 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'retirementIncomeSubtractions.*.cap',
     kind: 'sentinel',
     cite: 'zero, which together with `militaryReducesCap` exempts military retired pay in full and leaves nothing else in the pool. North Carolina\'s construction exactly, and the same encoding of "every other pension is taxed in full" rather than a figure read from a document',
+    constant: true,
+  },
+
+  // =========================================================================
+  // =========================================================================
+  // OKLAHOMA — the state where the two years are two different schedules,
+  // because HB 2764 of 2025 rewrote § 2355(C) for tax years beginning on or
+  // after 1 January 2026. So every rate and every threshold is split by year
+  // here, which no other state in this ledger needs: ND's rates are one statute
+  // across both years and its thresholds are indexed, and Oklahoma's are
+  // neither. Nothing in Oklahoma is indexed at all — the standard deduction is
+  // the federal 2017 figure frozen, the exemption has been $1,000 since before
+  // this ledger's range, and the $10,000 retirement exclusion has no indexing
+  // provision — so `constant: true` here is the statute saying so and not a
+  // carry-forward. The one figure that could have moved and did not is the
+  // retirement cap: HB 2190 of 2025 would have taken it to $40,000 from 2026
+  // and died on 14 May 2026.
+  // =========================================================================
+  {
+    state: 'OK',
+    path: 'rate.byStatus.*.*.rate',
+    years: [2025],
+    kind: 'statute',
+    document: '§ 2355(C)',
+    cite: '68 O.S. § 2355(C)(1)(a) and (C)(2)(a) — the six rates 0.25%, 0.75%, 1.75%, 2.75%, 3.75% and 4.75%, the same six for every filing status. A printed schedule with no indexation provision; what moves it is an act, and one came. NOT OPENED FROM THIS SANDBOX: oscn.net does not resolve here',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'rate.byStatus.*.*.upTo',
+    years: [2025],
+    kind: 'statute',
+    document: '§ 2355(C)',
+    cite: '68 O.S. § 2355(C)(1)(a) — $1,000, $2,500, $3,750, $4,900 and $7,200 for single and married filing separately, written as the increments $1,000 + $1,500 + $1,250 + $1,150 + $2,300; (C)(2)(a) — $2,000, $5,000, $7,500, $9,800 and $14,400 for joint, surviving spouse AND head of household, written as $2,000 + $3,000 + $2,500 + $2,300 + $4,600. Two subsections, two tables, and no relation stated between them although the second is exactly twice the first',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'rate.byStatus.*.*.rate',
+    years: [2026],
+    kind: 'statute-scheduled',
+    document: 'HB 2764',
+    cite: 'HB 2764 of the 2025 regular session, page 11 — 0%, 2.5%, 3.5% and 4.5%. FOUR ROWS, where every summary of the act says it consolidated six brackets into three: the fourth is a 0% band and the three positive rates are each exactly 0.25 points below their 2025 values. Enacted in 2025 for tax years beginning on or after 1 January 2026, so the 2026 figure was a scheduled change rather than a projection',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'rate.byStatus.*.*.upTo',
+    years: [2026],
+    kind: 'statute-scheduled',
+    document: 'HB 2764',
+    cite: 'HB 2764, page 11 — $3,750, $4,900 and $7,200 single and separate; $7,500, $9,800 and $14,400 joint, surviving spouse and head of household. NOT ONE THRESHOLD MOVED: these are the 2025 figures with the three bottom bands collapsed into one at zero, which is why an error expressed as a difference between two Oklahoma rates costs the same in both years',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'deduction.amounts.*',
+    kind: 'statute',
+    document: 'Form 511 packet',
+    cite: 'the Form 511 instructions, page 10 — $6,350 single and married filing separately, $12,700 joint and surviving spouse, $9,350 head of household. THE FEDERAL 2017 AMOUNTS, FROZEN: Oklahoma decoupled rather than follow the Tax Cuts and Jobs Act increase, there is no indexing provision, and the same four figures appear in the 2021 instructions and the 2026 ones. Identical in both years because nothing moves them, not because nobody read the second one',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '§ 2358(D)',
+    cite: '68 O.S. § 2358(D) — $1,000 per exemption, two on a joint return and one on every other including a qualifying surviving spouse, whose return has one person on it. Unindexed and unamended across both years here',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'exemption.perDependent',
+    kind: 'statute',
+    document: '§ 2358(D)',
+    cite: '68 O.S. § 2358(D) — the same $1,000 a dependent is worth as a filer is, which is the ordinary shape and not a separate figure',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'exemption.perBlindOrDisabledFiler',
+    kind: 'statute',
+    document: '§ 2358(D)',
+    cite: '68 O.S. § 2358(D) — a blind filer or spouse counts as a SECOND WHOLE EXEMPTION rather than taking an increment, which is why the figure is $1,000 and not a supplement to it: the Form 511 box is ticked and the exemption count goes from one to two',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'exemption.perLowIncomeSeniorFiler',
+    kind: 'statute',
+    document: '§ 2358(D)',
+    cite: '68 O.S. § 2358(D) — the special exemption, a further $1,000 for each taxpayer or spouse 65 or over whose federal AGI is at or under the limit for their status. It is the ONLY age-related figure on an Oklahoma return outside the retirement exclusion, and it is means-tested, so Oklahoma has no untested age exemption at all',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'exemption.seniorAge',
+    kind: 'statute',
+    document: '§ 2358(D)',
+    cite: '68 O.S. § 2358(D) — "sixty-five (65) years of age or older at the close of the tax year". The federal § 63(f) age, which is the age almost every state in this ledger uses and none of them indexes',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'exemption.lowIncomeSeniorThreshold.*',
+    kind: 'statute',
+    document: '§ 2358(D)',
+    cite: '68 O.S. § 2358(D) — $15,000 single, $25,000 joint and surviving spouse, $19,000 head of household, $12,500 married filing separately, and the test is "EQUAL TO OR LESS THAN" rather than Indiana\'s "less than". Unindexed since enactment, which is what makes them bite: $15,000 of 1980s federal AGI and $15,000 of 2026 federal AGI are not the same household',
+    constant: true,
+  },
+  {
+    state: 'OK',
+    path: 'retirementIncomeSubtractions.*.cap',
+    kind: 'statute',
+    document: '§ 2358(A)(8)',
+    cite: '68 O.S. § 2358(A)(8) and (A)(13) — $10,000 per person of retirement benefits, "not to exceed the amount included in federal adjusted gross income", with NO AGE TEST. Unindexed, and the figure that could have moved: HB 2190 of 2025 would have raised it to $40,000 from tax year 2026 and died on 14 May 2026, so $10,000 in 2026 is current law read rather than last year\'s number carried',
     constant: true,
   },
 

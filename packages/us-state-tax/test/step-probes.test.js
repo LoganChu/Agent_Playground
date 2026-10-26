@@ -372,7 +372,12 @@ test('every number in every staircase moves a pinned answer', () => {
   // thresholds and three rates in each of five statuses, in each of two years —
   // and none of them is a staircase in the Connecticut sense, which is why the
   // exempt count below does not move with them.
-  assert.equal(checked, 1_615, 'numbers inside the staircases this package ships');
+  // 1,651 from Day 62: Oklahoma contributes thirty-six — its six 2025 bands and
+  // four 2026 bands, as thresholds and rates across the statuses that differ,
+  // plus the standard deduction and the special-exemption limit. None is a
+  // staircase in the Connecticut sense either, so the exempt count below is
+  // unchanged again.
+  assert.equal(checked, 1_651, 'numbers inside the staircases this package ships');
   assert.equal(exempt.length, 14, 'staircase rows nothing can reach — four rows, both years, Connecticut\'s in two columns and Oregon\'s in three, all documented');
 });
 

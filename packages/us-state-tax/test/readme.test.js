@@ -55,11 +55,11 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 37 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 37);
+test('README: 38 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 38);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // Twelve graduated, TWELVE flat, one on a schedule of its own, nine with none.
+  // SIXTEEN graduated, twelve flat, one on a schedule of its own, nine with none.
   // Louisiana made the flat column the larger of the two on Day 60: Act 11 of the
   // 2024 Third Extraordinary Session replaced its graduated 1.85/3.5/4.25 schedule
   // with a single 3% rate, so the state arrived here already flat.
@@ -86,23 +86,32 @@ test('README: 37 states, 2025 and 2026, nine with no income tax', () => {
   // stored as brackets and has only two positive rates. It is also the state
   // with the lowest top rate of all fifteen, 2.50%, which ties the flat rate
   // Arizona charges on a wage.
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OR', 'SC', 'VA', 'WI']);
+  //
+  // OKLAHOMA IS THE SIXTEENTH, and it is the SECOND state here whose bracket
+  // count changes between the two supported years — South Carolina was the
+  // first and was "the only state here" that did it until Day 62. HB 2764 of
+  // 2025 took six bands to four, and the fourth is a 0% band, which puts
+  // Oklahoma in the small group whose schedule begins at zero: Idaho,
+  // Mississippi, North Dakota and now Oklahoma for 2026 only — its 2025
+  // schedule starts at 0.25%, so it is the only state here that JOINS that
+  // group between the two years.
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OK', 'OR', 'SC', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
   assert.equal(flat.length, 12);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    37,
+    38,
   );
-  // Twenty-eight taxing states — nineteen of them when the README says seven cut
+  // Twenty-nine taxing states — nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 28);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 29);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -712,7 +721,16 @@ test('README: the provisional and published lists for 2026', () => {
   // NOT OPENED FROM THIS SANDBOX in its own words. The first draft of
   // `north-dakota.ts` got this wrong and the compiler refused the invented
   // `ProvisionalReason` it needed.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'PA', 'VA']);
+  // OKLAHOMA joins the published list on arrival for a FOURTH reason, and it is
+  // the simplest one any state has had: its 2026 figures are an ACT. HB 2764
+  // prints the whole 2026 schedule and nothing in Oklahoma is indexed at all —
+  // the standard deduction is the frozen federal 2017 figure, the exemption and
+  // the $10,000 retirement cap have no adjustment provision — so there is no
+  // 2026 Oklahoma figure that could be awaited or carried forward. What is NOT
+  // published is next year: HB 2764's revenue triggers could cut every rate
+  // again by certification rather than by legislation, and a 2027 column would
+  // be a projection rather than a reading.
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -728,8 +746,11 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  // LOUISIANA left this list on Day 60, the day it shipped.
-  for (const state of ['IA', 'OK', 'AR', 'DC', 'HI']) {
+  // LOUISIANA left this list on Day 60, NORTH DAKOTA on Day 61 and OKLAHOMA on
+  // Day 62 — each the day it shipped. KANSAS takes Oklahoma's place, and the
+  // list is deliberately held at five so that the test keeps the same shape
+  // while the states in it turn over.
+  for (const state of ['IA', 'KS', 'AR', 'DC', 'HI']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -1568,10 +1589,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 37 states',
+    'us-state-tax: 38 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 37 states',
+    'us-tax-mcp: 38 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);

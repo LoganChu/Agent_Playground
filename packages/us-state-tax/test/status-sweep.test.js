@@ -389,7 +389,16 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // Unlike Louisiana's, not one of them is derived: every figure is read off a
   // published schedule, which is the finding `test/north-dakota.test.js`
   // establishes by failing to derive them.
-  assert.equal(checked, 1068, 'byStatus cells with a parameter the harness would mutate');
+  // 1,108 from Day 62: Oklahoma's FORTY is the largest single-state addition
+  // this count has taken, and the reason is that two of its three tables are
+  // per-status. Its rate schedule contributes its bracket ceilings in five
+  // statuses in each of two years; its standard deduction five more a year; and
+  // its special-exemption income limit five more a year. Every figure is read
+  // off a published document and not one is derived — § 2355(C)(1)(a) and
+  // (C)(2)(a) each write their own increments out, which is why the joint
+  // column being exactly twice the single one is asserted in
+  // `test/oklahoma.test.js` and applied nowhere.
+  assert.equal(checked, 1108, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -425,7 +434,7 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
   // 3,302 from Day 61: North Dakota's forty are its five statuses x two
   // thresholds x two years, each sitting in a `byStatus` bracket table.
-  assert.equal(inside, 3_302, 'numbers inside those cells');
+  assert.equal(inside, 3_417, 'numbers inside those cells');
   // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
   // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,

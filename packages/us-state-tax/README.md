@@ -7,7 +7,7 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.53.0: **NORTH DAKOTA, AND THE PUBLISHED RATE SCHEDULE THIS PACKAGE CAN PROVE IT CANNOT DERIVE.** The twenty-eighth taxing state: three bands at **0%, 1.95% and 2.50%** under HB 1158 (2023), on a base of federal **taxable** income, with a top rate that ties Arizona's for the lowest in the country. A single filer's first `$48,475` of 2025 taxable income is untaxed and a joint return's first `$80,975`; for 2026 it is `$49,575` and `$82,800`.
+New in 0.54.0: **NORTH DAKOTA, AND THE PUBLISHED RATE SCHEDULE THIS PACKAGE CAN PROVE IT CANNOT DERIVE.** The twenty-eighth taxing state: three bands at **0%, 1.95% and 2.50%** under HB 1158 (2023), on a base of federal **taxable** income, with a top rate that ties Arizona's for the lowest in the country. A single filer's first `$48,475` of 2025 taxable income is untaxed and a joint return's first `$80,975`; for 2026 it is `$49,575` and `$82,800`.
 
 **The eight indexed thresholds cannot be reproduced from last year's by any single multiplier, and `test/north-dakota.test.js` runs the search rather than asserting the conclusion.** N.D.C.C. § 57-38-30.3(1)(e) indexes them by the federal cost-of-living adjustment, so the obvious check on a published table is whether one factor reaches it. Over every combination of base year (2023, 2024, 2025), rounding interval (`$25`, `$50`) and direction (down, nearest, up) — eighteen in all — **none does**. Two things obstruct it and each is worth knowing on its own: married filing separately is not independently indexed (it is the joint figure halved and floored to `$25`, in all four published years), and the two head-of-household thresholds are each exactly `$25` below what the factor the single and joint columns agree on would give. **So a model that projects North Dakota's brackets instead of reading them is wrong, by `$0.49` of tax, in the direction nothing queries.** This package stores all eight figures a year and derives none.
 
@@ -717,7 +717,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.53.0/us-state-tax-0.53.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.54.0/us-state-tax-0.54.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1021,7 +1021,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of fifteen of the twenty-eight
+That `$3,174.69` is **more than the entire state income tax of fifteen of the twenty-nine
 taxing states in this package** at the same income — every one of the nine with no income
 tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. Omit the
 locality on a New York return and the result says so, and says what it would have cost this
@@ -1031,6 +1031,13 @@ filer.
 Arizona's `$2,106.25`, because `$48,475` of this filer's `$85,000` is in a zero bracket and
 the rest is taxed at 1.95%. A New York City resident on `$100,000` pays their city more
 than four times what North Dakota charges for the whole state.
+
+**Oklahoma arrived on Day 62 and did NOT join the fifteen**, which is worth a sentence
+because it is the first state added in three releases that did not. Its 2025 figure at this
+household is `$4,212.38` — a 4.75% top rate reached at `$7,200` of taxable income, on a
+federal-AGI base reduced by a standard deduction of `$6,350` that has not moved since 2017.
+A state can have the second-lowest top rate in the country at `$7,200` and the lowest-but-one
+standard deduction, and the second fact is the one that decides the bill.
 
 This sentence was stale for a day and nothing failed. It said *thirteen of the twenty-seven*
 and named four taxing states when Louisiana had already made it fourteen and five —
@@ -2894,7 +2901,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,615 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,651 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2927,7 +2934,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **743** notes every
+`test/notes.test.js` pins the first 72 characters of all **773** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2952,8 +2959,8 @@ reads, and all 25 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,723 numeric
-figures over 74 state-years, against 528 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,865 numeric
+figures over 76 state-years, against 546 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -2999,13 +3006,13 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,359 figures of tax year
+The `kind` field answers one operational question. Over the 2,420 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,915** |
-| the statute's own schedule (`statute-scheduled`) | **113** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,941** |
+| the statute's own schedule (`statute-scheduled`) | **148** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **324** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
@@ -3091,11 +3098,11 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.53.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.54.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **28 of the 42 taxing jurisdictions, so 37 states in all.** The fourteen that are
-  missing: Oklahoma, Iowa, Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
+- **29 of the 42 taxing jurisdictions, so 38 states in all.** The thirteen that are
+  missing: Iowa, Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
   Rhode Island, Vermont, Delaware, Hawaii, West Virginia, and the
   District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a

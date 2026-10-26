@@ -20,6 +20,7 @@ import { newJersey } from './new-jersey.js';
 import { newYork } from './new-york.js';
 import { northDakota } from './north-dakota.js';
 import { ohio } from './ohio.js';
+import { oklahoma } from './oklahoma.js';
 import { oregon } from './oregon.js';
 import { southCarolina } from './south-carolina.js';
 import {
@@ -48,6 +49,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const ny = newYork(year);
   const nd = northDakota(year);
   const oh = ohio(year);
+  const ok = oklahoma(year);
   const or = oregon(year);
   const sc = southCarolina(year);
   const va = virginia(year);
@@ -69,6 +71,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(nd ? [nd] : []),
     ...(ny ? [ny] : []),
     ...(oh ? [oh] : []),
+    ...(ok ? [ok] : []),
     ...(or ? [or] : []),
     ...(sc ? [sc] : []),
     ...(va ? [va] : []),
@@ -168,12 +171,19 @@ export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.
  * second copy of the registry and drifts the moment the registry grows.
  *
  * `test/registry.test.js` now fails if any name here is also the name of a
- * supported state, so the two cannot disagree. Forty-two jurisdictions tax
- * income; this package covers twenty-seven of them, which is why this list has
- * fifteen entries.
+ * supported state, so the two cannot disagree.
+ *
+ * **AND THE SENTENCE THAT STOOD HERE WAS A COUNT, SO IT WENT STALE.** It said
+ * "forty-two jurisdictions tax income; this package covers twenty-seven of them,
+ * which is why this list has fifteen entries" — written when that was true, left
+ * behind by North Dakota on Day 61, and by then wrong about both numbers while
+ * the list beside it was right. Day 60's rule was that a declared list only
+ * guards the sentences somebody pointed at it, and nothing was pointed here.
+ * `test/registry.test.js` now derives the arithmetic — supported taxing states
+ * plus this list must be forty-two — so the fact is checked and no longer
+ * written down.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
-  'Oklahoma',
   'Iowa',
   'Arkansas',
   'Kansas',

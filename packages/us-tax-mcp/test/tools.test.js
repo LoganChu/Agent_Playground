@@ -1200,10 +1200,12 @@ test('a state with no income tax answers zero and says what is still taxed', () 
 test('an unsupported state is an error that names the supported ones', () => {
   const message = err('state_income_tax', {
     // Ohio was this example until Day 16, Virginia until Day 17, Minnesota
-    // until Day 45, South Carolina until Day 49 and LOUISIANA UNTIL DAY 60. It
-    // has to move every time the gap closes, which is the point of using a real
-    // state.
-    state: 'OK',
+    // until Day 45, South Carolina until Day 49, Louisiana until Day 60, North
+    // Dakota until Day 61 and OKLAHOMA UNTIL DAY 62. It has to move every time
+    // the gap closes, which is the point of using a real state — and the three
+    // moves in three days are the first time this example has gone stale faster
+    // than anybody could forget about it.
+    state: 'IA',
     filingStatus: 'single',
     federalAdjustedGrossIncome: 100_000,
     federalTaxableIncome: 84_250,

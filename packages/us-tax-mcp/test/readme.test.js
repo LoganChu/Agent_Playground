@@ -511,14 +511,74 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('37 states');
-  assert.equal(SUPPORTED_STATES.length, 37);
+  quotes('38 states');
+  assert.equal(SUPPORTED_STATES.length, 38);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 28);
-  quotes('Eight of the twenty-seven taxing states cut their rate for 2026');
+  assert.equal(taxing.length, 29);
+
+  // BOTH NUMBERS IN THAT SENTENCE ARE NOW READ OUT OF IT AND COMPARED TO THE
+  // ENGINE, AND UNTIL DAY 62 NEITHER WAS.
+  //
+  // What stood here was `assert.equal(taxing.length, 28)` on one line and
+  // `quotes('Eight of the TWENTY-SEVEN taxing states ...')` on the next — a
+  // measurement of 28 sitting directly above a quoted sentence saying 27, both
+  // passing. Day 61 found exactly this in `us-state-tax`'s README test, fixed
+  // it there, and wrote the rule:
+  //
+  //   A TEST THAT MEASURES THE NUMBER A SENTENCE QUOTES IS NOT A TEST OF THE
+  //   SENTENCE.
+  //
+  // And then did not look for the same shape in this package, where it had been
+  // wrong since Louisiana shipped on Day 60. A rule found in one file is not
+  // applied to the others by being written down.
+  const WORDS = {
+    seven: 7, eight: 8, nine: 9, ten: 10,
+    'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29, thirty: 30,
+  };
+  const sentence = FLAT_README.match(
+    /([\w-]+) of the ([\w-]+) taxing states cut their rate for 2026/,
+  );
+  assert.ok(sentence, 'the README no longer carries the rate-cut sentence in the form this checks');
+  // Lower-cased before lookup: the sentence begins with the count word, so it
+  // is capitalised there and nowhere else, and the first draft of this
+  // assertion read `undefined` for "Nine" and said so.
+  const word = (w) => WORDS[w.toLowerCase()];
+  assert.equal(word(sentence[2]), taxing.length, 'the out-of-how-many word');
+
+  // The cut count, DERIVED rather than quoted. A state cut its rate if its
+  // highest positive rate fell or its lowest positive rate did — two tests
+  // rather than one, because New York cut its BOTTOM five rates and left the
+  // top alone, while Oklahoma's HB 2764 cut the top and raised the lowest
+  // positive one by collapsing three bottom bands into a 0% band.
+  const positiveRates = (def) => {
+    const r = def.rate;
+    const list =
+      r.kind === 'flat'
+        ? [r.rate]
+        : r.kind === 'brackets'
+          ? r.byStatus.single.map((b) => b.rate)
+          : [];
+    return list.filter((x) => x > 0);
+  };
+  // OHIO IS EXCLUDED, EXPLICITLY RATHER THAN BY FALLING THROUGH. Its
+  // `baseAmountSchedule` charges a constant on entering a band and a rate on the
+  // excess, so "its rate" is not one of the things above — and HB 96 re-based
+  // the CONSTANT for 2026 and left both rates alone, so it is not in the
+  // sentence's nine either. An exclusion that silently returned an empty list
+  // would make this derivation quietly undercount.
+  assert.equal(getStateDefinition('OH', 2026).rate.kind, 'baseAmountSchedule');
+  assert.deepEqual(positiveRates(getStateDefinition('OH', 2026)), []);
+  const cut = taxing.filter((state) => {
+    const before = positiveRates(getStateDefinition(state, 2025));
+    const after = positiveRates(getStateDefinition(state, 2026));
+    if (before.length === 0 || after.length === 0) return false;
+    return Math.max(...after) < Math.max(...before) || Math.min(...after) < Math.min(...before);
+  });
+  assert.deepEqual(cut, ['GA', 'IN', 'KY', 'MS', 'NC', 'NY', 'OK', 'SC', 'UT']);
+  assert.equal(word(sentence[1]), cut.length, 'the count word');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',

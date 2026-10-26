@@ -485,6 +485,45 @@ const SHAPES = {
     taxableSocialSecurity: 0,
     propertyTaxPaid: 2_400,
   },
+  // STILL WORKING AT 68, AND THE GAP IT CLOSES IS NOT THE ONE THE FIRST DRAFT
+  // AIMED AT.
+  //
+  // Day 62's guard refused Oklahoma's head-of-household special-exemption
+  // threshold of $19,000: no pinned household could tell it from twice itself.
+  // `pensionNoSocialSecurity` sits at exactly $19,000, where an inclusive test
+  // grants the exemption either way, and the next aged household up is
+  // `retired70` at $40,000, where the real threshold and a doubled one both
+  // deny it — so the band between $19,000 and $38,000 held no household over 65.
+  //
+  // THE FIRST DRAFT OF THIS SHAPE FILLED THAT BAND AND THE GUARD STILL REFUSED
+  // IT, which is the better finding. A $26,000 household of pension and Social
+  // Security has an Oklahoma AGI of $7,000 once the benefit and the $10,000
+  // retirement exclusion come out, and $7,000 is below the $9,350 standard
+  // deduction — so its taxable income is zero and NO exemption can move its
+  // tax. An income band is not a witness; a POSITIVE TAXABLE INCOME is.
+  //
+  // What was actually missing is a shape rather than an income: every household
+  // in this battery over 65 is retired, so no aged household had WAGES, and in
+  // a state whose aged exemption is tested on federal AGI the only households
+  // that can witness the test are the ones whose income survives the state's own
+  // subtractions. A 68-year-old in work with a dependent grandchild is an
+  // ordinary return — and it is the exact filer Oklahoma's head-of-household
+  // treatment is strangest for, since § 2355(C)(2) hands them the joint rate
+  // schedule while the form hands them a smaller deduction and a lower
+  // exemption limit than a joint return gets.
+  //
+  // $26,000 witnesses three of Oklahoma's four thresholds from two directions:
+  // above $19,000 head of household and above $25,000 joint, so doubling either
+  // changes the answer, and above $15,000 single and $12,500 separate, so
+  // halving those does.
+  working68: {
+    income: 26_000,
+    earnedIncome: 26_000,
+    filerAge: 68,
+    dependentAges: [11],
+    socialSecurityAndMedicarePaid: 1_989,
+    propertyTaxPaid: 2_900,
+  },
   retired70: {
     income: 40_000,
     earnedIncome: 0,

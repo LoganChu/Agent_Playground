@@ -206,8 +206,8 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 34, 'files walked');
-  assert.equal(mutants.length, 1_585, 'mutants — the figure tools/mutation/scores.json records');
+  assert.equal(files.length, 35, 'files walked');
+  assert.equal(mutants.length, 1_640, 'mutants — the figure tools/mutation/scores.json records');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -275,6 +275,62 @@ test('the state engine enumerates what the recorded audit measured', () => {
     ].length,
     'no two North Dakota mutants are the same literal on the same line',
   );
+  // OKLAHOMA, pinned on Day 62, and it takes North Dakota's record for the file
+  // where the mask carries the most weight in the whole tree.
+  // `states/oklahoma.js` holds **393** mutable-looking literals and exactly 51
+  // of them are code, because its doc comment is two rate schedules in each of
+  // two shapes, a frozen earned-income-credit table across three tax years and
+  // a worked price for every parameter in it. A Day 56-style mask regression
+  // would move the total above by 342 FROM THIS ONE FILE, against North
+  // Dakota's 272 and Louisiana's 95.
+  assert.deepEqual(at('states/oklahoma.js', 56), {
+    rel: 'states/oklahoma.js', offset: 6_152, from: '0.0025', to: '0.00125', kind: 'rate', line: 56,
+  });
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/oklahoma.js').length,
+    51,
+    'Oklahoma has 51 mutants and not the 393 its doc comment would add',
+  );
+
+  // AND OKLAHOMA'S HEADLINE PARAMETER HAS NO MUTANT, WHICH IS THE SHARPEST
+  // STATEMENT OF THIS HARNESS'S BLIND SPOT THE TREE CONTAINS.
+  //
+  // HB 2764's 2026 schedule is 0%, 2.5%, 3.5% and 4.5%, and the row that
+  // decides the most returns is the first one. This harness mutates decimals in
+  // the OPEN interval (0,1), so `rate: 0` is not a literal it can perturb —
+  // there is no "half of zero" and no "double zero" to try. Oklahoma ships a 0%
+  // band in each of two filing-status schedules and the audit can say nothing
+  // about either.
+  //
+  // Day 61 recorded that the harness cannot produce a $25 threshold move because
+  // it perturbs by doubling and halving. This is the same gap at the other end:
+  // it cannot produce ANY move in a parameter whose value is zero. Both of
+  // Oklahoma's zero rates, North Dakota's, Mississippi's and Idaho's are
+  // invisible to it, and in Oklahoma's case so is the 2026 reform's whole
+  // shape — the three bands that were REPLACED by that zero. Only a
+  // hand-written weakening or a test that knows the published schedule can see
+  // it, which is what `test/oklahoma.test.js` is for.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/oklahoma.js' && m.from === '0').length,
+    0,
+    "Oklahoma's two 0% bands have no mutant, because 0 is not in (0,1)",
+  );
+  // The 2025 rates DO all have one, so the absence above is about the value and
+  // not about the file: six rates in each of two schedules, twelve in all, plus
+  // the three positive 2026 rates twice.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/oklahoma.js' && m.kind === 'rate').length,
+    18,
+    'twelve 2025 rates and six positive 2026 ones',
+  );
+  // And the per-person retirement cap IS a mutant where Louisiana's relation
+  // parameters are not, because $10,000 is money and `single * 2` is a 2.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/oklahoma.js' && m.from === '10_000').length,
+    1,
+    "the $10,000 retirement cap has a mutant",
+  );
+
   // Both 40% shares are mutants and they are two, which is what makes a
   // transposition between the capital-gain rule and the dividend rule visible
   // to the audit at all: one share moving is one failing test file.
@@ -313,7 +369,20 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // rate), the two `year === 2025` selectors and the two years in its guard (4
   // year), and the two new provenance entries' `years:` arrays (2 year). Every
   // one of those twenty-six was written down before the enumerator ran.
+  //
+  // DAY 62'S +55 IS 960+29, 363+18, 262+8, AND IT IS THE LARGEST SINGLE-STATE
+  // ADDITION THIS BREAKDOWN HAS TAKEN — because Oklahoma is the first state here
+  // whose two supported years are two different SCHEDULES rather than the same
+  // schedule with different numbers. Sixteen thresholds (eleven 2025 across the
+  // two subsections and six 2026, less the Infinity tops), the standard
+  // deduction's four, four exemption amounts, the four special-exemption limits
+  // and the $10,000 cap make 29 money; twelve 2025 rates and six positive 2026
+  // ones make 18 rate; the two schedule selectors, the two in the supported-year
+  // guard and four new provenance entries make 8 year. 51 of the 55 are in
+  // `states/oklahoma.js` and the other 4 are the provenance entries. Every one
+  // of the 55 was attributed in writing before the enumerator ran, and the
+  // breakdown is reached by a route the total cannot see.
   const byKind = {};
   for (const m of mutants) byKind[m.kind] = (byKind[m.kind] ?? 0) + 1;
-  assert.deepEqual(byKind, { money: 960, rate: 363, year: 262 });
+  assert.deepEqual(byKind, { money: 989, rate: 381, year: 270 });
 });

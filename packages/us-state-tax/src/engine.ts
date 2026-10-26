@@ -718,7 +718,17 @@ function stateExemptions(
   // takes a retiree under $40,000 does not buy this back.
   if (rule.perLowIncomeSeniorFiler !== undefined && seniorAge !== undefined) {
     const limit = rule.lowIncomeSeniorThreshold?.[input.filingStatus];
-    if (limit !== undefined && input.federal.adjustedGrossIncome < limit) {
+    // STRICTLY BELOW, OR AT OR BELOW, AND THE TWO STATES THAT HAVE THIS
+    // EXEMPTION DISAGREE. Indiana's § 6-3-1-3.5(a) says "less than $40,000";
+    // Oklahoma's § 2358(D) says "equal to or less than", and the Form 511
+    // instructions print that phrase as the column heading of the table. The
+    // dollar exactly on the threshold is $1,000 of Oklahoma exemption.
+    const under =
+      limit !== undefined &&
+      (rule.lowIncomeSeniorThresholdInclusive === true
+        ? input.federal.adjustedGrossIncome <= limit
+        : input.federal.adjustedGrossIncome < limit);
+    if (under) {
       // `lowIncomeSeniorSpouse`, NOT `agedSpouse`: the two questions have
       // different answers in the one state that has both.
       total +=
@@ -1885,7 +1895,14 @@ function retirementIncomeBySource(
     // $3,000/$10,000 cap, on the same street as in New York and with the two
     // swapped. What the sergeant's pay does NOT do is leave the cap alone:
     // § 12-6-1170(C)(1) charges it, which is `militaryReducesCap`.
-    const militaryExempt = governmentExempt || rule.militaryReducesCap === true;
+    // Three ways military retired pay can leave the return whole, and the
+    // third one is Oklahoma's: exempt in full under § 2358(E)(17) and NOT
+    // charged against the $10,000 of § 2358(A)(8), which `chargedFirst` below
+    // is what keeps apart.
+    const militaryExempt =
+      governmentExempt ||
+      rule.militaryReducesCap === true ||
+      rule.militaryExemptOutsideCap === true;
     // New York's $20,000 opens at 59½ and its exemption of a government pension
     // does not, so the age test belongs to the pool and not to the rule.
     const oldEnough =

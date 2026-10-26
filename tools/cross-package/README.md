@@ -52,6 +52,7 @@ node tools/cross-package/obbba-claims.mjs                # print every figure an
 node tools/cross-package/obbba-claims.mjs --check        # exit 1 on any disagreement
 node tools/cross-package/arizona-deduction.mjs --check   # a number right for the wrong reason
 node tools/cross-package/north-dakota-zero-band.mjs --check
+node tools/cross-package/oklahoma-frozen-eitc.mjs --check  # a federal figure borrowed AS OF A DATE
 node tools/cross-package/lockfile-versions.mjs --check
 ```
 
@@ -68,6 +69,30 @@ bracket anything.
 > figures and derives nothing, which is right — and it cannot say *why* that is right,
 > because the fact it rests on is in the other package. A repository holding both can
 > check it on every push. A reader holding one cannot.
+
+**`oklahoma-frozen-eitc.mjs` is the same argument pointed at a credit, and it is the
+case where the gap GROWS.** 68 O.S. § 2357.43 gives Oklahoma an earned income credit of
+5% of the federal one — computed under the Internal Revenue Code **as it existed on 31
+December 2020.** The federal credit is indexed every year and Oklahoma's base is a date,
+so "5% of the federal EITC" is a true sentence about Oklahoma law and a wrong instruction
+to anything that reads it.
+
+```text
+  max federal EITC        2020 (Oklahoma's base)   2025        2026
+  three or more                        6,660      8,046       8,231
+```
+
+A three-child family at the plateau is owed `$333.00`; a model reading this year's
+credit pays them `$402.30` for 2025 and `$411.55` for 2026 — **20.8% and 23.6% too
+much**, of a refundable credit, to the households it exists for.
+
+> **A STATE THAT BORROWS A FEDERAL FIGURE AS OF A DATE HAS NOT BORROWED THE FEDERAL
+> FIGURE.** North Dakota's case is a state figure that tracked a federal one and
+> stopped; Oklahoma's never tracked it at all, and every year of federal indexation
+> makes the mistake bigger. So the third assertion in that file is not a figure but a
+> DIRECTION — the gap must widen from 2025 to 2026 at every child count — which is the
+> half no table of this year's numbers can show, and the reason `states/oklahoma.ts`
+> ships no earned income credit rather than one on the wrong base.
 
 Both engines must be built; the tool says so if they are not. It runs them rather than
 reading their source, so an advertised figure is checked against an **answer** and not
