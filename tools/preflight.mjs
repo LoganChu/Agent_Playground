@@ -105,10 +105,25 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
-    label: 'the test-count record against the suites',
-    cmd: 'node tools/test-counts.mjs',
+    // `--check`, AND THE MISSING FLAG WAS A REAL GATE DEFECT. This entry ran
+    // `node tools/test-counts.mjs` with no flag for its whole life, which is the
+    // MEASURING half of the tool and not the ASSERTING half: it prints the
+    // counts and exits zero whatever the READMEs say. CI runs `--check`, which
+    // also compares every README's advertised suite size and exits 1 on a
+    // mismatch. So on Day 62 this gate reported "1593 tests recorded" — a true
+    // statement — while CI failed on `us-state-tax/README.md` advertising 966
+    // tests against a suite of 982, and the whole point of this file is to be
+    // what CI runs.
+    //
+    //   A GATE THAT RUNS A DIFFERENT COMMAND FROM CI IS NOT A GATE FOR CI.
+    //
+    // Day 61 built this file because a check that had passed was invalidated an
+    // hour later. The deeper version is that a check which passed may never have
+    // been the check at all.
+    label: 'the test-count record and every README that advertises a suite size',
+    cmd: 'node tools/test-counts.mjs --check',
     expect: (out) => (out.match(/^TOTAL\s+(\d+) tests, (\d+) failing/m) ?? [])[1] &&
-      `${out.match(/^TOTAL\s+(\d+) tests/m)[1]} tests recorded`,
+      `${out.match(/^TOTAL\s+(\d+) tests/m)[1]} tests recorded, every README agrees`,
   },
   {
     label: 'the differential report is reproducible from the code',
