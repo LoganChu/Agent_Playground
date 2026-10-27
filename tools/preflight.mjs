@@ -95,6 +95,11 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    label: "Iowa's low-income exemption against the deduction that is withdrawing it",
+    cmd: 'node tools/cross-package/iowa-frozen-exemption.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'each lockfile against its own package.json',
     cmd: 'node tools/cross-package/lockfile-versions.mjs --check',
     expect: (out) => (out.match(/^All (\d+) lockfiles agree/m) ?? [])[1] && 'all agree',

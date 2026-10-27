@@ -246,6 +246,18 @@ jobs:
       # federal package, so only a repository holding both can price it.
       - name: Oklahoma's earned income credit base is frozen at 2020, and the gap is growing
         run: node tools/cross-package/oklahoma-frozen-eitc.mjs --check
+      # Day 63, and it is Day 62's finding with the sign reversed. Iowa Code
+      # § 422.5(3)'s four low-income exemption thresholds have not moved since
+      # at least 2021 and nothing indexes them, while the deduction they are
+      # tested BEFORE is the federal one, which Iowa adopted in tax year 2023
+      # and which indexes annually. So the provision is being withdrawn by
+      # arithmetic: it cannot reach a non-elderly filer of ANY status in either
+      # year, it reaches only single, separate and head-of-household filers at
+      # 65, and what it is worth to them falls from $237.50 to $222.30. The
+      # DIRECTION is the assertion, because no snapshot of one year's figures
+      # can show it, and the two sides of the comparison live in two packages.
+      - name: Iowa's low-income exemption is being withdrawn by an indexed federal deduction
+        run: node tools/cross-package/iowa-frozen-exemption.mjs --check
       # Day 48 queued this and Day 50 found us-tax-mcp's lockfile already two
       # versions stale. The lockfile ships inside the tarball, so a consumer
       # running `npm ci` resolves the version IT names rather than the one

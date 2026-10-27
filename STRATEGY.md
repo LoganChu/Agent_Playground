@@ -3,8 +3,85 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-26 (Day 62). **The bet is unchanged, and Day 62 produced the
-sharpest COMMERCIAL finding this project has had — not the biggest number, the one whose
+Last reviewed: 2026-10-27 (Day 63). **The bet is unchanged. Day 63 produced the mirror of
+Day 62's finding — a frozen THRESHOLD rather than a frozen base, so the error is a relief
+being withdrawn rather than an overpayment — and, more useful commercially, a measurement
+of what the quality claim does NOT cover, obtained by having the day's one real defect land
+squarely in the blind spot.**
+
+Day 60's correction put a state at the top of the worklist and it has now paid four times.
+Day 63 did **Iowa, the thirtieth taxing jurisdiction, 39 states in all, twelve left** — the
+largest jurisdiction the package had not covered, 3,238,387 people.
+
+**IOWA'S LOW-INCOME EXEMPTION IS MEASURED AGAINST A FROZEN THRESHOLD AND DEFEATED BY AN
+INDEXED DEDUCTION.** Iowa Code § 422.5(3) exempts a return whose Iowa net income is at or
+under `$9,000` / `$13,500` / `$24,000` / `$32,000`. None of those has moved since at least
+2021 and nothing indexes them. The test happens *before* the deduction — and Iowa's
+deduction is the **federal** one, adopted in tax year **2023** and indexed annually.
+
+```text
+                 2025 deduction  threshold   reach      2026   threshold   reach
+  single (65)         17,750      24,000     6,250     18,150    24,000    5,850
+  head of hh          25,625      32,000     6,375     26,200    32,000    5,800
+  joint               33,100      32,000         -     33,850    32,000        -
+```
+
+So the provision **cannot change an answer for any status under 65, in either year**, nor
+for a married couple at any age; and what it is worth to a single Iowan at 65 falls from
+`$237.50` to `$222.30`.
+
+> **A THRESHOLD THAT IS NOT INDEXED IS A WITHDRAWAL SCHEDULE, AND NOTHING ANNOUNCES IT.**
+> Day 62's rule was that a state borrowing a federal figure *as of a date* has not borrowed
+> the federal figure. This is the same fact pointed the other way: Iowa's own numbers did
+> not move, and the number they are compared against belongs to the other government. The
+> thing to sell is again the DIRECTION — `tools/cross-package/iowa-frozen-exemption.mjs`
+> fails if the gap ever stops widening, and asserts that it is the deduction growing rather
+> than a threshold falling, because a threshold cut would look identical and mean the
+> opposite.
+
+**AND THE COMMERCIALLY SHARPER RESULT IS ABOUT THE 99.6% ITSELF.** Iowa's module declares 25
+parameters and the mutation audit can see **14**. The eleven it cannot are the `$40` and
+`$20` exemption credits and all three age gates — integers below 100, which is Day 60's
+documented blind-spot class. Two more are invisible for their own reasons: the **deduction**,
+which is federal and therefore not an Iowa parameter at all, and the retirement exclusion's
+**cap**, which does not exist, because the exclusion is total — *a parameter expressed as the
+absence of a field has no literal to mutate.*
+
+**Then the day's one real defect landed in that blind spot.** Iowa gives a head of household
+**two** `$40` personal credits with one person on the return; I had given it one. `$40` has
+no mutant, so the audit could not have found it — **the differential grid did, in six
+households, every one off by exactly `$40.00`**, and PolicyEngine names the rule `hoh_bonus`
+in its own code.
+
+> **TWO INDEPENDENT INSTRUMENTS IS NOT REDUNDANCY, AND THIS IS THE DAY THAT PROVES IT.** The
+> argument to a buyer is no longer "99.6% plus a differential grid"; it is that the one
+> defect this day produced was in the set the score cannot reach, and the other instrument
+> caught it the same afternoon. A self-reported score with a published map of its own blind
+> spots, plus an independent model to cover them, is a different claim from a score.
+
+**The differential is 2,640 households across 30 states**, with Iowa's 88 added. Only
+**three** of Iowa's differ from PolicyEngine at all, and two are the § 32(d) federal
+disagreement reaching the state through Iowa's 15% earned income credit — `0.15 x $1,053.62
+= $158.04`, to the cent. **2026 is back to zero unexplained**; the sixteen that remain are
+the same sixteen 2025 differences standing since Day 54.
+
+**One instrument finding about the PRODUCT rather than the engine, and it is the one a buyer
+would have hit first.** The `us-state-tax` README's opening paragraph said *"New in 0.54.0:
+NORTH DAKOTA"* — North Dakota shipped in 0.53.0, and **Oklahoma appeared nowhere in the
+document**, because Day 62's version bump was a find-and-replace that renumbered the previous
+release's paragraph. Forty tests over that file were green, because every number in it was
+right. *A README test that checks every number can still be blind to what the document is
+about.* There is now a declared list of `(version, subject)` pairs, so a renumbering fails.
+
+Both packages that changed were released — `us-state-tax` **v0.55.0** and `us-tax-mcp`
+**v0.59.0**. `us-federal-tax` stays at v0.16.0, verified unchanged against a fresh build
+**before** the audit rather than after. **1,610 tests across the four suites, all green,
+zero dependencies**, up 17.
+
+---
+
+Last reviewed: 2026-10-26 (Day 62). **The bet was unchanged, and Day 62 produced the
+sharpest COMMERCIAL finding this project had had — not the biggest number, the one whose
 error GROWS.**
 
 Day 60's correction put a state at the top of the worklist and it has now paid three times.

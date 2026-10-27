@@ -38278,5 +38278,1325 @@
    "tax": 3799.5
   },
   "error": null
+ },
+ "2025-single-worker-IA-15000-0-0-0-0": {
+  "id": "2025-single-worker-IA-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 313.92999267578125
+  },
+  "state": {
+   "tax": -47.089500427246094
+  },
+  "error": null
+ },
+ "2025-single-worker-IA-30000-0-0-0-0": {
+  "id": "2025-single-worker-IA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 14250.0,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 501.5
+  },
+  "error": null
+ },
+ "2025-single-worker-IA-50000-0-0-0-0": {
+  "id": "2025-single-worker-IA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1261.5
+  },
+  "error": null
+ },
+ "2025-single-worker-IA-80000-0-0-0-0": {
+  "id": "2025-single-worker-IA-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 64250.0,
+   "incomeTaxBeforeCredits": 9049.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2401.5
+  },
+  "error": null
+ },
+ "2025-single-worker-IA-150000-0-0-0-0": {
+  "id": "2025-single-worker-IA-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 25067.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5061.5
+  },
+  "error": null
+ },
+ "2025-single-worker-IA-400000-0-0-0-0": {
+  "id": "2025-single-worker-IA-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 384250.0,
+   "incomeTaxBeforeCredits": 104034.75,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 14561.5
+  },
+  "error": null
+ },
+ "2025-couple-two-children-IA-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-IA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7152.0
+  },
+  "state": {
+   "tax": -1072.800048828125
+  },
+  "error": null
+ },
+ "2025-couple-two-children-IA-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-IA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 28500.0,
+   "incomeTaxBeforeCredits": 2943.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 932.98193359375
+  },
+  "state": {
+   "tax": 783.052734375
+  },
+  "error": null
+ },
+ "2025-couple-two-children-IA-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-IA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 68500.0,
+   "incomeTaxBeforeCredits": 7743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2443.0
+  },
+  "error": null
+ },
+ "2025-couple-two-children-IA-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-IA-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 168500.0,
+   "incomeTaxBeforeCredits": 26898.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6243.0
+  },
+  "error": null
+ },
+ "2025-single-parent-IA-12000-0-0-0-0": {
+  "id": "2025-single-parent-IA-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -612.0
+  },
+  "error": null
+ },
+ "2025-single-parent-IA-25000-0-0-0-0": {
+  "id": "2025-single-parent-IA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 1375.0,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.330078125
+  },
+  "state": {
+   "tax": -609.6495361328125
+  },
+  "error": null
+ },
+ "2025-single-parent-IA-45000-0-0-0-0": {
+  "id": "2025-single-parent-IA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 21375.0,
+   "incomeTaxBeforeCredits": 2225.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 562.00048828125
+  },
+  "error": null
+ },
+ "2025-retired-couple-IA-0-0-40000-0-0": {
+  "id": "2025-retired-couple-IA-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-IA-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-IA-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-IA-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-IA-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 31400.0,
+   "incomeTaxBeforeCredits": 3291.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-IA-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-IA-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 77300.0,
+   "incomeTaxBeforeCredits": 8799.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-retiree-IA-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-IA-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-single-retiree-IA-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-IA-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-investor-IA-50000-0-0-20000-0": {
+  "id": "2025-investor-IA-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 54250.0,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2021.5
+  },
+  "error": null
+ },
+ "2025-investor-IA-50000-0-0-100000-0": {
+  "id": "2025-investor-IA-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5061.5
+  },
+  "error": null
+ },
+ "2025-separate-IA-60000-0-0-0-0": {
+  "id": "2025-separate-IA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 44250.0,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1641.5
+  },
+  "error": null
+ },
+ "2025-muni-retiree-IA-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-IA-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 47300.0,
+   "incomeTaxBeforeCredits": 5199.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-couple-no-children-IA-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-IA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 92.84503173828125
+  },
+  "state": {
+   "tax": -13.92675495147705
+  },
+  "error": null
+ },
+ "2025-couple-no-children-IA-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-IA-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 43500.0,
+   "incomeTaxBeforeCredits": 4743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1573.0
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-IA-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-IA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 8500.0,
+   "incomeTaxBeforeCredits": 850.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5950.0,
+   "earnedIncomeCredit": 6038.98193359375
+  },
+  "state": {
+   "tax": -782.8473510742188
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-IA-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-IA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 58500.0,
+   "incomeTaxBeforeCredits": 6543.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2023.0
+  },
+  "error": null
+ },
+ "2025-single-parent-high-IA-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-IA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 66375.0,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2402.25
+  },
+  "error": null
+ },
+ "2025-single-parent-teen-IA-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-IA-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 11375.0,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2466.330078125
+  },
+  "state": {
+   "tax": -57.69952392578125
+  },
+  "error": null
+ },
+ "2025-separate-with-child-IA-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-IA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 29250.0,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 901.25048828125
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-IA-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-IA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 13500.0,
+   "incomeTaxBeforeCredits": 1350.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 302.75048828125
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-IA-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-IA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 218500.0,
+   "incomeTaxBeforeCredits": 38134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 8223.0
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-IA-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-IA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 268500.0,
+   "incomeTaxBeforeCredits": 50134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 10123.0
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-IA-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-IA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 418500.0,
+   "incomeTaxBeforeCredits": 88046.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 15823.0
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-IA-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-IA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4328.0
+  },
+  "state": {
+   "tax": -649.2000122070312
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-IA-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-IA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 3904.530029296875
+  },
+  "state": {
+   "tax": -585.6795043945312
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-IA-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-IA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-young-IA-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-IA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 39250.0,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-early-retiree-IA-0-50000-0-0-0": {
+  "id": "2025-early-retiree-IA-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-IA-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-IA-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 38500.0,
+   "incomeTaxBeforeCredits": 4143.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-blind-worker-IA-40000-0-0-0-0": {
+  "id": "2025-blind-worker-IA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 22250.0,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 785.5
+  },
+  "error": null
+ },
+ "2025-blind-senior-IA-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-IA-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4600.0,
+   "incomeTaxBeforeCredits": 460.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-IA-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-IA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 69.330078125
+  },
+  "state": {
+   "tax": 1211.1004638671875
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-IA-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-IA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 84250.0,
+   "incomeTaxBeforeCredits": 13449.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3121.5
+  },
+  "error": null
+ },
+ "2026-single-worker-IA-15000-0-0-0-0": {
+  "id": "2026-single-worker-IA-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 347.2900085449219
+  },
+  "state": {
+   "tax": -52.093502044677734
+  },
+  "error": null
+ },
+ "2026-single-worker-IA-30000-0-0-0-0": {
+  "id": "2026-single-worker-IA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 13900.0,
+   "incomeTaxBeforeCredits": 1420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 488.20001220703125
+  },
+  "error": null
+ },
+ "2026-single-worker-IA-50000-0-0-0-0": {
+  "id": "2026-single-worker-IA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1248.199951171875
+  },
+  "error": null
+ },
+ "2026-single-worker-IA-80000-0-0-0-0": {
+  "id": "2026-single-worker-IA-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 63900.0,
+   "incomeTaxBeforeCredits": 8770.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2388.199951171875
+  },
+  "error": null
+ },
+ "2026-single-worker-IA-150000-0-0-0-0": {
+  "id": "2026-single-worker-IA-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 24734.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5048.2001953125
+  },
+  "error": null
+ },
+ "2026-single-worker-IA-400000-0-0-0-0": {
+  "id": "2026-single-worker-IA-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 383900.0,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 14548.2001953125
+  },
+  "error": null
+ },
+ "2026-couple-two-children-IA-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-IA-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7316.0
+  },
+  "state": {
+   "tax": -1097.4000244140625
+  },
+  "error": null
+ },
+ "2026-couple-two-children-IA-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-IA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 27800.0,
+   "incomeTaxBeforeCredits": 2840.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 1242.2958984375
+  },
+  "state": {
+   "tax": 710.0556640625
+  },
+  "error": null
+ },
+ "2026-couple-two-children-IA-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-IA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 67800.0,
+   "incomeTaxBeforeCredits": 7640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2416.39990234375
+  },
+  "error": null
+ },
+ "2026-couple-two-children-IA-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-IA-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 167800.0,
+   "incomeTaxBeforeCredits": 26340.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6216.39990234375
+  },
+  "error": null
+ },
+ "2026-single-parent-IA-12000-0-0-0-0": {
+  "id": "2026-single-parent-IA-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -612.0
+  },
+  "error": null
+ },
+ "2026-single-parent-IA-25000-0-0-0-0": {
+  "id": "2026-single-parent-IA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 850.0,
+   "incomeTaxBeforeCredits": 85.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1785.0,
+   "earnedIncomeCredit": 4249.6220703125
+  },
+  "state": {
+   "tax": -637.443359375
+  },
+  "error": null
+ },
+ "2026-single-parent-IA-45000-0-0-0-0": {
+  "id": "2026-single-parent-IA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 20850.0,
+   "incomeTaxBeforeCredits": 2148.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 514.2566528320312
+  },
+  "error": null
+ },
+ "2026-retired-couple-IA-0-0-40000-0-0": {
+  "id": "2026-retired-couple-IA-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-IA-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-IA-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-IA-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-IA-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 30600.0,
+   "incomeTaxBeforeCredits": 3176.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-IA-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-IA-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 76500.0,
+   "incomeTaxBeforeCredits": 8684.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-retiree-IA-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-IA-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-single-retiree-IA-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-IA-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 35650.0,
+   "incomeTaxBeforeCredits": 4030.0,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-investor-IA-50000-0-0-20000-0": {
+  "id": "2026-investor-IA-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 53900.0,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2008.199951171875
+  },
+  "error": null
+ },
+ "2026-investor-IA-50000-0-0-100000-0": {
+  "id": "2026-investor-IA-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5048.2001953125
+  },
+  "error": null
+ },
+ "2026-separate-IA-60000-0-0-0-0": {
+  "id": "2026-separate-IA-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 43900.0,
+   "incomeTaxBeforeCredits": 5020.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1628.199951171875
+  },
+  "error": null
+ },
+ "2026-muni-retiree-IA-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-IA-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 46500.0,
+   "incomeTaxBeforeCredits": 5084.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-couple-no-children-IA-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-IA-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 139.21002197265625
+  },
+  "state": {
+   "tax": -20.88150405883789
+  },
+  "error": null
+ },
+ "2026-couple-no-children-IA-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-IA-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 42800.0,
+   "incomeTaxBeforeCredits": 4640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1546.4000244140625
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-IA-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-IA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 7800.0,
+   "incomeTaxBeforeCredits": 780.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5880.0,
+   "earnedIncomeCredit": 6369.2958984375
+  },
+  "state": {
+   "tax": -858.994384765625
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-IA-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-IA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 57800.0,
+   "incomeTaxBeforeCredits": 6440.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1996.39990234375
+  },
+  "error": null
+ },
+ "2026-single-parent-high-IA-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-IA-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 65850.0,
+   "incomeTaxBeforeCredits": 7548.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2382.300048828125
+  },
+  "error": null
+ },
+ "2026-single-parent-teen-IA-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-IA-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 10850.0,
+   "incomeTaxBeforeCredits": 1085.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2651.6220703125
+  },
+  "state": {
+   "tax": -105.44332885742188
+  },
+  "error": null
+ },
+ "2026-separate-with-child-IA-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-IA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 28900.0,
+   "incomeTaxBeforeCredits": 3220.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 860.1566162109375
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-IA-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-IA-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 12800.0,
+   "incomeTaxBeforeCredits": 1280.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 248.35667419433594
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-IA-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-IA-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 217800.0,
+   "incomeTaxBeforeCredits": 37468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 8196.400390625
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-IA-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-IA-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 267800.0,
+   "incomeTaxBeforeCredits": 49468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 10096.400390625
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-IA-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-IA-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 417800.0,
+   "incomeTaxBeforeCredits": 86608.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 15796.400390625
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-IA-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-IA-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -664.050048828125
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-IA-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-IA-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -613.4733276367188
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-IA-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-IA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-young-IA-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-IA-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-early-retiree-IA-0-50000-0-0-0": {
+  "id": "2026-early-retiree-IA-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-IA-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-IA-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 37800.0,
+   "incomeTaxBeforeCredits": 4040.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-blind-worker-IA-40000-0-0-0-0": {
+  "id": "2026-blind-worker-IA-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 21850.0,
+   "incomeTaxBeforeCredits": 2374.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 770.2999877929688
+  },
+  "error": null
+ },
+ "2026-blind-senior-IA-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-IA-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4150.0,
+   "incomeTaxBeforeCredits": 415.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-IA-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-IA-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 1170.006591796875
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-IA-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-IA-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3108.199951171875
+  },
+  "error": null
  }
 }

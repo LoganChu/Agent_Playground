@@ -235,7 +235,8 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
-    'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MI',
+    'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD',
+    'MI',
     'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'OK', 'PA', 'SD', 'TN', 'TX', 'UT',
     'VA', 'WA',
     'WY',
@@ -1497,6 +1498,117 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'retirementIncomeSubtractions.*.cap',
     kind: 'sentinel',
     cite: 'zero, which together with `militaryReducesCap` exempts military retired pay in full and leaves nothing else in the pool. North Carolina\'s construction exactly, and the same encoding of "every other pension is taxed in full" rather than a figure read from a document',
+    constant: true,
+  },
+
+  // =========================================================================
+  // =========================================================================
+  // IOWA — the state where EVERY figure in this ledger is `constant: true` and
+  // the answer still changes between the two years.
+  //
+  // Nothing Iowa stores moves: SF 2442 fixed the rate at 3.8% with no further
+  // step, § 422.5(3)'s four exemption thresholds have not moved since at least
+  // 2021 and no provision indexes them, § 422.12(1)'s $40 has not moved, and
+  // § 422.7(19)'s exclusion has had no cap since 2023. What moves is the
+  // DEDUCTION, and it is not Iowa's — Iowa Code § 422.9 still prints the
+  // state's own $2,210, and the IA 1040 reads the federal figure instead. So
+  // Iowa is the one state here where `constant: true` on every row is the
+  // truth AND a reader who concluded from it that 2025 and 2026 are the same
+  // return would be wrong by $13.30.
+  //
+  // THE ABSENT ROW IS THE INTERESTING ONE. There is no entry for
+  // `retirementIncomeSubtractions.*.cap`, because Iowa has no cap: the
+  // exclusion is total and the module expresses that by omitting the field, so
+  // the largest subtraction in the state has no figure to attribute and no
+  // mutant to kill. North Dakota's cap is a `sentinel` zero and Oklahoma's is
+  // a statutory $10,000; Iowa's is the absence of both.
+  // =========================================================================
+  {
+    state: 'IA',
+    path: 'rate.rate',
+    kind: 'statute',
+    document: '§ 422.5A',
+    cite: 'Iowa Code § 422.5A — a single rate of 3.8% for every filing status, from tax year 2025 under SF 2442 of 2024. The act pulled HF 2317\'s flat year forward from 2026 AND set the rate below HF 2317\'s 3.9% destination, so a secondary source printing 3.9% for 2026 is reading the superseded schedule. Identical in both years because no further step exists, not because the second year went unread. NOT OPENED FROM THIS SANDBOX: legis.iowa.gov does not resolve here',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'exemptionCredit.perFiler.*',
+    kind: 'statute',
+    document: '§ 422.12(1)',
+    cite: 'Iowa Code § 422.12(1) — $40 for each personal credit, and the INSTRUCTIONS SAY HOW MANY: one if you are single, married filing separately or a qualifying surviving spouse, and TWO if you are married filing jointly OR HEAD OF HOUSEHOLD. So a single parent claims $80 with one person on the return, which is the opposite of Oklahoma\'s § 2358(D). Stored per status rather than per person for that reason; a per-person reading was refuted by six differential households that differed by exactly $40.00. A CREDIT and not an exemption, so it is worth the same at every income; $40 of Iowa credit is $1,052.63 of income at 3.8%. Unindexed and unamended through the flat-tax reform',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'exemptionCredit.perDependent',
+    kind: 'statute',
+    document: '§ 422.12(1)',
+    cite: 'Iowa Code § 422.12(1) — $40 a dependent, the same figure a filer is worth, which is the ordinary shape and not a separate parameter',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'exemptionCredit.perSeniorFiler',
+    kind: 'statute',
+    document: '§ 422.12(1)',
+    cite: 'Iowa Code § 422.12(1) — an ADDITIONAL $20 for each filer or spouse 65 or over, on top of the $40. Half the personal figure rather than a second whole credit, which is where Iowa differs from Oklahoma\'s § 2358(D) blind exemption, and it is not means-tested, which is where it differs from Oklahoma\'s special exemption',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'exemptionCredit.perBlindOrDisabledFiler',
+    kind: 'statute',
+    document: '§ 422.12(1)',
+    cite: 'Iowa Code § 422.12(1) — a further $20 for each blind filer or spouse, which STACKS with the age addition: a blind Iowan of 65 claims $40 + $20 + $20',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'exemptionCredit.seniorAge',
+    kind: 'statute',
+    document: '§ 422.12(1)',
+    cite: 'Iowa Code § 422.12(1) — 65, the federal § 63(f) age, and the same age § 422.5(3) uses for the larger exemption threshold. Iowa uses one age for both and neither is indexed',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'zeroTaxThreshold.threshold.*',
+    kind: 'statute',
+    document: '§ 422.5(3)',
+    cite: 'Iowa Code § 422.5(3) — the low-income exemption under 65: $9,000 for a single or married-filing-separately return and $13,500 for every other status, measured on Iowa net income. NOT INDEXED AND NOT MOVED SINCE AT LEAST 2021, and that is what has killed them: the federal standard deduction they are now effectively raced against is $15,750 in 2025 and $16,100 in 2026, so a non-elderly return at any of these thresholds already has zero taxable income and the exemption cannot change an answer for ANY status in either year',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'zeroTaxThreshold.elderlyThreshold.*',
+    kind: 'statute',
+    document: '§ 422.5(3)',
+    cite: 'Iowa Code § 422.5(3) — the low-income exemption at 65 or over: $24,000 for a SINGLE return and $32,000 for every other status, so married filing separately moves from the small group to the large one on a birthday. Only one spouse need reach 65. Unindexed, so this tier is being withdrawn by the same arithmetic: it still bites for a single, head-of-household or separate filer and no longer for joint or surviving spouse, and the most it can save a single Iowan falls from $237.50 in 2025 to $222.30 in 2026',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'zeroTaxThreshold.elderlyAge',
+    kind: 'statute',
+    document: '§ 422.5(3)',
+    cite: 'Iowa Code § 422.5(3) — 65, and the test is satisfied by EITHER spouse reaching it, which the instructions state in those words: "only one spouse must be 65 or older to qualify"',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'retirementIncomeSubtractions.0.minimumAge',
+    kind: 'statute',
+    document: '§ 422.7(19)',
+    cite: 'Iowa Code § 422.7(19) — 55, and it is the lowest retirement-income age in this ledger by seven years: Georgia\'s is 62, South Carolina\'s 65, Michigan\'s a birth-year cohort. The statute also qualifies a disabled person and a surviving spouse of someone who would have qualified, NEITHER of which this package models from this figure — see the state\'s notes for the price',
+    constant: true,
+  },
+  {
+    state: 'IA',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: '§ 422.12B',
+    cite: 'Iowa Code § 422.12B — 15% of the federal earned income credit, refundable. THE FEDERAL CREDIT FOR THE SAME TAX YEAR, with no date in the provision: Iowa reads this year\'s credit where Oklahoma\'s § 2357.43 reads the credit as it stood on 31 December 2020, which is the entire reason Iowa\'s is modelled here and Oklahoma\'s is not',
     constant: true,
   },
 

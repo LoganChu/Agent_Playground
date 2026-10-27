@@ -388,11 +388,27 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // age test at all, and what is left meets a top rate of 4.5%. Oklahoma is in
   // no list of retiree-friendly states and it is cheaper here than Utah, which
   // is in several.
-  assert.equal(place, 33, `Utah ranks ${place}`);
+  // 34 from Day 63, because IOWA charges this couple NOTHING and joins the
+  // states tied at zero, making twenty-two of them. Iowa is the FIFTEENTH state
+  // to pass Utah and its route is one no earlier row took: not a wide first
+  // band (North Dakota), not a capped exclusion this couple happens to fit
+  // inside, but an exclusion with NO CAP AT ALL — Iowa Code § 422.7(19) from
+  // tax year 2023 excludes all retirement income of anyone 55 or over.
+  //
+  // The size of that is worth recording, because no row on the page shows it:
+  // raise this couple's pension to $600,000 and Iowa still charges ZERO. Only
+  // fourteen states do, nine of which have no income tax at all; the other five
+  // are Alabama, Illinois, Iowa, Mississippi and Pennsylvania. AND IOWA IS THE
+  // ONLY ONE OF THE FIVE WITH AN AGE TEST — Illinois, Pennsylvania and
+  // Mississippi exempt retirement income whatever the filer's age, Alabama's
+  // defined-benefit exemption has none either, and Iowa's $600,000 is free at 70
+  // and taxed in full at 54. So the largest exemption in this package is also
+  // the one most sensitive to a field the page does ask for.
+  assert.equal(place, 34, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND', 'OK']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND', 'OK', 'IA']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // And Wisconsin's is a ZERO that the election produces rather than an

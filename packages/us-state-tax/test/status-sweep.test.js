@@ -264,6 +264,50 @@ const NOT_REACHABLE_BY_ANY_HOUSEHOLD = {
     coveredBy:
       'missouri.test.js — "the $5,000 cap could not bind before 2025 and binds now, for at most $181.68"',
   },
+  // IOWA'S JOINT AND SURVIVING-SPOUSE LOW-INCOME THRESHOLDS, AND THIS ENTRY IS
+  // THE SECOND DRAFT. THE FIRST ONE CLAIMED THE WHOLE TABLE AND THE GUARD
+  // REFUSED IT, WHICH IS THE BETTER FINDING.
+  //
+  // The claim that failed was that Iowa's non-elderly exemption "cannot change
+  // an answer for any status", so no household could witness any cell of it.
+  // The first half is true and the second does not follow, because the guard
+  // does not ask whether the TRUE value matters — it asks whether a WRONG one
+  // would be noticed, and it perturbs by doubling.
+  //
+  // > A PARAMETER THAT CANNOT CHANGE A CORRECT ANSWER IS NOT THEREBY INVISIBLE
+  // > TO THE AUDIT, AND A PARAMETER THAT CHANGES EVERY ANSWER IS NOT THEREBY
+  // > VISIBLE. "Does this figure matter?" and "would a wrong value be caught?"
+  // > are different questions.
+  //
+  // Iowa's exemption answers them in opposite directions inside one table. The
+  // threshold is tested on net income BEFORE the deduction, so a cell is
+  // witnessable exactly where the band (that status's deduction, twice the
+  // threshold] is non-empty -- and, once the $40 exemption credit is allowed
+  // for, (that deduction + $1,052.63, twice the threshold]:
+  //
+  //   2025 single / separate   T=9,000   D=15,750   doubled 18,000   band (15,750, 18,000]
+  //        head of household   T=13,500  D=23,625   doubled 27,000   band (23,625, 27,000]
+  //        joint / surv.sp.    T=13,500  D=31,500   doubled 27,000   EMPTY
+  //
+  // Three cells are reachable and two are not, and the two that are not are the
+  // ones whose DOUBLED threshold is still below the deduction. `wage17k6` was
+  // added for the first pair and the battery already reached the third; joint
+  // and surviving spouse are what is left, and no household can reach them at
+  // any income because 27,000 < 31,500 in 2025 and 27,000 < 32,200 in 2026.
+  //
+  // THE ELDERLY TABLE IS NOT EXEMPTED AT ALL, and that is the sharpest half:
+  // its joint and surviving-spouse cells are just as dead as these — $32,000
+  // against a $33,100 deduction, so the provision cannot help those filers
+  // either — and they are perfectly visible, because doubling $32,000 to
+  // $64,000 does clear the deduction. Equally worthless, oppositely auditable.
+  // `working66` witnesses all five of those cells at once.
+  '.zeroTaxThreshold.threshold': {
+    states: ['IA'],
+    statuses: ['marriedFilingJointly', 'qualifyingSurvivingSpouse'],
+    why: "Iowa's $13,500 non-elderly threshold is tested on net income BEFORE the deduction, and TWICE it ($27,000) is still below the federal joint and surviving-spouse deduction ($31,500 in 2025, $32,200 in 2026) that Iowa adopts — so neither the true figure nor a doubled one can move any household's answer, at any income. The single, separate and head-of-household cells of the same table ARE reachable and are witnessed by `wage17k6` and the battery's existing households",
+    coveredBy:
+      'iowa.test.js — "the non-elderly exemption cannot bite in either year, and the elderly one only for single, head of household and separate", which DERIVES the partition from this package\'s own thresholds and the published federal deductions rather than asserting it; tools/cross-package/iowa-frozen-exemption.mjs then checks those federal figures against us-federal-tax\'s own, which this zero-dependency package cannot import',
+  },
 };
 
 test('every byStatus cell the package ships moves a pinned answer', () => {
@@ -347,7 +391,16 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
             continue;
           }
           const allowed = NOT_REACHABLE_BY_ANY_HOUSEHOLD[path];
-          if (allowed?.states.includes(state)) {
+          // `statuses`, where present, narrows the exemption to the cells it is
+          // actually defended for. Iowa forced it: the SAME by-status table has
+          // two cells no household can reach and three a household reaches, and
+          // a whole-table exemption would have silently excused the three. An
+          // exemption wider than its argument is how an audit starts lying,
+          // which is what the comment on this object already says.
+          if (
+            allowed?.states.includes(state) &&
+            (allowed.statuses === undefined || allowed.statuses.includes(status))
+          ) {
             exempt.push(where);
             assert.equal(
               moved,
@@ -398,7 +451,16 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // (C)(2)(a) each write their own increments out, which is why the joint
   // column being exactly twice the single one is asserted in
   // `test/oklahoma.test.js` and applied nowhere.
-  assert.equal(checked, 1108, 'byStatus cells with a parameter the harness would mutate');
+  // 1,128 from Day 63: IOWA'S TWENTY, and they are three tables where a reader
+  // of the state would expect four. Its low-income exemption contributes five
+  // statuses in each of two years TWICE OVER, because § 422.5(3) writes a whole
+  // second table for a return with someone at 65 rather than adding an
+  // increment -- so `threshold` and `elderlyThreshold` are ten cells each. The
+  // $40 exemption credit's `perFiler` is the other five a year. WHAT IS NOT
+  // HERE is the deduction: Iowa's is the federal one, so the largest figure on
+  // an Iowa return is not an Iowa parameter and this count cannot see it, and
+  // neither can the mutation audit.
+  assert.equal(checked, 1128, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -434,7 +496,12 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   const largest = [...byState.entries()].sort((a, b) => b[1] - a[1])[0];
   // 3,302 from Day 61: North Dakota's forty are its five statuses x two
   // thresholds x two years, each sitting in a `byStatus` bracket table.
-  assert.equal(inside, 3_417, 'numbers inside those cells');
+  // 3,437 from Day 63: Iowa's twenty cells hold exactly twenty numbers, because
+  // every one of them is a scalar threshold or a scalar credit. Oklahoma's forty
+  // cells held more than forty -- a bracket cell is a LIST of rows -- so the gap
+  // between this count and `checked` is where the per-status tables that are
+  // schedules live, and Iowa adds nothing to it.
+  assert.equal(inside, 3_437, 'numbers inside those cells');
   // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
   // staircases and its 2% add-back table are all by-status and all four columns
   // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,
@@ -446,5 +513,9 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // in the opposite direction. See the branch above. It was 28 until Day 47 gave
   // Arizona a standard-deduction table of its own: one more unreachable
   // surviving-spouse cell per year, in a state that already had no such box.
-  assert.equal(exempt.length, 60, 'cells the engine cannot reach, all of them documented');
+  // 60 until Day 63 and 64 since: Iowa's joint and surviving-spouse non-elderly
+  // thresholds, in each of two years. The narrowest entry in the object and the
+  // only one scoped to particular statuses -- see the comment on it for why a
+  // whole-table exemption would have been a false claim about three other cells.
+  assert.equal(exempt.length, 64, 'cells the engine cannot reach, all of them documented');
 });

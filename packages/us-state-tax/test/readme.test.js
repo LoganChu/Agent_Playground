@@ -55,11 +55,11 @@ test('README: the four quick-start figures', () => {
   assert.equal(at('TX'), 0);
 });
 
-test('README: 38 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 38);
+test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
+  assert.equal(SUPPORTED_STATES.length, 39);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
-  // SIXTEEN graduated, twelve flat, one on a schedule of its own, nine with none.
+  // SIXTEEN graduated, THIRTEEN flat, one on a schedule of its own, nine with none.
   // Louisiana made the flat column the larger of the two on Day 60: Act 11 of the
   // 2024 Third Extraordinary Session replaced its graduated 1.85/3.5/4.25 schedule
   // with a single 3% rate, so the state arrived here already flat.
@@ -97,21 +97,27 @@ test('README: 38 states, 2025 and 2026, nine with no income tax', () => {
   // group between the two years.
   assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OK', 'OR', 'SC', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
-  assert.equal(flat.length, 12);
+  // IOWA IS THE THIRTEENTH FLAT STATE, and it arrived flat rather than becoming
+  // so: SF 2442 of 2024 collapsed the last schedule before either supported year
+  // here began, so unlike Louisiana — whose module records a graduated past —
+  // both of Iowa's years are the same single rate. It is also the flat state
+  // whose answer is LEAST determined by that rate, because its deduction is the
+  // federal one and its two relief tests are frozen.
+  assert.equal(flat.length, 13);
   // Idaho is stored as brackets only because of its zero band; its positive rate
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    38,
+    39,
   );
-  // Twenty-nine taxing states — nineteen of them when the README says seven cut
+  // THIRTY taxing states — nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 29);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 30);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -730,7 +736,7 @@ test('README: the provisional and published lists for 2026', () => {
   // published is next year: HB 2764's revenue triggers could cut every rate
   // again by certification rather than by legislation, and a 2027 column would
   // be a projection rather than a reading.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -746,11 +752,11 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 });
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
-  // LOUISIANA left this list on Day 60, NORTH DAKOTA on Day 61 and OKLAHOMA on
-  // Day 62 — each the day it shipped. KANSAS takes Oklahoma's place, and the
-  // list is deliberately held at five so that the test keeps the same shape
-  // while the states in it turn over.
-  for (const state of ['IA', 'KS', 'AR', 'DC', 'HI']) {
+  // LOUISIANA left this list on Day 60, NORTH DAKOTA on Day 61, OKLAHOMA on
+  // Day 62 and IOWA on Day 63 — each the day it shipped. NEBRASKA takes Iowa's
+  // place, and the list is deliberately held at five so that the test keeps the
+  // same shape while the states in it turn over.
+  for (const state of ['NE', 'KS', 'AR', 'DC', 'HI']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -805,6 +811,21 @@ test('README: the New York City quick-start figures', () => {
   // because $48,475 of this filer's $85,000 is in a zero bracket. Against the
   // $3,174.69 a New Yorker on the same income pays THE CITY ALONE, before a
   // dollar of New York State tax.
+  // IOWA DID NOT JOIN THIS LIST ON DAY 63, AND WHICH SIDE OF IT IOWA IS ON IS
+  // DECIDED BY A FIGURE THAT IS NOT IOWA'S. The first draft of this comment
+  // added Iowa as the sixteenth, measured at $3,161.50 against $3,174.69. That
+  // measurement was taken with the real 2025 deduction of $15,750; THE `federal`
+  // BASIS ABOVE DELIBERATELY CARRIES $15,000, the pre-OBBBA 2025 figure the
+  // README's own example was written from. At $15,000 Iowa owes
+  // (100,000 - 15,000) x 3.8% - 40 = $3,190.00 and is $15.31 DEARER than the
+  // city; at $15,750 it owes $3,161.50 and is $13.19 cheaper.
+  //
+  // So the $750 OBBBA increase moves Iowa across this line, in a comparison
+  // where every other state on the list is a rate or a bracket away from it.
+  // That is the same fact this state's module is about, arriving in a test
+  // about New York: AN IOWA ANSWER IS A FEDERAL PARAMETER AWAY FROM A DIFFERENT
+  // ANSWER, and the $40 exemption credit is the whole of the margin either way
+  // ($3,230.00 and $3,201.50 before it).
   assert.equal(cheaper.length, 15);
   const taxingAndCheaper = cheaper.filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   assert.deepEqual(taxingAndCheaper, ['AZ', 'IN', 'LA', 'ND', 'OH', 'PA']);
@@ -822,6 +843,7 @@ test('README: the New York City quick-start figures', () => {
   const readme = readFileSync(join(root, 'README.md'), 'utf8').replace(/\s+/g, ' ');
   const WORDS = {
     twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+    thirty: 30,
     'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29,
   };
   const hit = readme.match(
@@ -1589,10 +1611,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 38 states',
+    'us-state-tax: 39 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 38 states',
+    'us-tax-mcp: 39 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
@@ -1854,4 +1876,100 @@ test("README: the gap list cannot name a state this package covers", () => {
     readme.includes(`**${taxing} of the 42 taxing jurisdictions, so ${SUPPORTED_STATES.length} states in all.**`),
     `the bullet no longer states ${taxing} of 42 and ${SUPPORTED_STATES.length} states`,
   );
+});
+
+// ---------------------------------------------------------------------------
+// THE FRONT DOOR, AND THE DEFECT THAT PUT THIS TEST HERE.
+//
+// On Day 63 the published README's FIRST paragraph read "New in 0.54.0: NORTH
+// DAKOTA" — and North Dakota shipped in 0.53.0. Day 62 released Oklahoma,
+// bumped the version with a find-and-replace of `0.53.0` -> `0.54.0`, and
+// thereby RENUMBERED THE PREVIOUS RELEASE'S PARAGRAPH to claim it was this
+// one's. 0.53.0 vanished from the history, and OKLAHOMA — the whole of the
+// release, and the day's two headline findings — appeared NOWHERE in the
+// document: `grep -c OKLAHOMA` returned 0 on a 140,000-character README that
+// forty tests were passing over.
+//
+// Day 61 recorded that a find-and-replace driven by a test's expected number
+// corrupted thirteen unrelated figures in this file. This is that rule again on
+// a VERSION STRING, and it is worse, because the replacement left every number
+// in the document correct:
+//
+//   A README TEST THAT CHECKS EVERY NUMBER IN A DOCUMENT CAN STILL BE BLIND TO
+//   WHAT THE DOCUMENT IS ABOUT.
+//
+// Pinning "the newest paragraph's version equals package.json's" would NOT have
+// caught it — the find-and-replace made exactly that true. What catches it is a
+// DECLARED LIST of (version, subject) pairs: renumbering a paragraph moves it
+// off its own subject, and shipping a release without a paragraph leaves the
+// list short. This is Day 61's shape — a list that goes stale by REFUSING
+// something gets found — pointed at prose instead of at a registry.
+// ---------------------------------------------------------------------------
+
+/** Every release that has a "New in" paragraph, newest first, with its subject. */
+const RELEASE_HEADLINES = [
+  ['0.55.0', /\bIOWA\b/],
+  ['0.54.0', /\bOKLAHOMA\b/],
+  ['0.53.0', /\bNORTH DAKOTA\b/],
+  ['0.52.0', /\bLOUISIANA\b/],
+  ['0.48.0', /\bOREGON\b/],
+  ['0.47.0', /\bSOUTH CAROLINA\b/],
+  ['0.46.0', /surviving spouse/],
+  ['0.44.0', /\bSOUTH CAROLINA\b/],
+  ['0.42.0', /Arizona/],
+  ['0.35.0', /Connecticut/],
+  ['0.24.0', /two blind people/],
+  ['0.23.0', /two conditions a rate table cannot hold/],
+  ['0.29.0', /backlog entry/],
+  ['0.20.0', /too LOW/],
+  ['0.19.0', /correction rather than a feature/],
+];
+
+test('every "New in" paragraph is about its own release, and the newest is this one', () => {
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = readFileSync(join(root, 'README.md'), 'utf8');
+  const version = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
+
+  // Every line that opens a release paragraph, in the order the file has them.
+  const lines = readme.split('\n').filter((l) => /^New in \d+\.\d+\.\d+/.test(l));
+  assert.equal(
+    lines.length,
+    RELEASE_HEADLINES.length,
+    'a release paragraph was added or removed without updating RELEASE_HEADLINES',
+  );
+
+  for (const [i, [expectedVersion, subject]] of RELEASE_HEADLINES.entries()) {
+    const line = lines[i];
+    const got = line.match(/^New in (\d+\.\d+\.\d+)/)[1];
+    assert.equal(
+      got,
+      expectedVersion,
+      `paragraph ${i + 1} says "New in ${got}" and should say ${expectedVersion}`,
+    );
+    assert.match(
+      line,
+      subject,
+      `the "New in ${expectedVersion}" paragraph is no longer about its own subject — ` +
+        'which is exactly what a version find-and-replace does to it',
+    );
+  }
+
+  // THE NEWEST PARAGRAPH IS THIS RELEASE. Necessary and nowhere near sufficient:
+  // this assertion alone passed throughout the Day 62 defect.
+  assert.equal(
+    RELEASE_HEADLINES[0][0],
+    version,
+    `package.json is ${version} and the newest README paragraph is ${RELEASE_HEADLINES[0][0]} — ` +
+      'a release shipped without a paragraph, or a paragraph was renumbered',
+  );
+
+  // And no version has two paragraphs, which is the other half of a renumbering.
+  const versions = lines.map((l) => l.match(/^New in (\d+\.\d+\.\d+)/)[1]);
+  assert.equal(new Set(versions).size, versions.length, 'two paragraphs claim the same release');
+
+  // THE STATE EACH OF THE LAST FOUR RELEASES ADDED IS IN THE REGISTRY, so a
+  // paragraph cannot advertise a state the package does not have.
+  for (const code of ['IA', 'OK', 'ND', 'LA']) {
+    assert.ok(getStateDefinition(code, 2026), `the README advertises ${code} and the engine lacks it`);
+  }
 });

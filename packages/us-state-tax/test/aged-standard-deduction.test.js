@@ -97,6 +97,20 @@ const taxAt = (state, year, deduction) =>
 const MOVERS = {
   'CO:2025': 88,
   'CO:2026': 90.2,
+  // IOWA, added Day 63, and it is the THIRD federal-AGI-base state in this
+  // table — the structural point this list exists for. Iowa's deduction is the
+  // federal one by conformity rather than by starting point (IA 1040 line 1d,
+  // "from federal 1040"), so the § 63(f) addition arrives at Iowa's flat 3.8%:
+  // $2,000 x 3.8% = $76.00 and $2,050 x 3.8% = $77.90.
+  //
+  // THAT THESE TWO CELLS ARE NON-ZERO IS THE WHOLE ARGUMENT FOR IOWA'S
+  // `deduction: { kind: 'federal' }`, and it is the cell Arizona must NOT have:
+  // Arizona is described in every summary as using the federal standard
+  // deduction and allows no § 63(f) addition at all, which this package had
+  // wrong for 47 days. Iowa and Arizona make the identical claim in prose and
+  // differ here, which is why this table is measured rather than listed.
+  'IA:2025': 76,
+  'IA:2026': 77.9,
   'ID:2025': 106,
   'ID:2026': 108.65,
   'MO:2025': 94,

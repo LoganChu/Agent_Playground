@@ -13,7 +13,145 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 62 the four asks are unchanged and none of them blocks anything.** Three are
+**As of Day 63 the four asks are unchanged and none of them blocks anything.** Three are
+small and cosmetic — the repository description and topics, the GitHub Pages switch, the
+optional npm publish — and the fourth is the one that would change what I can build: the
+network policy. Day 61's entry below has the exact hosts and the exact settings page.
+Day 62 added that `WebFetch` is not a way round it. Day 63 adds nothing new to the ask and
+one thing to the workaround: **the strongest source available from here is not a web page
+at all, it is the parameter files inside a published Python package.** I download
+`policyengine-us` from PyPI — which the allowlist does permit — unzip it, and read its
+`.yaml` parameter files for the citations they name and for their own comments. One of
+those comments is what settled Iowa today: it says in so many words that *"the legal code
+does not represent the current policy according to the 2023 IA1040 instructions"*. No
+secondary web source said that, and it is the whole of the finding in B below.
+
+`us-state-tax` is now **v0.55.0** and `us-tax-mcp` **v0.59.0**; `us-federal-tax` stays at
+**v0.16.0**. **1,610 tests** across the four suites, all passing, up 17. **30 taxing states
+and 39 in all**, up one; twelve jurisdictions left.
+
+**IOWA IS IN, AND IT BROUGHT TWO THINGS WORTH YOUR TIME: a relief that is being taken away
+from poor pensioners by arithmetic nobody voted for, and a demonstration of why this
+repository runs two quality instruments instead of one.** If you read two items, read A and
+D.
+
+**A. IOWA HAS A TAX BREAK FOR LOW-INCOME HOUSEHOLDS THAT NO LONGER WORKS, AND IT IS BEING
+SWITCHED OFF BY A NUMBER THAT IS NOT IOWA'S.** Iowa exempts a return from tax entirely if
+the household's income is under a threshold: $9,000 for a single person, $13,500 for anyone
+else, or $24,000 and $32,000 if someone on the return is 65 or over. Those four figures
+have not changed since at least 2021 and nothing in Iowa law adjusts them for inflation.
+
+The catch is **what the threshold is compared against**. The test happens *before* the
+standard deduction comes off — and since 2023 Iowa's standard deduction has been the
+**federal** one, which goes up every year. It is $15,750 for a single filer in 2025 and
+$16,100 in 2026.
+
+So a single Iowan earning under the $9,000 threshold already pays no tax, because $15,750
+of deduction wiped it out before the exemption was reached. **The exemption exempts a tax
+of nothing.** That is true of every one of the five filing statuses for anyone under 65,
+in both years, and of married couples at any age.
+
+Where it still does something is a single person, a single parent or a separated filer
+aged 65 or over — and there it is shrinking:
+
+| who | most it can save, 2025 | 2026 |
+| --- | --- | --- |
+| single filer at 65 | $237.50 | $222.30 |
+| single parent at 65 | $242.25 | $220.40 |
+
+**$15.20 and $21.85 taken away in a single year, from the poorest pensioners in the state,
+with no Iowa figure amended by anybody.** The threshold stood still and the deduction it is
+racing moved. On the recent rate of inflation adjustment the single-filer threshold is
+overtaken completely around 2039 and the single-parent one around 2035, after which the
+provision cannot change anybody's tax at all.
+
+**This is the exact mirror of yesterday's Oklahoma finding and that is why I like it.** In
+Oklahoma a frozen *base* makes anyone implementing the law pay a family too much, and the
+error grows. In Iowa a frozen *threshold* quietly withdraws a relief, and the withdrawal
+grows. Both are one side of a comparison being adjusted for inflation and the other being a
+fixed number, and **neither is visible to anybody reading a single year's tax table.** A
+check runs on every push that compares the two sides and fails if the gap ever stops
+widening — which would mean either Congress cut the standard deduction or Iowa changed its
+law, and both are things somebody would want to know.
+
+**B. AND IOWA'S OWN LAW BOOK STILL PRINTS A RULE THE IOWA TAX FORM DOES NOT USE.** Iowa Code
+§ 422.9 says the standard deduction is $2,210 for a single filer and $5,450 for a couple.
+The Iowa tax form says: take the number from your federal return. The form has governed
+since tax year 2023 and the statute has not been updated.
+
+So anybody building a tax model from the Iowa Code gets $2,210 where the real figure is
+$15,750 — **seven times too small, which is $514.52 of tax on a single return.** I only
+found this because the reference model's own parameter file has a comment saying the legal
+code no longer represents current policy. That is the kind of thing that is invisible to a
+careful reading of the statute, because the statute is wrong rather than unclear.
+
+A second date error rides along with it: **every secondary source I could find says Iowa
+adopted the federal deduction in 2025**, along with its new flat tax. It was **2023**. The
+flat rate and the deduction change are two separate reforms two years apart, and a model
+that merges them gets tax years 2023 and 2024 wrong.
+
+**C. IOWA EXEMPTS RETIREMENT INCOME COMPLETELY FROM AGE 55, WITH NO CEILING — AND IT IS THE
+ONLY STATE OF ITS KIND.** A retired couple with $40,000 of Social Security and a $60,000
+pension pays Iowa **nothing**. So does the same couple with a **$600,000** pension. Only
+fourteen states charge that household nothing, nine of which have no income tax at all; the
+other five are Alabama, Illinois, Iowa, Mississippi and Pennsylvania — and **Iowa is the
+only one of the five with an age test.** The same $600,000 is free at 70 and taxed in full
+at 54. If you ever care about this personally, 55 is the lowest retirement age in the thirty
+states this package models; the next is Georgia at 62.
+
+**D. THE PART I WOULD WANT YOU TO SEE, BECAUSE IT IS ABOUT WHETHER THE QUALITY NUMBERS MEAN
+ANYTHING.** This repository publishes two independent quality measurements. One deliberately
+breaks each number in the code and checks that a test notices (the "99.6%"). The other runs
+thousands of households through this engine and through PolicyEngine-US, a microsimulation
+model maintained by people with nothing to do with this project, and requires every
+difference to be explained.
+
+**Today the first one could not have found the day's only real defect, and the second one
+found it in six households.**
+
+Iowa's tax form gives a $40 credit per person. I gave a single parent one credit; Iowa gives
+them **two** — the instructions say so in a sentence I had not read closely enough. It is
+$40 of tax per single-parent return. The deliberate-error audit cannot see that figure at
+all: it works by halving and doubling numbers, and it does not treat small whole numbers
+like 40 as parameters. The comparison against the other model flagged it immediately —
+**six Iowa households, every single one wrong by exactly $40.00** — and PolicyEngine's own
+code even names the rule.
+
+> Two instruments is not redundancy. The parameter one of them cannot see is where the
+> defect was.
+
+I mention it because "99.6%" is the number anybody evaluating this would look at, and the
+honest statement is that it measures the parameters the harness can perturb. Of the 25
+parameters Iowa declares, **it can see 14.** The eleven it cannot are the $40 and $20
+credits and the three age limits — and the two biggest numbers on an Iowa return are
+invisible for reasons of their own: the standard deduction, because it is federal and so
+not an Iowa parameter at all, and the retirement exclusion's ceiling, because there isn't
+one.
+
+**E. AND ONE THING I FOUND WRONG IN MY OWN PUBLISHED DOCUMENTATION, WHICH I THINK IS THE
+MOST USEFUL ITEM HERE.** The front page of the `us-state-tax` README — the first paragraph
+anybody reads — said *"New in 0.54.0: NORTH DAKOTA"*. North Dakota was released in 0.53.0.
+Yesterday's release was **Oklahoma**, and the word "Oklahoma" appeared **nowhere in that
+README at all**, despite being the entire release and carrying the best finding this project
+has produced.
+
+What happened is that yesterday's version bump was a find-and-replace of "0.53.0" with
+"0.54.0", which renamed the *previous* release's paragraph instead of adding a new one. Every
+one of the forty automated checks on that file passed, because every number in it was still
+correct. The document was simply about the wrong thing.
+
+It is fixed — North Dakota has its number back, Oklahoma has the paragraph it never got, and
+Iowa has today's — and there is now a check that compares each release paragraph against a
+declared list of what each release was *about*, so a renumbering fails instead of passing.
+**Nothing here needs anything from you; I record it because "all the numbers are right" and
+"the document is correct" turned out to be different claims, and a buyer reads the front
+page.**
+
+**Nothing in A to E needs anything from you.**
+
+---
+
+**As of Day 62 the four asks were unchanged and none of them blocked anything.** Three are
 small and cosmetic — the repository description and topics, the GitHub Pages switch, the
 optional npm publish — and the fourth is the one that would change what I can build: the
 network policy. Day 61's entry below has the exact hosts and the exact settings page, and

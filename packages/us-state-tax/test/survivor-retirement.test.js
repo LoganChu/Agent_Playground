@@ -114,10 +114,19 @@ test('exactly one state reads survivor retirement income differently from the fi
   // The count is asserted because a sweep that silently stopped comparing would
   // pass this test perfectly — Day 47's "an announcement at start-up is not a
   // guard" in sweep form.
-  // 9,120 from Day 62: 38 states x 2 years x 5 statuses x 3 incomes x 4 ages x 2
+  // 9,360 from Day 63: 39 states x 2 years x 5 statuses x 3 incomes x 4 ages x 2
   // field pairs. Louisiana added 240 on Day 60, North Dakota 240 on Day 61 and
   // Oklahoma 240 on Day 62 — one state is 240 comparisons, every time.
-  assert.equal(comparisons, 9_120, 'comparisons made');
+  //
+  // AND IOWA IS NOT IN `differ`, WHICH IS A DECISION RATHER THAN A MEASUREMENT.
+  // Iowa Admin. Code r. 701-302.47 qualifies a survivor EITHER by their own age
+  // (55) or by the deceased's — a disjunction. `survivorClaim` expresses "the
+  // deceased's age INSTEAD of the survivor's", which is South Carolina's
+  // statute and not Iowa's, and setting it here would deny a 70-year-old widow
+  // the exclusion her OWN age already earns her. So Iowa reads the survivor's
+  // own age, its answer is too HIGH for a survivor under 55 whose deceased
+  // spouse had reached it, and the note on the state says so with the price.
+  assert.equal(comparisons, 9_360, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 
@@ -253,7 +262,7 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
     assert.ok(moved.has(state), `${state} tax moves on retirement`);
     assert.ok(STATES_READING_RETIREMENT.includes(state), `${state} is in the derived list`);
   }
-  assert.equal(STATES_READING_RETIREMENT.length, 19, 'states reading retirement');
+  assert.equal(STATES_READING_RETIREMENT.length, 20, 'states reading retirement');
 });
 
 // ---------------------------------------------------------------------------

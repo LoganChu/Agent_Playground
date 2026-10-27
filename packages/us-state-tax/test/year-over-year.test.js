@@ -233,7 +233,19 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // Oklahoma is the SHAPE of its change: the others altered a number in a
   // schedule and Oklahoma altered how many rows the schedule has. A fallback to
   // 2025 would not be a stale figure, it would be the wrong number of brackets.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
+  //
+  // IOWA joins for a TENTH reason, and it is the only state on this list whose
+  // answer moves between the two years WITH NO IOWA FIGURE INVOLVED AT ALL.
+  // Its rate is a flat 3.8% in both years, its exemption thresholds are
+  // statutory and unindexed, and its $40 credit has not moved -- every number
+  // this package stores for Iowa is identical in 2025 and 2026. The answer
+  // differs because the DEDUCTION differs, and the deduction belongs to the
+  // other government: $15,750 against $16,100, which is $13.30 of Iowa tax.
+  // Arizona, Colorado and Idaho are on this list for the federal deduction too,
+  // but each of them also has a figure of its own that could have moved; Iowa
+  // in these two years is the pure case, and it is the clearest possible
+  // statement of why this package refuses to fall back to the nearest year.
+  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

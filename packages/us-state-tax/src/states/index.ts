@@ -11,6 +11,7 @@ import { california } from './california.js';
 import { connecticut } from './connecticut.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
 import { flatStates } from './flat-states.js';
+import { iowa } from './iowa.js';
 import { louisiana } from './louisiana.js';
 import { maryland } from './maryland.js';
 import { massachusetts } from './massachusetts.js';
@@ -40,6 +41,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const al = alabama(year);
   const ca = california(year);
   const ct = connecticut(year);
+  const ia = iowa(year);
   const la = louisiana(year);
   const ma = massachusetts(year);
   const md = maryland(year);
@@ -62,6 +64,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(al ? [al] : []),
     ...(ca ? [ca] : []),
     ...(ct ? [ct] : []),
+    ...(ia ? [ia] : []),
     ...(la ? [la] : []),
     ...(ma ? [ma] : []),
     ...(md ? [md] : []),
@@ -184,7 +187,6 @@ export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.
  * written down.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
-  'Iowa',
   'Arkansas',
   'Kansas',
   'Nebraska',

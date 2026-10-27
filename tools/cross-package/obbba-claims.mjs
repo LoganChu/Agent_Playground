@@ -189,6 +189,7 @@ const SENSITIVE = state.SUPPORTED_STATES.filter(
 
 const NAMES = {
   CO: 'Colorado',
+  IA: 'Iowa',
   ID: 'Idaho',
   MO: 'Missouri',
   ND: 'North Dakota',

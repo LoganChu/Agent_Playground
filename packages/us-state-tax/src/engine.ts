@@ -3135,7 +3135,18 @@ function zeroTaxThreshold(
   const rule = def.zeroTaxThreshold;
   if (!rule) return undefined;
   if (rule.ineligibleFilingStatuses?.includes(input.filingStatus)) return undefined;
-  let threshold = rule.threshold[input.filingStatus];
+  // Iowa Code § 422.5(3) writes a whole second table for a return with someone
+  // at 65 rather than adding an increment, and ONE qualifying person is enough:
+  // the instructions say "only one spouse must be 65 or older to qualify". So
+  // this reads `>= 1` and not `=== filers`, and it reads `seniorFilers`, which
+  // ignores an age supplied for a dead spouse on a surviving-spouse return.
+  const table =
+    rule.elderlyThreshold !== undefined &&
+    rule.elderlyAge !== undefined &&
+    seniorFilers(input, rule.elderlyAge) >= 1
+      ? rule.elderlyThreshold
+      : rule.threshold;
+  let threshold = table[input.filingStatus];
   if (rule.addsPersonalExemption?.[input.filingStatus] && def.exemption) {
     threshold += def.exemption.perFiler[input.filingStatus];
   }

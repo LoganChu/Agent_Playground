@@ -40,6 +40,7 @@ export type StateCode =
   | 'CT'
   | 'FL'
   | 'GA'
+  | 'IA'
   | 'ID'
   | 'IL'
   | 'IN'

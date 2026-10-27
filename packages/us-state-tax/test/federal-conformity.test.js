@@ -124,7 +124,7 @@ function sensitiveStates(year) {
   return out;
 }
 
-test('exactly FIVE states read a below-AGI federal figure, and it is MEASURED not listed', () => {
+test('exactly SIX states read a below-AGI federal figure, and it is MEASURED not listed', () => {
   // FOUR until Day 61 and five since, and the new one arrived by the structural
   // route rather than by a statute changing: North Dakota's base is federal
   // TAXABLE income and it adds nothing back, so the federal deduction reaches
@@ -133,7 +133,7 @@ test('exactly FIVE states read a below-AGI federal figure, and it is MEASURED no
   for (const year of YEARS) {
     assert.deepEqual(
       sensitiveStates(year),
-      ['CO', 'ID', 'MO', 'ND', 'UT'],
+      ['CO', 'IA', 'ID', 'MO', 'ND', 'UT'],
       `${year}: the states whose tax moves when the federal deduction moves`,
     );
   }
@@ -443,7 +443,7 @@ test('the weakest conformity entry says so, in the field rather than in a journa
   for (const state of [...new Set([...sensitiveStates(2025), 'AZ'])].sort()) {
     if (getStateDefinition(state, 2025).federalConformity?.primaryTextUnread) unread.push(state);
   }
-  assert.deepEqual(unread, ['AZ', 'CO', 'ID', 'MO', 'ND', 'UT'], 'all six, honestly');
+  assert.deepEqual(unread, ['AZ', 'CO', 'IA', 'ID', 'MO', 'ND', 'UT'], 'all seven, honestly');
 
   const ut = getStateDefinition('UT', 2025).federalConformity.primaryTextUnread;
   assert.match(ut, /WEAKEST/, 'Utah is the one to re-read first and the field says so');

@@ -2233,6 +2233,36 @@ export interface ZeroTaxThresholdRule {
    * status — the constant the exemptions are added to.
    */
   readonly threshold: ByStatus;
+  /**
+   * A **second, larger** threshold for a return with a filer or spouse at
+   * {@link elderlyAge} — Iowa's, and Iowa is the only state here that varies
+   * this figure by age at all.
+   *
+   * Iowa Code § 422.5(3) writes the test twice rather than adding an increment,
+   * and the two halves do not partition the filing statuses the same way:
+   * under 65 it is *"single or married filing separately"* against `$9,000` and
+   * everything else against `$13,500`, and at 65 it is *"single"* against
+   * `$24,000` and *"other than single"* against `$32,000`. **Married filing
+   * separately changes groups on a birthday**, which is why this is a whole
+   * second table and not a bonus.
+   *
+   * **AND FOR MOST OF IOWA IT IS ALREADY A DEAD LETTER, WHICH IS THE REASON TO
+   * STORE BOTH TIERS RATHER THAN THE ONE THAT BITES.** The figures have not
+   * moved since at least 2021 and no provision indexes them, while the
+   * deduction they are now measured against — the federal one, since Iowa
+   * adopted it in 2023 — is indexed every year. A filer whose state AGI is at
+   * or below a threshold *smaller than their own deduction* has no taxable
+   * income either way, so the relief can only change an answer where the
+   * threshold still exceeds the deduction. In 2025 and 2026 that is true for a
+   * single, head-of-household or separate filer at 65 and **false for every
+   * non-elderly status and for joint and surviving-spouse returns at any age**.
+   * `test/iowa.test.js` computes that partition from the two packages' own
+   * figures rather than asserting it, because it is a fact about the gap
+   * between a frozen number and an indexed one and it moves every year.
+   */
+  readonly elderlyThreshold?: ByStatus;
+  /** Age at which {@link elderlyThreshold} replaces {@link threshold}. Iowa's 65. */
+  readonly elderlyAge?: number;
   /** Added to the threshold for each dependent claimed. Massachusetts: $1,000. */
   readonly perDependent?: number;
   /**

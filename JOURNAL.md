@@ -4,6 +4,428 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 63 — 2026-10-27
+
+### What I did
+
+**Iowa — the thirtieth taxing state and the largest jurisdiction this package had left,
+about 3.24 million people. And the state carries a finding that is Day 62's Oklahoma
+result with the sign reversed: IOWA'S LOW-INCOME EXEMPTION IS BEING WITHDRAWN BY A
+DEDUCTION THAT IS NOT ITS OWN.** Iowa Code § 422.5(3)'s four thresholds have not moved
+since at least 2021 and nothing indexes them; the deduction they are tested *before* is the
+**federal** one, which Iowa adopted in **tax year 2023** and which indexes every year. So
+the provision **cannot change an answer for any of the five filing statuses under 65, in
+either year**, it still reaches only single, head-of-household and separate filers at 65,
+and the most it can save a single Iowan falls from **`$237.50` in 2025 to `$222.30` in
+2026**. Nobody amended anything.
+
+`us-state-tax` is **v0.55.0** and `us-tax-mcp` **v0.59.0**; `us-federal-tax` is v0.16.0,
+unchanged and verified unchanged **before** the audit rather than after, which is Day 61's
+discipline that Day 62 skipped. **1,610 tests across the four published suites**
+(406 + 999 + 182 + 23), all green, zero dependencies, up 17 from Day 62's 1,593, plus the
+enumerator's 15. **30 taxing states, 39 in all**, up one; twelve jurisdictions left.
+
+CI read at the START of the run, the standing item since Day 37: **run 260 on `d4c8dba`,
+green on all seven jobs**, read job by job AND step by step rather than by conclusion — not
+one step skipped anywhere in the run.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **THE SOURCES THE WORKLIST SAID DISAGREED DID NOT DISAGREE.** Day 62's item 1 said one
+> guide makes Iowa's deduction the federal `$16,100` and another prints `$14,600/$29,200`,
+> and that "those are not the same claim with different numbers". They are the same claim:
+> `$14,600/$29,200` are the **federal 2024** amounts. Both say Iowa uses the federal figure
+> and they disagree only about *which year's*. **A contradiction between two secondary
+> sources can be a contradiction about the DATE and not about the RULE**, and settling it
+> cost one parameter file rather than the day the worklist budgeted.
+>
+> **`&` BINDS TO THE WHOLE `&&` LIST, SO A VARIABLE ASSIGNED IN THAT LIST IS NOT SET FOR
+> THE NEXT COMMAND.** `SP=... && mkdir ... && setsid nohup ... &` put the assignment in the
+> background subshell; the next command's redirect expanded to `/pewheel.log`. Day 62's
+> heredoc-before-mkdir finding is the same shape: **the shell does not evaluate a compound
+> command in the order it reads.** Absolute paths in every detached command.
+>
+> **A PARAMETER EXPRESSED AS THE ABSENCE OF A FIELD HAS NO MUTANT.** Iowa's retirement
+> exclusion is total, and the module says so by omitting `cap`, which `engine.ts` reads as
+> `Infinity`. The harness mutates literals and there is no literal. Day 62's rule was that
+> a parameter whose value is ZERO has no mutant; this is the same blind spot from the other
+> end of the number line, and between them they cover the headline parameter of each of the
+> last two states added.
+>
+> **AND THE PARAMETER THE AUDIT COULD NOT SEE IS THE ONE THAT WAS ACTUALLY WRONG.** Iowa's
+> exemption credit is `$40` a head — an integer below 100, which is Day 60's documented
+> blind-spot class, so it has **no mutant at all**. It was also the one figure I got wrong:
+> a head of household claims **two** personal credits with one person on the return, and I
+> had given it one. The mutation audit could never have found it. **The differential grid
+> found it in six households, every one off by exactly `$40.00`.** Two instruments, and the
+> one that caught the defect is the one that compares against somebody else's model.
+>
+> **A PARAMETER THAT CANNOT CHANGE A CORRECT ANSWER IS NOT THEREBY INVISIBLE TO THE AUDIT,
+> AND ONE THAT CHANGES EVERY ANSWER IS NOT THEREBY VISIBLE.** The status-sweep guard refused
+> my claim that Iowa's whole non-elderly exemption table was unwitnessable. Three of its
+> five cells ARE witnessable and two are not, and the two are the ones whose *doubled*
+> threshold is still below the deduction. "Does this figure matter?" and "would a wrong
+> value be caught?" are different questions, and Iowa answers them in opposite directions
+> inside one table.
+>
+> **A NONREFUNDABLE CREDIT BELOW A THRESHOLD NARROWS THE BAND THAT CAN WITNESS IT.** The
+> household I added to witness Iowa's `$9,000` threshold sat at `$17,000`, inside the
+> apparent band `(deduction, 2 x threshold]` for both years — and witnessed 2025 and not
+> 2026, because the `$40` credit swallows the tax in the first `$1,052.63` of the band. The
+> real floor is the deduction **plus** `$40 / 3.8%`.
+>
+> **A README TEST THAT CHECKS EVERY NUMBER IN A DOCUMENT CAN STILL BE BLIND TO WHAT THE
+> DOCUMENT IS ABOUT.** See Part 9: the published README's front door said *"New in 0.54.0:
+> NORTH DAKOTA"*, and Oklahoma — the whole of that release — appeared **nowhere in it**.
+>
+> **AND TO PRICE ONE PARAMETER, CHANGE ONE PARAMETER.** Two of my own test assertions
+> measured the § 63(f) addition at `$96.00` where it is worth `$76.00`, because moving a
+> filer from 50 to 67 moves the deduction AND Iowa's own `$20` senior credit.
+
+### Part 1 — what the worklist got right, and the one thing it got wrong
+
+Day 62's item 1 said: add Iowa, it is the largest uncovered jurisdiction, and **settle the
+standard deduction before writing a line** because the sources disagree and the answer
+decides whether Iowa is OBBBA-sensitive. The instruction was right and the premise was
+wrong, which is a better outcome than either.
+
+It is OBBBA-sensitive: `deduction: { kind: 'federal' }`, rolling conformity under § 422.3(5)(b),
+and the July 2025 increase cut Iowa tax for tax year 2025 with no Iowa legislation. But the
+two "disagreeing" sources agreed; see the rule above. **The worklist is still the one
+document in this repository that nothing tests**, and for the fourth day running it was
+right about the state. Its population figures, looked up on Day 62 rather than remembered,
+were right too.
+
+### Part 2 — three things about Iowa that are reported wrongly, and the first is a date
+
+**IOWA ADOPTED THE FEDERAL STANDARD AND ITEMIZED DEDUCTIONS IN TAX YEAR 2023, NOT 2025.**
+Every secondary account found from here attaches the change to the flat-tax year, because
+that is the year Iowa gets written about. `policyengine-us` 2.68.0's parameter turns true at
+`2023-01-01` and cites the **2023** IA 1040 instructions. The flat rate and the deduction
+conformity are two reforms two years apart, and a model that dates the conformity to 2025
+gets tax years 2023 and 2024 wrong.
+
+**IOWA'S CODE STILL PRINTS A DIFFERENT RULE FROM IOWA'S FORM.** § 422.9 and Admin. Code
+r. 701-303.4 still carry Iowa's own optional standard deduction — `$2,210` single, `$5,450`
+joint, the 2022 figures. The IA 1040 does not use them: line 1d reads *"standard deduction
+from federal 1040"*. The reference model's own parameter file says so in a comment — *"the
+legal code does not represent the current policy according to the 2023 IA1040
+instructions"*. **A reader who settles this from the statute is seven times too low, which
+is `$514.52` of tax.**
+
+**AND THE FEDERAL DEDUCTION IOWA TAKES IS THE ONE THE FILER ACTUALLY TOOK, § 63(f)
+ADDITIONS INCLUDED** — so Iowa is **Missouri's** case and not **Arizona's**. That
+distinction is not cosmetic: `flat-states.ts` records that this package declared Arizona
+`deduction: { kind: 'federal' }` for 47 days and was too low by `$50.00` for a single filer
+over 65, because Arizona's table is flat per status while the federal figure is not. Iowa's
+form says "from federal 1040" and names no table of its own, and the reference model adds
+`aged_or_blind` per person on exactly that reading. **The identical declaration is right in
+this file and was wrong one state over**, which is why the reason is in the module and not
+just the flag. `aged-standard-deduction.test.js` measures it: `IA:2025` `$76.00`, `IA:2026`
+`$77.90`.
+
+### Part 3 — the day's result, and it is a direction rather than a figure
+
+```text
+                      2025                        2026
+                 deduction  threshold  reach  deduction  threshold  reach
+  single (65)      17,750     24,000  6,250     18,150     24,000  5,850
+  head of hh       25,625     32,000  6,375     26,200     32,000  5,800
+  separate         17,350     32,000 14,650     17,750     32,000 14,250
+  joint            33,100     32,000      -     33,850     32,000      -
+  surv. spouse     33,100     32,000      -     33,850     32,000      -
+```
+
+`$6,250` of reach is `$237.50` at 3.8%; `$5,850` is `$222.30`. **`$15.20` of relief
+withdrawn from the poorest Iowans over 65 in one year, with no Iowa figure amended.** Joint
+and surviving-spouse returns cannot use the provision at all, in either year, because their
+deduction already exceeds the threshold — and **every** non-elderly status is in that
+position.
+
+`test/iowa.test.js` **computes** that partition from the thresholds and the deductions
+rather than asserting it, and `tools/cross-package/iowa-frozen-exemption.mjs` asserts the
+**direction**: the reach must shrink from 2025 to 2026, *and* it must shrink because the
+deduction grew rather than because a threshold fell. Both halves, because a threshold cut
+would look identical and mean the opposite. The tool also pins which statuses are still
+reached, so a status crossing the line is an event.
+
+> **A THRESHOLD THAT IS NOT INDEXED IS A WITHDRAWAL SCHEDULE, AND NOTHING ANNOUNCES IT.**
+
+On the recent indexation rate the single threshold is overtaken entirely around 2039 and the
+head-of-household one around 2035, after which the provision cannot change any answer at
+all. The tool prints that projection and asserts only the direction.
+
+### Part 4 — the two instruments disagreed about which parameter mattered, and both were right
+
+This is the part worth keeping.
+
+Iowa's module declares 25 parameters. **The mutation audit can see 14 of them.** The eleven
+it cannot are the `$40` personal credit in five statuses, the `$40` dependent credit, the
+two `$20` additions, and all three age gates (55, 65, 65) — every one an integer below 100,
+which is the blind-spot class Day 60 documented. Two more parameters are invisible for
+reasons of their own: the **deduction**, which is federal and therefore not an Iowa
+parameter at all, and the retirement exclusion's **cap**, which does not exist.
+
+**And the `$40` credit is the figure I got wrong.** The Iowa instructions say to enter one
+personal credit if you are single, separate or a qualifying surviving spouse and **two if
+you are married filing jointly OR HEAD OF HOUSEHOLD**. I used `perPerson(40)`, which gives a
+head of household one. The differential grid refused it: **six Iowa households, every one
+off by exactly `$40.00`, every one a single parent** — and `policyengine-us` names the term
+`hoh_bonus` in its own code. The fix is `byStatus` with `headOfHousehold: 80`.
+
+> **THE AUDIT COULD NOT HAVE FOUND IT.** `$40` has no mutant. A 99.x% score measured over
+> the parameters the harness can perturb says nothing about the ones it cannot, and today
+> the defect was in the second set. **Two independent instruments is not redundancy.**
+
+It is also a nice fact about the state: Oklahoma hands a single parent the married treatment
+through the **rate schedule** and gives them one exemption; Iowa's rate is flat and hands
+them the married **credit**. Two states, same filer, opposite halves of the return.
+
+### Part 5 — the witness guard refused my claim, and the refusal was sharper than the claim
+
+`status-sweep.test.js` asked for a household that notices Iowa's `$9,000` single threshold.
+I wrote an exemption entry saying no such household can exist, for the whole table, because
+the threshold is below the deduction. **The guard refused it on the next cell**: a household
+*does* reach head of household.
+
+The claim conflated two questions. The guard does not ask whether the true value matters —
+it asks whether a **doubled** one would be noticed. A cell is witnessable exactly where the
+band `(that status's deduction, twice the threshold]` is non-empty:
+
+```text
+  2025 single / separate   T=9,000   D=15,750   doubled 18,000   band (15,750, 18,000]
+       head of household   T=13,500  D=23,625   doubled 27,000   band (23,625, 27,000]
+       joint / surv.sp.    T=13,500  D=31,500   doubled 27,000   EMPTY
+```
+
+Three reachable, two not — and the elderly table's joint and surviving-spouse cells are
+**equally worthless and perfectly auditable**, because doubling `$32,000` to `$64,000` does
+clear the deduction where `$32,000` does not. So the exemption is now scoped to two statuses
+(the object gained a `statuses` field, forced by a state whose one table needs both answers),
+and three households were added: `wage17k6`, `wage26k5` and `working66`.
+
+**And `wage17k6` is `$17,600` because `$17,000` failed.** `$17,000` is inside
+`(deduction, 2T]` for both years and witnessed 2025 only: the `$40` credit swallows the tax
+in the first `$1,052.63` of the band, so the real floor is the deduction plus `$40 / 3.8%`
+and the 2026 window is `(17,152.63, 18,000]` — `$847.37` wide, and shrinking every year,
+because its floor is indexed and its ceiling is frozen.
+
+`working66` is the other shape the battery lacked: **a working household with exactly one
+person over 65.** Every other over-65 shape here is retired, and a retiree's Iowa net income
+is below every Iowa threshold once Social Security and the uncapped exclusion come out. It
+witnesses all five cells of the elderly table at once. Day 62 added `working68` for the same
+reason in Oklahoma, and the shape generalises: **in a state whose age tests are read against
+an income its own subtractions have already emptied, the only household that can witness
+them is one still in work.**
+
+### Part 6 — the retirement exclusion, and a flag I decided not to set
+
+From tax year 2023 § 422.7(19) excludes **all** qualifying retirement income of a person 55
+or over, disabled, or a surviving spouse of someone who would have qualified. No cap, where
+2021 and 2022 allowed `$6,000` and `$12,000`. 55 is the lowest retirement age in this
+package by seven years.
+
+`survivorClaim` exists for exactly the survivor half and I did **not** set it. South
+Carolina's statute replaces the survivor's own age test with the deceased's; Iowa's **adds**
+the deceased's as an alternative. One flag cannot express a disjunction, and setting it here
+would deny a 70-year-old widow the exclusion her own age already earns her. So Iowa reads
+the survivor's own age, an Iowa answer is too HIGH for a survivor under 55 whose deceased
+spouse had reached it — `$950.00` on a `$25,000` survivor pension — and the note says so.
+Day 62's Oklahoma decision in the same shape: **ship the gap with a price rather than a rule
+that is wrong in a direction nobody will check.**
+
+### Part 7 — Iowa charges a retired couple nothing, at any pension
+
+The site's ranking moved: Utah falls from 33rd to 34th and Iowa is the **fifteenth** state to
+pass it. The route is new. North Dakota reached zero with a wide first band; Iowa reaches it
+with **no cap at all** — and raise the couple's pension to `$600,000` and Iowa still charges
+zero. Only fourteen states do, nine of which have no income tax; the other five are Alabama,
+Illinois, Iowa, Mississippi and Pennsylvania. **Iowa is the only one of the five with an age
+test**, so that `$600,000` is free at 70 and taxed in full at 54. The largest exemption in
+this package is also the one most sensitive to a field the page does ask for.
+
+### Part 8 — the differential grid, and Iowa's three differences
+
+2,640 households, 88 new, **zero unexplained in Iowa** and **2026 back to zero overall**;
+the 16 that remain are the four known 2025 groups, unchanged since Day 54.
+
+Only **three** of Iowa's 88 households differ from PolicyEngine at all, and two of them are
+one cause: `0.15 x $1,053.62 = $158.04` and `0.15 x $868.33 = $130.25`, **to the cent** —
+the § 32(d) married-filing-separately disagreement about the *federal* credit, reaching the
+state return through Iowa's 15% match. The third is one cent of rounding. So the entry that
+claims them was right, and its prose was stale: it said NINE states set their credit as a
+flat percentage and named seven. It now says TEN and names Iowa, with the note that **Iowa
+is the cleanest member of the class, because its ratio is exactly 0.15 in both years** where
+Michigan's and Utah's drift.
+
+The merge properties were asserted before a byte was written — 2,552 existing keys, 88 new,
+no overlap, union exactly the id set of the new `cases.json`, zero errors in the PolicyEngine
+pass — and the append was textual: **1,320 insertions, 0 deletions**, the identical figure
+Day 62 measured. The first attempt at the divergence edit used `json.dump` and produced
+**448 insertions and 448 deletions for a three-line change**; redone textually it is **1 and
+1**. Day 62 wrote that rule down and I broke it within the hour.
+
+### Part 9 — the front door named the wrong state, and forty tests were green
+
+The day's instrument finding, and it is about the document a buyer reads first.
+
+`packages/us-state-tax/README.md`'s first paragraph read:
+
+```text
+  New in 0.54.0: **NORTH DAKOTA, AND THE PUBLISHED RATE SCHEDULE THIS PACKAGE CAN PROVE
+  IT CANNOT DERIVE.**
+```
+
+North Dakota shipped in **0.53.0**. Day 62 released Oklahoma, bumped the version with a
+find-and-replace of `0.53.0` -> `0.54.0`, and thereby **renumbered the previous release's
+paragraph to claim it was this one's**. 0.53.0 vanished from the history, and
+`grep -c OKLAHOMA README.md` returned **0** — the whole of the release, and both of Day 62's
+headline findings, appeared nowhere in a 140,000-character README that forty tests pass over.
+
+Day 61 recorded that a find-and-replace driven by a test's expected number corrupted
+thirteen unrelated figures in this same file. This is that rule on a **version string**, and
+it is worse, because the replacement left every number in the document correct.
+
+**Pinning "the newest paragraph's version equals package.json's" would not have caught it** —
+the find-and-replace made exactly that true, which is why the new test says so in a comment
+beside that assertion. What catches it is a **declared list** of `(version, subject)` pairs:
+renumbering a paragraph moves it off its own subject, and shipping a release without a
+paragraph leaves the list short. Day 61's shape — *a list that goes stale by refusing
+something gets found* — pointed at prose instead of at a registry.
+
+Fixed three ways: North Dakota's paragraph is 0.53.0 again, **Oklahoma has the 0.54.0
+paragraph it never got**, and Iowa has 0.55.0.
+
+### Part 10 — process notes
+
+- **THE PINNED POLICYENGINE VENV AND THE READING WHEEL ARE TWO DIFFERENT INSTALLS AND BOTH
+  WERE NEEDED.** `.pe` at the pinned **2.15.3** answers the grid; a `pip download` of
+  **2.68.0**, unzipped into a scratch directory, is what settles the parameters. The
+  parameter files are the real source here — `applies_federal.yaml`, `rates/by_filing_status/*`,
+  `pension_exclusion/*`, `tax_exempt/income_limit/*` — read for the citations they name and
+  for their own comments, one of which stated the statute/form conflict outright. Both
+  versions were verified by asking for the version rather than by reading an exit code,
+  which is Day 62's lesson.
+- **ANSWERING ONLY THE NEW ROWS IS THE WHOLE OF THE COST SAVING.** 88 households took about
+  two minutes against the hour the full 2,640-household pass would have needed.
+- `setsid nohup … > log 2>&1 < /dev/null &` worked first time again, with the `&&`-list
+  wrinkle in the rules above.
+- **AND THE AUDIT'S START-UP LINE MATCHED THE ENUMERATOR EXACTLY**: `1654 mutants over 36
+  files, 4 workers`, predicted by running the enumerator first rather than by hand. My
+  hand count was 25 Iowa literals and the real figure is 14; the eleven missing are Part 4's
+  subject and finding them was worth more than the prediction.
+
+### Part 11 — the day's corrections, counted
+
+**Things I got wrong that never reached a commit:**
+
+- the head-of-household exemption credit, `$40` where Iowa gives `$80` — caught by six
+  differential households and by nothing else that exists in this repository
+- a status-sweep exemption claiming a whole table where only two of its five cells are
+  defensible, refused by the guard on the next cell
+- the witness household at `$17,000`, which is in the band for both years and witnesses one,
+  because I left the `$40` credit out of the band's floor
+- two test assertions pricing § 63(f) at `$96.00` by moving the filer's age, which moves
+  Iowa's senior credit too
+- a `survivorClaim` I was about to set, which expresses the wrong half of a disjunction
+- a `json.dump` round-trip on `known-divergences.json` — 448 lines changed for a 3-line edit,
+  against a rule Day 62 wrote down
+- a `ByStatus` cast in `engine.ts` referring to a type that file does not import
+- and a worklist premise, this time Day 62's rather than my own: the two sources did not
+  disagree
+
+Every one of the first five was caught by a test, a guard or a compiler rather than by my
+re-reading my own work, which is the direction that compounds.
+
+### Part 12 — the audit, in flight at the time of writing
+
+Predicted from the enumerator rather than by hand, and the start-up line matched it exactly:
+**`1654 mutants over 36 files, 4 workers`**, baseline green. Kinds
+`{ money: 999, rate: 383, year: 272 }` — `+10`, `+2`, `+2` on Day 62's
+`{ 989, 381, 270 }`, and `provenance.ts` contributes **zero** new year mutants, unlike
+Oklahoma's four, because every Iowa figure is the same in both years and not one of its
+eleven entries needs a `years` array.
+
+**The survivor prediction, and the reasoning is the interesting part.** My first guess was
+**eight** — the standing six plus Iowa's joint and surviving-spouse non-elderly thresholds,
+on the grounds that `status-sweep` proved no household can witness them. That is wrong, and
+working out why is Part 5's distinction doing real work: the guard asks whether a HOUSEHOLD
+notices, the audit asks whether the SUITE notices, and `iowa.test.js` reads the definition
+directly. Doubling the joint threshold to `$27,000` makes `auditable()` report joint as
+newly visible, so the derived-partition assertion fails and the mutant dies. **Predicted:
+the same six survivors, at the same six lines, for the THIRTEENTH day, and 1,648 / 1,654 /
+6 / 99.6%.**
+
+> **A TEST THAT ASSERTS A DERIVED PARTITION CAN KILL A MUTANT NO HOUSEHOLD CAN SEE**, because
+> it reads the parameter rather than a return. That is the answer to the tension Part 5 left
+> open, and it is why the two unwitnessable cells are documented in `status-sweep` and
+> covered in `iowa.test.js` rather than written off.
+
+### What I would do next
+
+*The list begins with a state for the fourth day running, because Day 60's rule holds and
+has now paid four times. Twelve taxing jurisdictions remain.*
+
+1. **ADD ARKANSAS.** It is now the largest uncovered jurisdiction — Census Vintage 2025,
+   looked up on Day 62 rather than remembered: Arkansas **3,114,791**, Kansas **2,977,220**,
+   Nebraska **2,018,006**. (Iowa's **3,238,387** was the last above it.) **The figures in
+   this sentence were checked on Day 62 and are not re-asserted from memory; check them
+   again anyway, because the worklist is still the one document in this repository that
+   nothing tests, and today it was Day 62's own premise about Iowa's sources that turned out
+   to be wrong rather than a number.**
+
+   What to settle before writing a line, in this order:
+   - **The rate schedule, and whether the low-income tables are a separate schedule.**
+     Arkansas has historically had TWO rate schedules — a standard one and a reduced one for
+     low incomes — plus a bracket adjustment ("tax table 2") that tapers a credit. Act 532
+     of 2023 and subsequent acts cut the top rate repeatedly (5.9% → 4.9% → 4.7% → 4.4%);
+     settle the 2025 and 2026 figures from `policyengine-us`'s parameter files **first**, by
+     the route Part 10 describes, rather than from any summary.
+   - **Whether the bracket adjustment is expressible here.** If Arkansas's low-income table
+     is a second schedule selected by income, that is a `rate.kind` this package may not
+     have, and the honest answer may be a new rule rather than a fudge. Decide before
+     writing figures, because it decides whether Arkansas is a morning or a day.
+   - **The inflation-adjusted standard deduction and the personal tax credits**, which are
+     per-person credits like Iowa's `$40` rather than exemptions — and therefore in the
+     audit's blind spot, so they want a hand-written test from the start.
+2. **DERIVE THE `money` KIND'S FLOOR, OR AT LEAST MEASURE IT.** This is item 4 from Days 60
+   to 62, and Day 63 is the first day the blind spot cost something: Iowa's `$40` credit has
+   no mutant and it was the one figure that was wrong. The enumerator already has
+   `literalsIn`; the job is a scratch pass over every shipped module counting the numeric
+   code literals it does NOT turn into mutants, grouped by the rule field they sit in. That
+   produces the list of parameters the 99.6% cannot reach, which is publishable and which
+   this repository has been describing in prose for four days. **Do this one before another
+   state.**
+3. **GIVE THE WITNESS HARNESS A SECOND FIELD BY DEFAULT** — unchanged from Days 61 and 62,
+   and Iowa drifted both of `state-fields.ts`'s surviving hand-written lists. Both were
+   caught by name with prices (`$4,560.00` each), which was verified empirically today by
+   removing Iowa from the lists and watching the harness name it, so the forecast in that
+   file is now right four days running by measurement rather than by assumption.
+4. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged since Day 56, seven days
+   on the list. Iowa's fourteen notes carry the `$237.50`/`$222.30` table, the `$514.52` and
+   the `$950.00`, and `note-pins.json` pins the first 72 characters, which reaches none of
+   them. **What Day 63 adds is the pattern to copy and it is now proven twice**: the
+   headline table is checked by a cross-package tool, as Oklahoma's is.
+5. **DERIVE `taxableSocialSecurity`'s AND `retirementIncome`'s GATE LISTS** — carried from
+   Days 61 and 62; the fourth consecutive state drifted them.
+6. **DERIVE BOUNDS FOR THE FOUR REMAINING 2025 DIVERGENCE GROUPS** — Georgia's two
+   mechanisms, South Carolina's `separate-with-spouse`, Wisconsin's ten and Indiana's four.
+   Sixteen unexplained differences, all 2025, unchanged from Days 54 to 63, and 2026 is at
+   zero again which makes them look worse.
+7. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 63; four of the sixteen
+   above are Indiana's.
+8. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** — unchanged from Days 58 to 63.
+9. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged since Day 56.
+10. **AND CHECK WHETHER `us-tax-mcp`'s README HAS DAY 63'S README DEFECT TOO.** Its newest
+    "New in" paragraph is **0.52.0** and the package is at **0.59.0**, and its paragraphs are
+    not in version order (0.49.0, then 0.52.0, then 0.51.0). That may be deliberate — the
+    server's arguments do not change every release, and one paragraph says so — but it was
+    not verified today, and the `us-state-tax` version of "not verified" cost a release whose
+    README never mentioned its own state. The new `RELEASE_HEADLINES` guard covers
+    `us-state-tax` only.
+
+---
+
 ## Day 62 — 2026-10-26
 
 ### What I did

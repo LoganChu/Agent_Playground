@@ -231,6 +231,86 @@ const SHAPES = {
   // The first version of this comment said $6,617, which is not the federal tax
   // on anything: I wrote a plausible number beside a sentence claiming it was
   // the one this repository's own engine returns. Measured now.
+  // $17,600 of wages at 44, and it exists for ONE cell in one state: Iowa's
+  // $9,000 low-income exemption threshold for a single or separate filer.
+  //
+  // THE INCOME WAS CHOSEN TWICE AND THE FIRST CHOICE WAS WRONG, WHICH IS THE
+  // INSTRUCTIVE PART. The threshold is tested on net income BEFORE the
+  // deduction, so the only households a wrong threshold can move are the ones
+  // the deduction has already taken to zero tax and a DOUBLED threshold would
+  // newly exempt -- apparently the band (deduction, 2 x threshold], which is
+  // (15,750, 18,000] in 2025 and (16,100, 18,000] in 2026. $17,000 is inside
+  // both and it witnessed 2025 and NOT 2026.
+  //
+  // The missing term is the $40 exemption credit. A threshold change is only
+  // visible where the tax it removes SURVIVES the credit, so the real lower
+  // bound is the deduction plus $40 / 3.8% = $1,052.63 of taxable income:
+  //
+  //   2025  (16,802.63, 18,000]   width 1,197.37
+  //   2026  (17,152.63, 18,000]   width   847.37
+  //
+  // and $17,000 sits in the 2025 band and in the part of the 2026 one the
+  // credit had already closed. $17,600 is in both.
+  //
+  // > A NONREFUNDABLE CREDIT BELOW A THRESHOLD NARROWS THE BAND THAT CAN
+  // > WITNESS IT, and the band shrinks every year, because its floor is an
+  // > indexed deduction and its ceiling is a frozen threshold. Iowa's single
+  // > window is $847.37 wide in 2026 and closes entirely once the federal
+  // > deduction passes $16,947.37.
+  wage17k6: {
+    income: 17_600,
+    earnedIncome: 17_600,
+    filerAge: 44,
+    spouseAge: 42,
+    socialSecurityAndMedicarePaid: 1_346,
+    rentPaid: 9_600,
+  },
+  // $26,500 of wages at 35 AND NO DEPENDENTS, which is the second half of the
+  // same Iowa cell and a different band from `wage17k6`'s.
+  //
+  // Iowa's $13,500 non-elderly threshold is witnessed through the HEAD OF
+  // HOUSEHOLD column, whose deduction is $23,625 and $24,150 rather than
+  // $15,750 and $16,100, so the band that can see a doubled $27,000 is
+  // (24,677.63, 27,000] in 2025 and (25,202.63, 27,000] in 2026 -- disjoint
+  // from the single column's (16,802.63, 18,000] and (17,152.63, 18,000]. ONE
+  // THRESHOLD, ONE STATE, AND TWO HOUSEHOLDS, because the figure is shared by
+  // statuses whose deductions are not.
+  //
+  // The absence of dependents is load-bearing. Every $40 of dependent credit
+  // raises this band's floor by $1,052.63, and a head-of-household shape with
+  // one child would need (26,255.26, 27,000] -- a window $744.74 wide. The
+  // childless shape keeps the window at $1,797.37, which is the difference
+  // between a household that witnesses the cell and one that has to be
+  // re-chosen when the deduction next indexes.
+  wage26k5: {
+    income: 26_500,
+    earnedIncome: 26_500,
+    filerAge: 35,
+    spouseAge: 33,
+    socialSecurityAndMedicarePaid: 2_027,
+    rentPaid: 13_200,
+  },
+  // $38,000 of WAGES at 66, with a spouse of 64 -- a working household with
+  // exactly one person over 65, which this battery did not have: every other
+  // over-65 shape here is retired, and a retiree's Iowa net income is below
+  // every Iowa threshold once the Social Security and the uncapped retirement
+  // exclusion come out.
+  //
+  // It witnesses all five cells of Iowa's ELDERLY exemption table at once.
+  // $38,000 sits inside (24,000, 48,000] for a single filer and inside
+  // (33,100, 64,000] for the four others, which are the bands where doubling
+  // the threshold crosses that status's own deduction. Day 62 added `working68`
+  // for the same reason in Oklahoma and the shape generalises: IN A STATE WHOSE
+  // AGE TESTS ARE READ AGAINST AN INCOME THAT ITS OWN SUBTRACTIONS HAVE ALREADY
+  // EMPTIED, THE ONLY HOUSEHOLD THAT CAN WITNESS THEM IS ONE STILL IN WORK.
+  working66: {
+    income: 38_000,
+    earnedIncome: 38_000,
+    filerAge: 66,
+    spouseAge: 64,
+    socialSecurityAndMedicarePaid: 2_907,
+    propertyTaxPaid: 3_100,
+  },
   wage62k: {
     income: 62_000,
     earnedIncome: 62_000,

@@ -7,7 +7,17 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
-New in 0.54.0: **NORTH DAKOTA, AND THE PUBLISHED RATE SCHEDULE THIS PACKAGE CAN PROVE IT CANNOT DERIVE.** The twenty-eighth taxing state: three bands at **0%, 1.95% and 2.50%** under HB 1158 (2023), on a base of federal **taxable** income, with a top rate that ties Arizona's for the lowest in the country. A single filer's first `$48,475` of 2025 taxable income is untaxed and a joint return's first `$80,975`; for 2026 it is `$49,575` and `$82,800`.
+New in 0.55.0: **IOWA, WHOSE LOW-INCOME EXEMPTION HAS BEEN KILLED BY A DEDUCTION THAT IS NOT ITS OWN.** The thirtieth taxing state, on a flat **3.8%** under SF 2442 (2024) — which pulled HF 2317's flat year forward from 2026 *and* set the rate below its 3.9% destination, so a source still printing 3.9% for 2026 is reading a superseded act.
+
+**Iowa Code § 422.5(3) exempts a return whose Iowa net income is at or under `$9,000` (single or separate), `$13,500` (other), `$24,000` (single at 65) or `$32,000` (other at 65). None of those four figures has moved since at least 2021 and nothing indexes them — and the deduction they are tested BEFORE is the FEDERAL one**, `$15,750` in 2025 and `$16,100` in 2026, because Iowa adopted the federal standard and itemized deductions in **tax year 2023** and not 2025 as every secondary account implies. So a return at any non-elderly threshold already has zero taxable income and **the provision cannot change an answer for any of the five filing statuses in either year**. It still bites for a single, head-of-household or separate filer at 65 — and the most it can save a single Iowan falls from **`$237.50` in 2025 to `$222.30` in 2026**, a relief withdrawn by arithmetic with no Iowa figure amended by anybody. `tools/cross-package/iowa-frozen-exemption.mjs` asserts the DIRECTION on every push, because no snapshot of one year's figures can show it. **This is 0.54.0's frozen earned income credit with the sign reversed: there a frozen base overpays a family, here a frozen threshold quietly withdraws a relief.**
+
+**And Iowa Code § 422.9 still prints a state standard deduction of `$2,210` single and `$5,450` joint that the IA 1040 has not used since 2023**, so a model built from the statute rather than the form is seven times too low — `$514.52` of tax. The federal deduction Iowa takes is the one the filer **actually took**, § 63(f) age and blindness additions included, so a single Iowan of 65 deducts `$17,750`: Missouri's treatment and the opposite of Arizona's, which allows no addition at all although every summary calls its deduction the federal one. The retirement income exclusion is **total and uncapped** from 2023 for anyone 55 or over, disabled, or a surviving spouse of someone who would have qualified — against `$6,000` and `$12,000` in 2021-2022, and the lowest retirement age in this package by seven years. **Every figure this package stores for Iowa is identical in 2025 and 2026 and the answer differs anyway, by the `$13.30` the federal deduction moved.**
+
+New in 0.54.0: **OKLAHOMA, AND A STATE EARNED INCOME CREDIT WHOSE BASE IS A DATE RATHER THAN A FIGURE.** The twenty-ninth taxing state. **68 O.S. § 2357.43 gives 5% of the federal earned income credit *computed under the Internal Revenue Code as it existed on 31 December 2020*** — and the federal credit is indexed every year, so "5% of the federal EITC" is a true sentence about Oklahoma law and a wrong instruction to anything that reads it: **20.8% too much in 2025 and 23.6% in 2026, growing every year by construction**, of a *refundable* credit, for the households it exists for. This package therefore ships **no** Oklahoma earned income credit at all rather than a rule that would have looked right in every review and been a fifth too large for the poorest filers; an Oklahoma answer here is too HIGH by at most the whole `$333.00`, and the note on the result says so with the table in it. PolicyEngine-US, maintained by people with nothing to do with this project, reaches the same frozen `$179.20` to the cent in both years.
+
+**Oklahoma's standard deduction is the FEDERAL 2017 figure, frozen** — `$6,350` single against a federal `$15,750` — so a guide saying Oklahoma follows the federal amount is wrong by `$446.50` of 2025 tax. **And the 2026 rate table has FOUR rows where every summary of HB 2764, the Senate's own press release included, says three**: the fourth is a 0% band covering a single filer's first `$3,750`, and the three positive rates are each exactly 0.25 points below their 2025 values with not one threshold moved. A head of household files on the **joint** rate schedule under § 2355(C)(2) and keeps a smaller `$9,350` deduction and a lower `$19,000` exemption limit, so a model that maps that status once gets two of three tables wrong. The `$10,000` retirement exclusion has **no age test**, reaching a 45-year-old, and military retired pay is 100% exempt under § 2358(E)(17) **without** consuming it.
+
+New in 0.53.0: **NORTH DAKOTA, AND THE PUBLISHED RATE SCHEDULE THIS PACKAGE CAN PROVE IT CANNOT DERIVE.** The twenty-eighth taxing state: three bands at **0%, 1.95% and 2.50%** under HB 1158 (2023), on a base of federal **taxable** income, with a top rate that ties Arizona's for the lowest in the country. A single filer's first `$48,475` of 2025 taxable income is untaxed and a joint return's first `$80,975`; for 2026 it is `$49,575` and `$82,800`.
 
 **The eight indexed thresholds cannot be reproduced from last year's by any single multiplier, and `test/north-dakota.test.js` runs the search rather than asserting the conclusion.** N.D.C.C. § 57-38-30.3(1)(e) indexes them by the federal cost-of-living adjustment, so the obvious check on a published table is whether one factor reaches it. Over every combination of base year (2023, 2024, 2025), rounding interval (`$25`, `$50`) and direction (down, nearest, up) — eighteen in all — **none does**. Two things obstruct it and each is worth knowing on its own: married filing separately is not independently indexed (it is the joint figure halved and floored to `$25`, in all four published years), and the two head-of-household thresholds are each exactly `$25` below what the factor the single and joint columns agree on would give. **So a model that projects North Dakota's brackets instead of reading them is wrong, by `$0.49` of tax, in the direction nothing queries.** This package stores all eight figures a year and derives none.
 
@@ -717,7 +727,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.54.0/us-state-tax-0.54.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.55.0/us-state-tax-0.55.0.tgz
 ```
 
 ## The rate is the easy part
@@ -881,12 +891,16 @@ two rounded figures is not the factor.
 
 OBBBA raised the 2025 federal standard deduction from `$15,000` to `$15,750` for a single
 filer in July 2025 — an increase of **`$750`** (`$1,500` joint, `$1,125` head of
-household). **Five** of the states here pass that through — four until North Dakota
-arrived on Day 61, and five before 13 June 2026, when Arizona stopped:
+household). **Six** of the states here pass that through — four until North Dakota
+arrived on Day 61, five until Iowa arrived on Day 63, and five before 13 June 2026, when
+Arizona stopped. Iowa is the one worth reading twice: its conformity dates from tax year
+**2023** rather than 2025, so it passed OBBBA through without anybody noticing that it had
+been passing the federal figure through for two years already:
 
 | State | How it reads the federal figure | Cut, single | Conformity |
 | --- | --- | --- | --- |
 | Colorado | Starts from federal taxable income | `$33.00` | rolling |
+| Iowa | Its standard deduction *is* the federal one, from tax year **2023** (IA 1040 line 1d, "from federal 1040") — § 422.9's own `$2,210` has not been used since | `$28.50` | rolling |
 | Idaho | Starts from federal taxable income | `$39.75` | **static, 2026-01-01** |
 | Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | `$35.25` | rolling |
 | North Dakota | Starts from federal taxable income | `$14.63` | rolling |
@@ -1021,7 +1035,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of fifteen of the twenty-nine
+That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty
 taxing states in this package** at the same income — every one of the nine with no income
 tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. Omit the
 locality on a New York return and the result says so, and says what it would have cost this
@@ -2934,7 +2948,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **773** notes every
+`test/notes.test.js` pins the first 72 characters of all **801** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2959,8 +2973,8 @@ reads, and all 25 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,865 numeric
-figures over 76 state-years, against 546 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 4,913 numeric
+figures over 78 state-years, against 562 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3006,12 +3020,12 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,420 figures of tax year
+The `kind` field answers one operational question. Over the 2,444 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,941** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **1,965** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **324** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
@@ -3098,11 +3112,11 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.54.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.55.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **29 of the 42 taxing jurisdictions, so 38 states in all.** The thirteen that are
-  missing: Iowa, Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
+- **30 of the 42 taxing jurisdictions, so 39 states in all.** The twelve that are
+  missing: Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
   Rhode Island, Vermont, Delaware, Hawaii, West Virginia, and the
   District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a

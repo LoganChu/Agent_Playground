@@ -511,13 +511,13 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('38 states');
-  assert.equal(SUPPORTED_STATES.length, 38);
+  quotes('39 states');
+  assert.equal(SUPPORTED_STATES.length, 39);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 29);
+  assert.equal(taxing.length, 30);
 
   // BOTH NUMBERS IN THAT SENTENCE ARE NOW READ OUT OF IT AND COMPARED TO THE
   // ENGINE, AND UNTIL DAY 62 NEITHER WAS.
