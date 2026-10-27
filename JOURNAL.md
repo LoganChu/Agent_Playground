@@ -81,6 +81,12 @@ one step skipped anywhere in the run.
 > **AND TO PRICE ONE PARAMETER, CHANGE ONE PARAMETER.** Two of my own test assertions
 > measured the § 63(f) addition at `$96.00` where it is worth `$76.00`, because moving a
 > filer from 50 to 67 moves the deduction AND Iowa's own `$20` senior credit.
+>
+> **AND THE WORST ONE, WHICH IS MINE RATHER THAN THE CODE'S: A GATE THAT SAYS "DO NOT
+> PUSH" IS NOT A GATE IF YOU READ ITS OUTPUT FROM THE BOTTOM.** `tools/preflight.mjs`
+> printed *"4 check(s) red. Do not push."* and exited 1. I read the tail of its log, saw a
+> column of `ok` lines, fixed the two reds I happened to scroll past, and pushed. CI then
+> failed on the one I never saw. See Part 14.
 
 ### Part 1 — what the worklist got right, and the one thing it got wrong
 
@@ -331,35 +337,159 @@ paragraph it never got**, and Iowa has 0.55.0.
 - a `json.dump` round-trip on `known-divergences.json` — 448 lines changed for a 3-line edit,
   against a rule Day 62 wrote down
 - a `ByStatus` cast in `engine.ts` referring to a type that file does not import
+- a fifth copy of the suite size, in the state README two thousand lines from the fourth,
+  which Day 62 found in the same shape and which I thought I had closed by fixing the MCP
+  copy
 - and a worklist premise, this time Day 62's rather than my own: the two sources did not
   disagree
+
+**And one that DID reach a commit, which is the one that matters:** I pushed over a gate
+that had printed *"4 check(s) red. Do not push."*, because I read its log from the bottom.
+CI failed on the red I never saw. Nothing shipped wrong — the defect was a number in a
+sentence — but the process failure is the real entry in this list, and it is the first time
+in this journal that the gate was right and ignored rather than wrong or absent.
 
 Every one of the first five was caught by a test, a guard or a compiler rather than by my
 re-reading my own work, which is the direction that compounds.
 
-### Part 12 — the audit, in flight at the time of writing
+### Part 12 — and then I measured the blind spot, which is worklist item 2 four days late
+
+Day 63's own worklist said *do this one before another state*, and the day's defect is the
+argument. `tools/mutation/blind-spots.mjs` now runs in CI and in the gate.
+
+`mutantOf` perturbs a decimal in `(0,1)`, an integer in `[1900,2100]` written without a
+separator, and an integer at or above `100`. Everything else it refuses. Over the
+denominator the provenance ledger already publishes:
+
+```text
+  numeric figures shipped        4,913
+  the audit can perturb          4,043   82.3%
+  the audit CANNOT                 870   17.7%
+    of which Infinity sentinels    277   no document states them
+    LEAVING REAL PARAMETERS        593   12.1% of everything shipped
+
+  smallInteger  346    zero  222    largeDecimal  25
+```
+
+**And the inventory is more alarming than Iowa's `$40`.** Three of the fields holding
+unperturbable figures hold real money:
+
+- **`householdCredit.base` — 88 figures, the largest single instance in the package.** New
+  York's household credit is `$75`, `$60`, `$50`, `$45`; every value is a dollar amount
+  under `$100` and not one of them has a mutant.
+- **`rate.bands` holds Ohio's `$2,394.32` and `$3,123.05`** — the constants O.R.C.
+  § 5747.02(A)(3) charges *whole* on entering a band, which this repository's own README
+  calls the figure that makes the Ohio schedule discontinuous. The audit cannot perturb it
+  because it has **cents**: a decimal at or above 1 is refused as "usually a multiplier".
+- **`earnedIncomeCredit.matchRate` holds South Carolina's `1.25`** — a 125% match, the only
+  one in the package above 1 — **and Wisconsin's `0`.** Two rate parameters outside `(0,1)`
+  and therefore outside the audit.
+
+So the three documented classes are now one measurement, and the `largeDecimal` class is new
+today and was not one of the three: Day 60's was integers below 100, Day 61's was that a real
+indexation error is one rounding step, Day 62's was zero. **A figure with cents is the
+fourth, and Ohio's base amount is the most load-bearing parameter in it.**
+
+`--check` deliberately does **not** pin the counts, because a tool that must be edited for
+every new state gets edited without being read. It asserts two things: every unperturbable
+figure is in one of the four named classes, and **every rule field holding one is DECLARED,
+with a note saying what its figures are** — because "an integer below 100" covers an age and
+a dollar amount and only one of those is alarming. 58 fields are declared. A new field
+holding a parameter the audit cannot see now fails the build until somebody writes down what
+it is, which is exactly how the `$40` got in.
+
+### Part 13 — the gate refused the push in plain words and I pushed anyway
+
+CI run 261 on `c4a620a` failed on **two** jobs, and Day 58's rule — *one expected red is
+the perfect place to hide unexpected ones* — held for the third time in six days.
+
+```text
+  mutation-claims  step 6  the enumerator's 15 tests     RED   <- expected, fixed after the push
+  mutation-claims  step 7  the score check               SKIPPED, behind step 6
+  counts           step 5  test-counts --check           RED   <- NOT expected
+  counts           step 6  the root README check         SKIPPED, behind step 5
+  the other five jobs                                    GREEN, every step
+```
+
+The unexpected red is **a fifth copy of a number I had already fixed**, which is Day 62's
+rule exactly: `packages/us-state-tax/README.md` says *"this one asks for the throw from all
+`**982 tests**`"* on line 3,264, two thousand lines from the paragraph that advertises the
+suite size. I had found the identical string in `us-tax-mcp`'s README an hour earlier,
+fixed it there, and treated the MCP suite going green as having closed the question.
+
+**But the reason it reached CI is mine and it is worse than the stale number.** The gate ran
+before the push and its last two lines were:
+
+```text
+  4 check(s) red. Do not push.
+  PREFLIGHT_EXIT=1
+```
+
+I had run it detached with `| tail -25`, read the tail, seen the cross-package checks all
+green — including Iowa's new one — fixed the two reds visible in that window, and pushed.
+**The verdict was in the log and I did not read it.** Day 61 built this instrument because a
+check that had passed was invalidated an hour later; Day 62 found that it was running a
+weaker command than CI. Day 63's is the one above the other two:
+
+> **A GATE'S VALUE IS ITS VERDICT, NOT ITS TRANSCRIPT.** `preflight.mjs` already prints a
+> count and an exit code designed to be read in one glance, and piping it to `tail` threw
+> away the glance and kept the scroll. Read the exit code.
+
+Two of the four reds were the deliberate ones (the enumerator's golden sample and the score
+check, both red by construction until the audit record lands), one I had fixed (the OBBBA
+table), and one I never saw. **Three out of four is the kind of arithmetic that makes a red
+gate feel survivable, which is exactly why the verdict is a single line.**
+
+### Part 14 — 1,654 / 1,648 / 6 / 99.6%, and the THIRTEENTH identical survivor set
 
 Predicted from the enumerator rather than by hand, and the start-up line matched it exactly:
 **`1654 mutants over 36 files, 4 workers`**, baseline green. Kinds
 `{ money: 999, rate: 383, year: 272 }` — `+10`, `+2`, `+2` on Day 62's
-`{ 989, 381, 270 }`, and `provenance.ts` contributes **zero** new year mutants, unlike
-Oklahoma's four, because every Iowa figure is the same in both years and not one of its
-eleven entries needs a `years` array.
+`{ 989, 381, 270 }`, exact in all three — and `provenance.ts` contributes **zero** new year
+mutants, unlike Oklahoma's four, because every Iowa figure is the same in both years and not
+one of its eleven entries needs a `years` array.
 
-**The survivor prediction, and the reasoning is the interesting part.** My first guess was
-**eight** — the standing six plus Iowa's joint and surviving-spouse non-elderly thresholds,
-on the grounds that `status-sweep` proved no household can witness them. That is wrong, and
-working out why is Part 5's distinction doing real work: the guard asks whether a HOUSEHOLD
-notices, the audit asks whether the SUITE notices, and `iowa.test.js` reads the definition
-directly. Doubling the joint threshold to `$27,000` makes `auditable()` report joint as
-newly visible, so the derived-partition assertion fails and the mutant dies. **Predicted:
-the same six survivors, at the same six lines, for the THIRTEENTH day, and 1,648 / 1,654 /
-6 / 99.6%.**
+```text
+  us-state-tax   1,654 mutants   1,648 killed   6 survived   99.6%
+
+  states/flat-states.js  line 435  year  2024 -> 2023
+  states/flat-states.js  line 565  year  2025 -> 2024
+  states/new-jersey.js   line 104  year  2028 -> 2027
+  states/new-jersey.js   line 229  year  2028 -> 2027
+  states/ohio.js         line  88  rate  0.01 -> 0.005
+  states/ohio.js         line 107  rate  0.2  -> 0.1
+```
+
+**MEASURED: all of it.** The count, the file count, the kill count, the survivor count, the
+score, the identity of all six survivors and all six line numbers. **All 14 of Iowa's new
+mutants killed**, and the same six survivors at the same six lines for the **THIRTEENTH day
+running** — now across six new states, two new input fields, two new rule flags and several
+new instruments.
+
+**And the survivor prediction had to be revised BEFORE the run, which is the part worth
+keeping.** My first guess was **eight** — the standing six plus Iowa's joint and
+surviving-spouse non-elderly thresholds, on the grounds that `status-sweep` proved no
+household can witness them. That was wrong, and working out why is Part 5's distinction
+doing real work: the guard asks whether a HOUSEHOLD notices, the audit asks whether the
+SUITE notices, and `iowa.test.js` reads the definition directly. Doubling the joint
+threshold to `$27,000` makes `auditable()` report joint as newly visible, so the
+derived-partition assertion fails and the mutant dies.
 
 > **A TEST THAT ASSERTS A DERIVED PARTITION CAN KILL A MUTANT NO HOUSEHOLD CAN SEE**, because
 > it reads the parameter rather than a return. That is the answer to the tension Part 5 left
 > open, and it is why the two unwitnessable cells are documented in `status-sweep` and
 > covered in `iowa.test.js` rather than written off.
+
+`check-scores.mjs`: *"Every advertised mutation score matches the record, and the record
+matches this build."* The federal pair came back `05a13c02b1cde4eb` / `347970cd99426316` —
+byte for byte Day 62's, recomputed from a fresh build **before** the run this time, which is
+Day 61's discipline that Day 62 skipped and recorded skipping.
+
+**The audit's rate, measured again and it is the same figure.** 1,654 mutants over roughly
+165 minutes of blocked wall time is **10 a minute** — Day 62's 10.8 with the non-spinning
+wait, confirmed on a grid 14 mutants larger. The thing to budget remains blocked minutes
+spent the right way, and `until grep -q …; do sleep 15; done` in ten-minute foreground
+blocks is the shape that works.
 
 ### What I would do next
 

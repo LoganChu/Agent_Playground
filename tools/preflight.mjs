@@ -95,6 +95,11 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    label: 'what the mutation score does NOT cover, declared field by field',
+    cmd: 'node tools/mutation/blind-spots.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: "Iowa's low-income exemption against the deduction that is withdrawing it",
     cmd: 'node tools/cross-package/iowa-frozen-exemption.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],

@@ -206,8 +206,8 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 35, 'files walked');
-  assert.equal(mutants.length, 1_640, 'mutants — the figure tools/mutation/scores.json records');
+  assert.equal(files.length, 36, 'files walked');
+  assert.equal(mutants.length, 1_654, 'mutants — the figure tools/mutation/scores.json records');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -315,6 +315,59 @@ test('the state engine enumerates what the recorded audit measured', () => {
     0,
     "Oklahoma's two 0% bands have no mutant, because 0 is not in (0,1)",
   );
+  // IOWA, pinned on Day 63, and it is the file where the mask carries the LEAST
+  // weight of the four most recent states: `states/iowa.js` holds 95
+  // mutable-looking literals and exactly 14 of them are code, so a Day 56-style
+  // mask regression would move the total by 81 from this file, against
+  // Oklahoma's 342, North Dakota's 272 and Louisiana's 95. Its doc comment is
+  // prose and one table rather than four published rate schedules, which is
+  // what that ratio measures.
+  assert.deepEqual(at('states/iowa.js', 156), {
+    rel: 'states/iowa.js', offset: 19_076, from: '9_000', to: '18000', kind: 'money', line: 156,
+  });
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/iowa.js').length,
+    14,
+    'Iowa has 14 mutants and not the 95 its doc comment would add',
+  );
+
+  // AND IOWA DECLARES 25 PARAMETERS, SO ELEVEN OF THEM HAVE NO MUTANT — which
+  // is the same statement as Oklahoma's above, made about a class rather than a
+  // value, and it is the one that cost something.
+  //
+  // The fourteen the harness sees are the two supported years, two rates and
+  // the ten low-income exemption thresholds. The eleven it does not are the $40
+  // personal credit in five statuses, the $40 dependent credit, the two $20
+  // additions and the three age gates (55, 65, 65) — every one an integer below
+  // 100. **The $40 is the figure Day 63 shipped wrong**: a head of household
+  // claims TWO personal credits and this package gave them one, which the
+  // differential grid caught in six households at exactly $40.00 each and this
+  // harness could not have caught at all.
+  //
+  // Two more Iowa parameters are invisible for reasons of their own and neither
+  // is in the 25: the DEDUCTION, because it is the federal one and therefore not
+  // an Iowa figure, and the retirement exclusion's CAP, because there is none —
+  // the exclusion is total and the module says so by OMITTING the field.
+  //
+  //   A PARAMETER EXPRESSED AS THE ABSENCE OF A FIELD HAS NO LITERAL TO MUTATE.
+  //
+  // `tools/mutation/blind-spots.mjs` measures this across the whole package —
+  // 4,043 of 4,913 figures perturbable, 593 real parameters not — and fails when
+  // a rule field holds an unperturbable figure nobody declared.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/iowa.js' && ['40', '80', '20', '55', '65'].includes(m.from))
+      .length,
+    0,
+    "Iowa's $40 and $80 credits, its two $20 additions and its three age gates have no mutant",
+  );
+  // And the thresholds DO, so the absence above is about the magnitude and not
+  // about the file: ten of them, five per tier.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/iowa.js' && m.kind === 'money').length,
+    10,
+    "Iowa's ten exemption thresholds each have a mutant",
+  );
+
   // The 2025 rates DO all have one, so the absence above is about the value and
   // not about the file: six rates in each of two schedules, twelve in all, plus
   // the three positive 2026 rates twice.
@@ -384,5 +437,5 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // breakdown is reached by a route the total cannot see.
   const byKind = {};
   for (const m of mutants) byKind[m.kind] = (byKind[m.kind] ?? 0) + 1;
-  assert.deepEqual(byKind, { money: 989, rate: 381, year: 270 });
+  assert.deepEqual(byKind, { money: 999, rate: 383, year: 272 });
 });

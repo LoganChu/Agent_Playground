@@ -73,6 +73,18 @@ release's paragraph. Forty tests over that file were green, because every number
 right. *A README test that checks every number can still be blind to what the document is
 about.* There is now a declared list of `(version, subject)` pairs, so a renumbering fails.
 
+**The mutation record is 1,654 / 1,648 / 6 / 99.6%, and the revised prediction was exact in
+every figure** — the count, the file count, the kill count, the survivor count, the score and
+the identity of all six survivors. **The SAME SIX, at the same six line numbers, for the
+THIRTEENTH day running**, now across six new states. All 14 of Iowa's new mutants killed.
+
+And the complement is now measured rather than described: `blind-spots.mjs` reports that of
+**4,913** shipped figures the audit can perturb **4,043 (82.3%)** and cannot perturb **593
+real parameters** — including Ohio's `$2,394.32` base amount, South Carolina's 1.25 earned
+income match and New York's 88-figure household credit. **That is the number to publish
+beside the score**, and it is the first time this repository can state it rather than
+gesture at it.
+
 Both packages that changed were released — `us-state-tax` **v0.55.0** and `us-tax-mcp`
 **v0.59.0**. `us-federal-tax` stays at v0.16.0, verified unchanged against a fresh build
 **before** the audit rather than after. **1,610 tests across the four suites, all green,
@@ -741,7 +753,7 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1640 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.6%** (1654 mutants, 6 survivors), **the state
 one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
 SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47

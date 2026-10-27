@@ -120,6 +120,32 @@ code even names the rule.
 > Two instruments is not redundancy. The parameter one of them cannot see is where the
 > defect was.
 
+**So I spent the rest of the day measuring the gap rather than describing it**, which is
+something this repository has owed its own quality claim for four days. The answer, and it
+is now checked on every push:
+
+| | figures |
+| --- | ---: |
+| numeric figures the package ships | 4,913 |
+| the deliberate-error audit can test | 4,043 — **82.3%** |
+| it cannot test | 870 |
+| …of which are "infinity" placeholders that no document states | 277 |
+| **leaving real parameters it cannot test** | **593 — 12.1%** |
+
+(And the audit itself came back **1,654 wrong parameters tried, 1,648 caught, 99.6%** — up
+from 1,640 because Iowa added 14, every one of them caught. The six it misses have now been
+the same six, on the same six lines, for **thirteen days**, through six new states.)
+
+**And three of those are more alarming than Iowa's $40.** New York's household credit is
+$75/$60/$50/$45 — **88 figures, every one a dollar amount under $100, none of them
+testable this way.** Ohio charges a flat $2,394.32 on entering a tax band, and the audit
+cannot touch it **because it has cents**. South Carolina's earned income credit is 125% of
+the federal one, and the audit only perturbs rates below 100%.
+
+None of that is a defect. It is the honest footnote to "99.6%", and the check that now runs
+on every push does not pin the numbers — it fails when somebody ships a parameter in one of
+these classes **without writing down what it is**, which is precisely how the $40 got in.
+
 I mention it because "99.6%" is the number anybody evaluating this would look at, and the
 honest statement is that it measures the parameters the harness can perturb. Of the 25
 parameters Iowa declares, **it can see 14.** The eleven it cannot are the $40 and $20

@@ -395,7 +395,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1640 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 1654 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
 
 The state figure was re-measured on **Day 55** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
@@ -427,7 +427,45 @@ Day 59, the typo-cost fix     1,543 mutants    6 survivors   99.6%
 Day 60, LOUISIANA             1,559 mutants    6 survivors   99.6%
 Day 61, NORTH DAKOTA          1,585 mutants    6 survivors   99.6%
 Day 62, OKLAHOMA              1,640 mutants    6 survivors   99.6%
+Day 63, IOWA                  1,654 mutants    6 survivors   99.6%
 ```
+
+**The same six survivors, at the same six line numbers, for the THIRTEENTH day running** —
+now across six new states, two new input fields, two new rule flags and several new
+instruments. A score that holds while the tree underneath it moves is a different claim from
+a score that holds because nothing changed.
+
+**Day 63's `+14` was predicted by running the enumerator rather than by counting literals by
+hand, and the hand count was wrong in the direction that mattered.** `states/iowa.js`
+contributes 14 — ten money (the low-income exemption's two five-status tables), two rate
+(the flat 3.8% and the 15% earned income credit match) and two year (its supported-year
+guard) — and `provenance.ts` contributes **nothing**, unlike Oklahoma's four, because every
+Iowa figure is identical in both years and not one of its eleven ledger entries needs a
+`years:` array. The kind breakdown moved `{ money: 989, rate: 381, year: 270 }` to
+`{ money: 999, rate: 383, year: 272 }`: `+10`, `+2`, `+2`, exact in all three.
+
+**The hand count said 25 and the answer is 14, and the eleven missing ones are the point.**
+Iowa's module declares 25 parameters; the `$40` personal credit in five statuses, the `$40`
+dependent credit, the two `$20` additions and the three age gates (55, 65, 65) are all
+integers below 100, which this harness does not perturb. **The `$40` is the figure Day 63
+shipped wrong** — a head of household claims two personal credits and the module gave them
+one — and the differential grid caught it in six households at exactly `$40.00` each while
+this audit could not have caught it at all. Two more Iowa parameters are invisible for
+reasons of their own and are not among the 25: the deduction, because it is the federal one
+and therefore not an Iowa figure, and the retirement exclusion's cap, because there is none
+— the exclusion is total and the module says so by **omitting** the field, so there is no
+literal to mutate.
+
+**Which is why `tools/mutation/blind-spots.mjs` now runs on every push and measures the
+complement of this table.** Of the **4,913** numeric figures this package ships the audit
+can perturb **4,043 (82.3%)**; of the 870 it cannot, 277 are `Infinity` sentinels that no
+document states and **593 are real parameters** — 346 integers below 100, 222 zeros and 25
+decimals at or above 1. The three biggest are not Iowa's: **New York's household credit is
+`$75`/`$60`/`$50`/`$45` across 88 figures**, every one a dollar amount under `$100`;
+**Ohio's `$2,394.32` base amount** cannot be perturbed *because it has cents*; and **South
+Carolina's earned income credit matches at 1.25**, outside the `(0,1)` interval the harness
+halves. The tool does not pin the counts — it fails when a rule field holds an unperturbable
+figure and nobody has declared what it is, which is exactly how the `$40` got in.
 
 **Day 62's `+55` was attributed before the run, as Day 60's and Day 61's were, and the
 breakdown was confirmed from a direction the total cannot see.** It is the largest
@@ -448,7 +486,12 @@ schedules in each of two shapes, a frozen earned-income-credit table across thre
 and a worked price for every parameter in it — so it takes North Dakota's place as the file
 where comment and string masking is most load-bearing, and a Day 56-style regression would
 move the total by **342 from one file**, against North Dakota's 272 and Louisiana's 95.
-`1,640` rules that out.
+`1,640` ruled that out, and `1,654` does now. Iowa is the file where the mask carries the
+**least** weight of the four most recent states: `states/iowa.js` holds **95**
+mutable-looking literals and exactly **14** are code, so a regression there would move the
+total by 81, against Oklahoma's 342, North Dakota's 272 and Louisiana's 95. Its doc comment
+is prose and one table rather than four published rate schedules, which is what that ratio
+measures.
 
 **AND THE PARAMETER THIS AUDIT IS BLIND TO IS OKLAHOMA'S HEADLINE ONE.** The harness
 mutates decimals in the **open** interval (0,1), so a parameter whose value is zero has no

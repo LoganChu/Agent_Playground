@@ -186,6 +186,18 @@ jobs:
       # `npm test` per directory and `tools/` is not a package. So those tests
       # are run but not counted, and the advertised totals say "the four
       # published suites" rather than "every test here".
+      # Day 63. A mutation score is a statement about the parameters the harness
+      # can PERTURB, and `mutantOf` refuses an integer below 100, the integer
+      # zero, and any decimal at or above 1. Of the 4,913 figures this package
+      # ships it can perturb 4,043; of the 870 it cannot, 277 are Infinity
+      # sentinels and 593 are real parameters -- including Ohio's $2,394.32 base
+      # amount, South Carolina's 1.25 earned income match, New York's $75
+      # household credit and Iowa's $40 exemption credit, which Day 63 shipped
+      # WRONG and the audit could not have caught. This step does not pin the
+      # counts; it fails when a rule field holds an unperturbable figure and
+      # nobody has declared it, because that is how the $40 got in.
+      - name: Every parameter the mutation audit cannot perturb is declared
+        run: node tools/mutation/blind-spots.mjs --check
       - name: Check every advertised mutation score against the record and this build
         run: node tools/mutation/check-scores.mjs --check
 
