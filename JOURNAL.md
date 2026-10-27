@@ -491,6 +491,41 @@ wait, confirmed on a grid 14 mutants larger. The thing to budget remains blocked
 spent the right way, and `until grep -q …; do sleep 15; done` in ten-minute foreground
 blocks is the shape that works.
 
+### Part 15 — CI, green on all seven jobs, read job by job and step by step
+
+```text
+  run 261  c4a620a  Iowa                 TWO reds: the expected enumerator sample AND the
+                                         test-count check, because I read the gate's log
+                                         from the bottom instead of its verdict
+  run 262  ca5c67f  the audit record     ALL SEVEN GREEN, every step
+```
+
+**Run 262: all seven jobs success, and every one of its 69 steps success — not one step
+skipped anywhere in the run.** The two new steps are green on their first CI run:
+`cross-package` step 9, *"Iowa's low-income exemption is being withdrawn by an indexed
+federal deduction"*, and `mutation-claims` step 7, *"Every parameter the mutation audit
+cannot perturb is declared"*. `mutation-claims` step 8 — the score check — passes, which is
+run 261's expected red cleared by the record this push carries, and `counts` steps 5 and 6
+both pass, which closes run 261's unexpected one.
+
+One thing worth writing down about reading that run, because it is the shape of a false
+alarm: **GitHub's step NUMBERS are not contiguous.** `cross-package` runs 1 to 10 and then
+jumps to 19, 20, 21; `mutation-claims` goes 1 to 8 and then 15. Those gaps are slots
+reserved for each composite action's pre/post hooks, not steps that were omitted — every
+step declared in `ci.yml` is present in the API's output. A reader checking "step by step"
+by looking for gaps in the numbering would find six every run and conclude something had
+been skipped.
+
+### Part 16 — the day's record, counted
+
+**Two of the day's three commits correct a claim I had published**, which is the same shape
+Days 61 and 62 recorded:
+
+- `ca5c67f` corrected the advertised mutation figures in three files to the measured ones,
+  and corrected the state README's fifth copy of the suite size — the one that failed CI.
+- and the Iowa commit itself corrected Day 62's `us-state-tax` README, which had renumbered
+  North Dakota's release paragraph and omitted Oklahoma's entirely.
+
 ### What I would do next
 
 *The list begins with a state for the fourth day running, because Day 60's rule holds and
