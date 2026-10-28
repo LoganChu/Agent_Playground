@@ -81,6 +81,79 @@ It is the default. `--test-isolation process` restores the old behaviour, the mo
 in force is announced at start-up, and a Node that does not support the flag falls
 back with a message rather than leaving a red baseline to be diagnosed.
 
+## Per-mutant test selection, and why it cannot move the score
+
+Day 64 shipped Arkansas and the audit stopped fitting in a day: 2,436 mutants
+against a 1,018-test, 26-second suite on four cores is about **fifteen hours**.
+The run was started, reached 100 mutants in 38 minutes, and was stopped. The
+cause was the SUITE's growth and not the state count — every mutant ran all 66
+test files.
+
+Day 65's fix is the one this README's timing section had left on the worklist
+since Day 40. **2,320 of the 2,436 mutants are in `states/*.js`, and a parameter
+in one state's module can only change an answer for a household in that state.**
+So each of those mutants runs, in this order:
+
+1. the two state-sweep guards, narrowed with `--test-name-pattern` to that
+   state's own tests;
+2. every test file that names that state's code, plus every file that names no
+   state code at all.
+
+```text
+whole suite                                        26.56s
+the two sweeps, narrowed to one state               0.60s
+the 9 other files that mention AR or no state       1.74s
+                                                   ------
+phase 1                                             2.34s    -> 11x
+```
+
+**A mutant that SURVIVES its selection is then re-run against the whole suite,
+and only that verdict is recorded.** That is the entire soundness argument:
+
+```text
+killed by the selection  ->  killed, and a real test failure says so
+survived the selection   ->  re-run on all 66 files, and that verdict stands
+```
+
+So the score is identical to a full run, mutant for mutant, **whatever the
+selection does**. A bad selection costs time — one full re-run per mutant it
+failed to kill — and cannot cost accuracy.
+
+The re-run path is load-bearing rather than theoretical. On a 61-mutant sample
+spread across every file, 44 were killed by a narrowed run, 8 had no selection
+(they are outside `states/`) and **9 survived their selection and were killed by
+the whole suite**. Those 9 are the measurement that matters, and they name a
+real property of this suite: 18 test files sweep every shipped state while naming
+only one or two codes in their text, so they can kill a mutant in a state they
+never mention. Adding all 18 to every selection was measured and REJECTED —
+`survivor-retirement.test.js` alone is 2.95s and `provenance.test.js` 1.87s, so
+phase 1 would cost about 9s against the 6.9s that 83% at 2.34s and 17% at 29.3s
+actually average. **The occasional whole-suite re-run is cheaper than making
+every mutant pay for the sweeping files.** Splitting those 18 per state, the way
+`status-sweep.test.js` and `step-probes.test.js` were split, is the next
+reduction and is on the worklist.
+
+Both halves of the selection are DERIVED, because a list of file names is a list
+that goes stale:
+
+- a test file is narrowable when its source builds a test name out of a
+  `${state}`, so splitting a third sweep needs no edit in the harness;
+- a module's state is its own `code:` field, and a module claiming more than one
+  code selects nothing and takes the whole suite;
+- which states a test file mentions is read out of its text.
+
+`--no-select` restores the Day 64 behaviour.
+
+### The guard, because a pattern that matches nothing is green
+
+`--test-name-pattern` that matches no test produces a GREEN run of ZERO tests,
+and this harness reads green as "the mutant survived". A renamed per-state test
+would therefore send a whole state's mutants through a vacuous phase 1 and a full
+re-run — slower than no selection at all, and silent. So every state code in the
+run is probed once at start-up and a selection that matches nothing stops the
+run, which is Day 47's rule applied to a second flag: an announcement at start-up
+is not a guard, a guard is something that will not proceed.
+
 ## Why it exists
 
 Day 32 found a Virginia defect that had had its own passing test for a month. The

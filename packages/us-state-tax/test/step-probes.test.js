@@ -46,7 +46,14 @@
 // The coverage proof below takes every number in every staircase the package ships,
 // sets it wrong, and requires that a pinned answer — here or in the status sweep —
 // moves. That is the mutation harness's question asked inside the suite, and it
-// runs in a second where the harness takes half an hour.
+// costs seconds where the harness costs over an hour.
+//
+// The figure in that sentence has been wrong twice, which is worth recording
+// rather than quietly correcting a third time: it read "a second" when this was
+// one test over every state (it was 4.5 seconds by Day 64), and "half an hour"
+// for the harness long after the harness had grown past it. Both are now written
+// as orders of magnitude, because that is all the comparison needs and it is the
+// part that does not go stale every time a state arrives.
 //
 // It is deliberately STRICTER than the harness in one way and it is the way that
 // matters here. `tools/mutation/mutate.mjs` mutates integers at or above 100 and
@@ -271,33 +278,52 @@ const setAt = (steps, at, value) => {
   steps[Number(i)][key] = value;
 };
 
-test('every number in every staircase moves a pinned answer', () => {
-  // The probes and the sweep together, indexed by state-year: a staircase can only
-  // move an answer in its own state, so perturbing Ohio never needs New York run.
-  const pinned = new Map();
-  const add = (key, id, figures) => {
-    if (!pinned.has(key)) pinned.set(key, new Map());
-    pinned.get(key).set(id, figures.join(','));
-  };
-  for (const row of PINS.rows) {
-    const { year, state, chart, filingStatus, probe, expected } = parse(row);
-    add(`${year}|${state}`, `probe|${chart}|${filingStatus}|${probe}`, expected);
-  }
-  for (const row of SWEEP.rows) {
-    const [year, state, filingStatus, name, ...figures] = row.split('|');
-    add(`${year}|${state}`, `sweep|${filingStatus}|${name}`, figures);
-  }
-  // And the rate-schedule pins, so that the charts this file leaves to
-  // `bracket-pins.test.js` are checked against the instrument that owns them
-  // rather than taken on trust. A claim in COVERED_ELSEWHERE that nothing backed
-  // would be exactly the comment-instead-of-a-test that Day 34 found in Ohio.
-  for (const [year, state, filingStatus, taxableIncome, tax] of BRACKETS.rows) {
-    add(`${year}|${state}`, `bracket|${filingStatus}|${taxableIncome}`, [tax]);
-  }
+// The probes and the sweep together, indexed by state-year: a staircase can only
+// move an answer in its own state, so perturbing Ohio never needs New York run.
+const pinned = new Map();
+const add = (key, id, figures) => {
+  if (!pinned.has(key)) pinned.set(key, new Map());
+  pinned.get(key).set(id, figures.join(','));
+};
+for (const row of PINS.rows) {
+  const { year, state, chart, filingStatus, probe, expected } = parse(row);
+  add(`${year}|${state}`, `probe|${chart}|${filingStatus}|${probe}`, expected);
+}
+for (const row of SWEEP.rows) {
+  const [year, state, filingStatus, name, ...figures] = row.split('|');
+  add(`${year}|${state}`, `sweep|${filingStatus}|${name}`, figures);
+}
+// And the rate-schedule pins, so that the charts this file leaves to
+// `bracket-pins.test.js` are checked against the instrument that owns them
+// rather than taken on trust. A claim in COVERED_ELSEWHERE that nothing backed
+// would be exactly the comment-instead-of-a-test that Day 34 found in Ohio.
+for (const [year, state, filingStatus, taxableIncome, tax] of BRACKETS.rows) {
+  add(`${year}|${state}`, `bracket|${filingStatus}|${taxableIncome}`, [tax]);
+}
 
-  let checked = 0;
-  const exempt = [];
-  for (const { year, state, path, steps } of shippedCharts()) {
+/**
+ * ONE TEST PER STATE, FOR THE REASON `status-sweep.test.js` GIVES AT LENGTH.
+ *
+ * A staircase can only move an answer in its own state — the comment on the
+ * `pinned` index above has said so since the index was written — and Day 65 made
+ * the TEST obey it too. This was one test over every chart in the package, 4.5
+ * seconds of a 25-second suite, and the mutation harness paid all of it for a
+ * mutant that could only touch one state. Now `--test-name-pattern` can select
+ * the one state whose charts a change can reach.
+ *
+ * `checked` and `exempt` are counted in their own test below, because both are
+ * properties of the WALK over the charts rather than of the probes, and counting
+ * them does not need the perturbation this part pays for.
+ */
+const CHARTS_BY_STATE = new Map();
+for (const chart of shippedCharts()) {
+  if (!CHARTS_BY_STATE.has(chart.state)) CHARTS_BY_STATE.set(chart.state, []);
+  CHARTS_BY_STATE.get(chart.state).push(chart);
+}
+
+for (const state of [...CHARTS_BY_STATE.keys()].sort()) {
+  test(`every number in every ${state} staircase moves a pinned answer`, () => {
+    for (const { year, path, steps } of CHARTS_BY_STATE.get(state)) {
     const key = `${year}|${state}`;
     const probesHere = PINS.rows
       .map(parse)
@@ -364,11 +390,9 @@ test('every number in every staircase moves a pinned answer', () => {
       } finally {
         setAt(steps, at, value);
       }
-      checked++;
       const where = `${state} ${year} ${path}[${at}] = ${value}`;
       const allowed = UNREACHABLE[`${state}|${driverKey(path)}|${at}`];
       if (allowed !== undefined) {
-        exempt.push(where);
         assert.equal(
           moved,
           false,
@@ -380,6 +404,20 @@ test('every number in every staircase moves a pinned answer', () => {
         moved,
         `${where} could be wrong and no pinned answer would notice. Add or move a probe in step-charts.mjs — or, if nothing can reach it, say why in UNREACHABLE.`,
       );
+    }
+  }
+  });
+}
+
+test('the numbers inside the staircases this package ships', () => {
+  let checked = 0;
+  const exempt = [];
+  for (const { state, path, steps } of shippedCharts()) {
+    for (const { at, value } of numbersIn(steps)) {
+      checked++;
+      if (UNREACHABLE[`${state}|${driverKey(path)}|${at}`] !== undefined) {
+        exempt.push(`${state} ${path}[${at}] = ${value}`);
+      }
     }
   }
   // Pinned so that a walk which silently stops finding charts — a renamed field, a

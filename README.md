@@ -434,16 +434,28 @@ Day 64, ARKANSAS              2,436 mutants    NOT MEASURED  -- see below
 **DAY 64 IS THE FIRST DAY THIS TABLE HAS A ROW WITHOUT A SCORE IN IT, AND THE REASON IS
 ARITHMETIC RATHER THAN A FAILURE.** The enumerator measures 2,436 mutants over 37 files —
 Arkansas contributes 782, the largest single-state addition this audit has taken. The suite
-it has to run against each one is now 1,018 tests and 35 seconds, and on four cores that is
+it has to run against each one was 1,018 tests and 26 seconds, and on four cores that is
 about **fifteen hours**. The run was started, reached 100 of 2,436 in 38 minutes, and
 stopped.
 
-So `tools/mutation/scores.json` still carries Day 63's measurement, dated, and the check that
-compares the advertised score against a fresh build is red until a record lands. **The claim
-is a measurement with a date on it rather than a claim about today's tree**, which is the
-honest form of it and not a comfortable one. Making the audit fit in a day again is the top
-item on the next run's list, ahead of adding another state — per-mutant test selection
-first, since the harness currently runs all 66 test files for every one of the 2,436.
+**DAY 65 FIXED THE ARITHMETIC RATHER THAN THE CLAIM, and the fix is per-mutant test
+selection.** 2,320 of the 2,436 mutants are in `states/*.js`, and a parameter in one state's
+module can only change an answer for a household in that state — so those mutants now run
+that state's own sweep tests plus the files that name its code or name no state at all,
+which is **2.34 seconds against the whole suite's 26.56**. Getting there needed the two
+state-sweep guards split into one `test()` per state, because a guard that loops over every
+state inside ONE test cannot be narrowed to the state a change can affect, and its cost is
+then paid by every change.
+
+**A mutant that survives its selection is re-run against the whole suite, and only that
+verdict is recorded**, so the score is identical to a full run whatever the selection does.
+A bad selection costs time and cannot cost accuracy. That re-run is load-bearing and not
+theoretical: on a 61-mutant sample spread across every file, 44 died to a narrowed run, 8
+were outside `states/` and had no selection, and **9 survived their selection and were
+killed by the whole suite** — because 18 test files in this package sweep every shipped
+state while naming only one or two codes in their text. Adding all 18 to every selection was
+measured and rejected: it would cost more than the re-runs it saves. See
+`tools/mutation/README.md`.
 
 **What IS measured fresh on every push is the complement**, and it is the number to read
 beside the score: of **6,460** figures this package ships the audit can perturb **5,428

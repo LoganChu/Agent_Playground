@@ -4,6 +4,125 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 65 — 2026-10-28 (second run)
+
+**THE MUTATION AUDIT FITS IN A DAY AGAIN, and the thing that made it fit was not a faster
+harness but a test file that could be narrowed.** Day 64 closed with the audit at about
+fifteen hours — 2,436 mutants against a 1,018-test, 26-second suite on four cores — and
+`scores.json` carrying Day 63's figures while the score check went red by construction. That
+was item 1, ahead of adding another state, and it is done.
+
+Phase 1 for a state mutant is **2.34 seconds against the whole suite's 26.56**.
+
+> **THE RULE THE DAY TURNED ON: A GUARD THAT LOOPS OVER EVERY STATE INSIDE ONE `test()`
+> CANNOT BE NARROWED TO THE STATE A CHANGE CAN AFFECT, SO ITS COST IS PAID BY EVERY
+> CHANGE.** `status-sweep.test.js` and `step-probes.test.js` held 16.5 seconds of the suite's
+> 26.6 in four tests between them, each a single loop over all 31 taxing states. No flag can
+> select a state out of a loop. The fix is structural: one `test()` per state, named with the
+> state's code, which `--test-name-pattern` can then select. 12.97s becomes 0.48s for
+> Arkansas.
+
+**AND THE REASON THIS IS WORTH DOING AT ALL IS A PROPERTY, NOT A SPEEDUP: a mutant that
+SURVIVES its selection is re-run against the whole suite, and only that verdict is
+recorded.**
+
+```text
+  killed by the selection  ->  killed, and a real test failure says so
+  survived the selection   ->  re-run on all 66 files, and that verdict stands
+```
+
+So the score is identical to a full run, mutant for mutant, **whatever the selection does**.
+A bad selection costs TIME — one whole-suite re-run per mutant it failed to kill — and
+cannot cost accuracy. That is the shape to reach for whenever an optimisation touches a
+measurement: not "the shortcut is correct" but "the shortcut cannot be wrong in the
+direction that matters". This file's own header had the idea written down since Day 40 as *"a
+mis-selection can only ever under-kill"* and it sat unbuilt for twenty-five days.
+
+**THE RE-RUN PATH IS LOAD-BEARING AND IT WAS MEASURED RATHER THAN ASSUMED.** On a 61-mutant
+sample spread across every file by `--shard 0/40`: 44 killed by a narrowed run, 8 outside
+`states/` with no selection at all, and **9 that survived their selection and were killed by
+the whole suite**. All 61 killed either way.
+
+Those 9 name a real property of this suite rather than a bug in the selection. **18 test
+files sweep every shipped state while naming only one or two codes in their text**, so they
+can kill a mutant in a state they never mention — `provenance.test.js`,
+`survivor-retirement.test.js`, `federal-conformity.test.js` and fifteen more.
+
+**AND ADDING ALL 18 TO EVERY SELECTION WAS MEASURED AND REJECTED, which is the day's second
+finding.** `survivor-retirement.test.js` alone is 2.95s and `provenance.test.js` 1.87s, so a
+phase 1 containing all 18 costs about 9s — against the 6.9s that 83% at 2.34s and 17% at
+29.3s actually average.
+
+> **THE OCCASIONAL WHOLE-SUITE RE-RUN IS CHEAPER THAN MAKING EVERY MUTANT PAY FOR THE
+> SWEEPING FILES.** A selection does not have to be complete to be worth having, and making
+> it complete can cost more than the incompleteness does. Splitting those 18 per state, the
+> way the two sweeps were split today, is the next reduction rather than widening the
+> selection.
+
+**BOTH HALVES OF THE SELECTION ARE DERIVED, because a list of file names is a list that goes
+stale.** A test file is narrowable when its source builds a test name out of a `${state}`, so
+splitting a third sweep tomorrow needs no edit in the harness. A module's state is its own
+`code:` field, and a module claiming more than one code selects nothing and takes the whole
+suite. Which states a test file mentions is read out of its text.
+
+**AND THE SELECTION HAS A GUARD, because a pattern that matches nothing is GREEN.**
+`--test-name-pattern` that matches no test produces a green run of ZERO tests, and this
+harness reads green as "the mutant survived" — so a renamed per-state test would send a whole
+state's mutants through a vacuous phase 1 and a full re-run, slower than no selection at all
+and silent. Every state code in the run is probed once at start-up and a selection that
+matches nothing stops the run. `runFiles` reads `# pass N` back out of the TAP summary for
+exactly this: the count is how a caller tells *nothing failed* from *nothing ran*. Day 47's
+rule, on its second flag — an announcement at start-up is not a guard, a guard is something
+that will not proceed.
+
+### What proved the refactor, and what it cost to get wrong
+
+**THE GUARDS' OWN INVARIANTS ARE WHAT VERIFIED THE SPLIT, and that is the only reason it
+could be trusted.** Both files pin aggregate counts — `checked` 1,158, `inside` 4,669,
+`largest` `['AR', 1232]`, `exempt` 64 in the status sweep; `checked` 1,868 and `exempt` 16 in
+the step probes. Every one of those is a property of the WALK rather than of the households,
+so they moved into their own cheap test, computed from the same generator the per-state tests
+consume. **All six passed unchanged on the first run of the refactored files.** A refactor of
+a guard is verified by the guard's own invariants and not by reading the diff.
+
+**THREE MISTAKES, and the shape of two of them is the same.**
+
+**A LINE I WROTE TO DO NOTHING DELETED SIX LINES OF INSTITUTIONAL MEMORY.** The surgery
+script ended with a replace I had added as a no-op guard, and the string it built was
+byte-identical to the `statuses`-narrowing comment — the one that records why Iowa's
+exemption is scoped to three statuses and why a whole-table exemption would have been a
+false claim about three cells. It was removed silently and the file still compiled.
+
+> **A MECHANICAL REFACTOR CAN DELETE A COMMENT AND LEAVE A GREEN SUITE, because no test
+> asserts on prose.** What caught it was `comm -23` over the comment text of the file before
+> and after, and that check now belongs after any mechanical edit: 333 comment lines became
+> 369 and not one line of the original text is missing from either file.
+
+**AND TWO FAILURES THAT EACH NAMED EXACTLY THE RIGHT STATES.** Splitting the sweep broke the
+widow assertion's message, which reads `def.survivingSpouseFilesAs.filesAs`, and the four
+failures were AL, AZ, MS and WI — the four states with no surviving-spouse status. Splitting
+the probes left `exempt.push(where)` in a body that no longer owned `exempt`, and the four
+failures were AR, CT, OH and OR — exactly the four states with `UNREACHABLE` entries. **Both
+failures were localised to the right states, which is the thing the split was for,
+demonstrated by failing.** The third was an off-by-one on an extracted segment boundary that
+dropped a closing `});`, and it cost nothing because `node --check` said so immediately.
+
+### What this cost and what it bought
+
+**1,101 tests in `us-state-tax`, up 83 from 1,018** — `status-sweep.test.js` goes 4 to 66 and
+`step-probes.test.js` 4 to 25. More tests, each narrower, and a failure now says which
+state's cell or staircase stopped moving a pinned answer instead of saying that one of 31
+states' did. 1,712 across the four suites. The whole suite is 26.56s against 25.14s before,
+which is the price of 83 more harness entries and is paid once per push rather than once per
+mutant.
+
+**AND A CLAIM THAT HAD BEEN WRONG TWICE IS NOW WRITTEN AS AN ORDER OF MAGNITUDE.**
+`step-probes.test.js` said its coverage proof *"runs in a second where the harness takes half
+an hour"*. It was a second when it was one test over one state's worth of charts, 4.5 seconds
+by Day 64, and the harness had been past half an hour for weeks. Both halves of a comparison
+between two things that each grow with every state will go stale; the sentence now says
+"seconds" and "over an hour" and says that it has been wrong twice.
+
 ## Day 64 — 2026-10-28
 
 ### What I did

@@ -80,21 +80,47 @@ const parse = (row) => {
   return { year: Number(year), state, filingStatus, name, expected: figures.map(Number) };
 };
 
-test('every pinned household still owes what it owed', () => {
+// Built once at module scope since Day 65, because the per-state tests below all
+// read it and rebuilding it inside each of 31 would be 31 passes over the fixture
+// to answer the same question.
+const pinned = new Map(
+  PINS.rows.map((row) => {
+    const { year, state, filingStatus, name, expected } = parse(row);
+    return [`${year}|${state}|${filingStatus}|${name}`, expected.join(',')];
+  }),
+);
+
+// The fixture's own shape is not a per-state claim, so it stays in one test.
+test('the pin fixture is present and not truncated', () => {
   assert.equal(PINS.columns.length, 4 + DIGEST_COLUMNS.length);
   assert.ok(PINS.rows.length > 4_000, 'the fixture is present and not truncated');
-  for (const row of PINS.rows) {
-    const { year, state, filingStatus, name, expected } = parse(row);
-    const actual = digest(
-      stateIncomeTax(household(name, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
-    );
-    assert.deepEqual(
-      actual,
-      expected,
-      `${state} ${year} ${filingStatus} ${name}: ${DIGEST_COLUMNS.join('/')} was ${expected.join('/')} and is now ${actual.join('/')}`,
-    );
-  }
 });
+
+// And the rows themselves, one test per state for the reason given on
+// `byStatusCells` below: a mutant in one state's module can only move one
+// state's rows, and until Day 65 reading them was a single test that every
+// mutant paid for in full.
+const ROWS_BY_STATE = new Map();
+for (const row of PINS.rows) {
+  const state = row.split('|')[1];
+  if (!ROWS_BY_STATE.has(state)) ROWS_BY_STATE.set(state, []);
+  ROWS_BY_STATE.get(state).push(row);
+}
+for (const state of [...ROWS_BY_STATE.keys()].sort()) {
+  test(`every pinned ${state} household still owes what it owed`, () => {
+    for (const row of ROWS_BY_STATE.get(state)) {
+      const { year, filingStatus, name, expected } = parse(row);
+      const actual = digest(
+        stateIncomeTax(household(name, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
+      );
+      assert.deepEqual(
+        actual,
+        expected,
+        `${state} ${year} ${filingStatus} ${name}: ${DIGEST_COLUMNS.join('/')} was ${expected.join('/')} and is now ${actual.join('/')}`,
+      );
+    }
+  });
+}
 
 test('the fixture covers every state, year, status and household this package ships', () => {
   // A pin file gone stale reports on a package that no longer exists. Adding a
@@ -329,110 +355,157 @@ const NOT_REACHABLE_BY_ANY_HOUSEHOLD = {
   },
 };
 
-test('every byStatus cell the package ships moves a pinned answer', () => {
-  const pinned = new Map(
-    PINS.rows.map((row) => {
-      const { year, state, filingStatus, name, expected } = parse(row);
-      return [`${year}|${state}|${filingStatus}|${name}`, expected.join(',')];
-    }),
-  );
-  const exempt = [];
-  let checked = 0;
-  for (const year of SUPPORTED_YEARS) {
-    for (const state of TAXING) {
-      const def = getStateDefinition(state, year);
-      for (const { path, table } of byStatusTables(def, '', [], new WeakSet())) {
-        for (const status of FILING_STATUSES) {
-          const leaf = firstMutableLeaf(table[status]);
-          if (leaf === undefined) continue;
-          const where = `${state} ${year} ${path}.${status} = ${leaf.value}`;
-          const at = `${status}${leaf.path}`;
-          // A doubling, plus one so that a parameter of zero also changes. The
-          // registry hands out the same object every call, so the perturbation is
-          // an in-place write and the restore is a `finally` — a definition left
-          // wrong by a thrown assertion would corrupt every test after this one.
-          let moved = false;
-          // Tracked separately from `moved`, and the reason is ALIASING rather
-          // than anything about widows. `byStatus()` writes
-          // `qualifyingSurvivingSpouse: v.qualifyingSurvivingSpouse ?? v.joint`,
-          // so where the cell is an array or an object the two statuses hold the
-          // SAME REFERENCE and an in-place write to one is a write to both. The
-          // perturbation below therefore moves the JOINT column's answer, which
-          // says nothing about whether the surviving-spouse column was read.
-          // Only a household filed as a surviving spouse can answer that.
-          let movedForWidow = false;
-          try {
-            setAt(table, at, leaf.value * 2 + 1);
-            for (const filingStatus of FILING_STATUSES) {
-              for (const name of HOUSEHOLDS) {
-                const key = `${year}|${state}|${filingStatus}|${name}`;
-                if (
-                  digest(
-                    stateIncomeTax(
-                      household(name, state, year, filingStatus),
-                      FIGURE_SWEEP_OPTIONS,
-                    ),
-                  ).join(',') !== pinned.get(key)
-                ) {
-                  moved = true;
-                  if (filingStatus === 'qualifyingSurvivingSpouse') movedForWidow = true;
-                }
-                if (moved && movedForWidow) break;
+/**
+ * ONE WALK OVER THE BY-STATUS CELLS, AND TWO TESTS THAT READ IT.
+ *
+ * Day 65 split what was a single test into one test per state plus the counts
+ * beside them, and the reason is the mutation harness rather than anything about
+ * the guard. `tools/mutation` sets one parameter wrong and asks whether any test
+ * fails; a mutant in `states/arkansas.js` can only change an Arkansan's answer,
+ * so the only part of this guard that can kill it is Arkansas's. Until today
+ * that part was not separately runnable and every mutant paid for all 31 states
+ * — 11.7 seconds of the suite's 25, which is why one audit pass had grown to
+ * about fifteen hours and the score in `scores.json` went stale on Day 64.
+ *
+ * **THE RULE: a guard that loops over every state inside ONE test cannot be
+ * narrowed to the state a change can affect, so its cost is paid by every
+ * change.** The fix is structural and not a flag: one `test()` per state, named
+ * with the state's code, which `--test-name-pattern` can then select.
+ *
+ * It is a better guard for a reader too. A failure used to say that some cell of
+ * some state stopped moving a pinned answer; it now says which state's.
+ *
+ * `checked` and `exempt` are properties of the WALK and not of the households,
+ * so the counts below do not pay for the perturbation the per-state tests do.
+ * They live in one generator for the reason this file applies everywhere else: a
+ * classification written twice is a classification that can disagree with
+ * itself, and the exemption ledger is the last place to allow that.
+ */
+function* byStatusCells(state, year) {
+  const def = getStateDefinition(state, year);
+  if (def === undefined) return;
+  for (const { path, table } of byStatusTables(def, '', [], new WeakSet())) {
+    for (const status of FILING_STATUSES) {
+      const leaf = firstMutableLeaf(table[status]);
+      if (leaf === undefined) continue;
+      const allowed = NOT_REACHABLE_BY_ANY_HOUSEHOLD[path];
+      yield {
+        def,
+        path,
+        table,
+        status,
+        leaf,
+        where: `${state} ${year} ${path}.${status} = ${leaf.value}`,
+        at: `${status}${leaf.path}`,
+        // The surviving-spouse cell of a state with no such status, exempt by
+        // construction. See the assertion that reads it for why it is asserted
+        // in the opposite direction from the ledger.
+        widowExempt:
+          status === 'qualifyingSurvivingSpouse' && def.survivingSpouseFilesAs !== undefined,
+        // `statuses`, where present, narrows the exemption to the cells it is
+        // actually defended for. Iowa forced it: the SAME by-status table has
+        // two cells no household can reach and three a household reaches, and
+        // a whole-table exemption would have silently excused the three. An
+        // exemption wider than its argument is how an audit starts lying,
+        // which is what the comment on this object already says.
+        ledgerExempt:
+          allowed?.states.includes(state) === true &&
+          (allowed.statuses === undefined || allowed.statuses.includes(status)),
+      };
+    }
+  }
+}
+
+for (const state of TAXING) {
+  test(`every byStatus cell ${state} ships moves a pinned answer`, () => {
+    for (const year of SUPPORTED_YEARS) {
+      for (const cell of byStatusCells(state, year)) {
+        const { def, table, leaf, where, at, widowExempt, ledgerExempt } = cell;
+        // A doubling, plus one so that a parameter of zero also changes. The
+        // registry hands out the same object every call, so the perturbation is
+        // an in-place write and the restore is a `finally` — a definition left
+        // wrong by a thrown assertion would corrupt every test after this one.
+        let moved = false;
+        // Tracked separately from `moved`, and the reason is ALIASING rather
+        // than anything about widows. `byStatus()` writes
+        // `qualifyingSurvivingSpouse: v.qualifyingSurvivingSpouse ?? v.joint`,
+        // so where the cell is an array or an object the two statuses hold the
+        // SAME REFERENCE and an in-place write to one is a write to both. The
+        // perturbation below therefore moves the JOINT column's answer, which
+        // says nothing about whether the surviving-spouse column was read.
+        // Only a household filed as a surviving spouse can answer that.
+        let movedForWidow = false;
+        try {
+          setAt(table, at, leaf.value * 2 + 1);
+          for (const filingStatus of FILING_STATUSES) {
+            for (const name of HOUSEHOLDS) {
+              const key = `${year}|${state}|${filingStatus}|${name}`;
+              if (
+                digest(
+                  stateIncomeTax(
+                    household(name, state, year, filingStatus),
+                    FIGURE_SWEEP_OPTIONS,
+                  ),
+                ).join(',') !== pinned.get(key)
+              ) {
+                moved = true;
+                if (filingStatus === 'qualifyingSurvivingSpouse') movedForWidow = true;
               }
               if (moved && movedForWidow) break;
             }
-          } finally {
-            setAt(table, at, leaf.value);
+            if (moved && movedForWidow) break;
           }
-          checked++;
-          // The surviving-spouse cell of a state that HAS NO SUCH STATUS, which is
-          // unreachable by construction rather than by a hand-written exemption:
-          // `byStatus()` derives the cell from the joint one and the engine
-          // translates the status before any table is read, so nothing can reach
-          // it. Four states, both years — Alabama, Arizona, Mississippi and
-          // Wisconsin; see `surviving-spouse-column.test.js`.
-          //
-          // Asserted the other way round from the ledger below, and that is the
-          // point of putting it here: a cell that MOVED would mean the translation
-          // missed a table, so this is a second and independent proof that it
-          // reaches all of them. The first is that the widow's answer equals the
-          // answer in the column the state sends her to, household by household.
-          if (status === 'qualifyingSurvivingSpouse' && def.survivingSpouseFilesAs !== undefined) {
-            exempt.push(where);
-            assert.equal(
-              movedForWidow,
-              false,
-              `${where}: ${state} files a surviving spouse as ` +
-                `${def.survivingSpouseFilesAs.filesAs}, so nothing should read this cell — and ` +
-                `a household's answer moved when it changed, which means the status translation ` +
-                `is not reaching every by-status table`,
-            );
-            continue;
-          }
-          const allowed = NOT_REACHABLE_BY_ANY_HOUSEHOLD[path];
-          // `statuses`, where present, narrows the exemption to the cells it is
-          // actually defended for. Iowa forced it: the SAME by-status table has
-          // two cells no household can reach and three a household reaches, and
-          // a whole-table exemption would have silently excused the three. An
-          // exemption wider than its argument is how an audit starts lying,
-          // which is what the comment on this object already says.
-          if (
-            allowed?.states.includes(state) &&
-            (allowed.statuses === undefined || allowed.statuses.includes(status))
-          ) {
-            exempt.push(where);
-            assert.equal(
-              moved,
-              false,
-              `${where} is listed as unreachable and a household now reaches it — delete the entry in NOT_REACHABLE_BY_ANY_HOUSEHOLD and let the pins cover it`,
-            );
-            continue;
-          }
-          assert.ok(
-            moved,
-            `${where} could be wrong and no pinned household would notice. Add a household to status-households.mjs that sits between the value and twice it — or, if nothing can reach it, say why in NOT_REACHABLE_BY_ANY_HOUSEHOLD.`,
-          );
+        } finally {
+          setAt(table, at, leaf.value);
         }
+        // The surviving-spouse cell of a state that HAS NO SUCH STATUS, which is
+        // unreachable by construction rather than by a hand-written exemption:
+        // `byStatus()` derives the cell from the joint one and the engine
+        // translates the status before any table is read, so nothing can reach
+        // it. Four states, both years — Alabama, Arizona, Mississippi and
+        // Wisconsin; see `surviving-spouse-column.test.js`.
+        //
+        // Asserted the other way round from the ledger below, and that is the
+        // point of putting it here: a cell that MOVED would mean the translation
+        // missed a table, so this is a second and independent proof that it
+        // reaches all of them. The first is that the widow's answer equals the
+        // answer in the column the state sends her to, household by household.
+        if (widowExempt) {
+          assert.equal(
+            movedForWidow,
+            false,
+            `${where}: ${state} files a surviving spouse as ` +
+              `${def.survivingSpouseFilesAs.filesAs}, so nothing should read this cell — and ` +
+              `a household's answer moved when it changed, which means the status translation ` +
+              `is not reaching every by-status table`,
+          );
+          continue;
+        }
+        if (ledgerExempt) {
+          assert.equal(
+            moved,
+            false,
+            `${where} is listed as unreachable and a household now reaches it — delete the entry in NOT_REACHABLE_BY_ANY_HOUSEHOLD and let the pins cover it`,
+          );
+          continue;
+        }
+        assert.ok(
+          moved,
+          `${where} could be wrong and no pinned household would notice. Add a household to status-households.mjs that sits between the value and twice it — or, if nothing can reach it, say why in NOT_REACHABLE_BY_ANY_HOUSEHOLD.`,
+        );
+      }
+    }
+  });
+}
+
+test('the byStatus cells the package ships, and the numbers inside them', () => {
+  let checked = 0;
+  const exempt = [];
+  for (const year of SUPPORTED_YEARS) {
+    for (const state of TAXING) {
+      for (const cell of byStatusCells(state, year)) {
+        checked++;
+        if (cell.widowExempt || cell.ledgerExempt) exempt.push(cell.where);
       }
     }
   }

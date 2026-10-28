@@ -398,17 +398,148 @@ const execFileAsync = promisify(execFile);
  * number with a reason rather than a default with none.
  */
 async function runSuite(dir) {
+  return runFiles(dir, TEST_FILES, null);
+}
+
+/**
+ * One `node --test` over the given test files, optionally narrowed to the tests
+ * whose NAME matches `pattern`.
+ *
+ * `passed` is read back out of the TAP summary and is not decoration: a
+ * `--test-name-pattern` that matches nothing produces a GREEN run of zero tests,
+ * which this harness would read as a surviving mutant. The count is how the
+ * caller can tell "nothing failed" from "nothing ran", and the startup guard
+ * below refuses to begin if any selection is empty.
+ */
+async function runFiles(dir, files, pattern) {
+  const args = [
+    '--test',
+    ...isolationArgs(isolation),
+    ...(pattern === null ? [] : [`--test-name-pattern=${pattern}`]),
+    ...files.map((f) => `test/${f}`),
+  ];
+  const read = (s) => Number(/^# pass (\d+)$/m.exec(s)?.[1] ?? -1);
   try {
-    await execFileAsync(process.execPath, TESTCMD, {
+    const { stdout } = await execFileAsync(process.execPath, args, {
       cwd: dir,
       timeout: 120_000,
       maxBuffer: 64 * 1024 * 1024,
     });
-    return { green: true };
+    return { green: true, passed: read(String(stdout)) };
   } catch (e) {
     const out = String(e.stdout || '') + String(e.stderr || '');
-    return { green: false, out };
+    return { green: false, out, passed: read(out) };
   }
+}
+
+/**
+ * PER-MUTANT TEST SELECTION — AND WHY IT CANNOT MOVE THE SCORE.
+ *
+ * ## The arithmetic that forced it
+ *
+ * Day 64 shipped Arkansas and the audit stopped fitting in a day. 2,436 mutants
+ * against a 35-second suite on four cores is about FIFTEEN HOURS, so the run was
+ * started, reached 100 mutants in 38 minutes, and was stopped; `scores.json` kept
+ * Day 63's figures and the score check went red by construction. The cause is the
+ * SUITE's growth rather than the state count: every mutant ran all 66 test files.
+ *
+ * ## Why it is sound, which is the only part that matters
+ *
+ * A selection that MISSES the test which would have killed a mutant does not
+ * report a wrong score, because a mutant that survives its selection is re-run
+ * against the WHOLE suite before it is called a survivor. So:
+ *
+ *   killed by the selection   -> killed, and a real test failure says so
+ *   survived the selection    -> re-run on all 66 files, and that verdict stands
+ *
+ * **THE SCORE IS THEREFORE IDENTICAL TO A FULL RUN, mutant for mutant, whatever
+ * the selection does.** A bad selection costs TIME — a full re-run per mutant it
+ * failed to kill — and cannot cost accuracy. That is the property that makes this
+ * worth doing at all, and it is the reason the idea sat in this file's header from
+ * Day 40 as "a mis-selection can only ever under-kill".
+ *
+ * ## What is selected
+ *
+ * 2,320 of the 2,436 mutants are in `states/*.js`, and a parameter in one state's
+ * module can only change an answer for a household in that state. So for those:
+ *
+ *   1. the two state-sweep guards, narrowed to that state's own tests with
+ *      `--test-name-pattern`. Day 65 split both into one `test()` per state for
+ *      exactly this; before that they were one test each and could not be
+ *      narrowed. They are the two most expensive files in the suite (16.5s of
+ *      26.6s) and they fall to 0.6s for one state.
+ *   2. every test file that names that state's code, plus every test file that
+ *      names NO state code at all — those are the package-wide guards and have to
+ *      run for everything.
+ *
+ * The 116 mutants outside `states/*.js` — `data/provenance.js` holds 100 of them,
+ * and its entries are not separable by state — get the whole suite, as before.
+ *
+ * Measured on this container for an Arkansas mutant:
+ *
+ * ```text
+ *   whole suite                                      26.56s
+ *   the two sweeps, narrowed to AR                     0.60s
+ *   the 9 other files that mention AR or no state      1.74s
+ *                                                     -----
+ *   phase 1                                            2.34s   -> 11x
+ * ```
+ *
+ * ## Both halves are DERIVED, because a list would go stale
+ *
+ * Which test files can be narrowed is read out of their source — a file is
+ * narrowable if it builds a test name from a `${state}` — so splitting a third
+ * sweep tomorrow needs no edit here. Which state a module is is read out of the
+ * module's own `code:` field, and a module claiming more than one code selects
+ * nothing and takes the whole suite. Which states a test file mentions is read
+ * out of its text.
+ *
+ * `--no-select` turns all of it off and restores the Day 64 behaviour, which is
+ * how the equivalence was checked rather than argued: see `--compare`.
+ */
+const SELECT = !argv.includes('--no-select');
+
+// Every two-letter code the shipped state modules claim, and which module is
+// which state. A module with more than one `code:` in it is not attributable and
+// is left to the whole suite.
+const codeOfFile = new Map();
+const ALL_CODES = new Set();
+for (const abs of files) {
+  const rel = relative(esm, abs);
+  if (!/^states\/[a-z0-9-]+\.js$/.test(rel)) continue;
+  const codes = new Set([...readFileSync(abs, 'utf8').matchAll(/\bcode: '([A-Z]{2})'/g)].map((m) => m[1]));
+  for (const c of codes) ALL_CODES.add(c);
+  if (codes.size === 1) codeOfFile.set(rel, [...codes][0]);
+}
+
+const testSource = new Map(TEST_FILES.map((f) => [f, readFileSync(join(pkgDir, 'test', f), 'utf8')]));
+// A test file is narrowable when it names its tests after a state, which is what
+// `--test-name-pattern` selects on. Derived, so that it follows the test files.
+const NARROWABLE = TEST_FILES.filter((f) => /test\(`[^`]*\$\{state\}/.test(testSource.get(f)));
+// Which states each test file mentions, and the ones that mention none: those are
+// the package-wide guards, and they run for every mutant.
+const mentions = new Map(
+  TEST_FILES.map((f) => [
+    f,
+    new Set([...ALL_CODES].filter((c) => new RegExp(`['"\`]${c}['"\`]`).test(testSource.get(f)))),
+  ]),
+);
+const GENERIC = TEST_FILES.filter((f) => mentions.get(f).size === 0);
+
+/** The ordered steps to run for one mutant, or `null` for "the whole suite". */
+function planFor(rel) {
+  const code = SELECT ? codeOfFile.get(rel) : undefined;
+  if (code === undefined) return null;
+  const narrowed = NARROWABLE.filter((f) => mentions.get(f).has(code) || mentions.get(f).size === 0);
+  const rest = [...new Set([...GENERIC, ...TEST_FILES.filter((f) => mentions.get(f).has(code))])].filter(
+    (f) => !narrowed.includes(f),
+  );
+  const steps = [];
+  // Cheapest and most lethal first: the sweeps pin every by-status cell and every
+  // staircase number, so they kill most data mutants in six tenths of a second.
+  if (narrowed.length > 0) steps.push({ files: narrowed, pattern: ` ${code} ` });
+  if (rest.length > 0) steps.push({ files: rest, pattern: null });
+  return steps.length === 0 ? null : { code, steps };
 }
 
 const root = join(os.tmpdir(), `mut-${process.pid}`);
@@ -440,6 +571,52 @@ if (!base.green) {
   process.exit(1);
 }
 console.error('[mutate] baseline green');
+
+/**
+ * THE SELECTION MUST NOT BE EMPTY, and an announcement would not be enough.
+ *
+ * `--test-name-pattern` that matches nothing produces a GREEN run of ZERO tests,
+ * and this harness reads green as "the mutant survived". A code whose per-state
+ * tests had been renamed would therefore send every one of its mutants through a
+ * vacuous phase 1 and a full re-run — slower than no selection at all, and
+ * silent. So every code in the selected set is probed once, here, and a code that
+ * selects no tests stops the run.
+ *
+ * Day 47's rule, which this file states at length about `--record`: an
+ * announcement at start-up is not a guard. A guard is something that will not
+ * proceed.
+ */
+const CODES_IN_RUN = [...new Set(selected.map((mu) => codeOfFile.get(mu.rel)).filter(Boolean))].sort();
+if (SELECT && CODES_IN_RUN.length > 0) {
+  const empty = [];
+  for (const code of CODES_IN_RUN) {
+    const plan = planFor([...codeOfFile].find(([, c]) => c === code)[0]);
+    // Only the NARROWED step can match nothing — a step with no pattern runs
+    // whole files. Probing just that one keeps this guard to about a second a
+    // state instead of the whole of phase 1.
+    for (const step of plan.steps.filter((s) => s.pattern !== null)) {
+      const r = await runFiles(workerDirs[0], step.files, step.pattern);
+      if (!r.green) {
+        console.error(`[mutate] BASELINE IS RED under the ${code} selection, which the whole suite passed.`);
+        console.error(r.out.split('\n').filter((l) => /^not ok/.test(l)).join('\n').slice(0, 3000));
+        process.exit(1);
+      }
+      if (r.passed <= 0) empty.push(`${code}: ${step.pattern ?? 'no pattern'} over ${step.files.length} file(s)`);
+    }
+  }
+  if (empty.length > 0) {
+    console.error(
+      '[mutate] REFUSED to start: a test selection matched no tests, and a selection that\n' +
+        'matches nothing is GREEN, which this harness reads as a surviving mutant.\n\n' +
+        empty.map((e) => `  ${e}`).join('\n'),
+    );
+    process.exit(2);
+  }
+  console.error(
+    `[mutate] selection: ${CODES_IN_RUN.length} state(s), ${NARROWABLE.length} narrowable test file(s), ` +
+      `${GENERIC.length} that name no state`,
+  );
+}
 // Said at the START, because a measurement this long must not be able to
 // decline to record without saying so. Day 42 lost 105 minutes to exactly that.
 console.error(
@@ -454,14 +631,37 @@ for (const f of files) originals.set(relative(esm, f), readFileSync(f, 'utf8'));
 
 const results = [];
 let done = 0;
+let killedBySelection = 0;
+let fullReRuns = 0;
 async function worker(dir, list) {
   for (const mu of list) {
     const target = join(dir, 'dist/esm', mu.rel);
     const src = originals.get(mu.rel);
     writeFileSync(target, src.slice(0, mu.offset) + mu.to + src.slice(mu.offset + mu.from.length));
-    const r = await runSuite(dir);
+    const plan = planFor(mu.rel);
+    let killed = false;
+    if (plan !== null) {
+      for (const step of plan.steps) {
+        const r = await runFiles(dir, step.files, step.pattern);
+        if (!r.green) {
+          killed = true;
+          break;
+        }
+      }
+    }
+    let survived;
+    if (killed) {
+      survived = false;
+      killedBySelection++;
+    } else {
+      // Nothing in the selection failed — which is NOT a survivor yet. The whole
+      // suite decides, every time, and that is what makes the score identical to
+      // a full run however bad the selection is.
+      survived = (await runSuite(dir)).green;
+      if (plan !== null) fullReRuns++;
+    }
     writeFileSync(target, src);
-    results.push({ ...mu, survived: r.green });
+    results.push({ ...mu, survived });
     done++;
     if (done % 50 === 0) console.error(`[mutate] ${done}/${selected.length}`);
   }
@@ -475,6 +675,17 @@ rmSync(root, { recursive: true, force: true });
 const survivors = results.filter((r) => r.survived);
 console.log(`\n# Mutation audit — ${pkgDir}`);
 console.log(`\nmutants ${results.length}    killed ${results.length - survivors.length}    survived ${survivors.length}    score ${(((results.length - survivors.length) / results.length) * 100).toFixed(1)}%`);
+if (SELECT && killedBySelection + fullReRuns > 0) {
+  // Printed because it is the only number that says whether the selection is
+  // EARNING anything. Every re-run is a mutant the selection failed to kill and
+  // the whole suite then had to judge, so a re-run count near the mutant count
+  // means the selection is costing time rather than saving it — and the score is
+  // still right, which is exactly why this has to be reported rather than felt.
+  console.log(
+    `\nselection: ${killedBySelection} killed by a narrowed run, ` +
+      `${fullReRuns} re-run against the whole suite because the narrowed run was green`,
+  );
+}
 const byFile = {};
 for (const s of survivors) (byFile[s.rel] ||= []).push(s);
 console.log('\n## Survivors by file\n');
