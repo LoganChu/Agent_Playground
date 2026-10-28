@@ -71,7 +71,7 @@
  *                                  (--record | --no-record)  <- required for a FULL run
  *                                  [--max-survivors N] [--record [FILE]]
  */
-import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
 import { execFile, execFileSync, execSync } from 'node:child_process';
 import { enumerateMutants } from './enumerate.mjs';
@@ -641,7 +641,88 @@ console.error(
 const originals = new Map();
 for (const f of files) originals.set(relative(esm, f), readFileSync(f, 'utf8'));
 
+/**
+ * RESUME, BECAUSE A CONTAINER RESTART IS NOT AN EXCEPTIONAL EVENT.
+ *
+ * Day 65 lost a run at nine minutes to the sandbox restarting underneath it, and
+ * that is the second time an audit has been thrown away whole: Day 42 lost 105
+ * minutes to a run that recorded nothing and Day 43 two hours to the wrong flags.
+ * Those two were fixed with guards on the flags. This one cannot be, because
+ * nothing was wrong with the invocation.
+ *
+ * **THE RULE: a measurement long enough to be interrupted needs to survive being
+ * interrupted, and a run that can only be restarted from zero will be restarted
+ * from zero.** So every verdict is appended to `<json>.partial` as it is reached,
+ * and `--resume` picks up from there.
+ *
+ * ## It carries the fingerprints, and refuses to mix trees
+ *
+ * A resumed run is a single score assembled from two processes, so the honest
+ * version of it has to prove both halves measured the SAME package. The partial
+ * opens with a stamp line holding `mutantFingerprint` and `suiteFingerprint`, and
+ * `--resume` refuses when either has moved — which is `check-scores.mjs`'s own
+ * rule one level down: a measurement is a measurement OF something, and half a
+ * measurement is no exception.
+ *
+ * Without `--resume` the partial is TRUNCATED rather than appended to, because a
+ * stale partial silently extended is a score over two trees with nothing to say
+ * so.
+ */
+const PARTIAL = JSON_OUT === null ? null : `${JSON_OUT}.partial`;
+const RESUME = argv.includes('--resume');
+if (RESUME && PARTIAL === null) {
+  console.error('[mutate] --resume needs --json <file>, which is where the partial verdicts live.');
+  process.exit(2);
+}
+const { mutantFingerprint: mutantFp, suiteFingerprint: suiteFp } = await import('./fingerprint.mjs');
+const STAMP = { kind: 'stamp', mutant: mutantFp(pkgDir), suite: suiteFp(pkgDir) };
+const keyOf = (r) => `${r.rel}|${r.offset}|${r.from}>${r.to}`;
+
 const results = [];
+let resumed = 0;
+if (PARTIAL !== null) {
+  if (RESUME && existsSync(PARTIAL)) {
+    const lines = readFileSync(PARTIAL, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => {
+        try {
+          return JSON.parse(l);
+        } catch {
+          // A line half-written when the process died. There is exactly one, it
+          // is the last, and dropping it costs one mutant.
+          return null;
+        }
+      })
+      .filter(Boolean);
+    const stamp = lines[0];
+    if (stamp?.kind !== 'stamp') {
+      console.error(`[mutate] REFUSED to resume: ${PARTIAL} has no fingerprint stamp.`);
+      process.exit(2);
+    }
+    if (stamp.mutant !== STAMP.mutant || stamp.suite !== STAMP.suite) {
+      console.error(
+        '[mutate] REFUSED to resume: the partial was measured over a different tree.\n' +
+          `  parameters  partial ${stamp.mutant}  this build ${STAMP.mutant}\n` +
+          `  suite       partial ${stamp.suite}  this build ${STAMP.suite}\n` +
+          'A score assembled from two different trees is not a score of either.',
+      );
+      process.exit(2);
+    }
+    const done = new Map(lines.slice(1).map((r) => [keyOf(r), r]));
+    for (const mu of selected) {
+      const prior = done.get(keyOf(mu));
+      if (prior !== undefined) results.push(prior);
+    }
+    resumed = results.length;
+    const remaining = selected.filter((mu) => !done.has(keyOf(mu)));
+    console.error(`[mutate] resuming: ${resumed} verdict(s) already recorded, ${remaining.length} to go`);
+    selected = remaining;
+  } else {
+    writeFileSync(PARTIAL, `${JSON.stringify(STAMP)}\n`);
+  }
+}
+
 let done = 0;
 let killedBySelection = 0;
 let fullReRuns = 0;
@@ -673,9 +754,16 @@ async function worker(dir, list) {
       if (plan !== null) fullReRuns++;
     }
     writeFileSync(target, src);
-    results.push({ ...mu, survived });
+    const verdict = { ...mu, survived };
+    results.push(verdict);
+    // Appended before the counter moves, so a verdict reached is a verdict kept.
+    // `appendFileSync` opens with O_APPEND, so four workers writing short lines
+    // interleave by line rather than by byte.
+    if (PARTIAL !== null) appendFileSync(PARTIAL, `${JSON.stringify(verdict)}\n`);
     done++;
-    if (done % 50 === 0) console.error(`[mutate] ${done}/${selected.length}`);
+    // Counted against the WHOLE run and not this process's share of it, so a
+    // resumed run's progress line means the same thing as a fresh one's.
+    if (done % 50 === 0) console.error(`[mutate] ${resumed + done}/${resumed + selected.length}`);
   }
 }
 const chunks = Array.from({ length: WORKERS }, () => []);
@@ -695,7 +783,12 @@ if (SELECT && killedBySelection + fullReRuns > 0) {
   // still right, which is exactly why this has to be reported rather than felt.
   console.log(
     `\nselection: ${killedBySelection} killed by a narrowed run, ` +
-      `${fullReRuns} re-run against the whole suite because the narrowed run was green`,
+      `${fullReRuns} re-run against the whole suite because the narrowed run was green` +
+      // Said explicitly on a resumed run, because these two count what THIS
+      // process did and the mutant total above counts the whole score. A reader
+      // comparing them would otherwise read the difference as mutants that
+      // skipped the selection.
+      (resumed > 0 ? `, over the ${done} mutant(s) this process ran (${resumed} resumed)` : ''),
   );
 }
 const byFile = {};
