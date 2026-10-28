@@ -59,7 +59,7 @@
  * ```
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -68,6 +68,24 @@ import { mutantFingerprint, suiteFingerprint } from './fingerprint.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const RECORD = join(ROOT, 'tools', 'mutation', 'scores.json');
 const CHECK = process.argv.includes('--check');
+/**
+ * `--write` updates the README's mutation table from the record.
+ *
+ * Day 37 built this file because "the mutation numbers were the last advertised
+ * measurements in this repository that a human copied by hand". It has caught
+ * the copy being wrong ever since and still left the copying to a human, which
+ * is half a fix: `tools/test-counts.mjs` has had `--write` since Day 36 and this
+ * had not.
+ *
+ * Only the README table, deliberately. Its rows begin with the package name, so
+ * which number belongs to which package is unambiguous. STRATEGY.md writes the
+ * same figures into PROSE that says "the federal engine" and "the state engine"
+ * rather than naming the packages, so nothing in the file says which phrase
+ * belongs to which record entry — and a `--write` that guessed would be a tool
+ * for putting the right number in the wrong sentence. It stays checked and
+ * hand-edited, and making it attributable is on the worklist.
+ */
+const WRITE = process.argv.includes('--write');
 
 const problems = [];
 const note = (message) => {
@@ -83,7 +101,11 @@ if (!existsSync(RECORD)) {
   process.exit(1);
 }
 const record = JSON.parse(readFileSync(RECORD, 'utf8'));
-const README = readFileSync(join(ROOT, 'README.md'), 'utf8');
+// `let`, because `--write` rewrites it per package and there are two. Read once
+// into a string and written twice from that string, the second write would have
+// discarded the first — the README is the shared state here, and two packages
+// means two passes over it.
+let README = readFileSync(join(ROOT, 'README.md'), 'utf8');
 // Whitespace-collapsed, because the phrase it is searched for straddles a line
 // break in prose and a check that fails on a newline is a check that teaches
 // the reader to ignore it. The first run of this file reported exactly that.
@@ -131,6 +153,22 @@ for (const [name, row] of Object.entries(record.packages)) {
   const line = README.split('\n').find((text) => text.startsWith(`| \`${name}\``));
   if (line === undefined) {
     note(`${name}: README.md has no mutation table row for it`);
+  } else if (WRITE) {
+    // The cells are rewritten in place rather than rebuilt, so whatever prose a
+    // cell carries beside its number — `6 — see the worklist` — survives.
+    const cells = line.split('|');
+    const put = (i, value) => {
+      cells[i] = cells[i].replace(/[\d.]+/, String(value));
+    };
+    put(2, row.mutants);
+    put(3, row.survivors);
+    put(4, row.score);
+    const updated = cells.join('|');
+    if (updated !== line) {
+      README = README.replace(line, updated);
+      writeFileSync(join(ROOT, 'README.md'), README);
+      process.stdout.write(`  WROTE  README.md: ${updated.trim()}\n`);
+    }
   } else {
     const cells = line.split('|').map((cell) => cell.trim());
     const number = (cell) => Number((String(cell).match(/[\d.]+/) ?? ['NaN'])[0]);
@@ -145,7 +183,16 @@ for (const [name, row] of Object.entries(record.packages)) {
       note(`${name}: README says ${number(scoreCell)}%, the record says ${row.score}%`);
     }
   }
-  const phrase = `(${row.mutants} mutants, ${row.survivors} survivors)`;
+  // **THE PERCENTAGE IS IN THE PHRASE SINCE DAY 65, and leaving it out was a hole
+  // this file could not see.** The check was for `(1654 mutants, 6 survivors)`
+  // alone, so STRATEGY.md could have read "**99.6%** (2436 mutants, 6
+  // survivors)" — a stale score beside fresh counts — and passed. Every
+  // occurrence in that file already writes the score immediately before the
+  // counts, so the tighter phrase costs nothing and closes it.
+  //
+  // THE RULE: a check on PART of a claim passes a claim that is wrong in the
+  // part it does not read, and the part left out is the headline number.
+  const phrase = `**${row.score}%** (${row.mutants} mutants, ${row.survivors} survivors)`;
   if (!STRATEGY.includes(phrase)) {
     note(`${name}: STRATEGY.md does not contain "${phrase}"`);
   }

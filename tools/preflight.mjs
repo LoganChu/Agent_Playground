@@ -70,8 +70,13 @@ const CHECKS = [
     expect: (out) => (out.match(/^# pass (\d+)/m) ?? [])[1] && `${(out.match(/^# pass (\d+)/m))[1]} tests`,
   },
   {
-    label: "the enumerator's own tests",
-    cmd: 'node tools/mutation/enumerate.test.mjs',
+    // The GLOB and not `enumerate.test.mjs`, since Day 65. CI's `mutation-claims`
+    // job has always run `node --test tools/mutation/*.test.mjs`, so naming one
+    // file here made the push gate weaker than CI — and `select.test.mjs`, which
+    // is the only thing that can see the selection losing its reach, would have
+    // been run by CI and not by the gate that decides whether to push.
+    label: "the mutation harness's own tests",
+    cmd: 'node --test tools/mutation/*.test.mjs',
     expect: (out) => (out.match(/^# pass (\d+)/m) ?? [])[1] && `${(out.match(/^# pass (\d+)/m))[1]} tests`,
   },
   {

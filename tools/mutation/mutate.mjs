@@ -75,6 +75,14 @@ import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSy
 import { basename, join, relative } from 'node:path';
 import { execFile, execFileSync, execSync } from 'node:child_process';
 import { enumerateMutants } from './enumerate.mjs';
+import {
+  attributionOf,
+  codeAtIn,
+  codesIn,
+  mentionsIn,
+  narrowableIn,
+  planSteps,
+} from './select.mjs';
 import { promisify } from 'node:util';
 import os from 'node:os';
 
@@ -489,13 +497,17 @@ async function runFiles(dir, files, pattern) {
  *
  * Which test files can be narrowed is read out of their source — a file is
  * narrowable if it builds a test name from a `${state}` — so splitting a third
- * sweep tomorrow needs no edit here. Which state a module is is read out of the
- * module's own `code:` field, and a module claiming more than one code selects
- * nothing and takes the whole suite. Which states a test file mentions is read
- * out of its text.
+ * sweep tomorrow needs no edit here. Which state a mutant belongs to is read out
+ * of the top-level declaration its OFFSET sits in. Which states a test file
+ * mentions is read out of its text.
  *
- * `--no-select` turns all of it off and restores the Day 64 behaviour, which is
- * how the equivalence was checked rather than argued: see `--compare`.
+ * All of that is pure, so it lives in `select.mjs` where a test can reach it —
+ * `mutate.mjs` runs an audit on import, which is the same reason `enumerate.mjs`
+ * is its own file. `select.test.mjs` covers it, and the property those tests
+ * defend is that the selection stays USEFUL: a selection that quietly stops
+ * attributing mutants leaves the score exact and the run fifteen hours long.
+ *
+ * `--no-select` turns all of it off and restores the Day 64 behaviour.
  */
 const SELECT = !argv.includes('--no-select');
 
@@ -511,91 +523,34 @@ const SELECT = !argv.includes('--no-select');
  *
  * A mutant has an offset, and the offset sits inside exactly one top-level
  * declaration: `function georgia(year)`, or `const GA_NOTES`. So the attribution
- * is done per declaration, by the `code:` field inside it or by the `GA_` prefix
- * on its name, and falls back to the file's own code where a declaration names no
- * state. A mutant that cannot be attributed takes the whole suite, as before.
+ * is done per declaration — see `attributionOf` in `select.mjs`, which also
+ * records why the nearest PRECEDING `code:` literal is the wrong answer — and a
+ * mutant that cannot be attributed takes the whole suite, as before.
  *
  * **It is not required to be right, which is the point of the re-run.** A mutant
  * attributed to the wrong state runs the wrong state's tests, passes them, and is
  * then re-run against the whole suite like any other selection miss — slower by
  * one suite and never wrong.
  */
-const ALL_CODES = new Set();
-const stateFiles = files.map((abs) => [relative(esm, abs), abs]).filter(([rel]) => /^states\/[a-z0-9-]+\.js$/.test(rel));
-for (const [, abs] of stateFiles) {
-  for (const m of readFileSync(abs, 'utf8').matchAll(/\bcode: '([A-Z]{2})'/g)) ALL_CODES.add(m[1]);
-}
-
-/** Top-level declarations, in order, with the span of source each one owns. */
-function declarations(src) {
-  const re = /^(?:export\s+)?(?:const|let|var|function|class)\s+([A-Za-z0-9_$]+)/gm;
-  const out = [];
-  let m;
-  while ((m = re.exec(src)) !== null) out.push({ name: m[1], start: m.index });
-  for (let i = 0; i < out.length; i++) out[i].end = i + 1 < out.length ? out[i + 1].start : src.length;
-  return out;
-}
-
-// rel -> { fileCode, spans: [{start, end, code}] }
-const attribution = new Map();
-for (const [rel, abs] of stateFiles) {
-  const src = readFileSync(abs, 'utf8');
-  const fileCodes = new Set([...src.matchAll(/\bcode: '([A-Z]{2})'/g)].map((m) => m[1]));
-  const spans = declarations(src).map((d) => {
-    const inside = new Set(
-      [...src.slice(d.start, d.end).matchAll(/\bcode: '([A-Z]{2})'/g)].map((m) => m[1]),
-    );
-    const prefix = /^([A-Z]{2})_/.exec(d.name)?.[1];
-    return {
-      start: d.start,
-      end: d.end,
-      code:
-        inside.size === 1
-          ? [...inside][0]
-          : inside.size === 0 && prefix !== undefined && ALL_CODES.has(prefix)
-            ? prefix
-            : null,
-    };
-  });
-  attribution.set(rel, { fileCode: fileCodes.size === 1 ? [...fileCodes][0] : null, spans });
-}
-
-/** The state a mutant belongs to, or `undefined` for "cannot say". */
-function codeAt(rel, offset) {
-  const a = attribution.get(rel);
-  if (a === undefined) return undefined;
-  const span = a.spans.find((s) => offset >= s.start && offset < s.end);
-  return span?.code ?? a.fileCode ?? undefined;
-}
+const stateFiles = files
+  .map((abs) => [relative(esm, abs), abs])
+  .filter(([rel]) => /^states\/[a-z0-9-]+\.js$/.test(rel));
+const ALL_CODES = codesIn(stateFiles.map(([, abs]) => readFileSync(abs, 'utf8')));
+const attribution = attributionOf(
+  stateFiles.map(([rel, abs]) => [rel, readFileSync(abs, 'utf8')]),
+  ALL_CODES,
+);
+const codeAt = (rel, offset) => codeAtIn(attribution, rel, offset);
 
 const testSource = new Map(TEST_FILES.map((f) => [f, readFileSync(join(pkgDir, 'test', f), 'utf8')]));
-// A test file is narrowable when it names its tests after a state, which is what
-// `--test-name-pattern` selects on. Derived, so that it follows the test files.
-const NARROWABLE = TEST_FILES.filter((f) => /test\(`[^`]*\$\{state\}/.test(testSource.get(f)));
-// Which states each test file mentions, and the ones that mention none: those are
-// the package-wide guards, and they run for every mutant.
-const mentions = new Map(
-  TEST_FILES.map((f) => [
-    f,
-    new Set([...ALL_CODES].filter((c) => new RegExp(`['"\`]${c}['"\`]`).test(testSource.get(f)))),
-  ]),
-);
+const NARROWABLE = narrowableIn(testSource);
+const mentions = mentionsIn(testSource, ALL_CODES);
 const GENERIC = TEST_FILES.filter((f) => mentions.get(f).size === 0);
 
 /** The ordered steps to run for one mutant, or `null` for "the whole suite". */
 function planFor(rel, offset) {
-  const code = SELECT ? codeAt(rel, offset) : undefined;
-  if (code === undefined) return null;
-  const narrowed = NARROWABLE.filter((f) => mentions.get(f).has(code) || mentions.get(f).size === 0);
-  const rest = [...new Set([...GENERIC, ...TEST_FILES.filter((f) => mentions.get(f).has(code))])].filter(
-    (f) => !narrowed.includes(f),
-  );
-  const steps = [];
-  // Cheapest and most lethal first: the sweeps pin every by-status cell and every
-  // staircase number, so they kill most data mutants in six tenths of a second.
-  if (narrowed.length > 0) steps.push({ files: narrowed, pattern: ` ${code} ` });
-  if (rest.length > 0) steps.push({ files: rest, pattern: null });
-  return steps.length === 0 ? null : { code, steps };
+  if (!SELECT) return null;
+  return planSteps({ code: codeAt(rel, offset), testFiles: TEST_FILES, narrowable: NARROWABLE, mentions });
 }
 
 const root = join(os.tmpdir(), `mut-${process.pid}`);
