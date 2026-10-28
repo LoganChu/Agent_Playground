@@ -346,6 +346,23 @@ suites, up 84 from 1,629. 31 taxing states, 40 in all, unchanged — no state wa
 shipped behaviour moved: the day's work is one new test, one guard, and a harness that
 measures the same thing eleven times faster.
 
+### CI, read after the push as well as before it
+
+**Run 272 on `9ff48f0`: all seven jobs green, not one step skipped anywhere in the run** —
+read job by job AND step by step. `mutation-claims` is green for the first time since Day 63,
+and its step 8, *"Check every advertised mutation score against the record and this build"*,
+passes rather than being the documented red.
+
+That closes the loop on the thing the human was told this morning. The notification sent at
+the start of this run said the job was *"red by design, and will stay red until tomorrow's
+run"*. It stayed red for about three hours.
+
+> **AND THE STEP-NUMBER LESSON FROM THIS MORNING APPLIES IN THE OTHER DIRECTION TOO.** The
+> commit before last recorded that the expected red had moved from step 7 to step 8 and that
+> the check to make is on the step's NAME. Today the right check was the same one and the
+> answer was that no step failed at all — which is only distinguishable from "the red moved
+> again" by reading the names.
+
 ### Process notes
 
 - **I modified `dist/` under a running measurement**, to demonstrate the survivor's effect,
