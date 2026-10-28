@@ -499,17 +499,73 @@ async function runFiles(dir, files, pattern) {
  */
 const SELECT = !argv.includes('--no-select');
 
-// Every two-letter code the shipped state modules claim, and which module is
-// which state. A module with more than one `code:` in it is not attributable and
-// is left to the whole suite.
-const codeOfFile = new Map();
+/**
+ * WHICH STATE A MUTANT BELONGS TO, and the reason it is an OFFSET question rather
+ * than a FILE one.
+ *
+ * Four modules in this package hold more than one state — `flat-states.js` holds
+ * eight and 162 mutants, `utah-pennsylvania.js` two, `federal-taxable-base.js`
+ * two — and asking the FILE which state it is gets no answer for any of them.
+ * That left 230 mutants, about a quarter of an hour of the run, with no selection
+ * at all.
+ *
+ * A mutant has an offset, and the offset sits inside exactly one top-level
+ * declaration: `function georgia(year)`, or `const GA_NOTES`. So the attribution
+ * is done per declaration, by the `code:` field inside it or by the `GA_` prefix
+ * on its name, and falls back to the file's own code where a declaration names no
+ * state. A mutant that cannot be attributed takes the whole suite, as before.
+ *
+ * **It is not required to be right, which is the point of the re-run.** A mutant
+ * attributed to the wrong state runs the wrong state's tests, passes them, and is
+ * then re-run against the whole suite like any other selection miss — slower by
+ * one suite and never wrong.
+ */
 const ALL_CODES = new Set();
-for (const abs of files) {
-  const rel = relative(esm, abs);
-  if (!/^states\/[a-z0-9-]+\.js$/.test(rel)) continue;
-  const codes = new Set([...readFileSync(abs, 'utf8').matchAll(/\bcode: '([A-Z]{2})'/g)].map((m) => m[1]));
-  for (const c of codes) ALL_CODES.add(c);
-  if (codes.size === 1) codeOfFile.set(rel, [...codes][0]);
+const stateFiles = files.map((abs) => [relative(esm, abs), abs]).filter(([rel]) => /^states\/[a-z0-9-]+\.js$/.test(rel));
+for (const [, abs] of stateFiles) {
+  for (const m of readFileSync(abs, 'utf8').matchAll(/\bcode: '([A-Z]{2})'/g)) ALL_CODES.add(m[1]);
+}
+
+/** Top-level declarations, in order, with the span of source each one owns. */
+function declarations(src) {
+  const re = /^(?:export\s+)?(?:const|let|var|function|class)\s+([A-Za-z0-9_$]+)/gm;
+  const out = [];
+  let m;
+  while ((m = re.exec(src)) !== null) out.push({ name: m[1], start: m.index });
+  for (let i = 0; i < out.length; i++) out[i].end = i + 1 < out.length ? out[i + 1].start : src.length;
+  return out;
+}
+
+// rel -> { fileCode, spans: [{start, end, code}] }
+const attribution = new Map();
+for (const [rel, abs] of stateFiles) {
+  const src = readFileSync(abs, 'utf8');
+  const fileCodes = new Set([...src.matchAll(/\bcode: '([A-Z]{2})'/g)].map((m) => m[1]));
+  const spans = declarations(src).map((d) => {
+    const inside = new Set(
+      [...src.slice(d.start, d.end).matchAll(/\bcode: '([A-Z]{2})'/g)].map((m) => m[1]),
+    );
+    const prefix = /^([A-Z]{2})_/.exec(d.name)?.[1];
+    return {
+      start: d.start,
+      end: d.end,
+      code:
+        inside.size === 1
+          ? [...inside][0]
+          : inside.size === 0 && prefix !== undefined && ALL_CODES.has(prefix)
+            ? prefix
+            : null,
+    };
+  });
+  attribution.set(rel, { fileCode: fileCodes.size === 1 ? [...fileCodes][0] : null, spans });
+}
+
+/** The state a mutant belongs to, or `undefined` for "cannot say". */
+function codeAt(rel, offset) {
+  const a = attribution.get(rel);
+  if (a === undefined) return undefined;
+  const span = a.spans.find((s) => offset >= s.start && offset < s.end);
+  return span?.code ?? a.fileCode ?? undefined;
 }
 
 const testSource = new Map(TEST_FILES.map((f) => [f, readFileSync(join(pkgDir, 'test', f), 'utf8')]));
@@ -527,8 +583,8 @@ const mentions = new Map(
 const GENERIC = TEST_FILES.filter((f) => mentions.get(f).size === 0);
 
 /** The ordered steps to run for one mutant, or `null` for "the whole suite". */
-function planFor(rel) {
-  const code = SELECT ? codeOfFile.get(rel) : undefined;
+function planFor(rel, offset) {
+  const code = SELECT ? codeAt(rel, offset) : undefined;
   if (code === undefined) return null;
   const narrowed = NARROWABLE.filter((f) => mentions.get(f).has(code) || mentions.get(f).size === 0);
   const rest = [...new Set([...GENERIC, ...TEST_FILES.filter((f) => mentions.get(f).has(code))])].filter(
@@ -586,11 +642,12 @@ console.error('[mutate] baseline green');
  * announcement at start-up is not a guard. A guard is something that will not
  * proceed.
  */
-const CODES_IN_RUN = [...new Set(selected.map((mu) => codeOfFile.get(mu.rel)).filter(Boolean))].sort();
+const CODES_IN_RUN = [...new Set(selected.map((mu) => codeAt(mu.rel, mu.offset)).filter(Boolean))].sort();
 if (SELECT && CODES_IN_RUN.length > 0) {
   const empty = [];
   for (const code of CODES_IN_RUN) {
-    const plan = planFor([...codeOfFile].find(([, c]) => c === code)[0]);
+    const probe = selected.find((mu) => codeAt(mu.rel, mu.offset) === code);
+    const plan = planFor(probe.rel, probe.offset);
     // Only the NARROWED step can match nothing — a step with no pattern runs
     // whole files. Probing just that one keeps this guard to about a second a
     // state instead of the whole of phase 1.
@@ -638,7 +695,7 @@ async function worker(dir, list) {
     const target = join(dir, 'dist/esm', mu.rel);
     const src = originals.get(mu.rel);
     writeFileSync(target, src.slice(0, mu.offset) + mu.to + src.slice(mu.offset + mu.from.length));
-    const plan = planFor(mu.rel);
+    const plan = planFor(mu.rel, mu.offset);
     let killed = false;
     if (plan !== null) {
       for (const step of plan.steps) {

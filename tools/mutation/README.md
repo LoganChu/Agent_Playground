@@ -138,8 +138,13 @@ that goes stale:
 
 - a test file is narrowable when its source builds a test name out of a
   `${state}`, so splitting a third sweep needs no edit in the harness;
-- a module's state is its own `code:` field, and a module claiming more than one
-  code selects nothing and takes the whole suite;
+- a mutant's state is read from the top-level DECLARATION its offset sits in —
+  `function georgia(year)`, or `const GA_NOTES` — by the `code:` field inside it
+  or the `GA_` prefix on its name, falling back to the file's own code. That is an
+  offset question and not a file one, because four modules here hold more than one
+  state: `flat-states.js` holds eight and 162 mutants, and asking the FILE which
+  state it is gets no answer for any of them. Per-declaration attribution covers
+  2,309 of the 2,436 mutants where per-file covered 2,090;
 - which states a test file mentions is read out of its text.
 
 `--no-select` restores the Day 64 behaviour.
