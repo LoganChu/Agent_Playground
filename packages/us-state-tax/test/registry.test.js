@@ -365,6 +365,63 @@ test("a stepped exemption's stored top step agrees with the chart", () => {
   assert.equal(checked, 20, 'every stepped state-year-status is checked');
 });
 
+test('a rule NAME that depends on the year must still depend on it', () => {
+  // The companion to the test below, and the gap it was found through.
+  //
+  // That one reads `%` and `$` tokens out of a name and checks them against the
+  // numbers the rule holds, which is what kills Michigan's "75% for 2025". It
+  // deliberately ignores a bare number, because a name may carry a LABEL —
+  // "Worksheet 13A", "code 18", "born before 1946" — and reading those would
+  // demand that a worksheet number be a tax parameter.
+  //
+  // **A YEAR IN A NAME IS NEITHER, and Day 65's mutation audit found it.**
+  // Arkansas names its rate schedule for the document it came from: the DFA's
+  // 2025 card for 2025, "A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026" for
+  // 2026. Those years are claims and not labels — but they are bare, so the test
+  // below cannot read them, and setting the selector that chooses between the two
+  // names to the wrong year survived the whole suite. A 2025 Arkansas return
+  // would have carried the 2026 citation as the name of the schedule it was taxed
+  // under, in the result object, where a caller and a caller's model read it.
+  //
+  // So this asserts the property the mutation breaks rather than the contents of
+  // the names: a name that is chosen BY the year must still differ between the
+  // years. Pinned as a list and not a count, so that a state arriving with a
+  // year-dependent name has to be looked at rather than absorbed.
+  const namesFor = (state, year) => {
+    const out = new Map();
+    const walk = (node, path, seen) => {
+      if (node === null || typeof node !== 'object' || seen.has(node)) return;
+      seen.add(node);
+      if (typeof node.name === 'string') out.set(path, node.name);
+      for (const [key, value] of Object.entries(node)) walk(value, `${path}.${key}`, seen);
+    };
+    walk(getStateDefinition(state, year), '', new WeakSet());
+    return out;
+  };
+  const [first, second] = SUPPORTED_YEARS;
+  const varying = [];
+  for (const state of SUPPORTED_STATES) {
+    const a = namesFor(state, first);
+    const b = namesFor(state, second);
+    for (const [path, name] of a) {
+      if (b.has(path) && b.get(path) !== name) varying.push(`${state}${path}`);
+    }
+  }
+  assert.deepEqual(
+    varying.sort(),
+    [
+      // Arkansas's rate schedule: the DFA's indexed card for 2025, Act 1 of 2026
+      // for 2026. Two documents, so two names.
+      'AR.rate',
+      // Michigan's retirement deduction, whose 2025 name carries the phase-in
+      // share. The test below checks that the 75% in it is a share the rule
+      // holds; this one checks that it is only said for 2025.
+      'MI.retirementIncomeSubtractions.1',
+    ],
+    'a rule name stopped varying by year, or a new one started — if a state arrived with one, add it here',
+  );
+});
+
 test('a rate or a threshold printed in a rule NAME is a figure that rule actually holds', () => {
   // A rule's `name` is not a comment. It travels in the result object — a credit's
   // name, a subtraction's name — so a caller and a caller's model read it, and a

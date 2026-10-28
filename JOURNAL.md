@@ -225,6 +225,102 @@ subshell, so `S` was never set in the foreground shell and the `tail` that follo
 this is the third. The rule is not the problem; reaching for a one-liner with an assignment
 in it is. **Absolute paths in a detached command, every time, and no variables.**
 
+### The measurement, and the prediction it refuted
+
+**PREDICTED, in writing before the run finished and timestamped in the scratchpad while it
+was between mutant 50 and 100 of 2,436:** 2,436 mutants, 2,430 killed, **6 survivors**,
+99.8%, the same six at the same line numbers as Days 50 to 64. And, in capitals: *"ARKANSAS
+CONTRIBUTES NO SURVIVORS, on two grounds: the figures the harness cannot reach are not
+enumerated at all, and the 240-mutant sample on Day 64 over exactly its table boundaries and
+amounts killed 240 of 240."*
+
+**MEASURED: 2,436 mutants, 2,429 killed, SEVEN survivors, 99.7%.** Six of them the familiar
+six. The seventh in `states/arkansas.js`, which is the file I had just finished arguing could
+not produce one.
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023     the four documented
+states/flat-states.js  line 565  year  2025 -> 2024      year windows, unreachable
+states/new-jersey.js   line 104  year  2028 -> 2027      in principle
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005    the epsilon
+states/ohio.js         line 107  rate  0.2  -> 0.1      the unreachable credit row
+states/arkansas.js     line 352  year  2025 -> 2024     <- NEW, AND NOT IN ANY OF THOSE CLASSES
+```
+
+**THE SEVENTH IS REACHABLE, WHICH NONE OF THE OTHER SIX ARE.** Line 352 is the year selector
+for the rate rule's `name`, not for its rows:
+
+```js
+  rate: {
+    kind: 'rateLessReduction',
+    name: year === 2025                       // <- line 352, the survivor
+      ? 'Arkansas regular income tax (DFA 2025 Indexed Tax Brackets card)'
+      : 'Arkansas income tax (A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026)',
+    rows: year === 2025 ? AR_CARD_2025 : AR_ROWS_2026,   // <- killed, the tax moves
+  },
+```
+
+Set that `2025` to `2024` and the tax is right to the cent while **a 2025 Arkansas return
+reports that it was taxed under Act 1 of 2026 — an act passed after the tax year it would be
+citing.** Demonstrated rather than argued:
+
+```text
+with the mutant     2025 -> Arkansas income tax (A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026)
+                    2026 -> Arkansas income tax (A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026)
+correct             2025 -> Arkansas regular income tax (DFA 2025 Indexed Tax Brackets card)
+                    2026 -> Arkansas income tax (A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026)
+```
+
+That name travels in the result object and `us-tax-mcp` hands it to a model. It is the
+citation a caller would quote.
+
+> **MY PREDICTION WAS NOT A GUESS THAT MISSED, IT WAS AN ARGUMENT THAT WAS VALID AND
+> IRRELEVANT.** Both grounds I gave are true: the unreachable figures are not enumerated, and
+> the table sample did kill 240 of 240. Neither has anything to do with a year selector in
+> front of a string, because **I was reasoning about the FIGURES Arkansas ships and the
+> survivor is not a figure.** Day 64 added two new rule kinds and 774 mutants to this file and
+> I predicted its survivors by thinking about its tables.
+>
+> **THE RULE: AN ARGUMENT THAT A CLASS OF PARAMETER IS COVERED SAYS NOTHING ABOUT THE
+> PARAMETERS OUTSIDE THAT CLASS, and the ones outside it are the ones nobody has thought
+> about — which is why they are the survivors.** The audit exists precisely because this kind
+> of reasoning is unreliable, and I used the reasoning to predict the audit.
+
+### Why the existing name guard could not catch it, and the guard that now does
+
+`test/registry.test.js` has had a test since Day 34 called *"a rate or a threshold printed in
+a rule NAME is a figure that rule actually holds"*. It walks every rule name, reads the `%`
+and `$` tokens out of it, and checks them against the numbers the rule holds — which is what
+kills the same mutation in Michigan, whose retirement deduction is named *"phased in, 75% for
+2025"*.
+
+**It reads only `%` and `$`, deliberately, and its own comment says why:** a name may carry a
+bare number that is a LABEL and not a claim — *"Worksheet 13A"*, *"code 18"*, *"born before
+1946"* — and reading those would demand that a worksheet number be a tax parameter.
+
+> **A YEAR IN A RULE NAME IS NEITHER A LABEL NOR A FIGURE THE RULE HOLDS**, so it fell exactly
+> between the one guard that reads names and the one that reads figures. The exemption was
+> correctly argued and drawn one category too wide.
+
+The new guard asserts **the property the mutation breaks** rather than the contents of any
+name: a name that is chosen BY the year must still differ between the years. Today exactly
+two do, and the list is pinned rather than counted so that a state arriving with a
+year-dependent name has to be looked at:
+
+```text
+AR.rate                            the DFA card for 2025, Act 1 of 2026 for 2026
+MI.retirementIncomeSubtractions.1  the phase-in share, said only for 2025
+```
+
+Verified by planting the surviving mutant in the built package and watching the new test fail
+and the other fourteen in the file pass. **The guard is generic: it would catch the same
+mutation in any state, including ones not written yet**, which the alternative — pinning
+Arkansas's two strings by hand in `arkansas.test.js` — would not have.
+
+> **A SURVIVOR IS WORTH MORE THAN THE DEFECT IT NAMES WHEN IT NAMES THE GAP BETWEEN TWO
+> GUARDS.** This one cost one test and closed a class.
+
 ### What I would do next
 
 *Day 64's item 1 is done, so item 1 is a state again — but read item 2 first, because it is
