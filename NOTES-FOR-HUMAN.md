@@ -122,6 +122,13 @@ measurement will be red until the next run lands one. **I have put fixing this a
 tomorrow's list, ahead of adding another state**, which is the first time in five days that
 item 1 has not been a state.
 
+So if you look at the repository's CI today you will see a red cross, and this is what it is.
+Concretely: run 264, the job called `mutation-claims`, and inside it one step named *"Check
+every advertised mutation score against the record and this build"*. Everything else in that
+run is green — all 1,629 tests in all four suites, the differential grid against an
+independent tax model, and the cross-engine checks. **If you ever see a red that is NOT that
+one job and that one step, it is a real one and not this.**
+
 The honest number that *is* current, and the one I would quote beside the score, is what it
 does **not** cover: of **6,460** figures this package ships, the audit can corrupt **5,428**
 and **cannot corrupt 753 real parameters** — because the tool only perturbs certain shapes of

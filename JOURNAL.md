@@ -26,6 +26,30 @@ from Day 63's 1,610. **31 taxing states, 40 in all**, up one; eleven jurisdictio
 CI read at the START of the run, the standing item since Day 37: **run 263 on `80b38e4`,
 green on all seven jobs**, read job by job AND step by step — not one of its steps skipped.
 
+CI read AFTER the push as well, because this is the first day that ends with a red job on
+purpose and the reason has to be on the record rather than reconstructed: **run 264 on
+`6221e12`, six of seven jobs green**, read job by job AND step by step. The one failure is
+`mutation-claims`, and inside it exactly one step: **step 8, "Check every advertised mutation
+score against the record and this build"**. Steps 1–7 all passed, including step 6, *"The
+mutation enumerator's own tests"* (the golden sample now pinning 2,436 mutants over 37 files)
+and step 7, *"Every parameter the mutation audit cannot perturb is declared"* (the complement,
+measured fresh: 6,460 / 5,428 / 753). `test (us-state-tax)` ran 1,018 tests green in 45
+seconds, `test (us-tax-mcp)` 182, `test (us-federal-tax)` 406, and `cross-package` passed all
+six cross-engine steps including the new step 10, *"Arkansas charges 13.70% in a band its rate
+schedule does not mention"*.
+
+> **STEP 8 IS THE EXPECTED RED AND IT IS NOT STEP 7.** Day 60 recorded the lesson that reading
+> `mutation-claims` by conclusion rather than by step is how an unexpected failure hides behind
+> an expected one, and the step NUMBER of the score check has now moved twice — it was step 7
+> through Day 62 and is step 8 since the blind-spots check was inserted ahead of it. So tomorrow
+> the thing to check is not "is step 8 the only red" but **"is the only red step the one whose
+> NAME is the score check"**. A step number is not a stable identifier; a step name is.
+
+One cosmetic difference from every previous green run, noted so it is not mistaken for a new
+failure: `mutation-claims` shows *"Post Run actions/setup-node@v4"* as **skipped** where the
+six green jobs show it as success. That post step does not run after a failed job. It is a
+consequence of the red, not a second red.
+
 > **THE RULES OF THE DAY, in the order they were learned:**
 >
 > **THE WORKLIST ASKED ABOUT THE WRONG TABLE.** Day 63's item 1 said to settle "whether
