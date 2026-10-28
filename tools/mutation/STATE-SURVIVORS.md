@@ -1,3 +1,84 @@
+# Day 65 — the audit made to fit, and a seventh survivor that was not a figure
+
+**PREDICTED, in writing and timestamped while the run was between mutant 50 and 100 of
+2,436: 2,436 mutants, 2,430 killed, 6 survivors, 99.8%, the same six at the same line
+numbers as Days 50 to 64. And, in capitals, "ARKANSAS CONTRIBUTES NO SURVIVORS."**
+
+**MEASURED, first run: 2,436 mutants, 2,429 killed, SEVEN survivors, 99.7%.**
+
+```text
+states/flat-states.js  line 435  year  2024 -> 2023
+states/flat-states.js  line 565  year  2025 -> 2024
+states/new-jersey.js   line 104  year  2028 -> 2027
+states/new-jersey.js   line 229  year  2028 -> 2027
+states/ohio.js         line  88  rate  0.01 -> 0.005
+states/ohio.js         line 107  rate  0.2  -> 0.1
+states/arkansas.js     line 352  year  2025 -> 2024   <- NEW
+```
+
+**MEASURED, after the fix: 2,436 mutants, 2,430 killed, 6 survivors, 99.8%** — `arkansas.js`
+0 of 774. Recorded over mutant `7b46834791f8172a` and suite `2db7e1054d04e366`.
+
+## The seventh, and why it is in none of the classes below
+
+Line 352 is the year selector in front of the rate rule's **`name`**, not its rows:
+
+```js
+  name: year === 2025                       // <- the survivor
+    ? 'Arkansas regular income tax (DFA 2025 Indexed Tax Brackets card)'
+    : 'Arkansas income tax (A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026)',
+  rows: year === 2025 ? AR_CARD_2025 : AR_ROWS_2026,   // <- killed, the tax moves
+```
+
+Set it to `2024` and the tax is right to the cent while a 2025 return reports being taxed
+under **an act passed after the tax year it cites**, in the result object `us-tax-mcp` hands
+to a model.
+
+**It is REACHABLE, which none of the six are.** 2025 is a supported year, so this is not
+category C's "an unreachable figure cannot be wrong" and not category E's representation
+detail. It is a wrong answer with a correct number in it.
+
+## Why no guard caught it, which is the part worth keeping
+
+`registry.test.js` has had *"a rate or a threshold printed in a rule NAME is a figure that
+rule actually holds"* since Day 34. It reads the `%` and `$` tokens out of every rule name
+and checks them against the numbers the rule holds — which kills this exact mutation in
+Michigan, whose retirement deduction is named *"phased in, 75% for 2025"*. It reads only `%`
+and `$`, deliberately, because a name may carry a bare number that is a LABEL — *"Worksheet
+13A"*, *"code 18"*, *"born before 1946"* — and reading those would demand that a worksheet
+number be a tax parameter.
+
+> **A YEAR IN A RULE NAME IS NEITHER A LABEL NOR A FIGURE THE RULE HOLDS**, so it fell
+> exactly between the one guard that reads names and the ones that read figures. The
+> exemption was correctly argued and drawn one category too wide.
+
+The new guard asserts **the property the mutation breaks** rather than the contents of any
+name: a name chosen BY the year must still differ between the years. Two qualify, pinned as
+a list so a state arriving with a year-dependent name has to be looked at:
+
+```text
+AR.rate                            the DFA card for 2025, Act 1 of 2026 for 2026
+MI.retirementIncomeSubtractions.1  the phase-in share, said only for 2025
+```
+
+> **AND THE PREDICTION WAS NOT A GUESS THAT MISSED, IT WAS AN ARGUMENT THAT WAS VALID AND
+> IRRELEVANT.** Both grounds given were true — the unreachable figures are not enumerated,
+> and Day 64's 240-mutant sample over the tables killed 240 of 240. Neither has anything to
+> do with a year selector in front of a string, because the reasoning was about the FIGURES
+> Arkansas ships and the survivor is not a figure. **An argument that a class of parameter is
+> covered says nothing about the parameters outside that class, and the ones outside it are
+> the ones nobody has thought about — which is why they are the survivors.**
+
+## And the score moved for a reason that is not an improvement
+
+99.6% to 99.8% is **six survivors against a denominator that grew by 782**, every one of the
+new ones killed. The numerator of the failure did not move. **A ratio improving because its
+denominator grew is not an improvement**, and the survivor COUNT is the number that has held
+for fifteen days. The first run is the better illustration: the same denominator with one
+more miss read 99.7%, and that one miss was the only real finding of the day.
+
+---
+
 # Day 61 — North Dakota, every figure exact, and a wall clock that is not one
 
 **PREDICTED, in writing before the enumerator ran: 1,585 mutants over 34 files, 1,579

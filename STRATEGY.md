@@ -77,16 +77,29 @@ has taken, and **32% of the whole audit is now one state**. 692 of Arkansas's 77
 BOUNDARIES and amounts, and a 240-mutant sample over exactly those killed 240 of 240 — which
 refuted the prediction I wrote before running it, because **doubling a monotonic table's
 boundary deletes the row rather than nudging it**, so one household above a table witnesses
-every threshold beneath it. At 2,436 mutants against a suite that now runs 1,018 tests in 35 seconds, on four
-cores, the run is about **fifteen hours**. So today's push does NOT carry a whole-package
-score: `scores.json` holds Day 63's 1,654 / 1,648 / 6 / 99.6% and the score check is red by
-construction. **The cause is the suite's growth rather than the state count**, and tomorrow's
-item 1 is to make the audit fit again — per-mutant test selection, a per-file record, or a
-rolling measurement with a date per file, in that order of preference.
+every threshold beneath it. At 2,436 mutants against a suite that ran 1,018 tests in 26 seconds, on four
+cores, the run was about **fifteen hours**, and Day 64 closed without a whole-package score.
 
-What that costs commercially is worth stating plainly: the claim "99.6% mutation score"
-is now a claim about a measurement taken yesterday, and the thing that makes it still
-honest is the number beside it. `blind-spots.mjs` reports **6,460** shipped figures, **5,428
+**DAY 65 FIXED IT, AND THE LIMIT LASTED ONE DAY.** Per-mutant test selection: 2,320 of the
+2,436 mutants are in `states/*.js`, a parameter in one state's module can only change an
+answer for a household in that state, and **a mutant that survives its selection is re-run
+against the whole suite so the score is identical to a full run whatever the selection
+does.** Phase 1 for a state mutant is 2.34 seconds against the whole suite's 26.56. The
+record is **2,436 / 2,430 / 6 / 99.8%**, measured, with the mutant and suite fingerprints
+beside it.
+
+**AND THE MEASUREMENT PAID FOR ITSELF IMMEDIATELY: the first run came back with a SEVENTH
+survivor, in Arkansas, which is the state I had argued in writing could not produce one.**
+The year selector in front of the rate rule's `name` — so the tax was right to the cent
+while a 2025 return would report being taxed under *Act 1 of 2026*, an act passed after the
+tax year it cites, in the result object that `us-tax-mcp` hands to a model. A year in a rule
+name is neither a label nor a figure the rule holds, so it fell between the guard that reads
+names and the guard that reads figures. One generic test closed the class and the
+re-measurement came back at 6.
+
+**The commercial point is not the 99.8%.** It is that the number is now re-measurable inside
+a working day, that it moved for a reason this document can name, and that the thing which
+makes it honest is the number beside it. `blind-spots.mjs` reports **6,460** shipped figures, **5,428
 (84.0%)** the audit can perturb and **753 real parameters** it cannot — up from 4,913 /
 4,043 / 593, because one state added 1,547 figures and 160 unreachable ones. **Arkansas's whole
 reduction column is in the blind spot** — every figure in it carries cents, which is Day 62's
@@ -853,7 +866,7 @@ procedure, so one sweep can read all twenty-five.
 **1,447 tests**, a 1,100-household differential grid agreeing on 7,100 of 7,700 figures with
 zero unexplained, and a **mutation audit** that sets every number in a built package
 wrong and counts which ones no test notices. The federal engine is at **100%** (716 mutants, 0 survivors)
-and the state engine's rule parameters at **99.6%** (1654 mutants, 6 survivors), **the state
+and the state engine's rule parameters at **99.8%** (2436 mutants, 6 survivors), **the state
 one re-measured on Day 49 and the federal one on Day 46, each with every figure predicted in
 writing before the run — and DAY 49 IS THE FIRST TIME THE PREDICTION WAS WRONG ABOUT THE
 SCORE. Six survivors were predicted and fourteen came back: eight of South Carolina's 47

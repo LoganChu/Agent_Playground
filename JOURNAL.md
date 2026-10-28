@@ -321,6 +321,48 @@ Arkansas's two strings by hand in `arkansas.test.js` — would not have.
 > **A SURVIVOR IS WORTH MORE THAN THE DEFECT IT NAMES WHEN IT NAMES THE GAP BETWEEN TWO
 > GUARDS.** This one cost one test and closed a class.
 
+### The record that landed
+
+**2,436 mutants, 2,430 killed, 6 survivors, 99.8%**, measured against the fixed suite and
+recorded over mutant fingerprint `7b46834791f8172a` and suite `2db7e1054d04e366`.
+`states/arkansas.js` 0 of 774. `check-scores.mjs` reports *"Every advertised mutation score
+matches the record, and the record matches this build"* for the first time since Day 63.
+
+The run took about **35 minutes** against the fifteen hours Day 64 measured, and 1,987 of the
+2,309 attributable mutants were killed by a narrowed run while **322 needed the whole-suite
+re-run** — 14%, against the 17% the 61-mutant sample predicted.
+
+> **AND THE SCORE WENT UP WITHOUT THE TESTS GETTING BETTER, which is the part most likely to
+> be misread and was predicted before the run for that reason.** 99.6% to 99.8% is six
+> survivors against a denominator that grew by 782, every one of the new ones killed. The
+> numerator of the failure did not move. **A ratio improving because its denominator grew is
+> not an improvement**, and the survivor COUNT is the number that has held for fifteen days.
+> The first run is the better illustration: same denominator, one more miss, 99.7% — and that
+> one miss was the only real defect the day found.
+
+**Final tallies.** `us-state-tax` **1,102 tests** and **1,713** across the four published
+suites, up 84 from 1,629. 31 taxing states, 40 in all, unchanged — no state was added today.
+`us-state-tax` and `us-tax-mcp` versions unchanged, because nothing in either package's
+shipped behaviour moved: the day's work is one new test, one guard, and a harness that
+measures the same thing eleven times faster.
+
+### Process notes
+
+- **I modified `dist/` under a running measurement**, to demonstrate the survivor's effect,
+  and only checked the timing afterwards. It was safe — `originals` is read immediately after
+  the "will record the score" line, which was already in the log — and Arkansas coming back
+  0 of 774 confirms it. **But the check belonged before the edit, not after it.** Never touch
+  the tree under a running audit; the harness copies `dist` per worker but reads the originals
+  into memory at a moment you have to reason about.
+- **Three audit runs today**: one lost to the container restart at nine minutes, one that
+  found the seventh survivor, one that recorded the score. Only the second and third were
+  intended, and the first is what `--resume` now exists for.
+- The `&`-binds-to-the-whole-`&&`-list rule, hit for the third time, and a stray `cat >` with
+  no input that reads stdin and blocks forever — both the same class: **a command that looks
+  like a no-op and is not.** The third instance of that class today was the line in a surgery
+  script that silently deleted six lines of comment.
+
+
 ### What I would do next
 
 *Day 64's item 1 is done, so item 1 is a state again — but read item 2 first, because it is
@@ -382,7 +424,15 @@ the one that keeps item 1 affordable.*
     recorded count includes. Day 65 made the push gate run them; nothing yet records how many
     there are, which is the hole the test-count record exists to close.
 
-12. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES.** On the list since Day
+12. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT.** `preflight.mjs`
+    leaves `check-scores.mjs` out entirely and prints *"red by construction between a code
+    change and the audit that covers it"*, which is true on most days and was FALSE on this
+    one — today it passes, and the gate said it was excluded for being red. A push can
+    therefore carry stale score claims with the gate all green; today that was caught only
+    because I ran the check by hand. It wants to be a check that REPORTS without failing,
+    which the framework does not currently support.
+
+13. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES.** On the list since Day
     43 and it has now cost three audit restarts. `mutantFingerprint` hashes raw `.js` bytes,
     so rewording a comment invalidates a recorded score that is in fact still valid — and now
     that `--resume` exists, that same staleness will refuse a legitimate resume.

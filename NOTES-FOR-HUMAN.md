@@ -17,8 +17,9 @@ about reach, not about capability, and those older entries overstate it badly.
 small and cosmetic — the repository description and topics, the GitHub Pages switch, the
 optional npm publish — and the fourth is the one that would change what I can build: the
 network policy. Day 61's entry below has the exact hosts and the exact settings page.
-**Day 64 adds a fifth thing, and it is not an ask, it is a warning about a number this
-repository has been advertising for thirteen days.** See E.
+**Day 64 added a fifth thing as a warning about a number this repository had been advertising
+for thirteen days. Day 65 fixed the thing it warned about, and E now reports a measurement
+rather than a caveat — including a real defect the measurement found.** See E.
 
 Today's route to the figures was Day 63's and it worked again: `dfa.arkansas.gov` and
 `arkleg.state.ar.us` both fail to resolve from here, so **no Arkansas primary document was
@@ -105,37 +106,36 @@ without the brackets in it. The independent reference model I compare against ca
 round numbers until recently and has since switched to the card's — somebody else read the
 same two documents and reached the same conclusion.
 
-**E. ONE THING TO KNOW ABOUT A NUMBER THIS REPOSITORY ADVERTISES: THE "99.6% MUTATION SCORE"
-IS NOW A MEASUREMENT FROM YESTERDAY RATHER THAN TODAY, AND THAT WILL STAY TRUE UNTIL I FIX
-THE TOOL.**
+**E. THE "99.6% MUTATION SCORE" IS NOW 99.8%, IT WAS MEASURED TODAY, AND THE RED CROSS I
+WARNED YOU ABOUT EARLIER IS GONE.**
+
+Earlier today I wrote here that the score was a measurement from yesterday, that one complete
+pass would take about **fifteen hours**, and that the repository's CI would show a red cross
+until a fresh measurement landed. **All three of those are now out of date, which is the
+best outcome available and not the one I expected when I wrote them.**
 
 The score is produced by deliberately corrupting one number at a time in the shipped code and
-checking that the test suite notices. It is the strongest quality claim here. The problem is
-arithmetic: there are now **2,436** numbers to corrupt and the test suite takes 35 seconds to
-run, so one complete pass takes about **fifteen hours** on the four processors this sandbox
-has. I started it today, watched it reach 100 of 2,436 in 38 minutes, and stopped it.
+checking that the test suite notices. The problem was arithmetic: 2,436 numbers to corrupt
+times a 26-second test suite is fifteen hours on the four processors this sandbox has. The fix
+was to stop running all 66 test files against every corruption. A corrupted number in
+Arkansas's module can only change an Arkansan's tax, so it now runs Arkansas's own tests
+first — **2.3 seconds instead of 26** — and **anything that survives that short run is then
+re-run against the whole suite before it counts**, so the published number is exactly what a
+full fifteen-hour run would have produced. A complete pass now takes about half an hour.
 
-**Nothing is broken and no claim here is false** — the recorded score is dated and the
-repository says what date it was taken on. But today's push ships a new state without a new
-score, and the automated check that compares the advertised score against a fresh
-measurement will be red until the next run lands one. **I have put fixing this at the top of
-tomorrow's list, ahead of adding another state**, which is the first time in five days that
-item 1 has not been a state.
+**The measured record is 2,436 corruptions tried, 2,430 caught, 6 missed, 99.8%.**
 
-So if you look at the repository's CI today you will see a red cross, and this is what it is.
-Concretely: run 264, the job called `mutation-claims`, and inside it one step named *"Check
-every advertised mutation score against the record and this build"*. Everything else in that
-run is green — all 1,629 tests in all four suites, the differential grid against an
-independent tax model, and the cross-engine checks. **If you ever see a red that is NOT that
-one job and that one step, it is a real one and not this.**
+**AND THE FIRST RUN OF IT FOUND A REAL DEFECT, which is the part I would read if I read only
+one thing.** It came back with a seventh miss, in Arkansas — the state I had written down, in
+advance, could not produce one. Not a tax figure: the year that selects which *law* the rate
+schedule is named after. The tax came out right to the cent while a 2025 Arkansas return
+reported that it had been taxed under **an act passed in 2026**, which is the citation a
+caller — or a caller's AI model, through the MCP server — would quote. One new test closed it
+and the whole class it belongs to, and the re-measurement came back at 6.
 
-The honest number that *is* current, and the one I would quote beside the score, is what it
-does **not** cover: of **6,460** figures this package ships, the audit can corrupt **5,428**
-and **cannot corrupt 753 real parameters** — because the tool only perturbs certain shapes of
-number, and Arkansas's whole column of "minus adjustments" is outside them (every one has
-cents in it), along with its `$29` personal credit, its `$60` additional credit and nineteen
-small amounts in its low-income tables. That number is measured fresh on every push and is
-published beside the score for exactly this reason.
+Nothing here needs you to do anything. The repository's CI should now be green on all seven
+jobs for the first time since Day 63, and if it is not, the failure is a real one rather than
+the deliberate one I described earlier.
 
 **And one thing I got wrong today is worth telling you about, because it is the good kind.**
 I wrote, in four places, that the audit was blind to all the amounts in Arkansas's low-income

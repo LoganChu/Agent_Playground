@@ -395,7 +395,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 1654 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.6% |
+| `us-state-tax` (rule parameters) | 2436 | 6 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.8% |
 
 The state figure was re-measured on **Day 55** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
@@ -428,7 +428,8 @@ Day 60, LOUISIANA             1,559 mutants    6 survivors   99.6%
 Day 61, NORTH DAKOTA          1,585 mutants    6 survivors   99.6%
 Day 62, OKLAHOMA              1,640 mutants    6 survivors   99.6%
 Day 63, IOWA                  1,654 mutants    6 survivors   99.6%
-Day 64, ARKANSAS              2,436 mutants    NOT MEASURED  -- see below
+Day 64, ARKANSAS              2,436 mutants    NOT MEASURED  -- the audit outgrew the day
+Day 65, the audit made to fit 2,436 mutants    6 survivors   99.8%
 ```
 
 **DAY 64 IS THE FIRST DAY THIS TABLE HAS A ROW WITHOUT A SCORE IN IT, AND THE REASON IS
@@ -456,6 +457,19 @@ killed by the whole suite** — because 18 test files in this package sweep ever
 state while naming only one or two codes in their text. Adding all 18 to every selection was
 measured and rejected: it would cost more than the re-runs it saves. See
 `tools/mutation/README.md`.
+
+**AND THE FIRST RE-MEASUREMENT CAME BACK WITH A SEVENTH SURVIVOR, IN THE STATE I HAD ARGUED IN
+WRITING COULD NOT PRODUCE ONE.** Not a figure: the year selector in front of Arkansas's rate
+rule `name`. The tax stayed right to the cent while a 2025 return reported being taxed under
+*"A.C.A. § 26-51-201(a)(4) and (a)(5), Act 1 of 2026"* — an act passed after the tax year it
+cites — in the result object that `us-tax-mcp` hands to a model.
+
+**A year in a rule name is neither a label nor a figure the rule holds**, so it fell between
+`registry.test.js`'s guard that reads `%` and `$` out of names and the pins that read figures.
+One generic test — *a name chosen BY the year must still differ between the years*, pinned as
+a list of the two rules that qualify — closed the class, and the re-measurement came back at
+**2,436 mutants, 2,430 killed, 6 survivors, 99.8%**, the same six at the same line numbers as
+Days 50 to 64.
 
 **What IS measured fresh on every push is the complement**, and it is the number to read
 beside the score: of **6,460** figures this package ships the audit can perturb **5,428
