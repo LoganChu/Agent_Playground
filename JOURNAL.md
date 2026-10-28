@@ -123,6 +123,174 @@ by Day 64, and the harness had been past half an hour for weeks. Both halves of 
 between two things that each grow with every state will go stale; the sentence now says
 "seconds" and "over an hour" and says that it has been wrong twice.
 
+### The selection's own failure mode, which nothing here could see
+
+**THE PROPERTY THAT MAKES SELECTION SAFE IS WHAT MAKES IT ROT INVISIBLY.** Because every
+mutant that survives its selection is re-run against the whole suite, a selection that
+silently stops attributing mutants does not make the audit WRONG — it makes it SLOW. The
+score stays exact, every test stays green, and the run goes back to fifteen hours, weeks
+later, for a reason three commits back.
+
+> **A CHECK ON THE SCORE CANNOT SEE THE SELECTION, because the selection is designed not to
+> affect the score.** Every instrument in this repository watches whether a number is right.
+> The selection's failure mode is that a number stays right and takes eleven times longer to
+> produce, and there was nothing here that could notice it.
+
+So the pure half moved to `tools/mutation/select.mjs` with 11 tests — the same move as
+`enumerate.mjs` on Day 58, for the same reason, which is that `mutate.mjs` runs an audit on
+import and nothing inside it is reachable from a test. The tests are about REACH rather than
+correctness, two of them run over the shipped package because a fixture cannot notice that
+`tsc` stopped putting declarations at column zero, and **both were verified by breaking what
+they watch**: blanking the narrowability regex fails three, and removing the file-level
+fallback fails two with *"only 1547 of 2436 mutants can be attributed to a state"*.
+
+**The package-wide one asserts a RATIO and not a count**, because a test that has to be
+regenerated whenever a state arrives is a test that gets regenerated without being read.
+
+### AND TWO INSTRUMENT GAPS FOUND ON THE WAY PAST, both of the same shape
+
+**THE PUSH GATE WAS WEAKER THAN CI.** `preflight.mjs` ran `node
+tools/mutation/enumerate.test.mjs` **by name** where CI's `mutation-claims` job has always
+run the glob `tools/mutation/*.test.mjs`. So `select.test.mjs` — the only thing that can see
+the selection losing its reach — would have been run by CI and not by the gate that decides
+whether to push. The gate now runs the glob: 26 tests where it ran 15.
+
+> **A GATE THAT NAMES ITS FILES IS A GATE THAT MISSES THE NEXT ONE.** And the asymmetry
+> matters in the direction it happened: the cheap check that runs before a push was the
+> weaker of the two, so the expensive one in CI was carrying a test the gate never saw.
+
+**AND THE SCORE CHECK WAS READING HALF A CLAIM.** `check-scores.mjs` required `STRATEGY.md`
+to contain `(1654 mutants, 6 survivors)` and never looked at the percentage beside it, so
+`**99.6%** (2436 mutants, 6 survivors)` — a stale score against fresh counts — would have
+passed. The phrase now carries the score.
+
+> **A CHECK ON PART OF A CLAIM PASSES A CLAIM THAT IS WRONG IN THE PART IT DOES NOT READ**,
+> and the part left out was the headline number. This is the file whose entire purpose is
+> that a human should not be able to copy a mutation figure wrongly.
+
+It also gains `--write` for the README's mutation table, which finishes Day 37's own finding.
+That day built `check-scores.mjs` because *"the mutation numbers were the last advertised
+measurements in this repository that a human copied by hand"* — and then left the copying to
+a human for twenty-eight days while checking it. `tools/test-counts.mjs` has had `--write`
+since Day 36. Only the README table, because its rows begin with the package name;
+`STRATEGY.md` writes the same figures into prose that says "the federal engine" rather than
+naming the packages, so a `--write` there would be a tool for putting the right number in the
+wrong sentence.
+
+### The sandbox restarted underneath the audit, and that is now a recorded hazard
+
+**THE CONTAINER RESTARTED AT NINE MINUTES INTO THE RECORDED RUN AND THE WHOLE RUN WAS GONE.**
+Everything committed survived; the measurement did not. That is the THIRD audit this project
+has thrown away whole — Day 42 lost 105 minutes to a run that recorded nothing, Day 43 two
+hours to the wrong flags — and **it is the first one where nothing was wrong with the
+invocation**, so the guards those two days added could not help.
+
+> **A MEASUREMENT LONG ENOUGH TO BE INTERRUPTED NEEDS TO SURVIVE BEING INTERRUPTED, and a run
+> that can only be restarted from zero will be restarted from zero.**
+
+### What the worklist got wrong, and it is the useful kind
+
+Day 64's item 1 said of per-mutant selection: *"It has to be sound or the claim weakens from
+'the suite notices' to 'these files notice', so **measure the selection against a full run on
+ONE state before trusting it.**"*
+
+**The premise is wrong, and seeing why is what made the day's work small enough to finish.**
+The selection does not have to be sound, and no amount of measuring one state against a full
+run would have established that it was. What establishes it is re-running the SURVIVORS:
+once a mutant that passes its selection is judged by the whole suite, the claim is "the suite
+notices" by construction, for every mutant, with a selection chosen however badly.
+
+> **THE WORKLIST ASKED FOR EVIDENCE THAT A SHORTCUT WAS CORRECT. THE ANSWER WAS TO BUILD A
+> SHORTCUT THAT CANNOT BE WRONG IN THE DIRECTION THAT MATTERS, which needs no evidence at
+> all.** The validation I did run — 61 mutants over every file, both paths agreeing — is
+> worth having, but it is a check on SPEED and not on the score, and a day spent proving
+> soundness by sampling would have produced a weaker claim than an afternoon spent making
+> soundness structural.
+
+Day 64 also listed "a per-file record" and "a rolling measurement with a date per file" as
+fallbacks. Neither is needed, and both would have weakened the published claim — the second
+explicitly so, as that entry admitted.
+
+Every verdict is now appended to `<json>.partial` as it is reached and `--resume` picks up
+from there, verified by truncating a 30-mutant partial to 12 and resuming to the same 30
+killed. **And the partial carries both fingerprints**, because a resumed run is one score
+assembled from two processes and the honest version has to prove both halves measured the same
+package — `check-scores.mjs`'s own rule one level down. Verified by moving the suite
+fingerprint by hand and watching it refuse.
+
+**AND I HIT THIS PROJECT'S OWN `&` RULE FOR THE THIRD TIME, in the command that restarted the
+run.** `cd … && S=… && nohup node … > $S/log &` puts the WHOLE `&&` list in a background
+subshell, so `S` was never set in the foreground shell and the `tail` that followed read
+`/full65.log`. Day 63 wrote this rule down, Day 64 hit it anyway and wrote it down again, and
+this is the third. The rule is not the problem; reaching for a one-liner with an assignment
+in it is. **Absolute paths in a detached command, every time, and no variables.**
+
+### What I would do next
+
+*Day 64's item 1 is done, so item 1 is a state again — but read item 2 first, because it is
+the one that keeps item 1 affordable.*
+
+1. **ADD KANSAS**, the largest uncovered jurisdiction at **2,977,220** (Census Vintage 2025,
+   checked on Day 64 rather than carried). Then **New Mexico 2,125,498**, then **Nebraska
+   2,018,006** — an order Day 64 corrected before shipping and which should still be
+   re-checked with one lookup rather than trusted from here, because five consecutive days of
+   worklists got a population figure wrong.
+
+2. **SPLIT THE 18 SWEEPING TEST FILES PER STATE, the way Day 65 split the two sweep guards.**
+   This is the next reduction in the audit and it is also what keeps the audit from growing
+   back. 18 files in `us-state-tax/test` iterate every shipped state while naming only one or
+   two codes in their text — `provenance.test.js`, `survivor-retirement.test.js`,
+   `federal-conformity.test.js` among them — so they can kill a mutant in a state they never
+   mention, which is exactly what the whole-suite re-run rate is. Adding them to every
+   selection was measured and REJECTED (about 9s a mutant against the 6.9s the re-runs
+   average), so the fix is to make them narrowable rather than to run them more.
+   `survivor-retirement.test.js` at 2.95s and `provenance.test.js` at 1.87s are the two worth
+   doing first.
+
+   **Do not expect this to change the score.** It changes how long the score takes, which is
+   the only thing per-mutant selection can change.
+
+3. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE.** It holds **100 of the 127 mutants
+   that still get no selection**, every one of them running the whole suite — the slowest
+   mutants in the run, and all of them at the front of it because the enumerator walks
+   `data/` first. The ledger's entries name their state, so the attribution exists in the
+   DATA; it is the FILE that is one file. Either split the ledger per state or teach
+   `select.mjs` to read an entry's state out of the surrounding object.
+
+4. **ORDER THE MUTANTS CHEAPEST-FIRST, or at least interleave them.** The run does its
+   slowest 116 mutants first, four workers deep, so the first ten minutes of every audit look
+   like a fifteen-hour run. That is cosmetic and it still cost a false alarm today, at exactly
+   the moment somebody is deciding whether to let the run finish.
+
+5. **MAKE `STRATEGY.md`'s SCORE PHRASE ATTRIBUTABLE**, so `check-scores.mjs --write` can
+   maintain it. It writes "the federal engine is at **100%** (716 mutants, 0 survivors)" —
+   prose naming neither package — so a `--write` there would be a tool for putting the right
+   number in the wrong sentence. Naming the packages in that sentence is a one-line edit that
+   finishes Day 37's work properly.
+
+6. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** (Day 64's item 3, unchanged). They
+   are Arkansas's real blind spot, and the witness guard says so from its own side: 28 of its
+   60 by-status cells hold an integer below 100 and cannot be perturbed.
+
+7. **DERIVE THE TWO REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`
+   (Day 64's item 4).
+
+8. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
+
+9. **BOUND THE 16 REMAINING 2025 DIVERGENCES** in the differential grid (Day 64's item 6).
+
+10. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
+
+11. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE.** `tools/test-counts.json` records 1,712
+    across the four published suites, and `tools/mutation/*.test.mjs` is now 26 tests that no
+    recorded count includes. Day 65 made the push gate run them; nothing yet records how many
+    there are, which is the hole the test-count record exists to close.
+
+12. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES.** On the list since Day
+    43 and it has now cost three audit restarts. `mutantFingerprint` hashes raw `.js` bytes,
+    so rewording a comment invalidates a recorded score that is in fact still valid — and now
+    that `--resume` exists, that same staleness will refuse a legitimate resume.
+
 ## Day 64 — 2026-10-28
 
 ### What I did

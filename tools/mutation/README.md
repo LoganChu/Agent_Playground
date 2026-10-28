@@ -159,6 +159,34 @@ run is probed once at start-up and a selection that matches nothing stops the
 run, which is Day 47's rule applied to a second flag: an announcement at start-up
 is not a guard, a guard is something that will not proceed.
 
+## Resume, because a long measurement gets interrupted
+
+```sh
+node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 --record \
+  --json /tmp/state.json            # verdicts accumulate in /tmp/state.json.partial
+node tools/mutation/mutate.mjs packages/us-state-tax --workers 4 --record \
+  --json /tmp/state.json --resume   # picks up where it stopped
+```
+
+Day 65 lost a recorded run at nine minutes when the sandbox restarted underneath
+it. That is the third audit thrown away whole — Day 42 lost 105 minutes to a run
+that recorded nothing and Day 43 two hours to the wrong flags — and the first
+where **nothing was wrong with the invocation**, so the guards those days added
+could not help.
+
+Every verdict is appended to `<json>.partial` as it is reached. A half-written
+last line, the one a dying process was in the middle of, is dropped rather than
+fatal: there is exactly one and it costs one mutant.
+
+**The partial carries both fingerprints and `--resume` refuses when either has
+moved.** A resumed run is one score assembled from two processes, so the honest
+version has to prove both halves measured the same package — which is this
+directory's own rule one level down: a measurement is a measurement OF something,
+and half a measurement is no exception.
+
+Without `--resume` the partial is TRUNCATED rather than appended to, because a
+stale partial silently extended is a score over two trees with nothing to say so.
+
 ## Why it exists
 
 Day 32 found a Virginia defect that had had its own passing test for a month. The
