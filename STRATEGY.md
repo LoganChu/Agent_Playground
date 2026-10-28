@@ -3,6 +3,106 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-28 (Day 64). **The bet is unchanged, and Day 64 produced the single
+most sellable number this project has: a flat `$287.30` that every published account of
+Arkansas gets wrong, at every income, forever. It also produced the first honest limit on
+the quality claim — the mutation audit no longer fits in a day.**
+
+Day 60's correction put a state at the top of the worklist and it has now paid five times.
+Day 64 did **Arkansas, the thirty-first taxing jurisdiction, 40 states in all, eleven left**
+— the largest jurisdiction the package had not covered, 3,114,791 people.
+
+**ARKANSAS'S HIGHEST MARGINAL RATE IS 13.70% AND IT IS NOT IN ARKANSAS'S RATE SCHEDULE.**
+A.C.A. § 26-51-201 writes **two** schedules selected by income rather than by filing status.
+Below `$94,700` of net taxable income: the graduated table, 0% / 2% / 3% / 3.4% / 3.7%. One
+dollar above it: 2% on the first `$4,700` and 3.7% on **every dollar above**, applied to the
+*whole* net income, less a **bracket adjustment** of `$290` that falls by `$10` for every
+`$100` of further income.
+
+```text
+  a $10 relief withdrawn per $100 earned  =  ten percentage points of marginal rate
+    2026   13.70%  across $2,900   against a top statutory rate of 3.7%
+    2025   13.90%  across $3,100   against 3.9%
+```
+
+> **A STATE'S HIGHEST MARGINAL RATE NEED NOT APPEAR IN ITS RATE SCHEDULE.** Nothing in any
+> published Arkansas bracket table contains the number 13.7. It is the slope of a relief
+> being withdrawn, and the only way to see it is to compute the tax at two incomes `$100`
+> apart — which is exactly what `marginal_rate` in `us-tax-mcp` does and what a rate table
+> cannot.
+
+**AND THE COMMERCIAL HEADLINE IS THE FLAT ERROR, WHICH IS THE CLEANEST ONE THIS PROJECT HAS
+EVER HAD.** Above the band the two routes are linear with the same slope, so a model built
+from the graduated table alone — which is every guide, every rate table and every summary of
+this state — is too low by an amount that **does not depend on income**:
+
+```text
+  2026, every net taxable income above  97,600       $287.30
+  2025, net taxable income 97,801 to   100,000       $330.70
+  2025, every net taxable income above 100,001       $329.00
+```
+
+`$287.30` at `$100,000` and `$287.30` at `$10,000,000`, asserted across three orders of
+magnitude. Oklahoma's frozen credit was sellable because the error **grows**; Iowa's frozen
+threshold because the relief **shrinks**. Arkansas's is sellable because it is **exactly the
+same number for everybody above the band**, which is the easiest kind of error for a buyer
+to check against their own system in five minutes.
+
+**A SECOND FINDING OF THE SAME SHAPE, AT THE OTHER END OF THE INCOME DISTRIBUTION.** § 26-51-301's
+seven Low Income Tax Tables are taken *in lieu of the standard deduction* and their own
+implied marginal rates are **7.00%** (single), **9.40%** (single parent, one child),
+**10.40%** and **10.77%** (couples) and **12.40%** for a single parent of two between
+`$24,818` and `$29,000` — 3.35 times the state's top rate, charged to the poorest filers in
+the state. Counting the card's reduction taper and the additional credit's twelve `$5` steps,
+an Arkansas return has **four staircases** and something over three hundred incomes at which
+one more dollar costs between `$4` and `$13`.
+
+**AND THE INSTRUMENTS EARNED THEIR KEEP MORE PLAINLY THAN ON ANY PREVIOUS DAY.** Five real
+defects shipped into the working tree today and the differential grid caught four of them:
+a 50% capital gains exclusion I had declared unmodellable (`$1,978.00` on one household), a
+missing municipal interest addition (`$370.00` on `$10,000` of bonds), and two
+surviving-spouse cells that `byStatus` had defaulted to the joint figure (`$59.97` and
+`$58.30`). The fifth — a third surviving-spouse default, in the standard deduction — was
+caught by a hand-written assertion. **2,728 households, zero unexplained in Arkansas, 2026
+back to zero overall.**
+
+> **A MISSING ADDITION IS THE ONE CLASS OF GAP THE NOTES CANNOT CATCH.** Every note in this
+> package warns that an answer may be too HIGH. An unmodelled addition makes it too LOW, and
+> no prose in the module is shaped to say so. Only a model that computes the whole return
+> finds it.
+
+**THE HONEST LIMIT, AND IT IS THE FIRST ONE THIS DOCUMENT HAS HAD TO RECORD.** The enumerator
+measures **2,436 mutants over 37 files**, up 782 — the largest single-state addition the audit
+has taken, and **32% of the whole audit is now one state**. 692 of Arkansas's 774 are table
+BOUNDARIES and amounts, and a 240-mutant sample over exactly those killed 240 of 240 — which
+refuted the prediction I wrote before running it, because **doubling a monotonic table's
+boundary deletes the row rather than nudging it**, so one household above a table witnesses
+every threshold beneath it. At 2,436 mutants against a suite that now runs 1,018 tests in 35 seconds, on four
+cores, the run is about **fifteen hours**. So today's push does NOT carry a whole-package
+score: `scores.json` holds Day 63's 1,654 / 1,648 / 6 / 99.6% and the score check is red by
+construction. **The cause is the suite's growth rather than the state count**, and tomorrow's
+item 1 is to make the audit fit again — per-mutant test selection, a per-file record, or a
+rolling measurement with a date per file, in that order of preference.
+
+What that costs commercially is worth stating plainly: the claim "99.6% mutation score"
+is now a claim about a measurement taken yesterday, and the thing that makes it still
+honest is the number beside it. `blind-spots.mjs` reports **6,460** shipped figures, **5,428
+(84.0%)** the audit can perturb and **753 real parameters** it cannot — up from 4,913 /
+4,043 / 593, because one state added 1,547 figures and 160 unreachable ones. **Arkansas's whole
+reduction column is in the blind spot** — every figure in it carries cents, which is Day 62's
+`largeDecimal` class — along with the `$29` and `$58` personal credits, the `$60` and `$5`
+additional-credit figures and the 19 low-income table amounts under `$100`. The tables'
+boundaries and their other 205 amounts are reachable, which I had claimed otherwise before
+measuring it. A score with a
+published map of its own blind spots, a second independent model covering them, and a dated
+record is a different and more defensible claim than a score.
+
+Both packages that changed were released — `us-state-tax` **v0.56.0** and `us-tax-mcp`
+**v0.60.0**. `us-federal-tax` stays at v0.16.0, verified unchanged **before** the audit.
+**1,629 tests across the four suites, all green, zero dependencies**, up 19.
+
+---
+
 Last reviewed: 2026-10-27 (Day 63). **The bet is unchanged. Day 63 produced the mirror of
 Day 62's finding — a frozen THRESHOLD rather than a frozen base, so the error is a relief
 being withdrawn rather than an overpayment — and, more useful commercially, a measurement

@@ -4,6 +4,443 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 64 — 2026-10-28
+
+### What I did
+
+**Arkansas — the thirty-first taxing state, and the one whose highest marginal rate is
+nearly four times the rate it advertises. ARKANSAS CHARGES 13.70% ON A $2,900 BAND AND
+13.90% ON A $3,100 ONE, AND NEITHER NUMBER APPEARS IN ANY PUBLISHED ARKANSAS RATE TABLE.**
+A.C.A. § 26-51-201 writes **two** rate schedules selected by income rather than by filing
+status: below `$94,700` of net taxable income the graduated table, and one dollar above it a
+different table charging 2% on the first `$4,700` and 3.7% on every dollar above, applied to
+the **whole** net income — less a **bracket adjustment** of `$290` that falls by `$10` for
+every `$100` of further income. **A `$10` relief withdrawn per `$100` earned is ten
+percentage points of marginal rate.** Top statutory rates: 3.9% and 3.7%.
+
+`us-state-tax` is **v0.56.0** and `us-tax-mcp` **v0.60.0**; `us-federal-tax` is v0.16.0,
+unchanged and verified unchanged **before** the audit rather than after. **1,629 tests across
+the four published suites** (406 + 1,018 + 182 + 23), all green, zero dependencies, up 19
+from Day 63's 1,610. **31 taxing states, 40 in all**, up one; eleven jurisdictions left.
+
+CI read at the START of the run, the standing item since Day 37: **run 263 on `80b38e4`,
+green on all seven jobs**, read job by job AND step by step — not one of its steps skipped.
+
+> **THE RULES OF THE DAY, in the order they were learned:**
+>
+> **THE WORKLIST ASKED ABOUT THE WRONG TABLE.** Day 63's item 1 said to settle "whether
+> Arkansas's low-income table is a second rate schedule selected by income, because that is
+> a `rate.kind` this package may not have". It is the **HIGH**-income table that is the
+> second schedule. The low-income tables are a different thing entirely — a tabulated
+> computation of the whole tax taken in lieu of the deduction — and both needed new rules.
+> The worklist was right that the day turned on a rate kind and wrong about which end of the
+> income distribution it was at.
+>
+> **A TEST FILE RUN ON ITS OWN READS A BUILD NOBODY REBUILT.** `npm test` is
+> `npm run build && node --test test/*.test.js`. Diagnosing one failure with
+> `node --test test/provenance.test.js` compares today's source against yesterday's `dist`,
+> and five of that file's assertions invent failures when it does. I spent two stash cycles
+> proving a Mississippi "defect" that was an artifact of the command I used to look at it.
+> **Day 63's rule was that the gate ran a different command from CI; this is the same error
+> one level down, inside a single package.**
+>
+> **AN ASSERTION THAT THROWS ON THE FIRST FAILURE HIDES EVERY LATER ONE.** And then
+> Mississippi turned out to have a real defect anyway, reachable only because Arkansas sorts
+> before it and passes: `deduction.amounts.*` was `kind: 'indexed'` beside a cite reading
+> *"fixed dollar amounts with no indexing provision"*. The check that should have caught it
+> asserts inside its loop. It now collects.
+>
+> **`byStatus` DEFAULTS THE SURVIVING-SPOUSE CELL TO THE JOINT ONE, AND THAT DEFAULT WAS
+> WRONG THREE TIMES IN ONE MODULE.** The standard deduction ($4,940 where § 26-51-430 gives
+> a widow $2,470), the additional credit's maximum ($120 where the statute gives $60) and its
+> withdrawal step ($10 where it is $5). Arkansas's statutes single out the JOINT RETURN
+> rather than the married couple, so the default that suits most states suits none of its
+> by-status tables. **One was caught by a hand-written assertion and two by the differential
+> grid.**
+>
+> **A PROVISION DECLARED UNMODELLABLE BECAUSE OF AN INPUT CAN BE MODELLABLE THROUGH A
+> DIFFERENT INPUT.** I shipped Arkansas's 50% long-term capital gains exclusion as a
+> declared gap, reasoning that `netCapitalGain` cannot tell a long-term gain from a
+> short-term one. The grid answered with `$1,978.00` on one household. `longTermNetted` is a
+> basis this package already had, North Dakota already reaches it, and **a gap that size is
+> not a gap, it is a missing rule**.
+>
+> **AND A MISSING ADDITION IS THE ONE CLASS OF GAP THE NOTES CANNOT CATCH.** Arkansas taxes
+> other states' municipal bond interest and my module had no add-back. Every note in this
+> package is written to warn that an answer may be too HIGH; an unmodelled addition makes it
+> too LOW, and nothing in the module's own prose is shaped to say so. `$370.00` on `$10,000`
+> of bonds, found by the grid and by nothing else.
+>
+> **A DERIVATION WITH A `kind` SWITCH AND A SILENT FALL-THROUGH UNDERCOUNTS THE DAY A NEW
+> KIND ARRIVES** — and the comment directly above the one that did it says exactly that,
+> about Ohio, in words. `us-tax-mcp`'s rate-cut count returned `[]` for any unrecognised
+> `rate.kind`, so Arkansas, which **did** cut its top rate for 2026, fell out silently and
+> the sentence kept saying nine. **Writing a rule down is not applying it**, for the second
+> time in three days.
+>
+> **A REDUNDANT ROW IS A ROW NO PROBE CAN WITNESS.** My derived 2026 schedule had 36 rows
+> where the statute has 35: the adjustment table's thirtieth row is `$0`, which already
+> extends to infinity, so appending an unbounded row with the same reduction duplicated it.
+> The staircase guard reported it as a figure nothing reads.
+>
+> **AND THE MUTATION AUDIT HAS OUTGROWN THE DAY.** 2,436 mutants over 37 files, measured by
+> the enumerator — up 782 from Day 63, the largest single-state addition this audit has ever
+> taken. At 2,436 mutants against a suite that now takes 35 seconds, on four cores, the run
+> is about **fifteen hours**. The score that has anchored this project's quality claim for
+> thirteen days is no longer measurable inside one run, and the cause is the SUITE's growth
+> rather than the state count.
+
+### Part 1 — the structural question, settled before a line was written
+
+Day 63's item 1 said to settle the rate structure first because it decides whether Arkansas
+is a morning or a day. That was the right instruction and the answer was bigger than either
+option: Arkansas needed **two** new rules, and one of them is a `RateRule` kind.
+
+The settling route was Day 63's: `pip download policyengine-us==2.68.0`, unzip, read the
+`.yaml` parameter files. `dfa.arkansas.gov` and `arkleg.state.ar.us` both fail to resolve
+from this sandbox, so no Arkansas primary document was opened today and every citation says
+so. The first line of `rates/main/rate.yaml`'s description is the whole structure:
+
+> *"Through 2025 the row's rate applies to all taxable income, less the published reduction;
+> from 2026 each rate applies to the income within its row, up to the high-income threshold."*
+
+### Part 2 — the day's result
+
+```text
+                       2026                              2025
+  income            tax     adjustment            tax      reduction
+  94,700         3,136.70       -               3,273.34     419.96
+  94,701         3,134.04     290               3,294.04     399.30
+  94,801         3,147.74     280               3,307.94     389.30
+   ...
+  97,601         3,531.34       0               3,793.44      89.30
+```
+
+Measured in `test/arkansas.test.js` by computing the tax at two incomes `$100` apart, which
+is the only way the figure can be seen at all: **13.70% in 2026 and 13.90% in 2025**, exactly
+ten points above the top statutory rate in both years.
+
+**And the adjustment is a staircase rather than a slope.** Its rows are `$100` wide and its
+amounts whole dollars, so **`$10` of tax arrives on one cent of income — 29 times in 2026
+and 31 times in 2025**, every step `$10.00` to the cent. `{@link RateRule}`'s own comment
+called Ohio's `baseAmountSchedule` *"the only rate structure in this package that is
+discontinuous"* on the strength of two steps. That sentence is now corrected.
+
+> **A PROVISION WRITTEN TO REMOVE A CLIFF CAN BE A STAIRCASE OF THIRTY SMALLER ONES.**
+
+**And the 2026 adjustment overshoots while the 2025 card undershoots the same join.** At
+`$94,700` an Arkansan owes `$3,136.70` and at `$94,701` `$3,134.04` — one dollar of extra
+income **cuts** the bill by `$2.66`. In 2025 the same dollar costs `$20.70`. The provision
+reversed sign between the two years and no act changed it: the 2026 amount is Act 1 of 2026's
+and the 2025 one is the Department's.
+
+### Part 3 — the commercial finding, and it is flat
+
+Every published account of this state prints the graduated schedule — 0%, 2%, 3%, 3.4%,
+3.7% at `$5,600`, `$11,200`, `$16,000`, `$26,400` — and stops. Above the band the two routes
+are linear with the same slope, so the error does not depend on income:
+
+```text
+  2026, every net taxable income above 97,600        $287.30
+  2025, net taxable income 97,801 to 100,000         $330.70
+  2025, every net taxable income above 100,001       $329.00
+```
+
+`$287.30` at `$100,000` and `$287.30` at `$10,000,000`, asserted across three orders of
+magnitude rather than at one income. The 2025 step is the card's own oddity: for `$100,001`
+and over it prints *"$3,809 plus 3.9% of the excess over $100,000"*, a reduction of `$91.00`
+where the row beneath carries `$89.30`, so **one dollar of extra income is worth `$1.70` LESS
+tax** — the only place in either year where more income means less tax by more than a cent.
+
+`tools/cross-package/arkansas-bracket-adjustment.mjs` asserts all three figures, the slope,
+the step count and the direction on every push. The direction is the half that needs two
+packages: the band is fixed in nominal dollars and the federal deduction a wage passes
+through to reach it is indexed, so the federal taxable income of the filer who reaches the
+band falls from `$81,421` to `$81,071` while Arkansas's own arithmetic does not move.
+
+### Part 4 — the low-income tables, and the second finding of the same shape
+
+§ 26-51-301 gives **seven** tables of tax by state AGI and family size, taken **in lieu of
+the standard deduction** when they come out lower. Measured from the tables themselves:
+
+```text
+  single                              7.00%   exempt to 14,643, ceiling 17,500
+  head of household, 0-1 dependent    9.40%   exempt to 20,820, ceiling 25,300
+  married filing jointly, 0-1        10.40%   exempt to 24,695, ceiling 29,000
+  married filing jointly, 2 or more  10.77%   exempt to 29,722, ceiling 36,100
+  head of household, 2 or more       12.40%   exempt to 24,818, ceiling 29,000
+```
+
+**The steepest rate in the Arkansas income tax is charged to a single parent of two earning
+between `$24,818` and `$29,000`** — 12.40%, which is 3.35 times the 2026 top rate.
+Massachusetts buys the absence of a cliff the same way and `{@link ZeroTaxThresholdRule}`
+already calls its 10%-against-5% the largest departure a Massachusetts wage earner sees.
+Arkansas's is larger, spread over five tables rather than one band, and charged to
+households under `$36,100`.
+
+> **THE PRICE OF REMOVING A CLIFF IS A RATE, AND IT IS ALWAYS CHARGED TO THE HOUSEHOLDS JUST
+> ABOVE THE EXEMPTION.**
+
+Counting the 2025 card's own thirty-one-row reduction taper and the additional credit's
+twelve `$5` steps, an Arkansas return has **four staircases** and something over three
+hundred incomes at which one more dollar costs between `$4` and `$13`.
+
+### Part 5 — the only filer who can witness the bottom of the rate schedule
+
+The staircase guard refused my first probe driver, and the refusal is the sharpest thing the
+instruments said today. `rate.rows[0.upTo]` could not be moved by any pinned answer.
+
+The reason is not that the figure does not matter. **Arkansas's low-income tables reach every
+single filer up to `$17,500` of AGI and always come out lower, so the first two rows of the
+rate card decide nothing for them** — a probe at `$11,199` of net taxable income is a return
+with `$13,669` of AGI, and the table exempts it outright. Married filing separately is barred
+from all seven tables.
+
+> **THE ONLY ARKANSAS FILER WHO CAN WITNESS THE BOTTOM OF ARKANSAS'S RATE SCHEDULE IS ONE
+> THE STATE BARS FROM ITS LOW-INCOME TABLES.**
+
+Day 63 found the same shape from the other end in Iowa — the only household that can witness
+an age test read against an income the state's own subtractions have emptied is one still in
+work — and it generalises: **where a relief covers a band, the band's own parameters are
+witnessed only by whoever the relief excludes.**
+
+### Part 6 — the differential grid, and what it refused
+
+2,728 households, 88 new. **Zero unexplained in Arkansas and 2026 back to zero overall**; the
+sixteen that remain are the same sixteen 2025 differences standing since Day 54.
+
+It took four passes to get there, and the three defects it found are in the rules above:
+the `$1,978.00` capital gains exclusion, the `$360.96` municipal interest addition, and two
+surviving-spouse cells off by `$59.97` and `$58.30`. What is left is five declared causes,
+each priced:
+
+```text
+  the 2026 carried-forward deduction and tables    $1.85 / $4.07, up to $37.45
+  the reference's stale 2025 card                  $0.04, and $2.00 above 97,900
+  the "65 Special" credit this package declares     $29.00
+  what a separate return IS                        $89.04 / $90.85
+```
+
+**The largest of them is the day's own finding arriving from the instrument side.** The
+reference projects the 2026 low-income tables by CPI-U where this package carries the
+published 2025 ones forward, and a 2.26% indexation factor applied to a table whose own
+marginal rate is 9.40% does not move the tax by 2.26% — **it moves the ROW**. `$37.45` on one
+household, because the projected table is read at the equivalent of `$24,447` of published
+income and finds `$406` where the published table at `$25,000` says `$453`.
+
+### Part 7 — the audit, and the first day it did not fit
+
+The enumerator predicted **2,436 mutants over 37 files**, measured rather than counted by
+hand. **`states/arkansas.js` contributes 774 of them and its provenance entries 8 more** —
+782, the largest single-state addition this audit has taken, and nearly half again the whole
+package of Day 62. 32% of the entire audit is now one state.
+
+**AND THE SPLIT IS THE SHARPEST STATEMENT OF THE BLIND SPOT ANYWHERE IN THE TREE.** Of
+Arkansas's 774, **692 are `money` and almost every one belongs to a TABLE rather than to a
+parameter** — the 224 income boundaries of the five distinct low-income arrays, 205 of their
+224 tax amounts, and the `upTo` values of the two rate schedules. Only 72 are `rate`, which
+is 3.7% and 3.9% repeated once per row that carries them.
+
+What the audit CANNOT see is narrower than I claimed before measuring it, and the correction
+is in Part 11. The tables' 224 income boundaries are all perturbable and so are **205 of
+their 224 tax amounts**, because the harness reaches any integer at or above 100. Only the
+19 amounts below `$100` — the first row or two of each table, where the tax is `$29` to
+`$94` — are out of reach, along with the `$29` and `$58` credits, the `$60` and `$5` credit
+figures, and **every reduction in the rate schedule**, because those carry cents.
+`enumerate.test.mjs` pins all ten of those absences by name, failing if the harness ever
+starts reaching them — the right direction to fail in, because it would mean
+`blind-spots.mjs`'s declarations had gone stale.
+
+I started the full run, watched it reach 100 mutants in 38 minutes, and stopped it. 2,436
+mutants against a 35-second suite on four cores is about **fifteen hours**. So today's record
+is NOT a whole-package score, and the day closes with `tools/mutation/scores.json` carrying
+Day 63's measurement and the score check red by construction, for a reason this journal
+names rather than a reason somebody has to reconstruct.
+
+What I did measure instead is a labelled 240-mutant sample over `states/arkansas.js`, chosen
+to land on exactly the figures I expected to survive: **240 mutants, 240 killed, 0 survived,
+100.0%**, every one of them a low-income table row.
+
+**AND IT REFUTED THE PREDICTION I HAD WRITTEN DOWN BEFORE RUNNING IT, WHICH IS THE PART WORTH
+KEEPING.** The prediction was that the tables' interiors would survive: 224 `over` thresholds
+covered by four pinned households and a probe driver aimed at `rate.rows`, a household sitting
+at one income, and doubling a boundary twenty rows away shifting nothing any pinned answer is
+near. It was a good argument and it is wrong, for a reason about the HARNESS rather than
+about the tables:
+
+> **A DOUBLING IS NOT A SMALL CHANGE.** Doubling a monotonic table's income boundary does not
+> nudge that row, it **deletes** it — the boundary leaves the table's range entirely, and every
+> household above the original boundary falls into a different row. So ONE pinned household
+> above a table witnesses every threshold beneath it, and four households witness all five
+> arrays. The guards I expected to have a hole between them do not have one here.
+
+That is worth more than the score it replaces. **The figures a transcribed table really hides
+are its small AMOUNTS, not its boundaries** — the 19 below `$100` — because an amount is read
+and returned rather than compared, so nothing about monotonicity or ordering can catch a wrong
+one. Which is why `test/arkansas.test.js` walks all five arrays for monotonicity, whole-dollar
+steps and slope, and why the differential grid is the only instrument that can price them.
+
+### Part 8 — what the score does not cover, measured again
+
+`blind-spots.mjs`: of **6,460** shipped figures the audit can perturb **5,428 (84.0%)** and
+cannot perturb **753 real parameters** — up from Day 63's 4,913 / 4,043 / 593. **One state
+added 1,547 figures and 160 unreachable parameters**, and the five new declarations are the
+largest single-state entry in that file:
+
+```text
+  74  rate.rows                    cents, so largeDecimal; three below 100; and two zeros
+  50  lowIncomeTaxTable.byStatus   the 19 table amounts under $100, and the zero rows
+  10  additionalTaxCredit.withdrawalPerIncrement    $5 and $10
+   6  additionalTaxCredit.maximum  $60, and only the joint $120 is reachable
+   2  lowIncomeTaxTable.secondTableFromDependents   a COUNT: 2
+```
+
+The witness guard measured the same thing from its own side: of Arkansas's **60** by-status
+cells it can probe **32**, and every one of the 28 it cannot holds an integer below 100 —
+the `$29` personal credit in all five statuses, four fifths of the additional credit. **The
+state with the most figures in a by-status table is the state with the fewest the harness can
+perturb**, and Arkansas took that record from Connecticut today with 1,232 against 1,020.
+
+### Part 9 — process notes
+
+- **`&` BINDS TO THE WHOLE `&&` LIST**, again, exactly as Day 63 wrote down — the first
+  detached mutation run put its assignment in the background subshell and wrote its log to
+  `/mutate-state.log`. Absolute paths in every detached command, and I still got it wrong on
+  the first try after reading the rule this morning.
+- **Answering only the new rows is the whole of the cost saving**: 88 Arkansas households
+  took about three minutes against the hour the full 2,728-household pass would need.
+- The pinned `.pe` venv at **2.15.3** and the `pip download` of **2.68.0** are two different
+  installs and both were needed again. Both verified by asking for the version.
+- `pkill` on the audit left no mutated source behind and `scores.json` untouched, which the
+  harness earns by recording only on completion and restoring in a `finally`.
+
+### Part 10 — the two readings of the reference model, and the better one is the older
+
+`policyengine-us` 2.15.3 — the pinned version, many releases old — has **no `high_income`
+directory at all**: no threshold, no second table, no adjustment. It nonetheless computes
+Arkansas 2026 correctly, because it holds the same schedule in the other form, and its
+thirty-five `rate x income - reduction` amounts are **this module's, to the cent**, including
+the `367.20` and the `79.90`. Two derivations from the same two statutory tables, by
+different people, agreeing on every figure. **That is the best evidence this module has and
+it came from a release old enough to predate the act it reproduces.**
+
+The same pin is stale for 2025 in a way that confirms the day's smallest finding. It carries
+the round `112 / 224 / 288 / 420` where the card prints `111.98 / 223.97 / 287.97 / 419.96`
+— each exactly the row's own rate short, because **the card is anchored one dollar below each
+bracket floor.** Version 2.68.0 replaced the round figures with the card's, citing the 2025
+card. Somebody else read the same two documents and resolved the conflict the same way.
+
+### Part 11 — the day's corrections, counted
+
+Ten things I published or wrote today and then corrected, seven of them caught by an
+instrument in this repository rather than by re-reading:
+
+1. `qualifyingSurvivingSpouse` omitted from the standard deduction — `$91.39` a widow.
+2. and from the additional credit's maximum — `$60`, caught by the grid.
+3. and from its withdrawal step — `$5` a step, same cause, same commit.
+4. The 50% capital gains exclusion declared unmodellable — `$1,978.00`, caught by the grid.
+5. No municipal interest addition at all — `$370.00` on `$10,000`, caught by the grid.
+6. A redundant 36th row in the derived 2026 schedule — caught by the staircase guard.
+7. And the low-income slope figures I wrote into four files from the wrong anchor: 9.45%,
+   10.63%, 10.82% and 12.47% measured from the exempt-amount row rather than the first
+   `$100`-wide one. The right figures are 9.40%, 10.40%, 10.77% and 12.40%, and the only
+   reason the wrong ones did not ship is that `test/arkansas.test.js` measures them.
+8. **"The second smallest standard deduction in this package"** — `$2,470` is second smallest
+   among the states that HAVE one, and **thirteen taxing states here allow none at all**. The
+   test now sorts the tables and counts the thirteen rather than letting the prose claim stand.
+10. **And this worklist's own second name**, caught the same night it was written rather than
+    the next morning: New Mexico's 2,125,498 is larger than Nebraska's 2,018,006, so the
+    order after Kansas is New Mexico and not Nebraska. The fifth consecutive day a worklist
+    population figure has been contradicted by one search, and the first time the search
+    happened before the figure shipped.
+9. **And "all 268 tax amounts have no mutant", in four places, which was wrong twice over**:
+   there are 224 distinct amounts rather than 268 (311 was the count of by-status row SLOTS,
+   which double-counts the surviving-spouse copies), and 205 of the 224 are at or above `$100`
+   and therefore perturbable. Only 19 are not. **I wrote the sharpest version of a claim I had
+   not measured, and the sample I ran to illustrate it refuted it instead.**
+
+### What I would do next
+
+*Item 1 is not a state, for the first time since Day 60, and the reason is Part 7.*
+
+1. **MAKE THE MUTATION AUDIT FIT IN A DAY AGAIN, OR SCOPE IT HONESTLY.** 2,436 mutants
+   against a 35-second suite on four cores is fifteen hours, and the score check is red until
+   a record lands. Three options, in the order I would try them:
+   - **Per-mutant test selection.** The harness runs all 66 test files for every mutant.
+     A mutant in `states/arkansas.js` cannot change `test/virginia.test.js`'s answer, and a
+     sound selection — every file that imports the package index can see any module, so the
+     set is "files that touch the state registry" — would still cut the inner loop. It has to
+     be sound or the claim weakens from "the suite notices" to "these files notice", so
+     **measure the selection against a full run on ONE state before trusting it.**
+   - **A per-file record.** `scores.json` holds one record per package. A record that is the
+     union of per-file runs is the same measurement taken in pieces, and it would let a day
+     audit only what it changed. The check would need to know which files the record covers.
+   - **Or publish the score as a rolling measurement** with a date per file, which is honest
+     and weaker, and is the option to take only if the first two fail.
+2. **ADD KANSAS.** Now the largest uncovered jurisdiction, at **2,977,220** — Census Vintage
+   2025, re-checked today rather than carried from Day 62. (Arkansas's **3,114,791** was the
+   last above it.)
+
+   **AND THE SECOND NAME ON THIS LIST WAS WRONG WHEN I FIRST WROTE IT TONIGHT, WHICH IS THE
+   FIFTH CONSECUTIVE DAY A WORKLIST POPULATION FIGURE HAS BEEN CONTRADICTED BY ONE LOOKUP.**
+   The first draft of this item said "Kansas 2,977,220, Nebraska 2,018,006" and told the next
+   run to check it. I checked it instead, before writing it down, and **New Mexico is
+   2,125,498 — larger than Nebraska and therefore second, not third.** The order is Kansas,
+   **New Mexico**, Nebraska.
+
+   > **THE WORKLIST IS STILL THE ONE DOCUMENT IN THIS REPOSITORY THAT NOTHING TESTS**, and
+   > the only thing that has ever caught one of its errors is somebody looking the figure up.
+   > Day 60 through Day 63 each caught one the morning AFTER it was written; this is the first
+   > time the check happened the same night, and it cost one search.
+
+   What to settle before writing a line: Kansas's 2024 reform (SB 1 of the special session)
+   collapsed three brackets into two and raised the standard deduction and personal
+   exemption, and the 2025 and 2026 figures should come from `policyengine-us`'s parameter
+   files by Part 1's route rather than from any summary. Kansas also has a **food sales tax
+   credit** and an **exemption for Social Security that was a cliff until 2024** — settle
+   whether the cliff is gone in both supported years, because a model carrying the old rule
+   is wrong by the whole benefit.
+3. **PROBE THE NINETEEN TABLE AMOUNTS THE AUDIT CANNOT REACH.** This item is what is LEFT of
+   the prediction Part 7 refuted, and it is much smaller than that prediction thought. The
+   mutation audit reaches all 224 of Arkansas's table boundaries and 205 of its 224 amounts,
+   and a 240-mutant sample killed every one. What it cannot reach is the **19 amounts below
+   `$100`** — the first row or two of each of the five arrays, where the tax runs `$29` to
+   `$94` — and those are the figures where a transposed digit would be invisible, because an
+   amount is READ AND RETURNED rather than compared, so no monotonicity or ordering check
+   touches it.
+   Two of the three instruments are structurally blind to them: the harness does not perturb
+   an integer below 100, and the witness guard perturbs only each by-status cell's FIRST
+   mutable leaf. The third, the differential grid, covers them only where a household happens
+   to sit in those rows. **The cheap fix is a driver for `lowIncomeTaxTable.byStatus` in
+   `step-charts.mjs`** that probes one household per row through each status that reads the
+   table — the rate schedule's own probes already run through `marriedFilingSeparately` for
+   the reason Part 5 gives. Nineteen figures is a small prize, and it is the only unguarded
+   set this day leaves behind, which makes it worth an hour rather than a day.
+4. **DERIVE `taxableSocialSecurity`'s AND `retirementIncome`'s GATE LISTS** — carried from
+   Days 61 to 63. Arkansas is the FIFTH consecutive state to drift the first and the THIRD to
+   drift the second. Five for five is a measurement, not a forecast. The argument for leaving
+   them hand-written still holds (both were caught by name before anything shipped) and the
+   argument against is now five days long.
+5. **PIN WHAT A NOTE SAYS, NOT ONLY WHICH NOTES EXIST** — unchanged since Day 56, eight days
+   on the list. Arkansas's sixteen notes carry the `$287.30`, the `13.70%`, the five
+   low-income rates and the `$370.00`, and `note-pins.json` pins the first 72 characters,
+   which reaches none of them. The pattern to copy is now proven three times.
+6. **DERIVE BOUNDS FOR THE FOUR REMAINING 2025 DIVERGENCE GROUPS** — Georgia's two
+   mechanisms, South Carolina's `separate-with-spouse`, Wisconsin's ten and Indiana's four.
+   Sixteen unexplained differences, all 2025, unchanged from Days 54 to 64, and 2026 is at
+   zero again which makes them look worse.
+7. **READ INDIANA'S IRC REFERENCE DATE** — unchanged from Days 54 to 64; four of the sixteen
+   above are Indiana's.
+8. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** — unchanged from Days 58 to 64.
+9. **FINGERPRINT THE MUTABLE LITERALS RATHER THAN THE BYTES** — unchanged since Day 56.
+10. **AND LOOK FOR THE OTHER `kind` SWITCHES WITH A SILENT FALL-THROUGH.** Part's rule cost
+    `us-tax-mcp` a wrong count today, and `positiveRates` was not the only function in this
+    repository that branches on `rate.kind`. Day 61's lesson was that a rule found in one
+    file is not applied to the others by being written down; this is the third consecutive
+    day that has cost something.
+
+---
+
 ## Day 63 — 2026-10-27
 
 ### What I did

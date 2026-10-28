@@ -791,7 +791,94 @@ export type RateRule =
       readonly kind: 'baseAmountSchedule';
       readonly name: string;
       readonly bands: readonly BaseAmountBand[];
+    }
+  /**
+   * **One rate, chosen by income, applied to the whole of it, less a reduction
+   * chosen the same way** — Arkansas, A.C.A. § 26-51-201(a) and the Department
+   * of Finance and Administration's *Indexed Tax Brackets* card.
+   *
+   * ```text
+   *   2025, as DFA publishes it
+   *     0        to   5,599     0.0%   minus      0.00
+   *     5,600    to  11,199     2.0%   minus    111.98
+   *    11,200    to  15,999     3.0%   minus    223.97
+   *    16,000    to  26,399     3.4%   minus    287.97
+   *    26,400    to  94,700     3.9%   minus    419.96
+   *    94,701    to  94,800     3.9%   minus    399.30
+   *      ... thirty more rows, each $100 wide, each reduction $10 smaller ...
+   *   100,001    and over       3.9%   minus     91.00
+   * ```
+   *
+   * It is **not** {@link applyBrackets} with the arithmetic rearranged, for two
+   * reasons that pull in opposite directions.
+   *
+   * The first is that it very nearly is. For the four bands below `$94,701` the
+   * reduction is exactly the accumulated tax of the bands beneath — give or take
+   * **the row's own rate on one dollar**. `0.02 x 5,599 = 111.98` and not
+   * `112.00`; `0.039 x 26,399 - 609.60 = 419.96` and not `420.00`. **The card is
+   * anchored one dollar below each bracket floor**, so every Arkansan above
+   * `$5,600` pays the graduated statutory tax plus two to four cents, and the
+   * published card and the statute it implements do not agree. Arkansas settles
+   * it in the instructions' own words — a formula's results *"must match the
+   * table"* — so the card governs and the cents are real.
+   *
+   * The second is the part no rearrangement reaches. Above `$94,700` the
+   * reduction **falls by `$10` for every `$100` of income**, which adds ten
+   * percentage points to the marginal rate: **13.9% in 2025 and 13.7% in 2026**,
+   * on a band `$3,100` and `$2,900` wide, in a state whose top statutory rate is
+   * 3.9% and 3.7%. The band is Arkansas's *bracket adjustment*, and a schedule
+   * of marginal rates cannot express it at all.
+   *
+   * > **A PROVISION WRITTEN TO REMOVE A CLIFF CAN BE A STAIRCASE OF THIRTY
+   * > SMALLER ONES.** Because the rows are `$100` wide and the reduction steps
+   * > by whole dollars, `$10` of tax arrives on one cent of income — 29 times in
+   * > 2026 and 31 times in 2025. Ohio's `baseAmountSchedule` has two
+   * > discontinuities and was described in this file as the only discontinuous
+   * > rate structure in the package; Arkansas has thirty.
+   *
+   * Tax is `rate x income - reduction`, floored at zero, and the floor is load
+   * bearing: a single filer at `$5,600` of net taxable income owes `$0.02`.
+   */
+  | {
+      readonly kind: 'rateLessReduction';
+      readonly name: string;
+      readonly rows: readonly RateLessReductionRow[];
     };
+
+/**
+ * One row of a {@link RateRule} `rateLessReduction` schedule.
+ *
+ * The row is chosen by net taxable income and its `rate` then applies to **all**
+ * of that income, not to the excess over anything. `reduction` comes off the
+ * product.
+ */
+export interface RateLessReductionRow {
+  /**
+   * Top of the row, **inclusive**: the row covers `(previous upTo, upTo]`. The
+   * last row uses `Infinity`.
+   *
+   * The convention is the published card's and not the statute's, and the two
+   * differ. A.C.A. § 26-51-201(a)(4) writes bracket *floors* — `$5,600`,
+   * `$11,200`, `$16,000`, `$26,400` — which makes the rows `[floor, next)`;
+   * DFA's card prints *"$5,600 to $11,199"*, which makes them `(prev, upTo]`.
+   * They agree on every whole dollar and can differ by a cent on an amount
+   * between the two bounds. **Arkansas net taxable income is a whole-dollar
+   * figure** — AR1000F line 29 is rounded, as every line on the return is — so
+   * no amount a filed return can carry falls between them, and the card's
+   * convention is used because the card is what the instructions make binding.
+   *
+   * The one place the choice is not cosmetic is the top of the regular table.
+   * § 26-51-201(a)(5) reaches a filer whose net income *"exceeds"* the
+   * high-income threshold, so `$94,700` itself is the last row of the regular
+   * table rather than the first of the other one — inclusive there by the
+   * statute's own word, and the two conventions happen to agree.
+   */
+  readonly upTo: number;
+  /** Applied to the whole of net taxable income. */
+  readonly rate: number;
+  /** Subtracted from `rate x income`. The card's *"minus adjustment"* column. */
+  readonly reduction: number;
+}
 
 /**
  * One row of a {@link RateRule} `baseAmountSchedule`: a flat amount charged the
@@ -2226,6 +2313,152 @@ export interface RecaptureRule {
  * is the exception and is stored: `$8,000` is not `$7,600 + $4,400`, and a single
  * filer adds nothing for dependents either.
  */
+/**
+ * A **whole second computation of the tax**, looked up in a printed table by
+ * income and family size, taken instead of the rate schedule when it comes out
+ * lower — Arkansas's Low Income Tax Tables, A.C.A. § 26-51-301 and the AR1000F
+ * instructions.
+ *
+ * It is not a credit, a threshold or a deduction, and calling it any of those
+ * gets it wrong in a different way each time:
+ *
+ * - It is not a {@link ZeroTaxThresholdRule}, because above the exempt amount it
+ *   keeps producing numbers. A single Arkansan at `$14,643` owes nothing and one
+ *   at `$17,400` owes `$222` **from the table** rather than from any rate.
+ * - It is not a deduction, because it is taken ***in lieu of*** the standard or
+ *   itemized deduction: the table reads **state AGI**, undeducted, where the rate
+ *   schedule reads AGI less the deduction. Two routes on two different bases.
+ * - And it is not a credit, because it replaces the tax rather than reducing it.
+ *
+ * ```text
+ *   single, 2025                      the implied marginal rate
+ *     up to      14,643         $0
+ *     14,644 to  14,700        $29
+ *     14,701 to  14,800        $33     +$4 on $100
+ *     14,801 to  14,900        $40     +$7 on $100   =  7.0%
+ *      ... twenty-six more rows, each $100 wide, each +$7 ...
+ *     17,301 to  17,400       $222
+ *     above      17,400        the rate schedule governs
+ * ```
+ *
+ * > **A TABLE WRITTEN TO RELIEVE THE POOREST FILERS CAN CHARGE THEM TWICE THE
+ * > STATE'S TOP MARGINAL RATE.** Arkansas's top statutory rate is 3.9% in 2025
+ * > and 3.7% in 2026. Inside these tables the rate is **7.00%** for a single
+ * > filer, **9.40%** for a single parent with one child, **10.40%** for a couple
+ * > and **12.40%** for a single parent with two — measured, in
+ * > `test/arkansas.test.js`, from the tables themselves. Massachusetts buys the
+ * > absence of a cliff by charging double its 5% across one band and this file
+ * > records that as the largest departure from "5%" a Massachusetts wage earner
+ * > sees; Arkansas charges up to **three and a third times** its headline rate,
+ * > to households under `$36,100`.
+ *
+ * And the rows are `$100` wide with whole-dollar amounts, so the table is a
+ * staircase like the bracket adjustment above it: `$4` to `$13` of tax arrives
+ * on one dollar of income, between 28 and 63 times depending on the table.
+ *
+ * Two of the seven tables are not Arkansas's own idea twice over: the
+ * surviving-spouse pair is **byte for byte** the head-of-household pair, in both
+ * halves and every row. The instructions print them as four separate tables and
+ * this package stores four, because a relation visible in a table is not a
+ * relation the instructions state — and `test/arkansas.test.js` asserts the
+ * identity as an observation rather than using it to halve the data.
+ */
+export interface LowIncomeTaxTableRule {
+  readonly name: string;
+  /**
+   * Statuses that may not use the tables at all, whatever their income.
+   *
+   * Arkansas bars **married filing separately**, and the bar is not a rounding
+   * of the rule: a separated Arkansan at `$14,000` of AGI pays the rate schedule
+   * on `$14,000 - $2,470` where a single filer at the same income pays nothing.
+   */
+  readonly ineligibleFilingStatuses?: readonly string[];
+  /**
+   * Number of dependents at or above which {@link LowIncomeTable.withDependents}
+   * replaces {@link LowIncomeTable.rows}. Arkansas: `2`.
+   *
+   * The instructions phrase it as *"no dependents or one dependent"* against
+   * *"two or more dependents"*, and the single filer's table has no second half
+   * at all — a single filer with a dependent is a head of household in Arkansas.
+   */
+  readonly secondTableFromDependents?: number;
+  readonly byStatus: ByStatus<LowIncomeTable>;
+}
+
+/** One filing status's low-income table, or pair of them. */
+export interface LowIncomeTable {
+  /** Rows for a return with fewer than `secondTableFromDependents` dependents. */
+  readonly rows: readonly LowIncomeTableRow[];
+  /** Rows for a return at or above it. Absent where the status has one table. */
+  readonly withDependents?: readonly LowIncomeTableRow[];
+  /**
+   * State AGI above which the table stops and the rate schedule governs —
+   * `17_500` for a single filer, `36_100` for a couple with two children.
+   *
+   * It is a `$100` further than the last row's `over`, because the last row is
+   * `(17,400, 17,500]` like every other row and the table simply ends there.
+   * Storing it rather than reading it off the rows is deliberate: the ceiling is
+   * the figure the instructions print as the eligibility test — *"if your
+   * income is less than..."* — and a model that infers it from the table's
+   * length gets no warning when a row is dropped.
+   */
+  readonly ceiling: number;
+  /** The same, for the `withDependents` half. */
+  readonly ceilingWithDependents?: number;
+}
+
+/**
+ * One row of a {@link LowIncomeTable}: state AGI **above** `over` and not above
+ * the next row's `over` owes `tax`.
+ *
+ * Exclusive on the left because that is how the published table reads and how
+ * the exempt amount is written — § 26-51-301 exempts a single filer whose gross
+ * income *"does not exceed"* `$14,643`, so `$14,643` itself is the last
+ * untaxed dollar and `$14,644` is the first taxed one.
+ */
+export interface LowIncomeTableRow {
+  readonly over: number;
+  readonly tax: number;
+}
+
+/**
+ * A flat credit withdrawn in whole-dollar steps as income rises — Arkansas's
+ * **Additional Tax Credit for Qualified Individuals**, AR1000F line 32.
+ *
+ * `$60` a filer, `$120` on a joint return, where net taxable income is at or
+ * below `$26,500`; then `$5` (`$10` joint) is withdrawn **for each `$100` or
+ * part of `$100`** above it, and the credit is gone at `$27,700`.
+ *
+ * The words *"or part of"* are the whole of why this is its own rule and not a
+ * phase-out rate. A withdrawal of `$5` per `$100` of income is five percentage
+ * points of marginal rate if it is continuous; it is not. The statute takes the
+ * **ceiling** of the increments, so the credit falls by `$5` the moment income
+ * passes `$26,500` by a cent and by another `$5` the moment it passes `$26,600`:
+ * twelve steps, `$5` of tax on one dollar of income, each time.
+ *
+ * > **ARKANSAS'S FOURTH STAIRCASE.** The bracket adjustment steps thirty times
+ * > at `$94,700`, the seven Low Income Tax Tables step between 28 and 63 times
+ * > each, the 2025 rate card's reduction steps thirty-one times, and this credit
+ * > steps twelve. A state whose rate schedule has five rows has something over
+ * > three hundred points at which one more dollar of income costs between `$4`
+ * > and `$13` of tax.
+ *
+ * It is nonrefundable and it sits after the personal credits in the statutory
+ * order, so a filer whose tax the personal credits have already extinguished
+ * gets nothing from it.
+ */
+export interface AdditionalTaxCreditRule {
+  readonly name: string;
+  /** `$60`, doubled on a joint return. */
+  readonly maximum: ByStatus;
+  /** Income at or below which the whole credit is allowed. `$26,500`. */
+  readonly start: ByStatus;
+  /** Width of one withdrawal step. `$100`. */
+  readonly increment: number;
+  /** Withdrawn per step, or part of a step. `$5`, doubled on a joint return. */
+  readonly withdrawalPerIncrement: ByStatus;
+}
+
 export interface ZeroTaxThresholdRule {
   readonly name: string;
   /**
@@ -4475,6 +4708,25 @@ export interface StateIncomeTaxDefinition {
   /** Connecticut's pension, annuity and IRA subtraction. */
   readonly retirementSubtractionSchedule?: RetirementSubtractionScheduleRule;
   readonly zeroTaxThreshold?: ZeroTaxThresholdRule;
+  /**
+   * A second, tabulated computation of the whole tax, taken when it is lower —
+   * Arkansas only. See {@link LowIncomeTaxTableRule}.
+   *
+   * It is applied to **state AGI** rather than to taxable income, because the
+   * table stands in for the deduction, and the engine therefore computes it
+   * before the deduction is subtracted rather than after.
+   */
+  readonly lowIncomeTaxTable?: LowIncomeTaxTableRule;
+  /**
+   * A flat credit withdrawn in whole-dollar steps — Arkansas only. See
+   * {@link AdditionalTaxCreditRule}.
+   *
+   * The income it reads is whichever base the governing route used: taxable
+   * income where the rate schedule decided the return, and **state AGI** where
+   * {@link lowIncomeTaxTable} did, because there the deduction is inside the
+   * table and never came off.
+   */
+  readonly additionalTaxCredit?: AdditionalTaxCreditRule;
   readonly retirementExclusion?: RetirementExclusionRule;
   /**
    * Maryland's pension exclusion — per person, and offset by that person's own

@@ -12,6 +12,7 @@ import type {
   ExemptionRule,
   FractionThereofStaircase,
   IncomeMeasure,
+  LowIncomeTableRow,
   OwnEarnedIncomeCreditRule,
   RetirementIncomeSubtractionRule,
   StateIncomeTaxDefinition,
@@ -20,7 +21,9 @@ import type {
 import {
   applyBaseAmountSchedule,
   applyBrackets,
+  applyRateLessReduction,
   dependentCount,
+  lookUpLowIncomeTax,
   nonNegative,
   roundCents,
 } from './engine-core.js';
@@ -3177,6 +3180,7 @@ interface Computed {
   exemptions: number;
   taxableIncome: number;
   taxBeforeCredits: number;
+  lowIncomeTableTax?: number;
   brackets: BracketDetail[];
   incomeClasses: IncomeClassDetail[];
   surtaxes: SurtaxDetail[];
@@ -3564,6 +3568,45 @@ function computeOnce(
     const walked = applyBaseAmountSchedule(scheduleIncome, def.rate.bands);
     taxBeforeCredits = walked.tax;
     brackets = walked.detail;
+  } else if (def.rate.kind === 'rateLessReduction') {
+    const walked = applyRateLessReduction(scheduleIncome, def.rate.rows);
+    taxBeforeCredits = walked.tax;
+    brackets = walked.detail;
+  }
+
+  // Arkansas's Low Income Tax Table: a SECOND computation of the whole tax, on
+  // state AGI rather than on taxable income, taken when it comes out lower.
+  //
+  // It is applied here rather than inside the rate switch because the two
+  // routes do not read the same number. The rate schedule has just been handed
+  // `scheduleIncome`, which is AGI less the deduction; the table stands IN LIEU
+  // of that deduction and reads the undeducted figure. A model that looks the
+  // table up on taxable income understates the tax of every household that uses
+  // it — by the deduction's worth of rows, which for a single Arkansan is 24 of
+  // the table's 29.
+  let lowIncomeTableTax: number | undefined;
+  if (def.lowIncomeTaxTable && !belowThreshold) {
+    const rule = def.lowIncomeTaxTable;
+    const barred = (rule.ineligibleFilingStatuses ?? []).includes(input.filingStatus);
+    if (!barred) {
+      const table = rule.byStatus[input.filingStatus];
+      const second =
+        table.withDependents !== undefined &&
+        rule.secondTableFromDependents !== undefined &&
+        dependentCount(input) >= rule.secondTableFromDependents;
+      const rows = second ? (table.withDependents as readonly LowIncomeTableRow[]) : table.rows;
+      const ceiling = second ? (table.ceilingWithDependents as number) : table.ceiling;
+      const looked = lookUpLowIncomeTax(totalStateAgi, rows, ceiling);
+      // STRICTLY lower, so a tie leaves the rate schedule in charge. The two
+      // routes agree at exactly one income per table — the point where the
+      // table's staircase crosses the schedule — and the instructions make the
+      // table the alternative rather than the default.
+      if (looked !== undefined && looked < taxBeforeCredits) {
+        lowIncomeTableTax = looked;
+        taxBeforeCredits = looked;
+        brackets = [];
+      }
+    }
   }
   const incomeClasses = belowThreshold
     ? classes.details.map((c) => ({ ...c, taxableAmount: 0, tax: 0 }))
@@ -3706,6 +3749,25 @@ function computeOnce(
       amount: exemptionCredit(def, input, measures),
       refundable: false,
     });
+  }
+  if (def.additionalTaxCredit) {
+    const rule = def.additionalTaxCredit;
+    // THE BASE IS WHICHEVER ROUTE DECIDED THE RETURN. Where Arkansas's Low
+    // Income Tax Table governed, the deduction is inside the table and never
+    // came off, so the credit's income test reads state AGI; where the rate
+    // schedule governed it reads taxable income. Reading one of the two for
+    // every return gets the other wrong by the deduction — $2,470 of income,
+    // which is five withdrawal steps and $25 of credit.
+    const income = lowIncomeTableTax !== undefined ? totalStateAgi : taxableIncome;
+    const over = Math.max(0, income - rule.start[input.filingStatus]);
+    // "FOR EACH $100 OR PART OF $100" — the ceiling, not the quotient, and the
+    // reason this is a staircase rather than a 5% phase-out rate.
+    const steps = Math.ceil(over / rule.increment);
+    const amount = Math.max(
+      0,
+      rule.maximum[input.filingStatus] - steps * rule.withdrawalPerIncrement[input.filingStatus],
+    );
+    if (amount > 0) credits.push({ name: rule.name, amount, refundable: false });
   }
   if (def.jointFilingCredit) {
     const rule = def.jointFilingCredit;
@@ -4113,6 +4175,7 @@ function computeOnce(
     taxableIncome,
     taxBeforeCredits,
     brackets,
+    ...(lowIncomeTableTax !== undefined ? { lowIncomeTableTax } : {}),
     incomeClasses,
     surtaxes,
     credits,
@@ -5308,6 +5371,18 @@ function computeWholeReturn(
     exemptions: roundCents(here.exemptions),
     taxableIncome: roundCents(here.taxableIncome),
     taxBeforeCredits: roundCents(here.taxBeforeCredits),
+    // Arkansas only, and absent on every return the rate schedule decided.
+    //
+    // IT IS SET IN TWO PLACES BECAUSE THE RESULT IS BUILT IN TWO PLACES, and
+    // the first draft of this field set only the inner one. `taxBeforeCredits`
+    // came back as the table's figure, so the answer was right and the field
+    // saying WHY was undefined on every return — a reported-field defect with
+    // no effect on any number, which is the kind that survives a suite of
+    // assertions about numbers. `test/arkansas.test.js` asks for the field
+    // rather than the tax, which is what caught it.
+    ...(here.lowIncomeTableTax !== undefined
+      ? { lowIncomeTableTax: roundCents(here.lowIncomeTableTax) }
+      : {}),
     incomeClasses: here.incomeClasses.map((c) => ({
       name: c.name,
       rate: c.rate,

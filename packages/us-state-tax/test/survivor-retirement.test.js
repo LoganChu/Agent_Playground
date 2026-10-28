@@ -126,7 +126,7 @@ test('exactly one state reads survivor retirement income differently from the fi
   // the exclusion her OWN age already earns her. So Iowa reads the survivor's
   // own age, its answer is too HIGH for a survivor under 55 whose deceased
   // spouse had reached it, and the note on the state says so with the price.
-  assert.equal(comparisons, 9_360, 'comparisons made');
+  assert.equal(comparisons, 9600, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 
@@ -262,7 +262,7 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
     assert.ok(moved.has(state), `${state} tax moves on retirement`);
     assert.ok(STATES_READING_RETIREMENT.includes(state), `${state} is in the derived list`);
   }
-  assert.equal(STATES_READING_RETIREMENT.length, 20, 'states reading retirement');
+  assert.equal(STATES_READING_RETIREMENT.length, 21, 'states reading retirement');
 });
 
 // ---------------------------------------------------------------------------

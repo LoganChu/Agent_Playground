@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.59.0/us-tax-mcp-0.59.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.60.0/us-tax-mcp-0.60.0.tgz"
       ]
     }
   }
@@ -178,6 +178,56 @@ found eight more; see the 0.51.0 entry above.)
 One existing test was asserting the defect: it required New York to refuse
 `taxableSocialSecurity`, and New York subtracts the benefit in full.
 
+**New in 0.60.0 — ARKANSAS, AND A STATE WHOSE HIGHEST MARGINAL RATE IS NOT IN ITS
+RATE SCHEDULE.** The thirty-first taxing state. `state_income_tax` now answers for
+`AR`, and the argument surface grew by nothing: Arkansas is read entirely out of
+fields the server already had.
+
+**A.C.A. § 26-51-201 writes TWO rate schedules selected by INCOME rather than by
+filing status.** Below `$94,700` of net taxable income a filer is on the graduated
+table — 0%, 2%, 3%, 3.4%, 3.7%. One dollar above it they are on a different table
+that charges 2% on the first `$4,700` and 3.7% on every dollar above, applied to
+their **whole** net income, less a **bracket adjustment** of `$290` that falls by
+`$10` for each further `$100` of income. A `$10` relief withdrawn per `$100` earned
+is ten percentage points of marginal rate: **13.70% in 2026 and 13.90% in 2025**,
+on a band `$2,900` and `$3,100` wide, in a state whose top rate is 3.7% and 3.9%.
+
+**And `marginal_rate` does NOT report it, which is worth stating precisely rather
+than glossing.** That tool measures the next ONE DOLLAR, and the adjustment's rows
+are `$100` wide, so inside a row the next dollar costs the statutory 3.7% and at a
+row boundary it costs **`$10.04`**. The 13.70% is the rate over any `$100` of income
+in the band — and over the whole band, exactly — which is how a raise is actually
+experienced and what no one-dollar probe can show. Three different true numbers for
+the same provision: 3.7% inside a row, `$10.04` on one dollar at each of 29
+boundaries, and 13.70% over any hundred dollars.
+
+**And the adjustment's rows are `$100` wide with whole-dollar amounts, so `$10` of
+tax arrives on one cent of income — 29 times in 2026 and 31 times in 2025.** Ohio's
+schedule has two such steps and was the only discontinuous one here; Arkansas has
+thirty in the adjustment, 28 to 63 more in each of its seven Low Income Tax Tables,
+and twelve in its additional tax credit. **A model built from Arkansas's published
+bracket table alone is too low by a FLAT `$287.30` at every income above the band.**
+
+**The Low Income Tax Tables charge the poorest Arkansans up to 12.40%**, against a
+3.7% top rate: seven tables of tax by state AGI and family size, taken in lieu of
+the standard deduction, with married filing separately barred from all of them — so
+a separated Arkansan at `$14,000` pays tax where a single filer pays nothing.
+`retirementIncome` and `taxableSocialSecurity` are accepted for `AR` and were the
+fifth and third state to drift this server's two surviving hand-written gate lists;
+`shortTermCapitalGains` is accepted for it too and joined the DERIVED list on its
+own, because § 26-51-815(a) exempts 50% of net long-term capital gain — the largest
+flat capital-gains exclusion of any state here.
+
+**One thing in this release is a defect this server's own comment had warned about
+in words.** The README's rate-cut count is derived by reading each state's positive
+rates, and the derivation switched on `rate.kind` and returned an empty list for
+anything it did not recognise. Arkansas cut its top rate for 2026 and arrived with a
+`kind` the switch had never seen, so it fell out silently and the sentence kept
+saying nine. The comment directly above that switch says, about Ohio, that *"an
+exclusion that silently returned an empty list would make this derivation quietly
+undercount"*. **Writing a rule down is not applying it.** The function now throws on
+a kind it does not know, Ohio is excluded by name, and the sentence says ten.
+
 **New in 0.52.0 — ONE NEW ARGUMENT, `oregonPriorYearTaxBeforeCredits`, AND IT IS THE
 FIRST ONE WHOSE VALUE COMES OFF A DIFFERENT RETURN.** Oregon returns a certified
 biennial General Fund surplus — the "kicker", Or. Const. Art. IX § 14(4) — as a
@@ -238,7 +288,7 @@ the list beside it disagreed.
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 236 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 246 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 
@@ -481,7 +531,7 @@ answered by default — not merely when a rule exists.
 This cost a **sixteenth** compression pass on `tools/list`, and the thing that
 was compressed is worth recording: three tools carried the same 264-character
 sentence explaining why their household fields have no descriptions, and it had
-gone stale — it said "thirty-seven descriptions" when there are thirty-nine.
+gone stale — it said "thirty-seven descriptions" when there are forty.
 39,863 bytes against the 40,000 ceiling.
 
 **New in 0.29.0 — the widow's filing status, on the STATE side, in fourteen more
@@ -951,8 +1001,8 @@ The same dollar, deferred out of the same paycheck, is inside one local wage tax
 the other — worth `$612.50` to Columbus and saving `$306.25` from the district. A model that
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
-Nine of the thirty taxing states cut their rate for 2026, so an unsupported year is an
-error rather than a fallback to the nearest one — and ten of the 2026 state-years carry at
+Ten of the thirty-one taxing states cut their rate for 2026, so an unsupported year is an
+error rather than a fallback to the nearest one — and eleven of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud. Illinois came
 off that list in 0.27.0, and Kentucky and Maryland in 0.28.0: Kentucky's 2026 standard
 deduction is `$3,360` and Maryland's is `$3,350` unchanged, both from the states' own 2026
@@ -1108,7 +1158,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **999 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **1,018 tests**, every state figure cited to its statute.
 This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
@@ -1147,10 +1197,10 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **12 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 39 states — AK, AL, AZ, CA, CO, CT, FL, GA, IA, ID, IL, IN,
+- **11 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 40 states — AK, AL, AR, AZ, CA, CO, CT, FL, GA, IA, ID, IL, IN,
   KY, LA, MA, MD, MI, MN, MO, MS, NC, ND, NH, NJ, NV, NY, OH, OK, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
-  nothing else. Kansas, Arkansas and Nebraska are absent, and asking for one is an error
+  nothing else. Kansas, New Mexico and Nebraska are absent, and asking for one is an error
   rather than a zero. Alabama's municipal occupational licence taxes — Birmingham's 1% of
   gross wages, Gadsden's 2% — are not modelled either. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
   Indiana's 92 counties, Michigan's 24 cities, Ohio's 679 municipalities and Ohio's 214

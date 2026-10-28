@@ -790,8 +790,16 @@ export const STATE_FIELDS: readonly StateField[] = [
       // `subtractsTaxableSocialSecurity` is a pure subtraction that one
       // household notices. A list whose staleness announces itself is the one
       // that is safe to leave hand-written.
-      'AL', 'AZ', 'CA', 'IA', 'ID', 'IL', 'IN', 'LA', 'MI', 'MN', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK',
-      'OR', 'SC', 'WI',
+      // ARKANSAS, Day 64, and the FIFTH consecutive state to drift this list.
+      // Five for five is no longer a forecast, it is a measurement, and the
+      // argument has shifted: what makes a hand-written list safe is not that
+      // it rarely drifts but that its drift is CAUGHT, and this one has been
+      // caught by name on every one of the five. Arkansas does not merely
+      // subtract the benefit — the AR1000F's list of gross income sources never
+      // contains it — so the field moves its tax by $5,008.96 on one household
+      // in the witness ladder and the omission was impossible to miss.
+      'AL', 'AR', 'AZ', 'CA', 'IA', 'ID', 'IL', 'IN', 'LA', 'MI', 'MN', 'MS', 'NC', 'ND', 'NY',
+      'OH', 'OK', 'OR', 'SC', 'WI',
     ],
     doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement. CONNECTICUT subtracts the WHOLE of it below $75,000 of federal AGI ($100,000 joint and for a qualifying surviving spouse) and at the threshold replaces that subtraction rather than tapering it \u2014 one dollar of income can cost a couple with $40,000 of benefits $405 \u2014 so a Connecticut retiree without this figure comes back far too high. Connecticut needs the GROSS benefit as well, in retirement.socialSecurityBenefits.',
   },
@@ -934,7 +942,16 @@ export const STATE_FIELDS: readonly StateField[] = [
       // And IOWA on Day 63, caught by name for the same reason — the second
       // consecutive state to drift BOTH of this file's surviving hand-written
       // lists, which is the pattern that will eventually pay for deriving them.
-      'CT', 'GA', 'IA', 'KY', 'LA', 'MD', 'MO', 'OK', 'OR', 'SC', 'WI',
+      // AND ARKANSAS ON DAY 64 — the THIRD consecutive state to drift both of
+      // this file's surviving hand-written lists, caught by name again. The
+      // pattern is now five states long for the Social Security gate and three
+      // for this one, and the forecast each comment makes has been right every
+      // time. What keeps them safe to leave is the second half of that forecast
+      // rather than the first: a field that moves a state's tax on its own is
+      // noticed by a one-field ladder, so the staleness announces itself before
+      // anything ships. The two lists that DID have to be derived were the ones
+      // needing a partner field, which went undetected for eighteen days.
+      'AR', 'CT', 'GA', 'IA', 'KY', 'LA', 'MD', 'MO', 'OK', 'OR', 'SC', 'WI',
     ],
     doc: 'Taxable pension, annuity and IRA withdrawals as a RETURN total. IL, MS, MI and NY will subtract it under their own rules if `retirement` is not supplied, placing all of it on the first filer — which understates the New York exclusion, the only one of the four that is capped per person. New Jersey excludes up to $100,000 joint / $75,000 single at 62 or over, ending in a wall at $150,000 of total income that costs a joint retiree $1,381 on one dollar. Ohio bands a small retirement income credit on it. Michigan derives cityIncome from federal AGI less this figure when cityIncome is omitted. MD, GA, KY and UT read `retirement` instead, because theirs are per person. OKLAHOMA accepts the total and is per person too — 68 O.S. § 2358(A)(8) caps the exclusion at $10,000 EACH and unused room is lost — so a total is attributed entirely to the filer and buys ONE $10,000 exclusion: $30,000 of pension in one name and $15,000 each are $475.00 apart in 2025 on identical household income, and the result says which assumption it used. Pass `retirement.filer` and `retirement.spouse` for the exact figure.',
   },

@@ -91,6 +91,7 @@ const TAXING = SUPPORTED_STATES.filter((s) => !NO_INCOME_TAX_STATES.includes(s))
  * evidence comes in: it is not an inference from the status existing.
  */
 const OFFERS_THE_STATUS = {
+  AR: 'The AR1000F carries "Qualifying widow(er) with dependent child" as filing status 5, and Arkansas writes TWO figures against it rather than defaulting it to anything. A.C.A. § 26-51-501 gives a surviving spouse the same additional personal tax credit it gives a head of household — $29, which is why this package stores $58 against the status — and the AR1000F instructions print a SURVIVING-SPOUSE PAIR OF LOW INCOME TAX TABLES of its own, separate from the head-of-household pair. The tables are byte for byte identical to the head-of-household ones in both halves and every row, so the figures agree while the documents do not, and this package stores four tables because the instructions print four. What it does NOT get is the joint standard deduction: § 26-51-430 gives a surviving spouse the SINGLE amount of $2,470, not the $4,940 a joint return takes.',
   CA: 'Form 540 filing status 5, "Qualifying surviving spouse/RDP" (the FTB renamed it from "qualifying widow(er)" without changing the rules); Form 540NR lists it as box 5 too.',
   CO: 'DR 0104 instructions: "you must use the same filing status on both your federal and Colorado returns", so the federal status carries across unchanged and Colorado writes no figure against it of its own.',
   CT: 'CT-1040 carries qualifying surviving spouse as one of its five checkboxes, and the instructions set its zero-tax threshold at $24,000 — THE SAME AS MARRIED FILING JOINTLY, which is the joint column this package reads.',
@@ -162,6 +163,7 @@ function battery(state, year) {
 // instruction that sends the filer to the federal status.
 test('the ledger of states that offer the status is the twelve the READMEs claim', () => {
   assert.deepEqual(Object.keys(OFFERS_THE_STATUS).sort(), [
+    'AR',
     'CA',
     'CO',
     'CT',

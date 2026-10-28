@@ -11,7 +11,7 @@
  * {@link FederalBasis} is a structural subset of that package's `EstimateResult`.
  */
 export { stateIncomeTax, applyBrackets, roundCents } from './engine.js';
-export { applyBaseAmountSchedule } from './engine-core.js';
+export { applyBaseAmountSchedule, applyRateLessReduction, lookUpLowIncomeTax } from './engine-core.js';
 export {
   SUPPORTED_STATES,
   SUPPORTED_YEARS,

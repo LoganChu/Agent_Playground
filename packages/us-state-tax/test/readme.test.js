@@ -56,7 +56,7 @@ test('README: the four quick-start figures', () => {
 });
 
 test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 39);
+  assert.equal(SUPPORTED_STATES.length, 40);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
   // SIXTEEN graduated, THIRTEEN flat, one on a schedule of its own, nine with none.
@@ -708,7 +708,17 @@ test('README: the provisional and published lists for 2026', () => {
   // owed is the indexed dependent exemption plus the confirmation of which older
   // subtractions the reform left standing. The flag is a debt about PROVISIONS
   // and not only about an indexed amount.
-  assert.deepEqual(byStatus('provisional'), ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  // ARKANSAS joins on Day 64 and its debt is the cleanest shape this list holds:
+  // every RATE figure for 2026 is published law and every INDEXED figure is
+  // carried forward. Act 1 of the 2026 First Extraordinary Session prints the
+  // schedule, the high-income table and all thirty rows of the bracket
+  // adjustment; what is owed is the standard deduction, the seven Low Income Tax
+  // Tables and the additional credit's threshold, all of which the Department of
+  // Finance and Administration publishes on a card and in the AR1000F
+  // instructions and neither of which has appeared for 2026. Nowhere else in
+  // this list does the line between what a legislature writes and what an agency
+  // publishes fall so exactly on the provisional flag.
+  assert.deepEqual(byStatus('provisional'), ['AR', 'CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   // MINNESOTA joins the published list on arrival rather than by a debt being
   // paid, and it is the first state to do so: § 270C.22 subd. 1 requires the
@@ -753,10 +763,10 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
   // LOUISIANA left this list on Day 60, NORTH DAKOTA on Day 61, OKLAHOMA on
-  // Day 62 and IOWA on Day 63 — each the day it shipped. NEBRASKA takes Iowa's
-  // place, and the list is deliberately held at five so that the test keeps the
-  // same shape while the states in it turn over.
-  for (const state of ['NE', 'KS', 'AR', 'DC', 'HI']) {
+  // Day 62, IOWA on Day 63 and ARKANSAS on Day 64 — each the day it shipped.
+  // NEW MEXICO takes Arkansas's place, and the list is deliberately held at five
+  // so that the test keeps the same shape while the states in it turn over.
+  for (const state of ['NE', 'KS', 'NM', 'DC', 'HI']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -843,7 +853,7 @@ test('README: the New York City quick-start figures', () => {
   const readme = readFileSync(join(root, 'README.md'), 'utf8').replace(/\s+/g, ' ');
   const WORDS = {
     twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
-    thirty: 30,
+    thirty: 30, 'thirty-one': 31, 'thirty-two': 32,
     'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29,
   };
   const hit = readme.match(
@@ -1611,10 +1621,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 39 states',
+    'us-state-tax: 40 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 39 states',
+    'us-tax-mcp: 40 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
@@ -1747,11 +1757,11 @@ test('README: every count in the step-probe and notes sections', () => {
   // 2025, because its two years are two different laws rather than two sets of
   // figures.
   const yearOnly = notes.slice(notes.indexOf('const YEAR_ONLY_NOTES'), notes.indexOf('};', notes.indexOf('const YEAR_ONLY_NOTES')));
-  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 13, 'thirteen states in the README and in the table');
+  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 14, 'fourteen states in the README and in the table');
   assert.equal(
     [...yearOnly.matchAll(/2026: (\d+)/g)].reduce((sum, [, n]) => sum + Number(n), 0),
-    22,
-    'twenty-two 2026-only notes in the README and in the table',
+    23,
+    'twenty-three 2026-only notes in the README and in the table',
   );
 
   // And the Ohio figures the section names, read out of the definition rather than
@@ -1908,6 +1918,7 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  ['0.56.0', /\bARKANSAS\b/],
   ['0.55.0', /\bIOWA\b/],
   ['0.54.0', /\bOKLAHOMA\b/],
   ['0.53.0', /\bNORTH DAKOTA\b/],

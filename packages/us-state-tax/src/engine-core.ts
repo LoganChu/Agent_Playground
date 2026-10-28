@@ -72,6 +72,62 @@ export function rateForIncome(brackets: readonly Bracket[], income: number): num
  *
  * The last band's `upTo` is `Infinity`, so the loop always returns.
  */
+/**
+ * Arkansas's published rate card: one rate, chosen by income, applied to the
+ * whole of it, less the row's reduction — floored at zero.
+ *
+ * The floor is not defensive. The card's first taxed row gives a filer at
+ * `$5,600` of net taxable income `0.02 x 5,600 - 111.98 = $0.02`, and a filer a
+ * dollar below it `0.02 x 5,599 - 111.98 = $0.00` exactly; a cent lower still
+ * and the product is negative. Arkansas does not refund it.
+ *
+ * The reported {@link BracketDetail} is one entry rather than a walk, because
+ * that is what the card does: there is no band-by-band accumulation to report,
+ * and splitting the reduction across invented bands would say the state charges
+ * something it does not. The entry's `rate` is the row's rate and its `tax` is
+ * the tax, so the two do not multiply out against `incomeInBracket` — which is
+ * the honest shape for a schedule whose tax is not the sum of its parts.
+ */
+export function applyRateLessReduction(
+  taxableIncome: number,
+  rows: readonly { upTo: number; rate: number; reduction: number }[],
+): { tax: number; detail: BracketDetail[] } {
+  const income = Math.max(0, taxableIncome);
+  for (const row of rows) {
+    if (income > row.upTo) continue;
+    const tax = Math.max(0, income * row.rate - row.reduction);
+    return {
+      tax,
+      detail: tax > 0 ? [{ rate: row.rate, incomeInBracket: income, tax }] : [],
+    };
+  }
+  /* c8 ignore next 2 -- the last row is unbounded, so the loop always returns. */
+  return { tax: 0, detail: [] };
+}
+
+/**
+ * Arkansas's Low Income Tax Table: the tax read straight out of a printed table
+ * by state AGI, with no rate and no deduction involved.
+ *
+ * `undefined` where the table does not reach — above its last row, or for a
+ * filing status barred from it — which is the caller's signal to use the rate
+ * schedule rather than a zero.
+ */
+export function lookUpLowIncomeTax(
+  stateAgi: number,
+  rows: readonly { over: number; tax: number }[],
+  ceiling: number,
+): number | undefined {
+  const income = Math.max(0, stateAgi);
+  if (income > ceiling) return undefined;
+  let found = 0;
+  for (const row of rows) {
+    if (income <= row.over) break;
+    found = row.tax;
+  }
+  return found;
+}
+
 export function applyBaseAmountSchedule(
   taxableIncome: number,
   bands: readonly { upTo: number; base: number; rate: number }[],

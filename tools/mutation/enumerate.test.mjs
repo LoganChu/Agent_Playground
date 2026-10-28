@@ -206,8 +206,14 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 36, 'files walked');
-  assert.equal(mutants.length, 1_654, 'mutants — the figure tools/mutation/scores.json records');
+  assert.equal(files.length, 37, 'files walked');
+  // 2,436, AND IT IS THE FIRST TIME THIS FIGURE IS NOT THE ONE scores.json
+  // RECORDS. The enumerator measures the tree; `scores.json` records the last
+  // completed audit, and Day 64's did not complete — 2,436 mutants against a
+  // 1,018-test suite on four cores is about fifteen hours. The two numbers are
+  // allowed to differ and `check-scores.mjs` is what fails while they do; this
+  // assertion's job is to say what the TREE holds, so it tracks the tree.
+  assert.equal(mutants.length, 2_436, 'mutants the enumerator finds in the current tree');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -243,6 +249,49 @@ test('the state engine enumerates what the recorded audit measured', () => {
     0,
     'the 200% relation and the age-65 gate have no mutant',
   );
+
+  // ARKANSAS, pinned on Day 64, and it is the file this sample most needed:
+  // 774 of the tree's 2,436 mutants are in it, which is 32% of the whole audit in
+  // one state, and the largest single-state addition this harness has taken.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/arkansas.js').length,
+    774,
+    'Arkansas has 774 mutants — 32% of the whole tree, from one state',
+  );
+  // Line 196 is the top of the regular table — the `$94,700` the two schedules
+  // meet at, which is the single most load-bearing figure in the state and the
+  // one the whole 13.70% finding hangs on. `at` returns the FIRST mutant on a
+  // line and this line carries two: the threshold and the 3.7% beside it.
+  assert.deepEqual(at('states/arkansas.js', 196), {
+    rel: 'states/arkansas.js', offset: 14_525, from: '94_700', to: '189400', kind: 'money', line: 196,
+  });
+  // AND THE ABSENCES ARE THE POINT OF PINNING THIS FILE, because they are what the
+  // 99.6% does not cover and what `blind-spots.mjs` declares. Not one of these has
+  // a mutant, and each is a figure a reader of an Arkansas return would notice
+  // first:
+  //
+  //   $29 / $58   the personal tax credits, in all five statuses
+  //   $60 / $5    the additional tax credit and its withdrawal step
+  //   419.96      the published card's own "minus adjustment", and every other
+  //               reduction in the schedule, because they carry CENTS
+  //
+  // If the harness ever starts perturbing any of them this fails, which is the
+  // right direction to fail in: it would mean the audit got stronger and the
+  // declarations in `blind-spots.mjs` got stale.
+  for (const absent of ['29', '58', '60', '5', '10', '2', '111.98', '223.97', '287.97', '419.96']) {
+    assert.equal(
+      mutants.filter((m) => m.rel === 'states/arkansas.js' && m.from === absent).length,
+      0,
+      `${absent} has a mutant, and this harness is not supposed to reach it`,
+    );
+  }
+  // What it CAN reach in that file, for contrast: the 3.7% rate in all 31 rows
+  // that carry it, the $6,000 retirement cap, and the four deduction cells.
+  const arFrom = (v) =>
+    mutants.filter((m) => m.rel === 'states/arkansas.js' && m.from === v).length;
+  assert.equal(arFrom('0.037'), 31, 'the 2026 rate, once per row that carries it');
+  assert.equal(arFrom('6_000'), 1, "the retirement exemption's cap");
+  assert.equal(arFrom('2_470'), 4, 'the four statuses that take the single deduction');
 
   // NORTH DAKOTA, pinned on Day 61 for the reason Louisiana was pinned on
   // Day 60 and one more: this is now the file where the mask is most
@@ -437,5 +486,23 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // breakdown is reached by a route the total cannot see.
   const byKind = {};
   for (const m of mutants) byKind[m.kind] = (byKind[m.kind] ?? 0) + 1;
-  assert.deepEqual(byKind, { money: 999, rate: 383, year: 272 });
+  // DAY 64'S +782 DWARFS EVERY EARLIER ADDITION PUT TOGETHER: money 999 -> 1,691,
+  // rate 383 -> 455, year 272 -> 290. 774 of the 782 are in `states/arkansas.js`
+  // and the other 8 are its provenance entries.
+  //
+  // The shape of the split is the finding. 692 of Arkansas's 774 are `money`, and
+  // almost all of them are TABLE THRESHOLDS rather than parameters — the 224
+  // distinct `over` values in the seven low income tax tables and the 73 `upTo`
+  // values in the two rate schedules. Only 72 are `rate`, which is the 3.7% and
+  // the 3.9% repeated once per row that carries them.
+  //
+  // AND WHAT IS NOT HERE IS NARROWER THAN IT LOOKS, which Day 64 learned by
+  // measuring a claim it had already written down four times. The tables' 224
+  // income boundaries are ALL reachable and so are 205 of their 224 tax amounts,
+  // because this harness perturbs any integer at or above 100 — a 240-mutant
+  // sample over exactly those figures killed 240 of 240. What it cannot reach is
+  // the 19 amounts below $100, the $29 and $58 credits, the $60 and $5
+  // additional-credit figures, and every reduction in the rate schedule, because
+  // those carry CENTS. The absences below are that list and not a bigger one.
+  assert.deepEqual(byKind, { money: 1_691, rate: 455, year: 290 });
 });

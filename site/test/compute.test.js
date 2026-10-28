@@ -138,7 +138,7 @@ test('what a household receives is not what the return calls income', () => {
   assert.equal(model.received - model.federal.grossIncome, 15_150);
 });
 
-test('five states charge a different tax on the same household totals', () => {
+test('seven states charge a different tax on the same household totals', () => {
   // The reason the form asks whose name the retirement income is in. Georgia,
   // Maryland, Kentucky, New York from v0.19.0 and LOUISIANA from v0.52.0 all
   // claim their retirement
@@ -173,7 +173,7 @@ test('five states charge a different tax on the same household totals', () => {
   // six available to a filer of ANY AGE — the other five all gate on 62, 65 or
   // 67 — so it is the one row on this page where a couple in their forties can
   // be charged for whose name the pension is in.
-  assert.deepEqual(Object.keys(moved).sort(), ['GA', 'KY', 'LA', 'MD', 'NY', 'OK']);
+  assert.deepEqual(Object.keys(moved).sort(), ['AR', 'GA', 'KY', 'LA', 'MD', 'NY', 'OK']);
   assert.deepEqual(moved.OK, [3_409, 3_859]);
   assert.deepEqual(moved.LA, [2_090.28, 2_460]);
   assert.deepEqual(moved.GA, [0, 1_247.5]);
@@ -186,14 +186,16 @@ test('five states charge a different tax on the same household totals', () => {
   assert.deepEqual(moved.KY, [1_904.7, 2_993.55]);
   assert.deepEqual(moved.NY, [3_120.8, 4_200.8]);
 
-  // All six move the same way — concentrating the income wastes the absent
-  // spouse's allowance — and together they are worth $6,164.57 on a decision
+  // All seven move the same way — concentrating the income wastes the absent
+  // spouse's allowance — and together they are worth $6,386.57 on a decision
   // that is usually made for reasons that have nothing to do with tax. It was
-  // $5,344.85 before Louisiana, $5,714.57 before Oklahoma, and the $450.00
-  // Oklahoma added is the whole of its $10,000 per-person cap at the 2026 top
-  // rate of 4.5%.
+  // $5,344.85 before Louisiana, $5,714.57 before Oklahoma, $6,164.57 before
+  // ARKANSAS, and the $222.00 Arkansas adds is the whole of its $6,000
+  // per-person cap at the 2026 rate of 3.7%. The smallest cap of the seven
+  // produces the smallest increment, exactly, which is the arithmetic that makes
+  // this list worth keeping as a list rather than a number.
   const swing = Object.values(moved).reduce((total, [a, b]) => total + (b - a), 0);
-  assert.equal(Number(swing.toFixed(2)), 6_164.57);
+  assert.equal(Number(swing.toFixed(2)), 6_386.57);
 });
 
 test('the form cannot be made to throw', () => {
@@ -404,7 +406,14 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // defined-benefit exemption has none either, and Iowa's $600,000 is free at 70
   // and taxed in full at 54. So the largest exemption in this package is also
   // the one most sensitive to a field the page does ask for.
-  assert.equal(place, 34, `Utah ranks ${place}`);
+  //
+  // UTAH FALLS TO 35th ON DAY 64 AND HAS STILL NOT MOVED, which is the point of
+  // keeping this assertion rather than the rank. Arkansas charges this retired
+  // couple LESS than Utah does, and not because it exempts retirement income:
+  // its exemption is $6,000 a person and the smallest in this package by a wide
+  // margin. What gets them under Utah is that Arkansas does not tax the Social
+  // Security benefit at all, and that is enough.
+  assert.equal(place, 35, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
@@ -474,8 +483,15 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(model.allocation.alternative, 'filer');
   assert.deepEqual(
     model.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'LA', 'MD', 'NY', 'OK'],
-    'exactly six states move, and they are the six that cap per person',
+    ['AR', 'GA', 'KY', 'LA', 'MD', 'NY', 'OK'],
+    // SEVEN NOW, and Arkansas is the one with the smallest cap of the seven.
+    // § 26-51-307 allows $6,000 PER RECIPIENT and unused room is lost, so a
+    // couple with $12,000 of pension in one name exempts $6,000 and the same
+    // couple with $6,000 each exempts the lot — a $222.00 swing at 3.7% that
+    // the federal return cannot see and nothing warns about. It is also the
+    // only one of the seven with NO AGE TEST, so the swing reaches a couple in
+    // their forties.
+    'exactly seven states move, and they are the seven that cap per person',
   );
   // Widest first, and Maryland's is the widest of the three on these figures.
   assert.equal(model.allocation.widest.state, 'MD');
@@ -492,10 +508,10 @@ test('the allocation swing is computed and priced without being asked for', () =
   assert.equal(other.allocation.alternative, 'even');
   assert.deepEqual(
     other.allocation.rows.map((row) => row.state).sort(),
-    ['GA', 'KY', 'LA', 'MD', 'NY', 'OK'],
+    ['AR', 'GA', 'KY', 'LA', 'MD', 'NY', 'OK'],
   );
   assert.ok(Math.abs(other.allocation.widest.difference + 2_842) < 0.005);
-  assert.equal(other.allocation.cheaperElsewhere.length, 6, 'every one is cheaper split');
+  assert.equal(other.allocation.cheaperElsewhere.length, 7, 'every one is cheaper split');
 });
 
 test('a single filer has no allocation to swing', () => {

@@ -301,6 +301,25 @@ const NOT_REACHABLE_BY_ANY_HOUSEHOLD = {
   // either — and they are perfectly visible, because doubling $32,000 to
   // $64,000 does clear the deduction. Equally worthless, oppositely auditable.
   // `working66` witnesses all five of those cells at once.
+  // Arkansas publishes no separate-return Low Income Tax Table and bars married
+  // filing separately from the other seven, so this cell holds an empty table
+  // and a ceiling of zero and the engine never looks at it. Perturbing either
+  // cannot move any household's answer, at any income, in any status.
+  //
+  // IT IS LISTED HERE RATHER THAN SATISFIED BY AN ALIAS, which is the whole
+  // reason the entry exists. Giving the cell the single filer's table — the
+  // obvious tidy choice — makes `byStatusOf` hand both statuses the SAME ARRAY,
+  // and an in-place perturbation of the separate cell is then a perturbation of
+  // the single one: the guard goes green on a single filer's household and the
+  // separate cell is never witnessed by anything. That is the aliasing the
+  // surviving-spouse comment below describes, arriving through a different door.
+  '.lowIncomeTaxTable.byStatus': {
+    states: ['AR'],
+    statuses: ['marriedFilingSeparately'],
+    why: 'Arkansas bars married filing separately from the Low Income Tax Tables — the instructions print seven tables and none of them is for a separate return — so `ineligibleFilingStatuses` stops the engine before the table is read and the cell holds an empty table with a ceiling of zero. A separated Arkansan at $14,000 of AGI therefore pays the rate schedule on $14,000 less $2,470 where a single filer at the same income pays nothing at all, which is the provision this cell records the absence of.',
+    coveredBy:
+      'arkansas.test.js — "a separated filer is barred from the low-income tables and pays the schedule", which asserts the bar by computing the same income in both statuses and showing the separate figure is the schedule\'s',
+  },
   '.zeroTaxThreshold.threshold': {
     states: ['IA'],
     statuses: ['marriedFilingJointly', 'qualifyingSurvivingSpouse'],
@@ -460,7 +479,39 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // HERE is the deduction: Iowa's is the federal one, so the largest figure on
   // an Iowa return is not an Iowa parameter and this count cannot see it, and
   // neither can the mutation audit.
-  assert.equal(checked, 1128, 'byStatus cells with a parameter the harness would mutate');
+  // 1,160 from Day 64: ARKANSAS'S THIRTY-TWO, out of SIXTY cells it actually
+  // ships — and the fourteen-a-year shortfall is the most useful thing this
+  // count has ever produced, because it names the blind spot by arithmetic
+  // instead of by argument.
+  //
+  // Arkansas has six by-status tables, the most of any state here: the standard
+  // deduction, the low-income tables, the personal credits' `perFiler`, and all
+  // three of the additional tax credit's (`maximum`, `start`,
+  // `withdrawalPerIncrement`). Six times five statuses times two years is
+  // sixty. This check sees thirty-two:
+  //
+  //   deduction.amounts                        5 a year   $2,470 / $4,940
+  //   lowIncomeTaxTable.byStatus               5 a year   first row's `over`
+  //   additionalTaxCredit.start                5 a year   $26,500
+  //   additionalTaxCredit.maximum              1 a year   the JOINT $120 only
+  //   exemptionCredit.perFiler                 0          $29 and $58
+  //   additionalTaxCredit.withdrawalPerIncrement 0        $5 and $10
+  //
+  // Every excluded cell holds an integer below 100, which is Day 60's documented
+  // blind-spot class and the class Day 63's one real defect landed in. So the
+  // whole of Arkansas's personal credit — the figure a filer is most likely to
+  // notice on their own return — and four fifths of its additional tax credit
+  // are invisible to the harness, and `test/arkansas.test.js` asserts those nine
+  // figures by hand for that reason. The low-income tables are worse still and
+  // are not in this count at all beyond their first row: 224 whole-dollar
+  // amounts, every one below $1,000.
+  // 1,158 AND NOT 1,160, AND THE TWO THAT LEFT ARE THE DEFECT THIS DAY FIXED.
+  // Arkansas's additional tax credit had no `qualifyingSurvivingSpouse` cell, so
+  // `byStatus` defaulted it to the JOINT one — $120 and a $10 step where the
+  // statute gives a widow $60 and $5. Writing the cells out explicitly replaced
+  // two figures at or above 100 with two below it, which took them out of this
+  // count. A guard's own denominator moving is how a fix looks from here.
+  assert.equal(checked, 1158, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -501,12 +552,32 @@ test('every byStatus cell the package ships moves a pinned answer', () => {
   // cells held more than forty -- a bracket cell is a LIST of rows -- so the gap
   // between this count and `checked` is where the per-status tables that are
   // schedules live, and Iowa adds nothing to it.
-  assert.equal(inside, 3_437, 'numbers inside those cells');
-  // Connecticut alone is 1,020 of the 3,192 — nearly a third, because its three
-  // staircases and its 2% add-back table are all by-status and all four columns
-  // wide. Minnesota's arrival added 170; Arizona's own standard-deduction table,
-  // which replaced a one-word federal cross-reference on Day 47, added 10.
-  assert.deepEqual(largest, ['CT', 1020], 'the state contributing most of them');
+  // 4,671 from Day 64, and ARKANSAS ALONE IS 1,232 OF THEM — more than a third of
+  // the previous total, from one state, and all but a handful in a single rule.
+  // Its seven Low Income Tax Tables hold 224 whole-dollar tax amounts between
+  // them, each table appears in the by-status cell of whichever statuses read it,
+  // and the whole thing exists twice because 2026 carries 2025 forward. Not one
+  // of those amounts is $1,000 or more, so the gap between this number and the
+  // 1,160 cells the check above probes is now mostly Arkansas: the state with the
+  // most figures in a by-status table is also the state with the fewest of them
+  // the harness can perturb.
+  assert.equal(inside, 4_669, 'numbers inside those cells');
+  // Connecticut held this record from Day 20 to Day 63 with 1,020 — nearly a
+  // third of 3,192, because its three staircases and its 2% add-back table are
+  // all by-status and all four columns wide. Minnesota's arrival added 170;
+  // Arizona's own standard-deduction table, which replaced a one-word federal
+  // cross-reference on Day 47, added 10.
+  //
+  // ARKANSAS TOOK IT ON DAY 64 WITH 1,232, and the two states hold it for
+  // opposite reasons. Connecticut's figures are in a by-status table because
+  // Connecticut writes a column per status. Arkansas's are there because it
+  // writes a TABLE PER FAMILY SHAPE: seven Low Income Tax Tables behind five
+  // distinct arrays of 224 rows, each row appearing in the cell of whichever
+  // statuses read it, and the whole thing twice because 2026 carries 2025
+  // forward. Not one of the 224 amounts reaches $1,000 — though 205 of them do
+  // reach $100, which is what the mutation harness needs, so this count being
+  // large does NOT mean the audit is blind to it. See `blind-spots.mjs`.
+  assert.deepEqual(largest, ['AR', 1232], 'the state contributing most of them');
   // 30 documented in NOT_REACHABLE_BY_ANY_HOUSEHOLD, plus 30 that are the
   // surviving-spouse cells of the four states which have no surviving-spouse
   // status — exempt by construction rather than by a ledger entry, and asserted

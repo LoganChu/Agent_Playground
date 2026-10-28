@@ -1526,7 +1526,15 @@ test('Massachusetts requires its own base and refuses it elsewhere', () => {
       federalTaxableIncome: 84_250,
       [field]: 1_000,
     });
-    assert.match(message, new RegExp(`${field} only applies to MA`));
+    // `only applies to MA` AND NOT `only applies to MA,`: `shortTermCapitalGains`
+    // is read by five states now, because its gate list is DERIVED from the
+    // rules that read it and Arkansas's 50% long-term capital gain exclusion
+    // joined it without this file being touched. The other three fields are
+    // Massachusetts-only and their messages name one state. What the assertion
+    // is for is that the field is REFUSED for New York and the message says
+    // which states it belongs to, so it matches the field name and the start of
+    // the list rather than a fixed roster.
+    assert.match(message, new RegExp(`${field} only applies to (AR and MA|MA)\\b`));
   }
 });
 

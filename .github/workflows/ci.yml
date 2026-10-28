@@ -270,6 +270,19 @@ jobs:
       # can show it, and the two sides of the comparison live in two packages.
       - name: Iowa's low-income exemption is being withdrawn by an indexed federal deduction
         run: node tools/cross-package/iowa-frozen-exemption.mjs --check
+      # ARKANSAS'S HIGHEST MARGINAL RATE IS NOT IN ARKANSAS'S RATE SCHEDULE.
+      # A.C.A. § 26-51-201 writes two schedules selected by income, and the
+      # bracket adjustment that joins them hands back $290 falling by $10 for
+      # every $100 of further income — ten percentage points of marginal rate, so
+      # 13.90% in 2025 and 13.70% in 2026 against top rates of 3.9% and 3.7%. The
+      # adjustment's rows are $100 wide and its amounts whole dollars, so it is a
+      # staircase of 31 and 29 cliffs rather than a taper, and above the band a
+      # model built from the graduated table alone is too low by a FLAT $329.00
+      # and $287.30 at every income. The direction is the assertion the two
+      # packages are needed for: the band is fixed in nominal dollars and the
+      # federal deduction a wage passes through to reach it is indexed.
+      - name: Arkansas charges 13.70% in a band its rate schedule does not mention
+        run: node tools/cross-package/arkansas-bracket-adjustment.mjs --check
       # Day 48 queued this and Day 50 found us-tax-mcp's lockfile already two
       # versions stale. The lockfile ships inside the tarball, so a consumer
       # running `npm ci` resolves the version IT names rather than the one

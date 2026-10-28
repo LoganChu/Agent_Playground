@@ -257,6 +257,44 @@ const SHAPES = {
   // > indexed deduction and its ceiling is a frozen threshold. Iowa's single
   // > window is $847.37 wide in 2026 and closes entirely once the federal
   // > deduction passes $16,947.37.
+  // $16,000 of wages at 44 -- INSIDE ARKANSAS'S SINGLE LOW INCOME TAX TABLE,
+  // and the battery had nothing there. The table runs from an exempt amount of
+  // $14,643 to a ceiling of $17,500, and the two households either side of it
+  // miss by very little in both directions: `low14k5` is $14,500, $143 below
+  // the exempt amount, and `wage17k6` is $17,600, $100 above the ceiling.
+  //
+  // > A TABLE $2,857 WIDE CAN SIT BETWEEN TWO HOUSEHOLDS $3,100 APART.
+  //
+  // It is the shape the guard asks for and nothing more: no dependents, so the
+  // single column is the one it reads, and $16,000 is far enough inside the
+  // range that an indexation step at either end leaves it there.
+  wage16k: {
+    income: 16_000,
+    earnedIncome: 16_000,
+    filerAge: 44,
+    spouseAge: 42,
+    socialSecurityAndMedicarePaid: 1_224,
+    rentPaid: 9_000,
+  },
+  // $23,000 of wages at 40 -- inside Arkansas's HEAD OF HOUSEHOLD and
+  // SURVIVING SPOUSE low-income tables, whose range is $20,820 to $25,300 and
+  // which `wage26k5` overshoots by $1,200. One state, one rule, and FOUR
+  // households to witness it, because Arkansas publishes a different table for
+  // every status and family size and their ranges are disjoint: single
+  // $14,643-$17,500 (`wage16k`), head of household and surviving spouse
+  // $20,820-$25,300 (this one), joint $24,695-$29,000 (`wage26k5`).
+  //
+  // No dependents, deliberately. The two-or-more-dependents halves of the same
+  // tables start at $24,818 and $29,722 and a shape with children would read
+  // those instead, leaving the no-or-one halves unwitnessed.
+  wage23k: {
+    income: 23_000,
+    earnedIncome: 23_000,
+    filerAge: 40,
+    spouseAge: 38,
+    socialSecurityAndMedicarePaid: 1_760,
+    rentPaid: 11_400,
+  },
   wage17k6: {
     income: 17_600,
     earnedIncome: 17_600,

@@ -511,13 +511,13 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('39 states');
-  assert.equal(SUPPORTED_STATES.length, 39);
+  quotes('40 states');
+  assert.equal(SUPPORTED_STATES.length, 40);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 30);
+  assert.equal(taxing.length, 31);
 
   // BOTH NUMBERS IN THAT SENTENCE ARE NOW READ OUT OF IT AND COMPARED TO THE
   // ENGINE, AND UNTIL DAY 62 NEITHER WAS.
@@ -536,7 +536,7 @@ test('README: the state coverage claims are the ones the engine actually holds',
   // applied to the others by being written down.
   const WORDS = {
     seven: 7, eight: 8, nine: 9, ten: 10,
-    'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29, thirty: 30,
+    'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29, thirty: 30, 'thirty-one': 31, 'thirty-two': 32,
   };
   const sentence = FLAT_README.match(
     /([\w-]+) of the ([\w-]+) taxing states cut their rate for 2026/,
@@ -553,15 +553,32 @@ test('README: the state coverage claims are the ones the engine actually holds',
   // rather than one, because New York cut its BOTTOM five rates and left the
   // top alone, while Oklahoma's HB 2764 cut the top and raised the lowest
   // positive one by collapsing three bottom bands into a 0% band.
+  //
+  // AND IT THROWS ON A KIND IT DOES NOT KNOW, which is the change Day 64 forced.
+  // The version of this function below the comment about Ohio returned `[]` for
+  // any unrecognised `rate.kind` — so when ARKANSAS arrived with
+  // `rateLessReduction`, a state that HAD cut its top rate for 2026, from 3.9%
+  // to 3.7% under Act 1 of the 2026 First Extraordinary Session, fell silently
+  // out of the derivation and the sentence kept saying nine.
+  //
+  //   A DERIVATION WITH A `kind` SWITCH AND A SILENT FALL-THROUGH UNDERCOUNTS
+  //   THE DAY A NEW KIND ARRIVES — and the comment immediately below this one
+  //   says exactly that about Ohio, in words, one screen above the line that
+  //   then did it to Arkansas. Writing a rule down is not applying it.
+  //
+  // Ohio is still excluded, and now it is excluded BY NAME rather than by
+  // falling through, so the two cases cannot be confused again.
   const positiveRates = (def) => {
     const r = def.rate;
-    const list =
-      r.kind === 'flat'
-        ? [r.rate]
-        : r.kind === 'brackets'
-          ? r.byStatus.single.map((b) => b.rate)
-          : [];
-    return list.filter((x) => x > 0);
+    if (r.kind === 'flat') return [r.rate].filter((x) => x > 0);
+    if (r.kind === 'brackets') return r.byStatus.single.map((b) => b.rate).filter((x) => x > 0);
+    if (r.kind === 'rateLessReduction') return r.rows.map((row) => row.rate).filter((x) => x > 0);
+    if (r.kind === 'baseAmountSchedule') return [];
+    throw new Error(
+      `positiveRates does not know rate.kind '${r.kind}' (${def.code} ${def.year}). ` +
+        'A new rate kind has to be added here or named as an exclusion, because returning ' +
+        'an empty list for it makes this derivation undercount without failing.',
+    );
   };
   // OHIO IS EXCLUDED, EXPLICITLY RATHER THAN BY FALLING THROUGH. Its
   // `baseAmountSchedule` charges a constant on entering a band and a rate on the
@@ -577,14 +594,14 @@ test('README: the state coverage claims are the ones the engine actually holds',
     if (before.length === 0 || after.length === 0) return false;
     return Math.max(...after) < Math.max(...before) || Math.min(...after) < Math.min(...before);
   });
-  assert.deepEqual(cut, ['GA', 'IN', 'KY', 'MS', 'NC', 'NY', 'OK', 'SC', 'UT']);
+  assert.deepEqual(cut, ['AR', 'GA', 'IN', 'KY', 'MS', 'NC', 'NY', 'OK', 'SC', 'UT']);
   assert.equal(word(sentence[1]), cut.length, 'the count word');
 
   const provisional = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.equal(provisional.length, 10);
-  quotes('ten of the 2026 state-years carry at');
+  assert.equal(provisional.length, 11);
+  quotes('eleven of the 2026 state-years carry at');
 
   // Colorado's 2026 overtime add-back, which the section names.
   const co = stateIncomeTax({

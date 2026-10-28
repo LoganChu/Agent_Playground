@@ -144,7 +144,24 @@ export const isAgeChart = (steps) => steps.some((s) => s.maxAge !== undefined ||
  * fixture, because a probe recomputed from the table at test time moves with the
  * mutation it is supposed to catch.
  */
-export function probeValues(steps) {
+export function probeValues(steps, path) {
+  // A DRIVER MAY SAY WHERE ITS OWN PROBES GO, and exactly one does.
+  //
+  // Arkansas's `rate.rows` is written with ceilings, so the generic rule below
+  // puts each probe one dollar INTO its row — and at the bottom of that schedule
+  // that is the one place a probe cannot see anything. The 2% row runs from
+  // $5,600 and pays `0.02 x income - 111.98`, which is TWO CENTS at its floor;
+  // the $29 personal credit swallows it, so doubling the row's own ceiling moves
+  // the boundary and not the answer. At the row's CEILING the same mutation is
+  // worth $112.00 of tax and $83.00 after credits, and both move.
+  //
+  // It is the floor chart's problem arriving from the other side, and the comment
+  // below says why the two ends are not interchangeable. Rather than change where
+  // every ceiling chart in the package is probed, the one chart that needs the
+  // other end asks for it.
+  const override = path === undefined ? undefined : DRIVERS[driverKey(path)]?.probeAt;
+  if (override !== undefined) return override(steps);
+
   if (isAgeChart(steps)) {
     const ages = new Set();
     for (const band of steps) {
@@ -211,6 +228,36 @@ const FEDERAL_STANDARD_DEDUCTION = {
     marriedFilingSeparately: 16_100,
     headOfHousehold: 24_150,
     qualifyingSurvivingSpouse: 32_200,
+  },
+};
+
+/**
+ * A.C.A. § 26-51-430, as indexed for 2025. A probe input, not a shipped figure —
+ * the same role `FEDERAL_STANDARD_DEDUCTION` plays above, and here for a reason
+ * that one does not have: Arkansas's rate rows are read against AGI LESS THIS
+ * AMOUNT, so a probe aimed one dollar into a row has to be lifted by it or it
+ * lands in the row below and the row's own ceiling goes unwitnessed.
+ *
+ * It is indexed, so a copy of it here is a figure that can drift away from the
+ * one the package ships. `test/arkansas.test.js` compares the two and fails if
+ * they part, which is the only thing that keeps a probe input from quietly
+ * becoming a probe of the wrong row. 2026 holds the 2025 figure because the
+ * state has published no 2026 card; when it does, both move together.
+ */
+export const ARKANSAS_STANDARD_DEDUCTION = {
+  2025: {
+    single: 2_470,
+    marriedFilingJointly: 4_940,
+    marriedFilingSeparately: 2_470,
+    headOfHousehold: 2_470,
+    qualifyingSurvivingSpouse: 2_470,
+  },
+  2026: {
+    single: 2_470,
+    marriedFilingJointly: 4_940,
+    marriedFilingSeparately: 2_470,
+    headOfHousehold: 2_470,
+    qualifyingSurvivingSpouse: 2_470,
   },
 };
 
@@ -488,6 +535,49 @@ export const DRIVERS = {
   // The probe value is the dependent's AGE, so the income is held at a constant
   // `$60,000` — above the point where the credits are clamped to zero and below
   // every phase-out they carry.
+  // ARKANSAS'S RATE SCHEDULE, A.C.A. § 26-51-201(a) — 36 rows, thirty of them
+  // the bracket adjustment being withdrawn $10 at a time from $94,701, and the
+  // only rate chart in this package that this file drives rather than leaving to
+  // `bracket-pins.test.js`. It is here because it is not a bracket table: its
+  // rows do not accumulate, so a marginal walk cannot probe them.
+  //
+  // THE PROBE VALUE IS NET TAXABLE INCOME AND THE DRIVER IS HANDED WAGES, which
+  // is a conversion no other driver makes. See `ARKANSAS_STANDARD_DEDUCTION`.
+  //
+  // ONE STATUS, AND IT IS MARRIED FILING SEPARATELY, WHICH IS THE WHOLE POINT.
+  //
+  // § 26-51-201(a) writes one schedule for every filing status, so probing five
+  // columns would pin four copies of one answer. The column to keep is not the
+  // obvious one. A single filer cannot witness the bottom of this schedule AT
+  // ALL: Arkansas's Low Income Tax Table reaches every single return up to
+  // $17,500 of AGI and always comes out lower, so the first two rows of the rate
+  // card — $0 to $5,599 and $5,600 to $11,199 — decide nothing for them, and
+  // doubling either ceiling leaves their tax at zero. The probe at $11,199 of
+  // net taxable income is a return with $13,669 of AGI, and the table exempts it
+  // outright.
+  //
+  // Married filing separately is BARRED from all seven tables by the
+  // instructions, so it is the one status whose tax is the rate schedule's all
+  // the way down to the first dollar.
+  //
+  //   THE ONLY ARKANSAS FILER WHO CAN WITNESS THE BOTTOM OF ARKANSAS'S RATE
+  //   SCHEDULE IS ONE THE STATE BARS FROM ITS LOW-INCOME TABLES.
+  //
+  // Day 63 found the same shape in Iowa from the other end — the only household
+  // that can witness an age test read against an emptied income is one still in
+  // work — and it generalises: WHERE A RELIEF COVERS A BAND, THE BAND'S OWN
+  // PARAMETERS ARE WITNESSED ONLY BY WHOEVER THE RELIEF EXCLUDES.
+  'rate.rows': {
+    statuses: ['marriedFilingSeparately'],
+    // Each row's own CEILING, and the top row one dollar above the one beneath
+    // it. See `probeValues`.
+    probeAt: (steps) =>
+      steps.map((step, i) =>
+        Number.isFinite(step.upTo) ? Math.floor(step.upTo) : Math.floor(steps[i - 1].upTo) + 1,
+      ),
+    input: (value, state, year, filingStatus) =>
+      wages(value + ARKANSAS_STANDARD_DEDUCTION[year][filingStatus], state, year, filingStatus),
+  },
   'childCredit.amountByAge': {
     statuses: ['marriedFilingJointly'],
     input: (value, state, year, status) =>

@@ -143,10 +143,10 @@ test('the fixture has a probe inside every step of every staircase this file dri
       const key = `${year}|${state}|${path}|${filingStatus}`;
       const probes = seen.get(key);
       assert.ok(probes !== undefined, `${key} is shipped and not probed — regenerate the fixture`);
-      for (const value of probeValues(steps)) {
+      for (const value of probeValues(steps, path)) {
         assert.ok(probes.has(value), `${key} has no probe at ${value} — regenerate the fixture`);
       }
-      assert.equal(probes.size, probeValues(steps).length, `${key} has a probe for a step that no longer exists`);
+      assert.equal(probes.size, probeValues(steps, path).length, `${key} has a probe for a step that no longer exists`);
       expected++;
     }
   }
@@ -175,6 +175,8 @@ const COVERED_ELSEWHERE = {
   'rate.byStatus.<status>': 'bracket-pins.test.js — one probe $1,000 into every band',
   'rate.bands': 'ohio.test.js, and the status sweep across both sides of the $26,050 step',
   'surtax.brackets': 'massachusetts.test.js and california.test.js, and the sweep’s $1.4m household',
+  'lowIncomeTaxTable.byStatus.<status>':
+    'arkansas.test.js — each of the seven tables walked row by row for monotonicity, step size and its implied marginal rate, plus the four witness households the status sweep adds',
 };
 
 /**
@@ -187,6 +189,26 @@ const COVERED_ELSEWHERE = {
  * audit starts lying.
  */
 const UNREACHABLE = {
+  'AR|rate.rows|0.reduction': {
+    // Arkansas's first row is 0% on the first $5,599 and the card prints a
+    // "minus adjustment" of $0.00 beside it. The engine computes
+    // `max(0, rate x income - reduction)`, so with a rate of zero the row's tax
+    // is zero whatever the reduction is, and a doubling mutation (0 -> 1) makes
+    // it `max(0, 0 - 1)`, which is still zero.
+    //
+    //   A REDUCTION SUBTRACTED FROM A ZERO RATE AND FLOORED AT ZERO IS
+    //   UNREACHABLE TWICE OVER, and the floor is the half that matters: without
+    //   it the mutation would owe the state minus one dollar and every probe in
+    //   the row would move.
+    //
+    // It is the only figure in either year's 36-row schedule that no probe can
+    // reach. Every other reduction, rate and ceiling is witnessed, including all
+    // thirty rows of the bracket adjustment.
+    states: ['AR'],
+    why: "Arkansas's zero-rate first row prints a reduction of $0.00 on the published card, and `max(0, rate x income - reduction)` with `rate` of zero returns zero for every reduction and every income. The figure is stored because the card prints it, not because anything reads it.",
+    coveredBy:
+      'arkansas.test.js — "the zero row charges nothing at its ceiling and the first taxed row charges two cents", which asserts both ends of the boundary the reduction sits beside',
+  },
   'OR|federalIncomeTaxDeduction.capSteps.<status>|0.from': {
     // The same zero-at-the-bottom-of-a-chart case as Connecticut's below, in a
     // chart that reads the other government's AGI. Table 4's first row is "from
@@ -377,8 +399,21 @@ test('every number in every staircase moves a pinned answer', () => {
   // plus the standard deduction and the special-exemption limit. None is a
   // staircase in the Connecticut sense either, so the exempt count below is
   // unchanged again.
-  assert.equal(checked, 1_651, 'numbers inside the staircases this package ships');
-  assert.equal(exempt.length, 14, 'staircase rows nothing can reach — four rows, both years, Connecticut\'s in two columns and Oregon\'s in three, all documented');
+  // 1,868 from Day 64: ARKANSAS'S 217, which is 105 rate-schedule figures and
+  // 112 low-income-table ones. The rate schedule is 35 rows in 2026 and 38 in
+  // 2025, three numbers each — a ceiling, a rate and a reduction — and thirty of
+  // those rows per year are one relief being withdrawn $10 at a time. Every one
+  // of the 217 is witnessed by a probe except a single figure, the zero-rate
+  // row's zero reduction, which is in UNREACHABLE with the arithmetic that makes
+  // it unreachable twice over.
+  assert.equal(checked, 1_868, 'numbers inside the staircases this package ships');
+  assert.equal(
+    exempt.length,
+    16,
+    'staircase rows nothing can reach — five rows, both years: Connecticut\'s in two columns, ' +
+      'Oregon\'s in three, and Arkansas\'s zero-rate row, whose zero reduction a zero rate and ' +
+      'a floor at zero make unreachable twice over. All documented.',
+  );
 });
 
 test("Ohio's 20% joint filing credit row is arithmetic no return can reach", () => {

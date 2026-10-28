@@ -100,6 +100,20 @@ const { getStateDefinition, SUPPORTED_STATES, SUPPORTED_YEARS } = pkg;
  * covers an age and a dollar amount and only one of those is alarming.
  */
 const DECLARED = {
+  // ARKANSAS, AND IT IS THE LARGEST SINGLE-STATE ENTRY IN THIS OBJECT. Day 64
+  // added a state 142 of whose figures the audit cannot touch, which is almost a
+  // quarter of the 593 the whole package had before it — and they are not
+  // sentinels or ages, they are the rate schedule and the tax tables.
+  'rate.rows':
+    "ARKANSAS'S REDUCTIONS, AND THEY ARE UNPERTURBABLE FOR THREE DIFFERENT REASONS AT ONCE. (The schedule's RATES and its income boundaries are reachable and are not in this count; what lands here is the reduction column.) Its reductions carry CENTS — $111.98, $223.97, $287.97, $419.96, and $369.90 down to $79.90 across the thirty rows of the bracket adjustment — which is the `largeDecimal` class Day 62 documented, because `mutantOf` perturbs a decimal in (0,1) and an integer at or above 100 and a figure with cents is neither. Three reductions are whole integers BELOW 100 ($91.00, $89.30 rounded, $79.90). And the zero-rate first row's rate and reduction are both zero. So the schedule that produces this package's steepest marginal rate — 13.70% in 2026, 13.90% in 2025 — is almost entirely invisible to the audit. `test/arkansas.test.js` measures the slope, the step count, the $287.30 and the $329.00 by hand, and `test/step-probes.test.js` probes all 35 and 38 rows through a married-filing-separately return, which is the only status Arkansas's low-income tables do not cover",
+  'lowIncomeTaxTable.byStatus':
+    "ARKANSAS'S LOW INCOME TAX TABLES, AND THIS ENTRY IS MOSTLY GOOD NEWS, WHICH IS WHY ITS NUMBER IS SMALL. The seven published tables are five distinct arrays of 224 rows, each row an income boundary and a whole-dollar tax amount. ALL 224 BOUNDARIES ARE PERTURBABLE and so are 205 of the 224 amounts, because `mutantOf` reaches any integer at or above 100 — so the audit sees nearly all of this rule, and a 240-mutant sample over exactly these figures killed 240 of 240. What lands HERE is the remainder: the 19 tax amounts below $100 (the first row or two of each table, where the tax is $29 to $94), the zero rows, and the empty married-filing-separately cell. THE AMOUNTS ARE THE TAX ITSELF rather than a parameter of it — a single Arkansan at $17,400 of AGI owes $222 because the table says $222 — so an unperturbable one here is an unchecked ANSWER and not an unchecked input, which is why `test/arkansas.test.js` walks every row of all five arrays for monotonicity, whole-dollar steps and slope rather than trusting the score. The tables' implied marginal rates run from 7.00% to 12.40%, against a top statutory rate of 3.7%",
+  'lowIncomeTaxTable.secondTableFromDependents':
+    "a COUNT: Arkansas's 2, the number of dependents at which the second half of each table takes over. The instructions' own division — \"no dependents or one dependent\" against \"two or more\"",
+  'additionalTaxCredit.maximum':
+    "DOLLARS: Arkansas's $60 a filer and $120 on a joint return. Only the $120 is at or above 100, so four of the five status cells have no mutant and `test/arkansas.test.js` asserts all five",
+  'additionalTaxCredit.withdrawalPerIncrement':
+    "DOLLARS: Arkansas's $5 a step, $10 on a joint return — the figure withdrawn \"for each $100 or part of $100\" above the threshold. Both below 100, so neither has a mutant, and the CEILING in the statute's words is what makes this a staircase of twelve $5 steps rather than a 5% phase-out rate",
   // Unbounded ceilings, overwhelmingly. `Infinity` as the top of a schedule.
   'rate.byStatus': 'bracket ceilings of Infinity, and the zero rate of every zero band',
   'rate.brackets': 'the same, for the states whose schedule is not per status',

@@ -41,7 +41,7 @@ for (const year of SUPPORTED_YEARS) {
     for (const { path, steps } of stepCharts(getStateDefinition(state, year))) {
       if (DRIVERS[driverKey(path)] === undefined) continue;
       for (const filingStatus of driverStatuses(path)) {
-        for (const value of probeValues(steps)) {
+        for (const value of probeValues(steps, path)) {
           const figures = digest(
             stateIncomeTax(probeInput(path, value, state, year, filingStatus), FIGURE_SWEEP_OPTIONS),
           );

@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 39);
+  assert.equal(SUPPORTED_STATES.length, 40);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -47,27 +47,29 @@ test('an unsupported year is an error, not a silent fallback', () => {
 
 const getMissingStatesMessage = () => {
   try {
-    getStateDefinition('AR', 2026);
+    getStateDefinition('KS', 2026);
   } catch (e) {
     return e.message;
   }
-  throw new Error('AR resolved');
+  throw new Error('KS resolved');
 };
 
 test('an unsupported state names what is missing rather than returning zero', () => {
-  // The example has now moved NINE times — Ohio on Day 16, Virginia on Day 17,
+  // The example has now moved TEN times — Ohio on Day 16, Virginia on Day 17,
   // Minnesota on Day 45, South Carolina on Day 49, Louisiana on Day 60, North
-  // Dakota on Day 61, Oklahoma on Day 62 and IOWA ON DAY 63 — and each move is the point of the
-  // test: a state used here as the stand-in for "absent" has to be replaced the
-  // day it ships, or the assertion starts proving something about a state that
-  // is present. This is the only assertion in the suite that is GUARANTEED to
-  // fail every time coverage grows, which is why it has never once been wrong
-  // about what it claims.
-  assert.throws(() => getStateDefinition('AR', 2026), /not supported/);
+  // Dakota on Day 61, Oklahoma on Day 62, Iowa on Day 63 and ARKANSAS ON DAY 64
+  // — and each move is the point of the test: a state used here as the stand-in
+  // for "absent" has to be replaced the day it ships, or the assertion starts
+  // proving something about a state that is present. This is the only assertion
+  // in the suite that is GUARANTEED to fail every time coverage grows, which is
+  // why it has never once been wrong about what it claims.
+  assert.throws(() => getStateDefinition('KS', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('AR', 2026), /Arkansas/);
+  assert.throws(() => getStateDefinition('KS', 2026), /Kansas/);
   // And it must no longer name the state that just shipped.
+  assert.equal(isSupported('AR', 2026), true);
+  assert.ok(!getMissingStatesMessage().includes('Arkansas'));
   assert.equal(isSupported('IA', 2026), true);
   assert.ok(!getMissingStatesMessage().includes('Iowa'));
   assert.equal(isSupported('OK', 2026), true);
@@ -90,9 +92,9 @@ test('an unsupported state names what is missing rather than returning zero', ()
   // move as the gap closes, and it has now moved twice.
   const gaps = getMissingStatesMessage().split('—')[1] ?? '';
   // Louisiana left this list on Day 60, North Dakota on Day 61, Oklahoma on Day
-  // 62 and IOWA ON DAY 63; Arkansas is the stand-in now, and it is the largest
-  // uncovered jurisdiction left at 3,114,791.
-  assert.match(gaps, /Arkansas/);
+  // 62, Iowa on Day 63 and ARKANSAS ON DAY 64; Kansas is the stand-in now, and
+  // it is the largest uncovered jurisdiction left at 2,977,220.
+  assert.match(gaps, /Kansas/);
   // Compared as whole list ITEMS and not as substrings, which is the Day 37
   // citation rule in a second place: `/Virginia/` matched this message for a
   // covered state the day West Virginia joined the gap list, and the assertion
@@ -129,8 +131,8 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // THIRTY of them — thirty-nine supported states less the nine with no
-  // income tax at all — so the uncovered list has the other twelve.
+  // THIRTY-ONE of them — forty supported states less the nine with no
+  // income tax at all — so the uncovered list has the other eleven.
   //
   // The three figures are asserted together on purpose: the identity
   // `covered + uncovered = 42` is the only thing that catches a state added to
@@ -139,8 +141,8 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
   // `states/index.ts` that said the same thing in prose and had gone stale on
   // both numbers by Day 61 — a count written down beside a count that is
   // measured is a count nothing guards.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 12);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 30);
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 11);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 31);
   assert.equal(
     SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length + UNCOVERED_TAXING_JURISDICTIONS.length,
     42,
@@ -240,7 +242,7 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has ten', () => {
+test('2025 has no provisional state and 2026 has eleven', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
@@ -292,12 +294,19 @@ test('2025 has no provisional state and 2026 has ten', () => {
   // § 12-6-1140 and § 12-6-1170 subtractions the reform left standing. So it is
   // the first state-year here whose provisional flag covers a question about
   // which PROVISIONS survive rather than only about what a figure indexed to.
+  // ARKANSAS IS THE ELEVENTH, AND ITS SPLIT IS THE CLEANEST HERE. Every RATE
+  // figure for 2026 is published law — Act 1 of the 2026 First Extraordinary
+  // Session prints the schedule, the high-income table and all thirty rows of
+  // the bracket adjustment — and every INDEXED figure is carried forward,
+  // because DFA publishes those on a card and in the AR1000F instructions and
+  // neither has appeared. No other state-year here divides so exactly along the
+  // line between what a legislature writes and what an agency publishes.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 10);
+  assert.equal(count(2026), 11);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  assert.deepEqual(provisional2026, ['AR', 'CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test('the package has no runtime dependencies', () => {
@@ -432,7 +441,7 @@ test('a rate or a threshold printed in a rule NAME is a figure that rule actuall
   // differ only in the words around an identical number — a transposition that
   // put the capital-gain share on the dividend rule would leave both names
   // true, and only the engine's answer would move.
-  assert.equal(checked, 25, 'rates and thresholds printed in rule names');
+  assert.equal(checked, 27, 'rates and thresholds printed in rule names');
 });
 
 test("a threshold the engine cannot apply is quoted in the note that asks the caller to apply it", () => {

@@ -15,6 +15,31 @@
   },
   "error": null
  },
+ "2025-single-worker-AR-15000-0-0-0-0": {
+  "id": "2025-single-worker-AR-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 313.93
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-AZ-15000-0-0-0-0": {
   "id": "2025-single-worker-AZ-15000-0-0-0-0",
   "federal": {
@@ -717,6 +742,31 @@
   "state": {
    "tax": 1172.68,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-worker-AR-30000-0-0-0-0": {
+  "id": "2025-single-worker-AR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 14250,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 619.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 5
+    }
+   ]
   },
   "error": null
  },
@@ -1425,6 +1475,27 @@
   },
   "error": null
  },
+ "2025-single-worker-AR-50000-0-0-0-0": {
+  "id": "2025-single-worker-AR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1404.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-AZ-50000-0-0-0-0": {
   "id": "2025-single-worker-AZ-50000-0-0-0-0",
   "federal": {
@@ -2127,6 +2198,27 @@
   "state": {
    "tax": 3126.55,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-worker-AR-80000-0-0-0-0": {
+  "id": "2025-single-worker-AR-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 64250,
+   "incomeTaxBeforeCredits": 9049,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2574.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
   },
   "error": null
  },
@@ -2835,6 +2927,27 @@
   },
   "error": null
  },
+ "2025-single-worker-AR-150000-0-0-0-0": {
+  "id": "2025-single-worker-AR-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 134250,
+   "incomeTaxBeforeCredits": 25067,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5633.67,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-AZ-150000-0-0-0-0": {
   "id": "2025-single-worker-AZ-150000-0-0-0-0",
   "federal": {
@@ -3540,6 +3653,27 @@
   },
   "error": null
  },
+ "2025-single-worker-AR-400000-0-0-0-0": {
+  "id": "2025-single-worker-AR-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 384250,
+   "incomeTaxBeforeCredits": 104034.75,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 15383.67,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-AZ-400000-0-0-0-0": {
   "id": "2025-single-worker-AZ-400000-0-0-0-0",
   "federal": {
@@ -4242,6 +4376,27 @@
   "state": {
    "tax": 823.75,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-couple-two-children-AR-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-AR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7152
+  },
+  "state": {
+   "tax": 16,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -4958,6 +5113,27 @@
   },
   "error": null
  },
+ "2025-couple-two-children-AR-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-AR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 28500,
+   "incomeTaxBeforeCredits": 2943,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 932.98
+  },
+  "state": {
+   "tax": 1611.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-two-children-AZ-60000-0-0-0-0": {
   "id": "2025-couple-two-children-AZ-60000-0-0-0-0",
   "federal": {
@@ -5668,6 +5844,27 @@
   "state": {
    "tax": 4170.35,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-couple-two-children-AR-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-AR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 68500,
+   "incomeTaxBeforeCredits": 7743,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3222.04,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -6384,6 +6581,27 @@
   },
   "error": null
  },
+ "2025-couple-two-children-AR-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-AR-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 168500,
+   "incomeTaxBeforeCredits": 26898,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7400.34,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-two-children-AZ-200000-0-0-0-0": {
   "id": "2025-couple-two-children-AZ-200000-0-0-0-0",
   "federal": {
@@ -7097,6 +7315,31 @@
   },
   "error": null
  },
+ "2025-single-parent-AR-12000-0-0-0-0": {
+  "id": "2025-single-parent-AR-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-AZ-12000-0-0-0-0": {
   "id": "2025-single-parent-AZ-12000-0-0-0-0",
   "federal": {
@@ -7799,6 +8042,31 @@
   "state": {
    "tax": 750,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-parent-AR-25000-0-0-0-0": {
+  "id": "2025-single-parent-AR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 1375,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.33
+  },
+  "state": {
+   "tax": 306,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
   },
   "error": null
  },
@@ -8507,6 +8775,27 @@
   },
   "error": null
  },
+ "2025-single-parent-AR-45000-0-0-0-0": {
+  "id": "2025-single-parent-AR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 21375,
+   "incomeTaxBeforeCredits": 2225,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 868.33
+  },
+  "state": {
+   "tax": 1151.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-AZ-45000-0-0-0-0": {
   "id": "2025-single-parent-AZ-45000-0-0-0-0",
   "federal": {
@@ -9209,6 +9498,31 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-retired-couple-AR-0-0-40000-0-0": {
+  "id": "2025-retired-couple-AR-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 120
+    }
+   ]
   },
   "error": null
  },
@@ -9925,6 +10239,31 @@
   },
   "error": null
  },
+ "2025-retired-couple-AR-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-AR-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 120
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-retired-couple-AZ-0-20000-40000-0-0": {
   "id": "2025-retired-couple-AZ-0-20000-40000-0-0",
   "federal": {
@@ -10635,6 +10974,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-retired-couple-AR-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-AR-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 31400,
+   "incomeTaxBeforeCredits": 3291,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 987.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -11351,6 +11711,27 @@
   },
   "error": null
  },
+ "2025-retired-couple-AR-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-AR-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 77300,
+   "incomeTaxBeforeCredits": 8799,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2547.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-retired-couple-AZ-0-90000-40000-0-0": {
   "id": "2025-retired-couple-AZ-0-90000-40000-0-0",
   "federal": {
@@ -12064,6 +12445,31 @@
   },
   "error": null
  },
+ "2025-single-retiree-AR-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-AR-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-retiree-AZ-0-10000-24000-0-0": {
   "id": "2025-single-retiree-AZ-0-10000-24000-0-0",
   "federal": {
@@ -12766,6 +13172,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-retiree-AR-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-AR-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 36050,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 751.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -13474,6 +13901,27 @@
   },
   "error": null
  },
+ "2025-investor-AR-50000-0-0-20000-0": {
+  "id": "2025-investor-AR-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 54250,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1794.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-investor-AZ-50000-0-0-20000-0": {
   "id": "2025-investor-AZ-50000-0-0-20000-0",
   "federal": {
@@ -14176,6 +14624,27 @@
   "state": {
    "tax": 6355.93,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-investor-AR-50000-0-0-100000-0": {
+  "id": "2025-investor-AR-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 134250,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3655.37,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
   },
   "error": null
  },
@@ -14884,6 +15353,27 @@
   },
   "error": null
  },
+ "2025-separate-AR-60000-0-0-0-0": {
+  "id": "2025-separate-AR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 44250,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1794.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-AZ-60000-0-0-0-0": {
   "id": "2025-separate-AZ-60000-0-0-0-0",
   "federal": {
@@ -15582,6 +16072,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-muni-retiree-AR-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-AR-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 47300,
+   "incomeTaxBeforeCredits": 5199,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1767.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -16298,6 +16809,31 @@
   },
   "error": null
  },
+ "2025-couple-no-children-AR-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-AR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 92.85
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 120
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-no-children-AZ-25000-0-0-0-0": {
   "id": "2025-couple-no-children-AZ-25000-0-0-0-0",
   "federal": {
@@ -17008,6 +17544,27 @@
   "state": {
    "tax": 2995.98,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-couple-no-children-AR-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-AR-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 43500,
+   "incomeTaxBeforeCredits": 4743,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2254.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -17724,6 +18281,27 @@
   },
   "error": null
  },
+ "2025-mixed-dependents-AR-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-AR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 8500,
+   "incomeTaxBeforeCredits": 850,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5950,
+   "earnedIncomeCredit": 6038.98
+  },
+  "state": {
+   "tax": 802.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 145
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-mixed-dependents-AZ-40000-0-0-0-0": {
   "id": "2025-mixed-dependents-AZ-40000-0-0-0-0",
   "federal": {
@@ -18434,6 +19012,27 @@
   "state": {
    "tax": 3850.75,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-AR-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-AR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 58500,
+   "incomeTaxBeforeCredits": 6543,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2752.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 145
+    }
+   ]
   },
   "error": null
  },
@@ -19150,6 +19749,27 @@
   },
   "error": null
  },
+ "2025-single-parent-high-AR-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-AR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 66375,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2906.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-high-AZ-90000-0-0-0-0": {
   "id": "2025-single-parent-high-AZ-90000-0-0-0-0",
   "federal": {
@@ -19852,6 +20472,27 @@
   "state": {
    "tax": 1376.13,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-single-parent-teen-AR-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-AR-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 11375,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2466.33
+  },
+  "state": {
+   "tax": 761.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
   },
   "error": null
  },
@@ -20560,6 +21201,27 @@
   },
   "error": null
  },
+ "2025-separate-with-child-AR-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-AR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 29250,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1180.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-child-AZ-45000-0-0-0-0": {
   "id": "2025-separate-with-child-AZ-45000-0-0-0-0",
   "federal": {
@@ -21258,6 +21920,27 @@
   "state": {
    "tax": 1912.88,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-AR-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-AR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 13500,
+   "incomeTaxBeforeCredits": 1350,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 868.33
+  },
+  "state": {
+   "tax": 1151.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
   },
   "error": null
  },
@@ -21966,6 +22649,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-AR-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-AR-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 218500,
+   "incomeTaxBeforeCredits": 38134,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 9475.67,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-AZ-250000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-AZ-250000-0-0-0-0",
   "federal": {
@@ -22668,6 +23372,27 @@
   "state": {
    "tax": 11554.89,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-AR-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-AR-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 268500,
+   "incomeTaxBeforeCredits": 50134,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 11425.67,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
   },
   "error": null
  },
@@ -23376,6 +24101,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-AR-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-AR-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 418500,
+   "incomeTaxBeforeCredits": 88046,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 17275.67,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-AZ-450000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-AZ-450000-0-0-0-0",
   "federal": {
@@ -24078,6 +24824,31 @@
   "state": {
    "tax": 585,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-AR-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-AR-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4328
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
   },
   "error": null
  },
@@ -24786,6 +25557,31 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-low-AR-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-AR-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 3904.53
+  },
+  "state": {
+   "tax": 365.05,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-low-AZ-26000-0-0-0-0": {
   "id": "2025-surviving-spouse-low-AZ-26000-0-0-0-0",
   "federal": {
@@ -25491,6 +26287,27 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-AR-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-AR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 36050,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1336.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-AZ-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-AZ-0-55000-0-0-0",
   "federal": {
@@ -26192,6 +27009,27 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-young-AR-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-AR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 39250,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1365.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-young-AZ-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-young-AZ-0-55000-0-0-0",
   "federal": {
@@ -26890,6 +27728,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-early-retiree-AR-0-50000-0-0-0": {
+  "id": "2025-early-retiree-AR-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1170.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
   },
   "error": null
  },
@@ -27595,6 +28454,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-AR-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-AR-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 38500,
+   "incomeTaxBeforeCredits": 4143,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1825.38,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -28311,6 +29191,27 @@
   },
   "error": null
  },
+ "2025-blind-worker-AR-40000-0-0-0-0": {
+  "id": "2025-blind-worker-AR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 22250,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 985.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-blind-worker-AZ-40000-0-0-0-0": {
   "id": "2025-blind-worker-AZ-40000-0-0-0-0",
   "federal": {
@@ -29013,6 +29914,31 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-blind-senior-AR-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-AR-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4600,
+   "incomeTaxBeforeCredits": 460,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 127.05,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
   },
   "error": null
  },
@@ -29721,6 +30647,27 @@
   },
   "error": null
  },
+ "2025-on-the-boundary-AR-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-AR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 69.33
+  },
+  "state": {
+   "tax": 1375.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-on-the-boundary-AZ-50000-0-0-0-0": {
   "id": "2025-on-the-boundary-AZ-50000-0-0-0-0",
   "federal": {
@@ -30423,6 +31370,27 @@
   "state": {
    "tax": 3915.05,
    "credits": []
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-AR-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-AR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 84250,
+   "incomeTaxBeforeCredits": 13449,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3626.37,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -31131,6 +32099,31 @@
   },
   "error": null
  },
+ "2026-single-worker-AR-15000-0-0-0-0": {
+  "id": "2026-single-worker-AR-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-AZ-15000-0-0-0-0": {
   "id": "2026-single-worker-AZ-15000-0-0-0-0",
   "federal": {
@@ -31833,6 +32826,31 @@
   "state": {
    "tax": 1175.25,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-worker-AR-30000-0-0-0-0": {
+  "id": "2026-single-worker-AR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 617.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 5
+    }
+   ]
   },
   "error": null
  },
@@ -32541,6 +33559,27 @@
   },
   "error": null
  },
+ "2026-single-worker-AR-50000-0-0-0-0": {
+  "id": "2026-single-worker-AR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1362.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-AZ-50000-0-0-0-0": {
   "id": "2026-single-worker-AZ-50000-0-0-0-0",
   "federal": {
@@ -33243,6 +34282,27 @@
   "state": {
    "tax": 3140.5,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-worker-AR-80000-0-0-0-0": {
+  "id": "2026-single-worker-AR-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2472.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
   },
   "error": null
  },
@@ -33951,6 +35011,27 @@
   },
   "error": null
  },
+ "2026-single-worker-AR-150000-0-0-0-0": {
+  "id": "2026-single-worker-AR-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5349.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-AZ-150000-0-0-0-0": {
   "id": "2026-single-worker-AZ-150000-0-0-0-0",
   "federal": {
@@ -34656,6 +35737,27 @@
   },
   "error": null
  },
+ "2026-single-worker-AR-400000-0-0-0-0": {
+  "id": "2026-single-worker-AR-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 14599.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-AZ-400000-0-0-0-0": {
   "id": "2026-single-worker-AZ-400000-0-0-0-0",
   "federal": {
@@ -35358,6 +36460,27 @@
   "state": {
    "tax": 823.75,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-couple-two-children-AR-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-AR-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": 16,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -36074,6 +37197,27 @@
   },
   "error": null
  },
+ "2026-couple-two-children-AR-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-AR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 1554.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-two-children-AZ-60000-0-0-0-0": {
   "id": "2026-couple-two-children-AZ-60000-0-0-0-0",
   "federal": {
@@ -36784,6 +37928,27 @@
   "state": {
    "tax": 4175.5,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-couple-two-children-AR-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-AR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3061.32,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -37500,6 +38665,27 @@
   },
   "error": null
  },
+ "2026-couple-two-children-AR-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-AR-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7021.32,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-two-children-AZ-200000-0-0-0-0": {
   "id": "2026-couple-two-children-AZ-200000-0-0-0-0",
   "federal": {
@@ -38213,6 +39399,31 @@
   },
   "error": null
  },
+ "2026-single-parent-AR-12000-0-0-0-0": {
+  "id": "2026-single-parent-AR-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-AZ-12000-0-0-0-0": {
   "id": "2026-single-parent-AZ-12000-0-0-0-0",
   "federal": {
@@ -38915,6 +40126,31 @@
   "state": {
    "tax": 750,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-parent-AR-25000-0-0-0-0": {
+  "id": "2026-single-parent-AR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": 306,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
   },
   "error": null
  },
@@ -39623,6 +40859,27 @@
   },
   "error": null
  },
+ "2026-single-parent-AR-45000-0-0-0-0": {
+  "id": "2026-single-parent-AR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 1119.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-AZ-45000-0-0-0-0": {
   "id": "2026-single-parent-AZ-45000-0-0-0-0",
   "federal": {
@@ -40325,6 +41582,31 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-retired-couple-AR-0-0-40000-0-0": {
+  "id": "2026-retired-couple-AR-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 120
+    }
+   ]
   },
   "error": null
  },
@@ -41041,6 +42323,31 @@
   },
   "error": null
  },
+ "2026-retired-couple-AR-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-AR-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 120
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-retired-couple-AZ-0-20000-40000-0-0": {
   "id": "2026-retired-couple-AZ-0-20000-40000-0-0",
   "federal": {
@@ -41751,6 +43058,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-retired-couple-AR-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-AR-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 962.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -42467,6 +43795,27 @@
   },
   "error": null
  },
+ "2026-retired-couple-AR-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-AR-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2442.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-retired-couple-AZ-0-90000-40000-0-0": {
   "id": "2026-retired-couple-AZ-0-90000-40000-0-0",
   "federal": {
@@ -43180,6 +44529,31 @@
   },
   "error": null
  },
+ "2026-single-retiree-AR-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-AR-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-retiree-AZ-0-10000-24000-0-0": {
   "id": "2026-single-retiree-AZ-0-10000-24000-0-0",
   "federal": {
@@ -43882,6 +45256,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-retiree-AR-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-AR-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 741.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -44590,6 +45985,27 @@
   },
   "error": null
  },
+ "2026-investor-AR-50000-0-0-20000-0": {
+  "id": "2026-investor-AR-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1732.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-investor-AZ-50000-0-0-20000-0": {
   "id": "2026-investor-AZ-50000-0-0-20000-0",
   "federal": {
@@ -45292,6 +46708,27 @@
   "state": {
    "tax": 6369.38,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-investor-AR-50000-0-0-100000-0": {
+  "id": "2026-investor-AR-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3489.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
   },
   "error": null
  },
@@ -46000,6 +47437,27 @@
   },
   "error": null
  },
+ "2026-separate-AR-60000-0-0-0-0": {
+  "id": "2026-separate-AR-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1732.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-AZ-60000-0-0-0-0": {
   "id": "2026-separate-AZ-60000-0-0-0-0",
   "federal": {
@@ -46698,6 +48156,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-muni-retiree-AR-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-AR-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1702.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 116
+    }
+   ]
   },
   "error": null
  },
@@ -47414,6 +48893,31 @@
   },
   "error": null
  },
+ "2026-couple-no-children-AR-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-AR-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 120
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-no-children-AZ-25000-0-0-0-0": {
   "id": "2026-couple-no-children-AZ-25000-0-0-0-0",
   "federal": {
@@ -48124,6 +49628,27 @@
   "state": {
    "tax": 3001.13,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-couple-no-children-AR-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-AR-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2167.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -48840,6 +50365,27 @@
   },
   "error": null
  },
+ "2026-mixed-dependents-AR-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-AR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": 785.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 145
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-mixed-dependents-AZ-40000-0-0-0-0": {
   "id": "2026-mixed-dependents-AZ-40000-0-0-0-0",
   "federal": {
@@ -49550,6 +51096,27 @@
   "state": {
    "tax": 3850.75,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-AR-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-AR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2635.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 145
+    }
+   ]
   },
   "error": null
  },
@@ -50266,6 +51833,27 @@
   },
   "error": null
  },
+ "2026-single-parent-high-AR-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-AR-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2784.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-high-AZ-90000-0-0-0-0": {
   "id": "2026-single-parent-high-AZ-90000-0-0-0-0",
   "federal": {
@@ -50968,6 +52556,27 @@
   "state": {
    "tax": 1376.13,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-single-parent-teen-AR-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-AR-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": 749.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
   },
   "error": null
  },
@@ -51676,6 +53285,27 @@
   },
   "error": null
  },
+ "2026-separate-with-child-AR-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-AR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1148.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-child-AZ-45000-0-0-0-0": {
   "id": "2026-separate-with-child-AZ-45000-0-0-0-0",
   "federal": {
@@ -52374,6 +54004,27 @@
   "state": {
    "tax": 1912.88,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-AR-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-AR-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 1119.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
   },
   "error": null
  },
@@ -53082,6 +54733,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-AR-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-AR-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 8991.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-AZ-250000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-AZ-250000-0-0-0-0",
   "federal": {
@@ -53784,6 +55456,27 @@
   "state": {
    "tax": 11562.15,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-AR-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-AR-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 10841.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
   },
   "error": null
  },
@@ -54492,6 +56185,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-AR-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-AR-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 16391.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-AZ-450000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-AZ-450000-0-0-0-0",
   "federal": {
@@ -55194,6 +56908,31 @@
   "state": {
    "tax": 585,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-AR-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-AR-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
   },
   "error": null
  },
@@ -55902,6 +57641,31 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-low-AR-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-AR-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": 365.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-low-AZ-26000-0-0-0-0": {
   "id": "2026-surviving-spouse-low-AZ-26000-0-0-0-0",
   "federal": {
@@ -56607,6 +58371,27 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-AR-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-AR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1296.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-AZ-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-AZ-0-55000-0-0-0",
   "federal": {
@@ -57308,6 +59093,27 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-young-AR-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-AR-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1325.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-young-AZ-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-young-AZ-0-55000-0-0-0",
   "federal": {
@@ -58006,6 +59812,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-early-retiree-AR-0-50000-0-0-0": {
+  "id": "2026-early-retiree-AR-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1140.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 29
+    }
+   ]
   },
   "error": null
  },
@@ -58711,6 +60538,27 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-AR-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-AR-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1760.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },
@@ -59427,6 +61275,27 @@
   },
   "error": null
  },
+ "2026-blind-worker-AR-40000-0-0-0-0": {
+  "id": "2026-blind-worker-AR-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 963.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-blind-worker-AZ-40000-0-0-0-0": {
   "id": "2026-blind-worker-AZ-40000-0-0-0-0",
   "federal": {
@@ -60129,6 +61998,31 @@
   "state": {
    "tax": 0,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-blind-senior-AR-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-AR-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 127.02,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 87
+    },
+    {
+     "name": "Arkansas additional tax credit for qualified individuals (AR1000F line 32)",
+     "amount": 60
+    }
+   ]
   },
   "error": null
  },
@@ -60837,6 +62731,27 @@
   },
   "error": null
  },
+ "2026-on-the-boundary-AR-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-AR-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 254.62
+  },
+  "state": {
+   "tax": 1333.41,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-on-the-boundary-AZ-50000-0-0-0-0": {
   "id": "2026-on-the-boundary-AZ-50000-0-0-0-0",
   "federal": {
@@ -61539,6 +63454,27 @@
   "state": {
    "tax": 3929,
    "credits": []
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-AR-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-AR-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 83900,
+   "incomeTaxBeforeCredits": 13170,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3460.71,
+   "credits": [
+    {
+     "name": "Arkansas personal tax credits (§ 26-51-501, AR1000F line 31)",
+     "amount": 58
+    }
+   ]
   },
   "error": null
  },

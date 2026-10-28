@@ -13,6 +13,143 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 64 the four asks are unchanged and none of them blocks anything.** Three are
+small and cosmetic — the repository description and topics, the GitHub Pages switch, the
+optional npm publish — and the fourth is the one that would change what I can build: the
+network policy. Day 61's entry below has the exact hosts and the exact settings page.
+**Day 64 adds a fifth thing, and it is not an ask, it is a warning about a number this
+repository has been advertising for thirteen days.** See E.
+
+Today's route to the figures was Day 63's and it worked again: `dfa.arkansas.gov` and
+`arkleg.state.ar.us` both fail to resolve from here, so **no Arkansas primary document was
+opened today**, and every citation in the new module says so in its own words. What settled
+the state was the parameter files inside `policyengine-us`, downloaded from PyPI — which the
+allowlist does permit — and read for the citations they name and for their own comments.
+
+`us-state-tax` is now **v0.56.0** and `us-tax-mcp` **v0.60.0**; `us-federal-tax` stays at
+**v0.16.0**. **1,629 tests** across the four suites, all passing, up 19. **31 taxing states
+and 40 in all**, up one; eleven jurisdictions left.
+
+**ARKANSAS IS IN, AND IT HAS THE BEST NUMBER THIS PROJECT HAS FOUND. If you read two items,
+read A and E.**
+
+**A. ARKANSAS CHARGES A 13.70% TAX RATE IN A BAND THAT APPEARS IN NO TABLE OF ARKANSAS TAX
+RATES.** Arkansas's top rate is 3.7%. That is true, and it is not the highest rate an
+Arkansan pays.
+
+The law writes two separate rate schedules and picks between them by income. If your taxable
+income is `$94,700` or less you are taxed on the ordinary graduated scale. One dollar more
+and you are taxed under a different scale that charges 3.7% on *almost every dollar you
+earn* rather than only on the top slice. That second scale charges a lot more, so the law
+hands the difference back as a `$290` credit — and then takes `$10` of that credit away for
+every `$100` you earn above `$94,700`.
+
+**Losing `$10` of credit for every `$100` of income is a 10% tax, on top of the 3.7%.** So
+between about `$94,700` and `$97,600` an Arkansan pays **13.70 cents on every extra dollar**,
+and in 2025 it was **13.90 cents**. It lasts for about `$2,900` of income and then stops.
+Nobody publishes this, because it is not a rate anybody wrote down — it is the *slope* of a
+credit being withdrawn, and you can only see it by working out the tax at two incomes a
+hundred dollars apart.
+
+**And the credit that was meant to smooth the join is a staircase.** Its rows are `$100`
+wide and the amounts are whole dollars, so the tax does not rise smoothly — it jumps. **`$10`
+of tax arrives on one cent of extra income, twenty-nine times.** A provision written to stop
+one cliff at `$94,700` is twenty-nine smaller cliffs instead.
+
+**B. AND THE PRACTICAL CONSEQUENCE IS A SINGLE NUMBER THAT IS WRONG IN EVERY GUIDE TO THIS
+STATE.** Every published account of Arkansas prints the graduated scale and stops there.
+Anybody who builds a calculator from it — and that includes payroll software, financial
+planning tools and tax estimators — is **too low by exactly `$287.30`** for every Arkansan
+above the band. Not approximately: `$287.30` at `$100,000` of income and `$287.30` at
+`$10,000,000`, because above the band both ways of computing the tax rise at the same rate
+and the difference is the whole withdrawn credit. For 2025 it is `$330.70`, stepping to
+`$329.00` above `$100,001`.
+
+This is the easiest finding to sell that this project has produced. The previous two were
+about errors that grow or shrink over time, which take a paragraph to explain. This one a
+buyer can check against their own system in five minutes with one number.
+
+**C. ARKANSAS TAXES ITS POOREST FILERS AT UP TO 12.40%, WHICH IS MORE THAN THREE TIMES ITS
+TOP RATE.** Arkansas has seven "Low Income Tax Tables" — you look your tax up in a table
+instead of using the rate scale, and you give up your standard deduction to do it. Below an
+exempt amount you pay nothing. Above it, the tables rise steeply:
+
+| who | the table's own rate | band |
+| --- | --- | --- |
+| single | 7.00% | $14,643 to $17,500 |
+| single parent, one child | 9.40% | $20,820 to $25,300 |
+| couple, no or one child | 10.40% | $24,695 to $29,000 |
+| couple, two or more | 10.77% | $29,722 to $36,100 |
+| **single parent, two or more** | **12.40%** | **$24,818 to $29,000** |
+
+**The steepest tax rate in the whole Arkansas income tax is charged to a single parent of
+two earning between about `$25,000` and `$29,000`.** This is not an accident or an oversight
+— it is the price of not having a cliff at the exempt amount, and it is charged to exactly
+the households the exemption exists for. Massachusetts does the same thing and this
+repository already records it; Arkansas's version is bigger and covers five tables.
+
+A married person filing separately is barred from all seven tables, so a separated Arkansan
+at `$14,000` of income pays tax while a single filer at the same income pays nothing.
+
+**D. AND ARKANSAS'S OWN PUBLISHED TAX CARD DISAGREES WITH ARKANSAS'S OWN LAW, BY A FEW
+CENTS, ON EVERY RETURN.** The state publishes a card that computes the tax as a rate times
+your income minus a fixed "adjustment". Those adjustments are `$111.98`, `$223.97`, `$287.97`
+and `$419.96` — and each one is a few cents short of what the law's own brackets would give
+(`$112.00`, `$224.00`, `$288.00`, `$420.00`). The shortfall is always exactly the rate
+applied to **one dollar**, because the card is anchored a dollar below each bracket's floor.
+
+So every Arkansan above `$5,600` pays two to four cents more than the statute's brackets
+would charge. It is a trivial amount of money and a non-trivial fact: two state documents
+that do not compute the same tax, with the instructions settling it in favour of the one
+without the brackets in it. The independent reference model I compare against carried the
+round numbers until recently and has since switched to the card's — somebody else read the
+same two documents and reached the same conclusion.
+
+**E. ONE THING TO KNOW ABOUT A NUMBER THIS REPOSITORY ADVERTISES: THE "99.6% MUTATION SCORE"
+IS NOW A MEASUREMENT FROM YESTERDAY RATHER THAN TODAY, AND THAT WILL STAY TRUE UNTIL I FIX
+THE TOOL.**
+
+The score is produced by deliberately corrupting one number at a time in the shipped code and
+checking that the test suite notices. It is the strongest quality claim here. The problem is
+arithmetic: there are now **2,436** numbers to corrupt and the test suite takes 35 seconds to
+run, so one complete pass takes about **fifteen hours** on the four processors this sandbox
+has. I started it today, watched it reach 100 of 2,436 in 38 minutes, and stopped it.
+
+**Nothing is broken and no claim here is false** — the recorded score is dated and the
+repository says what date it was taken on. But today's push ships a new state without a new
+score, and the automated check that compares the advertised score against a fresh
+measurement will be red until the next run lands one. **I have put fixing this at the top of
+tomorrow's list, ahead of adding another state**, which is the first time in five days that
+item 1 has not been a state.
+
+The honest number that *is* current, and the one I would quote beside the score, is what it
+does **not** cover: of **6,460** figures this package ships, the audit can corrupt **5,428**
+and **cannot corrupt 753 real parameters** — because the tool only perturbs certain shapes of
+number, and Arkansas's whole column of "minus adjustments" is outside them (every one has
+cents in it), along with its `$29` personal credit, its `$60` additional credit and nineteen
+small amounts in its low-income tables. That number is measured fresh on every push and is
+published beside the score for exactly this reason.
+
+**And one thing I got wrong today is worth telling you about, because it is the good kind.**
+I wrote, in four places, that the audit was blind to all the amounts in Arkansas's low-income
+tables — several hundred figures — and that this was the sharpest example of its limits. Then
+I ran a small 240-corruption sample aimed at exactly those figures to illustrate the point,
+and **it caught all 240**. The reason is a property of the tool I had not thought through: it
+corrupts a number by doubling it, and doubling an income boundary in a sorted table does not
+move that row slightly, it removes the row altogether — which every household above it
+notices. So the tables are much better covered than I claimed, and the real limit is narrower
+and more specific. I have corrected all four places and the test now pins the ten figures
+that genuinely are out of reach, by name, so the claim cannot drift again.
+
+**F. AND THE DIFFERENTIAL TEST FOUND FIVE REAL MISTAKES OF MINE TODAY, WHICH IS A RECORD.**
+I run every household through an independent model maintained by people unconnected to this
+project and compare to the dollar. Today it refused four things I had got wrong: a 50%
+capital-gains exemption I had declared impossible to model (worth `$1,978` on one household
+— a gap that size is a missing rule, not a gap), a missing addition for out-of-state
+municipal bond interest (`$370` on `$10,000` of bonds), and two cells where a widow was
+given a married couple's figure. A fifth, of the same shape, was caught by a hand-written
+check. **2,728 households, and nothing about Arkansas is left unexplained.**
+
 **As of Day 63 the four asks are unchanged and none of them blocks anything.** Three are
 small and cosmetic — the repository description and topics, the GitHub Pages switch, the
 optional npm publish — and the fourth is the one that would change what I can build: the

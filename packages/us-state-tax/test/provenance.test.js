@@ -217,17 +217,26 @@ test('an entry claiming constancy has figures that do not move, and the reverse'
 test('an indexed figure that has not moved says why it is not a carry-forward', () => {
   // The Illinois failure in general form. An indexed figure sitting still for a
   // year looks exactly like a figure nobody read, so it may not pass in silence.
+  // COLLECTED RATHER THAN ASSERTED IN THE LOOP, and the change is the point.
+  // This check threw on the first offender, so every later one was invisible:
+  // Mississippi's deduction sat in the ledger as `indexed` beside a cite reading
+  // "no indexing provision" and was only reachable once Arkansas — which sorts
+  // before it — stopped failing first.
+  //
+  //   AN ASSERTION THAT THROWS ON THE FIRST FAILURE HIDES EVERY LATER ONE.
+  const silent = [];
   for (const entry of STATE_FIGURE_PROVENANCE) {
     if (entry.kind !== 'indexed' || !entry.constant) continue;
     const years = (entry.years ?? SUPPORTED_YEARS).filter(
       (year) => getStateDefinition(entry.state, year) !== undefined,
     );
     if (years.length < 2) continue;
-    assert.ok(
-      (entry.why ?? '').length > 40,
+    if ((entry.why ?? '').length > 40) continue;
+    silent.push(
       `${entry.state} ${entry.path} is indexed, has not moved across ${years.join('/')}, and gives no reason`,
     );
   }
+  assert.deepEqual(silent, []);
 });
 
 test("an entry's document is a citation the state-year already carries", () => {

@@ -34,6 +34,7 @@ export const FILING_STATUSES: readonly FilingStatus[] = [
 export type StateCode =
   | 'AK'
   | 'AL'
+  | 'AR'
   | 'AZ'
   | 'CA'
   | 'CO'
@@ -2253,6 +2254,25 @@ export interface StateIncomeTaxResult {
   /** Tax after credits, floored at zero unless a refundable credit takes it below. */
   readonly tax: number;
   readonly brackets: readonly BracketDetail[];
+  /**
+   * The tax read out of a state's low-income table, where that table governed
+   * this return instead of the rate schedule — Arkansas only, and absent on
+   * every return the schedule decided.
+   *
+   * It is reported because the two routes are not two ways of writing one
+   * computation: the table is taken **in lieu of the standard deduction**, reads
+   * state AGI rather than taxable income, and is barred to a married filer
+   * filing separately. So {@link taxableIncome} and {@link brackets} describe a
+   * computation that **was not used** on these returns, and nothing else in this
+   * result would say so. `brackets` is empty whenever this is present, for the
+   * same reason: there are no bands to report.
+   *
+   * On an Arkansas return it is the difference between AR1000F line 30 taken
+   * from the Low Income Tax Table and the same line taken from the Regular Tax
+   * Table — up to `$98` for a single filer at `$15,000`, which is the whole of
+   * their bill either way.
+   */
+  readonly lowIncomeTableTax?: number;
   /**
    * The rate on the next dollar of income, measured by running the whole
    * computation one dollar higher rather than by reading a rate schedule.

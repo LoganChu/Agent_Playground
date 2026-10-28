@@ -235,7 +235,8 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
-    'AK', 'AL', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD',
+    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA',
+    'MA', 'MD',
     'MI',
     'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'OK', 'PA', 'SD', 'TN', 'TX', 'UT',
     'VA', 'WA',
@@ -1364,9 +1365,22 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
   {
     state: 'MS',
     path: 'deduction.amounts.*',
-    kind: 'statute',
+    // `agency` AND NOT `indexed`, AND THE CORRECTION IS OLDER THAN THE STATE
+    // THAT EXPOSED IT. This entry said `indexed` beside a cite reading "fixed
+    // dollar amounts with no indexing provision" — the kind contradicting its
+    // own prose — and `test/provenance.test.js`'s indexed-figure check would
+    // have caught it on any run. It did not, because that check asserts inside
+    // its loop and throws on the FIRST failure, and a state sorting before MS
+    // was failing first. Adding Arkansas, which sorts before Mississippi and
+    // passes, is what made it reachable.
+    //
+    //   AN ASSERTION THAT THROWS ON THE FIRST FAILURE HIDES EVERY LATER ONE.
+    //
+    // The check now collects every failure instead, which is the same fix Day
+    // 61 made to the README test and Day 63 found a second instance of.
+    kind: 'agency',
     document: 'Mississippi Department of Revenue — tax rates',
-    cite: 'Miss. Code Ann. § 27-7-17 as the Department\'s tax rates, exemptions and deductions page carries it — $2,300 / $4,600 / $3,400, fixed dollar amounts with no indexing provision',
+    cite: 'Miss. Code Ann. § 27-7-17 as the Department\'s tax rates, exemptions and deductions page carries it — $2,300 / $4,600 / $3,400, fixed dollar amounts with NO INDEXING PROVISION, which is why this is an agency reading of a statutory figure and not an indexed one. Identical in both years because the statute sets them, not because the second year went unread',
     constant: true,
   },
   {
@@ -1498,6 +1512,190 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'retirementIncomeSubtractions.*.cap',
     kind: 'sentinel',
     cite: 'zero, which together with `militaryReducesCap` exempts military retired pay in full and leaves nothing else in the pool. North Carolina\'s construction exactly, and the same encoding of "every other pension is taxed in full" rather than a figure read from a document',
+    constant: true,
+  },
+
+  // =========================================================================
+  // =========================================================================
+  // ARKANSAS — the state whose rate schedule is 36 rows long, 30 of which are
+  // one relief being withdrawn $10 at a time, and whose largest figures are the
+  // ones the mutation audit cannot see.
+  //
+  // Every `reduction` in this state carries CENTS, which is Day 62's
+  // `largeDecimal` blind-spot class: `mutantOf` perturbs a decimal in (0,1), a
+  // year-like integer and an integer at or above 100, and $111.98 is none of
+  // those. So 33 of the 36 reductions in each year's schedule have no mutant at
+  // all, and neither does the $29 personal credit (an integer below 100, Day
+  // 60's class) nor the 19 low-income table amounts under $100 (the other 205 and all 224 boundaries ARE
+  // reachable, which Day 64 claimed otherwise before measuring; see the seven low-income
+  // tables. The rate schedule that produces a 13.70% marginal rate is almost
+  // entirely invisible to the audit, which is why `test/arkansas.test.js`
+  // measures the slope, the step count and the $287.30 by hand.
+  //
+  // THE ROW THAT IS DERIVED RATHER THAN READ IS THE 2026 SCHEDULE, and it is
+  // the only derivation in this state. No Indexed Tax Brackets card exists for
+  // 2026, so the reductions are computed from Act 1 of 2026's two statutory
+  // tables; the 2025 ones are transcribed from DFA's card and differ from the
+  // same computation by the row's rate on one dollar.
+  // =========================================================================
+  {
+    state: 'AR',
+    path: 'rate.rows.**',
+    kind: 'agency',
+    document: '2025 Indexed Tax Brackets',
+    years: [2025],
+    cite: 'Arkansas DFA\'s published Indexed Tax Brackets card for 2025, transcribed row for row: the row\'s rate on ALL net taxable income minus the row\'s "minus adjustment", five regular rows and thirty-one taper rows from $94,701, plus "$3,809 plus 3.9% of the excess over $100,000" at the top. AN AGENCY FIGURE RATHER THAN A STATUTORY ONE, AND THE DISTINCTION BITES HERE: the card\'s four regular reductions — $111.98, $223.97, $287.97, $419.96 — are NOT the accumulated tax of the bands beneath them ($112.00, $224.00, $288.00, $420.00). Each is short by exactly the row\'s rate on one dollar, because the card is anchored one dollar below each bracket floor, so the card and A.C.A. § 26-51-201(a)(4) do not compute the same tax. The instructions settle which governs — a formula\'s results "must match the table" — so the two to four cents are real, and policyengine-us agrees: it carried the round figures as late as 2.15.3 and replaced them with the card\'s by 2.68.0. THE THIRTY-ONE TAPER ROWS ARE THE BRACKET ADJUSTMENT, ten percentage points of marginal rate (13.90% in 2025) and thirty-one discontinuities of $10 on one cent of income. NOT OPENED FROM THIS SANDBOX: dfa.arkansas.gov does not resolve here',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'rate.rows.**',
+    kind: 'derived',
+    document: 'Arkansas Act 1 of 2026',
+    years: [2026],
+    cite: 'DERIVED, and the only derivation in this state. No Indexed Tax Brackets card has been published for 2026, so each row\'s reduction is computed from A.C.A. § 26-51-201(a)(4)\'s graduated table (0%, 2%, 3%, 3.4%, 3.7% at $5,600, $11,200, $16,000, $26,400) and (a)(5)\'s high-income table (2% on the first $4,700 and 3.7% on every dollar above, applied to the WHOLE net income of a filer over $94,700) less the thirty-row bracket adjustment ($290 at $94,701 falling $10 per $100 to $0 at $97,600), as Act 1 of the 2026 First Extraordinary Session writes them. The identity is reduction = rate x the row\'s floor less the tax accumulated below it. CHECKED TWO WAYS rather than asserted: test/arkansas.test.js recomputes the statutory route at every dollar from $0 to $120,000, and policyengine-us 2.15.3 — which has no high-income parameters at all — holds the same thirty-five amounts including the $367.20 and the $79.90, derived independently from the same two tables. The thresholds did NOT move from 2025, which is Act 1 setting them rather than a carry-forward. § 26-51-201(d)(1) indexes the bracket bounds and NOT the adjustment\'s dollar amounts. NOT OPENED FROM THIS SANDBOX: arkleg.state.ar.us does not resolve here',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'deduction.amounts.*',
+    kind: 'indexed',
+    years: [2025],
+    document: '§ 26-51-430',
+    cite: 'A.C.A. § 26-51-430 — $2,200 single and $4,400 joint as enacted in 2015, indexed to CPI-U with the result ROUNDED DOWN to the nearest $10, which is why $2,470 and $4,940 are not round. Head of household, married filing separately and a qualifying surviving spouse ALL take the single amount: Arkansas gives a single parent no more deduction than a single filer and hands them the larger figure through the low-income tables and the personal credits instead. The second smallest standard deduction among the states that HAVE one — Mississippi\'s $2,300 is smaller, and thirteen states here allow none at all — and roughly a sixth of the federal one, which is the arithmetic that makes the low-income tables matter. 2026 is carried forward: no card has been published and the rounding-down rule makes the step $60 to $80, worth $2.22 to $2.96 of tax',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'deduction.amounts.*',
+    kind: 'carried-forward',
+    years: [2026],
+    document: '§ 26-51-430',
+    cite: 'CARRIED FORWARD FROM 2025. § 26-51-430 indexes the deduction to CPI-U and rounds the result DOWN to the nearest $10, and neither a 2026 Indexed Tax Brackets card nor the 2026 AR1000F instructions has been published, so $2,470 and $4,940 are the 2025 figures standing in. One indexation step is $60 to $80 of deduction, which is $2.22 to $2.96 of tax — the smallest provisional exposure in this package, because the deduction itself is the second smallest',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'lowIncomeTaxTable.secondTableFromDependents',
+    kind: 'agency',
+    document: 'Low Income Tax Tables',
+    cite: 'TWO, which is the instructions\' own division: each status but single has one table for "no dependents or one dependent" and a second for "two or more dependents". The single filer\'s table has no second half because a single filer with a dependent is a head of household in Arkansas',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'lowIncomeTaxTable.byStatus.**',
+    kind: 'agency',
+    years: [2025],
+    document: 'Low Income Tax Tables',
+    cite: 'A.C.A. § 26-51-301 and the 2025 AR1000F and AR1000NR instructions — SEVEN tables of tax by state AGI and family size, taken IN LIEU of the standard or itemized deduction when they come out lower, with married filing separately barred from all of them. FIVE DISTINCT ARRAYS OF 224 ROWS behind those seven cells — the surviving-spouse pair duplicates the head-of-household pair and the separate cell is empty — each row an income boundary and a whole-dollar tax amount, every one transcribed. The exempt amounts are $14,643 single, $20,820 head of household or surviving spouse with no or one dependent, $24,695 joint with no or one, $24,818 head of household or surviving spouse with two or more and $29,722 joint with two or more; the ceilings are $17,500, $25,300, $29,000, $29,000 and $36,100. THE IMPLIED MARGINAL RATES INSIDE THEM ARE 7.00% TO 12.40%, against a top statutory rate of 3.9% and 3.7%, and the steepest is charged to a single parent of two between $24,818 and $29,000. The surviving-spouse pair is byte for byte the head-of-household pair; the instructions print four tables and this package stores four. ALL 224 BOUNDARIES AND 205 OF THE 224 AMOUNTS ARE PERTURBABLE by the mutation harness, which reaches any integer at or above 100, and a 240-mutant sample over exactly those killed 240 of 240; only the 19 amounts below $100 are out of its reach. 2026 is carried forward: § 26-51-301 indexes the tables to CPI-U and none has been published',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'lowIncomeTaxTable.byStatus.**',
+    kind: 'carried-forward',
+    years: [2026],
+    document: 'Low Income Tax Tables',
+    cite: 'CARRIED FORWARD FROM 2025, all five distinct arrays and all 224 rows. § 26-51-301 indexes the tables and their exempt amounts to CPI-U and no 2026 AR1000F instructions have been published. The exposure runs the OPPOSITE WAY to a carried-forward deduction and is larger: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to roughly one indexation step of rows — about $60 of tax on a joint return with two or more dependents',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'exemptionCredit.perFiler.*',
+    kind: 'statute',
+    document: '§ 26-51-501',
+    cite: 'A.C.A. § 26-51-501 — $29 for each filer, plus ONE MORE CREDIT for a head of household or a qualifying surviving spouse, which is a property of the filing status rather than of a person. So a single parent claims $58 with one person on the return, which is Iowa\'s shape and the opposite of Oklahoma\'s § 2358(D); stored byStatus rather than perPerson for that reason. $29 is an integer below 100 and has NO MUTANT, which is the blind-spot class that produced Day 63\'s one real defect, so test/arkansas.test.js asserts the five cells by hand. Unindexed: § 26-51-501(e) indexed it to 2001 and it has stood at $29 since 2020',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'exemptionCredit.perDependent',
+    kind: 'statute',
+    document: '§ 26-51-501',
+    cite: 'A.C.A. § 26-51-501 — $29 a dependent, the same figure a filer is worth, which is the ordinary shape and not a separate parameter',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'exemptionCredit.perSeniorFiler',
+    kind: 'statute',
+    document: '§ 26-51-501',
+    cite: 'A.C.A. § 26-51-501 — a SECOND whole $29 credit for each filer or spouse 65 or over, not an increment of a different size, which is Oklahoma\'s shape rather than Iowa\'s half-sized $20. The statute gives a THIRD "65 Special" credit to a filer of 65 who did not use the $6,000 retirement exemption and this package does not model the election; see the state\'s notes for the $28.96 price',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'exemptionCredit.seniorAge',
+    kind: 'statute',
+    document: '§ 26-51-501',
+    cite: 'A.C.A. § 26-51-501 — 65, the federal § 63(f) age. It is the ONLY age test on an Arkansas return: § 26-51-307\'s retirement exemption has none at all',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'exemptionCredit.perBlindOrDisabledFiler',
+    kind: 'statute',
+    document: '§ 26-51-501',
+    cite: 'A.C.A. § 26-51-501 — a further $29 for each blind filer or spouse, which STACKS with the age credit: a blind Arkansan of 65 claims $29 + $29 + $29. The statute gives the same credit to a DEAF filer and no field in this package carries deafness, so that one is declared in the notes rather than stored',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'additionalTaxCredit.maximum.*',
+    kind: 'agency',
+    document: 'Additional Tax Credit for Qualified Individuals',
+    cite: 'The additional tax credit for qualified individuals — $60 a filer and $120 on a joint return, where net taxable income is at or below the threshold below. Successor to the 2022 and 2023 inflationary relief credit. Nonrefundable, and after the personal credits in the statutory order',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'additionalTaxCredit.start.*',
+    kind: 'agency',
+    years: [2025],
+    document: 'Additional Tax Credit for Qualified Individuals',
+    cite: '$26,500 of net taxable income, the same figure for every filing status — which is the unusual half: the credit itself doubles on a joint return and the income test does not. Carried forward to 2026, where no instructions have been published',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'additionalTaxCredit.start.*',
+    kind: 'carried-forward',
+    years: [2026],
+    document: 'Additional Tax Credit for Qualified Individuals',
+    cite: 'CARRIED FORWARD FROM 2025. The $26,500 income test has not been published for 2026; the $60 and the $5 step are statutory and not indexed by anything, so this threshold is the whole of the credit\'s provisional exposure — one indexation step is five withdrawal steps and $25 of credit',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'additionalTaxCredit.increment',
+    kind: 'agency',
+    document: 'Additional Tax Credit for Qualified Individuals',
+    cite: '$100, and the words that go with it are "for each $100 OR PART OF $100" — the CEILING of the increments and not the quotient, which is what makes this a staircase of twelve $5 steps rather than a 5% phase-out rate. The distinction is $5 of tax on one dollar of income, twelve times between $26,500 and $27,700',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'additionalTaxCredit.withdrawalPerIncrement.*',
+    kind: 'agency',
+    document: 'Additional Tax Credit for Qualified Individuals',
+    cite: '$5 a step, doubled to $10 on a joint return so that the $120 is withdrawn over the same $1,200 of income as the $60. Not indexed by anything and not amended since the credit replaced the inflationary relief credit',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: '§ 26-51-815',
+    cite: 'A.C.A. § 26-51-815(a) — 50% of the excess of net long-term capital gain over net short-term capital loss is exempt, and the HIGHEST flat capital-gains exclusion in this ledger: North Dakota 40%, South Carolina 44%, Wisconsin 30%. Unindexed and unamended since the rate reforms began. THE ROW IS HERE BECAUSE THE DIFFERENTIAL GRID REFUSED ITS ABSENCE: this module first declared the exclusion unmodellable because `netCapitalGain` cannot tell a long-term gain from a short-term one, and the grid answered with a $1,978.00 difference on one household — a gap that size is a missing rule rather than a declared one, and `longTermNetted` is a basis this package already had',
+    constant: true,
+  },
+  {
+    state: 'AR',
+    path: 'retirementIncomeSubtractions.*.cap',
+    kind: 'statute',
+    document: '§ 26-51-307',
+    cite: 'A.C.A. § 26-51-307 — $6,000 per recipient of employment-related pension and IRA distribution income, AT ANY AGE, and NOT INDEXED SINCE 1997. Arkansas and Oklahoma are the only two states in this ledger whose retirement cap has no age test at all, which is the parameter published guides most often get wrong about both. Per person and unused room is lost: a couple whose $12,000 of pension is all in one name exempts $6,000 and the same couple with $6,000 each exempts the lot. Military retired pay is exempt in full from tax year 2018 under Act 141 of 2017 and does NOT consume it',
     constant: true,
   },
 

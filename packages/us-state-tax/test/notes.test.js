@@ -114,6 +114,7 @@ test('every state-year still emits the notes it emitted, in order', () => {
  * reading a 2025 return is entitled to the same warnings the 2026 one carries.
  */
 const YEAR_ONLY_NOTES = {
+  AR: { 2026: 1, 2025: 0 },
   CA: { 2026: 2, 2025: 0 },
   CO: { 2026: 3, 2025: 0 },
   GA: { 2026: 2, 2025: 0 },
@@ -171,7 +172,7 @@ test('the notes that differ between 2025 and 2026 are exactly the ones named her
   for (const state of Object.keys(YEAR_ONLY_NOTES)) {
     assert.ok(SUPPORTED_STATES.includes(state), `${state} is in the table and is not a supported state`);
   }
-  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 13, 'states whose notes depend on the year');
+  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 14, 'states whose notes depend on the year');
 });
 
 test('a provisional state-year says so in a note, and a published one does not', () => {

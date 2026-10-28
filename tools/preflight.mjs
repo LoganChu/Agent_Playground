@@ -105,6 +105,11 @@ const CHECKS = [
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
   },
   {
+    label: "Arkansas's 13.70% band, its thirty cliffs and the flat $287.30 above it",
+    cmd: 'node tools/cross-package/arkansas-bracket-adjustment.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'each lockfile against its own package.json',
     cmd: 'node tools/cross-package/lockfile-versions.mjs --check',
     expect: (out) => (out.match(/^All (\d+) lockfiles agree/m) ?? [])[1] && 'all agree',

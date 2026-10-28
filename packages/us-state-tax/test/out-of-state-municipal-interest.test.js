@@ -59,20 +59,49 @@ function household(state, extra = {}) {
 
 const taxOf = (state, extra = {}) => stateIncomeTax(household(state, extra)).tax;
 
-test('six states make the addition, and each declares its own provision', () => {
-  assert.deepEqual(ADDING, ['IL', 'IN', 'MD', 'OH', 'VA', 'WI']);
+test('seven states make the addition, and each declares its own provision', () => {
+  assert.deepEqual(ADDING, ['AR', 'IL', 'IN', 'MD', 'OH', 'VA', 'WI']);
   const cites = ADDING.map((code) => ruleOf(code).cite);
   // Day 30's rule: a shared citation launders a claim nobody checked through one
   // somebody did. Four of these five were added on one afternoon, which is
   // exactly when that is easiest to do.
-  assert.equal(new Set(cites).size, 6, 'two states share a citation');
+  assert.equal(new Set(cites).size, 7, 'two states share a citation');
   for (const code of ADDING) {
     const rule = ruleOf(code);
     assert.ok(rule.cite.length > 60, `${code}: a label is not a citation`);
-    assert.match(rule.cite, /§|ILCS|O\.R\.C/, `${code} cites no provision`);
+    // A PROVISION SYMBOL **OR** A DECLARATION THAT NO PROVISION COULD BE FOUND,
+    // and the second half was added on Day 64 because the first half was a trap.
+    //
+    // Six of these seven cite a section. Arkansas cannot: nothing available from
+    // this sandbox names an Arkansas Code section for the addition, and the
+    // reference model cites only the AR1000F instructions for the whole of
+    // Arkansas's gross income. The rule itself is not in doubt — Arkansas's own
+    // taxpayer guidance says other states' municipal interest is taxable and the
+    // CORPORATE schedule AR1100ADJ carries the addition on a line of its own —
+    // but the individual return's line number and the statutory subsection are
+    // both unread.
+    //
+    //   A GUARD THAT DEMANDS A SECTION SYMBOL INVITES INVENTING ONE, and this
+    //   one nearly got a plausible `§ 26-51-404` that nothing here could check.
+    //
+    // So the alternative is not "no citation": it is a citation that SAYS the
+    // provision is unread, in the words Day 37's citation rule already uses
+    // elsewhere in this package. The declaration is required rather than
+    // optional, which keeps the guard as strong as it was for the other six.
+    assert.ok(
+      /§|ILCS|O\.R\.C/.test(rule.cite) || /NOT OPENED FROM THIS SANDBOX/.test(rule.cite),
+      `${code} cites no provision and does not declare that none could be read`,
+    );
     assert.ok(['interest', 'interestAndDividends'].includes(rule.measure), `${code}`);
     assert.equal(typeof rule.netOfExpenses, 'boolean', `${code}`);
   }
+  // Exactly one state is on the second branch. A second would be worth a look;
+  // a general drift towards it would mean the guard had stopped working.
+  assert.deepEqual(
+    ADDING.filter((code) => !/§|ILCS|O\.R\.C/.test(ruleOf(code).cite)),
+    ['AR'],
+    'a state stopped citing a provision without declaring why',
+  );
 });
 
 test('the two axes are independent, which is why they are two fields', () => {

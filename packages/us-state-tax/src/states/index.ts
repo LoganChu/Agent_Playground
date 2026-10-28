@@ -7,6 +7,7 @@
  */
 import type { StateIncomeTaxDefinition } from '../definition.js';
 import { alabama } from './alabama.js';
+import { arkansas } from './arkansas.js';
 import { california } from './california.js';
 import { connecticut } from './connecticut.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
@@ -39,6 +40,7 @@ export const SUPPORTED_YEARS: readonly number[] = [2025, 2026];
 
 function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const al = alabama(year);
+  const ar = arkansas(year);
   const ca = california(year);
   const ct = connecticut(year);
   const ia = iowa(year);
@@ -62,6 +64,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...federalTaxableBaseStates(year),
     ...utahAndPennsylvania(year),
     ...(al ? [al] : []),
+    ...(ar ? [ar] : []),
     ...(ca ? [ca] : []),
     ...(ct ? [ct] : []),
     ...(ia ? [ia] : []),
@@ -187,10 +190,14 @@ export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.
  * written down.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
-  'Arkansas',
+  // Largest first, re-checked against Census Vintage 2025 on Day 64 rather than
+  // carried forward: Kansas 2,977,220, New Mexico 2,125,498, Nebraska 2,018,006.
+  // THE ORDER OF THE SECOND AND THIRD WAS WRONG IN THIS FILE UNTIL THAT CHECK —
+  // New Mexico is larger than Nebraska, and four consecutive days of worklists
+  // had named Nebraska as the runner-up.
   'Kansas',
-  'Nebraska',
   'New Mexico',
+  'Nebraska',
   'Montana',
   'Maine',
   'Rhode Island',

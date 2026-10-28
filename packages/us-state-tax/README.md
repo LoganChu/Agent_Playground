@@ -1,11 +1,25 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **37
-states** including **NORTH DAKOTA**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **40
+states** including **ARKANSAS**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.56.0: **ARKANSAS, WHOSE HIGHEST MARGINAL RATE IS 13.70% AND IS NOT IN ARKANSAS'S RATE SCHEDULE.** The thirty-first taxing state. Arkansas's top statutory rate is **3.9%** for 2025 and **3.7%** for 2026, and neither figure is the highest rate an Arkansan pays.
+
+**A.C.A. § 26-51-201 writes TWO rate schedules selected by income rather than by filing status.** A filer whose net taxable income does not *exceed* `$94,700` is taxed on the graduated table — 0%, 2%, 3%, 3.4%, 3.7%. A filer one dollar above it is taxed under a different table entirely: 2% on the first `$4,700` and 3.7% on **every dollar above it**, applied to the *whole* of their net income. That second table charges much more, and the difference is handed back by a **bracket adjustment** of `$290` that falls by `$10` for every `$100` of further income and reaches zero at `$97,600`. **A `$10` relief withdrawn per `$100` earned is ten percentage points of marginal rate: 13.70% in 2026 and 13.90% in 2025, across `$2,900` and `$3,100` of income.** Nothing in any published Arkansas bracket table contains either number — it is the slope of a relief being withdrawn, and the only way to see it is to compute the tax at two incomes `$100` apart.
+
+**And the provision written to remove a cliff is a staircase of thirty smaller ones.** Its rows are `$100` wide and its amounts are whole dollars, so **`$10` of tax arrives on one cent of income, 29 times in 2026 and 31 times in 2025**. Ohio's schedule has two discontinuities and was described in this package as the only discontinuous rate structure in it; Arkansas has thirty in the adjustment alone, between 28 and 63 more in each of its seven Low Income Tax Tables, and twelve in its additional tax credit. **Four staircases on one return, and something over three hundred incomes at which one more dollar costs between `$4` and `$13`.** The 2026 adjustment also *overshoots*: at `$94,700` an Arkansan owes `$3,136.70` and at `$94,701` they owe `$3,134.04`, so one dollar of extra income **cuts** the bill by `$2.66`, where the 2025 card undershoots the same join by `$20.70`. The provision reversed sign between the two years and no act changed it.
+
+**What a model built from Arkansas's published bracket table alone gets wrong is a FLAT `$287.30`, at every income above the band.** Every account of this state prints the graduated schedule and stops. Above `$97,600` the high-income table has taken over and the adjustment has reached zero, so the two routes are linear with the same slope and the error does not depend on income: `$287.30` at `$100,000` and `$287.30` at `$10,000,000`. For 2025 it is two figures rather than one — `$330.70` up to `$100,000` and `$329.00` above `$100,001` — because the card prints *"$3,809 plus 3.9% of the excess over $100,000"*, a reduction of `$91.00` where the row beneath carries `$89.30`, so one dollar of extra income is worth `$1.70` LESS tax at that point. `tools/cross-package/arkansas-bracket-adjustment.mjs` asserts all three figures, the slope and the direction on every push.
+
+**And the Low Income Tax Tables charge the poorest Arkansans up to 12.40%.** § 26-51-301 gives seven tables of tax by state AGI and family size, taken **in lieu of the standard deduction** when they come out lower, for households below ceilings running from `$17,500` (single) to `$36,100` (a couple with two or more dependents). Below an exempt amount the tax is nothing; above it the tables' own implied marginal rates are **7.00%** single, **9.40%** head of household with no or one dependent, **10.40%** joint with no or one, **10.77%** joint with two or more and **12.40%** head of household with two or more — all five measured from the tables in `test/arkansas.test.js` rather than stated. **The steepest rate in the Arkansas income tax is charged to a single parent of two earning between `$24,818` and `$29,000`**, and it is 3.35 times the state's 2026 top rate. Massachusetts buys the absence of a cliff the same way and this package already records it; Arkansas's price is larger and is charged across five tables rather than one band. **Married filing separately is barred from all seven**, which makes it the only status whose tax is the rate schedule's all the way down — and therefore the only filer who can witness the bottom of that schedule at all.
+
+**Arkansas's published card and Arkansas's statute do not compute the same tax, and the difference is the row's rate on one dollar.** For 2025 the tax is the row's rate on all net taxable income minus the row's "minus adjustment", and those adjustments are `$111.98`, `$223.97`, `$287.97` and `$419.96` where the accumulated tax of the bands beneath is `$112.00`, `$224.00`, `$288.00` and `$420.00`. Each shortfall is exactly the row's rate applied to one dollar: `0.02 × 5,599 = 111.98`. **The card is anchored one dollar below each bracket floor, so every Arkansan above `$5,600` pays the graduated statutory tax plus two to four cents.** The instructions settle which governs — a formula's results *"must match the table"* — and the reference model agrees: `policyengine-us` carried the round figures as late as 2.15.3 and replaced them with the card's by 2.68.0.
+
+The `$6,000` retirement exemption has **no age test** and has not moved since 1997, reaching a 45-year-old; military retired pay is exempt in full from 2018 and does not consume it. The standard deduction is `$2,470` for every status but joint, which gets `$4,940` — so **a single parent gets no more deduction than a single filer**, which is the arithmetic that makes the low-income tables matter. 2026 is `provisional` on its indexed figures and published on its rates: Act 1 of the 2026 First Extraordinary Session printed the schedule, the high-income table and all thirty adjustment rows, and the Department has published neither a 2026 card nor the 2026 tables.
 
 New in 0.55.0: **IOWA, WHOSE LOW-INCOME EXEMPTION HAS BEEN KILLED BY A DEDUCTION THAT IS NOT ITS OWN.** The thirtieth taxing state, on a flat **3.8%** under SF 2442 (2024) — which pulled HF 2317's flat year forward from 2026 *and* set the rate below its 3.9% destination, so a source still printing 3.9% for 2026 is reading a superseded act.
 
@@ -727,7 +741,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.55.0/us-state-tax-0.55.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.56.0/us-state-tax-0.56.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1035,7 +1049,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty
+That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty-one
 taxing states in this package** at the same income — every one of the nine with no income
 tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. Omit the
 locality on a New York return and the result says so, and says what it would have cost this
@@ -2915,7 +2929,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,651 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,868 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2948,11 +2962,11 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **801** notes every
+`test/notes.test.js` pins the first 72 characters of all **836** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
-exactly which notes 2026 has that 2025 does not — thirteen states, twenty-two notes, each
+exactly which notes 2026 has that 2025 does not — fourteen states, twenty-three notes, each
 a statement about the law a reader can check — because **a year branch is a selector,
 and a selector is caught by an assertion on the relation between its branches, not by
 a household sitting between them.**
@@ -2968,13 +2982,13 @@ and a disagreement is checkable without knowing which is right.
 And a rule's `name` is now checked against the rule. A name travels in the result
 object — `"Michigan retirement and pension benefits deduction (phased in, 75% for
 2025)"` — so a percentage or a dollar figure printed in one is a claim a caller
-reads, and all 25 of them are now required to equal a figure the rule actually holds.
+reads, and all 27 of them are now required to equal a figure the rule actually holds.
 
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 4,913 numeric
-figures over 78 state-years, against 562 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 6,460 numeric
+figures over 80 state-years, against 580 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3020,14 +3034,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 2,444 figures of tax year
+The `kind` field answers one operational question. Over the 3,213 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **1,965** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **2,077** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **324** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **981** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -3115,8 +3129,8 @@ tax on large long-term capital gains, which this package does not compute and sa
 State tax is deep and this is version 0.55.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **30 of the 42 taxing jurisdictions, so 39 states in all.** The twelve that are
-  missing: Arkansas, Kansas, Nebraska, New Mexico, Montana, Maine,
+- **31 of the 42 taxing jurisdictions, so 40 states in all.** The eleven that are
+  missing: Kansas, New Mexico, Nebraska, Montana, Maine,
   Rhode Island, Vermont, Delaware, Hawaii, West Virginia, and the
   District of Columbia.
   Asking for one throws rather than returning zero, and the message is built from a
@@ -3261,7 +3275,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **999 tests**. Turning it on, when there were 618 of them, is what
+from all **1,018 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

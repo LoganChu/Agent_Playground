@@ -245,7 +245,12 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // but each of them also has a figure of its own that could have moved; Iowa
   // in these two years is the pure case, and it is the clearest possible
   // statement of why this package refuses to fall back to the nearest year.
-  assert.deepEqual(differs, ['AZ', 'CO', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
+  // ARKANSAS joins on Day 64 for a reason none of the others has: Act 1 of the
+  // 2026 First Extraordinary Session cut the top rate from 3.9% to 3.7% AND
+  // replaced the published rate CARD with a pair of statutory tables, so the
+  // 2026 answer differs from the 2025 one both in rate and in the form of the
+  // schedule. At $100,000 of income it is $3,620.14 against $3,809.04.
+  assert.deepEqual(differs, ['AR', 'AZ', 'CO', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {
