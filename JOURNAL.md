@@ -329,6 +329,45 @@ model's parameter file with no later value — that package's claim, and the onl
 the date available from here; the federal § 63(f) additions were `$1,050` and `$850` in 1998
 and are `$2,000` and `$1,600` now.
 
+### The differential, and a divergence predicted before it was measured
+
+**2,816 households, 19,712 figures, 18,525 agreeing to the dollar, and the ONE Kansas
+disagreement with the reference model is the widow's column.** 88 Kansas households, 78
+agreeing to the cent, and the ten that do not are the surviving spouses:
+
+```text
+  2025 and 2026, surviving spouse, KS
+     $26,000   -$13.52      = 260 x 5.2%
+     $45,000   -$14.50      = 260 x 5.58%
+    $250,000   -$14.50
+    $300,000   -$14.50
+    $450,000   -$14.50
+```
+
+**THE SAME NUMBER AT $45,000 AND AT $450,000, WHICH IS THE SIGNATURE OF A WRONG ALLOWANCE
+RATHER THAN A WRONG RATE** — and it is two of them, pointing opposite ways. The reference
+gives its `SURVIVING_SPOUSE` column the **joint** standard deduction (`$8,240`) and the
+non-joint exemption (`$9,160`) with no head-of-household addition: `$17,400` of allowances
+against the correct `$6,180 + $11,480 = $17,660`. That is `$2,060` too much deduction and
+`$2,320` too little exemption, they miss by `$260` between them, and `$260` at 5.58% is
+`$14.508`.
+
+> **A `$14.51` GAP DOES NOT LOOK LIKE A `$2,060` MISTAKE AND A `$2,320` MISTAKE SITTING ON
+> TOP OF EACH OTHER.** Two wrong parameters of opposite sign are the hardest kind to see from
+> a total, because the total is small and looks like rounding. What makes them visible is the
+> FLATNESS: a difference that is identical across an order of magnitude cannot be a rate and
+> cannot be a threshold, so it has to be an allowance — and once it is an allowance, `$260`
+> is a number to decompose rather than to shrug at.
+
+**And it was derived from the two parameter files before the comparison ran**, which is the
+part worth keeping: `$2,320 - $2,060 = $260` was arithmetic on two YAML files, and the grid
+reproduced both the figure and its flatness. Day 65's lesson was that an argument about a
+class of parameter says nothing about parameters outside the class; this is the other side of
+it — an argument that names the exact two parameters predicts the exact number.
+
+Unexplained differences are back to **16**, which is what they were before Kansas, so the
+state added no disagreement that is not documented.
+
 ### Sourcing, and the route that came back
 
 `ksrevenue.gov`, `kslegislature.gov` and `ksrevisor.gov` all fail to resolve, by `curl` and by

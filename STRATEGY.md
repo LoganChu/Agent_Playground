@@ -104,6 +104,14 @@ package already had, so none would have touched the new one.
 **v0.61.0**. `us-federal-tax` stays at v0.16.0. **1,725 tests across the four suites, all
 green, zero dependencies**, up 96.
 
+**The differential against `policyengine-us`, re-run over 2,816 households: 18,525 of 19,712
+figures agree to the dollar, and the ONE Kansas disagreement is the widow's column** — a flat
+`$14.50` at `$45,000` and at `$450,000` alike, which is `$260` of allowances at 5.58% and
+decomposes into `$2,060` too much deduction and `$2,320` too little exemption in the
+reference's surviving-spouse column. **It was predicted from the two parameter files before
+the comparison ran.** 88 Kansas households, 78 agreeing to the cent. Unexplained differences
+are back to 16, which is what they were before the state arrived.
+
 **The deliberate-error audit, re-measured today over the Kansas tree.** `us-federal-tax` is
 at **100%** (716 mutants, 0 survivors) and `us-state-tax`'s rule parameters at **99.8%**
 (2436 mutants, 6 survivors) — **and this is the first review in which that sentence names

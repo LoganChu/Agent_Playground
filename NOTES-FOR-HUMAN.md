@@ -157,7 +157,29 @@ project has had to put a guard somewhere other than on a number. Yesterday's was
 optimisation deliberately designed not to change any answer — so no check on an answer could
 ever tell when it stopped working.
 
-**F. AND I REPLACED A HAND-WRITTEN LIST THAT HAD GONE STALE ON SIX CONSECUTIVE STATES.** The
+**F. AND THE BIG RESEARCH MODEL I CHECK AGAINST IS WRONG ABOUT A KANSAS WIDOW BY THE SAME
+AMOUNT AT EVERY INCOME, WHICH IS HOW I KNEW WHAT WAS WRONG BEFORE I LOOKED.** Every figure in
+this package is compared against PolicyEngine-US, an independently built model maintained by
+people with nothing to do with this project — 2,816 households this time, 18,525 of 19,712
+figures agreeing to the dollar.
+
+Kansas agreed on 78 of its 88 households. **The ten it did not agree on are all widows, and
+all ten differ by exactly the same `$14.50`** — at `$45,000` of income and at `$450,000`
+alike. (At `$26,000` it is `$13.52`, which is the same cause at the lower tax rate.)
+
+A difference that does not change with income cannot be caused by a rate or by a bracket. It
+has to be a fixed allowance — and this one turns out to be **two** of them, pulling opposite
+ways: the other model gives a widow the married couple's standard deduction (`$2,060` too
+much) and the single person's exemption (`$2,320` too little). The two nearly cancel, leaving
+`$260` of difference, which at Kansas's 5.58% rate is `$14.51`.
+
+**I worked that out from the two models' parameter files before running the comparison, and
+the comparison produced exactly the predicted number.** It is worth telling you because of
+what it says about the method rather than about the dollars: a `$14.51` discrepancy looks like
+a rounding difference and is in fact a `$2,060` error and a `$2,320` error sitting on top of
+each other. The only reason to look harder was that the figure did not move with income.
+
+**G. AND I REPLACED A HAND-WRITTEN LIST THAT HAD GONE STALE ON SIX CONSECUTIVE STATES.** The
 MCP server refuses an argument for a state that does not read it — ask about Texas and pass a
 pension figure and it tells you Texas has no income tax, rather than ignoring you. One of
 those gates, the one for the Social Security figure, was a hand-typed list of state codes.
@@ -175,7 +197,7 @@ It is now computed from the engine: the union of the nine kinds of rule that act
 figure. All six of the states that drifted it used a mechanism the package already had, so not
 one of them would have touched the new version at all.
 
-**G. ONE THING THE TOOLS CAUGHT ME DOING, AND IT IS THE USEFUL KIND.** Kansas has no widow's
+**H. ONE THING THE TOOLS CAUGHT ME DOING, AND IT IS THE USEFUL KIND.** Kansas has no widow's
 column of its own, so I wrote the correct schedule into that unused slot anyway, reasoning
 that a stored table should be right on its own even where nothing reads it. A guard failed
 immediately and reported that the status translation had stopped reaching one of the tables.
@@ -189,7 +211,7 @@ six permanent black marks on the score in exchange for nothing at all.
 > A value written into a slot nothing reads is not documentation. It is an uncheckable number
 > and, where the slot holds a table, a hidden alias of a slot that *is* read.
 
-**H. AND ONE CLAIM OF MINE THAT WAS WRONG, FOUND WHILE REMOVING KANSAS FROM A LIST.** The list
+**I. AND TWO CLAIMS OF MINE THAT WERE WRONG.** The first was found while removing Kansas from a list. The list
 of jurisdictions this package does *not* cover carried a comment saying "largest first", with
 three population figures I checked yesterday. The three were right. **The eight names after
 them had never been checked and were not in order** — West Virginia, the third largest of
@@ -201,6 +223,26 @@ like a measured claim about all of them. The list now says which part of itself 
 and the top two — New Mexico, then Nebraska — are the only ones a plan should read. Putting the
 other eight in order needs one lookup from a machine that can reach `census.gov`, and it is
 worth having before the third state from here rather than the second.
+
+**The second is about Kansas and my own tests refused it twice.** I wrote that Kansas is
+"marriage-neutral in every bracket, deduction and exemption". The brackets and the exemption
+are exactly doubled from a single filer to a married couple. **The standard deduction is
+not** — `$3,605` single, `$4,120` married filing separately, `$8,240` joint. The joint figure
+is twice the *separate* one, and a single filer sits `$515` below that half.
+
+Two consequences I had not seen. **A married Kansan filing separately has a bigger standard
+deduction than a single Kansan on the same income**, worth about `$28` of tax, which no other
+state in this package does. And **two single Kansans who marry gain `$1,030` of deduction**
+— about `$57` between them. Kansas's asymmetry is a marriage *bonus*, where every comparable
+claim in this repository is about a penalty.
+
+The same sentence also called `$16.74` "the one marriage penalty in the Kansas income tax"
+while a single parent who marries loses `$215.67` — thirteen times as much — because the
+head-of-household allowances go. And my first explanation of *that* `$215.67` was wrong too:
+I said `$2,575` of lost deduction when the figure is `$1,545`, and a test caught it within
+seconds **because it checks the parts of the explanation as well as the total.** A test on
+the total alone would have passed, and the wrong explanation would have shipped next to a
+right number — which is the failure mode this repository is most often guarding against.
 
 ---
 
