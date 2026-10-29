@@ -28,6 +28,15 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { CHECKS, runChecks } from '../dist/src/checks.js';
+import {
+  INDIANA_COUNTIES,
+  MARYLAND_COUNTIES,
+  MICHIGAN_CITIES,
+  OHIO_MUNICIPALITIES,
+  OHIO_SCHOOL_DISTRICTS,
+  SUPPORTED_STATES,
+  SUPPORTED_YEARS,
+} from '../dist/vendor/us-state-tax/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -127,6 +136,66 @@ test("New York City's own tax is $3,174.69 on the household both READMEs quote",
   // and the README sees the same number.
   const readme = readFileSync(resolve(root, '..', 'packages', 'us-state-tax', 'README.md'), 'utf8');
   assert.ok(readme.includes('3,174.69'), 'the README no longer publishes this figure');
+});
+
+test('every number the page states in prose is the engine\'s own', () => {
+  // DAY 43'S RULE, APPLIED TO THE SECOND PAGE ON THE DAY IT WAS WRITTEN RATHER
+  // THAN AFTER IT DRIFTED. `index.html` said "30 states" in its title, its meta
+  // description and its opening paragraph while the engine ranked 33, and the
+  // rule that came out of it was: a claim on the page a visitor actually READS
+  // needs the same test as a claim in a README.
+  //
+  // This page states five: the state count, the locality count, the supported
+  // years, the size of the differential grid, and how many rows it has. Every one
+  // is read from the thing that produces it.
+  const html = readFileSync(join(root, 'checks.html'), 'utf8').replace(/\s+/g, ' ');
+
+  assert.ok(
+    html.includes(`${SUPPORTED_STATES.length} states`),
+    `the page no longer says "${SUPPORTED_STATES.length} states"`,
+  );
+  const localities =
+    MARYLAND_COUNTIES.length +
+    INDIANA_COUNTIES.length +
+    MICHIGAN_CITIES.length +
+    OHIO_MUNICIPALITIES.length +
+    OHIO_SCHOOL_DISTRICTS.length;
+  assert.ok(
+    html.includes(`${localities.toLocaleString('en-US')} local income taxes`),
+    `the page no longer says "${localities.toLocaleString('en-US')} local income taxes"`,
+  );
+  for (const year of SUPPORTED_YEARS) {
+    assert.ok(html.includes(String(year)), `the page does not mention ${year}`);
+  }
+
+  // The differential grid's size, read out of the committed report rather than
+  // typed — the one figure on the page that comes from outside the engine.
+  const report = readFileSync(resolve(root, '..', 'tools', 'differential', 'REPORT.md'), 'utf8');
+  const households = report.match(/^(\d[\d,]*) households/m);
+  assert.ok(households, 'the differential report no longer opens with a household count');
+  // Compared on the DIGITS, because the report writes `2816` and prose wants
+  // `2,816`. Forcing one of the two to match the other's formatting was the first
+  // attempt and it made the page read worse to satisfy a test, which is the wrong
+  // way round: the test exists to keep the figure right, not to pick the commas.
+  const digits = (text) => text.replace(/,/g, '');
+  const stated = html.match(/([\d,]+) households on every push/);
+  assert.ok(stated, 'the page no longer states the grid size');
+  assert.equal(
+    digits(stated[1]),
+    digits(households[1]),
+    `the page says a different grid size from the report's ${households[1]}`,
+  );
+
+  // And the row count, written out in words in the title, the lede and the
+  // section below it. Spelt rather than numeric, so it is a word lookup.
+  const WORDS = { 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten' };
+  const word = WORDS[CHECKS.length];
+  assert.ok(word, `no spelling for ${CHECKS.length} rows — add one`);
+  assert.ok(html.includes(`${word} households where tax software is wrong`), 'the title');
+  assert.ok(
+    html.includes(`Run these ${word.toLowerCase()} against your own calculator`),
+    'the lede',
+  );
 });
 
 test('the page renders every row and references no file it does not ship', () => {
