@@ -389,3 +389,53 @@ details[open] summary {
 .callout .rows {
   font-size: 0.92rem;
 }
+
+/* ---------------------------------------------------------------------------
+ * The findings page (`checks.html`).
+ *
+ * It reuses this stylesheet rather than carrying its own, which is why these
+ * rules are scoped to `.check` and why two of them are UNDOING something the
+ * calculator wants. `tbody tr { cursor: pointer }` above is right on a page
+ * where clicking a state row selects it and wrong on a page where a row is just
+ * two numbers — a pointer cursor over something that does not respond is the
+ * cheapest way to make a page feel broken.
+ * ------------------------------------------------------------------------- */
+
+.check {
+  border-top: 1px solid var(--line);
+  padding-top: 1.4rem;
+}
+
+.check table {
+  margin: 0.8rem 0 1rem;
+  max-width: 34rem;
+}
+
+/* A row label here is a sentence, not a column heading, so it does not want the
+ * uppercase letter-spaced treatment the calculator's headers have. */
+.check tbody th {
+  font-size: 0.92rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: inherit;
+  font-weight: 400;
+}
+
+.check tbody tr,
+.check tbody tr:hover,
+.check tbody tr:focus-within {
+  cursor: default;
+  background: none;
+}
+
+.check tr.gap th,
+.check tr.gap td {
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: none;
+}
+
+.check tr.gap td {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}

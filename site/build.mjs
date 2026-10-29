@@ -64,7 +64,7 @@ function vendor(engine) {
 
 for (const engine of ENGINES) vendor(engine);
 
-for (const file of ['index.html', 'style.css', 'app.js']) {
+for (const file of ['index.html', 'style.css', 'app.js', 'checks.html', 'checks-app.js']) {
   cpSync(join(here, file), join(out, file));
 }
 cpSync(join(here, 'src'), join(out, 'src'), { recursive: true });
@@ -110,7 +110,23 @@ console.log(
  * code in this file is the code the test suites ran, character for character,
  * with only the import specifiers rewritten.
  */
-function singleFile() {
+/**
+ * ONE FILE PER PAGE, and the generalisation is what the second page forced.
+ *
+ * This function took no arguments until Day 66 and hard-coded `index.html`,
+ * `app.js` and the output name. The findings page needs exactly the same
+ * treatment for exactly the same reason — a `<script type="module">` on a
+ * `file://` URL is blocked by CORS, so an artifact a human can double-click has
+ * to carry its modules inline — and copying thirty lines to get a second one
+ * would have given this project two loaders to keep in step.
+ *
+ * The parameters are the page, its entry module and the file to write. Every
+ * module in `vendor/` and `src/` is inlined for both pages rather than only the
+ * ones a page reaches: the two share the engine, which is all but three of the
+ * modules by weight, so tracing the reachable set would save almost nothing and
+ * would be a second place for a page to break by growing an import.
+ */
+function singleFile(page, entry, output) {
   const modules = {};
   const collect = (dir, prefix) => {
     for (const entry of readdirSync(dir)) {
@@ -125,9 +141,9 @@ function singleFile() {
   };
   collect(join(out, 'vendor'), 'vendor/');
   collect(join(out, 'src'), 'src/');
-  modules['app.js'] = readFileSync(join(out, 'app.js'), 'utf8');
+  modules[entry] = readFileSync(join(out, entry), 'utf8');
 
-  const html = readFileSync(join(out, 'index.html'), 'utf8');
+  const html = readFileSync(join(out, page), 'utf8');
   const css = readFileSync(join(out, 'style.css'), 'utf8');
 
   // A </script> inside a string literal would close the tag that carries it.
@@ -161,7 +177,7 @@ function urlFor(path) {
   urls.set(path, url);
   return url;
 }
-import(urlFor('app.js'));
+import(urlFor(${JSON.stringify(entry)}));
 `;
 
   // Both replacements pass a FUNCTION rather than a string, and that is
@@ -174,22 +190,30 @@ import(urlFor('app.js'));
   const single = html
     .replace('<link rel="stylesheet" href="style.css" />', () => `<style>\n${css}\n</style>`)
     .replace(
-      '<script type="module" src="app.js"></script>',
+      `<script type="module" src="${entry}"></script>`,
       () => `<script type="module">${loader}</script>`,
     );
 
-  if (single.includes('src="app.js"') || single.includes('href="style.css"')) {
-    console.error('build: the single-file page still references a file beside it');
+  // Asserted rather than assumed, because the replacement above is a string
+  // match against markup in another file and a renamed entry would silently
+  // produce a page that loads nothing. The check is on BOTH references, which is
+  // why it caught the stylesheet the first time.
+  if (single.includes(`src="${entry}"`) || single.includes('href="style.css"')) {
+    console.error(`build: ${output} still references a file beside it`);
     process.exit(1);
   }
-  writeFileSync(join(out, 'retirement-tax-calculator.html'), single);
+  writeFileSync(join(out, output), single);
   return { count: Object.keys(modules).length, bytes: Buffer.byteLength(single) };
 }
 
-const single = singleFile();
-
-console.log(
-  `build: retirement-tax-calculator.html — ${single.count} modules inlined, ` +
-    `${(single.bytes / 1024).toFixed(0)} KB, opens from file://`,
-);
+for (const [page, entry, output] of [
+  ['index.html', 'app.js', 'retirement-tax-calculator.html'],
+  ['checks.html', 'checks-app.js', 'state-tax-checks.html'],
+]) {
+  const single = singleFile(page, entry, output);
+  console.log(
+    `build: ${output} — ${single.count} modules inlined, ` +
+      `${(single.bytes / 1024).toFixed(0)} KB, opens from file://`,
+  );
+}
 

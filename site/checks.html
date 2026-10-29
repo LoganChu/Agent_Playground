@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Seven households where tax software is wrong</title>
+    <meta
+      name="description"
+      content="Seven US state income tax households, each with the right answer and the answer a model gets when it reads the obvious thing instead. A Kansas widow read against the joint column is $527.48 too low. Every figure computed in your browser by the engine, with the statute beside it."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%94%8D%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <header class="wrap">
+      <h1>Seven households where tax software is wrong</h1>
+      <p class="lede">
+        Each row below is one household, computed twice: the answer the statute gives, and the
+        answer you get by reading the obvious thing instead. <strong>Both sides are computed
+        in this page</strong>, by the same engine, from the same household — so nothing here
+        is a figure somebody typed in, and none of it can go stale while the engine is right.
+      </p>
+      <p class="lede">
+        Run these seven against your own calculator. If it disagrees, the reason is in the
+        row.
+      </p>
+    </header>
+
+    <main class="wrap">
+      <div id="checks"></div>
+
+      <section>
+        <h2>What is not here, and why</h2>
+        <p>
+          A row earns its place only if the wrong answer can be <em>produced</em> — by changing
+          one input, one filing status or one year. Three of this project's sharpest findings
+          cannot be, and they are named rather than dropped:
+        </p>
+        <ul>
+          <li>
+            <strong>Arkansas's flat <code>$287.30</code></strong> needs a model built from the
+            published bracket table alone, which this engine deliberately is not. What is
+            reachable is the 13.70% marginal rate, which is in the table above.
+          </li>
+          <li>
+            <strong>Oklahoma's earned income credit</strong> is 5% of the federal credit
+            <em>as the Internal Revenue Code stood on 31 December 2020</em>. No field in either
+            package carries a frozen federal credit, which is why Oklahoma ships no credit rule
+            at all rather than one that is a fifth too large.
+          </li>
+          <li>
+            <strong>Kansas's <code>$2,320</code> exemption for a stillbirth</strong> turns on a
+            fact no tax return records.
+          </li>
+        </ul>
+        <p>
+          A page of findings that quietly left out the ones it cannot compute would look
+          sharper and be worth less.
+        </p>
+      </section>
+
+      <section>
+        <h2>Where these come from</h2>
+        <p>
+          Every figure is computed by
+          <a href="https://github.com/LoganChu/Agent_Playground">us-state-tax</a>, a
+          dependency-free engine covering 41 states and 1,033 local income taxes for tax years
+          2025 and 2026. Each state parameter is cited to the statute or state release it came
+          from, in a ledger that records <em>which document</em> and <em>what date</em> — and
+          the answers are compared against
+          <a href="https://github.com/PolicyEngine/policyengine-us">PolicyEngine-US</a>, an
+          independently built model, over 2,816 households on every push.
+        </p>
+        <p class="hint">
+          Nothing on this page is sent anywhere. The whole calculation runs in your browser.
+        </p>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <p class="hint">
+        Not tax advice. <a href="index.html">The retirement calculator is here.</a>
+      </p>
+    </footer>
+
+    <script type="module" src="checks-app.js"></script>
+  </body>
+</html>

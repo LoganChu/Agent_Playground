@@ -142,35 +142,56 @@ jobs:
       # a URL that promised otherwise. A browser downloading an HTML file has no
       # such contract, and for a person the useful link is the one that always
       # means "the current calculator". The release notes carry the commit.
-      - name: Build the single-file calculator and refresh its release
+      # TWO FILES SINCE DAY 66, and the second is the one this project had never
+      # had: a page a prospective user can RUN the findings on. `STRATEGY.md` has
+      # claimed five times over six states that a buyer can check one of them
+      # against their own system in five minutes, and until today the findings
+      # existed only in a 1.6MB journal and sixteen `notes` arrays. The release is
+      # also the only distribution channel here that does not wait on a human,
+      # which is why the page ships through it rather than through Pages alone.
+      #
+      # The state count in the notes below is written out and WAS STALE: it said
+      # "28 supported states" for thirteen releases while the engine grew to 41.
+      # It is now the engine's own figure, read from the registry at build time,
+      # which is the rule the READMEs have had since Day 8 and the release notes
+      # never did.
+      - name: Build the single-file pages and refresh their release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           (cd site && npm test)
-          file=site/dist/retirement-tax-calculator.html
-          test -s "$file"
+          calculator=site/dist/retirement-tax-calculator.html
+          checks=site/dist/state-tax-checks.html
+          test -s "$calculator"
+          test -s "$checks"
+          states=$(node -e "import('./packages/us-state-tax/dist/esm/index.js').then(m => console.log(m.SUPPORTED_STATES.length))")
           {
-            echo "The retirement tax calculator as **one file**, built and tested from \`${{ github.sha }}\`."
+            echo "Two single files, built and tested from \`${{ github.sha }}\`. Download either"
+            echo "and open it: no server, no install, no network — the whole computation runs"
+            echo "in the page, and nothing is sent anywhere."
             echo
-            echo "Download it and open it. No server, no install, no network — the whole"
-            echo "computation runs in the page, and nothing is sent anywhere."
+            echo "**\`retirement-tax-calculator.html\`** works out the federal return from what a"
+            echo "household *receives* and then ranks all $states supported states at once, pricing"
+            echo "every Maryland and Indiana county, and tells a couple what filing their"
+            echo "retirement income in one name rather than both would cost them."
             echo
-            echo "It works out the federal return from what a household *receives* and then"
-            echo "ranks all 28 supported states at once, pricing every Maryland and Indiana"
-            echo "county, and tells a couple what filing their retirement income in one"
-            echo "name rather than both would cost them."
+            echo "**\`state-tax-checks.html\`** is seven households where tax software is wrong,"
+            echo "each computed twice — the answer the statute gives and the answer you get by"
+            echo "reading the obvious thing instead — with the statute beside it. A Kansas widow"
+            echo "read against the married-couple column is \$527.48 too low. Run them against"
+            echo "your own calculator."
             echo
             echo "This tag moves with \`main\`. Not tax advice."
           } > "$RUNNER_TEMP/notes-calculator.md"
           if gh release view calculator >/dev/null 2>&1; then
-            gh release upload calculator "$file" --clobber
+            gh release upload calculator "$calculator" "$checks" --clobber
             gh release edit calculator --notes-file "$RUNNER_TEMP/notes-calculator.md" \
-              --title "Retirement tax calculator (one file)"
+              --title "Retirement tax calculator and state tax checks (one file each)"
             echo "refreshed the calculator release"
           else
-            gh release create calculator "$file" \
-              --title "Retirement tax calculator (one file)" \
+            gh release create calculator "$calculator" "$checks" \
+              --title "Retirement tax calculator and state tax checks (one file each)" \
               --notes-file "$RUNNER_TEMP/notes-calculator.md"
             echo "created the calculator release"
           fi
