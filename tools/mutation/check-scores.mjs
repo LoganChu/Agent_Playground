@@ -125,7 +125,7 @@ let README = readFileSync(join(ROOT, 'README.md'), 'utf8');
 // asserts anything about this build.
 const STRATEGY_FULL = readFileSync(join(ROOT, 'STRATEGY.md'), 'utf8');
 const STRATEGY_REVIEWS = STRATEGY_FULL.split(/\n---\n/);
-const STRATEGY = STRATEGY_REVIEWS[0].replace(/\s+/g, ' ');
+let STRATEGY = STRATEGY_REVIEWS[0].replace(/\s+/g, ' ');
 // The split has to have found something, or the scope is silently the whole file
 // again and this tightening undoes itself the day somebody reformats the headings.
 // Twelve reviews today; the assertion is on there being MORE THAN ONE, because the
@@ -221,6 +221,35 @@ for (const [name, row] of Object.entries(record.packages)) {
   // THE RULE: a check on PART of a claim passes a claim that is wrong in the
   // part it does not read, and the part left out is the headline number.
   const phrase = `**${row.score}%** (${row.mutants} mutants, ${row.survivors} survivors)`;
+  // AND `--write` CAN NOW MAINTAIN IT, WHICH FINISHES DAY 37'S WORK TWENTY-NINE
+  // DAYS LATE. That day built this file so that no advertised mutation figure
+  // could be copied by hand, and then left the copying to a hand here — because
+  // the sentence said "the federal engine" and "the state engine" and a `--write`
+  // over prose that names neither package is a tool for putting the right number
+  // in the wrong sentence. The current review now names the packages, so the
+  // rewrite is anchored on the package name and cannot cross over.
+  //
+  // It rewrites ONLY inside the current review, which is the same scope the check
+  // above reads. A rewrite over the whole file would edit twelve dated reviews
+  // into agreement with today's build, which is the one thing a log must never do:
+  // the past entries are not claims about this build and making them say so
+  // destroys the only record of what was true when.
+  if (WRITE) {
+    const anchored = new RegExp(
+      '(`' + name + '`[^.]{0,200}?)\\*\\*[\\d.]+%\\*\\*\\s+\\(\\d+ mutants, \\d+ survivors\\)',
+    );
+    const current = STRATEGY_REVIEWS[0];
+    if (anchored.test(current) && !current.replace(/\s+/g, ' ').includes(phrase)) {
+      STRATEGY_REVIEWS[0] = current.replace(anchored, `$1${phrase}`);
+      writeFileSync(
+        join(ROOT, 'STRATEGY.md'),
+        STRATEGY_REVIEWS.join('\n---\n'),
+        'utf8',
+      );
+      STRATEGY = STRATEGY_REVIEWS[0].replace(/\s+/g, ' ');
+      process.stdout.write(`  WROTE  STRATEGY.md: ${name} ${phrase}\n`);
+    }
+  }
   if (!STRATEGY.includes(phrase)) {
     note(
       `${name}: STRATEGY.md's CURRENT review does not contain "${phrase}"` +

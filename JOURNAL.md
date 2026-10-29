@@ -226,6 +226,29 @@ the same family and the rule is wider than the one written down:
 > file when it finishes. Three audits have been lost to restarts; this is the first lost to a
 > foreground command that looked like a read.
 
+### Process notes
+
+- **I RAN `check-scores.mjs` UNDER THE RUNNING AUDIT AND IT RUNS `npm run build`, WHICH IS
+  `rm -rf dist && tsc`.** Eleven minutes into the state audit. It was safe for the reason
+  Day 65 established — the harness reads `originals` into memory immediately after the "will
+  record the score" line and copies `dist` once per worker at start-up — and a rebuild of the
+  same source produces the same bytes anyway, so even a re-read could not have changed a
+  verdict. The log has no error and the partial had no survivor. **But I checked afterwards
+  again, which is the thing Day 65 wrote down and I repeated.** The rule is not "it was
+  probably fine": a tool whose name is a *check* can contain a build, and the way to know is
+  to read what it does before running it next to something expensive.
+- **AND `tools/test-counts.mjs --write` WRITES THE RECORD AND DOES NOT TOUCH THE README CLAIMS
+  THAT `--check` CHECKS.** The local gate named `us-tax-mcp/README.md`'s stale "1,102 tests",
+  I fixed that one, and `--write` then reported the record current while
+  `us-state-tax/README.md` still carried the same stale number — which CI's `counts` job found
+  and I did not. Two things in one: the write half of a tool is weaker than its check half
+  (Day 65's asymmetry, now in a second tool), and **a checker that stops at its first failing
+  file makes a multi-file drift look like a single fix.** Today's fix is in the README; the
+  tool is item 15.
+- Both long measurements were started FIRST and the day's writing was done while they ran,
+  which is the scheduling the differential README has asked for since Day 54 and the first
+  time it has actually been followed.
+
 ### What the day cost in instrument figures, and the two that moved for reasons worth naming
 
 **1,725 tests across the four suites, up 96 from 1,629** — `us-state-tax` 1,114 (up 12),
@@ -349,6 +372,12 @@ instrument work has caught up.*
 
 14. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's item 13, on the
     list since Day 43 and now the cause of four audit re-runs).
+
+15. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`, AND MAKE `--check` REPORT
+    EVERY STALE README RATHER THAN THE FIRST.** Today `--write` updated the record and left two
+    README claims of the same number stale, and `--check` named one of them, so fixing the one
+    it named looked like fixing the drift. Both halves are small: the writer already knows the
+    measured counts and the checker already finds every claim; it just exits on the first.
 
 ---
 

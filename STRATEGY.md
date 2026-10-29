@@ -101,7 +101,16 @@ package already had, so none would have touched the new one.
 
 **Both packages that changed were released** — `us-state-tax` **v0.57.0** and `us-tax-mcp`
 **v0.61.0**. `us-federal-tax` stays at v0.16.0. **1,725 tests across the four suites, all
-green, zero dependencies**, up 96. `blind-spots.mjs` reports **6,540** shipped figures,
+green, zero dependencies**, up 96.
+
+**The deliberate-error audit, re-measured today over the Kansas tree.** `us-federal-tax` is
+at **100%** (716 mutants, 0 survivors) and `us-state-tax`'s rule parameters at **99.8%**
+(2436 mutants, 6 survivors) — **and this is the first review in which that sentence names
+the two packages rather than saying "the federal engine" and "the state engine".** Day 37
+built `check-scores.mjs` so that no advertised mutation figure could be copied here by hand
+and then left the copying to a hand for twenty-nine days, because a sentence naming neither
+package gave `--write` no way to tell which number belonged where. It is now attributable,
+so the figures above are written by the tool. `blind-spots.mjs` reports **6,540** shipped figures,
 **5,494 (84.0%)** the audit can perturb and **757 real parameters** it cannot — Kansas added
 80 figures and 66 reachable ones, and its smallest by-status figure is Worksheet I's `$700`,
 so it contributes nothing to the sub-`$100` blind spot that is most of Arkansas's.
