@@ -126,7 +126,14 @@ test('exactly one state reads survivor retirement income differently from the fi
   // the exclusion her OWN age already earns her. So Iowa reads the survivor's
   // own age, its answer is too HIGH for a survivor under 55 whose deceased
   // spouse had reached it, and the note on the state says so with the price.
-  assert.equal(comparisons, 9600, 'comparisons made');
+  // 9,840 from Day 66: Kansas's 240, which is one more state across the same
+  // battery. Kansas is NOT in `differ` and could not be: its exempt list asks who
+  // the employer was and never who the claimant is, so a survivor's pension is
+  // read exactly as the deceased's would have been and the two answers agree by
+  // construction rather than by a reading. It is the cleanest member of the
+  // agreeing majority for that reason — in most of them the survivor rule simply
+  // has not been researched, and here there is nothing to research.
+  assert.equal(comparisons, 9840, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 
@@ -262,7 +269,13 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
     assert.ok(moved.has(state), `${state} tax moves on retirement`);
     assert.ok(STATES_READING_RETIREMENT.includes(state), `${state} is in the derived list`);
   }
-  assert.equal(STATES_READING_RETIREMENT.length, 21, 'states reading retirement');
+  // 22 from Day 66. Kansas's whole retirement answer is in this input: the
+  // governmentPension field decides between $0 and $1,942.88 on a $50,000 pension,
+  // and no other field in the package can express the difference. The MCP server
+  // gates the argument on this derived list, which is why the count is pinned
+  // here — Day 51's defect was a second copy of it written by hand, refusing the
+  // argument in three states whose tax it moves.
+  assert.equal(STATES_READING_RETIREMENT.length, 22, 'states reading retirement');
 });
 
 // ---------------------------------------------------------------------------

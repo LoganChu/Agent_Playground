@@ -23,7 +23,7 @@ const federal = (agi, taxableIncome, deduction = agi - taxableIncome) => ({
 });
 
 test('every supported state resolves for every supported year', () => {
-  assert.equal(SUPPORTED_STATES.length, 40);
+  assert.equal(SUPPORTED_STATES.length, 41);
   for (const state of SUPPORTED_STATES) {
     assert.deepEqual(supportedYears(state), SUPPORTED_YEARS);
     for (const year of SUPPORTED_YEARS) {
@@ -47,26 +47,27 @@ test('an unsupported year is an error, not a silent fallback', () => {
 
 const getMissingStatesMessage = () => {
   try {
-    getStateDefinition('KS', 2026);
+    getStateDefinition('NM', 2026);
   } catch (e) {
     return e.message;
   }
-  throw new Error('KS resolved');
+  throw new Error('NM resolved');
 };
 
 test('an unsupported state names what is missing rather than returning zero', () => {
   // The example has now moved TEN times — Ohio on Day 16, Virginia on Day 17,
   // Minnesota on Day 45, South Carolina on Day 49, Louisiana on Day 60, North
-  // Dakota on Day 61, Oklahoma on Day 62, Iowa on Day 63 and ARKANSAS ON DAY 64
+  // Dakota on Day 61, Oklahoma on Day 62, Iowa on Day 63, Arkansas on Day 64 and
+  // KANSAS ON DAY 66
   // — and each move is the point of the test: a state used here as the stand-in
   // for "absent" has to be replaced the day it ships, or the assertion starts
   // proving something about a state that is present. This is the only assertion
   // in the suite that is GUARANTEED to fail every time coverage grows, which is
   // why it has never once been wrong about what it claims.
-  assert.throws(() => getStateDefinition('KS', 2026), /not supported/);
+  assert.throws(() => getStateDefinition('NM', 2026), /not supported/);
   // The message has to say which states are absent, because the caller is often a
   // language model and a model that cannot see the gap will fill it in.
-  assert.throws(() => getStateDefinition('KS', 2026), /Kansas/);
+  assert.throws(() => getStateDefinition('NM', 2026), /New Mexico/);
   // And it must no longer name the state that just shipped.
   assert.equal(isSupported('AR', 2026), true);
   assert.ok(!getMissingStatesMessage().includes('Arkansas'));
@@ -74,6 +75,8 @@ test('an unsupported state names what is missing rather than returning zero', ()
   assert.ok(!getMissingStatesMessage().includes('Iowa'));
   assert.equal(isSupported('OK', 2026), true);
   assert.ok(!getMissingStatesMessage().includes('Oklahoma'));
+  assert.equal(isSupported('KS', 2026), true);
+  assert.ok(!getMissingStatesMessage().includes('Kansas'));
   // New York, New Jersey and Massachusetts were all on this list until they were
   // not. When a state moves from the gap list into the registry, this is where
   // the two have to be kept in step — and the message must stop naming it.
@@ -92,9 +95,12 @@ test('an unsupported state names what is missing rather than returning zero', ()
   // move as the gap closes, and it has now moved twice.
   const gaps = getMissingStatesMessage().split('—')[1] ?? '';
   // Louisiana left this list on Day 60, North Dakota on Day 61, Oklahoma on Day
-  // 62, Iowa on Day 63 and ARKANSAS ON DAY 64; Kansas is the stand-in now, and
-  // it is the largest uncovered jurisdiction left at 2,977,220.
-  assert.match(gaps, /Kansas/);
+  // 62, Iowa on Day 63, Arkansas on Day 64 and KANSAS ON DAY 66; New Mexico is
+  // the stand-in now, and it is the largest uncovered jurisdiction left at
+  // 2,125,498 — a figure Day 64 checked against Census Vintage 2025, which is
+  // why the stand-in could move without a lookup today. The eight names BELOW
+  // Nebraska in that list are in no order and the list says so.
+  assert.match(gaps, /New Mexico/);
   // Compared as whole list ITEMS and not as substrings, which is the Day 37
   // citation rule in a second place: `/Virginia/` matched this message for a
   // covered state the day West Virginia joined the gap list, and the assertion
@@ -114,6 +120,7 @@ test('an unsupported state names what is missing rather than returning zero', ()
     'South Carolina',
     'Louisiana',
     'Iowa',
+    'Kansas',
   ]) {
     assert.ok(!named.includes(covered), `the gap list names ${covered}, which is covered`);
   }
@@ -131,8 +138,8 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
     assert.ok(!covered.has(name), `${name} is in UNCOVERED_TAXING_JURISDICTIONS and is covered`);
   }
   // Forty-two jurisdictions tax individual income. This package covers
-  // THIRTY-ONE of them — forty supported states less the nine with no
-  // income tax at all — so the uncovered list has the other eleven.
+  // THIRTY-TWO of them — forty-one supported states less the nine with no
+  // income tax at all — so the uncovered list has the other ten.
   //
   // The three figures are asserted together on purpose: the identity
   // `covered + uncovered = 42` is the only thing that catches a state added to
@@ -141,8 +148,8 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
   // `states/index.ts` that said the same thing in prose and had gone stale on
   // both numbers by Day 61 — a count written down beside a count that is
   // measured is a count nothing guards.
-  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 11);
-  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 31);
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS.length, 10);
+  assert.equal(SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length, 32);
   assert.equal(
     SUPPORTED_STATES.length - NO_INCOME_TAX_STATES.length + UNCOVERED_TAXING_JURISDICTIONS.length,
     42,

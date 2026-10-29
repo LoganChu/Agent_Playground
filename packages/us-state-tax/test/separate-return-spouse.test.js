@@ -80,7 +80,7 @@ test('every state with an exemption declares what it does with a separate filer�
   // default is what kept fourteen states counting a dead spouse for 27 days,
   // and the default here would have been "counts nobody" in all twelve — which
   // is right in eight of them and wrong in four.
-  assert.equal(WITH_EXEMPTIONS.length, 18);
+  assert.equal(WITH_EXEMPTIONS.length, 19);
   for (const code of WITH_EXEMPTIONS) {
     const rule = declarationOf(code);
     assert.ok(rule, `${code} has an exemption rule and must declare separateReturnSpouse`);
@@ -96,12 +96,20 @@ test('every state with an exemption declares what it does with a separate filer�
   }
 });
 
-test('the answer today: four states count the spouse, four say no, four have nothing to count', () => {
+test('the answer today: four states count the spouse, five say no, four have nothing to count', () => {
   // Written out so that a state MOVING between these lists is a diff rather than
   // a silent change of behaviour in twelve states at once.
   const by = (kind) => WITH_EXEMPTIONS.filter((c) => declarationOf(c).spouse === kind);
   assert.deepEqual(by('claimed'), ['IL', 'IN', 'MD', 'VA']);
-  assert.deepEqual(by('notClaimed'), ['AL', 'CT', 'MO', 'NJ']);
+  // KANSAS joined this list on Day 66 and its argument is about the SHAPE of the
+  // provision rather than about spouses. § 79-32,121(a) writes one amount per
+  // filing STATUS — $18,320 joint, $9,160 for every other status — where through
+  // tax year 2023 it wrote $2,250 "for each individual". A married-filing-separate
+  // return is $9,160 on its face and there is no count for a spouse to enter, so
+  // the question SB 1 of 2024 answered was not "may she claim him" but "is there
+  // anything to claim". It is the only state in this list whose answer changed
+  // because the statute stopped counting people.
+  assert.deepEqual(by('notClaimed'), ['AL', 'CT', 'KS', 'MO', 'NJ']);
   // SOUTH CAROLINA joined this list on Day 49 and is the cleanest case in it:
   // § 12-6-1140(13) allows an exemption for DEPENDENTS and names none for a
   // filer or a spouse, in either year, so a separate return has nothing to
@@ -129,10 +137,19 @@ test('the answer today: four states count the spouse, four say no, four have not
   // WHOLE EXEMPTION and its age addition is means-tested — so there is nothing
   // for a separate return's spouse to follow on that half, whatever the answer
   // to the first half turns out to be.
+  // KANSAS is `notApplicable` here for a reason none of the others has: its aged
+  // and blind addition EXISTS and is large, and it is an addition to the STANDARD
+  // DEDUCTION rather than to the exemption — $850 a box, or $700 on a separate
+  // return. So the question "does the spouse's age follow onto a separate return"
+  // is a live one in Kansas and this field is the wrong place to answer it,
+  // because the exemption has no age or blindness term at all. `kansas.ts` carries
+  // the question as a note with what it is worth, which is the honest division:
+  // `notApplicable` is a claim about this FIELD and not about the state.
   assert.deepEqual(aged('notApplicable'), [
     'AL',
     'CT',
     'GA',
+    'KS',
     'MN',
     'MO',
     'NJ',

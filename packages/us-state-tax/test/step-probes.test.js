@@ -444,7 +444,15 @@ test('the numbers inside the staircases this package ships', () => {
   // of the 217 is witnessed by a probe except a single figure, the zero-rate
   // row's zero reduction, which is in UNREACHABLE with the arithmetic that makes
   // it unreachable twice over.
-  assert.equal(checked, 1_868, 'numbers inside the staircases this package ships');
+  // 1,880 from Day 66: KANSAS'S TWELVE, which is the whole of its rate structure
+  // and the smallest contribution any taxing state has made to this count. Two
+  // bands times two numbers is four figures a schedule, two distinct schedules —
+  // the joint one and the one every other status reads — times two years is
+  // twelve, with the `Infinity` ceilings not being figures. Kansas has NO
+  // staircase in the Connecticut sense, no phase-out, no recapture and no credit
+  // withdrawn by income, so nothing else in the state is probed here. It is the
+  // cleanest rate structure in the package and this count is the measure of that.
+  assert.equal(checked, 1_880, 'numbers inside the staircases this package ships');
   assert.equal(
     exempt.length,
     16,

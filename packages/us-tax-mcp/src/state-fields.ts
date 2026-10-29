@@ -31,6 +31,7 @@
 import type { JsonSchema } from './schema.js';
 import {
   STATES_READING_RETIREMENT,
+  STATES_READING_TAXABLE_SOCIAL_SECURITY,
   SUPPORTED_STATES,
   SUPPORTED_YEARS,
   getStateDefinition,
@@ -756,51 +757,7 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'taxableSocialSecurity',
     schema: number,
-    states: [
-      // THE LAST HAND-WRITTEN GATE LIST IN THIS FILE, and the second
-      // consecutive new state to need it edited — Louisiana on Day 60, North
-      // Dakota on Day 61. The two capital-gain lists beside it were derived on
-      // Day 61 and this one was not, because the field is read by eight
-      // different rules (an outright subtraction, Virginia's age-deduction
-      // income test, Connecticut's benefit adjustment, Utah's two credits,
-      // Missouri's Section C, Maryland's pension exclusion offset, Kentucky's
-      // and Georgia's) and a derivation that misses one of them REFUSES a field
-      // that moves a state's tax, which is the defect this whole file exists to
-      // prevent. Deriving it needs the eight paths established one at a time;
-      // adding a state to it needs a line, and the witness test catches the
-      // omission on the first new state every time. Day 60 said the same thing
-      // and the cost arrived again on schedule.
-      //
-      // DAY 62 IS THE THIRD CONSECUTIVE STATE TO DRIFT THIS LIST, and the
-      // forecast above has now been right three times — which is the argument
-      // for deriving it rather than against. What makes it still safe to leave
-      // is the second half of that forecast: Oklahoma was CAUGHT, by name, by
-      // `state-field-witnesses.test.js`, before anything shipped. That guard
-      // varies one field and `subtractsTaxableSocialSecurity` is a pure
-      // subtraction, so a single household notices it — which is exactly why
-      // this list is the one hand-written list here whose staleness announces
-      // itself, and why `shortTermCapitalGains` (which needs a partner field,
-      // and went undetected for eighteen days) was the one that had to go
-      // first.
-      'VA', 'MD', 'GA', 'KY', 'UT', 'CT', 'MO',
-      // IOWA, Day 63, and the FOURTH consecutive state to drift this list. The
-      // forecast above is now right four times running and the argument it
-      // makes is unchanged: Iowa was caught BY NAME by
-      // `state-field-witnesses.test.js` before anything shipped, because
-      // `subtractsTaxableSocialSecurity` is a pure subtraction that one
-      // household notices. A list whose staleness announces itself is the one
-      // that is safe to leave hand-written.
-      // ARKANSAS, Day 64, and the FIFTH consecutive state to drift this list.
-      // Five for five is no longer a forecast, it is a measurement, and the
-      // argument has shifted: what makes a hand-written list safe is not that
-      // it rarely drifts but that its drift is CAUGHT, and this one has been
-      // caught by name on every one of the five. Arkansas does not merely
-      // subtract the benefit — the AR1000F's list of gross income sources never
-      // contains it — so the field moves its tax by $5,008.96 on one household
-      // in the witness ladder and the omission was impossible to miss.
-      'AL', 'AR', 'AZ', 'CA', 'IA', 'ID', 'IL', 'IN', 'LA', 'MI', 'MN', 'MS', 'NC', 'ND', 'NY',
-      'OH', 'OK', 'OR', 'SC', 'WI',
-    ],
+    states: STATES_READING_TAXABLE_SOCIAL_SECURITY,
     doc: 'Social Security and Tier 1 railroad benefits INSIDE federal AGI — 1040 line 6b, not 6a, which is estimate_federal_tax socialSecurity.taxableBenefits. VA, MD, GA and KY SUBTRACT it, and Virginia also tests its age deduction on AGI less it. Utah is the opposite and is the reason to read this: Utah TAXES the benefit and then hands the tax back as a credit (code AH), withdrawn at 2.5 cents per dollar of modified AGI over $90,000 joint, $54,000 single, $45,000 separate — so in Utah this figure sets the size of a credit rather than a subtraction, and a Utah retiree without it comes back far too high. Do not also net it into stateSubtractions. Maryland needs the TOTAL received as well, in retirement. CONNECTICUT subtracts the WHOLE of it below $75,000 of federal AGI ($100,000 joint and for a qualifying surviving spouse) and at the threshold replaces that subtraction rather than tapering it \u2014 one dollar of income can cost a couple with $40,000 of benefits $405 \u2014 so a Connecticut retiree without this figure comes back far too high. Connecticut needs the GROSS benefit as well, in retirement.socialSecurityBenefits.',
   },
   {

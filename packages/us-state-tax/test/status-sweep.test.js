@@ -584,7 +584,17 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // statute gives a widow $60 and $5. Writing the cells out explicitly replaced
   // two figures at or above 100 with two below it, which took them out of this
   // count. A guard's own denominator moving is how a fix looks from here.
-  assert.equal(checked, 1158, 'byStatus cells with a parameter the harness would mutate');
+  //
+  // 1,198 from Day 66: KANSAS'S FORTY, and they are forty out of forty — four
+  // by-status tables (the rate schedules, the standard deduction, Worksheet I's
+  // aged and blind addition and the personal exemption) times five statuses times
+  // two years, with every cell holding a parameter the harness can perturb. That
+  // is the complement of Arkansas's thirty-two of sixty and for the same reason
+  // read backwards: Kansas's smallest by-status figure is Worksheet I's $700, and
+  // a state with no figure below $100 has no cell in this blind spot. The whole
+  // state is four tables because Kansas's complexity is in what it EXEMPTS rather
+  // than in what it tabulates.
+  assert.equal(checked, 1198, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -634,7 +644,13 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // 1,160 cells the check above probes is now mostly Arkansas: the state with the
   // most figures in a by-status table is also the state with the fewest of them
   // the harness can perturb.
-  assert.equal(inside, 4_669, 'numbers inside those cells');
+  // 4,729 from Day 66: KANSAS'S SIXTY, and the gap between its 60 numbers and its
+  // 40 cells is exactly the twenty bounded bracket thresholds — five statuses
+  // times two years, each schedule holding two rates, one real ceiling and one
+  // `Infinity` that is not a figure. A state whose by-status tables are all
+  // scalars contributes one number per cell; Kansas contributes 1.5 because half
+  // of its tables are schedules and the other half are single amounts.
+  assert.equal(inside, 4_729, 'numbers inside those cells');
   // Connecticut held this record from Day 20 to Day 63 with 1,020 — nearly a
   // third of 3,192, because its three staircases and its 2% add-back table are
   // all by-status and all four columns wide. Minnesota's arrival added 170;
@@ -661,5 +677,13 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // thresholds, in each of two years. The narrowest entry in the object and the
   // only one scoped to particular statuses -- see the comment on it for why a
   // whole-table exemption would have been a false claim about three other cells.
-  assert.equal(exempt.length, 64, 'cells the engine cannot reach, all of them documented');
+  // 72 from Day 66, and the eight that arrived are KANSAS'S FOUR BY-STATUS TABLES
+  // IN EACH OF TWO YEARS — a fifth state with no surviving-spouse box, exempt by
+  // construction rather than by a ledger entry. Kansas is the first of the five
+  // whose redirect target is a column with an allowance of its own, so the proof
+  // that the translation reaches every table is worth more here than in the other
+  // four: a widow reads a $6,180 deduction, a $11,480 exemption, an $850 aged
+  // addition and the $23,000 schedule, and no two of those four come off the same
+  // column as the joint default would have given her.
+  assert.equal(exempt.length, 72, 'cells the engine cannot reach, all of them documented');
 });

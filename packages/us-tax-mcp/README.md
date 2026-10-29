@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.60.0/us-tax-mcp-0.60.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.61.0/us-tax-mcp-0.61.0.tgz"
       ]
     }
   }
@@ -178,6 +178,45 @@ found eight more; see the 0.51.0 entry above.)
 One existing test was asserting the defect: it required New York to refuse
 `taxableSocialSecurity`, and New York subtracts the benefit in full.
 
+**New in 0.61.0 — KANSAS, AND A GATE LIST THAT STOPPED BEING WRITTEN BY HAND.**
+
+The thirty-second taxing state, and the figure that decides a widow's Kansas bill is a
+checkbox rather than a number. The K-40 has **four** filing-status boxes and no
+qualifying-surviving-spouse box, and its head-of-household box qualifies a filer who
+claimed *"Head of Household OR QUALIFYING WIDOW OR WIDOWER WITH A DEPENDENT CHILD"* on the
+federal return — so a federal qualifying surviving spouse is read against the
+**head-of-household** column. A widow with one dependent child and `$60,000` of federal AGI
+owes `$2,145.72`; the joint column every by-status table defaults to gives `$1,618.24`,
+**`$527.48` too little**, because the joint schedule's 5.2% band runs to `$46,000` and
+swallows her whole taxable income. The single column gives `$2,418.86`. **The right answer
+is between the two wrong ones**, so no conservative choice of column reaches it.
+
+Two brackets — 5.2% to `$23,000` of taxable income and 5.58% above, doubled on a joint
+return — and nothing in the state is indexed, although the bill as introduced would have
+indexed the standard deduction from 2025 and a fiscal note says so. The `$2,320`
+head-of-household exemption was on the Department's form a year before HB 2231 of 2025
+backdated it into the statute. K.S.A. 79-32,121(a)(4) gives a `$2,320` exemption for a
+**stillbirth**, which nothing here can model because no return records the fact, and the
+note says what the omission costs. KPERS, federal civil service, **Thrift Savings Plan**
+distributions and military retired pay are exempt **in full at any age with no ceiling**
+and no private pension, 401(k), IRA or annuity is exempt at all — `$0.00` against
+`$1,942.88` on the same `$50,000`, decided by which government employed the retiree — so
+pass only Kansas and federal service in `state_retirement.filer.governmentPension`.
+
+**AND THE `taxableSocialSecurity` GATE IS NOW DERIVED FROM THE ENGINE RATHER THAN LISTED.**
+It was the last hand-written list of state codes in `state-fields.ts`. Six consecutive new
+states — Louisiana, North Dakota, Oklahoma, Iowa, Arkansas and Kansas — each needed a line
+added to it, and the file argued five times that the list was safe *because* the drift was
+caught by `state-field-witnesses.test.js`. That is true, and it is an argument for a cheaper
+way of being right: **a list whose staleness is reliably caught is not a safe list, it is a
+list whose cost has moved from the bug to the chore.** The gate is now the union of the
+**nine definition keys** whose rules read the figure, exported from the engine as
+`STATES_READING_TAXABLE_SOCIAL_SECURITY`, so a state arriving with a mechanism this package
+already has gains the argument with no edit anywhere. Five of the nine are each the sole
+reason for exactly one state, and the four that nothing needs today are named anyway,
+because a derived list should name every mechanism that reads the field rather than the
+fewest that reproduce today's answer.
+
 **New in 0.60.0 — ARKANSAS, AND A STATE WHOSE HIGHEST MARGINAL RATE IS NOT IN ITS
 RATE SCHEDULE.** The thirty-first taxing state. `state_income_tax` now answers for
 `AR`, and the argument surface grew by nothing: Arkansas is read entirely out of
@@ -288,7 +327,7 @@ the list beside it disagreed.
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 246 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 252 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 
@@ -1001,7 +1040,7 @@ The same dollar, deferred out of the same paycheck, is inside one local wage tax
 the other — worth `$612.50` to Columbus and saving `$306.25` from the district. A model that
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
-Ten of the thirty-one taxing states cut their rate for 2026, so an unsupported year is an
+Ten of the thirty-two taxing states cut their rate for 2026, so an unsupported year is an
 error rather than a fallback to the nearest one — and eleven of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud. Illinois came
 off that list in 0.27.0, and Kentucky and Maryland in 0.28.0: Kentucky's 2026 standard
@@ -1158,7 +1197,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **1,102 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **1,114 tests**, every state figure cited to its statute.
 This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the
@@ -1197,10 +1236,10 @@ Stated here and by `list_supported_years`, because a model that cannot see the g
 confidently fill them in.
 
 - **Alternative minimum tax (§ 55).** A filer who owes AMT owes more than this reports.
-- **11 states, the District of Columbia, and every local income tax outside New York,
-  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 40 states — AK, AL, AR, AZ, CA, CO, CT, FL, GA, IA, ID, IL, IN,
+- **10 states, the District of Columbia, and every local income tax outside New York,
+  Maryland, Indiana, Michigan and Ohio.** `state_income_tax` covers 41 states — AK, AL, AR, AZ, CA, CO, CT, FL, GA, IA, ID, IL, IN, KS,
   KY, LA, MA, MD, MI, MN, MO, MS, NC, ND, NH, NJ, NV, NY, OH, OK, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY — for 2025 and 2026, and
-  nothing else. Kansas, New Mexico and Nebraska are absent, and asking for one is an error
+  nothing else. New Mexico, Nebraska and West Virginia are absent, and asking for one is an error
   rather than a zero. Alabama's municipal occupational licence taxes — Birmingham's 1% of
   gross wages, Gadsden's 2% — are not modelled either. Local tax is New York City, Yonkers, Maryland's 24 jurisdictions,
   Indiana's 92 counties, Michigan's 24 cities, Ohio's 679 municipalities and Ohio's 214

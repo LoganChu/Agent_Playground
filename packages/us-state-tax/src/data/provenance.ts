@@ -235,7 +235,8 @@ const NO_TAX: readonly StateCode[] = ['AK', 'FL', 'NH', 'NV', 'SD', 'TN', 'TX', 
  */
 const YEAR_ENTRIES: readonly StateFigureSource[] = (
   [
-    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA',
+    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'FL', 'GA', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY',
+    'LA',
     'MA', 'MD',
     'MI',
     'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'OK', 'PA', 'SD', 'TN', 'TX', 'UT',
@@ -3914,6 +3915,114 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     years: [2026],
     document: 'Act 110 of 2026 (H.4216), signed',
     cite: 'S.C. Code § 12-6-3632 as amended by Act 110 of 2026 (H.4216) § 7 — $200 per return, for tax years beginning after 2025, where the credit had no ceiling at all. The cap binds from $160 of federal credit upward, so it takes nothing from the smallest claims; and because the credit is non-refundable it takes nothing from a household with no South Carolina liability either, which is where the largest federal credits are',
+    constant: true,
+  },
+
+  // =========================================================================
+  // KANSAS — thirty figures a year, every one of them STATUTE, and the ledger's
+  // cleanest case of a state where "identical in both years" is the law rather
+  // than a carry-forward. SB 1 of the 2024 special session wrote the rate
+  // schedule, the standard deduction and the personal exemption each for "tax
+  // year 2024, and all tax years thereafter", and the enacted act carries NO
+  // cost-of-living provision although the bill as introduced would have indexed
+  // the standard deduction from tax year 2025. So `constant: true` here needs no
+  // `why`: nothing in this state is `indexed` and the 2025 booklet printing the
+  // 2024 table unchanged is the corroboration rather than the claim.
+  //
+  // TWO ENTRIES ARE MORE SPECIFIC THAN THEIR GLOB AND THAT IS THE POINT OF THEM.
+  // `exemption.perFiler.*` is § 79-32,121(a) at $9,160 and $18,320; the
+  // head-of-household column is $11,480, which is that $9,160 plus an additional
+  // $2,320 the 2024 K-40 granted while no subsection authorised it and HB 2231 of
+  // 2025 then backdated into the statute. Those are two documents and one figure,
+  // so they are two entries and the narrower one wins. The surviving-spouse column
+  // is the same $11,480 for the same reason, because the K-40 routes a widow to
+  // the head-of-household box.
+  // =========================================================================
+  {
+    state: 'KS',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '79-32,110',
+    cite: 'K.S.A. 79-32,110(a)(2)(F) as rewritten by SB 1 of the 2024 special session — 5.2% and 5.58%, the same two rates for every filing status, for tax year 2024 and all tax years thereafter. No indexation provision; what moves them is an act, and none has come. Published accounts of this state are slow here: several still print the superseded three-bracket schedule of 3.1%, 5.25% and 5.7%',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'statute',
+    document: '79-32,110',
+    cite: 'K.S.A. 79-32,110(a)(2)(F) — $23,000 for "all other individuals" under (ii) and $46,000 for a joint return under (i). SETTLED BY THE STATUTE\'S OWN ACCUMULATED FIGURES: it prints $1,196 and $2,392 as the tax at each breakpoint, and 5.2% hits both exactly at these thresholds where the reference model\'s $23,001 and $46,001 give $1,196.052 and $2,392.052. A one-dollar anchoring error is worth $0.0038 of tax a return, invisible after rounding, and it is the mirror of the error Arkansas\'s own published card actually contains',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'deduction.amounts.*',
+    kind: 'statute',
+    document: '79-32,119',
+    cite: 'K.S.A. 79-32,119(c) — $3,605 single, $8,240 married filing joint, $6,180 head of household, $4,120 married filing separate. SB 1 raised each of the 2023 figures by exactly 3.0% and then fixed them: the clause that would have indexed them annually from tax year 2025 was in the bill as introduced and is not in the act, which is why a model built from the legislature\'s own fiscal note indexes a figure the law holds still. A widow reads the head-of-household column, so her $6,180 is this entry and not the joint $8,240',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'standardDeductionAgedOrBlindAddition.amount.*',
+    kind: 'statute',
+    document: '79-32,119',
+    cite: 'K.S.A. 79-32,119(b) and Worksheet I of the K-40 instructions — $850 per box checked for 65-or-over or blindness, $700 where the status is married filing joint or married filing separate. UNCHANGED SINCE 1998, which is twenty-eight tax years: the federal § 63(f) additions were $1,050 and $850 that year and are $2,000 and $1,600 now. It is the one figure in the Kansas income tax where a single filer\'s allowance EXCEEDS a joint filer\'s, and therefore the state\'s only marriage penalty',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'standardDeductionAgedOrBlindAddition.age',
+    kind: 'statute',
+    document: '79-32,119',
+    cite: 'K.S.A. 79-32,119(b) — 65, the federal § 63(f) age. It is the ONLY age test on a Kansas return: the retirement subtraction of § 79-32,117(c) has none at all and neither does the Social Security subtraction since 2024',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'exemption.perFiler.*',
+    kind: 'statute',
+    document: '79-32,121',
+    cite: 'K.S.A. 79-32,121(a) — $18,320 for a joint return and $9,160 for a single, head-of-household or married-filing-separate return. ONE FIGURE PER STATUS and not a figure per exemption claimed, which is what Kansas abandoned in 2024: through tax year 2023 the exemption was $2,250 "for each individual". The joint amount is exactly twice the other, and the statute writes both',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'exemption.perFiler.headOfHousehold',
+    kind: 'statute',
+    document: 'Notice 25-07',
+    cite: '$11,480 — § 79-32,121(a)\'s $9,160 plus an ADDITIONAL $2,320 for a head of household. The 2024 K-40 granted it while no subsection authorised it, which is why policyengine-us still ships a comment saying the legal code does not specify it; HB 2231 of the 2025 session codified it and the Department\'s Notice 25-07 records the amendment as allowing it "for tax year 2024 and all tax years thereafter". A model built from the 2024 statute alone is $2,320 of exemption short for both years here',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'exemption.perFiler.qualifyingSurvivingSpouse',
+    kind: 'statute',
+    document: 'Notice 25-07',
+    cite: 'the same $11,480 as the head-of-household column, because the K-40 has no qualifying-surviving-spouse box and its head-of-household box qualifies a filer who claimed head of household OR qualifying widow(er) with a dependent child federally. So the additional $2,320 of HB 2231 reaches a Kansas widow too, and the figure is this document\'s rather than § 79-32,121(a)\'s on its own',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'exemption.perDependent',
+    kind: 'statute',
+    document: '79-32,121',
+    cite: 'K.S.A. 79-32,121(a) — $2,320 for each dependent. It is the figure HB 2231 of 2025 then reused for the head-of-household additional exemption, for the unborn-child exemption of paragraph (4) and for the disabled veteran exemption of subsection (b), so four Kansas allowances are one number',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'retirementIncomeSubtractions.0.cap',
+    kind: 'sentinel',
+    cite: 'zero, which together with `governmentPensionExemptInFull` subtracts the retirement benefits § 79-32,117(c) exempts — KPERS and the three other Kansas systems, federal civil service and other federal employment, and military retired pay — and leaves nothing else in the pool. It encodes "Kansas taxes every private pension, 401(k), IRA and annuity in full, at every age, with no ceiling" rather than being a figure read from a document. North Carolina\'s zero is the same construction; the difference is that Kansas\'s exempt list has a civilian government half and North Carolina\'s does not',
+    constant: true,
+  },
+  {
+    state: 'KS',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: '79-32,205',
+    cite: 'K.S.A. 79-32,205 — 17% of the federal § 32 earned income credit, refundable. It was 18% for tax years 2010 through 2012 and was cut to 17% in 2013; thirteen tax years later it has not been restored, and the point it lost is worth $44.27 a year to a one-child family at the 2026 federal plateau. Unlike Oklahoma\'s 5% the base carries no date, which is why Kansas can declare the rule and Oklahoma cannot',
     constant: true,
   },
 ];

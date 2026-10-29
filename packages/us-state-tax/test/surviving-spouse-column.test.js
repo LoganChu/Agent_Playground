@@ -272,13 +272,27 @@ test('a declared surviving-spouse status is the one the engine actually uses', (
       }
     }
   }
-  // The four states, both years. A fifth would be a new finding and should break
-  // this line on its way in.
+  // The five states, both years. A sixth would be a new finding and should break
+  // this line on its way in — which is exactly what KANSAS did on Day 66, and it
+  // is the most consequential of the five. The other four send a widow to a column
+  // that is the state's own second-best fit: Alabama to single because § 2(b) locks
+  // her out of head of family, Arizona, Mississippi and Wisconsin to head of
+  // household because each names her status as an alternative qualification for
+  // that box. Kansas does the same by the same phrase — "Head of Household OR
+  // QUALIFYING WIDOW OR WIDOWER WITH A DEPENDENT CHILD" — and Kansas is the first
+  // of them whose head-of-household column carries an ALLOWANCE OF ITS OWN: a
+  // $2,320 additional personal exemption that neither the single nor the joint
+  // column has. So in the other four the declaration picks between two columns the
+  // state already had; in Kansas it hands a widow a figure she gets under no other
+  // reading, and the joint default this test exists to catch costs $527.48 on one
+  // household.
   assert.deepEqual(declared, [
     'AL 2025',
     'AL 2026',
     'AZ 2025',
     'AZ 2026',
+    'KS 2025',
+    'KS 2026',
     'MS 2025',
     'MS 2026',
     'WI 2025',

@@ -134,7 +134,7 @@ test('every state whose definition carries an earned income credit pays its matc
     // in this package, because the difference between the two is one clause:
     // Oklahoma's § 2357.43 freezes its base at 31 December 2020 law and Iowa's
     // § 422.12B names no date at all.
-    'CO', 'CT', 'IA', 'IL', 'IN', 'LA', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'SC', 'UT',
+    'CO', 'CT', 'IA', 'IL', 'IN', 'KS', 'LA', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'SC', 'UT',
     'VA', 'WI',
   ]);
 });

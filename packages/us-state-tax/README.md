@@ -1,11 +1,27 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **40
-states** including **ARKANSAS**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **41
+states** including **KANSAS**, **Arkansas**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.57.0: **KANSAS, WHERE THE FIGURE THAT DECIDES A WIDOW'S BILL IS A CHECKBOX.** The thirty-second taxing state and the largest jurisdiction this package had left. Two brackets — **5.2%** to `$23,000` of taxable income and **5.58%** above, doubled on a joint return — under K.S.A. 79-32,110(a)(2)(F) as SB 1 of the 2024 special session rewrote it, on a base of federal AGI.
+
+**The K-40 has FOUR filing-status boxes and no qualifying-surviving-spouse box, and its head-of-household box qualifies a filer who claimed "Head of Household OR QUALIFYING WIDOW OR WIDOWER WITH A DEPENDENT CHILD" on the federal return.** So a Kansas widow is read against the HEAD-OF-HOUSEHOLD column — not the joint one every by-status table defaults to, and not the single one a guess reaches for. Three figures turn on it at once: a `$6,180` standard deduction against a joint `$8,240`, a `$9,160` exemption **plus a `$2,320` head-of-household additional exemption** against a joint `$18,320`, and the 5.58% band opening at `$23,000` rather than `$46,000`. A widow with one dependent child and `$60,000` of federal AGI owes Kansas **`$2,145.72`**; the joint default gives **`$1,618.24`**, which is **`$527.48` too little**, because the joint schedule's 5.2% band runs to `$46,000` and swallows her whole taxable income. The single column gives `$2,418.86`, `$273.14` too much. **The right answer is between the two wrong ones and is the only one of the three that carries a head-of-household allowance at all** — so no "conservative" choice of column reaches it. Kansas is the fifth state here to declare `survivingSpouseFilesAs` and the first whose target column has a figure of its own.
+
+**And that `$2,320` was on the Department's form a year before it was in the statute.** SB 1 rewrote the personal exemption as `$18,320` joint and `$9,160` for every other status plus `$2,320` a dependent, and said nothing about a head-of-household addition. The 2024 K-40 granted one anyway; `policyengine-us` still ships a comment saying *"the legal code does not specify an additional exemption amount, however, the tax form allows for"* it. **HB 2231 of the 2025 session then codified it and backdated it to tax year 2024** — the Department's Notice 25-07 records the amendment as allowing the additional `$2,320` *"for tax year 2024 and all tax years thereafter"*. A model built from the 2024 statute alone is `$2,320` of exemption short, in both years, for every Kansas head of household and every Kansas widow: `$120.64` of tax at 5.2% and `$129.46` at 5.58%.
+
+**The same act gives a `$2,320` personal exemption for a STILLBIRTH, and no model carries it.** K.S.A. 79-32,121(a)(4), from tax year 2025: an additional personal exemption for an unborn child that does not result in a live birth. A pregnancy ending in a live birth during the year produces a dependent and the dependent exemption is the same `$2,320`; paragraph (4) reaches the case where the year ends with no dependent. **No field in this package and no figure on a federal return implies a stillbirth**, so it is not modelled and the note says a Kansas return computed here for such a household is too HIGH by `$120.64` or `$129.46`. It is the sharpest unmodellable provision this package has met: Oklahoma's earned income credit cannot be computed because its base is a frozen Code and Form 561's capital gain deduction because the qualifying fact is where the property was; this one because the fact is not a number anybody reports.
+
+**What a Kansas retirement costs depends on which government employed the retiree and on nothing else.** K.S.A. 79-32,117(c) subtracts in full, with **no cap, no age test and no income test**: KPERS and the Kansas Police and Firemen's, Judges and Justices and Highway Patrol systems; federal civil service retirement and disability and any other retirement from federal employment, which the Department's own Schedule S help includes **Thrift Savings Plan** distributions in; and retired pay for service in the armed forces. **Nothing subtracts a private pension, a 401(k), an IRA or an annuity** — not partially, not at any age, not below any ceiling. A single Kansan of 67 with `$50,000` of pension pays **`$0.00`** on a KPERS, federal or military pension and **`$1,942.88`** on the same `$50,000` from a private plan. The federal half of the exempt list is there because 4 U.S.C. § 111 requires it of a state that exempts its own retirees — *Davis v. Michigan*, 489 U.S. 803 — and nothing requires parity with any other state's, so **an out-of-state public pension is taxed in full.** Put only Kansas and federal service in `retirement.*.governmentPension`; the reference model cannot make that split and its own comment says so while its code exempts them.
+
+**Kansas's minimum filing requirement cannot change anybody's tax, and this package proves that rather than carrying it.** The instructions print `$26,560` joint, `$17,660` head of household, `$12,765` single and `$13,280` separate, and every row is exactly that status's standard deduction plus its personal exemption — `8,240 + 18,320`, `6,180 + 9,160 + 2,320`, `3,605 + 9,160`, `4,120 + 9,160`. A filer at or below the threshold already has no taxable income, and every further allowance only widens the gap. So there is no `zeroTaxThreshold` rule for Kansas and `test/kansas.test.js` asserts the four sums instead: **a rule worth omitting is worth a test, and the test goes on the premise rather than on the output**, because the day one of the three figures moves and the filing requirement does not, the threshold becomes a cliff nothing models and no answer-level test can see.
+
+**Social Security is fully exempt from tax year 2024, replacing the largest cliff this project has recorded.** Through 2023 all benefits were exempt where federal AGI was `$75,000` or less and **the whole federally taxable benefit became Kansas income one dollar above it** — for a couple with `$51,000` of taxable benefits, `$2,845.80` of tax on one dollar of income. SB 1 removed the limit. A model still carrying it overstates that couple by the same `$2,845.80`, and published accounts of this state are slow here: several still print the superseded three-bracket schedule of 3.1%, 5.25% and 5.7%, and one prints `$12,765` — the filing threshold — as the standard deduction.
+
+**Nothing in the Kansas income tax is indexed, and the bill as introduced would have indexed it.** Both years carry the same deduction, exemption, dependent amount, Worksheet I figures and bracket thresholds, because SB 1 wrote each for *"tax year 2024, and all tax years thereafter"*. A 2024 fiscal note describes increasing the standard deduction annually by the Internal Revenue Code's cost-of-living adjustment from tax year 2025 — **a clause that is not in the act**, so a model built from the legislature's own research office indexes a figure the law holds still. The earned income credit is **17% of the federal credit and refundable**, cut from 18% in 2013 and not restored; the child and dependent care credit is **50% of the federal § 21 credit** and is NOT modelled, because no input here carries a federal § 21 credit; and the food sales tax credit of `$125` a head is **`$0` from tax year 2025** under HB 2106 of 2022. Kansas is marriage-neutral in every bracket, deduction and exemption and then gives `$850` per aged-or-blind box on a single or head-of-household return against `$700` on a joint one, **so its only marriage penalty is its allowance for being old or blind** — `$16.74` for a couple both 65, on figures unchanged since 1998.
 
 New in 0.56.0: **ARKANSAS, WHOSE HIGHEST MARGINAL RATE IS 13.70% AND IS NOT IN ARKANSAS'S RATE SCHEDULE.** The thirty-first taxing state. Arkansas's top statutory rate is **3.9%** for 2025 and **3.7%** for 2026, and neither figure is the highest rate an Arkansan pays.
 
@@ -741,7 +757,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.56.0/us-state-tax-0.56.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.57.0/us-state-tax-0.57.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1049,7 +1065,7 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty-one
+That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty-two
 taxing states in this package** at the same income — every one of the nine with no income
 tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. Omit the
 locality on a New York return and the result says so, and says what it would have cost this
@@ -2929,7 +2945,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,868 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 1,880 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2962,7 +2978,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **836** notes every
+`test/notes.test.js` pins the first 72 characters of all **866** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -2987,8 +3003,8 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 6,460 numeric
-figures over 80 state-years, against 580 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 6,540 numeric
+figures over 82 state-years, against 598 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3034,12 +3050,12 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 3,213 figures of tax year
+The `kind` field answers one operational question. Over the 3,253 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **2,077** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **2,117** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **981** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
@@ -3126,13 +3142,18 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.55.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.57.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **31 of the 42 taxing jurisdictions, so 40 states in all.** The eleven that are
-  missing: Kansas, New Mexico, Nebraska, Montana, Maine,
-  Rhode Island, Vermont, Delaware, Hawaii, West Virginia, and the
-  District of Columbia.
+- **32 of the 42 taxing jurisdictions, so 41 states in all.** The ten that are
+  missing: New Mexico, Nebraska, West Virginia, Hawaii, Maine,
+  Montana, Rhode Island, Delaware, Vermont, and the
+  District of Columbia. **Only the first two are in order of size** — New Mexico
+  2,125,498 and Nebraska 2,018,006, checked against Census Vintage 2025 — and the
+  eight after them are in no order at all. The list said "largest first" about all
+  eleven entries for two days while West Virginia sat tenth, below five
+  jurisdictions smaller than it; `UNCOVERED_TAXING_JURISDICTIONS` now says which
+  part of itself is measured.
   Asking for one throws rather than returning zero, and the message is built from a
   declared list of the uncovered jurisdictions rather than from a sentence — because
   the sentence named Connecticut as uncovered on the day Connecticut shipped.

@@ -56,7 +56,7 @@ test('README: the four quick-start figures', () => {
 });
 
 test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 40);
+  assert.equal(SUPPORTED_STATES.length, 41);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
   // SIXTEEN graduated, THIRTEEN flat, one on a schedule of its own, nine with none.
@@ -95,7 +95,16 @@ test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
   // Mississippi, North Dakota and now Oklahoma for 2026 only — its 2025
   // schedule starts at 0.25%, so it is the only state here that JOINS that
   // group between the two years.
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OK', 'OR', 'SC', 'VA', 'WI']);
+  //
+  // KANSAS IS THE SEVENTEENTH, and it is the shortest graduated schedule in the
+  // package: TWO bands, 5.2% and 5.58%, under K.S.A. 79-32,110(a)(2)(F) as SB 1
+  // of the 2024 special session rewrote it. South Carolina's 2026 schedule also
+  // has two, so Kansas is not alone at the bottom — but it is the only one of the
+  // seventeen whose two bands are 0.38 percentage points apart, which makes the
+  // whole progressivity of the Kansas income tax worth $87.40 at $46,000 of
+  // taxable income against a flat 5.58%. The arithmetic of that schedule matters
+  // less in Kansas than anywhere else here and the EXEMPTIONS matter more.
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'KS', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OK', 'OR', 'SC', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
   // IOWA IS THE THIRTEENTH FLAT STATE, and it arrived flat rather than becoming
   // so: SF 2442 of 2024 collapsed the last schedule before either supported year
@@ -108,16 +117,22 @@ test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    39,
+    40,
   );
-  // THIRTY taxing states — nineteen of them when the README says seven cut
+  // THIRTY-ONE taxing states here, and Kansas is the thirty-first of them in
+  // this arithmetic although it is the thirty-SECOND taxing state in the
+  // registry: Pennsylvania's rate rule is neither `brackets` nor `flat` nor
+  // `baseAmountSchedule`, so it has never been in these three sums. The
+  // difference between 31 here and `SUPPORTED_STATES.length - 9` is that one
+  // state, and it has been one since Pennsylvania shipped.
+  // Nineteen of them when the README says seven cut
   // their rate for 2026, because Connecticut's last cut was for 2024, Alabama's
   // rate schedule is from 1935, Missouri's 4.7% was reached in 2025 and did
   // not fall again (the revenue condition in § 143.011.4 was not met), and
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 30);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 31);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -746,7 +761,19 @@ test('README: the provisional and published lists for 2026', () => {
   // published is next year: HB 2764's revenue triggers could cut every rate
   // again by certification rather than by legislation, and a 2027 column would
   // be a projection rather than a reading.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
+  // KANSAS joins the published list on arrival for Oklahoma's reason with one
+  // extra turn in it, and the turn is what makes it worth a line. Its 2026
+  // figures are an act — SB 1 of the 2024 special session wrote the rate
+  // schedule, the standard deduction and the personal exemption each for "tax
+  // year 2024, and all tax years thereafter" — and nothing in Kansas is indexed,
+  // so there is no 2026 figure to await. THE EXTRA TURN: the bill as INTRODUCED
+  // would have indexed the standard deduction from tax year 2025, and a 2024
+  // fiscal note says so. Had that clause survived, every Kansas figure here would
+  // be `awaiting-publication` instead. A `published` flag can therefore turn on a
+  // clause that was amended OUT, which is a thing this list had not had to record:
+  // the evidence for the flag is partly an absence, and the absence is in the act
+  // rather than in the fiscal note anybody is likely to read.
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -763,10 +790,11 @@ test('README: Mississippi zero bracket, and Pennsylvania refusing federal AGI', 
 
 test('README: asking for an unsupported state throws rather than returning zero', () => {
   // LOUISIANA left this list on Day 60, NORTH DAKOTA on Day 61, OKLAHOMA on
-  // Day 62, IOWA on Day 63 and ARKANSAS on Day 64 — each the day it shipped.
-  // NEW MEXICO takes Arkansas's place, and the list is deliberately held at five
-  // so that the test keeps the same shape while the states in it turn over.
-  for (const state of ['NE', 'KS', 'NM', 'DC', 'HI']) {
+  // Day 62, IOWA on Day 63, ARKANSAS on Day 64 and KANSAS on Day 66 — each the
+  // day it shipped. WEST VIRGINIA takes Kansas's place, and the list is
+  // deliberately held at five so that the test keeps the same shape while the
+  // states in it turn over.
+  for (const state of ['NE', 'WV', 'NM', 'DC', 'HI']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -1621,10 +1649,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 40 states',
+    'us-state-tax: 41 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 40 states',
+    'us-tax-mcp: 41 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
@@ -1918,6 +1946,7 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  ['0.57.0', /\bKANSAS\b/],
   ['0.56.0', /\bARKANSAS\b/],
   ['0.55.0', /\bIOWA\b/],
   ['0.54.0', /\bOKLAHOMA\b/],

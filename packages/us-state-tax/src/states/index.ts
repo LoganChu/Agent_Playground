@@ -13,6 +13,7 @@ import { connecticut } from './connecticut.js';
 import { federalTaxableBaseStates } from './federal-taxable-base.js';
 import { flatStates } from './flat-states.js';
 import { iowa } from './iowa.js';
+import { kansas } from './kansas.js';
 import { louisiana } from './louisiana.js';
 import { maryland } from './maryland.js';
 import { massachusetts } from './massachusetts.js';
@@ -44,6 +45,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const ca = california(year);
   const ct = connecticut(year);
   const ia = iowa(year);
+  const ks = kansas(year);
   const la = louisiana(year);
   const ma = massachusetts(year);
   const md = maryland(year);
@@ -68,6 +70,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(ca ? [ca] : []),
     ...(ct ? [ct] : []),
     ...(ia ? [ia] : []),
+    ...(ks ? [ks] : []),
     ...(la ? [la] : []),
     ...(ma ? [ma] : []),
     ...(md ? [md] : []),
@@ -167,6 +170,83 @@ export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.
 );
 
 /**
+ * Every definition key whose rule reads
+ * {@link StateIncomeTaxInput.taxableSocialSecurity}.
+ *
+ * **This list exists because the hand-written copy of its ANSWER drifted on six
+ * consecutive new states.** `us-tax-mcp` gates each of its arguments on the
+ * states that read it and refuses the argument otherwise; `taxableSocialSecurity`
+ * was the last gate in that file still written as a list of state codes, and
+ * Louisiana, North Dakota, Oklahoma, Iowa, Arkansas and Kansas each needed a line
+ * added to it. The file's own comment forecast the drift correctly five times and
+ * argued each time that the list was safe BECAUSE the drift was caught — which is
+ * true, and is an argument for a cheaper way of being right.
+ *
+ * > **A LIST WHOSE STALENESS IS RELIABLY CAUGHT IS NOT A SAFE LIST, IT IS A LIST
+ * > WHOSE COST HAS MOVED FROM THE BUG TO THE CHORE.** Six for six is a
+ * > measurement rather than a forecast, and the chore is paid by whoever adds the
+ * > next state, in a package they did not open.
+ *
+ * It is the keys and not the states, for the reason {@link RETIREMENT_READING_RULES}
+ * is: a state that arrives using a mechanism this package already has gains the
+ * field with no edit anywhere, and only a state that arrives with a NEW mechanism
+ * for reading the benefit needs this list touched. Of the six drifts above, all
+ * six were states using `subtractsTaxableSocialSecurity`, which is to say that
+ * none of them would have touched this list at all.
+ *
+ * **Five of the nine keys are each the sole reason for exactly one state** — MN's
+ * `socialSecuritySubtraction`, UT's `exclusiveRetirementCredits`, MO's
+ * `stateRetirementDeduction`, CT's `retirementSubtractionSchedule` and the
+ * twenty-four of `subtractsTaxableSocialSecurity` — so the derivation is not a
+ * generalisation from one case. The other four are included although nothing
+ * needs them today: Virginia's `ageDeduction` tests its allowance on federal AGI
+ * LESS the benefit, Connecticut's `socialSecurityBenefitAdjustment` sets the
+ * excess it charges 25% of, and Maryland's `pensionExclusion` and Oregon's
+ * `reducedBaseRetirementCredit` both offset against the benefit the
+ * `retirementIncome` fallback supplies. Each genuinely reads the figure and each
+ * is currently declared only by a state already here through another key, so
+ * naming them costs nothing now and covers the state that arrives with one of
+ * them alone.
+ *
+ * > **A DERIVED LIST SHOULD NAME EVERY MECHANISM THAT READS THE FIELD, NOT THE
+ * > FEWEST THAT REPRODUCE TODAY'S ANSWER.** The minimal set is five keys and is
+ * > exactly as right today and wrong the day a state arrives with only Virginia's
+ * > mechanism — which is the same failure as the hand-written list, one level up
+ * > and harder to see.
+ */
+export const SOCIAL_SECURITY_READING_RULES = [
+  'subtractsTaxableSocialSecurity',
+  'socialSecuritySubtraction',
+  'socialSecurityBenefitAdjustment',
+  'ageDeduction',
+  'exclusiveRetirementCredits',
+  'stateRetirementDeduction',
+  'retirementSubtractionSchedule',
+  'reducedBaseRetirementCredit',
+  'pensionExclusion',
+] as const satisfies readonly (keyof StateIncomeTaxDefinition)[];
+
+/**
+ * The states that read {@link StateIncomeTaxInput.taxableSocialSecurity},
+ * DERIVED from the definitions rather than listed.
+ *
+ * `subtractsTaxableSocialSecurity` is a BOOLEAN, so the test is on its truth and
+ * not on its presence — which `RETIREMENT_READING_RULES` never had to care about,
+ * every one of its keys being an object. A `!== undefined` here would admit a
+ * state that declared `false`, and a state declaring `false` is a state saying in
+ * terms that it does not read the field.
+ */
+export const STATES_READING_TAXABLE_SOCIAL_SECURITY: readonly StateCode[] =
+  SUPPORTED_STATES.filter((code) =>
+    SUPPORTED_YEARS.some((year) => {
+      const def = getStateDefinition(code, year) as unknown as Record<string, unknown>;
+      return SOCIAL_SECURITY_READING_RULES.some(
+        (rule) => def[rule] !== undefined && def[rule] !== false,
+      );
+    }),
+  );
+
+/**
  * The jurisdictions that tax individual income and that this package does not
  * cover, by name.
  *
@@ -190,21 +270,39 @@ export const STATES_READING_RETIREMENT: readonly StateCode[] = SUPPORTED_STATES.
  * written down.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
-  // Largest first, re-checked against Census Vintage 2025 on Day 64 rather than
-  // carried forward: Kansas 2,977,220, New Mexico 2,125,498, Nebraska 2,018,006.
-  // THE ORDER OF THE SECOND AND THIRD WAS WRONG IN THIS FILE UNTIL THAT CHECK —
-  // New Mexico is larger than Nebraska, and four consecutive days of worklists
-  // had named Nebraska as the runner-up.
-  'Kansas',
+  // THE FIRST TWO ARE ORDERED AND CHECKED; THE REST ARE NOT, AND THIS COMMENT
+  // SAID OTHERWISE FOR TWO DAYS. It read "largest first, re-checked against
+  // Census Vintage 2025 on Day 64" and named three figures — Kansas 2,977,220,
+  // New Mexico 2,125,498, Nebraska 2,018,006. Those three were checked. The
+  // eight names after them never were, and the claim "largest first" covered all
+  // eleven: West Virginia sat tenth on a list that said it was ordered by size,
+  // below Montana, Maine, Rhode Island, Vermont and Delaware, every one of which
+  // is smaller than it.
+  //
+  // > **A SENTENCE THAT DESCRIBES THE WHOLE LIST IS EVIDENCE ABOUT THE PART THAT
+  // > WAS MEASURED AND A GUESS ABOUT THE REST, AND IT READS THE SAME EITHER WAY.**
+  // > Day 64's check made two of the eleven entries trustworthy and made the
+  // > sentence above them less true, not more, because it was now a measured claim
+  // > with eight unmeasured entries inside its scope.
+  //
+  // So: New Mexico and Nebraska are in order, from Day 64's figures, and are what
+  // a worklist should read. The nine below them are in NO order and are not to be
+  // read as one. Census hosts do not resolve from this sandbox and server-side
+  // search returned only Maine's 1,414,874 and the fact that Hawaii, New Mexico,
+  // Vermont and West Virginia all LOST population between 2024 and 2025. The
+  // order of the tail costs one lookup from a machine that can reach
+  // `census.gov`'s NST-EST2025-POP table; it is worth having before the third
+  // state from here, and worth nothing before the second.
   'New Mexico',
   'Nebraska',
-  'Montana',
-  'Maine',
-  'Rhode Island',
-  'Vermont',
-  'Delaware',
-  'Hawaii',
+  // --- unordered from here ---
   'West Virginia',
+  'Hawaii',
+  'Maine',
+  'Montana',
+  'Rhode Island',
+  'Delaware',
+  'Vermont',
   'the District of Columbia',
 ];
 
