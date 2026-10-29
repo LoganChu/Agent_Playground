@@ -206,14 +206,14 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 37, 'files walked');
+  assert.equal(files.length, 38, 'files walked');
   // 2,436, AND IT IS THE FIRST TIME THIS FIGURE IS NOT THE ONE scores.json
   // RECORDS. The enumerator measures the tree; `scores.json` records the last
   // completed audit, and Day 64's did not complete — 2,436 mutants against a
   // 1,018-test suite on four cores is about fifteen hours. The two numbers are
   // allowed to differ and `check-scores.mjs` is what fails while they do; this
   // assertion's job is to say what the TREE holds, so it tracks the tree.
-  assert.equal(mutants.length, 2_436, 'mutants the enumerator finds in the current tree');
+  assert.equal(mutants.length, 2_458, 'mutants the enumerator finds in the current tree');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -236,6 +236,24 @@ test('the state engine enumerates what the recorded audit measured', () => {
     mutants.filter((m) => m.rel === 'states/louisiana.js').length,
     10,
     'Louisiana has ten mutants and not the 105 its comments and notes would add',
+  );
+  // KANSAS, pinned on Day 66 and now the newest state, for the reason the
+  // Louisiana anchor above was added: a golden sample made only of files that
+  // have stopped moving stops being a sample of the tree.
+  //
+  // AND ITS COUNT IS WORTH PINNING FOR A SECOND REASON. Twenty-two is every
+  // literal the module writes EXCEPT two, and the two are the interesting ones:
+  // `standardDeductionAgedOrBlindAddition.age` at 65, which is below the
+  // enumerator's money floor, and the retirement rule's `cap: 0`, which is a
+  // sentinel encoding "Kansas exempts nothing outside its own list" and is not a
+  // figure read from a document at all. Both are in `blind-spots.mjs`'s count of
+  // real parameters the audit cannot perturb, and both are asserted directly in
+  // `test/kansas.test.js` instead — the cap because an ABSENT cap would mean "the
+  // whole of it" and exempt every pension in the state.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/kansas.js').length,
+    22,
+    "Kansas's 22 mutants: every literal but the age of 65 and the sentinel cap of zero",
   );
   // And the two parameters that have NO mutant, asserted as absent rather than
   // left to be noticed: R.S. 47:294(A)(2)'s `single * 2` and R.S. 47:44.1's
@@ -504,5 +522,13 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // the 19 amounts below $100, the $29 and $58 credits, the $60 and $5
   // additional-credit figures, and every reduction in the rate schedule, because
   // those carry CENTS. The absences below are that list and not a bigger one.
-  assert.deepEqual(byKind, { money: 1_691, rate: 455, year: 290 });
+  // KANSAS, Day 66, adds 15 money, 5 rate and 2 year — and the 2 year mutants are
+  // the whole of its year handling: the `if (year !== 2025 && year !== 2026)
+  // return undefined` guard, and nothing else. No Kansas rule chooses a name, a
+  // row or an amount by the year, because SB 1 wrote every figure for "tax year
+  // 2024, and all tax years thereafter". That matters here rather than in the
+  // module, because Day 65's seventh survivor was exactly such a selector in
+  // Arkansas — a `year === 2025` in front of a rule NAME — and a state with two
+  // year mutants has no room for one.
+  assert.deepEqual(byKind, { money: 1_706, rate: 460, year: 292 });
 });

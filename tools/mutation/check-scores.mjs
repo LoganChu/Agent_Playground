@@ -109,7 +109,35 @@ let README = readFileSync(join(ROOT, 'README.md'), 'utf8');
 // Whitespace-collapsed, because the phrase it is searched for straddles a line
 // break in prose and a check that fails on a newline is a check that teaches
 // the reader to ignore it. The first run of this file reported exactly that.
-const STRATEGY = readFileSync(join(ROOT, 'STRATEGY.md'), 'utf8').replace(/\s+/g, ' ');
+//
+// AND IT IS THE CURRENT REVIEW ALONE, WHICH IS A TIGHTENING DAY 66 MADE AFTER
+// NOTICING THAT THE FILE IS A LOG. `STRATEGY.md` is twelve dated reviews newest
+// first, separated by `---`, and every one of them quotes the score that was true
+// on its own day. A substring search over the whole file is therefore satisfied by
+// a HISTORICAL sentence: the moment two measurements happen to produce the same
+// counts and score — which five consecutive days did, at 1,654 / 6 / 99.6% — a
+// stale claim in today's review passes on the strength of an old one that was
+// never meant to be checked.
+//
+// THE RULE: A CHECK OVER AN APPEND-ONLY LOG IS SATISFIED BY THE PAST, AND THE PAST
+// IS THE ONE PART OF IT NOBODY IS CLAIMING ANY MORE. The scope is the text before
+// the first `---`, which is this day's review and the only part of the file that
+// asserts anything about this build.
+const STRATEGY_FULL = readFileSync(join(ROOT, 'STRATEGY.md'), 'utf8');
+const STRATEGY_REVIEWS = STRATEGY_FULL.split(/\n---\n/);
+const STRATEGY = STRATEGY_REVIEWS[0].replace(/\s+/g, ' ');
+// The split has to have found something, or the scope is silently the whole file
+// again and this tightening undoes itself the day somebody reformats the headings.
+// Twelve reviews today; the assertion is on there being MORE THAN ONE, because the
+// count grows every time the strategy is reviewed and a count would go stale here
+// exactly as the ones this file exists to check do.
+if (STRATEGY_REVIEWS.length < 2) {
+  process.stdout.write(
+    'STRATEGY.md has no `---` separator, so the score phrase cannot be scoped to the current ' +
+      'review. Check the file\'s structure before trusting this run.\n',
+  );
+  process.exit(1);
+}
 
 for (const [name, row] of Object.entries(record.packages)) {
   const dir = join(ROOT, 'packages', name);
@@ -194,7 +222,12 @@ for (const [name, row] of Object.entries(record.packages)) {
   // part it does not read, and the part left out is the headline number.
   const phrase = `**${row.score}%** (${row.mutants} mutants, ${row.survivors} survivors)`;
   if (!STRATEGY.includes(phrase)) {
-    note(`${name}: STRATEGY.md does not contain "${phrase}"`);
+    note(
+      `${name}: STRATEGY.md's CURRENT review does not contain "${phrase}"` +
+        (STRATEGY_FULL.replace(/\s+/g, ' ').includes(phrase)
+          ? ' — an older review does, which is the case this check was scoped to stop counting'
+          : ''),
+    );
   }
 }
 
