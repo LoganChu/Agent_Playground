@@ -40,7 +40,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getStateDefinition, stateIncomeTax } from './strict.mjs';
+import { getStateDefinition, stateIncomeTax, SUPPORTED_STATES } from './strict.mjs';
 
 const money = (actual, expected, msg) =>
   assert.ok(
@@ -311,10 +311,23 @@ test('the standard deduction is the one table Kansas does NOT double from the si
       a.single * 2,
       `${year}: if these ever become equal, the asymmetry below has gone and the notes are wrong`,
     );
-    // AND THE SEPARATE COLUMN IS ABOVE THE SINGLE ONE, which no other state here
-    // does: every other separate column in this package equals its single one.
+    // AND THE SEPARATE COLUMN IS ABOVE THE SINGLE ONE.
     assert.equal(a.marriedFilingSeparately - a.single, 515, `${year}: separate less single`);
   }
+
+  // "WHICH NO OTHER STATE HERE DOES" IS MEASURED RATHER THAN SAID, because a
+  // claim about every other state is exactly the kind this package has watched go
+  // stale on a new arrival — and the note in `kansas.ts` makes it. Every other
+  // state with a standard-deduction TABLE sets its separate column equal to its
+  // single one; Kansas is the only one that does not, and the day a second state
+  // does this fails and the note has to be rewritten rather than quietly becoming
+  // false.
+  const differing = SUPPORTED_STATES.filter((state) => {
+    const def = getStateDefinition(state, 2026);
+    const amounts = def.deduction?.amounts;
+    return amounts !== undefined && amounts.marriedFilingSeparately !== amounts.single;
+  });
+  assert.deepEqual(differing, ['KS'], 'states whose separate deduction differs from their single one');
 
   // A married Kansan filing separately pays LESS than a single one on the same
   // income, by the deduction gap at their marginal rate and by nothing else: the

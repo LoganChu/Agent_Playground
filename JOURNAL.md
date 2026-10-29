@@ -368,6 +368,38 @@ it — an argument that names the exact two parameters predicts the exact number
 Unexplained differences are back to **16**, which is what they were before Kansas, so the
 state added no disagreement that is not documented.
 
+### And a third claim of mine that was wrong, which is a superlative
+
+**I WROTE THAT THE REPEALED `$75,000` SOCIAL SECURITY CLIFF WAS "THE LARGEST SINGLE
+DISCONTINUITY THIS PROJECT HAS RECORDED IN ANY STATE, OHIO'S `$0.01` EPSILON AND ARKANSAS'S
+TWENTY-NINE `$10` STEPS INCLUDED".** `$2,845.80` on one dollar of income is large. It is not
+the largest here: **Maryland's capital-gains surtax tests federal AGI against `$350,000`
+rather than taking an excess, so one dollar there can cost `$6,933.08`** — a figure this
+repository already carries, in `definition.ts`, `types.ts` and the MCP server's own field
+documentation. And Maryland's is LIVE where Kansas's is repealed.
+
+> **A SUPERLATIVE NEEDS THE WHOLE FIELD IT RANKS OVER, AND THIS ONE WAS WRITTEN FROM THE TWO
+> STATES THAT HAPPENED TO BE IN MIND.** The two I named — Ohio's epsilon and Arkansas's
+> staircase — are the two the previous entries in this journal talk about most, which is
+> exactly why they came to hand and exactly why they are not the field. The claim survives in
+> a narrower form that the evidence supports: the largest a state here has charged on a
+> SOCIAL SECURITY threshold, against Connecticut's surviving `$405`.
+
+That is the third wrong claim of the day and all three have one shape: **a quantifier over
+things I did not enumerate.** "Largest first" over eleven jurisdictions of which three were
+checked; "marriage-neutral in every bracket, deduction and exemption" over three tables of
+which two were verified; "the largest discontinuity in any state" over a field of which two
+members were considered. None of the three was a wrong figure — every number beside them was
+right — and none would have been caught by a test of any figure.
+
+> **THE RULE: A SENTENCE WITH "EVERY", "ONLY" OR "LARGEST" IN IT IS A CLAIM ABOUT A SET, AND
+> THE WAY TO CHECK IT IS TO WALK THE SET.** Two of today's three are now walked —
+> `kansas.test.js` measures the separate-column claim over every state, and the
+> uncovered-jurisdiction list marks where its ordering stops being measured. The third is
+> narrowed instead, because "the largest discontinuity in the package" would need a definition
+> of discontinuity before it could be computed, and a claim that cannot be computed is better
+> made smaller than left standing.
+
 ### Sourcing, and the route that came back
 
 `ksrevenue.gov`, `kslegislature.gov` and `ksrevisor.gov` all fail to resolve, by `curl` and by
