@@ -3967,7 +3967,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     path: 'standardDeductionAgedOrBlindAddition.amount.*',
     kind: 'statute',
     document: '79-32,119',
-    cite: 'K.S.A. 79-32,119(b) and Worksheet I of the K-40 instructions — $850 per box checked for 65-or-over or blindness, $700 where the status is married filing joint or married filing separate. UNCHANGED SINCE 1998, which is twenty-eight tax years: the federal § 63(f) additions were $1,050 and $850 that year and are $2,000 and $1,600 now. It is the one figure in the Kansas income tax where a single filer\'s allowance EXCEEDS a joint filer\'s, and therefore the state\'s only marriage penalty',
+    cite: 'K.S.A. 79-32,119(b) and Worksheet I of the K-40 instructions — $850 per box checked for 65-or-over or blindness, $700 where the status is married filing joint or married filing separate. UNCHANGED SINCE 1998 ON THE REFERENCE MODEL\'S WORD rather than on a Kansas document read here: policyengine-us carries both figures from 1998-01-01 with no later value, which is twenty-eight tax years, and the federal § 63(f) additions were $1,050 and $850 in 1998 and are $2,000 and $1,600 now. It is the one figure in the Kansas income tax where a single filer\'s allowance EXCEEDS a joint filer\'s, and therefore the state\'s only marriage penalty',
     constant: true,
   },
   {

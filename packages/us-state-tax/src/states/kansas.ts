@@ -138,9 +138,10 @@
  * - **K.S.A. 79-32,117(c)** subtracts retirement benefits from KPERS, the Kansas
  *   Police and Firemen's system, the Judges and Justices system and the Highway
  *   Patrol system; **federal civil service retirement and disability**, and any
- *   other retirement from federal employment, which the Department's own Schedule
- *   S help includes Thrift Savings Plan distributions in; and retired pay for
- *   service in the armed forces. In full. No cap, no age test, no income test.
+ *   other retirement from federal employment — a Thrift Savings Plan distribution
+ *   being one by that wording, which is an application of the rule rather than a
+ *   line anybody here has read naming it; and retired pay for service in the armed
+ *   forces. In full. No cap, no age test, no income test.
  * - **Nothing subtracts a private pension, a 401(k), an IRA or an annuity.** Not
  *   partially, not at an age, not below a ceiling. Kansas is one of the few states
  *   in this package with no retirement allowance of any kind outside that list.
@@ -206,9 +207,11 @@
  * couple both 65, `$16.74` of tax. Oregon's addition is upside down the same way
  * (`$1,200` single against `$1,000` joint) and the two are the only figures in
  * this package where a single filer's allowance exceeds a joint filer's. **The
- * amounts have not moved since 1998**, which is twenty-eight tax years; the
- * federal § 63(f) additions were `$1,050` and `$850` that year and are `$2,000`
- * and `$1,600` now.
+ * amounts carry a 1998 start date in the reference model's parameter file and no
+ * later value**, which is that package asserting twenty-eight tax years without a
+ * change and is the only evidence for the date readable from here; the federal
+ * § 63(f) additions were `$1,050` and `$850` in 1998 and are `$2,000` and `$1,600`
+ * now.
  *
  * ## Nothing in Kansas is indexed, and that is the statute rather than a carry-forward
  *
@@ -276,7 +279,7 @@ const KS_CITATIONS: readonly Citation[] = [
   },
   {
     title:
-      'K.S.A. 79-32,119 — the Kansas standard deduction: $3,605 single, $8,240 married filing joint, $6,180 head of household, $4,120 married filing separate, for tax year 2024 and all tax years thereafter, with NO cost-of-living provision in the enacted law. Subsection (b) carries Worksheet I: an additional $850 for each box checked for 65-or-over or blind, $700 where the status is married filing joint or married filing separate, unchanged since 1998. NOT OPENED FROM THIS SANDBOX',
+      'K.S.A. 79-32,119 — the Kansas standard deduction: $3,605 single, $8,240 married filing joint, $6,180 head of household, $4,120 married filing separate, for tax year 2024 and all tax years thereafter, with NO cost-of-living provision in the enacted law. Subsection (b) carries Worksheet I: an additional $850 for each box checked for 65-or-over or blind, $700 where the status is married filing joint or married filing separate — unchanged since 1998 on the reference model\'s parameter file, which carries both figures from 1998-01-01 with no later value and is the only evidence for the date available from this sandbox. NOT OPENED FROM THIS SANDBOX',
     url: 'https://ksrevisor.gov/statutes/chapters/ch79/079_032_0119.html',
   },
   {
@@ -296,7 +299,7 @@ const KS_CITATIONS: readonly Citation[] = [
   },
   {
     title:
-      'K.S.A. 79-32,117(c) and the Department\'s WebFile Schedule S Part A help — the retirement benefits Kansas subtracts in full: KPERS, the Kansas Police and Firemen\'s, Judges and Justices and Highway Patrol systems; Federal Civil Service Retirement or Disability Fund payments and any other retirement benefits from employment by the federal government, which the help text includes Thrift Savings Plan distributions in; and retired pay for service in the United States Armed Forces. No cap, no age test, no income test. OUT-OF-STATE PUBLIC PENSIONS ARE NOT ON THE LIST, and neither is any private pension, 401(k), IRA or annuity. NOT OPENED FROM THIS SANDBOX',
+      'K.S.A. 79-32,117(c) and the Department\'s WebFile Schedule S Part A help — the retirement benefits Kansas subtracts in full: KPERS, the Kansas Police and Firemen\'s, Judges and Justices and Highway Patrol systems; Federal Civil Service Retirement or Disability Fund payments and any other retirement benefits from employment by the federal government, and retired pay for service in the United States Armed Forces. A THRIFT SAVINGS PLAN DISTRIBUTION IS IN THAT CATEGORY BY THE HELP TEXT\'S OWN WORDS — "any other amounts received as retirement benefits from employment by the federal government" — and the K-40 instructions are reported to name it explicitly, but only at second hand: the quotation reaching this sandbox is a taxpayer forum post citing the Schedule S instructions, not the instructions. The words above are the help page\'s; the TSP example is an application of them. No cap, no age test, no income test. OUT-OF-STATE PUBLIC PENSIONS ARE NOT ON THE LIST, and neither is any private pension, 401(k), IRA or annuity. NOT OPENED FROM THIS SANDBOX',
     url: 'https://www.ksrevenue.gov/webfile/help/scheduleS_A.html',
   },
   {
@@ -416,8 +419,10 @@ export function kansas(year: number): StateIncomeTaxDefinition | undefined {
     // the exemption — so a Kansas itemiser loses it, which is the property that
     // made Oregon's a field of its own. Per box checked: age and blindness stack
     // and each person has both boxes. Kansas is the second state in this package
-    // whose single figure EXCEEDS its joint figure, and the amounts are the 1998
-    // ones.
+    // whose single figure EXCEEDS its joint figure. The reference model carries
+    // both figures from 1998 with no later value, which is where the "unchanged
+    // since 1998" in the notes comes from — a claim of that package's and not a
+    // Kansas document read here.
     standardDeductionAgedOrBlindAddition: {
       amount: byStatus({ single: 850, joint: 700, separate: 700, headOfHousehold: 850 }),
       age: 65,
@@ -426,9 +431,13 @@ export function kansas(year: number): StateIncomeTaxDefinition | undefined {
         'People 65 or Older and/or Blind" — the number of boxes checked times $850, or times ' +
         '$700 where the filing status is married filing joint or married filing separate. Four ' +
         'boxes exist on a joint return: filer 65 or over, filer blind, spouse 65 or over, ' +
-        'spouse blind. The two figures have not moved since 1998, so the ONE marriage penalty ' +
-        'in the Kansas income tax is its allowance for being old or blind: $150 per aged or ' +
-        'blind person, $300 for a couple both 65, $16.74 of tax.',
+        'spouse blind. THE 1998 DATE IS THE REFERENCE MODEL\'S RATHER THAN A DOCUMENT READ ' +
+        'HERE: policyengine-us carries these two figures from 1998-01-01 with no later value, ' +
+        'which is that package asserting they have not moved since and is the only evidence ' +
+        'available from this sandbox for it. Either way they are identical in 2024, 2025 and ' +
+        '2026, and the ONE marriage penalty in the Kansas income tax is its allowance for ' +
+        'being old or blind: $150 per aged or blind person, $300 for a couple both 65, ' +
+        '$16.74 of tax.',
     },
     exemption: {
       // K.S.A. 79-32,121(a) sets the figure BY STATUS and not by a count of
@@ -486,8 +495,12 @@ export function kansas(year: number): StateIncomeTaxDefinition | undefined {
         // exists where two provisions are reported as one, and Michigan is the
         // precedent for a single name where the state genuinely has one line.
         scope: 'perPerson',
-        // No age test anywhere: a 45-year-old retired Kansas trooper subtracts
-        // the whole pension. Neither `minimumAge` nor `cappedMinimumAge` is set.
+        // No age test anywhere, so a Kansan of 45 drawing one of these pensions
+        // subtracts the whole of it. Neither `minimumAge` nor `cappedMinimumAge`
+        // is set, and that is the parameter most often reported wrong about a
+        // state retirement rule. (The claim here is about the TAX rule and not
+        // about when any of these systems lets somebody retire, which nothing
+        // readable from this sandbox says.)
         //
         // A cap of ZERO is North Carolina's construction and it is exactly right
         // here: the rule subtracts the income Kansas exempts outright and NOTHING
@@ -517,13 +530,13 @@ export function kansas(year: number): StateIncomeTaxDefinition | undefined {
       "KANSAS'S $2,320 HEAD-OF-HOUSEHOLD EXEMPTION WAS ON THE DEPARTMENT'S FORM A YEAR BEFORE IT WAS IN THE STATUTE. SB 1 of the 2024 special session rewrote the personal exemption as $18,320 joint and $9,160 for every other status plus $2,320 a dependent, and said nothing about a head-of-household addition. The 2024 K-40 granted one anyway. HB 2231 of the 2025 session then codified it — the Department's Notice 25-07 records the amendment as allowing the additional $2,320 \"for tax year 2024 and all tax years thereafter\" — so the legislature agreed with the form, retroactively, a year on. A model built from the 2024 statute alone understates a Kansas head of household's exemption by $2,320 for both years: $120.64 of tax at 5.2% and $129.46 at 5.58%.",
       'NOT MODELLED — THE $2,320 PERSONAL EXEMPTION FOR A STILLBIRTH, and the reason is that no return records the fact. K.S.A. 79-32,121(a)(4), added for tax year 2025, allows an additional personal exemption of $2,320 for an unborn child that does not result in a live birth. A pregnancy ending in a live birth during the year produces a dependent and the dependent exemption is the same $2,320; paragraph (4) reaches the case where the year ends with no dependent. No field in this package and no figure on a federal return implies a stillbirth, so a Kansas return computed here for a household that suffered one is too HIGH by $120.64 at 5.2% or $129.46 at 5.58%. Supply it through `subtractions` as $2,320 of state subtraction.',
       "KANSAS'S MINIMUM FILING REQUIREMENT CANNOT CHANGE ANYBODY'S TAX, WHICH IS WHY THIS PACKAGE CARRIES NO ZERO-TAX THRESHOLD FOR KANSAS. The K-40 instructions print $26,560 joint, $17,660 head of household, $12,765 single and $13,280 married filing separate, and every one is exactly that status's standard deduction plus its personal exemption: 8,240 + 18,320, 6,180 + 9,160 + 2,320, 3,605 + 9,160, 4,120 + 9,160. A filer at or below the threshold therefore has no taxable income already, and every further allowance — $2,320 a dependent, $850 or $700 a box on Worksheet I, an itemised deduction larger than the standard one by construction — only widens the gap. The threshold can zero a positive tax in no household, in any status, at any income. `test/kansas.test.js` asserts the three sums so that a year in which one of the figures moves and the filing requirement does not FAILS here rather than becoming a cliff nothing models. The independent reference model ships the threshold as five parameters and a branch that cannot fire.",
-      "WHAT A KANSAS RETIREMENT COSTS DEPENDS ON WHICH GOVERNMENT EMPLOYED THE RETIREE AND ON NOTHING ELSE. K.S.A. 79-32,117(c) subtracts in full, with no cap, no age test and no income test: KPERS and the Kansas Police and Firemen's, Judges and Justices and Highway Patrol systems; federal civil service retirement and disability payments and any other retirement from federal employment, which the Department's Schedule S help includes Thrift Savings Plan distributions in; and retired pay for service in the United States Armed Forces. NOTHING subtracts a private pension, a 401(k), an IRA or an annuity — not partially, not at any age, not below any ceiling. A single Kansan of 67 with $50,000 of pension and nothing else pays $0.00 on a KPERS, federal or military pension and $1,942.88 on the same $50,000 from a private plan. The federal half of the list is there because 4 U.S.C. § 111 requires it of a state that exempts its own retirees (Davis v. Michigan, 489 U.S. 803) and nothing requires parity with any other state's: AN OUT-OF-STATE PUBLIC PENSION IS TAXED IN FULL.",
+      "WHAT A KANSAS RETIREMENT COSTS DEPENDS ON WHICH GOVERNMENT EMPLOYED THE RETIREE AND ON NOTHING ELSE. K.S.A. 79-32,117(c) subtracts in full, with no cap, no age test and no income test: KPERS and the Kansas Police and Firemen's, Judges and Justices and Highway Patrol systems; federal civil service retirement and disability payments and any other retirement from federal employment, and retired pay for service in the United States Armed Forces — a Thrift Savings Plan distribution being federal-employment retirement by that wording, which is an application of the rule rather than a line anybody here has read naming it. NOTHING subtracts a private pension, a 401(k), an IRA or an annuity — not partially, not at any age, not below any ceiling. A single Kansan of 67 with $50,000 of pension and nothing else pays $0.00 on a KPERS, federal or military pension and $1,942.88 on the same $50,000 from a private plan. The federal half of the list is there because 4 U.S.C. § 111 requires it of a state that exempts its own retirees (Davis v. Michigan, 489 U.S. 803) and nothing requires parity with any other state's: AN OUT-OF-STATE PUBLIC PENSION IS TAXED IN FULL.",
       'PUT ONLY KANSAS AND FEDERAL SERVICE IN `retirement.filer.governmentPension` AND `retirement.spouse.governmentPension` FOR KANSAS, and put an out-of-state public pension in `employerPlanPension` instead, where it is taxed as the statute taxes it. This is the one input decision in Kansas that moves an answer by thousands of dollars, and it is one the larger reference model cannot make: its own source comment says "out-of-state public pensions are not exempt" and it then subtracts taxable public pension income "as an in-state proxy", exempting a retired Missouri teacher living in Wichita whom Kansas taxes in full. A $50,000 out-of-state public pension is $2,702.60 of Kansas tax that model does not charge.',
       "SOCIAL SECURITY IS FULLY EXEMPT FROM TAX YEAR 2024, AND THE CLIFF IT REPLACED IS THE LARGEST THIS PROJECT HAS RECORDED. Through 2023, all benefits were exempt where federal AGI was $75,000 or less and the WHOLE federally taxable benefit became Kansas income one dollar above it. For a couple with $51,000 of federally taxable benefits that one dollar cost $2,845.80 of Kansas tax. SB 1 of the 2024 special session removed the limit, so the subtraction is now unconditional and `taxableSocialSecurity` is read for every Kansas return. A model still carrying the $75,000 limit overstates that couple's Kansas bill by the same $2,845.80 — and published accounts of this state are slow here: several still print the pre-2024 three-bracket schedule of 3.1%, 5.25% and 5.7% as well.",
       'NOTHING IN THE KANSAS INCOME TAX IS INDEXED, AND THE SAMENESS OF THE TWO YEARS IS THE STATUTE RATHER THAN A CARRY-FORWARD. The deduction, the exemption, the dependent amount, both Worksheet I figures and both bracket thresholds are identical in 2024, 2025 and 2026, because SB 1 wrote each of them for "tax year 2024, and all tax years thereafter" and the enacted law carries no cost-of-living provision. THE BILL AS INTRODUCED DID: a 2024 fiscal note describes increasing the standard deduction annually by the cost-of-living adjustment of the Internal Revenue Code beginning in tax year 2025, and that clause is not in the act. A model built from the fiscal note indexes a figure the law fixes. The 2025 K-40 booklet printing the 2024 table unchanged is the evidence that there is no indexing, not evidence that nobody read it.',
       "NOT MODELLED — THE CHILD AND DEPENDENT CARE CREDIT, WHICH IS 50% OF THE FEDERAL CREDIT AND THE LARGEST SUCH MATCH IN THIS PACKAGE. K.S.A. 79-32,111c gives a percentage of the federal § 21 credit — 12.5% for 2018 rising to 25% for 2020 and 50% from tax year 2024 — non-refundable. Neither this package nor `us-federal-tax` computes the federal § 21 credit and no input carries one, so a Kansas return with child care expenses is computed here TOO HIGH by half of it. Supply the credit yourself; nothing in this package can accept one.",
       "KANSAS'S FOOD SALES TAX CREDIT IS GONE FROM TAX YEAR 2025. It was $125 per qualifying exemption for a household with a child under 18, a filer or spouse of 55 or over, or a blind or disabled filer, where federal AGI was below $30,615 — a limit unchanged since 2015 — and HB 2106 of 2022 reduced it to zero as the state's own sales tax on food reached zero. A family of four with a young child and $30,000 of AGI had $500 of credit in tax year 2024 and nothing in 2025, so a model carrying the credit into either year this module covers overstates a low-income Kansas refund by up to $125 a head. Neither year here has it, which is why no rule models it.",
-      "KANSAS IS MARRIAGE-NEUTRAL EVERYWHERE EXCEPT IN ITS ALLOWANCE FOR BEING OLD OR BLIND. Both bracket thresholds double on a joint return ($23,000 to $46,000), the standard deduction doubles ($4,120 separate to $8,240 joint) and so does the exemption ($9,160 to $18,320) — the cleanest doubling in this package. Then Worksheet I gives $850 per aged-or-blind box on a single or head-of-household return and $700 on a joint or separate one, so marrying costs each aged or blind Kansan $150 of deduction, $300 for a couple both 65, $16.74 of tax. Oregon's addition is upside down the same way and the two are the only figures here where a single filer's allowance exceeds a joint filer's. The amounts have not moved since 1998; the federal § 63(f) additions were $1,050 and $850 that year and are $2,000 and $1,600 now.",
+      "KANSAS IS MARRIAGE-NEUTRAL EVERYWHERE EXCEPT IN ITS ALLOWANCE FOR BEING OLD OR BLIND. Both bracket thresholds double on a joint return ($23,000 to $46,000), the standard deduction doubles ($4,120 separate to $8,240 joint) and so does the exemption ($9,160 to $18,320) — the cleanest doubling in this package. Then Worksheet I gives $850 per aged-or-blind box on a single or head-of-household return and $700 on a joint or separate one, so marrying costs each aged or blind Kansan $150 of deduction, $300 for a couple both 65, $16.74 of tax. Oregon's addition is upside down the same way and the two are the only figures here where a single filer's allowance exceeds a joint filer's. The two figures carry a 1998 start date in the reference model's parameter file with no later value, which is that package asserting twenty-eight tax years without a change and is the only evidence for the date available from this sandbox; the federal § 63(f) additions were $1,050 and $850 in 1998 and are $2,000 and $1,600 now.",
       'KANSAS TAXES TIPS AND OVERTIME THAT THE FEDERAL GOVERNMENT NOW EXEMPTS. Form K-40 line 1 is federal adjusted gross income and all four OBBBA Schedule 1-A deductions — § 224 tips, § 225 overtime, § 151(d)(5) senior and § 163(h)(4) vehicle loan interest — sit BELOW it, so none of them reaches the Kansas base and Kansas has legislated no subtraction of its own for any of them. A tipped Kansas worker with $8,000 of qualified tips pays Kansas $416.00 of tax on income the federal return exempted entirely where those dollars fall in the 5.2% band, and $446.40 where they fall in the 5.58% one.',
       "WHETHER A MARRIED-FILING-SEPARATE KANSAS RETURN MAY CHECK ITS SPOUSE'S WORKSHEET I BOXES IS UNREAD. The federal § 63(f) additions reach a spouse on a separate return only through § 151(b), which needs the spouse to have no gross income and not be another taxpayer's dependent, and nothing readable from this sandbox says whether Kansas's own worksheet carries that condition. This package counts only the people the return declares, which is the answer that does not flatter the filer. It is worth $700 of deduction and $36.40 to $39.06 of tax, and it is a question about the DEDUCTION: Kansas's personal exemption has no aged or blind addition at all, so there is nothing of that kind for a spouse to follow.",
       'NO CITY, COUNTY OR SCHOOL DISTRICT IN KANSAS LEVIES AN INCOME TAX. The state figure is the whole of a Kansas resident\'s income tax, so `locality` is never required and `SUPPORTED_LOCALITIES` names none here. Kansas City, Missouri and St. Louis levy earnings taxes on people who work there and Kansas City, KANSAS does not — which is a distinction this package already carries on the Missouri side.',

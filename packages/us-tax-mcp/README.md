@@ -197,8 +197,8 @@ indexed the standard deduction from 2025 and a fiscal note says so. The `$2,320`
 head-of-household exemption was on the Department's form a year before HB 2231 of 2025
 backdated it into the statute. K.S.A. 79-32,121(a)(4) gives a `$2,320` exemption for a
 **stillbirth**, which nothing here can model because no return records the fact, and the
-note says what the omission costs. KPERS, federal civil service, **Thrift Savings Plan**
-distributions and military retired pay are exempt **in full at any age with no ceiling**
+note says what the omission costs. KPERS, federal civil service retirement (a **Thrift Savings Plan**
+distribution being federal-employment retirement by the Department's own wording) and military retired pay are exempt **in full at any age with no ceiling**
 and no private pension, 401(k), IRA or annuity is exempt at all — `$0.00` against
 `$1,942.88` on the same `$50,000`, decided by which government employed the retiree — so
 pass only Kansas and federal service in `state_retirement.filer.governmentPension`.

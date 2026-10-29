@@ -59,7 +59,8 @@ condition that is **not a number anybody reports anywhere**.
 **AND THE LARGEST DOLLAR FINDING IS THAT A KANSAS RETIREMENT'S TAX DEPENDS ON WHICH
 GOVERNMENT EMPLOYED THE RETIREE AND ON NOTHING ELSE.** K.S.A. 79-32,117(c) exempts in full,
 with no cap, no age test and no income test, KPERS and three other Kansas systems, federal
-civil service retirement (Thrift Savings Plan distributions included) and military retired
+civil service retirement (a Thrift Savings Plan distribution being federal-employment
+retirement by the help text's own wording, rather than a line naming it) and military retired
 pay — and nothing exempts a private pension, a 401(k), an IRA or an annuity at any age or
 below any ceiling. `$0.00` against `$1,942.88` on the same `$50,000`. **An out-of-state public
 pension is taxed in full**, because the exempt list is {Kansas} ∪ {the United States} and the

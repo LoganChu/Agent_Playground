@@ -96,7 +96,8 @@ reports anywhere. A Kansas return computed here for such a household comes out `
 **D. WHAT A KANSAS RETIREMENT COSTS DEPENDS ENTIRELY ON WHICH GOVERNMENT EMPLOYED YOU.**
 Kansas exempts, completely, with no cap, no age limit and no income test: the Kansas public
 employees', police and firemen's, judges' and highway patrol pensions; **federal civil
-service pensions**, including Thrift Savings Plan withdrawals; and military retired pay. And
+service pensions**, which by the Department's own wording covers a Thrift Savings Plan
+withdrawal; and military retired pay. And
 it exempts **nothing else** — not a company pension, not a 401(k), not an IRA, not an
 annuity, at any age, below any ceiling.
 

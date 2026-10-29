@@ -76,8 +76,9 @@ tax year 2025 on. Not modelled, and unmodellable rather than merely absent:
 
 K.S.A. 79-32,117(c) exempts in full — no cap, no age test, no income test — KPERS, the
 Kansas Police and Firemen's, Judges and Justices and Highway Patrol systems; **federal civil
-service retirement**, which the Department's own Schedule S help includes Thrift Savings Plan
-distributions in; and military retired pay. **Nothing** exempts a private pension, a 401(k),
+service retirement** — a Thrift Savings Plan distribution being federal-employment
+retirement by the help text's own wording rather than a line naming it; and military retired
+pay. **Nothing** exempts a private pension, a 401(k),
 an IRA or an annuity, at any age, below any ceiling.
 
 ```text
@@ -282,8 +283,10 @@ Both thresholds double, the deduction doubles (`$4,120` to `$8,240`), the exempt
 a box on a single or head-of-household return and `$700` on a joint or separate one, per
 person, so marrying costs each aged-or-blind Kansan `$150` of deduction and a couple both 65
 `$16.74` of tax. **Kansas and Oregon are the only two figures in this package where a single
-filer's allowance exceeds a joint filer's**, and the amounts have not moved since 1998: the
-federal § 63(f) additions were `$1,050` and `$850` that year and are `$2,000` and `$1,600` now.
+filer's allowance exceeds a joint filer's**, and the two figures carry a 1998 start date in the
+reference model's parameter file with no later value, which is that package's claim and the
+only evidence for the date available from here; the federal § 63(f) additions were `$1,050`
+and `$850` in 1998 and are `$2,000` and `$1,600` now.
 
 ### Sourcing, and the route that came back
 
