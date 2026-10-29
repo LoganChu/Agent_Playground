@@ -187,31 +187,61 @@
  * both years this module covers. A model still carrying it overstates that
  * couple's Kansas bill by the same `$2,845.80`.
  *
- * ## Two brackets, marriage-neutral everywhere except in the allowance for being old
+ * ## Two brackets, and THE DOUBLING THAT IS NOT A DOUBLING
  *
  * K.S.A. 79-32,110(a)(2)(F), as SB 1 rewrote it for tax year 2024 and after:
- * 5.2% to `$23,000` of Kansas taxable income and 5.58% above, with every
- * threshold exactly doubled on a joint return. The deduction doubles
- * (`$4,120` separate, `$8,240` joint) and so does the exemption
- * (`$9,160` and `$18,320`). **Kansas is the most marriage-neutral rate structure
- * in this package** — and then:
+ * 5.2% to `$23,000` of Kansas taxable income and 5.58% above, with both
+ * thresholds exactly doubled on a joint return, and a personal exemption of
+ * `$9,160` doubled to `$18,320`. Two tables out of three are exactly symmetric.
+ *
+ * **THE STANDARD DEDUCTION IS NOT, AND THE ASYMMETRY RUNS THE OTHER WAY FROM
+ * EVERY MARRIAGE PENALTY IN THIS PACKAGE.**
  *
  * ```text
- *   Worksheet I, per box checked for 65-or-over or blind, per person
- *     single and head of household            850
- *     married filing joint and separate       700
+ *   single                3,605
+ *   married separately    4,120     <- MORE than a single filer, by $515
+ *   joint                 8,240     =  2 x 4,120, and NOT 2 x 3,605
+ *   head of household     6,180
  * ```
  *
- * So the ONE marriage penalty in the Kansas income tax is in its allowance for
- * being old or blind: `$150` of deduction per aged-or-blind person, `$300` for a
- * couple both 65, `$16.74` of tax. Oregon's addition is upside down the same way
- * (`$1,200` single against `$1,000` joint) and the two are the only figures in
- * this package where a single filer's allowance exceeds a joint filer's. **The
- * amounts carry a 1998 start date in the reference model's parameter file and no
- * later value**, which is that package asserting twenty-eight tax years without a
- * change and is the only evidence for the date readable from here; the federal
- * § 63(f) additions were `$1,050` and `$850` in 1998 and are `$2,000` and `$1,600`
- * now.
+ * The joint figure is twice the SEPARATE one and the single filer is `$515`
+ * below that half. Two consequences, neither of which any rate table shows:
+ *
+ * - **A married Kansan filing separately has a larger standard deduction than a
+ *   single Kansan on the same income** — `$26.78` of tax in the 5.2% band and
+ *   `$28.73` in the 5.58% one. Every other state in this package that sets a
+ *   separate column at all sets it equal to single.
+ * - **And two single filers who marry GAIN `$1,030` of deduction**: `$57.47` of
+ *   tax for two people on `$50,000` each. Kansas's is a marriage BONUS where the
+ *   rest of this package records penalties.
+ *
+ * `policyengine-us`'s own parameter file says of the separate figure that *"the
+ * legal code doesn't specify the value for separate, but recent tax forms show
+ * that it is half the joint value"* — so the `$4,120` is read off a form and the
+ * `$3,605` is its own statutory number, which is how the two came to disagree.
+ *
+ * **TWO THINGS DO BREAK IN THE PENALTY DIRECTION AND BOTH BELONG TO A STATUS
+ * RATHER THAN TO A COUPLE.** Worksheet I gives `$850` per box checked for
+ * 65-or-over or blindness on a single or head-of-household return and `$700` on a
+ * joint or separate one, per person — so marrying costs each aged-or-blind Kansan
+ * `$150` of deduction, `$300` for a couple both 65, `$16.74` of tax. Oregon's
+ * addition is upside down the same way (`$1,200` single against `$1,000` joint)
+ * and the two are the only figures in this package where a single filer's
+ * allowance exceeds a joint filer's. **The amounts carry a 1998 start date in the
+ * reference model's parameter file and no later value**, which is that package
+ * asserting twenty-eight tax years without a change and is the only evidence for
+ * the date readable from here; the federal § 63(f) additions were `$1,050` and
+ * `$850` in 1998 and are `$2,000` and `$1,600` now.
+ *
+ * And the head-of-household column is the larger break: a single parent loses the
+ * `$2,320` additional exemption AND `$1,545` of deduction on marrying — `$1,545`
+ * and not the `$2,575` between the two columns, because the single filer's own
+ * `$3,605` is absorbed into the joint `$8,240` rather than lost. So a parent on
+ * `$60,000` who marries a single filer on `$40,000` pays `$215.67` more than the
+ * two of them did apart, which is exactly `3,865 x 5.58%`. That is not peculiar
+ * to Kansas — head-of-household status is for the unmarried everywhere — but it
+ * is THIRTEEN times the aged-or-blind penalty, and it is the one a widow reading
+ * this column would meet on remarrying.
  *
  * ## Nothing in Kansas is indexed, and that is the statute rather than a carry-forward
  *
@@ -536,7 +566,8 @@ export function kansas(year: number): StateIncomeTaxDefinition | undefined {
       'NOTHING IN THE KANSAS INCOME TAX IS INDEXED, AND THE SAMENESS OF THE TWO YEARS IS THE STATUTE RATHER THAN A CARRY-FORWARD. The deduction, the exemption, the dependent amount, both Worksheet I figures and both bracket thresholds are identical in 2024, 2025 and 2026, because SB 1 wrote each of them for "tax year 2024, and all tax years thereafter" and the enacted law carries no cost-of-living provision. THE BILL AS INTRODUCED DID: a 2024 fiscal note describes increasing the standard deduction annually by the cost-of-living adjustment of the Internal Revenue Code beginning in tax year 2025, and that clause is not in the act. A model built from the fiscal note indexes a figure the law fixes. The 2025 K-40 booklet printing the 2024 table unchanged is the evidence that there is no indexing, not evidence that nobody read it.',
       "NOT MODELLED — THE CHILD AND DEPENDENT CARE CREDIT, WHICH IS 50% OF THE FEDERAL CREDIT AND THE LARGEST SUCH MATCH IN THIS PACKAGE. K.S.A. 79-32,111c gives a percentage of the federal § 21 credit — 12.5% for 2018 rising to 25% for 2020 and 50% from tax year 2024 — non-refundable. Neither this package nor `us-federal-tax` computes the federal § 21 credit and no input carries one, so a Kansas return with child care expenses is computed here TOO HIGH by half of it. Supply the credit yourself; nothing in this package can accept one.",
       "KANSAS'S FOOD SALES TAX CREDIT IS GONE FROM TAX YEAR 2025. It was $125 per qualifying exemption for a household with a child under 18, a filer or spouse of 55 or over, or a blind or disabled filer, where federal AGI was below $30,615 — a limit unchanged since 2015 — and HB 2106 of 2022 reduced it to zero as the state's own sales tax on food reached zero. A family of four with a young child and $30,000 of AGI had $500 of credit in tax year 2024 and nothing in 2025, so a model carrying the credit into either year this module covers overstates a low-income Kansas refund by up to $125 a head. Neither year here has it, which is why no rule models it.",
-      "KANSAS IS MARRIAGE-NEUTRAL EVERYWHERE EXCEPT IN ITS ALLOWANCE FOR BEING OLD OR BLIND. Both bracket thresholds double on a joint return ($23,000 to $46,000), the standard deduction doubles ($4,120 separate to $8,240 joint) and so does the exemption ($9,160 to $18,320) — the cleanest doubling in this package. Then Worksheet I gives $850 per aged-or-blind box on a single or head-of-household return and $700 on a joint or separate one, so marrying costs each aged or blind Kansan $150 of deduction, $300 for a couple both 65, $16.74 of tax. Oregon's addition is upside down the same way and the two are the only figures here where a single filer's allowance exceeds a joint filer's. The two figures carry a 1998 start date in the reference model's parameter file with no later value, which is that package asserting twenty-eight tax years without a change and is the only evidence for the date available from this sandbox; the federal § 63(f) additions were $1,050 and $850 in 1998 and are $2,000 and $1,600 now.",
+      "A MARRIED KANSAN FILING SEPARATELY HAS A LARGER STANDARD DEDUCTION THAN A SINGLE ONE, AND THE JOINT FIGURE IS TWICE THE SEPARATE FIGURE RATHER THAN TWICE THE SINGLE FIGURE. $3,605 single, $4,120 separate, $8,240 joint: the separate column is $515 ABOVE the single one, which is $26.78 of tax in the 5.2% band and $28.73 in the 5.58% one, and every other state in this package that sets a separate column sets it equal to single. The consequence for a couple runs the opposite way from every marriage penalty here: two single Kansans who marry GAIN $1,030 of deduction and $57.47 of tax between them at $50,000 each, because the bracket thresholds and the personal exemption ARE exactly doubled and the deduction is more than doubled. policyengine-us's parameter file says the separate figure is read off recent tax forms rather than from the statute, which is how the two came to disagree.",
+      "THE TWO PLACES KANSAS BREAKS IN THE PENALTY DIRECTION BOTH BELONG TO A STATUS RATHER THAN TO A COUPLE. Worksheet I gives $850 per aged-or-blind box on a single or head-of-household return and $700 on a joint or separate one, per person, so marrying costs each aged or blind Kansan $150 of deduction, $300 for a couple both 65, $16.74 of tax — Oregon's addition is upside down the same way and the two are the only figures here where a single filer's allowance exceeds a joint filer's. The larger break is the head-of-household column: a single parent loses the $2,320 additional exemption AND $1,545 of standard deduction on marrying — $1,545 and not the $2,575 between the two columns, because the single filer's own $3,605 is absorbed into the joint $8,240 rather than lost — so a parent on $60,000 who marries a single filer on $40,000 pays $215.67 more than the two paid apart, which is exactly 3,865 x 5.58% and THIRTEEN times the aged-or-blind figure. The 1998 date on the Worksheet I figures is the reference model's — policyengine-us carries both from 1998-01-01 with no later value, which is that package asserting twenty-eight unchanged tax years and the only evidence for the date available from this sandbox; the federal § 63(f) additions were $1,050 and $850 in 1998 and are $2,000 and $1,600 now.",
       'KANSAS TAXES TIPS AND OVERTIME THAT THE FEDERAL GOVERNMENT NOW EXEMPTS. Form K-40 line 1 is federal adjusted gross income and all four OBBBA Schedule 1-A deductions — § 224 tips, § 225 overtime, § 151(d)(5) senior and § 163(h)(4) vehicle loan interest — sit BELOW it, so none of them reaches the Kansas base and Kansas has legislated no subtraction of its own for any of them. A tipped Kansas worker with $8,000 of qualified tips pays Kansas $416.00 of tax on income the federal return exempted entirely where those dollars fall in the 5.2% band, and $446.40 where they fall in the 5.58% one.',
       "WHETHER A MARRIED-FILING-SEPARATE KANSAS RETURN MAY CHECK ITS SPOUSE'S WORKSHEET I BOXES IS UNREAD. The federal § 63(f) additions reach a spouse on a separate return only through § 151(b), which needs the spouse to have no gross income and not be another taxpayer's dependent, and nothing readable from this sandbox says whether Kansas's own worksheet carries that condition. This package counts only the people the return declares, which is the answer that does not flatter the filer. It is worth $700 of deduction and $36.40 to $39.06 of tax, and it is a question about the DEDUCTION: Kansas's personal exemption has no aged or blind addition at all, so there is nothing of that kind for a spouse to follow.",
       'NO CITY, COUNTY OR SCHOOL DISTRICT IN KANSAS LEVIES AN INCOME TAX. The state figure is the whole of a Kansas resident\'s income tax, so `locality` is never required and `SUPPORTED_LOCALITIES` names none here. Kansas City, Missouri and St. Louis levy earnings taxes on people who work there and Kansas City, KANSAS does not — which is a distinction this package already carries on the Missouri side.',

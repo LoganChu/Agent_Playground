@@ -301,6 +301,83 @@ test('the aged and blind addition is upside down, per person, and the only marri
   money((850 - 700) * 2 * 0.0558, 16.74, 'what marrying costs a couple both 65');
 });
 
+test('the standard deduction is the one table Kansas does NOT double from the single column, and it runs the other way', () => {
+  for (const year of [2025, 2026]) {
+    const a = getStateDefinition('KS', year).deduction.amounts;
+    // The joint figure is twice the SEPARATE one and NOT twice the single one.
+    assert.equal(a.marriedFilingJointly, a.marriedFilingSeparately * 2, 'joint is twice separate');
+    assert.notEqual(
+      a.marriedFilingJointly,
+      a.single * 2,
+      `${year}: if these ever become equal, the asymmetry below has gone and the notes are wrong`,
+    );
+    // AND THE SEPARATE COLUMN IS ABOVE THE SINGLE ONE, which no other state here
+    // does: every other separate column in this package equals its single one.
+    assert.equal(a.marriedFilingSeparately - a.single, 515, `${year}: separate less single`);
+  }
+
+  // A married Kansan filing separately pays LESS than a single one on the same
+  // income, by the deduction gap at their marginal rate and by nothing else: the
+  // exemption and both bracket thresholds are identical between the two statuses.
+  const single = ks({ filingStatus: 'single', agi: 50_000, filerAge: 40 });
+  const separate = ks({ filingStatus: 'marriedFilingSeparately', agi: 50_000, filerAge: 40 });
+  // $28.73 and not the $28.737 the multiplication gives, because the engine
+  // rounds a return to cents and the gap is read off two rounded answers.
+  money(single.tax - separate.tax, 28.73, 'the gap in the 5.58% band');
+  money(
+    ks({ filingStatus: 'single', agi: 20_000, filerAge: 40 }).tax -
+      ks({ filingStatus: 'marriedFilingSeparately', agi: 20_000, filerAge: 40 }).tax,
+    515 * 0.052,
+    'and in the 5.2% band, where 515 x 5.2% is exact to the cent',
+  );
+
+  // So two single filers who marry GAIN $1,030 of deduction — a marriage BONUS,
+  // where every other symmetry claim in this package is about a penalty.
+  const apart = ks({ filingStatus: 'single', agi: 50_000, filerAge: 40 }).tax * 2;
+  const married = ks({
+    filingStatus: 'marriedFilingJointly',
+    agi: 100_000,
+    filerAge: 40,
+    spouseAge: 40,
+  }).tax;
+  money(apart - married, 1_030 * 0.0558, 'what marrying is worth to two single filers');
+});
+
+test('the head-of-household column is a larger marriage penalty than the aged addition, and it is four times the size', () => {
+  // A single parent loses the $2,320 additional exemption AND $1,545 of standard
+  // deduction on marrying: 6,180 + 3,605 = 9,785 of deduction between the two of
+  // them against a joint 8,240, so 1,545 goes. NOT the 2,575 that the gap between
+  // the head-of-household and single COLUMNS would suggest — the single filer's
+  // own 3,605 does not disappear, it is absorbed into the joint 8,240.
+  const parent = ks({
+    filingStatus: 'headOfHousehold',
+    agi: 60_000,
+    dependents: 1,
+    dependentAges: [10],
+    filerAge: 40,
+  }).tax;
+  const other = ks({ filingStatus: 'single', agi: 40_000, filerAge: 40 }).tax;
+  const married = ks({
+    filingStatus: 'marriedFilingJointly',
+    agi: 100_000,
+    dependents: 1,
+    dependentAges: [10],
+    filerAge: 40,
+    spouseAge: 40,
+  }).tax;
+  money(married - (parent + other), 215.67, 'what marrying costs a single parent');
+  // And it is exactly the two allowances lost at the margin, which is what makes
+  // the figure checkable rather than an observation about one household.
+  money(married - (parent + other), (2_320 + 1_545) * 0.0558, 'the two allowances lost');
+  // THIRTEEN times the aged-or-blind penalty of $16.74, and the one a Kansas widow
+  // reading the head-of-household column would meet on remarrying. The ratio is
+  // computed rather than stated, because both figures move with the rate.
+  assert.ok(
+    (married - (parent + other)) / ((850 - 700) * 2 * 0.0558) > 12,
+    'the head-of-household break dwarfs the aged one',
+  );
+});
+
 test('nothing in the Kansas income tax is indexed, and the sameness of the two years is the statute', () => {
   const a = getStateDefinition('KS', 2025);
   const b = getStateDefinition('KS', 2026);

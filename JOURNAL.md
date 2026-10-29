@@ -276,17 +276,58 @@ no phase-out, no recapture, no credit withdrawn by income.
 `blind-spots.mjs` now reports **6,540** shipped figures, **5,494** perturbable and **1,046**
 not (289 sentinels, 757 real parameters), up from 6,460 / 5,428 / 753.
 
-### Kansas is marriage-neutral everywhere except in its allowance for being old
+### The doubling that is not a doubling, and a claim of mine the tests refused twice
 
-Both thresholds double, the deduction doubles (`$4,120` to `$8,240`), the exemption doubles
-(`$9,160` to `$18,320`) — the cleanest doubling in the package. Then Worksheet I gives `$850`
-a box on a single or head-of-household return and `$700` on a joint or separate one, per
-person, so marrying costs each aged-or-blind Kansan `$150` of deduction and a couple both 65
-`$16.74` of tax. **Kansas and Oregon are the only two figures in this package where a single
-filer's allowance exceeds a joint filer's**, and the two figures carry a 1998 start date in the
-reference model's parameter file with no later value, which is that package's claim and the
-only evidence for the date available from here; the federal § 63(f) additions were `$1,050`
-and `$850` in 1998 and are `$2,000` and `$1,600` now.
+**I WROTE THAT KANSAS IS "MARRIAGE-NEUTRAL IN EVERY BRACKET, DEDUCTION AND EXEMPTION" AND IT
+IS NOT NEUTRAL IN THE DEDUCTION.** Both bracket thresholds double from the single column to
+the joint one and so does the personal exemption. The standard deduction does not:
+
+```text
+  single                3,605
+  married separately    4,120     <- MORE than a single filer, by $515
+  joint                 8,240     =  2 x 4,120, and NOT 2 x 3,605
+  head of household     6,180
+```
+
+The joint figure is twice the SEPARATE one and the single filer is `$515` below that half, so
+**a married Kansan filing separately has a larger standard deduction than a single Kansan on
+the same income** — `$26.78` of tax in the 5.2% band, `$28.73` in the 5.58% one — which no
+other separate column in this package does, and **two single filers who marry GAIN `$1,030`
+of deduction**, `$57.47` at `$50,000` each. Kansas's asymmetry is a marriage BONUS where every
+other symmetry claim here is about a penalty. `policyengine-us`'s own parameter file says the
+separate figure is read off *"recent tax forms"* and not from the statute, which is how the
+two came to disagree.
+
+> **"EVERYTHING DOUBLES" IS THREE CLAIMS AND I CHECKED TWO.** The brackets and the exemption
+> are exact and I verified both; the deduction I asserted from the shape of the table —
+> `4,120 x 2 = 8,240` is sitting right there — without noticing that the column a MARRIAGE
+> compares against is the single one and not the separate one. A symmetry claim has to name
+> which two columns it is about, and "neutral" named none of them.
+
+**AND THE SAME SENTENCE MISSED A SECOND AND LARGER BREAK.** Worksheet I's `$850`/`$700` costs
+each aged-or-blind Kansan `$150` of deduction on marrying, `$16.74` for a couple both 65 —
+and the head-of-household column costs a single parent the `$2,320` additional exemption and
+`$1,545` of deduction, which is **`$215.67` and thirteen times as much**. It is not peculiar
+to Kansas, head-of-household status being for the unmarried everywhere, but calling the
+`$16.74` "the ONE marriage penalty in the Kansas income tax" was false by an order of
+magnitude.
+
+**AND THE FIRST ATTEMPT AT THE `$215.67` DECOMPOSITION WAS WRONG TOO, AND THE TEST SAID SO
+IMMEDIATELY.** I wrote the deduction lost as `$2,575`, which is the gap between the
+head-of-household and single columns. The figure is `$1,545`: `6,180 + 3,605 = 9,785` against
+a joint `8,240`. The single filer's own `$3,605` is absorbed into the joint figure rather than
+lost, and `(2,320 + 2,575) x 5.58%` is `$273.14` against a measured `$215.67`.
+
+> **A DECOMPOSITION THAT DOES NOT ADD UP TO THE MEASUREMENT IS A SECOND CLAIM, AND IT IS THE
+> ONE WORTH ASSERTING.** The total was right from the engine; the explanation was wrong, and
+> the only reason it did not ship wrong is that the test asserts the parts as well as the sum.
+> A test on the total alone would have passed.
+
+Kansas and Oregon remain the only two figures in this package where a single filer's allowance
+exceeds a joint filer's, and the Worksheet I amounts carry a 1998 start date in the reference
+model's parameter file with no later value — that package's claim, and the only evidence for
+the date available from here; the federal § 63(f) additions were `$1,050` and `$850` in 1998
+and are `$2,000` and `$1,600` now.
 
 ### Sourcing, and the route that came back
 

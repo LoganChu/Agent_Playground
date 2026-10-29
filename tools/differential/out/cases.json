@@ -201,6 +201,24 @@
   "kind": "single-worker"
  },
  {
+  "id": "2025-single-worker-KS-15000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 15000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "2025-single-worker-KY-15000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -761,6 +779,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "2025-single-worker-KS-30000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 30000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-worker"
  },
@@ -1329,6 +1365,24 @@
   "kind": "single-worker"
  },
  {
+  "id": "2025-single-worker-KS-50000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "2025-single-worker-KY-50000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -1889,6 +1943,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "2025-single-worker-KS-80000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 80000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-worker"
  },
@@ -2457,6 +2529,24 @@
   "kind": "single-worker"
  },
  {
+  "id": "2025-single-worker-KS-150000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 150000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "2025-single-worker-KY-150000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -3017,6 +3107,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "2025-single-worker-KS-400000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 400000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-worker"
  },
@@ -3614,6 +3722,27 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
+  "id": "2025-couple-two-children-KS-30000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 30000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "couple-two-children"
  },
@@ -4275,6 +4404,27 @@
   "kind": "couple-two-children"
  },
  {
+  "id": "2025-couple-two-children-KS-60000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 60000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
   "id": "2025-couple-two-children-KY-60000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -4928,6 +5078,27 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
+  "id": "2025-couple-two-children-KS-100000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "couple-two-children"
  },
@@ -5589,6 +5760,27 @@
   "kind": "couple-two-children"
  },
  {
+  "id": "2025-couple-two-children-KS-200000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 200000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
   "id": "2025-couple-two-children-KY-200000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -6235,6 +6427,26 @@
   "kind": "single-parent"
  },
  {
+  "id": "2025-single-parent-KS-12000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 12000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent"
+ },
+ {
   "id": "2025-single-parent-KY-12000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -6857,6 +7069,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent"
+ },
+ {
+  "id": "2025-single-parent-KS-25000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-parent"
  },
@@ -7487,6 +7719,26 @@
   "kind": "single-parent"
  },
  {
+  "id": "2025-single-parent-KS-45000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent"
+ },
+ {
   "id": "2025-single-parent-KY-45000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -8091,6 +8343,24 @@
   "kind": "retired-couple"
  },
  {
+  "id": "2025-retired-couple-KS-0-0-40000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 0,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
   "id": "2025-retired-couple-KY-0-0-40000-0-0",
   "year": 2025,
   "state": "KY",
@@ -8651,6 +8921,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
+  "id": "2025-retired-couple-KS-0-20000-40000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 20000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "retired-couple"
  },
@@ -9219,6 +9507,24 @@
   "kind": "retired-couple"
  },
  {
+  "id": "2025-retired-couple-KS-0-50000-40000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
   "id": "2025-retired-couple-KY-0-50000-40000-0-0",
   "year": 2025,
   "state": "KY",
@@ -9779,6 +10085,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
+  "id": "2025-retired-couple-KS-0-90000-40000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 90000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "retired-couple"
  },
@@ -10347,6 +10671,24 @@
   "kind": "single-retiree"
  },
  {
+  "id": "2025-single-retiree-KS-0-10000-24000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 67,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 10000,
+  "socialSecurity": 24000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-retiree"
+ },
+ {
   "id": "2025-single-retiree-KY-0-10000-24000-0-0",
   "year": 2025,
   "state": "KY",
@@ -10907,6 +11249,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-retiree"
+ },
+ {
+  "id": "2025-single-retiree-KS-0-40000-24000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 67,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 40000,
+  "socialSecurity": 24000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-retiree"
  },
@@ -11475,6 +11835,24 @@
   "kind": "investor"
  },
  {
+  "id": "2025-investor-KS-50000-0-0-20000-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 45,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 20000,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "investor"
+ },
+ {
   "id": "2025-investor-KY-50000-0-0-20000-0",
   "year": 2025,
   "state": "KY",
@@ -12035,6 +12413,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "investor"
+ },
+ {
+  "id": "2025-investor-KS-50000-0-0-100000-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 45,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 100000,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "investor"
  },
@@ -12603,6 +12999,24 @@
   "kind": "separate"
  },
  {
+  "id": "2025-separate-KS-60000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 42,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 60000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate"
+ },
+ {
   "id": "2025-separate-KY-60000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -13163,6 +13577,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "muni-retiree"
+ },
+ {
+  "id": "2025-muni-retiree-KS-0-60000-40000-0-10000",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 60000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 10000,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "muni-retiree"
  },
@@ -13731,6 +14163,24 @@
   "kind": "couple-no-children"
  },
  {
+  "id": "2025-couple-no-children-KS-25000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-no-children"
+ },
+ {
   "id": "2025-couple-no-children-KY-25000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -14291,6 +14741,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "2025-couple-no-children-KS-75000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "couple-no-children"
  },
@@ -14899,6 +15367,28 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "2025-mixed-dependents-KS-40000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "mixed-dependents"
  },
@@ -15591,6 +16081,28 @@
   "kind": "mixed-dependents"
  },
  {
+  "id": "2025-mixed-dependents-KS-90000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "mixed-dependents"
+ },
+ {
   "id": "2025-mixed-dependents-KY-90000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -16257,6 +16769,26 @@
   "kind": "single-parent-high"
  },
  {
+  "id": "2025-single-parent-high-KS-90000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   12
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent-high"
+ },
+ {
   "id": "2025-single-parent-high-KY-90000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -16879,6 +17411,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "2025-single-parent-teen-KS-35000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-parent-teen"
  },
@@ -17509,6 +18061,26 @@
   "kind": "separate-with-child"
  },
  {
+  "id": "2025-separate-with-child-KS-45000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate-with-child"
+ },
+ {
   "id": "2025-separate-with-child-KY-45000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -18131,6 +18703,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "2025-surviving-spouse-KS-45000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "surviving-spouse"
  },
@@ -18761,6 +19353,26 @@
   "kind": "surviving-spouse-high"
  },
  {
+  "id": "2025-surviving-spouse-high-KS-250000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "2025-surviving-spouse-high-KY-250000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -19383,6 +19995,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "2025-surviving-spouse-high-KS-300000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "surviving-spouse-high"
  },
@@ -20013,6 +20645,26 @@
   "kind": "surviving-spouse-high"
  },
  {
+  "id": "2025-surviving-spouse-high-KS-450000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "2025-surviving-spouse-high-KY-450000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -20635,6 +21287,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-low"
+ },
+ {
+  "id": "2025-surviving-spouse-low-KS-18000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 18000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "surviving-spouse-low"
  },
@@ -21265,6 +21937,26 @@
   "kind": "surviving-spouse-low"
  },
  {
+  "id": "2025-surviving-spouse-low-KS-26000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 26000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-low"
+ },
+ {
   "id": "2025-surviving-spouse-low-KY-26000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -21869,6 +22561,24 @@
   "kind": "separate-with-spouse"
  },
  {
+  "id": "2025-separate-with-spouse-KS-0-55000-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 68,
+  "spouseAge": 68,
+  "childAges": [],
+  "wages": 0,
+  "pension": 55000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate-with-spouse"
+ },
+ {
   "id": "2025-separate-with-spouse-KY-0-55000-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -22429,6 +23139,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate-with-spouse-young"
+ },
+ {
+  "id": "2025-separate-with-spouse-young-KS-0-55000-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 61,
+  "spouseAge": 61,
+  "childAges": [],
+  "wages": 0,
+  "pension": 55000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "separate-with-spouse-young"
  },
@@ -22997,6 +23725,24 @@
   "kind": "early-retiree"
  },
  {
+  "id": "2025-early-retiree-KS-0-50000-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "early-retiree"
+ },
+ {
   "id": "2025-early-retiree-KY-0-50000-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -23557,6 +24303,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "2025-early-retired-couple-KS-0-70000-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "early-retired-couple"
  },
@@ -24125,6 +24889,24 @@
   "kind": "blind-worker"
  },
  {
+  "id": "2025-blind-worker-KS-40000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "blind-worker"
+ },
+ {
   "id": "2025-blind-worker-KY-40000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -24685,6 +25467,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "2025-blind-senior-KS-0-25000-20000-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "blind-senior"
  },
@@ -25271,6 +26071,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "2025-on-the-boundary-KS-50000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "on-the-boundary"
  },
@@ -25901,6 +26721,26 @@
   "kind": "on-the-boundary"
  },
  {
+  "id": "2025-on-the-boundary-KS-100000-0-0-0-0",
+  "year": 2025,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "on-the-boundary"
+ },
+ {
   "id": "2025-on-the-boundary-KY-100000-0-0-0-0",
   "year": 2025,
   "state": "KY",
@@ -26505,6 +27345,24 @@
   "kind": "single-worker"
  },
  {
+  "id": "2026-single-worker-KS-15000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 15000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "2026-single-worker-KY-15000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -27065,6 +27923,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "2026-single-worker-KS-30000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 30000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-worker"
  },
@@ -27633,6 +28509,24 @@
   "kind": "single-worker"
  },
  {
+  "id": "2026-single-worker-KS-50000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "2026-single-worker-KY-50000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -28193,6 +29087,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "2026-single-worker-KS-80000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 80000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-worker"
  },
@@ -28761,6 +29673,24 @@
   "kind": "single-worker"
  },
  {
+  "id": "2026-single-worker-KS-150000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 150000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
   "id": "2026-single-worker-KY-150000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -29321,6 +30251,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-worker"
+ },
+ {
+  "id": "2026-single-worker-KS-400000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 400000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-worker"
  },
@@ -29918,6 +30866,27 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
+  "id": "2026-couple-two-children-KS-30000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 30000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "couple-two-children"
  },
@@ -30579,6 +31548,27 @@
   "kind": "couple-two-children"
  },
  {
+  "id": "2026-couple-two-children-KS-60000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 60000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
   "id": "2026-couple-two-children-KY-60000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -31232,6 +32222,27 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
+  "id": "2026-couple-two-children-KS-100000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "couple-two-children"
  },
@@ -31893,6 +32904,27 @@
   "kind": "couple-two-children"
  },
  {
+  "id": "2026-couple-two-children-KS-200000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 38,
+  "spouseAge": 36,
+  "childAges": [
+   3,
+   8
+  ],
+  "wages": 200000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-two-children"
+ },
+ {
   "id": "2026-couple-two-children-KY-200000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -32539,6 +33571,26 @@
   "kind": "single-parent"
  },
  {
+  "id": "2026-single-parent-KS-12000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 12000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent"
+ },
+ {
   "id": "2026-single-parent-KY-12000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -33161,6 +34213,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent"
+ },
+ {
+  "id": "2026-single-parent-KS-25000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-parent"
  },
@@ -33791,6 +34863,26 @@
   "kind": "single-parent"
  },
  {
+  "id": "2026-single-parent-KS-45000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 34,
+  "spouseAge": null,
+  "childAges": [
+   5
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent"
+ },
+ {
   "id": "2026-single-parent-KY-45000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -34395,6 +35487,24 @@
   "kind": "retired-couple"
  },
  {
+  "id": "2026-retired-couple-KS-0-0-40000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 0,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
   "id": "2026-retired-couple-KY-0-0-40000-0-0",
   "year": 2026,
   "state": "KY",
@@ -34955,6 +36065,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
+  "id": "2026-retired-couple-KS-0-20000-40000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 20000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "retired-couple"
  },
@@ -35523,6 +36651,24 @@
   "kind": "retired-couple"
  },
  {
+  "id": "2026-retired-couple-KS-0-50000-40000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
   "id": "2026-retired-couple-KY-0-50000-40000-0-0",
   "year": 2026,
   "state": "KY",
@@ -36083,6 +37229,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "retired-couple"
+ },
+ {
+  "id": "2026-retired-couple-KS-0-90000-40000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 90000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "retired-couple"
  },
@@ -36651,6 +37815,24 @@
   "kind": "single-retiree"
  },
  {
+  "id": "2026-single-retiree-KS-0-10000-24000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 67,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 10000,
+  "socialSecurity": 24000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-retiree"
+ },
+ {
   "id": "2026-single-retiree-KY-0-10000-24000-0-0",
   "year": 2026,
   "state": "KY",
@@ -37211,6 +38393,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-retiree"
+ },
+ {
+  "id": "2026-single-retiree-KS-0-40000-24000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 67,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 40000,
+  "socialSecurity": 24000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-retiree"
  },
@@ -37779,6 +38979,24 @@
   "kind": "investor"
  },
  {
+  "id": "2026-investor-KS-50000-0-0-20000-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 45,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 20000,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "investor"
+ },
+ {
   "id": "2026-investor-KY-50000-0-0-20000-0",
   "year": 2026,
   "state": "KY",
@@ -38339,6 +39557,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "investor"
+ },
+ {
+  "id": "2026-investor-KS-50000-0-0-100000-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 45,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 100000,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "investor"
  },
@@ -38907,6 +40143,24 @@
   "kind": "separate"
  },
  {
+  "id": "2026-separate-KS-60000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 42,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 60000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate"
+ },
+ {
   "id": "2026-separate-KY-60000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -39467,6 +40721,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "muni-retiree"
+ },
+ {
+  "id": "2026-muni-retiree-KS-0-60000-40000-0-10000",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 70,
+  "spouseAge": 70,
+  "childAges": [],
+  "wages": 0,
+  "pension": 60000,
+  "socialSecurity": 40000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 10000,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "muni-retiree"
  },
@@ -40035,6 +41307,24 @@
   "kind": "couple-no-children"
  },
  {
+  "id": "2026-couple-no-children-KS-25000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 25000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-no-children"
+ },
+ {
   "id": "2026-couple-no-children-KY-25000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -40595,6 +41885,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "couple-no-children"
+ },
+ {
+  "id": "2026-couple-no-children-KS-75000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 45,
+  "spouseAge": 43,
+  "childAges": [],
+  "wages": 75000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "couple-no-children"
  },
@@ -41203,6 +42511,28 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "mixed-dependents"
+ },
+ {
+  "id": "2026-mixed-dependents-KS-40000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "mixed-dependents"
  },
@@ -41895,6 +43225,28 @@
   "kind": "mixed-dependents"
  },
  {
+  "id": "2026-mixed-dependents-KS-90000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 42,
+  "spouseAge": 40,
+  "childAges": [
+   2,
+   7,
+   14
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "mixed-dependents"
+ },
+ {
   "id": "2026-mixed-dependents-KY-90000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -42561,6 +43913,26 @@
   "kind": "single-parent-high"
  },
  {
+  "id": "2026-single-parent-high-KS-90000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   12
+  ],
+  "wages": 90000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent-high"
+ },
+ {
   "id": "2026-single-parent-high-KY-90000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -43183,6 +44555,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "single-parent-teen"
+ },
+ {
+  "id": "2026-single-parent-teen-KS-35000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "headOfHousehold",
+  "primaryAge": 44,
+  "spouseAge": null,
+  "childAges": [
+   16
+  ],
+  "wages": 35000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "single-parent-teen"
  },
@@ -43813,6 +45205,26 @@
   "kind": "separate-with-child"
  },
  {
+  "id": "2026-separate-with-child-KS-45000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   6
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate-with-child"
+ },
+ {
   "id": "2026-separate-with-child-KY-45000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -44435,6 +45847,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse"
+ },
+ {
+  "id": "2026-surviving-spouse-KS-45000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 41,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 45000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "surviving-spouse"
  },
@@ -45065,6 +46497,26 @@
   "kind": "surviving-spouse-high"
  },
  {
+  "id": "2026-surviving-spouse-high-KS-250000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 250000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "2026-surviving-spouse-high-KY-250000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -45687,6 +47139,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
+  "id": "2026-surviving-spouse-high-KS-300000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 300000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "surviving-spouse-high"
  },
@@ -46317,6 +47789,26 @@
   "kind": "surviving-spouse-high"
  },
  {
+  "id": "2026-surviving-spouse-high-KS-450000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 47,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 450000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-high"
+ },
+ {
   "id": "2026-surviving-spouse-high-KY-450000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -46939,6 +48431,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-low"
+ },
+ {
+  "id": "2026-surviving-spouse-low-KS-18000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 18000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "surviving-spouse-low"
  },
@@ -47569,6 +49081,26 @@
   "kind": "surviving-spouse-low"
  },
  {
+  "id": "2026-surviving-spouse-low-KS-26000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "qualifyingSurvivingSpouse",
+  "primaryAge": 38,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 26000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "surviving-spouse-low"
+ },
+ {
   "id": "2026-surviving-spouse-low-KY-26000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -48173,6 +49705,24 @@
   "kind": "separate-with-spouse"
  },
  {
+  "id": "2026-separate-with-spouse-KS-0-55000-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 68,
+  "spouseAge": 68,
+  "childAges": [],
+  "wages": 0,
+  "pension": 55000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate-with-spouse"
+ },
+ {
   "id": "2026-separate-with-spouse-KY-0-55000-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -48733,6 +50283,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "separate-with-spouse-young"
+ },
+ {
+  "id": "2026-separate-with-spouse-young-KS-0-55000-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingSeparately",
+  "primaryAge": 61,
+  "spouseAge": 61,
+  "childAges": [],
+  "wages": 0,
+  "pension": 55000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "separate-with-spouse-young"
  },
@@ -49301,6 +50869,24 @@
   "kind": "early-retiree"
  },
  {
+  "id": "2026-early-retiree-KS-0-50000-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 56,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 50000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "early-retiree"
+ },
+ {
   "id": "2026-early-retiree-KY-0-50000-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -49861,6 +51447,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "early-retired-couple"
+ },
+ {
+  "id": "2026-early-retired-couple-KS-0-70000-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "marriedFilingJointly",
+  "primaryAge": 57,
+  "spouseAge": 55,
+  "childAges": [],
+  "wages": 0,
+  "pension": 70000,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "early-retired-couple"
  },
@@ -50429,6 +52033,24 @@
   "kind": "blind-worker"
  },
  {
+  "id": "2026-blind-worker-KS-40000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 40000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "blind-worker"
+ },
+ {
   "id": "2026-blind-worker-KY-40000-0-0-0-0",
   "year": 2026,
   "state": "KY",
@@ -50989,6 +52611,24 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "blind-senior"
+ },
+ {
+  "id": "2026-blind-senior-KS-0-25000-20000-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 70,
+  "spouseAge": null,
+  "childAges": [],
+  "wages": 0,
+  "pension": 25000,
+  "socialSecurity": 20000,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 1,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "blind-senior"
  },
@@ -51575,6 +53215,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "2026-on-the-boundary-KS-50000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 50000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "on-the-boundary"
  },
@@ -52201,6 +53861,26 @@
    "ours": "Marion County",
    "theirs": "MARION_COUNTY_IN"
   },
+  "oregonPriorYearTaxBeforeCredits": null,
+  "kind": "on-the-boundary"
+ },
+ {
+  "id": "2026-on-the-boundary-KS-100000-0-0-0-0",
+  "year": 2026,
+  "state": "KS",
+  "filingStatus": "single",
+  "primaryAge": 40,
+  "spouseAge": null,
+  "childAges": [
+   10
+  ],
+  "wages": 100000,
+  "pension": 0,
+  "socialSecurity": 0,
+  "longTermCapitalGains": 0,
+  "taxExemptInterest": 0,
+  "blind": 0,
+  "county": null,
   "oregonPriorYearTaxBeforeCredits": null,
   "kind": "on-the-boundary"
  },
