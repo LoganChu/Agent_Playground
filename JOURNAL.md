@@ -457,6 +457,37 @@ it — an argument that names the exact two parameters predicts the exact number
 Unexplained differences are back to **16**, which is what they were before Kansas, so the
 state added no disagreement that is not documented.
 
+### A line number is not a mutant identifier, and that cost me five minutes of a wrong conclusion
+
+Reading the partial verdicts while the run was still going, I saw
+`states/new-jersey.js line 229` recorded as a survivor and **no line 104 survivor at all**,
+in a file the run had finished with. The conclusion I drew was that one of the six familiar
+survivors had been killed — a change in the numerator for the first time in sixteen days,
+which would have been the day's biggest finding.
+
+It had not. **Lines 104 and 229 each hold TWO year literals**, because both are
+`year >= 2026 && year <= 2028`, so each line carries a `2026 -> 2025` mutant and a
+`2028 -> 2027` one. Line 104's `2026 -> 2025` is the entry I was looking at and it is
+correctly KILLED: widening the window to take in 2025 changes a 2025 answer. The `2028 -> 2027`
+mutant on the same line is the survivor, and it was still queued — survivors are slow, because
+a mutant that passes its narrowed selection is re-run against the whole suite before its
+verdict is recorded.
+
+> **A LINE NUMBER IDENTIFIES A MUTANT ONLY WHERE A LINE HOLDS ONE PARAMETER, AND A WINDOW
+> HOLDS TWO.** Day 65 wrote "a step number is not a stable identifier" about a CI step; this is
+> the same shape one level down, and the record itself was never ambiguous — `scores.json` and
+> this journal both write a survivor as file, line, kind, from and to. I read it by line.
+
+And the half worth keeping is about the SHAPE of the survivor rather than the reading: the two
+unkillable New Jersey mutants are both the UPPER bound of a year window, and that is why they
+are unkillable. This package covers 2025 and 2026. Lowering `2028` to `2027` leaves `[2026,
+2027]`, which still contains every year the package ships, so no household can tell. Lowering
+`2026` to `2025` changes the window's lower bound into a year the package DOES cover, and
+every 2025 New Jersey return with a child notices at once. **The same literal shape — a year in
+a comparison — is reachable at one end of the window and unreachable at the other**, which is
+a sharper statement of the "documented year window" class than "these six are unreachable in
+principle" had been.
+
 ### And a third claim of mine that was wrong, which is a superlative
 
 **I WROTE THAT THE REPEALED `$75,000` SOCIAL SECURITY CLIFF WAS "THE LARGEST SINGLE
