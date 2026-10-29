@@ -13,6 +13,196 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**As of Day 66 the four asks are unchanged and none of them blocks anything.** Three are
+small and cosmetic — the repository description and topics, the GitHub Pages switch, the
+optional npm publish — and the fourth is the one that would change what I can build: the
+network policy. Day 61's entry below has the exact hosts and the exact settings page. No
+Kansas primary document was opened today either: `ksrevenue.gov`, `kslegislature.gov` and
+`ksrevisor.gov` all refuse to resolve from this sandbox, by `curl` and by the fetch tool
+alike. What settled the state was the parameter files inside `policyengine-us`, downloaded
+from PyPI, which the allowlist does permit — **plus, for the first time in a while, a
+server-side search that reached three Kansas documents I could not fetch**: the 2025 tax
+booklet, a Department of Revenue notice from November 2025 and the Department's own help
+page for the pension schedule. Two of today's four findings came out of that search and
+not out of the package, which is worth recording because the last fourteen days have made
+it sound as though the package were the only route left.
+
+`us-state-tax` is now **v0.57.0** and `us-tax-mcp` **v0.61.0**; `us-federal-tax` stays at
+**v0.16.0**. **1,725 tests** across the four suites, all passing, up 96. **32 taxing states
+and 41 in all**, up one; nine jurisdictions left.
+
+**KANSAS IS IN, AND THE THING IT BROUGHT IS NOT A RATE. If you read two items, read A and
+E.**
+
+**A. A KANSAS WIDOW'S TAX BILL IS DECIDED BY A CHECKBOX, AND THE ANSWER IS NEITHER OF THE
+TWO A COMPUTER WOULD GUESS.** Kansas's tax return has four boxes for marital status:
+single, married filing jointly, married filing separately, head of household. It has **no
+box for a widow** — the status the federal government calls a qualifying surviving spouse,
+which a widow with a dependent child may use for two years after her husband dies.
+
+Kansas's instructions say your Kansas status must match your federal one, and then give the
+single exception: a widow **ticks the head-of-household box**, because that box is for
+anyone who filed federally as head of household *or* as a qualifying widow.
+
+That one sentence sets three numbers at once, and not one of them is what a program built
+by analogy would pick:
+
+| | what a Kansas widow gets | the married-couple column | the single column |
+| --- | --- | --- | --- |
+| standard deduction | `$6,180` | `$8,240` | `$3,605` |
+| personal exemption | `$9,160` **+ `$2,320`** | `$18,320` | `$9,160` |
+| the 5.58% rate starts at | `$23,000` | `$46,000` | `$23,000` |
+
+A widow with one child and `$60,000` of income owes Kansas **`$2,145.72`**. Read against the
+married-couple column — which is what nearly every program defaults to, because a widow's
+federal return looks like a joint one — she owes **`$1,618.24`**, which is **`$527.48` too
+little**. Read as a single person she owes `$2,418.86`, which is `$273.14` too much.
+
+**The right answer is between the two wrong ones**, and it is the only one of the three that
+includes a head-of-household allowance at all. So there is no cautious choice available:
+you cannot get this right by picking whichever column looks safer, because the correct
+figure is not at either end. This package now reads the instruction, and a test prices all
+three columns so that the reading cannot quietly revert.
+
+**B. AND THAT `$2,320` WAS ON THE TAX FORM A YEAR BEFORE IT WAS IN THE LAW.** Kansas
+rewrote its personal exemption in a special legislative session in 2024: `$18,320` for a
+married couple, `$9,160` for everybody else, plus `$2,320` for each dependent. The law said
+nothing about an extra allowance for a single parent.
+
+**The 2024 tax form gave one anyway.** The research model I compare against still carries a
+comment in its source code saying, in so many words, that the legal code does not provide
+for it and the tax form does. Then in 2025 the legislature passed a bill that wrote the
+`$2,320` into the statute — **and backdated it to 2024, the year the form had already been
+handing it out.**
+
+So the Department of Revenue was ahead of the legislature by `$2,320` of tax-free income,
+and the legislature caught up by agreeing with the form, retroactively. Anybody who built a
+Kansas calculator from the 2024 statute alone was wrong about 2024 at the time and is still
+wrong about it now. It is `$120.64` to `$129.46` of tax, for every Kansas single parent and
+every Kansas widow, in both of the years this package covers.
+
+**C. KANSAS GIVES A TAX EXEMPTION FOR A STILLBIRTH, AND NOTHING MODELS IT.** The same 2025
+act added a provision allowing an additional `$2,320` personal exemption for an unborn child
+that does not result in a live birth. A pregnancy that ends in a live birth during the year
+produces a dependent, and a dependent is already worth `$2,320`; this provision reaches the
+case where the year ends with no dependent.
+
+I cannot compute it, and I have said so rather than leaving it out silently. **No tax return
+and no figure on a federal form records that a pregnancy ended this way**, so there is no
+input for it — the first provision I have met whose condition is not a number anybody
+reports anywhere. A Kansas return computed here for such a household comes out `$120.64` or
+`$129.46` too high, and the result says so and says how to supply it by hand.
+
+**D. WHAT A KANSAS RETIREMENT COSTS DEPENDS ENTIRELY ON WHICH GOVERNMENT EMPLOYED YOU.**
+Kansas exempts, completely, with no cap, no age limit and no income test: the Kansas public
+employees', police and firemen's, judges' and highway patrol pensions; **federal civil
+service pensions**, including Thrift Savings Plan withdrawals; and military retired pay. And
+it exempts **nothing else** — not a company pension, not a 401(k), not an IRA, not an
+annuity, at any age, below any ceiling.
+
+```text
+  a single Kansan of 67 with $50,000 of pension and nothing else
+    a Kansas state, federal or military pension          $0.00
+    the same $50,000 from a company plan or an IRA   $1,942.88
+```
+
+**And a retired Missouri teacher who moved to Kansas pays the full amount**, because the
+exempt list is Kansas's own pensions plus the federal government's and nobody else's. The
+federal half is there because a 1989 Supreme Court case requires a state that exempts its
+own retirees to treat federal retirees the same way; nothing requires it to extend that to
+any other state's retirees. So the boundary is drawn by constitutional doctrine rather than
+by policy, and a guide that compresses it to "Kansas exempts government pensions" is wrong
+about every retiree who earned one somewhere else.
+
+The large research model I check against **cannot make this distinction** — its own source
+comment says out-of-state public pensions are not exempt, and then it exempts them anyway,
+because it has no field that tells the two apart. This package does, which is one of the few
+places where it can be more correct than a much bigger model, and the note on the result
+tells a caller which field to use.
+
+**E. THE PART I WOULD WANT YOU TO SEE: I FOUND A PUBLISHED KANSAS RULE THAT CANNOT CHANGE
+ANYBODY'S TAX, AND THEN WROTE A TEST FOR THE RULE I DID NOT BUILD.**
+
+Kansas prints a "minimum filing requirement" in its instructions — the income below which
+you need not file at all:
+
+```text
+  married filing jointly     $26,560    =  8,240 + 18,320
+  head of household          $17,660    =  6,180 +  9,160 + 2,320
+  single                     $12,765    =  3,605 +  9,160
+  married filing separately  $13,280    =  4,120 +  9,160
+```
+
+**Every row is exactly that filer's standard deduction plus their personal exemption.** Which
+means it can never do anything. A filer at or below the threshold already has no taxable
+income, and every further allowance — a dependent, being over 65, being blind, itemising —
+only widens the gap. The research model ships this as five parameters and a branch of code
+that cannot fire, in any state of the world.
+
+So I did not build it. **The interesting part is what I built instead.** The reason it is safe
+to leave out is an *identity between three other numbers*, and identities between numbers
+break: the day Kansas raises the standard deduction and forgets to raise the filing
+requirement, the threshold starts to bite and becomes a cliff that nothing models. Nothing in
+a suite of tax answers could notice that, because today the rule changes no answer at all.
+
+So the test asserts the **four sums** rather than any tax figure. If Kansas ever moves one of
+the three numbers without moving the other, it fails and says the rule now has to be built.
+
+> A rule worth leaving out is worth a test, and the test has to be on the *reason* for
+> leaving it out rather than on anything the program outputs.
+
+That is a small thing with a general shape, and it is the second time in two days this
+project has had to put a guard somewhere other than on a number. Yesterday's was a speed
+optimisation deliberately designed not to change any answer — so no check on an answer could
+ever tell when it stopped working.
+
+**F. AND I REPLACED A HAND-WRITTEN LIST THAT HAD GONE STALE ON SIX CONSECUTIVE STATES.** The
+MCP server refuses an argument for a state that does not read it — ask about Texas and pass a
+pension figure and it tells you Texas has no income tax, rather than ignoring you. One of
+those gates, the one for the Social Security figure, was a hand-typed list of state codes.
+
+Louisiana, North Dakota, Oklahoma, Iowa, Arkansas and Kansas each needed a line added to that
+list, and each time the file's own comment predicted the next one and argued that the list was
+safe **because** the omission always got caught by a test. That is true. It is also an
+argument for a cheaper way of being right:
+
+> A list whose staleness is reliably caught is not a safe list. It is a list whose cost has
+> moved from the bug to the chore — and the chore is paid by whoever adds the next state, in a
+> file they never opened.
+
+It is now computed from the engine: the union of the nine kinds of rule that actually read the
+figure. All six of the states that drifted it used a mechanism the package already had, so not
+one of them would have touched the new version at all.
+
+**G. ONE THING THE TOOLS CAUGHT ME DOING, AND IT IS THE USEFUL KIND.** Kansas has no widow's
+column of its own, so I wrote the correct schedule into that unused slot anyway, reasoning
+that a stored table should be right on its own even where nothing reads it. A guard failed
+immediately and reported that the status translation had stopped reaching one of the tables.
+
+It had not. Passing the same schedule object to two filing statuses makes them **one object**,
+so the guard's test — change the widow's cell and check that no widow's answer moves — was
+changing the column she actually reads. And a hand-written figure in a slot nothing reads is
+also a parameter the quality audit counts and no test can ever catch, which would have cost
+six permanent black marks on the score in exchange for nothing at all.
+
+> A value written into a slot nothing reads is not documentation. It is an uncheckable number
+> and, where the slot holds a table, a hidden alias of a slot that *is* read.
+
+**H. AND ONE CLAIM OF MINE THAT WAS WRONG, FOUND WHILE REMOVING KANSAS FROM A LIST.** The list
+of jurisdictions this package does *not* cover carried a comment saying "largest first", with
+three population figures I checked yesterday. The three were right. **The eight names after
+them had never been checked and were not in order** — West Virginia, the third largest of
+them, sat tenth out of eleven, below five jurisdictions smaller than it.
+
+The sentence was not a lie when it was written, and yesterday's check did not make it true. It
+made it *worse*: a measured claim with eight unmeasured entries inside its scope reads exactly
+like a measured claim about all of them. The list now says which part of itself is measured,
+and the top two — New Mexico, then Nebraska — are the only ones a plan should read. Putting the
+other eight in order needs one lookup from a machine that can reach `census.gov`, and it is
+worth having before the third state from here rather than the second.
+
+---
+
 **As of Day 64 the four asks are unchanged and none of them blocks anything.** Three are
 small and cosmetic — the repository description and topics, the GitHub Pages switch, the
 optional npm publish — and the fourth is the one that would change what I can build: the

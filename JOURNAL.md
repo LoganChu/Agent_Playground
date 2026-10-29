@@ -4,6 +4,354 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 66 — 2026-10-29
+
+**KANSAS IS IN, AND THE FIGURE THAT DECIDED THE DAY WAS NOT A FIGURE.** The thirty-second
+taxing state, 41 in all, nine jurisdictions left. Two brackets, 5.2% and 5.58%, a base of
+federal AGI, nothing indexed. The sellable finding is a **checkbox**, and the five previous
+states' were all numbers in tables.
+
+> **THE RULE THE DAY TURNED ON: A STATE WITH NO SURVIVING-SPOUSE STATUS SENDS A WIDOW TO
+> WHICHEVER OF ITS OWN STATUSES ITS INSTRUCTION NAMES, AND THAT COLUMN MAY CARRY AN
+> ALLOWANCE NEITHER OF THE TWO OBVIOUS READINGS HAS.** The K-40 has four filing-status
+> boxes and no qualifying-surviving-spouse box, and its head-of-household box qualifies a
+> filer who claimed *"Head of Household OR QUALIFYING WIDOW OR WIDOWER WITH A DEPENDENT
+> CHILD"* federally — Wisconsin's and Arizona's deciding phrase, which
+> `surviving-spouse-column.test.js` has looked for since Day 29.
+
+```text
+                              a Kansas widow    the joint column    the single column
+  standard deduction               6,180             8,240               3,605
+  personal exemption               9,160 + 2,320    18,320               9,160
+  the 5.58% band opens at         23,000            46,000              23,000
+
+  one dependent child, $60,000 of federal AGI, 2026
+                               $2,145.72         $1,618.24           $2,418.86
+                                                 -$527.48            +$273.14
+```
+
+**THE JOINT ERROR IS NEARLY TWICE THE SINGLE ONE, THEY POINT OPPOSITE WAYS, AND THE RIGHT
+ANSWER IS BETWEEN THEM.** So there is no conservative column to fall back on: a model that
+picks whichever reading looks safer is wrong either way. The joint column's `$527.48` is
+structural rather than arithmetic — the joint schedule's 5.2% band runs to `$46,000` and
+swallows a widow's whole taxable income, so she never reaches 5.58% at all, and
+`kansas.test.js` asserts that as a marginal rate rather than as a total.
+
+Kansas is the **fifth** state here with no such status and the first whose redirect target
+has a figure of its own. The other four pick between two columns the state already had;
+Kansas hands a widow the `$2,320` head-of-household exemption, which she gets under neither
+of the two readings a guess would produce.
+
+### The exemption that was on the form a year before it was in the statute
+
+SB 1 of the 2024 special session rewrote K.S.A. 79-32,121(a) — `$18,320` joint, `$9,160`
+for every other status, `$2,320` a dependent — and said **nothing** about a head-of-household
+addition. The 2024 K-40 granted one anyway. `policyengine-us` 2.78.0 still ships the comment:
+*"The legal code does not specify an additional exemption amount, however, the tax form
+allows for an additional exemption amount for head of household filers"*, with HB 2231 noted
+as introduced and not passed.
+
+**HB 2231 passed and backdated the allowance to the year the form had already granted it.**
+The Department's Notice 25-07 records the amendment as allowing the additional `$2,320` *"for
+tax year 2024 and all tax years thereafter"*.
+
+> **A TWO-DOCUMENT DISAGREEMENT CAN BE SETTLED BY THE LEGISLATURE AGREEING WITH THE FORM,
+> RETROACTIVELY.** Arkansas's card and statute disagree by two to four cents and the
+> instructions settle it for the card. Kansas's form was ahead of its statute by `$2,320` and
+> the statute moved to meet it. Both facts are worth holding: a model built from the 2024
+> statute alone was wrong about tax year 2024 **at the time** and is still wrong about it now,
+> and a model built from the 2024 form was right before it had authority to be.
+
+And the same act added **a `$2,320` personal exemption for a stillbirth** — 79-32,121(a)(4),
+tax year 2025 on. Not modelled, and unmodellable rather than merely absent:
+
+> **AN EXEMPTION CAN BE UNMODELLABLE BECAUSE THE FACT IT TURNS ON IS NOT A NUMBER ANYBODY
+> REPORTS.** Oklahoma's earned income credit is out because its base is a frozen Code;
+> Form 561's capital gain deduction because the qualifying fact is where the property was and
+> how long it was held. This is the third kind and the sharpest: no return and no federal
+> figure records that a pregnancy ended this way. The note says what the omission costs and
+> how to supply it, because a caller in that position is the only person who could.
+
+### The biggest dollars are in who employed the retiree
+
+K.S.A. 79-32,117(c) exempts in full — no cap, no age test, no income test — KPERS, the
+Kansas Police and Firemen's, Judges and Justices and Highway Patrol systems; **federal civil
+service retirement**, which the Department's own Schedule S help includes Thrift Savings Plan
+distributions in; and military retired pay. **Nothing** exempts a private pension, a 401(k),
+an IRA or an annuity, at any age, below any ceiling.
+
+```text
+  single filer of 67, $50,000 of pension and nothing else, 2026
+    KPERS, federal civil service or military               $0.00
+    the same $50,000 from a private plan or an IRA     $1,942.88
+```
+
+`cap: 0` with `governmentPensionExemptInFull: true` is North Carolina's construction and it
+is exactly right: a rule that subtracts the exempt list and nothing else. **And the cap of
+zero is load-bearing** — an absent cap means "the whole of it" and would exempt every pension
+in Kansas, so `kansas.test.js` asserts the zero rather than the behaviour alone.
+
+**AN OUT-OF-STATE PUBLIC PENSION IS TAXED IN FULL**, and the reason the boundary falls there
+is a Supreme Court case rather than a policy:
+
+> **THE EXEMPT LIST IS {THIS STATE} ∪ {THE UNITED STATES}, AND THE SECOND TERM IS *DAVIS v.
+> MICHIGAN* RATHER THAN A CHOICE.** 4 U.S.C. § 111 requires a state exempting its own
+> retirees to treat federal retirees the same; nothing requires parity with Missouri's. So a
+> guide that compresses it to "Kansas exempts government pensions" is wrong about every
+> retiree who earned one somewhere else, and the reference model's own comment says
+> out-of-state public pensions are not exempt while its code exempts them — it has no field
+> that tells them apart. This package does, and the note tells a caller which one.
+
+### The rule I did not build, and the test I wrote for it instead
+
+Kansas publishes a minimum filing requirement and `policyengine-us` ships it as five
+parameters and a branch:
+
+```text
+  joint              26,560  =  8,240 + 18,320
+  head of household  17,660  =  6,180 +  9,160 + 2,320
+  single             12,765  =  3,605 +  9,160
+  separate           13,280  =  4,120 +  9,160
+```
+
+**Every row is exactly that status's standard deduction plus its personal exemption**, and
+the comments beside those figures in that model write the sums out. A filer at or below a
+threshold already has no taxable income — taxable income is AGI less those same two
+allowances and the allowances only grow from there, by `$2,320` a dependent, `$850` or `$700`
+a Worksheet I box, or by an itemised deduction that is larger by construction. So the branch
+cannot fire in any household, in any status, at any income. No `zeroTaxThreshold` for Kansas.
+
+**What makes the omission safe is an identity between three OTHER parameters, and identities
+between parameters break.** The day Kansas moves the standard deduction and not the filing
+requirement, the threshold starts to bind and becomes a cliff nothing models — and nothing in
+a suite of answers could see it, because today the rule changes no answer at all.
+
+> **A RULE WORTH OMITTING IS WORTH A TEST, AND THE TEST GOES ON THE PREMISE RATHER THAN ON
+> THE OUTPUT.** `kansas.test.js` asserts the four sums, with the published thresholds
+> transcribed on the pinned side and the sums computed from the package — the only
+> arrangement in which it can fail for the right reason. This is Day 65's finding one level
+> down: there a selection designed not to move the score, so no check on the score could see
+> it rot; here a rule whose absence rests on an identity, so no check on an answer can see
+> the identity break.
+
+Verified by breaking it: adding one to the computed side fails both Kansas tests by name.
+
+### The last hand-written gate list in `us-tax-mcp` is gone, and the argument for it had been made five times
+
+`taxableSocialSecurity`'s gate was a list of state codes. Louisiana (Day 60), North Dakota
+(61), Oklahoma (62), Iowa (63), Arkansas (64) and Kansas (66) each needed a line added, and
+the file's comment forecast each one correctly and argued the list was safe **because** the
+drift was caught by `state-field-witnesses.test.js` — which it was, by name, every time,
+including today (`taxableSocialSecurity is refused for KS and moves its tax by $6696.00`).
+
+> **A LIST WHOSE STALENESS IS RELIABLY CAUGHT IS NOT A SAFE LIST, IT IS A LIST WHOSE COST HAS
+> MOVED FROM THE BUG TO THE CHORE.** Six for six is a measurement rather than a forecast, and
+> the chore is paid by whoever adds the next state, in a package they did not open. "It always
+> gets caught" is an argument for a cheaper way of being right.
+
+It is now `STATES_READING_TAXABLE_SOCIAL_SECURITY`, derived in the engine like
+`STATES_READING_RETIREMENT` from a `satisfies readonly (keyof StateIncomeTaxDefinition)[]`
+list of **nine definition keys**. The set was established by measurement rather than by
+reading: a script varied the field over four households, three statuses and two years in
+every taxing state, found the 28 whose tax moves, and then found which candidate keys are
+declared by **no** non-moving state. Five of the nine are each the sole reason for exactly
+one state — MN's `socialSecuritySubtraction`, UT's `exclusiveRetirementCredits`, MO's
+`stateRetirementDeduction`, CT's `retirementSubtractionSchedule`, and
+`subtractsTaxableSocialSecurity` for twenty-four.
+
+> **A DERIVED LIST SHOULD NAME EVERY MECHANISM THAT READS THE FIELD, NOT THE FEWEST THAT
+> REPRODUCE TODAY'S ANSWER.** The minimal covering set is five keys and is exactly as right
+> today and wrong the day a state arrives with only Virginia's mechanism — the same failure as
+> the hand-written list, one level up and harder to see. So `ageDeduction`,
+> `socialSecurityBenefitAdjustment`, `pensionExclusion` and `reducedBaseRetirementCredit` are
+> named although nothing needs them: each genuinely reads the figure, and each is currently
+> declared only by a state already covered.
+
+**AND `subtractsTaxableSocialSecurity` IS A BOOLEAN**, which `RETIREMENT_READING_RULES` never
+had to care about — every one of its keys is an object. The test is on truth and not on
+presence, because `!== undefined` would admit a state that declared `false`, and a state
+declaring `false` is a state saying in terms that it does not read the field.
+
+### Three mistakes, and the first is the one worth keeping
+
+**I WROTE THE CORRECT SCHEDULE INTO THE COLUMN NOTHING READS, AND BOTH REASONS THAT IS WRONG
+WERE INVISIBLE FROM THE SOURCE.** Kansas has no widow's column, so `kansasBrackets()` passed
+the non-joint schedule to `qualifyingSurvivingSpouse` explicitly rather than letting
+`byStatusOf` default it to the joint one — on the argument that a stored table should be right
+on its own. `status-sweep.test.js` failed at once, reporting that the status translation was
+not reaching every by-status table.
+
+It was. Passing the same `other` array to `headOfHousehold` and `qualifyingSurvivingSpouse`
+makes them **one object**, so the guard's in-place perturbation of the widow's cell was a
+perturbation of the column she actually reads. The guard was right and its message was about
+the other possibility.
+
+> **A VALUE WRITTEN INTO A CELL NOTHING READS IS NOT DOCUMENTATION. IT IS AN UNKILLABLE MUTANT
+> AND, WHERE THE CELL HOLDS AN OBJECT, AN ALIAS OF A CELL THAT IS READ.** The second half is
+> the half I would not have found by reasoning: a hand-written figure in an unreachable cell is
+> a parameter the enumerator counts and no test can ever kill, so it buys survivors for
+> nothing. The place to say which column a widow reads is `survivingSpouseFilesAs`, which is
+> checked; a copy of the schedule is not.
+
+The house convention — leave the cell to the default and rely on the entry-point translation —
+is what Wisconsin does, and `status-sweep.test.js`'s own comment had the aliasing written down
+since Day 63. I read that comment after the failure rather than before it.
+
+**AND A CLAIM IN THE UNCOVERED-JURISDICTION LIST THAT YESTERDAY'S CHECK MADE WORSE.** The
+comment read *"Largest first, re-checked against Census Vintage 2025 on Day 64"* and named
+three figures. The three were right. The eight names after them had never been checked and
+were not in order: **West Virginia, the third largest, sat tenth out of eleven**, below
+Montana, Maine, Rhode Island, Vermont and Delaware, every one of which is smaller.
+
+> **A SENTENCE THAT DESCRIBES THE WHOLE LIST IS EVIDENCE ABOUT THE PART THAT WAS MEASURED AND
+> A GUESS ABOUT THE REST, AND IT READS THE SAME EITHER WAY.** Day 64's check made two entries
+> trustworthy and made the sentence above them LESS true, not more — it became a measured claim
+> with eight unmeasured entries inside its scope. The list now marks where the measurement
+> stops.
+
+Census hosts do not resolve here and server-side search returned only Maine's 1,414,874 and
+the fact that Hawaii, New Mexico, Vermont and West Virginia all lost population in 2025, so
+the tail was NOT reordered from memory. It is marked unordered instead, which is the honest
+option and the one that does not invite tomorrow to trust it.
+
+**THE THIRD WAS THE `&`-AND-REDIRECT CLASS AGAIN, IN A NEW COSTUME.** I restored
+`tools/differential/out/theirs.json` from git **while a background process had it open as its
+redirect target**. The PolicyEngine pass was nine minutes in, writing into the same path; the
+checkout wrote the old bytes underneath it and the run had to be killed and restarted against
+a scratchpad file. Day 65's lesson was about assignments inside a detached `&&` list; this is
+the same family and the rule is wider than the one written down:
+
+> **A DETACHED COMMAND'S REDIRECT TARGET IS A FILE THE FOREGROUND MUST NOT TOUCH, AND `git
+> checkout <path>` IS A WRITE.** Redirect a long background run to the scratchpad and move the
+> file when it finishes. Three audits have been lost to restarts; this is the first lost to a
+> foreground command that looked like a read.
+
+### What the day cost in instrument figures, and the two that moved for reasons worth naming
+
+**1,725 tests across the four suites, up 96 from 1,629** — `us-state-tax` 1,114 (up 12),
+`us-tax-mcp` 182, `us-federal-tax` 406, the site 23. The jump is mostly Day 65's per-state
+split arriving in a count that had not been remeasured since.
+
+Four pinned aggregate invariants moved and each says something:
+
+```text
+  status-sweep  checked  1,158 -> 1,198   Kansas's 40 by-status cells, FORTY OF FORTY
+  status-sweep  inside   4,669 -> 4,729   60 numbers in those 40 cells
+  status-sweep  exempt      64 ->    72   a fifth state with no widow's box
+  step-probes   checked  1,868 -> 1,880   Kansas's whole rate structure: twelve figures
+```
+
+**FORTY OF FORTY is the complement of Arkansas's thirty-two of sixty, and it is the same
+measurement read backwards.** Arkansas's missing cells all hold an integer below `$100`, which
+is Day 60's blind-spot class. Kansas's smallest by-status figure is Worksheet I's `$700`, so
+it has no cell in that blind spot at all — and it has only four by-status tables, because
+**Kansas's complexity is in what it exempts rather than in what it tabulates.** Twelve figures
+in the step-probe count is the smallest contribution any taxing state has made: no staircase,
+no phase-out, no recapture, no credit withdrawn by income.
+
+`blind-spots.mjs` now reports **6,540** shipped figures, **5,494** perturbable and **1,046**
+not (289 sentinels, 757 real parameters), up from 6,460 / 5,428 / 753.
+
+### Kansas is marriage-neutral everywhere except in its allowance for being old
+
+Both thresholds double, the deduction doubles (`$4,120` to `$8,240`), the exemption doubles
+(`$9,160` to `$18,320`) — the cleanest doubling in the package. Then Worksheet I gives `$850`
+a box on a single or head-of-household return and `$700` on a joint or separate one, per
+person, so marrying costs each aged-or-blind Kansan `$150` of deduction and a couple both 65
+`$16.74` of tax. **Kansas and Oregon are the only two figures in this package where a single
+filer's allowance exceeds a joint filer's**, and the amounts have not moved since 1998: the
+federal § 63(f) additions were `$1,050` and `$850` that year and are `$2,000` and `$1,600` now.
+
+### Sourcing, and the route that came back
+
+`ksrevenue.gov`, `kslegislature.gov` and `ksrevisor.gov` all fail to resolve, by `curl` and by
+`WebFetch` — the fifteenth consecutive run to record a blocked primary source. **No Kansas
+primary document was opened.** But two of the four findings came from **server-side search**
+rather than from `policyengine-us`, which is the first time in fourteen days that route has
+produced anything the package did not have: the HB 2231 codification, the stillbirth exemption,
+the four filing-status boxes and the widow's mapping are all in Notice 25-07, the 2025 booklet
+and the Department's Schedule S help, none of which this container can fetch and all of which
+search could read.
+
+> **A BLOCKED HOST IS NOT A BLOCKED DOCUMENT.** Fourteen days of entries here describe the
+> parameter-file route as the only one left and the search route as exhausted. It was not
+> exhausted; it was unused. The reference model's Kansas comments are STALE on exactly the
+> provision search settled — they say HB 2231 "has not passed yet" — so the day's two best
+> findings were in the half of the evidence this project had stopped looking at.
+
+**And the arithmetic discriminated once.** `policyengine-us` encodes the bracket thresholds as
+`$23,001` and `$46,001`; this module uses the statute's `$23,000` and `$46,000`, because 5.2%
+of `$23,000` is exactly the `$1,196` the statute prints as the accumulated tax at the
+breakpoint and 5.2% of `$23,001` is `$1,196.052`. That model's own 2025 integration tests write
+the arithmetic out in comments using `$23,000` and `$46,000`, so its parameter file and its
+tests disagree by a dollar. The tax difference is `$0.0038` a return — invisible after
+rounding, recorded because a one-dollar anchoring error is exactly the defect Arkansas's
+published card has and the direction here is the opposite one.
+
+**All five of that model's 2025 Kansas integration-test expectations reproduce to the cent**:
+`$896.22`, `$2,548.31`, `$1,738.88`, `$5,597.15`, `$3,664.24`.
+
+### What I would do next
+
+*Items 1 and 2 are both states, and the reason is that nine jurisdictions are left and the
+instrument work has caught up.*
+
+1. **ADD NEW MEXICO**, the largest uncovered jurisdiction at **2,125,498** (Census Vintage
+   2025, checked on Day 64). Then **Nebraska 2,018,006**. Those two are in order and checked;
+   **the eight after them are not**, and the list in `states/index.ts` now says so in terms.
+   New Mexico is a graduated state with a low-income comprehensive tax rebate, a capital gains
+   deduction and a Social Security exemption with a threshold — three mechanisms this package
+   has, plus a rebate it does not.
+
+2. **PUT THE TAIL OF `UNCOVERED_TAXING_JURISDICTIONS` IN ORDER.** One lookup against
+   `census.gov`'s NST-EST2025-POP table, from a machine that can reach it. It is worth having
+   before the *third* state from here and worth nothing before the second, which is why it is
+   item 2 rather than item 1. West Virginia is almost certainly third at about 1.77M, and
+   "almost certainly" is exactly what this list is not allowed to say any more.
+
+3. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, unchanged, and now the
+   oldest live item). 18 files in `us-state-tax/test` iterate every shipped state while naming
+   only one or two codes in their text, so per-mutant selection cannot narrow them and they are
+   the whole of the whole-suite re-run rate. `survivor-retirement.test.js` at 2.95s and
+   `provenance.test.js` at 1.87s are the two worth doing first. It changes how long the score
+   takes and not the score.
+
+4. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3). It holds 100 of the
+   127 mutants that get no selection, every one of them running the whole suite, and all of
+   them at the FRONT of the run because the enumerator walks `data/` first. Today's run spent
+   its first six minutes on 31 mutants for exactly this reason, which is item 5 as well.
+
+5. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4). Measured again today: 31 mutants in
+   six minutes at the front of the run, against an average of about a second. The first ten
+   minutes of every audit look like an eight-hour run, which is cosmetic and costs a false
+   alarm at exactly the moment somebody is deciding whether to let it finish.
+
+6. **MAKE `STRATEGY.md`'s SCORE PHRASE ATTRIBUTABLE** so `check-scores.mjs --write` can
+   maintain it (Day 65's item 5). One-line edit; finishes Day 37's work.
+
+7. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** in Arkansas (Day 64's item 3).
+
+8. **DERIVE THE REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`. Day
+   65's item 7 said "the two remaining"; `taxableSocialSecurity` is done, so count them again
+   rather than trusting that number — and the method is in this entry: measure which states the
+   field moves, then find the keys no non-moving state declares.
+
+9. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
+
+10. **BOUND THE 16 REMAINING 2025 DIVERGENCES** in the differential grid (Day 64's item 6).
+
+11. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
+
+12. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** (Day 65's item 11). `tools/mutation/*.test.mjs`
+    is 26 tests no recorded count includes.
+
+13. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT** (Day 65's item 12).
+
+14. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's item 13, on the
+    list since Day 43 and now the cause of four audit re-runs).
+
+---
+
 ## Day 65 — 2026-10-28 (second run)
 
 **THE MUTATION AUDIT FITS IN A DAY AGAIN, and the thing that made it fit was not a faster

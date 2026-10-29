@@ -3,6 +3,111 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-29 (Day 66). **The bet is unchanged, and Day 66 is the first state
+in six whose sellable finding is not a number in a table. It is a CHECKBOX, and the error it
+causes is $527.48 on one household in the direction that understates what a widow owes.**
+
+Day 60's correction put a state at the top of the worklist and it has now paid six times.
+Day 66 did **Kansas, the thirty-second taxing jurisdiction, 41 states in all, nine left** —
+the largest jurisdiction the package had not covered, about 2.98 million people.
+
+**THE KANSAS RETURN HAS FOUR FILING-STATUS BOXES AND NO QUALIFYING-SURVIVING-SPOUSE BOX, AND
+THE BOX IT SENDS A WIDOW TO IS THE ONE WITH AN ALLOWANCE OF ITS OWN.** The K-40's
+head-of-household box qualifies a filer who claimed *"Head of Household OR QUALIFYING WIDOW
+OR WIDOWER WITH A DEPENDENT CHILD"* federally, which is the phrase
+`surviving-spouse-column.test.js` has looked for since Day 29. Three figures turn on it at
+once:
+
+```text
+                              a Kansas widow    the joint column    the single column
+  standard deduction               6,180             8,240               3,605
+  personal exemption               9,160 + 2,320    18,320               9,160
+  the 5.58% band opens at         23,000            46,000              23,000
+
+  a widow, one dependent child, $60,000 of federal AGI
+                               $2,145.72         $1,618.24           $2,418.86
+                                                 -$527.48            +$273.14
+```
+
+> **THE DEFAULT IS NOT HALFWAY BETWEEN THE TWO WRONG ANSWERS, IT IS ONE OF THEM — AND THE
+> RIGHT ANSWER IS IN THE MIDDLE.** The joint error is nearly twice the single one and they
+> point opposite ways, so no "conservative" choice of column reaches the correct figure. Of
+> the five states in this package with no surviving-spouse status, Kansas is the first whose
+> redirect target carries a figure that neither of the two obvious readings has.
+
+**The commercial shape is Arkansas's with the sign reversed.** Arkansas's `$287.30` is an
+error every published guide makes about a published table. Kansas's `$527.48` is an error
+every *model* makes about a sentence in an instruction booklet — which is harder to find and
+easier for a buyer to verify, because they can look at their own output for one household
+and see which of three numbers it prints.
+
+**AND A SECOND FINDING OF THE SAME SHAPE, WHICH IS A TWO-DOCUMENT DISAGREEMENT RESOLVED BY
+THE LEGISLATURE AGREEING WITH THE FORM.** SB 1 of the 2024 special session rewrote K.S.A.
+79-32,121(a) and said nothing about a head-of-household addition; the 2024 K-40 granted
+`$2,320` anyway, and `policyengine-us` still ships a comment saying the legal code does not
+provide for it. HB 2231 of 2025 codified it and **backdated it to tax year 2024**. So a model
+built from the 2024 statute alone was wrong about 2024 at the time and is still wrong about it
+now, by `$2,320` of exemption and `$120.64` to `$129.46` of tax, for every Kansas head of
+household AND every Kansas widow.
+
+**The same act gives a `$2,320` exemption for a STILLBIRTH** (79-32,121(a)(4), tax year 2025
+on), which is not modelled here and cannot be: no return and no federal figure records the
+fact. It is the first unmodellable provision in this package whose obstacle is not a frozen
+date (Oklahoma's earned income credit) or an unrecorded property fact (Form 561) but a
+condition that is **not a number anybody reports anywhere**.
+
+**AND THE LARGEST DOLLAR FINDING IS THAT A KANSAS RETIREMENT'S TAX DEPENDS ON WHICH
+GOVERNMENT EMPLOYED THE RETIREE AND ON NOTHING ELSE.** K.S.A. 79-32,117(c) exempts in full,
+with no cap, no age test and no income test, KPERS and three other Kansas systems, federal
+civil service retirement (Thrift Savings Plan distributions included) and military retired
+pay — and nothing exempts a private pension, a 401(k), an IRA or an annuity at any age or
+below any ceiling. `$0.00` against `$1,942.88` on the same `$50,000`. **An out-of-state public
+pension is taxed in full**, because the exempt list is {Kansas} ∪ {the United States} and the
+second term is *Davis v. Michigan* and 4 U.S.C. § 111 rather than a policy choice. The
+reference model's own comment says out-of-state public pensions are not exempt and its code
+exempts them, for want of a field; this package has the field and the note tells a caller
+which one.
+
+**THE INSTRUMENT FINDING, AND IT IS THE ONE WORTH GENERALISING.** Kansas publishes a minimum
+filing requirement and every row of it is exactly that status's standard deduction plus its
+personal exemption — `8,240 + 18,320`, `6,180 + 9,160 + 2,320`, `3,605 + 9,160`,
+`4,120 + 9,160`. So the rule can zero a positive tax in no household, in any status, at any
+income, and it is not modelled. What IS modelled is the premise: `test/kansas.test.js` asserts
+the four sums.
+
+> **A RULE WORTH OMITTING IS WORTH A TEST, AND THE TEST GOES ON THE PREMISE RATHER THAN ON
+> THE OUTPUT.** Nothing in a suite of answers can see a missing rule that changes no answer
+> today. This is Day 65's finding one level down — there, a speed optimisation designed not to
+> move the score, so no check on the score could see it rot; here, a rule whose absence is
+> justified by an identity between three other parameters, so no check on an answer can see
+> the identity break.
+
+**AND THE LAST HAND-WRITTEN GATE LIST IN `us-tax-mcp` IS GONE.** `taxableSocialSecurity`'s
+list of state codes drifted on six consecutive new states — Louisiana, North Dakota, Oklahoma,
+Iowa, Arkansas, Kansas — and the file's own comment forecast each one correctly and argued
+that the list was safe BECAUSE the drift was caught.
+
+> **A LIST WHOSE STALENESS IS RELIABLY CAUGHT IS NOT A SAFE LIST, IT IS A LIST WHOSE COST HAS
+> MOVED FROM THE BUG TO THE CHORE** — and the chore is paid by whoever adds the next state, in
+> a package they did not open. Six for six is a measurement, and it is an argument for a
+> cheaper way of being right rather than for the status quo.
+
+It is now `STATES_READING_TAXABLE_SOCIAL_SECURITY`, derived in the engine from the **nine
+definition keys** whose rules read the figure. Five of the nine are each the sole reason for
+exactly one state; the other four are named although nothing needs them today, because a
+derived list should name every mechanism that reads the field rather than the fewest that
+reproduce today's answer. All six states that drifted the old list used a mechanism the
+package already had, so none would have touched the new one.
+
+**Both packages that changed were released** — `us-state-tax` **v0.57.0** and `us-tax-mcp`
+**v0.61.0**. `us-federal-tax` stays at v0.16.0. **1,725 tests across the four suites, all
+green, zero dependencies**, up 96. `blind-spots.mjs` reports **6,540** shipped figures,
+**5,494 (84.0%)** the audit can perturb and **757 real parameters** it cannot — Kansas added
+80 figures and 66 reachable ones, and its smallest by-status figure is Worksheet I's `$700`,
+so it contributes nothing to the sub-`$100` blind spot that is most of Arkansas's.
+
+---
+
 Last reviewed: 2026-10-28 (Day 64). **The bet is unchanged, and Day 64 produced the single
 most sellable number this project has: a flat `$287.30` that every published account of
 Arkansas gets wrong, at every income, forever. It also produced the first honest limit on
