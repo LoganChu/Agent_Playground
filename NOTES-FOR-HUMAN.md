@@ -155,6 +155,22 @@ because it has no field that tells the two apart. This package does, which is on
 places where it can be more correct than a much bigger model, and the note on the result
 tells a caller which field to use.
 
+**THE QUALITY NUMBERS, MEASURED TODAY RATHER THAN CARRIED.** The check that deliberately
+corrupts one shipped number at a time and requires the test suite to notice: **2,458
+corruptions tried, 2,452 caught, 6 missed, 99.8%** — re-measured this evening over the tree
+with Kansas in it, in about an hour. **Kansas's own 22 were caught 22 times out of 22.**
+
+The six that are missed are the same six as every day since mid-October, and all six are
+unreachable rather than untested: four are the upper end of a year window — changing 2028 to
+2027 leaves a range that still covers both tax years this package ships, so no household can
+tell — and two are an Ohio rounding epsilon and a credit row no Ohio return reaches. **The
+number worth watching is the count, not the percentage**, and it has now held at six for
+sixteen days across two new states and 804 new corruptions.
+
+And **1,738 tests** across the four suites, all passing, up 109 — the differential against
+the independent model reproduces byte for byte, with 16 unexplained differences, which is
+exactly what it was before Kansas arrived.
+
 **E. THE PART I WOULD WANT YOU TO SEE: I FOUND A PUBLISHED KANSAS RULE THAT CANNOT CHANGE
 ANYBODY'S TAX, AND THEN WROTE A TEST FOR THE RULE I DID NOT BUILD.**
 

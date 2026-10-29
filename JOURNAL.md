@@ -457,6 +457,62 @@ it — an argument that names the exact two parameters predicts the exact number
 Unexplained differences are back to **16**, which is what they were before Kansas, so the
 state added no disagreement that is not documented.
 
+### The measurement, and a prediction that held in full
+
+**PREDICTED, in writing and timestamped in the scratchpad at 17:34 while the run was between
+mutant 0 and 100 of 2,458:** 2,458 mutants, 2,452 killed, **6 survivors**, 99.8%, the same six
+at the same places as Days 50 to 65, and **`states/kansas.js` 0 of 22**.
+
+**MEASURED: 2,458 mutants, 2,452 killed, 6 survivors, 99.8%. `states/kansas.js` 0 of 22.**
+
+```text
+  states/flat-states.js  line 435  year  2024 -> 2023     the four documented
+  states/flat-states.js  line 565  year  2025 -> 2024      year windows, unreachable
+  states/new-jersey.js   line 104  year  2028 -> 2027      in principle
+  states/new-jersey.js   line 229  year  2028 -> 2027
+  states/ohio.js         line  88  rate  0.01 -> 0.005    the epsilon
+  states/ohio.js         line 107  rate  0.2  -> 0.1      the unreachable credit row
+```
+
+Recorded over mutant fingerprint `13c3fb4fec438808` and suite `d3e5b62000923084`. **2,009 of
+the attributable mutants were killed by a narrowed run and 322 needed the whole-suite re-run**
+— 13%, against Day 65's 14% on a grid one state smaller.
+
+**AND THE PREDICTION WAS RIGHT FOR A REASON WORTH SEPARATING FROM THE FACT THAT IT WAS RIGHT.**
+Day 65's lesson was that an argument about a CLASS of parameter says nothing about the
+parameters outside it — the seventh survivor there was a year selector in front of a rule's
+NAME, and the prediction that missed it had reasoned about Arkansas's figures. So today's
+prediction did not reason about Kansas's figures. It **enumerated every literal in the module**
+and said what killed each one, and the one structural claim it made was that *Kansas has no
+year-dependent branch at all* — no rule whose name, rows or amounts are chosen by the year —
+which is exactly the shape that produced Day 65's miss. The enumerator confirms it: Kansas has
+**two** year mutants and both are the `if (year !== 2025 && year !== 2026) return undefined`
+guard.
+
+> **A PREDICTION THAT ENUMERATES IS A DIFFERENT KIND OF CLAIM FROM ONE THAT GENERALISES, AND
+> ONLY THE FIRST CAN BE CHECKED BEFORE THE MEASUREMENT RUNS.** Day 65's prediction was an
+> argument; this one was a list, and the list is what made its central claim — that the class
+> which caught me yesterday does not exist in this state — verifiable without the audit at all.
+
+**The prediction over-listed by two and that is worth recording too.** It named `age: 65` and
+the sentinel `cap: 0` among the literals the audit would try. Neither is enumerated: 65 is
+below the harness's money floor and a sentinel zero is not a figure read from a document. The
+error cost nothing, because both are asserted directly in `test/kansas.test.js` — the cap
+especially, since an ABSENT cap would mean "the whole of it" and exempt every pension in
+Kansas — and `enumerate.test.mjs` now pins Kansas at 22 with the two exclusions named.
+
+**AND THE SCORE DID NOT MOVE, WHICH IS THE HONEST HEADLINE.** 99.8% to 99.8%, six survivors
+against a denominator that grew by 22, every one of the new ones killed. Day 65 recorded that a
+ratio improving because its denominator grew is not an improvement; the converse holds and is
+the better news — **the survivor COUNT has now held at six for sixteen consecutive days across
+two new states and 804 new mutants.** That number is the one to watch, and the one this
+project has watched since Day 50.
+
+**`check-scores.mjs --write` maintained `STRATEGY.md`'s sentence on its first real use**, which
+is the work Day 37 started and left to a hand for twenty-nine days. The README table and the
+strategy prose are now both written by the tool; the only hand-edited mutation figure left in
+the repository is the one in this entry.
+
 ### A line number is not a mutant identifier, and that cost me five minutes of a wrong conclusion
 
 Reading the partial verdicts while the run was still going, I saw

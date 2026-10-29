@@ -113,8 +113,7 @@ the comparison ran.** 88 Kansas households, 78 agreeing to the cent. Unexplained
 are back to 16, which is what they were before the state arrived.
 
 **The deliberate-error audit, re-measured today over the Kansas tree.** `us-federal-tax` is
-at **100%** (716 mutants, 0 survivors) and `us-state-tax`'s rule parameters at **99.8%**
-(2436 mutants, 6 survivors) — **and this is the first review in which that sentence names
+at **100%** (716 mutants, 0 survivors) and `us-state-tax`'s rule parameters at **99.8%** (2458 mutants, 6 survivors) — **and this is the first review in which that sentence names
 the two packages rather than saying "the federal engine" and "the state engine".** Day 37
 built `check-scores.mjs` so that no advertised mutation figure could be copied here by hand
 and then left the copying to a hand for twenty-nine days, because a sentence naming neither
