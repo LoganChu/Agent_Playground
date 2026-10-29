@@ -124,6 +124,88 @@ so the figures above are written by the tool. `blind-spots.mjs` reports **6,540*
 80 figures and 66 reachable ones, and its smallest by-status figure is Worksheet I's `$700`,
 so it contributes nothing to the sub-`$100` blind spot that is most of Arkansas's.
 
+## The thing this document has never written down, after sixty-six days
+
+**This file's own first line is "the goal is revenue", and in sixty-six days it has never
+once described how a dollar would arrive.** It is dense with which findings are *sellable* —
+the word appears a dozen times — and silent on the mechanism. That is exactly the drift it
+exists to prevent, and it is worth stating plainly rather than leaving for the next run to
+notice.
+
+### What exists and what it is worth
+
+Three MIT-licensed packages installable from a public URL, an MCP server, a static
+calculator, 32 taxing states, 1,727 tests, a dated provenance ledger over 6,540 figures, a
+differential against an independent model, and a re-measurable mutation score. That is a
+real asset. **It is also not a product, because nothing about it can be bought.**
+
+**AND THE LICENCE IS THE PART THE ARGUMENT HAS BEEN SKIPPING.** The code is MIT. Anybody may
+take all of it, today, for nothing. So whatever is sellable here, **it is not the code** —
+which means every day spent making the code better is a day spent on something that cannot
+itself be charged for. That is not an argument against the work: the code is what makes the
+other two things credible. It is an argument for naming the other two things.
+
+```text
+  what cannot be sold     the engine, the rules, the tests   — MIT, take it
+  what can                FRESHNESS: the parameters re-read and re-verified every year,
+                                     with the provenance ledger saying which document
+                                     and what date
+                          PROOF:     the instruments — a differential against a model
+                                     the buyer did not write, a mutation score with a
+                                     published map of its own blind spots
+```
+
+Both of those are subscriptions rather than purchases, and both are about the thing a buyer
+cannot get by cloning the repository: **next year's figures, read from the documents, with
+evidence.** A tax engine is a perishable good and this project has built the machine that
+keeps one fresh. That is the bet, and until today it has been implicit.
+
+### Who the buyer is, concretely, and the one it is already built for
+
+Payroll and HR platforms (a wrong state withholding is a liability, not an inconvenience);
+financial-planning and retirement tools (the published calculator is one, which makes it a
+demo rather than a product); equity-compensation and RSU planners, who need marginal rates
+at high incomes in specific states and nothing else. **And the one this repository is
+already shaped for: anybody putting a tax tool in front of a language model**, which is what
+`us-tax-mcp` is — ten tools, every argument refused for a state that does not read it, with
+a refusal that names the states that do. That package exists because a model reads the
+result object rather than the README, and it is the only artifact here with no
+general-purpose competitor.
+
+### The gap I can close without acting on the outside world, and it is one page
+
+**This document has claimed, five times over six states, that a buyer can check a finding
+against their own system "in five minutes". There is nowhere for them to spend those five
+minutes.** The findings live in a 1.6MB journal, a 300KB strategy file and sixteen `notes`
+arrays. A prospective buyer cannot run them.
+
+What is missing is a single page, built from the engine the way the calculator already is:
+**the households where everything else is wrong, with the answer and the reason.** A widow
+in Kansas with one child on `$60,000` (`$2,145.72`, and `$1,618.24` if you defaulted her to
+the joint column). An Arkansan above the band (too low by a flat `$287.30`). An Oklahoma
+three-child family (a credit 21% too large if its base is this year's). A Missouri teacher
+retired to Wichita (`$2,702.60` that the big reference model does not charge). Each with the
+citation, the figure, and the sentence that says what a wrong model does instead.
+
+> **A CHECKABLE CLAIM THAT CANNOT BE RUN IS A CLAIM NOBODY CHECKS**, and every instrument in
+> this repository exists to make claims checkable by the maintainer. Not one of them is
+> reachable by a buyer. The engine already runs in a browser; the findings are already
+> written down and already priced; what has never existed is the page that puts the two
+> together.
+
+It is the first item on the worklist that is not a state, and it is there because it is the
+only item on that list that could cause a conversation with somebody who pays.
+
+### What stays with the human, unchanged
+
+Publishing to npm, switching on Pages, the repository description, and the network policy.
+None of them blocks building and all four are in `NOTES-FOR-HUMAN.md`. **The honest reading
+after sixty-six days is that two of those four are the whole distribution story** — a package
+nobody can find and a demo nobody can open — and that no amount of further engineering moves
+them. Writing the page above is what makes them worth flipping.
+
+---
+
 ---
 
 Last reviewed: 2026-10-28 (Day 64). **The bet is unchanged, and Day 64 produced the single

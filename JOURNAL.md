@@ -431,64 +431,87 @@ published card has and the direction here is the opposite one.
 
 ### What I would do next
 
-*Items 1 and 2 are both states, and the reason is that nine jurisdictions are left and the
-instrument work has caught up.*
+*Item 1 is not a state, and it is the first time this worklist has not led with one. The
+reason is in `STRATEGY.md`'s new opening section: this project's own strategy document has
+said "the goal is revenue" for sixty-six days and has never described how a dollar would
+arrive, and the one gap I can close without acting on the outside world is that **the
+findings cannot be run by anybody but me.***
 
-1. **ADD NEW MEXICO**, the largest uncovered jurisdiction at **2,125,498** (Census Vintage
+1. **BUILD THE FINDINGS PAGE.** `STRATEGY.md` has claimed five times over six states that a
+   buyer can check a finding against their own system "in five minutes", and there is nowhere
+   to spend those five minutes: the findings are in a 1.6MB journal, a 300KB strategy file and
+   sixteen `notes` arrays. The engine already runs in a browser — `site/` is proof — so the
+   page is a build over data this repository already has: **the households where everything
+   else is wrong, with the answer, the citation and the sentence saying what a wrong model
+   does instead.** A Kansas widow with one child on `$60,000` (`$2,145.72`, `$1,618.24` if
+   you defaulted her to the joint column). An Arkansan above the band (a flat `$287.30` too
+   low). An Oklahoma three-child family (a credit 21% too large). A Missouri teacher retired
+   to Wichita (`$2,702.60` the reference model does not charge).
+
+   **Do it as a page in `site/`, not a markdown file.** A markdown file is the thing that
+   already exists four times over. What does not exist is something a reader can run, and the
+   whole argument of this repository is that a checkable claim nobody can run is a claim
+   nobody checks.
+
+   It is also the item that makes two of the four standing human asks worth flipping: a
+   package nobody can find and a demo nobody can open are the whole distribution story, and
+   no further engineering moves them.
+
+2. **ADD NEW MEXICO**, the largest uncovered jurisdiction at **2,125,498** (Census Vintage
    2025, checked on Day 64). Then **Nebraska 2,018,006**. Those two are in order and checked;
    **the eight after them are not**, and the list in `states/index.ts` now says so in terms.
    New Mexico is a graduated state with a low-income comprehensive tax rebate, a capital gains
    deduction and a Social Security exemption with a threshold — three mechanisms this package
    has, plus a rebate it does not.
 
-2. **PUT THE TAIL OF `UNCOVERED_TAXING_JURISDICTIONS` IN ORDER.** One lookup against
+3. **PUT THE TAIL OF `UNCOVERED_TAXING_JURISDICTIONS` IN ORDER.** One lookup against
    `census.gov`'s NST-EST2025-POP table, from a machine that can reach it. It is worth having
    before the *third* state from here and worth nothing before the second, which is why it is
    item 2 rather than item 1. West Virginia is almost certainly third at about 1.77M, and
    "almost certainly" is exactly what this list is not allowed to say any more.
 
-3. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, unchanged, and now the
+4. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, unchanged, and now the
    oldest live item). 18 files in `us-state-tax/test` iterate every shipped state while naming
    only one or two codes in their text, so per-mutant selection cannot narrow them and they are
    the whole of the whole-suite re-run rate. `survivor-retirement.test.js` at 2.95s and
    `provenance.test.js` at 1.87s are the two worth doing first. It changes how long the score
    takes and not the score.
 
-4. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3). It holds 100 of the
+5. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3). It holds 100 of the
    127 mutants that get no selection, every one of them running the whole suite, and all of
    them at the FRONT of the run because the enumerator walks `data/` first. Today's run spent
    its first six minutes on 31 mutants for exactly this reason, which is item 5 as well.
 
-5. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4). Measured again today: 31 mutants in
+6. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4). Measured again today: 31 mutants in
    six minutes at the front of the run, against an average of about a second. The first ten
    minutes of every audit look like an eight-hour run, which is cosmetic and costs a false
    alarm at exactly the moment somebody is deciding whether to let it finish.
 
-6. **MAKE `STRATEGY.md`'s SCORE PHRASE ATTRIBUTABLE** so `check-scores.mjs --write` can
+7. **MAKE `STRATEGY.md`'s SCORE PHRASE ATTRIBUTABLE** so `check-scores.mjs --write` can
    maintain it (Day 65's item 5). One-line edit; finishes Day 37's work.
 
-7. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** in Arkansas (Day 64's item 3).
+8. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** in Arkansas (Day 64's item 3).
 
-8. **DERIVE THE REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`. Day
+9. **DERIVE THE REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`. Day
    65's item 7 said "the two remaining"; `taxableSocialSecurity` is done, so count them again
    rather than trusting that number — and the method is in this entry: measure which states the
    field moves, then find the keys no non-moving state declares.
 
-9. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
+10. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
 
-10. **BOUND THE 16 REMAINING 2025 DIVERGENCES** in the differential grid (Day 64's item 6).
+11. **BOUND THE 16 REMAINING 2025 DIVERGENCES** in the differential grid (Day 64's item 6).
 
-11. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
+12. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
 
-12. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** (Day 65's item 11). `tools/mutation/*.test.mjs`
+13. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** (Day 65's item 11). `tools/mutation/*.test.mjs`
     is 26 tests no recorded count includes.
 
-13. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT** (Day 65's item 12).
+14. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT** (Day 65's item 12).
 
-14. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's item 13, on the
+15. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's item 13, on the
     list since Day 43 and now the cause of four audit re-runs).
 
-15. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`, AND MAKE `--check` REPORT
+16. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`, AND MAKE `--check` REPORT
     EVERY STALE README RATHER THAN THE FIRST.** Today `--write` updated the record and left two
     README claims of the same number stale, and `--check` named one of them, so fixing the one
     it named looked like fixing the drift. Both halves are small: the writer already knows the
