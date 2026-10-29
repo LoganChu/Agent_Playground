@@ -250,6 +250,88 @@ the same family and the rule is wider than the one written down:
   which is the scheduling the differential README has asked for since Day 54 and the first
   time it has actually been followed.
 
+### And the day's other half: somewhere to run the findings
+
+**THE WORKLIST HAS LED WITH A STATE FOR SEVEN CONSECUTIVE DAYS AND TODAY IT DOES NOT, because
+`STRATEGY.md`'s own first sentence has said "the goal is revenue" for sixty-six days and the
+file has never once described how a dollar would arrive.** It uses the word *sellable* a dozen
+times and is silent on the mechanism. That is the drift the document exists to prevent,
+happening inside the document.
+
+Two things fell out of writing it down.
+
+**THE LICENCE IS THE PART THE ARGUMENT HAS BEEN SKIPPING.** The code is MIT. Anybody may take
+all of it, today, for nothing — so whatever is sellable here is **not the code**, which means
+every day spent making the code better is a day spent on something that cannot itself be
+charged for. That is not an argument against the work; the code is what makes the other two
+things credible. It is an argument for naming them: **freshness** (next year's parameters,
+re-read from the documents, with a ledger saying which document and what date) and **proof**
+(a differential against a model the buyer did not write, and a score with a published map of
+its own blind spots). A tax engine is a perishable good and this project has built the machine
+that keeps one fresh. Both are subscriptions rather than purchases, and until today the bet was
+implicit.
+
+**AND THE CHECKABLE CLAIM NOBODY COULD CHECK.** This project has told a reader five times over
+six states that they could check a finding against their own system *in five minutes*, and has
+never given them anywhere to spend those five minutes.
+
+> **EVERY INSTRUMENT IN THIS REPOSITORY MAKES A CLAIM CHECKABLE BY THE MAINTAINER AND NOT ONE
+> OF THEM IS REACHABLE BY A READER.** The differential grid, the mutation audit, the provenance
+> ledger, the cross-package checks, 1,737 tests: all of them answer "is this right?" for
+> somebody with a clone and a terminal. A reader deciding whether to trust the engine has a
+> 1.6MB journal and sixteen `notes` arrays.
+
+So `site/checks.html` — **seven households, each computed twice.** The design rule is the one
+thing that makes it not a fifth copy of the journal: **both sides are engine calls.** The right
+answer is the engine on the household; the wrong one is the engine on the SAME household with
+one stated thing changed — a status read off the wrong column, income in the wrong field, a
+year swapped. Nothing on the page is a hard-coded figure, so it cannot go stale while the
+engine is right, and `site/test/checks.test.js` asserts every row's magnitude **and its sign**.
+
+```text
+  a Kansas widow read against the joint column   $2,145.72 / $1,618.24   $527.48 too LOW
+  $50,000 of Kansas pension, by employer              $0.00 / $1,942.88
+  a Kansas separate filer against a single one    $1,961.58 / $1,990.31
+  Arkansas's real marginal rate                   13.70% / published 3.70%
+  a Maryland 401(k) rolled into an IRA                $0.00 / $963.88
+  Iowa's low-income cliff, two years               $240.24 / $253.54      shrinking
+  New York City's own tax                        $8,126.44 / $4,951.75   $3,174.69
+```
+
+**THE SIGN IS THE HALF THE TEST IS FOR.** A figure cannot be transcribed wrongly when it is
+computed; what it can do is FLIP, and the page would go on rendering the old sentence beside
+it. "A Kansas widow read against the joint column is `$527.48` too LOW" is the claim, and the
+number alone does not carry the word.
+
+**AND HALF THE ROWS ARE NOT ERRORS, WHICH IS LABELLED RATHER THAN BLURRED.** A row is `error`
+where the second figure is wrong; `comparison` where both are right and the gap is the finding
+— the same `$50,000` taxed at `$0` or `$1,942.88` by which government paid it, the same dollars
+in a 401(k) or an IRA, the same Iowa law a year apart.
+
+> **CALLING A LAWFUL COMPARISON AN ERROR IS THE EASY WAY TO MAKE A FINDINGS PAGE LOOK SHARPER
+> AND A LIE ABOUT THE LAW.** The test asserts that both labels are in use, so neither that nor
+> its reverse — demoting a real defect to a comparison — can happen quietly.
+
+**THREE FINDINGS CANNOT BE COMPUTED AND ARE NAMED ON THE PAGE WITH THE REASON.** Arkansas's flat
+`$287.30` needs a model built from the published bracket table alone, which this engine
+deliberately is not; Oklahoma's earned income credit needs the federal credit under 31 December
+2020 law, which no field carries; Kansas's stillbirth exemption needs a fact no return records.
+**A findings page that quietly dropped the ones it cannot compute would be the sharper page and
+the less honest one**, and the test asserts all three are still named.
+
+It ships the way the calculator does — one self-contained file on the `calculator` release,
+every push — because **that is the only distribution channel here that does not wait on a
+human.** The single-file builder was generalised to take a page, an entry and an output rather
+than growing a second copy of its thirty-line loader, and on the way past: **the release notes
+said "28 supported states" for thirteen releases** while the engine grew to 41. They now read
+the registry at build time, which is the rule the READMEs have had since Day 8 and the release
+notes never did.
+
+**Rendered from `file://` in Chromium before any of this was claimed**: seven sections, every
+figure, no console errors — and that pass found two things a test could not, a literal backtick
+in prose set with `textContent` and a left-hand column labelled "What the statute gives" on
+three rows where both answers are the statute's.
+
 ### What the day cost in instrument figures, and the two that moved for reasons worth naming
 
 **1,725 tests across the four suites, up 96 from 1,629** — `us-state-tax` 1,114 (up 12),

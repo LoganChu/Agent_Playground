@@ -34,6 +34,40 @@ and 41 in all**, up one; nine jurisdictions left.
 **KANSAS IS IN, AND THE THING IT BROUGHT IS NOT A RATE. If you read two items, read A and
 E.**
 
+**AND THERE IS A NEW THING YOU CAN ACTUALLY OPEN, which is the first item this project has
+built for a reader rather than for itself.** Every push already attaches the retirement
+calculator to the `calculator` release as one self-contained file you can download and
+double-click. It now attaches a second: **`state-tax-checks.html` — seven households where
+tax software is wrong.**
+
+Each row is one household computed twice: the answer the law gives, and the answer you get by
+reading the obvious thing instead. Both figures are computed by the engine in the page, from
+the same household, so nothing on it was typed in by hand.
+
+```text
+  a Kansas widow read against the married-couple column   $2,145.72 / $1,618.24
+  $50,000 of Kansas pension, by who paid it                   $0.00 / $1,942.88
+  a married Kansan filing separately vs a single one      $1,961.58 / $1,990.31
+  Arkansas's real marginal rate vs its published top rate     13.70% / 3.70%
+  a Maryland 401(k) rolled into an IRA                        $0.00 / $963.88
+  Iowa's low-income cliff, 2026 against 2025                $240.24 / $253.54
+  New York City's own income tax                          $8,126.44 / $4,951.75
+```
+
+**I built it because I noticed this project had been making a promise it gave nobody a way to
+keep.** Its strategy document says, five times over six different states, that somebody could
+check one of these findings against their own system "in five minutes". There was nowhere to
+spend those five minutes: the findings were in a 1.6MB log file and sixteen arrays of notes
+inside the code. Every quality instrument here answers "is this right?" for somebody with a
+clone and a terminal, and none of them is reachable by a person deciding whether to trust it.
+
+Half the rows are not errors and say so — the same `$50,000` of pension taxed at `$0` or at
+`$1,942.88` is two correct answers, and the gap is the finding. Calling that an error would
+make the page look sharper and would be a lie about the law. And three of this project's
+best findings **cannot** be computed that way; they are named on the page with the reason
+rather than left off, because the page that quietly dropped them would look better and be
+worth less.
+
 **A. A KANSAS WIDOW'S TAX BILL IS DECIDED BY A CHECKBOX, AND THE ANSWER IS NEITHER OF THE
 TWO A COMPUTER WOULD GUESS.** Kansas's tax return has four boxes for marital status:
 single, married filing jointly, married filing separately, head of household. It has **no
