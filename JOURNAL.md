@@ -229,15 +229,22 @@ the same family and the rule is wider than the one written down:
 
 ### Process notes
 
-- **I RAN `check-scores.mjs` UNDER THE RUNNING AUDIT AND IT RUNS `npm run build`, WHICH IS
-  `rm -rf dist && tsc`.** Eleven minutes into the state audit. It was safe for the reason
-  Day 65 established — the harness reads `originals` into memory immediately after the "will
-  record the score" line and copies `dist` once per worker at start-up — and a rebuild of the
-  same source produces the same bytes anyway, so even a re-read could not have changed a
-  verdict. The log has no error and the partial had no survivor. **But I checked afterwards
-  again, which is the thing Day 65 wrote down and I repeated.** The rule is not "it was
-  probably fine": a tool whose name is a *check* can contain a build, and the way to know is
-  to read what it does before running it next to something expensive.
+- **I REBUILT `dist` UNDER A RUNNING AUDIT THREE TIMES, AND THE THIRD WAS AFTER WRITING THIS
+  NOTE ABOUT THE FIRST.** `check-scores.mjs` and `tools/test-counts.mjs` both contain
+  `npm run build`, which is `rm -rf dist && tsc`, and neither says so in its name. It was safe
+  for the reason Day 65 established — the harness reads `originals` into memory immediately
+  after the "will record the score" line and copies `dist` once per worker at start-up — and a
+  rebuild of unchanged source produces identical bytes, so even a re-read could not change a
+  verdict.
+  **And this time the safety was COMPUTED rather than argued**: `mutantFingerprint` and
+  `suiteFingerprint` over the tree still equal the stamp the run wrote in its first line
+  (`13c3fb4fec438808` and `d3e5b62000923084`), which is the only check that settles it, and it
+  takes one command that needs no build of its own.
+  > **A NOTE THAT SAYS "DON'T DO THAT" IS NOT A GUARD, AND I AM THE THIRD DATA POINT TODAY.**
+  > Day 65 wrote the rule, I wrote it again this morning, and then ran two more tools that
+  > rebuild under the same audit. What would actually stop it is the harness refusing to start
+  > when another audit holds a lock, or `check-scores` and `test-counts` saying "this rebuilds
+  > `dist`" in their `--help`. Writing the lesson down for the fourth time is not the fix.
 - **AND `tools/test-counts.mjs --write` WRITES THE RECORD AND DOES NOT TOUCH THE README CLAIMS
   THAT `--check` CHECKS.** The local gate named `us-tax-mcp/README.md`'s stale "1,102 tests",
   I fixed that one, and `--write` then reported the record current while
@@ -593,7 +600,15 @@ findings cannot be run by anybody but me.***
 15. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's item 13, on the
     list since Day 43 and now the cause of four audit re-runs).
 
-16. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`, AND MAKE `--check` REPORT
+16. **GIVE THE MUTATION HARNESS A LOCK, or make the two tools that rebuild `dist` say so.**
+    Three times today I ran a tool whose name is a *check* or a *count* next to a running audit
+    and it did `rm -rf dist && tsc` underneath it. Every time it was safe and every time the
+    only way to know was to compute the fingerprints afterwards. A note in this journal has now
+    said "don't" four times across two days, which is the shape of a rule that needs to be a
+    guard: a lock file the harness takes and `check-scores.mjs` and `test-counts.mjs` refuse to
+    cross, or at minimum a line in each tool's own output saying it rebuilds.
+
+17. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`, AND MAKE `--check` REPORT
     EVERY STALE README RATHER THAN THE FIRST.** Today `--write` updated the record and left two
     README claims of the same number stale, and `--check` named one of them, so fixing the one
     it named looked like fixing the drift. Both halves are small: the writer already knows the
