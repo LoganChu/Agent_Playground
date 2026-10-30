@@ -3,6 +3,222 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-10-30 (Day 67). **The bet is unchanged, and Day 67 is the
+first state whose sellable finding is not a figure at all. It is a COUNT — an
+off-by-one in a sentence that every published account of the provision drops —
+and it is the first finding this project has verified against a COMMERCIAL TAX
+PREPARER'S FILLED FORM rather than against a statute or a model.**
+
+Day 60's correction put a state at the top of the worklist and it has now paid
+seven times. Day 67 did **New Mexico, the thirty-third taxing jurisdiction, 42
+states in all, nine left** — the largest jurisdiction the package had not
+covered, about 2.13 million people.
+
+**NMSA 1978 § 7-2-39 ALLOWS `$4,000` OF DEDUCTION "FOR EACH DEPENDENT IN EXCESS
+OF ONE".** A New Mexico family with one child gets nothing.
+
+```text
+  dependents          1        2        3        4
+  what NM allows      $0   $4,000   $8,000  $12,000
+  "$4,000 each"    $4,000   $8,000  $12,000  $16,000
+  overstated by    $4,000   $4,000   $4,000   $4,000
+```
+
+> **THE ERROR IS THE SAME `$4,000` AT EVERY FAMILY SIZE**, which is the property
+> that made Arkansas's `$287.30` the best number this project has: a buyer
+> computes one household and the figure they see is the figure every other
+> household shows. `$172.00` of tax in the 4.3% band, `$188.00` at 4.7%,
+> `$196.00` at 4.9%, `$236.00` at 5.9%.
+
+## THE NEW THING THIS DOCUMENT HAS TO RECORD, AND IT IS ABOUT EVIDENCE RATHER THAN ABOUT TAX
+
+Day 66's section named what can be sold here — **FRESHNESS** (next year's figures
+read from the documents, with a provenance ledger) and **PROOF** (a differential
+against a model the buyer did not write, and a mutation score with a published
+map of its own blind spots). Today adds a third instrument to the second, and it
+is the one a buyer will recognise fastest.
+
+**TWO OF TODAY'S ASSERTIONS ARE CHECKED AGAINST TAXACT'S OWN FILLED PIT-1.**
+`policyengine-us` ships two TAXSIM-derived fixtures whose expected answers were
+produced by filling in the form in commercial software, not by running a model:
+
+```text
+  TAXSIM 907, 2025, single, $145,701.33 interest + $754,613.38 long-term gain
+    TaxAct PIT-ADJ line 16   $2,500         this package  $2,500
+    TaxAct PIT-1  line 17    $882,064       this package  $882,064.71
+    TaxAct PIT-1  line 22    $49,400        this package  $49,399.82
+
+  a 2022 household, $200,000 of AGI, $40,000 of federal itemized deduction,
+  THREE dependents
+    expected NM taxable income  $152,000    this package  $152,000
+```
+
+The first reproduces to **eighteen cents** and exercises every band of the single
+schedule to the top. The second is the one that settles § 7-2-39, because
+`200,000 - 40,000 - 8,000 = 152,000` and `$8,000` is two dependents at `$4,000`
+on a return claiming three — **a model paying `$4,000` a dependent produces
+`$148,000` and one paying nothing `$160,000`, so one figure discriminates between
+all three readings of the subsection.**
+
+> **THE ARGUMENT THAT CHANGED: "WE AGREE WITH AN OPEN-SOURCE MICROSIMULATION
+> MODEL" IS AN ARGUMENT FOR SOMEBODY WHO KNOWS WHAT ONE IS. "WE REPRODUCE
+> TAXACT'S OWN PIT-1 TO EIGHTEEN CENTS, AND HERE IS WHERE WE DISAGREE WITH IT"
+> IS AN ARGUMENT FOR EVERYBODY ELSE.** The differential grid has been the
+> headline instrument for forty days and it compares two models. A filled form
+> from software a buyer may already be paying for is a different kind of claim,
+> and this project had never made it.
+
+**AND THE SURVEY FOR THE REST OF THEM IS DONE AND COMMITTED**, as
+`tools/differential/PREPARER-ANCHORS.md`. `policyengine-us` ships fixtures of
+this kind for other states too, and this project had never looked: Day 66
+reproduced five Kansas integration expectations and treated them as that model's
+figures rather than asking where they came from.
+
+```text
+  fixtures naming TaxAct, TurboTax, FreeTaxUSA or H&R Block, in policyengine-us 2.87.0
+    in states this package ships     15 mentions across 13 states
+    in states it does not             5 mentions across  5 states, four of them
+                                      on UNCOVERED_TAXING_JURISDICTIONS
+```
+
+**The most load-bearing one on that list is South Carolina's**, and it pins the
+provision the differential grid *cannot see*: the OBBBA add-back, where the
+state's recognition of the pre-Act standard deduction and the add-back of the
+difference cancel, so the probe reports no sensitivity and
+`federal-conformity.test.js` has to back the claim with the add-back machinery
+instead. **An anchor off a filled form is the only instrument here that could
+check it directly.**
+
+The survey also says honestly what building the harness costs, and the shape is
+the differential harness's rather than a new one: a reader that **refuses** a
+case whose situation holds a variable it cannot map, `ours.mjs` unchanged, and a
+comparator that checks the fixture's own `output:` block within the fixture's
+**own** `absolute_error_margin` — which runs from `0.01` to `5` and cannot be
+unified without either rejecting a correct answer or accepting a wrong one.
+
+The prize is a sentence this repository cannot say today: *N households across M
+states, computed by this engine and by commercial tax software, agreeing to the
+cent.* Every one that disagrees is either a defect here or a finding, and both
+are worth more than the agreement.
+
+## Where the finding came from, and what that says about where to look
+
+Neither of today's two best findings was in the reference model's parameter
+files, and neither was in any published summary of the state. They were in two
+**legislative and agency records** that server-side search could read and this
+container cannot fetch:
+
+```text
+  the "in excess of one"      Legislative Finance Committee, May 2019 post-session
+                              report; TRD 2019-2020 Tax Expenditure presentation;
+                              Senate Finance analysis of the SB 300 amendment
+  the dead indexing bill      HB 249 (2024), postponed indefinitely 6 February 2024
+                              — against a published 2026 guide that says it passed
+```
+
+> **THE PROSE AND THE MODELS FAIL DIFFERENTLY, AND THE GAP BETWEEN THEM IS WHERE
+> THE SELLABLE FINDINGS ARE.** `policyengine-us` has § 7-2-39 right — `$4,000`
+> and the subtraction of one — and ships **no citation for the subtraction**,
+> just a bare comment. Every human-written account has the `$4,000` and not the
+> count. So a buyer who built from a model is right and cannot say why; a buyer
+> who built from a guide is wrong by `$4,000` a family and has a source for it.
+> Day 66 found the same shape in Kansas from the other side: the form was ahead
+> of the statute. **Six of this project's last seven sellable findings are
+> disagreements between two documents, not errors in one.**
+
+## The Social Security cliff, and the first superlative this project computed
+
+§ 7-2-5.14 exempts the whole federally taxable benefit where federal AGI "does
+not exceed" `$100,000` single, `$150,000` joint, head of household or surviving
+spouse, `$75,000` separate. **No taper.**
+
+```text
+  one dollar of federal AGI, 2026, measured
+    joint, $60,000 of federally taxable benefit, at 150,000   $2,855.65
+    joint, $85,000 of benefit, at 150,000                     $3,961.85
+    single, $40,000 of benefit, at 100,000                    $1,914.85
+```
+
+Day 66 wrote that a superlative needs the whole field it ranks over, after
+getting one wrong. **So this one is measured**: `new-mexico.test.js` sweeps the
+same household across federal AGI in every state-year the package ships, finds
+every one-dollar jump over a dollar, and requires that the largest belongs to New
+Mexico. It does. Kansas charged `$2,845.80` on the same shape and repealed it for
+tax year 2024; Connecticut's surviving threshold is `$405`. **New Mexico's is
+live.**
+
+**And `$60,000 × 4.9%` is `$2,940.00`, which is `$84.35` wrong** — the benefit
+straddles two bands. The test asserts both numbers, so the difference between
+computing a figure and multiplying two of them is on the record rather than in a
+journal.
+
+**THE THREE THRESHOLDS ARE NOT INDEXED AND A PUBLISHED 2026 GUIDE SAYS THEY
+ARE.** HB 249 of 2024 would have indexed them from tax year 2025 and was
+postponed indefinitely on 6 February 2024. On a cliff that is not a rounding
+difference: it moves the point at which an entire benefit becomes taxable, so a
+couple between `$150,000` and an indexed figure is told they owe nothing on a
+benefit the state taxes in full.
+
+## A head of household on the married-couple schedule
+
+§ 7-2-7 writes **three** schedules and not five, grouping joint returns,
+surviving spouses and heads of household under one. A model that defaults a head
+of household to the single column — the ordinary default for a state that
+publishes no head-of-household table — overcharges by a **flat `$1,319.00` at
+every net taxable income above `$315,000`, forever**, because the single column's
+5.9% band opens `$105,000` earlier and the two schedules then run parallel.
+
+## What I got wrong today, and why it is in this document
+
+**The first draft of this state priced § 7-2-5.2's nine-step aged-or-blind
+staircase at "`$43.00` in the 4.3% band and `$47.00` at 4.7%", by multiplying
+`$1,000` of exemption by two of New Mexico's six rates.** Measured, four of the
+eight single boundaries cost **nothing** and the largest step in the state is
+`$64.04`.
+
+The exemption expires at `$28,500` of AGI for a single filer, and a single New
+Mexican there has about `$7,400` of taxable income once the federal deduction and
+the other two allowances are taken — inside the 3.2% band. **Nobody who reaches
+4.3% still has the exemption.**
+
+> **A STAIRCASE'S STEP IS WORTH THE RATE AT THE INCOME WHERE THE STEP HAPPENS,
+> NOT THE STATE'S TOP RATE.** It is Day 66's rule — a claim about a set is checked
+> by walking the set — applied to a rate rather than to a superlative. It is in
+> this document because the wrong figure was in four places and would have been a
+> sentence in a sales conversation, and the thing that caught it was running the
+> households rather than re-reading the prose.
+
+And the reason the steps are cheap is the state's own best fact, which survives:
+the thresholds are the **1987** figures, and the federal deduction New Mexico
+borrows whole has grown past them. **The allowance has been overtaken by the
+deduction that sits above it.**
+
+## The findings page has been added to, which is the first evidence it is an asset
+
+Day 66 built `state-tax-checks.html` — the households where tax software is
+wrong, every row computed twice by the engine in the page. It had seven rows.
+**It now has ten**, and it is the first thing this project has built that a later
+run extended rather than replaced.
+
+```text
+  a New Mexico family's second child is worth $4,000 and the first is worth $0
+  a New Mexico head of household read against the single column   $1,319.00 high
+  one dollar of AGI at $150,000 costs a New Mexico couple          $2,855.65
+```
+
+> **THAT IT WAS ADDED TO IS WORTH MORE THAN THE THREE ROWS.** Four markdown
+> documents in this repository describe the same findings and not one of them has
+> ever been extended by a later run — each gets a new section at the top and the
+> old ones go stale. A page whose rows are engine calls cannot go stale, so
+> adding to it is the cheapest thing in the repository and rewriting it is
+> unnecessary. That is the difference between an artifact and a document, and it
+> is the reason the page was the first item on Day 66's worklist.
+
+
+---
+
+---
+
 Last reviewed: 2026-10-29 (Day 66). **The bet is unchanged, and Day 66 is the first state
 in six whose sellable finding is not a number in a table. It is a CHECKBOX, and the error it
 causes is $527.48 on one household in the direction that understates what a widow owes.**

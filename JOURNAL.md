@@ -4,6 +4,390 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 67 — 2026-10-30
+
+**NEW MEXICO IS IN, AND THE FIGURE THAT DECIDED THE DAY IS AN OFF-BY-ONE IN A
+SENTENCE.** The thirty-third taxing state, 42 in all, nine jurisdictions left.
+Six brackets, 1.5% to 5.9%, a base of federal AGI, nothing indexed. The sellable
+finding is a **count**, and the five previous states' were numbers in tables or a
+checkbox.
+
+> **THE RULE THE DAY TURNED ON: A DEDUCTION'S COUNT IS A PARAMETER, AND NO RATE
+> SCHEDULE, BRACKET TABLE OR SUMMARY OF A STATE CONTAINS IT.** NMSA 1978 § 7-2-39
+> allows `$4,000` of deduction from net income **"for each dependent in excess of
+> one"**. Every published account of the provision — and the reference model's own
+> label for it — stops at `$4,000` a dependent.
+
+```text
+  dependents          1        2        3        4
+  what NM allows      $0   $4,000   $8,000  $12,000
+  "$4,000 each"    $4,000   $8,000  $12,000  $16,000
+  overstated by    $4,000   $4,000   $4,000   $4,000
+```
+
+**THE ERROR IS THE SAME `$4,000` AT EVERY FAMILY SIZE**, which is Arkansas's
+property and the one that makes a finding checkable: a buyer computes one
+household and the number they see is the number every other household shows.
+`$172.00` of tax in the 4.3% band, `$188.00` at 4.7%, `$196.00` at 4.9%,
+`$236.00` at 5.9% — and for a family with ONE child it is the whole of the
+deduction rather than a part of it.
+
+### The two assertions in this state that are not about my own data
+
+**No New Mexico primary document was opened.** `tax.newmexico.gov`,
+`realfile.tax.newmexico.gov`, `nmlegis.gov`, `nmonesource.com` and
+`law.justia.com` all fail to resolve, by `curl` and by `WebFetch` — the sixteenth
+consecutive run to record a blocked primary source. So Day 27's caution applies
+with unusual force: a test written from the data can only confirm the data.
+
+**Two assertions escape it, and they are why the rest is worth trusting.**
+`policyengine-us` ships two TAXSIM-derived fixtures whose expected answers were
+produced by **TaxAct's own PIT-1 and PIT-ADJ**, not by any model:
+
+```text
+  TAXSIM 907, 2025, single, $145,701.33 interest + $754,613.38 long-term gain
+    TaxAct PIT-ADJ line 16   $2,500         this package  $2,500
+    TaxAct PIT-1  line 17    $882,064       this package  $882,064.71
+    TaxAct PIT-1  line 22    $49,400        this package  $49,399.82
+
+  a 2022 household, $200,000 of AGI, $40,000 of federal itemized deduction,
+  THREE dependents
+    expected NM taxable income  $152,000    this package  $152,000
+```
+
+The first reproduces to **eighteen cents** and exercises every band of the single
+schedule to the top, because `$882,064` is above the 5.9% threshold. The second
+is the one that settles § 7-2-39: `200,000 - 40,000 - 8,000 = 152,000`, and
+`$8,000` is two dependents at `$4,000` when the return claims three. **A model
+paying `$4,000` a dependent produces `$148,000` and one paying nothing
+`$160,000`, so one figure discriminates between all three readings.**
+
+> **A FIXTURE WHOSE EXPECTED ANSWER CAME OFF A FILLED FORM IS WORTH MORE THAN A
+> MUTANT.** `notCounted` is a `smallInteger` and the audit cannot perturb it, so
+> it is declared a blind spot — and what stands behind it is better evidence than
+> the audit would have produced, because it is evidence from outside this
+> repository entirely.
+
+Three secondary records corroborate the words: the Legislative Finance
+Committee's May 2019 post-session report ("a `$4,000` income tax deduction for
+each dependent **after the first**", offsetting the effects of federal tax
+reform), the Department's 2019 and 2020 Tax Expenditure presentation ("`$4,000`
+per dependent **beyond the first** dependent claimed"), and the Senate Finance
+analysis of the SB 300 amendment ("a `$4,000` deduction for **one less than** the
+number of dependents claimed").
+
+### A head of household on the married-couple schedule, and a flat error forever
+
+§ 7-2-7 writes **three** schedules and not five: married filing separately,
+single, and *married filing joint returns, surviving spouses and heads of
+household* together. The Department's 2025 rate table prints the joint column
+with the note that it **"must also be used by surviving spouse"**.
+
+```text
+  net taxable income    66,500     100,000     210,000     315,000 and above
+  on the joint column    2,514.50   4,089.00    9,479.00     14,624.00
+  on the single column   2,716.50   4,358.00    9,748.00     15,943.00
+  overcharged by           202.00     269.00      269.00       1,319.00
+```
+
+**`$1,319.00` at every net taxable income above `$315,000`, forever**, because
+both schedules run at 5.9% from there and the gap is the accumulated difference
+of the five bands below. The jump from `$269` is the single column's 5.9% band
+opening `$105,000` earlier.
+
+### The Social Security cliff, and a superlative I walked the set for
+
+§ 7-2-5.14 exempts the whole federally taxable benefit where federal AGI "does
+not exceed" `$100,000` single, `$150,000` joint / head of household / surviving
+spouse, `$75,000` separate. No taper.
+
+```text
+  one dollar of federal AGI, 2026, measured
+    joint, $60,000 of federally taxable benefit, at 150,000   $2,855.65
+    joint, $85,000 of benefit, at 150,000                     $3,961.85
+    single, $40,000 of benefit, at 100,000                    $1,914.85
+    separate, $30,000 of benefit, at 75,000                   $1,427.85
+```
+
+Day 66 wrote that a superlative needs the whole field it ranks over. So this one
+is **measured rather than asserted**: `new-mexico.test.js` sweeps the same
+household — a couple both 70 with `$60,000` of taxable benefit — across federal
+AGI in every state-year this package ships, finds every one-dollar jump over a
+dollar, and requires that the largest belongs to New Mexico. It does, at
+`$2,855.65`, against Kansas's repealed `$2,845.80` and Connecticut's surviving
+`$405`.
+
+**And `$60,000 × 4.9%` is `$2,940.00`, which is wrong by `$84.35`**, because the
+benefit straddles the 4.7% and 4.9% bands. The test asserts both numbers so the
+difference between computing and multiplying is on the record.
+
+**THE THREE THRESHOLDS ARE NOT INDEXED, AND A PUBLISHED 2026 GUIDE SAYS THEY
+ARE.** HB 249 of the 2024 regular session would have adjusted all three for
+inflation from tax year 2025; it was **postponed indefinitely on 6 February
+2024**. The 2025 PIT-ADJ instructions print the unindexed figures in Table 2, and
+`policyengine-us` 2.87.0 carries them from `2022-01-01` with no later value. A
+guide reaching this sandbox states the opposite in terms — that HB 249 amended
+§ 7-2-5.14 so the base amounts are adjusted for inflation and rounded down to the
+nearest `$100`.
+
+> **AN INDEXING CLAUSE IN A BILL THAT DIED IS THE SAME DEFECT AS ONE IN A FISCAL
+> NOTE, AND THIS IS THE SECOND CONSECUTIVE STATE TO CARRY IT.** Kansas's SB 1 as
+> introduced would have indexed the standard deduction from 2025 and the enacted
+> act does not. New Mexico's is worse in one respect: the figure it moves sits on
+> a cliff rather than on a deduction, so the error is not a few dollars of
+> allowance but the whole taxation of a benefit.
+
+### The thing I got wrong today, and the measurement that caught it
+
+**I PRICED § 7-2-5.2's NINE-STEP AGED-OR-BLIND STAIRCASE AT "$43.00 IN THE 4.3%
+BAND AND $47.00 AT 4.7%", BY MULTIPLYING `$1,000` OF EXEMPTION BY TWO OF NEW
+MEXICO'S SIX RATES.** It is in the module doc, the definition doc, the cite and
+the note, four times over, and it is wrong four times.
+
+```text
+  measured, 2026
+  single, filer 70        18,000  19,500  21,000  22,500  24,000  25,500  27,000  28,500
+                           $0.00   $0.00   $0.00   $0.00  $14.27  $15.01  $30.34  $32.04
+  joint, both 70          30,000 ... 42,000  45,000  48,000  51,000
+                           $0.00       $0.00  $30.02  $48.74  $64.04
+```
+
+**Four of the eight single boundaries are free and the largest step in the state
+is `$64.04`.** The exemption expires at `$28,500` of AGI for a single filer, and a
+single New Mexican at `$28,500` has about `$7,400` of taxable income once the
+federal deduction and the other two allowances are taken — inside the 3.2% band.
+**So `$1,000` of this exemption can never be worth 4.3% or 4.7%, because nobody
+who reaches those bands still has the exemption.** `$64.04` is the joint
+`$51,000` boundary, where both people's exemptions fall on one dollar.
+
+> **A STAIRCASE'S STEP IS WORTH THE RATE AT THE INCOME WHERE THE STEP HAPPENS,
+> NOT THE STATE'S TOP RATE.** It is Day 66's rule — a claim about a set is checked
+> by walking the set — applied to a rate rather than to a superlative, and the
+> set here is "the filers who are at a boundary". I never looked at one.
+
+And the reason the steps are cheap is the state's own best fact: the thresholds
+are the **1987** figures, and the federal deduction New Mexico borrows whole has
+grown past them. `$8,000` of allowance expiring at `$28,500` of AGI was a
+middle-income rule when it was written; today the standard deduction alone is
+`$18,150` for the filer who qualifies for it. **The allowance has been overtaken
+by the deduction that sits above it**, and that is why its staircase is nearly
+invisible.
+
+### The exemption list that got shorter because the instrument got better
+
+`step-probes.test.js` requires every number in every staircase to move a pinned
+answer, or to be declared unreachable with a reason. The first aged probe gave
+the household its realistic federal deduction — New Mexico's deduction IS the
+federal one — and **six of the table's nine amounts came back unauditable**. I
+drafted four `UNREACHABLE` entries.
+
+Then I zeroed the probe's federal deduction, which is the same isolation the
+Missouri driver already performs on the federal tax, and **five of the six became
+reachable**. One entry remains, and it is arithmetic rather than a property of the
+probe: row 0's probe sits at `$9,000` of AGI and the row pays `$8,000` of
+exemption beside § 7-2-5.8's `$2,500`, so the allowances exceed the income with
+the deduction already at zero.
+
+> **AN EXEMPTION LIST IS THE WRONG FIX FOR A PROBE THAT IS NOT PROBING.** A
+> four-entry draft would have shipped as a permanent excuse for a one-line defect
+> in the instrument. The list got shorter because the instrument got better,
+> which is the order those two things should happen in — and the near miss is
+> that an exemption list is *easier to write* than a probe is to fix, so the
+> incentive runs the wrong way every time.
+
+**And the entry that remains is unreachable in ONE DIRECTION ONLY**, which is a
+sharper statement than "unreachable". The audit perturbs by doubling, and a
+bigger exemption at `$9,000` of AGI is absorbed; a smaller one moves four pinned
+boundary steps. A parameter can be unreachable to a perturbation without being
+unreachable to a test, and the direction is the whole of the difference.
+
+### Three instruments fired and all three were right
+
+1. **`blind-spots.mjs` refused four undeclared fields** holding 28 figures the
+   audit cannot perturb — six deliberate zeros in `dependentDeduction.amount`,
+   the `notCounted` of 1, twenty sentinels and zeros in the three step tables,
+   and the age of 65. Declaring them is where the note about the TaxAct fixture
+   being better evidence than a mutant got written.
+
+2. **`surviving-spouse-column.test.js` required a declaration.** Five households
+   can tell New Mexico's surviving-spouse column from both the single and the
+   head-of-household one, so the state had to be added to the ledger of states
+   that OFFER the status — PIT-1 has five boxes including "Surviving Spouse with
+   dependent child" — with what was read. **New Mexico is the sixth state here
+   whose widow's column is observable and the first NOT exempt by construction**,
+   because it declares no `survivingSpouseFilesAs`: the state gives her a box of
+   her own and sends her to the joint RATE column.
+
+4. **`status-sweep.test.js` refused the low- and middle-income income limit** in
+   all five statuses, and the entry it got is the first in that object exempt by
+   **arithmetic** rather than by the shape of a battery. Every other entry says
+   "no household this package builds"; § 7-2-5.8's limit says "no household",
+   because the limit is exactly where its own taper reaches zero and the guard
+   perturbs by doubling.
+
+### The widow who gets the rate column and not the deduction
+
+New Mexico's PIT-1 has five filing-status boxes; § 7-2-7 sends a surviving spouse
+to the joint schedule by name; and § 7-2-39 allows its `$4,000` to a return filed
+"as a head of household or married filing jointly" and **names no other status**.
+A qualifying surviving spouse has a dependent child by definition, so she is the
+one filer for whom that omission is certainly not drafting convenience.
+
+This package takes the literal reading, which is also `policyengine-us`'s, and
+prices the other one: **`$188.00` on a widow with two children at `$90,000` of
+AGI**. The reading cannot be settled from this sandbox and the note says so, with
+the best argument for the other side — the 2025 PIT-1 instructions group the
+three statuses together in several other places.
+
+**And she counts as ONE exemption under § 7-2-5.8 and not two**, because § 151
+allowed a qualifying widow(er) one personal exemption: the spouse is dead. That
+distinction doubled five states' allowances for a widow before v0.24.0 and New
+Mexico is the first rule added since to need it, so the engine reads
+`livingFilerCount` there and the test asserts it.
+
+### The identity that makes a printed rule unmodellable
+
+§ 7-2-5.8 prints a taper AND an income limit, and **each limit is exactly where
+its own taper reaches zero**:
+
+```text
+            taper ends at                      the printed limit
+  joint     30,000 + 2,500/0.10 = 55,000.00     55,000
+  single    20,000 + 2,500/0.15 = 36,666.67     36,667
+  separate  15,000 + 2,500/0.20 = 27,500.00     27,500
+```
+
+So the limit can zero a positive exemption in no household, in any status, at any
+income — Kansas's minimum-filing-requirement shape one state later, and the test
+goes on the premise rather than the output for the same reason: nothing in a
+suite of answers can see a redundant rule stop being redundant.
+
+**The single row is a third of a dollar wide and the reference model falls into
+it.** This package clamps the per-exemption amount at zero; `policyengine-us`
+does not, so for single AGI between `$36,666.67` and `$36,667` it computes
+`2,500 - 0.15 × 16,667 = -$0.05` an exemption and ADDS it to taxable income. Five
+cents on a four-person return, recorded for the shape and not the amount: **a
+clamp omitted where two published figures were believed to coincide exactly.**
+
+### What the state is worth on the pages a reader can open
+
+New Mexico charges a retired couple both 70 with `$40,000` of Social Security and
+`$60,000` of pension **`$648.00`**, which is **30th of 42** and passes Utah — the
+eighteenth state to do so, and Utah's own figure has not moved once.
+
+> **A STATE CAN BE CHEAPER FOR A RETIREE THAN A STATE WITH A RETIREMENT CREDIT,
+> BY HAVING NO RETIREMENT RULE AND A WIDE BOTTOM BAND.** New Mexico has NO
+> provision of any kind for a private pension — not a capped exclusion, not an
+> age-tested one, not a small one. § 7-2-5.2's aged exemption is zero at this
+> couple's `$94,000` of AGI and § 7-2-5.8's is zero above `$55,000`, so every
+> allowance it has for being old has already expired. What gets them under Utah
+> is the Social Security exemption and a 1.5% band to `$8,000`.
+
+**And the findings page went from seven households to ten**, which is the first
+time Day 66's page has been added to. The three New Mexico rows are the dependent
+deduction (a `comparison` between one child and two, because the second child's
+`$4,000` IS the finding and a per-dependent model would show the same gap between
+none and one), the head-of-household column, and the cliff. Every one is the
+engine on the same household with one input changed.
+
+### What I would do next
+
+1. **ADD THE NEW MEXICO CHILD INCOME TAX CREDIT.** It is the largest omission in
+   any state this package ships: § 7-2-18.34 pays a REFUNDABLE `$637` a child up
+   to `$25,000` of AGI for 2025, then `$424`, `$212`, `$106`, `$79`, `$53` and
+   `$26`, halved on a separate return, with the qualifying child defined by IRC
+   § 152(c) **without** the federal earned income credit's identification-number
+   requirement — so a child with an ITIN counts. A New Mexico family of two
+   children on `$40,000` is computed here `$424.00` too high for 2025.
+
+   It needs a mechanism `steppedChildCredit` does not have: the bands are read
+   against **AGI** rather than taxable income, the age test is § 152(c)'s rather
+   than a single maximum, and the separate column is halved. And the amounts are
+   the only indexed figures in the New Mexico income tax, so 2026 would be the
+   state's first `provisionalFigures` entry.
+
+2. **BUILD THE PREPARER-ANCHOR HARNESS**, and the survey for it is already done
+   and committed as `tools/differential/PREPARER-ANCHORS.md`. `policyengine-us`
+   ships fixtures whose EXPECTED values were read off a form filled in commercial
+   tax software, and Day 67 found two of them by accident: one reproduced
+   TaxAct's New Mexico tax to eighteen cents across all six brackets, and the
+   other settled § 7-2-39 when no statute text could be reached. **Fifteen more
+   exist in thirteen states this package already ships** — Arkansas, California,
+   Colorado, Iowa, Kentucky, Massachusetts, Maryland, Minnesota, Missouri, New
+   Jersey, South Carolina, Utah and Virginia — and five more in states it does
+   not, four of which are on the uncovered list.
+
+   The survey names what each of the five it read asserts, and the South Carolina
+   one is the most load-bearing anchor on the list for this package: it pins the
+   OBBBA add-back, which is the one rule here the differential grid cannot see,
+   because the movement cancels. The shape is the differential harness's — a
+   reader that REFUSES a case whose situation holds a variable it cannot map,
+   `ours.mjs` unchanged, and a comparator that checks the fixture's own `output:`
+   block within the fixture's OWN `absolute_error_margin`, which varies from
+   `0.01` to `5` and cannot be unified without either rejecting a correct answer
+   or accepting a wrong one.
+
+   It is item 2 and not item 1 because the child credit is money a New Mexico
+   family is owed today, and this is evidence. Both are worth more than the next
+   state.
+
+3. **PUT THE TAIL OF `UNCOVERED_TAXING_JURISDICTIONS` IN ORDER** — and it is high
+   on the list today because **Nebraska is now the last entry that list can name
+   with confidence**. Day 64 checked three figures and two of them have
+   been spent. One lookup against `census.gov`'s NST-EST2025-POP table from a
+   machine that can resolve the host, and the eight names below Nebraska stop
+   being a guess. West Virginia is almost certainly next after it, at about
+   1.77M, and "almost certainly" is what this list is not allowed to say.
+
+4. **ADD NEBRASKA**, 2,018,006, which is in order and checked. A graduated state
+   with four brackets, a standard deduction of its own, a Social Security
+   exemption that became total in 2024 and a refundable child care credit.
+
+5. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, now the
+   oldest live item and three days old). 18 files in `us-state-tax/test` iterate
+   every shipped state while naming only one or two codes in their text, so
+   per-mutant selection cannot narrow them and they are the whole of the
+   whole-suite re-run rate. `survivor-retirement.test.js` at 2.95s and
+   `provenance.test.js` at 1.87s first.
+
+6. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3). It
+   holds 100 of the mutants that get no selection, every one running the whole
+   suite, and all of them at the FRONT of the run because the enumerator walks
+   `data/` first.
+
+7. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4). The first ten minutes
+   of every audit look like an eight-hour run, which costs a false alarm at
+   exactly the moment somebody is deciding whether to let it finish.
+
+8. **GIVE THE MUTATION HARNESS A LOCK** (Day 66's item 16). A note in this journal
+   has now said "don't run a tool that rebuilds `dist` next to a running audit"
+   five times across three days, which is the shape of a rule that needs to be a
+   guard.
+
+9. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** in Arkansas (Day 64's
+   item 3).
+
+10. **DERIVE THE REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`.
+
+11. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
+
+12. **BOUND THE REMAINING 2025 DIVERGENCES** in the differential grid.
+
+13. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
+
+14. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** (Day 65's item 11).
+
+15. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT** (Day
+    65's item 12).
+
+16. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's
+    item 13, on the list since Day 43).
+
+17. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`** (Day 66's item
+    17).
+
+---
+
 ## Day 66 — 2026-10-29
 
 **KANSAS IS IN, AND THE FIGURE THAT DECIDED THE DAY WAS NOT A FIGURE.** The thirty-second

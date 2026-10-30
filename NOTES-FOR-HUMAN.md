@@ -13,60 +13,163 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 66 the four asks are unchanged and none of them blocks anything.** Three are
-small and cosmetic — the repository description and topics, the GitHub Pages switch, the
-optional npm publish — and the fourth is the one that would change what I can build: the
-network policy. Day 61's entry below has the exact hosts and the exact settings page. No
-Kansas primary document was opened today either: `ksrevenue.gov`, `kslegislature.gov` and
-`ksrevisor.gov` all refuse to resolve from this sandbox, by `curl` and by the fetch tool
-alike. What settled the state was the parameter files inside `policyengine-us`, downloaded
-from PyPI, which the allowlist does permit — **plus, for the first time in a while, a
-server-side search that reached three Kansas documents I could not fetch**: the 2025 tax
-booklet, a Department of Revenue notice from November 2025 and the Department's own help
-page for the pension schedule. Two of today's four findings came out of that search and
-not out of the package, which is worth recording because the last fourteen days have made
-it sound as though the package were the only route left.
+**As of Day 67 the four asks are unchanged and none of them blocks anything.**
+Three are small and cosmetic — the repository description and topics, the GitHub
+Pages switch, the optional npm publish — and the fourth is the one that would
+change what I can build: the network policy. Day 61's entry below has the exact
+hosts and the exact settings page. No New Mexico primary document was opened
+today either: `tax.newmexico.gov`, `realfile.tax.newmexico.gov`, `nmlegis.gov`,
+`nmonesource.com` and `law.justia.com` all refuse to resolve from this sandbox.
+What settled the state was the parameter files inside `policyengine-us`,
+downloaded from PyPI, which the allowlist does permit — plus server-side search,
+which reached a 2019 Legislative Finance Committee report, a Taxation and Revenue
+Department presentation and a 2024 bill's own record of being killed, none of
+which this container can fetch.
 
-`us-state-tax` is now **v0.57.0** and `us-tax-mcp` **v0.61.0**; `us-federal-tax` stays at
-**v0.16.0**. **1,725 tests** across the four suites, all passing, up 96. **32 taxing states
-and 41 in all**, up one; nine jurisdictions left.
+`us-state-tax` is now **v0.58.0** and `us-tax-mcp` **v0.62.0**;
+`us-federal-tax` stays at **v0.16.0**. **33 taxing states and 42 in all**, up
+one; nine jurisdictions left.
 
-**KANSAS IS IN, AND THE THING IT BROUGHT IS NOT A RATE. If you read two items, read A and
-E.**
+**NEW MEXICO IS IN, AND THE THING IT BROUGHT IS A COUNT RATHER THAN A FIGURE. If
+you read two items, read A and C.**
 
-**AND THERE IS A NEW THING YOU CAN ACTUALLY OPEN, which is the first item this project has
-built for a reader rather than for itself.** Every push already attaches the retirement
-calculator to the `calculator` release as one self-contained file you can download and
-double-click. It now attaches a second: **`state-tax-checks.html` — seven households where
-tax software is wrong.**
-
-Each row is one household computed twice: the answer the law gives, and the answer you get by
-reading the obvious thing instead. Both figures are computed by the engine in the page, from
-the same household, so nothing on it was typed in by hand.
+**AND THE PAGE YOU CAN OPEN HAS THREE MORE ROWS, which is the first time anything
+in this project has been EXTENDED by a later run rather than rewritten.** Every
+push attaches `state-tax-checks.html` to the `calculator` release as one
+self-contained file you can download and double-click. It had seven households
+where tax software is wrong; it now has **ten**.
 
 ```text
-  a Kansas widow read against the married-couple column   $2,145.72 / $1,618.24
-  $50,000 of Kansas pension, by who paid it                   $0.00 / $1,942.88
-  a married Kansan filing separately vs a single one      $1,961.58 / $1,990.31
-  Arkansas's real marginal rate vs its published top rate     13.70% / 3.70%
-  a Maryland 401(k) rolled into an IRA                        $0.00 / $963.88
-  Iowa's low-income cliff, 2026 against 2025                $240.24 / $253.54
-  New York City's own income tax                          $8,126.44 / $4,951.75
+  a New Mexico family's second child is worth $4,000 and the first is worth $0
+  a New Mexico head of household read against the single column   $1,319.00 high
+  one dollar of income at $150,000 costs a New Mexico couple        $2,855.65
+  a Kansas widow read against the married-couple column      $2,145.72 / $1,618.24
+  $50,000 of Kansas pension, by who paid it                     $0.00 / $1,942.88
+  a married Kansan filing separately vs a single one        $1,961.58 / $1,990.31
+  Arkansas's real marginal rate vs its published top rate       13.70% / 3.70%
+  a Maryland 401(k) rolled into an IRA                          $0.00 / $963.88
+  Iowa's low-income cliff, 2026 against 2025                  $240.24 / $253.54
+  New York City's own income tax                            $8,126.44 / $4,951.75
 ```
 
-**I built it because I noticed this project had been making a promise it gave nobody a way to
-keep.** Its strategy document says, five times over six different states, that somebody could
-check one of these findings against their own system "in five minutes". There was nowhere to
-spend those five minutes: the findings were in a 1.6MB log file and sixteen arrays of notes
-inside the code. Every quality instrument here answers "is this right?" for somebody with a
-clone and a terminal, and none of them is reachable by a person deciding whether to trust it.
+Four markdown documents in this repository describe the same findings and not one
+of them has ever been extended by a later run — each gets a new section at the top
+and the old ones go stale. **A page whose rows are computed cannot go stale, so
+adding to it is cheap.** That is the difference between an artifact and a
+document, and it is why the page was worth building.
 
-Half the rows are not errors and say so — the same `$50,000` of pension taxed at `$0` or at
-`$1,942.88` is two correct answers, and the gap is the finding. Calling that an error would
-make the page look sharper and would be a lie about the law. And three of this project's
-best findings **cannot** be computed that way; they are named on the page with the reason
-rather than left off, because the page that quietly dropped them would look better and be
-worth less.
+**A. A NEW MEXICO FAMILY'S FIRST CHILD IS WORTH NOTHING, AND EVERY PUBLISHED
+ACCOUNT OF THE RULE SAYS IT IS WORTH $4,000.** New Mexico gives a deduction of
+$4,000 for a dependent to a couple filing jointly or to a single parent filing as
+head of household. The statute — NMSA 1978 § 7-2-39 — allows it **"for each
+dependent in excess of one"**.
+
+| children | what New Mexico allows | what "$4,000 each" gives |
+| --- | --- | --- |
+| 1 | `$0` | `$4,000` |
+| 2 | `$4,000` | `$8,000` |
+| 3 | `$8,000` | `$12,000` |
+| 4 | `$12,000` | `$16,000` |
+
+**The gap is the same $4,000 at every family size**, which is what makes it worth
+something commercially: anybody can check one household and the number they see
+is the number every other household shows. It is $172 to $236 of tax depending on
+the income — and for a family with one child it is the whole of the deduction
+rather than a part of it.
+
+**I did not take this on trust and it is the first finding here checked against
+commercial tax software.** `policyengine-us` ships two test cases whose expected
+answers were produced by **filling in the form in TaxAct**, not by running a
+model. One of them is a household with $200,000 of income, $40,000 of itemized
+deductions and **three** children, and its expected New Mexico taxable income is
+$152,000. That is $200,000 − $40,000 − **$8,000**: two children at $4,000 when the
+return claims three. A program paying $4,000 a child would produce $148,000 and
+one paying nothing would produce $160,000, **so that single number rules out both
+of the other readings.** The other case reproduces TaxAct's New Mexico tax of
+$49,400 to eighteen cents.
+
+The design makes sense once the count is right. The deduction was created in 2019
+to make up for the federal personal exemption that the 2017 federal tax act had
+set to zero — and New Mexico's own deduction IS the federal standard deduction,
+which that same act had nearly doubled. The first child is the one the bigger
+deduction was taken to have already covered. The Legislative Finance Committee's
+own report says so in those words: "a $4,000 income tax deduction for each
+dependent **after the first**".
+
+**B. A NEW MEXICO SINGLE PARENT IS TAXED ON THE MARRIED-COUPLE RATE TABLE, AND
+READING THE SINGLE ONE COSTS A FLAT $1,319 FOREVER.** New Mexico publishes three
+rate tables, not five. One of them covers married couples filing jointly,
+surviving spouses **and heads of household** together — the Department's own rate
+table prints the married column with a note that a surviving spouse must use it
+too.
+
+A program that puts a head of household on the single table overcharges, and
+above a certain income the error stops growing:
+
+| New Mexico taxable income | correct | on the single table | too high by |
+| --- | --- | --- | --- |
+| `$66,500` | `$2,514.50` | `$2,716.50` | `$202.00` |
+| `$100,000` | `$4,089.00` | `$4,358.00` | `$269.00` |
+| `$315,000` | `$14,624.00` | `$15,943.00` | `$1,319.00` |
+| `$1,000,000` | `$55,039.00` | `$56,358.00` | `$1,319.00` |
+
+The jump to $1,319 is the single table's top 5.9% rate starting $105,000 earlier
+than the married one's; above $315,000 both tables charge 5.9% and the gap stops
+changing.
+
+**C. ONE DOLLAR OF INCOME CAN COST A NEW MEXICO RETIRED COUPLE $2,855.65, AND THE
+THRESHOLD IT TURNS ON IS NOT INFLATION-ADJUSTED ALTHOUGH A PUBLISHED 2026 GUIDE
+SAYS IT IS.** New Mexico exempts the whole of a Social Security benefit from
+state tax if income is at or below $150,000 on a joint return ($100,000 single,
+$75,000 filing separately). There is no phase-out. One dollar above the line and
+every taxable dollar of the benefit becomes New Mexico income.
+
+```text
+  a couple both 70 with $60,000 of federally taxable Social Security benefit
+    income $150,000     $2,105.60 of New Mexico tax
+    income $150,001     $4,961.25        — $2,855.65 for one dollar
+  with $85,000 of benefit instead                     $3,961.85 for one dollar
+```
+
+**It is the largest such cliff anywhere in the 42 states I model, and I checked
+that by running every state rather than by assuming it.** Kansas charged $2,845.80
+on exactly this shape and repealed it two years ago. Connecticut's surviving
+version is $405.
+
+**And the three thresholds have never been inflation-adjusted.** A 2024 bill (HB
+249) would have adjusted them from the 2025 tax year, and it was **postponed
+indefinitely on 6 February 2024** — it never became law. At least one published
+2026 guide states the opposite: that the bill passed and the figures are now
+indexed and rounded down to the nearest $100. On a cliff that is not a small
+error. It moves the point at which an entire benefit becomes taxable, so a couple
+between $150,000 and the imagined indexed figure is told they owe nothing on a
+benefit New Mexico taxes in full.
+
+**D. AND THE THING I GOT WRONG TODAY, BECAUSE YOU SHOULD KNOW WHAT THE INSTRUMENTS
+ARE FOR.** New Mexico gives up to $8,000 of exemption to a person 65 or over,
+falling in $1,000 steps as income rises and expiring at $28,500 for a single
+filer. I wrote that one dollar of income at a step boundary costs $43 or $47 of
+tax, by multiplying $1,000 by two of New Mexico's six tax rates. **I then ran the
+households, and four of the eight boundaries cost nothing at all**; the largest
+step anywhere in the state is $64.04.
+
+The reason is the best fact about the rule. Those income thresholds have not been
+touched since **1987**, and the federal deduction New Mexico borrows whole has
+grown past them: a single New Mexican at $28,500 of income has about $7,400 of
+taxable income left after the federal deduction and the state's other two
+allowances, which is inside the 3.2% band. **Nobody who reaches the 4.3% rate
+still has the exemption.** The allowance has been overtaken by the deduction
+sitting above it.
+
+I am telling you this because the wrong figure was in four places in the code and
+would have been a sentence in a conversation. What caught it was computing the
+households rather than re-reading the prose, and that is the whole argument for
+every instrument in this repository.
+
+
+---
+
+## Day 66 — Kansas
 
 **A. A KANSAS WIDOW'S TAX BILL IS DECIDED BY A CHECKBOX, AND THE ANSWER IS NEITHER OF THE
 TWO A COMPUTER WOULD GUESS.** Kansas's tax return has four boxes for marital status:
