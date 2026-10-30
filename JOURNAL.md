@@ -308,6 +308,38 @@ distinction doubled five states' allowances for a widow before v0.24.0 and New
 Mexico is the first rule added since to need it, so the engine reads
 `livingFilerCount` there and the test asserts it.
 
+### One question I found by reviewing my own work, priced at $33.82
+
+§ 7-2-5.8 multiplies its `$2,500` by "the number of federal exemptions", and this
+package reads `livingFilerCount` — one for a married-filing-separately return.
+**IRC § 151(b) allowed a separate return to claim an exemption for a spouse with
+no gross income who is nobody's dependent**, and this package already carries
+that fact as an input, `spouseHasNoGrossIncomeAndIsNotADependent`, read by four
+states that have said in their own words that they track § 151(b). New Mexico has
+not been read on it, so the rule does not consult the field.
+
+`policyengine-us` answers it the same way and for a structural reason rather than
+a reading: each spouse filing separately heads their own tax unit, so
+`exemptions_count` is one filer plus dependents. **Both models therefore agree,
+which means the differential grid cannot see this question at all** — the class of
+gap Day 26 found when the grid had no blind filer.
+
+**It is worth at most `$33.82`**, swept across every dollar of separate AGI from
+`$16,000` to `$27,600`, peaking at `$22,215` — and the shape of that bound is the
+point. Below about `$18,000` the federal deduction has already taken the tax to
+zero, so a second exemption buys nothing; above `$27,500` the taper has taken the
+exemption to zero. **The window where the question has an answer is the window
+where both of New Mexico's own allowances are partly alive**, which is about
+`$9,600` wide.
+
+> **A QUESTION NEITHER MODEL ASKS IS NOT A QUESTION WITH NO ANSWER, AND PRICING
+> IT IS WHAT DECIDES WHETHER TO CHASE IT.** `$33.82` is the smallest figure this
+> journal has recorded against an unread provision and it is still worth writing
+> down, because the alternative is that the next person to notice it spends a day
+> finding out it was `$33.82`. It is not applied today for the fingerprint reason
+> above — a note on `lowAndMiddleIncomeExemption` is a comment on an exported
+> const.
+
 ### The identity that makes a printed rule unmodellable
 
 § 7-2-5.8 prints a taper AND an income limit, and **each limit is exactly where
@@ -473,26 +505,37 @@ engine on the same household with one input changed.
    five times across three days, which is the shape of a rule that needs to be a
    guard.
 
-9. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** in Arkansas (Day 64's
+9. **READ NEW MEXICO ON THE § 151(b) SEPARATE-RETURN SPOUSE**, which this run
+   found by reviewing its own work and priced at **`$33.82`** — see the section
+   above. § 7-2-5.8 multiplies by "the number of federal exemptions" and this
+   package reads one for a separate return; § 151(b) allowed a spouse with no
+   gross income to be claimed on one, and four states here already track it
+   through `spouseHasNoGrossIncomeAndIsNotADependent`. The reference model agrees
+   with this package for a structural reason rather than a reading, so **the
+   differential grid cannot see the question**. It needs a note at minimum and
+   the field read if a document settles it; the note is a one-line change that
+   costs an audit, so it belongs at the start of a run.
+
+10. **PROBE THE 19 LOW-INCOME TABLE AMOUNTS UNDER `$100`** in Arkansas (Day 64's
    item 3).
 
-10. **DERIVE THE REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`.
+11. **DERIVE THE REMAINING HAND-WRITTEN GATE LISTS** in `us-tax-mcp/src/state-fields.ts`.
 
-11. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
+12. **PIN WHAT A NOTE SAYS**, not just that a note exists (Day 64's item 5).
 
-12. **BOUND THE REMAINING 2025 DIVERGENCES** in the differential grid.
+13. **BOUND THE REMAINING 2025 DIVERGENCES** in the differential grid.
 
-13. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
+14. **READ INDIANA'S IRC REFERENCE DATE** (Day 64's item 7).
 
-14. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** (Day 65's item 11).
+15. **COUNT THE TESTS THAT ARE NOT IN A PACKAGE** (Day 65's item 11).
 
-15. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT** (Day
+16. **MAKE THE PUSH GATE REPORT THE SCORE CHECK RATHER THAN EXCLUDE IT** (Day
     65's item 12).
 
-16. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's
+17. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 65's
     item 13, on the list since Day 43).
 
-17. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`** (Day 66's item
+18. **MAKE `tools/test-counts.mjs --write` AS STRONG AS `--check`** (Day 66's item
     17).
 
 ---
