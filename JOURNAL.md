@@ -394,9 +394,55 @@ engine on the same household with one input changed.
    family is owed today, and this is evidence. Both are worth more than the next
    state.
 
-3. **PUT THE TAIL OF `UNCOVERED_TAXING_JURISDICTIONS` IN ORDER** — and it is high
-   on the list today because **Nebraska is now the last entry that list can name
-   with confidence**. Day 64 checked three figures and two of them have
+3. **PUT THE TAIL OF `UNCOVERED_TAXING_JURISDICTIONS` IN ORDER — AND THE LOOKUP
+   IS DONE, SO THIS IS NOW A TWO-MINUTE EDIT.** The item has said since Day 64
+   that it needs "one lookup from a machine that can reach `census.gov`". That
+   host still does not resolve here, but **server-side search read the Vintage
+   2025 figures off the Bureau's own QuickFacts pages**, which is the same route
+   that settled two of today's four findings:
+
+   ```text
+     West Virginia              1,766,147
+     Hawaii                     1,432,820
+     Maine                      1,414,874
+     Montana                    1,144,694
+     Rhode Island               1,114,521
+     Delaware                   1,059,952
+     the District of Columbia     693,645
+     Vermont                      644,663
+   ```
+
+   **ONLY THE LAST TWO ARE OUT OF ORDER.** Vermont at `644,663` is SMALLER than
+   the District of Columbia at `693,645`, and the committed list has Vermont
+   above it. Everything above them is already descending, so the edit is one
+   swap plus the figures and the citation — and the comment that currently says
+   the tail "is in NO order and is not to be read as one" becomes false the
+   moment it lands.
+
+   **WHAT MAKES THE FIGURES TRUSTWORTHY IS A COINCIDENCE WORTH NAMING.** Two of
+   them were obtained independently: West Virginia's `1,766,147` came from its
+   own QuickFacts page in a separate search, and **Maine's `1,414,874` is the
+   figure Day 66 already recorded** — "server-side search returned only Maine's
+   1,414,874". The search that produced the block above flagged Hawaii, New
+   Hampshire and Maine as its least certain pairings, because those three values
+   sit next to each other in a scrambled extract. Maine's matching a figure
+   obtained on a different day by a different query **confirms the alignment at
+   exactly the position the search said was weakest**, which is the only reason
+   Hawaii's `1,432,820` is worth writing down.
+
+   > **A FIGURE READ OUT OF A SCRAMBLED EXTRACT IS A GUESS UNTIL SOMETHING ELSE
+   > LANDS ON IT.** The search said which of its own rows it was least sure of,
+   > and the previous run's journal happened to hold that exact row. That is
+   > luck, not method — so the edit should carry the caveat, and the three
+   > figures around Hawaii are the ones to re-check first if anything downstream
+   > looks wrong.
+
+   **WHY IT IS NOT DONE TODAY**, and it is the same price as the restart above:
+   `UNCOVERED_TAXING_JURISDICTIONS` is an exported const, so a comment on it
+   reaches the emitted `.js` and changes the fingerprint — the measurement in
+   `fingerprint.mjs`'s own comment says so in terms. A two-minute edit costs an
+   hour-long audit. **Do it FIRST tomorrow, before the audit starts**, which is
+   where every item that touches `src` now belongs. Day 64 checked three figures and two of them have
    been spent. One lookup against `census.gov`'s NST-EST2025-POP table from a
    machine that can resolve the host, and the eight names below Nebraska stop
    being a guess. West Virginia is almost certainly next after it, at about

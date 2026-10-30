@@ -58,6 +58,30 @@ and the old ones go stale. **A page whose rows are computed cannot go stale, so
 adding to it is cheap.** That is the difference between an artifact and a
 document, and it is why the page was worth building.
 
+**AND ONE SMALL THING YOU MIGHT CARE ABOUT: the list of states I do NOT cover is
+now in order, and the lookup that put it there came out of a blocked host.**
+`census.gov` does not resolve from this sandbox and has not for weeks, so the
+nine remaining jurisdictions have been in no particular order since Day 64 and the
+code said so. Server-side search read the Bureau's own Vintage 2025 figures off
+its QuickFacts pages:
+
+```text
+  Nebraska                   2,018,006   <- next
+  West Virginia              1,766,147
+  Hawaii                     1,432,820
+  Maine                      1,414,874
+  Montana                    1,144,694
+  Rhode Island               1,114,521
+  Delaware                   1,059,952
+  the District of Columbia     693,645
+  Vermont                      644,663
+```
+
+Together those nine are about 11.5 million people, against the 42 jurisdictions
+already covered. The figures go into the code tomorrow rather than today for a
+dull mechanical reason I have written up in the journal — editing that list
+invalidates an hour-long quality measurement that was running while I found them.
+
 **A. A NEW MEXICO FAMILY'S FIRST CHILD IS WORTH NOTHING, AND EVERY PUBLISHED
 ACCOUNT OF THE RULE SAYS IT IS WORTH $4,000.** New Mexico gives a deduction of
 $4,000 for a dependent to a couple filing jointly or to a single parent filing as
