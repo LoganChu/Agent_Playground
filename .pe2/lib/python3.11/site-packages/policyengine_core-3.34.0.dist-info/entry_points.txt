@@ -1,0 +1,2 @@
+[console_scripts]
+policyengine-core = policyengine_core.scripts.policyengine_command:main

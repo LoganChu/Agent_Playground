@@ -563,6 +563,15 @@ It is now derived from `SUPPORTED_STATES` and each state's own `rate.kind`.
 (cd packages/us-state-tax   && npm ci && npm run build)
 
 python3 -m venv .pe && .pe/bin/pip install policyengine-us==2.15.3   # ~2 min, offline after
+#   THE VERSION IS PINNED AND IT IS NOT THE VERSION TO READ PARAMETERS FROM.
+#   Day 67 ran the whole hour-long pass on 2.87.0 — the version it had already
+#   downloaded to read New Mexico's parameter files — and `compare.mjs` refused
+#   the output. Two jobs want two versions of one package: the parameter route
+#   wants the NEWEST figures and this harness wants a FROZEN model, because every
+#   entry in known-divergences.json is a statement about a particular version.
+#   If both jobs are being done in one run, install them into separate venvs
+#   (.pe for this and .pe2 or similar for the other) rather than trusting that
+#   the right one is on disk.
 #   (.pe/ and .venv/ are both gitignored; a `git add -A` over an unignored venv
 #    stages three thousand files of numpy, which is how that line got written)
 

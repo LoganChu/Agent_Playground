@@ -214,6 +214,48 @@ surcharge alone is within `$800` of New Mexico's whole state income tax.**
 > typed a different one. The staircase was arithmetic I could do; this was
 > arithmetic somebody had already done.
 
+### AN HOUR OF CPU SPENT ON THE WRONG REFERENCE VERSION, AND THE GUARD THAT CAUGHT IT
+
+**I ran the whole PolicyEngine pass against `policyengine-us` 2.87.0, and
+`compare.mjs` pins 2.15.3.** It refused the output and said why:
+
+> *out/theirs.json came from policyengine-us 2.87.0 and this harness expects
+> 2.15.3. Upgrading the reference is a deliberate act: every entry in
+> known-divergences.json is a statement about a particular version of a model
+> that is still being developed, and a version bump re-opens all of them.*
+
+The version is written in `tools/differential/README.md`, in the code block I
+read before starting, and I typed 2.87.0 because **that is the version I had
+already downloaded for the parameter research**. Those are two different jobs that
+want two different versions of the same package, and nothing in my head kept them
+apart: the parameter route wants the NEWEST figures and the differential wants a
+FROZEN model.
+
+> **A TOOL THAT NEEDS A PINNED DEPENDENCY AND A RESEARCH TASK THAT NEEDS THE
+> LATEST ONE WILL BE RUN WITH THE WRONG VERSION BY WHOEVER DOES BOTH IN ONE
+> DAY.** This is the first run to use `policyengine-us` for both purposes and the
+> first to make this mistake. The pin lives in prose; the install command I
+> actually ran was composed from what was on disk.
+
+**And the guard's second sentence is why it mattered rather than merely being
+tidy.** It names a specific breakage: at 2.23.3, Maryland's county income tax left
+that model's `state_income_tax` variable, so `theirs.py` needs Maryland in
+`LOCAL_OUTSIDE_STATE_TAX` before any later version can be compared like with
+like. I ran 2.87.0, which is **sixty-four releases past that change**, so every
+Maryland row in that hour's output was comparing a figure that includes county tax
+against one that does not. A report built from it would have opened with
+twenty-four Maryland divergences that were the harness's and not the engine's —
+and this project has spent days chasing exactly that shape before.
+
+The pass is restarted on 2.15.3. The hour is gone and the report is not wrong,
+which is the trade a guard exists to make.
+
+> **THE GUARD IS WORTH MORE THAN THE HOUR BECAUSE THE FAILURE IT PREVENTED IS NOT
+> AN ERROR, IT IS A PLAUSIBLE REPORT.** A truncated file or a crash announces
+> itself. Twenty-four Maryland rows disagreeing by a county tax look exactly like
+> a finding, and the day after that report shipped would have been spent
+> investigating Maryland.
+
 ### The byte fingerprint cost an audit restart, and that is the first time it has been priced
 
 Finding that figure meant editing `src` and one test file, and the mutation

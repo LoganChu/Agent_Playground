@@ -1,0 +1,38 @@
+from policyengine_us.model_api import *
+
+
+class net_capital_gain(Variable):
+    value_type = float
+    entity = TaxUnit
+    label = "Net capital gain"
+    unit = USD
+    documentation = (
+        "The excess of net long-term capital gain over net short-term capital"
+        'loss, plus qualified dividends (the definition of "net capital gain"'
+        "which applies to 26 U.S.C. § 1(h) from § 1(h)(11))."
+    )
+    definition_period = YEAR
+    reference = dict(
+        title="26 U.S. Code § 1222(11)",
+        href="https://www.law.cornell.edu/uscode/text/26/1222#11",
+    )
+
+    def formula(tax_unit, period, parameters):
+        lt_capital_gain = max_(0, add(tax_unit, period, ["long_term_capital_gains"]))
+        st_capital_loss = max_(0, -add(tax_unit, period, ["short_term_capital_gains"]))
+        investment_income_election = add(
+            tax_unit,
+            period,
+            ["investment_income_elected_form_4952"],
+        )
+        net_cap_gain = max_(
+            0,
+            lt_capital_gain - st_capital_loss - investment_income_election,
+        )
+        qual_div_income = add(tax_unit, period, ["qualified_dividend_income"])
+        # Capital gain distributions reported without Schedule D (Form 1040
+        # line 7 with the box checked) are long-term gains under IRC
+        # 852(b)(3)(B) and enter the preferential-rate base directly, with no
+        # Schedule D netting available on that filing path.
+        non_sch_d_capital_gains = add(tax_unit, period, ["non_sch_d_capital_gains"])
+        return net_cap_gain + qual_div_income + non_sch_d_capital_gains
