@@ -134,8 +134,14 @@ test('every state whose definition carries an earned income credit pays its matc
     // in this package, because the difference between the two is one clause:
     // Oklahoma's § 2357.43 freezes its base at 31 December 2020 law and Iowa's
     // § 422.12B names no date at all.
-    'CO', 'CT', 'IA', 'IL', 'IN', 'KS', 'LA', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NY', 'OH', 'OR', 'SC', 'UT',
-    'VA', 'WI',
+    // NEW MEXICO, added Day 67: 25% of the current federal credit, refundable,
+    // and the HIGHEST match in this package after New Jersey's 40%. § 7-2-18.15
+    // calls it the WORKING FAMILIES TAX CREDIT, which is Missouri's naming trap
+    // one state over — `creditNamed` above exists because of it — and the words
+    // "earned income" do appear in the rule's own name here, so `eitcOf` finds
+    // it. The rate was 20% through tax year 2022.
+    'CO', 'CT', 'IA', 'IL', 'IN', 'KS', 'LA', 'MA', 'MD', 'MI', 'MO', 'NJ', 'NM', 'NY', 'OH', 'OR',
+    'SC', 'UT', 'VA', 'WI',
   ]);
 });
 

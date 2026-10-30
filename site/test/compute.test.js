@@ -413,11 +413,33 @@ test('the ranking moved under Utah again, and Utah still has not moved', () => {
   // its exemption is $6,000 a person and the smallest in this package by a wide
   // margin. What gets them under Utah is that Arkansas does not tax the Social
   // Security benefit at all, and that is enough.
-  assert.equal(place, 35, `Utah ranks ${place}`);
+  //
+  // UTAH FALLS TO 36th ON DAY 67, AND NEW MEXICO'S ROUTE PAST IT IS THE PUREST
+  // VERSION OF ARKANSAS'S. New Mexico charges this couple $648.00 and ranks
+  // 30th of 42, the EIGHTEENTH state to pass Utah — and it has NO retirement
+  // provision of any kind for a private pension. Not a capped exclusion, not an
+  // age-tested one, not a small one: nothing. § 7-2-5.2's aged exemption is zero
+  // at this couple's $94,000 of AGI and § 7-2-5.8's is zero above $55,000, so
+  // every allowance New Mexico has for being old has already expired.
+  //
+  // What gets them under Utah is TWO THINGS AND NEITHER IS A PENSION RULE: the
+  // whole federally taxable Social Security benefit comes out under § 7-2-5.14,
+  // because $94,000 of AGI is under the $150,000 cliff, and what is left meets
+  // a 1.5% band to $8,000 and a 3.2% band to $25,000. Arkansas reached the same
+  // place with a $6,000-a-person exemption it barely needed; New Mexico reaches
+  // it with none at all.
+  //
+  // > **A STATE CAN BE CHEAPER FOR A RETIREE THAN A STATE WITH A RETIREMENT
+  // > CREDIT, BY HAVING NO RETIREMENT RULE AND A WIDE BOTTOM BAND.** Eighteen
+  // > states now rank above Utah on this household and Utah's figure has not
+  // > moved once. The page's whole argument is that a ranking of states by
+  // > "retiree-friendliness" is a ranking of provisions somebody listed rather
+  // > than of tax anybody pays.
+  assert.equal(place, 36, `Utah ranks ${place}`);
   // The thirteen that passed it: six on v0.18.0, three on v0.19.0, Connecticut
   // on v0.35.0, Alabama on v0.36.0, Missouri on v0.37.0 and WISCONSIN today.
   const ahead = model.states.slice(0, place - 1).map((row) => row.state);
-  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND', 'OK', 'IA']) {
+  for (const code of ['ID', 'CA', 'AZ', 'OH', 'MS', 'NC', 'IL', 'MI', 'NY', 'CT', 'AL', 'MO', 'WI', 'LA', 'ND', 'OK', 'IA', 'NM']) {
     assert.ok(ahead.includes(code), `${code} should now rank above Utah`);
   }
   // And Wisconsin's is a ZERO that the election produces rather than an

@@ -634,6 +634,86 @@ function separateReturnSpouseLowIncomeSenior(
   return def.exemption?.separateReturnSpouse.lowIncomeSenior === 'follows' ? 1 : 0;
 }
 
+/**
+ * The three New Mexico allowances that sit below the deduction line on PIT-1
+ * and have no analogue anywhere else in this package.
+ *
+ * They are summed here rather than threaded into {@link stateExemptions}
+ * because that function returns early for a state with no personal exemption,
+ * and New Mexico has none at all: the federal personal exemption is zero, the
+ * state's deduction IS the federal one, and what replaced the exemption is
+ * § 7-2-39's deduction for dependents after the first. Keeping them in one
+ * function also keeps all three reading FEDERAL AGI, which is the figure every
+ * one of the three subsections names.
+ *
+ * All three land in the same place arithmetically — a subtraction from the
+ * income the rate schedule is applied to — so the split between "deduction" and
+ * "exemption" on the form has no effect on a New Mexico answer. Nothing in this
+ * state reads `stateModifiedAdjustedGrossIncomeLessExemptions`.
+ */
+function newMexicoAllowances(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+): number {
+  let total = 0;
+  const agi = input.federal.adjustedGrossIncome;
+  const status = input.filingStatus;
+  const dependents = dependentCount(input);
+  // § 7-2-39: $4,000 for each dependent IN EXCESS OF ONE, and only for a return
+  // filed as head of household or married filing jointly. The `notCounted`
+  // subtraction is the part every published account of this deduction drops.
+  const dep = def.dependentDeduction;
+  if (dep) {
+    total += dep.amount[status] * Math.max(0, dependents - dep.notCounted);
+  }
+  // § 7-2-5.8: up to $2,500 PER EXEMPTION — filers plus dependents — tapered at
+  // 10%, 15% or 20% of AGI above a threshold that differs by status. Clamped at
+  // zero here; the independent reference model does not clamp it, which is why
+  // the module's notes name a window where that model allows a negative one.
+  const lmi = def.lowAndMiddleIncomeExemption;
+  if (lmi && agi <= lmi.incomeLimit[status]) {
+    const excess = Math.max(0, agi - lmi.reductionStart[status]);
+    const perExemption = Math.max(0, lmi.maxPerExemption - excess * lmi.reductionRate[status]);
+    // `livingFilerCount` and NOT `claimedFilerCount`, which hands a surviving
+    // spouse two. § 7-2-5.8 multiplies by the number of FEDERAL exemptions, and
+    // a qualifying widow(er) was allowed one personal exemption under § 151 and
+    // not two: the spouse is dead. This is the v0.24.0 class of defect that
+    // doubled five states' allowances for a widow, and it is the first new rule
+    // since to need the distinction.
+    total += perExemption * (livingFilerCount(status) + dependents);
+  }
+  // § 7-2-5.2: a stepped amount for each person 65 or over OR blind, where the
+  // two conditions do NOT stack on one person — unlike federal § 63(f) and
+  // unlike every state addition in this package modelled on it. So this counts
+  // PEOPLE satisfying either test rather than boxes ticked.
+  //
+  // ONLY THE AGE HALF IS COMPUTED, AND THE REASON IS THE FIELD RATHER THAN THE
+  // STATUTE. The one input that carries blindness is `blindOrDisabled`, which
+  // is New Jersey's and counts a filer "blind or permanently disabled";
+  // § 7-2-5.2 reaches blindness and not disability, and the field does not say
+  // which person on a joint return is which. Reading it here would grant up to
+  // $8,000 of exemption to a disabled New Mexican the subsection does not
+  // reach, so it is not read and the state's notes price what that omits for a
+  // blind filer under 65 — the same decision, for the same reason, as Kansas's
+  // disabled-veteran exemption, which needs a fact no field carries.
+  const ab = def.agedOrBlindExemptionSteps;
+  if (ab) {
+    const amount = stepAmount(ab.steps[status], agi);
+    if (amount > 0) {
+      let people = input.filerAge !== undefined && input.filerAge >= ab.age ? 1 : 0;
+      if (
+        status === 'marriedFilingJointly' &&
+        input.spouseAge !== undefined &&
+        input.spouseAge >= ab.age
+      ) {
+        people += 1;
+      }
+      total += amount * people;
+    }
+  }
+  return total;
+}
+
 function stateExemptions(
   def: StateIncomeTaxDefinition,
   input: StateIncomeTaxInput,
@@ -3334,6 +3414,13 @@ function computeOnce(
       base = netGain > 0 ? qualifying : 0;
     }
     capitalGainsSubtraction = base * def.capitalGainsSubtraction.share;
+    // New Mexico's $2,500 ceiling — the only one of the four states with a cap,
+    // and after HB 252 of 2024 the cap is the whole of the rule for anybody who
+    // did not sell a New Mexico business. Applied AFTER the share so that the
+    // two compose: a share of 1 and a cap of 2,500 is `min(gain, 2,500)`.
+    if (def.capitalGainsSubtraction.cap !== undefined) {
+      capitalGainsSubtraction = Math.min(capitalGainsSubtraction, def.capitalGainsSubtraction.cap);
+    }
     if (capitalGainsSubtraction > 0) {
       computedSubtractions.push({
         name: def.capitalGainsSubtraction.name,
@@ -3368,11 +3455,23 @@ function computeOnce(
   );
   let socialSecuritySubtraction = 0;
   if (def.subtractsTaxableSocialSecurity && taxableSocialSecurity > 0) {
-    socialSecuritySubtraction = taxableSocialSecurity;
-    computedSubtractions.push({
-      name: 'Social Security and Tier 1 railroad retirement benefits',
-      amount: socialSecuritySubtraction,
-    });
+    // NEW MEXICO'S LIMIT IS A CLIFF AND THE BOUNDARY IS INCLUSIVE. § 7-2-5.14
+    // allows the exemption where federal AGI "does not exceed" the figure for
+    // the status, so a filer exactly at it keeps the whole benefit exempt and
+    // one dollar above it loses all of it. Written as a gate on the
+    // unconditional subtraction rather than as a `sharePerStep` of 1 on
+    // Minnesota's rule, because a step width would be a parameter no household
+    // could ever move and so a mutant no test could ever kill.
+    const limit = def.taxableSocialSecurityLimit;
+    const within =
+      limit === undefined || input.federal.adjustedGrossIncome <= limit.atOrBelow[input.filingStatus];
+    if (within) {
+      socialSecuritySubtraction = taxableSocialSecurity;
+      computedSubtractions.push({
+        name: 'Social Security and Tier 1 railroad retirement benefits',
+        amount: socialSecuritySubtraction,
+      });
+    }
   }
   // Minnesota's simplified subtraction, § 290.0132 subd. 26(c). The whole
   // federally taxable benefit comes out at or below the threshold and is
@@ -3514,7 +3613,8 @@ function computeOnce(
   // why it has this credit — and taking the standard figure directly keeps that
   // a fact about Wisconsin rather than an assumption about `stateDeduction`.
   const standardDeductionTaken = standardDeduction(def, input, stateAgi);
-  const exemptions = stateExemptions(def, input, modifiedAgi, stateAgi);
+  const exemptions =
+    stateExemptions(def, input, modifiedAgi, stateAgi) + newMexicoAllowances(def, input);
   const measures: IncomeMeasures = {
     federalAdjustedGrossIncome: input.federal.adjustedGrossIncome,
     stateModifiedAdjustedGrossIncome: modifiedAgi,

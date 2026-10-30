@@ -249,6 +249,15 @@ const OWN_AGE_STATES: readonly string[] = declaredBy(
   'retirementIncomeSubtractions[].capByAge',
   'militaryRetirementExclusion.maximumAge',
   'militaryRetirementSubtraction.ageThreshold',
+  // NEW MEXICO's § 7-2-5.2 exemption for a person 65 or over or blind, added on
+  // Day 67. It is the reason this list could not be `militaryRetirementSubtraction`
+  // alone for New Mexico: that state's threshold is a SENTINEL ZERO — § 7-2-5.13
+  // has no age test at all — and a zero is the one value a "declares the path"
+  // derivation can read as an absence. § 7-2-5.2's 65 is a real age test, so the
+  // state declares this path and the gate opens on it. Refused, a New Mexico
+  // head of household of 65 was charged $64.00 too much and a joint return with
+  // one spouse of 65 $45.00 too much.
+  'agedOrBlindExemptionSteps.age',
   'planTypeRetirement.definedContributionAge',
   'reducedBaseRetirementCredit.minimumAge',
   'stateRetirementDeduction.socialSecurityMinimumAge',
@@ -290,6 +299,13 @@ const DEPENDENT_AGE_STATES: readonly string[] = declaredBy(
   // through this field.
   'exemption.perDependent',
   'exemption.perDependentSteps',
+  // NEW MEXICO, Day 67, and it has no `exemption` rule at all: § 7-2-39's
+  // deduction for each dependent after the first and § 7-2-5.8's per-exemption
+  // multiplier are both dependent COUNTS reached through this field, and neither
+  // sits under `exemption`. Refused, a New Mexico joint return with two children
+  // was charged $236.00 too much.
+  'dependentDeduction.amount',
+  'lowAndMiddleIncomeExemption.maxPerExemption',
   'exemption.perQualifyingChild',
   'exemption.perCollegeDependent',
   'exemption.perSeniorDependent',

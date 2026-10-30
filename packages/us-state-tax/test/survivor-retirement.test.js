@@ -126,14 +126,16 @@ test('exactly one state reads survivor retirement income differently from the fi
   // the exclusion her OWN age already earns her. So Iowa reads the survivor's
   // own age, its answer is too HIGH for a survivor under 55 whose deceased
   // spouse had reached it, and the note on the state says so with the price.
-  // 9,840 from Day 66: Kansas's 240, which is one more state across the same
-  // battery. Kansas is NOT in `differ` and could not be: its exempt list asks who
-  // the employer was and never who the claimant is, so a survivor's pension is
-  // read exactly as the deceased's would have been and the two answers agree by
-  // construction rather than by a reading. It is the cleanest member of the
-  // agreeing majority for that reason — in most of them the survivor rule simply
-  // has not been researched, and here there is nothing to research.
-  assert.equal(comparisons, 9840, 'comparisons made');
+  // 10,080 from Day 67: New Mexico's 240 on top of Kansas's, which is one more
+  // state across the same battery. NEITHER is in `differ` and neither could be,
+  // for the same reason read twice: Kansas's exempt list asks who the employer
+  // was and § 7-2-5.13 asks whether the pay is armed-forces retired pay, and
+  // neither asks who the claimant is — so a survivor's pension is read exactly
+  // as the deceased's would have been and the two answers agree by construction
+  // rather than by a reading. New Mexico is the sharper of the two, because
+  // § 7-2-5.13 NAMES the surviving spouse of a retiree and gives her the same
+  // $30,000, so the agreement here is the statute's own and not an absence.
+  assert.equal(comparisons, 10080, 'comparisons made');
   assert.deepEqual([...differ].sort(), ['SC']);
 });
 
@@ -275,7 +277,7 @@ test('every state whose tax moves when `retirement` is supplied is in the derive
   // gates the argument on this derived list, which is why the count is pinned
   // here — Day 51's defect was a second copy of it written by hand, refusing the
   // argument in three states whose tax it moves.
-  assert.equal(STATES_READING_RETIREMENT.length, 22, 'states reading retirement');
+  assert.equal(STATES_READING_RETIREMENT.length, 23, 'states reading retirement');
 });
 
 // ---------------------------------------------------------------------------

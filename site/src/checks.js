@@ -85,6 +85,148 @@ const marginal = (input) => stateIncomeTax(input).totalMarginalRate;
  */
 const CHECKS = [
   {
+    id: 'nm-second-child',
+    oursLabel: 'A New Mexico family with two children',
+    kind: 'comparison',
+    state: 'NM',
+    year: 2026,
+    headline: 'New Mexico’s $4,000 dependent deduction pays nothing for an only child',
+    household: 'A married couple filing jointly, $90,000 of federal AGI, two children',
+    wrongLabel: 'The same couple with ONE child',
+    says:
+      'NMSA 1978 § 7-2-39 allows $4,000 of deduction “for each dependent IN EXCESS OF ONE”. ' +
+      'So the first child is worth nothing at all, the second is worth $4,000, and the fourth ' +
+      'is worth $12,000 in total. Every published account of the provision describes it as ' +
+      '$4,000 a dependent, which overstates the deduction by exactly $4,000 at EVERY family ' +
+      'size — a one-child family by the whole of it. The two figures here are the same ' +
+      'household with one child added, so the gap IS the second child’s deduction: a ' +
+      'per-dependent model would show the same gap between zero children and one, and New ' +
+      'Mexico shows none. Check your own system by computing a New Mexico family with one ' +
+      'child and then with two; if the step between them is not $4,000 of deduction, or if ' +
+      'there is a step between none and one, the deduction is modelled per dependent. The ' +
+      'design is legible once the count is right: HB 6 of 2019 created the deduction to ' +
+      'offset the federal personal exemption the Tax Cuts and Jobs Act had zeroed, and New ' +
+      'Mexico’s own deduction IS the federal standard deduction, which that Act had nearly ' +
+      'doubled — so the first dependent is the one the larger deduction was taken to cover.',
+    cite:
+      'NMSA 1978 § 7-2-39; New Mexico Legislative Finance Committee, May 2019 post-session ' +
+      'report (“a $4,000 income tax deduction for each dependent after the first”); ' +
+      'Taxation and Revenue Department, 2019 and 2020 Tax Expenditure Report',
+    ours: () =>
+      tax({
+        state: 'NM',
+        year: 2026,
+        filingStatus: 'marriedFilingJointly',
+        federal: federal(90_000),
+        dependents: 2,
+        dependentAges: [8, 10],
+        filerAge: 40,
+        spouseAge: 40,
+      }),
+    theirs: () =>
+      tax({
+        state: 'NM',
+        year: 2026,
+        filingStatus: 'marriedFilingJointly',
+        federal: federal(90_000),
+        dependents: 1,
+        dependentAges: [10],
+        filerAge: 40,
+        spouseAge: 40,
+      }),
+  },
+  {
+    id: 'nm-hoh-column',
+    kind: 'error',
+    state: 'NM',
+    year: 2026,
+    headline: 'A New Mexico head of household is taxed on the MARRIED-COUPLE schedule',
+    household: 'A head of household with $400,000 of New Mexico net taxable income',
+    wrongLabel: 'If you read the single column',
+    says:
+      'NMSA 1978 § 7-2-7 writes THREE rate schedules and not five: one for married individuals ' +
+      'filing separately, one for single individuals, and one for married individuals filing ' +
+      'joint returns, SURVIVING SPOUSES AND HEADS OF HOUSEHOLD together. The Department’s own ' +
+      'rate table prints the joint column with the note that it “must also be used by ' +
+      'surviving spouse”. The single column is the ordinary default for a state that ' +
+      'publishes no head-of-household table, and it overcharges: $202.00 at $66,500 of net ' +
+      'taxable income, $269.00 from $100,000 to $210,000, and A FLAT $1,319.00 AT EVERY ' +
+      'INCOME ABOVE $315,000, forever, because the single column’s 5.9% band opens $105,000 ' +
+      'earlier than the joint one. Both figures here are the same income read against two ' +
+      'columns of the same statute. Check your own system at any head-of-household income ' +
+      'above $315,000: if the answer is $1,319.00 high, it is reading the single schedule.',
+    cite: 'NMSA 1978 § 7-2-7(B) and (C); New Mexico 2025 Tax Rate Table',
+    ours: () =>
+      tax({
+        state: 'NM',
+        year: 2026,
+        filingStatus: 'headOfHousehold',
+        federal: federal(400_000),
+        dependents: 1,
+        dependentAges: [10],
+        filerAge: 40,
+      }),
+    theirs: () =>
+      tax({
+        state: 'NM',
+        year: 2026,
+        filingStatus: 'single',
+        federal: federal(400_000),
+        dependents: 1,
+        dependentAges: [10],
+        filerAge: 40,
+      }),
+  },
+  {
+    id: 'nm-social-security-cliff',
+    oursLabel: 'At $150,000 of federal AGI',
+    kind: 'comparison',
+    state: 'NM',
+    year: 2026,
+    headline: 'One dollar of income costs a New Mexico couple $2,855.65 of tax',
+    household:
+      'A married couple both 70 with $60,000 of federally taxable Social Security benefit',
+    wrongLabel: 'At $150,001 — one dollar more',
+    says:
+      'NMSA 1978 § 7-2-5.14 exempts the WHOLE federally taxable Social Security benefit where ' +
+      'federal AGI “does not exceed” $150,000 on a joint return — $100,000 single, $75,000 ' +
+      'married filing separately — and there is no taper. One dollar above the figure and ' +
+      'every taxable dollar of the benefit is New Mexico income. Both numbers here are right, ' +
+      'which is why this is a comparison and not an error: the finding is the gap. It is the ' +
+      'largest live Social Security cliff this engine carries, measured over every state in ' +
+      'it. Kansas charged $2,845.80 on the same shape and repealed it for tax year 2024; ' +
+      'Connecticut’s surviving threshold is $405. AND THE THREE FIGURES ARE NOT INDEXED, ' +
+      'although at least one published 2026 guide says they are: HB 249 of 2024 would have ' +
+      'adjusted them for inflation from tax year 2025 and was postponed indefinitely on 6 ' +
+      'February 2024. On a cliff that is not a rounding difference — it moves the point at ' +
+      'which an entire benefit becomes taxable. Check your own system at $150,000 and ' +
+      '$150,001 of joint AGI with a large benefit; if nothing happens, your thresholds are ' +
+      'indexed and they should not be.',
+    cite:
+      'NMSA 1978 § 7-2-5.14; New Mexico 2025 PIT-ADJ instructions, Table 2; New Mexico HB 249 ' +
+      '(2024 regular session), postponed indefinitely 6 February 2024',
+    ours: () =>
+      tax({
+        state: 'NM',
+        year: 2026,
+        filingStatus: 'marriedFilingJointly',
+        federal: federal(150_000),
+        filerAge: 70,
+        spouseAge: 70,
+        taxableSocialSecurity: 60_000,
+      }),
+    theirs: () =>
+      tax({
+        state: 'NM',
+        year: 2026,
+        filingStatus: 'marriedFilingJointly',
+        federal: federal(150_001),
+        filerAge: 70,
+        spouseAge: 70,
+        taxableSocialSecurity: 60_000,
+      }),
+  },
+  {
     id: 'ks-widow',
     kind: 'error',
     state: 'KS',

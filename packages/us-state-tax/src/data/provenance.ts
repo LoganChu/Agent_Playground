@@ -239,7 +239,7 @@ const YEAR_ENTRIES: readonly StateFigureSource[] = (
     'LA',
     'MA', 'MD',
     'MI',
-    'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NV', 'NY', 'OH', 'OK', 'PA', 'SD', 'TN', 'TX', 'UT',
+    'MS', 'MO', 'NC', 'ND', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'PA', 'SD', 'TN', 'TX', 'UT',
     'VA', 'WA',
     'WY',
   ] as const
@@ -4023,6 +4023,172 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     kind: 'statute',
     document: '79-32,205',
     cite: 'K.S.A. 79-32,205 — 17% of the federal § 32 earned income credit, refundable. It was 18% for tax years 2010 through 2012 and was cut to 17% in 2013; thirteen tax years later it has not been restored, and the point it lost is worth $44.27 a year to a one-child family at the 2026 federal plateau. Unlike Oklahoma\'s 5% the base carries no date, which is why Kansas can declare the rule and Oklahoma cannot',
+    constant: true,
+  },
+  // =========================================================================
+  // NEW MEXICO — Day 67. Nothing in the New Mexico income tax is indexed except
+  // the child income tax credit, which this package does not model, so every
+  // entry below is `constant: true` and the reason is a statute rather than a
+  // carry-forward: HB 252 of 2024 wrote the rate schedules for taxable years
+  // beginning on or after 1 January 2025 with no cost-of-living provision, and
+  // §§ 7-2-5.2, 7-2-5.8, 7-2-5.13, 7-2-5.14, 7-2-34 and 7-2-39 are flat amounts
+  // with no indexing clause anywhere in them.
+  //
+  // THE ONE FIGURE A NEW MEXICO RETURN READS THAT MOVES EVERY YEAR IS NOT HERE,
+  // because it is not New Mexico's: PIT-1 line 12 is the federal standard or
+  // itemized deduction, so the state has no deduction figure of its own for this
+  // ledger to source. `deduction: { kind: 'federal' }` carries no number.
+  //
+  // NO NEW MEXICO PRIMARY DOCUMENT WAS OPENED. tax.newmexico.gov,
+  // realfile.tax.newmexico.gov, nmlegis.gov, nmonesource.com and law.justia.com
+  // all fail to resolve from the sandbox this state was added in. What sources
+  // these figures is policyengine-us 2.87.0's parameter files, which cite the
+  // 2025 PIT packet page by page, plus server-side search's reading of the 2025
+  // PIT-1 and PIT-ADJ instructions and the Department's 2025 rate table — and,
+  // for the two figures that route could not settle, two TAXSIM-derived fixtures
+  // whose expected answers were produced by TaxAct's own PIT-1.
+  // =========================================================================
+  {
+    state: 'NM',
+    path: 'rate.byStatus.*.*.rate',
+    kind: 'statute',
+    document: '7-2-7',
+    cite: 'NMSA 1978 § 7-2-7 as amended by HB 252 of 2024 — 1.5%, 3.2%, 4.3%, 4.7%, 4.9% and 5.9%, the same six rates in all three schedules, for taxable years beginning on or after 1 January 2025. The 5.9% top rate came from HB 163 of 2022 and the 4.3% band from HB 252 itself, which also cut the bottom rate from 1.7%. CROSS-CHECKED AGAINST A FILLED FORM: TAXSIM case 907 carries TaxAct\'s own PIT-1 line 22 at $49,400 for a 2025 single filer with $882,064 of net taxable income, and this schedule gives $49,399.82 — one household that exercises every band to the top',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'rate.byStatus.*.*.upTo',
+    kind: 'statute',
+    document: '7-2-7',
+    cite: 'NMSA 1978 § 7-2-7 — 8,000 / 25,000 / 50,000 / 100,000 / 315,000 for the schedule serving married individuals filing JOINT returns, SURVIVING SPOUSES AND HEADS OF HOUSEHOLD together; 5,500 / 16,500 / 33,500 / 66,500 / 210,000 for single individuals; and exactly half the joint figures for married individuals filing separately. THE THREE-SCHEDULE GROUPING IS THE FIGURE: a model that defaults a head of household to the single column overcharges by $202.00 at $66,500 of net taxable income, $269.00 from $100,000 to $210,000 and a flat $1,319.00 at every income above $315,000, because the single column\'s 5.9% band opens $105,000 earlier. The Department\'s 2025 rate table prints the joint column with the note that it "must also be used by surviving spouse"',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'taxableSocialSecurityLimit.atOrBelow.*',
+    kind: 'statute',
+    document: '7-2-5.14',
+    cite: 'NMSA 1978 § 7-2-5.14 — $100,000 single, $150,000 joint, head of household and surviving spouse, $75,000 married filing separately, as the AGI the exemption is allowed where federal AGI "does not exceed". A CLIFF WITH NO TAPER and an inclusive boundary: $2,855.65 of tax on one dollar for a couple with $60,000 of federally taxable benefit, $3,961.85 with $85,000. NOT INDEXED, and this is the figure most often reported wrong about New Mexico — HB 249 of 2024 would have adjusted all three for inflation from tax year 2025 and was POSTPONED INDEFINITELY on 6 February 2024, the 2025 PIT-ADJ instructions Table 2 prints the unindexed amounts, and policyengine-us 2.87.0 carries them from 2022-01-01 with no later value. At least one published 2026 guide asserts the indexing passed',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'dependentDeduction.amount.*',
+    kind: 'statute',
+    document: '7-2-39',
+    cite: 'NMSA 1978 § 7-2-39 — $4,000 for a return filed as head of household or married filing jointly, and NOTHING for a single filer, a married filer filing separately or a SURVIVING SPOUSE, because the subsection names two statuses and no others. The surviving-spouse zero is the literal reading of a provision that could have named her and did not; New Mexico gives her the joint RATE schedule and this package gives her no dependent deduction, which is $188.00 of tax on a widow with two children at $90,000 of AGI. It is also the independent reference model\'s reading',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'dependentDeduction.notCounted',
+    kind: 'statute',
+    document: '7-2-39',
+    cite: 'one — § 7-2-39 allows the $4,000 "for each dependent IN EXCESS OF ONE", so a family with one child gets nothing and a family with four gets $12,000. THE SELLABLE FIGURE IN THIS STATE AND THE ONE NO SUMMARY CARRIES: every published account of the deduction describes it as $4,000 a dependent, which overstates it by exactly $4,000 at every family size — $172.00 to $236.00 of tax depending on the band. Three independent records of the "in excess of one" reached this sandbox (the Legislative Finance Committee\'s May 2019 post-session report, the Department\'s 2019-2020 Tax Expenditure presentation and the Senate Finance analysis of the SB 300 amendment), AND IT IS CONFIRMED BY A FILLED FORM: a TAXSIM-derived fixture expects $152,000 of New Mexico taxable income for a household with $200,000 of AGI, $40,000 of federal itemized deduction and THREE dependents, which is $8,000 and not $12,000',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'lowAndMiddleIncomeExemption.maxPerExemption',
+    kind: 'statute',
+    document: '7-2-5.8',
+    cite: 'NMSA 1978 § 7-2-5.8 — $2,500, MULTIPLIED BY THE NUMBER OF FEDERAL EXEMPTIONS, which is the part a summary of this state always drops: a joint return with two children claims four and $10,000 of exemption before the taper, worth $430.00 of tax at 4.3%. A surviving spouse counts as ONE exemption and not two, because § 151 allowed a qualifying widow(er) one personal exemption',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'lowAndMiddleIncomeExemption.reductionStart.*',
+    kind: 'statute',
+    document: '7-2-5.8',
+    cite: 'NMSA 1978 § 7-2-5.8 — $30,000 for a joint, head-of-household or surviving-spouse return, $20,000 single, $15,000 married filing separately, as the federal AGI above which the exemption is reduced',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'lowAndMiddleIncomeExemption.reductionRate.*',
+    kind: 'statute',
+    document: '7-2-5.8',
+    cite: 'NMSA 1978 § 7-2-5.8 — 10% of the excess for a joint, head-of-household or surviving-spouse return, 15% single, 20% married filing separately. The three rates are what make the printed income limits redundant: each is exactly $2,500 divided by its own rate above its own threshold',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'lowAndMiddleIncomeExemption.incomeLimit.*',
+    kind: 'statute',
+    document: '7-2-5.8',
+    cite: 'NMSA 1978 § 7-2-5.8 — $55,000 joint, head of household and surviving spouse, $36,667 single, $27,500 married filing separately. CARRIED BECAUSE THE STATUTE PRINTS IT AND NOT BECAUSE ANYTHING READS IT: each limit is exactly where its own taper reaches zero (30,000 + 2,500/0.10 = 55,000.00, 20,000 + 2,500/0.15 = 36,666.67 against a printed 36,667, 15,000 + 2,500/0.20 = 27,500.00), so the limit can zero a positive exemption in no household at any income. test/new-mexico.test.js asserts the three identities, because nothing in a suite of answers can see a redundant rule stop being redundant. The single row is a third of a dollar wide and the independent reference model falls into it: it does not clamp the per-exemption amount at zero, so between $36,666.67 and $36,667 it computes -$0.05 a head and adds it to taxable income',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'agedOrBlindExemptionSteps.steps.*.*.amount',
+    kind: 'statute',
+    document: '7-2-5.2',
+    cite: 'NMSA 1978 § 7-2-5.2 and TABLE 1 on page ADJ-5 of the PIT packet — $8,000 falling in whole $1,000 steps to nothing, for each person 65 or over OR BLIND, the two conditions being ALTERNATIVES so that a New Mexican who is both qualifies once. That is the opposite of federal § 63(f), which stacks, and of Kansas\'s Worksheet I, which gives such a filer two boxes. THE 1987 DATE IS THE REFERENCE MODEL\'S rather than a New Mexico document read here: policyengine-us carries every threshold and amount in all five of its tables from 1987-01-01 with no later value, which is that package asserting thirty-nine unindexed tax years. The consequence is measured rather than asserted: four of the eight single boundaries cost nothing at all, because the federal deduction this state borrows whole has grown past the incomes these rows apply at',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'agedOrBlindExemptionSteps.steps.*.*.upTo',
+    kind: 'statute',
+    document: '7-2-5.2',
+    cite: 'NMSA 1978 § 7-2-5.2 — the exemption expires at $28,500 of federal AGI for a single filer, $51,000 for a joint or head-of-household return and $25,500 for a married individual filing separately, with a step every $1,500 for the single and separate tables and every $3,000 for the joint one. THE SEPARATE TABLE IS NOT HALF THE JOINT ONE, unlike the rate schedule, which is why three tables are stored rather than two. A step is not a taper: one dollar of AGI at a boundary costs the whole $1,000 of allowance, and the largest such step in the state is $64.04 at the joint $51,000 boundary, where both people\'s exemptions fall on the same dollar',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'agedOrBlindExemptionSteps.age',
+    kind: 'statute',
+    document: '7-2-5.2',
+    cite: 'NMSA 1978 § 7-2-5.2 — 65, which is the federal § 63(f) age and the only age test this package computes for New Mexico. § 7-2-5.13\'s military exemption has none at all and § 7-2-5.7\'s is 100',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'capitalGainsSubtraction.share',
+    kind: 'statute',
+    document: '7-2-34',
+    cite: 'one — the whole of the net capital gain up to the cap, § 7-2-34(A) allowing "the greater of" the flat amount or the percentage element, and the percentage element reaching nothing an ordinary filer has from tax year 2025. A share of 1 with a cap of $2,500 is min(net capital gain, $2,500)',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'capitalGainsSubtraction.cap',
+    kind: 'statute',
+    document: '7-2-34',
+    cite: 'NMSA 1978 § 7-2-34 as amended by HB 252 of 2024 section 8, from tax year 2025 — $2,500, raised from the $1,000 that stood through tax year 2024 in the same act that RESTRICTED THE 40% ELEMENT to the gain from the sale of a New Mexico business. So the cap is now the whole of the rule for anybody who did not sell a business, and published accounts of this state are slow here: several still describe the 40% deduction as current for everybody, which understates the tax on a $200,000 long-term gain by $4,011.50 for a single filer with $250,000 of AGI in 2026. CONFIRMED BY A FILLED FORM: TaxAct\'s PIT-ADJ line 16 is $2,500 for TAXSIM case 907, a 2025 single filer with $754,613.38 of long-term capital gains',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'militaryRetirementSubtraction.ageThreshold',
+    kind: 'sentinel',
+    cite: 'zero, which encodes "§ 7-2-5.13 has no age test" rather than being a figure read from a document. The subsection exempts the pay of every armed forces retiree and of every surviving spouse of one, at any age, which is why the two caps beside it are the same number and why this threshold is unreachable',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'militaryRetirementSubtraction.capUnderAge',
+    kind: 'statute',
+    document: '7-2-5.13',
+    cite: 'NMSA 1978 § 7-2-5.13 — $30,000 per retiree and per surviving spouse of one, phased in at $10,000 for tax year 2022 and $20,000 for 2023. THE EXEMPTION IS SCHEDULED TO END AFTER TAX YEAR 2026 and both years here are inside the window, so the sunset changes no answer in this package and is recorded because it changes one next year: policyengine-us 2.87.0 carries the $30,000 from 2024-01-01 with no end date',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'militaryRetirementSubtraction.capAtOrAboveAge',
+    kind: 'statute',
+    document: '7-2-5.13',
+    cite: 'the same $30,000 as the cap below the age threshold, because § 7-2-5.13 conditions the exemption on nothing but the character of the pay. The two figures are deliberately equal and test/new-mexico.test.js asserts it, so that a cap which came to differ by age would fail here rather than silently introducing a condition the statute does not have',
+    constant: true,
+  },
+  {
+    state: 'NM',
+    path: 'earnedIncomeCredit.matchRate',
+    kind: 'statute',
+    document: '7-2-18.15',
+    cite: 'NMSA 1978 § 7-2-18.15 — 25% of the federal § 32 earned income credit, refundable, raised from 20% for tax year 2023, with childless eligibility extended down to age 18. It is the second-highest match in this package after New Jersey\'s 40%. The base is THIS year\'s federal credit rather than a frozen Code, so a match is the whole of the rule and the rule can be declared — the clause Oklahoma\'s § 2357.43 has and New Mexico does not',
     constant: true,
   },
 ];

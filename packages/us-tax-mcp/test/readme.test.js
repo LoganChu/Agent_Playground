@@ -511,13 +511,13 @@ test('README: the state marginal-rate table, recomputed', () => {
 });
 
 test('README: the state coverage claims are the ones the engine actually holds', () => {
-  quotes('41 states');
-  assert.equal(SUPPORTED_STATES.length, 41);
+  quotes('42 states');
+  assert.equal(SUPPORTED_STATES.length, 42);
   // The full list, as the "what is not modelled" section enumerates it.
   quotesAcrossLines(SUPPORTED_STATES.join(', '));
 
   const taxing = SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2026).rate.kind !== 'none');
-  assert.equal(taxing.length, 32);
+  assert.equal(taxing.length, 33);
 
   // BOTH NUMBERS IN THAT SENTENCE ARE NOW READ OUT OF IT AND COMPARED TO THE
   // ENGINE, AND UNTIL DAY 62 NEITHER WAS.
@@ -536,7 +536,7 @@ test('README: the state coverage claims are the ones the engine actually holds',
   // applied to the others by being written down.
   const WORDS = {
     seven: 7, eight: 8, nine: 9, ten: 10,
-    'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29, thirty: 30, 'thirty-one': 31, 'thirty-two': 32,
+    'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29, thirty: 30, 'thirty-one': 31, 'thirty-two': 32, 'thirty-three': 33,
   };
   const sentence = FLAT_README.match(
     /([\w-]+) of the ([\w-]+) taxing states cut their rate for 2026/,

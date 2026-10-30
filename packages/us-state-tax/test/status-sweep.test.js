@@ -266,6 +266,29 @@ function setAt(root, path, value) {
  * becomes reachable — a stale exemption is how an audit starts lying.
  */
 const NOT_REACHABLE_BY_ANY_HOUSEHOLD = {
+  // NEW MEXICO'S LOW- AND MIDDLE-INCOME INCOME LIMIT, IN ALL FIVE STATUSES, AND
+  // IT IS THE CLEANEST ENTRY IN THIS OBJECT BECAUSE THE ARGUMENT IS ARITHMETIC
+  // RATHER THAN A CLAIM ABOUT WHICH HOUSEHOLDS EXIST.
+  //
+  // § 7-2-5.8 prints a taper AND a limit, and each limit is exactly where its
+  // own taper reaches zero: 30,000 + 2,500/0.10 = 55,000.00 for a joint return,
+  // 20,000 + 2,500/0.15 = 36,666.67 single against a printed 36,667, and
+  // 15,000 + 2,500/0.20 = 27,500.00 separate. The guard perturbs by DOUBLING,
+  // and doubling a limit can only admit filers whose per-exemption amount the
+  // taper has already clamped to zero — so no household at any income in any
+  // status can witness a wrong value. Every other entry here says "no household
+  // this battery builds"; this one says "no household".
+  //
+  // The figure is carried rather than derived because the statute writes both,
+  // and `new-mexico.test.js` asserts the identity so that the day one of the two
+  // moves and the other does not, a cliff appears in a test rather than in an
+  // answer.
+  '.lowAndMiddleIncomeExemption.incomeLimit': {
+    states: ['NM'],
+    why: 'exactly where its own taper reaches zero, so doubling it admits only filers whose per-exemption amount is already clamped to zero — unreachable by arithmetic rather than by the shape of this battery',
+    coveredBy:
+      'new-mexico.test.js — "the low- and middle-income exemption\'s income limit can zero a positive exemption in NO household"',
+  },
   '.exemption.perFiler': {
     states: ['MD', 'OH'],
     why: 'a stored duplicate of the `perExemptionSteps` chart top step, which is what the engine reads',
@@ -594,7 +617,25 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // a state with no figure below $100 has no cell in this blind spot. The whole
   // state is four tables because Kansas's complexity is in what it EXEMPTS rather
   // than in what it tabulates.
-  assert.equal(checked, 1198, 'byStatus cells with a parameter the harness would mutate');
+  //
+  // 1,262 from Day 67: NEW MEXICO'S SIXTY-FOUR, and the arithmetic is worth
+  // writing out because it is not six tables times five statuses times two
+  // years. Six by-status tables exist — the rate schedules, the dependent
+  // deduction, the three parts of the low- and middle-income exemption and the
+  // aged-or-blind steps — but the DEPENDENT DEDUCTION contributes only two
+  // statuses of the five, because § 7-2-39 gives $4,000 to a head of household
+  // and a joint return and ZERO to the other three, and a cell holding zero
+  // holds no parameter the harness can perturb. 5 + 2 + 5 + 5 + 5 + 5 = 27 a
+  // year, times two, plus ten cells of the income limit whose unreachability is
+  // declared in NOT_REACHABLE_BY_ANY_HOUSEHOLD above.
+  //
+  // > **A ZERO WRITTEN DELIBERATELY IS NOT A FIGURE THE AUDIT CAN SEE, AND THAT
+  // > IS THE RIGHT ANSWER RATHER THAN A GAP.** The three zeros in New Mexico's
+  // > dependent deduction are the whole of one of this state's two best
+  // > findings, and what defends them is a type — `byStatus` with every cell
+  // > written out — plus `new-mexico.test.js` asserting the table shape, not a
+  // > perturbation of a number that is already as small as a number gets.
+  assert.equal(checked, 1262, 'byStatus cells with a parameter the harness would mutate');
   // And the number those cells CONTAIN, pinned beside the number probed so the gap
   // between them cannot widen unnoticed. See `firstMutableLeaf` for what covers it.
   let inside = 0;
@@ -650,7 +691,7 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // `Infinity` that is not a figure. A state whose by-status tables are all
   // scalars contributes one number per cell; Kansas contributes 1.5 because half
   // of its tables are schedules and the other half are single amounts.
-  assert.equal(inside, 4_729, 'numbers inside those cells');
+  assert.equal(inside, 5_043, 'numbers inside those cells');
   // Connecticut held this record from Day 20 to Day 63 with 1,020 — nearly a
   // third of 3,192, because its three staircases and its 2% add-back table are
   // all by-status and all four columns wide. Minnesota's arrival added 170;
@@ -685,5 +726,21 @@ test('the byStatus cells the package ships, and the numbers inside them', () => 
   // four: a widow reads a $6,180 deduction, a $11,480 exemption, an $850 aged
   // addition and the $23,000 schedule, and no two of those four come off the same
   // column as the joint default would have given her.
-  assert.equal(exempt.length, 72, 'cells the engine cannot reach, all of them documented');
+  // 82 FROM DAY 67, AND THE TEN THAT ARRIVED ARE NEW MEXICO'S LOW- AND
+  // MIDDLE-INCOME INCOME LIMIT IN FIVE STATUSES AND TWO YEARS — the first entry
+  // in this object exempt by ARITHMETIC rather than by the shape of a battery or
+  // by a missing filing-status box. Every other entry says "no household this
+  // package builds reaches this"; § 7-2-5.8's limit says "no household", because
+  // the limit is exactly where its own taper reaches zero and the guard perturbs
+  // by doubling, which can only admit filers already clamped to zero.
+  //
+  // New Mexico adds NOTHING to this count for its surviving spouse, which is the
+  // other thing worth noting: it is the sixth state here with a widow's column
+  // that differs from the joint one and the FIRST not to be exempt by
+  // construction, because it declares no `survivingSpouseFilesAs`. The state
+  // gives her a box of her own and sends her to the joint RATE column, so her
+  // cells are reachable and reached — see `surviving-spouse-column.test.js`,
+  // where New Mexico is in the ledger of states that offer the status rather than
+  // in the list that redirects it.
+  assert.equal(exempt.length, 82, 'cells the engine cannot reach, all of them documented');
 });

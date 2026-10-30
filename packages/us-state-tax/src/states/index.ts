@@ -20,6 +20,7 @@ import { massachusetts } from './massachusetts.js';
 import { minnesota } from './minnesota.js';
 import { missouri } from './missouri.js';
 import { newJersey } from './new-jersey.js';
+import { newMexico } from './new-mexico.js';
 import { newYork } from './new-york.js';
 import { northDakota } from './north-dakota.js';
 import { ohio } from './ohio.js';
@@ -52,6 +53,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
   const mn = minnesota(year);
   const mo = missouri(year);
   const nj = newJersey(year);
+  const nm = newMexico(year);
   const ny = newYork(year);
   const nd = northDakota(year);
   const oh = ohio(year);
@@ -77,6 +79,7 @@ function definitionsForYear(year: number): StateIncomeTaxDefinition[] {
     ...(mn ? [mn] : []),
     ...(mo ? [mo] : []),
     ...(nj ? [nj] : []),
+    ...(nm ? [nm] : []),
     ...(nd ? [nd] : []),
     ...(ny ? [ny] : []),
     ...(oh ? [oh] : []),
@@ -270,30 +273,32 @@ export const STATES_READING_TAXABLE_SOCIAL_SECURITY: readonly StateCode[] =
  * written down.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
-  // THE FIRST TWO ARE ORDERED AND CHECKED; THE REST ARE NOT, AND THIS COMMENT
-  // SAID OTHERWISE FOR TWO DAYS. It read "largest first, re-checked against
-  // Census Vintage 2025 on Day 64" and named three figures — Kansas 2,977,220,
-  // New Mexico 2,125,498, Nebraska 2,018,006. Those three were checked. The
-  // eight names after them never were, and the claim "largest first" covered all
-  // eleven: West Virginia sat tenth on a list that said it was ordered by size,
-  // below Montana, Maine, Rhode Island, Vermont and Delaware, every one of which
-  // is smaller than it.
+  // ONE ENTRY IS ORDERED AND CHECKED AND THE REST ARE NOT, WHICH IS ONE FEWER
+  // THAN YESTERDAY FOR THE BEST REASON: New Mexico left this list by being
+  // added.
+  //
+  // Day 64 checked three figures against Census Vintage 2025 — Kansas
+  // 2,977,220, New Mexico 2,125,498, Nebraska 2,018,006 — and the eight names
+  // after them have never been checked at all, although the comment above this
+  // list claimed "largest first" over all eleven for two days. West Virginia sat
+  // tenth on a list that said it was ordered by size, below Montana, Maine,
+  // Rhode Island, Vermont and Delaware, every one of which is larger than it.
   //
   // > **A SENTENCE THAT DESCRIBES THE WHOLE LIST IS EVIDENCE ABOUT THE PART THAT
   // > WAS MEASURED AND A GUESS ABOUT THE REST, AND IT READS THE SAME EITHER WAY.**
   // > Day 64's check made two of the eleven entries trustworthy and made the
-  // > sentence above them less true, not more, because it was now a measured claim
-  // > with eight unmeasured entries inside its scope.
+  // > sentence above them less true, not more, because it was now a measured
+  // > claim with eight unmeasured entries inside its scope.
   //
-  // So: New Mexico and Nebraska are in order, from Day 64's figures, and are what
-  // a worklist should read. The nine below them are in NO order and are not to be
-  // read as one. Census hosts do not resolve from this sandbox and server-side
-  // search returned only Maine's 1,414,874 and the fact that Hawaii, New Mexico,
-  // Vermont and West Virginia all LOST population between 2024 and 2025. The
-  // order of the tail costs one lookup from a machine that can reach
-  // `census.gov`'s NST-EST2025-POP table; it is worth having before the third
-  // state from here, and worth nothing before the second.
-  'New Mexico',
+  // So Nebraska is the next state and the only entry here a worklist should
+  // read. **THE NINE BELOW IT ARE IN NO ORDER**, and the cost of putting them in
+  // one is a single lookup against `census.gov`'s NST-EST2025-POP table from a
+  // machine that can reach it. Census hosts do not resolve from this sandbox;
+  // server-side search has returned only Maine's 1,414,874 and the fact that
+  // Hawaii, New Mexico, Vermont and West Virginia all LOST population between
+  // 2024 and 2025. That lookup was worth nothing before the second state from
+  // Day 66 and is worth having now, because the second state is the last one
+  // this list can name with confidence.
   'Nebraska',
   // --- unordered from here ---
   'West Virginia',

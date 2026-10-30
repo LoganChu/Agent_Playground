@@ -196,6 +196,42 @@ const COVERED_ELSEWHERE = {
  * audit starts lying.
  */
 const UNREACHABLE = {
+  // NEW MEXICO'S $8,000 TOP ROW, AND IT IS THE ONLY NUMBER IN § 7-2-5.2 THAT NO
+  // PROBE CAN REACH — WHICH IS THE SECOND ANSWER TO THIS QUESTION AND NOT THE
+  // FIRST.
+  //
+  // The first version of `agedAtAgi` gave the probe the realistic federal
+  // deduction, since New Mexico's deduction IS the federal one, and SIX of the
+  // table's nine amounts came back unauditable: the rows were written in 1987
+  // and sit at incomes the modern federal deduction has grown past. Four
+  // entries were drafted here to excuse them.
+  //
+  // > **AN EXEMPTION LIST IS THE WRONG FIX FOR A PROBE THAT IS NOT PROBING.**
+  // > Zeroing the probe's federal deduction — the same isolation the Missouri
+  // > driver performs on the federal tax — made five of those six reachable, and
+  // > the four-entry draft would have shipped as a permanent excuse for a
+  // > one-line defect in the instrument. The list got shorter because the
+  // > instrument got better, which is the order those two things should happen
+  // > in.
+  //
+  // What remains is arithmetic rather than a property of the probe. Row 0's
+  // probe sits at half its own ceiling — $9,000 of AGI for the single column —
+  // and the row pays $8,000 of exemption beside § 7-2-5.8's $2,500, so the
+  // allowances exceed the income with the deduction already at zero. No federal
+  // deduction can arrange otherwise and the probe cannot move, because the
+  // regenerator freezes it (Day 33: a probe derived from the parameter moves
+  // when the parameter moves).
+  //
+  // AND IT IS UNREACHABLE IN ONE DIRECTION ONLY. The audit doubles, and a BIGGER
+  // exemption at $9,000 of AGI is absorbed. A smaller one is caught:
+  // `new-mexico.test.js` pins the measured cost of one dollar at all eight
+  // boundaries of the single table and all eight of the joint one.
+  'NM|agedOrBlindExemptionSteps.steps.<status>|0.amount': {
+    states: ['NM'],
+    why: "the top row's probe is at half its own ceiling — $9,000 of AGI in the single column — and the row pays $8,000 of exemption beside § 7-2-5.8's $2,500, so the allowances exceed the income with the probe's federal deduction already at zero. Doubling the amount changes nothing; reducing it moves four pinned boundary steps",
+    coveredBy:
+      'new-mexico.test.js — "the aged-or-blind staircase is nine steps and most of them are free", which pins the measured cost of one dollar at all eight boundaries of the single table and all eight of the joint one',
+  },
   'AR|rate.rows|0.reduction': {
     // Arkansas's first row is 0% on the first $5,599 and the card prints a
     // "minus adjustment" of $0.00 beside it. The engine computes
@@ -444,21 +480,27 @@ test('the numbers inside the staircases this package ships', () => {
   // of the 217 is witnessed by a probe except a single figure, the zero-rate
   // row's zero reduction, which is in UNREACHABLE with the arithmetic that makes
   // it unreachable twice over.
-  // 1,880 from Day 66: KANSAS'S TWELVE, which is the whole of its rate structure
-  // and the smallest contribution any taxing state has made to this count. Two
-  // bands times two numbers is four figures a schedule, two distinct schedules —
-  // the joint one and the one every other status reads — times two years is
-  // twelve, with the `Infinity` ceilings not being figures. Kansas has NO
-  // staircase in the Connecticut sense, no phase-out, no recapture and no credit
-  // withdrawn by income, so nothing else in the state is probed here. It is the
-  // cleanest rate structure in the package and this count is the measure of that.
-  assert.equal(checked, 1_880, 'numbers inside the staircases this package ships');
+  // 2,048 from Day 67: NEW MEXICO'S 168, which is the second largest
+  // single-state contribution this count has taken and the opposite shape from
+  // Kansas's twelve one day earlier.
+  //
+  // Three rate schedules times six bands times two numbers is 33 figures a year
+  // with the `Infinity` ceilings excluded, so 66 for the rate side; § 7-2-5.2's
+  // aged-or-blind tables are three distinct charts of nine rows times two
+  // numbers, 51 a year with the open-topped row's ceiling excluded, so 102. The
+  // state's whole complexity is in tables read against income, where Kansas's
+  // was in what it exempts outright — and the two states' counts here are 168
+  // and 12.
+  assert.equal(checked, 2_048, 'numbers inside the staircases this package ships');
   assert.equal(
     exempt.length,
-    16,
-    'staircase rows nothing can reach — five rows, both years: Connecticut\'s in two columns, ' +
-      'Oregon\'s in three, and Arkansas\'s zero-rate row, whose zero reduction a zero rate and ' +
-      'a floor at zero make unreachable twice over. All documented.',
+    22,
+    'staircase rows nothing can reach — eight rows, both years: Connecticut\'s in two columns, ' +
+      'Oregon\'s in three, Arkansas\'s zero-rate row, whose zero reduction a zero rate and ' +
+      'a floor at zero make unreachable twice over, and New Mexico\'s $8,000 top aged-or-blind ' +
+      'amount in all THREE of its charts — the single, joint and separate tables are distinct ' +
+      'objects, where head of household and surviving spouse share the joint one — whose probe ' +
+      'sits at an AGI the row\'s own allowances exceed. All documented.',
   );
 });
 

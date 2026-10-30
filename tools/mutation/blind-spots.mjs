@@ -100,6 +100,18 @@ const { getStateDefinition, SUPPORTED_STATES, SUPPORTED_YEARS } = pkg;
  * covers an age and a dollar amount and only one of those is alarming.
  */
 const DECLARED = {
+  // NEW MEXICO, Day 67. Four fields and twenty-eight figures, and the
+  // interesting half is WHY they are unperturbable rather than that they are:
+  // three of the four are unperturbable because of what the rule SAYS, not
+  // because of what the audit cannot reach.
+  'dependentDeduction.amount':
+    "ZEROS WRITTEN DELIBERATELY, and they are one of this state's two best findings. § 7-2-39 gives $4,000 to a return filed as a head of household or married filing jointly and NOTHING to a single filer, a married filer filing separately or a SURVIVING SPOUSE, so three of the five cells in each of two years hold zero — six figures the audit cannot touch because zero is already as small as a number gets. A ZERO WRITTEN ON PURPOSE IS NOT A GAP IN THE AUDIT, IT IS A CLAIM, and what stands behind it is the shape of a type — `byStatus` with every cell written out rather than defaulted — plus `test/new-mexico.test.js`, which asserts the whole table and prices the widow's cell at $188.00. The two $4,000 cells ARE perturbable and are not in this count",
+  'dependentDeduction.notCounted':
+    "A COUNT, and the single most sellable figure in this state: New Mexico's 1, the number of dependents § 7-2-39 does not pay for. It allows $4,000 \"for each dependent IN EXCESS OF ONE\", so a family with one child gets nothing and every published account of the provision overstates the deduction by exactly $4,000 at every family size. `smallInteger`, so no mutant — AND IT IS CONFIRMED BY A FILLED FORM rather than by a test of this package's own data: a TAXSIM-derived fixture expects $152,000 of New Mexico taxable income for a household with three dependents, which is $8,000 of deduction and discriminates against both $12,000 and $0. That is better evidence than a mutant would have been",
+  'agedOrBlindExemptionSteps.steps':
+    "SENTINELS AND ZEROS: the `Infinity` ceiling and the `0` amount of the open-topped last row of each of New Mexico's three § 7-2-5.2 tables, in each of two years. The rows that carry money — $8,000 falling to $1,000 across eight rows, and the eight income boundaries under them — are all at or above 100 and are perturbable, so what lands here is the row that says \"and nothing above this\". `test/step-probes.test.js` probes every row of all three tables and `test/new-mexico.test.js` prices one dollar at all eight boundaries of two of them",
+  'agedOrBlindExemptionSteps.age':
+    "AN AGE: New Mexico's 65, the § 63(f) age. `smallInteger`, so no mutant, and it is the only age test this package computes for the state — § 7-2-5.13's military exemption has none at all. `test/new-mexico.test.js` asserts the figure and `test/aged-standard-deduction.test.js` measures what it is worth",
   // ARKANSAS, AND IT IS THE LARGEST SINGLE-STATE ENTRY IN THIS OBJECT. Day 64
   // added a state 142 of whose figures the audit cannot touch, which is almost a
   // quarter of the 593 the whole package had before it — and they are not

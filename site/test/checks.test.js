@@ -51,7 +51,7 @@ const byId = () => new Map(runChecks().map((check) => [check.id, check]));
 
 test('every row computes both sides and names which kind of row it is', () => {
   const checks = runChecks();
-  assert.equal(checks.length, 7);
+  assert.equal(checks.length, 10);
   for (const check of checks) {
     assert.ok(['error', 'comparison'].includes(check.kind), `${check.id}: ${check.kind}`);
     assert.ok(check.headline.length > 20, `${check.id} needs a headline`);

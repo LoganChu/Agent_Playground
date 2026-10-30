@@ -193,6 +193,7 @@ const NAMES = {
   ID: 'Idaho',
   MO: 'Missouri',
   ND: 'North Dakota',
+  NM: 'New Mexico',
   UT: 'Utah',
 };
 

@@ -502,6 +502,27 @@
   },
   "error": null
  },
+ "2025-single-worker-NM-15000-0-0-0-0": {
+  "id": "2025-single-worker-NM-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 313.93
+  },
+  "state": {
+   "tax": -78.48,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 78.48
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-NY-15000-0-0-0-0": {
   "id": "2025-single-worker-NY-15000-0-0-0-0",
   "federal": {
@@ -1247,6 +1268,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-single-worker-NM-30000-0-0-0-0": {
+  "id": "2025-single-worker-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 14250,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 330.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -2000,6 +2042,27 @@
   },
   "error": null
  },
+ "2025-single-worker-NM-50000-0-0-0-0": {
+  "id": "2025-single-worker-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1200.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-NY-50000-0-0-0-0": {
   "id": "2025-single-worker-NY-50000-0-0-0-0",
   "federal": {
@@ -2741,6 +2804,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-single-worker-NM-80000-0-0-0-0": {
+  "id": "2025-single-worker-NM-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 64250,
+   "incomeTaxBeforeCredits": 9049,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2610.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -3494,6 +3578,27 @@
   },
   "error": null
  },
+ "2025-single-worker-NM-150000-0-0-0-0": {
+  "id": "2025-single-worker-NM-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 134250,
+   "incomeTaxBeforeCredits": 25067,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6036.25,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-worker-NY-150000-0-0-0-0": {
   "id": "2025-single-worker-NY-150000-0-0-0-0",
   "federal": {
@@ -4235,6 +4340,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-single-worker-NM-400000-0-0-0-0": {
+  "id": "2025-single-worker-NM-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 384250,
+   "incomeTaxBeforeCredits": 104034.75,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 20028.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -4983,6 +5109,27 @@
     {
      "name": "New Jersey child tax credit",
      "amount": 1000
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-couple-two-children-NM-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7152
+  },
+  "state": {
+   "tax": -1788,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1788
     }
    ]
   },
@@ -5743,6 +5890,27 @@
   },
   "error": null
  },
+ "2025-couple-two-children-NM-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 28500,
+   "incomeTaxBeforeCredits": 2943,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 932.98
+  },
+  "state": {
+   "tax": 414.76,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 233.25
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-two-children-NY-60000-0-0-0-0": {
   "id": "2025-couple-two-children-NY-60000-0-0-0-0",
   "federal": {
@@ -6498,6 +6666,27 @@
   },
   "error": null
  },
+ "2025-couple-two-children-NM-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 68500,
+   "incomeTaxBeforeCredits": 7743,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2420.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-two-children-NY-100000-0-0-0-0": {
   "id": "2025-couple-two-children-NY-100000-0-0-0-0",
   "federal": {
@@ -7247,6 +7436,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-couple-two-children-NM-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 168500,
+   "incomeTaxBeforeCredits": 26898,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7249.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -8012,6 +8222,27 @@
   },
   "error": null
  },
+ "2025-single-parent-NM-12000-0-0-0-0": {
+  "id": "2025-single-parent-NM-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -1020,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1020
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-NY-12000-0-0-0-0": {
   "id": "2025-single-parent-NY-12000-0-0-0-0",
   "federal": {
@@ -8758,6 +8989,27 @@
     {
      "name": "New Jersey child tax credit",
      "amount": 1000
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-single-parent-NM-25000-0-0-0-0": {
+  "id": "2025-single-parent-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 1375,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.33
+  },
+  "state": {
+   "tax": -1016.08,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1016.08
     }
    ]
   },
@@ -9510,6 +9762,27 @@
   },
   "error": null
  },
+ "2025-single-parent-NM-45000-0-0-0-0": {
+  "id": "2025-single-parent-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 21375,
+   "incomeTaxBeforeCredits": 2225,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 868.33
+  },
+  "state": {
+   "tax": 266.92,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 217.08
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-NY-45000-0-0-0-0": {
   "id": "2025-single-parent-NY-45000-0-0-0-0",
   "federal": {
@@ -10255,6 +10528,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-retired-couple-NM-0-0-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -11020,6 +11314,27 @@
   },
   "error": null
  },
+ "2025-retired-couple-NM-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-retired-couple-NY-0-20000-40000-0-0": {
   "id": "2025-retired-couple-NY-0-20000-40000-0-0",
   "federal": {
@@ -11775,6 +12090,27 @@
   },
   "error": null
  },
+ "2025-retired-couple-NM-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 31400,
+   "incomeTaxBeforeCredits": 3291,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 353.6,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-retired-couple-NY-0-50000-40000-0-0": {
   "id": "2025-retired-couple-NY-0-50000-40000-0-0",
   "federal": {
@@ -12524,6 +12860,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-retired-couple-NM-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 77300,
+   "incomeTaxBeforeCredits": 8799,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1988.1,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -13289,6 +13646,27 @@
   },
   "error": null
  },
+ "2025-single-retiree-NM-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-NM-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-retiree-NY-0-10000-24000-0-0": {
   "id": "2025-single-retiree-NY-0-10000-24000-0-0",
   "federal": {
@@ -14030,6 +14408,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-single-retiree-NM-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-NM-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 36050,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 681.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -14783,6 +15182,27 @@
   },
   "error": null
  },
+ "2025-investor-NM-50000-0-0-20000-0": {
+  "id": "2025-investor-NM-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 54250,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2023.25,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-investor-NY-50000-0-0-20000-0": {
   "id": "2025-investor-NY-50000-0-0-20000-0",
   "federal": {
@@ -15524,6 +15944,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-investor-NM-50000-0-0-100000-0": {
+  "id": "2025-investor-NM-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 134250,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5913.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -16273,6 +16714,27 @@
   },
   "error": null
  },
+ "2025-separate-NM-60000-0-0-0-0": {
+  "id": "2025-separate-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 44250,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1774.25,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-NY-60000-0-0-0-0": {
   "id": "2025-separate-NY-60000-0-0-0-0",
   "federal": {
@@ -17014,6 +17476,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-muni-retiree-NM-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-NM-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 47300,
+   "incomeTaxBeforeCredits": 5199,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 676.9,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -17779,6 +18262,27 @@
   },
   "error": null
  },
+ "2025-couple-no-children-NM-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 92.85
+  },
+  "state": {
+   "tax": -23.21,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 23.21
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-couple-no-children-NY-25000-0-0-0-0": {
   "id": "2025-couple-no-children-NY-25000-0-0-0-0",
   "federal": {
@@ -18528,6 +19032,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-couple-no-children-NM-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-NM-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 43500,
+   "incomeTaxBeforeCredits": 4743,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1459.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -19289,6 +19814,27 @@
   },
   "error": null
  },
+ "2025-mixed-dependents-NM-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 8500,
+   "incomeTaxBeforeCredits": 850,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5950,
+   "earnedIncomeCredit": 6038.98
+  },
+  "state": {
+   "tax": -1509.74,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1509.75
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-mixed-dependents-NY-40000-0-0-0-0": {
   "id": "2025-mixed-dependents-NY-40000-0-0-0-0",
   "federal": {
@@ -20038,6 +20584,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-NM-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 58500,
+   "incomeTaxBeforeCredits": 6543,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1762.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -20799,6 +21366,27 @@
   },
   "error": null
  },
+ "2025-single-parent-high-NM-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 66375,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2508.63,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-high-NY-90000-0-0-0-0": {
   "id": "2025-single-parent-high-NY-90000-0-0-0-0",
   "federal": {
@@ -21546,6 +22134,27 @@
   },
   "error": null
  },
+ "2025-single-parent-teen-NM-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-NM-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 11375,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2466.33
+  },
+  "state": {
+   "tax": -505.96,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 616.58
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-single-parent-teen-NY-35000-0-0-0-0": {
   "id": "2025-single-parent-teen-NY-35000-0-0-0-0",
   "federal": {
@@ -22283,6 +22892,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-separate-with-child-NM-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 29250,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1069.25,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -23036,6 +23666,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-NM-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 13500,
+   "incomeTaxBeforeCredits": 1350,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 868.33
+  },
+  "state": {
+   "tax": 14.92,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 217.08
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-NY-45000-0-0-0-0": {
   "id": "2025-surviving-spouse-NY-45000-0-0-0-0",
   "federal": {
@@ -23777,6 +24428,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-NM-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-NM-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 218500,
+   "incomeTaxBeforeCredits": 38134,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 9895.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -24530,6 +25202,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-NM-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-NM-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 268500,
+   "incomeTaxBeforeCredits": 50134,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12345.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-NY-300000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-NY-300000-0-0-0-0",
   "federal": {
@@ -25271,6 +25964,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-NM-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-NM-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 418500,
+   "incomeTaxBeforeCredits": 88046,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 20730.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -26028,6 +26742,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-low-NM-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-NM-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4328
+  },
+  "state": {
+   "tax": -1082,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1082
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-low-NY-18000-0-0-0-0": {
   "id": "2025-surviving-spouse-low-NY-18000-0-0-0-0",
   "federal": {
@@ -26779,6 +27514,27 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-low-NM-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-NM-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 3904.53
+  },
+  "state": {
+   "tax": -976.13,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 976.13
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-surviving-spouse-low-NY-26000-0-0-0-0": {
   "id": "2025-surviving-spouse-low-NY-26000-0-0-0-0",
   "federal": {
@@ -27522,6 +28278,27 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-NM-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 36050,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1388.85,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-NY-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-NY-0-55000-0-0-0",
   "federal": {
@@ -28259,6 +29036,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-young-NM-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 39250,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1539.25,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -29012,6 +29810,27 @@
   },
   "error": null
  },
+ "2025-early-retiree-NM-0-50000-0-0-0": {
+  "id": "2025-early-retiree-NM-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1200.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-early-retiree-NY-0-50000-0-0-0": {
   "id": "2025-early-retiree-NY-0-50000-0-0-0",
   "federal": {
@@ -29753,6 +30572,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-NM-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-NM-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 38500,
+   "incomeTaxBeforeCredits": 4143,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1244.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -30514,6 +31354,27 @@
   },
   "error": null
  },
+ "2025-blind-worker-NM-40000-0-0-0-0": {
+  "id": "2025-blind-worker-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 22250,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 681.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-blind-worker-NY-40000-0-0-0-0": {
   "id": "2025-blind-worker-NY-40000-0-0-0-0",
   "federal": {
@@ -31259,6 +32120,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-blind-senior-NM-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-NM-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4600,
+   "incomeTaxBeforeCredits": 460,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 64.54,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -32012,6 +32894,27 @@
   },
   "error": null
  },
+ "2025-on-the-boundary-NM-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 34250,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 69.33
+  },
+  "state": {
+   "tax": 1183.42,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 17.33
+    }
+   ]
+  },
+  "error": null
+ },
  "2025-on-the-boundary-NY-50000-0-0-0-0": {
   "id": "2025-on-the-boundary-NY-50000-0-0-0-0",
   "federal": {
@@ -32753,6 +33656,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-NM-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 84250,
+   "incomeTaxBeforeCredits": 13449,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3586.25,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -33514,6 +34438,27 @@
   },
   "error": null
  },
+ "2026-single-worker-NM-15000-0-0-0-0": {
+  "id": "2026-single-worker-NM-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 347.29
+  },
+  "state": {
+   "tax": -86.82,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 86.82
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-NY-15000-0-0-0-0": {
   "id": "2026-single-worker-NY-15000-0-0-0-0",
   "federal": {
@@ -34259,6 +35204,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-single-worker-NM-30000-0-0-0-0": {
+  "id": "2026-single-worker-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 13900,
+   "incomeTaxBeforeCredits": 1420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 319.3,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -35012,6 +35978,27 @@
   },
   "error": null
  },
+ "2026-single-worker-NM-50000-0-0-0-0": {
+  "id": "2026-single-worker-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1184.3,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-NY-50000-0-0-0-0": {
   "id": "2026-single-worker-NY-50000-0-0-0-0",
   "federal": {
@@ -35753,6 +36740,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-single-worker-NM-80000-0-0-0-0": {
+  "id": "2026-single-worker-NM-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000,
+   "taxableIncome": 63900,
+   "incomeTaxBeforeCredits": 8770,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2594.3,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -36506,6 +37514,27 @@
   },
   "error": null
  },
+ "2026-single-worker-NM-150000-0-0-0-0": {
+  "id": "2026-single-worker-NM-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 24734,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 6019.1,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-worker-NY-150000-0-0-0-0": {
   "id": "2026-single-worker-NY-150000-0-0-0-0",
   "federal": {
@@ -37247,6 +38276,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-single-worker-NM-400000-0-0-0-0": {
+  "id": "2026-single-worker-NM-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000,
+   "taxableIncome": 383900,
+   "incomeTaxBeforeCredits": 103134.25,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 20008.1,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -37995,6 +39045,27 @@
     {
      "name": "New Jersey child tax credit",
      "amount": 1250
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-couple-two-children-NM-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 3400,
+   "earnedIncomeCredit": 7316
+  },
+  "state": {
+   "tax": -1829,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1829
     }
    ]
   },
@@ -38755,6 +39826,27 @@
   },
   "error": null
  },
+ "2026-couple-two-children-NM-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 27800,
+   "incomeTaxBeforeCredits": 2840,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 1242.3
+  },
+  "state": {
+   "tax": 315.03,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 310.58
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-two-children-NY-60000-0-0-0-0": {
   "id": "2026-couple-two-children-NY-60000-0-0-0-0",
   "federal": {
@@ -39510,6 +40602,27 @@
   },
   "error": null
  },
+ "2026-couple-two-children-NM-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 67800,
+   "incomeTaxBeforeCredits": 7640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2387.6,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-two-children-NY-100000-0-0-0-0": {
   "id": "2026-couple-two-children-NY-100000-0-0-0-0",
   "federal": {
@@ -40259,6 +41372,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-couple-two-children-NM-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000,
+   "taxableIncome": 167800,
+   "incomeTaxBeforeCredits": 26340,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 4400,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 7215.2,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -41024,6 +42158,27 @@
   },
   "error": null
  },
+ "2026-single-parent-NM-12000-0-0-0-0": {
+  "id": "2026-single-parent-NM-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1425,
+   "earnedIncomeCredit": 4080
+  },
+  "state": {
+   "tax": -1020,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1020
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-NY-12000-0-0-0-0": {
   "id": "2026-single-parent-NY-12000-0-0-0-0",
   "federal": {
@@ -41770,6 +42925,27 @@
     {
      "name": "New Jersey child tax credit",
      "amount": 1250
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-single-parent-NM-25000-0-0-0-0": {
+  "id": "2026-single-parent-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 850,
+   "incomeTaxBeforeCredits": 85,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1785,
+   "earnedIncomeCredit": 4249.62
+  },
+  "state": {
+   "tax": -1062.4,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1062.41
     }
    ]
   },
@@ -42522,6 +43698,27 @@
   },
   "error": null
  },
+ "2026-single-parent-NM-45000-0-0-0-0": {
+  "id": "2026-single-parent-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 20850,
+   "incomeTaxBeforeCredits": 2148,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": 203.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 263.4
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-NY-45000-0-0-0-0": {
   "id": "2026-single-parent-NY-45000-0-0-0-0",
   "federal": {
@@ -43267,6 +44464,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-retired-couple-NM-0-0-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -44032,6 +45250,27 @@
   },
   "error": null
  },
+ "2026-retired-couple-NM-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 4000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-retired-couple-NY-0-20000-40000-0-0": {
   "id": "2026-retired-couple-NY-0-20000-40000-0-0",
   "federal": {
@@ -44787,6 +46026,27 @@
   },
   "error": null
  },
+ "2026-retired-couple-NM-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100,
+   "taxableIncome": 30600,
+   "incomeTaxBeforeCredits": 3176,
+   "taxableSocialSecurity": 28100,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 328,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-retired-couple-NY-0-50000-40000-0-0": {
   "id": "2026-retired-couple-NY-0-50000-40000-0-0",
   "federal": {
@@ -45536,6 +46796,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-retired-couple-NM-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000,
+   "taxableIncome": 76500,
+   "incomeTaxBeforeCredits": 8684,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1950.5,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -46301,6 +47582,27 @@
   },
   "error": null
  },
+ "2026-single-retiree-NM-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-NM-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 0,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-retiree-NY-0-10000-24000-0-0": {
   "id": "2026-single-retiree-NY-0-10000-24000-0-0",
   "federal": {
@@ -47042,6 +48344,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-single-retiree-NM-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-NM-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800,
+   "taxableIncome": 35650,
+   "incomeTaxBeforeCredits": 4030,
+   "taxableSocialSecurity": 19800,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 664.55,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -47795,6 +49118,27 @@
   },
   "error": null
  },
+ "2026-investor-NM-50000-0-0-20000-0": {
+  "id": "2026-investor-NM-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 53900,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2006.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-investor-NY-50000-0-0-20000-0": {
   "id": "2026-investor-NY-50000-0-0-20000-0",
   "federal": {
@@ -48536,6 +49880,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-investor-NM-50000-0-0-100000-0": {
+  "id": "2026-investor-NM-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000,
+   "taxableIncome": 133900,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 5896.6,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -49285,6 +50650,27 @@
   },
   "error": null
  },
+ "2026-separate-NM-60000-0-0-0-0": {
+  "id": "2026-separate-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000,
+   "taxableIncome": 43900,
+   "incomeTaxBeforeCredits": 5020,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1757.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-NY-60000-0-0-0-0": {
   "id": "2026-separate-NY-60000-0-0-0-0",
   "federal": {
@@ -50026,6 +51412,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-muni-retiree-NM-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-NM-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000,
+   "taxableIncome": 46500,
+   "incomeTaxBeforeCredits": 5084,
+   "taxableSocialSecurity": 34000,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 648,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -50791,6 +52198,27 @@
   },
   "error": null
  },
+ "2026-couple-no-children-NM-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 139.21
+  },
+  "state": {
+   "tax": -34.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 34.8
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-couple-no-children-NY-25000-0-0-0-0": {
   "id": "2026-couple-no-children-NY-25000-0-0-0-0",
   "federal": {
@@ -51540,6 +52968,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-couple-no-children-NM-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-NM-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000,
+   "taxableIncome": 42800,
+   "incomeTaxBeforeCredits": 4640,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1429.4,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -52301,6 +53750,27 @@
   },
   "error": null
  },
+ "2026-mixed-dependents-NM-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 7800,
+   "incomeTaxBeforeCredits": 780,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 5880,
+   "earnedIncomeCredit": 6369.3
+  },
+  "state": {
+   "tax": -1592.32,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1592.33
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-mixed-dependents-NY-40000-0-0-0-0": {
   "id": "2026-mixed-dependents-NY-40000-0-0-0-0",
   "federal": {
@@ -53050,6 +54520,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-NM-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 57800,
+   "incomeTaxBeforeCredits": 6440,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 6600,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1730.4,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -53811,6 +55302,27 @@
   },
   "error": null
  },
+ "2026-single-parent-high-NM-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000,
+   "taxableIncome": 65850,
+   "incomeTaxBeforeCredits": 7548,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 2483.95,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-high-NY-90000-0-0-0-0": {
   "id": "2026-single-parent-high-NY-90000-0-0-0-0",
   "federal": {
@@ -54558,6 +56070,27 @@
   },
   "error": null
  },
+ "2026-single-parent-teen-NM-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-NM-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000,
+   "taxableIncome": 10850,
+   "incomeTaxBeforeCredits": 1085,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 2651.62
+  },
+  "state": {
+   "tax": -560.15,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 662.91
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-single-parent-teen-NY-35000-0-0-0-0": {
   "id": "2026-single-parent-teen-NY-35000-0-0-0-0",
   "federal": {
@@ -55295,6 +56828,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-separate-with-child-NM-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 28900,
+   "incomeTaxBeforeCredits": 3220,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1052.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -56048,6 +57602,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-NM-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000,
+   "taxableIncome": 12800,
+   "incomeTaxBeforeCredits": 1280,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 1053.62
+  },
+  "state": {
+   "tax": -53.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 263.4
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-NY-45000-0-0-0-0": {
   "id": "2026-surviving-spouse-NY-45000-0-0-0-0",
   "federal": {
@@ -56789,6 +58364,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-NM-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-NM-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000,
+   "taxableIncome": 217800,
+   "incomeTaxBeforeCredits": 37468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 9861.2,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -57542,6 +59138,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-NM-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-NM-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000,
+   "taxableIncome": 267800,
+   "incomeTaxBeforeCredits": 49468,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 12311.2,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-NY-300000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-NY-300000-0-0-0-0",
   "federal": {
@@ -58283,6 +59900,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-NM-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-NM-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000,
+   "taxableIncome": 417800,
+   "incomeTaxBeforeCredits": 86608,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 20689.2,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -59040,6 +60678,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-low-NM-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-NM-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4427
+  },
+  "state": {
+   "tax": -1106.75,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1106.75
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-low-NY-18000-0-0-0-0": {
   "id": "2026-surviving-spouse-low-NY-18000-0-0-0-0",
   "federal": {
@@ -59791,6 +61450,27 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-low-NM-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-NM-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000,
+   "taxableIncome": 0,
+   "incomeTaxBeforeCredits": 0,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 1700,
+   "earnedIncomeCredit": 4089.82
+  },
+  "state": {
+   "tax": -1022.45,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 1022.46
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-surviving-spouse-low-NY-26000-0-0-0-0": {
   "id": "2026-surviving-spouse-low-NY-26000-0-0-0-0",
   "federal": {
@@ -60534,6 +62214,27 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-NM-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 35600,
+   "incomeTaxBeforeCredits": 4024,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1367.7,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-NY-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-NY-0-55000-0-0-0",
   "federal": {
@@ -61271,6 +62972,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-young-NM-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000,
+   "taxableIncome": 38900,
+   "incomeTaxBeforeCredits": 4420,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1522.8,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -62024,6 +63746,27 @@
   },
   "error": null
  },
+ "2026-early-retiree-NM-0-50000-0-0-0": {
+  "id": "2026-early-retiree-NM-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1184.3,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-early-retiree-NY-0-50000-0-0-0": {
   "id": "2026-early-retiree-NY-0-50000-0-0-0",
   "federal": {
@@ -62765,6 +64508,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-NM-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-NM-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000,
+   "taxableIncome": 37800,
+   "incomeTaxBeforeCredits": 4040,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 1214.4,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -63526,6 +65290,27 @@
   },
   "error": null
  },
+ "2026-blind-worker-NM-40000-0-0-0-0": {
+  "id": "2026-blind-worker-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000,
+   "taxableIncome": 21850,
+   "incomeTaxBeforeCredits": 2374,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 664.55,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-blind-worker-NY-40000-0-0-0-0": {
   "id": "2026-blind-worker-NY-40000-0-0-0-0",
   "federal": {
@@ -64271,6 +66056,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-blind-senior-NM-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-NM-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350,
+   "taxableIncome": 4150,
+   "incomeTaxBeforeCredits": 415,
+   "taxableSocialSecurity": 5350,
+   "childTaxCredit": 0,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 57.79,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]
@@ -65024,6 +66830,27 @@
   },
   "error": null
  },
+ "2026-on-the-boundary-NM-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000,
+   "taxableIncome": 33900,
+   "incomeTaxBeforeCredits": 3820,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 254.62
+  },
+  "state": {
+   "tax": 1120.65,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 63.66
+    }
+   ]
+  },
+  "error": null
+ },
  "2026-on-the-boundary-NY-50000-0-0-0-0": {
   "id": "2026-on-the-boundary-NY-50000-0-0-0-0",
   "federal": {
@@ -65765,6 +67592,27 @@
     },
     {
      "name": "New Jersey child tax credit",
+     "amount": 0
+    }
+   ]
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-NM-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000,
+   "taxableIncome": 83900,
+   "incomeTaxBeforeCredits": 13170,
+   "taxableSocialSecurity": 0,
+   "childTaxCredit": 2200,
+   "earnedIncomeCredit": 0
+  },
+  "state": {
+   "tax": 3569.1,
+   "credits": [
+    {
+     "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
     }
    ]

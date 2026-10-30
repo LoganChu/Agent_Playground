@@ -1,11 +1,74 @@
 # us-state-tax
 
-US **state and local** individual income tax for tax years **2025 and 2026**, across **41
-states** including **KANSAS**, **Arkansas**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
+US **state and local** individual income tax for tax years **2025 and 2026**, across **42
+states** including **NEW MEXICO**, **Kansas**, **Arkansas**, **Iowa**, **Oklahoma**, **North Dakota**, **Louisiana**, **South Carolina**, **Minnesota**, **Wisconsin**, **Oregon**, **New York**, **New Jersey**, **Missouri**, **Connecticut**, **Alabama**,
 **Massachusetts**, **Maryland**, **Ohio** and **Virginia**, plus **1,033 local income taxes**: New York City, Yonkers, all 24
 Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **679 Ohio
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
+
+New in 0.58.0: **NEW MEXICO, WHERE THE `$4,000` DEPENDENT DEDUCTION PAYS NOTHING FOR AN ONLY CHILD.** The thirty-third taxing state, 42 in all, nine jurisdictions left. Six brackets — **1.5%**, **3.2%**, **4.3%**, **4.7%**, **4.9%** and **5.9%** — under NMSA 1978 § 7-2-7 as HB 252 of 2024 rewrote it, on a base of federal AGI.
+
+**§ 7-2-39 allows the deduction "for each dependent IN EXCESS OF ONE", and every published account of it stops one clause early.**
+
+```text
+  dependents          1        2        3        4
+  what NM allows      $0   $4,000   $8,000  $12,000
+  "$4,000 each"    $4,000   $8,000  $12,000  $16,000
+  overstated by    $4,000   $4,000   $4,000   $4,000
+```
+
+**The error is the same `$4,000` at every family size** — `$172.00` of tax in the 4.3% band, `$188.00` at 4.7%, `$196.00` at 4.9%, `$236.00` at 5.9% — which is Arkansas's property: a buyer checks one household and the number they see is the number every other household shows. For a New Mexico family with ONE child it is the whole of the deduction rather than a part of it. **It is confirmed against a filled form rather than inferred**: a household with `$200,000` of AGI, `$40,000` of federal itemized deduction and THREE dependents has `$152,000` of New Mexico taxable income, which is `$8,000` of deduction and not `$12,000`. The design is legible once the count is right — HB 6 of 2019 created the deduction to offset the federal personal exemption the Tax Cuts and Jobs Act had zeroed, and New Mexico's deduction IS the federal standard deduction, which that Act had nearly doubled, so the first dependent is the one the larger deduction was taken to cover.
+
+**And the deduction belongs to TWO of the five filing statuses.** § 7-2-39 names a return filed "as a head of household or married filing jointly" and no other, so a single filer, a married filer filing separately and — the contestable one — a **surviving spouse** get nothing. New Mexico's PIT-1 has five status boxes including "Surviving Spouse with dependent child", and § 7-2-7 sends her to the married-filing-jointly RATE column by name while § 7-2-39 does not name her status. This package takes the literal reading, which is also the independent reference model's, and prices the other one: `$188.00` on a widow with two children at `$90,000` of AGI.
+
+**A NEW MEXICO HEAD OF HOUSEHOLD IS TAXED ON THE MARRIED-COUPLE SCHEDULE.** § 7-2-7 writes **three** schedules and not five — one for married individuals filing separately, one for single individuals, and one for married individuals filing joint returns, **surviving spouses and heads of household** together. The Department's own 2025 rate table prints the joint column with the note that it "must also be used by surviving spouse" and gives head of household the same figures.
+
+```text
+  net taxable income    66,500     100,000     210,000     315,000 and above
+  on the joint column    2,514.50   4,089.00    9,479.00     14,624.00
+  on the single column   2,716.50   4,358.00    9,748.00     15,943.00
+  overcharged by           202.00     269.00      269.00       1,319.00
+```
+
+**`$1,319.00` at every net taxable income above `$315,000`, forever**, because the two schedules run parallel at 5.9% from there and the gap is the accumulated difference of the five bands below. The jump from `$269` is the single column's 5.9% band opening `$105,000` earlier.
+
+**NEW MEXICO'S SOCIAL SECURITY EXEMPTION IS A CLIFF AND IT IS IN FORCE.** § 7-2-5.14 exempts the whole federally taxable benefit where federal AGI "does not exceed" `$100,000` single, `$150,000` joint, head of household or surviving spouse, `$75,000` married filing separately. There is no taper.
+
+```text
+  one dollar of federal AGI, 2026, measured
+    joint, $60,000 of federally taxable benefit, at 150,000   $2,855.65
+    joint, $85,000 of benefit, at 150,000                     $3,961.85
+    single, $40,000 of benefit, at 100,000                    $1,914.85
+    separate, $30,000 of benefit, at 75,000                   $1,427.85
+```
+
+**It is the largest LIVE discontinuity this package carries on a Social Security threshold, and `test/new-mexico.test.js` measures that over every state here rather than asserting it.** Kansas charged `$2,845.80` on the same shape at `$75,000` and repealed it for tax year 2024; Connecticut's surviving threshold is `$405`. The figures are computed and not `benefit × rate`: `$60,000` straddles the 4.7% and 4.9% bands, so the naive product overstates the cliff by `$84.35`.
+
+**And the three thresholds are NOT indexed, although a published 2026 guide says they are.** HB 249 of the 2024 regular session would have adjusted all three for inflation from tax year 2025. It was **postponed indefinitely on 6 February 2024** and never became law; the 2025 PIT-ADJ instructions print the unindexed figures in their Table 2. On a cliff that is not a rounding difference — it moves the point at which an entire benefit becomes taxable, so a couple between `$150,000` and an indexed figure is told they owe nothing on a benefit New Mexico taxes in full. It is the second consecutive state added here to carry an indexing clause that exists only in a bill or a fiscal note: Kansas's SB 1 as introduced would have indexed the standard deduction and the enacted act does not.
+
+**The low- and middle-income exemption is `$2,500` PER EXEMPTION and not `$2,500` a return.** § 7-2-5.8 multiplies the figure by the number of federal exemptions — filers plus dependents — so a joint return with two children claims four of them and `$10,000` before the taper, which is `$430.00` of tax at 4.3%. A surviving spouse counts as ONE exemption and not two, because § 151 allowed a qualifying widow(er) one personal exemption: the spouse is dead. **And the statute's printed income limit can zero a positive exemption in no household at any income** — each limit is exactly where its own taper reaches zero, `30,000 + 2,500/0.10 = 55,000.00`, `20,000 + 2,500/0.15 = 36,666.67` against a printed `36,667`, `15,000 + 2,500/0.20 = 27,500.00` — so `test/new-mexico.test.js` asserts the three identities rather than relying on them. The single row is a third of a dollar wide and the independent reference model falls into it: it does not clamp the per-exemption amount at zero, so between `$36,666.67` and `$36,667` of single AGI it computes `-$0.05` a head and adds it to taxable income.
+
+**THE AGED-OR-BLIND EXEMPTION HAS NOT BEEN INDEXED SINCE 1987, AND MOST OF ITS STEPS NOW COST NOTHING.** § 7-2-5.2 gives up to `$8,000` to each person 65 or over **or** blind, falling in whole `$1,000` steps — single `$8,000` to `$18,000` of AGI then a step every `$1,500`, nothing from `$28,500`; joint and head of household `$8,000` to `$30,000` then every `$3,000`, nothing from `$51,000`. A step is not a taper, so one dollar at a boundary costs the whole `$1,000` of allowance. Measured for 2026:
+
+```text
+  single, filer 70        18,000  19,500  21,000  22,500  24,000  25,500  27,000  28,500
+                           $0.00   $0.00   $0.00   $0.00  $14.27  $15.01  $30.34  $32.04
+  joint, both 70          30,000 ... 42,000  45,000  48,000  51,000
+                           $0.00       $0.00  $30.02  $48.74  $64.04
+```
+
+**Four of the eight single boundaries are free, and the largest step in the state is `$64.04`.** The exemption expires at `$28,500` of AGI for a single filer, and a single New Mexican there has about `$7,400` of taxable income once the federal deduction and the other two allowances are taken — inside the 3.2% band. So `$1,000` of exemption at one of these boundaries can never be worth 4.3% or 4.7%, because nobody who reaches those bands still has the exemption. `$64.04` is the joint `$51,000` boundary, where BOTH people's exemptions fall at once. **A staircase's step is worth the rate at the income where the step happens, not the state's top rate** — the first draft of this module priced them at `$43.00` and `$47.00` by multiplying `$1,000` by two of New Mexico's six rates, and no filer at any of the eight boundaries is in either band.
+
+**And aged and blind do NOT stack on one person**, which is the opposite of federal § 63(f): the subsection reaches a person "sixty-five years of age or older **or** blind", so a single New Mexican who is both gets `$8,000` once. Kansas's Worksheet I gives such a filer two boxes at `$850`; New Mexico is the first state here where the two conditions are alternatives.
+
+**THE DEDUCTION IS THE FEDERAL ONE, SO OBBBA CUT NEW MEXICO TAX WITH NO NEW MEXICO LEGISLATION.** PIT-1 line 12 is "Federal standard or itemized deduction amount (from federal Form 1040, line 12)" — the state legislates no deduction of its own and no personal exemption at all, which makes it the fourth state here declared `deduction: { kind: 'federal' }` after Arizona, Missouri and Iowa. A single New Mexican's deduction was `$15,000` under the pre-Act schedule and is `$15,750` for 2025 and `$16,100` for 2026. **The § 63(f) addition for age and blindness reaches the return too**, because line 12 is the deduction the filer ACTUALLY took: `$2,050` single and `$1,650` each on a joint return for 2026. That is Missouri's answer and not Arizona's — Arizona's statute sets its deduction equal to the federal standard AMOUNT in a flat table, so the addition does not reach an Arizona return, and this package was wrong about Arizona for 47 days for exactly that reason. **A New Mexico retiree therefore collects an age allowance twice**, once inside line 12 and again under § 7-2-5.2.
+
+**The 40% capital gains deduction is gone for everybody who did not sell a New Mexico business.** § 7-2-34 allowed the greater of `$1,000` or 40% of net capital gain through tax year 2024; HB 252 of 2024 restricted the 40% element to the gain from the sale of a New Mexico business and raised the flat element to `$2,500`, from tax year 2025. So the deduction an ordinary filer gets is `min(net capital gain, $2,500)`, and several published accounts still describe the 40% as current for everybody — which understates the tax on a `$200,000` long-term gain by `$4,011.50` for a single filer with `$250,000` of AGI. **Confirmed against a filled form**: TaxAct's own PIT-ADJ line 16 is `$2,500` for a 2025 single filer with `$754,613.38` of long-term gains, and that household's PIT-1 line 22 of `$49,400` reproduces here to eighteen cents — one return that exercises every band of the single schedule to the top.
+
+**Not modelled, and each is declared with what it costs**: the refundable child income tax credit of § 7-2-18.34 (`$637` a child at the bottom band for 2025, indexed, banded on AGI and halved on a separate return — the largest omission in this state and the only indexed figure in the New Mexico income tax); the Low Income Comprehensive Tax Rebate of § 7-2-14, about 120 indexed amounts with no 2026 figures reachable from here; the child day care credit; the property tax rebate; and the medical care expense deduction of § 7-2-37, whose three rates were reduced to ZERO from tax year 2025 and so is correctly absent rather than omitted.
+
+**No New Mexico primary document was opened.** `tax.newmexico.gov`, `realfile.tax.newmexico.gov`, `nmlegis.gov`, `nmonesource.com` and `law.justia.com` all fail to resolve from the sandbox this state was added in, by `curl` and by the fetch tool alike. The figures are `policyengine-us` 2.87.0's parameter files, which cite the 2025 PIT packet page by page, corroborated by server-side search's reading of the 2025 PIT-1 and PIT-ADJ instructions, the Department's 2025 rate table, the Legislative Finance Committee's 2019 post-session report and the Department's own Tax Expenditure presentation — plus, for the two figures that route could not settle, two TAXSIM-derived fixtures whose expected answers came from TaxAct's PIT-1.
 
 New in 0.57.0: **KANSAS, WHERE THE FIGURE THAT DECIDES A WIDOW'S BILL IS A CHECKBOX.** The thirty-second taxing state and the largest jurisdiction this package had left. Two brackets — **5.2%** to `$23,000` of taxable income and **5.58%** above, doubled on a joint return — under K.S.A. 79-32,110(a)(2)(F) as SB 1 of the 2024 special session rewrote it, on a base of federal AGI.
 
@@ -757,7 +820,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.57.0/us-state-tax-0.57.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.58.0/us-state-tax-0.58.0.tgz
 ```
 
 ## The rate is the easy part
@@ -1065,9 +1128,11 @@ nyc.totalTax;               // 8126.44
 nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 ```
 
-That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty-two
+That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty-three
 taxing states in this package** at the same income — every one of the nine with no income
-tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. Omit the
+tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. New Mexico is
+NOT among them: a single New Mexican on `$100,000` owes `$3,569.15`, which is more than New
+York City's resident surcharge and less than New York State's own `$4,748.13`. Omit the
 locality on a New York return and the result says so, and says what it would have cost this
 filer.
 
@@ -2945,7 +3010,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 1,880 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 2,048 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -2978,7 +3043,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **868** notes every
+`test/notes.test.js` pins the first 72 characters of all **906** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3003,8 +3068,8 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 6,540 numeric
-figures over 82 state-years, against 598 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 6,910 numeric
+figures over 84 state-years, against 616 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3050,12 +3115,12 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 3,253 figures of tax year
+The `kind` field answers one operational question. Over the 3,438 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **2,117** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **2,302** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
 | a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **981** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
@@ -3142,18 +3207,20 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.57.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.58.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
-- **32 of the 42 taxing jurisdictions, so 41 states in all.** The ten that are
-  missing: New Mexico, Nebraska, West Virginia, Hawaii, Maine,
+- **33 of the 42 taxing jurisdictions, so 42 states in all.** The nine that are
+  missing: Nebraska, West Virginia, Hawaii, Maine,
   Montana, Rhode Island, Delaware, Vermont, and the
-  District of Columbia. **Only the first two are in order of size** — New Mexico
-  2,125,498 and Nebraska 2,018,006, checked against Census Vintage 2025 — and the
-  eight after them are in no order at all. The list said "largest first" about all
-  eleven entries for two days while West Virginia sat tenth, below five
-  jurisdictions smaller than it; `UNCOVERED_TAXING_JURISDICTIONS` now says which
-  part of itself is measured.
+  District of Columbia. **Only the first is in order of size** — Nebraska
+  2,018,006, checked against Census Vintage 2025 — and the eight after it are in
+  no order at all. The list said "largest first" about all eleven entries for two
+  days while West Virginia sat tenth, below five jurisdictions smaller than it;
+  `UNCOVERED_TAXING_JURISDICTIONS` now says which part of itself is measured.
+  **Nebraska is the last entry this list can name with confidence**, because it
+  is the last one Day 64's check reached: moving past it needs one lookup against
+  `census.gov`'s NST-EST2025-POP table from a machine that can resolve the host.
   Asking for one throws rather than returning zero, and the message is built from a
   declared list of the uncovered jurisdictions rather than from a sentence — because
   the sentence named Connecticut as uncovered on the day Connecticut shipped.

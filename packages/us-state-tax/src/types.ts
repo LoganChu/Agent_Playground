@@ -58,6 +58,7 @@ export type StateCode =
   | 'ND'
   | 'NH'
   | 'NJ'
+  | 'NM'
   | 'NV'
   | 'NY'
   | 'OH'

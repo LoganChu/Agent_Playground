@@ -328,6 +328,57 @@ const retiree = (value, state, year, filingStatus) =>
   });
 
 /**
+ * A filer of 70 whose federal AGI is the probe value and whose FEDERAL DEDUCTION
+ * IS ZERO.
+ *
+ * For New Mexico's § 7-2-5.2 chart, which is read against federal AGI and paid
+ * per person aged 65 or over. The age is half of why this driver exists —
+ * `wages` is 45 and would reach none of these rows — and the zero deduction is
+ * the other half, which needs saying plainly because it is the most artificial
+ * probe in this file.
+ *
+ * ## Why the deduction is zero, and what that costs
+ *
+ * New Mexico's deduction IS the federal one, PIT-1 line 12. So the realistic
+ * probe is the standard deduction plus § 63(f)'s addition — `$18,150` for a
+ * single filer of 70 in 2026 — and that was the first version of this driver.
+ * **It made six of the table's nine amounts unauditable**, because § 7-2-5.2
+ * was last indexed in 1987 and its rows sit at incomes the modern federal
+ * deduction has grown past: the probe for the `$8,000` row is at `$9,000` of
+ * AGI, which `$18,150` of deduction already covers twice over.
+ *
+ * THE FILE'S OWN RULE SETTLES IT, AND IT IS IN `status-sweep.test.js`: the
+ * question a probe asks is not "does this figure matter?" but "would a WRONG
+ * value be noticed?", and those are different questions. A probe that cannot
+ * distinguish `$8,000` from `$16,001` leaves a typo in a shipped figure
+ * unaudited whether or not any household feels it today.
+ *
+ * So the deduction is zeroed to isolate the chart, exactly as the Missouri
+ * driver below holds the federal tax constant at `$8,000` while the income
+ * varies — a realistic household would move both and the probe would then be
+ * measuring two schedules at once. It is not a claim that any New Mexican has
+ * no federal deduction. **What a real New Mexican feels at these incomes is
+ * measured instead by `new-mexico.test.js`, which prices one dollar at all
+ * eight boundaries of the single table and finds four of them free.** The two
+ * instruments answer the two different questions, and the comment in
+ * `UNREACHABLE` for the row this still cannot reach says which is which.
+ *
+ * It is not quite enough even so: the `$8,000` top row needs `$9,000` of AGI to
+ * exceed `$8,000` of exemption plus `$2,500` of low- and middle-income
+ * exemption, which no deduction can arrange, so that one row is unreachable to
+ * any upward perturbation and is declared.
+ */
+const agedAtAgi = (value, state, year, filingStatus) =>
+  probeReturn(state, year, filingStatus, {
+    income: value,
+    earnedIncome: 0,
+    filerAge: 70,
+    spouseAge: 70,
+    deduction: 0,
+    deductionKind: 'itemized',
+  });
+
+/**
  * Which probe input each family of staircase is read against, and which filing
  * statuses the probe is run under.
  *
@@ -367,6 +418,17 @@ const pensionerAtAgi = (value, state, year, filingStatus) =>
   });
 
 export const DRIVERS = {
+  // New Mexico's § 7-2-5.2 exemption for a person 65 or over or blind — nine
+  // rows per status, read against federal AGI and paid PER PERSON, so the probe
+  // is a retiree of 70 whose AGI is the probe value.
+  //
+  // THE JOINT COLUMN IS PROBED WITH BOTH SPOUSES AT 70, so the chart's amount is
+  // paid twice and the per-person multiplier is exercised rather than assumed.
+  // `agedAtAgi` says why its federal deduction is zero.
+  'agedOrBlindExemptionSteps.steps.<status>': {
+    perStatus: true,
+    input: (value, state, year, status) => agedAtAgi(value, state, year, status),
+  },
   // Connecticut's personal tax credit, Conn. Gen. Stat. § 12-703 — 27 non-zero
   // rows per status, read against Connecticut AGI, which for a wage earner is
   // federal AGI.

@@ -56,7 +56,7 @@ test('README: the four quick-start figures', () => {
 });
 
 test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
-  assert.equal(SUPPORTED_STATES.length, 41);
+  assert.equal(SUPPORTED_STATES.length, 42);
   assert.deepEqual(SUPPORTED_YEARS, [2025, 2026]);
   assert.equal(NO_INCOME_TAX_STATES.length, 9);
   // SIXTEEN graduated, THIRTEEN flat, one on a schedule of its own, nine with none.
@@ -104,7 +104,15 @@ test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
   // whole progressivity of the Kansas income tax worth $87.40 at $46,000 of
   // taxable income against a flat 5.58%. The arithmetic of that schedule matters
   // less in Kansas than anywhere else here and the EXEMPTIONS matter more.
-  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'KS', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NY', 'OK', 'OR', 'SC', 'VA', 'WI']);
+  //
+  // NEW MEXICO IS THE EIGHTEENTH, and it is the opposite end of the same scale
+  // from Kansas: SIX bands under NMSA 1978 § 7-2-7, 1.5% to 5.9%, which ties
+  // California and Missouri for the most rows of any schedule here. What makes
+  // it unusual is not the count but the COLUMNS — § 7-2-7 writes three schedules
+  // and not five, grouping married-filing-jointly, surviving spouses and heads
+  // of household under one, so a head of household on $400,000 of net taxable
+  // income pays $1,319.00 less than the single column would charge, forever.
+  assert.deepEqual(graduated, ['AL', 'CA', 'CT', 'ID', 'KS', 'MD', 'MN', 'MO', 'MS', 'ND', 'NJ', 'NM', 'NY', 'OK', 'OR', 'SC', 'VA', 'WI']);
   assert.deepEqual(baseAmount, ['OH']);
   // IOWA IS THE THIRTEENTH FLAT STATE, and it arrived flat rather than becoming
   // so: SF 2442 of 2024 collapsed the last schedule before either supported year
@@ -117,7 +125,7 @@ test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
   // is single, so the README counts it with the flat-rate states.
   assert.equal(
     graduated.length + flat.length + baseAmount.length + NO_INCOME_TAX_STATES.length,
-    40,
+    41,
   );
   // THIRTY-ONE taxing states here, and Kansas is the thirty-first of them in
   // this arithmetic although it is the thirty-SECOND taxing state in the
@@ -132,7 +140,7 @@ test('README: 39 states, 2025 and 2026, nine with no income tax', () => {
   // Oregon's four rates have stood since 2020 — what moved in Oregon for 2026
   // was the bracket BOUNDARIES, which ORS 316.012 indexes, and the earned income
   // credit, which SB 1507 raised.
-  assert.equal(graduated.length + flat.length + baseAmount.length, 31);
+  assert.equal(graduated.length + flat.length + baseAmount.length, 32);
   // Massachusetts counts as flat here and is the reason the label is wrong: its
   // rate rule is one 5% rate, and the statute puts short-term capital gains at
   // 8.5% and collectibles at 12% beside it.
@@ -773,7 +781,19 @@ test('README: the provisional and published lists for 2026', () => {
   // clause that was amended OUT, which is a thing this list had not had to record:
   // the evidence for the flag is partly an absence, and the absence is in the act
   // rather than in the fiscal note anybody is likely to read.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
+  // NEW MEXICO joins the published list on arrival and it is the LEAST hedged
+  // entry on it: Kansas is published because an indexing clause was amended out
+  // of its act, which makes the evidence partly an absence, and New Mexico is
+  // published because no provision of its income tax has an indexing clause to
+  // amend. HB 252 of 2024 wrote the rate schedules for taxable years beginning
+  // on or after 1 January 2025; §§ 7-2-5.2, 7-2-5.8, 7-2-5.13, 7-2-5.14, 7-2-34
+  // and 7-2-39 are flat amounts. The ONE indexed figure in the state is the
+  // child income tax credit of § 7-2-18.34, and it is the reason this entry
+  // needs a sentence at all: the credit is not modelled here, so the state's
+  // only unpublished 2026 figure is also the only figure this package does not
+  // carry — and a reader who saw `published` beside a state with an indexed
+  // credit would be right to ask.
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NM', 'NY', 'OK', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -794,7 +814,7 @@ test('README: asking for an unsupported state throws rather than returning zero'
   // day it shipped. WEST VIRGINIA takes Kansas's place, and the list is
   // deliberately held at five so that the test keeps the same shape while the
   // states in it turn over.
-  for (const state of ['NE', 'WV', 'NM', 'DC', 'HI']) {
+  for (const state of ['NE', 'WV', 'MT', 'DC', 'HI']) {
     assert.throws(
       () => stateIncomeTax({ state, year: 2026, filingStatus: 'single', federal: FEDERAL_2025 }),
       /not supported/,
@@ -881,7 +901,7 @@ test('README: the New York City quick-start figures', () => {
   const readme = readFileSync(join(root, 'README.md'), 'utf8').replace(/\s+/g, ' ');
   const WORDS = {
     twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
-    thirty: 30, 'thirty-one': 31, 'thirty-two': 32,
+    thirty: 30, 'thirty-one': 31, 'thirty-two': 32, 'thirty-three': 33,
     'twenty-six': 26, 'twenty-seven': 27, 'twenty-eight': 28, 'twenty-nine': 29,
   };
   const hit = readme.match(
@@ -1649,10 +1669,10 @@ test('no package.json description claims a count the engine does not have', () =
   // of passing by having nothing left to check — which is the failure mode of
   // every test that loops over what it finds.
   assert.deepEqual(checked, [
-    'us-state-tax: 41 states',
+    'us-state-tax: 42 states',
     'us-state-tax: 1,033 local income taxes',
     'us-state-tax: 679 municipalities',
-    'us-tax-mcp: 41 states',
+    'us-tax-mcp: 42 states',
     'us-tax-mcp: 1,033 local income taxes',
     'us-tax-mcp: 679 municipalities',
   ]);
@@ -1880,7 +1900,7 @@ test("README: the gap list cannot name a state this package covers", () => {
   const hit = readme.match(/The (\w+) that are missing:([^.]*)\./);
   assert.ok(hit, 'the README no longer carries the gap list in the form this checks');
   const WORDS = {
-    ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15,
+    nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15,
     sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,
   };
   assert.equal(
@@ -1946,6 +1966,7 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  ['0.58.0', /\bNEW MEXICO\b/],
   ['0.57.0', /\bKANSAS\b/],
   ['0.56.0', /\bARKANSAS\b/],
   ['0.55.0', /\bIOWA\b/],
@@ -2009,7 +2030,7 @@ test('every "New in" paragraph is about its own release, and the newest is this 
 
   // THE STATE EACH OF THE LAST FOUR RELEASES ADDED IS IN THE REGISTRY, so a
   // paragraph cannot advertise a state the package does not have.
-  for (const code of ['IA', 'OK', 'ND', 'LA']) {
+  for (const code of ['NM', 'KS', 'AR', 'IA']) {
     assert.ok(getStateDefinition(code, 2026), `the README advertises ${code} and the engine lacks it`);
   }
 });

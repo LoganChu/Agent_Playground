@@ -124,16 +124,27 @@ function sensitiveStates(year) {
   return out;
 }
 
-test('exactly SIX states read a below-AGI federal figure, and it is MEASURED not listed', () => {
-  // FOUR until Day 61 and five since, and the new one arrived by the structural
-  // route rather than by a statute changing: North Dakota's base is federal
-  // TAXABLE income and it adds nothing back, so the federal deduction reaches
-  // its return in full. Nothing about North Dakota moved to put it here — the
-  // package grew a state that was always in this set.
+test('exactly SEVEN states read a below-AGI federal figure, and it is MEASURED not listed', () => {
+  // FOUR until Day 61, five since, SEVEN from Day 67 — and the two most recent
+  // arrivals came by the two different routes this set has.
+  //
+  // North Dakota (Day 61) arrived STRUCTURALLY: its base is federal TAXABLE
+  // income and it adds nothing back, so the federal deduction reaches its return
+  // in full. Nothing about North Dakota moved to put it here; the package grew a
+  // state that was always in this set.
+  //
+  // New Mexico (Day 67) arrived BY CROSS-REFERENCE, which is Arizona's old route
+  // and Missouri's and Iowa's current one: PIT-1 line 12 is "Federal standard or
+  // itemized deduction amount (from federal Form 1040, line 12)", so the state
+  // has no deduction of its own at all and every federal change to line 12
+  // reaches it. That makes this set three states by cross-reference (IA, MO, NM),
+  // three by starting point (CO, ND, and Idaho's federal taxable income) and
+  // Utah's credit, which is sensitive through a withdrawal band rather than a
+  // deduction.
   for (const year of YEARS) {
     assert.deepEqual(
       sensitiveStates(year),
-      ['CO', 'IA', 'ID', 'MO', 'ND', 'UT'],
+      ['CO', 'IA', 'ID', 'MO', 'ND', 'NM', 'UT'],
       `${year}: the states whose tax moves when the federal deduction moves`,
     );
   }
@@ -443,7 +454,7 @@ test('the weakest conformity entry says so, in the field rather than in a journa
   for (const state of [...new Set([...sensitiveStates(2025), 'AZ'])].sort()) {
     if (getStateDefinition(state, 2025).federalConformity?.primaryTextUnread) unread.push(state);
   }
-  assert.deepEqual(unread, ['AZ', 'CO', 'IA', 'ID', 'MO', 'ND', 'UT'], 'all seven, honestly');
+  assert.deepEqual(unread, ['AZ', 'CO', 'IA', 'ID', 'MO', 'ND', 'NM', 'UT'], 'all eight, honestly');
 
   const ut = getStateDefinition('UT', 2025).federalConformity.primaryTextUnread;
   assert.match(ut, /WEAKEST/, 'Utah is the one to re-read first and the field says so');

@@ -100,6 +100,7 @@ const OFFERS_THE_STATUS = {
   MO: 'Form MO-1040 carries "Qualifying widow(er)" as its own status, and this package stores Missouri figures against it explicitly rather than by default — see `missouri.ts`.',
   NC: 'D-400 carries "Qualifying Widow(er)/Surviving Spouse"; its 2025 standard deduction of $25,500 is the married-filing-jointly figure.',
   ND: 'Form ND-1 (2025) carries "Qualifying surviving spouse" as the fifth of its five filing-status boxes, beside a separate field for the status used on the federal return; the 2021 form called the same box "Qualifying widow(er)". The Tax Commissioner publishes a rate schedule for the status and it is the married-filing-jointly figure in every band of every published year — $80,975 and $298,075 for 2025, $82,800 and $304,850 for 2026 — so the status exists AND its column is named, which is the stronger of the two forms of evidence in this list.',
+  NM: 'The 2025 PIT-1 carries "Surviving Spouse with dependent child" as one of FIVE filing-status boxes on line 7, with the instruction to mark only one, and the Department\'s FAQ requires the New Mexico status to match the federal return. NMSA 1978 § 7-2-7(B) then writes ONE rate schedule for "married individuals filing joint returns, surviving spouses and heads of household", and the Department\'s 2025 TAX RATE TABLE prints the joint column with the note that it "must also be used by surviving spouse" — so the status exists AND its rate column is named at the married-filing-jointly figure, which is the stronger of the two forms of evidence in this list. WHAT IS NOT THE JOINT FIGURE IS § 7-2-39: the $4,000 deduction for each dependent after the first is allowed to a return filed "as a head of household or married filing jointly" and names no other status, so a New Mexico widow gets the joint rate schedule and no dependent deduction. That is the literal reading of a provision that could have named her and did not, it is also the independent reference model\'s, and it is worth $188.00 on a widow with two children at $90,000 of AGI. Nor is the low- and middle-income exemption count: she is one exemption under § 151 and not two.',
   NY: 'IT-201 filing status 5; the instructions put its standard deduction at $16,050 for 2025, THE SAME AS MARRIED FILING JOINTLY.',
   OK: 'The 2025 Form 511 carries "Qualifying surviving spouse with dependent child" as filing status 5 — the 2023 form called the same box "Qualifying widow(er) with dependent child" — and 68 O.S. § 2355(C)(2)(a) writes ONE rate schedule for a joint return, a surviving spouse and a head of household together. Its standard deduction is printed on the form as "Married Filing Joint or Qualifying Surviving Spouse: $12,700", THE SAME AS MARRIED FILING JOINTLY, which is the joint column this package reads. So the status exists AND its column is named, which is the stronger of the two forms of evidence in this list. What is NOT the joint figure is the exemption COUNT: a surviving spouse claims one $1,000 and not two, because the return has one person on it.',
   OR: 'Form OR-40 carries the status, and this package stores Oregon figures against it explicitly — see `oregon.ts`.',
@@ -161,7 +162,7 @@ function battery(state, year) {
 // surviving spouses under one schedule, so the status's existence and its
 // figure are the same sentence. The other nine are read off a form box or an
 // instruction that sends the filer to the federal status.
-test('the ledger of states that offer the status is the twelve the READMEs claim', () => {
+test('the ledger of states that offer the status is the fifteen the READMEs claim', () => {
   assert.deepEqual(Object.keys(OFFERS_THE_STATUS).sort(), [
     'AR',
     'CA',
@@ -172,6 +173,7 @@ test('the ledger of states that offer the status is the twelve the READMEs claim
     'MO',
     'NC',
     'ND',
+    'NM',
     'NY',
     'OK',
     'OR',
@@ -181,11 +183,11 @@ test('the ledger of states that offer the status is the twelve the READMEs claim
   const namesTheJointFigure = Object.entries(OFFERS_THE_STATUS)
     .filter(([, cite]) => /SAME AS MARRIED FILING JOINTLY|married-filing-jointly figure/i.test(cite))
     .map(([state]) => state);
-  assert.deepEqual(namesTheJointFigure, ['CT', 'MN', 'NC', 'ND', 'NY', 'OK']);
+  assert.deepEqual(namesTheJointFigure, ['CT', 'MN', 'NC', 'ND', 'NM', 'NY', 'OK']);
   // Every entry says what was read, not just that something was.
   for (const [state, cite] of Object.entries(OFFERS_THE_STATUS)) {
     assert.ok(cite.length > 80, `${state}'s citation is too short to be one`);
-    assert.match(cite, /Form|TC-40|DR 0104|D-400|CT-1040|IT-201|instructions|Minn\. Stat\./);
+    assert.match(cite, /Form|TC-40|DR 0104|D-400|CT-1040|IT-201|PIT-1|instructions|Minn\. Stat\./);
   }
 });
 

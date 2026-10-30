@@ -250,7 +250,29 @@ test('every state produces a different answer for 2026 than a naive 2025 fallbac
   // replaced the published rate CARD with a pair of statutory tables, so the
   // 2026 answer differs from the 2025 one both in rate and in the form of the
   // schedule. At $100,000 of income it is $3,620.14 against $3,809.04.
-  assert.deepEqual(differs, ['AR', 'AZ', 'CO', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
+  //
+  // NEW MEXICO joins on Day 67 and it is IOWA'S REASON, which makes it the
+  // SECOND pure case rather than an eleventh kind: every number this package
+  // stores for New Mexico is identical in 2025 and 2026 — six bracket rows in
+  // three schedules, the $4,000 dependent deduction, the $2,500 low- and
+  // middle-income exemption and its three tapers, nine aged-or-blind rows in
+  // three tables, three Social Security limits, the $2,500 capital-gains cap,
+  // the $30,000 military exemption and a 25% credit match. Not one of them is
+  // indexed by anything. The answer differs because PIT-1 LINE 12 IS THE FEDERAL
+  // DEDUCTION, $15,750 against $16,100, and that figure belongs to the other
+  // government: $17.15 of New Mexico tax on $100,000 of AGI, against Iowa's
+  // $13.30 on the same $350, because the dollars are in New Mexico's 4.9% band
+  // and Iowa's flat 3.8%.
+  //
+  // What makes New Mexico the sharper statement is that its conformity is a
+  // CROSS-REFERENCE rather than a starting point — § 7-2-2(N) conforms to the
+  // federal standard and itemized deductions by name — so the state wrote the
+  // sentence that lets a federal act change New Mexico tax, and the One Big
+  // Beautiful Bill Act then did, for tax year 2025 itself, with no New Mexico
+  // legislation at all. A fallback to 2025 here is not a stale state figure; it
+  // is a stale FEDERAL one, carried into a state return by a state that asked
+  // for it.
+  assert.deepEqual(differs, ['AR', 'AZ', 'CO', 'GA', 'IA', 'ID', 'IL', 'IN', 'KY', 'LA', 'MI', 'MN', 'MO', 'MS', 'NC', 'ND', 'NM', 'NY', 'OH', 'OK', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test("Michigan's pre-1946 cohort ages by exactly one year, because a birth-year cohort must", () => {

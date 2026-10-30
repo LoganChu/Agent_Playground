@@ -123,6 +123,20 @@ const MOVERS = {
   // deduction reaches the state return at the state's own rate.
   'ND:2025': 39,
   'ND:2026': 39.98,
+  // NEW MEXICO, added Day 67, and the FOURTH federal-AGI-base state here. PIT-1
+  // line 12 is "Federal standard or itemized deduction amount (from federal
+  // Form 1040, line 12)", so the addition arrives at whatever band the filer is
+  // in — 4.7% for this fixture's household: $2,000 x 4.7% = $94.00 and
+  // $2,050 x 4.7% = $96.35, which is Missouri's pair to the cent for the same
+  // reason and not by coincidence (Missouri's top rate is 4.7% too).
+  //
+  // The cell being non-zero is the whole argument for New Mexico's
+  // `deduction: { kind: 'federal' }`, and it is the cell Arizona must NOT have.
+  // New Mexico is the sharpest case in the table because the state ALSO has an
+  // age allowance of its own — § 7-2-5.2's $8,000 — so a retiree there collects
+  // one allowance for age inside line 12 and a second one beside it.
+  'NM:2025': 94,
+  'NM:2026': 96.35,
   'SC:2025': 120,
   'UT:2025': 120,
   'UT:2026': 123,

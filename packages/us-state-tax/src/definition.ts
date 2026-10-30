@@ -4178,6 +4178,20 @@ export interface CapitalGainsSubtractionRule {
   readonly share: number;
   /** What the share is a share of. */
   readonly basis: CapitalGainsSubtractionBasis;
+  /**
+   * A ceiling on the subtraction in dollars — New Mexico's `$2,500`, NMSA 1978
+   * § 7-2-34(A).
+   *
+   * Absent in the other three states, whose subtractions are a percentage with
+   * no cap at all. New Mexico's rule is the cap: HB 252 of 2024 cut the **40%
+   * element to zero for everybody except the seller of a New Mexico business**
+   * from tax year 2025 and raised the flat element from `$1,000` to `$2,500`,
+   * so what remains for an ordinary filer is `min(net capital gain, $2,500)` —
+   * `$122.50` of tax at 4.9%, against `$9,800` on a `$200,000` gain under the
+   * repealed 40%. Published accounts of this state are slow here and still
+   * describe the 40% deduction as current.
+   */
+  readonly cap?: number;
   readonly cite: string;
 }
 
@@ -4786,6 +4800,131 @@ export interface StateIncomeTaxDefinition {
    * rather than asking for it twice.
    */
   readonly subtractsTaxableSocialSecurity?: boolean;
+  /**
+   * An **all-or-nothing income limit** on {@link subtractsTaxableSocialSecurity}
+   * — New Mexico only, NMSA 1978 § 7-2-5.14.
+   *
+   * This is not a phase-out and deliberately not
+   * {@link SocialSecuritySubtractionRule}, which withdraws a share per step.
+   * The subsection allows the exemption where federal AGI "does not exceed" the
+   * figure for the status and allows nothing one dollar above it, so the whole
+   * federally taxable benefit becomes state income at a point:
+   *
+   * ```text
+   *   single                                       100,000
+   *   joint, head of household, surviving spouse   150,000
+   *   married filing separately                     75,000
+   * ```
+   *
+   * **It is the largest live discontinuity this package carries on a Social
+   * Security threshold**, which `test/new-mexico.test.js` measures over every
+   * state here rather than asserting. A couple with `$60,000` of federally
+   * taxable benefit at `$150,000` of AGI pays nothing on it and `$2,855.65` at
+   * `$150,001`; with `$85,000` of benefit it is `$3,961.85`. Kansas charged
+   * `$2,845.80` on the same shape and repealed it for tax year 2024;
+   * Connecticut's surviving threshold is `$405`. This one is in force.
+   *
+   * The boundary is INCLUSIVE — "does not exceed" — so a filer exactly at the
+   * figure keeps the whole exemption, and the three figures are **not indexed**:
+   * HB 249 of 2024 would have indexed them from tax year 2025 and was postponed
+   * indefinitely.
+   */
+  readonly taxableSocialSecurityLimit?: {
+    readonly atOrBelow: ByStatus;
+    readonly cite: string;
+  };
+  /**
+   * A deduction of a fixed amount **for each dependent after the first** — New
+   * Mexico only, NMSA 1978 § 7-2-39.
+   *
+   * {@link ExemptionRule.perDependent} cannot express this and the reason is
+   * {@link notCounted} rather than the by-status table: New Mexico allows
+   * `$4,000` "for each dependent in excess of one", so a family with ONE child
+   * gets nothing at all and a family with four gets three times the figure.
+   * Every published account of this state that reaches the deduction describes
+   * it as `$4,000` a dependent, which overstates it by exactly `$4,000` for
+   * every family of every size — `$172.00` of tax in the 4.3% band, `$196.00`
+   * in the 4.9% one.
+   *
+   * {@link amount} is by status because the deduction belongs to two of the five:
+   * § 7-2-39 gives it to a filer who "files a return as a head of household or
+   * married filing jointly" and names no other status, so a single filer, a
+   * married filer filing separately **and a surviving spouse** get nothing —
+   * and a surviving spouse is the one case where that reading is contestable,
+   * because New Mexico sends her to the joint RATE column and a qualifying
+   * surviving spouse has a dependent child by definition. See the New Mexico
+   * notes, which price the other reading.
+   */
+  readonly dependentDeduction?: {
+    readonly amount: ByStatus;
+    /** Dependents the rule does not pay for — New Mexico's first one. */
+    readonly notCounted: number;
+    readonly cite: string;
+  };
+  /**
+   * An exemption of a maximum amount **per federal exemption**, withdrawn at a
+   * rate on AGI above a threshold — New Mexico only, NMSA 1978 § 7-2-5.8.
+   *
+   * The per-exemption multiplier is the whole of its size and is the part a
+   * summary of this state always drops: `$2,500` is the figure the statute
+   * prints, and a joint return with two children claims four exemptions and so
+   * **`$10,000`** of it. Filers plus dependents, which is the federal exemption
+   * count § 151 would have produced.
+   *
+   * {@link incomeLimit} is carried although it is **redundant by construction**:
+   * for every status the taper reaches zero at the limit, within a third of a
+   * dollar. It is here because the statute writes both and because an
+   * independent model computes the taper WITHOUT clamping it at zero, so between
+   * `$36,666.67` and `$36,667` of single AGI that model allows a NEGATIVE
+   * exemption. `test/new-mexico.test.js` asserts the identity rather than
+   * trusting it, which is the only way a year in which one figure moves and the
+   * other does not fails loudly instead of becoming a cliff nothing models.
+   */
+  readonly lowAndMiddleIncomeExemption?: {
+    readonly maxPerExemption: number;
+    readonly reductionStart: ByStatus;
+    readonly reductionRate: ByStatus;
+    readonly incomeLimit: ByStatus;
+    readonly cite: string;
+  };
+  /**
+   * An exemption for each aged **or** blind person on the return, read off a
+   * step table by the state's own measure of income — New Mexico only, NMSA
+   * 1978 § 7-2-5.2.
+   *
+   * Two properties neither {@link ExemptionRule.perSeniorFiler} nor
+   * {@link standardDeductionAgedOrBlindAddition} has:
+   *
+   * 1. **Aged and blind do not stack.** § 7-2-5.2 reaches a person "sixty-five
+   *    years of age or older **or** blind", so a single New Mexican who is both
+   *    gets `$8,000` once. Federal § 63(f) stacks its two additions and almost
+   *    every state addition modelled on it stacks too, which is why this is
+   *    worth a field rather than a count.
+   * 2. **The thresholds have not moved since 1987.** `$8,000` falls to nothing
+   *    across nine whole steps, and because they are steps rather than a taper
+   *    one dollar of AGI at a boundary costs a whole `$1,000` of exemption —
+   *    **and four of the eight single boundaries still cost nothing**, because
+   *    the exemption expires at `$28,500` of AGI and a single New Mexican there
+   *    has about `$7,400` of taxable income. The measured steps are `$14.27`,
+   *    `$15.01`, `$30.34` and `$32.04`, and the largest in the state is
+   *    `$64.04` at the joint `$51,000` boundary, where both people's exemptions
+   *    fall on the same dollar. A step is worth the rate at the income where it
+   *    happens and not the state's top rate.
+   *
+   * **ONLY THE AGE HALF IS COMPUTED**, and the obstacle is the input and not the
+   * statute: the one field that carries blindness is
+   * {@link StateIncomeTaxInput.blindOrDisabled}, which is New Jersey's and
+   * counts a filer "blind **or permanently disabled**". § 7-2-5.2 reaches
+   * blindness alone, and the field does not say which person on a joint return
+   * is which. Reading it would grant up to `$8,000` to a disabled New Mexican
+   * the subsection does not reach, so it is not read, and the state's notes
+   * price what that omits for a blind filer under 65.
+   */
+  readonly agedOrBlindExemptionSteps?: {
+    readonly steps: ByStatus<readonly CreditStep[]>;
+    readonly age: number;
+    readonly cite: string;
+  };
   /**
    * The federally taxable benefit subtracted in full below a threshold and
    * withdrawn in whole steps above it — Minnesota only, see
