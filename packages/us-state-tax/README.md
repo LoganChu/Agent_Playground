@@ -1131,8 +1131,12 @@ nyc.totalMarginalRate;      // 0.0965    6% state + 3.876% city - 0.228% credit
 That `$3,174.69` is **more than the entire state income tax of fifteen of the thirty-three
 taxing states in this package** at the same income — every one of the nine with no income
 tax, plus Arizona, Indiana, Louisiana, North Dakota, Ohio and Pennsylvania. New Mexico is
-NOT among them: a single New Mexican on `$100,000` owes `$3,569.15`, which is more than New
-York City's resident surcharge and less than New York State's own `$4,748.13`. Omit the
+NOT among them, and it is close: on the same household — `$100,000` of federal AGI,
+`$8,000` of itemized deduction, `$92,000` of federal taxable income — a single New Mexican
+owes `$3,966.00` for 2025 against New York State's `$4,951.75`. So New York City's
+`$3,174.69` surcharge alone is within `$800` of New Mexico's entire state income tax, and
+the figures above are all the SAME household rather than a state at its standard deduction
+against a city filer at an itemized one. Omit the
 locality on a New York return and the result says so, and says what it would have cost this
 filer.
 

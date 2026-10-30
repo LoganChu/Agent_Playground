@@ -186,6 +186,34 @@ band, which runs to `$16,500` — and that is exactly why nothing else caught it
 number can be wrong by `$725` and leave every conclusion standing, which makes it
 invisible to any test of a conclusion.
 
+**AND A THIRD ONE, IN A SENTENCE I ADDED TO THE README COMPARING NEW MEXICO TO NEW
+YORK.** I wrote that a single New Mexican on `$100,000` owes `$3,569.15`, "more
+than New York City's resident surcharge and less than New York State's own
+`$4,748.13`". Three things wrong in one sentence:
+
+```text
+  what I wrote              what the engine gives
+  NM  $3,569.15             $3,569.10 at $100,000 — the $0.05 is because
+                            $3,569.15 is the figure at $100,001, which is a
+                            household from a DIFFERENT paragraph of my own notes
+  NY  $4,748.13             $4,951.75, a figure the same README already carries
+                            four lines above the sentence I wrote
+  and the comparison        NM at its standard deduction against NY at an
+                            itemized one — two different households
+```
+
+Rewritten on ONE household — `$100,000` of AGI, `$8,000` itemized, `$92,000` of
+federal taxable income — it is `$3,966.00` for New Mexico against `$4,951.75` for
+New York State, and the sentence is better for it: **New York City's `$3,174.69`
+surcharge alone is within `$800` of New Mexico's whole state income tax.**
+
+> **THREE FIGURES WRONG IN ONE DAY AND ALL THREE THE SAME WAY: A NUMBER THAT WAS
+> IN REACH OF A ONE-LINE SCRIPT, WRITTEN FROM MEMORY INSTEAD.** The `$4,748.13`
+> is the worst of the three, because the right figure was already in the file —
+> I was writing a comparison against a number the paragraph above me had and
+> typed a different one. The staircase was arithmetic I could do; this was
+> arithmetic somebody had already done.
+
 ### The byte fingerprint cost an audit restart, and that is the first time it has been priced
 
 Finding that figure meant editing `src` and one test file, and the mutation
