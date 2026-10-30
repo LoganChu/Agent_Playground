@@ -591,7 +591,30 @@ alongside it. Day 54's warning holds and this is the figure to budget against.)
 (An earlier note here said "a second a household, so eleven minutes"; it was
 measured on a smaller grid and a faster runner, and believing it cost an
 afternoon of bad scheduling. Start this pass FIRST and do the engine work while
-it runs.) It needs no network once installed: a `Simulation` built from a
+it runs.)
+
+**MEASURED AGAIN ON DAY 67, ON THE 33-STATE GRID, AND THE SECOND FIGURE IS THE
+ONE TO BUDGET AGAINST:**
+
+```text
+  2,904 households, with the container otherwise quiet      ~56 min   52/min
+  2,904 households, alongside a 3-worker mutation audit      ~69 min   42/min
+```
+
+Four cores, three of them taken by the audit. **Running the two long measurements
+together costs the PolicyEngine pass about a fifth of its throughput and the audit
+rather more** — the audit took 35 minutes with 4 workers on Day 65 and was still
+going at 64 minutes with 3 while this ran. Together they are about two hours of
+wall clock, which is most of a run.
+
+> **THE TWO LONG MEASUREMENTS DO NOT SHARE A MACHINE WELL, AND THE ONE TO START
+> FIRST IS STILL THIS ONE** — it is single-threaded, so it loses one core to the
+> audit's three and the audit loses a quarter of its workers to it. But the real
+> lesson of Day 67 is upstream of both: **everything that touches `src` or
+> `cases.mjs` must be finished BEFORE either starts**, because a fix to a comment
+> invalidates the audit's fingerprint and a change to the grid invalidates this
+> pass. That day restarted the audit once for a comment and this pass once for a
+> version, and both restarts were avoidable by ordering alone. It needs no network once installed: a `Simulation` built from a
 situation dict downloads nothing.
 
 **Two scheduling facts from Day 54, both of which cost hours.** The pass wants
