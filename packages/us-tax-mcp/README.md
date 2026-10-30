@@ -708,6 +708,7 @@ OBBBA § 70102:
 | Iowa | Its standard deduction *is* the federal one, from tax year **2023** — and it takes the § 63(f) age and blindness additions with it, which Arizona did not | $28.50 | rolling |
 | Idaho | Starts from federal **taxable** income | $39.75 | **static, 2026-01-01** |
 | Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | $35.25 | rolling |
+| New Mexico | Its deduction *is* the federal one — PIT-1 line 12 reads "from federal Form 1040, line 12" — and it takes the § 63(f) age and blindness additions with it, which Arizona did not. The largest cut in this table | $36.75 | rolling |
 | North Dakota | Starts from federal **taxable** income | $14.63 | rolling |
 | Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | $45.00 | rolling |
 | ~~Arizona~~ | **No longer reads it.** § 43-1041(A) carried the federal figure by cross-reference until HB 4168 replaced it with Arizona's own amounts, retroactive to 2025 | $18.75, from Arizona's own statute | **static, 2025-01-01**, and it no longer decides the deduction |
@@ -1197,7 +1198,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **1,116 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **1,137 tests**, every state figure cited to its statute.
 This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the

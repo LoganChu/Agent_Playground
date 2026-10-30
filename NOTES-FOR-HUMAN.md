@@ -27,8 +27,27 @@ Department presentation and a 2024 bill's own record of being killed, none of
 which this container can fetch.
 
 `us-state-tax` is now **v0.58.0** and `us-tax-mcp` **v0.62.0**;
-`us-federal-tax` stays at **v0.16.0**. **33 taxing states and 42 in all**, up
-one; nine jurisdictions left.
+`us-federal-tax` stays at **v0.16.0**. **1,759 tests** across the four suites, all
+passing. **33 taxing states and 42 in all**, up one; nine jurisdictions left.
+
+**Both quality measurements were re-run today and both came out where they should
+have.** The deliberate-error audit — I break one number in the built package at a
+time and check that some test notices — is at **99.7%**: 2,530 broken versions,
+2,523 caught, 7 missed. New Mexico contributed 72 and 71 were caught; **the one
+that was not is the one I had written down as uncatchable hours before the run**,
+with the arithmetic for why.
+
+And the comparison against an independent model, over **2,904 households**:
+20,328 figures, **19,083 agreeing to the dollar**, and **16 differences I cannot
+explain — exactly the number yesterday closed with, and none of them in 2026.**
+Adding a state did not add one.
+
+New Mexico produced 46 differences and every one of them is the refundable child
+credit I deliberately did not model, to the cent, in the direction my own note
+predicted. **And one of them paid for itself twice over**: a row that overshot my
+bound by 83 cents turned out to be the credit's 2026 inflation adjustment, which
+handed me the 2026 figures New Mexico publishes nowhere I can reach. The largest
+gap in the state stopped being a research problem and became data entry.
 
 ## THE FOUR THINGS ONLY YOU CAN DO, IN ONE PLACE
 

@@ -344,6 +344,21 @@
   },
   "error": null
  },
+ "2025-single-worker-NM-15000-0-0-0-0": {
+  "id": "2025-single-worker-NM-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 313.92999267578125
+  },
+  "state": {
+   "tax": -198.4824981689453
+  },
+  "error": null
+ },
  "2025-single-worker-NY-15000-0-0-0-0": {
   "id": "2025-single-worker-NY-15000-0-0-0-0",
   "federal": {
@@ -821,6 +836,21 @@
   },
   "state": {
    "tax": 437.5
+  },
+  "error": null
+ },
+ "2025-single-worker-NM-30000-0-0-0-0": {
+  "id": "2025-single-worker-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 14250.0,
+   "incomeTaxBeforeCredits": 1471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 285.5
   },
   "error": null
  },
@@ -1304,6 +1334,21 @@
   },
   "error": null
  },
+ "2025-single-worker-NM-50000-0-0-0-0": {
+  "id": "2025-single-worker-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1200.75
+  },
+  "error": null
+ },
  "2025-single-worker-NY-50000-0-0-0-0": {
   "id": "2025-single-worker-NY-50000-0-0-0-0",
   "federal": {
@@ -1781,6 +1826,21 @@
   },
   "state": {
    "tax": 2906.050048828125
+  },
+  "error": null
+ },
+ "2025-single-worker-NM-80000-0-0-0-0": {
+  "id": "2025-single-worker-NM-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 64250.0,
+   "incomeTaxBeforeCredits": 9049.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2610.75
   },
   "error": null
  },
@@ -2264,6 +2324,21 @@
   },
   "error": null
  },
+ "2025-single-worker-NM-150000-0-0-0-0": {
+  "id": "2025-single-worker-NM-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 25067.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6036.25
+  },
+  "error": null
+ },
  "2025-single-worker-NY-150000-0-0-0-0": {
   "id": "2025-single-worker-NY-150000-0-0-0-0",
   "federal": {
@@ -2741,6 +2816,21 @@
   },
   "state": {
    "tax": 23290.05078125
+  },
+  "error": null
+ },
+ "2025-single-worker-NM-400000-0-0-0-0": {
+  "id": "2025-single-worker-NM-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 379971.25,
+   "incomeTaxBeforeCredits": 102537.1875,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 20028.75
   },
   "error": null
  },
@@ -3224,6 +3314,21 @@
   },
   "error": null
  },
+ "2025-couple-two-children-NM-30000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7152.0
+  },
+  "state": {
+   "tax": -2750.0
+  },
+  "error": null
+ },
  "2025-couple-two-children-NY-30000-0-0-0-0": {
   "id": "2025-couple-two-children-NY-30000-0-0-0-0",
   "federal": {
@@ -3701,6 +3806,21 @@
   },
   "state": {
    "tax": 154.3072509765625
+  },
+  "error": null
+ },
+ "2025-couple-two-children-NM-60000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 28500.0,
+   "incomeTaxBeforeCredits": 2943.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 932.98193359375
+  },
+  "state": {
+   "tax": -9.2454833984375
   },
   "error": null
  },
@@ -4184,6 +4304,21 @@
   },
   "error": null
  },
+ "2025-couple-two-children-NM-100000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 68500.0,
+   "incomeTaxBeforeCredits": 7743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2208.5
+  },
+  "error": null
+ },
  "2025-couple-two-children-NY-100000-0-0-0-0": {
   "id": "2025-couple-two-children-NY-100000-0-0-0-0",
   "federal": {
@@ -4661,6 +4796,21 @@
   },
   "state": {
    "tax": 8379.0
+  },
+  "error": null
+ },
+ "2025-couple-two-children-NM-200000-0-0-0-0": {
+  "id": "2025-couple-two-children-NM-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 168500.0,
+   "incomeTaxBeforeCredits": 26898.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7091.5
   },
   "error": null
  },
@@ -5144,6 +5294,21 @@
   },
   "error": null
  },
+ "2025-single-parent-NM-12000-0-0-0-0": {
+  "id": "2025-single-parent-NM-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -1869.0
+  },
+  "error": null
+ },
  "2025-single-parent-NY-12000-0-0-0-0": {
   "id": "2025-single-parent-NY-12000-0-0-0-0",
   "federal": {
@@ -5621,6 +5786,21 @@
   },
   "state": {
    "tax": -2301.98193359375
+  },
+  "error": null
+ },
+ "2025-single-parent-NM-25000-0-0-0-0": {
+  "id": "2025-single-parent-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 1375.0,
+   "incomeTaxBeforeCredits": 137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1837.5,
+   "earnedIncomeCredit": 4064.330078125
+  },
+  "state": {
+   "tax": -1756.08251953125
   },
   "error": null
  },
@@ -6104,6 +6284,21 @@
   },
   "error": null
  },
+ "2025-single-parent-NM-45000-0-0-0-0": {
+  "id": "2025-single-parent-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 21375.0,
+   "incomeTaxBeforeCredits": 2225.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": -157.08251953125
+  },
+  "error": null
+ },
  "2025-single-parent-NY-45000-0-0-0-0": {
   "id": "2025-single-parent-NY-45000-0-0-0-0",
   "federal": {
@@ -6581,6 +6776,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-NM-0-0-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
   },
   "error": null
  },
@@ -7064,6 +7274,21 @@
   },
   "error": null
  },
+ "2025-retired-couple-NM-0-20000-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
  "2025-retired-couple-NY-0-20000-40000-0-0": {
   "id": "2025-retired-couple-NY-0-20000-40000-0-0",
   "federal": {
@@ -7541,6 +7766,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2025-retired-couple-NM-0-50000-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 31400.0,
+   "incomeTaxBeforeCredits": 3291.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 353.6000061035156
   },
   "error": null
  },
@@ -8024,6 +8264,21 @@
   },
   "error": null
  },
+ "2025-retired-couple-NM-0-90000-40000-0-0": {
+  "id": "2025-retired-couple-NM-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 77300.0,
+   "incomeTaxBeforeCredits": 8799.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1988.0999755859375
+  },
+  "error": null
+ },
  "2025-retired-couple-NY-0-90000-40000-0-0": {
   "id": "2025-retired-couple-NY-0-90000-40000-0-0",
   "federal": {
@@ -8501,6 +8756,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2025-single-retiree-NM-0-10000-24000-0-0": {
+  "id": "2025-single-retiree-NM-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": -57.0
   },
   "error": null
  },
@@ -8984,6 +9254,21 @@
   },
   "error": null
  },
+ "2025-single-retiree-NM-0-40000-24000-0-0": {
+  "id": "2025-single-retiree-NM-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 681.75
+  },
+  "error": null
+ },
  "2025-single-retiree-NY-0-40000-24000-0-0": {
   "id": "2025-single-retiree-NY-0-40000-24000-0-0",
   "federal": {
@@ -9461,6 +9746,21 @@
   },
   "state": {
    "tax": 2319.75
+  },
+  "error": null
+ },
+ "2025-investor-NM-50000-0-0-20000-0": {
+  "id": "2025-investor-NM-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 54250.0,
+   "incomeTaxBeforeCredits": 4756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2023.25
   },
   "error": null
  },
@@ -9944,6 +10244,21 @@
   },
   "error": null
  },
+ "2025-investor-NM-50000-0-0-100000-0": {
+  "id": "2025-investor-NM-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 134250.0,
+   "incomeTaxBeforeCredits": 16756.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5913.75
+  },
+  "error": null
+ },
  "2025-investor-NY-50000-0-0-100000-0": {
   "id": "2025-investor-NY-50000-0-0-100000-0",
   "federal": {
@@ -10421,6 +10736,21 @@
   },
   "state": {
    "tax": 1767.25
+  },
+  "error": null
+ },
+ "2025-separate-NM-60000-0-0-0-0": {
+  "id": "2025-separate-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 44250.0,
+   "incomeTaxBeforeCredits": 5071.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1774.25
   },
   "error": null
  },
@@ -10904,6 +11234,21 @@
   },
   "error": null
  },
+ "2025-muni-retiree-NM-0-60000-40000-0-10000": {
+  "id": "2025-muni-retiree-NM-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 47300.0,
+   "incomeTaxBeforeCredits": 5199.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 676.9000244140625
+  },
+  "error": null
+ },
  "2025-muni-retiree-NY-0-60000-40000-0-10000": {
   "id": "2025-muni-retiree-NY-0-60000-40000-0-10000",
   "federal": {
@@ -11381,6 +11726,21 @@
   },
   "state": {
    "tax": 295.36199951171875
+  },
+  "error": null
+ },
+ "2025-couple-no-children-NM-25000-0-0-0-0": {
+  "id": "2025-couple-no-children-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 92.84503173828125
+  },
+  "state": {
+   "tax": -126.21125793457031
   },
   "error": null
  },
@@ -11864,6 +12224,21 @@
   },
   "error": null
  },
+ "2025-couple-no-children-NM-75000-0-0-0-0": {
+  "id": "2025-couple-no-children-NM-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 43500.0,
+   "incomeTaxBeforeCredits": 4743.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1459.5
+  },
+  "error": null
+ },
  "2025-couple-no-children-NY-75000-0-0-0-0": {
   "id": "2025-couple-no-children-NY-75000-0-0-0-0",
   "federal": {
@@ -12341,6 +12716,21 @@
   },
   "state": {
    "tax": -2699.3427734375
+  },
+  "error": null
+ },
+ "2025-mixed-dependents-NM-40000-0-0-0-0": {
+  "id": "2025-mixed-dependents-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 8500.0,
+   "incomeTaxBeforeCredits": 850.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5950.0,
+   "earnedIncomeCredit": 6038.98193359375
+  },
+  "state": {
+   "tax": -2781.74560546875
   },
   "error": null
  },
@@ -12824,6 +13214,21 @@
   },
   "error": null
  },
+ "2025-mixed-dependents-NM-90000-0-0-0-0": {
+  "id": "2025-mixed-dependents-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 58500.0,
+   "incomeTaxBeforeCredits": 6543.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1444.5
+  },
+  "error": null
+ },
  "2025-mixed-dependents-NY-90000-0-0-0-0": {
   "id": "2025-mixed-dependents-NY-90000-0-0-0-0",
   "federal": {
@@ -13301,6 +13706,21 @@
   },
   "state": {
    "tax": 2059.375
+  },
+  "error": null
+ },
+ "2025-single-parent-high-NM-90000-0-0-0-0": {
+  "id": "2025-single-parent-high-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 66375.0,
+   "incomeTaxBeforeCredits": 7777.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2402.625
   },
   "error": null
  },
@@ -13784,6 +14204,21 @@
   },
   "error": null
  },
+ "2025-single-parent-teen-NM-35000-0-0-0-0": {
+  "id": "2025-single-parent-teen-NM-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 11375.0,
+   "incomeTaxBeforeCredits": 1137.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2466.330078125
+  },
+  "state": {
+   "tax": -969.95751953125
+  },
+  "error": null
+ },
  "2025-single-parent-teen-NY-35000-0-0-0-0": {
   "id": "2025-single-parent-teen-NY-35000-0-0-0-0",
   "federal": {
@@ -14261,6 +14696,21 @@
   },
   "state": {
    "tax": 508.29296875
+  },
+  "error": null
+ },
+ "2025-separate-with-child-NM-45000-0-0-0-0": {
+  "id": "2025-separate-with-child-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 29250.0,
+   "incomeTaxBeforeCredits": 3271.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": 640.16748046875
   },
   "error": null
  },
@@ -14744,6 +15194,21 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-NM-45000-0-0-0-0": {
+  "id": "2025-surviving-spouse-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 13500.0,
+   "incomeTaxBeforeCredits": 1350.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 868.330078125
+  },
+  "state": {
+   "tax": -409.08251953125
+  },
+  "error": null
+ },
  "2025-surviving-spouse-NY-45000-0-0-0-0": {
   "id": "2025-surviving-spouse-NY-45000-0-0-0-0",
   "federal": {
@@ -15221,6 +15686,21 @@
   },
   "state": {
    "tax": 11723.25
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-NM-250000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-NM-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 218500.0,
+   "incomeTaxBeforeCredits": 38134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 9842.5
   },
   "error": null
  },
@@ -15704,6 +16184,21 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-high-NM-300000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-NM-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 268500.0,
+   "incomeTaxBeforeCredits": 50134.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 12292.5
+  },
+  "error": null
+ },
  "2025-surviving-spouse-high-NY-300000-0-0-0-0": {
   "id": "2025-surviving-spouse-high-NY-300000-0-0-0-0",
   "federal": {
@@ -16181,6 +16676,21 @@
   },
   "state": {
    "tax": 24463.25
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-high-NM-450000-0-0-0-0": {
+  "id": "2025-surviving-spouse-high-NM-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 418500.0,
+   "incomeTaxBeforeCredits": 88046.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 20704.5
   },
   "error": null
  },
@@ -16664,6 +17174,21 @@
   },
   "error": null
  },
+ "2025-surviving-spouse-low-NM-18000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-NM-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4328.0
+  },
+  "state": {
+   "tax": -1868.0
+  },
+  "error": null
+ },
  "2025-surviving-spouse-low-NY-18000-0-0-0-0": {
   "id": "2025-surviving-spouse-low-NY-18000-0-0-0-0",
   "federal": {
@@ -17141,6 +17666,21 @@
   },
   "state": {
    "tax": -1220.56201171875
+  },
+  "error": null
+ },
+ "2025-surviving-spouse-low-NM-26000-0-0-0-0": {
+  "id": "2025-surviving-spouse-low-NM-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 3904.530029296875
+  },
+  "state": {
+   "tax": -1503.132568359375
   },
   "error": null
  },
@@ -17624,6 +18164,21 @@
   },
   "error": null
  },
+ "2025-separate-with-spouse-NM-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 36050.0,
+   "incomeTaxBeforeCredits": 4087.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1388.8499755859375
+  },
+  "error": null
+ },
  "2025-separate-with-spouse-NY-0-55000-0-0-0": {
   "id": "2025-separate-with-spouse-NY-0-55000-0-0-0",
   "federal": {
@@ -18101,6 +18656,21 @@
   },
   "state": {
    "tax": 1491.0
+  },
+  "error": null
+ },
+ "2025-separate-with-spouse-young-NM-0-55000-0-0-0": {
+  "id": "2025-separate-with-spouse-young-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 39250.0,
+   "incomeTaxBeforeCredits": 4471.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1539.25
   },
   "error": null
  },
@@ -18584,6 +19154,21 @@
   },
   "error": null
  },
+ "2025-early-retiree-NM-0-50000-0-0-0": {
+  "id": "2025-early-retiree-NM-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1200.75
+  },
+  "error": null
+ },
  "2025-early-retiree-NY-0-50000-0-0-0": {
   "id": "2025-early-retiree-NY-0-50000-0-0-0",
   "federal": {
@@ -19061,6 +19646,21 @@
   },
   "state": {
    "tax": 1246.0
+  },
+  "error": null
+ },
+ "2025-early-retired-couple-NM-0-70000-0-0-0": {
+  "id": "2025-early-retired-couple-NM-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 38500.0,
+   "incomeTaxBeforeCredits": 4143.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1244.5
   },
   "error": null
  },
@@ -19544,6 +20144,21 @@
   },
   "error": null
  },
+ "2025-blind-worker-NM-40000-0-0-0-0": {
+  "id": "2025-blind-worker-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 22250.0,
+   "incomeTaxBeforeCredits": 2431.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 681.75
+  },
+  "error": null
+ },
  "2025-blind-worker-NY-40000-0-0-0-0": {
   "id": "2025-blind-worker-NY-40000-0-0-0-0",
   "federal": {
@@ -20021,6 +20636,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2025-blind-senior-NM-0-25000-20000-0-0": {
+  "id": "2025-blind-senior-NM-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4600.0,
+   "incomeTaxBeforeCredits": 460.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 64.5374984741211
   },
   "error": null
  },
@@ -20504,6 +21134,21 @@
   },
   "error": null
  },
+ "2025-on-the-boundary-NM-50000-0-0-0-0": {
+  "id": "2025-on-the-boundary-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 34250.0,
+   "incomeTaxBeforeCredits": 3871.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 69.330078125
+  },
+  "state": {
+   "tax": 759.41748046875
+  },
+  "error": null
+ },
  "2025-on-the-boundary-NY-50000-0-0-0-0": {
   "id": "2025-on-the-boundary-NY-50000-0-0-0-0",
   "federal": {
@@ -20981,6 +21626,21 @@
   },
   "state": {
    "tax": 4084.5
+  },
+  "error": null
+ },
+ "2025-on-the-boundary-NM-100000-0-0-0-0": {
+  "id": "2025-on-the-boundary-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 84250.0,
+   "incomeTaxBeforeCredits": 13449.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3480.25
   },
   "error": null
  },
@@ -21464,6 +22124,21 @@
   },
   "error": null
  },
+ "2026-single-worker-NM-15000-0-0-0-0": {
+  "id": "2026-single-worker-NM-15000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 15000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 347.2900085449219
+  },
+  "state": {
+   "tax": -209.822509765625
+  },
+  "error": null
+ },
  "2026-single-worker-NY-15000-0-0-0-0": {
   "id": "2026-single-worker-NY-15000-0-0-0-0",
   "federal": {
@@ -21941,6 +22616,21 @@
   },
   "state": {
    "tax": 437.5
+  },
+  "error": null
+ },
+ "2026-single-worker-NM-30000-0-0-0-0": {
+  "id": "2026-single-worker-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 13900.0,
+   "incomeTaxBeforeCredits": 1420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 273.29998779296875
   },
   "error": null
  },
@@ -22424,6 +23114,21 @@
   },
   "error": null
  },
+ "2026-single-worker-NM-50000-0-0-0-0": {
+  "id": "2026-single-worker-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1184.300048828125
+  },
+  "error": null
+ },
  "2026-single-worker-NY-50000-0-0-0-0": {
   "id": "2026-single-worker-NY-50000-0-0-0-0",
   "federal": {
@@ -22901,6 +23606,21 @@
   },
   "state": {
    "tax": 2906.050048828125
+  },
+  "error": null
+ },
+ "2026-single-worker-NM-80000-0-0-0-0": {
+  "id": "2026-single-worker-NM-80000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 80000.0,
+   "taxableIncome": 63900.0,
+   "incomeTaxBeforeCredits": 8770.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2594.300048828125
   },
   "error": null
  },
@@ -23384,6 +24104,21 @@
   },
   "error": null
  },
+ "2026-single-worker-NM-150000-0-0-0-0": {
+  "id": "2026-single-worker-NM-150000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 24734.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 6019.10009765625
+  },
+  "error": null
+ },
  "2026-single-worker-NY-150000-0-0-0-0": {
   "id": "2026-single-worker-NY-150000-0-0-0-0",
   "federal": {
@@ -23861,6 +24596,21 @@
   },
   "state": {
    "tax": 23290.05078125
+  },
+  "error": null
+ },
+ "2026-single-worker-NM-400000-0-0-0-0": {
+  "id": "2026-single-worker-NM-400000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 400000.0,
+   "taxableIncome": 379991.90625,
+   "incomeTaxBeforeCredits": 101766.4140625,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 20008.099609375
   },
   "error": null
  },
@@ -24344,6 +25094,21 @@
   },
   "error": null
  },
+ "2026-couple-two-children-NM-30000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-30000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 3400.0,
+   "earnedIncomeCredit": 7316.0
+  },
+  "state": {
+   "tax": -2813.21826171875
+  },
+  "error": null
+ },
  "2026-couple-two-children-NY-30000-0-0-0-0": {
   "id": "2026-couple-two-children-NY-30000-0-0-0-0",
   "federal": {
@@ -24821,6 +25586,21 @@
   },
   "state": {
    "tax": -69.4183349609375
+  },
+  "error": null
+ },
+ "2026-couple-two-children-NM-60000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 27800.0,
+   "incomeTaxBeforeCredits": 2840.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 1242.2958984375
+  },
+  "state": {
+   "tax": -118.58306884765625
   },
   "error": null
  },
@@ -25304,6 +26084,21 @@
   },
   "error": null
  },
+ "2026-couple-two-children-NM-100000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 67800.0,
+   "incomeTaxBeforeCredits": 7640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2170.795654296875
+  },
+  "error": null
+ },
  "2026-couple-two-children-NY-100000-0-0-0-0": {
   "id": "2026-couple-two-children-NY-100000-0-0-0-0",
   "federal": {
@@ -25781,6 +26576,21 @@
   },
   "state": {
    "tax": 8379.0
+  },
+  "error": null
+ },
+ "2026-couple-two-children-NM-200000-0-0-0-0": {
+  "id": "2026-couple-two-children-NM-200000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 200000.0,
+   "taxableIncome": 167800.0,
+   "incomeTaxBeforeCredits": 26340.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 4400.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 7053.61962890625
   },
   "error": null
  },
@@ -26264,6 +27074,21 @@
   },
   "error": null
  },
+ "2026-single-parent-NM-12000-0-0-0-0": {
+  "id": "2026-single-parent-NM-12000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 12000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1425.0,
+   "earnedIncomeCredit": 4080.0
+  },
+  "state": {
+   "tax": -1888.436279296875
+  },
+  "error": null
+ },
  "2026-single-parent-NY-12000-0-0-0-0": {
   "id": "2026-single-parent-NY-12000-0-0-0-0",
   "federal": {
@@ -26741,6 +27566,21 @@
   },
   "state": {
    "tax": -2626.098876953125
+  },
+  "error": null
+ },
+ "2026-single-parent-NM-25000-0-0-0-0": {
+  "id": "2026-single-parent-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 850.0,
+   "incomeTaxBeforeCredits": 85.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1785.0,
+   "earnedIncomeCredit": 4249.6220703125
+  },
+  "state": {
+   "tax": -1818.841796875
   },
   "error": null
  },
@@ -27224,6 +28064,21 @@
   },
   "error": null
  },
+ "2026-single-parent-NM-45000-0-0-0-0": {
+  "id": "2026-single-parent-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 20850.0,
+   "incomeTaxBeforeCredits": 2148.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": -229.8145751953125
+  },
+  "error": null
+ },
  "2026-single-parent-NY-45000-0-0-0-0": {
   "id": "2026-single-parent-NY-45000-0-0-0-0",
   "federal": {
@@ -27701,6 +28556,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-NM-0-0-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-0-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 0.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
   },
   "error": null
  },
@@ -28184,6 +29054,21 @@
   },
   "error": null
  },
+ "2026-retired-couple-NM-0-20000-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-20000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 24000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 4000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 0.0
+  },
+  "error": null
+ },
  "2026-retired-couple-NY-0-20000-40000-0-0": {
   "id": "2026-retired-couple-NY-0-20000-40000-0-0",
   "federal": {
@@ -28661,6 +29546,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2026-retired-couple-NM-0-50000-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-50000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 78100.0,
+   "taxableIncome": 30600.0,
+   "incomeTaxBeforeCredits": 3176.0,
+   "taxableSocialSecurity": 28100.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 328.0
   },
   "error": null
  },
@@ -29144,6 +30044,21 @@
   },
   "error": null
  },
+ "2026-retired-couple-NM-0-90000-40000-0-0": {
+  "id": "2026-retired-couple-NM-0-90000-40000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 124000.0,
+   "taxableIncome": 76500.0,
+   "incomeTaxBeforeCredits": 8684.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1950.5
+  },
+  "error": null
+ },
  "2026-retired-couple-NY-0-90000-40000-0-0": {
   "id": "2026-retired-couple-NY-0-90000-40000-0-0",
   "federal": {
@@ -29621,6 +30536,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2026-single-retiree-NM-0-10000-24000-0-0": {
+  "id": "2026-single-retiree-NM-0-10000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 10000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": -58.0
   },
   "error": null
  },
@@ -30104,6 +31034,21 @@
   },
   "error": null
  },
+ "2026-single-retiree-NM-0-40000-24000-0-0": {
+  "id": "2026-single-retiree-NM-0-40000-24000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 59800.0,
+   "taxableIncome": 35650.0,
+   "incomeTaxBeforeCredits": 4030.0,
+   "taxableSocialSecurity": 19800.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 664.5499877929688
+  },
+  "error": null
+ },
  "2026-single-retiree-NY-0-40000-24000-0-0": {
   "id": "2026-single-retiree-NY-0-40000-24000-0-0",
   "federal": {
@@ -30581,6 +31526,21 @@
   },
   "state": {
    "tax": 2319.75
+  },
+  "error": null
+ },
+ "2026-investor-NM-50000-0-0-20000-0": {
+  "id": "2026-investor-NM-50000-0-0-20000-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 53900.0,
+   "incomeTaxBeforeCredits": 4487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2006.800048828125
   },
   "error": null
  },
@@ -31064,6 +32024,21 @@
   },
   "error": null
  },
+ "2026-investor-NM-50000-0-0-100000-0": {
+  "id": "2026-investor-NM-50000-0-0-100000-0",
+  "federal": {
+   "adjustedGrossIncome": 150000.0,
+   "taxableIncome": 133900.0,
+   "incomeTaxBeforeCredits": 16487.5,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 5896.60009765625
+  },
+  "error": null
+ },
  "2026-investor-NY-50000-0-0-100000-0": {
   "id": "2026-investor-NY-50000-0-0-100000-0",
   "federal": {
@@ -31541,6 +32516,21 @@
   },
   "state": {
    "tax": 1767.25
+  },
+  "error": null
+ },
+ "2026-separate-NM-60000-0-0-0-0": {
+  "id": "2026-separate-NM-60000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 60000.0,
+   "taxableIncome": 43900.0,
+   "incomeTaxBeforeCredits": 5020.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1757.800048828125
   },
   "error": null
  },
@@ -32024,6 +33014,21 @@
   },
   "error": null
  },
+ "2026-muni-retiree-NM-0-60000-40000-0-10000": {
+  "id": "2026-muni-retiree-NM-0-60000-40000-0-10000",
+  "federal": {
+   "adjustedGrossIncome": 94000.0,
+   "taxableIncome": 46500.0,
+   "incomeTaxBeforeCredits": 5084.0,
+   "taxableSocialSecurity": 34000.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 648.0
+  },
+  "error": null
+ },
  "2026-muni-retiree-NY-0-60000-40000-0-10000": {
   "id": "2026-muni-retiree-NY-0-60000-40000-0-10000",
   "federal": {
@@ -32501,6 +33506,21 @@
   },
   "state": {
    "tax": 276.81597900390625
+  },
+  "error": null
+ },
+ "2026-couple-no-children-NM-25000-0-0-0-0": {
+  "id": "2026-couple-no-children-NM-25000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 25000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 139.21002197265625
+  },
+  "state": {
+   "tax": -139.80250549316406
   },
   "error": null
  },
@@ -32984,6 +34004,21 @@
   },
   "error": null
  },
+ "2026-couple-no-children-NM-75000-0-0-0-0": {
+  "id": "2026-couple-no-children-NM-75000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 75000.0,
+   "taxableIncome": 42800.0,
+   "incomeTaxBeforeCredits": 4640.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1429.4000244140625
+  },
+  "error": null
+ },
  "2026-couple-no-children-NY-75000-0-0-0-0": {
   "id": "2026-couple-no-children-NY-75000-0-0-0-0",
   "federal": {
@@ -33461,6 +34496,21 @@
   },
   "state": {
    "tax": -3031.46826171875
+  },
+  "error": null
+ },
+ "2026-mixed-dependents-NM-40000-0-0-0-0": {
+  "id": "2026-mixed-dependents-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 7800.0,
+   "incomeTaxBeforeCredits": 780.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 5880.0,
+   "earnedIncomeCredit": 6369.2958984375
+  },
+  "state": {
+   "tax": -2893.1513671875
   },
   "error": null
  },
@@ -33944,6 +34994,21 @@
   },
   "error": null
  },
+ "2026-mixed-dependents-NM-90000-0-0-0-0": {
+  "id": "2026-mixed-dependents-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 57800.0,
+   "incomeTaxBeforeCredits": 6440.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 6600.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1405.1932373046875
+  },
+  "error": null
+ },
  "2026-mixed-dependents-NY-90000-0-0-0-0": {
   "id": "2026-mixed-dependents-NY-90000-0-0-0-0",
   "federal": {
@@ -34421,6 +35486,21 @@
   },
   "state": {
    "tax": 2059.375
+  },
+  "error": null
+ },
+ "2026-single-parent-high-NM-90000-0-0-0-0": {
+  "id": "2026-single-parent-high-NM-90000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 90000.0,
+   "taxableIncome": 65850.0,
+   "incomeTaxBeforeCredits": 7548.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 2375.547607421875
   },
   "error": null
  },
@@ -34904,6 +35984,21 @@
   },
   "error": null
  },
+ "2026-single-parent-teen-NM-35000-0-0-0-0": {
+  "id": "2026-single-parent-teen-NM-35000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 35000.0,
+   "taxableIncome": 10850.0,
+   "incomeTaxBeforeCredits": 1085.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 2651.6220703125
+  },
+  "state": {
+   "tax": -1034.7646484375
+  },
+  "error": null
+ },
  "2026-single-parent-teen-NY-35000-0-0-0-0": {
   "id": "2026-single-parent-teen-NY-35000-0-0-0-0",
   "federal": {
@@ -35381,6 +36476,21 @@
   },
   "state": {
    "tax": 434.1761779785156
+  },
+  "error": null
+ },
+ "2026-separate-with-child-NM-45000-0-0-0-0": {
+  "id": "2026-separate-with-child-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 28900.0,
+   "incomeTaxBeforeCredits": 3220.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": 572.5899658203125
   },
   "error": null
  },
@@ -35864,6 +36974,21 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-NM-45000-0-0-0-0": {
+  "id": "2026-surviving-spouse-NM-45000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 45000.0,
+   "taxableIncome": 12800.0,
+   "incomeTaxBeforeCredits": 1280.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 1053.6220703125
+  },
+  "state": {
+   "tax": -487.4145812988281
+  },
+  "error": null
+ },
  "2026-surviving-spouse-NY-45000-0-0-0-0": {
   "id": "2026-surviving-spouse-NY-45000-0-0-0-0",
   "federal": {
@@ -36341,6 +37466,21 @@
   },
   "state": {
    "tax": 11723.25
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-NM-250000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-NM-250000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 250000.0,
+   "taxableIncome": 217800.0,
+   "incomeTaxBeforeCredits": 37468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 9806.9990234375
   },
   "error": null
  },
@@ -36824,6 +37964,21 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-high-NM-300000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-NM-300000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 300000.0,
+   "taxableIncome": 267800.0,
+   "incomeTaxBeforeCredits": 49468.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 12256.9990234375
+  },
+  "error": null
+ },
  "2026-surviving-spouse-high-NY-300000-0-0-0-0": {
   "id": "2026-surviving-spouse-high-NY-300000-0-0-0-0",
   "federal": {
@@ -37301,6 +38456,21 @@
   },
   "state": {
    "tax": 24463.25
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-high-NM-450000-0-0-0-0": {
+  "id": "2026-surviving-spouse-high-NM-450000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 450000.0,
+   "taxableIncome": 417800.0,
+   "incomeTaxBeforeCredits": 86608.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 20662.609375
   },
   "error": null
  },
@@ -37784,6 +38954,21 @@
   },
   "error": null
  },
+ "2026-surviving-spouse-low-NM-18000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-NM-18000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 18000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4427.0
+  },
+  "state": {
+   "tax": -1910.186279296875
+  },
+  "error": null
+ },
  "2026-surviving-spouse-low-NY-18000-0-0-0-0": {
   "id": "2026-surviving-spouse-low-NY-18000-0-0-0-0",
   "federal": {
@@ -38261,6 +39446,21 @@
   },
   "state": {
    "tax": -1294.6788330078125
+  },
+  "error": null
+ },
+ "2026-surviving-spouse-low-NM-26000-0-0-0-0": {
+  "id": "2026-surviving-spouse-low-NM-26000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 26000.0,
+   "taxableIncome": 0.0,
+   "incomeTaxBeforeCredits": 0.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 1700.0,
+   "earnedIncomeCredit": 4089.822021484375
+  },
+  "state": {
+   "tax": -1561.0645751953125
   },
   "error": null
  },
@@ -38744,6 +39944,21 @@
   },
   "error": null
  },
+ "2026-separate-with-spouse-NM-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 35600.0,
+   "incomeTaxBeforeCredits": 4024.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1367.699951171875
+  },
+  "error": null
+ },
  "2026-separate-with-spouse-NY-0-55000-0-0-0": {
   "id": "2026-separate-with-spouse-NY-0-55000-0-0-0",
   "federal": {
@@ -39221,6 +40436,21 @@
   },
   "state": {
    "tax": 1491.0
+  },
+  "error": null
+ },
+ "2026-separate-with-spouse-young-NM-0-55000-0-0-0": {
+  "id": "2026-separate-with-spouse-young-NM-0-55000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 55000.0,
+   "taxableIncome": 38900.0,
+   "incomeTaxBeforeCredits": 4420.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1522.800048828125
   },
   "error": null
  },
@@ -39704,6 +40934,21 @@
   },
   "error": null
  },
+ "2026-early-retiree-NM-0-50000-0-0-0": {
+  "id": "2026-early-retiree-NM-0-50000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1184.300048828125
+  },
+  "error": null
+ },
  "2026-early-retiree-NY-0-50000-0-0-0": {
   "id": "2026-early-retiree-NY-0-50000-0-0-0",
   "federal": {
@@ -40181,6 +41426,21 @@
   },
   "state": {
    "tax": 1246.0
+  },
+  "error": null
+ },
+ "2026-early-retired-couple-NM-0-70000-0-0-0": {
+  "id": "2026-early-retired-couple-NM-0-70000-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 70000.0,
+   "taxableIncome": 37800.0,
+   "incomeTaxBeforeCredits": 4040.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 1214.4000244140625
   },
   "error": null
  },
@@ -40664,6 +41924,21 @@
   },
   "error": null
  },
+ "2026-blind-worker-NM-40000-0-0-0-0": {
+  "id": "2026-blind-worker-NM-40000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 40000.0,
+   "taxableIncome": 21850.0,
+   "incomeTaxBeforeCredits": 2374.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 664.5499877929688
+  },
+  "error": null
+ },
  "2026-blind-worker-NY-40000-0-0-0-0": {
   "id": "2026-blind-worker-NY-40000-0-0-0-0",
   "federal": {
@@ -41141,6 +42416,21 @@
   },
   "state": {
    "tax": -0.0
+  },
+  "error": null
+ },
+ "2026-blind-senior-NM-0-25000-20000-0-0": {
+  "id": "2026-blind-senior-NM-0-25000-20000-0-0",
+  "federal": {
+   "adjustedGrossIncome": 30350.0,
+   "taxableIncome": 4150.0,
+   "incomeTaxBeforeCredits": 415.0,
+   "taxableSocialSecurity": 5350.0,
+   "childTaxCredit": 0.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 57.787498474121094
   },
   "error": null
  },
@@ -41624,6 +42914,21 @@
   },
   "error": null
  },
+ "2026-on-the-boundary-NM-50000-0-0-0-0": {
+  "id": "2026-on-the-boundary-NM-50000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 50000.0,
+   "taxableIncome": 33900.0,
+   "incomeTaxBeforeCredits": 3820.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 254.6220703125
+  },
+  "state": {
+   "tax": 687.0354614257812
+  },
+  "error": null
+ },
  "2026-on-the-boundary-NY-50000-0-0-0-0": {
   "id": "2026-on-the-boundary-NY-50000-0-0-0-0",
   "federal": {
@@ -42101,6 +43406,21 @@
   },
   "state": {
    "tax": 4084.5
+  },
+  "error": null
+ },
+ "2026-on-the-boundary-NM-100000-0-0-0-0": {
+  "id": "2026-on-the-boundary-NM-100000-0-0-0-0",
+  "federal": {
+   "adjustedGrossIncome": 100000.0,
+   "taxableIncome": 83900.0,
+   "incomeTaxBeforeCredits": 13170.0,
+   "taxableSocialSecurity": 0.0,
+   "childTaxCredit": 2200.0,
+   "earnedIncomeCredit": 0.0
+  },
+  "state": {
+   "tax": 3460.69775390625
   },
   "error": null
  },

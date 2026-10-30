@@ -206,14 +206,14 @@ test('the state engine enumerates what the recorded audit measured', () => {
     'localities/counties.js',
   ];
   const { files, mutants } = enumerateMutants(esm, SKIP);
-  assert.equal(files.length, 38, 'files walked');
+  assert.equal(files.length, 39, 'files walked');
   // 2,436, AND IT IS THE FIRST TIME THIS FIGURE IS NOT THE ONE scores.json
   // RECORDS. The enumerator measures the tree; `scores.json` records the last
   // completed audit, and Day 64's did not complete — 2,436 mutants against a
   // 1,018-test suite on four cores is about fifteen hours. The two numbers are
   // allowed to differ and `check-scores.mjs` is what fails while they do; this
   // assertion's job is to say what the TREE holds, so it tracks the tree.
-  assert.equal(mutants.length, 2_458, 'mutants the enumerator finds in the current tree');
+  assert.equal(mutants.length, 2_530, 'mutants the enumerator finds in the current tree');
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -530,5 +530,25 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // module, because Day 65's seventh survivor was exactly such a selector in
   // Arkansas — a `year === 2025` in front of a rule NAME — and a state with two
   // year mutants has no room for one.
-  assert.deepEqual(byKind, { money: 1_706, rate: 460, year: 292 });
+  // NEW MEXICO, Day 67, adds 47 money, 23 rate and 2 year — 72 in all, and the
+  // SPLIT is the opposite of Kansas's one day earlier for a reason that is about
+  // the state and not about the harness.
+  //
+  // Kansas's 22 were 15 money, 5 rate and 2 year, because its complexity is in
+  // what it EXEMPTS: one list of retirement sources, one checkbox, four flat
+  // allowances. New Mexico's 23 `rate` mutants are the largest rate contribution
+  // any single state has made here — three published schedules of six bands each
+  // is 18 rates before anything else, plus § 7-2-5.8's three tapers (0.10, 0.15,
+  // 0.20) and the 25% credit match and the 0 of a repealed element. **A state
+  // that writes three rate schedules where a reader expects five puts half its
+  // parameters in this one kind.**
+  //
+  // The 2 year mutants are the whole of its year handling — the `if (year !==
+  // 2025 && year !== 2026) return undefined` guard and nothing else — which is
+  // Kansas's count for Kansas's reason: HB 252 of 2024 wrote the schedules for
+  // "taxable years beginning on or after 1 January 2025" and nothing in the state
+  // is indexed. No New Mexico rule chooses a name, a row or an amount by the
+  // year, and the one figure that would (§ 7-2-18.34's child credit) is the one
+  // this package does not model.
+  assert.deepEqual(byKind, { money: 1_753, rate: 483, year: 294 });
 });

@@ -244,6 +244,50 @@ survivors out of 2,530 against six out of 2,458 is one more unreachable paramete
 in a larger package, and the one that arrived is documented with the reason it
 cannot be reached.
 
+**The differential against `policyengine-us`, re-run over 2,904 households.**
+20,328 figures compared, **19,083 agree to the dollar**, and **16 unexplained —
+exactly the number Day 66 closed with, and ZERO of them in 2026.**
+
+```text
+  before the New Mexico entry was written      62 unexplained
+  of those, New Mexico                         46
+  of those, every other state                  16   <- Day 66's baseline, unmoved
+```
+
+**ALL 46 NEW MEXICO ROWS ARE THE TWO REFUNDABLE CREDITS THE STATE SHIPS WITHOUT,
+AND THE ARITHMETIC OF EVERY ROW SAYS WHICH ONE.** A single parent at `$45,000`
+differs by `$424.00` — one child in the `$25,000`–`$50,000` band of § 7-2-18.34.
+A couple with two children at `$100,000` by `$212.00`, two at `$106`. A
+three-dependent household at `$40,000` by `$1,272.01`, three at `$424`. The
+low-income rows are larger because § 7-2-14's rebate is in them too. **Every row
+is one sign**: this package charges MORE because it pays a credit it does not
+have, so the omission can only make a New Mexico answer too high.
+
+> **A DECLARED OMISSION IS WORTH SOMETHING ONLY IF THE DIFFERENTIAL AGREES ABOUT
+> ITS SIZE.** The notes said the child credit was not modelled and said what it
+> would cost. The grid then produced 46 rows whose amounts are that credit to the
+> cent, in the direction the note predicted. That is the difference between "we
+> know about it" and "we know what it is".
+
+**AND THE COMPARISON HANDED OVER THE FIGURE THE NEXT RUN NEEDS.** The one row that
+fell outside the entry's first bound was `$1,300.83`, against 2025's `$1,272.01`
+on the same household — which is not a near miss, it is § 7-2-18.34(D)'s
+indexation: three children at `$433.61` against three at `$424.00`. The ratio
+`1.022665` reproduces across every band the grid reaches, within six decimal
+places:
+
+```text
+  2025     424.00   212.00   106.00    79.00
+  2026     433.61   216.80   108.40    80.79
+  implied for the bands the grid does not reach:  651.44, 54.20, 26.59
+```
+
+**New Mexico publishes no 2026 child-credit table this sandbox can fetch, and the
+differential derived one from the reference model's own uprating.** It is the
+reference's arithmetic rather than a state release, which is exactly the status a
+`provisionalFigures` entry exists to record — and it turns the largest omission in
+the package from a research problem into a data-entry one.
+
 > **THAT IT WAS ADDED TO IS WORTH MORE THAN THE THREE ROWS.** Four markdown
 > documents in this repository describe the same findings and not one of them has
 > ever been extended by a later run — each gets a new section at the top and the

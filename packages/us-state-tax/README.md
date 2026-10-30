@@ -996,6 +996,7 @@ been passing the federal figure through for two years already:
 | Iowa | Its standard deduction *is* the federal one, from tax year **2023** (IA 1040 line 1d, "from federal 1040") — § 422.9's own `$2,210` has not been used since | `$28.50` | rolling |
 | Idaho | Starts from federal taxable income | `$39.75` | **static, 2026-01-01** |
 | Missouri | Its standard deduction *is* the federal one (§ 143.131.2) | `$35.25` | rolling |
+| New Mexico | Its deduction *is* the federal one — PIT-1 line 12 reads "from federal Form 1040, line 12", and § 7-2-2(N)(1) conforms to the standard deduction and (N)(2) to itemized ones by name. It takes the § 63(f) age and blindness additions with it, which Arizona did not, and it is the LARGEST cut in this table | `$36.75` | rolling |
 | North Dakota | Starts from federal taxable income | `$14.63` | rolling |
 | Utah | Its Taxpayer Tax Credit is 6% of the federal deduction | `$45.00` | rolling |
 | ~~Arizona~~ | **No longer reads it at all.** § 43-1041(A) carried the federal figure by cross-reference until HB 4168 replaced it with Arizona's own amounts, retroactive to 2025 | `$18.75`, but from Arizona's own statute | **static, 2025-01-01**, and it no longer decides the deduction |
@@ -3367,7 +3368,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **1,116 tests**. Turning it on, when there were 618 of them, is what
+from all **1,137 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

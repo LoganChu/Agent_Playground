@@ -455,6 +455,46 @@ deduction (a `comparison` between one child and two, because the second child's
 none and one), the head-of-household column, and the cliff. Every one is the
 engine on the same household with one input changed.
 
+### The two measurements, and the differential paid for itself twice
+
+**The deliberate-error audit: 2,530 mutants, 2,523 killed, 7 survivors, 99.7%.**
+New Mexico killed 71 of its 72 and the survivor is the one declared in writing
+before the run — `states/new-mexico.js` line 103, `8_000 -> 16000`, the top row of
+§ 7-2-5.2's table. Day 66 predicted a survivor would be killed and was wrong;
+today's prediction named one line, one direction and the arithmetic, and the score
+came back with exactly that line in it.
+
+**The differential: 2,904 households, 20,328 figures, 19,083 agreeing to the
+dollar, 16 unexplained — Day 66's number exactly, and none in 2026.**
+
+```text
+  before the New Mexico entry   62 unexplained
+  New Mexico                    46
+  everything else               16   <- the baseline, unmoved by a new state
+```
+
+All 46 are the child income tax credit and the low income comprehensive tax
+rebate, declared unmodelled in the state's notes before the comparison ran — and
+**the arithmetic of every row says which**. `$424.00` is one child in the
+`$25,000`–`$50,000` band; `$212.00` is two at `$106`; `$1,272.01` is three at
+`$424`. Every row is one sign, because a credit this package does not pay can only
+make its answer too high.
+
+**AND THE COMPARISON DERIVED THE 2026 FIGURES THE NEXT RUN NEEDS.** The one row
+outside the entry's first bound was `$1,300.83` against 2025's `$1,272.01` on the
+same household — not a near miss but § 7-2-18.34(D)'s indexation: three children
+at `$433.61` against three at `$424.00`. The factor `1.022665` reproduces across
+every band the grid reaches to six decimal places, giving `$651.44`, `$433.61`,
+`$216.81`, `$108.40`, `$80.79`, `$54.20` and `$26.59`.
+
+> **A BOUND THAT WAS EXCEEDED BY 83 CENTS TURNED OUT TO BE THE MOST USEFUL THING
+> IN THE REPORT.** The first `maxAbs` was 1,300 and the largest row was
+> `$1,300.83`; the instinct is to raise the bound and move on. Asking *why* it
+> was 83 cents high produced the indexation factor, and with it the 2026 child
+> credit table that New Mexico publishes nowhere this sandbox can reach. **The
+> state's largest omission stopped being a research problem and became a
+> data-entry one, because a bound was off by less than a dollar.**
+
 ### What I would do next
 
 1. **ADD THE NEW MEXICO CHILD INCOME TAX CREDIT.** It is the largest omission in
