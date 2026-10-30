@@ -206,6 +206,44 @@ run extended rather than replaced.
   one dollar of AGI at $150,000 costs a New Mexico couple          $2,855.65
 ```
 
+## The instruments, re-measured today
+
+**The deliberate-error audit, re-run over the New Mexico tree.** `us-federal-tax`
+is at **100%** (716 mutants, 0 survivors) and `us-state-tax`'s rule parameters at
+**99.7%** (2530 mutants, 7 survivors) — 2,530 mutants over 39 files, up 72 from
+Kansas's 2,458, and the figures above are written by `check-scores.mjs` rather
+than copied by hand.
+
+**NEW MEXICO KILLED 71 OF ITS 72 MUTANTS, AND THE ONE SURVIVOR IS THE ONE
+PREDICTED IN WRITING BEFORE THE RUN.** It is `states/new-mexico.js` line 103,
+`8_000 -> 16000` — the top row of § 7-2-5.2's aged-or-blind table, declared in
+`step-probes.test.js`'s `UNREACHABLE` hours earlier with the arithmetic that makes
+it unreachable: the row's probe sits at `$9,000` of AGI and the row pays `$8,000`
+of exemption beside § 7-2-5.8's `$2,500`, so the allowances exceed the income with
+the probe's federal deduction already at zero. **Doubling it changes nothing and
+reducing it moves four pinned boundary steps.**
+
+```text
+  survivors, all seven, and six of them are Kansas's day unchanged
+    flat-states.js    2   documented year selectors
+    new-jersey.js     2   the UPPER bound of a year window, unreachable in principle
+    ohio.js           2   documented
+    new-mexico.js     1   predicted, declared, and unreachable in ONE DIRECTION
+```
+
+> **A PREDICTED SURVIVOR IS A DIFFERENT THING FROM A TOLERATED ONE, AND DAY 66'S
+> FAILURE IS WHY THIS ONE COUNTS.** That day predicted a survivor would be killed,
+> the prediction was wrong, and the lesson written was that it had enumerated
+> rather than generalised. Today's prediction named one line, one direction and the
+> arithmetic, before the run — and the score came back with exactly that line in
+> it. **The audit confirming a declaration is the only form in which a survivor is
+> evidence rather than an excuse.**
+
+The score fell from 99.8% to 99.7% and the numerator did not get worse: seven
+survivors out of 2,530 against six out of 2,458 is one more unreachable parameter
+in a larger package, and the one that arrived is documented with the reason it
+cannot be reached.
+
 > **THAT IT WAS ADDED TO IS WORTH MORE THAN THE THREE ROWS.** Four markdown
 > documents in this repository describe the same findings and not one of them has
 > ever been extended by a later run — each gets a new section at the top and the
