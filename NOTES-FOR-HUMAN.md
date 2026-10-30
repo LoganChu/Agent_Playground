@@ -30,6 +30,81 @@ which this container can fetch.
 `us-federal-tax` stays at **v0.16.0**. **33 taxing states and 42 in all**, up
 one; nine jurisdictions left.
 
+## THE FOUR THINGS ONLY YOU CAN DO, IN ONE PLACE
+
+They have been described in prose scattered across sixty-seven entries below, and
+on Day 67 I noticed that a person reading this file top-down meets the newest
+state's findings before meeting a single actionable instruction. So here they are
+together, ranked by what they change, with the exact click path. **None of them
+blocks me and all four are quick.**
+
+**1. THE NETWORK POLICY — the only one that changes what I can build.** Sixteen
+consecutive runs have now failed to open a single primary tax document. Today it
+was `tax.newmexico.gov`, `realfile.tax.newmexico.gov`, `nmlegis.gov`,
+`nmonesource.com` and `law.justia.com`, none of which resolve. Every state for ten
+runs has gone in on second-hand readings that agree with each other, plus
+arithmetic cross-checks — a good workaround, and not the document.
+
+> *Where:* the cloud environment menu in this session's title bar → **Edit** →
+> **Network access**. Either a broader access level, or add under **Allowed
+> domains** — keeping the "Allow package managers" box ticked, because the
+> package registries are what the differential harness and the PolicyEngine
+> cross-check run on:
+>
+> ```text
+>   *.gov              covers almost every state at once
+>   law.justia.com     the statutes, where a state site is unreachable
+>   www.law.cornell.edu  the Internal Revenue Code sections states adopt
+>   taxsim.nber.org    the filled-form anchors described in item 2 below
+> ```
+>
+> If `*.gov` is too broad, `*.state.??.us` plus those three covers most of what
+> the next ten states need. Steps:
+> https://code.claude.com/docs/en/cloud-environments#network-access
+>
+> It is read-only access to public government websites. Nothing I do with it
+> writes anywhere.
+
+**2. THE GITHUB PAGES SWITCH — one dropdown, and it is what makes the two pages
+openable by anybody.** Every push already builds the retirement calculator and the
+ten-household findings page and attaches both to a release as self-contained
+files. They are not on the web, so the only way to see either is to download it.
+
+> *Where:* this repo → **Settings** → **Pages** → **Source: GitHub Actions**.
+> That is the whole change; the workflow already exists and already runs.
+
+**3. THE REPOSITORY DESCRIPTION AND TOPICS — thirty seconds, and it is the first
+thing anybody who finds this repo sees.** There is no description, so the repo
+renders as a blank card everywhere it is linked. I cannot set it myself:
+`PATCH /repos/{owner}/{repo}` is refused by this session's permission layer, which
+treats repository settings as a shared resource, and that is the right call.
+
+> *Where:* repo page → the gear icon beside **About**. Current, as of today:
+>
+> **Description.** Dependency-free US federal and state income tax engines for
+> JavaScript, plus an MCP server. 42 states, 1,033 local income taxes, two tax
+> years, every figure cited to the release it came from and a measured mutation
+> score. MIT.
+>
+> **Topics.** `tax`, `income-tax`, `state-tax`, `us-tax`, `payroll`,
+> `typescript`, `javascript`, `mcp`, `mcp-server`, `zero-dependencies`
+
+**4. THE NPM PUBLISH — optional, and about reach rather than capability.** All
+three packages already install from a public URL with no account and no token, so
+nobody is blocked. What npm buys is being findable by somebody who searches for a
+state tax library rather than being sent a link.
+
+> *Where:* it needs an npm account and an `NPM_TOKEN` secret; the full steps are
+> in the Day 22 entry far below. **Do items 1 and 2 first** — they cost nothing
+> and they move more.
+
+**The honest ranking after sixty-seven days**: item 1 changes the evidence behind
+every state I add from here. Item 2 is the difference between a page a buyer can
+open and a file they have to download. Items 3 and 4 are about being found. Nothing
+I can build moves any of the four.
+
+---
+
 **NEW MEXICO IS IN, AND THE THING IT BROUGHT IS A COUNT RATHER THAN A FIGURE. If
 you read two items, read A and C.**
 
