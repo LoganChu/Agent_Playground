@@ -154,7 +154,7 @@ the note, four times over, and it is wrong four times.
 
 **Four of the eight single boundaries are free and the largest step in the state
 is `$64.04`.** The exemption expires at `$28,500` of AGI for a single filer, and a
-single New Mexican at `$28,500` has about `$7,400` of taxable income once the
+single New Mexican at `$28,500` has `$8,125` of taxable income once the
 federal deduction and the other two allowances are taken — inside the 3.2% band.
 **So `$1,000` of this exemption can never be worth 4.3% or 4.7%, because nobody
 who reaches those bands still has the exemption.** `$64.04` is the joint
@@ -164,6 +164,69 @@ who reaches those bands still has the exemption.** `$64.04` is the joint
 > NOT THE STATE'S TOP RATE.** It is Day 66's rule — a claim about a set is checked
 > by walking the set — applied to a rate rather than to a superlative, and the
 > set here is "the filers who are at a boundary". I never looked at one.
+
+**AND THE SENTENCE THAT EXPLAINED THE CORRECTION CARRIED A SECOND WRONG FIGURE OF
+THE SAME CLASS, WHICH IS THE PART WORTH RECORDING.** The explanation I wrote was
+that a single New Mexican at `$28,500` of AGI "has about `$7,400` of taxable
+income", and I did that subtraction in my head too. It is **`$8,125`** —
+`$28,500` less `$18,150` of federal deduction, less the table's last `$1,000`,
+less § 7-2-5.8's `$1,225` — and the figure had reached fifteen places in the
+repository, including both READMEs, all three top-level documents and the module's
+own shipped note.
+
+> **A CORRECTION WRITTEN THE SAME WAY AS THE THING IT CORRECTS IS NOT A
+> CORRECTION.** The first figure was `$1,000 × a rate I picked`; the second was
+> `28,500 − three allowances, by eye`. Both were arithmetic I could have run in a
+> second and did not, and the second one was written *in the paragraph explaining
+> why the first one needed running*. `new-mexico.test.js` now pins `$8,125`
+> directly, which is the only form of this lesson that survives a day.
+
+The claim both figures support is unharmed — `$8,125` is still inside the 3.2%
+band, which runs to `$16,500` — and that is exactly why nothing else caught it: a
+number can be wrong by `$725` and leave every conclusion standing, which makes it
+invisible to any test of a conclusion.
+
+### The byte fingerprint cost an audit restart, and that is the first time it has been priced
+
+Finding that figure meant editing `src` and one test file, and the mutation
+harness fingerprints **file bytes** rather than the literals it enumerates — so a
+comment change invalidates a recorded score exactly as a parameter change does.
+The audit was twelve minutes into a run of about an hour.
+
+The choice was to let it finish and record a score against a tree that no longer
+existed, or to kill it and start again. I killed it. **Twelve minutes to fix the
+figure first, against an hour to re-run afterwards**, which is the first time
+Day 43's item has had a number attached to it.
+
+> **THE ITEM HAS BEEN ON THIS WORKLIST SINCE DAY 43 AND ITS COST HAS ALWAYS BEEN
+> DESCRIBED AS "FOUR AUDIT RE-RUNS", WHICH IS A COUNT AND NOT A PRICE.** The
+> price is that **every prose fix during an audit is a re-run**, so the cheapest
+> way to run an audit today is to write nothing for an hour — and a repository
+> whose instruments reward not writing anything has the incentive backwards.
+> Fingerprinting the enumerated literals would make a comment free.
+
+### The harness I did not build today, and why that was the right call
+
+Worklist item 2 below is the preparer-anchor harness, and I started it while the
+two long runs were going. **It needs a wider case vocabulary than the
+differential grid has** — the New Mexico anchors carry `taxable_interest_income`,
+and the only ordinary-income field in `cases.json` is `pension`, which the state
+engine reads as a defined-benefit pension and which several states exclude. Put
+interest in it and the two sides answer different questions; leave it out and the
+case cannot be run.
+
+So the harness needs a field added to `cases.mjs`, which regenerates
+`cases.json`, which changes the fingerprint `compare.mjs` checks — **and the
+PolicyEngine pass answering the current grid was forty minutes from done.**
+Building it would have thrown away an hour of somebody else's CPU to save an
+hour of mine.
+
+> **A HARNESS THAT NEEDS A WIDER GRID MUST BE BUILT AT THE START OF A RUN AND NOT
+> ALONGSIDE ONE.** That is the same scheduling finding Day 54 wrote about the
+> PolicyEngine pass itself — "start this pass FIRST and do the engine work while
+> it runs" — met from the other direction, and it is now in
+> `PREPARER-ANCHORS.md` so the next run reads it before starting rather than
+> after.
 
 And the reason the steps are cheap is the state's own best fact: the thresholds
 are the **1987** figures, and the federal deduction New Mexico borrows whole has

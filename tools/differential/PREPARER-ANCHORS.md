@@ -123,6 +123,29 @@ Four of those five are on `UNCOVERED_TAXING_JURISDICTIONS`.
       the Spouse Tax Adjustment is Virginia's hardest rule
 ```
 
+## READ THIS BEFORE STARTING: it must be built at the START of a run
+
+Day 67 began building it and stopped, for a reason that is about scheduling and
+not about tax.
+
+**The anchors need a wider case vocabulary than the differential grid has.** New
+Mexico's two carry `taxable_interest_income`, and the only ordinary-income field
+in `out/cases.json` is `pension` — which `ours.mjs` passes as
+`employerPlanPension` and which the state engine therefore reads as a
+defined-benefit pension. Several states exclude one. So interest cannot be put in
+that field without making the two sides answer different questions, and it cannot
+be left out without dropping the case.
+
+Adding a field means editing `cases.mjs`, which regenerates `cases.json`, which
+changes the fingerprint `compare.mjs` requires `theirs.json` to match — **and the
+PolicyEngine pass takes about an hour.** Day 67's was forty minutes from done.
+
+> **A HARNESS THAT NEEDS A WIDER GRID MUST BE BUILT BEFORE THE POLICYENGINE PASS
+> STARTS, NOT ALONGSIDE IT.** This is Day 54's finding from the other side — that
+> one said start the slow pass first and do the engine work while it runs, and it
+> is right about engine work and wrong about anything that touches the grid's
+> shape. Widen `cases.mjs` first, regenerate, then start the pass once.
+
 ## What building this would take, honestly
 
 Each fixture is a `policyengine-us` situation dict — people, tax units, SPM

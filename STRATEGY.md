@@ -177,7 +177,7 @@ eight single boundaries cost **nothing** and the largest step in the state is
 `$64.04`.
 
 The exemption expires at `$28,500` of AGI for a single filer, and a single New
-Mexican there has about `$7,400` of taxable income once the federal deduction and
+Mexican there has `$8,125` of taxable income once the federal deduction and
 the other two allowances are taken — inside the 3.2% band. **Nobody who reaches
 4.3% still has the exemption.**
 

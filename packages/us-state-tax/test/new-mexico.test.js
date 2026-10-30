@@ -332,7 +332,7 @@ test('the aged-or-blind staircase is nine steps and most of them are free', () =
   // priced these steps by multiplying $1,000 by two of New Mexico's six rates.
   // No filer at any of the eight boundaries is in either band: the exemption
   // expires at $28,500 of AGI for a single filer, and a single New Mexican
-  // there has about $7,400 of taxable income once the federal deduction and the
+  // there has $8,125 of taxable income once the federal deduction and the
   // other two allowances are taken.
   const step = (base, boundary) =>
     cents(nm({ ...base, agi: boundary + 1 }).tax - nm({ ...base, agi: boundary }).tax);
@@ -341,6 +341,15 @@ test('the aged-or-blind staircase is nine steps and most of them are free', () =
     [18_000, 19_500, 21_000, 22_500, 24_000, 25_500, 27_000, 28_500].map((b) => step(single, b)),
     [0, 0, 0, 0, 14.27, 15.01, 30.34, 32.04],
   );
+  // THE FIGURE THE EXPLANATION TURNS ON, PINNED, because the first draft of this
+  // module asserted it from arithmetic done in my head and got it wrong by
+  // $725: a single New Mexican of 70 at $28,500 of AGI — the income at which
+  // § 7-2-5.2's exemption expires — has $8,125 of taxable income, which is
+  // inside the 3.2% band and nowhere near the 4.3% one the first draft priced
+  // these steps at. $28,500 less $18,150 of federal deduction, less the table's
+  // last $1,000, less § 7-2-5.8's $1,225.
+  assert.equal(nm({ ...single, agi: 28_500 }).taxableIncome, 8_125);
+  assert.ok(8_125 < 16_500, 'inside the 3.2% band, which is what makes the steps cheap');
   const both70 = { filingStatus: 'marriedFilingJointly', filerAge: 70, spouseAge: 70, agedBoxes: 2 };
   assert.deepEqual(
     [30_000, 33_000, 36_000, 39_000, 42_000, 45_000, 48_000, 51_000].map((b) => step(both70, b)),

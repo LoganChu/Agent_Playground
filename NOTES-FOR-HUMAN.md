@@ -155,7 +155,7 @@ step anywhere in the state is $64.04.
 
 The reason is the best fact about the rule. Those income thresholds have not been
 touched since **1987**, and the federal deduction New Mexico borrows whole has
-grown past them: a single New Mexican at $28,500 of income has about $7,400 of
+grown past them: a single New Mexican at $28,500 of income has $8,125 of
 taxable income left after the federal deduction and the state's other two
 allowances, which is inside the 3.2% band. **Nobody who reaches the 4.3% rate
 still has the exemption.** The allowance has been overtaken by the deduction

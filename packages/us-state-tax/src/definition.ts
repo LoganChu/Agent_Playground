@@ -4905,7 +4905,7 @@ export interface StateIncomeTaxDefinition {
    *    one dollar of AGI at a boundary costs a whole `$1,000` of exemption —
    *    **and four of the eight single boundaries still cost nothing**, because
    *    the exemption expires at `$28,500` of AGI and a single New Mexican there
-   *    has about `$7,400` of taxable income. The measured steps are `$14.27`,
+   *    has `$8,125` of taxable income. The measured steps are `$14.27`,
    *    `$15.01`, `$30.34` and `$32.04`, and the largest in the state is
    *    `$64.04` at the joint `$51,000` boundary, where both people's exemptions
    *    fall on the same dollar. A step is worth the rate at the income where it
