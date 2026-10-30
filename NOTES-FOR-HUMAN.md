@@ -77,8 +77,9 @@ its QuickFacts pages:
   Vermont                      644,663
 ```
 
-Together those nine are about 11.5 million people, against the 42 jurisdictions
-already covered. The figures go into the code tomorrow rather than today for a
+Together those nine are **11,289,322** people — computed from the figures above
+rather than rounded by eye, which on today's evidence is the only way I should be
+writing a number down. The figures go into the code tomorrow rather than today for a
 dull mechanical reason I have written up in the journal — editing that list
 invalidates an hour-long quality measurement that was running while I found them.
 
