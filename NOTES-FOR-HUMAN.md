@@ -13,7 +13,11 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**As of Day 67 the four asks are unchanged and none of them blocks anything.**
+**AS OF DAY 68 THERE IS A FIFTH ASK AND IT IS THE FIRST ONE IN THIS FILE,
+because it is the only one that is about a mistake rather than a setting: 838 MB
+of AGPL-licensed code is in this repository's published history and taking it out
+means a force-push. It is immediately below. The four below THAT are unchanged
+and none of them blocks anything.**
 Three are small and cosmetic — the repository description and topics, the GitHub
 Pages switch, the optional npm publish — and the fourth is the one that would
 change what I can build: the network policy. Day 61's entry below has the exact
@@ -49,7 +53,95 @@ bound by 83 cents turned out to be the credit's 2026 inflation adjustment, which
 handed me the 2026 figures New Mexico publishes nowhere I can reach. The largest
 gap in the state stopped being a research problem and became data entry.
 
-## THE FOUR THINGS ONLY YOU CAN DO, IN ONE PLACE
+## ⚠️ DAY 68, AND THIS ONE IS NEW AND IT IS FIRST: 838 MB OF AGPL-LICENSED CODE IS IN THIS REPOSITORY'S HISTORY, AND ONLY YOU CAN TAKE IT OUT
+
+**What happened.** On Day 67 I installed `policyengine-us` — the independent tax
+model this project compares itself against — into a directory called `.pe2`, and
+then committed and pushed it. **74,784 files. 838 MB. The real tree is 275
+files**, so the virtualenv was 99.6% of everything the repository tracked.
+
+**Why it matters, and the disk space is the lesser half.** `policyengine-us` is
+**AGPL-3.0**. This repository's root `LICENSE` is MIT and all three packages
+declare `"license": "MIT"`. For one day, a tree that says MIT contained a
+complete copy of a strong-copyleft codebase and **232 third-party licence
+files**. Day 1 chose that model deliberately as a *cross-check of published
+figures*, with "no code or files copied" written down as the rule, and
+sixty-six days of notes repeat the care. One `git add` undid it.
+
+**What is NOT affected, so you can stop worrying about the part that ships.**
+
+- **The npm packages are clean.** Every `package.json` lists `files: ["dist",
+  "README.md", "LICENSE"]`, so no tarball ever contained a byte of it. If you
+  published yesterday, nothing is wrong with what you published.
+- **No source file in this project imports, derives from, or contains any of it.**
+  The engine is still zero-dependency TypeScript. The only thing that happened is
+  that a build-time research tool's install directory got committed beside it.
+- **`main` is already clean as of today.** I removed it from tracking, replaced
+  the exact-name ignore rules with globs (`.pe*/`, `.venv*/`), and added a guard
+  described below. `git clone` today checks out 275 files.
+
+**WHAT ONLY YOU CAN DO: the objects are still in the published history, and
+taking them out means rewriting `main` and force-pushing.** I will not do that on
+my own — it is irreversible, it breaks every existing clone, and it rewrites
+something already published. Your call, and here is the whole of it:
+
+```bash
+# from a fresh clone, with nothing else in flight
+pip install git-filter-repo
+git clone https://github.com/LoganChu/Agent_Playground && cd Agent_Playground
+git filter-repo --invert-paths --path .pe2/
+git push --force origin main
+```
+
+**What that buys, measured rather than estimated** — `git cat-file
+--batch-check` over every object in `git rev-list --objects --all`, summing
+`objectsize:disk`:
+
+```text
+                      objects      on disk
+  under .pe2/          86,989      148.0 MB
+  everything else         831        3.6 MB   <- sixty-eight days of work
+```
+
+So the accident is **105 times the whole project by object count and 41 times it
+by bytes**, and `.git` goes from 161 MB to about 4 MB. Afterwards: anyone with an
+old clone must re-clone, and every commit SHA from `6e720f3bb` (Day 67) onward
+changes. There are no open pull requests and no release tags inside that range,
+so nothing else breaks.
+
+**If you would rather not rewrite history, that is a defensible choice** — the
+files are gone from `main`, the packages were never affected, and GitHub's own
+UI will show a clean tree. The cost of leaving it is a clone that is 161 MB
+instead of 4 MB and an AGPL copy a diligence process finds with
+`git log --all --diff-filter=A`.
+I would do it, because the whole product here is "this project is careful", and
+that is the one claim an acquirer checks first.
+
+**What I did so that this cannot recur, and it is the part worth reading.** The
+`.pe2` name was **my own README's suggestion**: `tools/differential/README.md`
+told the next run to put its second install in "`.pe2` or similar", four lines
+below a warning that `git add -A` over an unignored venv stages thousands of
+files. The advice and the caution were in the same code block, and the ignore
+rule named `.pe/` exactly.
+
+> **AN IGNORE LIST IS A LIST OF THE ACCIDENTS SOMEBODY ALREADY HAD.** It cannot
+> cover the directory name the next run will invent.
+
+So `tools/cross-package/tracked-paths.mjs` does not enumerate what must not be
+tracked. It allowlists what **may** be — ten file extensions, ten top-level
+entries, four licence files by exact path, and a ceiling of 1,200 tracked files
+against the 275 that exist — and fails on everything else. It runs in CI and in
+the push gate, and `tracked-paths.test.mjs` proves each of its four assertions
+refuses a **real path out of the offending commit**, so the guard is tested on
+the accident rather than on an imitation of it.
+
+---
+
+## THE OTHER FOUR THINGS ONLY YOU CAN DO, IN ONE PLACE
+
+*(The fifth — the history rewrite — is above, because it is the only one with a
+deadline-shaped reason behind it. These four are settings and have waited
+happily.)*
 
 They have been described in prose scattered across sixty-seven entries below, and
 on Day 67 I noticed that a person reading this file top-down meets the newest

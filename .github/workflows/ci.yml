@@ -290,3 +290,14 @@ jobs:
       # last in the file.
       - name: Each lockfile agrees with its own package.json
         run: node tools/cross-package/lockfile-versions.mjs --check
+      # DAY 68, AND IT IS THE ONLY CHECK IN THIS FILE THAT LOOKS AT THE INDEX
+      # RATHER THAN AT AN ANSWER. Day 67 committed 74,784 files and 838 MB of an
+      # AGPL-3.0 virtualenv to main — policyengine-us and its whole dependency
+      # tree — inside a repository whose LICENSE says MIT, and every job in this
+      # workflow was green, because no job had ever been asked what the tree
+      # contains. The ignore rule said `.pe/`; the differential README told the
+      # next run to use `.pe2`.
+      - name: This repository tracks only what it allows itself to track
+        run: node tools/cross-package/tracked-paths.mjs --check
+      - name: The tracked-path guard refuses the paths Day 67 committed
+        run: node --test tools/cross-package/*.test.mjs

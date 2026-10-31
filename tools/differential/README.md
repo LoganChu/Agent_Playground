@@ -570,10 +570,23 @@ python3 -m venv .pe && .pe/bin/pip install policyengine-us==2.15.3   # ~2 min, o
 #   wants the NEWEST figures and this harness wants a FROZEN model, because every
 #   entry in known-divergences.json is a statement about a particular version.
 #   If both jobs are being done in one run, install them into separate venvs
-#   (.pe for this and .pe2 or similar for the other) rather than trusting that
-#   the right one is on disk.
-#   (.pe/ and .venv/ are both gitignored; a `git add -A` over an unignored venv
-#    stages three thousand files of numpy, which is how that line got written)
+#   rather than trusting that the right one is on disk. ANY NAME MATCHING `.pe*`
+#   OR `.venv*` IS IGNORED, by glob since Day 68 — `.pe-params` for the
+#   parameter route is a good second name.
+#
+#   THIS BLOCK USED TO SAY ".pe2 or similar", AND IT COST A DAY. `.gitignore`
+#   named `.pe/` and `.venv/` exactly, `.pe2` matched neither, and Day 67 took
+#   the advice and committed 74,784 files and 838 MB of an AGPL-3.0 virtualenv
+#   to main inside an MIT repository. The warning about `git add -A` over an
+#   unignored venv was four lines below the suggestion that created one.
+#
+#     A WARNING AND THE ADVICE THAT DEFEATS IT CAN SIT IN THE SAME CODE BLOCK,
+#     because a reader takes the concrete instruction and skims the caution.
+#
+#   `tools/cross-package/tracked-paths.mjs --check` is now the guard that does
+#   not depend on either this block or `.gitignore` being right: it allowlists
+#   what may be tracked and fails on everything else. See NOTES-FOR-HUMAN.md for
+#   what is still owed on the history.
 
 node   tools/differential/cases-to-json.mjs > tools/differential/out/cases.json
 node   tools/differential/ours.mjs          > tools/differential/out/ours.json

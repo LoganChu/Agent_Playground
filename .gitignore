@@ -2,5 +2,24 @@ node_modules/
 dist/
 *.log
 .DS_Store
-.pe/
-.venv/
+
+# PYTHON VIRTUALENVS, BY GLOB AND NOT BY NAME — AND THE GLOB IS A DAY 68 FIX.
+#
+# This file listed `.pe/` and `.venv/` exactly, and `tools/differential/README.md`
+# told the next run to put its SECOND policyengine install in `.pe2` — a name
+# neither rule covered. Day 67 followed its own advice and committed 74,784 files
+# and 838 MB of an AGPL-licensed virtualenv to an MIT repository. See
+# NOTES-FOR-HUMAN.md.
+#
+#   AN IGNORE RULE THAT NAMES A DIRECTORY GUARDS THAT DIRECTORY AND NOTHING THAT
+#   RHYMES WITH IT. The README's own warning about `git add -A` over an unignored
+#   venv is in the same code block as the suggestion that created one.
+#
+# `tools/cross-package/tracked-paths.mjs --check` is the guard that does not
+# depend on this file being right.
+.pe*/
+.venv*/
+venv/
+pyvenv.cfg
+__pycache__/
+*.pyc

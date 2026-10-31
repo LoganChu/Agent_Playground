@@ -80,6 +80,23 @@ const CHECKS = [
     expect: (out) => (out.match(/^# pass (\d+)/m) ?? [])[1] && `${(out.match(/^# pass (\d+)/m))[1]} tests`,
   },
   {
+    // The CROSS-PACKAGE tests, by glob, for Day 65's reason applied a second
+    // time: `tracked-paths.test.mjs` arrived on Day 68 and a gate that names
+    // files one at a time is a gate that silently stops covering the newest one.
+    label: "the cross-package tools' own tests",
+    cmd: 'node --test tools/cross-package/*.test.mjs',
+    expect: (out) => (out.match(/^# pass (\d+)/m) ?? [])[1] && `${(out.match(/^# pass (\d+)/m))[1]} tests`,
+  },
+  {
+    // FIRST IN THE LIST IN SPIRIT, because it is the only check here that can
+    // see what is about to be pushed rather than what the code computes. Day 67
+    // pushed 838 MB of an AGPL virtualenv past a green preflight: every tax
+    // check passed, because nothing in this file had ever looked at the index.
+    label: 'what this repository is allowed to track',
+    cmd: 'node tools/cross-package/tracked-paths.mjs --check',
+    expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
+  },
+  {
     label: 'OBBBA and conformity claims in both READMEs',
     cmd: 'node tools/cross-package/obbba-claims.mjs --check',
     expect: (out) => (out.match(/^ok — (.*)$/m) ?? [])[1],
