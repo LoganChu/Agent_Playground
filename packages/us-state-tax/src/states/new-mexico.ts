@@ -286,8 +286,15 @@ const NM_CITATIONS: readonly Citation[] = [
   },
   {
     title:
-      "New Mexico 2025 Personal Income Tax Form Packet — Form PIT-1 and instructions. LINE 7 carries FIVE filing-status boxes: single, married filing jointly, married filing separately, head of household, and SURVIVING SPOUSE WITH DEPENDENT CHILD, and the instruction is to mark only one; the Department's FAQ requires the New Mexico status to match the federal one. LINE 12 is \"Federal standard or itemized deduction amount (from federal Form 1040, line 12)\" — New Mexico has no deduction of its own and no personal exemption. LINE 13 is the deduction for certain dependents, computed on the Worksheet for Calculating Deduction for Certain Dependents in the instructions. The 2025 TAX RATE TABLE prints the married-filing-jointly column with the note that it \"must also be used by surviving spouse\" and gives head of household the same figures. NOT OPENED FROM THIS SANDBOX: realfile.tax.newmexico.gov and tax.newmexico.gov do not resolve here",
-    url: 'https://realfile.tax.newmexico.gov/2025pit-1-ins.pdf',
+      'New Mexico 2025 Personal Income Tax Form Packet \u2014 Form PIT-1, PIT-ADJ, PIT-RC, the PIT-TRT rate tables and all instructions. **READ IN FULL. THIS IS THE FIRST PRIMARY NEW MEXICO DOCUMENT THIS PACKAGE HAS OPENED**, after seventeen consecutive runs recorded every New Mexico host as unreachable: tax.newmexico.gov, realfile.tax.newmexico.gov, nmlegis.gov, nmonesource.com and law.justia.com all still fail to resolve, and the FILE HOST the Department serves its own packet from does not \u2014 2.7 MB over plain HTTPS. What it settles, each previously an inference: LINE 5\u2019s worksheet counts the spouse ONLY \"if married filing jointly\", which answers the IRC 151(b) separate-return question against this package\u2019s own uncertainty and in favour of its answer; the LINE 13 worksheet step 4 says \"Subtract 1 from total dependents\" in terms, which is the dependent deduction\u2019s notCounted; LINE 13\u2019s instruction names \"a head of household or married filing jointly\" and NOT a surviving spouse, while LINE 14 on the facing page names \"married filing jointly, surviving spouse, or head of household\" \u2014 two instructions a page apart, one grouping her in and the other leaving her out, which is the strongest available evidence for the literal reading of the dependent-deduction provision; PIT-ADJ TABLE 2 prints the UNINDEXED Social Security thresholds of $100,000 / $75,000 / $150,000; and the PIT-TRT rate tables print the joint column with the footnote \"This column must also be used by surviving spouse\" and give head of household the same figures. Page RC-11 carries the child income tax credit table and the Line 25 worksheet. The five filing-status boxes on LINE 7 include \"Surviving Spouse with dependent child\" and LINE 12 is \"Federal standard or itemized deduction amount (from federal Form 1040, line 12)\".',
+    url:
+      'https://klvg4oyd4j.execute-api.us-west-2.amazonaws.com/prod/PublicFiles/34821a9573ca43e7b06dfad20f5183fd/0558a902-6362-47ca-8e3b-7cca3bc69b9d/2025%20PIT%20Packet_Final.pdf',
+  },
+  {
+    title:
+      'New Mexico 2025 PIT-RC instructions, page RC-11, TABLE 4 \u2014 2025 CHILD INCOME TAX CREDIT INCOME TABLE, and the Line 25 worksheet beside it. READ FROM THE PACKET ABOVE. The bands are printed with a \"But Not Over\" column \u2014 $0\u201325,000 at $637 a qualifying child, 25,001\u201350,000 at $424, 50,001\u201375,000 at $212, 75,001\u2013100,000 at $106, 100,001\u2013200,000 at $79, 200,001\u2013350,000 at $53 and 350,001 and over at $26 \u2014 SO EVERY ROUND FIGURE IS THE TOP OF ITS BAND AND THE NEXT BAND OPENS ONE DOLLAR LATER. The worksheet says to use the first row for an AGI below zero and the last for one above $350,000, reads the band against \"Adjusted Gross Income from PIT-1, Line 9\", and multiplies by the total number of qualifying children. The instructions print \u00a7 152(c)\u2019s definition in full and EXPAND it: it \"includes any minor child or stepchild of the taxpayer who would be a qualifying child for federal income tax purposes if the public assistance contributing to the support of the child or stepchild was considered to have been contributed by the taxpayer\". A separate filer claims ONE-HALF of the joint credit. The credit runs for taxable years beginning on or after 1 January 2023 and before 1 January 2032.',
+    url:
+      'https://klvg4oyd4j.execute-api.us-west-2.amazonaws.com/prod/PublicFiles/34821a9573ca43e7b06dfad20f5183fd/0558a902-6362-47ca-8e3b-7cca3bc69b9d/2025%20PIT%20Packet_Final.pdf#page=89',
   },
   {
     title:
@@ -417,20 +424,51 @@ function agedOrBlindSteps(): ByStatus<readonly CreditStep[]> {
   });
 }
 
+const PROVISIONAL_2026 =
+  'PROVISIONAL FOR SEVEN FIGURES AND NOT FOR THE YEAR, and the seven are the whole of the child income tax credit table. NMSA 1978 § 7-2-18.34(D) adjusts the per-child amounts for inflation every year and they are THE ONLY INDEXED FIGURES IN THE NEW MEXICO INCOME TAX; the 2026 amounts appear in Table 4 of the 2026 PIT-RC instructions, printed in January 2027. So $637/$424/$212/$106/$79/$53/$26 here are the 2025 figures carried forward, which UNDERSTATES a refundable credit and therefore OVERSTATES the tax — the safe direction, and the amounts have risen every year since the credit began ($600 to $622 to $637 in the top band). EVERYTHING ELSE IN 2026 IS PUBLISHED AND THE SAMENESS OF THE TWO YEARS IS THE STATUTE: HB 252 of 2024 wrote the rate schedules for taxable years beginning on or after 1 January 2025 with no cost-of-living provision, and §§ 7-2-5.2, 7-2-5.8, 7-2-5.14, 7-2-34 and 7-2-39 are flat amounts with no indexing clause at all. The independent reference model projects the 2026 credit with a federal uprating index and gets $651.44, $433.61, $216.81, $108.40, $80.79, $54.20 and $26.59; those are not used here because they are a single source and because every amount New Mexico has ever published for this credit is a whole dollar.';
+
 export function newMexico(year: number): StateIncomeTaxDefinition | undefined {
   if (year !== 2025 && year !== 2026) return undefined;
   return {
     code: 'NM',
     name: 'New Mexico',
     year,
-    // Both years carry the same published figures and the sameness is the
-    // statute rather than a carry-forward: HB 252 of 2024 wrote the rate
-    // schedules for taxable years beginning on or after 1 January 2025 with no
-    // cost-of-living provision, and § 7-2-5.2, § 7-2-5.8, § 7-2-5.14, § 7-2-34
-    // and § 7-2-39 are all flat amounts with no indexing clause. The ONE indexed
-    // figure in the New Mexico income tax is the child income tax credit of
-    // § 7-2-18.34, which this module does not model — see the notes.
-    status: 'published',
+    // EVERY FIGURE IN THIS STATE IS A PUBLISHED 2025 FIGURE AND ONLY ONE OF THEM
+    // MOVES, which is why 2026 is provisional and 2025 is not. HB 252 of 2024
+    // wrote the rate schedules for taxable years beginning on or after
+    // 1 January 2025 with no cost-of-living provision, and § 7-2-5.2, § 7-2-5.8,
+    // § 7-2-5.14, § 7-2-34 and § 7-2-39 are all flat amounts with no indexing
+    // clause at all — so for those, both years carrying the same number is the
+    // statute and not a carry-forward.
+    //
+    // § 7-2-18.34(D) indexes the child income tax credit, and it is the ONE
+    // indexed figure in the New Mexico income tax. The 2026 amounts are not
+    // published: the 2026 PIT packet is printed in January 2027. So all seven
+    // are carried forward from 2025 and declared below.
+    status: year === 2026 ? 'provisional' : 'published',
+    ...(year === 2026
+      ? {
+          provisionalFigures: [0, 1, 2, 3, 4, 5, 6].map((i) => ({
+            path: `childIncomeTaxCredit.steps.${i}.amount`,
+            reason: 'awaiting-publication' as const,
+            carriedForwardFrom: 2025,
+            resolvedBy:
+              'Table 4 of the 2026 PIT-RC instructions in the 2026 New Mexico personal income ' +
+              'tax packet, published January 2027. THE DIRECTION IS KNOWN AND THE SIZE IS NOT: ' +
+              '§ 7-2-18.34(D) adjusts the amounts annually and every one has risen every year ' +
+              '($600/$400/$200/$100/$75/$50/$25 for 2023, $622/$414/$207/$103/$77/$51/$25 for ' +
+              '2024, $637/$424/$212/$106/$79/$53/$26 for 2025), so carrying 2025 forward ' +
+              'UNDERSTATES a refundable credit and therefore OVERSTATES the tax, which is the ' +
+              'safe direction for an estimate. The independent reference model projects the ' +
+              '2026 figures with its own federal uprating index and gets $651.44, $433.61, ' +
+              '$216.81, $108.40, $80.79, $54.20 and $26.59 — NOT USED HERE, for two reasons: ' +
+              'it is a single source, and every amount New Mexico has ever published for this ' +
+              'credit is a WHOLE DOLLAR, so a projection in cents cannot be what the 2026 ' +
+              'table will print. The most the carry-forward can cost a family is the ' +
+              'difference at the top band, about $15 a child.',
+          })),
+        }
+      : {}),
     // PIT-1 line 9 is federal adjusted gross income, so all four OBBBA
     // Schedule 1-A deductions sit below the New Mexico base.
     base: 'federalAdjustedGrossIncome',
@@ -569,7 +607,28 @@ export function newMexico(year: number): StateIncomeTaxDefinition | undefined {
         'exemption in no household at any income, and test/new-mexico.test.js asserts the ' +
         'three identities rather than trusting them. The exemption is clamped at zero here; ' +
         'the independent reference model does not clamp it, so between $36,666.67 and $36,667 ' +
-        'of single AGI that model allows a NEGATIVE exemption of up to five cents a head.',
+        'of single AGI that model allows a NEGATIVE exemption of up to five cents a head. ' +
+        'UNREAD, AND PRICED AT $35.43: whether a SEPARATE return counts the IRC 151(b) ' +
+        'spouse -- one with no gross income who is nobody\'s dependent -- among its "federal ' +
+        'exemptions". This package counts one filer plus dependents, which is also the ' +
+        'independent reference model\'s answer but for a STRUCTURAL reason rather than a ' +
+        'textual one: each spouse filing separately heads its own tax unit there, so the two ' +
+        'models agree and THE DIFFERENTIAL GRID CANNOT SEE THIS QUESTION AT ALL. Four states ' +
+        'in this package have been read on 151(b) and track it through ' +
+        '`spouseHasNoGrossIncomeAndIsNotADependent`; New Mexico has not, and no New Mexico ' +
+        'document reachable from this sandbox settles it. THE BOUND IS MEASURED AND IT IS ' +
+        'LARGER IN THE EARLIER YEAR: swept over every dollar of separate AGI, $35.43 at ' +
+        '$21,964 for 2025 against $33.83 at $22,214 for 2026, and the window is only about ' +
+        '$9,600 wide because below roughly $18,000 the federal deduction has already taken ' +
+        'the tax to zero and above $27,500 this taper has. THE TWO YEARS DIFFER BECAUSE NEW ' +
+        "MEXICO'S DEDUCTION IS THE FEDERAL ONE: the One Big Beautiful Bill Act raised it from " +
+        '$15,750 to $16,100 for a separate filer, which moves the peak UP in income to where ' +
+        'the taper has eaten more of the exemption, so the same rolling conformity that cut ' +
+        'New Mexico tax is quietly closing the window in which this question has an answer at ' +
+        'all. It is the smallest figure this project has recorded against an unread provision ' +
+        'and it is written down so the next person to notice it does not spend a day finding ' +
+        'out it was $35.43. If a document settles it the other way, supply $2,500 less the ' +
+        'taper through `subtractions`.',
     },
     // § 7-2-5.2 — nine steps per status, 1987 thresholds, and the age half only.
     agedOrBlindExemptionSteps: {
@@ -639,6 +698,64 @@ export function newMexico(year: number): StateIncomeTaxDefinition | undefined {
       capUnderAge: 30_000,
       capAtOrAboveAge: 30_000,
     },
+    // § 7-2-18.34, Table 4 of the 2025 PIT-RC instructions, page RC-11 — READ
+    // FROM THE DEPARTMENT'S OWN FORM PACKET, which is the first primary New
+    // Mexico document this package has opened.
+    //
+    // `upTo` AND NOT A LOWER BOUND, because Table 4's second column is headed
+    // "But Not Over": the printed bands are $0–25,000, 25,001–50,000,
+    // 50,001–75,000, 75,001–100,000, 100,001–200,000, 200,001–350,000 and
+    // 350,001 and over, so every round figure is the TOP of its band and
+    // `stepAmount`'s `income <= upTo` is the table read as printed. A model that
+    // stores the left column as a threshold pays one band too little at each of
+    // the six — $212 a child at exactly $50,000, which is the largest.
+    childIncomeTaxCredit: {
+      name: 'New Mexico child income tax credit (§ 7-2-18.34)',
+      steps: [
+        { upTo: 25_000, amount: 637 },
+        { upTo: 50_000, amount: 424 },
+        { upTo: 75_000, amount: 212 },
+        { upTo: 100_000, amount: 106 },
+        { upTo: 200_000, amount: 79 },
+        { upTo: 350_000, amount: 53 },
+        { upTo: Infinity, amount: 26 },
+      ],
+      // § 152(c)(3)(A): under 19 at the close of the calendar year. The student
+      // and permanent-disability limbs of § 152(c)(3) are not reachable from
+      // the inputs here and the notes declare what that omits.
+      maxAge: 18,
+      // HALVED and not barred. § 7-2-18.34(F) and the PIT-RC instructions in
+      // terms: "Married individuals filing separate returns for a taxable year
+      // for which they could have filed a joint return may each claim only
+      // one-half of the Child Income Tax Credit that would have been claimed on
+      // a joint return." New Jersey's field for the same shape BARS a separate
+      // filer, which is why this is a different parameter and not that one.
+      halvedFilingStatuses: ['marriedFilingSeparately'],
+      refundable: true,
+      cite:
+        'NMSA 1978 § 7-2-18.34, and Table 4 of the 2025 PIT-RC instructions at page RC-11, ' +
+        'read from the Taxation and Revenue Department\'s own 2025 PIT packet: a REFUNDABLE ' +
+        'credit per qualifying child, $637 where federal AGI from PIT-1 line 9 is $25,000 or ' +
+        'less, then $424 to $50,000, $212 to $75,000, $106 to $100,000, $79 to $200,000, $53 ' +
+        'to $350,000 and $26 above. THE SECOND COLUMN OF THE PRINTED TABLE IS HEADED "BUT NOT ' +
+        'OVER", so each round figure is the top of its band: a model storing the left column ' +
+        'as a lower bound pays $424 instead of $637 at exactly $25,000 and $212 instead of ' +
+        '$424 at $50,000. A negative AGI takes the first row, which the worksheet says in ' +
+        'terms. The credit runs for taxable years beginning on or after 1 January 2023 and ' +
+        'before 1 January 2032 for a resident who is not a dependent of another individual. ' +
+        'A married individual filing separately claims ONE-HALF of what a joint return would ' +
+        'have claimed, which is a HALVING and not the bar New Jersey applies to the same ' +
+        'shape. "Qualifying child" is § 152(c)\'s by § 7-2-18.34(J)(2), EXPANDED by the ' +
+        'instructions to include a minor child or stepchild who would qualify if public ' +
+        'assistance supporting them were treated as the taxpayer\'s — and § 152(c) carries NO ' +
+        'identification-number requirement where § 32(m) does, so a child with an ITIN is a ' +
+        'qualifying child here and is not one for the federal earned income credit. The ' +
+        'independent reference model counts `eitc_child_count` for this credit and so denies ' +
+        'the whole $637 a child to such a family. THE AMOUNTS ARE THE ONLY INDEXED FIGURES IN ' +
+        'THE NEW MEXICO INCOME TAX, adjusted annually under subsection (D): $600/$400/$200/' +
+        '$100/$75/$50/$25 for 2023, $622/$414/$207/$103/$77/$51/$25 for 2024, and the 2025 ' +
+        'figures above.',
+    },
     // § 7-2-18.15 — 25% of the federal § 32 credit, refundable, raised from 20%
     // for tax year 2023. The base is this year's federal credit and not a frozen
     // Code, so a match is the whole of the rule.
@@ -648,6 +765,7 @@ export function newMexico(year: number): StateIncomeTaxDefinition | undefined {
       refundable: true,
     },
     notes: [
+      ...(year === 2026 ? [PROVISIONAL_2026] : []),
       "NEW MEXICO'S $4,000 DEPENDENT DEDUCTION PAYS NOTHING FOR AN ONLY CHILD, AND EVERY PUBLISHED ACCOUNT OF IT OVERSTATES IT BY EXACTLY $4,000 FOR EVERY FAMILY OF EVERY SIZE. NMSA 1978 § 7-2-39 allows the deduction \"for each dependent in excess of one\": one child is $0, two are $4,000, four are $12,000. A model that pays $4,000 a dependent understates New Mexico tax by $172.00 in the 4.3% band, $188.00 at 4.7%, $196.00 at 4.9% and $236.00 at 5.9%, at every family size — which is the Arkansas property, a single number a buyer can check against one household and then trust for all of them. The design is legible once the count is right: HB 6 of 2019 created the deduction to offset the federal personal exemption that the Tax Cuts and Jobs Act set to zero, and New Mexico's deduction IS the federal standard deduction, which that Act had nearly doubled. The first dependent is the one the larger standard deduction was taken to cover.",
       'A NEW MEXICO HEAD OF HOUSEHOLD IS TAXED ON THE MARRIED-COUPLE SCHEDULE, AND SO IS A SURVIVING SPOUSE. NMSA 1978 § 7-2-7 writes THREE schedules and not five: one for married individuals filing separately, one for single individuals, and one for married individuals filing joint returns, SURVIVING SPOUSES AND HEADS OF HOUSEHOLD. The Department\'s own rate table prints the joint column with the note that it "must also be used by surviving spouse" and gives head of household the same figures. A model that defaults a head of household to the single column overcharges by $202.00 at $66,500 of net taxable income, $269.00 from $100,000 to $210,000 and A FLAT $1,319.00 AT EVERY NET TAXABLE INCOME ABOVE $315,000 — the jump being the single column\'s 5.9% band opening $105,000 earlier than the joint one. The separate schedule is exactly half the joint one at every threshold, which test/new-mexico.test.js asserts.',
       "NEW MEXICO'S SOCIAL SECURITY EXEMPTION IS A CLIFF AND IT IS IN FORCE. § 7-2-5.14 exempts the whole federally taxable benefit where federal AGI does not exceed $100,000 single, $150,000 joint, head of household or surviving spouse, or $75,000 married filing separately — with NO taper. A couple with $60,000 of federally taxable benefit pays nothing on it at $150,000 of AGI and $2,855.65 at $150,001; with $85,000 of benefit it is $3,961.85, and a single filer with $40,000 of benefit pays $1,914.85 for one dollar above $100,000. It is the largest LIVE discontinuity this package carries on a Social Security threshold, and test/new-mexico.test.js measures that over every state here rather than asserting it: Kansas charged $2,845.80 on the same shape at $75,000 and repealed it for tax year 2024, and Connecticut's surviving threshold is $405 for a couple with $40,000 of benefits. It is not the largest discontinuity in this package — Maryland's capital-gains surtax tests federal AGI against $350,000 rather than taking an excess, and one dollar there can cost $6,933.08.",
@@ -660,7 +778,10 @@ export function newMexico(year: number): StateIncomeTaxDefinition | undefined {
       "NEW MEXICO'S DEDUCTION IS THE FEDERAL ONE, SO THE ONE BIG BEAUTIFUL BILL ACT CUT NEW MEXICO TAX WITH NO NEW MEXICO LEGISLATION. PIT-1 line 12 is \"Federal standard or itemized deduction amount (from federal Form 1040, line 12)\" and the state legislates no deduction of its own and no personal exemption at all. A single New Mexican's deduction was $15,000 under the pre-Act schedule and is $15,750 for 2025 and $16,100 for 2026; a joint return's is $32,200 for 2026. At 4.9% the 2026 increase alone is worth $53.90 single and $107.80 joint against the figures a model built before July 2025 carries. AND THE § 63(f) ADDITION FOR AGE AND BLINDNESS REACHES A NEW MEXICO RETURN TOO, because line 12 is the deduction the filer ACTUALLY TOOK: $2,050 for a single filer 65 or over in 2026, $1,650 each on a joint return. That is Missouri's answer and not Arizona's — Arizona's statute sets its deduction equal to the federal standard AMOUNT in a flat table, so the addition does not reach an Arizona return, and this package was wrong about Arizona for 47 days for exactly that reason. A NEW MEXICO RETIREE THEREFORE COLLECTS AN AGE ALLOWANCE TWICE, once inside line 12 and again under § 7-2-5.2, which is a fact about two provisions rather than a double-count here.",
       'NEW MEXICO TAXES TIPS AND OVERTIME THAT THE FEDERAL GOVERNMENT NOW EXEMPTS. PIT-1 line 9 is federal adjusted gross income and all four OBBBA Schedule 1-A deductions — § 224 tips, § 225 overtime, § 151(d)(5) senior and § 163(h)(4) vehicle loan interest — sit BELOW it, so none of them reaches the New Mexico base and New Mexico has legislated no subtraction of its own for any of them. A tipped New Mexico worker with $8,000 of qualified tips and $50,000 of AGI pays $345.60 of state tax on income the federal return exempted entirely — measured, because the $8,000 straddles the 4.3% and 4.7% bands — rising to $472.00 where the dollars fall wholly in the 5.9% band. The senior deduction is the sharpest of the four here, because New Mexico already has two age allowances of its own and this third one does not arrive.',
       "THE 40% CAPITAL GAINS DEDUCTION IS GONE FOR EVERYBODY WHO DID NOT SELL A NEW MEXICO BUSINESS. § 7-2-34 allowed the greater of $1,000 or 40% of net capital gain through tax year 2024; HB 252 of 2024 restricted the 40% element to the gain from the sale of a New Mexico business and raised the flat element to $2,500, from tax year 2025. So the deduction an ordinary filer gets is min(net capital gain, $2,500), worth $122.50 at 4.9%, against $9,800 on a $200,000 gain under the repealed percentage. Several published accounts of this state still describe the 40% deduction as current for everybody, which understates the tax on that gain by $4,011.50: a single New Mexican with a $200,000 long-term gain and $250,000 of AGI owes $11,010.60 for 2026 and $6,999.10 under the repealed 40%, because the $77,500 of difference comes out of the 5.9% and 4.9% bands. THE BUSINESS-SALE ELEMENT IS NOT MODELLED — no field here records what was sold or where — so a New Mexico answer computed here is too HIGH for such a seller.",
-      "NOT MODELLED — THE CHILD INCOME TAX CREDIT, WHICH IS THE LARGEST OMISSION IN THIS STATE AND THE ONLY INDEXED FIGURE IN THE NEW MEXICO INCOME TAX. § 7-2-18.34 gives a REFUNDABLE per-child credit banded on adjusted gross income: $637 a child up to $25,000 of AGI for 2025, then $424, $212, $106, $79, $53 and $26 at $25,000, $50,000, $75,001, $100,000, $200,000 and $350,000, halved on a married-filing-separate return, with the amounts adjusted for inflation annually under subsection (D) and the qualifying child defined by IRC § 152(c) WITHOUT the federal earned income credit's identification-number requirement — so a child with an ITIN counts. A New Mexico family of two children on $40,000 of AGI is computed here $424.00 too HIGH for 2025, and the shape does not fit any credit rule in this package: the bands are read against AGI rather than taxable income, the age test is § 152(c)'s rather than a single maximum, and the separate column is halved. Supply it yourself; nothing in this package can accept one.",
+      "THE CHILD INCOME TAX CREDIT IS MODELLED FROM THE DEPARTMENT'S OWN TABLE, AND THE BAND EDGES ARE THE PART A MODEL GETS WRONG. § 7-2-18.34 pays a REFUNDABLE credit per qualifying child, read against federal AGI from PIT-1 line 9: $637 to $25,000, then $424, $212, $106, $79, $53 and $26, halved on a married-filing-separate return. TABLE 4 ON PAGE RC-11 OF THE 2025 PIT-RC INSTRUCTIONS PRINTS THE BANDS WITH A \"BUT NOT OVER\" COLUMN — $0–25,000, 25,001–50,000, 50,001–75,000, 75,001–100,000, 100,001–200,000, 200,001–350,000, 350,001 and over — so every round figure is the TOP of its band and the next band opens one dollar later. A model that stores the left column as a lower bound pays one band too little at all six edges: $424 instead of $637 at exactly $25,000 and $212 instead of $424 at $50,000, which is a quarter of the credit. The six cliffs are $213, $212, $106, $27, $26 and $27 a child, every one measured. The independent reference model stores the left column and corrects with a right=True scale lookup, which is right at five edges and wrong at the sixth, because its own threshold is written 75,001 where the other five are round: a filer at exactly $75,001 of AGI is paid $212 there where the table says $106. The credit runs for taxable years beginning on or after 1 January 2023 and before 1 January 2032 for a resident who is not a dependent of another individual, and the amounts are THE ONLY INDEXED FIGURES IN THE NEW MEXICO INCOME TAX — so 2026 carries 2025's figures forward and says so.",
+      "§ 152(c) IS NOT § 32'S QUALIFYING CHILD, AND THE DIFFERENCE IS AN ITIN. § 7-2-18.34(J)(2) defines \"qualifying child\" as IRC § 152(c)'s, and the 2025 PIT-RC instructions print the definition in full and EXPAND it — it \"includes any minor child or stepchild of the taxpayer who would be a qualifying child for federal income tax purposes if the public assistance contributing to the support of the child or stepchild was considered to have been contributed by the taxpayer\". § 152(c) CARRIES NO IDENTIFICATION-NUMBER REQUIREMENT; § 32(m) does, denying the federal earned income credit without a Social Security number valid for work. So a New Mexico child with an ITIN is a qualifying child for this credit and is not one for the federal credit, and the independent reference model counts eitc_child_count here — its own comment says \"IRC 152(c) refers to the EITC qualifying children\", which is the conflation. That model therefore denies the WHOLE $637 a child to such a family. WHAT THIS PACKAGE CANNOT SEE IS THE OTHER TWO LIMBS OF § 152(c)(3): a STUDENT under 24 and a permanently and totally disabled child of ANY age both qualify, and only the under-19 test is applied here, so a family with either is understated by the whole per-child amount and its New Mexico tax overstated. The obstacle is the input and not the statute — nothing here records that a dependent is a student or disabled. Supply the amount yourself through `subtractions` as a negative, or read `credits` and add to it. AND WITH NO `dependentAges` THE CREDIT IS ZERO, deliberately: a count of dependents does not say they are children, and guessing the generous way would turn a missing input into a refundable credit.",
+      "NEW MEXICO'S OWN RATE TABLE COMPUTES $2.00 LESS THAN NEW MEXICO'S OWN RATE SCHEDULE, AT EVERY TAXABLE INCOME ABOVE $100,000, FOREVER — AND THIS PACKAGE COMPUTES THE SCHEDULE. The 2025 TAX RATE TABLE on pages T-1 to T-6 of the PIT packet is a $100-WIDE MIDPOINT table: the row for $99,900–$100,000 prints $4,356 for a single filer, which is the exact § 7-2-7 tax at $99,950 rounded to the dollar, and the exact tax at $100,000 is $4,358.00. The continuation table for incomes over $100,000 then uses the MIDPOINT FIGURE as its base — \"Single, not over $210,000: your tax is $4,356 plus 4.9% of taxable income in excess of $100,000\" — so the Department's prescribed computation sits $2.00 below the statutory schedule at every income above the breakpoint and never converges, because both run at the same marginal rates from there. It is $2.00 for a single filer, a joint return and a head of household ($4,087 printed against $4,089.00 exact) and $2.50 for a married filer filing separately ($4,492 against $4,494.50). THIS PACKAGE RETURNS THE SCHEDULE because § 7-2-7 is the law and the table is an aid the Department publishes, so a New Mexico answer here is $2.00 ABOVE what the form a filer actually submits will show. BELOW $100,000 the table is a midpoint table too, so a filed return differs from the schedule by up to about $2.45 either way — half a $100 band at 4.9% — depending where in its row the income falls. test/new-mexico.test.js pins the four printed bases, the midpoint derivation and the constancy of the gap. It is the only figure in this package measured against a STATE FORM rather than against a statute or another model.",
+      "THE 2025 PIT PACKET WAS READ, WHICH IS THE FIRST PRIMARY NEW MEXICO DOCUMENT THIS PACKAGE HAS OPENED, AND IT SETTLED FOUR THINGS THAT HAD BEEN INFERENCES. Seventeen consecutive runs recorded every New Mexico host as unreachable and they still are — tax.newmexico.gov, realfile.tax.newmexico.gov, nmlegis.gov, nmonesource.com and law.justia.com all fail to resolve — but the file host the Department serves its own packet from does not. (1) THE LINE 13 WORKSHEET SAYS \"Subtract 1 from total dependents\" in terms, so the $4,000 dependent deduction paying nothing for an only child is now a reading of the Department's own worksheet and not of three secondary records. (2) THE LINE 5 WORKSHEET COUNTS THE SPOUSE ONLY \"if married filing jointly\", which settles whether a separate return may count the IRC § 151(b) spouse among its \"federal exemptions\" for § 7-2-5.8: it may not, which is what this package already computed. (3) LINE 13'S INSTRUCTION NAMES \"a head of household or married filing jointly\" AND NOT A SURVIVING SPOUSE, while LINE 14 on the facing page names \"married filing jointly, surviving spouse, or head of household\" — two instructions a page apart, one grouping her in and the other leaving her out, which is the strongest evidence available for the literal reading that gives her no dependent deduction. (4) PIT-ADJ TABLE 2 PRINTS THE UNINDEXED SOCIAL SECURITY THRESHOLDS of $100,000, $75,000 and $150,000, against the published 2026 guide that asserts HB 249's indexation passed. The PIT-TRT pages also print the joint column with the footnote \"This column must also be used by surviving spouse\" and give head of household the same figures.",
       "NOT MODELLED — THE LOW INCOME COMPREHENSIVE TAX REBATE of § 7-2-14, which is refundable and reaches further down the income distribution than anything else in the state. It is a table of about 120 indexed amounts — six columns by number of exemptions, twenty income steps each, every cell adjusted annually — and no 2026 figures for it are available from this sandbox. A low-income New Mexico return computed here is therefore too HIGH by up to roughly $252 for a one-exemption household and more for a larger one. Two further refundable items are also absent: the child day care credit of § 7-2-18.1, which needs a figure no input here carries, and the property tax rebate for a filer 65 or over, which needs property tax paid and a county.",
       "A SURVIVING SPOUSE GETS THE JOINT RATE SCHEDULE AND NO DEPENDENT DEDUCTION, AND THE SECOND HALF IS THE CONTESTABLE READING. New Mexico's PIT-1 carries five filing-status boxes including \"Surviving Spouse with dependent child\"; § 7-2-7 sends her to the married-filing-jointly schedule by name; and § 7-2-39 allows its $4,000 to a return filed \"as a head of household or married filing jointly\" and names no other status. This package takes the literal reading, which is also the independent reference model's, and the cost of being wrong is $4,000 of deduction on a widow with two children: $188.00 of tax on $90,000 of AGI, measured, and $172.00 to $236.00 elsewhere depending on the band the deduction comes out of. The reading that cannot be settled from this sandbox is whether a New Mexico surviving spouse \"files a return as ... married filing jointly\" for the purposes of § 7-2-39 when the state gives her a box of her own; the 2025 PIT-1 instructions group the three statuses together in several other places, which is the best argument for the other side. If the other reading is right, add $4,000 per dependent after the first through `subtractions` for a widow.",
       'THE ARMED FORCES RETIREMENT PAY EXEMPTION IS SCHEDULED TO END AFTER TAX YEAR 2026, AND THE INDEPENDENT REFERENCE MODEL DOES NOT KNOW IT. § 7-2-5.13 exempts $30,000 per military retiree and per surviving spouse of one, with no age test, no income test and no cap beyond the figure — $10,000 for 2022, $20,000 for 2023, $30,000 from 2024 — and the enacted provision runs through tax year 2026 only. SB 56 and SB 125 of 2024 would have removed the sunset and HB 221 of 2026 would have made the exemption total; none is recorded here as enacted. BOTH YEARS THIS MODULE COVERS ARE INSIDE THE WINDOW, so the sunset changes no answer here, and it is written down because it changes one in 2027: policyengine-us 2.87.0 carries the $30,000 from 2024-01-01 with no end date and so exempts the pay indefinitely, which would understate a 2027 New Mexico return by up to $1,770.00 at 5.9%.',

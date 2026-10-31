@@ -7,6 +7,10 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.59.0: **NEW MEXICO'S REFUNDABLE CHILD INCOME TAX CREDIT, READ OFF THE DEPARTMENT'S OWN TABLE 4 — AND THE BAND EDGES ARE WHAT A MODEL GETS WRONG.** NMSA 1978 § 7-2-18.34 pays `$637` a qualifying child up to `$25,000` of federal AGI, then `$424`, `$212`, `$106`, `$79`, `$53` and `$26`. The printed table's second column is headed **"But Not Over"**, so `$25,000` is the TOP of the `$637` band and the `$424` band opens at `$25,001` — which makes a model that stores the left column as a threshold **one band too stingy at all six edges**: `$424` instead of `$637` at exactly `$25,000`, and `$212` instead of `$424` at `$50,000`, a quarter of the credit on one dollar of income. The six cliffs are **`$213`, `$212`, `$106`, `$27`, `$26` and `$27`** a child, every one measured. It is **refundable**, so a New Mexico family of two children on `$20,000` of wages is paid **`$1,274`** by this credit and `$2,774` in all — and this package computed that household `$1,274` too high until today. It is **halved** on a separate return rather than barred, the opposite of New Jersey's credit of the same shape. And the qualifying child is IRC § 152(c)'s **without § 32(m)'s identification-number requirement**, so a child with an ITIN counts here and not for the federal earned income credit — the leading open model counts EITC children and so denies the whole `$637` a child to such a family.
+
+Also new in 0.59.0: **NEW MEXICO'S OWN RATE TABLE COMPUTES `$2.00` LESS THAN NEW MEXICO'S OWN RATE SCHEDULE, AT EVERY TAXABLE INCOME ABOVE `$100,000`, FOREVER.** The 2025 TAX RATE TABLE is a `$100`-wide **midpoint** table — its `$99,900`–`$100,000` row prints `$4,356` for a single filer, the exact § 7-2-7 tax at `$99,950` rounded — and the continuation table for higher incomes uses **that** figure as its base, where the exact tax at `$100,000` is `$4,358.00`. So the Department's prescribed computation sits `$2.00` below the statutory schedule above the breakpoint and never converges; `$2.50` for a married filer filing separately. This package returns the **schedule**, because § 7-2-7 is the law, and says so. It is the only figure here measured against a state **form** rather than against a statute or another model — and it was found by reading the first primary New Mexico document this project has ever opened, the Department's own 2025 PIT packet, which also settled the § 151(b) separate-return spouse, the dependent deduction's "subtract 1" worksheet step and the unindexed Social Security thresholds.
+
 New in 0.58.0: **NEW MEXICO, WHERE THE `$4,000` DEPENDENT DEDUCTION PAYS NOTHING FOR AN ONLY CHILD.** The thirty-third taxing state, 42 in all, nine jurisdictions left. Six brackets — **1.5%**, **3.2%**, **4.3%**, **4.7%**, **4.9%** and **5.9%** — under NMSA 1978 § 7-2-7 as HB 252 of 2024 rewrote it, on a base of federal AGI.
 
 **§ 7-2-39 allows the deduction "for each dependent IN EXCESS OF ONE", and every published account of it stops one clause early.**
@@ -820,7 +824,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.58.0/us-state-tax-0.58.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.59.0/us-state-tax-0.59.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3015,7 +3019,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 2,048 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 2,074 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -3048,11 +3052,11 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **906** notes every
+`test/notes.test.js` pins the first 72 characters of all **913** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
-exactly which notes 2026 has that 2025 does not — fourteen states, twenty-three notes, each
+exactly which notes 2026 has that 2025 does not — fifteen states, twenty-four notes, each
 a statement about the law a reader can check — because **a year branch is a selector,
 and a selector is caught by an assertion on the relation between its branches, not by
 a household sitting between them.**
@@ -3073,8 +3077,8 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 6,910 numeric
-figures over 84 state-years, against 616 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 6,940 numeric
+figures over 84 state-years, against 618 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3120,14 +3124,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 3,438 figures of tax year
+The `kind` field answers one operational question. Over the 3,453 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **2,302** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **2,310** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **981** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **988** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -3212,7 +3216,7 @@ tax on large long-term capital gains, which this package does not compute and sa
 
 ## What this does not do
 
-State tax is deep and this is version 0.58.0. Stated loudly, because a tax library that
+State tax is deep and this is version 0.59.0. Stated loudly, because a tax library that
 hides its gaps is worse than useless:
 
 - **33 of the 42 taxing jurisdictions, so 42 states in all.** The nine that are
@@ -3368,7 +3372,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **1,137 tests**. Turning it on, when there were 618 of them, is what
+from all **1,144 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

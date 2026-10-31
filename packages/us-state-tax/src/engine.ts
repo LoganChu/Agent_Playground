@@ -2223,6 +2223,42 @@ function steppedChildCredit(
   return step.amount * children;
 }
 
+/**
+ * New Mexico's refundable child income tax credit, § 7-2-18.34.
+ *
+ * Three things separate it from `steppedChildCredit`, which it otherwise looks
+ * exactly like: the bands are read against FEDERAL AGI and not state taxable
+ * income, a separate filer gets HALF rather than nothing, and the age test is
+ * § 152(c)(3)(A)'s.
+ *
+ * The step lookup is `upTo`-inclusive, which is Table 4 of the PIT-RC
+ * instructions read as printed — its right-hand column is headed "But Not
+ * Over", so every round figure is the TOP of its band. See
+ * {@link ChildIncomeTaxCreditRule} for what a model that stores the left column
+ * instead pays at each boundary.
+ */
+function childIncomeTaxCredit(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  agi: number,
+): number {
+  const rule = def.childIncomeTaxCredit;
+  if (!rule) return 0;
+  const ages = input.dependentAges;
+  // NO AGE, NO CREDIT, and that is the same decision `steppedChildCredit`
+  // makes. `dependents` alone cannot be used: § 152(c)(3)(A) tests age, and a
+  // caller who supplies a count without ages has not said whether the
+  // dependents are children. Paying for them anyway would turn a missing input
+  // into a refundable credit, which is the one direction an estimator must not
+  // guess in. The state's notes say so and name the field.
+  if (ages === undefined) return 0;
+  const children = ages.filter((a) => a <= rule.maxAge).length;
+  if (children === 0) return 0;
+  const perChild = stepAmount(rule.steps, agi);
+  const credit = perChild * children;
+  return rule.halvedFilingStatuses.includes(input.filingStatus) ? credit / 2 : credit;
+}
+
 /** Property tax paid, counting a tenant's rent at the statutory fraction. */
 function qualifyingPropertyTax(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
   const rule = def.propertyTaxRelief;
@@ -4122,6 +4158,16 @@ function computeOnce(
       name: def.steppedChildCredit.name,
       amount: steppedChildCredit(def, input, taxableIncome),
       refundable: def.steppedChildCredit.refundable,
+    });
+  }
+  if (def.childIncomeTaxCredit) {
+    credits.push({
+      name: def.childIncomeTaxCredit.name,
+      // FEDERAL AGI and not `taxableIncome`, which is the line above it and the
+      // mistake this rule exists to make impossible. Table 4 is read against
+      // "Adjusted Gross Income from PIT-1, Line 9".
+      amount: childIncomeTaxCredit(def, input, measures.federalAdjustedGrossIncome),
+      refundable: def.childIncomeTaxCredit.refundable,
     });
   }
   if (def.agedCredit) {

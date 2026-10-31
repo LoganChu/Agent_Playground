@@ -213,7 +213,31 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // 1,018-test suite on four cores is about fifteen hours. The two numbers are
   // allowed to differ and `check-scores.mjs` is what fails while they do; this
   // assertion's job is to say what the TREE holds, so it tracks the tree.
-  assert.equal(mutants.length, 2_530, 'mutants the enumerator finds in the current tree');
+  // 2,547 ON DAY 68, up 17 from Day 67's 2,530, and all 17 are in one file:
+  // New Mexico's child income tax credit. THE SPLIT IS NOT THE ONE A READER
+  // WOULD GUESS, which is why it is written out here:
+  //
+  //   6   band edges              25,000 / 50,000 / 75,000 / 100,000 / 200,000 / 350,000
+  //   4   per-child amounts       637 / 424 / 212 / 106
+  //   7   `carriedForwardFrom`    2025, once per provisionalFigures entry
+  //
+  // The other FOUR figures of the rule — $79, $53, $26 and the `maxAge` of 18 —
+  // are all below the enumerator's money floor, so the audit cannot perturb
+  // them and they are declared in `blind-spots.mjs`. The three smallest bands of
+  // a credit are exactly the figures a mutation score is blind to, and the
+  // SEVEN mutants this rule contributes to the `year` kind are not parameters of
+  // the tax at all: they are the carry-forward flags that say the amounts are
+  // unpublished.
+  assert.equal(mutants.length, 2_547, 'mutants the enumerator finds in the current tree');
+  // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
+  // Kansas anchors above are: the newest rule in the package is where the
+  // enumerator's reach is least established.
+  assert.equal(
+    mutants.filter((m) => m.rel === 'states/new-mexico.js').length,
+    86,
+    'New Mexico after the child income tax credit, up from 69 on Day 67 — six band edges, ' +
+      'four per-child amounts above the money floor, and seven carriedForwardFrom: 2025 flags',
+  );
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
   assert.deepEqual(at('states/ohio.js', 88), {
@@ -550,5 +574,5 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // is indexed. No New Mexico rule chooses a name, a row or an amount by the
   // year, and the one figure that would (§ 7-2-18.34's child credit) is the one
   // this package does not model.
-  assert.deepEqual(byKind, { money: 1_753, rate: 483, year: 294 });
+  assert.deepEqual(byKind, { money: 1_763, rate: 483, year: 301 });
 });

@@ -571,6 +571,19 @@ export const DRIVERS = {
     statuses: ['marriedFilingJointly'],
     input: (value, state, year, status) => wages(value, state, year, status, { dependentAges: [2, 4] }),
   },
+  // New Mexico's child income tax credit, NMSA 1978 § 7-2-18.34 — banded on
+  // FEDERAL AGI rather than on state taxable income, which is the whole reason
+  // it is a different rule from New Jersey's two entries above. So the probe is
+  // the same `wages` driver and the band it lands in is the probe value itself,
+  // with no deduction in between.
+  //
+  // TWO CHILDREN, both well under 19, so the per-child multiplier is exercised
+  // rather than assumed: a one-child probe would pass against a rule that paid
+  // the band amount once per return.
+  'childIncomeTaxCredit.steps': {
+    statuses: ['marriedFilingJointly'],
+    input: (value, state, year, status) => wages(value, state, year, status, { dependentAges: [7, 11] }),
+  },
   // New Jersey's retirement exclusion tiers, N.J.S.A. 54A:6-15, banded on gross
   // income — the wall that costs a joint retiree $1,381 on one dollar. The probe
   // puts 30% of the income in a pension and the rest in wages, for two reasons:

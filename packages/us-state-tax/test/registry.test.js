@@ -101,10 +101,11 @@ test('an unsupported state names what is missing rather than returning zero', ()
   // DAY 67; Nebraska is the stand-in now, and it is the largest uncovered
   // jurisdiction left at 2,018,006 — a figure Day 64 checked against Census
   // Vintage 2025, which is why the stand-in could move without a lookup today.
-  // IT IS ALSO THE LAST ENTRY THIS LIST CAN NAME WITH CONFIDENCE: the eight
-  // names below Nebraska are in no order at all and `UNCOVERED_TAXING_JURISDICTIONS`
-  // says so in terms, so the NEXT move of this stand-in needs one lookup against
-  // census.gov from a machine that can reach it.
+  // AND SINCE DAY 68 IT IS NO LONGER THE LAST ENTRY THE LIST CAN NAME WITH
+  // CONFIDENCE: all nine are now ordered against checked Vintage 2025 figures,
+  // so the next move of this stand-in is West Virginia at 1,766,147 and needs no
+  // lookup. The test below asserts the order rather than trusting the comment
+  // that claims it, which is the whole of what Day 64 found wrong here.
   assert.match(gaps, /Nebraska/);
   // Compared as whole list ITEMS and not as substrings, which is the Day 37
   // citation rule in a second place: `/Virginia/` matched this message for a
@@ -163,6 +164,72 @@ test('the list of uncovered jurisdictions cannot name a state this package cover
   for (const name of UNCOVERED_TAXING_JURISDICTIONS) {
     assert.match(getMissingStatesMessage(), new RegExp(name));
   }
+});
+
+test('the uncovered jurisdictions are ordered largest first, against the figures', () => {
+  // THE COMMENT ON THAT LIST HAS CLAIMED "LARGEST FIRST" SINCE DAY 59 AND
+  // NOTHING HAS EVER CHECKED IT. Day 61 left West Virginia tenth on a list
+  // described as ordered, below five jurisdictions every one of which is
+  // smaller than it; Day 64 measured three entries and made the SENTENCE less
+  // true rather than more, because it was then a measured claim with eight
+  // unmeasured entries inside its scope; and Day 68 found the committed tail
+  // wrong in exactly one place, Vermont above the District of Columbia.
+  //
+  // > **A LIST'S ORDER IS A CLAIM ABOUT A FUNCTION OF ITS ENTRIES, SO IT NEEDS
+  // > THE VALUES WRITTEN DOWN BESIDE IT OR IT IS NOT CHECKABLE AT ALL.** Eight
+  // > days of "largest first" cost nothing to write and could not be falsified
+  // > by any test, because the population figures existed nowhere in the
+  // > repository. They are here now, which is the only reason this test can
+  // > exist.
+  //
+  // Census Bureau Vintage 2025 population estimates, read off QuickFacts —
+  // `census.gov` does not resolve from the sandbox this package is built in, so
+  // these are the figures the module comment cites and not a second source.
+  // Kansas's 2,977,220 and New Mexico's 2,125,498 were checked on Day 64 and
+  // are omitted here because both states are now covered.
+  const VINTAGE_2025 = new Map([
+    ['Nebraska', 2_018_006],
+    ['West Virginia', 1_766_147],
+    ['Hawaii', 1_432_820],
+    ['Maine', 1_414_874],
+    ['Montana', 1_144_694],
+    ['Rhode Island', 1_114_521],
+    ['Delaware', 1_059_952],
+    ['the District of Columbia', 693_645],
+    ['Vermont', 644_663],
+  ]);
+
+  // EVERY NAME NEEDS A FIGURE AND EVERY FIGURE A NAME, asserted both ways. A
+  // one-directional check would let the next state to ship leave a stale figure
+  // behind here, which is the same drift the declared list was created to stop.
+  assert.deepEqual(
+    [...UNCOVERED_TAXING_JURISDICTIONS].sort(),
+    [...VINTAGE_2025.keys()].sort(),
+    'a jurisdiction in the list has no population figure, or a figure has no jurisdiction',
+  );
+
+  const sizes = UNCOVERED_TAXING_JURISDICTIONS.map((name) => VINTAGE_2025.get(name));
+  for (let i = 1; i < sizes.length; i += 1) {
+    assert.ok(
+      sizes[i - 1] > sizes[i],
+      `${UNCOVERED_TAXING_JURISDICTIONS[i - 1]} (${sizes[i - 1]}) is listed above ` +
+        `${UNCOVERED_TAXING_JURISDICTIONS[i]} (${sizes[i]}) and is smaller`,
+    );
+  }
+
+  // The pair that was wrong, pinned by name and by the gap, because a sorted
+  // check passes for the whole list and says nothing about the one place it
+  // actually failed. 48,982 apart — wide enough that the swap was not a
+  // rounding question about which estimate to use.
+  assert.ok(
+    UNCOVERED_TAXING_JURISDICTIONS.indexOf('the District of Columbia') <
+      UNCOVERED_TAXING_JURISDICTIONS.indexOf('Vermont'),
+  );
+  assert.equal(VINTAGE_2025.get('the District of Columbia') - VINTAGE_2025.get('Vermont'), 48_982);
+
+  // Nebraska is the next state to add, and this is the figure a worklist reads.
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS[0], 'Nebraska');
+  assert.equal(UNCOVERED_TAXING_JURISDICTIONS[1], 'West Virginia');
 });
 
 test('every state computes for every filing status without throwing', () => {
@@ -254,7 +321,7 @@ test('every provisional state-year says so in its first note', () => {
   }
 });
 
-test('2025 has no provisional state and 2026 has eleven', () => {
+test('2025 has no provisional state and 2026 has twelve', () => {
   const count = (year) =>
     SUPPORTED_STATES.filter((s) => getStateDefinition(s, year).status === 'provisional').length;
   // Everything published for 2025; for 2026 the states whose indexed figures had
@@ -314,11 +381,18 @@ test('2025 has no provisional state and 2026 has eleven', () => {
   // neither has appeared. No other state-year here divides so exactly along the
   // line between what a legislature writes and what an agency publishes.
   assert.equal(count(2025), 0);
-  assert.equal(count(2026), 11);
+  // TWELVE SINCE DAY 68, AND NEW MEXICO IS THE FIRST STATE TO JOIN THIS LIST
+  // RATHER THAN LEAVE IT. Every previous movement has been a debt paid —
+  // Illinois, Kentucky, Maryland. New Mexico moved the other way without a
+  // single New Mexico figure changing: § 7-2-18.34's child income tax credit
+  // was modelled, and its seven per-child amounts are the only indexed figures
+  // in the state. A `published` 2026 column had been true only because the one
+  // figure that moves was not computed.
+  assert.equal(count(2026), 12);
   const provisional2026 = SUPPORTED_STATES.filter(
     (s) => getStateDefinition(s, 2026).status === 'provisional',
   );
-  assert.deepEqual(provisional2026, ['AR', 'CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  assert.deepEqual(provisional2026, ['AR', 'CA', 'CO', 'ID', 'MI', 'MO', 'NM', 'OH', 'OR', 'SC', 'UT', 'WI']);
 });
 
 test('the package has no runtime dependencies', () => {

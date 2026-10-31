@@ -741,7 +741,20 @@ test('README: the provisional and published lists for 2026', () => {
   // instructions and neither of which has appeared for 2026. Nowhere else in
   // this list does the line between what a legislature writes and what an agency
   // publishes fall so exactly on the provisional flag.
-  assert.deepEqual(byStatus('provisional'), ['AR', 'CA', 'CO', 'ID', 'MI', 'MO', 'OH', 'OR', 'SC', 'UT', 'WI']);
+  // NEW MEXICO JOINS ON DAY 68 AND IT HAD BEEN IN THE OTHER LIST FOR A DAY,
+  // which is the first time a state has moved from `published` to
+  // `provisional` — every previous move has been a debt being paid. Nothing
+  // about New Mexico changed: the child income tax credit of § 7-2-18.34 was
+  // MODELLED, and its seven per-child amounts are the only indexed figures in
+  // the New Mexico income tax. So the state's 2026 column was `published` on
+  // Day 67 because the one figure that moves was not computed at all.
+  //
+  // > **A `published` FLAG IS A CLAIM ABOUT THE FIGURES A PACKAGE CARRIES AND
+  // > NOT ABOUT THE ONES THE STATE HAS.** It can be made true by modelling less,
+  // > which is the one direction a provenance flag must never be allowed to
+  // > improve in — and Day 67's own test asserted the absence of any provisional
+  // > figure as if it were a property of New Mexico.
+  assert.deepEqual(byStatus('provisional'), ['AR', 'CA', 'CO', 'ID', 'MI', 'MO', 'NM', 'OH', 'OR', 'SC', 'UT', 'WI']);
   const published = byStatus('published').filter((s) => !NO_INCOME_TAX_STATES.includes(s));
   // MINNESOTA joins the published list on arrival rather than by a debt being
   // paid, and it is the first state to do so: § 270C.22 subd. 1 requires the
@@ -793,7 +806,7 @@ test('README: the provisional and published lists for 2026', () => {
   // only unpublished 2026 figure is also the only figure this package does not
   // carry — and a reader who saw `published` beside a state with an indexed
   // credit would be right to ask.
-  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NM', 'NY', 'OK', 'PA', 'VA']);
+  assert.deepEqual(published, ['AL', 'AZ', 'CT', 'GA', 'IA', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'MN', 'MS', 'NC', 'ND', 'NJ', 'NY', 'OK', 'PA', 'VA']);
   assert.equal(SUPPORTED_STATES.filter((s) => getStateDefinition(s, 2025).status === 'provisional').length, 0);
 });
 
@@ -1805,11 +1818,15 @@ test('README: every count in the step-probe and notes sections', () => {
   // 2025, because its two years are two different laws rather than two sets of
   // figures.
   const yearOnly = notes.slice(notes.indexOf('const YEAR_ONLY_NOTES'), notes.indexOf('};', notes.indexOf('const YEAR_ONLY_NOTES')));
-  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 14, 'fourteen states in the README and in the table');
+  // NEW MEXICO IS THE FIFTEENTH, and it is the only entry here that arrived by
+  // a state becoming MORE provisional rather than less: its 2026-only note is
+  // the provisional lead that Day 68 gave it when the child income tax credit —
+  // the one indexed figure in the New Mexico income tax — was finally modelled.
+  assert.equal(yearOnly.match(/^\s{2}[A-Z]{2}:/gm).length, 15, 'fifteen states in the README and in the table');
   assert.equal(
     [...yearOnly.matchAll(/2026: (\d+)/g)].reduce((sum, [, n]) => sum + Number(n), 0),
-    23,
-    'twenty-three 2026-only notes in the README and in the table',
+    24,
+    'twenty-four 2026-only notes in the README and in the table',
   );
 
   // And the Ohio figures the section names, read out of the definition rather than
@@ -1966,6 +1983,10 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  // 0.59.0 has TWO paragraphs and the second is the one worth noting in a table
+  // of headlines: every other entry here is a STATE arriving, and this one is a
+  // state's own form disagreeing with its own statute.
+  ['0.59.0', /CHILD INCOME TAX CREDIT/],
   ['0.58.0', /\bNEW MEXICO\b/],
   ['0.57.0', /\bKANSAS\b/],
   ['0.56.0', /\bARKANSAS\b/],

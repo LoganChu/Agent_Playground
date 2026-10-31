@@ -123,6 +123,12 @@ const YEAR_ONLY_NOTES = {
   MI: { 2026: 1, 2025: 0 },
   MO: { 2026: 1, 2025: 0 },
   NJ: { 2026: 1, 2025: 0 },
+  // NEW MEXICO'S ONE 2026-ONLY NOTE IS THE PROVISIONAL LEAD, AND THE STATE WAS
+  // THE FIRST IN THIS PACKAGE TO SHIP WITH NO SUCH NOTE AT ALL. Day 67 added it
+  // with every figure published for both years, because the one indexed figure
+  // in the New Mexico income tax — § 7-2-18.34(D)'s child credit table — was
+  // not modelled. Day 68 modelled it, and the state joined this list.
+  NM: { 2026: 1, 2025: 0 },
   OH: { 2026: 2, 2025: 0 },
   // Oregon is the first state in this package with a note in 2025 and not in
   // 2026, and the asymmetry is the kicker: Or. Const. Art. IX § 14 returns the
@@ -172,7 +178,7 @@ test('the notes that differ between 2025 and 2026 are exactly the ones named her
   for (const state of Object.keys(YEAR_ONLY_NOTES)) {
     assert.ok(SUPPORTED_STATES.includes(state), `${state} is in the table and is not a supported state`);
   }
-  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 14, 'states whose notes depend on the year');
+  assert.equal(Object.keys(YEAR_ONLY_NOTES).length, 15, 'states whose notes depend on the year');
 });
 
 test('a provisional state-year says so in a note, and a published one does not', () => {

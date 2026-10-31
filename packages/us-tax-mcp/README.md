@@ -24,7 +24,7 @@ the IRS release or state statute it came from.
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.62.0/us-tax-mcp-0.62.0.tgz"
+        "https://github.com/LoganChu/Agent_Playground/releases/download/us-tax-mcp-v0.63.0/us-tax-mcp-0.63.0.tgz"
       ]
     }
   }
@@ -1042,12 +1042,16 @@ the other — worth `$612.50` to Columbus and saving `$306.25` from the district
 reads "Ohio local wage tax" as one thing gets one of the two wrong whichever way it guesses.
 
 Ten of the thirty-three taxing states cut their rate for 2026, so an unsupported year is an
-error rather than a fallback to the nearest one — and eleven of the 2026 state-years carry at
+error rather than a fallback to the nearest one — and twelve of the 2026 state-years carry at
 least one indexed figure forward from 2025, which every result says out loud. Illinois came
 off that list in 0.27.0, and Kentucky and Maryland in 0.28.0: Kentucky's 2026 standard
 deduction is `$3,360` and Maryland's is `$3,350` unchanged, both from the states' own 2026
 withholding documents. The provisional flag is a debt to be paid rather than a permanent
-disclaimer — except for Colorado, where it is neither. Each state-year now lists the
+disclaimer — except for Colorado, where it is neither, and except for NEW MEXICO, which joined
+the list in 0.63.0 by having MORE of its law modelled rather than less: § 7-2-18.34's child
+income tax credit is the only indexed figure in the New Mexico income tax, and while the credit
+was unmodelled the state's 2026 column was `published` because the one figure that moves was
+never computed. Each state-year now lists the
 individual figures at issue in `provisionalFigures`, saying which are waiting on a document
 somebody can go and read and which the law does not fix until the tax year closes. Colorado
 is the second kind: its 4.40% rate is an upper bound a TABOR surplus calculation can cut
@@ -1198,7 +1202,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **1,137 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **1,144 tests**, every state figure cited to its statute.
 This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the

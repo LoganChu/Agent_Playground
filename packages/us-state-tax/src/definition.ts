@@ -2664,6 +2664,108 @@ export interface SteppedChildCreditRule {
 }
 
 /**
+ * A refundable per-child credit read off a table of **federal AGI bands** —
+ * New Mexico's child income tax credit, NMSA 1978 § 7-2-18.34.
+ *
+ * ## Why it is not {@link SteppedChildCreditRule}
+ *
+ * New Jersey's stepped child credit looks identical from a distance and differs
+ * in all three of the things that decide an answer:
+ *
+ * | | New Jersey | New Mexico |
+ * | --- | --- | --- |
+ * | the steps are read against | state **taxable income** | federal **AGI** |
+ * | a separate filer gets | nothing at all | **half** the credit |
+ * | the age test is | under 6 | § 152(c)'s qualifying child |
+ *
+ * Reading the bands against taxable income rather than AGI is the error with
+ * reach: a New Mexico family of four at `$60,000` of AGI has about `$23,800` of
+ * New Mexico taxable income once the federal deduction and § 7-2-5.8's four
+ * exemptions come out, which is two bands up the table — `$637` a child instead
+ * of `$212`. **`$1,700` on two children, from reading the right table against
+ * the wrong income.**
+ *
+ * ## THE BAND EDGES BELONG TO THE BAND BELOW, AND THAT IS WHERE MODELS GO WRONG
+ *
+ * Table 4 of the 2025 PIT-RC instructions prints the bands with a "But Not
+ * Over" column, so each round figure is the **top** of its band and the next
+ * band opens one dollar later:
+ *
+ * ```text
+ *        $0 –  25,000   $637        100,001 – 200,000    $79
+ *    25,001 –  50,000    424        200,001 – 350,000     53
+ *    50,001 –  75,000    212        350,001 and over      26
+ *    75,001 – 100,000    106
+ * ```
+ *
+ * {@link steps} therefore stores `upTo` and the engine's `stepAmount` takes the
+ * first step the income does not exceed, which is the table read as printed. A
+ * model that stores the LEFT column as a lower bound instead is one band too
+ * stingy at every round figure — `$424` rather than `$637` at exactly `$25,000`,
+ * and `$212` rather than `$424` at `$50,000`, which is the largest of the six at
+ * `$212` a child.
+ *
+ * **The independent reference model stores the left column and corrects for it
+ * with a flag**, passing `right=True` to its scale lookup, and gets five of the
+ * six boundaries right. The sixth is the one whose threshold it wrote as
+ * `75_001` where the other five are round: that threshold plus the flag land a
+ * filer at exactly `$75,001` of AGI back in the `$212` band, where the table
+ * says `$106`. So the model overpays `$106` a child in a window one dollar
+ * wide, and the cause is an inconsistency inside one parameter file rather than
+ * a misreading of the table. Recorded for the shape — it is the second New
+ * Mexico figure in this package that lives in a window less than a dollar
+ * wide, after the five-cent negative exemption of § 7-2-5.8.
+ *
+ * ## § 152(c) IS NOT § 32's QUALIFYING CHILD, AND THE DIFFERENCE IS AN ITIN
+ *
+ * § 7-2-18.34(J)(2) defines "qualifying child" as § 152(c)'s, and the 2025
+ * PIT-RC instructions print the definition in full — adding that it "includes
+ * any minor child or stepchild of the taxpayer who would be a qualifying child
+ * for federal income tax purposes if the public assistance contributing to the
+ * support of the child or stepchild was considered to have been contributed by
+ * the taxpayer", which is an EXPANSION of § 152(c) and not a restriction.
+ *
+ * **§ 152(c) carries no identification-number requirement.** § 32(m) does: the
+ * federal earned income credit is denied without a Social Security number valid
+ * for work. So a New Mexico child with an ITIN is a qualifying child for this
+ * credit and is not one for the federal credit, and the reference model counts
+ * `eitc_child_count` here — its own comment says "IRC 152(c) refers to the EITC
+ * qualifying children", which is the conflation. **That is `$637` a child
+ * denied in full**, and unlike the one-dollar window above it reaches every
+ * affected family at every income in the table.
+ *
+ * {@link maxAge} is § 152(c)(3)(A)'s age test — under 19 at the close of the
+ * year — and the two cases this package cannot see are declared in the state's
+ * notes: a student under 24 and a permanently disabled child of any age both
+ * qualify under § 152(c)(3) and are not counted here, so the credit is
+ * understated for those families and the tax overstated.
+ */
+export interface ChildIncomeTaxCreditRule {
+  readonly name: string;
+  /**
+   * Per-child amount for federal AGI **at or below** each `upTo`, in order.
+   * The last entry is unbounded. A negative AGI takes the first entry, which is
+   * what the worksheet says in terms: "If the adjusted gross income is less
+   * than zero, use the amount shown in the first row of the table."
+   */
+  readonly steps: readonly CreditStep[];
+  /** § 152(c)(3)(A): a child is claimed for each dependent at or below this. */
+  readonly maxAge: number;
+  /**
+   * Statuses that claim **half** the credit a joint return would have claimed.
+   *
+   * A list rather than a boolean because the halving is a different mechanism
+   * from {@link SteppedChildCreditRule.ineligibleFilingStatuses}: New Jersey
+   * bars a separate filer outright and New Mexico halves them, and a model that
+   * reaches for the New Jersey field here pays a separate New Mexico filer
+   * nothing when the statute gives them half.
+   */
+  readonly halvedFilingStatuses: readonly FilingStatus[];
+  readonly refundable: boolean;
+  readonly cite: string;
+}
+
+/**
  * A deduction for property tax paid, with a flat refundable credit as the
  * alternative — New Jersey's, N.J.S.A. 54A:3A-16 through 54A:3A-20.
  *
@@ -4690,6 +4792,12 @@ export interface StateIncomeTaxDefinition {
   /** Gated on {@link ownEarnedIncomeCredit}; never present without it. */
   readonly youngChildCredit?: YoungChildCreditRule;
   readonly steppedChildCredit?: SteppedChildCreditRule;
+  /**
+   * New Mexico's refundable child income tax credit, § 7-2-18.34. Distinct
+   * from {@link steppedChildCredit} in all three of its parameters — see
+   * {@link ChildIncomeTaxCreditRule}.
+   */
+  readonly childIncomeTaxCredit?: ChildIncomeTaxCreditRule;
   /**
    * Georgia's eligible itemizer credit. Reads
    * {@link FederalBasis.deductionKind} and nothing else.

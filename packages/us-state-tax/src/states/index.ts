@@ -273,42 +273,55 @@ export const STATES_READING_TAXABLE_SOCIAL_SECURITY: readonly StateCode[] =
  * written down.
  */
 export const UNCOVERED_TAXING_JURISDICTIONS: readonly string[] = [
-  // ONE ENTRY IS ORDERED AND CHECKED AND THE REST ARE NOT, WHICH IS ONE FEWER
-  // THAN YESTERDAY FOR THE BEST REASON: New Mexico left this list by being
-  // added.
+  // ALL NINE ARE ORDERED LARGEST FIRST AND THE WHOLE LIST IS NOW CHECKED,
+  // which it has not been since Day 61 — and the only edit the figures forced
+  // was ONE SWAP at the bottom.
   //
-  // Day 64 checked three figures against Census Vintage 2025 — Kansas
-  // 2,977,220, New Mexico 2,125,498, Nebraska 2,018,006 — and the eight names
-  // after them have never been checked at all, although the comment above this
-  // list claimed "largest first" over all eleven for two days. West Virginia sat
-  // tenth on a list that said it was ordered by size, below Montana, Maine,
-  // Rhode Island, Vermont and Delaware, every one of which is larger than it.
+  // Day 64 checked three against Census Vintage 2025 and spent two of them on
+  // Kansas and New Mexico. Day 67's server-side search read the remaining eight
+  // off the Bureau's own QuickFacts pages, since `census.gov` does not resolve
+  // from this sandbox by `curl` or by `WebFetch`:
   //
-  // > **A SENTENCE THAT DESCRIBES THE WHOLE LIST IS EVIDENCE ABOUT THE PART THAT
-  // > WAS MEASURED AND A GUESS ABOUT THE REST, AND IT READS THE SAME EITHER WAY.**
-  // > Day 64's check made two of the eleven entries trustworthy and made the
-  // > sentence above them less true, not more, because it was now a measured
-  // > claim with eight unmeasured entries inside its scope.
+  //   Nebraska                   2,018,006
+  //   West Virginia              1,766,147
+  //   Hawaii                     1,432,820
+  //   Maine                      1,414,874
+  //   Montana                    1,144,694
+  //   Rhode Island               1,114,521
+  //   Delaware                   1,059,952
+  //   the District of Columbia     693,645
+  //   Vermont                      644,663
   //
-  // So Nebraska is the next state and the only entry here a worklist should
-  // read. **THE NINE BELOW IT ARE IN NO ORDER**, and the cost of putting them in
-  // one is a single lookup against `census.gov`'s NST-EST2025-POP table from a
-  // machine that can reach it. Census hosts do not resolve from this sandbox;
-  // server-side search has returned only Maine's 1,414,874 and the fact that
-  // Hawaii, New Mexico, Vermont and West Virginia all LOST population between
-  // 2024 and 2025. That lookup was worth nothing before the second state from
-  // Day 66 and is worth having now, because the second state is the last one
-  // this list can name with confidence.
+  // The committed order had VERMONT ABOVE THE DISTRICT OF COLUMBIA and Vermont
+  // is the smaller of the two. Everything above them was already descending, so
+  // eight days of a comment claiming "largest first" over an unmeasured tail
+  // turned out to be wrong in exactly one place.
+  //
+  // > **AN UNMEASURED LIST THAT TURNS OUT TO BE NEARLY RIGHT IS THE WORST CASE,
+  // > NOT THE BEST.** Day 64's finding was that a sentence describing the whole
+  // > list is evidence about the part that was measured and a guess about the
+  // > rest. The guess was 8 of 9 correct, which is exactly the hit rate that
+  // > keeps a claim like this alive for another eight days.
+  //
+  // WHAT MAKES THE FIGURES TRUSTWORTHY IS A COINCIDENCE, AND IT IS NOT METHOD.
+  // The search that produced them flagged Hawaii, New Hampshire and Maine as its
+  // own least certain pairings, those three values sitting next to each other in
+  // a scrambled extract — and Maine's 1,414,874 is the figure Day 66 had already
+  // obtained from a different query on a different day. A second landing on
+  // exactly the row the search called weakest is why Hawaii's 1,432,820 is
+  // written down at all. West Virginia's 1,766,147 came independently from its
+  // own QuickFacts page. **If anything downstream of this order looks wrong,
+  // re-check Hawaii, Maine and Montana first**; the pair at the bottom is 48,982
+  // apart and safe, and Nebraska is the only entry a worklist should read.
   'Nebraska',
-  // --- unordered from here ---
   'West Virginia',
   'Hawaii',
   'Maine',
   'Montana',
   'Rhode Island',
   'Delaware',
-  'Vermont',
   'the District of Columbia',
+  'Vermont',
 ];
 
 export function stateName(state: StateCode): string {

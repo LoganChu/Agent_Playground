@@ -83,6 +83,7 @@ function nm(o) {
     netCapitalGain: o.netCapitalGain,
     shortTermCapitalGains: o.shortTermCapitalGains,
     retirement: o.retirement,
+    subtractions: o.subtractions,
   });
 }
 const cents = (n) => Math.round(n * 100) / 100;
@@ -174,7 +175,22 @@ test('the $4,000 overstatement is the SAME number at every family size', () => {
   // 4,000 x a rate chosen by eye.
   const oneChild = nm({ filingStatus: 'marriedFilingJointly', agi: 90_000, dependents: 1, dependentAges: [10] });
   const twoChildren = nm({ filingStatus: 'marriedFilingJointly', agi: 90_000, dependents: 2, dependentAges: [10, 10] });
-  assert.equal(cents(oneChild.tax - twoChildren.tax), 188);
+  // `taxBeforeCredits` AND NOT `tax`, SINCE DAY 68, and the reason is that the
+  // second child now moves TWO provisions rather than one. The child income tax
+  // credit of § 7-2-18.34 pays $106 a child at $90,000 of AGI, so the whole
+  // bill differs by $294 between these two households and only $188 of that is
+  // the deduction this test is about.
+  //
+  // > **A TEST THAT MEASURES A FINDING ON THE BOTTOM LINE MEASURES EVERY
+  // > PROVISION THE INPUT TOUCHES.** This one read `tax` for a day and was
+  // > right only while New Mexico had nothing else keyed to a dependent count.
+  // > Adding a per-child credit broke it, which is the test doing its job —
+  // > and the fix is to measure the finding where the finding happens.
+  assert.equal(cents(oneChild.taxBeforeCredits - twoChildren.taxBeforeCredits), 188);
+  // The whole-bill figure, pinned too, so the $188 cannot be mistaken for what
+  // a second child is worth in New Mexico — which is $294 at this income.
+  assert.equal(cents(oneChild.tax - twoChildren.tax), 294);
+  assert.equal(cents(294 - 188), 106, 'the difference is one child of the § 7-2-18.34 credit');
 });
 
 test('§ 7-2-39 reaches two of the five statuses, and a widow is not one of them', () => {
@@ -503,19 +519,39 @@ test('the armed forces exemption is $30,000 with no age test, in both years', ()
   assert.equal(old.taxableIncome, 3_900 - 2_050);
 });
 
-test('New Mexico is published for both years and has no provisional figure', () => {
-  // THE SAMENESS OF THE TWO YEARS IS THE STATUTE AND NOT A CARRY-FORWARD. HB 252
-  // of 2024 wrote the rate schedules for taxable years beginning on or after 1
-  // January 2025 with no cost-of-living provision, and §§ 7-2-5.2, 7-2-5.8,
-  // 7-2-5.14, 7-2-34 and 7-2-39 are flat amounts with no indexing clause. The
-  // one indexed figure in the New Mexico income tax is the child income tax
-  // credit of § 7-2-18.34, which this module does not model — so there is
-  // nothing here awaiting publication, which is unusual for a state added in
-  // the year before its forms exist.
+test('exactly one New Mexico figure is unpublished for 2026, and it is the indexed one', () => {
+  // THE SAMENESS OF THE TWO YEARS IS THE STATUTE AND NOT A CARRY-FORWARD, for
+  // every figure but one. HB 252 of 2024 wrote the rate schedules for taxable
+  // years beginning on or after 1 January 2025 with no cost-of-living
+  // provision, and §§ 7-2-5.2, 7-2-5.8, 7-2-5.14, 7-2-34 and 7-2-39 are flat
+  // amounts with no indexing clause.
+  //
+  // § 7-2-18.34(D) IS THE EXCEPTION AND IT IS THE WHOLE OF THE EXCEPTION. The
+  // child income tax credit's seven amounts are the only indexed figures in the
+  // New Mexico income tax, which is why this state's provisional list is
+  // exactly seven entries long and every one of them is a step of that credit.
+  // Day 67 shipped this state with NO provisional figure and said so in a test;
+  // that was true only because the credit was not modelled.
+  assert.equal(getStateDefinition('NM', 2025).status, 'published');
+  assert.equal(getStateDefinition('NM', 2025).provisionalFigures, undefined);
+  const for2026 = getStateDefinition('NM', 2026);
+  assert.equal(for2026.status, 'provisional');
+  assert.equal(for2026.provisionalFigures.length, 7);
+  for (const [i, entry] of for2026.provisionalFigures.entries()) {
+    assert.equal(entry.path, `childIncomeTaxCredit.steps.${i}.amount`);
+    assert.equal(entry.reason, 'awaiting-publication');
+    assert.equal(entry.carriedForwardFrom, 2025);
+  }
+  // Nothing else in the state is provisional, asserted by the path prefix
+  // rather than by the count alone: a figure added to this list later would
+  // otherwise pass on length while describing a different state.
+  assert.ok(
+    for2026.provisionalFigures.every((e) => e.path.startsWith('childIncomeTaxCredit.')),
+    'a figure outside the child credit is awaiting publication and should be explained',
+  );
   for (const year of [2025, 2026]) {
     const def = getStateDefinition('NM', year);
-    assert.equal(def.status, 'published', `NM ${year}`);
-    assert.equal(def.provisionalFigures, undefined);
+    assert.ok(def.status === 'published' || def.status === 'provisional');
   }
   // And the two definitions agree on every figure a filer reads.
   const a = getStateDefinition('NM', 2025);
@@ -525,6 +561,13 @@ test('New Mexico is published for both years and has no provisional figure', () 
   assert.deepEqual(a.lowAndMiddleIncomeExemption, b.lowAndMiddleIncomeExemption);
   assert.deepEqual(a.agedOrBlindExemptionSteps, b.agedOrBlindExemptionSteps);
   assert.deepEqual(a.capitalGainsSubtraction, b.capitalGainsSubtraction);
+  // AND THE CHILD CREDIT IS THE ONE THAT MUST NOT BE COMPARED THIS WAY, because
+  // its 2026 amounts are 2025's only until January 2027. Equality here is the
+  // carry-forward and `provisional.test.js` is what guards it.
+  assert.deepEqual(
+    a.childIncomeTaxCredit.steps.map((s) => s.amount),
+    b.childIncomeTaxCredit.steps.map((s) => s.amount),
+  );
   // The ANSWERS still differ between the years, and the only thing that moves
   // them is the federal deduction — which is the whole claim of
   // `deduction: { kind: 'federal' }`.
@@ -573,7 +616,13 @@ test('the working families tax credit is 25% of the federal credit and refundabl
   });
   // A refundable credit takes the bill BELOW zero, which is the half of
   // "refundable" that a non-refundable state's test cannot see.
-  assert.equal(cents(r.tax), -1_500);
+  // -2,774 AND NOT -1,500 SINCE DAY 68: this household has two children at
+  // $20,000 of AGI, so § 7-2-18.34 pays $637 each on top of the working
+  // families credit, and both are refundable. The working families figure is
+  // asserted on the credit line below rather than on the bill, which is where a
+  // claim about ONE credit belongs once a state has two refundable ones.
+  assert.equal(cents(r.tax), -2_774);
+  assert.equal(cents(-2_774 + 1_274), -1_500, 'the rest is two children of § 7-2-18.34');
   const credit = r.credits.find((c) => c.name.includes('working families'));
   assert.equal(credit.amount, 1_500, '25% of $6,000');
   assert.equal(credit.refundable, true);
@@ -586,4 +635,307 @@ test('New Mexico levies no local income tax', () => {
   // definition field, because that table is what a caller reads.
   assert.equal(SUPPORTED_LOCALITIES.NM, undefined);
   assert.ok(!Object.keys(SUPPORTED_LOCALITIES).includes('NM'));
+});
+
+test('the unread \u00a7 151(b) separate-return spouse is worth $35.43 and not $33.82', () => {
+  // § 7-2-5.8 multiplies $2,500 by "the number of federal exemptions". This
+  // package counts one filer plus dependents on a separate return; IRC § 151(b)
+  // allowed a separate filer an exemption for a spouse with no gross income who
+  // is nobody's dependent, and four states here already track that through
+  // `spouseHasNoGrossIncomeAndIsNotADependent`. New Mexico has not been read on
+  // it and no reachable document settles it, so the gap is DECLARED in the
+  // rule's cite and PRICED here.
+  //
+  // THE ENGINE CANNOT BE ASKED FOR THE OTHER READING, so the second exemption is
+  // supplied through `subtractions` at exactly the tapered per-exemption amount,
+  // which is what the cite tells a caller to do.
+  //
+  // > **DAY 67 PRICED THIS AT $33.82 AND THAT IS THE 2026 FIGURE, NOT THE
+  // > BOUND.** The provision is in both shipped years and 2025 is worth MORE.
+  // > It is Day 66's rule — a superlative needs the whole field it ranks over —
+  // > met in the smallest possible way: the field was two years and only one was
+  // > walked. (The 2026 figure itself was a cent out, $33.83 measured.)
+  const rule = getStateDefinition('NM', 2026).lowAndMiddleIncomeExemption;
+  const perExemption = (agi) =>
+    agi > rule.incomeLimit.marriedFilingSeparately
+      ? 0
+      : Math.max(
+          0,
+          rule.maxPerExemption -
+            Math.max(0, agi - rule.reductionStart.marriedFilingSeparately) *
+              rule.reductionRate.marriedFilingSeparately,
+        );
+  const worth = (year, agi) =>
+    cents(
+      nm({ year, agi, filingStatus: 'marriedFilingSeparately' }).tax -
+        nm({
+          year,
+          agi,
+          filingStatus: 'marriedFilingSeparately',
+          subtractions: perExemption(agi),
+        }).tax,
+    );
+
+  // The peaks, pinned by year and by the income they sit at.
+  assert.equal(worth(2025, 21_964), 35.43);
+  assert.equal(worth(2026, 22_214), 33.83);
+
+  // SWEPT, so the figures above are maxima over the whole window and not two
+  // points somebody liked. Every dollar of separate AGI the question can reach.
+  for (const [year, peak] of [
+    [2025, 35.43],
+    [2026, 33.83],
+  ]) {
+    let max = 0;
+    for (let agi = 10_000; agi <= 30_000; agi += 1) max = Math.max(max, worth(year, agi));
+    assert.equal(cents(max), peak, `${year} peaks somewhere other than ${peak}`);
+  }
+
+  // WHY 2025 IS THE LARGER YEAR, AND IT IS THE STATE'S OWN BEST FACT ABOUT
+  // ITSELF. New Mexico's deduction IS the federal one, so the One Big Beautiful
+  // Bill Act raising a separate filer's standard deduction from $15,750 to
+  // $16,100 pushes the peak UP in income, to where § 7-2-5.8's 20% taper has
+  // eaten more of the exemption. The same rolling conformity that cut New Mexico
+  // tax is closing the window in which this unread question has any answer.
+  assert.equal(FEDERAL_DEDUCTION[2026].marriedFilingSeparately - FEDERAL_DEDUCTION[2025].marriedFilingSeparately, 350);
+  assert.ok(22_214 > 21_964, 'the peak moved up in income between the two years');
+
+  // AND THE WINDOW IS BOUNDED AT BOTH ENDS BY A DIFFERENT PROVISION, which is
+  // why the bound is tens of dollars rather than a rate times $2,500. Below the
+  // federal deduction the tax is already zero; above the taper's end the
+  // exemption is.
+  assert.equal(worth(2026, 16_100), 0, 'at the federal deduction there is no tax to reduce');
+  assert.equal(worth(2026, 27_501), 0, 'above the income limit there is no exemption');
+  assert.equal(perExemption(27_500), 0, "the taper reaches zero exactly at the statute's limit");
+
+  // The figure is in the shipped cite, so the cite and the measurement cannot
+  // drift — the defect that put three wrong numbers in the repository yesterday.
+  assert.match(rule.cite, /PRICED AT \$35\.43/);
+  assert.match(rule.cite, /\$35\.43 at \$21,964 for 2025 against \$33\.83 at \$22,214 for 2026/);
+});
+
+test('the child income tax credit is Table 4 read as printed, band edge by band edge', () => {
+  // § 7-2-18.34, and the first New Mexico rule in this package taken from a
+  // PRIMARY DOCUMENT: Table 4 on page RC-11 of the Department's own 2025 PIT
+  // packet, which this sandbox can fetch from the file host even though
+  // tax.newmexico.gov, realfile.tax.newmexico.gov, nmlegis.gov, nmonesource.com
+  // and law.justia.com all refuse to resolve.
+  //
+  // THE SECOND COLUMN OF THAT TABLE IS HEADED "BUT NOT OVER", so every round
+  // figure is the TOP of its band and the next band opens one dollar later. The
+  // pairs below are the whole of the claim: at each round figure the credit is
+  // still the HIGHER amount, and one dollar past it the LOWER one.
+  const perChild = (agi, extra = {}) => {
+    const r = nm({
+      year: 2025,
+      filingStatus: 'marriedFilingJointly',
+      agi,
+      dependents: 2,
+      dependentAges: [7, 11],
+      ...extra,
+    });
+    const credit = r.credits.find((c) => c.name.includes('child income tax credit'));
+    return credit.amount / 2;
+  };
+
+  const TABLE = [
+    [0, 637],
+    [25_000, 637],
+    [25_001, 424],
+    [50_000, 424],
+    [50_001, 212],
+    [75_000, 212],
+    [75_001, 106],
+    [100_000, 106],
+    [100_001, 79],
+    [200_000, 79],
+    [200_001, 53],
+    [350_000, 53],
+    [350_001, 26],
+    [1_000_000, 26],
+  ];
+  for (const [agi, expected] of TABLE) {
+    assert.equal(perChild(agi), expected, `$${agi} of AGI`);
+  }
+
+  // THE SIX CLIFFS, priced per child, because the band edges are what a model
+  // gets wrong and the amount is what it costs. $212 at $50,000 is the largest
+  // and it is a quarter of the credit vanishing on one dollar of income.
+  const cliffs = [25_000, 50_000, 75_000, 100_000, 200_000, 350_000].map(
+    (edge) => perChild(edge) - perChild(edge + 1),
+  );
+  assert.deepEqual(cliffs, [213, 212, 106, 27, 26, 27]);
+  assert.equal(Math.max(...cliffs), 213, 'the first edge is the largest, at $213 a child');
+
+  // WHAT A MODEL THAT STORES THE LEFT COLUMN AS A LOWER BOUND PAYS, which is
+  // the finding: one band too little at every round figure. Asserted as the
+  // relation between adjacent bands rather than as a second table, so it cannot
+  // drift from the steps above.
+  const steps = getStateDefinition('NM', 2025).childIncomeTaxCredit.steps;
+  for (let i = 1; i < steps.length; i += 1) {
+    assert.equal(
+      perChild(steps[i - 1].upTo),
+      steps[i - 1].amount,
+      'the edge pays its own band and not the one below',
+    );
+  }
+
+  // A NEGATIVE AGI TAKES THE FIRST ROW, which the worksheet says in terms: "If
+  // the adjusted gross income is less than zero, use the amount shown in the
+  // first row of the table."
+  assert.equal(perChild(-50_000), 637);
+});
+
+test('a separate New Mexico filer gets HALF the child credit and not none of it', () => {
+  // § 7-2-18.34 and the PIT-RC instructions: "Married individuals filing
+  // separate returns for a taxable year for which they could have filed a joint
+  // return may each claim only one-half of the Child Income Tax Credit that
+  // would have been claimed on a joint return."
+  //
+  // THIS IS WHY THE RULE IS NOT NEW JERSEY'S. N.J.S.A. 54A:4-17(c) BARS a
+  // separate filer from the stepped child credit outright, and this package
+  // carries that as `ineligibleFilingStatuses`. A model that reached for the
+  // same field here pays a separate New Mexico filer nothing where the statute
+  // gives them $318.50 on two children at $40,000 of AGI.
+  const credit = (filingStatus) =>
+    nm({ year: 2025, filingStatus, agi: 40_000, dependents: 2, dependentAges: [7, 11] }).credits.find(
+      (c) => c.name.includes('child income tax credit'),
+    ).amount;
+  assert.equal(credit('marriedFilingJointly'), 848);
+  assert.equal(credit('marriedFilingSeparately'), 424);
+  assert.equal(credit('marriedFilingSeparately') * 2, credit('marriedFilingJointly'));
+  // And the halving is the ONLY status difference: § 7-2-18.34 names no status
+  // in its grant, unlike § 7-2-39, so a single filer, a head of household and a
+  // surviving spouse all take the full amount. The dependent deduction of
+  // § 7-2-39 reaches two statuses of five and this credit reaches all five,
+  // which is the pair of facts a reader is most likely to merge.
+  for (const filingStatus of ['single', 'headOfHousehold', 'qualifyingSurvivingSpouse']) {
+    assert.equal(credit(filingStatus), 848, filingStatus);
+  }
+  const def = getStateDefinition('NM', 2025);
+  assert.deepEqual(def.childIncomeTaxCredit.halvedFilingStatuses, ['marriedFilingSeparately']);
+  assert.equal(def.dependentDeduction.amount.single, 0);
+  assert.equal(def.childIncomeTaxCredit.refundable, true);
+});
+
+test('the child credit is refundable, and for a low-income family it is the whole answer', () => {
+  // A joint New Mexico return with two children and $20,000 of wages. The
+  // state's OWN tax is zero — the federal deduction alone exceeds the income —
+  // so both refundable credits are money paid out.
+  const r = nm({
+    year: 2025,
+    filingStatus: 'marriedFilingJointly',
+    agi: 20_000,
+    dependents: 2,
+    dependentAges: [7, 11],
+    earnedIncomeCredit: 6_000,
+  });
+  assert.equal(cents(r.taxBeforeCredits), 0);
+  // $1,274 of child credit and $1,500 of working families credit.
+  assert.equal(cents(r.tax), -2_774);
+  const child = r.credits.find((c) => c.name.includes('child income tax credit'));
+  assert.equal(child.amount, 1_274);
+  assert.equal(child.refundable, true);
+  // WITHOUT THIS RULE THE SAME HOUSEHOLD WAS COMPUTED $1,274 TOO HIGH, which is
+  // what the state's own note said before Day 68 and what the differential
+  // comparison measured: 46 unexplained divergences in New Mexico, every one
+  // this credit or the low income comprehensive tax rebate.
+  assert.equal(cents(-1_500 - -2_774), 1_274);
+});
+
+test('§ 152(c) is not § 32’s qualifying child, and the age test is declared where it stops', () => {
+  const rule = getStateDefinition('NM', 2025).childIncomeTaxCredit;
+  // § 152(c)(3)(A): under 19 at the close of the year.
+  assert.equal(rule.maxAge, 18);
+  const at = (age) =>
+    nm({
+      year: 2025,
+      filingStatus: 'marriedFilingJointly',
+      agi: 40_000,
+      dependents: 1,
+      dependentAges: [age],
+    }).credits.find((c) => c.name.includes('child income tax credit')).amount;
+  assert.equal(at(18), 424);
+  assert.equal(at(19), 0);
+  // A STUDENT UNDER 24 AND A PERMANENTLY DISABLED CHILD OF ANY AGE ALSO QUALIFY
+  // UNDER § 152(c)(3) AND ARE NOT COUNTED HERE, so the credit is understated and
+  // the tax overstated for those families by the whole per-child amount. The
+  // omission is in the inputs rather than the statute and the note says so.
+  assert.ok(
+    getStateDefinition('NM', 2025).notes.some(
+      (n) => /student/i.test(n) && /152\(c\)/.test(n) && /ITIN/.test(n),
+    ),
+    'the § 152(c) note must name the student limb and the ITIN together',
+  );
+  // NO AGES, NO CREDIT — deliberately, and the same decision New Jersey's
+  // stepped credit makes. A count of dependents does not say they are children,
+  // and guessing generously would turn a missing input into a refundable
+  // credit.
+  const noAges = nm({ year: 2025, filingStatus: 'marriedFilingJointly', agi: 40_000, dependents: 2 });
+  assert.equal(noAges.credits.find((c) => c.name.includes('child income tax credit')).amount, 0);
+});
+
+test("New Mexico's own rate table computes $2.00 less than its own rate schedule, forever", () => {
+  // READ OFF THE PIT-TRT PAGES OF THE 2025 PACKET, and it is the first finding
+  // in this package that is not a model against a model: it is this package
+  // against THE FORM.
+  //
+  // The 2025 TAX RATE TABLE is a $100-wide MIDPOINT table — the row for
+  // $99,900–$100,000 prints $4,356 for a single filer, which is the exact tax at
+  // $99,950 rounded. The continuation table for incomes over $100,000 then uses
+  // THAT FIGURE as its base: "Single, not over $210,000: your tax is $4,356 plus
+  // 4.9% of taxable income in excess of $100,000."
+  //
+  // So the Department's prescribed computation carries a midpoint-rounded figure
+  // forward as an exact base, and every New Mexico return above $100,000 of
+  // taxable income is $2.00 below the § 7-2-7 schedule — $2.50 for a separate
+  // filer. It never converges, because above the breakpoint both computations
+  // run at the same rate.
+  //
+  // > **A STATE'S RATE SCHEDULE AND ITS RATE TABLE ARE TWO DIFFERENT FUNCTIONS,
+  // > AND A PACKAGE HAS TO CHOOSE.** This one computes the SCHEDULE, because
+  // > § 7-2-7 is the law and the table is an aid the Department is authorised to
+  // > publish. The difference is written down rather than split, and this test
+  // > is what makes the claim checkable.
+  const PRINTED_BASE_AT_100K = {
+    single: 4_356,
+    marriedFilingJointly: 4_087,
+    marriedFilingSeparately: 4_492,
+    headOfHousehold: 4_087,
+  };
+  // Taxable income of exactly $100,000, so `deduction: 0` and the AGI IS the
+  // taxable income — the point is the rate schedule and nothing above it.
+  const taxAtTaxableIncome = (filingStatus, ti) =>
+    cents(nm({ year: 2025, filingStatus, agi: ti, deduction: 0 }).taxBeforeCredits);
+
+  for (const [filingStatus, printed] of Object.entries(PRINTED_BASE_AT_100K)) {
+    const exact = taxAtTaxableIncome(filingStatus, 100_000);
+    const gap = cents(exact - printed);
+    assert.equal(gap, filingStatus === 'marriedFilingSeparately' ? 2.5 : 2, filingStatus);
+    // AND THE GAP IS CONSTANT ABOVE THE BREAKPOINT, which is what makes it
+    // worth stating as one number. The continuation runs at the printed base
+    // plus the same marginal rates this schedule uses.
+    for (const ti of [150_000, 250_000, 400_000, 1_000_000]) {
+      const printedTax = printedContinuation(filingStatus, ti, printed);
+      assert.equal(cents(taxAtTaxableIncome(filingStatus, ti) - printedTax), gap, `${filingStatus} at ${ti}`);
+    }
+  }
+
+  // The midpoint claim itself, which is where the $2.00 comes from: the printed
+  // figure for the $99,900–$100,000 row IS the exact tax at $99,950, rounded.
+  for (const [filingStatus, printed] of Object.entries(PRINTED_BASE_AT_100K)) {
+    assert.equal(Math.round(taxAtTaxableIncome(filingStatus, 99_950)), printed, `${filingStatus} midpoint`);
+  }
+
+  // The Department's own continuation table, as published: base plus 4.9% to the
+  // 5.9% breakpoint, then 5.9%. The breakpoints are the schedule's own, read
+  // from the definition so the two cannot drift.
+  function printedContinuation(filingStatus, ti, base) {
+    const brackets = getStateDefinition('NM', 2025).rate.byStatus[filingStatus];
+    const top = brackets[brackets.length - 1];
+    const topFrom = brackets[brackets.length - 2].upTo;
+    const fourNine = brackets[brackets.length - 2].rate;
+    if (ti <= topFrom) return base + (ti - 100_000) * fourNine;
+    return base + (topFrom - 100_000) * fourNine + (ti - topFrom) * top.rate;
+  }
 });

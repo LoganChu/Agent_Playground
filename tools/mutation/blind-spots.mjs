@@ -150,6 +150,23 @@ const DECLARED = {
   'ownEarnedIncomeCredit.byChildCount': "child COUNTS: California's 0, 1, 2, 3",
   'childCredit.amountByAge': 'AGES: the age bounds of a child credit',
   'steppedChildCredit.steps': 'AGES and small amounts',
+  // NEW MEXICO'S CHILD INCOME TAX CREDIT, AND IT IS THE WORST-SHAPED ENTRY IN
+  // THIS OBJECT: the three figures the audit cannot reach are REAL DOLLAR
+  // AMOUNTS a family is owed, not an age or a sentinel. $79, $53 and $26 are
+  // the top three bands of § 7-2-18.34's table and they fall below the money
+  // floor, so a mutant that doubled any of them would not be enumerated. The
+  // Infinity is the open-topped row's ceiling.
+  //
+  // WHAT STANDS BEHIND THEM IS BETTER THAN A MUTANT, WHICH IS THE ONLY REASON
+  // THIS IS DECLARED RATHER THAN FIXED: test/new-mexico.test.js walks all
+  // FOURTEEN rows of Table 4 as printed in the Department's own 2025 PIT
+  // packet — both sides of each of the six band edges — and asserts the
+  // per-child amount at each. That is a reading of a primary document, where a
+  // mutation score is a statement about this package's own tests. Day 67's rule
+  // about the TaxAct fixture, applied to a table rather than to a filled form.
+  'childIncomeTaxCredit.steps': "DOLLARS, and three of them below the floor: § 7-2-18.34's $79, $53 and $26 top bands, plus the open row's Infinity. All six band edges and all seven amounts are asserted against the printed table in test/new-mexico.test.js",
+  'childIncomeTaxCredit.maxAge': "an AGE: 18, IRC § 152(c)(3)(A)'s under-19 test, asserted at 18 and 19 directly",
+
   'youngChildCredit.maximumAge': 'an AGE',
   // AGES AND COUNTS. Not alarming, and counted so that the class is complete.
   'exemption.seniorAge': 'an AGE: 65 in eighteen state-years',

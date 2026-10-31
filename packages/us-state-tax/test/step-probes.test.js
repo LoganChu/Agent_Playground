@@ -491,7 +491,11 @@ test('the numbers inside the staircases this package ships', () => {
   // state's whole complexity is in tables read against income, where Kansas's
   // was in what it exempts outright — and the two states' counts here are 168
   // and 12.
-  assert.equal(checked, 2_048, 'numbers inside the staircases this package ships');
+  // 2,074 SINCE DAY 68: New Mexico's child income tax credit is a staircase of
+  // seven rows read against federal AGI, and the probe counts 13 of its numbers
+  // a year — seven amounts and six `upTo` edges, the open-topped row's Infinity
+  // excluded as it is everywhere else — so 26 across the two years.
+  assert.equal(checked, 2_074, 'numbers inside the staircases this package ships');
   assert.equal(
     exempt.length,
     22,
