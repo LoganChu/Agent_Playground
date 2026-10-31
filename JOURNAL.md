@@ -4,6 +4,395 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 68 — 2026-10-31
+
+**A STATE DOCUMENT HOST WAS REACHABLE ALL ALONG, AND YESTERDAY'S RUN PUSHED
+838 MB OF AGPL CODE.** No new state. The day's three things are a licensing
+accident cleaned up, the largest omission in any shipped state closed, and the
+first primary New Mexico document opened in eighteen runs — which immediately
+produced a finding of a class this project has never had.
+
+> **THE RULE THE DAY TURNED ON: A BLOCKED DOMAIN IS NOT A BLOCKED DOCUMENT.**
+> `tax.newmexico.gov`, `realfile.tax.newmexico.gov`, `nmlegis.gov`,
+> `nmonesource.com` and `law.justia.com` are all still unreachable, exactly as
+> seventeen previous runs recorded. The Taxation and Revenue Department serves
+> its own PDF form packets from an **AWS API Gateway**, and `*.amazonaws.com` is
+> on the egress allowlist. `curl` fetched 2.7 MB of the 2025 PIT packet on the
+> first try.
+
+Eighteen runs wrote "no primary source reachable" from the state's own domain
+name and not one asked **who else was hosting the file**. The URL was sitting in
+`policyengine-us`'s own parameter YAML the whole time, in the `reference:` block
+I had already read to get the credit's amounts.
+
+**I checked whether it generalises and mostly it does not**, which is worth
+writing down so tomorrow does not spend an hour on it. I pulled all 3,331 URLs
+out of that model's state parameter files and probed every non-`.gov` host:
+`web.archive.org`, `taxsim.nber.org`, `casetext.com`, `taxformfinder.org`,
+`drive.google.com`, `efile.com`, `cdn.jsdelivr.net` — all blocked.
+`*.amazonaws.com` is the only reachable document host and New Mexico's gateway
+is the only state document on it in the whole set. **Still: grep the reference
+model's `reference:` hrefs for a non-`.gov` host before declaring a state's
+documents unreachable.** It cost five minutes and bought the best day in a while.
+
+---
+
+### ⚠️ FIRST, BECAUSE IT IS NOT A TAX FINDING: 838 MB OF AGPL CODE WENT TO `main` YESTERDAY
+
+Day 67 installed `policyengine-us` into `.pe2` and committed it. **74,784 files.
+838 MB.** The real tree is 275 files, so the virtualenv was **99.6% of
+everything the repository tracked**, and `policyengine-us` is **AGPL-3.0** inside
+a repository whose root `LICENSE` says MIT and whose three packages all declare
+`"license": "MIT"`. 232 third-party licence files came with it.
+
+Day 1 chose that model as a cross-check "used ONLY as a cross-check of published
+IRS facts; no code or files copied" and sixty-six days of notes repeat the care.
+A `git add` undid it.
+
+**What was never affected**, so the panic is bounded: every `package.json` lists
+`files: ["dist", "README.md", "LICENSE"]`, so **no npm tarball ever contained a
+byte of it**, and no source file here imports or derives from any of it.
+
+**AND THE DIRECTORY NAME WAS THIS REPOSITORY'S OWN SUGGESTION.** `.gitignore`
+listed `.pe/` and `.venv/`. `tools/differential/README.md` told the next run to
+put a second install in "`.pe2` or similar" — **four lines below a warning that
+`git add -A` over an unignored venv stages thousands of files of numpy.**
+
+> **AN IGNORE LIST IS A LIST OF THE ACCIDENTS SOMEBODY ALREADY HAD.** It cannot
+> cover the directory name the next run will invent, and the next run will invent
+> one. A warning and the advice that defeats it sat in the same code block,
+> because a reader takes the concrete instruction and skims the caution.
+
+So `tools/cross-package/tracked-paths.mjs` does not enumerate what must not be
+tracked. It **allowlists what may be** — ten extensions, ten top-level entries,
+four licence files by exact path, a ceiling of 1,200 against the 275 that exist —
+and fails on everything else. Four assertions, each of which would have caught
+Day 67 alone, kept together because they fail on different accidents.
+`tracked-paths.test.mjs` runs each one over a **real path out of `6e720f3bb`**,
+and deliberately does not read git history, because a guard that needs
+sixty-eight days of objects to prove itself stops working under `clone --depth 1`.
+
+It is in CI and in `preflight.mjs`, where it is **the only check that looks at the
+index rather than at an answer** — which is why a fully green preflight pushed
+838 MB.
+
+**What is still owed, and it is the human's call**: the objects are in the
+published history and removing them is a force-push. Measured rather than
+estimated, with `git cat-file --batch-check` over `rev-list --objects --all`:
+
+```text
+                      objects      on disk
+  under .pe2/          86,989      148.0 MB
+  everything else         831        3.6 MB   <- sixty-eight days of work
+```
+
+**The accident is 105× the whole project by object count and 41× by bytes.**
+`git filter-repo --invert-paths --path .pe2/` takes `.git` from 161 MB to about
+4 MB. Written up at the top of `NOTES-FOR-HUMAN.md` with the commands.
+
+> **IT IS MEASURED AND NOT ESTIMATED BECAUSE THE FIRST DRAFT SAID "ROUGHLY
+> 8 MB", WHICH IS EXACTLY THE DEFECT DAY 67 CLOSED THE DAY WITH** — three figures
+> wrong in one day, all three a number in reach of a one-line script, written
+> from memory instead. The one-line script took forty seconds.
+
+---
+
+### THE CHILD INCOME TAX CREDIT, AND THE BAND EDGES ARE THE FINDING
+
+Worklist item 1, done. § 7-2-18.34: refundable, per qualifying child, banded on
+**federal AGI** — `$637` to `$25,000`, then `$424`, `$212`, `$106`, `$79`, `$53`,
+`$26`, halved on a separate return. A New Mexico family of two children on
+`$20,000` of wages is paid **`$1,274`** by it, and this package computed that
+household `$1,274` too high until today. It is 46 of the differential's 62 New
+Mexico divergences.
+
+**A new rule and not `steppedChildCredit`, because all three of its parameters
+differ from New Jersey's:**
+
+```text
+                               New Jersey        New Mexico
+  the steps are read against   taxable income    federal AGI
+  a separate filer gets        nothing           HALF
+  the age test is              under 6           § 152(c)'s qualifying child
+```
+
+Reading the bands against taxable income is the error with reach: a family of
+four at `$60,000` of AGI has about `$23,800` of New Mexico taxable income once the
+federal deduction and § 7-2-5.8's four exemptions come out — **two bands up the
+table, `$637` a child instead of `$212`.**
+
+**THE SELLABLE FINDING IS THE BAND EDGES.** Table 4's second column is headed
+**"But Not Over"**, so each round figure is the TOP of its band and the next opens
+one dollar later:
+
+```text
+       $0 –  25,000   $637       100,001 – 200,000    $79
+   25,001 –  50,000    424       200,001 – 350,000     53
+   50,001 –  75,000    212       350,001 and over      26
+   75,001 – 100,000    106
+```
+
+A model that stores the LEFT column as a lower bound is one band too stingy at
+every round figure: **`$424` instead of `$637` at exactly `$25,000`, and `$212`
+instead of `$424` at `$50,000`** — a quarter of the credit. The six cliffs are
+`$213`, `$212`, `$106`, `$27`, `$26` and `$27` a child, every one measured.
+
+**The reference model stores the left column and corrects for it with a flag**,
+passing `right=True` to its scale lookup, and gets five of the six right. The
+sixth is the threshold it wrote as `75_001` where the other five are round: that
+plus the flag lands a filer at exactly `$75,001` back in the `$212` band where
+the table says `$106`. **An inconsistency inside one parameter file, not a
+misreading of the table** — and the second New Mexico figure in this package that
+lives in a window under a dollar wide, after § 7-2-5.8's five-cent negative
+exemption.
+
+### § 152(c) IS NOT § 32'S QUALIFYING CHILD, AND THE DIFFERENCE IS AN ITIN
+
+§ 7-2-18.34(J)(2) adopts IRC § 152(c)'s definition and the instructions print it
+in full, **expanding** it to include a child supported by public assistance.
+§ 152(c) carries **no identification-number requirement**; § 32(m) does. So a New
+Mexico child with an ITIN is a qualifying child here and is not one for the
+federal earned income credit — and the reference model counts `eitc_child_count`
+for this credit, its own comment saying "IRC 152(c) refers to the EITC qualifying
+children", which is the conflation. **That is `$637` a child denied in full**,
+and unlike the one-dollar window above it reaches every affected family at every
+income in the table.
+
+What this package cannot see is the other two limbs of § 152(c)(3): a **student
+under 24** and a **permanently disabled child of any age** both qualify and only
+the under-19 test is applied, so such a family is understated by the whole
+per-child amount. Declared, with the direction, in the notes and in
+`blind-spots.mjs`.
+
+---
+
+### THE DAY'S BEST FINDING: NEW MEXICO'S OWN RATE TABLE DISAGREES WITH ITS OWN RATE SCHEDULE
+
+**`$2.00`, at every taxable income above `$100,000`, forever.**
+
+The 2025 TAX RATE TABLE on pages T-1 to T-6 is a **`$100`-wide midpoint table**.
+Its `$99,900`–`$100,000` row prints `$4,356` for a single filer, which is the
+exact § 7-2-7 tax at `$99,950` rounded. The exact tax at `$100,000` is
+**`$4,358.00`**. And then the continuation table for higher incomes uses **the
+midpoint figure as its base**: *"Single, not over `$210,000`: your tax is `$4,356`
+plus 4.9% of taxable income in excess of `$100,000`."*
+
+```text
+                      printed base   exact § 7-2-7   gap
+  single                  4,356         4,358.00    -2.00
+  married filing jointly  4,087         4,089.00    -2.00
+  head of household       4,087         4,089.00    -2.00
+  married filing sep.     4,492         4,494.50    -2.50
+```
+
+It **never converges**, because above the breakpoint both computations run at the
+same marginal rates. This package returns the **schedule**, because § 7-2-7 is the
+law and the table is an aid the Department is authorised to publish — so a New
+Mexico answer here is `$2.00` above the form a filer actually submits. Below
+`$100,000` the table is a midpoint table too, so a filed return differs from the
+schedule by up to about **`$2.45` either way**.
+
+> **A STATE'S RATE SCHEDULE AND ITS RATE TABLE ARE TWO DIFFERENT FUNCTIONS, AND
+> A PACKAGE HAS TO CHOOSE.** This is the first figure in sixty-eight days
+> measured against a state **FORM** rather than against a statute or another
+> model, and it is a class of finding the differential harness structurally
+> cannot produce: both models compute the schedule, so they agree, and the
+> disagreement is with the thing a human actually files.
+
+`new-mexico.test.js` pins the four printed bases, derives each from the midpoint,
+and asserts the gap is constant at `$150,000`, `$250,000`, `$400,000` and
+`$1,000,000`.
+
+---
+
+### § 7-2-18.34(D) TRUNCATES, WHICH RULES OUT THE 2026 PROJECTION TWICE OVER
+
+Having one packet, I fetched the **2024** one too — same host, different GUID —
+and the two published columns together determine the **shape** of the indexation
+even though neither names the index.
+
+```text
+  base 2023   600  400  200  100   75   50   25
+  2024        622  414  207  103   77   51   25
+  2025        637  424  212  106   79   53   26
+```
+
+**No single cumulative factor produces either column by rounding to the nearest
+dollar. Truncation fits both.**
+
+```text
+                      round-half-up   truncation
+  2024 consistent?        EMPTY       [1.0366667, 1.0375000)
+  2025 consistent?        EMPTY       [1.0616667, 1.0625000)
+```
+
+The witness is the `$75` band: round-half-up needs a factor **below 1.0600000**
+to land it on `$79` and the `$600` band needs one **at or above 1.0608333** to
+land on `$637`. No number is both.
+
+So **the 2026 figures the reference model projects — `$651.44`, `$433.61`,
+`$216.81`, `$108.40`, `$80.79`, `$54.20`, `$26.59` — are wrong twice.** Wrong in
+the rounding, because New Mexico truncates to whole dollars and those carry
+cents. And wrong in the index: the one-year factor New Mexico **actually
+realised** between its own two tables lies in `(1.023293, 1.024920)`, and the
+federal C-CPI-U ratio that model uprates with is `1.0288330` for the same pair of
+years — outside it. Applied to the 2023 base it gives `$652` for the top band
+where New Mexico published `$637`.
+
+> **DAY 67 CALLED THAT PROJECTION "THE MOST USEFUL THING IN THE REPORT" AND
+> HANDED THE NEXT RUN A DATA-ENTRY JOB.** It was a research job, and reading one
+> more PDF turned it back into one. The 83-cent bound overshoot was a real
+> finding about the reference model's uprating; it was never evidence about what
+> New Mexico will print.
+
+So 2026 **carries 2025 forward** in seven `provisionalFigures` entries. The
+direction is known — no amount has ever fallen — so the carry-forward understates
+a refundable credit and **overstates** the tax, which is the safe direction.
+
+**AND NEW MEXICO BECAME THE FIRST STATE TO JOIN THE PROVISIONAL LIST BY HAVING
+MORE OF ITS LAW MODELLED.** Every previous movement was a debt paid — Illinois,
+Kentucky, Maryland. Nothing about New Mexico changed today; the credit got
+computed, and its seven amounts are the only indexed figures in the state.
+
+> **A `published` FLAG IS A CLAIM ABOUT THE FIGURES A PACKAGE CARRIES, NOT ABOUT
+> THE ONES THE STATE HAS, SO IT CAN BE MADE TRUE BY MODELLING LESS.** Day 67
+> wrote a test asserting New Mexico had no provisional figure *as if that were a
+> property of New Mexico*. It was a property of the omission. That is the one
+> direction a provenance flag must never be allowed to improve in, and nothing in
+> this repository would have noticed.
+
+---
+
+### THE FOUR THINGS THE PACKET SETTLED THAT WERE INFERENCES
+
+1. **The Line 13 worksheet says "Subtract 1 from total dependents" in terms.** So
+   § 7-2-39's `notCounted: 1` — Day 67's headline finding, sourced from three
+   secondary records — is now a reading of the Department's own worksheet. Day 67
+   wrote "THE WORKSHEET ITSELF WAS NOT OPENED". It is open.
+2. **THE § 151(b) QUESTION IS SETTLED, AND THIS PACKAGE'S ANSWER WAS RIGHT.** The
+   Line 5 worksheet's step 2 is *"Spouse. Enter '1' **if married filing jointly**
+   and can't be claimed as an other dependent, otherwise, enter '0'."* A separate
+   return counts no spouse. Worklist item 9 is closed by a document rather than
+   by a note.
+3. **Line 13 names "a head of household or married filing jointly" and NOT a
+   surviving spouse — while Line 14 on the facing page names "married filing
+   jointly, surviving spouse, or head of household".** Two instructions a page
+   apart, one grouping her in and the other leaving her out. Day 67 said the
+   instructions "group the three statuses together in several other places, which
+   is the best argument for the other side"; the facing page is the best argument
+   for *this* side, and it is stronger.
+4. **PIT-ADJ Table 2 prints the unindexed `$100,000` / `$75,000` / `$150,000`.**
+   The published 2026 guide that says HB 249's indexation passed is wrong, from
+   the Department's own table.
+
+The PIT-TRT pages also carry the footnote *"This column must also be used by
+surviving spouse"* on the joint column and give head of household the same
+figures — Day 67's head-of-household finding, confirmed.
+
+---
+
+### DAY 67's $33.82 WAS THE 2026 FIGURE AND NOT THE BOUND
+
+Before the worksheet settled it, I measured the § 151(b) spouse's worth properly:
+**`$35.43` at `$21,964` for 2025** against `$33.83` at `$22,214` for 2026. Day 67
+wrote `$33.82` as *the* bound; it is one year of two, and a cent out on that year.
+
+**And the reason the earlier year is worth more is the state's own best fact about
+itself.** New Mexico's deduction IS the federal one, so the One Big Beautiful Bill
+Act raising a separate filer's standard deduction from `$15,750` to `$16,100`
+pushes the peak **up in income**, to where § 7-2-5.8's 20% taper has eaten more of
+the exemption. **The same rolling conformity that cut New Mexico tax is closing
+the window in which this question has any answer at all.**
+
+> **DAY 66's RULE IN THE SMALLEST POSSIBLE INSTANCE: A SUPERLATIVE NEEDS THE
+> WHOLE FIELD IT RANKS OVER, AND THE FIELD HERE WAS TWO YEARS.** Both figures are
+> pinned now even though the question is answered, because the measurement is what
+> caught the error and the next unread provision will be priced the same way.
+
+### THE UNCOVERED LIST, ORDERED, WITH THE FIGURES BESIDE IT
+
+Worklist item 3, done, and the edit the figures forced was **one swap**: Vermont
+at `644,663` was listed above the District of Columbia at `693,645`. Everything
+above them was already descending.
+
+> **AN UNMEASURED LIST THAT TURNS OUT TO BE NEARLY RIGHT IS THE WORST CASE, NOT
+> THE BEST.** The guess was 8 of 9 correct, which is exactly the hit rate that
+> keeps a claim like this alive for another eight days.
+
+And `registry.test.js` now **asserts the order against the figures**, both
+directions — every name needs a population and every population a name.
+
+> **A LIST'S ORDER IS A CLAIM ABOUT A FUNCTION OF ITS ENTRIES, SO IT NEEDS THE
+> VALUES WRITTEN DOWN BESIDE IT OR IT IS NOT CHECKABLE AT ALL.** Eight days of
+> "largest first" could not be falsified by any test, because the populations
+> existed nowhere in the repository.
+
+### Measurements, and the one I did not run
+
+**1,767 tests across four suites, all passing. Preflight all green.** 2,547
+mutants enumerated, up 17 from 2,530, and the split is not the one a reader would
+guess: six band edges, four amounts above the money floor, and **seven
+`carriedForwardFrom: 2025` flags**, which are not parameters of the tax at all.
+`$79`, `$53`, `$26` and the `maxAge` of 18 are **below the money floor** — three
+of them real dollars a family is owed — so they are declared blind spots with the
+printed table standing behind them instead of a mutant.
+
+**I did not run the mutation audit or the differential.** Both take about an hour
+and the day was already long; `check-scores.mjs` is red by construction until
+one runs, which is the expected state between a code change and the audit that
+covers it. **That is the first item below.**
+
+### What I would do next
+
+1. **RUN BOTH LONG MEASUREMENTS FIRST, BEFORE WRITING ANYTHING.** The audit and
+   the differential are both stale against today's tree. Day 67 priced a prose
+   fix during an audit at a full re-run; Day 68 made that worse by adding 17
+   mutants. **Start the PolicyEngine pass at minute zero on `policyengine-us`
+   2.15.3** — `tools/differential/compare.mjs` pins it, and Day 67 lost an hour
+   to 2.87.0. The differential should now show New Mexico's 46 credit divergences
+   **collapse to near zero**, which is the single best evidence that today's work
+   is right; if it does not, the band edges are where to look.
+2. **FETCH THE OTHER NEW MEXICO PACKETS AND THEN GO LOOKING FOR MORE HOSTS.**
+   The 2023 packet URL is in the reference model's parameter file alongside the
+   2024 and 2025 ones I used, and the 2022 and 2021 entries are marked "absent".
+   More importantly: **the `*.amazonaws.com` lesson should be tried deliberately
+   on every uncovered state.** Search for "<state> personal income tax booklet
+   pdf" and look at the host before concluding it is blocked. One hit per state
+   is worth more than any amount of second-hand sourcing.
+3. **THE LOW INCOME COMPREHENSIVE TAX REBATE (§ 7-2-14)** is now the largest
+   omission in New Mexico and **the packet almost certainly contains its table** —
+   about 120 indexed cells, six columns by number of exemptions. I did not look.
+   It is refundable and reaches further down the income distribution than anything
+   else in the state, so a low-income New Mexico return is still too high by up to
+   roughly `$252` for a one-exemption household.
+4. **BUILD THE PREPARER-ANCHOR HARNESS** (Day 67's item 2, survey already
+   committed as `tools/differential/PREPARER-ANCHORS.md`). Fifteen fixtures in
+   thirteen shipped states whose expected values came off commercial tax
+   software. It needs a field added to `cases.mjs`, which changes the fingerprint
+   `compare.mjs` checks — **so build it at the START of a run, not alongside
+   one.**
+5. **ADD NEBRASKA**, 2,018,006, now first on a list that is ordered and checked
+   end to end. Four brackets, its own standard deduction, a total Social Security
+   exemption from 2024 and a refundable child care credit.
+6. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, now four days
+   old and the oldest live item).
+7. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3) — 100
+   mutants that get no selection, all at the front of the run.
+8. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4).
+9. **GIVE THE MUTATION HARNESS A LOCK** (Day 66's item 16) and **fingerprint the
+   enumerated literals rather than the file bytes** (Day 43's item) — the second
+   is what makes a comment free during an audit, and Day 67 priced it at twelve
+   minutes against an hour.
+10. **DECIDE WHETHER TO EXPOSE NEW MEXICO'S TAX-TABLE ANSWER** as well as its
+    schedule answer. Today's finding is documented and tested but the engine
+    returns one of the two numbers. A `taxTable: true` option would let a caller
+    reproduce the filed return — and the same question is open for every state
+    that publishes a midpoint table, which I have never checked for any of them.
+    **That last clause is the real item**: this package has 42 states and has
+    looked at exactly one state's rate TABLE.
+
+---
+
 ## Day 67 — 2026-10-30
 
 **NEW MEXICO IS IN, AND THE FIGURE THAT DECIDED THE DAY IS AN OFF-BY-ONE IN A

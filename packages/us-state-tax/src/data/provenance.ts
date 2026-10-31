@@ -3053,7 +3053,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     years: [2026],
     kind: 'carried-forward',
     document: 'Form TC-40 instructions',
-    cite: 'the published 2025 amounts, carried forward. This one cannot be resolved by searching during 2026: Utah publishes the indexed result with the TC-40 instructions in January AFTER the tax year, so the 2026 figures do not yet exist',
+    cite: 'the published 2025 amounts, carried forward. This one cannot be resolved by searching during 2026: Utah publishes the indexed result with the TC-40 instructions in January AFTER the tax year, so the 2026 figures do not yet exist THE SHAPE OF THE ADJUSTMENT IS KNOWN FROM TWO PUBLISHED TABLES EVEN THOUGH THE INDEX IS NOT: the 2024 and 2025 Table 4 columns are both produced by TRUNCATING the 2023 base times a cumulative factor, and by no factor under round-half-up — the $75 band and the $600 band cannot share one. The realised one-year factor lies in (1.023293, 1.024920), where the federal C-CPI-U ratio the reference model uses is 1.0288330, so that model’s projection is wrong in its ROUNDING and in its INDEX. test/new-mexico.test.js derives both intervals',
     constant: true,
     carriedForwardFrom: 2025,
     resolvedBy: 'the 2026 Utah TC-40 instructions, published by the Tax Commission in January 2027',

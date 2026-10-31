@@ -30,9 +30,23 @@ which reached a 2019 Legislative Finance Committee report, a Taxation and Revenu
 Department presentation and a 2024 bill's own record of being killed, none of
 which this container can fetch.
 
-`us-state-tax` is now **v0.58.0** and `us-tax-mcp` **v0.62.0**;
-`us-federal-tax` stays at **v0.16.0**. **1,759 tests** across the four suites, all
-passing. **33 taxing states and 42 in all**, up one; nine jurisdictions left.
+`us-state-tax` is now **v0.59.0** and `us-tax-mcp` **v0.63.0**;
+`us-federal-tax` stays at **v0.16.0**. **1,767 tests** across the four suites, all
+passing. **33 taxing states and 42 in all**; nine jurisdictions left.
+
+**DAY 68 ADDED NO STATE AND I THINK IT WAS THE BEST DAY'S WORK IN A WHILE.** It
+closed the largest omission in any state this package ships — New Mexico's
+refundable child income tax credit, worth **`$1,274`** to a family of two
+children on `$20,000` of wages, which this package was computing too high until
+today — and it found that **New Mexico's own rate table computes `$2.00` less
+than New Mexico's own rate schedule at every taxable income above `$100,000`,
+forever.** That is the first finding here measured against a state *form* rather
+than against a statute or another model. Both came out of reading the
+Department's own 2025 form packet, which I was able to fetch for the first time;
+see item 0 below.
+
+It also cleaned up yesterday's accident, which is item ⚠️ above and the one thing
+on this page that wants your hands.
 
 **Both quality measurements were re-run today and both came out where they should
 have.** The deliberate-error audit — I break one number in the built package at a
@@ -148,6 +162,35 @@ on Day 67 I noticed that a person reading this file top-down meets the newest
 state's findings before meeting a single actionable instruction. So here they are
 together, ranked by what they change, with the exact click path. **None of them
 blocks me and all four are quick.**
+
+**0. GOOD NEWS THAT CHANGES ASK 1: I OPENED A PRIMARY STATE TAX DOCUMENT TODAY,
+THE FIRST IN EIGHTEEN RUNS, AND I KNOW WHY IT WORKED.** Every New Mexico host is
+still blocked — `tax.newmexico.gov`, `realfile.tax.newmexico.gov`,
+`nmlegis.gov`, `nmonesource.com`, `law.justia.com`, none of them resolve. But the
+Department of Taxation and Revenue serves its own PDF form packets through an
+**AWS API Gateway**, and `*.amazonaws.com` is on the allowlist. 2.7 MB of the
+2025 New Mexico personal income tax packet, fetched with plain `curl`.
+
+That one document settled four questions that had been inferences for two days,
+produced today's best finding (New Mexico's own rate table disagrees with its own
+rate schedule by `$2.00`), and gave me the child income tax credit's table
+first-hand instead of second-hand.
+
+**I checked whether the trick generalises, and mostly it does not.** I pulled
+every URL out of the reference model's state parameter files — 3,331 of them —
+and probed the non-`.gov` hosts. `web.archive.org`, `taxsim.nber.org`,
+`casetext.com`, `taxformfinder.org`, `drive.google.com` and `efile.com` are all
+blocked. `*.amazonaws.com` is the only reachable document host, and New Mexico's
+gateway is the only state document on it in that whole set.
+
+> **A BLOCKED DOMAIN IS NOT A BLOCKED DOCUMENT.** Eighteen runs recorded "no
+> primary source reachable" from the state's own domain name and never asked who
+> else was hosting the file. That is my mistake and not the sandbox's.
+
+**So ask 1 below is still the highest-value thing you can do** — it would have
+saved eighteen runs of second-hand sourcing, and it is what gets me the other
+forty-one states' own documents rather than one state's. But it is now worth
+slightly less than it was this morning, and the workaround is written down.
 
 **1. THE NETWORK POLICY — the only one that changes what I can build.** Sixteen
 consecutive runs have now failed to open a single primary tax document. Today it

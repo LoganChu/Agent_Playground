@@ -939,3 +939,121 @@ test("New Mexico's own rate table computes $2.00 less than its own rate schedule
     return base + (topFrom - 100_000) * fourNine + (ti - topFrom) * top.rate;
   }
 });
+
+test('§ 7-2-18.34(D) TRUNCATES to the dollar, which rules out the 2026 projection twice over', () => {
+  // TWO PUBLISHED TABLES WERE READ FROM THE DEPARTMENT'S OWN PACKETS — Table 4
+  // of the 2024 PIT-RC instructions and Table 4 of the 2025 ones — and together
+  // they determine the SHAPE of the subsection (D) adjustment even though
+  // neither names the index it uses.
+  //
+  // This test is the whole justification for carrying 2025 forward into 2026
+  // rather than shipping the reference model's projected figures, and it is the
+  // only place in this package where a rounding RULE is inferred from published
+  // data rather than read from a document.
+  const BASE_2023 = [600, 400, 200, 100, 75, 50, 25];
+  const PUBLISHED = {
+    2024: [622, 414, 207, 103, 77, 51, 25],
+    2025: [637, 424, 212, 106, 79, 53, 26],
+  };
+
+  // The 2025 column is what this package ships for both years.
+  assert.deepEqual(
+    getStateDefinition('NM', 2025).childIncomeTaxCredit.steps.map((s) => s.amount),
+    PUBLISHED[2025],
+  );
+
+  /**
+   * The interval of cumulative factors consistent with a whole published
+   * column, under one rounding rule. Empty means NO single factor produces that
+   * column that way — which is the finding.
+   */
+  const factorInterval = (published, round) => {
+    let lo = 0;
+    let hi = Infinity;
+    for (const [i, value] of published.entries()) {
+      const base = BASE_2023[i];
+      const [l, h] =
+        round === 'truncate'
+          ? [value / base, (value + 1) / base]
+          : [(value - 0.5) / base, (value + 0.5) / base];
+      lo = Math.max(lo, l);
+      hi = Math.min(hi, h);
+    }
+    return lo < hi ? [lo, hi] : null;
+  };
+
+  // ROUND-HALF-UP IS IMPOSSIBLE FOR BOTH YEARS and truncation fits both. The
+  // witness is the $75 band: round-half-up needs a factor below 1.0600000 to
+  // land it on $79, and the $600 band needs one at or above 1.0608333 to land
+  // on $637. No number is both.
+  assert.equal(factorInterval(PUBLISHED[2024], 'round'), null, '2024 under round-half-up');
+  assert.equal(factorInterval(PUBLISHED[2025], 'round'), null, '2025 under round-half-up');
+  const t24 = factorInterval(PUBLISHED[2024], 'truncate');
+  const t25 = factorInterval(PUBLISHED[2025], 'truncate');
+  assert.ok(t24 && t25, 'truncation fits both published columns');
+  assert.deepEqual(t24.map((n) => n.toFixed(7)), ['1.0366667', '1.0375000']);
+  assert.deepEqual(t25.map((n) => n.toFixed(7)), ['1.0616667', '1.0625000']);
+  // THE $75-BAND WITNESS, stated directly so the reason survives a refactor:
+  // under round-half-up the $75 band needs a factor BELOW (79+0.5)/75 to land on
+  // $79, and the $600 band needs one AT OR ABOVE (637-0.5)/600 to land on $637.
+  // The first ceiling is under the second floor, so no number is both.
+  assert.ok(
+    (79 + 0.5) / 75 < (637 - 0.5) / 600,
+    'the $75 band and the $600 band cannot share a round-half-up factor',
+  );
+
+  // CONSEQUENCE ONE: A PROJECTION IN CENTS CANNOT BE WHAT NEW MEXICO PRINTS.
+  // The reference model's 2026 figures are $651.44, $433.61, $216.81, $108.40,
+  // $80.79, $54.20 and $26.59 — every one of them has cents, and both observed
+  // columns are whole dollars reached by truncation.
+  const PROJECTED_2026 = [651.44, 433.61, 216.81, 108.4, 80.79, 54.2, 26.59];
+  assert.ok(
+    PROJECTED_2026.some((v) => !Number.isInteger(v)),
+    'the projection carries cents where the statute truncates to the dollar',
+  );
+
+  // CONSEQUENCE TWO, AND THE STRONGER ONE: THE INDEX IS WRONG TOO. The
+  // projection is 2025's figures times 176.71308333/172.797 = 1.0226645, the
+  // federal C-CPI-U ratio the reference model uprates with. But the one-year
+  // factor New Mexico ACTUALLY realised between its own 2024 and 2025 tables
+  // lies in (1.023293, 1.024920), derived from the two intervals above — and
+  // the federal one-year ratio for the same pair of years is 1.0288330, outside
+  // it. The federal index does not reproduce either published New Mexico
+  // column, so it is not the index subsection (D) names.
+  const impliedOneYear = [t25[0] / t24[1], t25[1] / t24[0]];
+  assert.deepEqual(impliedOneYear.map((n) => n.toFixed(6)), ['1.023293', '1.024920']);
+  const FEDERAL_ONE_YEAR_2025 = 172.797 / 167.95475;
+  assert.ok(
+    FEDERAL_ONE_YEAR_2025 > impliedOneYear[1],
+    'the federal index over-adjusts against what New Mexico published',
+  );
+  // And applying the federal cumulative ratio to the 2023 base with truncation
+  // gives $667 for the top band where New Mexico published $637 — $30 out on
+  // one year of indexation, which is why this is not a rounding quibble.
+  assert.equal(Math.floor(600 * (172.797 / 158.87191666666669)), 652);
+  assert.notEqual(652, PUBLISHED[2025][0]);
+
+  // SO 2026 CARRIES 2025 FORWARD AND SAYS SO, in seven provisionalFigures
+  // entries and a note. The direction is known — every amount has risen every
+  // year — so the carry-forward understates a refundable credit and overstates
+  // the tax, which is the safe direction for an estimate.
+  const for2026 = getStateDefinition('NM', 2026);
+  assert.equal(for2026.status, 'provisional');
+  assert.deepEqual(
+    for2026.childIncomeTaxCredit.steps.map((s) => s.amount),
+    PUBLISHED[2025],
+  );
+  for (let i = 1; i < 7; i += 1) {
+    assert.ok(PUBLISHED[2025][i - 1] > PUBLISHED[2025][i]);
+    assert.ok(PUBLISHED[2025][i] >= PUBLISHED[2024][i], 'no amount has ever fallen');
+  }
+
+  // THE BAND EDGES NEVER MOVED, which is the other half of what reading two
+  // packets bought: subsection (D) adjusts the AMOUNTS and says nothing about
+  // the bands, and the 2024 table prints the same seven edges as the 2025 one
+  // in the same "But Not Over" shape.
+  assert.deepEqual(
+    getStateDefinition('NM', 2025).childIncomeTaxCredit.steps.map((s) => s.upTo),
+    [25_000, 50_000, 75_000, 100_000, 200_000, 350_000, Infinity],
+  );
+});
