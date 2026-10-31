@@ -518,6 +518,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 78.48
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -1290,6 +1294,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -2057,6 +2065,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -2826,6 +2838,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -3593,6 +3609,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -4362,6 +4382,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -5125,11 +5149,15 @@
    "earnedIncomeCredit": 7152
   },
   "state": {
-   "tax": -1788,
+   "tax": -2636,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1788
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 848
     }
    ]
   },
@@ -5901,11 +5929,15 @@
    "earnedIncomeCredit": 932.98
   },
   "state": {
-   "tax": 414.76,
+   "tax": -9.25,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 233.25
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -6677,11 +6709,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2420.5,
+   "tax": 2208.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 212
     }
    ]
   },
@@ -7453,11 +7489,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 7249.5,
+   "tax": 7091.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 158
     }
    ]
   },
@@ -8233,11 +8273,15 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1020,
+   "tax": -1657,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1020
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 637
     }
    ]
   },
@@ -9005,11 +9049,15 @@
    "earnedIncomeCredit": 4064.33
   },
   "state": {
-   "tax": -1016.08,
+   "tax": -1653.08,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1016.08
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 637
     }
    ]
   },
@@ -9773,11 +9821,15 @@
    "earnedIncomeCredit": 868.33
   },
   "state": {
-   "tax": 266.92,
+   "tax": -157.08,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 217.08
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -10549,6 +10601,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -11330,6 +11386,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -12106,6 +12166,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -12881,6 +12945,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -13662,6 +13730,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -14429,6 +14501,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -15198,6 +15274,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -15966,6 +16046,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -16729,6 +16813,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -17497,6 +17585,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -18278,6 +18370,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 23.21
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -19054,6 +19150,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -19825,11 +19925,15 @@
    "earnedIncomeCredit": 6038.98
   },
   "state": {
-   "tax": -1509.74,
+   "tax": -2781.74,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1509.75
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 1272
     }
    ]
   },
@@ -20601,11 +20705,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1762.5,
+   "tax": 1444.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 318
     }
    ]
   },
@@ -21377,11 +21485,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2508.63,
+   "tax": 2402.63,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 106
     }
    ]
   },
@@ -22145,11 +22257,15 @@
    "earnedIncomeCredit": 2466.33
   },
   "state": {
-   "tax": -505.96,
+   "tax": -929.96,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 616.58
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -22909,11 +23025,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1069.25,
+   "tax": 857.25,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 212
     }
    ]
   },
@@ -23677,11 +23797,15 @@
    "earnedIncomeCredit": 868.33
   },
   "state": {
-   "tax": 14.92,
+   "tax": -409.08,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 217.08
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -24445,11 +24569,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 9895.5,
+   "tax": 9842.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 53
     }
    ]
   },
@@ -25213,11 +25341,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 12345.5,
+   "tax": 12292.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 53
     }
    ]
   },
@@ -25981,11 +26113,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 20730.5,
+   "tax": 20704.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 26
     }
    ]
   },
@@ -26753,11 +26889,15 @@
    "earnedIncomeCredit": 4328
   },
   "state": {
-   "tax": -1082,
+   "tax": -1719,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1082
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 637
     }
    ]
   },
@@ -27525,11 +27665,15 @@
    "earnedIncomeCredit": 3904.53
   },
   "state": {
-   "tax": -976.13,
+   "tax": -1400.13,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 976.13
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -28294,6 +28438,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -29057,6 +29205,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -29826,6 +29978,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -30593,6 +30749,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -31370,6 +31530,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -32142,6 +32306,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -32905,11 +33073,15 @@
    "earnedIncomeCredit": 69.33
   },
   "state": {
-   "tax": 1183.42,
+   "tax": 759.42,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 17.33
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -33673,11 +33845,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3586.25,
+   "tax": 3480.25,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 106
     }
    ]
   },
@@ -34454,6 +34630,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 86.82
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -35226,6 +35406,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -35993,6 +36177,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -36762,6 +36950,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -37529,6 +37721,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -38298,6 +38494,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -39061,11 +39261,15 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": -1829,
+   "tax": -2677,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1829
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 848
     }
    ]
   },
@@ -39837,11 +40041,15 @@
    "earnedIncomeCredit": 1242.3
   },
   "state": {
-   "tax": 315.03,
+   "tax": -108.98,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 310.58
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -40613,11 +40821,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2387.6,
+   "tax": 2175.6,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 212
     }
    ]
   },
@@ -41389,11 +41601,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 7215.2,
+   "tax": 7057.2,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 158
     }
    ]
   },
@@ -42169,11 +42385,15 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1020,
+   "tax": -1657,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1020
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 637
     }
    ]
   },
@@ -42941,11 +43161,15 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": -1062.4,
+   "tax": -1699.4,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1062.41
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 637
     }
    ]
   },
@@ -43709,11 +43933,15 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": 203.8,
+   "tax": -220.2,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 263.4
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -44485,6 +44713,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -45266,6 +45498,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -46042,6 +46278,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -46817,6 +47057,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -47598,6 +47842,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -48365,6 +48613,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -49134,6 +49386,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -49902,6 +50158,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -50665,6 +50925,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -51433,6 +51697,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -52214,6 +52482,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 34.8
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -52990,6 +53262,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -53761,11 +54037,15 @@
    "earnedIncomeCredit": 6369.3
   },
   "state": {
-   "tax": -1592.32,
+   "tax": -2864.32,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1592.33
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 1272
     }
    ]
   },
@@ -54537,11 +54817,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1730.4,
+   "tax": 1412.4,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 318
     }
    ]
   },
@@ -55313,11 +55597,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2483.95,
+   "tax": 2377.95,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 106
     }
    ]
   },
@@ -56081,11 +56369,15 @@
    "earnedIncomeCredit": 2651.62
   },
   "state": {
-   "tax": -560.15,
+   "tax": -984.15,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 662.91
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -56845,11 +57137,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1052.8,
+   "tax": 840.8,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 212
     }
    ]
   },
@@ -57613,11 +57909,15 @@
    "earnedIncomeCredit": 1053.62
   },
   "state": {
-   "tax": -53.8,
+   "tax": -477.8,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 263.4
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -58381,11 +58681,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 9861.2,
+   "tax": 9808.2,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 53
     }
    ]
   },
@@ -59149,11 +59453,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 12311.2,
+   "tax": 12258.2,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 53
     }
    ]
   },
@@ -59917,11 +60225,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 20689.2,
+   "tax": 20663.2,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 26
     }
    ]
   },
@@ -60689,11 +61001,15 @@
    "earnedIncomeCredit": 4427
   },
   "state": {
-   "tax": -1106.75,
+   "tax": -1743.75,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1106.75
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 637
     }
    ]
   },
@@ -61461,11 +61777,15 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": -1022.45,
+   "tax": -1446.45,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 1022.46
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -62230,6 +62550,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -62993,6 +63317,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -63762,6 +64090,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -64529,6 +64861,10 @@
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
     }
    ]
@@ -65306,6 +65642,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -66078,6 +66418,10 @@
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
     }
    ]
   },
@@ -66841,11 +67185,15 @@
    "earnedIncomeCredit": 254.62
   },
   "state": {
-   "tax": 1120.65,
+   "tax": 696.65,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 63.66
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 424
     }
    ]
   },
@@ -67609,11 +67957,15 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 3569.1,
+   "tax": 3463.1,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 106
     }
    ]
   },

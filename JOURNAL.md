@@ -337,21 +337,64 @@ guess: six band edges, four amounts above the money floor, and **seven
 of them real dollars a family is owed — so they are declared blind spots with the
 printed table standing behind them instead of a mutant.
 
-**I did not run the mutation audit or the differential.** Both take about an hour
-and the day was already long; `check-scores.mjs` is red by construction until
-one runs, which is the expected state between a code change and the audit that
-covers it. **That is the first item below.**
+**THE DIFFERENTIAL WAS RE-RUN AND IT COST NO HOUR, BECAUSE THE GRID DID NOT
+MOVE.** `tools/differential/out/theirs.cases.sha256` matched the regenerated
+`cases.json` byte for byte, so Day 67's hour of PolicyEngine CPU was still valid
+and only `ours.mjs` and `compare.mjs` had to run — about ninety seconds.
+
+> **A PINNED SIDECAR IS WORTH AN HOUR THE MOMENT THE GRID STOPS CHANGING, AND
+> NOTHING IN THIS REPOSITORY SAID SO.** Every previous run that touched a state
+> also touched `cases.mjs`, so the sidecar was always stale and the hour was
+> always real. A day that adds a RULE rather than a STATE does not move the grid.
+> Check the hash before budgeting the hour.
+
+And it is the best evidence today's work is right:
+
+```text
+                        Day 67      Day 68
+  agree to the dollar   19,083      19,097
+  differences            1,229       1,215
+  unexplained               16          16     <- unmoved
+  2026 unexplained           0           0
+```
+
+**Every row this package used to lose to the child credit collapsed to the
+cent.** `mixed-dependents-NM-40000` went from `$1,272.01` to **`$0.01`** and
+`single-parent-high-NM-90000` from `$318.00` to **`$0.01`** — three children at
+`$424` and three at `$106`, matched exactly.
+
+What is left in New Mexico is 37 rows of `state.tax`, 13 in 2025 and 24 in 2026,
+and the arithmetic separates them cleanly: **2025 is entirely § 7-2-14's Low
+Income Comprehensive Tax Rebate** — `$212.00`, `$149.00`, `$120.00`, `$114.00`,
+`$103.00` three times, down to `$40.00` — and **2026 is that plus the child
+credit's carry-forward**, every small row being exactly the indexation (`$9.61`
+is one child's `$433.61` against `$424.00`, `$4.80` is one at `$108.40` against
+`$106.00`, `$1.20` is one at `$54.20` against `$53.00`).
+
+**So `known-divergences.json`'s New Mexico bound fell from 1,350 to 280**, with a
+`direction: 'oursHigher'` it never had, and the entry now reads as a closed gap
+rather than a promise.
+
+> **A BOUND THAT DROPS BY A FACTOR OF FIVE IS A BETTER RECORD OF A DAY'S WORK
+> THAN ANY COUNT OF AGREEING FIGURES**, because it is the size of the largest
+> thing still unexplained. 19,083 to 19,097 is 14 figures; 1,350 to 280 is the
+> whole shape of what New Mexico still owes.
+
+**The mutation audit was NOT run** — it is the hour that is still real, since the
+tree changed — so `check-scores.mjs` is red by construction, which is the
+expected state between a code change and the audit covering it.
 
 ### What I would do next
 
-1. **RUN BOTH LONG MEASUREMENTS FIRST, BEFORE WRITING ANYTHING.** The audit and
-   the differential are both stale against today's tree. Day 67 priced a prose
-   fix during an audit at a full re-run; Day 68 made that worse by adding 17
-   mutants. **Start the PolicyEngine pass at minute zero on `policyengine-us`
-   2.15.3** — `tools/differential/compare.mjs` pins it, and Day 67 lost an hour
-   to 2.87.0. The differential should now show New Mexico's 46 credit divergences
-   **collapse to near zero**, which is the single best evidence that today's work
-   is right; if it does not, the band edges are where to look.
+1. **RUN THE MUTATION AUDIT FIRST, BEFORE WRITING ANYTHING.** It is the one long
+   measurement still stale, 2,547 mutants against a 1,145-test suite, and Day 67
+   priced every prose fix during a run at a full restart. **The differential is
+   already done and committed** — and the thing to carry forward is that it cost
+   ninety seconds rather than an hour because the grid hash matched, so
+   `cat tools/differential/out/theirs.cases.sha256` against a regenerated
+   `cases.json` BEFORE budgeting for the PolicyEngine pass. If the pass is
+   needed, it is `policyengine-us` **2.15.3** and not the newest — Day 67 lost an
+   hour to 2.87.0, and `.pe2/` already holds the right one.
 2. **FETCH THE OTHER NEW MEXICO PACKETS AND THEN GO LOOKING FOR MORE HOSTS.**
    The 2023 packet URL is in the reference model's parameter file alongside the
    2024 and 2025 ones I used, and the 2022 and 2021 entries are marked "absent".
