@@ -266,7 +266,60 @@ than getting a figure wrong, and the largest of them is $28.83.
 > STATE**, and the three numbers name three different things: the child income
 > tax credit, this rebate, and a debt.
 
-Other counts: **2,687 mutants** enumerated, up 140 from 2,547. **7,270** numeric
+**THE FULL MUTATION AUDIT WAS RUN TWICE AND FINISHED NEITHER TIME, AND WHAT IT
+COST IS THE FINDING.** 2,687 mutants enumerated, up 140 from 2,547 — and
+measured on an otherwise idle box, the harness completes about **four mutants a
+minute**, which puts the package-wide run at roughly **eleven hours**.
+`tools/preflight.mjs`'s own header calls it "the three-hour mutation audit" and
+`mutate.mjs` records Day 42 losing "105 minutes" to a 1,267-mutant run. Both
+figures are from a smaller package and a smaller suite: `test/*.test.js` now
+takes **89 seconds** with isolation off, and only **2 of 68 test files are
+narrowable by state**, so most mutants pay the whole suite.
+
+> **AN OPERATING COST THAT GREW QUIETLY IS STILL A REGRESSION, AND THIS ONE HAS
+> NO TEST.** Every other measurement in this repository is pinned and checked.
+> The time the audit takes is written in a prose comment, was true of a package
+> a third this size, and nothing has compared it to a clock since. That is why
+> Day 65's "order the mutants cheapest-first" and the test-file narrowing are
+> not housekeeping any more: at eleven hours the audit cannot run inside a day,
+> and a quality number that cannot be re-measured is on its way to being a
+> claim about the past.
+
+**SO THE SCORE WAS MEASURED WHERE IT ACTUALLY MATTERED: `--only new-mexico.js`,
+WHICH IS THE FILE THAT CHANGED.**
+
+```text
+  223 mutants   221 killed   2 survived   99.1%
+```
+
+**And both survivors were already declared, one of them hours before the run.**
+
+```text
+  line 115  money  8_000 -> 16000    § 7-2-5.2's top aged-or-blind row, the
+                                     standing New Mexico survivor
+  line 206  money  36_000 -> 72000   the rebate table's LAST BAND CEILING
+```
+
+The second is the one worth the space. It is `lowIncomeRebate.rows.22.upTo`, and
+`step-probes.test.js`'s new `UNREACHABLE` entry — written this morning, before
+any of this ran — says exactly why nothing can catch it: PIT-RC prints `$36,000`
+twice, once as the last band's ceiling and once as the qualification on the face
+of the form, the engine checks the qualification first, and so the ceiling
+decides no income at all. **Two instruments that share no code reached the same
+conclusion about the same number from opposite directions** — one by asking what
+no probe can move, the other by breaking it and finding nobody noticed.
+
+> **THAT IS THE BEST EVIDENCE A DECLARED BLIND SPOT CAN HAVE, AND IT IS WHY THE
+> DECLARATION WAS WORTH WRITING RATHER THAN THE FIGURE WORTH DELETING.** The
+> tempting fix this morning was to drop one of the two `36,000`s. Keeping both
+> and saying which one works is what let the mutation audit confirm it.
+
+**So `tools/mutation/scores.json` is UNTOUCHED and still reads 2,530 mutants,
+99.7%, measured 2026-10-30** — correctly dated, and correctly stale.
+`check-scores.mjs` is red by construction, which is the documented state between
+a code change and the audit that covers it, and is where Day 68 left it too.
+
+Other counts: **7,270** numeric
 figures in the provenance ledger against **622** citations, up from 6,940 and
 618. **52 new blind spots declared** — the bottom third of Table 1, from $91
 down to $17, below the money floor because a rebate aimed at households under
@@ -325,8 +378,18 @@ false the moment § 7-2-14 was modelled. All five corrected.
 6. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, now five days
    old and the oldest live item).
 7. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3).
-8. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4) and **GIVE THE
-   MUTATION HARNESS A LOCK** (Day 66's item 16).
+8. **MAKE THE AUDIT RUNNABLE AGAIN, AND TREAT THIS AS THE TOP INFRASTRUCTURE
+   ITEM RATHER THAN THE EIGHTH.** It is eleven hours today. Two changes do most
+   of it and neither is speculative: **narrow the test selection** (only 2 of 68
+   files are narrowable by state, so a New Mexico mutant runs 66 files that
+   cannot observe it — the `--only new-mexico.js` run above did 223 mutants in
+   about seven minutes, a rate eight times the package-wide one, and the
+   difference is entirely test selection), and **order the mutants
+   cheapest-first** (Day 65's item 4). Then **GIVE THE HARNESS A LOCK**
+   (Day 66's item 16). **And run it with `--json` into a path outside the
+   scratch directory**, because `--resume` exists and is the difference between
+   losing a part-finished run and continuing it — today's two part-runs were
+   both unresumable for want of that one flag.
 9. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 43).
    Still unbuilt, still priced at twelve minutes, and it cost real serialisation
    again today: every prose edit had to wait for the audit to start.

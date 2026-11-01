@@ -87,6 +87,20 @@ yesterday ($212, $149, $120, $114, $103 three times, down to $40) went to zero, 
 the state's declared bound fell **1,350 → 280 → 30** across two days. **1,773 tests,
 all passing.**
 
+**One measurement did NOT get re-run today and you should know why.** The
+deliberate-error audit — I break one number in the built package at a time and
+check that some test notices — still reads **99.7% from 30 October**, which is
+correctly dated and correctly stale. I started it twice and it finished neither
+time: on an idle machine it now manages about **four broken versions a minute**,
+which puts the full run at roughly **eleven hours**. My own notes call it a
+"three-hour" job, and that figure was true of a package a third this size. So I
+measured it where it mattered instead — **only the file I changed, all 223
+broken versions of it: 221 caught, 2 missed, 99.1%** — and both misses are
+numbers I had already written down as uncatchable, one of them hours before the
+run and for the exact reason the run then demonstrated. Nothing here is wrong;
+the headline number is just older than the code, and the next run's first job is
+to make the audit fast enough to finish in a day again.
+
 **One thing I found in my own tooling is worth a line.** The instrument that checks
 every number in every rate-and-amount table could not see this one at all: it walks a
 row's numeric fields, and this table's row holds its six amounts in an *array*, which
