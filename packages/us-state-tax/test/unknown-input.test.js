@@ -197,7 +197,7 @@ test('a key resembling nothing names the count and the export, and that export e
   const notes = unknownNotes(stateIncomeTax({ ...OH, bookkeepingRef: 'XYZ' }));
   assert.equal(notes.length, 1);
   assert.doesNotMatch(notes[0], /Did you mean/);
-  assert.match(notes[0], /55 field names/);
+  assert.match(notes[0], /56 field names/);
   const quoted = notes[0].match(/`(\w+)`\.$/);
   assert.ok(quoted, 'the note should end by naming an export');
   assert.ok(Array.isArray(pkg[quoted[1]]), `${quoted[1]} is not an exported array`);
@@ -257,7 +257,7 @@ test('the list is exactly the interface, by a source parse independent of the co
     body.replace(/\/\*[\s\S]*?\*\//g, '').match(/^ {2}readonly ([A-Za-z0-9]+)\??:/gm) ?? []
   ).map((line) => line.trim().replace(/^readonly /, '').replace(/\??:$/, ''));
   assert.deepEqual([...declared].sort(), [...KNOWN_STATE_INPUT_FIELDS].sort());
-  assert.equal(declared.length, 55);
+  assert.equal(declared.length, 56);
 });
 
 // ---------------------------------------------------------------------------
@@ -327,7 +327,7 @@ test('the pruned fallback answers exactly what an unpruned full matrix does', ()
       key,
     );
   }
-  assert.ok(keys.length > 55 * 2);
+  assert.ok(keys.length > 56 * 2);
 });
 
 test('the window is five lengths wide, and what it is worth is read off the list', () => {
@@ -350,7 +350,7 @@ test('the window is five lengths wide, and what it is worth is read off the list
     }
   }
   // So the worst a key can do is 15 comparisons where every version before
-  // Day 59 did 55, and most keys do far fewer.
+  // Day 59 did all 56, and most keys do far fewer.
   //
   // IT WAS 14 OF 54 UNTIL DAY 61, AND ONE ADDED FIELD MOVED IT, which is the
   // point the Day 58 sentence above was wrong about: `qualifiedDividends` is
@@ -359,9 +359,16 @@ test('the window is five lengths wide, and what it is worth is read off the list
   // was already the worst one. The figure is a property of this interface's
   // length histogram and it moves when the interface does, which is why it is
   // computed here instead of being written down.
+  //
+  // DAY 69's `newMexicoModifiedGrossIncome` DID NOT MOVE IT, and that is the
+  // other half of the same lesson: at 28 characters it is nowhere near the
+  // 14-to-18 window, so the 56th field cost the prune nothing. Whether an added
+  // field widens the worst case depends on where its LENGTH falls, not on the
+  // field count — which is exactly why both numbers below are asserted and
+  // neither is inferred from the other.
   assert.equal(worst, 15, 'the worst-case window over this field list');
   assert.equal(worstAt, 16, 'and the key length that reaches it');
-  assert.equal(KNOWN_STATE_INPUT_FIELDS.length, 55, 'the premise: what the old version measured');
+  assert.equal(KNOWN_STATE_INPUT_FIELDS.length, 56, 'the premise: what the old version measured');
 });
 
 test('the prune compares the LOWERCASED lengths, and one code point proves it', () => {

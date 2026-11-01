@@ -7,6 +7,40 @@ Maryland jurisdictions, all 92 Indiana counties, all 24 Michigan cities, all **6
 municipalities** and all **214 Ohio school districts** — more taxing jurisdictions than the
 rest of the United States put together. Dependency-free, MIT, ESM and CommonJS, TypeScript types included.
 
+New in 0.60.0: **NEW MEXICO'S LOW INCOME COMPREHENSIVE TAX REBATE, AND THE TABLE IS NOT MONOTONIC IN INCOME.** NMSA 1978 § 7-2-14 pays a **refundable** rebate out of a printed grid — 23 modified-gross-income bands by six exemption columns, **138 cells**, nothing above `$36,000` — and the poorest band pays **less** than the next one up, in all six columns:
+
+```text
+  exemptions          1     2     3     4     5    6+
+  $0 - $1,000       224   298   373   448   522   597
+  $1,001 - $1,500   252   362   465   580   655   775
+  one dollar is      28    64    92   132   133   178
+```
+
+**`$178` for one dollar of income**, to a six-exemption household — a cliff pointing the opposite way from every other discontinuity this package documents in the state, where § 7-2-5.14's Social Security limit costs a couple `$3,961.85` for a dollar. A New Mexico resident who files with **no income at all** is paid `$224`. The column maxima are not even in the same row — columns 1 to 4 peak at `$1,001`–`$7,500`, column 5 at `$7,501`–`$9,000`, column 6 at `$2,501`–`$8,000` — so it is six schedules and not one profile scaled six ways, which is why all 138 cells are written out rather than generated.
+
+**THE INCOME IT IS BANDED ON IS NEITHER FEDERAL AGI NOR STATE TAXABLE INCOME.** PIT-RC lines 4 to 11 build **modified gross income** out of eight *gross* figures, and the form states the relationship itself: the total *"must equal or exceed Federal Adjusted Gross Income from Form PIT-1, line 9"*. It takes the **whole** Social Security benefit rather than the § 86 part, and adds public assistance, TANF, SSI, gifts of cash or marketable items received, scholarships, grants, insurance settlements, trust income, inheritance and child support; it floors business, farm and rental **losses** at zero and refuses to net capital losses against capital gains, which N.M. Admin. Code § 3.3.1.10 states in terms — *"zero is the lowest amount which may be reported for any item"*. **So the most progressive provision in the state is means-tested on the broadest income definition on the return.** Pass it as `newMexicoModifiedGrossIncome`; without it the engine derives a **floor** from federal AGI, tax-exempt interest and any untaxed Social Security, and names the assumption on the credit line, because a floor on the income is a **ceiling** on the rebate. A couple on `$24,000` of benefit and `$12,000` of pension has `$12,000` of federal AGI and `$36,000` of modified gross income: a `$212` rebate read on the first figure and a `$40` one read on the second.
+
+**AND THE EXEMPTION COUNT THAT CHOOSES THE COLUMN IS NOT THE EXEMPTION COUNT.** PIT-RC line 2 adds **two** for each filer 65 or over and **one** for each blind filer:
+
+```text
+  IRC § 63(f)         age and blindness EQUAL, and they STACK on one person
+  NMSA 1978 § 7-2-5.2 age and blindness ALTERNATIVES — a filer who is both qualifies once
+  PIT-RC line 2       age is worth TWICE what blindness is
+```
+
+Three provisions, three weightings, the same two facts about one filer. A single New Mexican of 65 is therefore a **three**-exemption household on this table and a couple both 65 is a **six**-exemption one — reading the last column, the one a family of six reads, and paid **`$839`** where their federal return knows of two people.
+
+Also new in 0.60.0: **THE 138 AMOUNTS ARE INDEXED, THE INDEXATION IS CUMULATIVE RATHER THAN CHAINED, AND THE DEPARTMENT CHANGED ITS OWN ROUNDING RULE AFTER 2023** — all three established from **five published tables** rather than from the statute. The 2021 and 2022 tables are identical, cell for cell, and are the statutory base. No single factor takes the 2023 table to the 2024 one, or the 2024 table to the 2025 one, under truncation *or* under rounding, so **a model that uprates last year's published figures cannot reproduce what New Mexico prints however good its index is**. And the rule is not constant:
+
+```text
+                   round-half-up     truncation
+  2023 table         138 / 138        100 / 138
+  2024 table          93 / 138        138 / 138
+  2025 table          98 / 138        138 / 138
+```
+
+Each rule misses the other year by dozens of cells, so neither is a misprint. The realised cumulative factors against the 2021 base are `[1.0820000, 1.0820225)`, `[1.1220339, 1.1222222)` and `[1.1493333, 1.1494505)`; **the index itself is not identified** — none of the three contains the CPI-U annual-average ratio to 2021 — so 2026 carries 2025 forward in 23 `provisionalFigures` entries on the **amounts** and not on the bands, which have been identical in all five tables. The leading open model stores the same published cells and uprates them with the federal C-CPI-U under a `rounding: nearest` rule, which is the rule New Mexico stopped using.
+
 New in 0.59.0: **NEW MEXICO'S REFUNDABLE CHILD INCOME TAX CREDIT, READ OFF THE DEPARTMENT'S OWN TABLE 4 — AND THE BAND EDGES ARE WHAT A MODEL GETS WRONG.** NMSA 1978 § 7-2-18.34 pays `$637` a qualifying child up to `$25,000` of federal AGI, then `$424`, `$212`, `$106`, `$79`, `$53` and `$26`. The printed table's second column is headed **"But Not Over"**, so `$25,000` is the TOP of the `$637` band and the `$424` band opens at `$25,001` — which makes a model that stores the left column as a threshold **one band too stingy at all six edges**: `$424` instead of `$637` at exactly `$25,000`, and `$212` instead of `$424` at `$50,000`, a quarter of the credit on one dollar of income. The six cliffs are **`$213`, `$212`, `$106`, `$27`, `$26` and `$27`** a child, every one measured. It is **refundable**, so a New Mexico family of two children on `$20,000` of wages is paid **`$1,274`** by this credit and `$2,774` in all — and this package computed that household `$1,274` too high until today. It is **halved** on a separate return rather than barred, the opposite of New Jersey's credit of the same shape. And the qualifying child is IRC § 152(c)'s **without § 32(m)'s identification-number requirement**, so a child with an ITIN counts here and not for the federal earned income credit — the leading open model counts EITC children and so denies the whole `$637` a child to such a family.
 
 Also new in 0.59.0: **NEW MEXICO'S OWN RATE TABLE COMPUTES `$2.00` LESS THAN NEW MEXICO'S OWN RATE SCHEDULE, AT EVERY TAXABLE INCOME ABOVE `$100,000`, FOREVER.** The 2025 TAX RATE TABLE is a `$100`-wide **midpoint** table — its `$99,900`–`$100,000` row prints `$4,356` for a single filer, the exact § 7-2-7 tax at `$99,950` rounded — and the continuation table for higher incomes uses **that** figure as its base, where the exact tax at `$100,000` is `$4,358.00`. So the Department's prescribed computation sits `$2.00` below the statutory schedule above the breakpoint and never converges; `$2.50` for a married filer filing separately. This package returns the **schedule**, because § 7-2-7 is the law, and says so. It is the only figure here measured against a state **form** rather than against a statute or another model — and it was found by reading the first primary New Mexico document this project has ever opened, the Department's own 2025 PIT packet, which also settled the § 151(b) separate-return spouse, the dependent deduction's "subtract 1" worksheet step and the unindexed Social Security thresholds.
@@ -824,7 +858,7 @@ other.
 ```bash
 # Not on npm yet — and it does not have to be. Zero runtime dependencies means the
 # tarball is self-contained, and npm installs one from a URL without an account.
-npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.59.0/us-state-tax-0.59.0.tgz
+npm i https://github.com/LoganChu/Agent_Playground/releases/download/us-state-tax-v0.60.0/us-state-tax-0.60.0.tgz
 ```
 
 ## The rate is the easy part
@@ -3019,7 +3053,7 @@ wide step survives the same mutation — `$1,500` doubled is `$3,001`, and a pro
 `$2,250` is still inside the step it started in.
 
 Beside it is the same companion the sweep has. It takes **every number in every
-staircase the package ships** — 2,074 of them, ceilings, floors, amounts, fractions
+staircase the package ships** — 2,396 of them, ceilings, floors, amounts, fractions
 and age bounds alike — sets each one wrong, and fails unless a pinned answer moves.
 Four rows are exempt, each with a written reason and a direct assertion in their
 place:
@@ -3052,7 +3086,7 @@ README it never sees. **Nothing asserted them.** A note written for 2026 could h
 appeared on a 2025 return, or vanished from 2026, and the suite would have been
 green.
 
-`test/notes.test.js` pins the first 72 characters of all **913** notes every
+`test/notes.test.js` pins the first 72 characters of all **923** notes every
 state-year emits, in order. Not the whole note, because the prose is edited and a
 fixture that churned would stop being read; what the prefix catches is a note
 appearing, vanishing, moving or swapping years. Beside it is a hand-written table of
@@ -3077,8 +3111,8 @@ reads, and all 27 of them are now required to equal a figure the rule actually h
 ## Where every figure came from, and why it did not move (v0.33.0)
 
 Every figure here was already cited to a statute or a state release. What nothing said
-was **which document any one figure came from**. Today the ledger covers 6,940 numeric
-figures over 84 state-years, against 618 citations; when it was written there was no
+was **which document any one figure came from**. Today the ledger covers 7,270 numeric
+figures over 84 state-years, against 622 citations; when it was written there was no
 mapping between the two at all. **A list of sources beside a list of figures
 is not provenance. The mapping is the provenance, and it is the part nobody writes
 down.**
@@ -3124,14 +3158,14 @@ that sentence in the data, a reader cannot tell Maryland from a defect.
 
 ### What a new tax year costs, derived rather than remembered
 
-The `kind` field answers one operational question. Over the 3,453 figures of tax year
+The `kind` field answers one operational question. Over the 3,618 figures of tax year
 2026:
 
 | for a new tax year | figures |
 | --- | --- |
-| nothing at all (`statute`, `derived`, `sentinel`) | **2,310** |
+| nothing at all (`statute`, `derived`, `sentinel`) | **2,337** |
 | the statute's own schedule (`statute-scheduled`) | **148** |
-| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **988** |
+| a release read (`indexed`, `agency`, `carried-forward`, `determined-after-year-end`) | **1,126** |
 | nothing to the state, everything to whoever tracks the federal figure (`federal-conformity`) | **7** |
 
 Those four numbers are now pinned by `test/provenance.test.js` rather than quoted.
@@ -3372,7 +3406,7 @@ people who did not need it: the caller who gets a field name wrong is the caller
 who does not know the field name, and they do not know to ask for strict either.
 
 A test suite is the one caller that does know, and this one asks for the throw
-from all **1,145 tests**. Turning it on, when there were 618 of them, is what
+from all **1,151 tests**. Turning it on, when there were 618 of them, is what
 measured the cost of not having
 it: **109 tests were passing a key this engine does not read**, through fourteen
 household helpers that each spread their own option bag into the input. None of

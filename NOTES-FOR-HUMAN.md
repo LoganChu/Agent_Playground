@@ -13,6 +13,20 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
+**AS OF DAY 69 THERE IS STILL NOTHING NEW FOR YOU TO DO.** Today added no ask.
+The one below that wants your hands is unchanged and is Day 68's; everything
+else today was reading documents and writing code.
+
+**AND ONE THING GOT CHEAPER FOR EVERY FUTURE RUN, WHICH IS WORTH KNOWING EVEN
+THOUGH IT ASKS NOTHING OF YOU.** The reason 838 MB of AGPL code was ever
+installed here is that reading the reference model seemed to require installing
+it. It does not: `raw.githubusercontent.com` answers from this sandbox, so any
+public file in that project is one `curl` away, with no virtualenv and no
+licence question, because reading a public file is not vendoring it. Sixty-eight
+days of runs never tried it. If you were weighing the force-push below partly on
+"will this happen again" — it is now much less likely to, and the guard added on
+Day 68 would stop it anyway.
+
 **AS OF DAY 68 THERE IS A FIFTH ASK AND IT IS THE FIRST ONE IN THIS FILE,
 because it is the only one that is about a mistake rather than a setting: 838 MB
 of AGPL-licensed code is in this repository's published history and taking it out
@@ -30,9 +44,56 @@ which reached a 2019 Legislative Finance Committee report, a Taxation and Revenu
 Department presentation and a 2024 bill's own record of being killed, none of
 which this container can fetch.
 
-`us-state-tax` is now **v0.59.0** and `us-tax-mcp` **v0.63.0**;
-`us-federal-tax` stays at **v0.16.0**. **1,767 tests** across the four suites, all
+`us-state-tax` is now **v0.60.0** and `us-tax-mcp` **v0.64.0**;
+`us-federal-tax` stays at **v0.16.0**. **1,773 tests** across the four suites, all
 passing. **33 taxing states and 42 in all**; nine jurisdictions left.
+
+**DAY 69 ADDED NO STATE EITHER, AND IT CLOSED THE LARGEST THING LEFT IN ANY STATE
+THIS PACKAGE SHIPS.** New Mexico's low income comprehensive tax rebate — § 7-2-14,
+**refundable**, a printed grid of 138 amounts that reaches further down the income
+distribution than anything else in the state. A New Mexico resident who files with
+no income at all is paid **$224**, and this package was computing that household
+$224 too high until today.
+
+**The thing to tell somebody about it is that the table is not monotonic.** The
+poorest band pays LESS than the next one up, in all six of its columns: the dollar
+that takes a filer from $1,000 to $1,001 of income is worth **$28** to a
+one-exemption household and **$178** to a six-exemption one. Every other
+discontinuity I have documented in this state costs a filer money for earning a
+dollar; this one pays them.
+
+**And the best finding needed five documents rather than one.** The amounts are
+indexed, and I was able to fetch the Department's packets for 2021, 2022, 2023 and
+2024 as well as 2025 — two of which the leading open tax model's own parameter file
+records as *"absent"*, with working URLs beside the word. Five printed copies of one
+table, 138 cells each, settle three things that no single year could: the 2021 and
+2022 tables are identical and are the statutory base; the indexation runs
+**cumulatively from that base and is never chained off the previous printed year**,
+which is arithmetically impossible for both 2024 and 2025 under every rounding rule;
+and **the Department changed its own rounding rule after 2023** — round-half-up
+reproduces all 138 cells of the 2023 table and truncation reproduces all 138 of 2024
+and of 2025, each ruling the other out by dozens of cells.
+
+That matters commercially and not just as a curiosity: it means a model that uprates
+last year's published figures cannot reproduce what New Mexico prints, however good
+its inflation index is. The leading open model does exactly that, with a
+`rounding: nearest` rule New Mexico stopped using two years ago.
+
+**The quality measurements both moved the right way.** The comparison against that
+independent model now agrees on **19,107** figures to the dollar, up from 19,097, with
+the same **16** differences I cannot explain and none of them in 2026. **Every single
+2025 New Mexico difference is now closed** — what was the whole of that column
+yesterday ($212, $149, $120, $114, $103 three times, down to $40) went to zero, and
+the state's declared bound fell **1,350 → 280 → 30** across two days. **1,773 tests,
+all passing.**
+
+**One thing I found in my own tooling is worth a line.** The instrument that checks
+every number in every rate-and-amount table could not see this one at all: it walks a
+row's numeric fields, and this table's row holds its six amounts in an *array*, which
+is not a number. **276 of the 322 numbers the rebate added went through it untouched
+while it reported a clean sweep.** Fixed, and the count of numbers it guards went
+from 2,074 to 2,396. The file's own header had predicted this exact failure in
+general terms a month ago.
 
 **DAY 68 ADDED NO STATE AND I THINK IT WAS THE BEST DAY'S WORK IN A WHILE.** It
 closed the largest omission in any state this package ships — New Mexico's
@@ -192,7 +253,30 @@ saved eighteen runs of second-hand sourcing, and it is what gets me the other
 forty-one states' own documents rather than one state's. But it is now worth
 slightly less than it was this morning, and the workaround is written down.
 
-**1. THE NETWORK POLICY — the only one that changes what I can build.** Sixteen
+**1. THE NETWORK POLICY — the only one that changes what I can build, and on
+Day 69 I finally MEASURED it instead of describing it.**
+
+I took every source URL out of the independent reference model's state parameter
+files — 4,392 files, every `href:` in them — reduced them to **483 distinct
+hosts**, and probed every single one from this container:
+
+```text
+  klvg4oyd4j.execute-api.us-west-2.amazonaws.com    the ONLY one that answers
+  464 hosts                                         refused
+   18 hosts                                         listed over plain http://,
+                                                    and refused over https:// too
+```
+
+**One host out of 483.** It is New Mexico's Taxation and Revenue Department file
+gateway, which is why the last two days have been New Mexico and why no other
+state has had a primary document read. `law.cornell.edu`, `law.justia.com`,
+`casetext.com`, `web.archive.org` and all forty-nine other state revenue
+departments are blocked.
+
+That is the number to weigh the setting against. It is not that documents are
+occasionally hard to get; it is that **one state in fifty has one.**
+
+The original text follows. Sixteen
 consecutive runs have now failed to open a single primary tax document. Today it
 was `tax.newmexico.gov`, `realfile.tax.newmexico.gov`, `nmlegis.gov`,
 `nmonesource.com` and `law.justia.com`, none of which resolve. Every state for ten

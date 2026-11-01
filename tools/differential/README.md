@@ -555,6 +555,71 @@ same 2,376 households it was yesterday, with the new state never compared to any
 
 It is now derived from `SUPPORTED_STATES` and each state's own `rate.kind`.
 
+## READING THE REFERENCE MODEL DOES NOT NEED THE REFERENCE MODEL INSTALLED
+
+**Read this before you type `pip install` for any reason other than running the
+harness below.**
+
+`raw.githubusercontent.com` is reachable from this container. Any public file in
+`PolicyEngine/policyengine-us` is one `curl` away:
+
+```bash
+B=https://raw.githubusercontent.com/PolicyEngine/policyengine-us/master/policyengine_us
+curl -s "$B/parameters/gov/states/nm/tax/income/credits/ctc/amount.yaml"
+curl -s "$B/variables/gov/states/nm/tax/income/rebates/low_income_comprehensive/nm_low_income_comprehensive_tax_rebate.py"
+```
+
+A `404` from that host is a genuine "no such path" and not a block, so guessing
+paths is cheap. What is NOT reachable, so that nobody re-tests them: `api.github.com`
+is gated to this session's own repositories, and `codeload.github.com` refuses
+tarballs — which is why "GitHub is blocked" was believed here for sixty-eight days
+and why the one host that matters was never tried.
+
+**THE PARAMETER FILES ARE WORTH MORE FOR THEIR `reference:` BLOCKS THAN FOR THEIR
+FIGURES.** Each one names the primary document behind a parameter, with a URL.
+Day 69 got five New Mexico form packets that way — two of which the model's own
+file marks `absent` beside URLs that serve a PDF.
+
+### AND THE DOCUMENTS THEMSELVES: 483 HOSTS PROBED, ONE ANSWERS
+
+Day 68 probed the non-`.gov` hosts in one state's `reference:` blocks and found
+New Mexico's packet gateway. Day 69 did the whole thing, because the parameter
+files are now free to read: **every `href:` in all 4,392 state parameter files,
+reduced to 483 distinct hosts, every one probed.**
+
+```text
+  https://klvg4oyd4j.execute-api.us-west-2.amazonaws.com    the ONLY one that answers
+                                                            403 on `/`, 200 on a real file
+  464 hosts                                                 refused by the proxy
+   18 hosts                                                 named over plain http://, and
+                                                            refused over https:// as well
+```
+
+**So the `reference:` route yields exactly one state's primary documents, and it
+is New Mexico's.** `law.cornell.edu`, `law.justia.com`, `casetext.com`,
+`web.archive.org` and all forty-nine other states' revenue departments are
+blocked, including every one a reader would try first.
+
+> **THIS IS A NEGATIVE RESULT AND IT IS WORTH ITS SPACE.** It is the question
+> every run asks when it reaches for a statute, it costs five minutes to answer
+> by hand, and it had been answered by hand at least eighteen times. Do not
+> re-run it for a state; re-run it only when the network policy changes, and
+> then replace these numbers. The list of hosts is reproducible:
+> `grep -rhoE 'href: *https?://[^ ]+'` over the model's `parameters/gov/states`.
+
+**What this does NOT say is that a document is unreachable.** Day 68's rule
+stands and is the reason the one hit exists: a state may serve its own PDF from
+a host that is not its own domain, and the `reference:` block is where that host
+is written down. The rule is now measured rather than hopeful — there is one
+such host in the whole corpus, and it has been found.
+
+> **TWO JOBS, AND ONLY ONE OF THEM NEEDS AN INSTALL.** Reading parameters or
+> variables: `curl`, no virtualenv, no licence question, because reading a public
+> file is not vendoring it. **Running the differential below: an install, because
+> `theirs.py` imports the model and executes it.** Day 67 conflated the two, put
+> an 838 MB AGPL virtualenv in `main`, and lost an hour to the wrong version —
+> and the reading half of that day never needed the install at all.
+
 ## Running it
 
 ```bash

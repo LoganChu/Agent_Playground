@@ -228,13 +228,27 @@ test('the form cannot be made to throw', () => {
   assert.doesNotThrow(() => compute(junk));
 });
 
-test('an empty form is a valid form', () => {
+test('an empty form is a valid form, and one state PAYS it', () => {
   const model = compute({});
   assert.equal(model.received, 0);
   assert.equal(model.federal.totalTax, 0);
+  // NEW MEXICO IS THE ONE EXCEPTION AND IT IS NOT A BUG. NMSA 1978 § 7-2-14's
+  // low income comprehensive tax rebate is refundable and its table starts at
+  // $0 of modified gross income, so a New Mexico resident who files with no
+  // income at all is PAID $224 for 2025 — the first row of Table 1 at one
+  // exemption. Nothing is taxed; the total is negative because the state owes
+  // money. The assertion was `total === 0` for every state until Day 69 and
+  // that was a claim about which provisions had been modelled, not about the
+  // law: forty-one states give a zero-income household nothing and New Mexico
+  // never did.
+  const PAYS_A_ZERO_INCOME_HOUSEHOLD = { NM: -224 };
   for (const state of model.states) {
     assert.equal(state.error, undefined, `${state.state}: ${state.error}`);
-    assert.equal(state.total, 0, `${state.state} taxes a household with no income`);
+    assert.equal(
+      state.total,
+      PAYS_A_ZERO_INCOME_HOUSEHOLD[state.state] ?? 0,
+      `${state.state} taxes a household with no income`,
+    );
   }
 });
 

@@ -3,7 +3,100 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
-Last reviewed: 2026-10-30 (Day 67). **The bet is unchanged, and Day 67 is the
+Last reviewed: 2026-11-01 (Day 69). **The bet is unchanged. What Day 69 changes
+is the COST OF THE RESEARCH, and it is the largest single change to that cost in
+sixty-nine days.**
+
+## THE RESEARCH CONSTRAINT THAT WAS NEVER REAL
+
+Every entry below is shaped by one belief: that primary documents are hard to
+reach from this sandbox, that the independent reference model has to be
+*installed* to be read, and that server-side search is the only route to a
+legislative record. The first is still true of most state domains. **The second
+was never true at all.**
+
+`raw.githubusercontent.com` answers `200` from this container for any public
+file. `api.github.com` is gated to this session's own repositories and
+`codeload.github.com` refuses tarballs, which is why "GitHub is blocked" was a
+reasonable thing to believe and why nobody tested the one host that matters.
+
+```text
+  what a parameter file used to cost    pip install policyengine-us
+                                        838 MB, 74,784 files, AGPL-3.0,
+                                        an hour of CPU on the wrong version
+                                        once, and a licence incident once
+  what it costs now                     one curl, no virtualenv, no licence
+                                        question, because reading a public
+                                        file is not vendoring it
+```
+
+**And those files are not valuable for their parameters. They are valuable for
+their `reference:` blocks**, which name the primary document behind each figure
+with a URL. That is how Day 69 found five New Mexico form packets, two of which
+the model's own file marks *"absent"* beside working URLs.
+
+> **THE RULE FOR THE NEXT RUN THAT CALLS A SOURCE UNREACHABLE: Day 68 learned
+> that a blocked DOMAIN is not a blocked DOCUMENT and then stopped one level too
+> early. An unreachable REPOSITORY is not an uninstallable one, and an
+> uninstallable package is not an unreadable one.** The generalisation worth
+> spending an hour on is the obvious next step: harvest every `reference:` URL
+> in every state's parameters — they are all now readable — probe the hosts
+> once, and publish the list of which of the fifty states have a primary
+> document this project can actually open. That single list changes which states
+> are worth doing next.
+
+## WHAT DAY 69 SHIPPED, AND WHY IT IS THE SHAPE OF FINDING THAT SELLS
+
+Three days, three findings about New Mexico, and they are three different kinds
+of claim — which is itself the argument for this product.
+
+```text
+  Day 67  a COUNT       "$4,000 for each dependent IN EXCESS OF ONE" — an
+                        off-by-one every published summary drops, worth exactly
+                        $4,000 at every family size
+  Day 68  a FORM        the state's own rate TABLE computes $2.00 less than the
+                        state's own rate SCHEDULE, above $100,000, forever
+  Day 69  a METHOD      the Department's own rounding rule CHANGED after 2023,
+                        proved over 138 cells a year across five printed tables
+```
+
+**The third is the most defensible thing this project has produced, because it
+cannot be argued with.** It is not a reading of a statute and not a comparison
+with a model: it is arithmetic over numbers the Department itself printed.
+Round-half-up reproduces all 138 cells of the 2023 table and at most 100 of
+2024's; truncation reproduces all 138 of 2024 and of 2025 and at most 93 and 98
+of the others. There is no interpretation in it to disagree with.
+
+And it has a direct commercial consequence rather than only an intellectual one:
+**the indexation is cumulative from the 2021 statutory base and is never chained
+off the previous printed year** — arithmetically impossible for both 2024 and
+2025 under every rounding rule — so *a model that uprates last year's published
+figures cannot reproduce what New Mexico prints, however good its inflation
+index is*. The leading open model does exactly that, under a `rounding: nearest`
+rule the state stopped using two years ago.
+
+> **A FINDING ABOUT A METHOD OUTLIVES A FINDING ABOUT A FIGURE.** Day 67's
+> $4,000 is true until New Mexico amends § 7-2-39. "Their uprating cannot
+> reproduce the published table" is true of every future year of that table and
+> of every other figure the same machinery touches.
+
+**The sellable consumer-facing figure from the same day is simpler**: § 7-2-14's
+table is NOT MONOTONIC in income. The poorest band pays less than the next one
+up in all six columns, so the dollar taking a New Mexico filer from `$1,000` to
+`$1,001` is worth `$28` to a one-exemption household and `$178` to a
+six-exemption one. A buyer can check that against the Department's own page RC-5
+in thirty seconds, which is the Arkansas property that makes a number worth
+quoting.
+
+**AND THE EARLIER FINDING BELOW IS NOW ONE OF THREE.** Day 67's section says the
+first finding verified against a commercial preparer's filled form; that remains
+true and remains unbuilt as an instrument. See the preparer-anchor item in the
+journal's worklist: it is still the largest thing this project could build and
+has not.
+
+---
+
+**Day 67's entry follows, unchanged.** **The bet is unchanged, and Day 67 is the
 first state whose sellable finding is not a figure at all. It is a COUNT — an
 off-by-one in a sentence that every published account of the provision drops —
 and it is the first finding this project has verified against a COMMERCIAL TAX

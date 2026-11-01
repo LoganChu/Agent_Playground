@@ -12,6 +12,7 @@ import type {
   ExemptionRule,
   FractionThereofStaircase,
   IncomeMeasure,
+  LowIncomeRebateTableRule,
   LowIncomeTableRow,
   OwnEarnedIncomeCreditRule,
   RetirementIncomeSubtractionRule,
@@ -2259,6 +2260,111 @@ function childIncomeTaxCredit(
   return rule.halvedFilingStatuses.includes(input.filingStatus) ? credit / 2 : credit;
 }
 
+/**
+ * The **floor** on New Mexico modified gross income derivable from what a
+ * caller has already supplied, used when PIT-RC line 12 was not given.
+ *
+ * Three terms, and each one is a figure this package already holds:
+ *
+ * ```text
+ *   federal AGI                                   PIT-RC line 12 "must equal or exceed" it
+ * + tax-exempt interest                           PIT-RC line 11, never in federal AGI
+ * + (gross Social Security - the taxable part)    PIT-RC line 5 takes the GROSS benefit
+ * ```
+ *
+ * The Social Security term is the one that moves real households. A New Mexico
+ * couple on `$24,000` of benefit and `$12,000` of pension has `$12,000` of
+ * federal AGI if § 86 taxes none of the benefit — and `$36,000` of modified
+ * gross income, which is the last dollar of the table. Read on AGI alone they
+ * are a `$655` household (2025, two exemptions at `$2,501`–`$7,500`); read on
+ * the floor they are a `$40` one. **Every other term is missing in the same
+ * direction**: public assistance, SSI, gifts, child support, inheritance and
+ * the capital losses the state refuses to net are all additions, so the true
+ * figure is at or above this one and the rebate at or below what it yields.
+ *
+ * Gross benefit is only knowable from {@link RetirementIncomeSplit}, so a
+ * caller who passed {@link StateIncomeTaxInput.taxableSocialSecurity} alone
+ * contributes nothing to this term and the floor is that much weaker. That is
+ * stated rather than fixed, because the alternative is inventing an untaxed
+ * share, and the share runs from 0% to 100% of the benefit across the § 86
+ * computation.
+ */
+function newMexicoModifiedGrossIncomeFloor(input: StateIncomeTaxInput, agi: number): number {
+  const taxableBenefit = nonNegative(input.taxableSocialSecurity, 'taxableSocialSecurity');
+  const split = input.retirement;
+  const grossBenefit =
+    split === undefined
+      ? taxableBenefit
+      : nonNegative(split.filer?.socialSecurityBenefits, 'retirement.socialSecurityBenefits') +
+        nonNegative(split.spouse?.socialSecurityBenefits, 'retirement.socialSecurityBenefits');
+  return (
+    agi +
+    nonNegative(input.taxExemptInterest, 'taxExemptInterest') +
+    Math.max(0, grossBenefit - taxableBenefit)
+  );
+}
+
+/**
+ * PIT-RC line 3: the exemption count the rebate table's COLUMN is chosen by.
+ *
+ * Federal exemptions, plus two for each aged filer and one for each blind
+ * filer. See {@link LowIncomeRebateTableRule} for why those two numbers are
+ * not the same and why that is the reverse of IRC § 63(f).
+ *
+ * Two lines of the form are not modelled and both are subtractions, so this
+ * count is an upper bound and the rebate it selects is a ceiling — the same
+ * direction as the income floor above. Line 2a removes household members who
+ * do not qualify (a non-resident dependent, most often), and line 2h removes,
+ * on a separate return, the exemptions the other spouse claimed on THEIR
+ * PIT-RC — a figure that exists only on a different return and that nothing on
+ * this one implies.
+ */
+function lowIncomeRebateExemptions(
+  rule: LowIncomeRebateTableRule,
+  input: StateIncomeTaxInput,
+): number {
+  const filers = livingFilerCount(input.filingStatus);
+  const aged = seniorFilers(input, rule.agedExemptionAge) * rule.agedExemptions;
+  // Capped at the filer count for the same reason California's exemption credit
+  // caps it: `blindOrDisabled` is a household figure and PIT-RC line 2c asks
+  // only about the filer and the spouse. A blind dependent adds nothing here.
+  const blind =
+    Math.min(nonNegative(input.blindOrDisabled, 'blindOrDisabled'), filers) * rule.blindExemptions;
+  return filers + dependentCount(input) + aged + blind;
+}
+
+/**
+ * The rebate itself: one lookup in the printed grid, halved on the statuses the
+ * statute halves.
+ *
+ * The `income > maximumIncome` test is first and is NOT the same as falling off
+ * the end of {@link LowIncomeRebateTableRule.rows}. PIT-RC states it as a
+ * qualification and prints it on the face of Section 2 — *"If line 13 is MORE
+ * than $36,000, DO NOT complete line 14."* — so a household one dollar past the
+ * last row is not paid the last row's amount; it is paid nothing.
+ */
+function lowIncomeRebate(
+  def: StateIncomeTaxDefinition,
+  input: StateIncomeTaxInput,
+  modifiedGrossIncome: number,
+): number {
+  const rule = def.lowIncomeRebate;
+  if (!rule) return 0;
+  // N.M. Admin. Code § 3.3.1.10: "zero is the lowest amount which may be
+  // reported for any item in computing modified gross income", so the figure
+  // itself cannot be negative even where federal AGI is.
+  const income = Math.max(0, modifiedGrossIncome);
+  if (income > rule.maximumIncome) return 0;
+  const columns = rule.rows[0]?.amounts.length ?? 0;
+  if (columns === 0) return 0;
+  const exemptions = lowIncomeRebateExemptions(rule, input);
+  const column = Math.min(Math.max(exemptions, 1), columns) - 1;
+  const row = rule.rows.find((r) => income <= r.upTo);
+  if (row === undefined) return 0;
+  const amount = row.amounts[column] ?? 0;
+  return rule.halvedFilingStatuses.includes(input.filingStatus) ? amount / 2 : amount;
+}
+
 /** Property tax paid, counting a tenant's rent at the statutory fraction. */
 function qualifyingPropertyTax(def: StateIncomeTaxDefinition, input: StateIncomeTaxInput): number {
   const rule = def.propertyTaxRelief;
@@ -4175,6 +4281,28 @@ function computeOnce(
       name: def.agedCredit.name,
       amount: agedCredit(def, input),
       refundable: def.agedCredit.refundable,
+    });
+  }
+  if (def.lowIncomeRebate) {
+    const rule = def.lowIncomeRebate;
+    const supplied = input.newMexicoModifiedGrossIncome;
+    const income =
+      supplied === undefined
+        ? newMexicoModifiedGrossIncomeFloor(input, measures.federalAdjustedGrossIncome)
+        : nonNegative(supplied, 'newMexicoModifiedGrossIncome');
+    credits.push({
+      // The assumption is named only when it can still be wrong. A derived
+      // floor ABOVE the table's last row settles the answer at zero on its own,
+      // because the true figure is at or above the floor — so annotating that
+      // return would report an uncertainty the arithmetic has already closed.
+      name:
+        supplied === undefined && Math.max(0, income) <= rule.maximumIncome
+          ? `${rule.name} (assumed: modified gross income is the floor derivable from federal ` +
+            `AGI, tax-exempt interest and any untaxed Social Security — a floor on the income ` +
+            `is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)`
+          : rule.name,
+      amount: lowIncomeRebate(def, input, income),
+      refundable: rule.refundable,
     });
   }
 

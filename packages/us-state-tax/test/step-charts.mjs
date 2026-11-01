@@ -297,6 +297,25 @@ function probeReturn(state, year, filingStatus, shape) {
 }
 
 /** A wage earner of 45 whose federal AGI is the probe value. */
+/**
+ * The dependents each status carries for the New Mexico rebate probe, chosen so
+ * that the five statuses select five different columns of Table 1. See the
+ * `lowIncomeRebate.rows` driver for the sixth.
+ *
+ * Ages are all well under 19 so that § 7-2-18.34's child credit also pays on
+ * these probes — which is deliberate, not incidental: the two New Mexico
+ * credits are read against different income figures and a probe that moved
+ * both at once would still distinguish them, because only one of them changes
+ * when a rebate cell is perturbed.
+ */
+const NM_REBATE_DEPENDENTS = {
+  single: [],
+  marriedFilingJointly: [],
+  headOfHousehold: [8, 12],
+  qualifyingSurvivingSpouse: [6, 9, 13],
+  marriedFilingSeparately: [5, 8, 11, 14],
+};
+
 const wages = (value, state, year, filingStatus, extra = {}) =>
   probeReturn(state, year, filingStatus, {
     income: value,
@@ -584,6 +603,47 @@ export const DRIVERS = {
     statuses: ['marriedFilingJointly'],
     input: (value, state, year, status) => wages(value, state, year, status, { dependentAges: [7, 11] }),
   },
+  // NEW MEXICO'S LOW INCOME COMPREHENSIVE TAX REBATE, NMSA 1978 § 7-2-14 — the
+  // only chart in this package whose rows pay SIX amounts instead of one, so it
+  // is the only one where the filing status has to carry a second job.
+  //
+  // The probe value is MODIFIED GROSS INCOME, which for a pure wage household
+  // is federal AGI, so the plain `wages` driver lands the probe in the band it
+  // names. What `wages` cannot do on its own is choose the COLUMN: that is
+  // PIT-RC line 3, the exemption count, and the five statuses have to supply
+  // five different ones or four fifths of the grid goes unprobed.
+  //
+  // ```text
+  //   single                    0 dependents            1 exemption
+  //   married filing jointly    0 dependents            2
+  //   head of household         2 dependents            3
+  //   surviving spouse          3 dependents            4
+  //   married filing separately 4 dependents            5   (and HALVED)
+  // ```
+  //
+  // THE SIXTH COLUMN IS NOT REACHABLE FROM A STATUS, because five statuses
+  // cannot select six columns, and it is not left to an UNREACHABLE entry
+  // either: `filerAge: 66` on the JOINT probe adds PIT-RC line 2e's two
+  // exemptions to the two filers and reads the "6 or more" column. That costs
+  // the second column, so the single probe takes one dependent to supply it.
+  // The final mapping is 1 / 2 / 3 / 4 / 5 / 6 across the five statuses with
+  // the joint one doing double duty through age — which is itself the cheapest
+  // demonstration in the suite that this state's aged addition is worth TWO
+  // exemptions and not one.
+  //
+  // The separate column is halved by § 7-2-14(A), and a halved amount still
+  // moves when the cell moves, so the probe is as sharp there as anywhere.
+  'lowIncomeRebate.rows': {
+    statuses: [...STATUS_KEYS, 'marriedFilingJointly+aged'],
+    input: (value, state, year, status, variant) =>
+      wages(value, state, year, status, {
+        dependentAges: NM_REBATE_DEPENDENTS[status],
+        // PIT-RC lines 2e and 2f: two exemptions for each filer of 65 or over,
+        // so a joint couple both 66 is a six-exemption household and reads the
+        // last column. `wages` defaults the ages to 45 and 44.
+        ...(variant === 'aged' ? { filerAge: 66, spouseAge: 66 } : {}),
+      }),
+  },
   // New Jersey's retirement exclusion tiers, N.J.S.A. 54A:6-15, banded on gross
   // income — the wall that costs a joint retiree $1,381 on one dollar. The probe
   // puts 30% of the income in a pension and the rest in wages, for two reasons:
@@ -682,11 +742,40 @@ export function driverStatuses(path) {
   return driver.perStatus ? [chartStatus(path)] : driver.statuses;
 }
 
-/** Build the probe return for one chart, one probe value and one filing status. */
-export function probeInput(path, value, state, year, filingStatus) {
+/**
+ * Build the probe return for one chart, one probe value and one PROBE CASE.
+ *
+ * A probe case is a filing status, or a filing status and a variant joined by
+ * `+` — `marriedFilingJointly+aged`. It is one opaque string everywhere except
+ * here: `driverStatuses` hands the list out, the regenerator writes it into the
+ * fixture's filing-status column, the test reads it back and passes it straight
+ * in, and only this function has to know that it may carry two things.
+ *
+ * ## Why the vocabulary needed a second dimension, and only for one chart
+ *
+ * Every other staircase in this package pays ONE amount per row, so a probe is
+ * fully described by its row and the status it is run under, and five statuses
+ * are five independent columns of evidence. New Mexico's § 7-2-14 rebate pays
+ * SIX amounts per row — one per exemption column — and the column is chosen by
+ * PIT-RC line 3, which a probe selects through dependents and age.
+ *
+ * **Five statuses cannot select six columns.** A driver can map single to one
+ * exemption, joint to two, head of household to three, a surviving spouse to
+ * four and a separate return to five, and then it has run out of statuses with
+ * the "6 or more" column — the widest one, and the one a New Mexico couple both
+ * aged 65 actually reads — untouched. That is 23 cells a year, 46 numbers, and
+ * every one of them would have passed through `numbersIn` reported as checked.
+ *
+ * So the variant exists, there is exactly one of it, and it is `aged`: the same
+ * joint household with both filers at 66, which PIT-RC lines 2e and 2f turn
+ * into six exemptions. The sixth column is probed by the provision that makes
+ * it reachable in the first place.
+ */
+export function probeInput(path, value, state, year, probeCase) {
   const driver = DRIVERS[driverKey(path)];
   if (driver === undefined) throw new RangeError(`No probe driver for ${path}`);
-  return driver.input(value, state, year, filingStatus);
+  const [filingStatus, variant] = String(probeCase).split('+');
+  return driver.input(value, state, year, filingStatus, variant);
 }
 
 /**

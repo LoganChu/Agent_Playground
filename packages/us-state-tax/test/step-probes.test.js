@@ -232,6 +232,31 @@ const UNREACHABLE = {
     coveredBy:
       'new-mexico.test.js — "the aged-or-blind staircase is nine steps and most of them are free", which pins the measured cost of one dollar at all eight boundaries of the single table and all eight of the joint one',
   },
+  // NEW MEXICO'S LAST BAND CEILING, AND IT IS UNREACHABLE BECAUSE THE
+  // DEPARTMENT PRINTS THE SAME NUMBER TWICE AND ONLY ONE OF THE TWO WORKS.
+  //
+  // TABLE 1's last row is "34,001 | 36,000", and PIT-RC Section 2 carries the
+  // same $36,000 as a QUALIFICATION on the face of the form — "If line 13 is
+  // MORE than $36,000, DO NOT complete line 14." The engine applies the
+  // qualification first, so every income the row ceiling could decide has
+  // already been refused by `lowIncomeRebate.maximumIncome`. Doubling the
+  // ceiling to $72,001 widens a row that nothing can enter.
+  //
+  // IT IS NOT A REDUNDANT FIGURE AND IT IS NOT DELETED, which is the whole of
+  // why this entry exists rather than a one-line edit to the table. The two
+  // numbers answer different questions — "where does the last band end" and
+  // "who may claim at all" — and they are equal in the 2025 table as a fact
+  // about that table, not as an identity. A year in which the Department
+  // extends the table without moving the qualification, or the reverse, is a
+  // year in which this entry has to come out; and `maximumIncome` IS probed,
+  // by the sweep and by the joint staircase collision at $36,000 that
+  // new-mexico.test.js pins at $86.
+  'NM|lowIncomeRebate.rows|22.upTo': {
+    states: ['NM'],
+    why: "the $36,000 qualification in PIT-RC Section 2 is checked before the table is read and carries the same figure, so no income exists that the last row's ceiling decides. Doubling it widens a band nothing can reach; the figure that does the work is lowIncomeRebate.maximumIncome, which the probes and the sweep both move",
+    coveredBy:
+      'new-mexico.test.js — "the aged-or-blind staircase collides with the rebate table at two boundaries", which pins the $86 a joint couple both 70 loses on the dollar at $36,000, the whole of the last row for a six-exemption household',
+  },
   'AR|rate.rows|0.reduction': {
     // Arkansas's first row is 0% on the first $5,599 and the card prints a
     // "minus adjustment" of $0.00 beside it. The engine computes
@@ -304,14 +329,37 @@ function numbersIn(steps) {
   steps.forEach((step, i) => {
     for (const [key, value] of Object.entries(step)) {
       if (typeof value === 'number' && Number.isFinite(value)) out.push({ at: `${i}.${key}`, value });
+      // A ROW WHOSE PAYLOAD IS AN ARRAY, which until Day 69 this walk could not
+      // see at all. New Mexico's § 7-2-14 rebate table is a grid: each row is
+      // one modified-gross-income band and SIX amounts, one per exemption
+      // column. `Object.entries` hands back `amounts` as an array, the
+      // `typeof value === 'number'` test rejects it, and all 138 cells went
+      // through this instrument untouched while it reported a clean sweep over
+      // the 23 band ceilings beside them.
+      //
+      // THAT IS THE FAILURE THIS FILE'S OWN HEADER DESCRIBES, HAPPENING AGAIN.
+      // `step-charts.mjs` says it in terms: "a shape-based finder is only as
+      // broad as its vocabulary of shapes, and a vocabulary is a list of names,
+      // which is the thing Day 34 says drifts towards being short." Day 39
+      // found 254 numbers hidden behind a missing BOUND name; this is 276
+      // hidden behind a missing PAYLOAD shape, and the tell was the same one —
+      // a `checked` count that moved by 46 when a chart arrived carrying 322.
+      else if (Array.isArray(value)) {
+        value.forEach((inner, j) => {
+          if (typeof inner === 'number' && Number.isFinite(inner)) {
+            out.push({ at: `${i}.${key}.${j}`, value: inner });
+          }
+        });
+      }
     }
   });
   return out;
 }
 
 const setAt = (steps, at, value) => {
-  const [i, key] = at.split('.');
-  steps[Number(i)][key] = value;
+  const [i, key, index] = at.split('.');
+  if (index === undefined) steps[Number(i)][key] = value;
+  else steps[Number(i)][key][Number(index)] = value;
 };
 
 // The probes and the sweep together, indexed by state-year: a staircase can only
@@ -495,16 +543,26 @@ test('the numbers inside the staircases this package ships', () => {
   // seven rows read against federal AGI, and the probe counts 13 of its numbers
   // a year — seven amounts and six `upTo` edges, the open-topped row's Infinity
   // excluded as it is everywhere else — so 26 across the two years.
-  assert.equal(checked, 2_074, 'numbers inside the staircases this package ships');
+  //
+  // 2,396 SINCE DAY 69, AND 276 OF THE 322 NEW NUMBERS WERE INVISIBLE TO THIS
+  // WALK UNTIL THE SAME DAY. New Mexico's § 7-2-14 rebate table is 23 rows of
+  // one ceiling and SIX amounts — 161 numbers a year, 322 across both — and
+  // `numbersIn` only ever looked at a step's top-level numeric keys, so the
+  // `amounts` ARRAY was skipped in silence and this count would have risen by
+  // 46 while the chart carried 322. See the comment on `numbersIn`: it is
+  // Day 39's finding in a new shape, a payload this time rather than a bound.
+  assert.equal(checked, 2_396, 'numbers inside the staircases this package ships');
   assert.equal(
     exempt.length,
-    22,
+    24,
     'staircase rows nothing can reach — eight rows, both years: Connecticut\'s in two columns, ' +
       'Oregon\'s in three, Arkansas\'s zero-rate row, whose zero reduction a zero rate and ' +
       'a floor at zero make unreachable twice over, and New Mexico\'s $8,000 top aged-or-blind ' +
       'amount in all THREE of its charts — the single, joint and separate tables are distinct ' +
       'objects, where head of household and surviving spouse share the joint one — whose probe ' +
-      'sits at an AGI the row\'s own allowances exceed. All documented.',
+      'sits at an AGI the row\'s own allowances exceed. Plus, from Day 69, the last band ' +
+      'ceiling of New Mexico\'s rebate table in both years, which the $36,000 qualification on ' +
+      'the face of PIT-RC decides first. All documented.',
   );
 });
 

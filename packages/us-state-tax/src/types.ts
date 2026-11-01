@@ -1256,6 +1256,48 @@ export interface StateIncomeTaxInput {
    */
   readonly massachusettsFivePercentIncome?: number;
   /**
+   * New Mexico only: **modified gross income**, PIT-RC line 12 — the income the
+   * low income comprehensive tax rebate of NMSA 1978 § 7-2-14 is banded on.
+   *
+   * It is not federal AGI and it is not New Mexico taxable income. PIT-RC lines
+   * 4 to 11 build it from scratch out of eight gross figures, and the form
+   * states the relationship to federal AGI itself: *"Total must equal or exceed
+   * Federal Adjusted Gross Income from Form PIT-1, line 9."*
+   *
+   * - **In it and not in federal AGI**: the gross amount of Social Security,
+   *   pensions, annuities and Railroad Retirement (line 5 — the whole benefit,
+   *   not the part IRC § 86 makes taxable); public assistance, TANF and SSI
+   *   (line 7); gifts of cash or marketable items received, at a reasonable
+   *   value (line 10); and, on line 11, scholarships, grants, insurance
+   *   settlements, trust income, inheritance and **child support**.
+   * - **Netted differently**: net profit from business, farm or rentals is
+   *   floored at zero rather than allowed as a loss (line 8), and capital gains
+   *   are taken **undiminished by capital losses** (line 9). N.M. Admin. Code
+   *   § 3.3.1.10 states the principle in terms — *"zero is the lowest amount
+   *   which may be reported for any item"* and *"the loss from one business or
+   *   activity shall not reduce the income from another"*.
+   * - **Not a household-of-one figure**: it is the income of the taxpayer *and
+   *   household members*, and a married filer filing separately must include
+   *   the spouse's income in it even though the rest of that return does not.
+   *
+   * **Absent, the engine derives a FLOOR** — federal AGI, plus the untaxed part
+   * of any Social Security benefit it was given, plus tax-exempt interest — and
+   * says so in the name of the credit line. A floor on the income is a
+   * **ceiling** on the rebate, because the table is non-increasing above
+   * `$1,500`, so the derived answer can be too generous and cannot be too mean.
+   * The whole of the exposure is one cell of the table: at most `$839` for 2025,
+   * and `$224` for the one-exemption filer who is the common case.
+   *
+   * That is a different decision from the one {@link dependentAges} gets in the
+   * child income tax credit, where a missing input buys no credit at all, and
+   * the difference is the reason it is worth stating: **an input whose absence
+   * bounds the answer in a known direction is not the same kind of missing as
+   * one that leaves it unbounded.** A count of dependents without ages could
+   * mean `$0` or `$2,548` of child credit and nothing on the return narrows it.
+   * Modified gross income has a floor printed on the form.
+   */
+  readonly newMexicoModifiedGrossIncome?: number;
+  /**
    * Net short-term capital gains — gains on assets held one year or less.
    *
    * Massachusetts taxes these at **8.5%**, not at the 5% every "Massachusetts is
@@ -1883,6 +1925,7 @@ export const KNOWN_STATE_INPUT_FIELDS = [
   'separatedFromSpouse',
   'newJerseyGrossIncome',
   'massachusettsFivePercentIncome',
+  'newMexicoModifiedGrossIncome',
   'shortTermCapitalGains',
   'collectiblesGains',
   'socialSecurityAndMedicarePaid',

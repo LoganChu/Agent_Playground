@@ -1403,6 +1403,12 @@ const stateTool: ToolDefinition = {
     // Pennsylvania and New Jersey figures are: a model that sent a short-term
     // gain to New York would be told nothing and get a wrong answer.
     const maIncome = readNumber(source, 'massachusettsFivePercentIncome');
+    // New Mexico's PIT-RC line 12, which is a state-specific INCOME CONCEPT in
+    // the same family as the two above and is read for a different purpose:
+    // not a base the state taxes, but the figure § 7-2-14's refundable rebate
+    // is banded on. Refused elsewhere, and checked through the table below for
+    // the reason the Alabama comment gives.
+    const nmModifiedGross = readNumber(source, 'newMexicoModifiedGrossIncome');
     const shortTermGains = readNumber(source, 'shortTermCapitalGains');
     const collectibles = readNumber(source, 'collectiblesGains');
     const ficaPaid = readNumber(source, 'socialSecurityAndMedicarePaid');
@@ -1414,6 +1420,7 @@ const stateTool: ToolDefinition = {
     // table was widened, which is the good case and the reason that test exists.
     for (const [field, value] of [
       ['massachusettsFivePercentIncome', maIncome],
+      ['newMexicoModifiedGrossIncome', nmModifiedGross],
       ['shortTermCapitalGains', shortTermGains],
       ['collectiblesGains', collectibles],
       ['socialSecurityAndMedicarePaid', ficaPaid],
@@ -1765,6 +1772,9 @@ const stateTool: ToolDefinition = {
         : {}),
       ...(njIncome !== undefined ? { newJerseyGrossIncome: njIncome } : {}),
       ...(maIncome !== undefined ? { massachusettsFivePercentIncome: maIncome } : {}),
+      ...(nmModifiedGross !== undefined
+        ? { newMexicoModifiedGrossIncome: nmModifiedGross }
+        : {}),
       ...(shortTermGains !== undefined ? { shortTermCapitalGains: shortTermGains } : {}),
       ...(collectibles !== undefined ? { collectiblesGains: collectibles } : {}),
       ...(ficaPaid !== undefined ? { socialSecurityAndMedicarePaid: ficaPaid } : {}),

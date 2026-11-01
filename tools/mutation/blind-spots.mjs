@@ -167,6 +167,30 @@ const DECLARED = {
   'childIncomeTaxCredit.steps': "DOLLARS, and three of them below the floor: § 7-2-18.34's $79, $53 and $26 top bands, plus the open row's Infinity. All six band edges and all seven amounts are asserted against the printed table in test/new-mexico.test.js",
   'childIncomeTaxCredit.maxAge': "an AGE: 18, IRC § 152(c)(3)(A)'s under-19 test, asserted at 18 and 19 directly",
 
+  // NEW MEXICO'S LOW INCOME COMPREHENSIVE TAX REBATE, AND IT IS THE LARGEST
+  // SINGLE BLIND SPOT THIS FILE HAS EVER DECLARED — 52 of the table's 276
+  // shipped cells are below the money floor, because a refundable rebate aimed
+  // at households under $36,000 of income necessarily pays small amounts at the
+  // bottom of its range. The whole last third of Table 1 is two-digit dollars.
+  //
+  // WHAT STANDS BEHIND THEM IS A PRIMARY DOCUMENT AND NOT A HOPE. All 138 cells
+  // of the 2025 grid are read off page RC-5 of the Department's own packet; the
+  // structural properties a transcription error would break are asserted in
+  // test/new-mexico.test.js (every row rising left to right, the reversal
+  // between the first two rows, exactly one duplicated pair, the per-column
+  // peaks, and non-increasing down every column below the peak); and the whole
+  // grid is checked a second way, against the 2021, 2023 and 2024 printed
+  // tables, by a cumulative-factor argument that fits all 138 cells — a single
+  // wrong digit anywhere would take that fit from 138 to 137 and fail.
+  //
+  // > **A CELL BELOW THE MONEY FLOOR IS STILL MONEY SOMEBODY IS OWED.** $17 is
+  // > the smallest cell in the table and it is the whole of what New Mexico
+  // > pays a one-exemption household at $35,000. Day 63 shipped a $40 credit in
+  // > this class and got it wrong.
+  'lowIncomeRebate.rows': "DOLLARS, and 52 of them below the floor — the bottom third of § 7-2-14's Table 1, from $91 down to $17. The grid is read off page RC-5 of the Department's own 2025 packet and checked twice in test/new-mexico.test.js: directly, by the structural properties of the printed table, and indirectly, by a cumulative-factor fit against the 2021, 2023 and 2024 tables that reproduces all 138 cells and could not survive a single wrong digit",
+  'lowIncomeRebate.agedExemptionAge': "an AGE: 65, PIT-RC lines 2e and 2f",
+  'lowIncomeRebate.agedExemptions': "a COUNT of exemptions: TWO, which is the figure a reader assumes is one — PIT-RC line 2e says \"If you are 65 or older, enter 2\". Asserted directly in test/new-mexico.test.js, where a single filer of 70 reads the THIRD column of Table 1 and a couple both 65 reads the sixth",
+  'lowIncomeRebate.blindExemptions': "a COUNT of exemptions: ONE, PIT-RC line 2c — half what age is worth here, which is the reverse of IRC § 63(f). Asserted directly against a one-exemption filer moving to the second column",
   'youngChildCredit.maximumAge': 'an AGE',
   // AGES AND COUNTS. Not alarming, and counted so that the class is complete.
   'exemption.seniorAge': 'an AGE: 65 in eighteen state-years',

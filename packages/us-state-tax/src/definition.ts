@@ -2765,6 +2765,124 @@ export interface ChildIncomeTaxCreditRule {
   readonly cite: string;
 }
 
+/** One modified-gross-income row of {@link LowIncomeRebateTableRule.rows}. */
+export interface LowIncomeRebateRow {
+  /**
+   * The row's **"But not over"** figure — modified gross income at or below
+   * this takes this row, provided no earlier row did.
+   *
+   * Both columns of the printed table are given, unlike the child income tax
+   * credit's Table 4 where only this one is, so the bands read
+   * `0`–`1,000`, `1,001`–`1,500` and so on with no overlap and no inference.
+   * The gap is real and it is a dollar wide: a modified gross income of
+   * `$1,000.50` is in no printed row at all. Nothing on PIT-RC carries cents.
+   */
+  readonly upTo: number;
+  /**
+   * The rebate for 1, 2, 3, 4, 5 and **6 or more** exemptions, in that order.
+   * Exactly six entries; the last is the whole of the right-hand column.
+   */
+  readonly amounts: readonly number[];
+}
+
+/**
+ * A refundable rebate read out of a two-dimensional printed table — modified
+ * gross income down the side, number of exemptions across the top — and
+ * **New Mexico's low income comprehensive tax rebate, NMSA 1978 § 7-2-14, is
+ * the only thing in this package shaped like it.**
+ *
+ * Every other income-tested amount here is a function of income alone, or of
+ * income and a count that multiplies it. This one is a lookup in a grid of 138
+ * independent cells that no formula generates, and three of its properties make
+ * it worth a rule rather than a special case.
+ *
+ * ## 1. IT IS NOT MONOTONIC IN INCOME, AND THE REVERSAL IS AT THE BOTTOM
+ *
+ * The poorest household in New Mexico is paid **less** than one slightly less
+ * poor. The `$0`–`$1,000` row is below the `$1,001`–`$1,500` row in every one of
+ * the six columns, so one more dollar of modified gross income — the dollar that
+ * takes a filer from `$1,000` to `$1,001` — is worth, for 2025:
+ *
+ * ```text
+ *   exemptions        1     2     3     4     5    6+
+ *   $0 - $1,000     224   298   373   448   522   597
+ *   $1,001 - $1,500 252   362   465   580   655   775
+ *   one dollar is    28    64    92   132   133   178
+ * ```
+ *
+ * **`$178` for one dollar of income, to a six-exemption household.** It is a
+ * cliff pointing the other way from every cliff this package documents in New
+ * Mexico — § 7-2-5.14's Social Security limit costs a couple `$3,961.85` for a
+ * dollar, and this pays a household `$178` for one — and it has been in the
+ * table since the 2021 amendment rewrote it. No ranking across the other
+ * forty-one states is claimed here, because none has been measured.
+ *
+ * It matters for a model and not only as a curiosity, because the usual
+ * shortcut for a banded amount — take the first band as the maximum — is wrong
+ * here, and **the row the maximum is in is not even the same row in every
+ * column**:
+ *
+ * ```text
+ *   columns 1 to 4   peak at $1,001 - $7,500    252 / 362 / 465 / 580
+ *   column 5         peaks at $7,501 - $9,000   660
+ *   column 6         peaks at $2,501 - $8,000   839
+ * ```
+ *
+ * So the table is not one profile scaled six ways. Each column is its own
+ * schedule, which is why all 138 cells are written out below rather than
+ * generated.
+ *
+ * ## 2. THE INCOME IT IS BANDED ON IS NEITHER AGI NOR STATE TAXABLE INCOME
+ *
+ * See {@link StateIncomeTaxInput.newMexicoModifiedGrossIncome}. PIT-RC builds
+ * it from eight gross figures, it includes the whole Social Security benefit
+ * rather than the § 86 part, it includes public assistance and gifts and child
+ * support, and it floors business losses at zero. A rebate aimed at the poorest
+ * households is therefore means-tested on the broadest income definition on the
+ * return, which is the opposite of what the rest of the New Mexico return does.
+ *
+ * ## 3. THE EXEMPTION COUNT IS NOT THE EXEMPTION COUNT
+ *
+ * PIT-RC line 2 builds its own: federal exemptions, **plus TWO for each filer
+ * aged 65 or over** and **plus ONE for each blind filer**. Age is worth twice
+ * what blindness is, which is the reverse of IRC § 63(f), where the two
+ * additions are equal and stack. A single New Mexican of 65 is a
+ * **three**-exemption household on this table and a couple both 65 is a
+ * **six**-exemption one, so the two of them read the last column — the one a
+ * family of six reads — and are paid `$839` at `$2,501`–`$7,500` of modified
+ * gross income for 2025 where their federal return knows of two people.
+ *
+ * The additions are for the filer and spouse only. A blind dependent adds
+ * nothing beyond the one exemption every dependent already carries.
+ */
+export interface LowIncomeRebateTableRule {
+  readonly name: string;
+  /** Ascending by {@link LowIncomeRebateRow.upTo}; the last row is the last band. */
+  readonly rows: readonly LowIncomeRebateRow[];
+  /**
+   * Modified gross income **above** which no rebate is allowed at all —
+   * `$36,000`, and it is the last row's `upTo` rather than a separate figure.
+   * It is stated separately because PIT-RC states it separately, as a
+   * qualification in Section 1 and again as an instruction on the face of
+   * Section 2: *"If line 13 is MORE than $36,000, DO NOT complete line 14."*
+   */
+  readonly maximumIncome: number;
+  /** A filer at or over this age adds {@link agedExemptions}. */
+  readonly agedExemptionAge: number;
+  /** PIT-RC line 2e and 2f: **two** exemptions for each aged filer. */
+  readonly agedExemptions: number;
+  /** PIT-RC line 2c: **one** exemption for each blind filer. */
+  readonly blindExemptions: number;
+  /**
+   * Statuses that claim **half** the table amount. New Mexico halves a separate
+   * return rather than barring it, exactly as § 7-2-18.34 does for the child
+   * credit and exactly as New Jersey's credit of the same shape does not.
+   */
+  readonly halvedFilingStatuses: readonly FilingStatus[];
+  readonly refundable: boolean;
+  readonly cite: string;
+}
+
 /**
  * A deduction for property tax paid, with a flat refundable credit as the
  * alternative — New Jersey's, N.J.S.A. 54A:3A-16 through 54A:3A-20.
@@ -4798,6 +4916,12 @@ export interface StateIncomeTaxDefinition {
    * {@link ChildIncomeTaxCreditRule}.
    */
   readonly childIncomeTaxCredit?: ChildIncomeTaxCreditRule;
+  /**
+   * New Mexico's low income comprehensive tax rebate, § 7-2-14 — a refundable
+   * amount read out of a printed grid of modified gross income by exemption
+   * count. See {@link LowIncomeRebateTableRule}.
+   */
+  readonly lowIncomeRebate?: LowIncomeRebateTableRule;
   /**
    * Georgia's eligible itemizer credit. Reads
    * {@link FederalBasis.deductionKind} and nothing else.

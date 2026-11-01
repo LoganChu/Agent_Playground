@@ -168,7 +168,15 @@ const BLIND_STATES: readonly string[] = SUPPORTED_STATES.filter((code) =>
       // puts it INSIDE the standard deduction, which is why a list derived from
       // the two exemption rules alone missed it. A derived list is only as wide
       // as the places it looks.
-      def?.standardDeductionAgedOrBlindAddition !== undefined
+      def?.standardDeductionAgedOrBlindAddition !== undefined ||
+      // AND THE FOURTH PLACE, FOUND THE SAME WAY THE THIRD WAS. New Mexico's
+      // PIT-RC line 2c adds ONE exemption for each blind filer to the count
+      // that chooses a column of the § 7-2-14 rebate table — so blindness there
+      // is neither a deduction nor a credit nor part of a standard deduction,
+      // it selects a cell of a grid. Oregon's comment above said a derived list
+      // is only as wide as the places it looks, and this is that sentence
+      // collecting on itself one state later.
+      def?.lowIncomeRebate?.blindExemptions !== undefined
     );
   }),
 );
@@ -644,6 +652,14 @@ export const STATE_FIELDS: readonly StateField[] = [
     doc: 'Form 1 line 21, total 5.0% income — interest, dividends and LONG-term gains included, short-term and collectibles gains excluded because they are taxed at 8.5% and 12% on their own lines. NOT federal AGI; the result names the add-backs Massachusetts needs. Refused for any other state.',
   },
   {
+    name: 'newMexicoModifiedGrossIncome',
+    schema: number,
+    states: ['NM'],
+    doc: 'PIT-RC line 12, modified gross income \u2014 the figure NMSA 1978 \u00a7 7-2-14\u2019s refundable low income comprehensive tax rebate is banded on, and NOT federal AGI. PIT-RC lines 4 to 11 build it out of eight GROSS figures and the form states the relationship itself: the total "must equal or exceed Federal Adjusted Gross Income from Form PIT-1, line 9". It takes the WHOLE Social Security benefit rather than the \u00a7 86 part, and adds public assistance, TANF, SSI, gifts of cash or marketable items received, scholarships, grants, insurance settlements, trust income, inheritance and child support; it floors business, farm and rental LOSSES at zero and refuses to net capital losses against capital gains (N.M. Admin. Code \u00a7 3.3.1.10). A married filer filing separately must include the spouse\u2019s income in it. OMITTED, THE ENGINE DERIVES A FLOOR \u2014 federal AGI plus tax-exempt interest plus the untaxed part of any Social Security given in retirement \u2014 and says so on the credit line; a floor on the income is a CEILING on the rebate, so the answer can be too generous and cannot be too mean, by at most one cell of the table ($839 for 2025, $224 for a one-exemption filer). Refused for any other state.',
+    refusal:
+      'Only New Mexico has this income concept, and only \u00a7 7-2-14\u2019s rebate reads it. Every other state in this package bands its credits on federal AGI, on its own AGI or on its own taxable income.',
+  },
+  {
     name: 'shortTermCapitalGains',
     schema: number,
     states: SHORT_TERM_CAPITAL_GAIN_STATES,
@@ -767,8 +783,15 @@ export const STATE_FIELDS: readonly StateField[] = [
   {
     name: 'taxExemptInterest',
     schema: number,
-    states: ['UT', 'CT', 'OR'],
-    doc: 'Tax-exempt interest, 1040 line 2a. Utah adds it back into the modified AGI its retirement credits are withdrawn against (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income: $10,000 of it costs a retired couple exactly $250.00 of Utah tax and $0.00 of federal tax. Leave it out and a bondholding Utah retiree comes back too low. CONNECTICUT reads it for a different reason and only above its Social Security threshold: tax-exempt interest belongs in \u00a7 86 provisional income, which sets the combined income excess Connecticut charges 25% of, so omitting it understates the excess and understates Connecticut tax. Below $75,000 of federal AGI ($100,000 joint) Connecticut does not read it at all. OREGON adds it into the household income its retirement credit is reduced by (ORS 316.157), so a municipal bond cuts an Oregon retiree\u2019s credit dollar for dollar while appearing on no line of Oregon income.',
+    // NEW MEXICO JOINED ON DAY 69 AND FOR A FOURTH REASON. It does not tax the
+    // interest and does not test a credit on it: PIT-RC line 11 puts it inside
+    // MODIFIED GROSS INCOME, the figure § 7-2-14's refundable rebate is banded
+    // on, so a municipal bond can take a New Mexico household DOWN a row of
+    // Table 1 or out of the table altogether while appearing on no line of New
+    // Mexico income and changing no New Mexico tax before credits. $30,000 of
+    // it costs a six-exemption household the whole $839.
+    states: ['UT', 'CT', 'OR', 'NM'],
+    doc: 'Tax-exempt interest, 1040 line 2a. NEW MEXICO reads it as INCOME for the \u00a7 7-2-14 rebate: PIT-RC line 11 is part of modified gross income, so tax-exempt interest lowers or removes a refundable rebate worth up to $839 while changing no New Mexico tax before credits. Utah adds it back into the modified AGI its retirement credits are withdrawn against (§ 59-10-1019(1)(b), § 59-10-1042(1)(b)), so a municipal bond is taxed at 2.5% in Utah while appearing on no line of Utah income: $10,000 of it costs a retired couple exactly $250.00 of Utah tax and $0.00 of federal tax. Leave it out and a bondholding Utah retiree comes back too low. CONNECTICUT reads it for a different reason and only above its Social Security threshold: tax-exempt interest belongs in \u00a7 86 provisional income, which sets the combined income excess Connecticut charges 25% of, so omitting it understates the excess and understates Connecticut tax. Below $75,000 of federal AGI ($100,000 joint) Connecticut does not read it at all. OREGON adds it into the household income its retirement credit is reduced by (ORS 316.157), so a municipal bond cuts an Oregon retiree\u2019s credit dollar for dollar while appearing on no line of Oregon income.',
   },
   {
     name: 'taxableSocialSecurity',

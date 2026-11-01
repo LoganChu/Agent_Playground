@@ -513,7 +513,7 @@
    "earnedIncomeCredit": 313.93
   },
   "state": {
-   "tax": -78.48,
+   "tax": -198.48,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -522,6 +522,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 120
     }
    ]
   },
@@ -1289,7 +1293,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 330.5,
+   "tax": 285.5,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -1298,6 +1302,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 45
     }
    ]
   },
@@ -2069,6 +2077,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -2842,6 +2854,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -3613,6 +3629,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -4386,6 +4406,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -5149,7 +5173,7 @@
    "earnedIncomeCredit": 7152
   },
   "state": {
-   "tax": -2636,
+   "tax": -2750,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -5158,6 +5182,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 848
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 114
     }
    ]
   },
@@ -5938,6 +5966,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -6718,6 +6750,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 212
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -7498,6 +7534,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 158
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -8273,7 +8313,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1657,
+   "tax": -1869,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -8282,6 +8322,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 637
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 212
     }
    ]
   },
@@ -9049,7 +9093,7 @@
    "earnedIncomeCredit": 4064.33
   },
   "state": {
-   "tax": -1653.08,
+   "tax": -1756.08,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -9058,6 +9102,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 637
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 103
     }
    ]
   },
@@ -9830,6 +9878,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -10605,6 +10657,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -11390,6 +11446,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -12169,6 +12229,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -12950,6 +13014,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -13725,7 +13793,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 0,
+   "tax": -57,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -13734,6 +13802,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 57
     }
    ]
   },
@@ -14505,6 +14577,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -15278,6 +15354,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -16050,6 +16130,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -16817,6 +16901,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -17589,6 +17677,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -18365,7 +18457,7 @@
    "earnedIncomeCredit": 92.85
   },
   "state": {
-   "tax": -23.21,
+   "tax": -126.21,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -18374,6 +18466,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 103
     }
    ]
   },
@@ -19153,6 +19249,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -19934,6 +20034,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 1272
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -20714,6 +20818,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 318
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -21494,6 +21602,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 106
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -22257,7 +22369,7 @@
    "earnedIncomeCredit": 2466.33
   },
   "state": {
-   "tax": -929.96,
+   "tax": -969.96,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -22266,6 +22378,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 40
     }
    ]
   },
@@ -23034,6 +23150,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 212
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -23806,6 +23926,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -24578,6 +24702,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 53
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -25350,6 +25478,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 53
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -26122,6 +26254,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 26
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -26889,7 +27025,7 @@
    "earnedIncomeCredit": 4328
   },
   "state": {
-   "tax": -1719,
+   "tax": -1868,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -26898,6 +27034,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 637
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 149
     }
    ]
   },
@@ -27665,7 +27805,7 @@
    "earnedIncomeCredit": 3904.53
   },
   "state": {
-   "tax": -1400.13,
+   "tax": -1503.13,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -27674,6 +27814,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 103
     }
    ]
   },
@@ -28442,6 +28586,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -29209,6 +29357,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -29982,6 +30134,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -30753,6 +30909,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -31534,6 +31694,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -32310,6 +32474,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -33082,6 +33250,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -33854,6 +34026,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 106
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -34625,7 +34801,7 @@
    "earnedIncomeCredit": 347.29
   },
   "state": {
-   "tax": -86.82,
+   "tax": -206.82,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -34634,6 +34810,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 120
     }
    ]
   },
@@ -35401,7 +35581,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 319.3,
+   "tax": 274.3,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -35410,6 +35590,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 45
     }
    ]
   },
@@ -36181,6 +36365,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -36954,6 +37142,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -37725,6 +37917,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -38498,6 +38694,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -39261,7 +39461,7 @@
    "earnedIncomeCredit": 7316
   },
   "state": {
-   "tax": -2677,
+   "tax": -2791,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -39270,6 +39470,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 848
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 114
     }
    ]
   },
@@ -40050,6 +40254,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -40830,6 +41038,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 212
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -41610,6 +41822,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 158
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -42385,7 +42601,7 @@
    "earnedIncomeCredit": 4080
   },
   "state": {
-   "tax": -1657,
+   "tax": -1869,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -42394,6 +42610,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 637
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 212
     }
    ]
   },
@@ -43161,7 +43381,7 @@
    "earnedIncomeCredit": 4249.62
   },
   "state": {
-   "tax": -1699.4,
+   "tax": -1802.4,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -43170,6 +43390,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 637
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 103
     }
    ]
   },
@@ -43942,6 +44166,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -44717,6 +44945,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -45502,6 +45734,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -46281,6 +46517,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -47062,6 +47302,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -47837,7 +48081,7 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 0,
+   "tax": -57,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -47846,6 +48090,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 57
     }
    ]
   },
@@ -48617,6 +48865,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -49390,6 +49642,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -50162,6 +50418,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -50929,6 +51189,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -51701,6 +51965,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -52477,7 +52745,7 @@
    "earnedIncomeCredit": 139.21
   },
   "state": {
-   "tax": -34.8,
+   "tax": -137.8,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -52486,6 +52754,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 103
     }
    ]
   },
@@ -53265,6 +53537,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -54046,6 +54322,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 1272
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -54826,6 +55106,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 318
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -55606,6 +55890,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 106
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -56369,7 +56657,7 @@
    "earnedIncomeCredit": 2651.62
   },
   "state": {
-   "tax": -984.15,
+   "tax": -1024.15,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -56378,6 +56666,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 40
     }
    ]
   },
@@ -57146,6 +57438,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 212
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -57918,6 +58214,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -58690,6 +58990,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 53
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -59462,6 +59766,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 53
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -60234,6 +60542,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 26
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -61001,7 +61313,7 @@
    "earnedIncomeCredit": 4427
   },
   "state": {
-   "tax": -1743.75,
+   "tax": -1892.75,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -61010,6 +61322,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 637
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 149
     }
    ]
   },
@@ -61777,7 +62093,7 @@
    "earnedIncomeCredit": 4089.82
   },
   "state": {
-   "tax": -1446.45,
+   "tax": -1549.45,
    "credits": [
     {
      "name": "New Mexico working families tax credit (§ 7-2-18.15)",
@@ -61786,6 +62102,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14) (assumed: modified gross income is the floor derivable from federal AGI, tax-exempt interest and any untaxed Social Security — a floor on the income is a CEILING on this rebate; pass newMexicoModifiedGrossIncome for PIT-RC line 12)",
+     "amount": 103
     }
    ]
   },
@@ -62554,6 +62874,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -63321,6 +63645,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -64094,6 +64422,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -64865,6 +65197,10 @@
     },
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
+     "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
      "amount": 0
     }
    ]
@@ -65646,6 +65982,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -66422,6 +66762,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 0
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -67194,6 +67538,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 424
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },
@@ -67966,6 +68314,10 @@
     {
      "name": "New Mexico child income tax credit (§ 7-2-18.34)",
      "amount": 106
+    },
+    {
+     "name": "New Mexico low income comprehensive tax rebate (§ 7-2-14)",
+     "amount": 0
     }
    ]
   },

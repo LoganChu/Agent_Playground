@@ -4,6 +4,338 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 69 — 2026-11-01
+
+**THE REFERENCE MODEL DID NOT NEED INSTALLING, AND NEW MEXICO PUBLISHES THE SAME
+TABLE FIVE TIMES.** No new state. `raw.githubusercontent.com` turned out to be
+reachable, which made the 838 MB accident of Day 67 unnecessary in the first
+place and handed over four more primary documents — and those four settle the
+largest omission left in any state this package ships, § 7-2-14's low income
+comprehensive tax rebate, along with a finding about how New Mexico indexes it
+that needed five printed tables to make.
+
+> **THE RULE THE DAY TURNED ON, AND IT IS DAY 68's RULE ONE LAYER UP: A BLOCKED
+> HOST IS NOT A BLOCKED FILE, AND AN UNREACHABLE *REPOSITORY* IS NOT AN
+> UNINSTALLABLE ONE.** Day 68 found that New Mexico's own PDF packets live on an
+> AWS gateway the allowlist permits. It then probed every non-`.gov` host in the
+> reference model's `reference:` blocks and concluded `*.amazonaws.com` was the
+> only document host available. **It never probed the host the reference model
+> itself is served from.** `api.github.com` is gated to this session's own
+> repositories and `codeload.github.com` is refused, so "GitHub is blocked" was
+> a reasonable thing to believe. `raw.githubusercontent.com` answers `200` for
+> any public file.
+
+That is worth more than the four documents. For sixty-eight days the only way to
+read `policyengine-us` here was to install it — which is how 74,784 files of
+AGPL code reached `main` on Day 67 and how an hour of CPU was lost to the wrong
+version on the same day. **One `curl` reads any parameter file in it, with no
+virtualenv, no pip, no numpy and no licence problem**, because reading a public
+file is not vendoring it. Today used six: the child credit's parameter YAML for
+the packet URLs, the rebate's six amount tables, its exemption parameters, its
+divisor, and the two Python variables that implement it.
+
+**AND THE MODEL'S OWN FILE SAYS TWO OF THOSE DOCUMENTS DO NOT EXIST.** Its child
+credit parameter lists the 2022 and 2021 New Mexico packets as *"absent"*, with
+URLs beside the word. Both URLs serve a PDF. 3.5 MB and 2.7 MB, first try.
+
+---
+
+### § 7-2-14, AND THE TABLE IS NOT MONOTONIC IN INCOME
+
+Worklist item 3, done, and it was the largest omission in the state: a
+**refundable** rebate, read out of a grid of 23 modified-gross-income bands by
+six exemption columns — **138 cells** — that reaches further down the income
+distribution than anything else New Mexico has. A New Mexico resident who files
+with **no income at all** is paid **$224**.
+
+**THE SELLABLE FINDING IS THAT THE POOREST BAND PAYS LESS THAN THE NEXT ONE UP.**
+
+```text
+  exemptions          1     2     3     4     5    6+
+  $0 - $1,000       224   298   373   448   522   597
+  $1,001 - $1,500   252   362   465   580   655   775
+  one dollar is      28    64    92   132   133   178
+```
+
+**$178 for one dollar of income.** Every other discontinuity this package
+documents in New Mexico points the other way — § 7-2-5.14's Social Security
+limit costs a couple $3,961.85 for a dollar — and this one *pays* a household
+$178 for one. No ranking across the other forty-one states is claimed, because
+none has been measured; Day 66's rule about superlatives, obeyed by not making
+one.
+
+**It is six schedules and not one profile scaled six ways**, which is why all
+138 cells are written out rather than generated:
+
+```text
+  columns 1 to 4   peak at $1,001 - $7,500
+  column 5         peaks at $7,501 - $9,000
+  column 6         peaks at $2,501 - $8,000
+```
+
+### THE INCOME IS NOT AGI, AND THAT IS THE STRUCTURAL HALF
+
+PIT-RC lines 4 to 11 build **modified gross income** out of eight *gross*
+figures, and the form states the relationship to federal AGI itself: the total
+*"must equal or exceed Federal Adjusted Gross Income from Form PIT-1, line 9"*.
+It takes the **whole** Social Security benefit rather than the § 86 part, adds
+public assistance, TANF, SSI, gifts received, scholarships, grants, insurance
+settlements, trust income, inheritance and child support, floors business losses
+at zero and refuses to net capital losses — N.M. Admin. Code § 3.3.1.10 says it
+in terms: *"zero is the lowest amount which may be reported for any item"*.
+
+**So New Mexico means-tests its most progressive provision on the broadest
+income definition on the return**, which is the opposite of what the rest of the
+return does.
+
+A new input, `newMexicoModifiedGrossIncome`, the 56th. Absent, the engine
+derives a **floor** — federal AGI, plus tax-exempt interest, plus the untaxed
+part of any Social Security it was given — and names the assumption on the
+credit line.
+
+> **AN INPUT WHOSE ABSENCE BOUNDS THE ANSWER IN A KNOWN DIRECTION IS NOT THE
+> SAME KIND OF MISSING AS ONE THAT LEAVES IT UNBOUNDED.** The child credit pays
+> **nothing** without `dependentAges`, and that is right: a count of dependents
+> could mean $0 or $2,548 and nothing on the return narrows it. Modified gross
+> income has a floor printed on the form, and the table is non-increasing above
+> $1,500 — so a floor on the income is a **ceiling** on the rebate, the error
+> runs one way, and the whole exposure is one cell ($839 at most, $224 for the
+> one-exemption filer who is the common case). Two missing inputs, two different
+> answers, and the difference is whether the gap is bounded.
+
+The Social Security term is the one that moves households. A couple on $24,000
+of benefit and $12,000 of pension has **$12,000** of federal AGI if § 86 taxes
+none of the benefit and **$36,000** of modified gross income: a **$212** rebate
+read on AGI and a **$40** one read on the floor.
+
+### AGE IS WORTH TWO EXEMPTIONS AND BLINDNESS ONE, WHICH IS THREE PROVISIONS AND THREE WEIGHTINGS
+
+PIT-RC line 2 builds its own exemption count: the federal one, **plus TWO for
+each filer 65 or over** (lines 2e and 2f) and **plus ONE for each blind filer**
+(line 2c).
+
+```text
+  IRC § 63(f)            age and blindness EQUAL, and they STACK on one person
+  NMSA 1978 § 7-2-5.2    age and blindness ALTERNATIVES — both qualifies once
+  PIT-RC line 2          age is worth TWICE what blindness is
+```
+
+Three provisions, three weightings, the same two facts about the same filer. So
+a single New Mexican of 65 is a **three**-exemption household on this table and
+a couple both 65 is a **six**-exemption one — reading the last column, the one a
+family of six reads, and paid **$839** at $2,501–$7,500 where their federal
+return knows of two people.
+
+### THE INDEXATION, AND THE DEPARTMENT CHANGED ITS OWN ROUNDING RULE AFTER 2023
+
+Day 68 determined the *shape* of the child credit's indexation from two
+published columns of seven amounts. Five tables of 138 cells is a different
+instrument, and it settles three things rather than one.
+
+**1. The 2021 and 2022 tables are identical, cell for cell**, and are the
+statutory base the adjustment runs from.
+
+**2. IT IS CUMULATIVE FROM THAT BASE AND IT IS NOT CHAINED.** No single factor
+takes the 2023 table to the 2024 one, or the 2024 table to the 2025 one, under
+truncation *or* under rounding — both intervals are empty. **A model that
+uprates last year's PUBLISHED figures cannot reproduce what New Mexico prints,
+however good its index is.**
+
+**3. THE ROUNDING RULE CHANGED AFTER TAX YEAR 2023**, and neither year is a
+typo, because each rule misses the other year by dozens of cells:
+
+```text
+                   round-half-up     truncation
+  2023 table         138 / 138        100 / 138
+  2024 table          93 / 138        138 / 138
+  2025 table          98 / 138        138 / 138
+```
+
+The realised cumulative factors against the 2021 base are `[1.0820000,
+1.0820225)`, `[1.1220339, 1.1222222)` and `[1.1493333, 1.1494505)`. **The index
+itself is NOT identified** — none of the three contains the CPI-U
+annual-average ratio to 2021 — and that is written down as a blind spot rather
+than guessed at.
+
+So 2026 **carries 2025 forward**, in 23 `provisionalFigures` entries pointing at
+`rows.N.amounts` and deliberately **not** at `rows.N`: § 7-2-14 indexes the
+amounts and all five published tables print the same 23 income bands, so
+flagging `upTo` would claim a debt that does not exist.
+
+**The reference model stores the same published cells and uprates them with the
+federal C-CPI-U under a `rounding: nearest` rule — which is the rule New Mexico
+stopped using after 2023.**
+
+> **DAY 68 WROTE A TEST ASSERTING NEW MEXICO HAD SEVEN PROVISIONAL FIGURES AND
+> CALLED SEVEN A PROPERTY OF THE STATE.** It is thirty today and New Mexico has
+> not legislated. Day 68 caught Day 67 making this exact error — asserting NO
+> provisional figure as if that were a fact about New Mexico — and then made it
+> again one line later. **A provenance count is a claim about this package, and
+> it improves whenever the package models less.** The comment is kept in the
+> test rather than replaced, because the shape of the error is the useful part.
+
+---
+
+### THE INSTRUMENT COULD NOT SEE THE TABLE, AND IT SAID IT WAS CHECKING IT
+
+`step-probes.test.js` perturbs every number in every staircase the package ships
+and requires some pinned answer to notice. Its walk is:
+
+```js
+for (const [key, value] of Object.entries(step)) {
+  if (typeof value === 'number' && Number.isFinite(value)) out.push(...);
+}
+```
+
+Every other staircase here pays ONE amount per row. This one pays six, as an
+ARRAY, and `typeof [] === 'object'` — so **276 of the 322 numbers the rebate
+added went through the audit untouched while the count went up by 46** and the
+file reported a clean sweep.
+
+> **DAY 39'S FINDING IN A NEW SHAPE, AND `step-charts.mjs`'s OWN HEADER PREDICTS
+> IT: "a shape-based finder is only as broad as its vocabulary of shapes, and a
+> vocabulary is a list of names, which is the thing Day 34 says drifts towards
+> being short."** Day 39 lost 254 numbers to a missing BOUND name. This is 276
+> lost to a missing PAYLOAD shape, and the tell was identical both times — a
+> `checked` count that moved by far less than the chart that arrived.
+
+Fixed, and the count went **2,074 → 2,396**.
+
+**AND THEN FIVE FILING STATUSES COULD NOT SELECT SIX COLUMNS.** A probe picks a
+cell by its row (income) and its column (exemption count), and the column is
+chosen through the household — so the five statuses map to five columns and the
+"6 or more" one, the widest, stays unprobed forever. The driver contract grew a
+**variant**: a probe case is now a status, or a status and a variant joined by
+`+`, and there is exactly one of them — `marriedFilingJointly+aged`, a couple
+both 66, which PIT-RC lines 2e and 2f turn into six exemptions. **The sixth
+column is probed by the provision that makes it reachable.** The string is
+opaque everywhere except `probeInput`, so the fixture format did not change.
+
+One number is left unreachable and declared: the last row's `$36,000` ceiling,
+because PIT-RC prints the same figure as a **qualification** on the face of the
+form and the engine checks that first. Two numbers, one working.
+
+### THE TWO COLLISIONS NOBODY LOOKED FOR
+
+`new-mexico.test.js` has pinned the cost of a dollar at every boundary of
+§ 7-2-5.2's aged-or-blind staircase since the state arrived. Four of the eight
+single boundaries were free. **Two of them stopped being free today and
+§ 7-2-5.2 did not change**: Table 1 ends a band at $18,000 and at $19,500 and so
+does that staircase, so the dollar is charged twice — $23 and $6 for a filer of
+70, who is a three-exemption household here.
+
+**The third shared boundary costs nothing, and that is the part worth a test.**
+Both schedules also break at $21,000, and Table 1's `$19,501–$21,000` and
+`$21,001–$23,000` rows are **identical** — the one duplicated pair in the whole
+grid — so the rebate does not move there. Three collisions, two live, one
+cancelled by a duplicate row.
+
+And on the joint table, the **$36,000** boundary collides with the rebate's
+**eligibility cliff**: a couple both 70 is a six-exemption household, and one
+dollar there costs them the last row entire, **$86**.
+
+---
+
+### Measurements
+
+**1,773 tests across four suites, all passing** (1,767 on Day 68). Preflight
+green apart from the two checks that are red by construction between a code
+change and the audit covering it.
+
+**THE DIFFERENTIAL COST NINETY SECONDS AGAIN**, because Day 68's rule worked:
+`theirs.cases.sha256` matched a regenerated `cases.json` byte for byte, so the
+PolicyEngine side was still valid and only `ours.mjs` and `compare.mjs` ran. A
+day that adds a RULE does not move the grid.
+
+```text
+                        Day 68      Day 69
+  agree to the dollar   19,097      19,107
+  unexplained               16          16     <- unmoved
+  2026 unexplained           0           0
+  New Mexico bound       1,350 -> 280 -> 30
+```
+
+**EVERY 2025 NEW MEXICO DIVERGENCE IS CLOSED.** What this entry carried
+yesterday was the whole 2025 column — $212.00, $149.00, $120.00, $114.00,
+$103.00 three times, down to $40.00 — and every one of those rows went to zero.
+What is left in 2025 is two rows of **one cent**. What is left in 2026 is
+carry-forward of both indexed provisions, this package declaring a debt rather
+than getting a figure wrong, and the largest of them is $28.83.
+
+> **A BOUND THAT FALLS 1,350 → 280 → 30 IN TWO DAYS IS THE HONEST RECORD OF A
+> STATE**, and the three numbers name three different things: the child income
+> tax credit, this rebate, and a debt.
+
+Other counts: **2,687 mutants** enumerated, up 140 from 2,547. **7,270** numeric
+figures in the provenance ledger against **622** citations, up from 6,940 and
+618. **52 new blind spots declared** — the bottom third of Table 1, from $91
+down to $17, below the money floor because a rebate aimed at households under
+$36,000 necessarily pays small amounts.
+
+### The claim that stopped being true, in five places
+
+**"The child income tax credit's amounts are THE ONLY INDEXED FIGURES IN THE NEW
+MEXICO INCOME TAX."** Written on Day 68 into `new-mexico.ts`'s cite, its notes,
+its `PROVISIONAL_2026` string, `data/provenance.ts` and the MCP README, and
+false the moment § 7-2-14 was modelled. All five corrected.
+
+> **A SUPERLATIVE ABOUT A STATE IS A CLAIM ABOUT EVERYTHING IN IT, SO IT GOES
+> STALE WHEN THE PACKAGE LEARNS MORE AND NOT WHEN THE STATE CHANGES.** Same
+> failure as the provisional count above, in prose instead of in a test.
+
+### What I would do next
+
+1. **DO NOT RE-PROBE THE DOCUMENT HOSTS. IT IS DONE AND THE ANSWER IS ONE.**
+   This was going to be tomorrow's first item and it turned out to cost five
+   minutes once the parameter files were free to read, so it was done today and
+   written into `tools/differential/README.md`. Every `href:` in all 4,392 state
+   parameter files, reduced to **483 distinct hosts**, every one probed:
+
+   ```text
+     klvg4oyd4j.execute-api.us-west-2.amazonaws.com   the ONLY one that answers
+     464 hosts                                        refused by the proxy
+      18 hosts                                        named over plain http://,
+                                                      and refused over https:// too
+   ```
+
+   **So the `reference:` route yields exactly one state's primary documents and
+   it is New Mexico's.** `law.cornell.edu`, `law.justia.com`, `casetext.com`,
+   `web.archive.org` and all forty-nine other revenue departments are blocked.
+   That is a negative result and it is the useful kind: it is the question every
+   run asks when it reaches for a statute, and it had been answered by hand at
+   least eighteen times. **Re-run it only when the network policy changes.** The
+   positive half is unchanged and is about the MODEL rather than the documents:
+   `raw.githubusercontent.com` reads any public file, so parameters, variables
+   and their `reference:` blocks are all free now.
+2. **THE 2022 AND 2021 PACKETS ARE OPEN AND UNREAD.** They settled the
+   indexation base today and nothing else in them has been looked at.
+3. **BUILD THE PREPARER-ANCHOR HARNESS** (Day 67's item 2, Day 68's item 4,
+   survey committed as `tools/differential/PREPARER-ANCHORS.md`). Still the
+   largest unbuilt instrument and still the best sales argument here. It needs a
+   field added to `cases.mjs`, which changes the grid fingerprint — **so build it
+   at the START of a run**, and note that `theirs.json` would then need
+   regenerating, which now means a `pip install` rather than reading YAML.
+4. **THE OTHER FOUR REFUNDABLE ITEMS ON PIT-RC**, all now declared in the notes:
+   the property tax rebate for a filer 65 or over (up to $250), the ADDITIONAL
+   low income property tax rebate (up to $350, four counties only), the child
+   day care credit (up to $1,200) and the refundable medical care credit. All
+   four are gated on the same modified gross income figure the rebate uses, so
+   the input that was added today is most of the work.
+5. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+6. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65's item 2, now five days
+   old and the oldest live item).
+7. **MAKE `data/provenance.js` ATTRIBUTABLE BY STATE** (Day 65's item 3).
+8. **ORDER THE MUTANTS CHEAPEST-FIRST** (Day 65's item 4) and **GIVE THE
+   MUTATION HARNESS A LOCK** (Day 66's item 16).
+9. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 43).
+   Still unbuilt, still priced at twelve minutes, and it cost real serialisation
+   again today: every prose edit had to wait for the audit to start.
+10. **DECIDE WHETHER TO EXPOSE NEW MEXICO'S TAX-TABLE ANSWER** (Day 68's item 10)
+    — and the real item inside it is still that this package has 42 states and
+    has looked at exactly one state's rate TABLE.
+
+---
+
 ## Day 68 — 2026-10-31
 
 **A STATE DOCUMENT HOST WAS REACHABLE ALL ALONG, AND YESTERDAY'S RUN PUSHED

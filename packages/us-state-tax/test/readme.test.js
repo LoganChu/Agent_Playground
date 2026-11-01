@@ -1480,6 +1480,123 @@ test('README: Georgia against Maryland, and Georgia against a rate table', () =>
   money(rateTable(55_000) - ga(55_000, { filerAge: 66, retirement: { filer: { earnedIncome: 55_000 } } }), 249.5);
 });
 
+test('README: every figure in the v0.60.0 low income comprehensive rebate section', () => {
+  // Day 8's operating rule on the newest section: a number in the docs is a
+  // claim and needs something that compares it to the thing. Every figure
+  // quoted in the 0.60.0 paragraphs is derived here from the engine or from the
+  // shipped table rather than copied from the prose.
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const readme = readFileSync(join(root, 'README.md'), 'utf8');
+  const section = readme.slice(
+    readme.indexOf('New in 0.60.0:'),
+    readme.indexOf("New in 0.59.0:"),
+  );
+  assert.ok(section.length > 2_000, 'the section is present');
+  const quoted = (pattern) => {
+    const hit = section.match(pattern);
+    assert.ok(hit, `the section no longer quotes ${pattern}`);
+    return Number(hit[1].replace(/,/g, ''));
+  };
+
+  const rule = getStateDefinition('NM', 2025).lowIncomeRebate;
+  const grid = rule.rows.map((r) => [...r.amounts]);
+  assert.equal(quoted(/\*\*(\d+) cells\*\*/), grid.length * grid[0].length);
+  assert.equal(quoted(/nothing above `\$([\d,]+)`/), rule.maximumIncome);
+
+  // THE PRINTED BLOCK IS CHECKED ROW BY ROW AGAINST THE SHIPPED TABLE, which is
+  // the part a hand-copied table gets wrong. The third line is a difference and
+  // is recomputed rather than read twice.
+  const row = (label) => {
+    const hit = section.match(new RegExp(`${label}\\s+((?:\\d+\\s+){5}\\d+)`));
+    assert.ok(hit, `the block no longer prints the ${label} row`);
+    return hit[1].trim().split(/\s+/).map(Number);
+  };
+  assert.deepEqual(row('\\$0 - \\$1,000'), grid[0]);
+  assert.deepEqual(row('\\$1,001 - \\$1,500'), grid[1]);
+  assert.deepEqual(
+    row('one dollar is'),
+    grid[1].map((v, j) => v - grid[0][j]),
+  );
+
+  // The two amounts the prose leads with, and the one it opens on.
+  const nmAt = (o) =>
+    stateIncomeTax({
+      state: 'NM',
+      year: 2025,
+      filingStatus: o.filingStatus ?? 'single',
+      federal: {
+        adjustedGrossIncome: o.agi,
+        taxableIncome: 0,
+        deduction: 15_750,
+        deductionKind: 'standard',
+      },
+      filerAge: o.filerAge,
+      spouseAge: o.spouseAge,
+      taxableSocialSecurity: o.taxableSocialSecurity,
+      retirement: o.retirement,
+    }).credits.find((c) => c.name.includes('low income comprehensive')).amount;
+  assert.equal(quoted(/\*\*`\$(\d+)` for one dollar of income\*\*/), grid[1][5] - grid[0][5]);
+  assert.equal(quoted(/no income at all\*\* is paid `\$(\d+)`/), nmAt({ agi: 0 }));
+  assert.equal(
+    quoted(/family of six reads, and paid \*\*`\$(\d+)`\*\*/),
+    nmAt({ filingStatus: 'marriedFilingJointly', agi: 5_000, filerAge: 66, spouseAge: 66 }),
+  );
+
+  // The retiree the section uses to show what modified gross income is for.
+  const retired = {
+    filingStatus: 'marriedFilingJointly',
+    agi: 12_000,
+    taxableSocialSecurity: 0,
+    retirement: { filer: { socialSecurityBenefits: 24_000 }, spouse: {} },
+  };
+  assert.equal(quoted(/a `\$(\d+)` rebate read on the first figure/), nmAt({ ...retired, retirement: undefined }));
+  assert.equal(quoted(/and a `\$(\d+)` one read on the second/), nmAt(retired));
+
+  // THE INDEXATION TABLE, against the same arithmetic new-mexico.test.js runs.
+  // Quoted here and derived there, which is the Day 38 split: the figures live
+  // in one place and this file checks the README agrees with it.
+  const nmTests = readFileSync(join(root, 'test', 'new-mexico.test.js'), 'utf8');
+  for (const [year, round, trunc] of [
+    [2023, 138, 100],
+    [2024, 93, 138],
+    [2025, 98, 138],
+  ]) {
+    const printed = section.match(new RegExp(`${year} table\\s+(\\d+) / 138\\s+(\\d+) / 138`));
+    assert.ok(printed, `the rounding table no longer prints ${year}`);
+    assert.equal(Number(printed[1]), round, `${year} round-half-up`);
+    assert.equal(Number(printed[2]), trunc, `${year} truncation`);
+    const which = round === 138 ? 'round' : 'trunc';
+    const other = round === 138 ? 'trunc' : 'round';
+    const arg = year === 2025 ? 'grid2025' : `PRINTED[${year}]`;
+    assert.ok(
+      nmTests.includes(`bestMatch(base, ${arg}, '${which}'), 138`),
+      `new-mexico.test.js no longer asserts ${year} fits ${which} exactly`,
+    );
+    assert.ok(
+      nmTests.includes(`bestMatch(base, ${arg}, '${other}'), ${round === 138 ? trunc : round}`),
+      `new-mexico.test.js no longer asserts how far ${year} misses under ${other}`,
+    );
+  }
+
+  // The three factor intervals, against the same file.
+  for (const interval of section.match(/`\[1\.\d+, 1\.\d+\)`/g) ?? []) {
+    const [lo, hi] = interval.replace(/[`[)]/g, '').split(', ');
+    assert.ok(
+      nmTests.includes(`[${Number(lo)}, ${Number(hi)}]`),
+      `new-mexico.test.js does not derive the interval ${interval}`,
+    );
+  }
+  assert.equal((section.match(/`\[1\.\d+, 1\.\d+\)`/g) ?? []).length, 3, 'three intervals');
+
+  // And the provisional count the section claims.
+  assert.equal(
+    quoted(/in (\d+) `provisionalFigures` entries on the \*\*amounts\*\*/),
+    getStateDefinition('NM', 2026).provisionalFigures.filter((f) =>
+      f.path.startsWith('lowIncomeRebate.'),
+    ).length,
+  );
+});
+
 test('no README advertises a tarball that is not the current version', () => {
   // `dist.yml` refuses to cut a release while any README links a stale tarball,
   // because an install line that names a version is a promise and a promise in a
@@ -1983,6 +2100,11 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  // 0.60.0 also has two, and both are about the same provision from opposite
+  // ends: the first is what § 7-2-14's table PAYS and the second is how the
+  // Department arrives at the figures in it. The second is the one that could
+  // not have been written without five printed tables.
+  ['0.60.0', /LOW INCOME COMPREHENSIVE TAX REBATE/],
   // 0.59.0 has TWO paragraphs and the second is the one worth noting in a table
   // of headlines: every other entry here is a STATE arriving, and this one is a
   // state's own form disagreeing with its own statute.

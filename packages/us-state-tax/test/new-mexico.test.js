@@ -84,6 +84,9 @@ function nm(o) {
     shortTermCapitalGains: o.shortTermCapitalGains,
     retirement: o.retirement,
     subtractions: o.subtractions,
+    blindOrDisabled: o.blindOrDisabled,
+    newMexicoModifiedGrossIncome: o.modifiedGrossIncome,
+    taxExemptInterest: o.taxExemptInterest,
   });
 }
 const cents = (n) => Math.round(n * 100) / 100;
@@ -343,7 +346,7 @@ test('the low- and middle-income exemption is PER EXEMPTION, and a widow counts 
   assert.equal(widow.taxableIncome - joint.taxableIncome, 1_000);
 });
 
-test('the aged-or-blind staircase is nine steps and most of them are free', () => {
+test('the aged-or-blind staircase collides with the rebate table at two boundaries', () => {
   // THE MEASUREMENT, and it is here because the first draft of this module
   // priced these steps by multiplying $1,000 by two of New Mexico's six rates.
   // No filer at any of the eight boundaries is in either band: the exemption
@@ -353,10 +356,34 @@ test('the aged-or-blind staircase is nine steps and most of them are free', () =
   const step = (base, boundary) =>
     cents(nm({ ...base, agi: boundary + 1 }).tax - nm({ ...base, agi: boundary }).tax);
   const single = { filingStatus: 'single', filerAge: 70, agedBoxes: 1 };
+  // THE FIRST TWO BOUNDARIES STOPPED BEING FREE ON DAY 69 AND § 7-2-5.2 DID NOT
+  // CHANGE. § 7-2-14's rebate table ends a band at $18,000 and at $19,500, and
+  // so does this staircase for a single filer — so the dollar at each of those
+  // two incomes is charged TWICE, once by an allowance that steps down and once
+  // by a refundable rebate that steps down beside it. A filer of 70 is a
+  // THREE-exemption household on Table 1 (one federal exemption plus two for
+  // age), so the rebate falls $189 to $166 at $18,000 and $166 to $160 at
+  // $19,500 — and those are exactly the $23 and $6 below.
+  //
+  // THE THIRD COLLISION COSTS NOTHING, AND THAT IS THE PART WORTH A TEST. Both
+  // schedules also have a boundary at $21,000, but Table 1's $19,501-$21,000
+  // and $21,001-$23,000 rows are IDENTICAL — the one duplicated pair in the
+  // whole table — so the rebate does not move there. Three shared boundaries,
+  // two live and one cancelled by a duplicate row.
   assert.deepEqual(
     [18_000, 19_500, 21_000, 22_500, 24_000, 25_500, 27_000, 28_500].map((b) => step(single, b)),
-    [0, 0, 0, 0, 14.27, 15.01, 30.34, 32.04],
+    [23, 6, 0, 0, 14.27, 15.01, 30.34, 32.04],
   );
+  // The collision is the rebate and nothing else, shown rather than asserted
+  // from the totals: the rebate's own step at each boundary accounts for the
+  // whole of the difference from the pre-Day-69 figures.
+  const rebateAt = (agi) =>
+    nm({ ...single, agi }).credits.find((c) => c.name.includes('low income comprehensive')).amount;
+  assert.deepEqual(
+    [18_000, 19_500, 21_000].map((b) => rebateAt(b) - rebateAt(b + 1)),
+    [23, 6, 0],
+  );
+  assert.equal(rebateAt(19_501), rebateAt(21_000), 'the one duplicated pair of rows');
   // THE FIGURE THE EXPLANATION TURNS ON, PINNED, because the first draft of this
   // module asserted it from arithmetic done in my head and got it wrong by
   // $725: a single New Mexican of 70 at $28,500 of AGI — the income at which
@@ -367,9 +394,17 @@ test('the aged-or-blind staircase is nine steps and most of them are free', () =
   assert.equal(nm({ ...single, agi: 28_500 }).taxableIncome, 8_125);
   assert.ok(8_125 < 16_500, 'inside the 3.2% band, which is what makes the steps cheap');
   const both70 = { filingStatus: 'marriedFilingJointly', filerAge: 70, spouseAge: 70, agedBoxes: 2 };
+  // AND THE JOINT STAIRCASE COLLIDES WITH THE REBATE'S ELIGIBILITY CLIFF AT
+  // $36,000, WHICH IS THE WHOLE REBATE AND NOT A STEP OF IT. PIT-RC Section 2
+  // says "If line 13 is MORE than $36,000, DO NOT complete line 14", so one
+  // dollar there takes the LAST row's amount to nothing — and a couple both 70
+  // is a SIX-exemption household (two federal exemptions plus two each for
+  // age), which reads the last column: $86 for 2025, lost entire. § 7-2-5.2's
+  // joint staircase steps at $36,000 too, and costs nothing there, so the
+  // whole $86 is the rebate.
   assert.deepEqual(
     [30_000, 33_000, 36_000, 39_000, 42_000, 45_000, 48_000, 51_000].map((b) => step(both70, b)),
-    [0, 0, 0, 0, 0, 30.02, 48.74, 64.04],
+    [0, 0, 86, 0, 0, 30.02, 48.74, 64.04],
   );
   // The largest step in the state, and it is the joint $51,000 boundary because
   // BOTH people's exemptions fall on the same dollar: $2,000 of allowance at
@@ -519,35 +554,69 @@ test('the armed forces exemption is $30,000 with no age test, in both years', ()
   assert.equal(old.taxableIncome, 3_900 - 2_050);
 });
 
-test('exactly one New Mexico figure is unpublished for 2026, and it is the indexed one', () => {
+test('exactly two New Mexico provisions are unpublished for 2026, and both are the indexed ones', () => {
   // THE SAMENESS OF THE TWO YEARS IS THE STATUTE AND NOT A CARRY-FORWARD, for
   // every figure but one. HB 252 of 2024 wrote the rate schedules for taxable
   // years beginning on or after 1 January 2025 with no cost-of-living
   // provision, and §§ 7-2-5.2, 7-2-5.8, 7-2-5.14, 7-2-34 and 7-2-39 are flat
   // amounts with no indexing clause.
   //
-  // § 7-2-18.34(D) IS THE EXCEPTION AND IT IS THE WHOLE OF THE EXCEPTION. The
-  // child income tax credit's seven amounts are the only indexed figures in the
-  // New Mexico income tax, which is why this state's provisional list is
-  // exactly seven entries long and every one of them is a step of that credit.
-  // Day 67 shipped this state with NO provisional figure and said so in a test;
-  // that was true only because the credit was not modelled.
+  // §§ 7-2-18.34(D) AND 7-2-14 ARE THE EXCEPTIONS AND THEY ARE THE WHOLE OF
+  // THEM. The child income tax credit's seven per-child amounts and the low
+  // income comprehensive tax rebate's 23 rows of amounts are the only indexed
+  // figures in the New Mexico income tax, which is why this state's provisional
+  // list is exactly thirty entries long.
+  //
+  // DAY 68 ASSERTED SEVEN AND CALLED THAT A PROPERTY OF NEW MEXICO. It was a
+  // property of what had been modelled — exactly the trap Day 67 fell into when
+  // it asserted NO provisional figure before the child credit existed — and the
+  // rebate's arrival moved the number for the second time in two days without
+  // anything in New Mexico changing at all. The comment is kept because the
+  // shape of the error is the useful part: a provenance count is a claim about
+  // this package, and it improves whenever the package models LESS.
+  //
+  // THE 23 REBATE ENTRIES POINT AT `rows.N.amounts` AND NOT AT `rows.N`, which
+  // is the distinction worth a test of its own: § 7-2-14 indexes the amounts
+  // and NOT the income bands, and all five published tables (2021 to 2025)
+  // print the same 23 bands. Flagging `upTo` would claim a debt that does not
+  // exist.
   assert.equal(getStateDefinition('NM', 2025).status, 'published');
   assert.equal(getStateDefinition('NM', 2025).provisionalFigures, undefined);
   const for2026 = getStateDefinition('NM', 2026);
   assert.equal(for2026.status, 'provisional');
-  assert.equal(for2026.provisionalFigures.length, 7);
-  for (const [i, entry] of for2026.provisionalFigures.entries()) {
+  assert.equal(for2026.provisionalFigures.length, 30);
+  const rebate = for2026.provisionalFigures.filter((e) => e.path.startsWith('lowIncomeRebate.'));
+  const child = for2026.provisionalFigures.filter((e) =>
+    e.path.startsWith('childIncomeTaxCredit.'),
+  );
+  assert.equal(rebate.length, 23);
+  assert.equal(child.length, 7);
+  for (const [i, entry] of child.entries()) {
     assert.equal(entry.path, `childIncomeTaxCredit.steps.${i}.amount`);
     assert.equal(entry.reason, 'awaiting-publication');
     assert.equal(entry.carriedForwardFrom, 2025);
   }
+  for (const [i, entry] of rebate.entries()) {
+    assert.equal(entry.path, `lowIncomeRebate.rows.${i}.amounts`);
+    assert.equal(entry.reason, 'awaiting-publication');
+    assert.equal(entry.carriedForwardFrom, 2025);
+  }
+  // And the bands themselves are NOT flagged, which is the other half of the
+  // claim and the half a count cannot make.
+  assert.equal(
+    for2026.provisionalFigures.filter((e) => e.path.endsWith('.upTo')).length,
+    0,
+    "§ 7-2-14 indexes the rebate's amounts and not its income bands",
+  );
   // Nothing else in the state is provisional, asserted by the path prefix
   // rather than by the count alone: a figure added to this list later would
   // otherwise pass on length while describing a different state.
   assert.ok(
-    for2026.provisionalFigures.every((e) => e.path.startsWith('childIncomeTaxCredit.')),
-    'a figure outside the child credit is awaiting publication and should be explained',
+    for2026.provisionalFigures.every(
+      (e) =>
+        e.path.startsWith('childIncomeTaxCredit.') || e.path.startsWith('lowIncomeRebate.rows.'),
+    ),
+    'a figure outside the child credit and the rebate is awaiting publication and should be explained',
   );
   for (const year of [2025, 2026]) {
     const def = getStateDefinition('NM', year);
@@ -616,13 +685,21 @@ test('the working families tax credit is 25% of the federal credit and refundabl
   });
   // A refundable credit takes the bill BELOW zero, which is the half of
   // "refundable" that a non-refundable state's test cannot see.
-  // -2,774 AND NOT -1,500 SINCE DAY 68: this household has two children at
-  // $20,000 of AGI, so § 7-2-18.34 pays $637 each on top of the working
-  // families credit, and both are refundable. The working families figure is
-  // asserted on the credit line below rather than on the bill, which is where a
-  // claim about ONE credit belongs once a state has two refundable ones.
-  assert.equal(cents(r.tax), -2_774);
-  assert.equal(cents(-2_774 + 1_274), -1_500, 'the rest is two children of § 7-2-18.34');
+  // -1,500 on Day 67, -2,774 on Day 68, -2,911 TODAY, and the state has not
+  // legislated once in between. Each step is a provision this package started
+  // modelling: § 7-2-18.34's child credit at $637 a child, and now § 7-2-14's
+  // rebate. THREE refundable credits now, so the bill is asserted as the sum
+  // and each one on its own credit line, which is where a claim about ONE
+  // credit belongs.
+  assert.equal(cents(r.tax), -2_911);
+  assert.equal(cents(-2_911 + 1_274 + 137), -1_500, 'the rest is § 7-2-18.34 and § 7-2-14');
+  // $137 is Table 1 at THREE exemptions — one head of household plus two
+  // dependents — and the $23,001-$24,500 row. Modified gross income was not
+  // supplied, so the engine read the floor, which for a wage household with no
+  // untaxed income IS federal AGI and the answer is exact.
+  const rebate = r.credits.find((c) => c.name.includes('low income comprehensive'));
+  assert.equal(rebate.amount, 137);
+  assert.equal(rebate.refundable, true);
   const credit = r.credits.find((c) => c.name.includes('working families'));
   assert.equal(credit.amount, 1_500, '25% of $6,000');
   assert.equal(credit.refundable, true);
@@ -831,16 +908,23 @@ test('the child credit is refundable, and for a low-income family it is the whol
     earnedIncomeCredit: 6_000,
   });
   assert.equal(cents(r.taxBeforeCredits), 0);
-  // $1,274 of child credit and $1,500 of working families credit.
-  assert.equal(cents(r.tax), -2_774);
+  // $1,274 of child credit, $1,500 of working families credit and $189 of
+  // low income comprehensive tax rebate.
+  assert.equal(cents(r.tax), -2_963);
   const child = r.credits.find((c) => c.name.includes('child income tax credit'));
   assert.equal(child.amount, 1_274);
   assert.equal(child.refundable, true);
-  // WITHOUT THIS RULE THE SAME HOUSEHOLD WAS COMPUTED $1,274 TOO HIGH, which is
-  // what the state's own note said before Day 68 and what the differential
-  // comparison measured: 46 unexplained divergences in New Mexico, every one
-  // this credit or the low income comprehensive tax rebate.
-  assert.equal(cents(-1_500 - -2_774), 1_274);
+  // $189 is Table 1 at FOUR exemptions — two filers plus two dependents — and
+  // the $19,501-$21,000 row.
+  const rebate = r.credits.find((c) => c.name.includes('low income comprehensive'));
+  assert.equal(rebate.amount, 189);
+  assert.equal(rebate.refundable, true);
+  // WITHOUT THESE TWO RULES THE SAME HOUSEHOLD WAS COMPUTED $1,463 TOO HIGH,
+  // which is what the state's own note said before Day 68 and what the
+  // differential comparison measured: 46 unexplained New Mexico divergences on
+  // the credit, and 13 more on the rebate that Day 68 left open.
+  assert.equal(cents(-1_500 - -2_963), 1_463);
+  assert.equal(cents(1_463 - 1_274), 189);
 });
 
 test('§ 152(c) is not § 32’s qualifying child, and the age test is declared where it stops', () => {
@@ -1056,4 +1140,352 @@ test('§ 7-2-18.34(D) TRUNCATES to the dollar, which rules out the 2026 projecti
     getStateDefinition('NM', 2025).childIncomeTaxCredit.steps.map((s) => s.upTo),
     [25_000, 50_000, 75_000, 100_000, 200_000, 350_000, Infinity],
   );
+});
+
+// ---------------------------------------------------------------------------
+// § 7-2-14's rebate table: the shipped 2025 grid, and the three earlier ones
+// that are the evidence for how it is indexed.
+// ---------------------------------------------------------------------------
+
+/**
+ * TABLE 1 as the Department printed it for 2021, 2023 and 2024 — 138 cells
+ * each, read off the packets at the same file host the 2025 one came from.
+ *
+ * HERE AND NOT IN THE PACKAGE, because they are EVIDENCE and not parameters.
+ * Nothing computes a 2021 New Mexico return, and shipping three dead tables to
+ * every caller to support an argument made once would be the wrong trade. What
+ * the package ships is the 2025 grid and a carry-forward for 2026; what this
+ * file holds is the reason that carry-forward is not a projection.
+ *
+ * The 2022 table is omitted on purpose and its absence is an assertion below:
+ * it is IDENTICAL to the 2021 one, cell for cell, and a second copy of a table
+ * that must equal another is the Day 53 defect — two claims where one was
+ * wanted. The test states the equality instead.
+ */
+const PRINTED = {
+  2021: [
+    [195, 260, 325, 390, 455, 520],
+    [220, 315, 405, 505, 570, 675],
+    [220, 315, 405, 505, 570, 705],
+    [220, 315, 405, 505, 570, 730],
+    [205, 310, 390, 495, 575, 730],
+    [185, 285, 375, 480, 575, 700],
+    [170, 250, 340, 425, 510, 665],
+    [145, 210, 275, 360, 445, 600],
+    [130, 185, 235, 295, 365, 480],
+    [115, 170, 220, 275, 315, 390],
+    [105, 155, 185, 235, 285, 335],
+    [100, 130, 165, 210, 250, 300],
+    [90, 115, 145, 180, 220, 260],
+    [80, 105, 140, 165, 185, 230],
+    [80, 105, 140, 165, 185, 230],
+    [75, 100, 120, 145, 170, 195],
+    [65, 90, 115, 140, 155, 180],
+    [55, 80, 105, 130, 140, 170],
+    [50, 75, 100, 115, 130, 155],
+    [40, 55, 80, 100, 115, 130],
+    [35, 50, 65, 80, 100, 105],
+    [25, 40, 50, 65, 80, 90],
+    [15, 35, 40, 55, 65, 75],
+  ],
+  2023: [
+    [211, 281, 352, 422, 492, 563],
+    [238, 341, 438, 546, 617, 730],
+    [238, 341, 438, 546, 617, 763],
+    [238, 341, 438, 546, 617, 790],
+    [222, 335, 422, 536, 622, 790],
+    [200, 308, 406, 519, 622, 757],
+    [184, 271, 368, 460, 552, 720],
+    [157, 227, 298, 390, 481, 649],
+    [141, 200, 254, 319, 395, 519],
+    [124, 184, 238, 298, 341, 422],
+    [114, 168, 200, 254, 308, 362],
+    [108, 141, 179, 227, 271, 325],
+    [97, 124, 157, 195, 238, 281],
+    [87, 114, 151, 179, 200, 249],
+    [87, 114, 151, 179, 200, 249],
+    [81, 108, 130, 157, 184, 211],
+    [70, 97, 124, 151, 168, 195],
+    [60, 87, 114, 141, 151, 184],
+    [54, 81, 108, 124, 141, 168],
+    [43, 60, 87, 108, 124, 141],
+    [38, 54, 70, 87, 108, 114],
+    [27, 43, 54, 70, 87, 97],
+    [16, 38, 43, 60, 70, 81],
+  ],
+  2024: [
+    [218, 291, 364, 437, 510, 583],
+    [246, 353, 454, 566, 639, 757],
+    [246, 353, 454, 566, 639, 791],
+    [246, 353, 454, 566, 639, 819],
+    [230, 347, 437, 555, 645, 819],
+    [207, 319, 420, 538, 645, 785],
+    [190, 280, 381, 476, 572, 746],
+    [162, 235, 308, 403, 499, 673],
+    [145, 207, 263, 331, 409, 538],
+    [129, 190, 246, 308, 353, 437],
+    [117, 173, 207, 263, 319, 375],
+    [112, 145, 185, 235, 280, 336],
+    [100, 129, 162, 201, 246, 291],
+    [89, 117, 157, 185, 207, 258],
+    [89, 117, 157, 185, 207, 258],
+    [84, 112, 134, 162, 190, 218],
+    [72, 100, 129, 157, 173, 201],
+    [61, 89, 117, 145, 157, 190],
+    [56, 84, 112, 129, 145, 173],
+    [44, 61, 89, 112, 129, 145],
+    [39, 56, 72, 89, 112, 117],
+    [28, 44, 56, 72, 89, 100],
+    [16, 39, 44, 61, 72, 84],
+  ],
+};
+
+/** The feasible interval of cumulative factors under one rounding rule. */
+function feasibleFactor(base, target, rule) {
+  let lo = -Infinity;
+  let hi = Infinity;
+  for (let i = 0; i < base.length; i += 1) {
+    for (let j = 0; j < base[i].length; j += 1) {
+      const b = base[i][j];
+      const t = target[i][j];
+      // round-half-up lands on `t` for a factor in [(t-0.5)/b, (t+0.5)/b);
+      // truncation for one in [t/b, (t+1)/b).
+      const low = rule === 'round' ? (t - 0.5) / b : t / b;
+      const high = rule === 'round' ? (t + 0.5) / b : (t + 1) / b;
+      if (low > lo) lo = low;
+      if (high < hi) hi = high;
+    }
+  }
+  return { lo, hi, empty: lo >= hi };
+}
+
+/** How many of the 138 cells the best factor under `rule` can reproduce. */
+function bestMatch(base, target, rule) {
+  const apply = rule === 'round' ? (x) => Math.floor(x + 0.5 + 1e-9) : (x) => Math.floor(x + 1e-9);
+  const candidates = new Set();
+  for (let i = 0; i < base.length; i += 1) {
+    for (let j = 0; j < base[i].length; j += 1) {
+      for (const d of [0, 0.5, 1, -0.5]) candidates.add((target[i][j] + d) / base[i][j] + 1e-10);
+    }
+  }
+  let best = -1;
+  for (const f of candidates) {
+    let hits = 0;
+    for (let i = 0; i < base.length; i += 1) {
+      for (let j = 0; j < base[i].length; j += 1) {
+        if (apply(base[i][j] * f) === target[i][j]) hits += 1;
+      }
+    }
+    if (hits > best) best = hits;
+  }
+  return best;
+}
+
+const shippedRows = (year) => getStateDefinition('NM', year).lowIncomeRebate.rows;
+const shippedGrid = (year) => shippedRows(year).map((r) => [...r.amounts]);
+
+test('the rebate table is 138 cells and it is SIX schedules, not one scaled six ways', () => {
+  const rows = shippedRows(2025);
+  assert.equal(rows.length, 23);
+  for (const row of rows) assert.equal(row.amounts.length, 6);
+
+  // Every row rises left to right: more exemptions is never worth less.
+  for (const row of rows) {
+    for (let j = 1; j < 6; j += 1) {
+      assert.ok(row.amounts[j] >= row.amounts[j - 1], `row ${row.upTo} column ${j + 1}`);
+    }
+  }
+
+  // THE REVERSAL AT THE BOTTOM, which is the one property of this table that
+  // cannot be guessed from any summary of it: the poorest band pays LESS than
+  // the next one up, in all six columns.
+  const grid = shippedGrid(2025);
+  assert.deepEqual(grid[0], [224, 298, 373, 448, 522, 597]);
+  assert.deepEqual(grid[1], [252, 362, 465, 580, 655, 775]);
+  assert.deepEqual(
+    grid[1].map((v, j) => v - grid[0][j]),
+    [28, 64, 92, 132, 133, 178],
+    'what one dollar of modified gross income is worth at $1,000',
+  );
+
+  // And the peak is in a DIFFERENT ROW in three different places, so no single
+  // profile generates the grid.
+  const peakRow = (j) => grid.reduce((best, row, i) => (row[j] > grid[best][j] ? i : best), 0);
+  assert.deepEqual([0, 1, 2, 3].map(peakRow), [1, 1, 1, 1], 'columns 1-4 peak at $1,001-$7,500');
+  assert.equal(peakRow(4), 4, 'column 5 peaks at $7,501-$9,000');
+  assert.equal(peakRow(5), 3, 'column 6 peaks at $2,501-$8,000');
+
+  // Below the peak the grid is non-increasing down every column, which is what
+  // makes a FLOOR on the income a CEILING on the rebate — the claim the derived
+  // modified-gross-income figure rests on.
+  for (let j = 0; j < 6; j += 1) {
+    for (let i = 5; i < 23; i += 1) {
+      assert.ok(grid[i][j] <= grid[i - 1][j], `column ${j + 1} rises at row ${i}`);
+    }
+  }
+
+  // The one duplicated pair, which is what cancels the third collision with
+  // § 7-2-5.2's staircase.
+  assert.deepEqual(grid[13], grid[14]);
+  assert.equal(rows[13].upTo, 21_000);
+  assert.equal(rows[14].upTo, 23_000);
+  const duplicates = grid.filter((row, i) => i > 0 && row.join() === grid[i - 1].join()).length;
+  assert.equal(duplicates, 1, 'exactly one pair of identical rows in the whole table');
+});
+
+test('§ 7-2-14 is indexed CUMULATIVELY from the 2021 base, and the rounding rule CHANGED after 2023', () => {
+  // THE ARGUMENT THAT RULES OUT A 2026 PROJECTION, AND IT IS MADE OVER 138
+  // CELLS A YEAR RATHER THAN SEVEN. Day 68 made the same argument about the
+  // child income tax credit from two published columns of seven amounts; here
+  // the Department has published FIVE tables and each one is 138 numbers, so
+  // what was an interval argument becomes an exhaustive one.
+  const base = PRINTED[2021];
+  const grid2025 = shippedGrid(2025);
+
+  // (0) The 2021 and 2022 tables are identical, which is why only one is held
+  // here. The 2021 one IS the statutory base the adjustment runs from.
+  assert.equal(base.length, 23);
+  for (const row of base) assert.equal(row.length, 6);
+
+  // (1) EACH INDEXED YEAR IS THE BASE TIMES ONE CUMULATIVE FACTOR.
+  const r2023 = feasibleFactor(base, PRINTED[2023], 'round');
+  const r2024 = feasibleFactor(base, PRINTED[2024], 'trunc');
+  const r2025 = feasibleFactor(base, grid2025, 'trunc');
+  for (const [year, got, want] of [
+    [2023, r2023, [1.082, 1.0820225]],
+    [2024, r2024, [1.1220339, 1.1222222]],
+    [2025, r2025, [1.1493333, 1.1494505]],
+  ]) {
+    assert.ok(!got.empty, `${year} has no feasible factor`);
+    assert.equal(Math.round(got.lo * 1e7) / 1e7, want[0], `${year} lower bound`);
+    assert.equal(Math.round(got.hi * 1e7) / 1e7, want[1], `${year} upper bound`);
+  }
+
+  // (2) THE ROUNDING RULE CHANGED, AND NEITHER YEAR IS A TYPO. Each rule fits
+  // one year's 138 cells exactly and misses dozens of the other's, so this is
+  // not a cell or two that could be a misprint.
+  assert.equal(bestMatch(base, PRINTED[2023], 'round'), 138, '2023 is round-half-up');
+  assert.equal(bestMatch(base, PRINTED[2023], 'trunc'), 100, 'and truncation misses 38 of it');
+  assert.equal(bestMatch(base, PRINTED[2024], 'trunc'), 138, '2024 is truncation');
+  assert.equal(bestMatch(base, PRINTED[2024], 'round'), 93, 'and rounding misses 45 of it');
+  assert.equal(bestMatch(base, grid2025, 'trunc'), 138, '2025 is truncation');
+  assert.equal(bestMatch(base, grid2025, 'round'), 98, 'and rounding misses 40 of it');
+
+  // (3) CHAINING IS ARITHMETICALLY IMPOSSIBLE, which is the finding that
+  // invalidates uprating the previous PUBLISHED table however good the index
+  // is. No factor at all takes 2023 to 2024, or 2024 to 2025, under either
+  // rule — where the base-to-2023 step works under one of them.
+  for (const rule of ['round', 'trunc']) {
+    assert.ok(feasibleFactor(PRINTED[2023], PRINTED[2024], rule).empty, `2023->2024 ${rule}`);
+    assert.ok(feasibleFactor(PRINTED[2024], grid2025, rule).empty, `2024->2025 ${rule}`);
+  }
+  assert.ok(!feasibleFactor(base, PRINTED[2023], 'round').empty, 'but the base-to-2023 step fits');
+
+  // (4) NO CELL HAS EVER FALLEN, which is the direction the carry-forward
+  // relies on: carrying 2025 into 2026 understates a refundable rebate and so
+  // overstates the tax.
+  for (let i = 0; i < 23; i += 1) {
+    for (let j = 0; j < 6; j += 1) {
+      assert.ok(PRINTED[2023][i][j] >= base[i][j]);
+      assert.ok(PRINTED[2024][i][j] >= PRINTED[2023][i][j]);
+      assert.ok(grid2025[i][j] >= PRINTED[2024][i][j]);
+    }
+  }
+
+  // (5) THE INCOME BANDS NEVER MOVED, which is why 2026 flags `amounts` and not
+  // `upTo`: subsection-level indexation reaches the amounts alone.
+  assert.deepEqual(shippedRows(2025).map((r) => r.upTo), shippedRows(2026).map((r) => r.upTo));
+  assert.deepEqual(shippedGrid(2026), grid2025, '2026 carries 2025 forward');
+});
+
+test('the rebate is read on modified gross income, and without it the engine uses a FLOOR', () => {
+  const rebate = (o) =>
+    nm({ year: 2025, ...o }).credits.find((c) => c.name.includes('low income comprehensive'));
+
+  // A pure wage household: modified gross income IS federal AGI, so the derived
+  // floor is exact and the engine still says it assumed.
+  const wage = rebate({ agi: 15_000 });
+  assert.equal(wage.amount, 120);
+  assert.match(wage.name, /assumed: modified gross income is the floor/);
+
+  // Supplying the figure removes the assumption from the name.
+  assert.equal(rebate({ agi: 15_000, modifiedGrossIncome: 15_000 }).name.includes('assumed'), false);
+
+  // THE SOCIAL SECURITY TERM, WHICH IS THE ONE THAT MOVES REAL HOUSEHOLDS.
+  // PIT-RC line 5 takes the GROSS benefit; § 86 may tax none of it. A couple on
+  // $24,000 of benefit and $12,000 of pension has $12,000 of federal AGI and
+  // $36,000 of modified gross income — the last dollar of the table.
+  const retired = {
+    year: 2025,
+    filingStatus: 'marriedFilingJointly',
+    agi: 12_000,
+    taxableSocialSecurity: 0,
+    retirement: { filer: { socialSecurityBenefits: 24_000 }, spouse: {} },
+  };
+  assert.equal(rebate(retired).amount, 40, 'the floor sees the whole benefit: row $34,001-$36,000');
+  assert.equal(
+    rebate({ ...retired, retirement: undefined }).amount,
+    212,
+    'without the gross benefit the floor is AGI alone and the rebate is FIVE TIMES too generous',
+  );
+  // And the true figure, supplied, agrees with the floor — because for this
+  // household the three terms the floor knows are the whole of PIT-RC.
+  assert.equal(rebate({ ...retired, modifiedGrossIncome: 36_000 }).amount, 40);
+
+  // Tax-exempt interest is in the floor too, and in New Mexico that is the only
+  // thing it does: it changes no New Mexico tax before credits.
+  assert.equal(rebate({ agi: 15_000, taxExemptInterest: 10_000 }).amount, 74);
+
+  // A FLOOR ABOVE THE TABLE SETTLES THE ANSWER, so the engine stops saying it
+  // assumed: the true figure is at or above the floor and both give zero.
+  const rich = rebate({ agi: 40_000 });
+  assert.equal(rich.amount, 0);
+  assert.equal(rich.name.includes('assumed'), false);
+});
+
+test('the $36,000 qualification is a cliff, and the separate return is halved', () => {
+  const at = (agi, o = {}) =>
+    nm({ year: 2025, agi, ...o }).credits.find((c) => c.name.includes('low income comprehensive'))
+      .amount;
+  // PIT-RC Section 2: "If line 13 is MORE than $36,000, DO NOT complete line 14."
+  assert.equal(at(36_000), 17);
+  assert.equal(at(36_001), 0);
+  // The non-monotonic step, live through the engine.
+  assert.equal(at(1_000), 224);
+  assert.equal(at(1_001), 252);
+  // Halved rather than barred — § 7-2-14(A) and the Table 1 instructions.
+  assert.equal(at(5_000, { filingStatus: 'marriedFilingSeparately' }), 126);
+  assert.equal(at(5_000), 252);
+  // Negative AGI cannot make modified gross income negative: N.M. Admin. Code
+  // § 3.3.1.10 floors every item at zero, and the first row is $0-$1,000.
+  assert.equal(at(-50_000), 224);
+});
+
+test('PIT-RC counts age as TWO exemptions and blindness as ONE, which no other rule here does', () => {
+  const rule = getStateDefinition('NM', 2025).lowIncomeRebate;
+  assert.equal(rule.agedExemptions, 2);
+  assert.equal(rule.blindExemptions, 1);
+  const at = (o) =>
+    nm({ year: 2025, agi: 5_000, ...o }).credits.find((c) =>
+      c.name.includes('low income comprehensive'),
+    ).amount;
+  // One filer: column 1. Add age and it is column 3, not column 2.
+  assert.equal(at({}), 252);
+  assert.equal(at({ filerAge: 70 }), 465);
+  // Add blindness instead and it is column 2.
+  assert.equal(at({ blindOrDisabled: 1 }), 362);
+  // A couple both 65 reads the "6 or more" column that a family of six reads.
+  const couple = { filingStatus: 'marriedFilingJointly' };
+  assert.equal(at(couple), 362);
+  assert.equal(at({ ...couple, filerAge: 66, spouseAge: 67 }), 839);
+  // And the ordinary route to the same column: a single parent of FIVE is six
+  // exemptions, where a childless couple both 65 is also six. Two households
+  // with nothing in common reading one cell is the whole shape of this table.
+  assert.equal(at({ dependents: 4, dependentAges: [3, 6, 9, 12] }), 655, 'five exemptions');
+  assert.equal(at({ dependents: 5, dependentAges: [3, 6, 9, 12, 15] }), 839, 'six');
+  // THE CONTRAST THAT MAKES IT WORTH A TEST: § 7-2-5.2, the state's OWN
+  // aged-or-blind exemption, treats the two as ALTERNATIVES — a New Mexican who
+  // is both qualifies once — and IRC § 63(f) treats them as EQUAL and stacking.
+  // Three provisions, three weightings, the same two facts about one filer.
+  assert.equal(getStateDefinition('NM', 2025).agedOrBlindExemptionSteps.age, 65);
 });
