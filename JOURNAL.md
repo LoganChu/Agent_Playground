@@ -4,6 +4,348 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 70 — 2026-11-02
+
+**THE AUDIT WAS NEVER ELEVEN HOURS. IT WAS NARROWING FOR SIX STATES OUT OF
+FORTY-TWO, AND NOTHING IN THE REPOSITORY COULD SAY SO.** No new state. The day's
+work is one defect in the instrument this project's whole claim rests on, found
+by printing a command line instead of reasoning about a plan — and then the
+first full audit of the state package since Arkansas arrived six days ago.
+
+> **THE RULE THE DAY TURNED ON: A DIAGNOSIS FROM THE SHAPE OF A PLAN IS NOT A
+> MEASUREMENT OF IT.** Day 69 priced the audit at eleven hours and wrote down
+> why, as the top infrastructure item: *"only 2 of 68 files are narrowable by
+> state, so a New Mexico mutant runs 66 files that cannot observe it."* The first
+> clause is true. The second does not follow — a New Mexico mutant ran
+> **thirteen** — and the real defect was in neither. **NARROWABLE IS NOT
+> SELECTED**, and three runs in a row read the first word as the second.
+
+```text
+  Day 69     ~11 hours, estimated from a part-run     2,687 mutants, NOT MEASURED
+  Day 70     46 minutes 22 seconds, measured          2,687 mutants, 99.7%
+```
+
+---
+
+### WHAT WAS ACTUALLY WRONG, AND IT IS THE GAP BETWEEN TWO QUESTIONS
+
+Day 65's per-mutant selection gives a state's mutants a cheap first step: the two
+sweep guards, narrowed to that one state with `--test-name-pattern`. To do that it
+has to know **which narrowable files have a test for that state**, and it was
+answering a different question:
+
+```text
+  which codes does a sweep file's TEXT quote?     mentions   <- what the plan used
+  which codes does it have a TEST for?            covers    <- what the plan meant
+```
+
+For every ordinary test file those are the same question. **For the two that
+matter they are not, and the difference is the whole reason the file is
+narrowable:** a file earns the name by building its test names out of a
+`${state}` it *reads*. `status-sweep.test.js` loops over `ROWS_BY_STATE.keys()`
+and over `TAXING`; `step-probes.test.js` over `CHARTS_BY_STATE.keys()`. So they
+generate a test for every shipped state and quote almost none.
+
+```text
+  status-sweep.test.js  quotes  AR IA MD MO NM OH
+  step-probes.test.js   quotes  AR NM OH
+                                -------------------
+  codes with a narrowed step    6 of 42
+```
+
+**AND THE THIRTY-SIX OTHERS DID NOT MERELY LOSE THE NARROWING — THEY LOST THE TWO
+SWEEPS ENTIRELY.** `planSteps` excludes a narrowable file from the whole-file step
+when it has already been narrowed; a file that is *neither* narrowed *nor* quoted
+falls out of both. So the two most lethal guards in the package never ran against
+five sixths of its mutants until the 36-second whole-suite backstop.
+
+### NOTHING FAILED, WHICH IS THE PART WORTH WRITING DOWN
+
+Every artefact agreed with every other one for six days:
+
+- **the score stayed exact**, because a mutant that survives its selection is
+  re-run against the whole suite and only that verdict is recorded — the property
+  that makes selection safe is the property that makes it rot invisibly;
+- **`select.test.mjs` passed**, because it asserts the two sweeps are
+  *narrowABLE*, and they are;
+- **the start-up guard passed**, because it only probed the codes the plan had
+  already chosen, so a code the plan had silently dropped was never probed;
+- **`select.mjs`'s own header predicted this exact failure** — *"a selection that
+  stops attributing mutants leaves every test green, every number right, and the
+  run fifteen hours long"* — and the file it is written in contained the bug.
+
+The only symptom was a clock. And the clock lived in prose.
+
+### FOUR FIGURES FOR ONE QUANTITY, NONE OF THEM WRONG WHEN WRITTEN
+
+```text
+  tools/preflight.mjs header         "the three-hour mutation audit"
+  mutate.mjs's --record refusal      "about two hours on four cores"
+  tools/mutation/README.md           "about half an hour per package"
+  Day 69's journal entry             "roughly eleven hours"
+```
+
+> **A COST IN PROSE IS A COST NOBODY RE-MEASURES.** Every other published figure
+> in this repository is pinned and re-derived — test counts, mutation scores,
+> README claims, the differential grid, 7,270 provenance figures. The cost of the
+> instrument that pins them was the one number taken on trust, and four files
+> disagreed by a factor of twenty-two.
+
+---
+
+### WHAT FOUND IT: `MUTATE_DEBUG=1`, AND IT IS NOW PERMANENT
+
+Two hours of reasoning about the plan produced two wrong answers. What settled it
+was three lines that print the **argv** of every run the harness launches:
+
+```text
+[dbg] 3871ms args=["--test","--experimental-test-isolation=none",
+  "test/aged-standard-deduction.test.js","test/bracket-pins.test.js",
+  "test/module-graph.test.js","test/notes.test.js","test/alabama.test.js",
+  "test/missouri.test.js","test/oregon.test.js","test/separate-return-spouse.test.js",
+  "test/surviving-spouse-column.test.js","test/survivor-retirement.test.js"]
+```
+
+Ten whole test files and **no `--test-name-pattern` at all**, for a mutant the
+report was calling "killed by a narrowed run". **A planner asked what it is doing
+answers with what it intended; the argv is what happened.**
+
+**AND THE AGGREGATE THAT MADE THE CONTRADICTION VISIBLE WAS ITSELF MISLABELLED,
+WHICH IS HOW IT WORKED.** The first version of the cost block called `step[0]`
+"narrowed" — true for the six states that had a narrowed step, false for the
+thirty-six whose step 0 was ten whole files. It printed
+
+```text
+  step 1 (narrowed)    40 runs    39 kills    5.34 s/kill
+```
+
+and a narrowed run takes half a second. The two could not both be true. A step is
+labelled by what it **is** now and never by its index, and the wrong label is
+kept in the comment, because it is the reason the defect was found at all.
+
+---
+
+### THE FIX: THE PROBE ALREADY HAD THE ANSWER AND WAS ONLY OBJECTING TO IT
+
+The start-up guard runs the real pattern over the real file in a real worker copy
+and reads `# pass N` back out. **`N > 0` IS "this file has a test for this
+state."** So it builds the map instead of only refusing on it, per FILE rather
+than per code, because the plan needs to leave a file out of the narrowed step
+*and* available to the whole-file step.
+
+A code that matches nothing anywhere now falls through to the whole-file step
+rather than stopping the run: a state with no per-state
+test in either sweep is a fact about the suite and not a mistake in it. **The run
+reports `33/33`**, because the nine states with no income tax hold no mutants at
+all — `no-income-tax.js` enumerates zero — so they never enter a selection. Any
+code that *did* fall through would be printed by name at start-up, which is the
+line to read on a future run: the same symptom with a taxing state in it is this
+defect returning.
+
+```text
+  Alabama       26.2 -> 217.8 mutants/min    40 mutants, same 40 verdicts
+                5.34 -> 0.68 s/kill
+  New Mexico      32 -> 62.7 mutants/min    223 mutants, same two survivors
+                                             on the same two lines as Day 69
+  the package   ~11h -> 46m22s               2,687 mutants measured
+```
+
+The New Mexico re-run is the check that mattered: the whole file, the same
+verdict count, and the same two lines surviving. **A selection that is faster and
+disagrees is worthless; this one is faster and agrees.**
+
+### Measurements
+
+**THE AUDIT RAN TO COMPLETION TWICE TODAY, WHICH IS THE POINT.**
+
+```text
+  run 1    2,687 mutants   2,678 killed   9 survivors   99.7%   46m22s
+  run 2    2,690 mutants   2,682 killed   8 survivors   99.7%   46m13s
+```
+
+Run 1 is the first full measurement of this package since Day 65. Run 2 is after
+the repair below, and the ninth survivor is gone because the repaired check kills
+it. `scores.json` holds run 2, with both fingerprints over the tree that ships.
+1,151 tests in the state suite, 1,773 across the four. Preflight all green.
+
+> **A SECOND FULL AUDIT IN THE SAME DAY IS THE DEMONSTRATION AND NOT AN
+> INDULGENCE.** The reason the ledger gap below was fixed TODAY rather than
+> written down for tomorrow is that re-measuring cost forty-six minutes. At
+> eleven hours it would have become a worklist item, and the worklist already had
+> four of those about this same instrument.
+
+**AND THE AUDIT NOW RECORDS WHAT IT COST BESIDE WHAT IT MEASURED**, in
+`scores.json`, as a wall clock with its worker count and as per-phase **shares** —
+ratios, so they survive a change of machine, which is why they are the half worth
+committing.
+
+```text
+                                  runs    kills     share   s/kill
+  step 1 (narrowed)              2554     1956     20.0%     1.10
+  step 2 (whole files)            598      574     17.6%     3.31
+  full re-run (selection miss)     24       16      9.9%    66.81
+  whole suite (no selection)      136      136     52.5%    41.59
+```
+
+**THAT LAST ROW PRICED THE NEXT ITEM THE DAY IT WAS FIRST PRINTED. 136 MUTANTS —
+5.1% OF THEM — TAKE 52.5% OF THE RUN.** They are the ones no state owns:
+`data/provenance.js` holds 109 and `engine.js` 10. "Make `data/provenance.js`
+attributable" has been a worklist item since Day 65 with no price on it. The
+price is half the audit.
+
+And the selection's health is now a number rather than an impression: step 1
+killed 1,956 of 2,554 and step 2 killed 574 of 598, so only **24** mutants reached
+the whole-suite re-run. The re-run is the backstop that makes the score exact and
+it is being asked to do almost nothing — which is the state a selection should be
+in, and the state it was NOT in for six days while reporting the same thing.
+
+---
+
+### THE NINTH SURVIVOR WAS NOT DECLARED, AND I CLAIMED IT WAS
+
+The first draft of `STATE-SURVIVORS.md`'s Day 70 section said **"every one of the
+nine was declared before the run"**. Eight were. `data/provenance.js` line 3895
+was not, and it is the first survivor this audit has ever found outside
+`states/`.
+
+> **THE ERROR WAS NOT ARITHMETIC, IT WAS PATTERN-MATCHING: the two New Mexico
+> lines WERE predicted, Day 67's seven were known, 2 + 7 = 9, and the sum was
+> right while the SET was wrong.** Day 67's seven are `flat-states` ×2,
+> `new-jersey` ×2, `ohio` ×2 and `new-mexico` ×1. The provenance line is in none
+> of them. A count that matches is not a set that matches, and this is the second
+> day in three to make a claim about survivors from a count.
+
+Line 3895 is `carriedForwardFrom: 2025` on the ledger entry for New Mexico's
+rebate amounts — which year's published table the 2026 figures are a copy of. Set
+it to 2024 and the package ships a declared debt with the wrong vintage and no
+test notices. **Seventeen of the eighteen `carriedForwardFrom` values in that file
+died**, so there is a cross-check and this one escaped it.
+
+### IT ESCAPED THROUGH A `continue`, AND SO DID TWENTY-FIVE OTHERS
+
+`provenance.test.js` pairs each `provisionalFigures` entry with the ledger entry
+describing it, by path, and then compares the years:
+
+```js
+const entry = stateFigureProvenance(definition, state, year, figure.path);
+if (entry === undefined || entry.kind !== 'carried-forward') continue;   // <-- here
+```
+
+**A `provisionalFigures` path names the figure the DEFINITION holds, which can be
+a container; the ledger names the LEAVES under it.** `matches()` requires an equal
+segment count, so `lowIncomeRebate.rows.7.amounts` (four segments) never paired
+with `lowIncomeRebate.rows.*.amounts.*` (five), and Arkansas's
+`deduction.amounts` never paired with `deduction.amounts.*`.
+
+```text
+  carried-forward figures with a provisionalFigures entry       146
+  paired and compared                                           120
+  skipped by the `continue`                                      26
+    NM 2026  lowIncomeRebate.rows.0..22.amounts                  23
+    AR 2026  deduction.amounts                                    1   since Day 64
+    AR 2026  lowIncomeTaxTable.byStatus                           1   since Day 64
+    AR 2026  additionalTaxCredit.start                            1   since Day 64
+```
+
+**IT IS NOT ONE FIGURE AND IT IS NOT ONE STATE.** Arkansas's three have been
+unpaired since the day Arkansas landed, and no audit since has finished and been
+able to say so.
+
+> **A GUARD CAN BE PRESENT AND WEAK BY A FACTOR OF SIX.** The loop ended with
+> `assert.ok(compared > 20, ...)`, written so that a pairing which stopped working
+> could not pass unnoticed. It compared **120** against a floor of **20**. A floor
+> set far below the reachable value reports nothing — and the number to assert is
+> the one the loop *could* reach, not one chosen to look safely small. It is an
+> EQUALITY now, with the unpaired figures named, and the floor is deleted rather
+> than raised, because the next figure to arrive would make a raised floor stale
+> again.
+
+**AND THE EXPANSION THE LOOP NEEDED WAS TWENTY LINES ABOVE IT IN THE SAME TEST.**
+The agreement check immediately before already walks a provisionalFigures path
+down to the real figures under it — `path === figure.path || path.startsWith(
+figure.path + '.')`. One loop in the file had the expansion and the next one did
+not.
+
+### AND THE REPAIRED CHECK IMMEDIATELY FOUND THREE REAL DATA GAPS
+
+With the 26 pairs restored, three of them failed: **Arkansas's 2026 deduction,
+low income tax tables and additional tax credit each have a ledger entry whose
+`kind` is `carried-forward` and whose `carriedForwardFrom` field is absent.** All
+three cites open with the words *"CARRIED FORWARD FROM 2025"*. The year was stated
+in the prose and missing from the field, so nothing could compare it. Three fields
+added; the mutant count goes 2,687 → 2,690, and run 2 killed all three new `2025`
+literals along with the survivor that started this — `whole suite (no selection)`
+reads **136 of 136**.
+
+> **A CROSS-CHECK THAT SKIPS A PAIR HIDES BOTH SIDES OF IT.** The silent
+> `continue` was not only failing to compare the years — it was concealing that
+> three ledger entries had no year to compare.
+
+---
+
+### What I would do next
+
+1. **MAKE THE 133 UNATTRIBUTED MUTANTS CHEAPER, AND THE PRICE IS NOW MEASURED AT
+   HALF THE AUDIT.** `data/provenance.js` holds 106 of them and `engine.js` 10,
+   and each pays the whole 36-second suite. **Attributing them by STATE is the
+   wrong fix and was measured as such today**: `provenance.test.js` quotes only
+   CA, MD and NJ, so a provenance mutant attributed to Arizona would select a step
+   that cannot kill it and then pay the full re-run anyway — slower. The right fix
+   is to split the whole-suite fallback into **cheap files then expensive ones**,
+   and the split is lopsided enough to be worth it. Measured today in the mode the
+   harness runs in (`--experimental-test-isolation=none`, the 68 files the audit
+   uses):
+
+   ```text
+     all 68 files                                         37.5s   1,106 tests
+     the 65 cheap ones  (provenance.test.js among them)    8.1s     979 tests
+     new-mexico + status-sweep + step-probes                29.3s     127 tests
+   ```
+
+   **Three files are 78% of the clock and 11% of the tests.** A mutant killed by
+   the cheap half costs 8.1s instead of 37.5. The penalty is bounded and known: a
+   mutant the cheap half misses pays 45.6s instead of 37.5, and all 136
+   unattributed mutants were killed somewhere. Saving on today's run would be
+   roughly sixteen minutes of forty-six.
+2. **GIVE `new-mexico.test.js`'s 42-STATE SUPERLATIVE SWEEP ITS OWN HOME.** It is
+   17 of the suite's 36 seconds, it walks every state-year to defend one sentence
+   with "largest" in it, and it lives in a file that only New Mexico's mutants
+   select. Moving it to a file that quotes no state would make it GENERIC and run
+   for every mutant — strictly worse. Splitting it per state, the way Day 65 split
+   the two sweeps, is the move, and it would make a third file narrowable.
+3. **BUILD THE PREPARER-ANCHOR HARNESS** (Day 67 item 2, Day 68 item 4, Day 69
+   item 3; survey committed as `tools/differential/PREPARER-ANCHORS.md`). Still
+   the largest unbuilt instrument and still the best sales argument here. It needs
+   a field added to `cases.mjs`, which changes the grid fingerprint — **so build
+   it at the START of a run**.
+4. **THE OTHER FOUR REFUNDABLE ITEMS ON PIT-RC**, all declared in the notes: the
+   property tax rebate for a filer 65 or over (up to $250), the ADDITIONAL low
+   income property tax rebate (up to $350, four counties), the child day care
+   credit (up to $1,200) and the refundable medical care credit. All four are
+   gated on the modified gross income figure Day 69 added, so the input is already
+   there.
+5. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+6. **DO NOT RE-PROBE THE DOCUMENT HOSTS.** Day 69 settled it: 483 distinct hosts
+   across all 4,392 state parameter files, exactly one answers, and it is New
+   Mexico's. Re-run only when the network policy changes.
+7. **THE 2022 AND 2021 NEW MEXICO PACKETS ARE OPEN AND MOSTLY UNREAD.**
+8. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65 item 2). Today's
+   `covers` map makes this cheaper to land than it was: a file split per state is
+   discovered as narrowable and its coverage measured, with no edit in the
+   harness.
+9. **GIVE THE HARNESS A LOCK** (Day 66 item 16, restated by Day 69 and still not
+    done). Two audits in one container share `tools/mutation/scores.json` and a
+    worker root keyed only by pid, and today's two runs were serialised by hand.
+10. **FINGERPRINT THE ENUMERATED LITERALS RATHER THAN THE FILE BYTES** (Day 43).
+   Still unbuilt, still priced at twelve minutes — and worth less than it was,
+   because a 46-minute audit serialises prose edits for 46 minutes instead of
+   eleven hours.
+11. **DECIDE WHETHER TO EXPOSE NEW MEXICO'S TAX-TABLE ANSWER** (Day 68 item 10).
+    The real item inside it is still that this package has 42 states and has
+    looked at exactly one state's rate TABLE.
+
+---
+
 ## Day 69 — 2026-11-01
 
 **THE REFERENCE MODEL DID NOT NEED INSTALLING, AND NEW MEXICO PUBLISHES THE SAME

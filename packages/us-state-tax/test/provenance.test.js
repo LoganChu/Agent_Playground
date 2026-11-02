@@ -355,27 +355,87 @@ test('carried-forward here and provisionalFigures there name the same figures', 
   // the mutation harness sets every bare year in a built package wrong on
   // purpose — so without this, a ledger entry claiming 2025 could become one
   // claiming 4051 with nothing to notice.
-  let compared = 0;
+  //
+  // ## DAY 70: THIS LOOP WAS SKIPPING 26 OF 146 FIGURES, AND THE EXPANSION IT
+  // ## NEEDED IS TWENTY LINES ABOVE IT
+  //
+  // The pairing used to be `stateFigureProvenance(definition, state, year,
+  // figure.path)` and `continue` when that found nothing. **A
+  // `provisionalFigures` path names the figure the DEFINITION holds, which can
+  // be a container, and the ledger names the LEAVES under it.** `matches()`
+  // requires an equal segment count, so `lowIncomeRebate.rows.7.amounts` never
+  // paired with `lowIncomeRebate.rows.*.amounts.*` and Arkansas's
+  // `deduction.amounts` never paired with `deduction.amounts.*`:
+  //
+  // ```text
+  //   paired and compared                            120
+  //   skipped by the `continue`                       26
+  //     NM 2026  lowIncomeRebate.rows.0..22.amounts   23
+  //     AR 2026  deduction.amounts                     1   unpaired since Day 64
+  //     AR 2026  lowIncomeTaxTable.byStatus            1
+  //     AR 2026  additionalTaxCredit.start             1
+  // ```
+  //
+  // The agreement check above already expands a provisionalFigures path into the
+  // real figures under it — `path === figure.path || path.startsWith(figure.path
+  // + '.')` — and that is exactly the expansion this loop was missing. The same
+  // file held both.
+  //
+  // > **A GUARD CAN BE PRESENT AND WEAK BY A FACTOR OF SIX.** The old line was
+  // > `assert.ok(compared > 20)`, written so a pairing that stopped working could
+  // > not pass unnoticed, and it compared 120 against a floor of 20. A floor set
+  // > far below the reachable value reports nothing. So the guard is now an
+  // > EQUALITY — every carried-forward figure pairs, or the unpaired ones are
+  // > named — and the floor is gone rather than raised, because the next figure
+  // > to arrive would make a raised floor stale again.
+  let figuresPaired = 0;
+  let totalFigures = 0;
+  let leafComparisons = 0;
+  const unpaired = [];
   for (const { state, year, definition } of everyStateYear()) {
+    const figures = realFigures(definition);
     for (const figure of definition.provisionalFigures ?? []) {
       if (figure.carriedForwardFrom === undefined) continue;
-      const entry = stateFigureProvenance(definition, state, year, figure.path);
-      if (entry === undefined || entry.kind !== 'carried-forward') continue;
-      compared += 1;
-      assert.equal(
-        entry.carriedForwardFrom,
-        figure.carriedForwardFrom,
-        `${state} ${year} ${figure.path}: the ledger says it came from ` +
-          `${entry.carriedForwardFrom} and provisionalFigures says ${figure.carriedForwardFrom}`,
+      totalFigures += 1;
+      const leaves = figures.filter(
+        (path) => path === figure.path || path.startsWith(`${figure.path}.`),
       );
-      assert.ok(
-        SUPPORTED_YEARS.includes(entry.carriedForwardFrom),
-        `${state} ${year} ${figure.path} is carried forward from ${entry.carriedForwardFrom}, ` +
-          'which is not a year this package has',
-      );
+      const entries = leaves
+        .map((path) => [path, stateFigureProvenance(definition, state, year, path)])
+        .filter(([, entry]) => entry !== undefined && entry.kind === 'carried-forward');
+      if (entries.length === 0) {
+        unpaired.push(`${state} ${year} ${figure.path} (${leaves.length} leaf figure(s))`);
+        continue;
+      }
+      figuresPaired += 1;
+      for (const [path, entry] of entries) {
+        leafComparisons += 1;
+        assert.equal(
+          entry.carriedForwardFrom,
+          figure.carriedForwardFrom,
+          `${state} ${year} ${path}: the ledger says it came from ` +
+            `${entry.carriedForwardFrom} and provisionalFigures says ${figure.carriedForwardFrom}`,
+        );
+        assert.ok(
+          SUPPORTED_YEARS.includes(entry.carriedForwardFrom),
+          `${state} ${year} ${path} is carried forward from ${entry.carriedForwardFrom}, ` +
+            'which is not a year this package has',
+        );
+      }
     }
   }
-  assert.ok(compared > 20, `only ${compared} carried-forward years were compared`);
+  assert.deepEqual(
+    unpaired.slice(0, 15),
+    [],
+    `${unpaired.length} of ${totalFigures} carried-forward figures pair with no ledger entry, ` +
+      'so the year they claim is compared with nothing (first 15 shown)',
+  );
+  assert.equal(figuresPaired, totalFigures, 'every carried-forward figure pairs');
+  assert.ok(
+    leafComparisons >= figuresPaired,
+    `${leafComparisons} leaf comparisons over ${figuresPaired} figures — a container figure ` +
+      'pairs with at least one leaf and usually several',
+  );
 });
 
 test('every non-finite figure is Infinity, which is what a missing ceiling means', () => {

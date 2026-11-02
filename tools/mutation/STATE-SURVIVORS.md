@@ -1,10 +1,18 @@
-# Day 70 — all nine, measured over the whole package for the first time since Arkansas
+# Day 70 — nine, then eight, measured over the whole package for the first time since Arkansas
 
-**2,687 mutants, 2,678 killed, 9 survivors, 99.7%, in 46 minutes 22 seconds on four
-workers.** Days 66 to 69 added four states and never finished an audit; this is the first
-run since Day 65 that covered the package, and the reason it finished is in
+Days 66 to 69 added four states and never finished an audit. This is the first run since
+Day 65 that covered the package, and the reason it finished is in
 `tools/mutation/README.md` — the per-mutant selection had been narrowing for six states out
-of forty-two.
+of forty-two. **It ran twice**, because the first run found a survivor nothing had declared
+and a 46-minute audit is one you can re-run after fixing what it found.
+
+```text
+  run 1    2,687 mutants   2,678 killed   9 survivors   99.7%   46m22s
+  run 2    2,690 mutants   2,682 killed   8 survivors   99.7%   46m13s
+```
+
+**The eight that stand, recorded over mutant `f1740f09813a8120` and suite
+`b6e67d40a6103174`:**
 
 ```text
 states/flat-states.js   line  435  year   2024 -> 2023
@@ -15,7 +23,12 @@ states/ohio.js          line   88  rate   0.01 -> 0.005
 states/ohio.js          line  107  rate   0.2  -> 0.1
 states/new-mexico.js    line  115  money  8_000 -> 16000     <- predicted Day 69
 states/new-mexico.js    line  206  money  36_000 -> 72000    <- predicted Day 69
-data/provenance.js      line 3895  year   2025 -> 2024
+```
+
+**And the ninth, which run 1 found and run 2 kills:**
+
+```text
+data/provenance.js      line 3895  year   2025 -> 2024       <- NOT declared, now killed
 ```
 
 **EIGHT OF THE NINE WERE DECLARED BEFORE THE RUN. THE NINTH WAS NOT, AND THE FIRST
@@ -89,9 +102,29 @@ finish and say so.
 > true value is a floor that reports nothing — the number to assert is the one the loop
 > could have reached, not a number that looks safely small.
 
-The remaining eight survivors are parameters no shipped answer can read: unreachable by
-construction, each for a documented reason. The classes they fall into are in the Day 65
-section below and unchanged.
+### The repair, and what it then found
+
+The pairing now uses the container-to-leaf expansion the agreement check twenty lines above
+already had — `path === figure.path || path.startsWith(figure.path + '.')` — and a figure
+that pairs with nothing **fails by name** instead of being skipped. With the 26 pairs
+restored, three of them failed immediately: **Arkansas's 2026 deduction, low income tax
+tables and additional tax credit each have a ledger entry whose `kind` is `carried-forward`
+and whose `carriedForwardFrom` field is absent.** All three cites open with the words
+*"CARRIED FORWARD FROM 2025"*. The year was in the prose and missing from the field, so
+nothing could compare it.
+
+> **A CROSS-CHECK THAT SKIPS A PAIR HIDES BOTH SIDES OF IT.** The `continue` was not only
+> failing to compare twenty-six years — it was concealing that three ledger entries had no
+> year to compare.
+
+Three fields added, three new `2025` literals in the build, and run 2's
+`whole suite (no selection)` row reads **136 kills of 136 runs**: the survivor that started
+this and the three figures its diagnosis produced are all dead.
+
+### The eight that stand
+
+All eight are parameters no shipped answer can read: unreachable by construction, each for a
+documented reason. The classes they fall into are in the Day 65 section below and unchanged.
 
 ---
 

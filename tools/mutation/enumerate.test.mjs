@@ -238,7 +238,12 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // 137 of the 140 are in `states/new-mexico.js` and nearly all of those are
   // § 7-2-14's rebate table: 23 band ceilings and 138 amounts, less the ones
   // below the money floor, plus 23 `carriedForwardFrom` flags.
-  assert.equal(mutants.length, 2_687, 'mutants the enumerator finds in the current tree');
+  //
+  // 2,690 after the second half of Day 70: three Arkansas ledger entries whose
+  // CITES said "CARRIED FORWARD FROM 2025" in prose and whose
+  // `carriedForwardFrom` field was absent, so the year they claimed was compared
+  // with nothing. Three fields, three `2025` literals, three mutants.
+  assert.equal(mutants.length, 2_690, 'mutants the enumerator finds in the current tree');
   // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
   // Kansas anchors above are: the newest rule in the package is where the
   // enumerator's reach is least established.
@@ -593,5 +598,5 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // `carriedForwardFrom: 2025` flags above the floor, the same shape as the
   // seven the child credit added. **The two indexed provisions in this state
   // have now contributed eleven mutants that record a DEBT rather than a rule.**
-  assert.deepEqual(byKind, { money: 1_899, rate: 483, year: 305 });
+  assert.deepEqual(byKind, { money: 1_899, rate: 483, year: 308 });
 });

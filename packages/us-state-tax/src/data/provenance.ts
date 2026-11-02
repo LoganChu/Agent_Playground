@@ -1574,6 +1574,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     document: '§ 26-51-430',
     cite: 'CARRIED FORWARD FROM 2025. § 26-51-430 indexes the deduction to CPI-U and rounds the result DOWN to the nearest $10, and neither a 2026 Indexed Tax Brackets card nor the 2026 AR1000F instructions has been published, so $2,470 and $4,940 are the 2025 figures standing in. One indexation step is $60 to $80 of deduction, which is $2.22 to $2.96 of tax — the smallest provisional exposure in this package, because the deduction itself is the second smallest',
     constant: true,
+    carriedForwardFrom: 2025,
   },
   {
     state: 'AR',
@@ -1600,6 +1601,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     document: 'Low Income Tax Tables',
     cite: 'CARRIED FORWARD FROM 2025, all five distinct arrays and all 224 rows. § 26-51-301 indexes the tables and their exempt amounts to CPI-U and no 2026 AR1000F instructions have been published. The exposure runs the OPPOSITE WAY to a carried-forward deduction and is larger: an unindexed table charges a 2026 household whose income rose with inflation more rows than the real table will, so an Arkansas answer here is TOO HIGH for a low-income 2026 return by up to roughly one indexation step of rows — about $60 of tax on a joint return with two or more dependents',
     constant: true,
+    carriedForwardFrom: 2025,
   },
   {
     state: 'AR',
@@ -1666,6 +1668,7 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     document: 'Additional Tax Credit for Qualified Individuals',
     cite: 'CARRIED FORWARD FROM 2025. The $26,500 income test has not been published for 2026; the $60 and the $5 step are statutory and not indexed by anything, so this threshold is the whole of the credit\'s provisional exposure — one indexation step is five withdrawal steps and $25 of credit',
     constant: true,
+    carriedForwardFrom: 2025,
   },
   {
     state: 'AR',

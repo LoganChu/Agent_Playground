@@ -210,7 +210,8 @@ Measured on Alabama, which was one of the thirty-six:
 
 And on New Mexico, the worst case, where the whole 223-mutant file came back with
 the same two survivors on the same two lines as Day 69's run: **32 -> 63
-mutants/min**.
+mutants/min**. Over the whole package: **about eleven hours -> 46 minutes**, run
+twice in one afternoon.
 
 > **A DIAGNOSIS FROM THE SHAPE OF A PLAN IS NOT A MEASUREMENT OF IT.** Day 69
 > priced the audit at eleven hours and wrote down the reason: "only 2 of 68 test
@@ -226,11 +227,27 @@ mutants/min**.
 Every audit now ends with a cost block, and `--record` writes it beside the score:
 
 ```text
-  wall clock 213s over 4 worker(s)   62.7 mutants/min
+  wall clock 2773s over 4 worker(s)   58.2 mutants/min
                                   runs    kills     share   s/kill
-  step 1 (narrowed)               223      211     32.0%     0.82
-  step 2 (whole files)             12       10     51.9%    27.95
-  full re-run (selection miss)      2        0     16.1%        -
+  step 1 (narrowed)              2554     1956     20.0%     1.10
+  step 2 (whole files)            598      574     17.6%     3.31
+  full re-run (selection miss)     24       16      9.9%    66.81
+  whole suite (no selection)      136      136     52.5%    41.59
+```
+
+That is the whole state package, 2,690 mutants, Day 70. The row to act on is the
+last one: **136 mutants are 5.1% of the run and 52.5% of its clock**, because no
+state owns them (`data/provenance.js` holds 109, `engine.js` 10) so each pays the
+whole suite. Attributing them by STATE is the wrong fix and was measured as such —
+`provenance.test.js` quotes only CA, MD and NJ, so a provenance mutant attributed
+to Arizona would select a step that cannot kill it and pay the full re-run anyway.
+Splitting the whole-suite fallback into cheap files then expensive ones is the
+right one, and the split is lopsided:
+
+```text
+  all 68 files the audit runs                          37.5s   1,106 tests
+  the 65 cheap ones (provenance.test.js among them)     8.1s     979 tests
+  new-mexico + status-sweep + step-probes                29.3s     127 tests
 ```
 
 The line to read first is **share**. A selection is earning its keep when the

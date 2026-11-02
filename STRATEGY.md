@@ -40,25 +40,35 @@ of them wrong on the day it was written.
 
 ## The instruments, re-measured today
 
-**The deliberate-error audit, run to completion over the whole package for the
-first time since Arkansas arrived.** `us-federal-tax` is at **100%** (716
-mutants, 0 survivors) and `us-state-tax`'s rule parameters at **99.7%** (2687
-mutants, 9 survivors) — and the figures above are written by `check-scores.mjs`
-rather than copied by hand.
+**The deliberate-error audit, run to completion over the whole package twice —
+the first full measurements since Arkansas arrived.** `us-federal-tax` is at
+**100%** (716 mutants, 0 survivors) and `us-state-tax`'s rule parameters at
+**99.7%** (2690 mutants, 8 survivors) — and the figures above are written by
+`check-scores.mjs` rather than copied by hand.
 
 ```text
                         Day 69                 Day 70
-  mutants               2,687 enumerated       2,687 measured
-  score                 not measured           99.7%, 9 survivors
-  wall clock            ~11 hours (part-runs)  46 minutes 22 seconds, 4 workers
+  mutants               2,687 enumerated       2,690 measured
+  score                 not measured           99.7%, 8 survivors
+  wall clock            ~11 hours (part-runs)  46m22s and 46m13s, 4 workers
 ```
 
-All nine survivors were already declared before the run, and the two that are new
-since Day 67 are New Mexico's — `8_000 -> 16000` on § 7-2-5.2's top aged-or-blind
-row and `36_000 -> 72000` on the rebate table's last band ceiling — both of which
-`step-probes.test.js` had named `UNREACHABLE` in writing, with the arithmetic, on
-Day 69. **The audit confirming a declaration is the only form in which a survivor
-is evidence rather than an excuse.**
+**TWICE, AND THAT IS THE DEMONSTRATION RATHER THAN AN INDULGENCE.** The first run
+turned up a survivor outside `states/` that nothing had declared, and chasing it
+found a `continue` in `provenance.test.js` walking past 26 of 146 carried-forward
+figures — 23 New Mexico's and three Arkansas's, unpaired since the day Arkansas
+landed. Repairing it exposed three Arkansas ledger entries whose cites say
+*"CARRIED FORWARD FROM 2025"* in prose and whose `carriedForwardFrom` field was
+absent, so the year they claimed was compared with nothing. Fixed, re-measured,
+and the second run killed all of it. **At eleven hours that would have been a
+worklist item instead of a fix.**
+
+The eight that remain were all declared in advance, and the two that are new since
+Day 67 are New Mexico's — `8_000 -> 16000` on § 7-2-5.2's top aged-or-blind row
+and `36_000 -> 72000` on the rebate table's last band ceiling — both named
+`UNREACHABLE` in writing, with the arithmetic, in `step-probes.test.js` on Day 69.
+**The audit confirming a declaration is the only form in which a survivor is
+evidence rather than an excuse.**
 
 **AND THE AUDIT NOW RECORDS WHAT IT COST, BESIDE WHAT IT MEASURED.** Every other
 published figure in this repository is pinned and re-derived; the cost of the
@@ -68,14 +78,14 @@ count and as per-phase shares — and the shares immediately priced the next ite
 
 ```text
                                   runs    kills     share   s/kill
-  step 1 (narrowed)              2554     1956     20.1%     1.12
-  step 2 (whole files)            598      574     18.0%     3.42
-  full re-run (selection miss)     24       16      9.9%    67.64
-  whole suite (no selection)      133      132     51.9%    42.89
+  step 1 (narrowed)              2554     1956     20.0%     1.10
+  step 2 (whole files)            598      574     17.6%     3.31
+  full re-run (selection miss)     24       16      9.9%    66.81
+  whole suite (no selection)      136      136     52.5%    41.59
 ```
 
-**133 mutants — 4.9% of them — take 51.9% of the run.** They are the ones no
-state owns: `data/provenance.js` holds 106, `engine.js` 10. "Make
+**136 mutants — 5.1% of them — take 52.5% of the run.** They are the ones no
+state owns: `data/provenance.js` holds 109, `engine.js` 10. "Make
 `data/provenance.js` attributable" has been a worklist item since Day 65 with no
 price on it. The price is half the audit.
 

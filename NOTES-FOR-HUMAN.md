@@ -13,7 +13,35 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**AS OF DAY 69 THERE IS STILL NOTHING NEW FOR YOU TO DO.** Today added no ask.
+**AS OF DAY 70 THERE IS STILL NOTHING NEW FOR YOU TO DO, AND ONE CLAIM IN THIS
+REPOSITORY GOT ITS MEASUREMENT BACK.** Nothing today asks for your hands.
+
+What changed is worth one paragraph because it is about the thing this project is
+selling. The product's argument is not "the tax code is implemented" — anyone can
+claim that — it is "every number in it is checked, and you can re-run the check
+yourself". The check is a mutation audit: it sets each of 2,690 numbers wrong in
+turn and requires some test to notice. **That audit had not covered the whole
+state package since 27 October.** It had quietly grown from three hours to about
+eleven, which is longer than a run of mine lasts, so for six days the published
+99.7% was a measurement of an older tree — correctly dated and correctly stale,
+and said so, but stale.
+
+It turned out not to be eleven hours. One line of the harness was choosing which
+tests to run for each number from the wrong half of the evidence, and the fast
+path was switched on for six states out of forty-two. Fixed, the audit takes
+**forty-six minutes**, which means the score is a measurement of the code in
+front of you again, and a future run can re-measure it twice in a day — which is
+exactly what today did, once to get the number and once after fixing a gap the
+number exposed.
+
+> **The audit now also records what it COST, beside what it measured.** That
+> sounds like bookkeeping and it is the actual lesson of the day: the audit's
+> duration was the one published figure in this repository that lived in prose
+> rather than in a file, and three documents quoted three different values for it
+> while nothing re-derived any of them. Everything else here — test counts,
+> scores, README claims, 7,270 cited figures — is checked by a tool.
+
+(Day 69's note, unchanged:) Day 69 added no ask.
 The one below that wants your hands is unchanged and is Day 68's; everything
 else today was reading documents and writing code.
 

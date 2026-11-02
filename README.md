@@ -395,7 +395,7 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 2687 | 9 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
+| `us-state-tax` (rule parameters) | 2690 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
 The state figure was re-measured on **Day 70** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. Both scores are
@@ -433,6 +433,7 @@ Day 64, ARKANSAS              2,436 mutants    NOT MEASURED  -- the audit outgre
 Day 65, the audit made to fit 2,436 mutants    6 survivors   99.8%
 Day 66-69, four states        2,547 mutants    NOT MEASURED  -- it outgrew the day again
 Day 70, the selection fixed   2,687 mutants    9 survivors   99.7%   46m22s
+Day 70, the ledger year fixed 2,690 mutants    8 survivors   99.7%   46m13s
 ```
 
 **DAYS 66 TO 69 ARE FOUR MORE ROWS WITHOUT A SCORE, AND THE REASON WAS NOT ARITHMETIC
@@ -444,8 +445,10 @@ believed the source. The other thirty-six states' mutants skipped both sweeps an
 selection does, so the only symptom was a clock, and the clock was written in a prose
 comment that said three hours while the run took ten. Day 70 made the coverage **measured**
 instead of inferred — the start-up probe already ran the real pattern over the real file —
-and the audit went from eleven hours to **46 minutes 22 seconds**, with the whole package
-measured for the first time since Arkansas arrived.
+and the audit went from eleven hours to **46 minutes**, with the whole package measured
+for the first time since Arkansas arrived — twice, because the first run turned up a
+survivor outside `states/` that nothing had declared, and a 46-minute audit is one you can
+re-run after fixing what it found.
 
 **DAY 64 IS THE FIRST DAY THIS TABLE HAS A ROW WITHOUT A SCORE IN IT, AND THE REASON IS
 ARITHMETIC RATHER THAN A FAILURE.** The enumerator measures 2,436 mutants over 37 files —
