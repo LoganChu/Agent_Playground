@@ -155,9 +155,96 @@ that goes stale:
 and this harness reads green as "the mutant survived". A renamed per-state test
 would therefore send a whole state's mutants through a vacuous phase 1 and a full
 re-run — slower than no selection at all, and silent. So every state code in the
-run is probed once at start-up and a selection that matches nothing stops the
-run, which is Day 47's rule applied to a second flag: an announcement at start-up
-is not a guard, a guard is something that will not proceed.
+run is probed once at start-up, which is Day 47's rule applied to a second flag:
+an announcement at start-up is not a guard, a guard is something that will not
+proceed.
+
+### THE SELECTION REACHED SIX STATES OF FORTY-TWO, AND NOTHING FAILED
+
+Day 70. The section above describes a selection that was working for **six
+states**. The other thirty-six got no narrowed step, and — because a narrowable
+file the plan does not narrow is dropped from the whole-file step too — **no
+sweep at all** until the 36-second whole-suite backstop.
+
+The cause is one line, and it is the gap between two questions that are the same
+question for every test file except the two that matter:
+
+```text
+  which codes does this file's TEXT quote?     mentions   <- what the plan used
+  which codes does this file have a TEST for?  covers     <- what the plan meant
+```
+
+A file earns the name "narrowable" by building its test names out of a
+`${state}` it **reads**. `status-sweep.test.js` loops over `ROWS_BY_STATE.keys()`
+and over `TAXING`; `step-probes.test.js` over `CHARTS_BY_STATE.keys()`. So they
+generate a test for every shipped state and quote almost none:
+
+```text
+  status-sweep.test.js  quotes  AR IA MD MO NM OH
+  step-probes.test.js   quotes  AR NM OH
+  codes with a narrowed step    6 of 42      -> measured: 33 of 33 in the run
+```
+
+**Every artefact in the repository agreed with every other one the whole time.**
+The score stayed exact, because the whole-suite re-run is the backstop and it
+cannot under-kill. `select.test.mjs` passed, because it tests that the two
+sweeps are *narrowABLE* and they are. The start-up guard passed, because it only
+probed the codes the plan had already chosen. The only symptom was the clock,
+and the clock lived in a prose comment.
+
+So `covers` is **measured** now rather than inferred. The start-up probe already
+ran the real pattern over the real file and read `# pass N` back; `N > 0` IS
+"this file has a test for this state", and the probe now BUILDS the map instead
+of only objecting to it. A code that matches nothing anywhere falls through to
+the whole-file step rather than stopping the run — a state with no income tax has
+no staircases and no `byStatus` cells, and that is a fact about the suite rather
+than a mistake in it.
+
+Measured on Alabama, which was one of the thirty-six:
+
+```text
+                      before    after
+  mutants/min           26.2    217.8      40 mutants, same 40 verdicts
+  s/kill, step 1        5.34      0.68
+```
+
+And on New Mexico, the worst case, where the whole 223-mutant file came back with
+the same two survivors on the same two lines as Day 69's run: **32 -> 63
+mutants/min**.
+
+> **A DIAGNOSIS FROM THE SHAPE OF A PLAN IS NOT A MEASUREMENT OF IT.** Day 69
+> priced the audit at eleven hours and wrote down the reason: "only 2 of 68 test
+> files are narrowable by state, so a New Mexico mutant runs 66 files that cannot
+> observe it". The first clause is true, the second does not follow — a New Mexico
+> mutant ran thirteen — and the real defect was in neither. What settled it was
+> `MUTATE_DEBUG=1`, which prints the **argv** of every run: the Alabama line
+> carried ten whole test files and no `--test-name-pattern` at all. A planner
+> that reports its own plan reports what it intended.
+
+### Where the time goes, printed by the run that spends it
+
+Every audit now ends with a cost block, and `--record` writes it beside the score:
+
+```text
+  wall clock 213s over 4 worker(s)   62.7 mutants/min
+                                  runs    kills     share   s/kill
+  step 1 (narrowed)               223      211     32.0%     0.82
+  step 2 (whole files)             12       10     51.9%    27.95
+  full re-run (selection miss)      2        0     16.1%        -
+```
+
+The line to read first is **share**. A selection is earning its keep when the
+cheap phase holds most of the kills and the expensive phases hold little of the
+clock. The shares are ratios, so they survive a change of machine, which is why
+they are the half that gets recorded; `mutants/min` is printed with its worker
+count and never without.
+
+A step is labelled by what it IS and not by its index, which is itself a Day 70
+correction: the first version of the block called `step[0]` "narrowed", read
+correctly for the six states that had a narrowed step, and printed "narrowed,
+5.34 s/kill" for Alabama — where a narrowed run takes half a second. **That
+contradiction is what found the defect**, so a measurement here is never labelled
+by position.
 
 ## Resume, because a long measurement gets interrupted
 
@@ -367,9 +454,10 @@ than no row because it reads exactly like a real one.
 
 ## The fast proxy, which is where Day 34's findings came from
 
-This harness takes about half an hour per package: it runs the whole suite once per
-mutant, and the suite got slower on Day 34 precisely because of the test described
-below. Half an hour is fine for a weekly job and useless while you are working.
+This harness runs a suite once or twice per mutant and there are thousands of
+mutants, so its cost is a wall-clock figure that belongs in `scores.json` and not
+in this paragraph — see the cost block above. Whatever it reads, it is fine for a
+job that runs once a day and useless while you are working.
 
 So `packages/us-state-tax/test/status-sweep.test.js` asks the same question over a
 subset, inside the ordinary suite, in about a second. It walks the state definitions

@@ -133,11 +133,54 @@ export function mentionsIn(testSource, allCodes) {
  * well under a second, and a kill in step one means step two is never run.
  *
  * A file that names NO state is a package-wide guard and runs for everything.
+ *
+ * ## `covers`, AND THE DEFECT IT EXISTS TO FIX
+ *
+ * Which narrowable files to narrow for a code is a question about which TESTS
+ * EXIST, and until Day 70 it was answered from the file's TEXT — `mentions`,
+ * the set of two-letter codes the source quotes. For an ordinary test file those
+ * are the same question. **For a narrowable one they are not, and the gap is the
+ * whole point of the file being narrowable:** a file earns the name by building
+ * its test names out of a `${state}` it READS — `status-sweep.test.js` loops over
+ * `ROWS_BY_STATE.keys()` and over `TAXING`, `step-probes.test.js` over
+ * `CHARTS_BY_STATE.keys()` — so it generates a test for forty-two states while
+ * quoting six of them.
+ *
+ * Measured on the shipped package the day this was found:
+ *
+ * ```text
+ *   status-sweep.test.js  quotes  AR IA MD MO NM OH
+ *   step-probes.test.js   quotes  AR NM OH
+ *   codes with a narrowed step        6 of 42
+ * ```
+ *
+ * **And the 36 others did not merely lose the narrowing — they lost the two
+ * sweeps entirely**, because a narrowable file the plan does not narrow is also
+ * excluded from `rest` unless it quotes the code. So the two most lethal guards
+ * in the package never ran against five sixths of its mutants until the
+ * whole-suite re-run, which is the 36-second backstop. The score stayed exact,
+ * every test stayed green, and the audit went from three hours to ten. That is,
+ * exactly, the failure this module's header says it cannot see.
+ *
+ * So `covers` is the MEASURED answer and `mentions` is only the fallback:
+ * `mutate.mjs` discovers it by running each narrowable file once per code with
+ * the pattern it would use and keeping the pairs that match a test, which is the
+ * ground truth and cannot drift from it. The fallback stays for callers with no
+ * clock — a pure test among them — and the ratio it reaches is itself pinned in
+ * `select.test.mjs`, so the day a sweep stops quoting any code at all is a day
+ * something fails.
+ *
+ * @param covers Map of narrowable file -> Set of codes it has a test for, or
+ *   `null` to infer it from the text.
  */
-export function planSteps({ code, testFiles, narrowable, mentions }) {
+export function planSteps({ code, testFiles, narrowable, mentions, covers = null }) {
   if (code === undefined || code === null) return null;
   const generic = testFiles.filter((f) => mentions.get(f).size === 0);
-  const narrowed = narrowable.filter((f) => mentions.get(f).has(code) || mentions.get(f).size === 0);
+  const narrows = (f) =>
+    covers !== null && covers.has(f)
+      ? covers.get(f).has(code)
+      : mentions.get(f).has(code) || mentions.get(f).size === 0;
+  const narrowed = narrowable.filter(narrows);
   const rest = [...new Set([...generic, ...testFiles.filter((f) => mentions.get(f).has(code))])].filter(
     (f) => !narrowed.includes(f),
   );
@@ -145,4 +188,17 @@ export function planSteps({ code, testFiles, narrowable, mentions }) {
   if (narrowed.length > 0) steps.push({ files: narrowed, pattern: ` ${code} ` });
   if (rest.length > 0) steps.push({ files: rest, pattern: null });
   return steps.length === 0 ? null : { code, steps };
+}
+
+/**
+ * How many of `codes` the text-derived heuristic would give a narrowed step to.
+ *
+ * Its own number, rather than something a reader counts out of a plan, because
+ * it is the figure that fell from 42 to 6 without anything failing. Pinned in
+ * `select.test.mjs` as a ratio over the shipped suite.
+ */
+export function narrowedCodeCount({ codes, narrowable, mentions }) {
+  return [...codes].filter((code) =>
+    narrowable.some((f) => mentions.get(f).has(code) || mentions.get(f).size === 0),
+  ).length;
 }

@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 /**
- * Everything CI checks except the three-hour mutation audit, in one command.
+ * Everything CI checks except the mutation audit, in one command.
+ *
+ * This line said "the three-hour mutation audit" from Day 61 to Day 70. It was
+ * three hours when it was written, ten by Day 69, and about forty minutes after
+ * Day 70 fixed the selection — and the figure in this sentence never moved,
+ * because a duration in prose is a duration nothing re-measures. The audit now
+ * records its own cost in `tools/mutation/scores.json` beside the score, so the
+ * number lives where it is re-derived; this header no longer carries one.
  *
  * ## Why this exists, and it is a Day 61 finding rather than a convenience
  *
@@ -31,7 +38,7 @@
  *
  * Everything in `.github/workflows/ci.yml` except `mutation-claims` step 7, the
  * score check, which is red by construction between a code change and the audit
- * record that covers it — and which takes three hours to make green. That one is
+ * record that covers it — and whose cost is recorded in `scores.json`. That one is
  * the expected red of a two-push day and has to stay outside a gate that is
  * meant to be run before every push.
  *

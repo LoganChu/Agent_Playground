@@ -26,6 +26,7 @@ import {
   declarations,
   mentionsIn,
   narrowableIn,
+  narrowedCodeCount,
   planSteps,
 } from './select.mjs';
 
@@ -134,6 +135,45 @@ test('a file naming no state runs for every mutant, and a narrowed step carries 
   assert.ok(!plan.steps[1].files.includes('sweep.test.js'), 'a narrowed file is not also run whole');
 });
 
+test('a MEASURED cover overrides the text, which is the Day 70 defect in one assertion', () => {
+  // The sweep quotes AR and nothing else, and tests every state it is handed.
+  // That is the gap: `mentions` says AR, the suite says AR and OH.
+  const testFiles = ['sweep.test.js', 'ohio.test.js'];
+  const testSource = new Map([
+    // `'AR'` is QUOTED and the rest of the list is read at run time — which is
+    // the shipped sweeps' shape exactly, and the reason a bare `AR` in a comment
+    // would not do: a file quoting no code at all is a package-wide guard and
+    // narrows for everything, so the fixture has to name one to be wrong about.
+    ['sweep.test.js', "const only = 'AR';\ntest(`every byStatus cell ${state} ships`, () => {});\n"],
+    ['ohio.test.js', "stateIncomeTax({ state: 'OH' })"],
+  ]);
+  const mentions = mentionsIn(testSource, new Set(['AR', 'OH']));
+  const narrowable = narrowableIn(testSource);
+  const args = { testFiles, narrowable, mentions };
+
+  // Inferred from the text: Ohio gets no narrowed step, AND loses the sweep
+  // entirely — a narrowable file the plan does not narrow is dropped from the
+  // whole-file step too. Both halves asserted, because the second one is the
+  // expensive half and was the one nobody had looked at.
+  const inferred = planSteps({ code: 'OH', ...args });
+  assert.equal(inferred.steps.length, 1);
+  assert.equal(inferred.steps[0].pattern, null);
+  assert.ok(!inferred.steps[0].files.includes('sweep.test.js'), 'the sweep does not run for OH at all');
+
+  // Measured: the sweep has an OH test, so OH narrows like AR does.
+  const covers = new Map([['sweep.test.js', new Set(['AR', 'OH'])]]);
+  const measured = planSteps({ code: 'OH', ...args, covers });
+  assert.deepEqual(measured.steps[0], { files: ['sweep.test.js'], pattern: ' OH ' });
+
+  // And a measured cover that EXCLUDES a code still leaves the file reachable
+  // through the whole-file step when the text names it — the per-file
+  // granularity the plan needs.
+  const partial = new Map([['sweep.test.js', new Set(['OH'])]]);
+  const ar = planSteps({ code: 'AR', ...args, covers: partial });
+  assert.equal(ar.steps.length, 1, 'AR gets no narrowed step');
+  assert.ok(ar.steps[0].files.includes('sweep.test.js'), 'but the sweep still runs whole, because AR is in its text');
+});
+
 test('no code means no plan, which means the whole suite', () => {
   for (const code of [undefined, null]) {
     assert.equal(planSteps({ code, testFiles: ['a.test.js'], narrowable: [], mentions: new Map([['a.test.js', new Set()]]) }), null);
@@ -155,6 +195,43 @@ test('the shipped package still has two narrowable sweep files', () => {
   // notice. Day 65 split these two; a third would be an improvement and is
   // meant to fail here so the figure above gets re-measured.
   assert.deepEqual(narrowable, ['status-sweep.test.js', 'step-probes.test.js']);
+});
+
+test('THE TEXT OF THE SHIPPED SWEEPS DOES NOT REACH ITS STATES, and that is why `covers` is measured', () => {
+  // The number this pins is the one that fell silently. The two sweeps generate
+  // a test per state from a list they READ, so their text reaches a handful of
+  // codes and their tests reach nearly all of them — and for six days the plan
+  // believed the text. Every mutant in the thirty-six states the text misses
+  // skipped both sweeps and paid a 36-second whole-suite re-run instead.
+  //
+  // Asserted as an UPPER BOUND on what the text reaches, not a lower one, which
+  // is the opposite direction from every other reach test in this file. The
+  // claim is "the text is not a usable proxy", so the test has to fail if the
+  // text ever becomes one — because on that day `covers` could be dropped, and a
+  // measurement kept for a reason that has expired is how this harness grows.
+  const dir = join(PKG, 'test');
+  const testSource = new Map(
+    readdirSync(dir)
+      .filter((f) => f.endsWith('.test.js'))
+      .map((f) => [f, readFileSync(join(dir, f), 'utf8')]),
+  );
+  const esmStates = join(ESM, 'states');
+  const allCodes = codesIn(
+    readdirSync(esmStates)
+      .filter((f) => f.endsWith('.js'))
+      .map((f) => readFileSync(join(esmStates, f), 'utf8')),
+  );
+  const narrowable = narrowableIn(testSource);
+  const mentions = mentionsIn(testSource, allCodes);
+  const reached = narrowedCodeCount({ codes: allCodes, narrowable, mentions });
+  assert.ok(allCodes.size >= 42, `the package ships ${allCodes.size} codes`);
+  assert.ok(
+    reached < allCodes.size / 2,
+    `the sweeps' TEXT now reaches ${reached} of ${allCodes.size} codes. If that is because the ` +
+      'sweeps started quoting their state list, the measured `covers` in mutate.mjs is redundant ' +
+      'and should be deleted rather than left running. If it is because a code list was ' +
+      'hard-coded into a sweep, that list will go stale and should come back out.',
+  );
 });
 
 test('the shipped package attributes the great majority of its mutants to a state', async () => {

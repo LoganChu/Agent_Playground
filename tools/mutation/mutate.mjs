@@ -70,6 +70,9 @@
  *                                  [--only substr] [--limit N] [--json out.json]
  *                                  (--record | --no-record)  <- required for a FULL run
  *                                  [--max-survivors N] [--record [FILE]]
+ *                                  [--resume]   <- needs --json; continues a partial run
+ *
+ *   MUTATE_DEBUG=1   print the argv and duration of every test run (see runFiles)
  */
 import { appendFileSync, existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
@@ -207,6 +210,41 @@ const RECORD_OUT = flag('record', null, 'tools/mutation/scores.json');
  * of friction that gets a guard deleted.
  */
 const NO_RECORD = argv.includes('--no-record');
+/**
+ * WHAT THIS RUN WILL COST, QUOTED FROM THE LAST MEASUREMENT AND NOT FROM PROSE.
+ *
+ * This refusal used to say "1,400-odd mutants and takes about two hours on four
+ * cores". Both halves were from a smaller package: the count reached 2,687 and
+ * the two hours reached ten, and the sentence stayed. `preflight.mjs`'s header
+ * called it "the three-hour mutation audit" at the same time, which is a third
+ * figure for one number — and Day 69 priced it at eleven hours from a stopwatch
+ * on a part-run.
+ *
+ * > **A COST IN PROSE IS A COST NOBODY RE-MEASURES.** Four figures for one
+ * > quantity, none of them wrong when written, and the only reason they
+ * > disagreed is that none of them was derived from anything.
+ *
+ * So the figure now comes out of `scores.json`, which the recording half of this
+ * same file wrote the last time a full audit ran, and it carries the DATE it was
+ * measured on. If no record exists the sentence says so rather than guessing,
+ * because "unknown" is a true statement about an unmeasured quantity and "about
+ * two hours" is not.
+ */
+function lastKnownCost(dir) {
+  try {
+    const name = dir.replace(/^.*packages\//, '');
+    const rec = JSON.parse(readFileSync(join(import.meta.dirname, 'scores.json'), 'utf8')).packages[name];
+    if (!rec?.cost) return 'This run has no recorded cost yet, so how long it takes is unknown.';
+    const mins = rec.cost.seconds / 60;
+    return (
+      `The last full run of this package was ${rec.mutants} mutants in ` +
+      `${mins < 90 ? `${mins.toFixed(0)} minutes` : `${(mins / 60).toFixed(1)} hours`} ` +
+      `on ${rec.cost.workers} worker(s), measured ${rec.measured}.`
+    );
+  } catch {
+    return 'This run has no recorded cost yet, so how long it takes is unknown.';
+  }
+}
 if (RECORD_OUT === null && !NO_RECORD && ONLY === null && !Number.isFinite(LIMIT)) {
   console.error(
     '[mutate] REFUSED to start: a full run must say whether it is recording.\n' +
@@ -214,9 +252,9 @@ if (RECORD_OUT === null && !NO_RECORD && ONLY === null && !Number.isFinite(LIMIT
       `  --record       write the score and both fingerprints to tools/mutation/scores.json\n` +
       '  --no-record    measure only, and leave the committed score alone\n' +
       '\n' +
-      'This run is 1,400-odd mutants and takes about two hours on four cores. Day 42 lost\n' +
-      '105 minutes to a run that recorded nothing and Day 47 lost two more, both times with\n' +
-      'the "NOT recording" line sitting in the log. An announcement is not a guard.',
+      `${lastKnownCost(pkgDir)} Day 42 lost 105 minutes to a run that recorded\n` +
+      'nothing and Day 47 lost two more, both times with the "NOT recording" line sitting in\n' +
+      'the log. An announcement is not a guard.',
   );
   process.exit(2);
 }
@@ -427,16 +465,46 @@ async function runFiles(dir, files, pattern) {
     ...files.map((f) => `test/${f}`),
   ];
   const read = (s) => Number(/^# pass (\d+)$/m.exec(s)?.[1] ?? -1);
+  // `ms` is the only clock reading this harness takes, and Day 70 added it for a
+  // reason that is a rule rather than a convenience: for six days the audit's
+  // own duration lived in a PROSE COMMENT — `preflight.mjs` called it "the
+  // three-hour mutation audit" while it had grown to about ten — and nothing
+  // measured it. Every other published figure in this repository is pinned and
+  // re-measured; the cost of the instrument that measures them was the one
+  // number taken on trust. See the cost block in the report below.
+  const t0 = process.hrtime.bigint();
+  const elapsed = () => Number(process.hrtime.bigint() - t0) / 1e6;
+  /**
+   * `MUTATE_DEBUG=1` prints the ACTUAL argv of every run, with its duration.
+   *
+   * It is in the harness permanently because it is what found the Day 70 defect,
+   * after two hours of reasoning about the plan had got the wrong answer twice.
+   * The aggregate said "step 1 (narrowed), 5.34 s/kill"; a narrowed run takes
+   * half a second; the two could not both be true, and the only thing that could
+   * settle it was the command line the harness was really running — which turned
+   * out to carry ten whole test files and NO `--test-name-pattern` at all.
+   *
+   * **A planner that reports its own plan is reporting what it INTENDED. The argv
+   * is what happened.** Three lines of output, and they are the difference
+   * between inferring a selection and reading one.
+   */
+  const dbg = (ms) => {
+    if (process.env.MUTATE_DEBUG) console.error(`[dbg] ${ms.toFixed(0)}ms cwd=${dir} args=${JSON.stringify(args)}`);
+  };
   try {
     const { stdout } = await execFileAsync(process.execPath, args, {
       cwd: dir,
       timeout: 120_000,
       maxBuffer: 64 * 1024 * 1024,
     });
-    return { green: true, passed: read(String(stdout)) };
+    const ms = elapsed();
+    dbg(ms);
+    return { green: true, passed: read(String(stdout)), ms };
   } catch (e) {
     const out = String(e.stdout || '') + String(e.stderr || '');
-    return { green: false, out, passed: read(out) };
+    const ms = elapsed();
+    dbg(ms);
+    return { green: false, out, passed: read(out), ms };
   }
 }
 
@@ -550,7 +618,10 @@ const GENERIC = TEST_FILES.filter((f) => mentions.get(f).size === 0);
 /** The ordered steps to run for one mutant, or `null` for "the whole suite". */
 function planFor(rel, offset) {
   if (!SELECT) return null;
-  return planSteps({ code: codeAt(rel, offset), testFiles: TEST_FILES, narrowable: NARROWABLE, mentions });
+  // `covers` is filled by the probe below, before any mutant runs, and is empty
+  // until then — which is why nothing may call this during start-up. The
+  // hoisting is deliberate and the ordering is the contract.
+  return planSteps({ code: codeAt(rel, offset), testFiles: TEST_FILES, narrowable: NARROWABLE, mentions, covers });
 }
 
 const root = join(os.tmpdir(), `mut-${process.pid}`);
@@ -598,36 +669,79 @@ console.error('[mutate] baseline green');
  * proceed.
  */
 const CODES_IN_RUN = [...new Set(selected.map((mu) => codeAt(mu.rel, mu.offset)).filter(Boolean))].sort();
+/**
+ * WHICH NARROWABLE FILE HAS A TEST FOR WHICH STATE — DISCOVERED, NOT INFERRED.
+ *
+ * This block used to be a guard and nothing more: it probed each code's narrowed
+ * step, refused to start if the pattern matched no tests, and trusted the plan
+ * otherwise. Day 70 found that the plan it was checking had quietly shrunk to a
+ * sixth of the package, and that this probe was standing right next to the
+ * evidence without reading it.
+ *
+ * `planSteps` decided which narrowable files to narrow from the codes a file's
+ * TEXT quotes. A narrowable file builds its test names from a state list it
+ * READS, so `status-sweep.test.js` quotes six codes and tests forty-two. The
+ * other thirty-six got no narrowed step — **and, because a narrowable file the
+ * plan does not narrow is dropped from the whole-file step too, no sweep at all**
+ * until the 36-second whole-suite backstop. See `select.mjs`'s `covers`.
+ *
+ * The probe already had the answer. It runs the real pattern over the real file
+ * in a real worker copy and reads `# pass N` back out; `N > 0` IS "this file has
+ * a test for this state". So the probe now BUILDS the map instead of only
+ * objecting to it, which costs one cheap run per narrowable file per code — and
+ * the guard it replaces is strictly stronger, because a code that matches
+ * nothing anywhere now falls back to the whole-file step rather than stopping
+ * the run: matching nothing is a fact about the suite, not a mistake in it.
+ *
+ * It is per FILE and not per code for a reason the plan needs: a file with no
+ * test for this state must be left out of the narrowed step AND left available
+ * to the whole-file step, and only per-file granularity can say which.
+ */
+const covers = new Map(NARROWABLE.map((f) => [f, new Set()]));
 if (SELECT && CODES_IN_RUN.length > 0) {
-  const empty = [];
-  for (const code of CODES_IN_RUN) {
-    const probe = selected.find((mu) => codeAt(mu.rel, mu.offset) === code);
-    const plan = planFor(probe.rel, probe.offset);
-    // Only the NARROWED step can match nothing — a step with no pattern runs
-    // whole files. Probing just that one keeps this guard to about a second a
-    // state instead of the whole of phase 1.
-    for (const step of plan.steps.filter((s) => s.pattern !== null)) {
-      const r = await runFiles(workerDirs[0], step.files, step.pattern);
-      if (!r.green) {
-        console.error(`[mutate] BASELINE IS RED under the ${code} selection, which the whole suite passed.`);
-        console.error(r.out.split('\n').filter((l) => /^not ok/.test(l)).join('\n').slice(0, 3000));
-        process.exit(1);
+  const probes = [];
+  for (const code of CODES_IN_RUN) for (const f of NARROWABLE) probes.push({ code, f });
+  let next = 0;
+  const redUnderSelection = [];
+  await Promise.all(
+    workerDirs.map(async (dir) => {
+      for (;;) {
+        const i = next++;
+        if (i >= probes.length) return;
+        const { code, f } = probes[i];
+        const r = await runFiles(dir, [f], ` ${code} `);
+        if (!r.green) redUnderSelection.push({ code, f, out: r.out });
+        else if (r.passed > 0) covers.get(f).add(code);
       }
-      if (r.passed <= 0) empty.push(`${code}: ${step.pattern ?? 'no pattern'} over ${step.files.length} file(s)`);
-    }
+    }),
+  );
+  if (redUnderSelection.length > 0) {
+    const { code, f, out } = redUnderSelection[0];
+    console.error(`[mutate] BASELINE IS RED under the ${code} selection of test/${f}, which the whole suite passed.`);
+    console.error(out.split('\n').filter((l) => /^not ok/.test(l)).join('\n').slice(0, 3000));
+    process.exit(1);
   }
-  if (empty.length > 0) {
-    console.error(
-      '[mutate] REFUSED to start: a test selection matched no tests, and a selection that\n' +
-        'matches nothing is GREEN, which this harness reads as a surviving mutant.\n\n' +
-        empty.map((e) => `  ${e}`).join('\n'),
-    );
-    process.exit(2);
-  }
+  const narrowedCodes = CODES_IN_RUN.filter((c) => NARROWABLE.some((f) => covers.get(f).has(c)));
   console.error(
     `[mutate] selection: ${CODES_IN_RUN.length} state(s), ${NARROWABLE.length} narrowable test file(s), ` +
       `${GENERIC.length} that name no state`,
   );
+  // Printed as a RATIO of the codes in the run, because that is the figure that
+  // fell from 42/42 to 6/42 with every test green. A reader who sees it below
+  // half knows the audit is about to take hours, before it takes them.
+  console.error(
+    `[mutate] narrowing measured: ${narrowedCodes.length}/${CODES_IN_RUN.length} state(s) have a narrowed step ` +
+      NARROWABLE.map((f) => `(${f} ${covers.get(f).size})`).join(' '),
+  );
+  const noNarrow = CODES_IN_RUN.filter((c) => !narrowedCodes.includes(c));
+  if (noNarrow.length > 0) {
+    // Not a refusal. A state with no per-state test in either sweep — a state
+    // with no income tax has no staircases and no byStatus cells — is a fact
+    // about the suite, and its mutants correctly fall through to the whole-file
+    // step. It is said out loud because the same symptom with a TAXING state in
+    // it would be the Day 70 defect returning.
+    console.error(`[mutate] no narrowed step (their mutants start at the whole-file step): ${noNarrow.join(' ')}`);
+  }
 }
 // Said at the START, because a measurement this long must not be able to
 // decline to record without saying so. Day 42 lost 105 minutes to exactly that.
@@ -726,6 +840,47 @@ if (PARTIAL !== null) {
 let done = 0;
 let killedBySelection = 0;
 let fullReRuns = 0;
+/**
+ * WHERE THE AUDIT'S OWN TIME GOES, in the three places it can go.
+ *
+ * Day 70 built this because Day 69 diagnosed the ten-hour run from the SHAPE of
+ * the selection rather than from a measurement, and got it wrong: it wrote that
+ * "only 2 of 68 test files are narrowable by state, so a New Mexico mutant runs
+ * 66 files that cannot observe it", when the plan for a New Mexico mutant is two
+ * narrowed files and then eleven whole ones. NARROWABLE is not SELECTED, and the
+ * difference between them is a factor of six.
+ *
+ * So the harness now counts, per phase: how many runs it did, how many of those
+ * killed, and how many seconds they took. Three numbers per phase, and the one
+ * that matters is SECONDS PER KILL — a phase that is cheap and kills nothing is
+ * pure overhead, and a phase that is expensive and kills everything is the
+ * audit working as designed. Neither is visible in a count of files.
+ *
+ * `step[i]` is the i-th step of a mutant's plan: step 0 is the narrowed sweeps,
+ * step 1 the whole files that name the state or no state. `full` is the whole-
+ * suite re-run that every mutant the selection failed to kill must pay, and it
+ * is the one whose seconds are worth the most, because each one is 36 seconds
+ * that a better selection would have avoided.
+ */
+const phaseCost = { step: [], full: { runs: 0, kills: 0, ms: 0 }, whole: { runs: 0, kills: 0, ms: 0 } };
+function account(bucket, r) {
+  bucket.runs++;
+  bucket.ms += r.ms;
+  if (!r.green) bucket.kills++;
+}
+/**
+ * A step's name comes from the step, not from its INDEX.
+ *
+ * The first version of this block labelled `step[0]` "narrowed", which read
+ * correctly for the six states that had a narrowed step and lied for the other
+ * thirty-six, whose step 0 was ten whole files. It printed "step 1 (narrowed)
+ * 5.34 s/kill" for Alabama — a narrowed run takes half a second — and that
+ * contradiction is what found the defect, so the label earns a comment: a
+ * measurement labelled by position will eventually be labelled wrongly.
+ */
+function stepLabel(i, pattern) {
+  return `step ${i + 1} (${pattern === null ? 'whole files' : 'narrowed'})`;
+}
 async function worker(dir, list) {
   for (const mu of list) {
     const target = join(dir, 'dist/esm', mu.rel);
@@ -734,8 +889,13 @@ async function worker(dir, list) {
     const plan = planFor(mu.rel, mu.offset);
     let killed = false;
     if (plan !== null) {
-      for (const step of plan.steps) {
+      for (let i = 0; i < plan.steps.length; i++) {
+        const step = plan.steps[i];
         const r = await runFiles(dir, step.files, step.pattern);
+        account(
+          (phaseCost.step[i] ??= { runs: 0, kills: 0, ms: 0, label: stepLabel(i, step.pattern) }),
+          r,
+        );
         if (!r.green) {
           killed = true;
           break;
@@ -750,7 +910,14 @@ async function worker(dir, list) {
       // Nothing in the selection failed — which is NOT a survivor yet. The whole
       // suite decides, every time, and that is what makes the score identical to
       // a full run however bad the selection is.
-      survived = (await runSuite(dir)).green;
+      const r = await runSuite(dir);
+      // Two buckets rather than one, because the two kinds of whole-suite run
+      // mean different things: `full` is a selection MISS and is the cost of the
+      // selection being imperfect; `whole` is a mutant with no selection at all
+      // (nothing attributed it to a state) and is the cost of the attribution
+      // not reaching it. The remedies are different, so the seconds are apart.
+      account(plan === null ? phaseCost.whole : phaseCost.full, r);
+      survived = r.green;
       if (plan !== null) fullReRuns++;
     }
     writeFileSync(target, src);
@@ -768,7 +935,9 @@ async function worker(dir, list) {
 }
 const chunks = Array.from({ length: WORKERS }, () => []);
 selected.forEach((mu, i) => chunks[i % WORKERS].push(mu));
+const poolStart = Date.now();
 await Promise.all(chunks.map((c, i) => worker(workerDirs[i], c)));
+const poolSeconds = (Date.now() - poolStart) / 1000;
 rmSync(root, { recursive: true, force: true });
 
 // ---- report ----
@@ -790,6 +959,45 @@ if (SELECT && killedBySelection + fullReRuns > 0) {
       // skipped the selection.
       (resumed > 0 ? `, over the ${done} mutant(s) this process ran (${resumed} resumed)` : ''),
   );
+}
+/**
+ * THE COST BLOCK, and the unit it is in.
+ *
+ * `mutants/min` is the only figure here a reader can turn into "will this finish
+ * today", and it is the one that depends on the hardware, so it is printed with
+ * the worker count beside it and never without. Everything else is a RATIO — the
+ * share of the run each phase took, and the seconds each phase spent per mutant
+ * it killed — and a ratio survives a change of machine, which is what makes it
+ * worth recording rather than just printing.
+ *
+ * The line to read first is the SHARE. A selection is earning its keep when the
+ * cheap phase holds most of the kills and the expensive phases hold little of the
+ * clock; it has stopped earning when `full` — the whole-suite re-run that every
+ * selection miss pays for — is the largest share, because that is the audit
+ * paying for the selection twice.
+ */
+const costRows = [
+  ...phaseCost.step.map((b, i) => [b.label ?? stepLabel(i, null), b]),
+  ['full re-run (selection miss)', phaseCost.full],
+  ['whole suite (no selection)', phaseCost.whole],
+].filter(([, b]) => b !== undefined && b.runs > 0);
+const clockMs = costRows.reduce((a, [, b]) => a + b.ms, 0);
+if (costRows.length > 0) {
+  console.log('\n## Where the time went\n');
+  console.log('```text');
+  console.log(
+    `  wall clock ${poolSeconds.toFixed(0)}s over ${WORKERS} worker(s)` +
+      `   ${((results.length / poolSeconds) * 60).toFixed(1)} mutants/min`,
+  );
+  console.log('                                  runs    kills     share   s/kill');
+  for (const [name, b] of costRows) {
+    console.log(
+      `  ${name.padEnd(30)}${String(b.runs).padStart(5)}${String(b.kills).padStart(9)}` +
+        `${`${((b.ms / clockMs) * 100).toFixed(1)}%`.padStart(10)}` +
+        `${(b.kills === 0 ? '    -' : (b.ms / 1000 / b.kills).toFixed(2)).padStart(9)}`,
+    );
+  }
+  console.log('```');
 }
 const byFile = {};
 for (const s of survivors) (byFile[s.rel] ||= []).push(s);
@@ -847,6 +1055,30 @@ if (RECORD_OUT) {
     // one measured over the package.
     skipped: SKIP.length === 0 ? undefined : SKIP,
     only: ONLY === null ? undefined : String(ONLY),
+    // WHAT THE SCORE COST TO MEASURE, recorded for the same reason the score is:
+    // because the alternative is a prose comment, and a prose comment is how
+    // "the three-hour mutation audit" stayed in `preflight.mjs`'s header while
+    // the audit grew to ten hours. A figure in this file is re-measured every
+    // time the score is, and `check-scores.mjs` already refuses a score whose
+    // fingerprint has moved — so the cost beside it cannot go stale without the
+    // score going stale first.
+    //
+    // `workers` is here because `mutantsPerMinute` is meaningless without it,
+    // and `resumed` because a resumed run's wall clock covers only the part this
+    // process ran. The phase shares are the durable half: they are ratios, so
+    // they are the figures that can be compared across machines and across days.
+    cost: {
+      seconds: Number(poolSeconds.toFixed(0)),
+      workers: WORKERS,
+      mutantsPerMinute: Number(((results.length / poolSeconds) * 60).toFixed(1)),
+      resumed: resumed === 0 ? undefined : resumed,
+      phases: Object.fromEntries(
+        costRows.map(([name, b]) => [
+          name,
+          { runs: b.runs, kills: b.kills, share: Number(((b.ms / clockMs) * 100).toFixed(1)) },
+        ]),
+      ),
+    },
   };
   writeFileSync(RECORD_OUT, `${JSON.stringify(existing, null, 2)}\n`);
   console.log(`\n[mutate] recorded ${name} in ${RECORD_OUT}`);

@@ -228,15 +228,26 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // SEVEN mutants this rule contributes to the `year` kind are not parameters of
   // the tax at all: they are the carry-forward flags that say the amounts are
   // unpublished.
-  assert.equal(mutants.length, 2_547, 'mutants the enumerator finds in the current tree');
+  //
+  // 2,687 ON DAY 70, up 140 from Day 68's 2,547, and **this is the first time
+  // since Day 63 that this assertion and `scores.json` agree** — Day 64's audit
+  // outgrew the day and no run since had measured the whole package. Day 70's
+  // did, in 46 minutes, so the tree's count and the recorded count are the same
+  // number again.
+  //
+  // 137 of the 140 are in `states/new-mexico.js` and nearly all of those are
+  // § 7-2-14's rebate table: 23 band ceilings and 138 amounts, less the ones
+  // below the money floor, plus 23 `carriedForwardFrom` flags.
+  assert.equal(mutants.length, 2_687, 'mutants the enumerator finds in the current tree');
   // THE NEW MEXICO FILE'S OWN COUNT, pinned for the reason the Louisiana and
   // Kansas anchors above are: the newest rule in the package is where the
   // enumerator's reach is least established.
   assert.equal(
     mutants.filter((m) => m.rel === 'states/new-mexico.js').length,
-    86,
-    'New Mexico after the child income tax credit, up from 69 on Day 67 — six band edges, ' +
-      'four per-child amounts above the money floor, and seven carriedForwardFrom: 2025 flags',
+    223,
+    'New Mexico after the low income comprehensive tax rebate, up from 86 on Day 68 — the ' +
+      'single largest one-file addition this enumerator has taken, and the file whose whole ' +
+      '223 came back with the two predicted survivors on Day 70',
   );
 
   const at = (rel, line) => mutants.find((m) => m.rel === rel && m.line === line);
@@ -574,5 +585,13 @@ test('the state engine enumerates what the recorded audit measured', () => {
   // is indexed. No New Mexico rule chooses a name, a row or an amount by the
   // year, and the one figure that would (§ 7-2-18.34's child credit) is the one
   // this package does not model.
-  assert.deepEqual(byKind, { money: 1_763, rate: 483, year: 301 });
+  //
+  // DAY 70: `money` 1,763 -> 1,899 and `year` 301 -> 305, `rate` unmoved at 483.
+  // § 7-2-14's rebate is 23 income-band ceilings and 138 printed amounts and
+  // carries no rate at all, so the entire 140 lands in two kinds — and the 4
+  // `year` mutants are not parameters of the tax either: they are
+  // `carriedForwardFrom: 2025` flags above the floor, the same shape as the
+  // seven the child credit added. **The two indexed provisions in this state
+  // have now contributed eleven mutants that record a DEBT rather than a rule.**
+  assert.deepEqual(byKind, { money: 1_899, rate: 483, year: 305 });
 });

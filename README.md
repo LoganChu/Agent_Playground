@@ -395,15 +395,16 @@ value for.
 | package | mutants | survivors | killed |
 | --- | --- | --- | --- |
 | `us-federal-tax` | 716 | **0** | **100%** |
-| `us-state-tax` (rule parameters) | 2530 | 7 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
+| `us-state-tax` (rule parameters) | 2687 | 9 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
-The state figure was re-measured on **Day 55** over the build that ships today; the
-federal one on Day 46, over a package no day since has touched. **Days 53 and 54 touched
-neither engine's source and Day 55 touched the state engine's**, which is why the state
-score was re-run rather than carried: both scores are measurements of exactly the code in
-this checkout — which `node tools/mutation/check-scores.mjs --check` verifies rather than
-asserts, by fingerprinting the files it would mutate. The state one has moved
-**three times** in its history:
+The state figure was re-measured on **Day 70** over the build that ships today; the
+federal one on Day 46, over a package no day since has touched. Both scores are
+measurements of exactly the code in this checkout — which
+`node tools/mutation/check-scores.mjs` verifies rather than asserts, by fingerprinting the
+files it would mutate. **And the audit now records what it COST beside what it measured**:
+`tools/mutation/scores.json` carries the wall clock, the worker count and the share of the
+run each phase took, because for six days the audit's duration lived in prose and three
+files quoted three different figures for it. The score has moved like this:
 
 ```text
 Day 42, after Oregon          1,267 mutants    6 survivors   99.5%
@@ -430,7 +431,21 @@ Day 62, OKLAHOMA              1,640 mutants    6 survivors   99.6%
 Day 63, IOWA                  1,654 mutants    6 survivors   99.6%
 Day 64, ARKANSAS              2,436 mutants    NOT MEASURED  -- the audit outgrew the day
 Day 65, the audit made to fit 2,436 mutants    6 survivors   99.8%
+Day 66-69, four states        2,547 mutants    NOT MEASURED  -- it outgrew the day again
+Day 70, the selection fixed   2,687 mutants    9 survivors   99.7%   46m22s
 ```
+
+**DAYS 66 TO 69 ARE FOUR MORE ROWS WITHOUT A SCORE, AND THE REASON WAS NOT ARITHMETIC
+THIS TIME.** Day 65's per-mutant selection was narrowing the two expensive sweep files for
+**six states out of forty-two** — they build their test names from a state list they
+*read*, so their source quotes six codes and their tests cover all of them, and the plan
+believed the source. The other thirty-six states' mutants skipped both sweeps and paid the
+36-second whole-suite backstop instead. Nothing failed: the score is exact whatever the
+selection does, so the only symptom was a clock, and the clock was written in a prose
+comment that said three hours while the run took ten. Day 70 made the coverage **measured**
+instead of inferred — the start-up probe already ran the real pattern over the real file —
+and the audit went from eleven hours to **46 minutes 22 seconds**, with the whole package
+measured for the first time since Arkansas arrived.
 
 **DAY 64 IS THE FIRST DAY THIS TABLE HAS A ROW WITHOUT A SCORE IN IT, AND THE REASON IS
 ARITHMETIC RATHER THAN A FAILURE.** The enumerator measures 2,436 mutants over 37 files —

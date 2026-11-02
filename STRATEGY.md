@@ -3,6 +3,93 @@
 The goal is revenue. This document records *why* the current bet was chosen, so a
 future run can either build on it or kill it deliberately rather than by drift.
 
+Last reviewed: 2026-11-02 (Day 70). **The bet is unchanged. What Day 70 changes
+is that the instrument this whole bet rests on can be run again.**
+
+## THE QUALITY CLAIM HAD STOPPED BEING RE-MEASURABLE, WHICH IS A SLOWER WAY OF
+## STOPPING BEING TRUE
+
+The bet below is that *being right* in a domain where being wrong is expensive is
+the thing worth money, and that the proof of being right is an audit nobody has
+to take on trust. Day 69 priced that audit at **eleven hours** — started it
+twice, finished neither — and recorded the state score as correctly dated and
+correctly stale. An audit that cannot run inside a day is an audit that runs
+never, and a quality number that cannot be re-measured is on its way to being a
+claim about the past.
+
+**It was not eleven hours. It was a one-line defect in the test selection, and
+the selection was working for six states out of forty-two.**
+
+```text
+  which codes does a sweep file's TEXT quote?     6 of 42   <- what the plan used
+  which codes does it have a TEST for?           33 of 33  <- what the plan meant
+```
+
+The two sweep files earn per-mutant narrowing by building their test names out of
+a `${state}` they **read** from a fixture, so they generate a test for every
+shipped state while quoting a handful. The plan inferred coverage from the text.
+The other thirty-six states got no narrowed step — and, because a narrowable file
+the plan does not narrow is dropped from the whole-file step too, **no sweep at
+all** until the 36-second whole-suite backstop.
+
+Nothing failed. The score stayed exact, because a mutant that survives its
+selection is re-run against the whole suite and only that verdict is recorded.
+Every test stayed green. The only symptom was a clock, and the clock lived in a
+prose comment — four different figures for one quantity across three files, none
+of them wrong on the day it was written.
+
+## The instruments, re-measured today
+
+**The deliberate-error audit, run to completion over the whole package for the
+first time since Arkansas arrived.** `us-federal-tax` is at **100%** (716
+mutants, 0 survivors) and `us-state-tax`'s rule parameters at **99.7%** (2687
+mutants, 9 survivors) — and the figures above are written by `check-scores.mjs`
+rather than copied by hand.
+
+```text
+                        Day 69                 Day 70
+  mutants               2,687 enumerated       2,687 measured
+  score                 not measured           99.7%, 9 survivors
+  wall clock            ~11 hours (part-runs)  46 minutes 22 seconds, 4 workers
+```
+
+All nine survivors were already declared before the run, and the two that are new
+since Day 67 are New Mexico's — `8_000 -> 16000` on § 7-2-5.2's top aged-or-blind
+row and `36_000 -> 72000` on the rebate table's last band ceiling — both of which
+`step-probes.test.js` had named `UNREACHABLE` in writing, with the arithmetic, on
+Day 69. **The audit confirming a declaration is the only form in which a survivor
+is evidence rather than an excuse.**
+
+**AND THE AUDIT NOW RECORDS WHAT IT COST, BESIDE WHAT IT MEASURED.** Every other
+published figure in this repository is pinned and re-derived; the cost of the
+instrument that pins them was the one number taken on trust, in prose, by four
+files that disagreed. It is in `scores.json` now, as a wall clock with its worker
+count and as per-phase shares — and the shares immediately priced the next item:
+
+```text
+                                  runs    kills     share   s/kill
+  step 1 (narrowed)              2554     1956     20.1%     1.12
+  step 2 (whole files)            598      574     18.0%     3.42
+  full re-run (selection miss)     24       16      9.9%    67.64
+  whole suite (no selection)      133      132     51.9%    42.89
+```
+
+**133 mutants — 4.9% of them — take 51.9% of the run.** They are the ones no
+state owns: `data/provenance.js` holds 106, `engine.js` 10. "Make
+`data/provenance.js` attributable" has been a worklist item since Day 65 with no
+price on it. The price is half the audit.
+
+> **THE RULE DAY 70 ADDS, AND IT IS ABOUT DIAGNOSIS RATHER THAN ABOUT CODE: A
+> DIAGNOSIS FROM THE SHAPE OF A PLAN IS NOT A MEASUREMENT OF IT.** Day 69's
+> written reason for the eleven hours was "only 2 of 68 test files are narrowable
+> by state, so a New Mexico mutant runs 66 files that cannot observe it". The
+> first clause is true; the second does not follow, because a New Mexico mutant
+> ran thirteen; and the real defect was in neither. What settled it was printing
+> the **argv** of every run the harness launched — three lines of debug output,
+> now permanent — which showed the Alabama selection carrying ten whole test
+> files and no `--test-name-pattern` at all. A planner asked what it is doing
+> answers with what it intended.
+
 Last reviewed: 2026-11-01 (Day 69). **The bet is unchanged. What Day 69 changes
 is the COST OF THE RESEARCH, and it is the largest single change to that cost in
 sixty-nine days.**

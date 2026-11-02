@@ -1,3 +1,100 @@
+# Day 70 — all nine, measured over the whole package for the first time since Arkansas
+
+**2,687 mutants, 2,678 killed, 9 survivors, 99.7%, in 46 minutes 22 seconds on four
+workers.** Days 66 to 69 added four states and never finished an audit; this is the first
+run since Day 65 that covered the package, and the reason it finished is in
+`tools/mutation/README.md` — the per-mutant selection had been narrowing for six states out
+of forty-two.
+
+```text
+states/flat-states.js   line  435  year   2024 -> 2023
+states/flat-states.js   line  565  year   2025 -> 2024
+states/new-jersey.js    line  104  year   2028 -> 2027
+states/new-jersey.js    line  229  year   2028 -> 2027
+states/ohio.js          line   88  rate   0.01 -> 0.005
+states/ohio.js          line  107  rate   0.2  -> 0.1
+states/new-mexico.js    line  115  money  8_000 -> 16000     <- predicted Day 69
+states/new-mexico.js    line  206  money  36_000 -> 72000    <- predicted Day 69
+data/provenance.js      line 3895  year   2025 -> 2024
+```
+
+**EIGHT OF THE NINE WERE DECLARED BEFORE THE RUN. THE NINTH WAS NOT, AND THE FIRST
+VERSION OF THIS SECTION CLAIMED ALL NINE WERE.** That claim was written from the two
+New Mexico lines, which *were* predicted, and from the assumption that the rest were
+Day 67's seven. Day 67's seven are `flat-states` ×2, `new-jersey` ×2, `ohio` ×2 and
+`new-mexico` ×1 — **`data/provenance.js` line 3895 is in none of them**, and it is the
+first survivor this audit has found outside `states/`. It gets its own section below.
+
+The two New Mexico lines were declared with the arithmetic, in
+`step-probes.test.js`'s `UNREACHABLE` list, written on Day 69 before any of this ran:
+
+- **line 115** is the top row of § 7-2-5.2's aged-or-blind table. The row's probe sits at
+  `$9,000` of AGI and the row pays `$8,000` of exemption beside § 7-2-5.8's `$2,500`, so
+  the allowances already exceed the income with the federal deduction at zero. Doubling it
+  changes nothing; reducing it moves four pinned boundary steps. **Unreachable in one
+  direction only**, which is why the figure is kept rather than deleted.
+- **line 206** is `lowIncomeRebate.rows.22.upTo`, the last band's `$36,000` ceiling. PIT-RC
+  prints `$36,000` twice — once as that ceiling and once as the qualification on the face of
+  the form — and the engine checks the qualification first, so the ceiling decides no income
+  at all. Two numbers, one working.
+
+> **THAT SECOND ONE IS THE BEST EVIDENCE A DECLARED BLIND SPOT CAN HAVE.** Two instruments
+> that share no code reached the same conclusion about the same number from opposite
+> directions: `step-probes.test.js` by asking which numbers no probe can move, and the audit
+> by breaking it and finding that nobody noticed. The tempting fix on Day 69 was to delete
+> one of the two `36,000`s. Keeping both and saying which one works is what let the audit
+> confirm it.
+
+## The ninth: `data/provenance.js` line 3895, and the 26 figures a `continue` walked past
+
+Line 3895 is `carriedForwardFrom: 2025` on the ledger entry for New Mexico's rebate
+amounts — the field that records which year's published table the 2026 figures are a copy
+of. Set it to `2024` and the package ships a declared debt with the wrong vintage on it,
+and no test notices.
+
+**Seventeen of the eighteen `carriedForwardFrom` values in that file DIED.**
+`provenance.test.js` cross-checks each one against the `provisionalFigures` entry it
+describes, so a ledger year that disagrees with the definition's year fails. The check
+pairs them by PATH, and the pairing is done like this:
+
+```js
+const entry = stateFigureProvenance(definition, state, year, figure.path);
+if (entry === undefined || entry.kind !== 'carried-forward') continue;   // <-- here
+```
+
+A `provisionalFigures` path names the figure **the definition holds**, which can be a
+container; the ledger names the **leaves** under it. `matches()` requires an equal segment
+count, so `lowIncomeRebate.rows.7.amounts` (four segments) does not pair with
+`lowIncomeRebate.rows.*.amounts.*` (five). The lookup returns `undefined`, the `continue`
+runs, and the figure is silently not compared.
+
+Measured over the shipped package, it is not one figure and not one state:
+
+```text
+  carried-forward figures with a provisionalFigures entry       146
+  paired and compared                                           120
+  skipped by the `continue`                                      26
+    NM 2026  lowIncomeRebate.rows.0..22.amounts                  23
+    AR 2026  deduction.amounts                                    1
+    AR 2026  lowIncomeTaxTable.byStatus                            1
+    AR 2026  additionalTaxCredit.start                             1
+```
+
+**Arkansas's three have been unpaired since Day 64** and no audit since has been able to
+finish and say so.
+
+> **THE GUARD WAS THERE AND IT WAS WEAK BY A FACTOR OF SIX.** The test ends with
+> `assert.ok(compared > 20, ...)`, written so that a pairing which stopped working could
+> not pass unnoticed. It compared 120 and the threshold was 20. A floor set far below the
+> true value is a floor that reports nothing — the number to assert is the one the loop
+> could have reached, not a number that looks safely small.
+
+The remaining eight survivors are parameters no shipped answer can read: unreachable by
+construction, each for a documented reason. The classes they fall into are in the Day 65
+section below and unchanged.
+
+---
+
 # Day 65 — the audit made to fit, and a seventh survivor that was not a figure
 
 **PREDICTED, in writing and timestamped while the run was between mutant 50 and 100 of
