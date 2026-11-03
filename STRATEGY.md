@@ -110,9 +110,12 @@ caller meets them in the result object rather than in a README:
                                                 exactly $15,650 -- the WHOLE bill
   the combined-separate election (status 2)      $130.80 on a two-earner couple;
                                                 $591.18 where one income is small
-  the blindness and National Guard credits       $40 and $20, blocked on an input
-                                                that cannot separate blind from
-                                                disabled
+  the blindness credit, KRS 141.020(3)(a)6       $40, blocked on an input that
+                                                cannot separate blind from disabled
+  a further $20 under (3)(a)8                    amount known, CONDITION NOT:
+                                                military service income or National
+                                                Guard membership, and no Kentucky
+                                                document resolves from here
 ```
 
 The family size credit was **not** shipped today and that is the judgement worth
