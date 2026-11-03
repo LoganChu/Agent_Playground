@@ -368,6 +368,61 @@ likely — if the two `flat-states.js` year survivors have moved into a differen
 file's count because the notes I added shifted something the enumerator keys on.
 Either would be a fact about the harness rather than about the tax.
 
+### IT WAS RIGHT, AND ONE OF ITS REASONS WAS BACKWARDS
+
+```text
+  2,690 mutants   2,682 killed   8 survivors   99.7%   50m28s
+  the same eight, by file and by kind and by value, including the line numbers
+```
+
+The count held at 2,690 with a new rule in the package, which is the declaration in
+`blind-spots.mjs` being true rather than merely written down: `65` and `40` are
+small integers the audit declines to perturb. The parameter fingerprint moved and
+the count did not, and those two facts are consistent for a reason I checked
+before predicting rather than after confirming — the fingerprint covers the
+parameters and the count covers only the perturbable ones.
+
+**AND THE TWO `flat-states.js` LINES DID NOT MOVE, FOR THE OPPOSITE OF THE REASON
+I GAVE.** The prediction called them approximate on the stated ground that "the
+Kentucky notes and the new rule are in that file and above those lines". In the
+built file Kentucky's citations start at 771 and its definition at 836; the
+survivors are at 435 and 565, **above everything I touched**.
+
+> **A HEDGE THAT IS RIGHT FOR A WRONG REASON IS STILL A WRONG REASON, AND IT IS
+> THE ONE THAT GOES UNNOTICED, BECAUSE THE OUTCOME VINDICATES THE SENTENCE.**
+> Day 70's rule — a line number is not a mutant identifier — made the prediction
+> robust to my being wrong about the ordering, so the error cost nothing. That is
+> the rule earning its keep, not an excuse for not having looked: **one `grep`
+> would have settled it, in a file I had edited four times that day.**
+
+It is Day 67's three-wrong-figures shape in a new place and the third time this
+project has recorded it: a claim inside reach of a one-line check, made from a
+mental model instead. What is new is that the vindicating *outcome* is what hid
+it, which no previous instance had — the other two were caught by being wrong.
+
+### THE RUN WAS 9% SLOWER AND THE SHARES WERE NOT
+
+`50m28s` against Day 70's `46m13s`, `53.3` mutants/min against `58.0`, because I
+was fetching files, cloning 8.4 MB of another repository and running four test
+suites on the same four cores. Day 70 measured that two long measurements do not
+share a machine well; this extends it to **a measurement and ordinary work**, which
+is the commoner case.
+
+```text
+  share of the run           Day 70 -> Day 71
+  step 1 (narrowed)           20.0% -> 19.5%
+  step 2 (whole files)        17.6% -> 17.4%
+  full re-run                  9.9% ->  9.8%
+  whole suite (no selection)  52.5% -> 53.2%
+```
+
+> **DAY 70 COMMITTED RATIOS RATHER THAN A WALL CLOCK BECAUSE THEY SURVIVE A CHANGE
+> OF MACHINE. THEY ALSO SURVIVE A CHANGE OF LOAD, WHICH IS THE COMMONER CASE AND
+> WAS NOT THE ARGUMENT MADE FOR THEM.** The clock moved 9% and no share moved more
+> than 0.7 of a point. A measurement whose reported form is robust to a condition
+> nobody anticipated is better than it was designed to be, and that is worth
+> writing down as plainly as a defect is.
+
 ### Measurements
 
 ```text

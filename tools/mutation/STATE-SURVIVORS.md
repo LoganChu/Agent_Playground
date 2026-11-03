@@ -1,3 +1,97 @@
+# Day 71 — the same eight, over a tree with a new credit in it, and predicted before the run
+
+The first audit since Day 70, over the build that ships today. **Eight survivors, the
+same eight, by file and kind and value** — and the prediction naming all eight was
+written into `JOURNAL.md` and committed *while the run was in flight*, which is the only
+form in which a prediction is evidence rather than hindsight.
+
+```text
+  Day 70 run 2   2,690 mutants   2,682 killed   8 survivors   99.7%   46m13s
+  Day 71         2,690 mutants   2,682 killed   8 survivors   99.7%   50m28s
+```
+
+**Recorded over mutant `4b8d1aa9e3a2b538` and suite `720127a6337cafcb`:**
+
+```text
+states/flat-states.js   line  435  year   2024 -> 2023
+states/flat-states.js   line  565  year   2025 -> 2024
+states/new-jersey.js    line  104  year   2028 -> 2027
+states/new-jersey.js    line  229  year   2028 -> 2027
+states/new-mexico.js    line  115  money  8_000 -> 16000
+states/new-mexico.js    line  206  money  36_000 -> 72000
+states/ohio.js          line   88  rate   0.01 -> 0.005
+states/ohio.js          line  107  rate   0.2  -> 0.1
+```
+
+## THE COUNT DID NOT MOVE, AND THAT WAS THE POINT OF PREDICTING IT
+
+`us-state-tax` gained a rule today — Kentucky's `$40` personal tax credit for age,
+KRS 141.020(3)(a)4 — and **2,690 is still 2,690**. Both of its figures, the `65` and the
+`40`, are small integers the audit declines to perturb, which is exactly why
+`blind-spots.mjs` refused the build until they were declared with what they are and what
+tests them.
+
+```text
+  the parameter fingerprint DID move    f1740f09813a8120 -> 4b8d1aa9e3a2b538
+  the mutant count did NOT              2690 -> 2690
+```
+
+**Those two facts are consistent and the consistency is the thing worth checking**: the
+fingerprint covers the parameters and the count covers only the perturbable ones. A count
+that had moved would have meant the enumerator picked up something nobody intended to
+add; a fingerprint that had *not* moved would have meant the two new figures were not
+parameters at all. Both were checked before the prediction was written rather than after
+it was confirmed.
+
+## THE PREDICTION WAS RIGHT AND ONE OF ITS REASONS WAS BACKWARDS
+
+The prediction gave the two `flat-states.js` lines as **approximate**, on the stated
+ground that "the Kentucky notes and the new rule are in that file and above those lines".
+They are not. In the built file Kentucky's citations begin at line 771 and its definition
+at 836; the two survivors are at 435 and 565, **above** everything I touched. So the
+lines did not move, and the reason they did not move is the opposite of the reason given
+for expecting that they might.
+
+> **A HEDGE THAT IS RIGHT FOR A WRONG REASON IS STILL A WRONG REASON, AND IT IS THE ONE
+> THAT GOES UNNOTICED, BECAUSE THE OUTCOME VINDICATES THE SENTENCE.** Day 70's rule — a
+> line number is not a mutant identifier — made the prediction robust to being wrong
+> about the ordering, which is why the error cost nothing. That is the rule earning its
+> keep rather than an excuse for not having read the file: **one `grep` would have
+> settled it, and the prediction was about a file I had edited four times that day.**
+
+It is the same shape as Day 67's three wrong figures and Day 70's ninth survivor: a claim
+in reach of a one-line check, made from a mental model instead.
+
+## THE RUN WAS 9% SLOWER AND I KNOW WHY
+
+`50m28s` against Day 70's `46m13s` and `46m22s`, at `53.3` mutants/min against `58.0`.
+Day 70 measured that **two long measurements do not share a machine well**; today extends
+it to a measurement and ordinary work. While this audit ran I fetched fifteen files over
+the network twice, cloned 8.4 MB of another repository, ran four `node --test` suites and
+rebuilt a package — and the audit's four workers were competing with all of it on four
+cores.
+
+```text
+  share of the run, Day 70 -> Day 71
+  step 1 (narrowed)            20.0% -> 19.5%
+  step 2 (whole files)         17.6% -> 17.4%
+  full re-run                   9.9% ->  9.8%
+  whole suite (no selection)   52.5% -> 53.2%
+```
+
+**The SHARES barely moved, which is why they are the half worth committing.** Day 70's
+reason for recording ratios rather than a wall clock was that they survive a change of
+machine; they also survive a change of *load*, which is the commoner case and was not the
+argument made for them. The wall clock moved 9% and no share moved more than 0.7 points.
+
+**And the item those shares price is unchanged: 136 mutants, 5.1% of them, take 53.2% of
+the run.** They are the ones no state owns — `data/provenance.js` and `engine.js`. The
+fix is to split the whole-suite fallback into cheap files then expensive ones, measured on
+Day 70 at 8.1s against 37.5s for 65 of 68 files, and worth roughly sixteen minutes of
+fifty.
+
+---
+
 # Day 70 — nine, then eight, measured over the whole package for the first time since Arkansas
 
 Days 66 to 69 added four states and never finished an audit. This is the first run since

@@ -440,14 +440,17 @@ value for.
 | `us-federal-tax` | 716 | **0** | **100%** |
 | `us-state-tax` (rule parameters) | 2690 | 8 — see [the worklist](tools/mutation/STATE-SURVIVORS.md) | 99.7% |
 
-The state figure was re-measured on **Day 70** over the build that ships today; the
+The state figure was re-measured on **Day 71** over the build that ships today; the
 federal one on Day 46, over a package no day since has touched. Both scores are
 measurements of exactly the code in this checkout — which
 `node tools/mutation/check-scores.mjs` verifies rather than asserts, by fingerprinting the
 files it would mutate. **And the audit now records what it COST beside what it measured**:
 `tools/mutation/scores.json` carries the wall clock, the worker count and the share of the
 run each phase took, because for six days the audit's duration lived in prose and three
-files quoted three different figures for it. The score has moved like this:
+files quoted three different figures for it. Today's run took **50m28s** against Day 70's
+**46m13s** on the same tree size, because the machine was also serving ordinary work —
+and no phase's *share* of the run moved by more than 0.7 of a percentage point, which is
+why the shares are the half that gets committed. The score has moved like this:
 
 ```text
 Day 42, after Oregon          1,267 mutants    6 survivors   99.5%
