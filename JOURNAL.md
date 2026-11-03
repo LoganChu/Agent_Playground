@@ -266,6 +266,64 @@ warning that **Day 63 shipped a `$40` credit in this class and got it wrong**.
 Declared, with the four things standing in for the mutant, one of which is the
 anchor.
 
+### THE ONE CLAIM ABOUT THE HARNESS THAT WAS CHECKED RATHER THAN ASSERTED
+
+`out/anchors.json` carries a sha256 of every fixture file it read, which is only
+worth having if the read can be repeated. So it was: `read.py --fetch` into an
+empty directory, re-derived, and the result is **byte for byte** the committed
+file.
+
+> **A HASH OF BYTES NOBODY CAN FETCH AGAIN IS A DECORATION.** This project has
+> written the same rule about test counts, about mutation scores and about
+> README claims; the version of it that applies to a new instrument is that the
+> instrument's own reproducibility is a claim like any other, and the cost of
+> checking it was one command.
+
+### AND REWRITING STRATEGY.MD'S HEAD DELETED TWO MACHINE-CHECKED CLAIMS
+
+`check-scores.mjs` requires the *current* review in `STRATEGY.md` to contain the
+score in a fixed shape — the package name, then `**99.7%**`, then
+`(2690 mutants, 8 survivors)` — because that is the shape its `--write` rewrites.
+My new head replaced both with a tidier table of all five instruments, and the
+tool reported both as stale against the current review **while noting that an
+older review still carried them**, which is exactly the case it says it was
+"scoped to stop counting".
+
+> **A TABLE IS NOT A CLAIM A TOOL CAN KEEP CURRENT.** The table was more readable
+> and strictly worse, because the thing that made the old sentence worth trusting
+> was not its prose — it was that a program rewrites it. Restored as a sentence
+> above the table, so the document has both: the shape the tool owns, and the
+> summary a reader wants.
+
+It is the same error as Day 70's four-figures-for-one-quantity in a new place: a
+number that lives where nothing re-derives it starts drifting the moment it is
+written, and the fix is never to write it more carefully.
+
+### I REBUILT THE PACKAGE UNDER A RUNNING AUDIT, WHICH IS THE FOURTH TIME
+
+Ten minutes into the audit I corrected two Kentucky notes, rebuilt `dist` and
+regenerated the note pins. The harness snapshots each worker's copy of the
+package **once at start-up**, so the run itself was unharmed — but the score it
+was computing was a measurement of a tree that no longer existed, and
+`scores.json` fingerprints **file bytes** rather than the enumerated literals
+(Day 43's item 10, still unbuilt). A note is not a number and could not change
+the score; it changes the fingerprint, which would have made the result
+unusable. Killed at ten minutes and restarted on the final tree.
+
+> **THE PROJECT HAS A WORKLIST ITEM FOR THIS AND IT IS FOUR DAYS OLD IN ITS
+> LATEST RESTATEMENT: "GIVE THE HARNESS A LOCK" — Day 66 item 16, restated by
+> Day 69 and Day 70.** Day 43's commit is titled *"Three rebuilds under a running
+> audit, the third after writing the note about the first"*. Today is the fourth,
+> and the thing worth noticing is that it was not a slip of the hand: I started a
+> 46-minute measurement and then went on working, because that is the correct use
+> of 46 minutes. **The schedule is the defect, not the discipline** — a lock that
+> refused the build would have cost me ten seconds of confusion instead of ten
+> minutes of CPU, and no amount of remembering replaces it.
+
+The cheap half of the lesson is already paid for: the restart cost ten minutes
+because the audit takes forty-six. At Day 69's eleven hours it would have cost
+the day.
+
 ### Measurements
 
 ```text
@@ -327,7 +385,15 @@ fixture asserting a TaxAct-derived household, and the grid moved on its own.
 9. **THE OTHER FOUR REFUNDABLE ITEMS ON PIT-RC** (Day 70 item 4), all declared,
    all gated on the modified gross income figure Day 69 added.
 10. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
-11. **GIVE THE HARNESS A LOCK** (Day 66 item 16, restated three times since).
+11. **GIVE THE HARNESS A LOCK, AND IT IS NOW THE FOURTH DEMONSTRATION RATHER
+    THAN THE FOURTH RESTATEMENT** (Day 66 item 16, Day 69, Day 70, and today's
+    ten minutes). It needs to refuse two things, not one: a second audit in the
+    same container, and **a `npm run build` of the package under audit**, which
+    is the one that has now happened four times. A lockfile holding the pid and
+    the package, checked by `scripts/finalize.mjs`, is the whole of it. Pair it
+    with Day 43's item 10 — fingerprint the enumerated literals rather than the
+    file bytes — because together they mean a prose edit under a running audit
+    is *correct* rather than merely survivable.
 12. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65 item 2).
 13. **DO NOT RE-PROBE THE DOCUMENT HOSTS**, with one exception now recorded:
     Kentucky's two were probed today and refused, so the count of state domains

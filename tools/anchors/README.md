@@ -15,7 +15,11 @@ node tools/anchors/compare.mjs > tools/anchors/REPORT.md
 ```
 
 `read.py` needs the network and is manual, exactly as `tools/differential`'s
-`theirs.py` is. The other two are pure `node` over committed JSON, so CI
+`theirs.py` is. **It is deterministic and that was checked rather than assumed**:
+running `--fetch` into an empty directory and re-deriving `out/anchors.json`
+reproduces the committed file **byte for byte**, which is what makes the sha256
+manifest inside it worth having — a hash of bytes nobody can fetch again is a
+decoration. The other two are pure `node` over committed JSON, so CI
 regenerates them on every push and requires that nothing changed — the golden
 file pattern the differential harness already uses.
 

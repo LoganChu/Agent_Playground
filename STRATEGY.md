@@ -85,6 +85,20 @@ filer was actually told to pay", and until today nothing here answered it.
 
 ## The instruments, with today's figures
 
+**The deliberate-error audit, re-run to completion over the whole state package
+today.** `us-federal-tax` is at **100%** (716 mutants, 0 survivors) and
+`us-state-tax`'s rule parameters at **99.7%** (2690 mutants, 8 survivors) — and
+both figures are written by `check-scores.mjs` rather than copied by hand.
+
+> **THAT SENTENCE WAS MISSING FROM THE FIRST DRAFT OF THIS REVIEW AND THE TOOL
+> CAUGHT IT.** Rewriting this document's head replaced two machine-checked claim
+> strings with a prettier table, and `check-scores.mjs` reported both as stale
+> against the *current* review while noting that an older review still carried
+> them — which is precisely the case it was scoped to stop counting. **A table is
+> not a claim a tool can keep current.** The shape matters because the rewrite is
+> anchored on it: the package name, then the score, then the counts in
+> parentheses.
+
 ```text
   us-federal-tax mutation         100%    716 mutants, 0 survivors
   us-state-tax rule parameters   99.7%    2,690 mutants, 8 survivors (Day 70)
