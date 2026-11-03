@@ -877,6 +877,34 @@ export const STATE_FIGURE_PROVENANCE: readonly StateFigureSource[] = [
     cite: 'KRS 141.019(1) — service performed before 1 January 1998 is exempt in full with no ceiling; the date has never moved, so the cohort empties by retirement',
     constant: true,
   },
+  // THE TWO FIGURES OF THE AGE CREDIT, AND `agency` RATHER THAN `statute`
+  // BECAUSE KRS 141.020(3) WAS NOT READ FROM THIS SANDBOX.
+  //
+  // South Carolina's rounding entry set this precedent in writing: the kind
+  // names what was actually read, and the cite says so, rather than borrowing
+  // the authority of a document nobody opened. `revenue.ky.gov` and
+  // `apps.legislature.ky.gov` both fail to resolve here — by `curl` and by
+  // server-side fetch — so what stands behind these two is the Department's own
+  // summary of the credit, reached by server-side search, and a figure this
+  // package now REPRODUCES on a household whose expected answer came off a
+  // filled return. The anchor is the part that makes the entry re-checkable:
+  // `tools/anchors` fails if either figure moves.
+  {
+    state: 'KY',
+    path: 'agedFilerCredit.amountPerFiler',
+    kind: 'agency',
+    document: 'Kentucky Department of Revenue — Individual Income Tax',
+    cite: 'the Department\'s Individual Income Tax page — "a $40 tax credit is allowed for each individual reported on the return who is age 65 or over"; KRS 141.020(3) itself does not resolve from this sandbox, and the figure is additionally anchored by a `policyengine-us` fixture asserting $40 of aged personal credit on a 2025 Kentucky return, which this package reproduces exactly (tools/anchors)',
+    constant: true,
+  },
+  {
+    state: 'KY',
+    path: 'agedFilerCredit.minimumAge',
+    kind: 'agency',
+    document: 'Kentucky Department of Revenue — Individual Income Tax',
+    cite: 'the Department\'s Individual Income Tax page — the credit is for an individual "age 65 or over", reached by the close of the taxable year; the 2022 Schedule ITC words the same test as 65 "on or before 12/31" of the year, and no Kentucky form later than that resolves from this sandbox to confirm the wording has not moved',
+    constant: true,
+  },
 
   // =========================================================================
   // LOUISIANA — nine figures a year, and the ledger's vocabulary happens to

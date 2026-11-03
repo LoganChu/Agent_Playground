@@ -91,10 +91,20 @@ test('there is NO age test — a 45-year-old excludes the same $31,110 as a 75-y
   const young = ky(50_000, { filerAge: 45, retirement: { filer: { employerPlanPension: 50_000 } } });
   const old = ky(50_000, { filerAge: 75, retirement: { filer: { employerPlanPension: 50_000 } } });
   money(excluded(young), 31_110);
-  money(young.totalTax, old.totalTax);
-  // And it holds with no age supplied at all, which is the commonest call.
+  // THE EXCLUSION has no age test and that is what this test is about, so it is
+  // the EXCLUSION the two are compared on. The TAX differs by $40 from v0.61.0,
+  // and the whole of the difference is the personal tax credit for age — which
+  // is asserted here rather than tolerated, because this assertion is the one
+  // that used to say the two taxes were equal and was right only because a
+  // credit was missing.
+  money(excluded(old), 31_110);
+  money(young.totalTax - old.totalTax, 40, 'the only thing age buys in Kentucky is the $40 credit');
+  // And with no age supplied at all the engine cannot know, so it charges the
+  // credit to nobody: an ageless call matches the 45-year-old and NOT the
+  // 75-year-old. Before the credit existed it matched both, which is exactly
+  // why an unread `filerAge` was invisible here.
   const ageless = ky(50_000, { retirement: { filer: { employerPlanPension: 50_000 } } });
-  money(ageless.totalTax, old.totalTax);
+  money(ageless.totalTax, young.totalTax);
 });
 
 test('the exclusion is per person, so a couple has $62,220', () => {
@@ -251,14 +261,34 @@ test('at 55 Kentucky is the cheapest of the three by a factor of twenty-eight', 
 });
 
 test('at 65 the ranking reverses and Kentucky is the only one that charges anything', () => {
-  money(atAge('KY', 65).totalTax, 154.7);
+  // $74.70, and it was $154.70 until v0.61.0 added the personal tax credit for
+  // age: two filers at 65, $40 each. The claim the test is named for is
+  // unharmed — Kentucky is still the only one of the three charging anything at
+  // 65 — and it is now charging $80 less.
+  money(atAge('KY', 65).totalTax, 74.7);
   money(atAge('GA', 65).totalTax, 0);
   money(atAge('MD', 65, { county: 'Montgomery' }).totalTax, 0);
 });
 
-test("Kentucky's answer does not move with age at all, and the other two step", () => {
+test("Kentucky's answer steps ONCE, at 65, and the step is the $40 a head it had been missing", () => {
+  // THIS TEST SAID THE OPPOSITE UNTIL v0.61.0: "Kentucky's answer does not move
+  // with age at all", asserting that the set of taxes across six ages had
+  // exactly one member. It did, and the reason was that this package had never
+  // implemented KRS 141.020(3). A property stated as a feature of the state was
+  // a property of the gap, and the test defended it for fifty-three days.
+  //
+  //   A TEST THAT PINS AN ABSENCE CANNOT TELL A STATUTE THAT IS SILENT FROM A
+  //   RULE THAT WAS NEVER WRITTEN. What found it was `tools/anchors`, whose
+  //   right answers come from outside this repository.
   const kyTax = [55, 60, 62, 64, 65, 70].map((age) => atAge('KY', age).totalTax);
-  assert.deepEqual(new Set(kyTax).size, 1, 'Kentucky is flat across every age');
+  assert.deepEqual(new Set(kyTax).size, 2, 'Kentucky now has exactly two answers across these ages');
+  money(atAge('KY', 64).totalTax, 154.7);
+  money(atAge('KY', 65).totalTax, 74.7);
+  money(atAge('KY', 64).totalTax - atAge('KY', 65).totalTax, 80, 'two filers, $40 each');
+  // And it is a CLIFF of $80 with nothing either side of it: 70 is 65's answer
+  // and 62 is 55's, so the step is at 65 and nowhere else.
+  money(atAge('KY', 70).totalTax, atAge('KY', 65).totalTax);
+  money(atAge('KY', 62).totalTax, atAge('KY', 55).totalTax);
 
   // Georgia steps once, at 62. Maryland steps once, at 65.
   assert.ok(atAge('GA', 61).totalTax > 0 && atAge('GA', 62).totalTax === 0);
@@ -309,4 +339,134 @@ test('a Kentucky rate table overstates every retiree here', () => {
     money(r.totalTax, expected, `AGI ${agi}`);
     assert.ok(rateTable(agi) > r.totalTax, `AGI ${agi}: the rate table should be higher`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// THE PERSONAL TAX CREDIT FOR AGE — KRS 141.020(3), Schedule ITC.
+//
+// Added in v0.61.0, and found by `tools/anchors` rather than by reading a
+// statute: a `policyengine-us` fixture asserted $40 of aged personal credit on
+// a 2025 Kentucky return and this package charged the $40. No Kentucky primary
+// document resolves from this sandbox — revenue.ky.gov and
+// apps.legislature.ky.gov both refuse — so what stands behind the figure is the
+// Department's own summary of the credit, the 2016 text of KRS 141.020, and the
+// fixture this package now reproduces.
+//
+// THE PART WORTH WRITING DOWN IS HOW IT HID. The engine's unread-input report
+// had been naming `filerAge` as "supplied and spent on nothing" on EVERY
+// Kentucky return, which is precisely the shape of a missing age credit, and
+// `kentucky-retirement.test.js` asserted that Kentucky's answer "does not move
+// with age at all" — a true statement about this package and a false one about
+// Kentucky, defended by a passing test.
+// ---------------------------------------------------------------------------
+
+const AGE_CREDIT = 'personal tax credit for age';
+const ageCredit = (result) =>
+  (result.credits ?? [])
+    .filter((c) => c.name.toLowerCase().includes(AGE_CREDIT))
+    .reduce((sum, c) => sum + c.amount, 0);
+
+test('the rule is $40 a filer at 65, not refundable, in both years', () => {
+  for (const year of [2025, 2026]) {
+    const rule = getStateDefinition('KY', year).agedFilerCredit;
+    assert.equal(rule.minimumAge, 65);
+    assert.equal(rule.amountPerFiler, 40);
+    assert.equal(rule.refundable, false);
+  }
+});
+
+test('$40 for one filer and $80 for two, and there is NO income test', () => {
+  // The claim is "no income test", so it is checked across four orders of
+  // magnitude rather than at one income. Day 66: a claim about a set is checked
+  // by walking the set.
+  for (const agi of [20_000, 60_000, 200_000, 2_000_000, 20_000_000]) {
+    money(ageCredit(ky(agi, { filerAge: 67 })), 40, `single at ${agi}`);
+    money(
+      ageCredit(ky(agi, { filingStatus: 'marriedFilingJointly', filerAge: 67, spouseAge: 70 })),
+      80,
+      `joint at ${agi}`,
+    );
+  }
+});
+
+test('65 is a cliff and 64 gets nothing', () => {
+  money(ageCredit(ky(50_000, { filerAge: 64 })), 0);
+  money(ageCredit(ky(50_000, { filerAge: 65 })), 40);
+  money(ky(50_000, { filerAge: 64 }).totalTax - ky(50_000, { filerAge: 65 }).totalTax, 40);
+});
+
+test('one spouse at 65 is $40 and not $80', () => {
+  money(
+    ageCredit(ky(80_000, { filingStatus: 'marriedFilingJointly', filerAge: 66, spouseAge: 60 })),
+    40,
+  );
+});
+
+test('a surviving spouse claims ONE credit, however old the dead spouse was', () => {
+  // `seniorFilers` counts through `livingFilerCount`, so a `spouseAge` on this
+  // return is ignored. The engine had this property already and this is the
+  // assertion that it reaches the new rule: a widow is one person.
+  money(
+    ageCredit(
+      ky(50_000, {
+        filingStatus: 'qualifyingSurvivingSpouse',
+        filerAge: 70,
+        spouseAge: 72,
+        dependents: 1,
+        dependentAges: [10],
+      }),
+    ),
+    40,
+  );
+});
+
+test('it is NOT refundable: a filer with no tax gets nothing back', () => {
+  const r = ky(3_000, { filerAge: 80 });
+  money(r.taxBeforeCredits, 0);
+  money(r.totalTax, 0, 'no tax and no refund');
+});
+
+test('it cannot take the tax below zero', () => {
+  // $3,400 of AGI in 2026 is $40 of income over the $3,360 deduction, which is
+  // $1.40 of tax against a $40 credit. The credit is worth $1.40 here and the
+  // other $38.60 is lost, which is what non-refundable means.
+  const r = ky(3_400, { filerAge: 80 });
+  money(r.taxBeforeCredits, 1.4);
+  money(r.totalTax, 0);
+});
+
+test('the credit survives the rate cut unchanged, so it is worth MORE in income', () => {
+  // $40 is $1,000 of Kentucky income at 2025's 4.0% and $1,142.86 at 2026's
+  // 3.5%. A credit fixed in dollars gains real value when a rate falls, which
+  // is the opposite of what happens to the pension exclusion beside it.
+  money(ageCredit(ky(60_000, { year: 2025, filerAge: 70 })), 40);
+  money(ageCredit(ky(60_000, { year: 2026, filerAge: 70 })), 40);
+  money(40 / 0.04, 1_000);
+  money(40 / 0.035, 1_142.857142857, 'the same $40 is $142.86 more income in 2026');
+});
+
+test('it stacks with the pension exclusion rather than being reduced by it', () => {
+  // A retiree at 70 with a $31,110 pension excludes the whole pension AND takes
+  // the $40. Nothing in either rule looks at the other, and a model that
+  // treated the credit as an alternative to the exclusion would charge $40 more.
+  const r = ky(31_110, {
+    filerAge: 70,
+    retirement: { filer: { employerPlanPension: 31_110 } },
+  });
+  money(excluded(r), 31_110);
+  money(r.taxBeforeCredits, 0);
+  money(ageCredit(r), 40);
+  money(r.totalTax, 0);
+});
+
+test('the anchored household: a 67-year-old on $40,000 of wages owes $1,429.20 in 2025', () => {
+  // `tools/anchors` 2025-KY-ky-11, whose expected value is PolicyEngine's own
+  // TAXSIM-cross-checked fixture: `ky_aged_personal_tax_credits: [40]`,
+  // `ky_personal_tax_credits: 40`, `ky_income_tax: 1429.2`. This package
+  // charged $1,469.20 until v0.61.0 — the whole $40.
+  const r = ky(40_000, { year: 2025, filerAge: 67 });
+  money(r.taxBeforeCredits, (40_000 - 3_270) * 0.04);
+  money(r.taxBeforeCredits, 1_469.2);
+  money(ageCredit(r), 40);
+  money(r.totalTax, 1_429.2);
 });

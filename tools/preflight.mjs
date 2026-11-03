@@ -175,6 +175,23 @@ const CHECKS = [
       'diff -q /tmp/preflight-report.md tools/differential/REPORT.md',
     expect: () => 'byte for byte',
   },
+  {
+    // The anchor harness, the same way: `read.py` needs the network and is
+    // manual, so `out/anchors.json` is committed and the two node steps are
+    // regenerated and diffed. `ours.json` is regenerated FIRST, because the
+    // report is a function of it and diffing a stale report against a stale
+    // report is the failure mode this whole check exists to prevent.
+    label: 'the preparer-anchor report is reproducible from the code',
+    cmd: 'node tools/anchors/ours.mjs > tools/anchors/out/ours.json && ' +
+      'node tools/anchors/compare.mjs > /tmp/preflight-anchors.md && ' +
+      'diff -q /tmp/preflight-anchors.md tools/anchors/REPORT.md',
+    expect: () => 'byte for byte',
+  },
+  {
+    label: 'the anchor harness still compares what it says it compares',
+    cmd: 'node --test tools/anchors/*.test.mjs',
+    expect: (out) => `${out.match(/^# pass (\d+)/m)[1]} assertions about the anchors`,
+  },
 ];
 
 let failed = 0;

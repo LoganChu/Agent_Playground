@@ -23,3 +23,14 @@ venv/
 pyvenv.cfg
 __pycache__/
 *.pyc
+
+# THE ANCHOR HARNESS'S DOWNLOADED FIXTURES, ignored BEFORE they exist.
+#
+# `tools/anchors/read.py --fetch` writes `policyengine-us` test fixtures here.
+# They are AGPL-licensed files from another project and this repository is MIT,
+# so what gets committed is the DERIVED facts in `out/anchors.json` — a
+# household, an expected figure, a margin — beside the sha256 of the bytes they
+# were read from. Day 68 paid 838 MB and a force-push for the difference
+# between reading a file and vendoring it, and the rule that cost it was an
+# ignore entry written after the directory existed rather than before.
+tools/anchors/out/fixtures/

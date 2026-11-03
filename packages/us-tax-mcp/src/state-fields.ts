@@ -243,6 +243,14 @@ const OWN_AGE_STATES: readonly string[] = declaredBy(
   'exemptionCredit.seniorAge',
   'seniorCredit.minimumAge',
   'agedCredit.minimumAge',
+  // KENTUCKY's $40 personal tax credit for age, KRS 141.020(3), added to the
+  // engine in us-state-tax v0.61.0. THIS LIST IS WHY THE PATH MATTERS RATHER
+  // THAN THE RULE: the derivation reads declared paths, so a state that gains an
+  // age test gains these two fields with no edit here -- but only if the new
+  // rule's path is on this list, and a rule nobody adds here is a state whose
+  // age is REFUSED while moving its tax. The MCP's own guard caught it the hour
+  // the credit landed: "filerAge is refused for KY and moves its tax by $40.00".
+  'agedFilerCredit.minimumAge',
   'agedIncomeSubtraction.minimumAge',
   'ageDeduction.minimumAge',
   'ageDeduction.fullAmountIfBornBefore',
@@ -1006,9 +1014,12 @@ export const STATE_FIELDS: readonly StateField[] = [
     states: OWN_AGE_STATES,
     refusal:
       'Nineteen states read an own age and this one declares no age test anywhere in its ' +
-      'definition. See spouseAge for the same list and the same reason; KENTUCKY is the ' +
-      'common case and its pension exclusion has no age test at all.',
-    doc: 'Filer age at year end. CA: one MORE personal exemption CREDIT at 65 — $153, worth the same at every rate and every income, and claimed per person, so a couple both 65 claim four personal exemptions rather than two. MS: $1,500 of extra exemption at 65, on the same line as the dependents. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. AL: a defined CONTRIBUTION distribution is taxed above $6,000 and only from 65, where a defined BENEFIT payment is exempt in full at any age \u2014 so the $6,000 exclusion is worth exactly $300.00 at Alabama\'s 5% and turning 65 is the whole of it. MO: \u00a7 143.125 deducts the WHOLE taxable Social Security benefit from 62 with no income test, so a $40,000 benefit is $1,598.00 of 2025 tax, and Social Security DISABILITY has no age test at all. KENTUCKY IS NOT ON THIS LIST and that is the point: KRS 141.019(1)\'s pension exclusion has no age test anywhere, which is what makes Kentucky the one an early retiree can use, so the field is refused there rather than accepted and ignored. Omitted, a retiree return runs far too high.',
+      'definition. See spouseAge for the same list and the same reason. THIS REFUSAL NAMED ' +
+      'KENTUCKY as the common case until us-state-tax v0.61.0 and was wrong to: KRS ' +
+      '141.019(1)\'s pension exclusion genuinely has no age test, and KRS 141.020(3)\'s $40 ' +
+      'personal tax credit does, so the state was refused a field worth $40 a filer. A state ' +
+      'with no age test in ONE rule is not a state with no age test.',
+    doc: 'Filer age at year end. CA: one MORE personal exemption CREDIT at 65 — $153, worth the same at every rate and every income, and claimed per person, so a couple both 65 claim four personal exemptions rather than two. MS: $1,500 of extra exemption at 65, on the same line as the dependents. IN: $1,000 of extra exemption at 65 and $500 MORE where federal AGI is under $40,000 — a cliff, so one dollar of income at $40,000 costs a joint retired couple $49.75 in Marion County. IL: $1,000 of extra exemption at 65 — and NOTHING for the retirement subtraction, which has no age test at any point, so Illinois is the one state here where a 40-year-old retiree owes nothing. MS: 59 1/2 for the retirement exemption, because an early distribution stays taxable. NY: 59 1/2 for the $20,000 pension exclusion — but a GOVERNMENT pension is exempt at any age, so a police officer who left at 45 pays nothing fourteen years before anyone else. MI: for 2025 only, the phased-in deduction runs from a birth year of 1946 to 1966, so ages 59 to 79, and the whole RETURN is keyed to the OLDER spouse. VA: an $800 exemption at 65 and the $12,000 age deduction, withdrawn DOLLAR FOR DOLLAR over $50,000 ($75,000 joint). NJ: $1,000 at 65, the retirement exclusion at 62. MD: $1,000 and the senior credit at 65, the pension exclusion at 65, $100,000 at 100. GA: $35,000 excluded at 62, $65,000 at 65, and the military exclusion BELOW 62 only. UT: the retirement credit (code 18) needs a birth year of 1952 or earlier, so 74 or over in 2026. AL: a defined CONTRIBUTION distribution is taxed above $6,000 and only from 65, where a defined BENEFIT payment is exempt in full at any age \u2014 so the $6,000 exclusion is worth exactly $300.00 at Alabama\'s 5% and turning 65 is the whole of it. MO: \u00a7 143.125 deducts the WHOLE taxable Social Security benefit from 62 with no income test, so a $40,000 benefit is $1,598.00 of 2025 tax, and Social Security DISABILITY has no age test at all. KY: $40 for the filer and $40 for a spouse at 65 or over under KRS 141.020(3), claimed on Schedule ITC, with NO INCOME TEST at any income \u2014 and KRS 141.019(1)\'s pension exclusion beside it still has no age test at all, which is what makes Kentucky the one an early retiree can use. BOTH SENTENCES ARE TRUE AND THIS DOC CARRIED ONLY THE SECOND UNTIL us-state-tax v0.61.0, saying \"KENTUCKY IS NOT ON THIS LIST and that is the point\" \u2014 so the field was refused in a state where it is worth $40 a filer. Omitted, a retiree return runs far too high.',
   },
   {
     name: 'spouseAge',
@@ -1016,11 +1027,15 @@ export const STATE_FIELDS: readonly StateField[] = [
     states: OWN_AGE_STATES,
     refusal:
       'Nineteen states read an own age and this one declares no age test anywhere in its ' +
-      'definition. KENTUCKY is the state most callers land here with, and its answer is ' +
-      'genuinely age-free: KRS 141.019(1) excludes up to $31,110 of pension income per person ' +
-      'with no age test at all, and retired pay for service before 1998 is uncapped. So there ' +
-      'is nothing for an age to do, and this list is derived from the definitions rather than ' +
-      'typed \u2014 a state that gains an age test gains this field with no edit here.',
+      'definition. KENTUCKY WAS THIS REFUSAL\'S WORKED EXAMPLE AND IS NOW ON THE LIST, which ' +
+      'is the correction worth carrying: the paragraph here argued that Kentucky\'s answer is ' +
+      '\"genuinely age-free\" because KRS 141.019(1) excludes $31,110 of pension per person with ' +
+      'no age test, and that is true of the exclusion and false of the state. KRS 141.020(3) ' +
+      'allows $40 a filer at 65, and this package did not model it until us-state-tax ' +
+      'v0.61.0 \u2014 so the list was derived correctly from a definition that was incomplete. ' +
+      'The list is still derived rather than typed, and a state that gains an age test gains ' +
+      'this field with no edit here PROVIDED the new rule\'s path is declared in ' +
+      'OWN_AGE_STATES.',
     doc: 'Spouse age at year end, joint returns. California and Mississippi both claim their age allowance PER PERSON, so the second spouse at 65 is worth another $153 in California and another $60 of Mississippi tax. MI is the one that runs the other way: its cap is one figure for the RETURN and is keyed to the OLDER spouse, so a 66-year-old married to a 58-year-old qualifies the younger spouse\'s pension too. NY and MS test each person separately and IL tests nobody. Virginia gives a SECOND $12,000 age deduction withdrawn over the same band, so two 65-year-olds face 11.5% on $24,000 of income. New Jersey\'s senior exemption is per person, and Utah\'s code 18 credit is $450 a head.',
   },
   {

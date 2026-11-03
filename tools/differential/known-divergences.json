@@ -92,8 +92,17 @@
  {
   "metric": "state.tax",
   "state": "KY",
-  "reason": "NOT MODELLED HERE. Kentucky's family size tax credit, which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%.",
-  "unbounded": "Kentucky's family size tax credit FORGIVES THE WHOLE TAX below the federal poverty guideline for the household's size, so the provision's maximum is the entire Kentucky bill and no flat bound is narrower than the thing it is bounding."
+  "idIncludes": "separate-with-spouse-KY",
+  "maxAbs": 45,
+  "direction": "oursHigher",
+  "reason": "AN OPEN QUESTION HERE, and it is the SECOND defect the unbounded entry below absorbed. A married-filing-separately return, filer and spouse both 68, the spouse with no gross income: PolicyEngine claims TWO $40 personal tax credits for age and this package claims ONE. Whether a Kentucky separate filer may claim the credit for a spouse who has no gross income and is nobody's dependent is the § 151(b) question this package tracks as `separateReturnSpouse` for four states' exemptions, and KRS 141.020(3) does not resolve from this sandbox to answer it. $40 is the whole of the difference and the bound is $45 to leave room for the 2026 rate's effect on nothing else. ADDED WHEN THE AGE CREDIT WAS: until us-state-tax v0.61.0 this household differed by $80, the entry below called the whole of it the family size tax credit, and $40 of it was a credit this package did not have at all. A caller who knows the answer can supply it through `subtractions` grossed up by the rate. This package charges the higher figure, which is the direction that cannot pay one household's credit twice."
+ },
+ {
+  "metric": "state.tax",
+  "state": "KY",
+  "direction": "oursHigher",
+  "reason": "NOT MODELLED HERE. Kentucky's family size tax credit (KRS 141.066), which forgives the whole tax below the federal poverty guideline for the household's size and phases out over the next 33%. A DIRECTION WAS ADDED ON DAY 71 AND IT IS THE HALF A BOUND COULD NOT SUPPLY: a credit this package does not model can only make PolicyEngine's answer LOWER than ours, so this entry may claim a positive difference and nothing else.",
+  "unbounded": "Kentucky's family size tax credit FORGIVES THE WHOLE TAX below the federal poverty guideline for the household's size, so the provision's maximum is the entire Kentucky bill and no flat bound is narrower than the thing it is bounding. WHAT THAT COST, MEASURED: this entry explained 28 differences and now explains 20, because eight of them were the $40-a-head personal tax credit for age that this package had never implemented — a credit the entry's own text does not mention. It was found by `tools/anchors`, whose right answers come from filled returns rather than from this model, and it could not have been found here, because an entry with no bound is the first match for every Kentucky difference in the grid. THE TIGHTENING THAT IS STILL UNBUILT, and it is checkable rather than a matter of judgement: the credit is zero above about 133% of a threshold amount that tops out at $32,150 for a family of four or more, so NOTHING above roughly $42,760 of income can be explained by this provision — and the household this entry was pardoning until today has $55,000 of pension. `maxAbs` cannot express an income ceiling; scoping by household shape with `idIncludes` can, and that is the worklist item."
  },
  {
   "metric": "state.tax",

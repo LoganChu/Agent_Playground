@@ -319,15 +319,25 @@ were invisible to it:
 Seven of the eight lists are now DERIVED from the engine's own declarations rather
 than typed — by dotted paths into the state definitions, with the compiler proving
 the first segment is a real key and a test proving every path still reaches a figure.
-Kentucky came OUT of the two age lists, because KRS 141.019(1)'s pension exclusion
-has no age test at all and the field's own documentation had said so for days while
-the list beside it disagreed.
+Kentucky came OUT of the two age lists on Day 53 and WENT BACK IN on Day 71, and the
+round trip is the most instructive thing on this page. The removal was reasoned from
+KRS 141.019(1)'s pension exclusion, which genuinely has no age test at all — that is
+the whole reason Kentucky is the state an early retiree can use — and the conclusion
+"Kentucky has no age test" was written into two derived lists, two test files and
+this paragraph. Every one of them was derived correctly **from a definition that was
+missing a rule**: KRS 141.020(3) allows `$40` a filer at 65, `us-state-tax` had never
+implemented it, and so the engine truthfully declared no age test anywhere in the
+state. A STATE WITH NO AGE TEST IN ONE RULE IS NOT A STATE WITH NO AGE TEST, and a
+list derived from the engine inherits the engine's gaps as facts about the law. What
+broke the loop was `tools/anchors`, whose expected answers are read off filled
+returns rather than produced here — and this server's own guard caught the gate the
+hour the credit landed: *"filerAge is refused for KY and moves its tax by $40.00"*.
 
 **The guard is a new instrument that measures the gates in BOTH directions**: no
 field may be refused for a state whose tax it moves, and every field DECLARED for a
 state must have a household that witnesses it — a declared pair with no witness is
 `describe_state` telling a caller to supply a figure nothing reads, which is how the
-two Pennsylvania arguments were found. Three pairs out of 262 have no witness and
+two Pennsylvania arguments were found. Three pairs out of 264 have no witness and
 each carries its reason. Run against the previous release's lists it reports all
 eight rows above, by name and amount.
 
@@ -1204,7 +1214,7 @@ EITC withdrawal at the § 32 phase-out rate.
 
 The engines underneath live in the same repository. `packages/us-federal-tax`: **406 tests**
 against hand-computed figures, every parameter cross-checked against two independent
-sources. `packages/us-state-tax`: **1,151 tests**, every state figure cited to its statute.
+sources. `packages/us-state-tax`: **1,161 tests**, every state figure cited to its statute.
 This package adds **182 more** covering the protocol and the tool layer. Those three
 numbers are measured by `node tools/test-counts.mjs`, which runs the suites and fails
 CI if any of them has gone stale — they were 283, 51 and 97 until Day 36, when the

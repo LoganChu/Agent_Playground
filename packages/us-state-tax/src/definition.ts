@@ -1239,6 +1239,52 @@ export interface AgedCreditRule {
 }
 
 /**
+ * A flat credit **per aged filer**, with no income test at all — Kentucky's
+ * personal tax credit for a filer or spouse 65 or over, KRS 141.020(3),
+ * claimed on Schedule ITC and carried to Form 740.
+ *
+ * ## Why this is not {@link AgedCreditRule}, which is also about being old
+ *
+ * Indiana's is a HOUSEHOLD amount banded on federal AGI — `$100` or `$140`
+ * depending on how many filers qualify, and nothing at all above `$10,000`.
+ * Kentucky's is `$40` a person at every income, forever. One is a table keyed
+ * to two variables and the other is multiplication, and collapsing them into
+ * one rule would mean a band list with one row whose ceiling is infinity —
+ * which reads as an income test that happens not to bite rather than as the
+ * absence of one. **A rule's shape is a claim about the statute**, and the
+ * claim here is that Kentucky never asks what the filer earns.
+ *
+ * ## It is the smallest credit in this package and it reaches the most people
+ *
+ * `$40` is `$1,000` of Kentucky income at the 2025 rate of 4.0% and `$1,143`
+ * at 2026's 3.5% — so the rate cut makes the credit worth 14% MORE in
+ * deduction terms while leaving it worth exactly `$40`. Every Kentucky filer
+ * who reaches 65 claims it and a joint return of two claims `$80`, which makes
+ * it the broadest single provision this package has: not a cliff, not a taper,
+ * not conditional on retirement, and not reduced by the pension exclusion
+ * sitting beside it on the same return.
+ *
+ * ## WHAT THIS RULE DELIBERATELY DOES NOT COVER, AND IT IS TWO MORE CREDITS
+ *
+ * KRS 141.020(3) allows the same `$40` for a filer or spouse who is **legally
+ * blind**, and `$20` for a member of the **Kentucky National Guard**. Neither
+ * is computed, and the reason is the input rather than the statute:
+ * `blindOrDisabled` counts blind filers and disabled filers together — which is
+ * right for Michigan's special exemption, whose statute covers both — so
+ * reading it here would pay Kentucky's blindness credit to a filer who is
+ * disabled and sighted. Guard membership is a fact no figure on a return
+ * carries. Both are declared in the state's notes with their amounts.
+ */
+export interface AgedFilerCreditRule {
+  readonly name: string;
+  /** Reached by the close of the taxable year. */
+  readonly minimumAge: number;
+  /** Allowed once for the filer and once for a spouse on the return. */
+  readonly amountPerFiler: number;
+  readonly refundable: boolean;
+}
+
+/**
  * A refundable credit that returns a certified share of the filer's **own
  * prior-year** liability — Oregon's surplus "kicker", Or. Const. Art. IX § 14(4).
  *
@@ -4933,6 +4979,13 @@ export interface StateIncomeTaxDefinition {
    * {@link StateIncomeTaxInput.spouseAge}, and bands on federal AGI.
    */
   readonly agedCredit?: AgedCreditRule;
+  /**
+   * Kentucky's personal tax credit for age. Reads
+   * {@link StateIncomeTaxInput.filerAge} and
+   * {@link StateIncomeTaxInput.spouseAge} and nothing else — no income test —
+   * see {@link AgedFilerCreditRule}.
+   */
+  readonly agedFilerCredit?: AgedFilerCreditRule;
   /**
    * Oregon's surplus "kicker". Reads
    * {@link StateIncomeTaxInput.oregonPriorYearTaxBeforeCredits} and nothing

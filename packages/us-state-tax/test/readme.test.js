@@ -2100,6 +2100,11 @@ test("README: the gap list cannot name a state this package covers", () => {
 
 /** Every release that has a "New in" paragraph, newest first, with its subject. */
 const RELEASE_HEADLINES = [
+  // 0.61.0 is the first entry in this table that is not a state arriving and
+  // not a figure being read. It is a RULE THIS PACKAGE NEVER HAD, found by the
+  // first instrument here whose right answers come from outside this
+  // repository — see `tools/anchors`.
+  ['0.61.0', /PERSONAL TAX CREDIT FOR AGE/],
   // 0.60.0 also has two, and both are about the same provision from opposite
   // ends: the first is what § 7-2-14's table PAYS and the second is how the
   // Department arrives at the figures in it. The second is the one that could

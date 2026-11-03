@@ -247,6 +247,8 @@ const DECLARED = {
   'agedCredit.minimumAge': 'an AGE',
   'agedCredit.oneAged': "DOLLARS: Indiana's $50 and $40",
   'agedCredit.bothAged': "DOLLARS: Indiana's $90 and $80",
+  'agedFilerCredit.minimumAge': "an AGE: Kentucky's 65, and it is a CLIFF rather than a threshold on a taper, so a wrong age here moves one birthday's worth of filers by the whole $40. Asserted directly in test/kentucky-retirement.test.js, which pins $0 of credit at 64 and $40 at 65 and the $40 step between them",
+  'agedFilerCredit.amountPerFiler': "DOLLARS: Kentucky's $40, and THIS IS THE CLASS THE WARNING IN THIS FILE NAMES -- Day 63 shipped a $40 credit the audit could not perturb and got it wrong. Four things stand behind it instead of a mutant: the figure is pinned directly; the credit is swept across five incomes from $20,000 to $20,000,000 to assert there is no income test; a joint return is required to be exactly $80 and a one-spouse-at-65 return exactly $40; and -- the one that is not a test written from the same data -- tools/anchors requires this package to reproduce $1,429.20 on a 2025 household whose expected answer came off a filled return, which is $1,469.20 less exactly this $40",
   'agedIncomeSubtraction.minimumAge': 'an AGE',
   'militaryRetirementSubtraction.ageThreshold': "an AGE: Maryland's 55",
   'planTypeRetirement.definedContributionAge': "an AGE: Alabama's 65",

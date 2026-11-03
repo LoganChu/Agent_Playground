@@ -4283,6 +4283,18 @@ function computeOnce(
       refundable: def.agedCredit.refundable,
     });
   }
+  if (def.agedFilerCredit) {
+    const rule = def.agedFilerCredit;
+    // `seniorFilers` and not a hand-rolled pair of comparisons, for the reason
+    // its own comment gives: it counts through `livingFilerCount`, so a
+    // `spouseAge` supplied on a surviving spouse's return is ignored rather
+    // than buying a second $40 for somebody who is dead.
+    credits.push({
+      name: rule.name,
+      amount: seniorFilers(input, rule.minimumAge) * rule.amountPerFiler,
+      refundable: rule.refundable,
+    });
+  }
   if (def.lowIncomeRebate) {
     const rule = def.lowIncomeRebate;
     const supplied = input.newMexicoModifiedGrossIncome;

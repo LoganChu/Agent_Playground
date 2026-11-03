@@ -280,7 +280,12 @@
   },
   "state": {
    "tax": 469.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -1060,7 +1065,12 @@
   },
   "state": {
    "tax": 1069.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -1836,7 +1846,12 @@
   },
   "state": {
    "tax": 1869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -2612,7 +2627,12 @@
   },
   "state": {
    "tax": 3069.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -3388,7 +3408,12 @@
   },
   "state": {
    "tax": 5869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -4164,7 +4189,12 @@
   },
   "state": {
    "tax": 15869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -4940,7 +4970,12 @@
   },
   "state": {
    "tax": 1069.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -5724,7 +5759,12 @@
   },
   "state": {
    "tax": 2269.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -6508,7 +6548,12 @@
   },
   "state": {
    "tax": 3869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -7292,7 +7337,12 @@
   },
   "state": {
    "tax": 7869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -8080,7 +8130,12 @@
   },
   "state": {
    "tax": 349.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -8860,7 +8915,12 @@
   },
   "state": {
    "tax": 869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -9636,7 +9696,12 @@
   },
   "state": {
    "tax": 1669.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -10416,7 +10481,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -11204,7 +11274,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -11987,8 +12062,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 624.8,
-   "credits": []
+   "tax": 544.8,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -12771,8 +12851,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 2224.8,
-   "credits": []
+   "tax": 2144.8,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -13560,7 +13645,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -14335,8 +14425,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 224.8,
-   "credits": []
+   "tax": 184.8,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -15112,7 +15207,12 @@
   },
   "state": {
    "tax": 2669.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -15888,7 +15988,12 @@
   },
   "state": {
    "tax": 5869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -16664,7 +16769,12 @@
   },
   "state": {
    "tax": 2269.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -17435,8 +17545,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1024.8,
-   "credits": []
+   "tax": 944.8,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -18224,7 +18339,12 @@
   },
   "state": {
    "tax": 869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -19008,7 +19128,12 @@
   },
   "state": {
    "tax": 2869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -19792,7 +19917,12 @@
   },
   "state": {
    "tax": 1469.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -20576,7 +20706,12 @@
   },
   "state": {
    "tax": 3469.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -21360,7 +21495,12 @@
   },
   "state": {
    "tax": 3469.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -22136,7 +22276,12 @@
   },
   "state": {
    "tax": 1269.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -22912,7 +23057,12 @@
   },
   "state": {
    "tax": 1669.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -23684,7 +23834,12 @@
   },
   "state": {
    "tax": 1669.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -24460,7 +24615,12 @@
   },
   "state": {
    "tax": 9869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -25236,7 +25396,12 @@
   },
   "state": {
    "tax": 11869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -26012,7 +26177,12 @@
   },
   "state": {
    "tax": 17869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -26792,7 +26962,12 @@
   },
   "state": {
    "tax": 589.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -27572,7 +27747,12 @@
   },
   "state": {
    "tax": 909.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -28347,8 +28527,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 824.8,
-   "credits": []
+   "tax": 784.8,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -29120,7 +29305,12 @@
   },
   "state": {
    "tax": 824.8,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -29892,7 +30082,12 @@
   },
   "state": {
    "tax": 624.8,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -30668,7 +30863,12 @@
   },
   "state": {
    "tax": 1424.8,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -31452,7 +31652,12 @@
   },
   "state": {
    "tax": 1469.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -32232,7 +32437,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -33008,7 +33218,12 @@
   },
   "state": {
    "tax": 1869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -33784,7 +33999,12 @@
   },
   "state": {
    "tax": 3869.2,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -34568,7 +34788,12 @@
   },
   "state": {
    "tax": 407.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -35348,7 +35573,12 @@
   },
   "state": {
    "tax": 932.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -36124,7 +36354,12 @@
   },
   "state": {
    "tax": 1632.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -36900,7 +37135,12 @@
   },
   "state": {
    "tax": 2682.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -37676,7 +37916,12 @@
   },
   "state": {
    "tax": 5132.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -38452,7 +38697,12 @@
   },
   "state": {
    "tax": 13882.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -39228,7 +39478,12 @@
   },
   "state": {
    "tax": 932.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -40012,7 +40267,12 @@
   },
   "state": {
    "tax": 1982.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -40796,7 +41056,12 @@
   },
   "state": {
    "tax": 3382.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -41580,7 +41845,12 @@
   },
   "state": {
    "tax": 6882.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -42368,7 +42638,12 @@
   },
   "state": {
    "tax": 302.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -43148,7 +43423,12 @@
   },
   "state": {
    "tax": 757.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -43924,7 +44204,12 @@
   },
   "state": {
    "tax": 1457.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -44704,7 +44989,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -45492,7 +45782,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -46275,8 +46570,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 543.55,
-   "credits": []
+   "tax": 463.55,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -47059,8 +47359,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 1943.55,
-   "credits": []
+   "tax": 1863.55,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -47848,7 +48153,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -48623,8 +48933,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 193.55,
-   "credits": []
+   "tax": 153.55,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -49400,7 +49715,12 @@
   },
   "state": {
    "tax": 2332.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -50176,7 +50496,12 @@
   },
   "state": {
    "tax": 5132.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -50952,7 +51277,12 @@
   },
   "state": {
    "tax": 1982.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -51723,8 +52053,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 893.55,
-   "credits": []
+   "tax": 813.55,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 80
+    }
+   ]
   },
   "error": null
  },
@@ -52512,7 +52847,12 @@
   },
   "state": {
    "tax": 757.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -53296,7 +53636,12 @@
   },
   "state": {
    "tax": 2507.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -54080,7 +54425,12 @@
   },
   "state": {
    "tax": 1282.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -54864,7 +55214,12 @@
   },
   "state": {
    "tax": 3032.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -55648,7 +56003,12 @@
   },
   "state": {
    "tax": 3032.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -56424,7 +56784,12 @@
   },
   "state": {
    "tax": 1107.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -57200,7 +57565,12 @@
   },
   "state": {
    "tax": 1457.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -57972,7 +58342,12 @@
   },
   "state": {
    "tax": 1457.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -58748,7 +59123,12 @@
   },
   "state": {
    "tax": 8632.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -59524,7 +59904,12 @@
   },
   "state": {
    "tax": 10382.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -60300,7 +60685,12 @@
   },
   "state": {
    "tax": 15632.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -61080,7 +61470,12 @@
   },
   "state": {
    "tax": 512.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -61860,7 +62255,12 @@
   },
   "state": {
    "tax": 792.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -62635,8 +63035,13 @@
    "earnedIncomeCredit": 0
   },
   "state": {
-   "tax": 718.55,
-   "credits": []
+   "tax": 678.55,
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -63408,7 +63813,12 @@
   },
   "state": {
    "tax": 718.55,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -64180,7 +64590,12 @@
   },
   "state": {
    "tax": 543.55,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -64956,7 +65371,12 @@
   },
   "state": {
    "tax": 1243.55,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -65740,7 +66160,12 @@
   },
   "state": {
    "tax": 1282.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -66520,7 +66945,12 @@
   },
   "state": {
    "tax": 0,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 40
+    }
+   ]
   },
   "error": null
  },
@@ -67296,7 +67726,12 @@
   },
   "state": {
    "tax": 1632.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },
@@ -68072,7 +68507,12 @@
   },
   "state": {
    "tax": 3382.4,
-   "credits": []
+   "credits": [
+    {
+     "name": "Kentucky personal tax credit for age 65 or over (Schedule ITC)",
+     "amount": 0
+    }
+   ]
   },
   "error": null
  },

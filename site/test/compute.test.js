@@ -183,7 +183,15 @@ test('seven states charge a different tax on the same household totals', () => {
   // $3,270 this package carried forward from 2025. The SWING — which is what
   // this test is about — is $1,088.85 either way, because a deduction both
   // versions of the household take cancels out of the difference.
-  assert.deepEqual(moved.KY, [1_904.7, 2_993.55]);
+  //
+  // AND $80 LOWER AGAIN ON BOTH SIDES FROM us-state-tax v0.61.0, for the same
+  // reason and with the same consequence: the couple are both 67, KRS
+  // 141.020(3) allows $40 a filer at 65, and this package had never implemented
+  // it. The swing is STILL $1,088.85, which is the second time this one test
+  // has absorbed a Kentucky correction without the number it exists to measure
+  // moving — a credit both versions of the household claim cancels out of the
+  // difference exactly as a deduction does.
+  assert.deepEqual(moved.KY, [1_824.7, 2_913.55]);
   assert.deepEqual(moved.NY, [3_120.8, 4_200.8]);
 
   // All seven move the same way — concentrating the income wastes the absent

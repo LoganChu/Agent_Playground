@@ -1,0 +1,1210 @@
+{
+ "upstream": {
+  "project": "policyengine-us",
+  "version": "2.93.3",
+  "commit": "210dc5913b930891b6f5325d32db9cea7bdb4d3f",
+  "tree": "policyengine_us/tests/policy/baseline/gov/states",
+  "licence": "AGPL-3.0 -- the fixtures are READ, never committed here"
+ },
+ "counts": {
+  "cases": 148,
+  "keptCases": 13,
+  "skippedYear": 99,
+  "skippedState": 2,
+  "skippedNoComparand": 32,
+  "refused": 2,
+  "assertions": 14
+ },
+ "files": [
+  {
+   "path": "ar/tax/income/integration.yaml",
+   "sha256": "5de709f9c741dfcb3a00db97b44a946fab96c5b8d91a2fa91e8fff7c1f3244e5",
+   "bytes": 22504,
+   "cases": 17
+  },
+  {
+   "path": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml",
+   "sha256": "9b03ec838d7566c95a81d8c36700029b03e679ef205398ad172a7654ebd9cb73",
+   "bytes": 11811,
+   "cases": 21
+  },
+  {
+   "path": "co/tax/income/integration.yaml",
+   "sha256": "04b122e0612f6bd7605f97362e52947e16e2d1a76a8876964f84ea9ad4727fe0",
+   "bytes": 10620,
+   "cases": 11
+  },
+  {
+   "path": "ia/tax/income/ia_cdcc.yaml",
+   "sha256": "40fc63bf23e64a49332d341d10347cdc1b2f1eb10e5df98a8e5b8e32485e55a1",
+   "bytes": 4605,
+   "cases": 11
+  },
+  {
+   "path": "ky/tax/income/integration.yaml",
+   "sha256": "4c51d2cd06261d05e3e391e155457dc17f16cb216102ee9c9e9af6d430436ada",
+   "bytes": 25718,
+   "cases": 25
+  },
+  {
+   "path": "ma/tax/income/adjusted_gross_income/ma_qualified_unemployment_deduction.yaml",
+   "sha256": "6f764c55f69ddefd2984fa5a9b22eda72eda2af17753d25fbf750fb5c6c79740",
+   "bytes": 2813,
+   "cases": 5
+  },
+  {
+   "path": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml",
+   "sha256": "4e717a6c0ac4b14766025a449e238717878d2833a7cf6c83a8cc8fa1b4e072b4",
+   "bytes": 2911,
+   "cases": 6
+  },
+  {
+   "path": "md/tax/income/credits/eitc/md_married_childless_age_disregard.yaml",
+   "sha256": "aa36aaf4957daa849c1c42e20ebb8dc630e3a2b66e35ce9977a3ba3d7930e261",
+   "bytes": 1372,
+   "cases": 1
+  },
+  {
+   "path": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml",
+   "sha256": "9d120c0ac49976446dd05af899881a369e00486c00b840680a7af73cda74ff9f",
+   "bytes": 25214,
+   "cases": 27
+  },
+  {
+   "path": "mo/tax/tax_sim/mo_taxable_income.yaml",
+   "sha256": "104257c3fff537a3cee23869ad9f903946f9b1e29757194c05b6e8fbe282afb9",
+   "bytes": 2544,
+   "cases": 4
+  },
+  {
+   "path": "nj/tax/income/subtractions/nj_social_security_exclusion.yaml",
+   "sha256": "2aad26db44d80e98a2ba7cc556dac95097d86a844d0b3e07be2f42fb0da6ce88",
+   "bytes": 1105,
+   "cases": 1
+  },
+  {
+   "path": "nm/tax/income/integration.yaml",
+   "sha256": "dc9dafdefe91464ab4291a0cd0c83c2632a8c962584b25ca299b0adc2c808599",
+   "bytes": 6337,
+   "cases": 4
+  },
+  {
+   "path": "sc/tax/income/integration.yaml",
+   "sha256": "df81ee026b0b700be8eb2e2de3535a1ba46610ae0cc25e219b8214559922fdc6",
+   "bytes": 3343,
+   "cases": 3
+  },
+  {
+   "path": "ut/tax/income/credits/ut_refundable_credits.yaml",
+   "sha256": "1fefad1b01e4b7b1061b9cb669b07b394a9adb7afd195e0debebc45fe2097ce9",
+   "bytes": 2641,
+   "cases": 4
+  },
+  {
+   "path": "va/tax/income/integration.yaml",
+   "sha256": "6f21c9b153e4a96289d04380be5852677f5a230575299c1ff24ab97c5c5420d4",
+   "bytes": 7698,
+   "cases": 8
+  }
+ ],
+ "anchors": [
+  {
+   "id": "2025-AR-ar-6",
+   "source": {
+    "file": "ar/tax/income/integration.yaml",
+    "index": 6,
+    "name": "Case 7, 2025 single filer with wage income."
+   },
+   "year": 2025,
+   "state": "AR",
+   "filingStatus": "single",
+   "margin": 1,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 40,
+     "role": "primary",
+     "wages": 60000.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ar_income_tax",
+     "comparand": "totalTax",
+     "value": 1794.67
+    }
+   ]
+  },
+  {
+   "id": "2025-AR-ar-7",
+   "source": {
+    "file": "ar/tax/income/integration.yaml",
+    "index": 7,
+    "name": "Case 8, 2025 single filer with high income."
+   },
+   "year": 2025,
+   "state": "AR",
+   "filingStatus": "single",
+   "margin": 1,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 35,
+     "role": "primary",
+     "wages": 150000.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ar_income_tax",
+     "comparand": "totalTax",
+     "value": 5633.67
+    }
+   ]
+  },
+  {
+   "id": "2025-KY-ky-8",
+   "source": {
+    "file": "ky/tax/income/integration.yaml",
+    "index": 8,
+    "name": "2025 KY single filer standard deduction"
+   },
+   "year": 2025,
+   "state": "KY",
+   "filingStatus": "single",
+   "margin": 1,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 35,
+     "role": "primary",
+     "wages": 50000.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ky_income_tax",
+     "comparand": "totalTax",
+     "value": 1869.2
+    }
+   ]
+  },
+  {
+   "id": "2025-KY-ky-9",
+   "source": {
+    "file": "ky/tax/income/integration.yaml",
+    "index": 9,
+    "name": "2025 KY MFJ optimization picks separate filing"
+   },
+   "year": 2025,
+   "state": "KY",
+   "filingStatus": "marriedFilingJointly",
+   "margin": 1,
+   "inferred": [],
+   "people": [
+    {
+     "age": 42,
+     "role": "primary",
+     "wages": 60000.0
+    },
+    {
+     "age": 40,
+     "role": "spouse",
+     "wages": 40000.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ky_income_tax",
+     "comparand": "totalTax",
+     "value": 3738.4
+    }
+   ]
+  },
+  {
+   "id": "2025-KY-ky-10",
+   "source": {
+    "file": "ky/tax/income/integration.yaml",
+    "index": 10,
+    "name": "2025 KY FSTC at 100% of threshold"
+   },
+   "year": 2025,
+   "state": "KY",
+   "filingStatus": "single",
+   "margin": 1,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 30,
+     "role": "primary",
+     "wages": 15650.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ky_income_tax",
+     "comparand": "totalTax",
+     "value": 0.0
+    }
+   ]
+  },
+  {
+   "id": "2025-KY-ky-11",
+   "source": {
+    "file": "ky/tax/income/integration.yaml",
+    "index": 11,
+    "name": "2025 KY aged personal credit"
+   },
+   "year": 2025,
+   "state": "KY",
+   "filingStatus": "single",
+   "margin": 1,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 67,
+     "role": "primary",
+     "wages": 40000.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ky_income_tax",
+     "comparand": "totalTax",
+     "value": 1429.2
+    }
+   ]
+  },
+  {
+   "id": "2025-KY-ky-14",
+   "source": {
+    "file": "ky/tax/income/integration.yaml",
+    "index": 14,
+    "name": "KY combined-separate election floors the elderly spouse personal credit per column (taxsim 1076)"
+   },
+   "year": 2025,
+   "state": "KY",
+   "filingStatus": "marriedFilingJointly",
+   "margin": 1,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 58,
+     "role": "primary",
+     "wages": 36269.69,
+     "interest": 837.7
+    },
+    {
+     "age": 66,
+     "role": "spouse",
+     "wages": 1651.3,
+     "interest": 837.7
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ky_income_tax",
+     "comparand": "totalTax",
+     "value": 1353.5
+    }
+   ]
+  },
+  {
+   "id": "2025-KY-ky-18",
+   "source": {
+    "file": "ky/tax/income/integration.yaml",
+    "index": 18,
+    "name": "Combined-separate election preserves the age-65 credit at 2025"
+   },
+   "year": 2025,
+   "state": "KY",
+   "filingStatus": "marriedFilingJointly",
+   "margin": null,
+   "inferred": [
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 65,
+     "role": "primary",
+     "wages": 400.0
+    },
+    {
+     "age": 61,
+     "role": "spouse",
+     "wages": 31429.0
+    },
+    {
+     "age": 10,
+     "role": "dependent"
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ky_income_tax",
+     "comparand": "totalTax",
+     "value": 551.18
+    }
+   ]
+  },
+  {
+   "id": "2025-NM-nm-3",
+   "source": {
+    "file": "nm/tax/income/integration.yaml",
+    "index": 3,
+    "name": "TAXSIM 907 \u2014 NM single 2025 with LTCG, aligns with TaxAct PIT-1"
+   },
+   "year": 2025,
+   "state": "NM",
+   "filingStatus": "single",
+   "margin": 5,
+   "inferred": [
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 40,
+     "role": "primary",
+     "interest": 145701.33,
+     "longTermCapitalGains": 754613.38
+    }
+   ],
+   "expect": [
+    {
+     "variable": "nm_taxable_income",
+     "comparand": "taxableIncome",
+     "value": 882064.0
+    },
+    {
+     "variable": "nm_income_tax_before_non_refundable_credits",
+     "comparand": "taxBeforeCredits",
+     "value": 49400.0
+    }
+   ]
+  },
+  {
+   "id": "2025-SC-sc-2",
+   "source": {
+    "file": "sc/tax/income/integration.yaml",
+    "index": 2,
+    "name": "SC joint 2025 pension with OBBBA addback"
+   },
+   "year": 2025,
+   "state": "SC",
+   "filingStatus": "marriedFilingJointly",
+   "margin": 5,
+   "inferred": [
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 65,
+     "role": "primary",
+     "pension": 100000.0,
+     "socialSecurity": 5000.0
+    },
+    {
+     "age": 54,
+     "role": "spouse",
+     "socialSecurity": 5000.0
+    },
+    {
+     "age": 11,
+     "role": "dependent"
+    },
+    {
+     "age": 4,
+     "role": "dependent"
+    }
+   ],
+   "expect": [
+    {
+     "variable": "sc_income_tax",
+     "comparand": "totalTax",
+     "value": 1677.0
+    }
+   ]
+  },
+  {
+   "id": "2025-UT-ut-0",
+   "source": {
+    "file": "ut/tax/income/credits/ut_refundable_credits.yaml",
+    "index": 0,
+    "name": "UT has no refundable credits on Form TC-40 \u2014 the Homeowner/Renter Relief is administered on Form TC-90CB"
+   },
+   "year": 2025,
+   "state": "UT",
+   "filingStatus": "single",
+   "margin": null,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 75,
+     "role": "primary",
+     "wages": 25000.0,
+     "socialSecurity": 12123.58,
+     "rent": 18363.48
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ut_income_tax",
+     "comparand": "totalTax",
+     "value": 0.0
+    }
+   ]
+  },
+  {
+   "id": "2025-UT-ut-3",
+   "source": {
+    "file": "ut/tax/income/credits/ut_refundable_credits.yaml",
+    "index": 3,
+    "name": "Non-zero UT income tax \u2014 rewiring leaves typical filers' liability unchanged"
+   },
+   "year": 2025,
+   "state": "UT",
+   "filingStatus": "single",
+   "margin": null,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 40,
+     "role": "primary",
+     "wages": 100000.0
+    }
+   ],
+   "expect": [
+    {
+     "variable": "ut_income_tax",
+     "comparand": "totalTax",
+     "value": 4500.0
+    }
+   ]
+  },
+  {
+   "id": "2025-VA-va-4",
+   "source": {
+    "file": "va/tax/income/integration.yaml",
+    "index": 4,
+    "name": "MFJ both age 70 - Social Security recipient spouse does not trigger Spouse Tax Adjustment"
+   },
+   "year": 2025,
+   "state": "VA",
+   "filingStatus": "marriedFilingJointly",
+   "margin": 0.01,
+   "inferred": [
+    "role",
+    "filingStatus"
+   ],
+   "people": [
+    {
+     "age": 70,
+     "role": "primary",
+     "wages": 125714.0,
+     "interest": 255.5,
+     "socialSecurity": 14391.5
+    },
+    {
+     "age": 70,
+     "role": "spouse",
+     "interest": 255.5,
+     "socialSecurity": 14391.5
+    }
+   ],
+   "expect": [
+    {
+     "variable": "va_income_tax",
+     "comparand": "totalTax",
+     "value": 5795.24
+    }
+   ]
+  }
+ ],
+ "refused": [
+  {
+   "ref": "co/tax/income/integration.yaml[10]",
+   "name": "2025 CO joint with property tax + mortgage itemizes when federal tax tied (taxsim",
+   "state": "CO",
+   "year": 2025,
+   "problems": [
+    "tax_unit.tax_unit_childcare_expenses=3000: unmapped and non-zero, rule 1"
+   ]
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[10]",
+   "name": "IA CDCC inherits the federal Schedule 1-A senior deduction (HoH age 75)",
+   "state": "IA",
+   "year": 2025,
+   "problems": [
+    "tax_unit.tax_unit_childcare_expenses=3500: unmapped and non-zero, rule 1"
+   ]
+  }
+ ],
+ "skipped": [
+  {
+   "ref": "ar/tax/income/integration.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[1]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[2]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[3]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[4]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[5]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[8]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[9]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[10]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[11]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[12]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[13]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[14]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[15]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ar/tax/income/integration.yaml[16]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[0]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[1]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[2]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[3]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[4]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[5]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[6]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[7]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[8]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[9]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[10]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[11]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[12]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[13]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[14]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[15]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[16]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[17]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[18]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[19]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ca/tax/income/credits/earned_income/ca_eitc_integration.yaml[20]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[1]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[2]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_sales_tax_refund"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[3]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_sales_tax_refund"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[4]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_ctc",
+    "co_sales_tax_refund"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[5]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_family_affordability_credit"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[6]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_sales_tax_refund"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[7]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_sales_tax_refund"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[8]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_ctc",
+    "co_sales_tax_refund"
+   ]
+  },
+  {
+   "ref": "co/tax/income/integration.yaml[9]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "co_family_affordability_credit"
+   ]
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[1]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[2]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[3]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[4]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[5]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[6]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[7]",
+   "why": "period 2020 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[8]",
+   "why": "period 2020 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ia/tax/income/ia_cdcc.yaml[9]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[0]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[1]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[2]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[3]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[4]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[5]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[6]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[7]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[12]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "ky_pension_income_exclusion"
+   ]
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[13]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "ky_cdcc"
+   ]
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[15]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[16]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[17]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[19]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[20]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[21]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[22]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[23]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ky/tax/income/integration.yaml[24]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ma/tax/income/adjusted_gross_income/ma_qualified_unemployment_deduction.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ma/tax/income/adjusted_gross_income/ma_qualified_unemployment_deduction.yaml[1]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ma/tax/income/adjusted_gross_income/ma_qualified_unemployment_deduction.yaml[2]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ma/tax/income/adjusted_gross_income/ma_qualified_unemployment_deduction.yaml[3]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ma/tax/income/adjusted_gross_income/ma_qualified_unemployment_deduction.yaml[4]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml[0]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml[1]",
+   "why": "no state on the household"
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml[2]",
+   "why": "no state on the household"
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml[3]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml[4]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "eitc",
+    "federal_eitc_without_age_minimum",
+    "md_eitc"
+   ]
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/federal_eitc_without_age_minimum.yaml[5]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "eitc",
+    "federal_eitc_without_age_minimum"
+   ]
+  },
+  {
+   "ref": "md/tax/income/credits/eitc/md_married_childless_age_disregard.yaml[0]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "eitc",
+    "federal_eitc_without_age_minimum",
+    "md_eitc",
+    "md_refundable_eitc"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[0]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[1]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[2]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[3]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[4]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[5]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[6]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[7]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[8]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[9]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[10]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[11]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[12]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[13]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[14]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[15]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[16]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[17]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[18]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[19]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[20]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[21]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[22]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[23]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "mn_child_and_working_families_credits"
+   ]
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[24]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[25]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mn/tax/income/credits/mn_child_and_working_families_credits.yaml[26]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "eitc_investment_income_eligible",
+    "mn_child_and_working_families_credits",
+    "mn_wfc_eligible"
+   ]
+  },
+  {
+   "ref": "mo/tax/tax_sim/mo_taxable_income.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mo/tax/tax_sim/mo_taxable_income.yaml[1]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mo/tax/tax_sim/mo_taxable_income.yaml[2]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "mo/tax/tax_sim/mo_taxable_income.yaml[3]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "nj/tax/income/subtractions/nj_social_security_exclusion.yaml[0]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "nm/tax/income/integration.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "nm/tax/income/integration.yaml[1]",
+   "why": "period 2022 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "nm/tax/income/integration.yaml[2]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "sc/tax/income/integration.yaml[0]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "sc/tax/income/integration.yaml[1]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "ut/tax/income/credits/ut_refundable_credits.yaml[1]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "ut_homeowner_renter_relief",
+    "ut_refundable_credits"
+   ]
+  },
+  {
+   "ref": "ut/tax/income/credits/ut_refundable_credits.yaml[2]",
+   "why": "period 2024 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[0]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[1]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[2]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[3]",
+   "why": "period 2021 outside the engine's declared [2025, 2026]"
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[5]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "va_spouse_tax_adjustment",
+    "va_spouse_tax_adjustment_eligible"
+   ]
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[6]",
+   "why": "no asserted variable has a comparand here",
+   "asserted": [
+    "va_spouse_tax_adjustment",
+    "va_spouse_tax_adjustment_eligible"
+   ]
+  },
+  {
+   "ref": "va/tax/income/integration.yaml[7]",
+   "why": "period 2023 outside the engine's declared [2025, 2026]"
+  }
+ ]
+}

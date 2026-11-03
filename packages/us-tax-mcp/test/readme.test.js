@@ -1118,14 +1118,25 @@ test('the declared-pair count and the Kentucky removal are the code\'s', () => {
   const declaredPairs = STATE_FIELDS.reduce((total, field) => total + field.states.length, 0);
   quotesAcrossLines(`Three pairs out of ${declaredPairs} have no witness`);
 
-  // "Kentucky came OUT of the two age lists", which is a claim about two lists
-  // by name and is the one row of Day 53's findings that REMOVED a pair.
+  // THE ASSERTION IS NOW THE OPPOSITE OF WHAT IT WAS, and the reason is worth a
+  // paragraph rather than an edit. This test required Kentucky to be ABSENT from
+  // both age lists from Day 53 to Day 71, because Day 53 reasoned from
+  // KRS 141.019(1)'s pension exclusion — which has no age test — to the
+  // conclusion that Kentucky has none. The conclusion was false and the
+  // reasoning was sound: the engine declared no age test because it had never
+  // implemented KRS 141.020(3)'s $40 credit, so the derived lists were correct
+  // about the definition and wrong about the law.
+  //
+  //   A LIST DERIVED FROM THE ENGINE INHERITS THE ENGINE'S GAPS AS FACTS ABOUT
+  //   THE LAW. The derivation is still right to be derived; what it cannot do is
+  //   notice a rule nobody wrote. That needed `tools/anchors`, whose expected
+  //   answers come off filled returns.
   for (const name of ['filerAge', 'spouseAge']) {
     const field = STATE_FIELDS.find((candidate) => candidate.name === name);
     assert.ok(
-      !field.states.includes('KY'),
-      `the README says Kentucky came out of ${name} and STATE_FIELDS still declares it`,
+      field.states.includes('KY'),
+      `${name} moves Kentucky's tax by $40 and STATE_FIELDS does not declare it`,
     );
   }
-  quotesAcrossLines('Kentucky came OUT of the two age lists');
+  quotesAcrossLines('Kentucky came OUT of the two age lists on Day 53 and WENT BACK IN');
 });

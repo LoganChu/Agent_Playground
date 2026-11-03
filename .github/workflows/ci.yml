@@ -72,6 +72,45 @@ jobs:
           fi
           echo "Differential report matches. $(grep -o '\*\*[0-9,]* agree to the dollar\*\*' tools/differential/REPORT.md)"
 
+  # The preparer-anchor harness, the same shape as the differential above and for
+  # the same reason: `tools/anchors/read.py` needs the network to read
+  # `policyengine-us`'s fixtures and is manual, so `out/anchors.json` is
+  # committed and the two `node` steps are regenerated here and diffed.
+  #
+  # This is the only check in the repository whose expected values were produced
+  # OUTSIDE it — by commercial tax software, by a state's own worksheet, or by
+  # TAXSIM — which is why it is a job of its own rather than a line in another.
+  # It found Kentucky's $40 personal tax credit for age on its first run, after
+  # three instruments that compare this project against itself or against
+  # another model had each had the evidence and reported nothing.
+  anchors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build both engines
+        run: |
+          (cd packages/us-federal-tax && npm install && npm run build)
+          (cd packages/us-state-tax   && npm install && npm run build)
+      - name: Regenerate this project's answers and the report
+        run: |
+          node tools/anchors/ours.mjs    > tools/anchors/out/ours.json
+          node tools/anchors/compare.mjs > tools/anchors/REPORT.md
+      - name: Require the committed report to match the code that produced it
+        run: |
+          if ! git diff --quiet tools/anchors/; then
+            echo "::error::The preparer-anchor report is out of date. Run the two commands in"
+            echo "::error::tools/anchors/README.md and commit the result. The diff follows."
+            git --no-pager diff --stat tools/anchors/
+            git --no-pager diff tools/anchors/REPORT.md
+            exit 1
+          fi
+          echo "Anchor report matches. $(grep -o '\*\*[0-9]* agree\*\*' tools/anchors/REPORT.md)"
+      - name: The harness still compares what it says it compares
+        run: node --test tools/anchors/*.test.mjs
+
   # The test counts the README advertises, checked against the runner.
   #
   # Day 36: `packages/us-tax-mcp/test/readme.test.js` claimed to be "deliberately

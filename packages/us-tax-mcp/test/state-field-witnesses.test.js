@@ -810,14 +810,24 @@ test('the gate still refuses a field the state genuinely does not read', () => {
   assert.ok(!county.states.includes('PA'), 'county is not a Pennsylvania field');
   const yonkers = STATE_FIELDS.find((f) => f.name === 'yonkersNonresidentEarnings');
   assert.deepEqual([...yonkers.states], ['NY'], 'Yonkers is in New York and nowhere else');
-  // Kentucky came OUT of the age lists on Day 53: KRS 141.019(1)'s pension
-  // exclusion has no age test at all, which is the whole reason Kentucky is the
-  // state an early retiree can use, and the field's own documentation had said
-  // so for days while the list beside it disagreed.
+  // Kentucky came OUT of the age lists on Day 53 and went back in on Day 71.
+  // The removal was reasoned from KRS 141.019(1)'s pension exclusion, which has
+  // no age test at all; the state's $40 personal tax credit for age under
+  // KRS 141.020(3) does, and this package had not implemented it, so the
+  // derivation was right about the definition and wrong about Kentucky. The
+  // negative assertion that used to be here is kept as a comment rather than
+  // deleted, because it is the shape of the mistake: a check that a field is
+  // refused somewhere passes for as long as the rule that reads it is missing.
   for (const name of ['filerAge', 'spouseAge']) {
     const field = STATE_FIELDS.find((f) => f.name === name);
-    assert.ok(!field.states.includes('KY'), `${name} is not a Kentucky field`);
+    assert.ok(field.states.includes('KY'), `${name} IS a Kentucky field from v0.61.0`);
     assert.ok(field.states.includes('AL'), `${name} IS an Alabama field`);
     assert.ok(field.states.includes('MO'), `${name} IS a Missouri field`);
+  }
+  // And a state that genuinely reads neither still refuses both, so the check
+  // bites rather than having been widened into nothing.
+  for (const name of ['filerAge', 'spouseAge']) {
+    const field = STATE_FIELDS.find((f) => f.name === name);
+    assert.ok(!field.states.includes('PA'), `${name} is not a Pennsylvania field`);
   }
 });
