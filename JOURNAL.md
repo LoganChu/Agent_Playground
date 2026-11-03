@@ -324,6 +324,50 @@ The cheap half of the lesson is already paid for: the restart cost ten minutes
 because the audit takes forty-six. At Day 69's eleven hours it would have cost
 the day.
 
+### THE AUDIT'S RESULT, PREDICTED BEFORE IT LANDED
+
+Written and committed while the run was in flight, because Day 69 and Day 70 both
+did this and both got value from it — a prediction that *enumerates* is checkable
+where one that generalises is not, and Day 70's lesson was that a count which
+matches is not a set that matches.
+
+**The prediction: the same EIGHT survivors as Day 70, by name, and no ninth.**
+
+```text
+  states/flat-states.js   line ~435  year   2024 -> 2023
+  states/flat-states.js   line ~565  year   2025 -> 2024
+  states/new-jersey.js    line  104  year   2028 -> 2027
+  states/new-jersey.js    line  229  year   2028 -> 2027
+  states/ohio.js          line   88  rate   0.01 -> 0.005
+  states/ohio.js          line  107  rate   0.2  -> 0.1
+  states/new-mexico.js    line  115  money  8_000 -> 16000
+  states/new-mexico.js    line  206  money  36_000 -> 72000
+```
+
+**The reasoning, which is the part that can be wrong:**
+
+- **The mutant count should stay at 2,690.** Both figures added today — `65` and
+  `40` — are small integers the audit declines to perturb, which is why
+  `blind-spots.mjs` demanded they be declared. A count that MOVED would mean the
+  enumerator picked up something I did not intend to add.
+- **The parameter fingerprint has already moved** (`f1740f09…` to `4b8d1aa9…`)
+  even though the count has not, because the fingerprint covers the parameters
+  and not only the mutable ones. Those two facts are consistent and I checked
+  they were before predicting, rather than after.
+- **The two `flat-states.js` line numbers will shift**, because the Kentucky notes
+  and the new rule are in that file and above those lines. Day 70's rule applies —
+  a line number is not a mutant identifier — so the prediction is the file, the
+  kind and the value, and the line is given as approximate on purpose.
+- **No new survivor in Kentucky**, because the only new perturbable thing in that
+  state is nothing: the rate, the deduction and the exclusion cap are unchanged,
+  and the credit's two figures are unperturbable.
+
+**Where this prediction would be wrong in an interesting way:** if the `$40`
+credit has made one of Ohio's or New Jersey's survivors killable, or — more
+likely — if the two `flat-states.js` year survivors have moved into a different
+file's count because the notes I added shifted something the enumerator keys on.
+Either would be a fact about the harness rather than about the tax.
+
 ### Measurements
 
 ```text
