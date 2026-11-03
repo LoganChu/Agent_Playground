@@ -4,6 +4,337 @@ Running log for the daily agent. Newest entry at the top. Read this before start
 
 ---
 
+## Day 71 — 2026-11-03
+
+**THE FIRST INSTRUMENT IN THIS REPOSITORY WHOSE RIGHT ANSWERS WERE PRODUCED
+OUTSIDE IT, AND IT FOUND A RULE THIS PACKAGE NEVER HAD ON ITS FIRST RUN.**
+`tools/anchors` compares this engine against figures read off filled returns.
+Kentucky's `$40` personal tax credit for age — KRS 141.020(3), no income test,
+every filer at 65, forever — was not implemented, and every Kentucky filer 65 or
+over was overstated by `$40`.
+
+> **THE RULE THE DAY TURNED ON: A STATE WITH NO AGE TEST IN ONE RULE IS NOT A
+> STATE WITH NO AGE TEST — AND A LIST DERIVED FROM THE ENGINE INHERITS THE
+> ENGINE'S GAPS AS FACTS ABOUT THE LAW.** Day 53 reasoned from KRS 141.019(1)'s
+> pension exclusion, which genuinely has none, to the conclusion that Kentucky
+> has none, and wrote it into two derived field lists, two test files and a
+> published README. Every one of them was derived correctly from a definition
+> that was missing a rule.
+
+```text
+  what the four instruments here compare        who produced the right answer
+  the per-state test files   a figure vs a statute      a run of this project
+  tools/differential         this engine vs PolicyEngine    another model
+  tools/mutation             this engine vs a broken copy   this engine
+  the provenance ledger      a figure vs its document    a run of this project
+  tools/anchors   <- NEW     this engine vs a FILLED RETURN   TaxAct, Form 760, TAXSIM
+```
+
+Day 70 listed it third and called it "the largest unbuilt instrument and still
+the best sales argument here". Day 67, 68 and 69 listed it too. It is built.
+
+---
+
+### WHAT IT MEASURES, AND THE TWO NUMBERS WORTH QUOTING TO SOMEBODY WHO PAYS
+
+```text
+  148 fixture cases read from 15 files, at policyengine-us 2.93.3 @ 210dc5913b93
+   13 translated       14 assertions      6 states      10 agree, 4 disagree
+```
+
+- **TaxAct's own New Mexico PIT-1, to eighteen cents.** `$882,064` of taxable
+  income on line 17 and `$49,400` of tax on line 22; this package gives
+  `$882,064.71` and `$49,399.82`. One household covering all six New Mexico
+  brackets, which is more than any hand-written case in the suite reaches.
+- **Virginia's own Form 760 Spouse Tax Adjustment worksheet, to the cent.**
+  `$5,795.24`, cross-checked upstream against TaxAct and TAXSIM-35.
+
+**"We agree with an open-source microsimulation model" is an argument for
+somebody who knows what one is. "We reproduce TaxAct's own form to eighteen
+cents, and here is where we disagree with it" is an argument for everybody
+else.** That sentence has been in `PREPARER-ANCHORS.md` since Day 67 as a thing
+this repository could not say. It can say it now, and `REPORT.md` is where a
+buyer checks it.
+
+### THE REACH IS SMALLER THAN THE SURVEY IMPLIED AND THE REASON IS A YEAR
+
+Day 67's survey counted **mentions of a preparer across 15 files**. The usable
+set is far narrower and nothing before today could have known by how much:
+
+```text
+  148 cases in those files
+   99 are outside 2025-2026, the only years this engine declares
+   32 assert only a PolicyEngine-internal variable with no comparand here
+    2 refused as untranslatable
+   13 kept
+```
+
+> **A SURVEY COUNTS WHAT A FILE MENTIONS; AN INSTRUMENT COUNTS WHAT IT CAN
+> ANSWER.** Two thirds of the loss is the tax year — these fixtures are mostly
+> 2021 and 2024 TAXSIM records — and a year is the one axis the survey never
+> looked at, because a mention has no year and a case does. The number to quote
+> is 13 and not 15, and the gap between them was invisible until the thing was
+> built.
+
+### IT REFUSES, AND THE THREE RULES ARE THE WHOLE DESIGN
+
+A PolicyEngine situation is a dict of variable names written for another model.
+
+> **A DROPPED HOUSEHOLD FACT IS A WRONG ANSWER THAT LOOKS EXACTLY LIKE A
+> DISAGREEMENT.**
+
+1. An unmapped variable with a **non-zero** value refuses the case.
+2. An unmapped variable set to **zero or false is ignorable**, because zero of
+   something is the absence of it. Most of the bulk of these fixtures is that:
+   `ssi: 0`, `wic: 0`, `snap: 0`, benefits switched off for a TAXSIM comparison.
+3. **Rule 2's exception is the one that matters.** A variable named for the
+   case's OWN state, set to zero, is not an absence — it is an **override of a
+   component of the figure under comparison**. The 2021 New Mexico fixture
+   zeroes `nm_2021_income_rebate`; if this package computed one, the comparison
+   would be between a tax with a rebate and a tax without. Each is declared by
+   name **with a written reason** or the case is refused. One is declared so
+   far: Virginia's `va_rebate`, against this package's own note that no Virginia
+   rebate exists for 2025 or 2026.
+
+`ours.mjs` holds the same property from the other side — `PASSED` is exhaustive
+and an unpassable fact throws by name. The two maps are in two languages in two
+files and the only thing keeping them in step is that the gap between them is a
+crash.
+
+**BOTH REFUSALS ARE ONE MISSING INPUT.** `tax_unit_childcare_expenses`, in
+Colorado's TaxAct-anchored itemizing couple and in Iowa's CDCC case. This
+package has no childcare-expense field anywhere, and a field would unlock an
+anchored household in each state.
+
+---
+
+### THE KENTUCKY FINDING, AND WHY NOTHING HERE COULD SEE IT
+
+```text
+  anchor          expected     ours (before)     off by
+  2025-KY-ky-11    1,429.20       1,469.20       +40.00   the $40 age credit
+  2025-KY-ky-10        0.00         495.20      +495.20   the family size credit
+  2025-KY-ky-9     3,738.40       3,869.20      +130.80   the combined-separate election
+  2025-KY-ky-18      551.18       1,142.36      +591.18   the same election, worse
+  2025-KY-ky-14    1,353.50       1,453.06       +99.56   both at once
+```
+
+Only the first is fixed today. The other three are now **declared in the state's
+own shipped notes with prices measured rather than estimated**, which is a
+different thing from being fixed and is worth more than nothing: a caller reads
+them in the result object.
+
+**THREE INSTRUMENTS HAD THE EVIDENCE AND NOT ONE RAISED IT.**
+
+```text
+  the engine's own unread-input probe   named `filerAge` "supplied and spent on
+                                        nothing" on EVERY Kentucky return, which
+                                        is precisely the shape of a missing age
+                                        credit
+  kentucky-retirement.test.js           asserted "Kentucky's answer does not move
+                                        with age at all", and passed for 53 days
+  the differential grid                 ONE unbounded entry for Kentucky,
+                                        crediting every difference in the state to
+                                        the family size tax credit. 28 -> 20
+```
+
+> **A TEST THAT PINS AN ABSENCE CANNOT TELL A STATUTE THAT IS SILENT FROM A RULE
+> NOBODY WROTE.** The test was not weak. It was precise, it was documented, and
+> what it measured was this package rather than Kentucky. The same sentence —
+> "Kentucky's answer does not move with age at all, and the other two step" —
+> was its NAME, so the claim was in the only place a reader would look for it.
+
+**AND THE DIFFERENTIAL'S FAILURE IS A LESSON THIS PROJECT HAD ALREADY LEARNED
+AND WRITTEN DOWN.** `known-divergences.json`'s Arizona entry says, in its own
+text: *"WITHOUT A BOUND IT ABSORBED TWO REAL DEFECTS FOR THE LIFE OF THE
+GRID."* That was Day 47 and 48. Kentucky's entry was left unbounded with a
+**correct** justification — the family size credit forgives the whole bill, so
+no flat bound is narrower than the thing it bounds — and absorbed a second
+defect for twenty-three days.
+
+```text
+  the Kentucky entry explained    28 differences    now 20
+  what the other 8 were           the $40 age credit, which its text never mentions
+```
+
+> **A JUSTIFIED ABSENCE OF A BOUND IS STILL AN ABSENCE OF A BOUND.** The
+> justification was about the wrong axis: `maxAbs` cannot bound this credit, and
+> an INCOME ceiling can. The family size credit is zero above about 133% of a
+> threshold that tops out at `$32,150`, so nothing above roughly `$42,760` can
+> be explained by it — and the household it was pardoning has `$55,000` of
+> pension. The entry now carries a direction and that arithmetic in writing; the
+> `idIncludes` scoping that would enforce it is a worklist item.
+
+A bounded entry is added for the household that still differs, and it is a
+**different question**: PolicyEngine claims TWO `$40` credits on a separate
+return where the spouse has no gross income and this package claims one. That is
+the IRC § 151(b) question this package already tracks as `separateReturnSpouse`
+for four states' exemptions, and KRS 141.020(3) does not resolve from here to
+settle it. Declared `UNRESOLVED` in the notes, charging the higher figure,
+because that is the direction that cannot pay one household's credit twice.
+
+### THE MCP SERVER'S OWN GUARD CAUGHT THE GATE WITHIN THE HOUR
+
+`us-tax-mcp` refuses a per-state argument for a state that does not read it, and
+the lists are **derived from the engine's declarations rather than typed**. So
+the moment the credit landed:
+
+```text
+  not ok - no state field is refused for a state whose tax it moves
+    filerAge is refused for KY and moves its tax by $40.00
+    spouseAge is refused for KY and moves its tax by $40.00
+```
+
+**That is the best thing any instrument did today**, and it also shows the
+derivation's exact limit: it reads a list of declared PATHS, so a state gains the
+field automatically only if the new rule's path is on that list.
+`agedFilerCredit.minimumAge` had to be added by hand.
+
+**AND KENTUCKY WAS THE WORKED EXAMPLE IN THREE PIECES OF PUBLISHED PROSE FOR
+BEING THE STATE WITH NO AGE TEST.** Both refusal messages and the `filerAge`
+documentation used it by name; the MCP README has a paragraph on it; two tests
+asserted it. All six are corrected, and the corrections keep the history rather
+than overwriting it, because the shape of the mistake is the useful part.
+
+---
+
+### THE THING I GOT WRONG TODAY: I INVENTED A VIRGINIA CREDIT
+
+The first `ours.mjs` passed the lesser spouse's **gross interest** —
+`$255.50` — into `lesserSpouseIncome`. That field is documented as **line 5 of
+the Form 760 Spouse Tax Adjustment Worksheet**: the lesser spouse's Virginia AGI
+**less the exemptions claimed for that spouse**. The engine did what it was told
+and produced a `$9.58` adjustment where TaxAct, TAXSIM-35 and Virginia's own
+worksheet all give zero.
+
+> **A FIELD DOCUMENTED AS A WORKSHEET LINE TAKES THAT LINE OR NOTHING.** Passing
+> a different figure into it is not an approximation of the rule, it is a
+> different rule — and this one invented ELIGIBILITY for a spouse whose income is
+> below her own exemptions.
+
+**The part worth recording is that I wrote the excuse into the code.** The
+comment beside it said the harness "does NOT compute line 5", as though naming
+the shortcut discharged it. It is Day 67's lesson in a new place: a correction
+written the same way as the thing it corrects is not a correction, and here the
+*caveat* was written the same way as the defect.
+
+The honest fix is to pass **neither** field and declare the gap, because line 5
+is a Virginia computation and a harness that reimplements the state cannot check
+it. With that, Virginia reproduces the worksheet to the cent — and the
+agreement is marked `~` in the report, with the limitation printed whether the
+case agrees or not, because **an agreement reached with a rule switched off
+reads exactly like an agreement reached with it on.** A two-earner Virginia
+couple who genuinely qualify would be overstated here by up to `$257.50`, and
+the report says so.
+
+### A FILTER THAT CATCHES A STRING QUOTING ITSELF
+
+`unread-input.test.js` identified the probe's generated note by the substring
+`'spent on nothing'` and stripped it before a deep equality. Kentucky's new note
+**quotes that phrase**, describing how the credit hid — so the strip deleted a
+permanent note too and `reportUnreadFields: false` looked as though it had moved
+one.
+
+> **A FILTER THAT IDENTIFIES A GENERATED STRING BY A PHRASE INSIDE IT WILL ONE
+> DAY CATCH A HAND-WRITTEN STRING THAT QUOTES THE PHRASE.** The probe's note has
+> a fixed opening, so the opening is what identifies it, and a regex can be
+> anchored where a substring cannot. It is a footnote rather than an entry only
+> because the failure was loud: the deep equality named Kentucky and printed both
+> arrays.
+
+### WHAT STANDS BEHIND THE $40, HONESTLY
+
+**No Kentucky primary document resolves from this sandbox.** `revenue.ky.gov` and
+`apps.legislature.ky.gov` both refuse, by `curl` and by server-side fetch, and so
+does `taxsim.nber.org`, which mirrors Kentucky's own forms and looked like Day
+68's "a blocked domain is not a blocked document" for about ninety seconds.
+
+So the ledger entries are `kind: 'agency'` and **not** `'statute'`, following the
+precedent South Carolina's rounding entry set in writing — the kind names what
+was actually read. Behind the figure: the Department's own Individual Income Tax
+page, the 2016 text of KRS 141.020, and a fixture asserting `$40` that this
+package now reproduces. **The anchor is the part that makes the entry
+re-checkable rather than merely sourced**, and it is why shipping this was
+defensible where shipping the family size credit was not: that one needs KRS
+141.066's "modified gross income", a base that is neither federal AGI nor
+Kentucky AGI, and guessing it would trade a declared gap for a new undeclared
+defect.
+
+Both new figures are **mutation blind spots** — 65 and 40 are small integers the
+audit cannot perturb — and `blind-spots.mjs` says so in terms, including the
+warning that **Day 63 shipped a `$40` credit in this class and got it wrong**.
+Declared, with the four things standing in for the mutant, one of which is the
+anchor.
+
+### Measurements
+
+```text
+  1,783 tests across four suites, all passing. Preflight all green.
+  us-state-tax 0.60.0 -> 0.61.0.
+  the differential:  19,107 -> 19,115 agreements, 1,205 -> 1,197 explained,
+                     16 unexplained UNCHANGED
+  the anchors:       10 of 14 agreeing across 6 states
+```
+
+The differential's eight-household improvement is the independent half of the
+Kentucky finding: this package and PolicyEngine now agree on the `$40` where they
+previously differed, and the figure was not fitted to them — it was fitted to a
+fixture asserting a TaxAct-derived household, and the grid moved on its own.
+
+---
+
+### What I would do next
+
+1. **GIVE THE ENGINE A CHILDCARE-EXPENSE INPUT.** It is the *only* thing refusing
+   either anchor, it unlocks a **TaxAct-anchored** Colorado household and an Iowa
+   one, and Colorado's is the single best-shaped anchor on the list — a joint
+   2025 return that ITEMIZES, with the upstream comment recording a stated `$65`
+   unexplained residual against TaxAct. Several states have a dependent-care
+   credit nobody here can reach without it.
+2. **READ KRS 141.066 AND SHIP KENTUCKY'S FAMILY SIZE TAX CREDIT.** It is the
+   largest single gap in any state this package ships, because it is a percentage
+   of the WHOLE tax: `$495.20` on a single filer at exactly `$15,650`, which is
+   the entire bill. The rate table is in hand (eleven steps, and PolicyEngine's
+   own thresholds are `1.270032` and `1.330032` rather than the round numbers a
+   guide would print). The blocker is one definition — "modified gross income" —
+   and both Kentucky hosts refuse. **Try the Day 69 route first**: PolicyEngine's
+   parameter tree under `gov/states/ky/tax/income/credits/family_size/` through
+   `raw.githubusercontent.com`, which answers. `income_limit.yaml` is a 404, so
+   the path is wrong rather than the host.
+3. **SCOPE THE KENTUCKY DIVERGENCE ENTRY BY HOUSEHOLD, with the arithmetic that
+   is already written into it.** Nothing above about `$42,760` of income can be
+   explained by the family size credit. `idIncludes` can express that where
+   `maxAbs` cannot, and until it does the entry is still a catch-all for the
+   state — the exact condition that hid the `$40` for twenty-three days.
+4. **SWEEP THE OTHER UNBOUNDED ENTRIES FOR THE SAME SHAPE.** Kentucky's is not
+   the only one, Arizona's taught this lesson in 2024-dated prose, and the
+   question to ask each is not "is the absence of a bound justified" but **"what
+   else in this state would this entry absorb".**
+5. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE ARE A WORKLIST, NOT A LOSS.**
+   Most assert a PolicyEngine-internal intermediate — `mn_child_and_working_
+   families_credits`, `ia_cdcc`, `co_family_affordability_credit`,
+   `ky_family_size_tax_credit`. This engine exposes `credits[]` with names, so a
+   comparand for a NAMED credit rather than a total would reach many of them, and
+   each one is a figure anchored to somebody else's filled form.
+6. **ANCHOR THE 2026 YEAR, WHICH HAS NONE AT ALL.** Every kept case is 2025.
+   Nothing external checks any 2026 figure in this package, and 2026 is the year
+   the provisional figures live in.
+7. **MAKE THE 133 UNATTRIBUTED MUTANTS CHEAPER** (Day 70 item 1, priced at half
+   the audit: split the whole-suite fallback into cheap files then expensive
+   ones, 8.1s against 37.5s, roughly sixteen minutes of forty-six).
+8. **GIVE `new-mexico.test.js`'s 42-STATE SUPERLATIVE SWEEP ITS OWN HOME**
+   (Day 70 item 2). 17 of the suite's 36 seconds.
+9. **THE OTHER FOUR REFUNDABLE ITEMS ON PIT-RC** (Day 70 item 4), all declared,
+   all gated on the modified gross income figure Day 69 added.
+10. **ADD NEBRASKA**, 2,018,006, still first on the ordered uncovered list.
+11. **GIVE THE HARNESS A LOCK** (Day 66 item 16, restated three times since).
+12. **SPLIT THE 18 SWEEPING TEST FILES PER STATE** (Day 65 item 2).
+13. **DO NOT RE-PROBE THE DOCUMENT HOSTS**, with one exception now recorded:
+    Kentucky's two were probed today and refused, so the count of state domains
+    that answer is still exactly one and it is New Mexico's.
+
+---
+
 ## Day 70 — 2026-11-02
 
 **THE AUDIT WAS NEVER ELEVEN HOURS. IT WAS NARROWING FOR SIX STATES OUT OF

@@ -13,7 +13,62 @@ Day 20, and it is fixed: all three packages now install from a public URL with n
 account and no token. See the Day 20 entry. The npm ask survives but it is now
 about reach, not about capability, and those older entries overstate it badly.
 
-**AS OF DAY 70 THERE IS STILL NOTHING NEW FOR YOU TO DO, AND ONE CLAIM IN THIS
+**AS OF DAY 71 THERE IS STILL NOTHING NEW FOR YOU TO DO, AND TODAY THE PACKAGE
+WAS WRONG ABOUT SOMETHING REAL AND IS NOW RIGHT.** Nothing today asks for your
+hands. One of the four standing asks below got a price attached to it, and that
+is the only change to this file's list.
+
+**What happened, in one paragraph.** Every Kentucky filer aged 65 or over was
+being overcharged by **$40**, and an elderly couple by **$80** — at every income,
+in both tax years. Kentucky gives a flat $40 credit to anyone 65 or over
+(KRS 141.020(3), claimed on Schedule ITC); it has no income test and no
+conditions, which makes it the single broadest provision in the state, and this
+package had simply never implemented it. It is implemented now, and the package
+is at v0.61.0.
+
+**Why that is good news rather than bad.** The thing that found it is new, and it
+is the piece this project's sales argument was missing. Everything that measured
+quality here until today compared this package against *itself* or against
+another open-source model — which is exactly the kind of check a missing rule
+sails straight through, because nothing is inconsistent. The new instrument,
+`tools/anchors`, compares our answers against **figures read off filled tax
+returns**: the expected values come from households somebody entered into
+commercial tax software (TaxAct), or computed on a state's own paper worksheet,
+and we now reproduce **TaxAct's New Mexico form to eighteen cents** and
+**Virginia's own Form 760 spouse worksheet to the cent**. That is a sentence you
+could put in front of a buyer; "we agree with an open-source microsimulation
+model" is not.
+
+> **Three of our own instruments had the evidence sitting in front of them and
+> none of them raised it, which is the part I would want to know.** The engine's
+> own diagnostics had been reporting, on *every* Kentucky return, that the
+> filer's age was "supplied and spent on nothing" — which is precisely what a
+> missing age credit looks like. A test asserted, as a feature, that "Kentucky's
+> answer does not move with age at all" and passed for fifty-three days. And the
+> comparison against the other model had a single blanket exemption for Kentucky
+> that pardoned every difference in the state. All three were *correct about this
+> package* and wrong about Kentucky. A check built out of the engine cannot see a
+> rule nobody wrote into the engine.
+
+**THE ASK THAT GOT A PRICE: THE NETWORK POLICY.** It has been fourth on the list
+below since Day 61 and described as "the one that would change what I can
+build". Today it is more specific than that. Kentucky has a second credit — the
+family size tax credit — that **forgives the entire tax bill** for filers below
+the federal poverty line. A single Kentucky filer earning exactly $15,650 owes
+**nothing**, and this package charges them **$495.20**, which is the whole bill.
+I have the rate table. What I do not have is one definition inside KRS 141.066,
+and `revenue.ky.gov` and `apps.legislature.ky.gov` both refuse to resolve from
+this sandbox — along with `taxsim.nber.org`, which mirrors Kentucky's own forms.
+I have written the gap into the package's own output with that $495.20 beside it,
+so anyone using it is told; but I could fix it rather than declare it if those
+hosts were reachable. Day 61's entry below has the exact settings page.
+
+I deliberately did **not** guess at that definition. Shipping a credit computed
+on a base I had not read would have traded a declared gap for an undeclared
+defect, and the whole argument of this project is that the declared gaps are the
+product.
+
+(Day 70's note, unchanged:) **AS OF DAY 70 THERE IS STILL NOTHING NEW FOR YOU TO DO, AND ONE CLAIM IN THIS
 REPOSITORY GOT ITS MEASUREMENT BACK.** Nothing today asks for your hands.
 
 What changed is worth one paragraph because it is about the thing this project is
@@ -72,8 +127,8 @@ which reached a 2019 Legislative Finance Committee report, a Taxation and Revenu
 Department presentation and a 2024 bill's own record of being killed, none of
 which this container can fetch.
 
-`us-state-tax` is now **v0.60.0** and `us-tax-mcp` **v0.64.0**;
-`us-federal-tax` stays at **v0.16.0**. **1,773 tests** across the four suites, all
+`us-state-tax` is now **v0.61.0** and `us-tax-mcp` **v0.64.0**;
+`us-federal-tax` stays at **v0.16.0**. **1,783 tests** across the four suites, all
 passing. **33 taxing states and 42 in all**; nine jurisdictions left.
 
 **DAY 69 ADDED NO STATE EITHER, AND IT CLOSED THE LARGEST THING LEFT IN ANY STATE
