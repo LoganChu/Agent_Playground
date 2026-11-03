@@ -368,12 +368,32 @@ fixture asserting a TaxAct-derived household, and the grid moved on its own.
    the only one, Arizona's taught this lesson in 2024-dated prose, and the
    question to ask each is not "is the absence of a bound justified" but **"what
    else in this state would this entry absorb".**
-5. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE ARE A WORKLIST, NOT A LOSS.**
-   Most assert a PolicyEngine-internal intermediate — `mn_child_and_working_
-   families_credits`, `ia_cdcc`, `co_family_affordability_credit`,
-   `ky_family_size_tax_credit`. This engine exposes `credits[]` with names, so a
-   comparand for a NAMED credit rather than a total would reach many of them, and
-   each one is a figure anchored to somebody else's filled form.
+5. **THE 32 CASES THAT ASSERT NOTHING COMPARABLE ARE A WORKLIST, NOT A LOSS, AND
+   IT IS NOW RANKED IN `REPORT.md` RATHER THAN DESCRIBED HERE.** `compare.mjs`
+   counts the asserted variables it cannot reach and prints them commonest
+   first, so the next run picks the one that buys the most households instead of
+   the one it happens to read first:
+
+   ```text
+     mn_child_and_working_families_credits        16 cases
+     co_sales_tax_refund                           6
+     eitc / federal_eitc_without_age_minimum       6
+     co_ctc, co_family_affordability_credit        4
+     md_eitc / md_refundable_eitc                  3
+     eleven others                                 1 each
+   ```
+
+   **Minnesota alone would more than double this harness**, from 13 households to
+   29. The move is a comparand for a NAMED credit: this engine returns `credits[]`
+   with names, so the missing piece is a per-state map from their variable to this
+   package's credit name — and that map is exactly the kind of hand-written
+   correspondence that has to refuse rather than guess, which is the property the
+   rest of this harness already has.
+
+   > **A COUNT OF WHAT AN INSTRUMENT CANNOT REACH BELONGS IN THE INSTRUMENT'S
+   > OWN OUTPUT.** Day 67's survey put the reach in a prose file and it was two
+   > thirds wrong by the time the thing was built. This one re-derives itself on
+   > every push.
 6. **ANCHOR THE 2026 YEAR, WHICH HAS NONE AT ALL.** Every kept case is 2025.
    Nothing external checks any 2026 figure in this package, and 2026 is the year
    the provisional figures live in.

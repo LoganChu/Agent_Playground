@@ -189,6 +189,39 @@ if (json) {
     }
   }
   out.push('');
+  out.push('## What is asserted upstream and has no comparand here');
+  out.push('');
+  out.push('These cases are **in a supported year and a shipped state** and were skipped only');
+  out.push('because every variable they assert is a `policyengine-us` internal with nothing to');
+  out.push('compare it to. They are the largest remaining expansion of this harness and they are');
+  out.push('listed by the variable they assert, commonest first, so the next run picks the one');
+  out.push('that buys the most households rather than the one it happens to read first.');
+  out.push('');
+  out.push('`compare.mjs` compares a per-state TOTAL (`income_tax`, `taxable_income`,');
+  out.push('`income_tax_before_non_refundable_credits`). This engine also returns `credits[]` with');
+  out.push('NAMES, so a comparand for a named credit would reach most of the rows below — at the');
+  out.push('cost of a per-state map from their variable to this package\'s credit name, which is');
+  out.push('exactly the kind of hand-written correspondence that has to refuse rather than guess.');
+  out.push('');
+  const unreachable = new Map();
+  for (const skip of anchorsFile.skipped) {
+    if (skip.asserted === undefined) continue;
+    for (const variable of skip.asserted) {
+      if (!unreachable.has(variable)) unreachable.set(variable, 0);
+      unreachable.set(variable, unreachable.get(variable) + 1);
+    }
+  }
+  const ranked = [...unreachable.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (ranked.length === 0) {
+    out.push('None.');
+  } else {
+    out.push('```text');
+    out.push(`${w('asserted variable', 54)}${r('cases', 7)}`);
+    out.push('-'.repeat(61));
+    for (const [variable, count] of ranked) out.push(`${w(variable, 54)}${r(count, 7)}`);
+    out.push('```');
+  }
+  out.push('');
   out.push('## Refused by the reader');
   out.push('');
   if (anchorsFile.refused.length === 0) {

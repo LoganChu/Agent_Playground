@@ -56,6 +56,41 @@ and is listed here so nobody quotes it as evidence about a rule it never exercis
 - **2025-VA-va-4** — Virginia's spouse tax adjustment is not claimed
   - The engine takes `lesserSpouseIncome` as line 5 of the Form 760 worksheet — the lesser spouse's Virginia AGI less that spouse's own exemptions — and this harness cannot compute a Virginia figure without reimplementing Virginia. It passes neither that field nor `bothSpousesHaveQualifyingIncome`, so the adjustment is unclaimed. For THIS household the anchor says the adjustment is zero, so the figures agree; a two-earner Virginia couple who qualify would be overstated here by up to $257.50.
 
+## What is asserted upstream and has no comparand here
+
+These cases are **in a supported year and a shipped state** and were skipped only
+because every variable they assert is a `policyengine-us` internal with nothing to
+compare it to. They are the largest remaining expansion of this harness and they are
+listed by the variable they assert, commonest first, so the next run picks the one
+that buys the most households rather than the one it happens to read first.
+
+`compare.mjs` compares a per-state TOTAL (`income_tax`, `taxable_income`,
+`income_tax_before_non_refundable_credits`). This engine also returns `credits[]` with
+NAMES, so a comparand for a named credit would reach most of the rows below — at the
+cost of a per-state map from their variable to this package's credit name, which is
+exactly the kind of hand-written correspondence that has to refuse rather than guess.
+
+```text
+asserted variable                                       cases
+-------------------------------------------------------------
+mn_child_and_working_families_credits                      16
+co_sales_tax_refund                                         6
+eitc                                                        3
+federal_eitc_without_age_minimum                            3
+co_ctc                                                      2
+co_family_affordability_credit                              2
+md_eitc                                                     2
+va_spouse_tax_adjustment                                    2
+va_spouse_tax_adjustment_eligible                           2
+eitc_investment_income_eligible                             1
+ky_cdcc                                                     1
+ky_pension_income_exclusion                                 1
+md_refundable_eitc                                          1
+mn_wfc_eligible                                             1
+ut_homeowner_renter_relief                                  1
+ut_refundable_credits                                       1
+```
+
 ## Refused by the reader
 
 In scope — a supported year, a shipped state, a comparable assertion — and carrying
